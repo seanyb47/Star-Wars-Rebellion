@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import {
@@ -15,14 +16,24 @@ import {
   type GameState,
   type System,
 } from '../sim';
+import { IslandPortrait } from './art';
 import { ControlBadge, Sheet, Stat, SupportBars } from './components';
+
+type TabId = 'overview' | 'build' | 'garrison' | 'log';
+
+const TABS: Array<{ id: TabId; label: string }> = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'build', label: 'Build' },
+  { id: 'garrison', label: 'Garrison' },
+  { id: 'log', label: 'Log' },
+];
 
 /** One line explaining what a facility actually does for you right now. */
 function facilityOutput(system: System, facility: Facility): string | null {
   const owner = facility.owner;
   if (owner !== 'empire' && owner !== 'alliance') return null;
-  if (system.uprising) return 'Idle — the world is in revolt.';
-  if (system.control !== owner) return 'Idle — the world is not held by its owner.';
+  if (system.uprising) return `Idle — the island is in ${terms.mutiny.toLowerCase()}.`;
+  if (system.control !== owner) return 'Idle — the island is not held by its owner.';
   if (facility.type === 'mine') {
     return `Cuts ${supportMultiplier(system.support[owner]).toFixed(2)} ${terms.raw} a day at this ${terms.allegiance.toLowerCase()}`;
   }
@@ -90,7 +101,7 @@ function FacilityCard({
               >
                 <div className="build__name">{spec.label}</div>
                 <div className="build__meta">
-                  {error ?? `${spec.costRefined} refined · ${spec.days}d`}
+                  {error ?? `${spec.costRefined} ${terms.refined.toLowerCase()} · ${spec.days}d`}
                 </div>
               </button>
             );
@@ -114,6 +125,7 @@ export function SystemSheet({
   onBuild: (facilityId: string, item: BuildItem) => void;
   onCancel: (facilityId: string) => void;
 }) {
+  const [tab, setTab] = useState<TabId>('overview');
   const sector = state.sectors.find((s) => s.id === system.sectorId)!;
   const explored = system.explored[state.player];
 
@@ -124,7 +136,16 @@ export function SystemSheet({
         subtitle={`${sector.name} · ${sector.sea}`}
         onClose={onClose}
       >
-        <p className="muted small">
+        <div className="portrait">
+          <IslandPortrait
+            seed={system.name}
+            faction="none"
+            settled={false}
+            facilities={0}
+            size={128}
+          />
+        </div>
+        <p className="muted small" style={{ textAlign: 'center' }}>
           No survey. Your charts show this only as a mark in open water and somebody else's
           rumour.
         </p>
@@ -132,13 +153,15 @@ export function SystemSheet({
     );
   }
 
-  const needed = requiredGarrison(
-    system.control === 'empire' || system.control === 'alliance'
-      ? system.support[system.control]
-      : 50,
-  );
-  const characters = state.characters.filter(
+  const holder =
+    system.control === 'empire' || system.control === 'alliance' ? system.control : null;
+  const needed = requiredGarrison(holder ? system.support[holder] : 50);
+  const crew = state.characters.filter(
     (c) => c.faction === state.player && c.locationSystemId === system.id,
+  );
+  const log = state.events.filter((e) => e.systemId === system.id).slice(-40).reverse();
+  const producers = system.facilities.filter(
+    (f) => f.owner === state.player && buildMenu(f).length > 0,
   );
 
   return (
@@ -152,80 +175,146 @@ export function SystemSheet({
         </span>
       }
       onClose={onClose}
-    >
-      {system.note && (
-        <p className="small muted" style={{ margin: '0 0 12px', fontStyle: 'italic' }}>
-          {system.note}
-        </p>
-      )}
-
-      {system.populated ? (
-        <SupportBars system={system} />
-      ) : (
-        <p className="muted small" style={{ margin: 0 }}>
-          Nobody lives here. Held only while a company remains ashore; finish any building and
-          the island settles under your flag.
-        </p>
-      )}
-
-      <div className="section-title">Capacity</div>
-      <div className="card row" style={{ gap: 18 }}>
-        <Stat
-          label={`${terms.raw} slots`}
-          value={`${system.rawSlots - freeRawSlots(system)} / ${system.rawSlots}`}
-        />
-        <Stat
-          label={`${terms.sweetwater} slots`}
-          value={`${system.energySlots - freeEnergySlots(system)} / ${system.energySlots}`}
-        />
-        <Stat
-          label={terms.garrison}
-          value={
-            <>
-              {system.garrison}
-              {needed > 0 && <span className="muted tiny"> / {needed} needed</span>}
-            </>
-          }
-        />
-      </div>
-
-      <div className="section-title">Facilities</div>
-      {system.facilities.length === 0 ? (
-        <div className="card muted small">Nothing has been built on this island.</div>
-      ) : (
-        <div className="stack">
-          {system.facilities.map((facility) => (
-            <FacilityCard
-              key={facility.id}
-              state={state}
-              system={system}
-              facility={facility}
-              onBuild={onBuild}
-              onCancel={onCancel}
-            />
+      tabs={
+        <div className="tabs" role="tablist">
+          {TABS.map((entry) => (
+            <button
+              key={entry.id}
+              role="tab"
+              aria-selected={tab === entry.id}
+              className={`tabs__tab${tab === entry.id ? ' tabs__tab--on' : ''}`}
+              onClick={() => setTab(entry.id)}
+            >
+              {entry.label}
+              {entry.id === 'build' && producers.length > 0 && (
+                <span className="tabs__dot" aria-hidden="true" />
+              )}
+            </button>
           ))}
         </div>
-      )}
-      {system.control === state.player &&
-        !system.facilities.some((f) => buildMenu(f).length > 0 && f.owner === state.player) && (
-          <p className="muted tiny" style={{ marginTop: 6 }}>
-            A {terms.facilities.construction_yard.toLowerCase()} here would let you build on this
-            island.
-          </p>
-        )}
-
-      {characters.length > 0 && (
+      }
+    >
+      {tab === 'overview' && (
         <>
+          <div className="portrait">
+            <IslandPortrait
+              seed={system.name}
+              faction={system.control}
+              settled={system.populated}
+              facilities={system.facilities.length}
+              mutiny={system.uprising}
+              size={132}
+            />
+          </div>
+
+          {system.note && <p className="portrait__note serif">{system.note}</p>}
+
+          {system.populated ? (
+            <SupportBars system={system} />
+          ) : (
+            <p className="muted small" style={{ margin: 0 }}>
+              Nobody lives here. Held only while a company remains ashore; finish any building and
+              the island settles under your flag.
+            </p>
+          )}
+
+          <div className="section-title">Capacity</div>
+          <div className="card row" style={{ gap: 18 }}>
+            <Stat
+              label={`${terms.raw} slots`}
+              value={`${system.rawSlots - freeRawSlots(system)} / ${system.rawSlots}`}
+            />
+            <Stat
+              label={`${terms.sweetwater} slots`}
+              value={`${system.energySlots - freeEnergySlots(system)} / ${system.energySlots}`}
+            />
+            <Stat label="Built" value={system.facilities.length} />
+          </div>
+        </>
+      )}
+
+      {tab === 'build' && (
+        <>
+          {system.facilities.length === 0 ? (
+            <div className="card muted small">Nothing has been built on this island.</div>
+          ) : (
+            <div className="stack">
+              {system.facilities.map((facility) => (
+                <FacilityCard
+                  key={facility.id}
+                  state={state}
+                  system={system}
+                  facility={facility}
+                  onBuild={onBuild}
+                  onCancel={onCancel}
+                />
+              ))}
+            </div>
+          )}
+          {system.control === state.player && producers.length === 0 && (
+            <p className="muted tiny" style={{ marginTop: 8 }}>
+              A {terms.facilities.construction_yard.toLowerCase()} here would let you build on this
+              island.
+            </p>
+          )}
+        </>
+      )}
+
+      {tab === 'garrison' && (
+        <>
+          <div className="card row" style={{ gap: 18 }}>
+            <Stat label="Ashore" value={system.garrison} />
+            <Stat
+              label="Needed"
+              value={needed === 0 ? <span className="muted">none</span> : needed}
+            />
+            <Stat
+              label="Order"
+              value={
+                system.uprising ? (
+                  <span className="badge badge--warn">{terms.mutiny}</span>
+                ) : (
+                  <span className="badge badge--good">Held</span>
+                )
+              }
+            />
+          </div>
+          <p className="tiny muted" style={{ marginTop: 8 }}>
+            {needed > 0
+              ? `Allegiance here is low enough that ${needed} ${needed === 1 ? 'company holds' : 'companies hold'} the island quiet. Fewer and it rises.`
+              : 'Allegiance is high enough that no companies are needed to keep order.'}
+          </p>
+
           <div className="section-title">
             {factionData[state.player].shortName} crew ashore
           </div>
-          <div className="stack">
-            {characters.map((character) => (
-              <div key={character.id} className="card small">
-                {character.name} <span className="muted">— {character.status.replace('_', ' ')}</span>
+          {crew.length === 0 ? (
+            <div className="card muted small">Nobody of yours is on this island.</div>
+          ) : (
+            <div className="stack">
+              {crew.map((character) => (
+                <div key={character.id} className="card small">
+                  {character.name}{' '}
+                  <span className="muted">— {character.status.replace('_', ' ')}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {tab === 'log' && (
+        <>
+          {log.length === 0 ? (
+            <div className="card muted small">Nothing has happened here yet.</div>
+          ) : (
+            log.map((event) => (
+              <div key={event.id} className="event">
+                <span className="event__day">Day {event.day}</span>
+                <span className="event__text">{event.text}</span>
               </div>
-            ))}
-          </div>
+            ))
+          )}
         </>
       )}
     </Sheet>

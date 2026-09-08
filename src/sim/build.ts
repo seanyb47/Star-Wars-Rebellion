@@ -1,3 +1,4 @@
+import terms from '../data/terms.json';
 import { FACILITY_LABEL, YARD_BUILDABLE, buildSpec } from './constants';
 import {
   freeEnergySlots,
@@ -33,21 +34,21 @@ export function buildMenu(facility: Facility): BuildItem[] {
  */
 export function buildError(state: GameState, facilityId: string, item: BuildItem): string | null {
   const found = findFacility(state, facilityId);
-  if (!found) return 'No such facility.';
+  if (!found) return 'No such building.';
   const { system, facility } = found;
   if (!isPlayable(facility.owner)) return 'That facility is not yours.';
-  if (!buildMenu(facility).includes(item)) return 'This facility cannot build that.';
+  if (!buildMenu(facility).includes(item)) return 'This building cannot make that.';
   if (facility.building) return 'Already building.';
-  if (system.control !== facility.owner) return 'You do not control this system.';
+  if (system.control !== facility.owner) return 'You do not hold this island.';
   if (system.uprising) return 'The island is in mutiny.';
 
   const spec = buildSpec(item);
   if (state.factions[facility.owner].refined < spec.costRefined) {
-    return `Needs ${spec.costRefined} refined.`;
+    return `Needs ${spec.costRefined} ${terms.refined.toLowerCase()}.`;
   }
-  if (item === 'mine' && freeRawSlots(system) < 1) return 'No free raw slot.';
+  if (item === 'mine' && freeRawSlots(system) < 1) return `No free ${terms.raw.toLowerCase()} slot.`;
   if (item !== 'mine' && item !== 'troop' && freeEnergySlots(system) < 1) {
-    return 'No free energy slot.';
+    return `No free ${terms.sweetwater.toLowerCase()} slot.`;
   }
   return null;
 }

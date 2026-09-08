@@ -53,13 +53,13 @@ describe('mission eligibility', () => {
     expect(isDiplomacyTarget(empty, 'empire')).toBe(false);
 
     sameSector.uprising = true;
-    expect(missionError(state, diplomat.id, sameSector.id)).toBe('Not a valid diplomatic target.');
+    expect(missionError(state, diplomat.id, sameSector.id)).toBe('No parley to be had there.');
   });
 
   it('rejects a character who is already busy', () => {
     const { state, diplomat, sameSector } = setup();
     diplomat.status = 'on_mission';
-    expect(missionError(state, diplomat.id, sameSector.id)).toBe('Character is not available.');
+    expect(missionError(state, diplomat.id, sameSector.id)).toBe('They are not free to sail.');
   });
 });
 

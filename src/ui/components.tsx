@@ -9,6 +9,8 @@ export function Sheet(props: {
   onClose: () => void;
   children: ReactNode;
   actions?: ReactNode;
+  /** Optional tab strip, pinned under the header while the body scrolls. */
+  tabs?: ReactNode;
 }) {
   return (
     <>
@@ -24,6 +26,7 @@ export function Sheet(props: {
           </div>
           {props.subtitle && <div className="sheet__sub">{props.subtitle}</div>}
         </div>
+        {props.tabs}
         <div className="sheet__body">{props.children}</div>
         {props.actions && <div className="sheet__actions">{props.actions}</div>}
       </div>

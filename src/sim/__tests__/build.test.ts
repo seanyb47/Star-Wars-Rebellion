@@ -29,7 +29,7 @@ describe('queueing builds', () => {
     const state = generateGalaxy(201);
     const { facility } = yardOf(state, 'empire');
     state.factions.empire.refined = 10;
-    expect(buildError(state, facility.id, 'mine')).toMatch(/Needs 40 refined/);
+    expect(buildError(state, facility.id, 'mine')).toMatch(/Needs 40 fittings/);
     expect(() => queueBuild(state, facility.id, 'mine')).toThrow();
   });
 
@@ -46,7 +46,7 @@ describe('queueing builds', () => {
     const { system, facility } = yardOf(state, 'empire');
     state.factions.empire.refined = 500;
     system.rawSlots = system.facilities.filter((f) => f.type === 'mine').length;
-    expect(buildError(state, facility.id, 'mine')).toBe('No free raw slot.');
+    expect(buildError(state, facility.id, 'mine')).toBe('No free stores slot.');
   });
 
   it('refuses a facility with no free energy slot', () => {
@@ -54,7 +54,7 @@ describe('queueing builds', () => {
     const { system, facility } = yardOf(state, 'empire');
     state.factions.empire.refined = 500;
     system.energySlots = system.facilities.filter((f) => f.type !== 'mine').length;
-    expect(buildError(state, facility.id, 'refinery')).toBe('No free energy slot.');
+    expect(buildError(state, facility.id, 'refinery')).toBe('No free sweetwater slot.');
   });
 
   it('refuses to build on a world in revolt', () => {
@@ -69,13 +69,13 @@ describe('queueing builds', () => {
     const state = generateGalaxy(201);
     const { facility } = yardOf(state, 'empire');
     state.factions.empire.refined = 500;
-    expect(buildError(state, facility.id, 'troop')).toBe('This facility cannot build that.');
+    expect(buildError(state, facility.id, 'troop')).toBe('This building cannot make that.');
 
     const training = state.systems
       .flatMap((s) => s.facilities)
       .find((f) => f.type === 'training_facility' && f.owner === 'empire')!;
     expect(buildError(state, training.id, 'troop')).toBeNull();
-    expect(buildError(state, training.id, 'mine')).toBe('This facility cannot build that.');
+    expect(buildError(state, training.id, 'mine')).toBe('This building cannot make that.');
   });
 });
 

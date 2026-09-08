@@ -111,8 +111,15 @@ hunting for its assets under the old path.
 src/
   sim/      the whole game, as pure TypeScript — no React imports anywhere
   ui/       React components; they only read state and dispatch commands
+  ui/art.tsx  every picture, drawn as SVG in code
   data/     every name in the game
 ```
+
+**All the artwork is generated, not loaded.** Faction crests, the compass rose,
+and each island's coastline are SVG drawn in code — an island's shape is
+derived from its own name, so it looks the same every game, the download stays
+small, and there is nothing to fetch when you are offline. The layouts are
+built so a real illustration can replace any of it later without moving.
 
 `src/sim` is the important part. The entire game is one plain JSON object
 (`GameState`), so saving is `JSON.stringify` and loading is `JSON.parse`.
@@ -125,6 +132,26 @@ The UI never reaches into the simulation. It calls the command functions in
 `sim/commands.ts`, each of which takes a state and returns a new one, and
 reports failure as `{ error }` rather than throwing, so a mistimed tap can
 never crash the game.
+
+## What a session looks like
+
+The game opens on a **title screen**: pick the Crown Imperium or the Free
+Confederacy — each with its crest, what it is good at and what it is not — and
+take command. Difficulty is shown set to Normal; the other two settings are
+visibly unavailable rather than pretending to work, because how the war scales
+has not been decided yet.
+
+**It saves itself constantly** — after every order, and whenever you switch away
+from the app. There is no save button and no save slot to manage. Set it down
+mid-war, come back a week later, and the title screen offers **Continue your
+game** where you left off. "Save and return to title" in the menu does the same
+thing deliberately.
+
+Tapping an island opens a panel with four tabs: **Overview** (the island drawn
+from its own coastline, its allegiance, its capacity), **Build** (what stands
+there and what you can raise), **Garrison** (companies ashore, how many the
+island needs to stay quiet, your crew present) and **Log** (what has happened
+on this island alone).
 
 ## The rules, in brief
 

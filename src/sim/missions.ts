@@ -42,10 +42,10 @@ export function missionError(
   const character = state.characters.find((c) => c.id === characterId);
   if (!character) return 'No such character.';
   if (!isPlayable(character.faction)) return 'That character has no faction.';
-  if (character.status !== 'available') return 'Character is not available.';
+  if (character.status !== 'available') return 'They are not free to sail.';
   const system = state.systems.find((s) => s.id === targetSystemId);
-  if (!system) return 'No such system.';
-  if (!isDiplomacyTarget(system, character.faction)) return 'Not a valid diplomatic target.';
+  if (!system) return 'No such island.';
+  if (!isDiplomacyTarget(system, character.faction)) return 'No parley to be had there.';
   return null;
 }
 

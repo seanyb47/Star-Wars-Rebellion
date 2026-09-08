@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
 import { GALAXY_SIZE, SECTOR_RING_RADIUS, isDiplomacyTarget } from '../sim';
+import { CompassRose, islandPath } from './art';
 
 const CENTRE = GALAXY_SIZE / 2;
 /** How far the view may be dragged before the galaxy would leave the screen. */
@@ -36,22 +37,25 @@ function viewCentredOn(state: GameState, systemId: string, k: number): View {
 }
 
 /**
- * Backdrop stars, derived from the game's own seed so they stay put across
- * renders and come back identical after a reload.
+ * Open-water stipple: the sounding dots an engraver puts across empty sea.
+ * Derived from the game's seed so it stays put across renders and reloads.
  */
-function starfield(seed: number) {
+function seaStipple(seed: number) {
   let s = seed >>> 0;
   const random = () => {
     s = (s * 1664525 + 1013904223) >>> 0;
     return s / 4294967296;
   };
-  return Array.from({ length: 160 }, () => ({
+  return Array.from({ length: 150 }, () => ({
     x: random() * GALAXY_SIZE,
     y: random() * GALAXY_SIZE,
-    r: 0.6 + random() * 1.6,
-    o: 0.12 + random() * 0.3,
+    r: 0.5 + random() * 1.1,
+    o: 0.06 + random() * 0.16,
   }));
 }
+
+/** Rhumb lines radiating from the chart's compass, as on a portolan chart. */
+const RHUMB_ANGLES = Array.from({ length: 16 }, (_, i) => (i * 360) / 16);
 
 function controlColor(system: System, viewer: PlayableFaction): string {
   if (!system.explored[viewer]) return 'var(--unknown)';
@@ -63,8 +67,14 @@ function controlColor(system: System, viewer: PlayableFaction): string {
     case 'neutral':
       return 'var(--neutral)';
     default:
-      return '#33405e';
+      return '#5d7079';
   }
+}
+
+/** How much of the chart an island takes up: settled ports draw larger. */
+function islandRadius(system: System): number {
+  const weight = system.rawSlots + system.energySlots;
+  return (system.populated ? 8 : 5.5) + Math.min(weight, 9) * 0.45;
 }
 
 export function GalaxyMap({
@@ -89,7 +99,7 @@ export function GalaxyMap({
   });
 
   const viewer = state.player;
-  const stars = useMemo(() => starfield(state.rngSeed), [state.rngSeed]);
+  const stipple = useMemo(() => seaStipple(state.rngSeed), [state.rngSeed]);
   const sectorById = useMemo(
     () => new Map(state.sectors.map((s) => [s.id, s] as const)),
     [state.sectors],
@@ -227,20 +237,54 @@ export function GalaxyMap({
         onPointerCancel={endPointer}
         onPointerLeave={endPointer}
       >
+        <defs>
+          <radialGradient id="shoal">
+            <stop offset="0%" stopColor="var(--shallow)" stopOpacity="0.5" />
+            <stop offset="70%" stopColor="var(--shallow)" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="var(--shallow)" stopOpacity="0" />
+          </radialGradient>
+        </defs>
         <g transform={`translate(${view.tx} ${view.ty}) scale(${k})`}>
-          {stars.map((star, index) => (
-            <circle
-              key={index}
-              cx={star.x}
-              cy={star.y}
-              r={star.r}
-              fill="#c9d6ef"
-              opacity={star.o}
-            />
-          ))}
+          {/* Rhumb lines and the chart's own compass, drawn under everything. */}
+          <g pointerEvents="none">
+            {RHUMB_ANGLES.map((deg) => {
+              const t = (deg * Math.PI) / 180;
+              return (
+                <line
+                  key={deg}
+                  className="map__rhumb"
+                  x1={CENTRE}
+                  y1={CENTRE}
+                  x2={CENTRE + Math.cos(t) * GALAXY_SIZE}
+                  y2={CENTRE + Math.sin(t) * GALAXY_SIZE}
+                  strokeWidth={0.6 / k}
+                />
+              );
+            })}
+            <g transform={`translate(${CENTRE} ${CENTRE})`} color="#17505f">
+              <CompassRose size={150} opacity={0.28} showLetters={false} />
+            </g>
+            {stipple.map((dot, index) => (
+              <circle
+                key={index}
+                cx={dot.x}
+                cy={dot.y}
+                r={dot.r}
+                fill="#7fb7c8"
+                opacity={dot.o}
+              />
+            ))}
+          </g>
 
           {state.sectors.map((sector) => (
             <g key={sector.id}>
+              <circle
+                cx={sector.x}
+                cy={sector.y}
+                r={SECTOR_RING_RADIUS}
+                fill="url(#shoal)"
+                pointerEvents="none"
+              />
               <circle
                 className="map__sector-ring"
                 cx={sector.x}
@@ -267,7 +311,7 @@ export function GalaxyMap({
             const ay = sector.y + system.y;
             const explored = system.explored[viewer];
             const known = explored && system.populated;
-            const radius = system.populated ? 7 : 4.5;
+            const radius = islandRadius(system);
             const isHq =
               system.id === state.factions[viewer].hqSystemId ||
               (explored && system.id === state.factions[viewer === 'empire' ? 'alliance' : 'empire'].hqSystemId);
@@ -286,34 +330,56 @@ export function GalaxyMap({
                     className="map__hq"
                     cx={ax}
                     cy={ay}
-                    r={radius + 3.5}
+                    r={radius + 6}
                     stroke={controlColor(system, viewer)}
                     strokeWidth={2 / k}
                   />
                 )}
-                <circle
-                  cx={ax}
-                  cy={ay}
-                  r={radius}
+                {/* Shelf of shallows, then the coastline itself. */}
+                <path
+                  d={islandPath(system.name, radius + 4)}
+                  transform={`translate(${ax} ${ay})`}
+                  fill="var(--shallow)"
+                  opacity={explored ? 0.5 : 0.25}
+                  pointerEvents="none"
+                />
+                <path
+                  className="map__coast"
+                  d={islandPath(system.name, radius)}
+                  transform={`translate(${ax} ${ay})`}
+                  fill={system.populated ? 'var(--land)' : 'var(--land-bare)'}
+                  stroke={controlColor(system, viewer)}
+                  strokeWidth={(explored ? 1.8 : 1.2) / k}
+                  strokeDasharray={explored ? undefined : `${3 / k} ${2.5 / k}`}
+                  pointerEvents="none"
+                />
+                <path
+                  d={islandPath(system.name, radius)}
+                  transform={`translate(${ax} ${ay})`}
                   fill={controlColor(system, viewer)}
-                  opacity={explored ? 1 : 0.55}
+                  opacity={explored ? 0.28 : 0.1}
+                  pointerEvents="none"
                 />
                 {system.uprising && explored && (
-                  <circle cx={ax} cy={ay} r={radius * 0.4} fill="#0b1120" />
+                  <path
+                    d={`M ${ax - radius * 0.5} ${ay - radius - 2} l 0 -7 l ${radius * 0.9} 2.6 l ${-radius * 0.9} 2.6 z`}
+                    fill="#b8433a"
+                    pointerEvents="none"
+                  />
                 )}
                 {known && (
                   <g>
                     <rect
                       x={ax - 9}
-                      y={ay + radius + 2}
+                      y={ay + radius + 3}
                       width={18}
                       height={2.6}
                       rx={1.3}
-                      fill="#16203a"
+                      fill="#0a2b36"
                     />
                     <rect
                       x={ax - 9}
-                      y={ay + radius + 2}
+                      y={ay + radius + 3}
                       width={(18 * system.support.empire) / 100}
                       height={2.6}
                       rx={1.3}
@@ -321,7 +387,7 @@ export function GalaxyMap({
                     />
                     <rect
                       x={ax - 9 + 18 - (18 * system.support.alliance) / 100}
-                      y={ay + radius + 2}
+                      y={ay + radius + 3}
                       width={(18 * system.support.alliance) / 100}
                       height={2.6}
                       rx={1.3}
@@ -334,7 +400,7 @@ export function GalaxyMap({
                   <text
                     className="map__system-label"
                     x={ax}
-                    y={ay + radius + 12}
+                    y={ay + radius + 14}
                     fontSize={9 / k}
                   >
                     {system.name}

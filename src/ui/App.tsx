@@ -23,8 +23,10 @@ import { CharactersScreen } from './CharactersScreen';
 import { FeedScreen } from './FeedScreen';
 import { GalaxyMap } from './GalaxyMap';
 import { SystemSheet } from './SystemSheet';
+import { StartScreen } from './StartScreen';
 import { TabBar, type Tab } from './TabBar';
 import { TopBar } from './TopBar';
+import { FactionCrest } from './art';
 import { ControlBadge, Sheet, Stat } from './components';
 
 const SEEN_KEY = 'galactic-rebellion.lastSeenEvent.v1';
@@ -42,7 +44,13 @@ function eventOrder(id: string): number {
 }
 
 export function App() {
-  const [state, setState] = useState<GameState>(() => loadGame() ?? newGame());
+  // The game starts at the title, not mid-war: a save is only resumed when the
+  // player asks for it, which is also what makes the autosave visible at all.
+  // This has to be live state, not a snapshot taken at launch — otherwise a
+  // game played and set down in this same session offers no way back into it.
+  const [saved, setSaved] = useState<GameState | null>(() => loadGame());
+  const [started, setStarted] = useState(false);
+  const [state, setState] = useState<GameState>(() => saved ?? newGame());
   const [tab, setTab] = useState<Tab>('galaxy');
   const [openSystemId, setOpenSystemId] = useState<string | null>(null);
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
@@ -63,7 +71,7 @@ export function App() {
     decision !== null;
 
   // ---- The clock -------------------------------------------------------
-  const running = !panelOpen && !state.winner && state.speed !== 'paused';
+  const running = started && !panelOpen && !state.winner && state.speed !== 'paused';
   useEffect(() => {
     if (!running) return;
     const interval = window.setInterval(() => {
@@ -77,12 +85,17 @@ export function App() {
   // ---- Persistence -----------------------------------------------------
   const stateRef = useRef(state);
   stateRef.current = state;
+  const startedRef = useRef(started);
+  startedRef.current = started;
   useEffect(() => {
+    if (!started) return;
     const timer = window.setTimeout(() => saveGame(state), 600);
     return () => window.clearTimeout(timer);
-  }, [state]);
+  }, [state, started]);
   useEffect(() => {
-    const flush = () => saveGame(stateRef.current);
+    const flush = () => {
+      if (startedRef.current) saveGame(stateRef.current);
+    };
     const onHide = () => {
       if (document.visibilityState === 'hidden') flush();
     };
@@ -146,11 +159,21 @@ export function App() {
 
   const startNewGame = (player: PlayableFaction) => {
     setState(newGame(Date.now() >>> 0, player));
+    setStarted(true);
     setMenuOpen(false);
     setTab('galaxy');
     setOpenSystemId(null);
+    setOpenCharacterId(null);
     setPickingFor(null);
     setLastSeen(0);
+  };
+
+  /** Back to the title screen, leaving the game where it stands to resume. */
+  const returnToTitle = () => {
+    saveGame(stateRef.current);
+    setSaved(stateRef.current);
+    setMenuOpen(false);
+    setStarted(false);
   };
 
   const openSystem = useMemo(
@@ -161,6 +184,21 @@ export function App() {
   const pickingCharacter = pickingFor
     ? state.characters.find((c) => c.id === pickingFor) ?? null
     : null;
+
+  if (!started) {
+    return (
+      <div className="app">
+        <StartScreen
+          hasSave={saved !== null}
+          onContinue={() => {
+            if (saved) setState(saved);
+            setStarted(true);
+          }}
+          onBegin={startNewGame}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="app">
@@ -259,7 +297,11 @@ export function App() {
       )}
 
       {menuOpen && (
-        <MenuSheet state={state} onClose={() => setMenuOpen(false)} onNewGame={startNewGame} />
+        <MenuSheet
+          state={state}
+          onClose={() => setMenuOpen(false)}
+          onReturnToTitle={returnToTitle}
+        />
       )}
     </div>
   );
@@ -360,11 +402,11 @@ function WorldsSheet({
 function MenuSheet({
   state,
   onClose,
-  onNewGame,
+  onReturnToTitle,
 }: {
   state: GameState;
   onClose: () => void;
-  onNewGame: (player: PlayableFaction) => void;
+  onReturnToTitle: () => void;
 }) {
   const tally = controlTally(state);
   const needed = Math.ceil(tally.populated * VICTORY_CONTROL_FRACTION);
@@ -374,9 +416,12 @@ function MenuSheet({
       subtitle={`Playing the ${factionData[state.player].name}`}
       onClose={onClose}
     >
-      <p className="small muted" style={{ marginTop: 0 }}>
-        {factionData[state.player].blurb}
-      </p>
+      <div className="row" style={{ gap: 12, alignItems: 'flex-start' }}>
+        <FactionCrest faction={state.player} size={56} />
+        <p className="small muted" style={{ margin: 0 }}>
+          {factionData[state.player].blurb}
+        </p>
+      </div>
 
       <div className="section-title">The war</div>
       <div className="card row" style={{ gap: 18 }}>
@@ -388,17 +433,13 @@ function MenuSheet({
         {needed} settled islands takes the Seven Seas.
       </p>
 
-      <div className="section-title">New game</div>
-      <div className="stack">
-        <button className="btn btn--block" onClick={() => onNewGame('empire')}>
-          Play the {factionData.empire.name}
-        </button>
-        <button className="btn btn--block" onClick={() => onNewGame('alliance')}>
-          Play the {factionData.alliance.name}
-        </button>
-      </div>
+      <div className="section-title">Game</div>
+      <button className="btn btn--block" onClick={onReturnToTitle}>
+        Save and return to title
+      </button>
       <p className="tiny muted" style={{ marginTop: 10 }}>
-        Starting a new game discards this one. Progress saves itself and survives a refresh.
+        Your game saves itself constantly — after every order and whenever you switch away from
+        the app — so you can close it at any point and pick the war back up from the title screen.
       </p>
     </Sheet>
   );
