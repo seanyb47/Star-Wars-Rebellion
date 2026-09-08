@@ -1,0 +1,5 @@
+{
+  "prefixes": ["Cor", "Ilm", "Sel", "Thes", "Kav", "Omb", "Hal", "Yur", "Dren", "Sab", "Ver", "Ast", "Mor", "Ryn", "Tal", "Ven", "Oss", "Bel", "Cad", "Nym"],
+  "suffixes": ["ath", "arra", "eth", "ine", "ro", "ek", "vane", "ow", "en", "reth", "ix", "or", "ula", "ann", "ys", "ade", "ur", "ia", "os", "el"],
+  "designations": ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "Minor", "Major", "Secundus", "Tertius", "Anchorage", "Waystation", "Deep", "Reach", "Hollow", "Crest", "Verge"]
+}

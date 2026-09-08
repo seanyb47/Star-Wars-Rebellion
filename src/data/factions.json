@@ -1,0 +1,21 @@
+{
+  "empire": {
+    "name": "Ascendant Imperium",
+    "shortName": "Imperium",
+    "adjective": "Imperial",
+    "color": "#e2504a",
+    "capitalSystemName": "Corvath Prime"
+  },
+  "alliance": {
+    "name": "Free Worlds Covenant",
+    "shortName": "Covenant",
+    "adjective": "Covenant",
+    "color": "#e8c04a"
+  },
+  "neutral": {
+    "name": "Unaligned Worlds",
+    "shortName": "Neutral",
+    "adjective": "Unaligned",
+    "color": "#5aa2e0"
+  }
+}
