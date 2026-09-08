@@ -19,10 +19,13 @@ const CORE_SECTOR_COUNT = 4;
 const RIM_SECTOR_COUNT = 6;
 const SYSTEMS_PER_SECTOR = 10;
 
-/** Galaxy coordinate space is a 1000x1000 box; sectors sit on two rings. */
-const GALAXY_CENTER = 500;
-const CORE_RING_RADIUS = 210;
-const RIM_RING_RADIUS = 400;
+/** Galaxy coordinate space is a square box; sectors sit on two concentric rings. */
+export const GALAXY_SIZE = 1200;
+/** Radius of the drawn sector disc. Rings are spaced so no two discs overlap. */
+export const SECTOR_RING_RADIUS = 118;
+const GALAXY_CENTER = GALAXY_SIZE / 2;
+const CORE_RING_RADIUS = 230;
+const RIM_RING_RADIUS = 460;
 /** Systems scatter inside a disc of this radius around their sector centre. */
 const SECTOR_RADIUS = 105;
 const MIN_SYSTEM_SEPARATION = 38;
@@ -139,10 +142,14 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         garrison: 0,
         uprising: false,
       };
-      if (isCoreSector) {
-        // Unaligned core worlds start with a random split of loyalties.
+      if (populated) {
+        // Any inhabited world that has not picked a side is neutral, and can be
+        // courted. Core worlds are closer to the war and more polarised than
+        // the scattered settlements out on the rim.
         system.control = 'neutral';
-        system.support = { empire: rng.range(15, 45), alliance: rng.range(10, 40) };
+        system.support = isCoreSector
+          ? { empire: rng.range(15, 45), alliance: rng.range(10, 40) }
+          : { empire: rng.range(0, 20), alliance: rng.range(0, 20) };
       }
       sector.systemIds.push(system.id);
       systems.push(system);

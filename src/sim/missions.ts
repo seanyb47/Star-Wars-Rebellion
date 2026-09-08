@@ -171,9 +171,12 @@ function resolveDiplomacy(state: GameState, character: Character, rng: Rng): voi
     return;
   }
 
-  // Ask the player what to do next; the AI answers its own straight away.
+  // Ask the player what to do next; the AI answers its own straight away —
+  // it keeps working a world until it comes over, then frees the character up.
   if (faction === state.player) {
     state.pendingDecisions.push({ characterId: character.id, systemId: system.id, success });
+  } else if (system.control === faction) {
+    endMission(state, character.id);
   } else {
     continueMission(state, character.id);
   }

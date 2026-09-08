@@ -143,7 +143,7 @@ describe('resolution', () => {
   });
 
   it('injures a foiled agent for 20 days and lets them recover', () => {
-    const { state, diplomat, sameSector } = setup();
+    const { diplomat, sameSector } = setup();
     diplomat.diplomacy = 100;
 
     // Walk seeds until one produces a foil, then verify the whole arc.

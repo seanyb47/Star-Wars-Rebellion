@@ -52,15 +52,19 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
   if (!diplomat) return;
 
   const homeSector = state.systems.find((s) => s.id === diplomat.locationSystemId)?.sectorId;
+  // Only unaligned worlds are worth courting: a world already held cannot be
+  // won again, and an enemy world cannot be talked over in phase 1.
   const eligible = state.systems.filter(
-    (s) => isDiplomacyTarget(s, ai) && canStartMission(state, diplomat.id, s.id),
+    (s) =>
+      s.control === 'neutral' &&
+      isDiplomacyTarget(s, ai) &&
+      canStartMission(state, diplomat.id, s.id),
   );
   if (eligible.length === 0) return;
 
-  // Prefer a neutral world in the diplomat's own sector; otherwise take the
-  // best target anywhere, so the opponent never sits idle.
-  const rank = (s: System) =>
-    (s.sectorId === homeSector ? 200 : 0) + (s.control === 'neutral' ? 100 : 0) + s.support[ai];
+  // The neutral world in its own sector with the most sympathy, falling back to
+  // the best neutral anywhere so the opponent never sits idle.
+  const rank = (s: System) => (s.sectorId === homeSector ? 200 : 0) + s.support[ai];
   const target = eligible.sort((a, b) => rank(b) - rank(a))[0];
   startMission(state, diplomat.id, target.id);
 }
