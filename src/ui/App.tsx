@@ -226,10 +226,7 @@ export function App() {
       <TabBar tab={tab} onChange={setTab} unread={unread} />
 
       {notice && (
-        <div
-          className="chip chip--toast"
-          style={{ position: 'absolute', left: 12, right: 12, bottom: 76 }}
-        >
+        <div className="chip chip--toast" style={{ position: 'absolute', left: 12, right: 12 }}>
           {notice}
         </div>
       )}

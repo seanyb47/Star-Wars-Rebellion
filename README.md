@@ -7,6 +7,12 @@ control, and one mission type (Diplomacy).
 Built as a single-page app with no backend. All names — factions, characters,
 sectors, systems — live in `src/data/*.json`, so a reskin is a one-file swap.
 
+**Phone only, by design.** Every control is at least 44px, long-press and pinch
+gestures never trigger the browser's own text selection or zoom, pull-to-refresh
+is disabled so a stray swipe cannot reload a game in progress, and the layout is
+verified from 320px (iPhone SE) to 430px (15 Pro Max) plus landscape. On a
+desktop browser it simply fills the window; that case is not designed for.
+
 ## Playing it
 
 **https://seanyb47.github.io/Star-Wars-Rebellion/**

@@ -11,17 +11,36 @@
   --unknown: #4a5468;
   --good: #4ec98a;
   --bad: #e2504a;
+  /* Minimum comfortable touch target (iOS HIG 44pt, Android 48dp). */
+  --tap: 44px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   color-scheme: dark;
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  /* Nothing here is a document: never let a long press select text or raise
+     the iOS callout menu. The speed control is held down to pause, which would
+     otherwise pop the selection magnifier instead. */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
 
 html, body, #root { height: 100%; }
 
+html {
+  /* Stops Android Chrome's pull-to-refresh, which would otherwise reload the
+     game whenever a downward swipe started at the top of a list. */
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
+  overflow: hidden;
   background: var(--bg);
   color: var(--text);
   font: 14px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -29,19 +48,34 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-button { font: inherit; color: inherit; background: none; border: none; padding: 0; cursor: pointer; }
+button {
+  font: inherit; color: inherit; background: none; border: none; padding: 0;
+  cursor: pointer;
+  /* Removes the 300ms tap delay and double-tap-to-zoom on controls. */
+  touch-action: manipulation;
+}
 
 .app {
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  max-width: 520px;
-  margin: 0 auto;
+  width: 100%;
   position: relative;
   overflow: hidden;
 }
 
-.screen { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+/* Sheets and lists stay readable on a phone held sideways; the map still uses
+   the full width behind them. */
+.sheet { margin: 0 auto; max-width: 560px; }
+@media (min-width: 561px) {
+  .sheet { border-radius: 16px 16px 0 0; }
+}
+
+.screen {
+  flex: 1; min-height: 0; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
 .screen--map { overflow: hidden; position: relative; }
 .pad { padding: 12px; }
 .stack > * + * { margin-top: 8px; }
@@ -64,7 +98,7 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
 
 .speed {
   display: flex; align-items: center; gap: 6px;
-  padding: 5px 10px; border-radius: 999px;
+  min-height: var(--tap); padding: 5px 14px; border-radius: 999px;
   background: var(--bg-sunken); border: 1px solid var(--border);
   font-size: 12px; font-variant-numeric: tabular-nums;
 }
@@ -72,7 +106,7 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
 .speed__dots { letter-spacing: 1px; }
 
 .iconbtn {
-  width: 32px; height: 32px; border-radius: 8px;
+  width: var(--tap); height: var(--tap); border-radius: 10px;
   background: var(--bg-sunken); border: 1px solid var(--border);
   display: grid; place-items: center; font-size: 15px;
 }
@@ -87,7 +121,9 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
   padding-bottom: var(--safe-bottom);
 }
 .tab {
+  min-height: var(--tap);
   padding: 9px 0 8px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  justify-content: center;
   color: var(--muted); font-size: 10px; position: relative;
 }
 .tab--active { color: var(--text); }
@@ -97,6 +133,16 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
   min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px;
   background: var(--empire); color: #fff; font-size: 10px; font-weight: 700;
   display: grid; place-items: center;
+}
+
+/* A phone held sideways has very little height: shrink the chrome rather than
+   squeezing the map into a letterbox. */
+@media (max-height: 520px) {
+  .topbar { padding-top: calc(var(--safe-top) + 4px); padding-bottom: 4px; }
+  .topbar__stats { margin-top: 2px; font-size: 11px; }
+  .tab { padding: 5px 0 4px; font-size: 9px; }
+  .tab__glyph { font-size: 15px; }
+  .sheet { max-height: 92%; }
 }
 
 /* ---------- Map ---------- */
@@ -113,13 +159,18 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
 }
 .map__hud > * { pointer-events: auto; }
 .chip {
-  padding: 6px 10px; border-radius: 999px; font-size: 11px;
+  min-height: var(--tap); min-width: var(--tap);
+  padding: 6px 14px; border-radius: 999px; font-size: 11px;
+  display: inline-flex; align-items: center; justify-content: center;
   background: rgba(16, 24, 40, 0.9); border: 1px solid var(--border); color: var(--muted);
   backdrop-filter: blur(6px);
 }
 .chip--action { color: var(--text); }
 .chip--pick { border-color: var(--good); color: var(--good); }
-.chip--toast { z-index: 30; }
+.chip--toast {
+  z-index: 30;
+  bottom: calc(var(--safe-bottom) + 72px);
+}
 
 .legend { display: flex; gap: 10px; flex-wrap: wrap; }
 .legend__item { display: flex; align-items: center; gap: 4px; }
@@ -142,7 +193,11 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
 .sheet__head { padding: 4px 14px 10px; border-bottom: 1px solid var(--border); }
 .sheet__title { font-size: 18px; font-weight: 700; }
 .sheet__sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
-.sheet__body { overflow-y: auto; padding: 12px 14px 18px; }
+.sheet__body {
+  overflow-y: auto; padding: 12px 14px 18px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
 .sheet__actions { display: flex; gap: 8px; padding: 10px 14px calc(10px + var(--safe-bottom)); border-top: 1px solid var(--border); }
 
 @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -185,7 +240,7 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
 .bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
 
 .btn {
-  padding: 9px 12px; border-radius: 9px; border: 1px solid var(--border);
+  min-height: var(--tap); padding: 9px 12px; border-radius: 9px; border: 1px solid var(--border);
   background: var(--bg-sunken); font-size: 13px; font-weight: 600;
   display: flex; align-items: center; justify-content: center; gap: 6px;
 }
@@ -198,7 +253,7 @@ button { font: inherit; color: inherit; background: none; border: none; padding:
 
 .buildgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .build {
-  border: 1px solid var(--border); border-radius: 9px; padding: 8px 9px;
+  min-height: var(--tap); border: 1px solid var(--border); border-radius: 9px; padding: 8px 9px;
   background: var(--bg-sunken); text-align: left;
 }
 .build__name { font-size: 12px; font-weight: 600; }

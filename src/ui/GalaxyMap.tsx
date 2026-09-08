@@ -210,6 +210,9 @@ export function GalaxyMap({
 
   const k = view.k;
   const showNames = k >= 1.9;
+  // Once individual worlds are labelled, sector names are just clutter — and
+  // they collide with the system labels of the cluster next door.
+  const showSectorNames = !showNames;
 
   return (
     <>
@@ -245,14 +248,16 @@ export function GalaxyMap({
                 r={SECTOR_RING_RADIUS}
                 strokeWidth={1.5 / k}
               />
-              <text
-                className="map__sector-label"
-                x={sector.x}
-                y={sector.y - SECTOR_RING_RADIUS - 14}
-                fontSize={15 / k}
-              >
-                {sector.name}
-              </text>
+              {showSectorNames && (
+                <text
+                  className="map__sector-label"
+                  x={sector.x}
+                  y={sector.y - SECTOR_RING_RADIUS - 14}
+                  fontSize={15 / k}
+                >
+                  {sector.name}
+                </text>
+              )}
             </g>
           ))}
 

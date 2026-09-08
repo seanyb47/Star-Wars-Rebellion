@@ -3,13 +3,14 @@ import react from '@vitejs/plugin-react';
 
 /**
  * GitHub Pages serves this repo from a subfolder, not the domain root, so the
- * built asset URLs need that prefix. The dev server still runs at `/` — a base
- * only applies to `vite build` and `vite preview`.
+ * built asset URLs need that prefix. `vite preview` serves those built files
+ * and must use the same base, or it returns an index.html whose assets 404.
+ * Only the dev server, which rewrites paths as it serves, stays at `/`.
  */
 const GITHUB_PAGES_BASE = '/Star-Wars-Rebellion/';
 
-export default defineConfig(({ command }) => ({
-  base: command === 'build' ? GITHUB_PAGES_BASE : '/',
+export default defineConfig(({ command, isPreview }) => ({
+  base: command === 'build' || isPreview ? GITHUB_PAGES_BASE : '/',
   plugins: [react()],
   server: { host: true, port: 5173 },
   preview: { host: true, port: 4173 },
