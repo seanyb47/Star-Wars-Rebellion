@@ -7,14 +7,30 @@ control, and one mission type (Diplomacy).
 Built as a single-page app with no backend. All names — factions, characters,
 sectors, systems — live in `src/data/*.json`, so a reskin is a one-file swap.
 
-## Running it
+## Playing it
+
+**https://seanyb47.github.io/Star-Wars-Rebellion/**
+
+Open that on your phone, then Share → **Add to Home Screen** for a full-screen
+app. It needs no computer and no local network — it is just a web page. It does
+need a connection each time it loads; there is no offline mode yet.
+
+Your save lives in that browser's `localStorage`, so it survives closing the
+app, and it stays on the device it was made on.
+
+## Running it locally
+
+For development, or to play a build before it is deployed:
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Playing it on your phone over local Wi-Fi
+## Running a local build on your phone over Wi-Fi
+
+You only need this to test a change before pushing it — for ordinary play, use
+the deployed URL above.
 
 1. Put the phone and the computer on the **same Wi-Fi network**.
 2. Run `npm run dev`. Vite is configured with `--host`, so it prints two URLs:
@@ -41,9 +57,8 @@ npm run build
 npm run preview     # also binds to the network
 ```
 
-Note that the app is served from your computer: closing the dev server closes the
-game. There is no service worker yet, so it does not work offline. Your save
-lives in the phone browser's `localStorage` and survives refreshes and restarts.
+Served this way the game comes from your computer, so closing the dev server
+closes the game. The deployed URL has no such tie.
 
 ## Commands
 
@@ -54,6 +69,19 @@ lives in the phone browser's `localStorage` and survives refreshes and restarts.
 | `npm run preview` | Serve the built app on the local network |
 | `npm test` | Run the simulation test suite |
 | `npm run test:watch` | Same, in watch mode |
+
+## Deployment
+
+Every push to `main` runs the tests and, if they pass, publishes the site to
+GitHub Pages via `.github/workflows/deploy.yml`. A failing test blocks the
+deploy, so the live game is always a version whose simulation passed.
+
+Pages serves the site from a subfolder rather than the domain root, so
+`vite.config.ts` sets `base` to `/Star-Wars-Rebellion/` for builds only — the
+dev server stays at `/`. The manifest uses relative URLs so it resolves
+correctly in both places. **If the repository is ever renamed, that `base` must
+be renamed with it**, or the deployed page will load a blank screen while
+hunting for its assets under the old path.
 
 ## How it is put together
 
