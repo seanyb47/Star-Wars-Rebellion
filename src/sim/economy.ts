@@ -25,9 +25,9 @@ function facilityCount(state: GameState, faction: PlayableFaction, type: 'mine' 
 }
 
 /**
- * Mines dig, refineries refine (spec 4.2.1-2).
+ * Camps dig, mills refine (spec 4.2.1-2).
  *
- * Output on a disloyal world can be siphoned off by smugglers and end up in
+ * Output on a disloyal island can be siphoned off by smugglers and end up in
  * the enemy's stockpile instead (spec 4.2.6).
  */
 export function runProduction(state: GameState, rng: Rng): void {
@@ -46,7 +46,7 @@ export function runProduction(state: GameState, rng: Rng): void {
       if (smuggleChance > 0 && rng.chance(smuggleChance)) {
         state.factions[enemy].raw += output;
         pushEvent(state, {
-          text: `Smugglers on ${system.name} divert a day of ore to the enemy.`,
+          text: `Smugglers run a day's stores off ${system.name} and sell them to the enemy.`,
           systemId: system.id,
         });
       } else {
@@ -95,8 +95,8 @@ export function recomputeMaintenance(state: GameState): void {
 }
 
 /**
- * Overspend for five straight days and the newest thing on the books gets
- * scrapped (spec 4.2.5). Facilities go first, newest id wins; if a faction
+ * Overspend for five straight days and the newest thing on the books is
+ * broken up (spec 4.2.5). Facilities go first, newest id wins; if a faction
  * has nothing but troops left, a regiment is disbanded instead.
  */
 export function runMaintenance(state: GameState): void {
@@ -139,7 +139,7 @@ function scrapNewest(state: GameState, faction: PlayableFaction): boolean {
     const { system, index } = target;
     const [scrapped] = system.facilities.splice(index, 1);
     pushEvent(state, {
-      text: `Upkeep shortfall: the ${FACILITY_LABEL[scrapped.type].toLowerCase()} on ${system.name} has been scrapped.`,
+      text: `Upkeep shortfall: the ${FACILITY_LABEL[scrapped.type].toLowerCase()} on ${system.name} has been broken up for salvage.`,
       systemId: system.id,
     });
     return true;
@@ -154,7 +154,7 @@ function scrapNewest(state: GameState, faction: PlayableFaction): boolean {
   if (!biggest) return false;
   biggest.garrison -= 1;
   pushEvent(state, {
-    text: `Upkeep shortfall: a regiment on ${biggest.name} has been disbanded.`,
+    text: `Upkeep shortfall: a company on ${biggest.name} has been paid off and sent home.`,
     systemId: biggest.id,
   });
   return true;

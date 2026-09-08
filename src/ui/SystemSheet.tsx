@@ -1,5 +1,7 @@
 import factionData from '../data/factions.json';
+import terms from '../data/terms.json';
 import {
+  FACILITY_BLURB,
   FACILITY_LABEL,
   buildError,
   buildMenu,
@@ -22,10 +24,10 @@ function facilityOutput(system: System, facility: Facility): string | null {
   if (system.uprising) return 'Idle — the world is in revolt.';
   if (system.control !== owner) return 'Idle — the world is not held by its owner.';
   if (facility.type === 'mine') {
-    return `${(supportMultiplier(system.support[owner])).toFixed(2)} raw per day at current support`;
+    return `Cuts ${supportMultiplier(system.support[owner]).toFixed(2)} ${terms.raw} a day at this ${terms.allegiance.toLowerCase()}`;
   }
-  if (facility.type === 'refinery') return 'Refines up to 1 raw per day';
-  return null;
+  if (facility.type === 'refinery') return `Turns 1 ${terms.raw} into 1 ${terms.refined} a day`;
+  return FACILITY_BLURB[facility.type];
 }
 
 function FacilityCard({
@@ -61,7 +63,7 @@ function FacilityCard({
       {order && (
         <div className="row row--between small muted" style={{ marginTop: 6 }}>
           <span>
-            Building {order.item === 'troop' ? 'Troop Regiment' : FACILITY_LABEL[order.item]} —{' '}
+            Building {order.item === 'troop' ? terms.troop : FACILITY_LABEL[order.item]} —{' '}
             {order.daysRemaining}d left
             {system.uprising ? ' (halted)' : ''}
           </span>
@@ -117,9 +119,14 @@ export function SystemSheet({
 
   if (!explored) {
     return (
-      <Sheet title="Unsurveyed system" subtitle={sector.name} onClose={onClose}>
+      <Sheet
+        title={`${terms.uncharted} island`}
+        subtitle={`${sector.name} · ${sector.sea}`}
+        onClose={onClose}
+      >
         <p className="muted small">
-          No survey data. Your astrographers have this world charted only as a point of light.
+          No survey. Your charts show this only as a mark in open water and somebody else's
+          rumour.
         </p>
       </Sheet>
     );
@@ -138,35 +145,41 @@ export function SystemSheet({
     <Sheet
       title={system.name}
       subtitle={
-        <span className="row" style={{ gap: 6 }}>
-          {sector.name} · {system.isCore ? 'Core' : 'Rim'} <ControlBadge faction={system.control} />
-          {system.uprising && <span className="badge badge--warn">Uprising</span>}
-          {!system.populated && <span className="badge badge--none">Uninhabited</span>}
+        <span className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
+          {sector.name} · {sector.sea} <ControlBadge faction={system.control} />
+          {system.uprising && <span className="badge badge--warn">{terms.mutiny}</span>}
+          {!system.populated && <span className="badge badge--none">{terms.uninhabited}</span>}
         </span>
       }
       onClose={onClose}
     >
+      {system.note && (
+        <p className="small muted" style={{ margin: '0 0 12px', fontStyle: 'italic' }}>
+          {system.note}
+        </p>
+      )}
+
       {system.populated ? (
         <SupportBars system={system} />
       ) : (
         <p className="muted small" style={{ margin: 0 }}>
-          No population. Held only while a garrison remains; completing any facility here settles
-          it for you.
+          Nobody lives here. Held only while a company remains ashore; finish any building and
+          the island settles under your flag.
         </p>
       )}
 
       <div className="section-title">Capacity</div>
       <div className="card row" style={{ gap: 18 }}>
         <Stat
-          label="Raw slots"
+          label={`${terms.raw} slots`}
           value={`${system.rawSlots - freeRawSlots(system)} / ${system.rawSlots}`}
         />
         <Stat
-          label="Energy slots"
+          label={`${terms.sweetwater} slots`}
           value={`${system.energySlots - freeEnergySlots(system)} / ${system.energySlots}`}
         />
         <Stat
-          label="Garrison"
+          label={terms.garrison}
           value={
             <>
               {system.garrison}
@@ -178,7 +191,7 @@ export function SystemSheet({
 
       <div className="section-title">Facilities</div>
       {system.facilities.length === 0 ? (
-        <div className="card muted small">Nothing built here.</div>
+        <div className="card muted small">Nothing has been built on this island.</div>
       ) : (
         <div className="stack">
           {system.facilities.map((facility) => (
@@ -196,14 +209,15 @@ export function SystemSheet({
       {system.control === state.player &&
         !system.facilities.some((f) => buildMenu(f).length > 0 && f.owner === state.player) && (
           <p className="muted tiny" style={{ marginTop: 6 }}>
-            A construction yard here would let you build on this world.
+            A {terms.facilities.construction_yard.toLowerCase()} here would let you build on this
+            island.
           </p>
         )}
 
       {characters.length > 0 && (
         <>
           <div className="section-title">
-            {factionData[state.player].shortName} personnel present
+            {factionData[state.player].shortName} crew ashore
           </div>
           <div className="stack">
             {characters.map((character) => (

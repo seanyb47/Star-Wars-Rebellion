@@ -1,26 +1,121 @@
 {
+  "_comment": "World bible section 5. Phase 1 fields the four ratings the sim uses; each is rolled inside its band by the seeded RNG so games still vary. Roles and people are lore only until later phases.",
   "empire": [
-    "Grand Marshal Veyre Talloran",
-    "Archon Sella Krieve",
-    "Inquisitor Doran Vex",
-    "Prefect Anselm Rho",
-    "Commodore Ilsa Merrow",
-    "Legate Coran Dask",
-    "Minister Talia Ovarr",
-    "Warden Kesh Ulrand",
-    "Envoy Pell Sarran",
-    "Overseer Nika Brand"
+    {
+      "id": "corvane",
+      "name": "Lord Regent Halvard Corvane",
+      "epithet": "the Old Tide",
+      "people": "Human",
+      "roles": ["Tidemaster", "Leader", "Recruiter"],
+      "bio": "Has not left the citadel of Highwater in eleven years. Can still the whole harbour by standing at a window. Ended the Corsair Wars, and keeps a ledger of every hanging and every child taken for licensing without once thinking the number too high.",
+      "ratings": { "diplomacy": [70, 85], "espionage": [60, 75], "combat": [50, 65], "leadership": [88, 97] }
+    },
+    {
+      "id": "blackwater",
+      "name": "Admiral Corvus Blackwater",
+      "epithet": "the Drowned Admiral",
+      "people": "Human (once)",
+      "roles": ["Tidemaster", "Leader", "Spec Ops", "Diplomat"],
+      "bio": "Burned and drowned at the Broken Chain, pulled from the Black Tide by the Regent's surgeons and rebuilt with brass lungs and a black leather mask. Keeps every promise, even to enemies. Executes captains for failure and feels nothing.",
+      "ratings": { "diplomacy": [55, 70], "espionage": [75, 88], "combat": [88, 97], "leadership": [85, 95] }
+    },
+    {
+      "id": "pryor",
+      "name": "Captain Fenwick Pryor",
+      "people": "Human",
+      "roles": ["Diplomat", "Leader"],
+      "bio": "Careful and competent; survives Blackwater's flagship by never being the one blamed. Good at parley because he listens.",
+      "ratings": { "diplomacy": [65, 80], "espionage": [40, 55], "combat": [45, 60], "leadership": [60, 75] }
+    },
+    {
+      "id": "jarrold",
+      "name": "Governor Tiberius Jarrold",
+      "people": "Human",
+      "roles": ["Diplomat", "Leader"],
+      "bio": "Oversees the Leviathan's completion at Greenholm. Charming at dinner; has stopped sleeping.",
+      "ratings": { "diplomacy": [70, 85], "espionage": [45, 60], "combat": [30, 45], "leadership": [55, 70] }
+    },
+    {
+      "id": "neddam",
+      "name": "Captain Lorne Neddam",
+      "people": "Human",
+      "roles": ["Spec Ops", "Leader"],
+      "bio": "Boarding-action specialist. Honest to a fault, which will get him killed.",
+      "ratings": { "diplomacy": [35, 50], "espionage": [60, 75], "combat": [70, 85], "leadership": [55, 70] }
+    },
+    {
+      "id": "ozmond",
+      "name": "Admiral Kendrick Ozmond",
+      "people": "Human",
+      "roles": ["Spec Ops", "Leader"],
+      "bio": "Aristocrat, vain, better at raids than fleets. Blackwater despises him.",
+      "ratings": { "diplomacy": [40, 55], "espionage": [55, 70], "combat": [65, 80], "leadership": [50, 65] }
+    },
+    {
+      "id": "vierling",
+      "name": "Colonel Maximilian Vierling",
+      "people": "Human",
+      "roles": ["Drill Research", "General"],
+      "bio": "Marine drillmaster. Invented the Imperium's landing doctrine and the Drowned Guard's cold-baptism.",
+      "ratings": { "diplomacy": [30, 45], "espionage": [45, 60], "combat": [75, 90], "leadership": [65, 80] }
+    }
   ],
   "alliance": [
-    "Chancellor Mira Solveig",
-    "Captain Roan Ilvarn",
-    "Delegate Ysolde Fen",
-    "Colonel Bax Ferrin",
-    "Agent Nima Corrow",
-    "Councillor Ottis Vane",
-    "Pilot Jera Hallix",
-    "Quartermaster Sim Dovey",
-    "Speaker Alden Hoss",
-    "Ranger Petra Kale"
+    {
+      "id": "hale",
+      "name": "Commodore-Elect Adaira Hale",
+      "people": "Human",
+      "roles": ["Diplomat", "Recruiter"],
+      "bio": "Former Imperium magistrate who resigned over the licensing raids, and has held a pack of pirates together for six years by force of argument. Incorruptible; has looked away from what some of her captains do because she needs their hulls.",
+      "ratings": { "diplomacy": [85, 95], "espionage": [45, 60], "combat": [25, 40], "leadership": [75, 88] }
+    },
+    {
+      "id": "calloway",
+      "name": "Tam Calloway",
+      "people": "Human",
+      "roles": ["Deep-touched", "Spec Ops", "Leader", "Recruiter"],
+      "bio": "Fisher's boy from the Far Sea. The fish come to his boat and old sailors cross themselves when he walks past. Raw, brave, and going to be either the greatest Tidecaller in a generation or dead by twenty-two.",
+      "ratings": { "diplomacy": [55, 70], "espionage": [60, 75], "combat": [65, 80], "leadership": [55, 70] }
+    },
+    {
+      "id": "carrow",
+      "name": "Rosalind \"Ros\" Carrow",
+      "people": "Human",
+      "roles": ["Diplomat", "Recruiter", "Latent Deep-touched"],
+      "bio": "Heir of the island of Carrow, which the Black Tide took while an Imperium fleet held position a day's sail away. The Confederacy's best negotiator: tireless, sharp, running on grief.",
+      "ratings": { "diplomacy": [80, 92], "espionage": [55, 70], "combat": [40, 55], "leadership": [70, 82] }
+    },
+    {
+      "id": "reyne",
+      "name": "Captain Silas Reyne",
+      "people": "Human",
+      "roles": ["Spec Ops", "Recruiter", "Leader"],
+      "bio": "Smuggler captain of the Swallowtail, a coral-grown sloop that has no business being that fast. Owes Jubal the Fat more than a ship is worth. Claims to be in it for the money; keeps proving otherwise.",
+      "ratings": { "diplomacy": [55, 70], "espionage": [75, 88], "combat": [70, 85], "leadership": [60, 75] }
+    },
+    {
+      "id": "torvik",
+      "name": "Anselm \"Big\" Torvik",
+      "people": "Urskin",
+      "roles": ["Spec Ops"],
+      "bio": "Reyne's first mate: a tusked, shaggy mountain who can throw a harpoon through a hull. Loyal past all reason, and surprisingly good at parley when Reyne shuts up.",
+      "ratings": { "diplomacy": [35, 55], "espionage": [55, 70], "combat": [85, 95], "leadership": [45, 60] }
+    },
+    {
+      "id": "jessup",
+      "name": "Admiral Dorian Jessup",
+      "people": "Human",
+      "roles": ["Diplomat", "General"],
+      "bio": "Elderly ex-Imperium admiral; the Confederacy's grandfather figure and its steadiest voice at a parley table.",
+      "ratings": { "diplomacy": [75, 88], "espionage": [40, 55], "combat": [45, 60], "leadership": [75, 88] }
+    },
+    {
+      "id": "ansell",
+      "name": "Wyatt Ansell",
+      "people": "Human",
+      "roles": ["Ship Design", "Wing-Captain"],
+      "bio": "Young cutter-captain and self-taught shipwright, learning to grow coral hulls from the Reef-folk.",
+      "ratings": { "diplomacy": [40, 55], "espionage": [50, 65], "combat": [60, 75], "leadership": [55, 70] }
+    }
   ]
 }

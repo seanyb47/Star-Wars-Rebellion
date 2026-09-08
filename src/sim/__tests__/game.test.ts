@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { advanceDay } from '../advanceDay';
+import { runAI } from '../ai';
+import { AI_MISSION_INTERVAL } from '../constants';
 import { generateGalaxy } from '../galaxy';
+import { getSystem } from '../helpers';
 import { continueMission } from '../missions';
 import { controlTally } from '../support';
 import type { GameState, PlayableFaction } from '../types';
@@ -54,23 +57,41 @@ describe('the opponent expands', () => {
     expect(after).toBeGreaterThan(before + 5);
   });
 
-  it('never sends a diplomat to a world it already holds', () => {
+  it('only ever opens a parley on an unaligned island', () => {
+    // Checked against the AI directly rather than inferred from a long run: an
+    // island can come over while a diplomat is still at sea, so a mission in
+    // flight pointing at friendly ground proves nothing either way.
+    let dispatched = 0;
+    for (let seed = 1; seed <= 40; seed++) {
+      const state = generateGalaxy(seed);
+      state.day = AI_MISSION_INTERVAL;
+      runAI(state);
+      const sent = state.characters.find((c) => c.faction === 'alliance' && c.mission);
+      if (!sent) continue;
+      dispatched++;
+      expect(getSystem(state, sent.mission!.targetSystemId).control).toBe('neutral');
+    }
+    expect(dispatched).toBeGreaterThan(30);
+  });
+
+  it('lets an island come over while its diplomat is still at sea', () => {
+    // The legitimate case the previous version of the test above mistook for a
+    // bug: spillover from a neighbouring parley can flip the target in transit.
     let state = generateGalaxy(4);
-    for (let day = 0; day < 300; day++) {
+    let sawFlipInTransit = false;
+    for (let day = 0; day < 400 && !sawFlipInTransit; day++) {
       state = advanceDay(state);
       for (const decision of [...state.pendingDecisions]) {
         continueMission(state, decision.characterId);
       }
-      for (const character of state.characters) {
-        if (character.faction !== 'alliance' || !character.mission) continue;
-        const target = state.systems.find((s) => s.id === character.mission!.targetSystemId)!;
-        // A world may come over mid-mission; what must never happen is the AI
-        // *starting* a fresh mission on ground it already owns.
-        if (character.mission.phase === 'travelling') {
-          expect(target.control).not.toBe('alliance');
-        }
-      }
+      sawFlipInTransit = state.characters.some(
+        (c) =>
+          c.faction === 'alliance' &&
+          c.mission?.phase === 'travelling' &&
+          getSystem(state, c.mission.targetSystemId).control === 'alliance',
+      );
     }
+    expect(sawFlipInTransit).toBe(true);
   });
 });
 

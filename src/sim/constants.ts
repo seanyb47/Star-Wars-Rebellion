@@ -1,3 +1,4 @@
+import terms from '../data/terms.json';
 import type { BuildItem, FacilityType, Speed } from './types';
 
 /** Milliseconds between ticks. One tick = one day (spec 2). */
@@ -27,15 +28,15 @@ export interface BuildSpec {
 
 /** Construction-yard menu (spec 4.4). */
 export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
-  mine: { costRefined: 40, days: 8, label: 'Mine' },
-  refinery: { costRefined: 50, days: 10, label: 'Refinery' },
-  construction_yard: { costRefined: 120, days: 20, label: 'Construction Yard' },
-  training_facility: { costRefined: 80, days: 15, label: 'Training Facility' },
-  shipyard: { costRefined: 150, days: 25, label: 'Shipyard' },
+  mine: { costRefined: 40, days: 8, label: terms.facilities.mine },
+  refinery: { costRefined: 50, days: 10, label: terms.facilities.refinery },
+  construction_yard: { costRefined: 120, days: 20, label: terms.facilities.construction_yard },
+  training_facility: { costRefined: 80, days: 15, label: terms.facilities.training_facility },
+  shipyard: { costRefined: 150, days: 25, label: terms.facilities.shipyard },
 };
 
 /** Training-facility menu (spec 4.4). */
-export const TROOP_BUILD: BuildSpec = { costRefined: 25, days: 5, label: 'Troop Regiment' };
+export const TROOP_BUILD: BuildSpec = { costRefined: 25, days: 5, label: terms.troop };
 
 export function buildSpec(item: BuildItem): BuildSpec {
   return item === 'troop' ? TROOP_BUILD : YARD_BUILDS[item];
@@ -85,10 +86,9 @@ export const YARD_BUILDABLE: FacilityType[] = [
   'shipyard',
 ];
 
-export const FACILITY_LABEL: Record<FacilityType, string> = {
-  mine: 'Mine',
-  refinery: 'Refinery',
-  construction_yard: 'Construction Yard',
-  training_facility: 'Training Facility',
-  shipyard: 'Shipyard',
-};
+/** Display names come from the world bible via `data/terms.json`. */
+export const FACILITY_LABEL: Record<FacilityType, string> = terms.facilities;
+
+export const FACILITY_BLURB: Record<FacilityType, string> = terms.facilityBlurbs;
+
+export const TROOP_LABEL = terms.troop;

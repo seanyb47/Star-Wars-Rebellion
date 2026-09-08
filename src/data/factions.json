@@ -1,21 +1,28 @@
 {
+  "gameTitle": "Master of the Seven Seas",
+  "gameShortName": "Seven Seas",
   "empire": {
-    "name": "Ascendant Imperium",
+    "name": "Crown Imperium",
     "shortName": "Imperium",
     "adjective": "Imperial",
     "color": "#e2504a",
-    "capitalSystemName": "Corvath Prime"
+    "capitalIslandName": "Highwater",
+    "hqLabel": "Highwater",
+    "blurb": "Order bought with cruelty. The seawalls hold the Black Tide back, and the Crown never asks what they cost."
   },
   "alliance": {
-    "name": "Free Worlds Covenant",
-    "shortName": "Covenant",
-    "adjective": "Covenant",
-    "color": "#e8c04a"
+    "name": "Free Confederacy",
+    "shortName": "Confederacy",
+    "adjective": "Confederate",
+    "color": "#e8c04a",
+    "hqLabel": "the Free Harbor",
+    "blurb": "Freedom paid for in plunder. Every captain elected, every share counted on deck, and half the Moot worth hanging."
   },
   "neutral": {
-    "name": "Unaligned Worlds",
-    "shortName": "Neutral",
+    "name": "Unaligned Isles",
+    "shortName": "Unaligned",
     "adjective": "Unaligned",
-    "color": "#5aa2e0"
+    "color": "#5aa2e0",
+    "blurb": "Islands that have not picked a side, and would rather not."
   }
 }

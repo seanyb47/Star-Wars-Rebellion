@@ -1,7 +1,6 @@
 import factionData from '../data/factions.json';
-import characterNames from '../data/characters.json';
-import sectorNames from '../data/sectors.json';
-import systemNameParts from '../data/systemNames.json';
+import characterRoster from '../data/characters.json';
+import reachData from '../data/reaches.json';
 import { createRng, type Rng } from './rng';
 import { MAINTENANCE_PER_PAIR } from './constants';
 import type {
@@ -15,8 +14,10 @@ import type {
 } from './types';
 import { recomputeMaintenance } from './economy';
 
-const CORE_SECTOR_COUNT = 4;
-const RIM_SECTOR_COUNT = 6;
+const INNER_REACHES = reachData.reaches.filter((r) => r.tier === 'inner');
+const OUTER_REACHES = reachData.reaches.filter((r) => r.tier === 'outer');
+const CORE_SECTOR_COUNT = INNER_REACHES.length;
+const RIM_SECTOR_COUNT = OUTER_REACHES.length;
 const SYSTEMS_PER_SECTOR = 10;
 
 /** Galaxy coordinate space is a square box; sectors sit on two concentric rings. */
@@ -38,24 +39,6 @@ const START_YARDS = 2;
 const START_TRAINING = 1;
 const START_GARRISON = 2;
 const START_CHARACTERS = 7;
-
-function uniqueSystemName(rng: Rng, taken: Set<string>): string {
-  for (let attempt = 0; attempt < 200; attempt++) {
-    const base = rng.pick(systemNameParts.prefixes) + rng.pick(systemNameParts.suffixes);
-    const name =
-      attempt < 40 && !taken.has(base)
-        ? base
-        : `${base} ${rng.pick(systemNameParts.designations)}`;
-    if (!taken.has(name)) {
-      taken.add(name);
-      return name;
-    }
-  }
-  let n = 1;
-  while (taken.has(`Uncharted ${n}`)) n++;
-  taken.add(`Uncharted ${n}`);
-  return `Uncharted ${n}`;
-}
 
 /** Scatter points inside the sector disc, rejecting anything too close. */
 function scatterSystems(rng: Rng, count: number): Array<{ x: number; y: number }> {
@@ -96,17 +79,17 @@ function makeFacility(id: string, type: FacilityType, owner: PlayableFaction): F
  */
 export function generateGalaxy(seed: number, player: PlayableFaction = 'empire'): GameState {
   const rng = createRng(seed);
-  const takenNames = new Set<string>();
 
   const sectors: Sector[] = [];
   const systems: System[] = [];
   let idCounter = 0;
   const makeId = (prefix: string) => `${prefix}-${++idCounter}`;
 
-  const sectorNameList = [...sectorNames.core, ...sectorNames.rim];
+  const reaches = [...INNER_REACHES, ...OUTER_REACHES];
 
-  for (let s = 0; s < CORE_SECTOR_COUNT + RIM_SECTOR_COUNT; s++) {
-    const isCoreSector = s < CORE_SECTOR_COUNT;
+  for (let s = 0; s < reaches.length; s++) {
+    const reach = reaches[s];
+    const isCoreSector = reach.tier === 'inner';
     const indexInRing = isCoreSector ? s : s - CORE_SECTOR_COUNT;
     const ringCount = isCoreSector ? CORE_SECTOR_COUNT : RIM_SECTOR_COUNT;
     const radius = isCoreSector ? CORE_RING_RADIUS : RIM_RING_RADIUS;
@@ -116,18 +99,23 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
 
     const sector: Sector = {
       id: makeId('sec'),
-      name: sectorNameList[s],
+      name: reach.name,
+      sea: reach.sea,
       systemIds: [],
       x: GALAXY_CENTER + Math.cos(angle) * radius,
       y: GALAXY_CENTER + Math.sin(angle) * radius,
     };
 
+    // Islands take the positions in the order the bible lists them, so a
+    // named island always sits in its own Reach.
     const points = scatterSystems(rng, SYSTEMS_PER_SECTOR);
     for (let i = 0; i < SYSTEMS_PER_SECTOR; i++) {
+      const island = reach.islands[i];
       const populated = isCoreSector ? true : rng.chance(0.3);
       const system: System = {
         id: makeId('sys'),
-        name: uniqueSystemName(rng, takenNames),
+        name: island.name,
+        note: 'note' in island ? (island.note as string) : undefined,
         sectorId: sector.id,
         x: points[i].x,
         y: points[i].y,
@@ -161,10 +149,10 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   const coreSectors = sectors.slice(0, CORE_SECTOR_COUNT);
   const rimSectors = sectors.slice(CORE_SECTOR_COUNT);
 
-  // --- Empire capital: a fixed core world in the first core sector. ---
-  const capital = byId.get(coreSectors[0].systemIds[0])!;
-  capital.name = factionData.empire.capitalSystemName;
-  takenNames.add(capital.name);
+  // --- Imperium capital: the island the world bible marks as the seat. ---
+  const capital =
+    systems.find((system) => system.name === factionData.empire.capitalIslandName) ??
+    byId.get(coreSectors[0].systemIds[0])!;
   capital.control = 'empire';
   capital.support = { empire: 100, alliance: 0 };
 
@@ -230,22 +218,22 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   // The Alliance knows its own corner of the rim; the Empire does not.
   for (const id of hqSector.systemIds) byId.get(id)!.explored.alliance = true;
 
-  // --- Characters: seven per side, all at HQ. ---
+  // --- Characters: the world bible's seven majors per side, all at HQ. ---
   const characters: Character[] = [];
   const makeCharacters = (faction: PlayableFaction, hqId: string) => {
-    const pool = rng.shuffle(characterNames[faction]).slice(0, START_CHARACTERS);
-    for (const [index, name] of pool.entries()) {
-      // The first name drawn is the side's figurehead: better across the board.
-      const floor = index === 0 ? 60 : 25;
-      const ceiling = index === 0 ? 95 : 85;
+    // Each rating is rolled inside that character's band, so Hale is always a
+    // formidable negotiator and Torvik is always the one you send aboard,
+    // while no two games give quite the same numbers.
+    for (const entry of characterRoster[faction].slice(0, START_CHARACTERS)) {
+      const roll = (band: number[]) => rng.range(band[0], band[1]);
       characters.push({
         id: makeId('chr'),
-        name,
+        name: entry.name,
         faction,
-        diplomacy: rng.range(floor, ceiling),
-        espionage: rng.range(floor, ceiling),
-        combat: rng.range(floor, ceiling),
-        leadership: rng.range(floor, ceiling),
+        diplomacy: roll(entry.ratings.diplomacy),
+        espionage: roll(entry.ratings.espionage),
+        combat: roll(entry.ratings.combat),
+        leadership: roll(entry.ratings.leadership),
         locationSystemId: hqId,
         status: 'available',
       });
@@ -289,7 +277,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   state.events.push({
     id: `evt-${++state.nextId}`,
     day: 1,
-    text: `The ${factionData.alliance.name} declares itself against the ${factionData.empire.name}. The war begins.`,
+    text: `The ${factionData.alliance.name} declares against the ${factionData.empire.name}. The war for the Seven Seas begins.`,
   });
   return state;
 }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import factionData from '../data/factions.json';
+import terms from '../data/terms.json';
 import {
   SPEED_MS,
   advanceDay,
@@ -131,7 +132,7 @@ export function App() {
       }
       setState(result.state);
       setPickingFor(null);
-      flash('Mission underway.');
+      flash('Under way.');
       return;
     }
     setOpenSystemId(systemId);
@@ -174,8 +175,8 @@ export function App() {
         <div className="pad" style={{ paddingBottom: 0 }}>
           <div className={`banner banner--${state.winner === state.player ? 'win' : 'lose'}`}>
             {state.winner === state.player
-              ? 'You control the galaxy. Victory.'
-              : `The ${factionData[state.winner].name} controls the galaxy. Defeat.`}
+              ? 'The Seven Seas are yours. Victory.'
+              : `The ${factionData[state.winner].name} holds the Seven Seas. Defeat.`}
           </div>
         </div>
       )}
@@ -288,10 +289,10 @@ function MissionDecisionSheet({
       actions={
         <>
           <button className="btn btn--flex" onClick={() => choose('return')}>
-            Return
+            Weigh anchor
           </button>
           <button className="btn btn--flex btn--primary" onClick={() => choose('continue')}>
-            Continue 15 more days
+            Stay 15 more days
           </button>
         </>
       }
@@ -299,11 +300,11 @@ function MissionDecisionSheet({
       <p style={{ marginTop: 0 }}>
         {decision.success
           ? `The talks on ${system.name} went well. Opinion has shifted your way.`
-          : `The talks on ${system.name} went nowhere this cycle.`}
+          : `The talks on ${system.name} went nowhere this time.`}
       </p>
       <div className="card row" style={{ gap: 18 }}>
-        <Stat label="Empire support" value={Math.round(system.support.empire)} />
-        <Stat label="Alliance support" value={Math.round(system.support.alliance)} />
+        <Stat label={factionData.empire.shortName} value={Math.round(system.support.empire)} />
+        <Stat label={factionData.alliance.shortName} value={Math.round(system.support.alliance)} />
         <Stat label="Control" value={<ControlBadge faction={system.control} />} />
       </div>
     </Sheet>
@@ -321,7 +322,7 @@ function WorldsSheet({
 }) {
   const held = state.systems.filter((s) => s.control === state.player);
   return (
-    <Sheet title="My worlds" subtitle={`${held.length} systems held`} onClose={onClose}>
+    <Sheet title="My islands" subtitle={`${held.length} held`} onClose={onClose}>
       <div className="stack">
         {held.map((system) => {
           const sector = state.sectors.find((s) => s.id === system.sectorId);
@@ -336,21 +337,21 @@ function WorldsSheet({
               <div className="row row--between">
                 <span style={{ fontWeight: 600 }}>{system.name}</span>
                 {system.uprising ? (
-                  <span className="badge badge--warn">Uprising</span>
+                  <span className="badge badge--warn">{terms.mutiny}</span>
                 ) : (
                   <span className="tiny muted">
-                    {Math.round(system.support[state.player])} support
+                    {Math.round(system.support[state.player])} {terms.allegiance.toLowerCase()}
                   </span>
                 )}
               </div>
               <div className="tiny muted" style={{ marginTop: 3 }}>
-                {sector?.name} · {system.facilities.length} facilities · garrison {system.garrison}
+                {sector?.name} · {system.facilities.length} built · {system.garrison} ashore
                 {building > 0 ? ` · ${building} building` : ''}
               </div>
             </button>
           );
         })}
-        {held.length === 0 && <div className="empty">You hold nothing.</div>}
+        {held.length === 0 && <div className="empty">You hold nothing at all.</div>}
       </div>
     </Sheet>
   );
@@ -369,18 +370,22 @@ function MenuSheet({
   const needed = Math.ceil(tally.populated * VICTORY_CONTROL_FRACTION);
   return (
     <Sheet
-      title="Galactic Rebellion"
+      title={factionData.gameTitle}
       subtitle={`Playing the ${factionData[state.player].name}`}
       onClose={onClose}
     >
-      <div className="section-title">War status</div>
+      <p className="small muted" style={{ marginTop: 0 }}>
+        {factionData[state.player].blurb}
+      </p>
+
+      <div className="section-title">The war</div>
       <div className="card row" style={{ gap: 18 }}>
-        <Stat label="Populated worlds" value={tally.populated} />
-        <Stat label="Empire" value={tally.empire} />
-        <Stat label="Alliance" value={tally.alliance} />
+        <Stat label={`${terms.settled} islands`} value={tally.populated} />
+        <Stat label={factionData.empire.shortName} value={tally.empire} />
+        <Stat label={factionData.alliance.shortName} value={tally.alliance} />
       </div>
       <p className="tiny muted" style={{ marginTop: 6 }}>
-        {needed} populated worlds wins the war.
+        {needed} settled islands takes the Seven Seas.
       </p>
 
       <div className="section-title">New game</div>
@@ -393,8 +398,7 @@ function MenuSheet({
         </button>
       </div>
       <p className="tiny muted" style={{ marginTop: 10 }}>
-        Starting a new game discards the current one. Progress saves automatically and survives a
-        refresh.
+        Starting a new game discards this one. Progress saves itself and survives a refresh.
       </p>
     </Sheet>
   );

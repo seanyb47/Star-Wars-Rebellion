@@ -39,7 +39,7 @@ export function buildError(state: GameState, facilityId: string, item: BuildItem
   if (!buildMenu(facility).includes(item)) return 'This facility cannot build that.';
   if (facility.building) return 'Already building.';
   if (system.control !== facility.owner) return 'You do not control this system.';
-  if (system.uprising) return 'The system is in revolt.';
+  if (system.uprising) return 'The island is in mutiny.';
 
   const spec = buildSpec(item);
   if (state.factions[facility.owner].refined < spec.costRefined) {
@@ -86,7 +86,7 @@ export function advanceBuilds(state: GameState): void {
     for (const facility of [...system.facilities]) {
       const order = facility.building;
       if (!order) continue;
-      if (system.uprising) continue; // Facilities are unusable during a revolt.
+      if (system.uprising) continue; // Nothing works on an island in mutiny.
       order.daysRemaining -= 1;
       if (order.daysRemaining > 0) continue;
 
@@ -105,7 +105,7 @@ function completeBuild(
   if (item === 'troop') {
     system.garrison += 1;
     pushEvent(state, {
-      text: `A regiment has finished training on ${system.name}.`,
+      text: `A company has finished its drill on ${system.name}.`,
       systemId: system.id,
     });
     return;
@@ -117,14 +117,14 @@ function completeBuild(
     systemId: system.id,
   });
 
-  // Finishing anything on an empty world settles it (spec 4.3).
+  // Finishing anything on an empty island settles it (spec 4.3).
   if (!system.populated) {
     system.populated = true;
     system.support[owner] = 100;
     system.support[otherFaction(owner)] = 0;
     system.control = owner;
     pushEvent(state, {
-      text: `${system.name} has been settled and is now populated.`,
+      text: `${system.name} has been settled. There are people on it now, and they are yours.`,
       systemId: system.id,
     });
   }

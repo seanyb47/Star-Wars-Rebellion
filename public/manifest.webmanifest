@@ -1,7 +1,7 @@
 {
-  "name": "Galactic Rebellion",
-  "short_name": "Rebellion",
-  "description": "A real-time galactic grand strategy game.",
+  "name": "Master of the Seven Seas",
+  "short_name": "Seven Seas",
+  "description": "A real-time grand strategy game of pirates, sea-magic and the Black Tide.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

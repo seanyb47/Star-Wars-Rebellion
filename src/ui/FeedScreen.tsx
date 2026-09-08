@@ -15,7 +15,7 @@ export function FeedScreen({
   const events = [...state.events].reverse();
 
   if (events.length === 0) {
-    return <div className="empty">Nothing has happened yet. Start the clock.</div>;
+    return <div className="empty">The log is empty. Start the clock.</div>;
   }
 
   const order = (event: GameEvent) => Number(event.id.split('-')[1]) || 0;

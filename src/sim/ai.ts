@@ -29,7 +29,7 @@ function aiBuild(state: GameState, ai: PlayableFaction): void {
   const item = mines <= refineries ? 'mine' : 'refinery';
   if (state.factions[ai].refined < YARD_BUILDS[item].costRefined) return;
 
-  // The controlled system with the most room to grow gets the new works.
+  // The held island with the most room to grow gets the new works.
   let best: { facilityId: string; slots: number } | undefined;
   for (const system of state.systems) {
     if (system.control !== ai || system.uprising) continue;
@@ -52,8 +52,8 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
   if (!diplomat) return;
 
   const homeSector = state.systems.find((s) => s.id === diplomat.locationSystemId)?.sectorId;
-  // Only unaligned worlds are worth courting: a world already held cannot be
-  // won again, and an enemy world cannot be talked over in phase 1.
+  // Only unaligned worlds are worth courting: an island already held cannot be
+  // won again, and an enemy island cannot be talked over in phase 1.
   const eligible = state.systems.filter(
     (s) =>
       s.control === 'neutral' &&
@@ -62,8 +62,8 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
   );
   if (eligible.length === 0) return;
 
-  // The neutral world in its own sector with the most sympathy, falling back to
-  // the best neutral anywhere so the opponent never sits idle.
+  // The unaligned island in its own Reach with the most sympathy, falling back to
+  // the best unaligned island anywhere so the opponent never sits idle.
   const rank = (s: System) => (s.sectorId === homeSector ? 200 : 0) + s.support[ai];
   const target = eligible.sort((a, b) => rank(b) - rank(a))[0];
   startMission(state, diplomat.id, target.id);

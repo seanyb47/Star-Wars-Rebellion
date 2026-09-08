@@ -41,7 +41,7 @@ export function advanceDay(state: GameState): GameState {
   return next;
 }
 
-/** Hold 60% of the populated galaxy and the war is over (spec 4.6). */
+/** Hold 60% of the settled islands and the war is over (spec 4.6). */
 export function checkVictory(state: GameState): void {
   const tally = controlTally(state);
   if (tally.populated === 0) return;
@@ -51,7 +51,7 @@ export function checkVictory(state: GameState): void {
       state.winner = faction as PlayableFaction;
       state.speed = 'paused';
       pushEvent(state, {
-        text: `The ${factionData[faction].name} controls the galaxy. The war is over.`,
+        text: `The ${factionData[faction].name} holds the Seven Seas. The war is over.`,
       });
       return;
     }

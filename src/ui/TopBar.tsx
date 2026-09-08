@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import terms from '../data/terms.json';
 import { SPEED_LABEL, SPEED_ORDER, type GameState, type Speed } from '../sim';
 
 const RUNNING_SPEEDS: Speed[] = SPEED_ORDER.filter((s) => s !== 'paused');
@@ -72,13 +73,13 @@ export function TopBar({
       </div>
       <div className="topbar__stats">
         <span className="topbar__stat">
-          Raw <b>{Math.floor(faction.raw)}</b>
+          {terms.raw} <b>{Math.floor(faction.raw)}</b>
         </span>
         <span className="topbar__stat">
-          Refined <b>{Math.floor(faction.refined)}</b>
+          {terms.refined} <b>{Math.floor(faction.refined)}</b>
         </span>
         <span className={`topbar__stat${overCapacity ? ' topbar__stat--over' : ''}`}>
-          Upkeep{' '}
+          {terms.upkeep}{' '}
           <b>
             {faction.maintenanceUsed}/{faction.maintenanceCapacity}
           </b>

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import factionData from '../data/factions.json';
+import terms from '../data/terms.json';
 import type { Faction, System } from '../sim';
 
 export function Sheet(props: {
@@ -45,7 +46,9 @@ export function SupportBars({ system }: { system: System }) {
       {(['empire', 'alliance'] as const).map((faction) => (
         <div key={faction}>
           <div className="bar-label">
-            <span>{factionData[faction].shortName} support</span>
+            <span>
+              {factionData[faction].shortName} {terms.allegiance.toLowerCase()}
+            </span>
             <span>{Math.round(system.support[faction])}</span>
           </div>
           <div className="bar">

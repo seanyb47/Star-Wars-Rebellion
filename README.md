@@ -1,11 +1,27 @@
-# Galactic Rebellion
+# Master of the Seven Seas
 
-A real-time galactic grand strategy game for the phone. Phase 1: the galaxy map,
-a pausable day clock, the mine/refinery/maintenance economy, popular support and
-control, and one mission type (Diplomacy).
+A real-time grand strategy game of pirates, sea-magic and the Black Tide, built
+for the phone. Phase 1: the chart of the Seven Seas, a pausable day clock, the
+camp/mill/upkeep economy, allegiance and control, and one mission type (Parley).
 
-Built as a single-page app with no backend. All names — factions, characters,
-sectors, systems — live in `src/data/*.json`, so a reskin is a one-file swap.
+Built as a single-page app with no backend. Every name the player sees —
+factions, crew, Reaches, islands, facilities, the vocabulary itself — lives in
+`src/data/*.json`.
+
+## The two specifications
+
+- **`seven-seas-world-bible.md`** is the source of truth for names, lore,
+  factions and the map. Anything player-facing comes from there, and a change
+  to a name or a lore fact is committed together with its Changelog line.
+- **`galaxy-rebellion-build-spec.md`** is the source of truth for mechanics:
+  the numbers, the rules and the phase plan. The bible is explicit that the
+  simulation's stat blocks, costs and timings do not change under a reskin, so
+  where the two documents disagree the bible governs the words and the build
+  spec governs the behaviour.
+
+The simulation in `src/sim` still uses the build spec's neutral vocabulary
+internally (`system`, `support`, `raw`), because renaming a working rules engine
+buys nothing. The translation happens at the data files.
 
 **Phone only, by design.** Every control is at least 44px, long-press and pinch
 gestures never trigger the browser's own text selection or zoom, pull-to-refresh
@@ -116,55 +132,60 @@ never crash the game.
 fast (∞ / 4000 / 2000 / 1000 / 400 ms per day). Tap the speed pill to cycle,
 hold it to pause. Opening any sheet holds the clock; closing it resumes.
 
-**Economy.** Each mine on a world you hold produces `1 × (0.5 + support/200)`
-raw per day. Each refinery turns up to 1 raw into 1 refined. Maintenance
-capacity is 50 per matched mine/refinery pair; construction yards (20),
-training facilities (15), shipyards (30) and troop regiments (8) draw on it.
-Overspend for five straight days and the newest thing on the books is scrapped.
-On a world where your support is under 50, smugglers may divert a day's ore to
-the enemy.
+**Economy.** Each camp on an island you hold produces `1 × (0.5 + support/200)`
+Stores per day. Each mill turns up to 1 Stores into 1 Fittings. Upkeep capacity
+is 50 per matched camp/mill pair; works (20), drill grounds (15), slipways (30)
+and companies (8) draw on it. Overspend for five straight days and the newest
+thing on the books is broken up. On an island where your allegiance is under 50,
+smugglers may run a day's stores to the enemy.
 
-**Support and control.** A neutral world comes over at 60 support with a 25
-point margin. A world you hold with support under 30 revolts unless the
-garrison covers `ceil((50 − support) / 10)`; order returns at 40. Any support
-change spills 20% onto every other populated world in the sector. Uninhabited
-worlds are held only while a garrison sits on them, and become populated the
-moment you finish building anything there.
+**Allegiance and control.** An unaligned island comes over at 60 allegiance with
+a 25 point margin. An island you hold with allegiance under 30 mutinies unless
+the garrison covers `ceil((50 − allegiance) / 10)`; order returns at 40. Any
+allegiance change spills 20% onto every other settled island in the Reach.
+Uninhabited islands are held only while a company sits on them, and settle under
+your flag the moment you finish building anything there.
 
-**Building.** Construction yards build mines (40/8d), refineries (50/10d),
-yards (120/20d), training facilities (80/15d) and shipyards (150/25d).
-Training facilities build troop regiments (25/5d). Refined is spent when the
-order is placed, and a facility runs one order at a time.
+**Building.** Works build camps (40/8d), mills (50/10d), works (120/20d), drill
+grounds (80/15d) and slipways (150/25d). Drill grounds raise companies (25/5d).
+Fittings are spent when the order is placed, and a facility runs one order at a
+time.
 
-**Diplomacy.** Travel is 3 days inside a sector, 10 across. The mission then
-works for 15 days and resolves at `0.4 + diplomacy/200`. Success adds
-`8 + diplomacy/10` to your support and takes 4 off theirs. On unaligned worlds
-there is a 10% chance of being detected, which puts the character out of action
-for 20 days. Otherwise you choose whether to keep working the world or return.
+**Parley.** Passage is 3 days inside a Reach, 10 beyond. The parley then runs
+for 15 days and resolves at `0.4 + diplomacy/200`. Success adds
+`8 + diplomacy/10` to your allegiance and takes 4 off theirs. On unaligned
+islands there is a 10% chance of being found out, which lays the character up
+for 20 days. Otherwise you choose whether to stay another cycle or weigh anchor.
 
-**Victory.** Hold 60% of populated worlds. Left alone, the opponent gets there
+**Victory.** Hold 60% of the settled islands. Left alone, the opponent gets there
 in roughly 600–700 days.
 
 **The opponent.** Deliberately simple, per the phase 1 spec: every 5 days it
-builds whichever of mine or refinery it has fewer of, at the world with the most
-free slots; every 10 days it sends its best available diplomat to the unaligned
-world in its own sector where its support is highest.
+builds whichever of camp or mill it has fewer of, at the island with the most
+free slots; every 10 days it sends its best available negotiator to parley the
+unaligned island in its own Reach where its allegiance is highest.
 
 ## Where this deviates from the spec
 
 Three points needed a decision the spec did not settle:
 
-- **Build orders are placed at the yard's own world.** `BuildOrder` carries no
-  destination, so a construction yard builds on the world it stands on — which
-  also means expanding somewhere new starts with a yard there.
+- **Build orders are placed at the works' own island.** `BuildOrder` carries no
+  destination, so a works builds on the island it stands on — which also means
+  expanding somewhere new starts with a works there.
 - **"Return" leaves a character where they stand,** available for new orders,
   rather than flying them home. Travel time is charged when they next depart.
-- **The opponent falls back to the best unaligned world anywhere** when its own
-  sector has none left. Restricted strictly to its own sector it goes inert
-  after the first few worlds and can never threaten you.
+- **The opponent falls back to the best unaligned island anywhere** when its own
+  Reach has none left. Restricted strictly to its own Reach it goes inert after
+  the first few islands and can never threaten you.
 
-Two additions the spec did not ask for: a **My worlds** list on the map (finding
-your own holdings among 100 systems by eye is miserable), and a starfield.
+Three decisions the world bible left open are recorded as questions 5–7 in its
+Section 12: the Reach count on the small map, Tallow Cay as a fixed Confederacy
+start, and whether to add the Section 14 character `loyalty` field before the
+mechanic that reads it exists.
+
+Two additions neither document asked for: a **My islands** list on the chart
+(finding your own holdings among 100 islands by eye is miserable), and a
+starfield.
 
 ## Testing
 
@@ -172,12 +193,18 @@ your own holdings among 100 systems by eye is miserable), and a starfield.
 npm test
 ```
 
-92 tests over `src/sim`, all seeded and deterministic: galaxy generation,
-production, refining, smuggling, maintenance and scrapping, control flips,
-uprisings, sector spillover, building, mission travel and resolution, foiling,
-save/load, and full games played end to end to a winner.
+108 tests over `src/sim`, all seeded and deterministic: map generation,
+production, refining, smuggling, upkeep and salvage, control flips, mutinies,
+Reach spillover, building, parley passage and resolution, being found out,
+save/load, full games played end to end to a winner, and a set that pins the
+world bible's data files against what the simulation expects.
 
 ## Not built yet
 
 Fleets and combat, the other nine mission types, real victory conditions,
-command ranks, force users, and a smarter opponent are all phase 2 and beyond.
+command ranks, Tidecraft, and a smarter opponent are all phase 2 and beyond.
+
+From the world bible, still waiting on the phases that need them: the ships
+(section 6), ground forces (7), special forces (8), the 54 minor characters
+(5, since phase 1 has no recruitment), and both of the new mechanics in
+section 14 — Mythic Isles and Double Agents.

@@ -1,0 +1,36 @@
+{
+  "_comment": "Player-facing vocabulary. World bible sections 1, 9 and 10. Change a word here and it changes everywhere.",
+  "raw": "Stores",
+  "refined": "Fittings",
+  "upkeep": "Upkeep",
+  "sweetwater": "Sweetwater",
+  "allegiance": "Allegiance",
+  "island": "Island",
+  "islands": "Islands",
+  "reach": "Reach",
+  "sea": "Sea",
+  "innerSea": "Inner",
+  "outerSea": "Outer",
+  "mutiny": "Mutiny",
+  "garrison": "Garrison",
+  "parley": "Parley",
+  "settled": "Settled",
+  "uninhabited": "Uninhabited",
+  "uncharted": "Uncharted",
+  "tabs": { "map": "Seas", "characters": "Crew", "feed": "Log" },
+  "facilities": {
+    "mine": "Camp",
+    "refinery": "Mill",
+    "construction_yard": "Works",
+    "training_facility": "Drill Ground",
+    "shipyard": "Slipway"
+  },
+  "troop": "Company",
+  "facilityBlurbs": {
+    "mine": "Timber, iron, hemp and reef-coral. Cuts Stores out of the island.",
+    "refinery": "Sawmill, foundry, ropewalk, coral-kiln. Turns Stores into Fittings.",
+    "construction_yard": "Builds everything else on this island.",
+    "training_facility": "Drills companies of marines and militia.",
+    "shipyard": "Lays down hulls. Nothing to build here until the fleets arrive."
+  }
+}

@@ -1,3 +1,4 @@
+import terms from '../data/terms.json';
 import {
   MISSION_WORK_DAYS,
   TRAVEL_DAYS_CROSS_SECTOR,
@@ -13,11 +14,9 @@ function statusBadge(character: Character) {
     case 'available':
       return <span className="badge badge--good">Available</span>;
     case 'on_mission':
-      return <span className="badge badge--neutral">On mission</span>;
+      return <span className="badge badge--neutral">At sea</span>;
     case 'injured':
-      return (
-        <span className="badge badge--warn">Injured {character.injuredDays ?? 0}d</span>
-      );
+      return <span className="badge badge--warn">Laid up {character.injuredDays ?? 0}d</span>;
     default:
       return <span className="badge badge--warn">Captured</span>;
   }
@@ -29,8 +28,8 @@ function missionLine(state: GameState, character: Character): string | null {
   const target = state.systems.find((s) => s.id === mission.targetSystemId);
   const where = target?.name ?? 'an unknown world';
   return mission.phase === 'travelling'
-    ? `In transit to ${where} — ${mission.daysRemaining}d`
-    : `Diplomacy on ${where} — ${mission.daysRemaining}d to report`;
+    ? `At sea for ${where} — ${mission.daysRemaining}d`
+    : `${terms.parley} on ${where} — ${mission.daysRemaining}d to report`;
 }
 
 function Ratings({ character }: { character: Character }) {
@@ -86,7 +85,7 @@ export function CharactersScreen({
               {statusBadge(character)}
             </div>
             <div className="tiny muted" style={{ marginTop: 3 }}>
-              {missionLine(state, character) ?? `At ${location?.name ?? 'unknown'}`}
+              {missionLine(state, character) ?? `Ashore at ${location?.name ?? 'unknown'}`}
             </div>
             <Ratings character={character} />
           </button>
@@ -130,48 +129,48 @@ function CharacterSheet({
   return (
     <Sheet
       title={character.name}
-      subtitle={`At ${location?.name ?? 'unknown'} · ${character.status.replace('_', ' ')}`}
+      subtitle={`Ashore at ${location?.name ?? 'unknown'}`}
       onClose={onClose}
       actions={
         <>
           <button className="btn btn--flex" onClick={onLocate}>
-            Show on map
+            Show on chart
           </button>
           <button
             className="btn btn--flex btn--primary"
             disabled={character.status !== 'available'}
             onClick={onSendOnMission}
           >
-            Send on Diplomacy
+            Send to {terms.parley}
           </button>
         </>
       }
     >
       <Ratings character={character} />
-      <div className="section-title">Diplomacy briefing</div>
+      <div className="section-title">{terms.parley} briefing</div>
       <div className="card small stack">
         <div className="row row--between">
           <span className="muted">Chance of success</span>
           <b>{Math.round(successChance(character) * 100)}%</b>
         </div>
         <div className="row row--between">
-          <span className="muted">Support gained on success</span>
+          <span className="muted">{terms.allegiance} gained on success</span>
           <b>+{(8 + character.diplomacy / 10).toFixed(1)}</b>
         </div>
         <div className="row row--between">
-          <span className="muted">Travel</span>
+          <span className="muted">Passage</span>
           <b>
-            {TRAVEL_DAYS_IN_SECTOR}d in sector · {TRAVEL_DAYS_CROSS_SECTOR}d beyond
+            {TRAVEL_DAYS_IN_SECTOR}d inside the {terms.reach} · {TRAVEL_DAYS_CROSS_SECTOR}d beyond
           </b>
         </div>
         <div className="row row--between">
-          <span className="muted">Time on station</span>
+          <span className="muted">Time ashore</span>
           <b>{MISSION_WORK_DAYS}d per cycle</b>
         </div>
       </div>
       <p className="muted tiny" style={{ marginTop: 10 }}>
-        Ratings are visible to you alone; the enemy cannot see them. Missions to unaligned worlds
-        risk detection.
+        These ratings are yours alone; the enemy cannot see them. A {terms.parley.toLowerCase()} on
+        an unaligned island risks being found out.
       </p>
     </Sheet>
   );

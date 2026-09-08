@@ -1,9 +1,11 @@
+import terms from '../data/terms.json';
+
 export type Tab = 'galaxy' | 'characters' | 'feed';
 
 const TABS: Array<{ id: Tab; glyph: string; label: string }> = [
-  { id: 'galaxy', glyph: '✦', label: 'Galaxy' },
-  { id: 'characters', glyph: '☰', label: 'Characters' },
-  { id: 'feed', glyph: '❢', label: 'Feed' },
+  { id: 'galaxy', glyph: '⚓', label: terms.tabs.map },
+  { id: 'characters', glyph: '☰', label: terms.tabs.characters },
+  { id: 'feed', glyph: '❢', label: terms.tabs.feed },
 ];
 
 export function TabBar({

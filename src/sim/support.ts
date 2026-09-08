@@ -12,7 +12,7 @@ function factionName(faction: PlayableFaction): string {
   return factionData[faction].name;
 }
 
-/** Does this faction meet the bar to win a neutral world over (spec 4.3)? */
+/** Does this faction meet the bar to win an unaligned island over (spec 4.3)? */
 export function canFlip(system: System, faction: PlayableFaction): boolean {
   if (system.control !== 'neutral') return false;
   const mine = system.support[faction];
@@ -26,11 +26,11 @@ export function canFlip(system: System, faction: PlayableFaction): boolean {
  */
 export function resolveControlAndUnrest(state: GameState): void {
   for (const system of state.systems) {
-    // Unpopulated worlds are held only by boots on the ground (spec 4.3).
+    // Uninhabited islands are held only by boots on the ground (spec 4.3).
     if (!system.populated) {
       if (isPlayable(system.control) && system.garrison < 1) {
         pushEvent(state, {
-          text: `${system.name} has been abandoned; the last garrison is gone.`,
+          text: `${system.name} has been abandoned; the last company has sailed.`,
           systemId: system.id,
         });
         system.control = 'none';
@@ -43,7 +43,7 @@ export function resolveControlAndUnrest(state: GameState): void {
       if (canFlip(system, faction)) {
         system.control = faction;
         pushEvent(state, {
-          text: `${system.name} has declared for the ${factionName(faction)}.`,
+          text: `${system.name} has run up the colours of the ${factionName(faction)}.`,
           systemId: system.id,
         });
         break;
@@ -60,21 +60,21 @@ export function resolveControlAndUnrest(state: GameState): void {
       if (support >= UPRISING_END_SUPPORT) {
         system.uprising = false;
         pushEvent(state, {
-          text: `Order has been restored on ${system.name}.`,
+          text: `The mutiny on ${system.name} has been put down.`,
           systemId: system.id,
         });
       }
     } else if (support < UPRISING_SUPPORT && system.garrison < requiredGarrison(support)) {
       system.uprising = true;
       pushEvent(state, {
-        text: `${system.name} has risen in revolt. Production has stopped.`,
+        text: `${system.name} has risen in mutiny. Nothing is being loaded or landed.`,
         systemId: system.id,
       });
     }
   }
 }
 
-/** Populated systems held by each side, and the totals victory is measured against. */
+/** Settled islands held by each side, and the totals victory is measured against. */
 export function controlTally(state: GameState) {
   const populated = state.systems.filter((s) => s.populated);
   return {

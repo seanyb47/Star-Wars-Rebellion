@@ -1,0 +1,175 @@
+{
+  "_comment": "World bible section 13. Ten Reaches for the 100-island map: the bible's `small` map set, with Sugar Reach promoted to Inner so the four core / six rim shape of the simulation is preserved and all seven Seas appear. Scrap Reach is held back for the larger maps.",
+  "reaches": [
+    {
+      "name": "Sovereign Reach",
+      "sea": "The Crown Sea",
+      "tier": "inner",
+      "islands": [
+        { "name": "Avermere" },
+        { "name": "Ballmoor", "note": "Foundries. The Crown's arms come from here." },
+        { "name": "Bracton" },
+        { "name": "Chandler's Rest", "note": "Hale's birthplace; quietly Confederacy-leaning." },
+        { "name": "Corsham Head" },
+        { "name": "Highwater", "note": "Seawalls three hundred feet high, carved with the name of every island the Tide has taken.", "capital": true },
+        { "name": "Gorley", "note": "Site of an old massacre. Hates the Crown." },
+        { "name": "Sievern" },
+        { "name": "Ulverne" },
+        { "name": "Yarrow Minor", "note": "The royal dockyard." }
+      ]
+    },
+    {
+      "name": "Shipwrights' Reach",
+      "sea": "The Merchant Sea",
+      "tier": "inner",
+      "islands": [
+        { "name": "Comenara" },
+        { "name": "Wrightsport", "note": "Shipwright capital of the Seven Seas; Reyne's home port." },
+        { "name": "Corfino" },
+        { "name": "Dralla" },
+        { "name": "Duroso", "note": "Old seafaring people. The best navigators alive." },
+        { "name": "Selona" },
+        { "name": "Talusa" },
+        { "name": "Tralosa" },
+        { "name": "Vagrano" },
+        { "name": "Ciquina" }
+      ]
+    },
+    {
+      "name": "Coral Reach",
+      "sea": "The Amber Sea",
+      "tier": "inner",
+      "islands": [
+        { "name": "Bothaway", "note": "Home of the Rumor Guild, who sell to both sides." },
+        { "name": "Passh Bay" },
+        { "name": "Denby Cay" },
+        { "name": "Cothlis Cay", "note": "Rumor Guild outpost." },
+        { "name": "Coralhome", "note": "The Reef-folk. Their ships are sung into shape over years." },
+        { "name": "Ortovale" },
+        { "name": "Preston's Reach", "note": "Signal towers. Word travels fast from here." },
+        { "name": "Sluysvaan", "note": "The great civilian dockyards." },
+        { "name": "The Shoals", "note": "Shoal-folk. They can hear a hull creak a mile off." },
+        { "name": "Umgulla", "note": "Gambling and racing. Everyone owes someone here." }
+      ]
+    },
+    {
+      "name": "Sugar Reach",
+      "sea": "The Amber Sea",
+      "tier": "inner",
+      "islands": [
+        { "name": "Bilbrin", "note": "Imperium dockyard." },
+        { "name": "Bysse" },
+        { "name": "Charmouth" },
+        { "name": "Ferrol Key" },
+        { "name": "Komm Cay" },
+        { "name": "Kinyon" },
+        { "name": "Fraytis" },
+        { "name": "Rishi Bank" },
+        { "name": "Tanab", "note": "Breadbasket of the Inner Seas." },
+        { "name": "Wistrell" }
+      ]
+    },
+    {
+      "name": "Rime Reach",
+      "sea": "The Far Sea",
+      "tier": "outer",
+      "islands": [
+        { "name": "Alyvik" },
+        { "name": "Annat Fjord", "note": "A mining fjord, and it smells like one." },
+        { "name": "Varrow", "note": "Fairweather's floating market: a city of lashed-together hulks." },
+        { "name": "Deyr", "note": "Fishing. All water and no ground." },
+        { "name": "Gentnes" },
+        { "name": "Rime Island", "note": "Frozen rock. Nothing here but weather." },
+        { "name": "Lelmar" },
+        { "name": "Nykov" },
+        { "name": "Storthavn" },
+        { "name": "Tokmaa" }
+      ]
+    },
+    {
+      "name": "Whalers' Reach",
+      "sea": "The Far Sea",
+      "tier": "outer",
+      "islands": [
+        { "name": "Alkellish" },
+        { "name": "Boordvik" },
+        { "name": "Flaxholm" },
+        { "name": "Gedon" },
+        { "name": "Northreach", "note": "Torvik's homeland. Urskin whalers and harpooners." },
+        { "name": "Linnur" },
+        { "name": "Kristak" },
+        { "name": "Tjerfon", "note": "A cutter base, of sorts." },
+        { "name": "Vustri" },
+        { "name": "Tallow Cay", "note": "Whale-oil and salt. Far enough out that nobody counts the ships." }
+      ]
+    },
+    {
+      "name": "Cinder Reach",
+      "sea": "The Sea of Storms",
+      "tier": "outer",
+      "islands": [
+        { "name": "Tamalu" },
+        { "name": "Sorrowhead" },
+        { "name": "Anaja" },
+        { "name": "Basilisk Rock" },
+        { "name": "Greenholm", "note": "Forested and heavily patrolled. Something large is being finished here." },
+        { "name": "Gandolo Spit" },
+        { "name": "Firewatch", "note": "An active volcano. The ash never quite settles." },
+        { "name": "Kuimin" },
+        { "name": "Emberfall" },
+        { "name": "Vejun Keep", "note": "Admiral Blackwater's private fortress. The water below it is always flat." }
+      ]
+    },
+    {
+      "name": "Salt Reach",
+      "sea": "The Glass Sea",
+      "tier": "outer",
+      "islands": [
+        { "name": "Bakuran Flats" },
+        { "name": "Chaswell" },
+        { "name": "Dalter" },
+        { "name": "Joyol" },
+        { "name": "Kimmen" },
+        { "name": "Lafray" },
+        { "name": "Mantissa" },
+        { "name": "Powder Isle", "note": "Saltpetre. Every gun in the Seven Seas owes this rock." },
+        { "name": "Rylo Salt", "note": "A salt-slave island. One side never sees dusk." },
+        { "name": "Blackreef", "note": "Jubal the Fat's corsair haven. Debts are collected here." }
+      ]
+    },
+    {
+      "name": "Mirage Reach",
+      "sea": "The Glass Sea",
+      "tier": "outer",
+      "islands": [
+        { "name": "Ankerholm" },
+        { "name": "Chalcedon" },
+        { "name": "Clatter Rock" },
+        { "name": "Conna" },
+        { "name": "Dantoon", "note": "An abandoned Confederacy anchorage. Somebody left in a hurry." },
+        { "name": "Nemthe" },
+        { "name": "Cabal Rock" },
+        { "name": "Otrago" },
+        { "name": "Triton Shoal" },
+        { "name": "Erdur" }
+      ]
+    },
+    {
+      "name": "Wreckers' Reach",
+      "sea": "The Bone Sea",
+      "tier": "outer",
+      "islands": [
+        { "name": "Gibbet Rock", "note": "An Imperium prison. The name is not a metaphor." },
+        { "name": "Fetral" },
+        { "name": "Fillsving" },
+        { "name": "Gardenholm", "note": "Sacred and green. No tree on it has ever been cut." },
+        { "name": "Jerrador" },
+        { "name": "The Kettles", "note": "Prison mines, cutting ambergris out of a dead leviathan's skull." },
+        { "name": "Cubbin" },
+        { "name": "Morvogine" },
+        { "name": "Norvell" },
+        { "name": "Skorra" }
+      ]
+    }
+  ]
+}

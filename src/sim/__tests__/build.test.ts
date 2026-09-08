@@ -62,7 +62,7 @@ describe('queueing builds', () => {
     const { system, facility } = yardOf(state, 'empire');
     state.factions.empire.refined = 500;
     system.uprising = true;
-    expect(buildError(state, facility.id, 'mine')).toBe('The system is in revolt.');
+    expect(buildError(state, facility.id, 'mine')).toBe('The island is in mutiny.');
   });
 
   it('only lets training facilities build troops', () => {

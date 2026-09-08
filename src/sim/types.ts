@@ -10,17 +10,23 @@ export type PlayableFaction = 'empire' | 'alliance';
 
 export type Speed = 'paused' | 'very_slow' | 'slow' | 'medium' | 'fast';
 
+/** A Reach: a cluster of islands inside one of the Seven Seas. */
 export interface Sector {
   id: string;
   name: string;
+  /** The Sea this Reach belongs to. Display only. */
+  sea: string;
   systemIds: string[];
   x: number;
   y: number;
 }
 
+/** An island. */
 export interface System {
   id: string;
   name: string;
+  /** A line of colour from the world bible, shown on the island sheet. */
+  note?: string;
   sectorId: string;
   x: number;
   y: number;

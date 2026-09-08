@@ -349,11 +349,11 @@ export function GalaxyMap({
       <div className="map__hud">
         {pickingFor ? (
           <button className="chip chip--pick" onClick={onCancelPick}>
-            Tap a highlighted world · cancel
+            Tap a highlighted island · cancel
           </button>
         ) : (
           <button className="chip chip--action" onClick={onOpenWorlds}>
-            My worlds
+            My islands
           </button>
         )}
         <span className="topbar__spacer" />
@@ -366,7 +366,7 @@ export function GalaxyMap({
         <button
           className="chip chip--action"
           onClick={() => setView({ k: 1, tx: 0, ty: 0 })}
-          aria-label="Show the whole galaxy"
+          aria-label="Show all seven seas"
         >
           ⤢
         </button>

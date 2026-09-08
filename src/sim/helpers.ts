@@ -106,7 +106,7 @@ export function applySupportChange(
   return applied;
 }
 
-/** Garrison needed to hold a restless world down (spec 4.3). */
+/** Garrison needed to hold a restless island down (spec 4.3). */
 export function requiredGarrison(support: number): number {
   return Math.max(0, Math.ceil((50 - support) / 10));
 }

@@ -26,7 +26,7 @@ export function travelDays(state: GameState, fromSystemId: string, toSystemId: s
   return from.sectorId === to.sectorId ? TRAVEL_DAYS_IN_SECTOR : TRAVEL_DAYS_CROSS_SECTOR;
 }
 
-/** Eligible target: populated, quiet, and not the enemy's (spec 4.5). */
+/** Eligible target: settled, quiet, and not the enemy's (spec 4.5). */
 export function isDiplomacyTarget(system: System, faction: PlayableFaction): boolean {
   if (!system.populated) return false;
   if (system.uprising) return false;
@@ -73,7 +73,7 @@ export function startMission(state: GameState, characterId: string, targetSystem
     daysRemaining: days > 0 ? days : MISSION_WORK_DAYS,
   };
   pushEvent(state, {
-    text: `${character.name} departs for ${target.name} on a diplomatic mission.`,
+    text: `${character.name} sails for ${target.name} to parley.`,
     systemId: targetSystemId,
     characterId,
   });
@@ -93,7 +93,7 @@ export function advanceMissions(state: GameState, rng: Rng): void {
         character.status = 'available';
         character.injuredDays = undefined;
         pushEvent(state, {
-          text: `${character.name} has recovered and is available again.`,
+          text: `${character.name} has recovered and is fit for sea.`,
           characterId: character.id,
         });
       }
@@ -111,7 +111,7 @@ export function advanceMissions(state: GameState, rng: Rng): void {
       mission.phase = 'working';
       mission.daysRemaining = MISSION_WORK_DAYS;
       pushEvent(state, {
-        text: `${character.name} has arrived at ${getSystem(state, mission.targetSystemId).name}.`,
+        text: `${character.name} has made landfall at ${getSystem(state, mission.targetSystemId).name}.`,
         systemId: mission.targetSystemId,
         characterId: character.id,
       });
@@ -131,7 +131,7 @@ function resolveDiplomacy(state: GameState, character: Character, rng: Rng): voi
     character.status = 'available';
     character.mission = undefined;
     pushEvent(state, {
-      text: `${character.name} abandons the talks on ${system.name}; the world is beyond reach.`,
+      text: `${character.name} abandons the talks on ${system.name}; the island is beyond reach.`,
       systemId: system.id,
       characterId: character.id,
     });
@@ -145,7 +145,7 @@ function resolveDiplomacy(state: GameState, character: Character, rng: Rng): voi
     applySupportChange(state, system, faction, gain);
     applySupportChange(state, system, otherFaction(faction), -MISSION_SUPPORT_LOSS);
     pushEvent(state, {
-      text: `${character.name} sways ${system.name}: support up ${gain.toFixed(1)} points.`,
+      text: `${character.name} sways ${system.name}: allegiance up ${gain.toFixed(1)} points.`,
       systemId: system.id,
       characterId: character.id,
     });
@@ -164,7 +164,7 @@ function resolveDiplomacy(state: GameState, character: Character, rng: Rng): voi
     character.injuredDays = FOIL_INJURY_DAYS;
     character.mission = undefined;
     pushEvent(state, {
-      text: `${character.name} was detected on ${system.name} and is injured escaping.`,
+      text: `${character.name} was found out on ${system.name} and hurt getting back to the boat.`,
       systemId: system.id,
       characterId: character.id,
     });
@@ -172,7 +172,7 @@ function resolveDiplomacy(state: GameState, character: Character, rng: Rng): voi
   }
 
   // Ask the player what to do next; the AI answers its own straight away —
-  // it keeps working a world until it comes over, then frees the character up.
+  // it works an island until it comes over, then frees the character up.
   if (faction === state.player) {
     state.pendingDecisions.push({ characterId: character.id, systemId: system.id, success });
   } else if (system.control === faction) {
