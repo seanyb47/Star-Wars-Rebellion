@@ -159,24 +159,24 @@ button {
 }
 
 /* ---------- Map ---------- */
-.map { width: 100%; height: 100%; touch-action: none; display: block; background: var(--water); }
+/* Sizes are in the chart's own 1200-unit space, not pixels. The chart no
+   longer zooms, so they are fixed rather than divided by a scale factor. */
+.map { width: 100%; height: 100%; touch-action: manipulation; display: block; background: var(--water); }
 .map__sector-ring {
-  fill: none; stroke: #16505f; stroke-width: 1.5;
-  stroke-dasharray: 5 7; opacity: 0.5;
+  fill: none; stroke: #16505f; stroke-width: 3;
+  stroke-dasharray: 11 15; opacity: 0.5;
 }
 .map__sector-label {
-  fill: #4c8496; font-size: 15px; text-anchor: middle;
+  fill: #8fbecd; font-size: 36px; text-anchor: middle;
   font-family: 'Iowan Old Style', Palatino, Georgia, serif;
-  font-style: italic; letter-spacing: 0.08em;
+  font-style: italic; letter-spacing: 0.06em;
 }
-.map__system-label {
-  fill: #a8c2cc; font-size: 9px; text-anchor: middle;
-  font-family: 'Iowan Old Style', Palatino, Georgia, serif;
-}
-.map__rhumb { stroke: #10404f; stroke-width: 0.6; opacity: 0.32; fill: none; }
+.map__chain-note { fill: #5f8b9b; font-style: normal; }
+.map__chain-alarm { fill: #d8574c; font-style: normal; }
+.map__rhumb { stroke: #10404f; stroke-width: 2; opacity: 0.32; fill: none; }
 .map__coast { stroke-linejoin: round; }
-.map__hq { fill: none; stroke-width: 2; }
-.map__pick { fill: none; stroke: var(--good); stroke-width: 2; opacity: 0.9; }
+.map__hq { fill: none; stroke-width: 3; }
+.map__pick { fill: none; stroke: var(--good); stroke-width: 5; opacity: 0.9; }
 
 .map__hud {
   position: absolute; left: 10px; right: 10px; bottom: 10px;
@@ -432,6 +432,14 @@ button {
   background: #0d2f3a; margin-top: 4px; max-width: 120px;
 }
 .isle__bar > span { display: block; height: 100%; }
+/* One pip per slot: pale stone where something stands, an empty socket where
+   nothing does. Kept clear of the faction colours so it cannot be misread as
+   allegiance. */
+.isle__slots { display: flex; gap: 2px; margin-top: 4px; max-width: 120px; }
+.isle__slots > span {
+  flex: 1; height: 3px; border-radius: 1.5px; background: #1c3b48;
+}
+.isle__slots > span.is-built { background: #93a7b1; }
 
 .isle__cats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--border); }
 .isle__cat {
@@ -495,7 +503,7 @@ button {
 .iconbtn--on { color: var(--brass); border-color: var(--brass); }
 
 .map__sea-label {
-  fill: #6ea8bb; text-anchor: middle;
+  fill: #6ea8bb; font-size: 40px; text-anchor: middle;
   font-family: 'Iowan Old Style', Palatino, Georgia, serif;
   font-style: italic; letter-spacing: 0.12em;
 }

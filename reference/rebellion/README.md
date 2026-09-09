@@ -186,7 +186,9 @@ elements, not two** —
 So "resources and loyalty below each sector" means a **capacity bar as well as
 the loyalty bars**. We had the loyalty bars and were missing the capacity one.
 Now added: one pip per slot under each island, pale stone where something is
-built and a dark socket where nothing is, drawn only once zoomed in.
+built and a dark socket where nothing is. (Later moved: the chart stopped
+zooming, and at chart scale an island is four pixels, so the pips live on the
+island rows in the chain panel now.)
 
 Two attempts were needed. Brass pips were tried first and thrown away — brass
 is within a shade of the Confederacy's own colour, so on a Confederacy island

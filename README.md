@@ -149,14 +149,20 @@ mid-war, come back a week later, and the title screen offers **Continue your
 game** where you left off. "Save and return to title" in the menu does the same
 thing deliberately.
 
-**The chart works at the zoom you are at.** Pulled right out, an island is a
-few pixels across and picking one is a lottery, so islands stop being tap
-targets and the chart becomes a chart of **Seas**: seven names on open water,
-and a tap opens that whole Sea — every one of its islands, grouped by Reach,
-in a list you can actually read. Zoom in and islands become tappable again.
+**The chart does not zoom and does not pan.** The whole archipelago is on
+screen at once and there is one thing to tap: an **island chain**, which opens
+as a panel listing its islands. Each chain is about 78px across on a phone, so
+it is easy to hit; a single island would be four pixels and impossible. Islands
+are therefore drawn on the chart but not tapped — there they are the picture of
+the chain, and they become targets in the panel, at a size where you can read
+their names. Sending a crew member works the same way: the chains offering a
+destination light up, and you pick the island inside one.
 
-There are no boundaries drawn between Seas, deliberately: a tap goes to the
-nearest Sea, and a ring would draw a border that is not really there.
+It did zoom, across three levels, and that was rejected for being fiddly. The
+chart is also laid out for a phone held upright rather than in the square the
+simulation scatters its chains in, which is allowed because the coordinates are
+decoration: travel time depends on whether two islands share a chain, never on
+how far apart they are drawn.
 
 Tapping a **Reach** on the chart — its open water or its name — opens the whole
 Reach: what it earns you a day, the average allegiance across its settled

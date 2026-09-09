@@ -34,6 +34,7 @@ export function IslandRow({
   const you = state.player;
   const enemy = you === 'empire' ? 'alliance' : 'empire';
   const explored = system.explored[you];
+  const slots = system.rawSlots + system.energySlots;
   const counts: Record<string, number> = {
     missions: entry.missions,
     military: entry.military,
@@ -52,12 +53,31 @@ export function IslandRow({
         <span className="isle__name">
           <span className="isle__title">{explored ? system.name : terms.uncharted}</span>
           {explored && system.populated && (
-            <span className="isle__bar" aria-hidden="true">
-              <span style={{ width: `${system.support[you]}%`, background: `var(--${you})` }} />
-              <span
-                style={{ width: `${system.support[enemy]}%`, background: `var(--${enemy})` }}
-              />
-            </span>
+            <>
+              <span className="isle__bar" aria-hidden="true">
+                <span style={{ width: `${system.support[you]}%`, background: `var(--${you})` }} />
+                <span
+                  style={{ width: `${system.support[enemy]}%`, background: `var(--${enemy})` }}
+                />
+              </span>
+              {/*
+                Capacity, under allegiance — the two things the original prints
+                beneath every planet. These sat on the chart until the chart
+                stopped zooming; at chart scale an island is four pixels across
+                and a row of pips under it was a smear, so they live here now,
+                where the island is a row you can read.
+              */}
+              {slots > 0 && (
+                <span
+                  className="isle__slots"
+                  aria-label={`${system.facilities.length} of ${slots} built`}
+                >
+                  {Array.from({ length: slots }, (_, i) => (
+                    <span key={i} className={i < system.facilities.length ? 'is-built' : ''} />
+                  ))}
+                </span>
+              )}
+            </>
           )}
         </span>
         {explored ? (

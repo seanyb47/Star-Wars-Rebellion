@@ -69,7 +69,6 @@ export function App() {
   const [narratorOpen, setNarratorOpen] = useState(false);
   const [almanacOpen, setAlmanacOpen] = useState(false);
   const [pickingFor, setPickingFor] = useState<string | null>(null);
-  const [focusSystemId, setFocusSystemId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [lastSeen, setLastSeen] = useState(readLastSeen);
 
@@ -170,17 +169,25 @@ export function App() {
     setOpenSystemTab('overview');
   };
 
-  /** From the Reach panel: open one of its islands straight onto a tab. */
+  /**
+   * From the chain panel: open one of its islands straight onto a tab — or, if
+   * a crew member is waiting for a destination, send them there instead. The
+   * chart cannot take that tap any more, because at chart scale an island is
+   * four pixels across.
+   */
   const openIslandTab = (systemId: string, islandTab: IslandTab) => {
     setOpenReachId(null);
     setOpenSea(null);
+    if (pickingFor) {
+      handleSelectSystem(systemId);
+      return;
+    }
     setOpenSystemId(systemId);
     setOpenSystemTab(islandTab);
   };
 
   const jumpToSystem = (systemId: string) => {
     setTab('galaxy');
-    setFocusSystemId(systemId);
     setOpenSystemId(systemId);
     setOpenSystemTab('overview');
   };
@@ -265,8 +272,6 @@ export function App() {
         {tab === 'galaxy' && (
           <GalaxyMap
             state={state}
-            onSelectSystem={handleSelectSystem}
-            focusSystemId={focusSystemId}
             pickingFor={
               pickingCharacter
                 ? {
@@ -278,7 +283,6 @@ export function App() {
             onCancelPick={() => setPickingFor(null)}
             onOpenWorlds={() => setWorldsOpen(true)}
             onSelectReach={(sectorId: string) => setOpenReachId(sectorId)}
-            onSelectSea={setOpenSea}
           />
         )}
         {tab === 'characters' && (
@@ -317,10 +321,7 @@ export function App() {
           state={state}
           system={openSystem}
           initialTab={openSystemTab}
-          onClose={() => {
-            setOpenSystemId(null);
-            setFocusSystemId(null);
-          }}
+          onClose={() => setOpenSystemId(null)}
           onBuild={handleBuild}
           onCancel={handleCancel}
           onOpenCharacter={setOpenCharacterId}
@@ -337,6 +338,12 @@ export function App() {
           sector={openReach}
           onClose={() => setOpenReachId(null)}
           onOpenIsland={openIslandTab}
+          onOpenSea={(sea) => {
+            // Step up from the chain to its whole Sea, rather than stacking
+            // the two panels with the chain's still on top.
+            setOpenReachId(null);
+            setOpenSea(sea);
+          }}
         />
       )}
 

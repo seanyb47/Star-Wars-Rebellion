@@ -16,11 +16,14 @@ export function ReachSheet({
   sector,
   onClose,
   onOpenIsland,
+  onOpenSea,
 }: {
   state: GameState;
   sector: Sector;
   onClose: () => void;
   onOpenIsland: (systemId: string, tab: IslandTab) => void;
+  /** The Sea name is the way into the whole Sea, now the chart shows chains. */
+  onOpenSea?: (sea: string) => void;
 }) {
   const summary = summariseReach(state, sector.id, state.player);
   const byId = new Map(state.systems.map((s) => [s.id, s] as const));
@@ -32,7 +35,14 @@ export function ReachSheet({
       title={sector.name}
       subtitle={
         <span>
-          {sector.sea} · {summary.islands} islands
+          {onOpenSea ? (
+            <button className="linkish" onClick={() => onOpenSea(sector.sea)}>
+              {sector.sea}
+            </button>
+          ) : (
+            sector.sea
+          )}{' '}
+          · {summary.islands} islands
           {summary.mutinies > 0 && (
             <span className="badge badge--warn" style={{ marginLeft: 8 }}>
               {summary.mutinies} in {terms.mutiny.toLowerCase()}
