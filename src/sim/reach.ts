@@ -1,5 +1,5 @@
-import { isProductive } from './economy';
-import { supportMultiplier } from './helpers';
+import { UPKEEP_PER_DAY } from './constants';
+import { islandIncome } from './economy';
 import type { GameState, PlayableFaction, System } from './types';
 
 /**
@@ -28,10 +28,10 @@ export interface ReachSummary {
   held: number;
   enemyHeld: number;
   unaligned: number;
-  /** Stores your camps here cut in a day, at the allegiance they have now. */
-  storesPerDay: number;
-  /** Stores your mills here could refine in a day. */
-  refineCapacity: number;
+  /** Gold your holdings here earn in a day, at the allegiance they have now. */
+  goldPerDay: number;
+  /** Gold your holdings here cost to keep for a day. */
+  upkeepPerDay: number;
   /** Mean allegiance across the settled islands of the Reach. */
   allegiance: { empire: number; alliance: number };
   /** Your companies ashore across the Reach. */
@@ -58,19 +58,18 @@ export function summariseReach(
   const systems = state.systems.filter((s) => s.sectorId === sectorId);
   const settled = systems.filter((s) => s.populated);
 
-  let storesPerDay = 0;
-  let refineCapacity = 0;
+  let goldPerDay = 0;
+  let upkeepPerDay = 0;
   let garrison = 0;
 
   for (const system of systems) {
-    if (!isProductive(system, faction)) continue;
-    const owned = system.facilities.filter((f) => f.owner === faction);
-    storesPerDay +=
-      owned.filter((f) => f.type === 'mine').length * supportMultiplier(system.support[faction]);
-    refineCapacity += owned.filter((f) => f.type === 'refinery').length;
-  }
-  for (const system of systems) {
-    if (system.control === faction) garrison += system.garrison;
+    goldPerDay += islandIncome(system, faction);
+    if (system.control !== faction) continue;
+    garrison += system.garrison;
+    for (const facility of system.facilities) {
+      if (facility.owner === faction) upkeepPerDay += UPKEEP_PER_DAY[facility.type];
+    }
+    upkeepPerDay += system.garrison * UPKEEP_PER_DAY.troop;
   }
 
   const mean = (of: PlayableFaction) =>
@@ -85,8 +84,8 @@ export function summariseReach(
     held: systems.filter((s) => s.control === faction).length,
     enemyHeld: systems.filter((s) => s.control === enemy).length,
     unaligned: systems.filter((s) => s.control === 'neutral').length,
-    storesPerDay,
-    refineCapacity,
+    goldPerDay,
+    upkeepPerDay,
     allegiance: { empire: mean('empire'), alliance: mean('alliance') },
     garrison,
     mutinies: systems.filter((s) => s.uprising).length,

@@ -21,39 +21,53 @@ export const SPEED_LABEL: Record<Speed, string> = {
 };
 
 export interface BuildSpec {
-  costRefined: number;
+  costGold: number;
   days: number;
   label: string;
 }
 
 /** Construction-yard menu (spec 4.4). */
 export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
-  mine: { costRefined: 40, days: 8, label: terms.facilities.mine },
-  refinery: { costRefined: 50, days: 10, label: terms.facilities.refinery },
-  construction_yard: { costRefined: 120, days: 20, label: terms.facilities.construction_yard },
-  training_facility: { costRefined: 80, days: 15, label: terms.facilities.training_facility },
-  shipyard: { costRefined: 150, days: 25, label: terms.facilities.shipyard },
+  mine: { costGold: 40, days: 8, label: terms.facilities.mine },
+  refinery: { costGold: 60, days: 10, label: terms.facilities.refinery },
+  construction_yard: { costGold: 120, days: 20, label: terms.facilities.construction_yard },
+  training_facility: { costGold: 80, days: 15, label: terms.facilities.training_facility },
+  shipyard: { costGold: 150, days: 25, label: terms.facilities.shipyard },
 };
 
 /** Training-facility menu (spec 4.4). */
-export const TROOP_BUILD: BuildSpec = { costRefined: 25, days: 5, label: terms.troop };
+export const TROOP_BUILD: BuildSpec = { costGold: 25, days: 5, label: terms.troop };
 
 export function buildSpec(item: BuildItem): BuildSpec {
   return item === 'troop' ? TROOP_BUILD : YARD_BUILDS[item];
 }
 
-/** Per-day upkeep (spec 4.2.4). Mines and refineries cost nothing. */
-export const MAINTENANCE_COST: Record<BuildItem, number> = {
-  mine: 0,
-  refinery: 0,
-  construction_yard: 20,
-  training_facility: 15,
-  shipyard: 30,
-  troop: 8,
+/**
+ * Buildings come in two kinds. Some earn: a camp cuts timber and ore, a mill
+ * works it into something worth selling. The rest make things or protect you,
+ * and cost gold every day they stand.
+ */
+export const GOLD_PER_DAY: Record<BuildItem, number> = {
+  mine: 2,
+  refinery: 3,
+  construction_yard: 0,
+  training_facility: 0,
+  shipyard: 0,
+  troop: 0,
 };
 
-export const MAINTENANCE_PER_PAIR = 50;
-export const DAYS_OVER_CAPACITY_BEFORE_SCRAP = 5;
+export const UPKEEP_PER_DAY: Record<BuildItem, number> = {
+  mine: 0,
+  refinery: 0,
+  construction_yard: 3,
+  training_facility: 2,
+  shipyard: 4,
+  troop: 1,
+};
+
+export function earns(item: BuildItem): boolean {
+  return GOLD_PER_DAY[item] > 0;
+}
 
 /** Support / control thresholds (spec 4.3). */
 export const FLIP_SUPPORT_MIN = 60;

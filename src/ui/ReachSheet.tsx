@@ -57,10 +57,19 @@ export function ReachSheet({
 
       <div className="section-title">What it earns you</div>
       <div className="card row" style={{ gap: 16 }}>
-        <Stat label={`${terms.raw} a day`} value={summary.storesPerDay.toFixed(1)} />
-        <Stat label="Mills here" value={summary.refineCapacity} />
+        <Stat label={`${terms.gold} a day`} value={summary.goldPerDay.toFixed(1)} />
+        <Stat label={`${terms.upkeep} a day`} value={summary.upkeepPerDay} />
+        <Stat
+          label="Net"
+          value={
+            <span style={{ color: summary.goldPerDay - summary.upkeepPerDay < 0 ? 'var(--bad)' : 'var(--good)' }}>
+              {summary.goldPerDay - summary.upkeepPerDay >= 0 ? '+' : '−'}
+              {Math.abs(summary.goldPerDay - summary.upkeepPerDay).toFixed(1)}
+            </span>
+          }
+        />
       </div>
-      {summary.storesPerDay === 0 && (
+      {summary.goldPerDay === 0 && (
         <p className="tiny muted" style={{ marginTop: 6 }}>
           Nothing of yours is producing in this {terms.reach.toLowerCase()}.
         </p>

@@ -24,7 +24,7 @@ export function TopBar({
   const longPress = useRef<{ timer: number; fired: boolean }>({ timer: 0, fired: false });
   const last = useRef<Speed>('slow');
   const faction = state.factions[state.player];
-  const overCapacity = faction.maintenanceUsed > faction.maintenanceCapacity;
+  const net = faction.income - faction.upkeep;
 
   const cycle = () => {
     if (state.speed === 'paused') {
@@ -73,16 +73,18 @@ export function TopBar({
       </div>
       <div className="topbar__stats">
         <span className="topbar__stat">
-          {terms.raw} <b>{Math.floor(faction.raw)}</b>
+          {terms.gold} <b>{Math.floor(faction.gold)}</b>
+        </span>
+        <span className={`topbar__stat${net < 0 ? ' topbar__stat--over' : ''}`}>
+          {net >= 0 ? '▲' : '▼'}{' '}
+          <b>
+            {net >= 0 ? '+' : '−'}
+            {Math.abs(net).toFixed(1)}
+          </b>{' '}
+          a day
         </span>
         <span className="topbar__stat">
-          {terms.refined} <b>{Math.floor(faction.refined)}</b>
-        </span>
-        <span className={`topbar__stat${overCapacity ? ' topbar__stat--over' : ''}`}>
-          {terms.upkeep}{' '}
-          <b>
-            {faction.maintenanceUsed}/{faction.maintenanceCapacity}
-          </b>
+          {terms.upkeep} <b>{faction.upkeep}</b>
         </span>
       </div>
     </header>

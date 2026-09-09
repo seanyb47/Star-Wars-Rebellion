@@ -192,6 +192,9 @@ button {
 }
 .chip--action { color: var(--text); }
 .chip--pick { border-color: var(--good); color: var(--good); }
+.sheet--stacked { z-index: 23; }
+.scrim--stacked { z-index: 22; }
+
 .chip--toast {
   z-index: 30;
   bottom: calc(var(--safe-bottom) + 72px);
@@ -289,10 +292,17 @@ button {
 .build__meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
 .build:disabled { opacity: 0.42; }
 
-.ratings { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
-.rating { text-align: center; }
-.rating__value { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.rating__label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.ratings { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+.rating { display: flex; align-items: center; gap: 8px; }
+.rating__label { flex: none; width: 74px; font-size: 11px; color: var(--muted); }
+.rating__track {
+  flex: 1; height: 5px; border-radius: 3px; background: #0d2f3a; overflow: hidden;
+}
+.rating__fill { display: block; height: 100%; background: var(--brass); border-radius: 3px; }
+.rating__value {
+  flex: none; width: 24px; text-align: right;
+  font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
 
 .empty { text-align: center; color: var(--muted); padding: 32px 16px; font-size: 13px; }
 
@@ -449,4 +459,8 @@ button {
 .linkish {
   color: var(--brass); text-decoration: underline;
   text-underline-offset: 2px; font: inherit;
+  /* Padding grows the hit area to a thumb; the negative margin keeps the
+     text sitting exactly where it did in the line. */
+  padding: 14px 4px;
+  margin: -14px -4px;
 }

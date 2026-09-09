@@ -61,7 +61,7 @@ export interface Facility {
 export interface BuildOrder {
   item: BuildItem;
   daysRemaining: number;
-  costRefined: number;
+  costGold: number;
 }
 
 export interface Character {
@@ -89,13 +89,13 @@ export interface Mission {
 }
 
 export interface FactionState {
-  raw: number;
-  refined: number;
-  maintenanceCapacity: number;
-  maintenanceUsed: number;
+  /** The one currency. Everything is bought and paid for in it. */
+  gold: number;
+  /** What your producers earn in a day, at the allegiance they have now. */
+  income: number;
+  /** What everything you own costs to keep in a day. */
+  upkeep: number;
   hqSystemId: string;
-  /** Consecutive days spent over maintenance capacity (scrapping starts at 5). */
-  overCapacityDays: number;
 }
 
 export interface GameEvent {

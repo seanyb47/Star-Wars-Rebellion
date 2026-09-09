@@ -1,161 +1,137 @@
-import {
-  DAYS_OVER_CAPACITY_BEFORE_SCRAP,
-  FACILITY_LABEL,
-  MAINTENANCE_COST,
-  MAINTENANCE_PER_PAIR,
-} from './constants';
+import { FACILITY_LABEL, GOLD_PER_DAY, UPKEEP_PER_DAY } from './constants';
 import { otherFaction, pushEvent, supportMultiplier } from './helpers';
 import type { Rng } from './rng';
 import type { GameState, PlayableFaction, System } from './types';
 
-/** A system contributes to the economy only while it is held and quiet. */
+/** An island contributes to the economy only while it is held and quiet. */
 export function isProductive(system: System, faction: PlayableFaction): boolean {
   return system.control === faction && !system.uprising;
 }
 
-function facilityCount(state: GameState, faction: PlayableFaction, type: 'mine' | 'refinery') {
-  let total = 0;
+/** What a single island earns you in a day, before smugglers take their cut. */
+export function islandIncome(system: System, faction: PlayableFaction): number {
+  if (!isProductive(system, faction)) return 0;
+  const rate = system.facilities
+    .filter((f) => f.owner === faction)
+    .reduce((total, f) => total + GOLD_PER_DAY[f.type], 0);
+  // A grudging population works slowly, and skims on the way.
+  return rate * supportMultiplier(system.support[faction]);
+}
+
+/** What everything a faction owns costs to keep standing for a day. */
+export function totalUpkeep(state: GameState, faction: PlayableFaction): number {
+  let upkeep = 0;
   for (const system of state.systems) {
     if (system.control !== faction) continue;
     for (const facility of system.facilities) {
-      if (facility.type === type && facility.owner === faction) total++;
+      if (facility.owner === faction) upkeep += UPKEEP_PER_DAY[facility.type];
     }
+    upkeep += system.garrison * UPKEEP_PER_DAY.troop;
   }
-  return total;
+  return upkeep;
+}
+
+export function totalIncome(state: GameState, faction: PlayableFaction): number {
+  return state.systems.reduce((total, system) => total + islandIncome(system, faction), 0);
 }
 
 /**
- * Camps dig, mills refine (spec 4.2.1-2).
- *
- * Output on a disloyal island can be siphoned off by smugglers and end up in
- * the enemy's stockpile instead (spec 4.2.6).
+ * A day's earnings. Everything a faction owns that earns, earns; on an island
+ * whose allegiance is thin, smugglers may run the day's takings to the enemy
+ * instead (spec 4.2.6).
  */
-export function runProduction(state: GameState, rng: Rng): void {
+export function collectIncome(state: GameState, rng: Rng): void {
   for (const faction of ['empire', 'alliance'] as const) {
     const enemy = otherFaction(faction);
     for (const system of state.systems) {
-      if (!isProductive(system, faction)) continue;
-      const mines = system.facilities.filter(
-        (f) => f.type === 'mine' && f.owner === faction,
-      ).length;
-      if (mines === 0) continue;
+      const earned = islandIncome(system, faction);
+      if (earned <= 0) continue;
 
-      const support = system.support[faction];
-      const output = mines * supportMultiplier(support);
-      const smuggleChance = support < 50 ? (50 - support) / 200 : 0;
+      const allegiance = system.support[faction];
+      const smuggleChance = allegiance < 50 ? (50 - allegiance) / 200 : 0;
       if (smuggleChance > 0 && rng.chance(smuggleChance)) {
-        state.factions[enemy].raw += output;
+        state.factions[enemy].gold += earned;
         pushEvent(state, {
-          text: `Smugglers run a day's stores off ${system.name} and sell them to the enemy.`,
+          text: `Smugglers run a day's takings off ${system.name} and sell them to the enemy.`,
           systemId: system.id,
         });
       } else {
-        state.factions[faction].raw += output;
+        state.factions[faction].gold += earned;
       }
     }
-  }
-
-  // Refineries each convert up to one raw into one refined per day.
-  for (const faction of ['empire', 'alliance'] as const) {
-    let refineries = 0;
-    for (const system of state.systems) {
-      if (!isProductive(system, faction)) continue;
-      refineries += system.facilities.filter(
-        (f) => f.type === 'refinery' && f.owner === faction,
-      ).length;
-    }
-    const converted = Math.min(refineries, state.factions[faction].raw);
-    state.factions[faction].raw -= converted;
-    state.factions[faction].refined += converted;
   }
 }
 
 /**
- * Capacity is 50 per matched mine/refinery pair; upkeep is charged on
- * everything else a faction owns (spec 4.2.3-4).
+ * Pay the day's upkeep, and deal with not being able to.
+ *
+ * A shortfall does not wipe you out at once: each day you cannot pay in full,
+ * something you own may break down for want of maintenance, chosen at random.
+ * The bigger the gap, the likelier it happens, so the ledger walks itself back
+ * to equilibrium over days rather than falling off a cliff.
  */
-export function recomputeMaintenance(state: GameState): void {
-  for (const faction of ['empire', 'alliance'] as const) {
-    const mines = facilityCount(state, faction, 'mine');
-    const refineries = facilityCount(state, faction, 'refinery');
-    state.factions[faction].maintenanceCapacity =
-      MAINTENANCE_PER_PAIR * Math.min(mines, refineries);
-
-    let used = 0;
-    for (const system of state.systems) {
-      if (system.control !== faction) continue;
-      for (const facility of system.facilities) {
-        if (facility.owner !== faction) continue;
-        used += MAINTENANCE_COST[facility.type];
-      }
-      used += system.garrison * MAINTENANCE_COST.troop;
-    }
-    state.factions[faction].maintenanceUsed = used;
-  }
-}
-
-/**
- * Overspend for five straight days and the newest thing on the books is
- * broken up (spec 4.2.5). Facilities go first, newest id wins; if a faction
- * has nothing but troops left, a regiment is disbanded instead.
- */
-export function runMaintenance(state: GameState): void {
-  recomputeMaintenance(state);
+export function payUpkeep(state: GameState, rng: Rng): void {
   for (const faction of ['empire', 'alliance'] as const) {
     const fs = state.factions[faction];
-    if (fs.maintenanceUsed <= fs.maintenanceCapacity) {
-      fs.overCapacityDays = 0;
+    fs.income = totalIncome(state, faction);
+    fs.upkeep = totalUpkeep(state, faction);
+
+    if (fs.upkeep <= 0) continue;
+
+    if (fs.gold >= fs.upkeep) {
+      fs.gold -= fs.upkeep;
       continue;
     }
-    fs.overCapacityDays += 1;
-    if (fs.overCapacityDays < DAYS_OVER_CAPACITY_BEFORE_SCRAP) continue;
 
-    if (scrapNewest(state, faction)) {
-      fs.overCapacityDays = 0;
-      recomputeMaintenance(state);
+    const shortfall = fs.upkeep - fs.gold;
+    fs.gold = 0;
+    if (rng.chance(Math.min(1, shortfall / fs.upkeep))) {
+      breakSomethingDown(state, faction, rng);
+      fs.upkeep = totalUpkeep(state, faction);
     }
   }
 }
 
-/** Sort key behind "newest": ids are `fac-<n>` with a monotonic counter. */
-function idNumber(id: string): number {
-  const n = Number(id.split('-')[1]);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function scrapNewest(state: GameState, faction: PlayableFaction): boolean {
-  let target: { system: System; index: number; order: number } | undefined;
+/** Everything a faction owns that costs upkeep, as breakdown candidates. */
+function chargeableThings(state: GameState, faction: PlayableFaction) {
+  const candidates: Array<{ system: System; facilityIndex?: number }> = [];
   for (const system of state.systems) {
     if (system.control !== faction) continue;
     system.facilities.forEach((facility, index) => {
       if (facility.owner !== faction) return;
-      if (MAINTENANCE_COST[facility.type] === 0) return;
-      const order = idNumber(facility.id);
-      if (!target || order > target.order) target = { system, index, order };
+      if (UPKEEP_PER_DAY[facility.type] <= 0) return;
+      candidates.push({ system, facilityIndex: index });
     });
+    for (let i = 0; i < system.garrison; i++) candidates.push({ system });
   }
+  return candidates;
+}
 
-  if (target) {
-    const { system, index } = target;
-    const [scrapped] = system.facilities.splice(index, 1);
+function breakSomethingDown(state: GameState, faction: PlayableFaction, rng: Rng): void {
+  const candidates = chargeableThings(state, faction);
+  if (candidates.length === 0) return;
+
+  const picked = rng.pick(candidates);
+  if (picked.facilityIndex === undefined) {
+    picked.system.garrison = Math.max(0, picked.system.garrison - 1);
     pushEvent(state, {
-      text: `Upkeep shortfall: the ${FACILITY_LABEL[scrapped.type].toLowerCase()} on ${system.name} has been broken up for salvage.`,
-      systemId: system.id,
+      text: `Unpaid and unfed, a company on ${picked.system.name} has melted away.`,
+      systemId: picked.system.id,
     });
-    return true;
+    return;
   }
 
-  // No chargeable facilities left — disband a regiment from the largest garrison.
-  let biggest: System | undefined;
-  for (const system of state.systems) {
-    if (system.control !== faction || system.garrison <= 0) continue;
-    if (!biggest || system.garrison > biggest.garrison) biggest = system;
-  }
-  if (!biggest) return false;
-  biggest.garrison -= 1;
+  const [broken] = picked.system.facilities.splice(picked.facilityIndex, 1);
   pushEvent(state, {
-    text: `Upkeep shortfall: a company on ${biggest.name} has been paid off and sent home.`,
-    systemId: biggest.id,
+    text: `For want of maintenance, the ${FACILITY_LABEL[broken.type].toLowerCase()} on ${picked.system.name} has fallen apart.`,
+    systemId: picked.system.id,
   });
-  return true;
+}
+
+/** Refresh the display figures without moving any money. */
+export function recomputeLedger(state: GameState): void {
+  for (const faction of ['empire', 'alliance'] as const) {
+    state.factions[faction].income = totalIncome(state, faction);
+    state.factions[faction].upkeep = totalUpkeep(state, faction);
+  }
 }

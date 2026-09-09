@@ -11,11 +11,20 @@ export function Sheet(props: {
   actions?: ReactNode;
   /** Optional tab strip, pinned under the header while the body scrolls. */
   tabs?: ReactNode;
+  /** Raise this sheet above one already open, rather than behind it. */
+  stacked?: boolean;
 }) {
   return (
     <>
-      <div className="scrim" onClick={props.onClose} />
-      <div className="sheet" role="dialog" aria-label={props.title}>
+      <div
+        className={`scrim${props.stacked ? ' scrim--stacked' : ''}`}
+        onClick={props.onClose}
+      />
+      <div
+        className={`sheet${props.stacked ? ' sheet--stacked' : ''}`}
+        role="dialog"
+        aria-label={props.title}
+      >
         <div className="sheet__grip" />
         <div className="sheet__head">
           <div className="row row--between">

@@ -43,12 +43,12 @@ export function buildError(state: GameState, facilityId: string, item: BuildItem
   if (system.uprising) return 'The island is in mutiny.';
 
   const spec = buildSpec(item);
-  if (state.factions[facility.owner].refined < spec.costRefined) {
-    return `Needs ${spec.costRefined} ${terms.refined.toLowerCase()}.`;
+  if (state.factions[facility.owner].gold < spec.costGold) {
+    return `Needs ${spec.costGold} ${terms.gold.toLowerCase()}.`;
   }
-  if (item === 'mine' && freeRawSlots(system) < 1) return `No free ${terms.raw.toLowerCase()} slot.`;
+  if (item === 'mine' && freeRawSlots(system) < 1) return `No free ${terms.ground.toLowerCase()}.`;
   if (item !== 'mine' && item !== 'troop' && freeEnergySlots(system) < 1) {
-    return `No free ${terms.sweetwater.toLowerCase()} slot.`;
+    return `No free ${terms.water.toLowerCase()}.`;
   }
   return null;
 }
@@ -66,15 +66,15 @@ export function queueBuild(state: GameState, facilityId: string, item: BuildItem
   if (error) throw new Error(error);
   const { facility } = findFacility(state, facilityId)!;
   const spec = buildSpec(item);
-  state.factions[facility.owner as PlayableFaction].refined -= spec.costRefined;
+  state.factions[facility.owner as PlayableFaction].gold -= spec.costGold;
   facility.building = {
     item,
     daysRemaining: spec.days,
-    costRefined: spec.costRefined,
+    costGold: spec.costGold,
   };
 }
 
-/** Cancel an order. Refined is not refunded. */
+/** Cancel an order. The gold already laid out is not refunded. */
 export function cancelBuild(state: GameState, facilityId: string): void {
   const found = findFacility(state, facilityId);
   if (found?.facility.building) found.facility.building = undefined;

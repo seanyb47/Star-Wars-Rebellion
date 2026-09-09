@@ -19,6 +19,7 @@ import {
   type PlayableFaction,
   type Speed,
 } from '../sim';
+import { CharacterSheet } from './CharacterSheet';
 import { CharactersScreen } from './CharactersScreen';
 import { FeedScreen } from './FeedScreen';
 import { GalaxyMap } from './GalaxyMap';
@@ -195,6 +196,11 @@ export function App() {
     [state.systems, openSystemId],
   );
 
+  const openCharacter = useMemo(
+    () => state.characters.find((c) => c.id === openCharacterId) ?? null,
+    [state.characters, openCharacterId],
+  );
+
   const openReach = useMemo(
     () => state.sectors.find((s) => s.id === openReachId) ?? null,
     [state.sectors, openReachId],
@@ -258,16 +264,7 @@ export function App() {
           />
         )}
         {tab === 'characters' && (
-          <CharactersScreen
-            state={state}
-            openId={openCharacterId}
-            setOpenId={setOpenCharacterId}
-            onSendOnMission={(characterId) => {
-              setPickingFor(characterId);
-              setTab('galaxy');
-            }}
-            onLocate={jumpToSystem}
-          />
+          <CharactersScreen state={state} onOpen={setOpenCharacterId} />
         )}
         {tab === 'feed' && (
           <FeedScreen
@@ -302,6 +299,7 @@ export function App() {
           }}
           onBuild={handleBuild}
           onCancel={handleCancel}
+          onOpenCharacter={setOpenCharacterId}
           onOpenReach={(sectorId) => {
             setOpenSystemId(null);
             setOpenReachId(sectorId);
@@ -315,6 +313,26 @@ export function App() {
           sector={openReach}
           onClose={() => setOpenReachId(null)}
           onOpenIsland={openIslandTab}
+        />
+      )}
+
+      {/* Sits above the island panel, so tapping a name there does not lose your place. */}
+      {openCharacter && (
+        <CharacterSheet
+          state={state}
+          character={openCharacter}
+          onClose={() => setOpenCharacterId(null)}
+          onSendOnMission={() => {
+            setOpenCharacterId(null);
+            setOpenSystemId(null);
+            setOpenReachId(null);
+            setPickingFor(openCharacter.id);
+            setTab('galaxy');
+          }}
+          onLocate={() => {
+            setOpenCharacterId(null);
+            jumpToSystem(openCharacter.locationSystemId);
+          }}
         />
       )}
 

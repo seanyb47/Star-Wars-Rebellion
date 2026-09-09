@@ -2,7 +2,7 @@ import { VICTORY_CONTROL_FRACTION } from './constants';
 import factionData from '../data/factions.json';
 import { runAI } from './ai';
 import { advanceBuilds } from './build';
-import { runMaintenance, runProduction } from './economy';
+import { collectIncome, payUpkeep, recomputeLedger } from './economy';
 import { cloneState, pushEvent } from './helpers';
 import { advanceMissions } from './missions';
 import { createRng } from './rng';
@@ -26,11 +26,12 @@ export function advanceDay(state: GameState): GameState {
   const rng = createRng(next.rngSeed);
   next.day += 1;
 
-  runProduction(next, rng);
+  collectIncome(next, rng);
   advanceBuilds(next);
   advanceMissions(next, rng);
   resolveControlAndUnrest(next);
-  runMaintenance(next);
+  payUpkeep(next, rng);
+  recomputeLedger(next);
   runAI(next);
   checkVictory(next);
 

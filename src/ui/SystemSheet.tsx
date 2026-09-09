@@ -3,6 +3,8 @@ import terms from '../data/terms.json';
 import {
   FACILITY_BLURB,
   FACILITY_LABEL,
+  GOLD_PER_DAY,
+  UPKEEP_PER_DAY,
   buildError,
   buildMenu,
   buildSpec,
@@ -34,11 +36,15 @@ function facilityOutput(system: System, facility: Facility): string | null {
   if (owner !== 'empire' && owner !== 'alliance') return null;
   if (system.uprising) return `Idle — the island is in ${terms.mutiny.toLowerCase()}.`;
   if (system.control !== owner) return 'Idle — the island is not held by its owner.';
-  if (facility.type === 'mine') {
-    return `Cuts ${supportMultiplier(system.support[owner]).toFixed(2)} ${terms.raw} a day at this ${terms.allegiance.toLowerCase()}`;
+  const earning = GOLD_PER_DAY[facility.type];
+  if (earning > 0) {
+    const yieldNow = earning * supportMultiplier(system.support[owner]);
+    return `Earns ${yieldNow.toFixed(1)} ${terms.gold.toLowerCase()} a day at this ${terms.allegiance.toLowerCase()}`;
   }
-  if (facility.type === 'refinery') return `Turns 1 ${terms.raw} into 1 ${terms.refined} a day`;
-  return FACILITY_BLURB[facility.type];
+  const cost = UPKEEP_PER_DAY[facility.type];
+  return cost > 0
+    ? `${FACILITY_BLURB[facility.type]} Costs ${cost} ${terms.gold.toLowerCase()} a day.`
+    : FACILITY_BLURB[facility.type];
 }
 
 function FacilityCard({
@@ -116,7 +122,7 @@ function FacilityCard({
                 <span className="build__text">
                   <span className="build__name">{spec.label}</span>
                   <span className="build__meta">
-                    {error ?? `${spec.costRefined} ${terms.refined.toLowerCase()} · ${spec.days}d`}
+                    {error ?? `${spec.costGold} ${terms.gold.toLowerCase()} · ${spec.days}d`}
                   </span>
                 </span>
               </button>
@@ -135,6 +141,7 @@ export function SystemSheet({
   onClose,
   onBuild,
   onCancel,
+  onOpenCharacter,
   onOpenReach,
 }: {
   state: GameState;
@@ -143,6 +150,7 @@ export function SystemSheet({
   onClose: () => void;
   onBuild: (facilityId: string, item: BuildItem) => void;
   onCancel: (facilityId: string) => void;
+  onOpenCharacter?: (characterId: string) => void;
   onOpenReach?: (sectorId: string) => void;
 }) {
   const [tab, setTab] = useState<IslandTab>(initialTab);
@@ -255,11 +263,11 @@ export function SystemSheet({
           <div className="section-title">Capacity</div>
           <div className="card row" style={{ gap: 18 }}>
             <Stat
-              label={`${terms.raw} slots`}
+              label={terms.ground}
               value={`${system.rawSlots - freeRawSlots(system)} / ${system.rawSlots}`}
             />
             <Stat
-              label={`${terms.sweetwater} slots`}
+              label={terms.water}
               value={`${system.energySlots - freeEnergySlots(system)} / ${system.energySlots}`}
             />
             <Stat label="Built" value={system.facilities.length} />
@@ -327,7 +335,12 @@ export function SystemSheet({
           ) : (
             <div className="stack">
               {crew.map((character) => (
-                <div key={character.id} className="card row" style={{ gap: 10 }}>
+                <button
+                  key={character.id}
+                  className="card card--tap row"
+                  style={{ gap: 10, width: '100%', textAlign: 'left' }}
+                  onClick={() => onOpenCharacter?.(character.id)}
+                >
                   <CharacterPortrait
                     name={character.name}
                     faction={character.faction}
@@ -345,7 +358,8 @@ export function SystemSheet({
                         : character.status.replace('_', ' ')}
                     </span>
                   </span>
-                </div>
+                  <span className="muted" aria-hidden="true">›</span>
+                </button>
               ))}
             </div>
           )}
@@ -356,7 +370,12 @@ export function SystemSheet({
           ) : (
             <div className="stack">
               {inbound.map((character) => (
-                <div key={character.id} className="card row" style={{ gap: 10 }}>
+                <button
+                  key={character.id}
+                  className="card card--tap row"
+                  style={{ gap: 10, width: '100%', textAlign: 'left' }}
+                  onClick={() => onOpenCharacter?.(character.id)}
+                >
                   <CharacterPortrait
                     name={character.name}
                     faction={character.faction}
@@ -371,7 +390,8 @@ export function SystemSheet({
                       At sea — {character.mission!.daysRemaining}d out
                     </span>
                   </span>
-                </div>
+                  <span className="muted" aria-hidden="true">›</span>
+                </button>
               ))}
             </div>
           )}

@@ -1,9 +1,10 @@
 {
   "_comment": "Player-facing vocabulary. World bible sections 1, 9 and 10. Change a word here and it changes everywhere.",
-  "raw": "Stores",
-  "refined": "Fittings",
+  "gold": "Gold",
+  "income": "Income",
   "upkeep": "Upkeep",
-  "sweetwater": "Sweetwater",
+  "ground": "Ground",
+  "water": "Water",
   "allegiance": "Allegiance",
   "island": "Island",
   "islands": "Islands",
@@ -17,7 +18,11 @@
   "settled": "Settled",
   "uninhabited": "Uninhabited",
   "uncharted": "Uncharted",
-  "tabs": { "map": "Seas", "characters": "Crew", "feed": "Log" },
+  "tabs": {
+    "map": "Seas",
+    "characters": "Crew",
+    "feed": "Log"
+  },
   "facilities": {
     "mine": "Camp",
     "refinery": "Mill",
@@ -27,10 +32,10 @@
   },
   "troop": "Company",
   "facilityBlurbs": {
-    "mine": "Timber, iron, hemp and reef-coral. Cuts Stores out of the island.",
-    "refinery": "Sawmill, foundry, ropewalk, coral-kiln. Turns Stores into Fittings.",
-    "construction_yard": "Builds everything else on this island.",
-    "training_facility": "Drills companies of marines and militia.",
+    "mine": "Cuts timber and ore out of the ground, and sells it.",
+    "refinery": "Works timber and ore into something worth more. Your best earner.",
+    "construction_yard": "Builds everything else on this island. Costs gold to keep.",
+    "training_facility": "Drills companies of marines and militia. Costs gold to keep.",
     "shipyard": "Lays down hulls. Nothing to build here until the fleets arrive."
   }
 }

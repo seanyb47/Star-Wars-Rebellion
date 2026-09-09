@@ -27,7 +27,7 @@ function aiBuild(state: GameState, ai: PlayableFaction): void {
   const mines = ownedFacilityCount(state, ai, 'mine');
   const refineries = ownedFacilityCount(state, ai, 'refinery');
   const item = mines <= refineries ? 'mine' : 'refinery';
-  if (state.factions[ai].refined < YARD_BUILDS[item].costRefined) return;
+  if (state.factions[ai].gold < YARD_BUILDS[item].costGold) return;
 
   // The held island with the most room to grow gets the new works.
   let best: { facilityId: string; slots: number } | undefined;

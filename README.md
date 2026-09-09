@@ -172,12 +172,27 @@ this island alone). The Reach name in the panel header goes back up a level.
 fast (∞ / 4000 / 2000 / 1000 / 400 ms per day). Tap the speed pill to cycle,
 hold it to pause. Opening any sheet holds the clock; closing it resumes.
 
-**Economy.** Each camp on an island you hold produces `1 × (0.5 + support/200)`
+**Economy.** One currency: **Gold**. A building either earns it or costs it. A
+camp earns 2 a day and a mill 3, both scaled by allegiance
+(`0.5 + allegiance/200`), and both earn nothing on an island in mutiny. A works
+costs 3 a day, a drill ground 2, a slipway 4, and each company ashore 1. If you
+cannot pay the day's upkeep the treasury empties and something you own, picked
+at random, may break down — likelier the bigger the gap — so overreaching
+decays back to what you can afford rather than collapsing at once. On an island
+where your allegiance is under 50, smugglers may run the day's takings to the
+enemy.
+
+<details>
+<summary>The old two-resource economy (superseded)</summary>
+
+Each camp on an island you hold produced `1 × (0.5 + support/200)`
 Stores per day. Each mill turns up to 1 Stores into 1 Fittings. Upkeep capacity
 is 50 per matched camp/mill pair; works (20), drill grounds (15), slipways (30)
 and companies (8) draw on it. Overspend for five straight days and the newest
 thing on the books is broken up. On an island where your allegiance is under 50,
 smugglers may run a day's stores to the enemy.
+
+</details>
 
 **Allegiance and control.** An unaligned island comes over at 60 allegiance with
 a 25 point margin. An island you hold with allegiance under 30 mutinies unless
@@ -186,10 +201,10 @@ allegiance change spills 20% onto every other settled island in the Reach.
 Uninhabited islands are held only while a company sits on them, and settle under
 your flag the moment you finish building anything there.
 
-**Building.** Works build camps (40/8d), mills (50/10d), works (120/20d), drill
+**Building.** Works build camps (40/8d), mills (60/10d), works (120/20d), drill
 grounds (80/15d) and slipways (150/25d). Drill grounds raise companies (25/5d).
-Fittings are spent when the order is placed, and a facility runs one order at a
-time.
+Gold is spent when the order is placed, and a building runs one order at a
+time. A camp needs free **Ground**; everything else needs free **Water**.
 
 **Parley.** Passage is 3 days inside a Reach, 10 beyond. The parley then runs
 for 15 days and resolves at `0.4 + diplomacy/200`. Success adds

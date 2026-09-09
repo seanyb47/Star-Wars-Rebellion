@@ -19,24 +19,24 @@ describe('queueing builds', () => {
   it('deducts refined at order time and sets the build clock', () => {
     const state = generateGalaxy(201);
     const { facility } = yardOf(state, 'empire');
-    state.factions.empire.refined = 100;
+    state.factions.empire.gold = 100;
     queueBuild(state, facility.id, 'mine');
-    expect(state.factions.empire.refined).toBe(60);
-    expect(facility.building).toEqual({ item: 'mine', daysRemaining: 8, costRefined: 40 });
+    expect(state.factions.empire.gold).toBe(60);
+    expect(facility.building).toEqual({ item: 'mine', daysRemaining: 8, costGold: 40 });
   });
 
   it('refuses an order the treasury cannot cover', () => {
     const state = generateGalaxy(201);
     const { facility } = yardOf(state, 'empire');
-    state.factions.empire.refined = 10;
-    expect(buildError(state, facility.id, 'mine')).toMatch(/Needs 40 fittings/);
+    state.factions.empire.gold = 10;
+    expect(buildError(state, facility.id, 'mine')).toMatch(/Needs 40 gold/);
     expect(() => queueBuild(state, facility.id, 'mine')).toThrow();
   });
 
   it('refuses a second order on a busy facility', () => {
     const state = generateGalaxy(201);
     const { facility } = yardOf(state, 'empire');
-    state.factions.empire.refined = 500;
+    state.factions.empire.gold = 500;
     queueBuild(state, facility.id, 'mine');
     expect(buildError(state, facility.id, 'refinery')).toBe('Already building.');
   });
@@ -44,23 +44,23 @@ describe('queueing builds', () => {
   it('refuses a mine with no free raw slot', () => {
     const state = generateGalaxy(201);
     const { system, facility } = yardOf(state, 'empire');
-    state.factions.empire.refined = 500;
+    state.factions.empire.gold = 500;
     system.rawSlots = system.facilities.filter((f) => f.type === 'mine').length;
-    expect(buildError(state, facility.id, 'mine')).toBe('No free stores slot.');
+    expect(buildError(state, facility.id, 'mine')).toBe('No free ground.');
   });
 
   it('refuses a facility with no free energy slot', () => {
     const state = generateGalaxy(201);
     const { system, facility } = yardOf(state, 'empire');
-    state.factions.empire.refined = 500;
+    state.factions.empire.gold = 500;
     system.energySlots = system.facilities.filter((f) => f.type !== 'mine').length;
-    expect(buildError(state, facility.id, 'refinery')).toBe('No free sweetwater slot.');
+    expect(buildError(state, facility.id, 'refinery')).toBe('No free water.');
   });
 
   it('refuses to build on a world in revolt', () => {
     const state = generateGalaxy(201);
     const { system, facility } = yardOf(state, 'empire');
-    state.factions.empire.refined = 500;
+    state.factions.empire.gold = 500;
     system.uprising = true;
     expect(buildError(state, facility.id, 'mine')).toBe('The island is in mutiny.');
   });
@@ -68,7 +68,7 @@ describe('queueing builds', () => {
   it('only lets training facilities build troops', () => {
     const state = generateGalaxy(201);
     const { facility } = yardOf(state, 'empire');
-    state.factions.empire.refined = 500;
+    state.factions.empire.gold = 500;
     expect(buildError(state, facility.id, 'troop')).toBe('This building cannot make that.');
 
     const training = state.systems
@@ -83,7 +83,7 @@ describe('completing builds', () => {
   it('adds the facility on the day the order runs out', () => {
     const state = generateGalaxy(202);
     const { system, facility } = yardOf(state, 'empire');
-    state.factions.empire.refined = 500;
+    state.factions.empire.gold = 500;
     const before = system.facilities.length;
     queueBuild(state, facility.id, 'mine');
 
@@ -103,7 +103,7 @@ describe('completing builds', () => {
       .flatMap((s) => s.facilities)
       .find((f) => f.type === 'training_facility' && f.owner === 'empire')!;
     const host = state.systems.find((s) => s.facilities.some((f) => f.id === training.id))!;
-    state.factions.empire.refined = 500;
+    state.factions.empire.gold = 500;
     const before = host.garrison;
     queueBuild(state, training.id, 'troop');
     for (let day = 0; day < 5; day++) advanceBuilds(state);
@@ -118,7 +118,7 @@ describe('completing builds', () => {
     empty.energySlots = 4;
     empty.rawSlots = 4;
     empty.facilities = [{ id: 'fac-test', type: 'construction_yard', owner: 'empire' }];
-    state.factions.empire.refined = 500;
+    state.factions.empire.gold = 500;
     queueBuild(state, 'fac-test', 'mine');
     for (let day = 0; day < 8; day++) advanceBuilds(state);
 
@@ -131,7 +131,7 @@ describe('completing builds', () => {
   it('freezes construction while a world is in revolt', () => {
     const state = generateGalaxy(204);
     const { system, facility } = yardOf(state, 'empire');
-    state.factions.empire.refined = 500;
+    state.factions.empire.gold = 500;
     queueBuild(state, facility.id, 'mine');
     system.uprising = true;
     for (let day = 0; day < 20; day++) advanceBuilds(state);

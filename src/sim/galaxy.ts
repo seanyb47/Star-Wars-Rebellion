@@ -2,7 +2,7 @@ import factionData from '../data/factions.json';
 import characterRoster from '../data/characters.json';
 import reachData from '../data/reaches.json';
 import { createRng, type Rng } from './rng';
-import { MAINTENANCE_PER_PAIR } from './constants';
+
 import type {
   Character,
   Facility,
@@ -12,7 +12,7 @@ import type {
   Sector,
   System,
 } from './types';
-import { recomputeMaintenance } from './economy';
+import { recomputeLedger } from './economy';
 
 const INNER_REACHES = reachData.reaches.filter((r) => r.tier === 'inner');
 const OUTER_REACHES = reachData.reaches.filter((r) => r.tier === 'outer');
@@ -39,6 +39,8 @@ const START_YARDS = 2;
 const START_TRAINING = 1;
 const START_GARRISON = 2;
 const START_CHARACTERS = 7;
+/** Enough to lay down a camp or two before the first income arrives. */
+const START_GOLD = 150;
 
 /** Scatter points inside the sector disc, rejecting anything too close. */
 function scatterSystems(rng: Rng, count: number): Array<{ x: number; y: number }> {
@@ -251,22 +253,8 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     systems,
     characters,
     factions: {
-      empire: {
-        raw: 40,
-        refined: 120,
-        maintenanceCapacity: MAINTENANCE_PER_PAIR * START_MINES,
-        maintenanceUsed: 0,
-        hqSystemId: capital.id,
-        overCapacityDays: 0,
-      },
-      alliance: {
-        raw: 40,
-        refined: 120,
-        maintenanceCapacity: MAINTENANCE_PER_PAIR * START_MINES,
-        maintenanceUsed: 0,
-        hqSystemId: allianceHq.id,
-        overCapacityDays: 0,
-      },
+      empire: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: capital.id },
+      alliance: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: allianceHq.id },
     },
     events: [],
     pendingDecisions: [],
@@ -274,7 +262,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     nextId: idCounter,
   };
 
-  recomputeMaintenance(state);
+  recomputeLedger(state);
   state.events.push({
     id: `evt-${++state.nextId}`,
     day: 1,

@@ -3,7 +3,7 @@ import factionData from '../../data/factions.json';
 import characterRoster from '../../data/characters.json';
 import reachData from '../../data/reaches.json';
 import terms from '../../data/terms.json';
-import { FACILITY_LABEL, YARD_BUILDS } from '../constants';
+import { FACILITY_LABEL, GOLD_PER_DAY, YARD_BUILDS } from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { startMission } from '../missions';
 import { summariseReach } from '../reach';
@@ -146,10 +146,12 @@ describe('terminology', () => {
     expect(YARD_BUILDS.shipyard.label).toBe(terms.facilities.shipyard);
   });
 
-  it('renames the resources', () => {
-    expect(terms.raw).toBe('Stores');
-    expect(terms.refined).toBe('Fittings');
+  it('uses one plain-word currency, not invented resource names', () => {
+    expect(terms.gold).toBe('Gold');
     expect(terms.allegiance).toBe('Allegiance');
+    // Slot names are things a player already understands.
+    expect(terms.ground).toBe('Ground');
+    expect(terms.water).toBe('Water');
   });
 });
 
@@ -171,20 +173,25 @@ describe('the Reach summary', () => {
     );
   });
 
-  it('reports what your camps here actually cut, not how many you own', () => {
+  it('reports what your holdings here actually earn, not how many you own', () => {
     const state = generateGalaxy(12);
     const island = state.systems.find(
       (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'mine'),
     )!;
     const mines = island.facilities.filter((f) => f.type === 'mine').length;
 
-    island.support.empire = 100;
-    const atFull = summariseReach(state, island.sectorId, 'empire').storesPerDay;
-    island.support.empire = 0;
-    const atNone = summariseReach(state, island.sectorId, 'empire').storesPerDay;
+    const rate = island.facilities
+      .filter((f) => f.owner === 'empire')
+      .reduce((total, f) => total + GOLD_PER_DAY[f.type], 0);
 
-    // 1.0x versus 0.5x per camp, for this island's share of the Reach.
-    expect(atFull - atNone).toBeCloseTo(mines * 0.5, 5);
+    island.support.empire = 100;
+    const atFull = summariseReach(state, island.sectorId, 'empire').goldPerDay;
+    island.support.empire = 0;
+    const atNone = summariseReach(state, island.sectorId, 'empire').goldPerDay;
+
+    // 1.0x versus 0.5x on this island's whole earning rate.
+    expect(mines).toBeGreaterThan(0);
+    expect(atFull - atNone).toBeCloseTo(rate * 0.5, 5);
   });
 
   it('stops counting an island in mutiny', () => {
@@ -192,10 +199,10 @@ describe('the Reach summary', () => {
     const island = state.systems.find(
       (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'mine'),
     )!;
-    const before = summariseReach(state, island.sectorId, 'empire').storesPerDay;
+    const before = summariseReach(state, island.sectorId, 'empire').goldPerDay;
     island.uprising = true;
     const after = summariseReach(state, island.sectorId, 'empire');
-    expect(after.storesPerDay).toBeLessThan(before);
+    expect(after.goldPerDay).toBeLessThan(before);
     expect(after.mutinies).toBe(1);
   });
 

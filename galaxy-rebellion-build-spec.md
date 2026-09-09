@@ -104,7 +104,7 @@ interface GameState {
 - Each side starts with 7 characters at its HQ, ~8 mines, ~8 refineries,
   2 construction yards, 1 training facility spread across its systems.
 
-### 4.2 Economy (per tick)
+### 4.2 Economy (per tick) — **SUPERSEDED, see the amendment at the end of this file**
 1. Each mine on a system you control (not in uprising) produces `1 raw × supportMultiplier`.
    `supportMultiplier = 0.5 + support[you]/200` (50% loyal → 0.75×; 100% → 1.0×).
 2. Each refinery converts up to 1 raw → 1 refined per tick.
@@ -196,3 +196,45 @@ to pause), raw / refined / maintenance (used/cap).
   named leaders; Empire must *find* the hidden Alliance HQ.
 - **Phase 4 — Polish & smarter AI.** Force-user tiers and training,
   superweapon, LLM-driven opponent via API, sound, animations.
+
+
+---
+
+## AMENDMENTS
+
+Changes to the rules above, agreed after playtesting. Where an amendment
+conflicts with a numbered section, the amendment wins and the section is
+marked superseded.
+
+### A1 (2026-09-09) — One currency, replacing §4.2
+
+The two-resource economy (raw → refined, plus a maintenance *capacity*) tested
+badly: the resource names meant nothing to a player and the capacity ceiling
+was the least intuitive part of the original. It is replaced by a single
+currency, **Gold**, on this rule: *a building either earns gold, or it costs
+gold.*
+
+1. **Earners.** A Camp earns 2 gold a day; a Mill earns 3. Both are scaled by
+   `supportMultiplier = 0.5 + allegiance/200`, exactly as production was.
+2. **Costs.** A Works costs 3 gold a day, a Drill Ground 2, a Slipway 4, and
+   each company ashore 1. Camps and Mills cost nothing to keep.
+3. An island in mutiny, or not held by the owner of its buildings, earns
+   nothing. Unchanged from §4.2.
+4. **Smuggling** is unchanged in shape: on a held island where your allegiance
+   is under 50, there is a `(50 − allegiance)/200` chance a day that the
+   island's takings go to the enemy instead.
+5. **Shortfall.** Upkeep is paid out of the treasury each day. If it cannot be
+   paid in full, the treasury empties and there is a
+   `min(1, shortfall/upkeep)` chance that day that one thing you own, chosen at
+   random from everything that costs upkeep, breaks down and is lost. Small
+   shortfalls decay slowly, large ones quickly, and the ledger walks itself
+   back to equilibrium instead of collapsing at once. There is no five-day
+   grace period and no "scrap the newest" rule; both are withdrawn.
+6. Build costs are now in gold: mine 40, mill 60, works 120, drill ground 80,
+   slipway 150, company 25. A new game starts with 150 gold.
+7. Slot names in the UI are **Ground** (what a mine needs) and **Water** (what
+   everything else needs). The underlying `rawSlots` / `energySlots` fields are
+   unchanged.
+
+Verified: full games still resolve in roughly 670-730 days, the same as under
+§4.2, so the pacing this spec was balanced for is preserved.

@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { advanceDay, checkVictory } from '../advanceDay';
+import { YARD_BUILDS } from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { newGame, orderBuild, resolvePendingMission, sendDiplomat, setSpeed } from '../commands';
 import { clearSave, loadGame, saveGame } from '../persist';
 import { getSystem } from '../helpers';
 import type { GameState } from '../types';
+
+/** What a new game starts with; kept here so the test states the intent. */
+const START_GOLD = 150;
 
 function tick(state: GameState, days: number): GameState {
   let next = state;
@@ -34,7 +38,7 @@ describe('advanceDay', () => {
   it('accumulates resources over time', () => {
     const state = generateGalaxy(403);
     const after = tick(state, 30);
-    expect(after.factions.empire.refined).toBeGreaterThan(state.factions.empire.refined);
+    expect(after.factions.empire.gold).toBeGreaterThan(state.factions.empire.gold);
   });
 
   it('survives a long run without throwing or corrupting the galaxy', () => {
@@ -118,7 +122,7 @@ describe('commands', () => {
     const yard = state.systems
       .flatMap((s) => s.facilities)
       .find((f) => f.type === 'construction_yard' && f.owner === 'empire')!;
-    state.factions.empire.refined = 0;
+    state.factions.empire.gold = 0;
     const result = orderBuild(state, yard.id, 'shipyard');
     expect(result.error).toBeTruthy();
     expect(result.state).toBe(state);
@@ -132,8 +136,9 @@ describe('commands', () => {
     const result = orderBuild(state, yard.id, 'mine');
     expect(result.error).toBeUndefined();
     expect(result.state).not.toBe(state);
-    expect(state.factions.empire.refined).toBe(120);
-    expect(result.state.factions.empire.refined).toBe(80);
+    // The order is paid for out of the treasury, and only on the new state.
+    expect(state.factions.empire.gold).toBe(START_GOLD);
+    expect(result.state.factions.empire.gold).toBe(START_GOLD - YARD_BUILDS.mine.costGold);
   });
 
   it('runs a diplomacy mission end to end through the command layer', () => {
