@@ -402,3 +402,51 @@ button {
 .companies__more {
   font-size: 11px; color: var(--muted); align-self: center; margin-left: 2px;
 }
+
+/* ---------- Reach panel ---------- */
+.isle {
+  border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg-sunken); overflow: hidden;
+}
+.isle__head {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 8px 10px; text-align: left; min-height: var(--tap);
+}
+.isle__name { flex: 1; min-width: 0; }
+.isle__title {
+  display: block; font-size: 13px; font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.isle__bar {
+  display: flex; height: 3px; border-radius: 2px; overflow: hidden;
+  background: #0d2f3a; margin-top: 4px; max-width: 120px;
+}
+.isle__bar > span { display: block; height: 100%; }
+
+.isle__cats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--border); }
+.isle__cat {
+  min-height: var(--tap); display: flex; align-items: center; justify-content: center; gap: 6px;
+  color: var(--muted); position: relative;
+}
+.isle__cat + .isle__cat { border-left: 1px solid var(--border); }
+.isle__cat:active { background: #113442; }
+.isle__count {
+  font-size: 13px; font-weight: 700; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.isle__cat--has { color: var(--brass); }
+.isle__cat--has .isle__count { color: var(--text); }
+.isle__working {
+  position: absolute; top: 9px; right: 50%; transform: translateX(26px);
+  width: 6px; height: 6px; border-radius: 50%; background: var(--brass);
+}
+
+/* Five tabs need a little less type on a narrow phone. */
+@media (max-width: 370px) {
+  .tabs__tab { font-size: 10.5px; letter-spacing: -0.01em; }
+}
+
+.linkish {
+  color: var(--brass); text-decoration: underline;
+  text-underline-offset: 2px; font: inherit;
+}

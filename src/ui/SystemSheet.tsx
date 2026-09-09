@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import {
   FACILITY_BLURB,
@@ -19,12 +18,13 @@ import {
 import { CharacterPortrait, CompanyRow, FacilityIcon, IslandPortrait } from './art';
 import { ControlBadge, Sheet, Stat, SupportBars } from './components';
 
-type TabId = 'overview' | 'build' | 'garrison' | 'log';
+import type { IslandTab } from './ReachSheet';
 
-const TABS: Array<{ id: TabId; label: string }> = [
+const TABS: Array<{ id: IslandTab; label: string }> = [
   { id: 'overview', label: 'Overview' },
-  { id: 'build', label: 'Build' },
-  { id: 'garrison', label: 'Garrison' },
+  { id: 'missions', label: 'Missions' },
+  { id: 'military', label: 'Military' },
+  { id: 'facilities', label: 'Facilities' },
   { id: 'log', label: 'Log' },
 ];
 
@@ -131,17 +131,21 @@ function FacilityCard({
 export function SystemSheet({
   state,
   system,
+  initialTab = 'overview',
   onClose,
   onBuild,
   onCancel,
+  onOpenReach,
 }: {
   state: GameState;
   system: System;
+  initialTab?: IslandTab;
   onClose: () => void;
   onBuild: (facilityId: string, item: BuildItem) => void;
   onCancel: (facilityId: string) => void;
+  onOpenReach?: (sectorId: string) => void;
 }) {
-  const [tab, setTab] = useState<TabId>('overview');
+  const [tab, setTab] = useState<IslandTab>(initialTab);
   const sector = state.sectors.find((s) => s.id === system.sectorId)!;
   const explored = system.explored[state.player];
 
@@ -175,6 +179,12 @@ export function SystemSheet({
   const crew = state.characters.filter(
     (c) => c.faction === state.player && c.locationSystemId === system.id,
   );
+  const inbound = state.characters.filter(
+    (c) =>
+      c.faction === state.player &&
+      c.mission?.targetSystemId === system.id &&
+      c.mission.phase === 'travelling',
+  );
   const log = state.events.filter((e) => e.systemId === system.id).slice(-40).reverse();
   const producers = system.facilities.filter(
     (f) => f.owner === state.player && buildMenu(f).length > 0,
@@ -185,7 +195,14 @@ export function SystemSheet({
       title={system.name}
       subtitle={
         <span className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
-          {sector.name} · {sector.sea} <ControlBadge faction={system.control} />
+          {onOpenReach ? (
+            <button className="linkish" onClick={() => onOpenReach(sector.id)}>
+              {sector.name}
+            </button>
+          ) : (
+            <span>{sector.name}</span>
+          )}
+          · {sector.sea} <ControlBadge faction={system.control} />
           {system.uprising && <span className="badge badge--warn">{terms.mutiny}</span>}
           {!system.populated && <span className="badge badge--none">{terms.uninhabited}</span>}
         </span>
@@ -202,7 +219,7 @@ export function SystemSheet({
               onClick={() => setTab(entry.id)}
             >
               {entry.label}
-              {entry.id === 'build' && producers.length > 0 && (
+              {entry.id === 'facilities' && producers.length > 0 && (
                 <span className="tabs__dot" aria-hidden="true" />
               )}
             </button>
@@ -250,7 +267,7 @@ export function SystemSheet({
         </>
       )}
 
-      {tab === 'build' && (
+      {tab === 'facilities' && (
         <>
           {system.facilities.length === 0 ? (
             <div className="card muted small">Nothing has been built on this island.</div>
@@ -277,7 +294,7 @@ export function SystemSheet({
         </>
       )}
 
-      {tab === 'garrison' && (
+      {tab === 'military' && (
         <>
           <div className="card">
             <div className="row row--between" style={{ marginBottom: 8 }}>
@@ -299,9 +316,12 @@ export function SystemSheet({
               : 'Allegiance is high enough that no companies are needed to keep order.'}
           </p>
 
-          <div className="section-title">
-            {factionData[state.player].shortName} crew ashore
-          </div>
+        </>
+      )}
+
+      {tab === 'missions' && (
+        <>
+          <div className="section-title">Ashore here</div>
           {crew.length === 0 ? (
             <div className="card muted small">Nobody of yours is on this island.</div>
           ) : (
@@ -320,7 +340,35 @@ export function SystemSheet({
                       {character.name}
                     </span>
                     <span className="tiny muted" style={{ display: 'block' }}>
-                      {character.status.replace('_', ' ')}
+                      {character.mission
+                        ? `${terms.parley} — ${character.mission.daysRemaining}d to report`
+                        : character.status.replace('_', ' ')}
+                    </span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="section-title">Under way to here</div>
+          {inbound.length === 0 ? (
+            <div className="card muted small">Nobody of yours is sailing for this island.</div>
+          ) : (
+            <div className="stack">
+              {inbound.map((character) => (
+                <div key={character.id} className="card row" style={{ gap: 10 }}>
+                  <CharacterPortrait
+                    name={character.name}
+                    faction={character.faction}
+                    people={character.people}
+                    size={38}
+                  />
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span className="small" style={{ fontWeight: 600 }}>
+                      {character.name}
+                    </span>
+                    <span className="tiny muted" style={{ display: 'block' }}>
+                      At sea — {character.mission!.daysRemaining}d out
                     </span>
                   </span>
                 </div>

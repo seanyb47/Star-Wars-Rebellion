@@ -498,3 +498,93 @@ export function CharacterPortrait({
     </svg>
   );
 }
+
+/* ------------------------------------------------------------------ *
+ * The three things you can look at on an island
+ * ------------------------------------------------------------------ */
+
+/**
+ * Mission, military, facilities — the three faces of an island, as on the
+ * Reach panel. Kept blockier than the building glyphs so they read as
+ * categories rather than as particular buildings.
+ */
+export function CategoryIcon({
+  kind,
+  size = 22,
+}: {
+  kind: 'missions' | 'military' | 'facilities';
+  size?: number;
+}) {
+  const common = {
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.9,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+  };
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
+      {kind === 'missions' && (
+        <g {...common}>
+          {/* A sealed dispatch. */}
+          <path d="M4 6 h16 v12 h-16 Z" />
+          <path d="M4 6 l8 6 l8 -6" />
+          <circle cx="18" cy="17" r="2.6" fill="currentColor" stroke="none" />
+        </g>
+      )}
+      {kind === 'military' && (
+        <g {...common}>
+          {/* Crossed cutlass and pike. */}
+          <path d="M5 19 Q13 12 19 5" />
+          <path d="M19 5 l1.6 -1.6 l-0.4 3 l-2.6 0.6 Z" fill="currentColor" />
+          <path d="M19 19 L5 5" />
+          <path d="M5 5 l-1.6 -1.6 l3 0.4 l0.6 2.6 Z" fill="currentColor" />
+        </g>
+      )}
+      {kind === 'facilities' && (
+        <g {...common}>
+          {/* A cluster of roofs and a chimney. */}
+          <path d="M3 20 v-6 l4 -3 l4 3 v6" />
+          <path d="M13 20 v-9 l4 -3 l4 3 v9" />
+          <path d="M2 20 h20" />
+          <path d="M17 8 v-3" />
+        </g>
+      )}
+    </svg>
+  );
+}
+
+/** The small coastline used in list rows, where a full portrait is too heavy. */
+export function IslandGlyph({
+  seed,
+  faction,
+  settled,
+  size = 30,
+}: {
+  seed: string;
+  faction: 'empire' | 'alliance' | 'neutral' | 'none';
+  settled: boolean;
+  size?: number;
+}) {
+  const tint =
+    faction === 'empire'
+      ? 'var(--empire)'
+      : faction === 'alliance'
+        ? 'var(--alliance)'
+        : faction === 'neutral'
+          ? 'var(--neutral)'
+          : '#6b7b84';
+  return (
+    <svg viewBox="-20 -20 40 40" width={size} height={size} aria-hidden="true">
+      <path d={islandPath(seed, 16, 11)} fill="var(--shallow)" opacity="0.5" />
+      <path
+        d={islandPath(seed, 13, 11)}
+        fill={settled ? 'var(--land)' : 'var(--land-bare)'}
+        stroke={tint}
+        strokeWidth="1.6"
+        strokeDasharray={settled ? undefined : '3 2.5'}
+      />
+      <path d={islandPath(seed, 13, 11)} fill={tint} opacity="0.2" />
+    </svg>
+  );
+}

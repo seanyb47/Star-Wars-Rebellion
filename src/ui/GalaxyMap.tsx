@@ -26,6 +26,8 @@ export interface GalaxyMapProps {
   focusSystemId?: string | null;
   onCancelPick?: () => void;
   onOpenWorlds?: () => void;
+  /** Tapping the open water inside a Reach opens the whole Reach. */
+  onSelectReach?: (sectorId: string) => void;
 }
 
 /** A view transform that puts `system` in the middle of the screen at zoom `k`. */
@@ -84,6 +86,7 @@ export function GalaxyMap({
   focusSystemId,
   onCancelPick,
   onOpenWorlds,
+  onSelectReach,
 }: GalaxyMapProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   // Open looking at your own capital rather than at the whole empty galaxy.
@@ -218,6 +221,12 @@ export function GalaxyMap({
     onSelectSystem(systemId);
   };
 
+  const tapReach = (sectorId: string) => {
+    if (gesture.current.moved > TAP_SLOP) return;
+    if (pickingFor) return; // Choosing a destination: only islands are targets.
+    onSelectReach?.(sectorId);
+  };
+
   const k = view.k;
   const showNames = k >= 1.9;
   // Once individual worlds are labelled, sector names are just clutter — and
@@ -283,7 +292,8 @@ export function GalaxyMap({
                 cy={sector.y}
                 r={SECTOR_RING_RADIUS}
                 fill="url(#shoal)"
-                pointerEvents="none"
+                style={{ cursor: 'pointer' }}
+                onClick={() => tapReach(sector.id)}
               />
               <circle
                 className="map__sector-ring"
@@ -298,6 +308,8 @@ export function GalaxyMap({
                   x={sector.x}
                   y={sector.y - SECTOR_RING_RADIUS - 14}
                   fontSize={15 / k}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => tapReach(sector.id)}
                 >
                   {sector.name}
                 </text>

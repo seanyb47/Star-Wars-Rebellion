@@ -149,11 +149,22 @@ mid-war, come back a week later, and the title screen offers **Continue your
 game** where you left off. "Save and return to title" in the menu does the same
 thing deliberately.
 
-Tapping an island opens a panel with four tabs: **Overview** (the island drawn
-from its own coastline, its allegiance, its capacity), **Build** (what stands
-there and what you can raise), **Garrison** (companies ashore, how many the
-island needs to stay quiet, your crew present) and **Log** (what has happened
-on this island alone).
+Tapping a **Reach** on the chart — its open water or its name — opens the whole
+Reach: what it earns you a day, the average allegiance across its settled
+islands, and a row per island carrying the three counts that matter, after
+Rebellion's own sector view. Tapping any of the three icons opens that island
+straight onto the matching tab.
+
+| Icon | Means | Opens |
+| --- | --- | --- |
+| Dispatch | Your crew on it, or sailing to it | Missions |
+| Crossed blades | Companies ashore | Military |
+| Roofs | Buildings standing | Facilities |
+
+Tapping an island directly opens the same panel on **Overview** (the island
+drawn from its own coastline, its allegiance, its capacity). The other tabs are
+**Missions**, **Military**, **Facilities** and **Log** (what has happened on
+this island alone). The Reach name in the panel header goes back up a level.
 
 ## The rules, in brief
 

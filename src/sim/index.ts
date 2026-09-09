@@ -5,6 +5,7 @@ export * from './helpers';
 export * from './galaxy';
 export * from './economy';
 export * from './support';
+export * from './reach';
 export * from './build';
 export * from './missions';
 export * from './ai';

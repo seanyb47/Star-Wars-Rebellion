@@ -5,6 +5,8 @@ import reachData from '../../data/reaches.json';
 import terms from '../../data/terms.json';
 import { FACILITY_LABEL, YARD_BUILDS } from '../constants';
 import { generateGalaxy } from '../galaxy';
+import { startMission } from '../missions';
+import { summariseReach } from '../reach';
 
 /**
  * The world bible is the source of truth for every name the player sees.
@@ -148,5 +150,77 @@ describe('terminology', () => {
     expect(terms.raw).toBe('Stores');
     expect(terms.refined).toBe('Fittings');
     expect(terms.allegiance).toBe('Allegiance');
+  });
+});
+
+describe('the Reach summary', () => {
+  it('counts what the Reach holds', () => {
+    const state = generateGalaxy(12);
+    const sector = state.sectors.find((s) =>
+      state.systems.some((sys) => sys.sectorId === s.id && sys.control === 'empire'),
+    )!;
+    const summary = summariseReach(state, sector.id, 'empire');
+
+    expect(summary.islands).toBe(10);
+    expect(summary.held).toBe(
+      state.systems.filter((s) => s.sectorId === sector.id && s.control === 'empire').length,
+    );
+    expect(summary.perIsland).toHaveLength(10);
+    expect(summary.settled).toBe(
+      state.systems.filter((s) => s.sectorId === sector.id && s.populated).length,
+    );
+  });
+
+  it('reports what your camps here actually cut, not how many you own', () => {
+    const state = generateGalaxy(12);
+    const island = state.systems.find(
+      (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'mine'),
+    )!;
+    const mines = island.facilities.filter((f) => f.type === 'mine').length;
+
+    island.support.empire = 100;
+    const atFull = summariseReach(state, island.sectorId, 'empire').storesPerDay;
+    island.support.empire = 0;
+    const atNone = summariseReach(state, island.sectorId, 'empire').storesPerDay;
+
+    // 1.0x versus 0.5x per camp, for this island's share of the Reach.
+    expect(atFull - atNone).toBeCloseTo(mines * 0.5, 5);
+  });
+
+  it('stops counting an island in mutiny', () => {
+    const state = generateGalaxy(12);
+    const island = state.systems.find(
+      (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'mine'),
+    )!;
+    const before = summariseReach(state, island.sectorId, 'empire').storesPerDay;
+    island.uprising = true;
+    const after = summariseReach(state, island.sectorId, 'empire');
+    expect(after.storesPerDay).toBeLessThan(before);
+    expect(after.mutinies).toBe(1);
+  });
+
+  it('counts a character as on an island both when standing there and sailing to it', () => {
+    const state = generateGalaxy(12);
+    const hq = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
+    const atHome = summariseReach(state, hq.sectorId, 'empire').perIsland.find(
+      (i) => i.systemId === hq.id,
+    )!;
+    expect(atHome.missions).toBe(7);
+
+    const target = state.systems.find(
+      (s) => s.sectorId === hq.sectorId && s.control === 'neutral',
+    )!;
+    startMission(state, state.characters[0].id, target.id);
+    const summary = summariseReach(state, hq.sectorId, 'empire');
+    // Still at home while travelling, and already counted against the target.
+    expect(summary.perIsland.find((i) => i.systemId === target.id)!.missions).toBe(1);
+  });
+
+  it('averages allegiance across settled islands only', () => {
+    const state = generateGalaxy(12);
+    const sector = state.sectors[0];
+    const settled = state.systems.filter((s) => s.sectorId === sector.id && s.populated);
+    for (const s of settled) s.support.empire = 40;
+    expect(summariseReach(state, sector.id, 'empire').allegiance.empire).toBeCloseTo(40);
   });
 });

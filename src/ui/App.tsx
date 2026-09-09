@@ -22,6 +22,7 @@ import {
 import { CharactersScreen } from './CharactersScreen';
 import { FeedScreen } from './FeedScreen';
 import { GalaxyMap } from './GalaxyMap';
+import { ReachSheet, type IslandTab } from './ReachSheet';
 import { SystemSheet } from './SystemSheet';
 import { StartScreen } from './StartScreen';
 import { TabBar, type Tab } from './TabBar';
@@ -53,6 +54,8 @@ export function App() {
   const [state, setState] = useState<GameState>(() => saved ?? newGame());
   const [tab, setTab] = useState<Tab>('galaxy');
   const [openSystemId, setOpenSystemId] = useState<string | null>(null);
+  const [openSystemTab, setOpenSystemTab] = useState<IslandTab>('overview');
+  const [openReachId, setOpenReachId] = useState<string | null>(null);
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [worldsOpen, setWorldsOpen] = useState(false);
@@ -66,6 +69,7 @@ export function App() {
   const panelOpen =
     openSystemId !== null ||
     openCharacterId !== null ||
+    openReachId !== null ||
     menuOpen ||
     worldsOpen ||
     decision !== null;
@@ -149,12 +153,21 @@ export function App() {
       return;
     }
     setOpenSystemId(systemId);
+    setOpenSystemTab('overview');
+  };
+
+  /** From the Reach panel: open one of its islands straight onto a tab. */
+  const openIslandTab = (systemId: string, islandTab: IslandTab) => {
+    setOpenReachId(null);
+    setOpenSystemId(systemId);
+    setOpenSystemTab(islandTab);
   };
 
   const jumpToSystem = (systemId: string) => {
     setTab('galaxy');
     setFocusSystemId(systemId);
     setOpenSystemId(systemId);
+    setOpenSystemTab('overview');
   };
 
   const startNewGame = (player: PlayableFaction) => {
@@ -164,6 +177,7 @@ export function App() {
     setTab('galaxy');
     setOpenSystemId(null);
     setOpenCharacterId(null);
+    setOpenReachId(null);
     setPickingFor(null);
     setLastSeen(0);
   };
@@ -179,6 +193,11 @@ export function App() {
   const openSystem = useMemo(
     () => state.systems.find((s) => s.id === openSystemId) ?? null,
     [state.systems, openSystemId],
+  );
+
+  const openReach = useMemo(
+    () => state.sectors.find((s) => s.id === openReachId) ?? null,
+    [state.sectors, openReachId],
   );
 
   const pickingCharacter = pickingFor
@@ -235,6 +254,7 @@ export function App() {
             }
             onCancelPick={() => setPickingFor(null)}
             onOpenWorlds={() => setWorldsOpen(true)}
+            onSelectReach={(sectorId: string) => setOpenReachId(sectorId)}
           />
         )}
         {tab === 'characters' && (
@@ -272,14 +292,29 @@ export function App() {
 
       {openSystem && (
         <SystemSheet
+          key={`${openSystem.id}-${openSystemTab}`}
           state={state}
           system={openSystem}
+          initialTab={openSystemTab}
           onClose={() => {
             setOpenSystemId(null);
             setFocusSystemId(null);
           }}
           onBuild={handleBuild}
           onCancel={handleCancel}
+          onOpenReach={(sectorId) => {
+            setOpenSystemId(null);
+            setOpenReachId(sectorId);
+          }}
+        />
+      )}
+
+      {openReach && (
+        <ReachSheet
+          state={state}
+          sector={openReach}
+          onClose={() => setOpenReachId(null)}
+          onOpenIsland={openIslandTab}
         />
       )}
 
