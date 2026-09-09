@@ -19,10 +19,12 @@ import {
   type PlayableFaction,
   type Speed,
 } from '../sim';
+import { Almanac } from './Almanac';
 import { CharacterSheet } from './CharacterSheet';
 import { CharactersScreen } from './CharactersScreen';
 import { FeedScreen } from './FeedScreen';
 import { GalaxyMap } from './GalaxyMap';
+import { Narrator } from './Narrator';
 import { ReachSheet, type IslandTab } from './ReachSheet';
 import { SystemSheet } from './SystemSheet';
 import { StartScreen } from './StartScreen';
@@ -60,6 +62,8 @@ export function App() {
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [worldsOpen, setWorldsOpen] = useState(false);
+  const [narratorOpen, setNarratorOpen] = useState(false);
+  const [almanacOpen, setAlmanacOpen] = useState(false);
   const [pickingFor, setPickingFor] = useState<string | null>(null);
   const [focusSystemId, setFocusSystemId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -73,6 +77,8 @@ export function App() {
     openReachId !== null ||
     menuOpen ||
     worldsOpen ||
+    narratorOpen ||
+    almanacOpen ||
     decision !== null;
 
   // ---- The clock -------------------------------------------------------
@@ -261,6 +267,7 @@ export function App() {
             onCancelPick={() => setPickingFor(null)}
             onOpenWorlds={() => setWorldsOpen(true)}
             onSelectReach={(sectorId: string) => setOpenReachId(sectorId)}
+            onAskAdvisor={() => setNarratorOpen(true)}
           />
         )}
         {tab === 'characters' && (
@@ -349,11 +356,36 @@ export function App() {
         />
       )}
 
+      {narratorOpen && (
+        <Narrator
+          state={state}
+          onClose={() => setNarratorOpen(false)}
+          onOpenIsland={(systemId) => {
+            setNarratorOpen(false);
+            jumpToSystem(systemId);
+          }}
+          onOpenCharacter={(characterId) => {
+            setNarratorOpen(false);
+            setOpenCharacterId(characterId);
+          }}
+          onOpenAlmanac={() => {
+            setNarratorOpen(false);
+            setAlmanacOpen(true);
+          }}
+        />
+      )}
+
+      {almanacOpen && <Almanac state={state} onClose={() => setAlmanacOpen(false)} />}
+
       {menuOpen && (
         <MenuSheet
           state={state}
           onClose={() => setMenuOpen(false)}
           onReturnToTitle={returnToTitle}
+          onOpenAlmanac={() => {
+            setMenuOpen(false);
+            setAlmanacOpen(true);
+          }}
         />
       )}
     </div>
@@ -456,10 +488,12 @@ function MenuSheet({
   state,
   onClose,
   onReturnToTitle,
+  onOpenAlmanac,
 }: {
   state: GameState;
   onClose: () => void;
   onReturnToTitle: () => void;
+  onOpenAlmanac: () => void;
 }) {
   const tally = controlTally(state);
   const needed = Math.ceil(tally.populated * VICTORY_CONTROL_FRACTION);
@@ -487,9 +521,14 @@ function MenuSheet({
       </p>
 
       <div className="section-title">Game</div>
-      <button className="btn btn--block" onClick={onReturnToTitle}>
-        Save and return to title
-      </button>
+      <div className="stack">
+        <button className="btn btn--block" onClick={onOpenAlmanac}>
+          Almanac — what everything is
+        </button>
+        <button className="btn btn--block" onClick={onReturnToTitle}>
+          Save and return to title
+        </button>
+      </div>
       <p className="tiny muted" style={{ marginTop: 10 }}>
         Your game saves itself constantly — after every order and whenever you switch away from
         the app — so you can close it at any point and pick the war back up from the title screen.

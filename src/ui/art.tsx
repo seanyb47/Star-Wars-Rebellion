@@ -588,3 +588,78 @@ export function IslandGlyph({
     </svg>
   );
 }
+
+/* ------------------------------------------------------------------ *
+ * The two narrators (world bible section 1)
+ * ------------------------------------------------------------------ */
+
+/** Mr Pennywhistle: a one-eyed sea-parrot the Confederacy cannot get rid of. */
+export function ParrotPortrait({ size = 44 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 40 40" width={size} height={size} aria-hidden="true" style={{ display: 'block' }}>
+      <circle cx="20" cy="20" r="18" fill="#071a22" />
+      <circle cx="20" cy="20" r="18" fill="var(--alliance)" opacity="0.16" />
+      <g clipPath="url(#parrot-clip)">
+        <defs>
+          <clipPath id="parrot-clip">
+            <circle cx="20" cy="20" r="18" />
+          </clipPath>
+        </defs>
+        {/* Body and wing */}
+        <path d="M14 40 Q10 26 20 22 Q31 26 27 40 Z" fill="#2f7a5a" />
+        <path d="M24 27 Q30 31 27 39 Q23 33 24 27 Z" fill="#1f5c43" />
+        {/* Head */}
+        <circle cx="20" cy="16" r="8" fill="#3d9c73" />
+        {/* Crest */}
+        <path d="M16 9 Q17 3 20 7 Q23 2 24 9 Z" fill="var(--alliance)" />
+        {/* Beak */}
+        <path d="M27 15 Q33 17 27 21 Q25 18 27 15 Z" fill="#d8a13c" />
+        {/* The one eye, and the patch over the other */}
+        <circle cx="22" cy="14.5" r="2.2" fill="#f2f6f7" />
+        <circle cx="22.4" cy="14.5" r="1.1" fill="#08161c" />
+        <path d="M12 12 h6 v5 h-6 Z" fill="#0b1c22" />
+        <path d="M9 11 L20 13" stroke="#0b1c22" strokeWidth="1.4" />
+      </g>
+      <circle cx="20" cy="20" r="18" fill="none" stroke="var(--alliance)" strokeWidth="1.6" opacity="0.85" />
+    </svg>
+  );
+}
+
+/** Secretary Crane: grey, unblinking, and possibly not alive. */
+export function SecretaryPortrait({ size = 44 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 40 40" width={size} height={size} aria-hidden="true" style={{ display: 'block' }}>
+      <circle cx="20" cy="20" r="18" fill="#071a22" />
+      <circle cx="20" cy="20" r="18" fill="var(--empire)" opacity="0.14" />
+      <g clipPath="url(#crane-clip)">
+        <defs>
+          <clipPath id="crane-clip">
+            <circle cx="20" cy="20" r="18" />
+          </clipPath>
+        </defs>
+        {/* Narrow shoulders, high collar, long face */}
+        <path d="M2 41 Q3 28 20 26 Q37 28 38 41 Z" fill="#8e9aa1" />
+        <path d="M20 26 L15 34 L20 31 L25 34 Z" fill="#e8edef" />
+        <rect x="17.4" y="21" width="5.2" height="7" rx="1.4" fill="#b9c4c9" />
+        <ellipse cx="20" cy="15" rx="6.2" ry="8" fill="#b9c4c9" />
+        {/* Severe hair, drawn flat to the skull */}
+        <path d="M13.6 12 Q20 3 26.4 12 Q20 8.5 13.6 12 Z" fill="#3b464c" />
+        {/* Two unblinking eyes */}
+        <circle cx="17.6" cy="14.5" r="1" fill="#0b1c22" />
+        <circle cx="22.4" cy="14.5" r="1" fill="#0b1c22" />
+        <path d="M17 20 h6" stroke="#7d888e" strokeWidth="1" strokeLinecap="round" />
+      </g>
+      <circle cx="20" cy="20" r="18" fill="none" stroke="var(--empire)" strokeWidth="1.6" opacity="0.85" />
+    </svg>
+  );
+}
+
+export function NarratorPortrait({
+  faction,
+  size,
+}: {
+  faction: 'empire' | 'alliance';
+  size?: number;
+}) {
+  return faction === 'empire' ? <SecretaryPortrait size={size} /> : <ParrotPortrait size={size} />;
+}

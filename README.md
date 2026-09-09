@@ -215,6 +215,17 @@ for 20 days. Otherwise you choose whether to stay another cycle or weigh anchor.
 **Victory.** Hold 60% of the settled islands. Left alone, the opponent gets there
 in roughly 600–700 days.
 
+**Your advisor.** Each side has one, from the world bible: Secretary Crane for
+the Imperium, Mr Pennywhistle for the Confederacy. Tap the portrait on the
+chart and they will tell you where you can build, who is free to sail, where
+the trouble is, which unaligned islands lean your way, and how the war is
+going — each answer listing the actual islands or people, tappable to go
+straight there. They answer from the game state; they do not converse.
+
+**Almanac.** Every building, company, crew member and term, with what each
+costs and earns. Read out of the same constants the simulation runs on, so it
+cannot go stale. In the menu, or from the advisor.
+
 **The opponent.** Deliberately simple, per the phase 1 spec: every 5 days it
 builds whichever of camp or mill it has fewer of, at the island with the most
 free slots; every 10 days it sends its best available negotiator to parley the
@@ -253,6 +264,21 @@ production, refining, smuggling, upkeep and salvage, control flips, mutinies,
 Reach spillover, building, parley passage and resolution, being found out,
 save/load, full games played end to end to a winner, and a set that pins the
 world bible's data files against what the simulation expects.
+
+## Known rough edges
+
+Things I know are wrong, in the order I mean to fix them.
+
+- **Island shapes read as blobs, not archipelagos.** Every island is an
+  independent random coastline of roughly the same size, scattered evenly
+  inside its Reach. A real ocean does not look like that: it has chains,
+  clusters, a few large islands among many small ones, and open water between
+  groups. Fixing this means generating a Reach's islands together rather than
+  one at a time, giving them a size distribution, and letting a large island
+  carry more than one port.
+- **Nothing to spend gold on late.** Slots fill up and the treasury climbs into
+  five figures. Fleets are what absorb it; until then the economy has no sink.
+- **No sound.** See below.
 
 ## Not built yet
 

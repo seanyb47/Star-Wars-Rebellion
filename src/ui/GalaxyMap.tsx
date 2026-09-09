@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
 import { GALAXY_SIZE, SECTOR_RING_RADIUS, isDiplomacyTarget } from '../sim';
-import { CompassRose, islandPath } from './art';
+import { CompassRose, NarratorPortrait, islandPath } from './art';
 
 const CENTRE = GALAXY_SIZE / 2;
 /** How far the view may be dragged before the galaxy would leave the screen. */
@@ -28,6 +28,7 @@ export interface GalaxyMapProps {
   onOpenWorlds?: () => void;
   /** Tapping the open water inside a Reach opens the whole Reach. */
   onSelectReach?: (sectorId: string) => void;
+  onAskAdvisor?: () => void;
 }
 
 /** A view transform that puts `system` in the middle of the screen at zoom `k`. */
@@ -87,6 +88,7 @@ export function GalaxyMap({
   onCancelPick,
   onOpenWorlds,
   onSelectReach,
+  onAskAdvisor,
 }: GalaxyMapProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   // Open looking at your own capital rather than at the whole empty galaxy.
@@ -423,6 +425,12 @@ export function GalaxyMap({
           })}
         </g>
       </svg>
+
+      {onAskAdvisor && !pickingFor && (
+        <button className="advisor" onClick={onAskAdvisor} aria-label="Ask your advisor">
+          <NarratorPortrait faction={state.player} size={46} />
+        </button>
+      )}
 
       <div className="map__hud">
         {pickingFor ? (
