@@ -52,7 +52,8 @@ export function checkVictory(state: GameState): void {
       state.winner = faction as PlayableFaction;
       state.speed = 'paused';
       pushEvent(state, {
-        text: `The ${factionData[faction].name} holds the Seven Seas. The war is over.`,
+        kind: 'war',
+      text: `The ${factionData[faction].name} holds the Seven Seas. The war is over.`,
       });
       return;
     }

@@ -52,7 +52,8 @@ export function collectIncome(state: GameState, rng: Rng): void {
       if (smuggleChance > 0 && rng.chance(smuggleChance)) {
         state.factions[enemy].gold += earned;
         pushEvent(state, {
-          text: `Smugglers run a day's takings off ${system.name} and sell them to the enemy.`,
+          kind: 'loss',
+      text: `Smugglers run a day's takings off ${system.name} and sell them to the enemy.`,
           systemId: system.id,
         });
       } else {
@@ -115,6 +116,7 @@ function breakSomethingDown(state: GameState, faction: PlayableFaction, rng: Rng
   if (picked.facilityIndex === undefined) {
     picked.system.garrison = Math.max(0, picked.system.garrison - 1);
     pushEvent(state, {
+      kind: 'loss',
       text: `Unpaid and unfed, a company on ${picked.system.name} has melted away.`,
       systemId: picked.system.id,
     });
@@ -123,7 +125,8 @@ function breakSomethingDown(state: GameState, faction: PlayableFaction, rng: Rng
 
   const [broken] = picked.system.facilities.splice(picked.facilityIndex, 1);
   pushEvent(state, {
-    text: `For want of maintenance, the ${FACILITY_LABEL[broken.type].toLowerCase()} on ${picked.system.name} has fallen apart.`,
+    kind: 'loss',
+      text: `For want of maintenance, the ${FACILITY_LABEL[broken.type].toLowerCase()} on ${picked.system.name} has fallen apart.`,
     systemId: picked.system.id,
   });
 }

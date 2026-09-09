@@ -29,6 +29,8 @@ export interface GalaxyMapProps {
   /** Tapping the open water inside a Reach opens the whole Reach. */
   onSelectReach?: (sectorId: string) => void;
   onAskAdvisor?: () => void;
+  /** Which Sea is under the middle of the view, for the sound to follow. */
+  onSeaChange?: (sea: string | null) => void;
 }
 
 /** A view transform that puts `system` in the middle of the screen at zoom `k`. */
@@ -89,6 +91,7 @@ export function GalaxyMap({
   onOpenWorlds,
   onSelectReach,
   onAskAdvisor,
+  onSeaChange,
 }: GalaxyMapProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   // Open looking at your own capital rather than at the whole empty galaxy.
@@ -222,6 +225,24 @@ export function GalaxyMap({
     if (gesture.current.moved > TAP_SLOP) return;
     onSelectSystem(systemId);
   };
+
+  // Whichever Reach is nearest the centre of the screen owns the sound.
+  const centredSea = useMemo(() => {
+    let best: { sea: string; distance: number } | null = null;
+    for (const sector of state.sectors) {
+      const sx = sector.x * view.k + view.tx;
+      const sy = sector.y * view.k + view.ty;
+      const distance = Math.hypot(sx - CENTRE, sy - CENTRE);
+      if (!best || distance < best.distance) best = { sea: sector.sea, distance };
+    }
+    return best?.sea ?? null;
+  }, [state.sectors, view]);
+
+  const reportedSea = useRef<string | null>(null);
+  if (centredSea !== reportedSea.current) {
+    reportedSea.current = centredSea;
+    queueMicrotask(() => onSeaChange?.(centredSea));
+  }
 
   const tapReach = (sectorId: string) => {
     if (gesture.current.moved > TAP_SLOP) return;

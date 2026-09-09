@@ -73,7 +73,8 @@ export function startMission(state: GameState, characterId: string, targetSystem
     daysRemaining: days > 0 ? days : MISSION_WORK_DAYS,
   };
   pushEvent(state, {
-    text: `${character.name} sails for ${target.name} to parley.`,
+    kind: 'mission',
+      text: `${character.name} sails for ${target.name} to parley.`,
     systemId: targetSystemId,
     characterId,
   });
@@ -93,7 +94,8 @@ export function advanceMissions(state: GameState, rng: Rng): void {
         character.status = 'available';
         character.injuredDays = undefined;
         pushEvent(state, {
-          text: `${character.name} has recovered and is fit for sea.`,
+          kind: 'mission',
+      text: `${character.name} has recovered and is fit for sea.`,
           characterId: character.id,
         });
       }
@@ -111,7 +113,8 @@ export function advanceMissions(state: GameState, rng: Rng): void {
       mission.phase = 'working';
       mission.daysRemaining = MISSION_WORK_DAYS;
       pushEvent(state, {
-        text: `${character.name} has made landfall at ${getSystem(state, mission.targetSystemId).name}.`,
+        kind: 'mission',
+      text: `${character.name} has made landfall at ${getSystem(state, mission.targetSystemId).name}.`,
         systemId: mission.targetSystemId,
         characterId: character.id,
       });
@@ -131,6 +134,7 @@ function resolveDiplomacy(state: GameState, character: Character, rng: Rng): voi
     character.status = 'available';
     character.mission = undefined;
     pushEvent(state, {
+      kind: 'mission',
       text: `${character.name} abandons the talks on ${system.name}; the island is beyond reach.`,
       systemId: system.id,
       characterId: character.id,
@@ -145,6 +149,7 @@ function resolveDiplomacy(state: GameState, character: Character, rng: Rng): voi
     applySupportChange(state, system, faction, gain);
     applySupportChange(state, system, otherFaction(faction), -MISSION_SUPPORT_LOSS);
     pushEvent(state, {
+      kind: 'mission',
       text: `${character.name} sways ${system.name}: allegiance up ${gain.toFixed(1)} points.`,
       systemId: system.id,
       characterId: character.id,
@@ -152,6 +157,7 @@ function resolveDiplomacy(state: GameState, character: Character, rng: Rng): voi
     resolveControlAndUnrest(state);
   } else {
     pushEvent(state, {
+      kind: 'mission',
       text: `${character.name} makes no headway on ${system.name}.`,
       systemId: system.id,
       characterId: character.id,
@@ -164,6 +170,7 @@ function resolveDiplomacy(state: GameState, character: Character, rng: Rng): voi
     character.injuredDays = FOIL_INJURY_DAYS;
     character.mission = undefined;
     pushEvent(state, {
+      kind: 'loss',
       text: `${character.name} was found out on ${system.name} and hurt getting back to the boat.`,
       systemId: system.id,
       characterId: character.id,

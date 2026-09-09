@@ -487,3 +487,5 @@ button {
   z-index: 3;
 }
 .advisor:active { transform: scale(0.94); }
+
+.iconbtn--on { color: var(--brass); border-color: var(--brass); }

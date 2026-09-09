@@ -226,6 +226,27 @@ straight there. They answer from the game state; they do not converse.
 costs and earns. Read out of the same constants the simulation runs on, so it
 cannot go stale. In the menu, or from the advisor.
 
+**Sound.** Off until you tap the speaker in the top bar, and remembered after
+that. It is all synthesised in the browser — nothing is downloaded, so the
+game stays a 76kB install that works with no signal. One music file would have
+been forty times the size of the entire game.
+
+- *Events* have their own short sounds: two rising notes when an island comes
+  over, a low thud and a sour interval when one revolts, a soft double-ping
+  when a diplomat reports.
+- *The bed* is a slow drone over filtered noise, generated as you play, so it
+  never loops and never repeats — which matters when a session runs for hours.
+- *Each Sea sounds like itself.* The Crown Sea is ordered and consonant; the
+  Bone Sea is detuned against itself so it never settles; the Glass Sea is
+  nearly silent with an eight-second tail. Pan the chart and the bed retunes
+  underneath you. Islands of yours in revolt pull the whole thing darker.
+
+Two things worth knowing. **If your phone's ringer is on silent, Safari mutes
+this and there is no way around it** — that is the browser, not the game.
+And the bed keeps playing while the clock is paused: silencing it on pause was
+the obvious choice and the wrong one, because panels hold the clock constantly
+and the sound cut out every time you looked at anything.
+
 **The opponent.** Deliberately simple, per the phase 1 spec: every 5 days it
 builds whichever of camp or mill it has fewer of, at the island with the most
 free slots; every 10 days it sends its best available negotiator to parley the
@@ -278,7 +299,10 @@ Things I know are wrong, in the order I mean to fix them.
   carry more than one port.
 - **Nothing to spend gold on late.** Slots fill up and the treasury climbs into
   five figures. Fleets are what absorb it; until then the economy has no sink.
-- **No sound.** See below.
+- **I cannot hear the sound I wrote.** The audio is synthesised and wired to
+  the game correctly, and I verified that it runs, retunes and stops — but
+  whether it is pleasant, dull or irritating is not something I can judge.
+  That needs a human ear and a few rounds of feedback.
 
 ## Not built yet
 

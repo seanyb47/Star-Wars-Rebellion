@@ -106,6 +106,7 @@ function completeBuild(
   if (item === 'troop') {
     system.garrison += 1;
     pushEvent(state, {
+      kind: 'order',
       text: `A company has finished its drill on ${system.name}.`,
       systemId: system.id,
     });
@@ -114,7 +115,8 @@ function completeBuild(
 
   system.facilities.push({ id: nextId(state, 'fac'), type: item, owner });
   pushEvent(state, {
-    text: `${FACILITY_LABEL[item]} completed on ${system.name}.`,
+    kind: 'order',
+      text: `${FACILITY_LABEL[item]} completed on ${system.name}.`,
     systemId: system.id,
   });
 
@@ -125,6 +127,7 @@ function completeBuild(
     system.support[otherFaction(owner)] = 0;
     system.control = owner;
     pushEvent(state, {
+      kind: 'flip',
       text: `${system.name} has been settled. There are people on it now, and they are yours.`,
       systemId: system.id,
     });

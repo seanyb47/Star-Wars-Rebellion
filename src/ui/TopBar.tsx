@@ -13,11 +13,15 @@ function speedDots(speed: Speed): string {
 export function TopBar({
   state,
   autoPaused,
+  soundOn,
+  onToggleSound,
   onSetSpeed,
   onOpenMenu,
 }: {
   state: GameState;
   autoPaused: boolean;
+  soundOn: boolean;
+  onToggleSound: () => void;
   onSetSpeed: (speed: Speed) => void;
   onOpenMenu: () => void;
 }) {
@@ -66,6 +70,14 @@ export function TopBar({
         >
           <span className="speed__dots">{speedDots(state.speed)}</span>
           <span>{autoPaused && state.speed !== 'paused' ? 'Held' : SPEED_LABEL[state.speed]}</span>
+        </button>
+        <button
+          className={`iconbtn${soundOn ? ' iconbtn--on' : ''}`}
+          onClick={onToggleSound}
+          aria-pressed={soundOn}
+          aria-label={soundOn ? 'Turn sound off' : 'Turn sound on'}
+        >
+          {soundOn ? '♪' : '⌀'}
         </button>
         <button className="iconbtn" onClick={onOpenMenu} aria-label="Menu">
           ⋯

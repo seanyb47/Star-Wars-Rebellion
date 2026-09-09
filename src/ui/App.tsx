@@ -30,6 +30,7 @@ import { SystemSheet } from './SystemSheet';
 import { StartScreen } from './StartScreen';
 import { TabBar, type Tab } from './TabBar';
 import { TopBar } from './TopBar';
+import { useAudio } from './useAudio';
 import { FactionCrest } from './art';
 import { ControlBadge, Sheet, Stat } from './components';
 
@@ -68,6 +69,7 @@ export function App() {
   const [focusSystemId, setFocusSystemId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [lastSeen, setLastSeen] = useState(readLastSeen);
+  const [centredSea, setCentredSea] = useState<string | null>(null);
 
   const decision = state.pendingDecisions[0] ?? null;
   // Spec 2: any modal or panel holds the clock; closing it resumes.
@@ -92,6 +94,8 @@ export function App() {
     }, SPEED_MS[state.speed]);
     return () => window.clearInterval(interval);
   }, [running, state.speed]);
+
+  const sound = useAudio(state, centredSea);
 
   // ---- Persistence -----------------------------------------------------
   const stateRef = useRef(state);
@@ -236,6 +240,8 @@ export function App() {
       <TopBar
         state={state}
         autoPaused={panelOpen}
+        soundOn={sound.on}
+        onToggleSound={sound.toggle}
         onSetSpeed={(speed: Speed) => setState(setSpeed(state, speed))}
         onOpenMenu={() => setMenuOpen(true)}
       />
@@ -268,6 +274,7 @@ export function App() {
             onOpenWorlds={() => setWorldsOpen(true)}
             onSelectReach={(sectorId: string) => setOpenReachId(sectorId)}
             onAskAdvisor={() => setNarratorOpen(true)}
+            onSeaChange={setCentredSea}
           />
         )}
         {tab === 'characters' && (

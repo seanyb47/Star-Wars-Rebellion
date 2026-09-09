@@ -266,7 +266,8 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   state.events.push({
     id: `evt-${++state.nextId}`,
     day: 1,
-    text: `The ${factionData.alliance.name} declares against the ${factionData.empire.name}. The war for the Seven Seas begins.`,
+    kind: 'war',
+      text: `The ${factionData.alliance.name} declares against the ${factionData.empire.name}. The war for the Seven Seas begins.`,
   });
   return state;
 }

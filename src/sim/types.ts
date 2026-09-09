@@ -98,9 +98,23 @@ export interface FactionState {
   hqSystemId: string;
 }
 
+/**
+ * What sort of thing happened. Set so anything downstream can react to the
+ * meaning of an event rather than reading its prose: the sound the game makes
+ * is chosen from this, and the feed could mark them too.
+ */
+export type EventKind =
+  | 'war'      // the war beginning or ending
+  | 'flip'     // an island changing hands, or being settled
+  | 'mutiny'   // an island rising
+  | 'order'    // something you ordered finishing
+  | 'mission'  // a crew member departing, landing, or reporting
+  | 'loss';    // something taken from you
+
 export interface GameEvent {
   id: string;
   day: number;
+  kind: EventKind;
   text: string;
   systemId?: string;
   characterId?: string;

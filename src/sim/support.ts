@@ -30,7 +30,8 @@ export function resolveControlAndUnrest(state: GameState): void {
     if (!system.populated) {
       if (isPlayable(system.control) && system.garrison < 1) {
         pushEvent(state, {
-          text: `${system.name} has been abandoned; the last company has sailed.`,
+          kind: 'loss',
+      text: `${system.name} has been abandoned; the last company has sailed.`,
           systemId: system.id,
         });
         system.control = 'none';
@@ -43,7 +44,8 @@ export function resolveControlAndUnrest(state: GameState): void {
       if (canFlip(system, faction)) {
         system.control = faction;
         pushEvent(state, {
-          text: `${system.name} has run up the colours of the ${factionName(faction)}.`,
+          kind: 'flip',
+      text: `${system.name} has run up the colours of the ${factionName(faction)}.`,
           systemId: system.id,
         });
         break;
@@ -60,14 +62,16 @@ export function resolveControlAndUnrest(state: GameState): void {
       if (support >= UPRISING_END_SUPPORT) {
         system.uprising = false;
         pushEvent(state, {
-          text: `The mutiny on ${system.name} has been put down.`,
+          kind: 'order',
+      text: `The mutiny on ${system.name} has been put down.`,
           systemId: system.id,
         });
       }
     } else if (support < UPRISING_SUPPORT && system.garrison < requiredGarrison(support)) {
       system.uprising = true;
       pushEvent(state, {
-        text: `${system.name} has risen in mutiny. Nothing is being loaded or landed.`,
+        kind: 'mutiny',
+      text: `${system.name} has risen in mutiny. Nothing is being loaded or landed.`,
         systemId: system.id,
       });
     }
