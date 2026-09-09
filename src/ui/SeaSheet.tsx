@@ -1,38 +1,40 @@
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
-import { summariseReach, type GameState, type Sector } from '../sim';
+import { summariseSea, type GameState } from '../sim';
 import { IslandRow, type IslandTab } from './IslandRow';
 import { Sheet, Stat } from './components';
 
-export type { IslandTab };
-
 /**
- * A whole Reach at once: what it earns, who its islands lean toward, and a
- * row per island carrying the three counts that matter. Tapping any of the
- * three opens that island straight onto the matching tab.
+ * A whole Sea. This is what a tap opens when the chart is zoomed out far
+ * enough that an island is a few pixels across and picking one is a lottery:
+ * you choose the water, then the island, from a list you can actually read.
  */
-export function ReachSheet({
+export function SeaSheet({
   state,
-  sector,
+  sea,
   onClose,
   onOpenIsland,
+  onOpenReach,
 }: {
   state: GameState;
-  sector: Sector;
+  sea: string;
   onClose: () => void;
   onOpenIsland: (systemId: string, tab: IslandTab) => void;
+  onOpenReach: (sectorId: string) => void;
 }) {
-  const summary = summariseReach(state, sector.id, state.player);
+  const summary = summariseSea(state, sea, state.player);
   const byId = new Map(state.systems.map((s) => [s.id, s] as const));
   const you = state.player;
   const enemy = you === 'empire' ? 'alliance' : 'empire';
+  const net = summary.goldPerDay - summary.upkeepPerDay;
 
   return (
     <Sheet
-      title={sector.name}
+      title={sea}
       subtitle={
         <span>
-          {sector.sea} · {summary.islands} islands
+          {summary.reaches} {summary.reaches === 1 ? terms.reach : `${terms.reach}es`} ·{' '}
+          {summary.islands} islands
           {summary.mutinies > 0 && (
             <span className="badge badge--warn" style={{ marginLeft: 8 }}>
               {summary.mutinies} in {terms.mutiny.toLowerCase()}
@@ -56,20 +58,15 @@ export function ReachSheet({
         <Stat
           label="Net"
           value={
-            <span style={{ color: summary.goldPerDay - summary.upkeepPerDay < 0 ? 'var(--bad)' : 'var(--good)' }}>
-              {summary.goldPerDay - summary.upkeepPerDay >= 0 ? '+' : '−'}
-              {Math.abs(summary.goldPerDay - summary.upkeepPerDay).toFixed(1)}
+            <span style={{ color: net < 0 ? 'var(--bad)' : 'var(--good)' }}>
+              {net >= 0 ? '+' : '−'}
+              {Math.abs(net).toFixed(1)}
             </span>
           }
         />
       </div>
-      {summary.goldPerDay === 0 && (
-        <p className="tiny muted" style={{ marginTop: 6 }}>
-          Nothing of yours is producing in this {terms.reach.toLowerCase()}.
-        </p>
-      )}
 
-      <div className="section-title">{terms.allegiance} across the {terms.reach.toLowerCase()}</div>
+      <div className="section-title">{terms.allegiance} across the sea</div>
       <div className="card">
         {([you, enemy] as const).map((faction) => (
           <div key={faction} style={{ marginBottom: 6 }}>
@@ -89,23 +86,36 @@ export function ReachSheet({
           </div>
         ))}
         <p className="tiny muted" style={{ margin: '4px 0 0' }}>
-          Averaged over the {summary.settled} settled islands. A parley anywhere here drags the
-          rest of the {terms.reach.toLowerCase()} with it.
+          Averaged over the {summary.settled} settled islands of this sea.
         </p>
       </div>
 
-      <div className="section-title">Islands</div>
-      <div className="stack">
-        {summary.perIsland.map((entry) => (
-          <IslandRow
-            key={entry.systemId}
-            state={state}
-            system={byId.get(entry.systemId)!}
-            entry={entry}
-            onOpen={onOpenIsland}
-          />
-        ))}
-      </div>
+      {summary.perReach.map((reach) => {
+        const sector = state.sectors.find((s) => s.id === reach.sectorId)!;
+        return (
+          <div key={reach.sectorId}>
+            <div className="row row--between" style={{ marginTop: 16, marginBottom: 6 }}>
+              <button className="linkish" onClick={() => onOpenReach(sector.id)}>
+                {sector.name}
+              </button>
+              <span className="tiny muted">
+                {reach.held} yours · {reach.unaligned} unaligned
+              </span>
+            </div>
+            <div className="stack">
+              {reach.perIsland.map((entry) => (
+                <IslandRow
+                  key={entry.systemId}
+                  state={state}
+                  system={byId.get(entry.systemId)!}
+                  entry={entry}
+                  onOpen={onOpenIsland}
+                />
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </Sheet>
   );
 }

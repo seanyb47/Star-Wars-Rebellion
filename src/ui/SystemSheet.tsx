@@ -20,7 +20,7 @@ import {
 import { CharacterPortrait, CompanyRow, FacilityIcon, IslandPortrait } from './art';
 import { ControlBadge, Sheet, Stat, SupportBars } from './components';
 
-import type { IslandTab } from './ReachSheet';
+import type { IslandTab } from './IslandRow';
 
 const TABS: Array<{ id: IslandTab; label: string }> = [
   { id: 'overview', label: 'Overview' },

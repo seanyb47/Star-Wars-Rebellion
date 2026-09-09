@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
-import { GALAXY_SIZE, SECTOR_RING_RADIUS, isDiplomacyTarget } from '../sim';
+import { GALAXY_SIZE, SECTOR_RING_RADIUS, isDiplomacyTarget, seasOf } from '../sim';
 import { CompassRose, NarratorPortrait, islandPath } from './art';
 
 const CENTRE = GALAXY_SIZE / 2;
@@ -11,6 +11,12 @@ const MIN_ZOOM = 0.7;
 const MAX_ZOOM = 7;
 /** Pointer travel (in screen px) above which a gesture counts as a pan, not a tap. */
 const TAP_SLOP = 8;
+/**
+ * Below this zoom an island is a few pixels across and picking one is a
+ * lottery, so the chart works at the level of whole Seas instead: tap the
+ * water, then choose the island from a list you can read.
+ */
+const ISLAND_ZOOM = 1.5;
 
 interface View {
   k: number;
@@ -29,6 +35,8 @@ export interface GalaxyMapProps {
   /** Tapping the open water inside a Reach opens the whole Reach. */
   onSelectReach?: (sectorId: string) => void;
   onAskAdvisor?: () => void;
+  /** Tapping a Sea while zoomed out, when islands are too small to aim at. */
+  onSelectSea?: (sea: string) => void;
 }
 
 /** A view transform that puts `system` in the middle of the screen at zoom `k`. */
@@ -89,6 +97,7 @@ export function GalaxyMap({
   onOpenWorlds,
   onSelectReach,
   onAskAdvisor,
+  onSelectSea,
 }: GalaxyMapProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   // Open looking at your own capital rather than at the whole empty galaxy.
@@ -223,6 +232,40 @@ export function GalaxyMap({
     onSelectSystem(systemId);
   };
 
+  /** A circle covering all of a Sea's Reaches, for drawing and for tapping. */
+  const seaRegions = useMemo(() => {
+    return seasOf(state).map((sea) => {
+      const sectors = state.sectors.filter((s) => s.sea === sea);
+      const x = sectors.reduce((t, s) => t + s.x, 0) / sectors.length;
+      const y = sectors.reduce((t, s) => t + s.y, 0) / sectors.length;
+      const r =
+        Math.max(...sectors.map((s) => Math.hypot(s.x - x, s.y - y))) + SECTOR_RING_RADIUS + 12;
+      return { sea, x, y, r };
+    });
+  }, [state.sectors]);
+
+  /**
+   * Which Sea a tap belongs to, by nearest centre.
+   *
+   * Drawing a circle per Sea and hanging the handler on it does not work: the
+   * circles overlap heavily, so a tap in an overlap opens whichever happens to
+   * be painted last. Nearest-centre partitions the whole chart with no gaps
+   * and no ambiguity, and every tap lands on the Sea you were aiming at.
+   */
+  const tapSeaAt = (event: React.MouseEvent<SVGRectElement>) => {
+    if (gesture.current.moved > TAP_SLOP) return;
+    if (pickingFor) return;
+    const point = toUser(event.clientX, event.clientY);
+    const x = (point.x - view.tx) / view.k;
+    const y = (point.y - view.ty) / view.k;
+    let best: { sea: string; distance: number } | null = null;
+    for (const region of seaRegions) {
+      const distance = Math.hypot(region.x - x, region.y - y);
+      if (!best || distance < best.distance) best = { sea: region.sea, distance };
+    }
+    if (best) onSelectSea?.(best.sea);
+  };
+
   const tapReach = (sectorId: string) => {
     if (gesture.current.moved > TAP_SLOP) return;
     if (pickingFor) return; // Choosing a destination: only islands are targets.
@@ -231,9 +274,11 @@ export function GalaxyMap({
 
   const k = view.k;
   const showNames = k >= 1.9;
+  // Far out, the chart is a chart of seas; close in, it is a chart of islands.
+  const islandsLive = k >= ISLAND_ZOOM;
   // Once individual worlds are labelled, sector names are just clutter — and
   // they collide with the system labels of the cluster next door.
-  const showSectorNames = !showNames;
+  const showSectorNames = !showNames && islandsLive;
 
   return (
     <>
@@ -287,6 +332,35 @@ export function GalaxyMap({
             ))}
           </g>
 
+          {!islandsLive && (
+            <>
+              {/* One hit area for the whole chart; nearest centre decides. */}
+              <rect
+                x={-GALAXY_SIZE}
+                y={-GALAXY_SIZE}
+                width={GALAXY_SIZE * 3}
+                height={GALAXY_SIZE * 3}
+                fill="transparent"
+                style={{ cursor: 'pointer' }}
+                onClick={tapSeaAt}
+              />
+              {/* Names only, no boundaries drawn: a tap goes to the nearest
+                  Sea, and a ring would draw a border that is not really there. */}
+              {seaRegions.map((region) => (
+                <text
+                  key={region.sea}
+                  className="map__sea-label"
+                  x={region.x}
+                  y={region.y - region.r * 0.62}
+                  fontSize={30 / k}
+                  pointerEvents="none"
+                >
+                  {region.sea}
+                </text>
+              ))}
+            </>
+          )}
+
           {state.sectors.map((sector) => (
             <g key={sector.id}>
               <circle
@@ -294,7 +368,8 @@ export function GalaxyMap({
                 cy={sector.y}
                 r={SECTOR_RING_RADIUS}
                 fill="url(#shoal)"
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: islandsLive ? 'pointer' : 'default' }}
+                pointerEvents={islandsLive ? 'auto' : 'none'}
                 onClick={() => tapReach(sector.id)}
               />
               <circle
@@ -333,9 +408,16 @@ export function GalaxyMap({
               !!pickingFor && isDiplomacyTarget(system, pickingFor.faction);
 
             return (
-              <g key={system.id} onClick={() => tapSystem(system.id)} style={{ cursor: 'pointer' }}>
+              <g
+                key={system.id}
+                onClick={islandsLive ? () => tapSystem(system.id) : undefined}
+                style={{ cursor: islandsLive ? 'pointer' : 'default' }}
+                pointerEvents={islandsLive ? 'auto' : 'none'}
+              >
                 {/* Generous invisible hit area for fingers. */}
-                <circle cx={ax} cy={ay} r={Math.max(14, 20 / k)} fill="transparent" />
+                {islandsLive && (
+                  <circle cx={ax} cy={ay} r={Math.max(14, 20 / k)} fill="transparent" />
+                )}
                 {pickable && (
                   <circle className="map__pick" cx={ax} cy={ay} r={radius + 5} strokeWidth={2 / k} />
                 )}
@@ -437,10 +519,12 @@ export function GalaxyMap({
           <button className="chip chip--pick" onClick={onCancelPick}>
             Tap a highlighted island · cancel
           </button>
-        ) : (
+        ) : islandsLive ? (
           <button className="chip chip--action" onClick={onOpenWorlds}>
             My islands
           </button>
+        ) : (
+          <span className="chip">Tap a sea, or zoom in</span>
         )}
         <span className="topbar__spacer" />
         <button className="chip chip--action" onClick={() => zoomBy(1 / 1.5)} aria-label="Zoom out">

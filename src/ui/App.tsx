@@ -25,7 +25,9 @@ import { CharactersScreen } from './CharactersScreen';
 import { FeedScreen } from './FeedScreen';
 import { GalaxyMap } from './GalaxyMap';
 import { Narrator } from './Narrator';
-import { ReachSheet, type IslandTab } from './ReachSheet';
+import { ReachSheet } from './ReachSheet';
+import { SeaSheet } from './SeaSheet';
+import type { IslandTab } from './IslandRow';
 import { SystemSheet } from './SystemSheet';
 import { StartScreen } from './StartScreen';
 import { TabBar, type Tab } from './TabBar';
@@ -60,6 +62,7 @@ export function App() {
   const [openSystemId, setOpenSystemId] = useState<string | null>(null);
   const [openSystemTab, setOpenSystemTab] = useState<IslandTab>('overview');
   const [openReachId, setOpenReachId] = useState<string | null>(null);
+  const [openSea, setOpenSea] = useState<string | null>(null);
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [worldsOpen, setWorldsOpen] = useState(false);
@@ -76,6 +79,7 @@ export function App() {
     openSystemId !== null ||
     openCharacterId !== null ||
     openReachId !== null ||
+    openSea !== null ||
     menuOpen ||
     worldsOpen ||
     narratorOpen ||
@@ -169,6 +173,7 @@ export function App() {
   /** From the Reach panel: open one of its islands straight onto a tab. */
   const openIslandTab = (systemId: string, islandTab: IslandTab) => {
     setOpenReachId(null);
+    setOpenSea(null);
     setOpenSystemId(systemId);
     setOpenSystemTab(islandTab);
   };
@@ -188,6 +193,7 @@ export function App() {
     setOpenSystemId(null);
     setOpenCharacterId(null);
     setOpenReachId(null);
+    setOpenSea(null);
     setPickingFor(null);
     setLastSeen(0);
   };
@@ -273,6 +279,7 @@ export function App() {
             onOpenWorlds={() => setWorldsOpen(true)}
             onSelectReach={(sectorId: string) => setOpenReachId(sectorId)}
             onAskAdvisor={() => setNarratorOpen(true)}
+            onSelectSea={setOpenSea}
           />
         )}
         {tab === 'characters' && (
@@ -325,6 +332,19 @@ export function App() {
           sector={openReach}
           onClose={() => setOpenReachId(null)}
           onOpenIsland={openIslandTab}
+        />
+      )}
+
+      {openSea && (
+        <SeaSheet
+          state={state}
+          sea={openSea}
+          onClose={() => setOpenSea(null)}
+          onOpenIsland={openIslandTab}
+          onOpenReach={(sectorId) => {
+            setOpenSea(null);
+            setOpenReachId(sectorId);
+          }}
         />
       )}
 

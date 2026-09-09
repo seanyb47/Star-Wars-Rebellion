@@ -6,7 +6,7 @@ import terms from '../../data/terms.json';
 import { FACILITY_LABEL, GOLD_PER_DAY, YARD_BUILDS } from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { startMission } from '../missions';
-import { summariseReach } from '../reach';
+import { reachesOfSea, seasOf, summariseReach, summariseSea } from '../reach';
 
 /**
  * The world bible is the source of truth for every name the player sees.
@@ -229,5 +229,48 @@ describe('the Reach summary', () => {
     const settled = state.systems.filter((s) => s.sectorId === sector.id && s.populated);
     for (const s of settled) s.support.empire = 40;
     expect(summariseReach(state, sector.id, 'empire').allegiance.empire).toBeCloseTo(40);
+  });
+});
+
+describe('the Sea summary', () => {
+  const state = generateGalaxy(21);
+
+  it('covers every Reach exactly once across the seven Seas', () => {
+    const seas = seasOf(state);
+    expect(seas).toHaveLength(7);
+    const counted = seas.flatMap((sea) => summariseSea(state, sea, 'empire').perReach);
+    expect(counted).toHaveLength(state.sectors.length);
+    expect(new Set(counted.map((r) => r.sectorId)).size).toBe(state.sectors.length);
+  });
+
+  it('adds its Reaches up', () => {
+    for (const sea of seasOf(state)) {
+      const summary = summariseSea(state, sea, 'empire');
+      expect(summary.islands).toBe(summary.reaches * 10);
+      expect(summary.held).toBe(
+        summary.perReach.reduce((total, r) => total + r.held, 0),
+      );
+      expect(summary.goldPerDay).toBeCloseTo(
+        summary.perReach.reduce((total, r) => total + r.goldPerDay, 0),
+      );
+    }
+  });
+
+  it('averages allegiance over islands, not over Reach averages', () => {
+    // A Sea of two Reaches where one has far fewer settled islands: averaging
+    // the averages would weight that Reach as heavily as the bigger one.
+    const twoReach = seasOf(state).find(
+      (sea) => reachesOfSea(state, sea).length === 2,
+    )!;
+    const sectors = reachesOfSea(state, twoReach);
+    const settled = state.systems.filter(
+      (s) => s.populated && sectors.some((sec) => sec.id === s.sectorId),
+    );
+    settled.forEach((s, i) => {
+      s.support.empire = i === 0 ? 100 : 0;
+    });
+
+    const summary = summariseSea(state, twoReach, 'empire');
+    expect(summary.allegiance.empire).toBeCloseTo(100 / settled.length, 5);
   });
 });

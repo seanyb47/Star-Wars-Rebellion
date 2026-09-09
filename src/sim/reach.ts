@@ -98,3 +98,73 @@ export function summariseReach(
     })),
   };
 }
+
+/** The Seas, in the order their Reaches appear on the chart. */
+export function seasOf(state: GameState): string[] {
+  const seen: string[] = [];
+  for (const sector of state.sectors) {
+    if (!seen.includes(sector.sea)) seen.push(sector.sea);
+  }
+  return seen;
+}
+
+export function reachesOfSea(state: GameState, sea: string) {
+  return state.sectors.filter((s) => s.sea === sea);
+}
+
+export interface SeaSummary {
+  sea: string;
+  reaches: number;
+  islands: number;
+  settled: number;
+  held: number;
+  enemyHeld: number;
+  unaligned: number;
+  goldPerDay: number;
+  upkeepPerDay: number;
+  garrison: number;
+  mutinies: number;
+  allegiance: { empire: number; alliance: number };
+  /** One entry per Reach, in chart order. */
+  perReach: ReachSummary[];
+}
+
+/**
+ * A whole Sea, by adding up its Reaches. Allegiance is re-averaged over the
+ * Sea's settled islands rather than averaged over Reach averages, which would
+ * quietly overweight a Reach that happens to have fewer settled islands.
+ */
+export function summariseSea(
+  state: GameState,
+  sea: string,
+  faction: PlayableFaction,
+): SeaSummary {
+  const perReach = reachesOfSea(state, sea).map((sector) =>
+    summariseReach(state, sector.id, faction),
+  );
+  const settledIslands = state.systems.filter(
+    (s) => s.populated && perReach.some((r) => r.sectorId === s.sectorId),
+  );
+  const mean = (of: PlayableFaction) =>
+    settledIslands.length === 0
+      ? 0
+      : settledIslands.reduce((total, s) => total + s.support[of], 0) / settledIslands.length;
+  const sum = (pick: (r: ReachSummary) => number) =>
+    perReach.reduce((total, r) => total + pick(r), 0);
+
+  return {
+    sea,
+    reaches: perReach.length,
+    islands: sum((r) => r.islands),
+    settled: sum((r) => r.settled),
+    held: sum((r) => r.held),
+    enemyHeld: sum((r) => r.enemyHeld),
+    unaligned: sum((r) => r.unaligned),
+    goldPerDay: sum((r) => r.goldPerDay),
+    upkeepPerDay: sum((r) => r.upkeepPerDay),
+    garrison: sum((r) => r.garrison),
+    mutinies: sum((r) => r.mutinies),
+    allegiance: { empire: mean('empire'), alliance: mean('alliance') },
+    perReach,
+  };
+}

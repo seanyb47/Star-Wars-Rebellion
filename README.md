@@ -149,6 +149,15 @@ mid-war, come back a week later, and the title screen offers **Continue your
 game** where you left off. "Save and return to title" in the menu does the same
 thing deliberately.
 
+**The chart works at the zoom you are at.** Pulled right out, an island is a
+few pixels across and picking one is a lottery, so islands stop being tap
+targets and the chart becomes a chart of **Seas**: seven names on open water,
+and a tap opens that whole Sea — every one of its islands, grouped by Reach,
+in a list you can actually read. Zoom in and islands become tappable again.
+
+There are no boundaries drawn between Seas, deliberately: a tap goes to the
+nearest Sea, and a ring would draw a border that is not really there.
+
 Tapping a **Reach** on the chart — its open water or its name — opens the whole
 Reach: what it earns you a day, the average allegiance across its settled
 islands, and a row per island carrying the three counts that matter, after

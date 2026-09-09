@@ -489,3 +489,9 @@ button {
 .advisor:active { transform: scale(0.94); }
 
 .iconbtn--on { color: var(--brass); border-color: var(--brass); }
+
+.map__sea-label {
+  fill: #6ea8bb; text-anchor: middle;
+  font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+  font-style: italic; letter-spacing: 0.12em;
+}
