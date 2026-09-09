@@ -278,7 +278,6 @@ export function App() {
             onCancelPick={() => setPickingFor(null)}
             onOpenWorlds={() => setWorldsOpen(true)}
             onSelectReach={(sectorId: string) => setOpenReachId(sectorId)}
-            onAskAdvisor={() => setNarratorOpen(true)}
             onSelectSea={setOpenSea}
           />
         )}
@@ -298,7 +297,13 @@ export function App() {
         )}
       </main>
 
-      <TabBar tab={tab} onChange={setTab} unread={unread} />
+      <TabBar
+        tab={tab}
+        onChange={setTab}
+        unread={unread}
+        player={state.player}
+        onAskAdvisor={() => setNarratorOpen(true)}
+      />
 
       {notice && (
         <div className="chip chip--toast" style={{ position: 'absolute', left: 12, right: 12 }}>

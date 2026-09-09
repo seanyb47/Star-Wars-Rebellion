@@ -1,4 +1,6 @@
 import terms from '../data/terms.json';
+import { NarratorFigure } from './art';
+import { NARRATOR } from './Narrator';
 
 export type Tab = 'galaxy' | 'characters' | 'feed';
 
@@ -12,10 +14,14 @@ export function TabBar({
   tab,
   onChange,
   unread,
+  player,
+  onAskAdvisor,
 }: {
   tab: Tab;
   onChange: (tab: Tab) => void;
   unread: number;
+  player: 'empire' | 'alliance';
+  onAskAdvisor: () => void;
 }) {
   return (
     <nav className="tabbar">
@@ -32,6 +38,20 @@ export function TabBar({
           )}
         </button>
       ))}
+      {/*
+        Rebellion's droid stands on the console at the foot of the frame, on
+        every screen, never summoned. The tab bar is our console, so the
+        advisor stands on it. Floating him over the screen instead was tried
+        and thrown away: on the crew list he covered the rating numbers, and
+        on a phone there is no spare corner for a figure to occupy.
+      */}
+      <button
+        className="advisor"
+        onClick={onAskAdvisor}
+        aria-label={`Ask ${NARRATOR[player].name}`}
+      >
+        <NarratorFigure faction={player} size={46} />
+      </button>
     </nav>
   );
 }

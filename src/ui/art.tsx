@@ -654,6 +654,91 @@ export function SecretaryPortrait({ size = 44 }: { size?: number }) {
   );
 }
 
+/**
+ * The advisors again, standing rather than framed.
+ *
+ * Rebellion keeps its droid on screen at all times, at the edge of the frame,
+ * never summoned — that is what "a character on screen" means. A circular bust
+ * reads as a button; a figure standing on the floor reads as someone in the
+ * room with you. Same palettes as the cameos above so they are recognisably
+ * the same two characters.
+ */
+export function ParrotFigure({ size = 56 }: { size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 34 56"
+      height={size}
+      width={(size * 34) / 56}
+      aria-hidden="true"
+      style={{ display: 'block', overflow: 'visible' }}
+    >
+      <ellipse cx="17" cy="53" rx="10" ry="2.4" fill="#030d12" opacity="0.5" />
+      {/* Perch: base, post, and the bar he grips */}
+      <ellipse cx="17" cy="51.4" rx="7.5" ry="2" fill="#5a4632" />
+      <rect x="15.6" y="27" width="2.8" height="24" fill="#4a3a2a" />
+      {/* Tail hangs behind the bar */}
+      <path d="M19.5 22 Q25.5 32 21.5 37 Q17.6 30 19.5 22 Z" fill="#1f5c43" />
+      <rect x="7" y="25.2" width="20" height="2.6" rx="1.3" fill="#6b5238" />
+      {/* Feet */}
+      <path d="M14.8 22 v4 M19.2 22 v4" stroke="#d8a13c" strokeWidth="1.4" strokeLinecap="round" />
+      {/* Body and folded wing */}
+      <path d="M11.6 25 Q8.8 15.6 17 11.6 Q25.2 15.6 22.4 25 Z" fill="#2f7a5a" />
+      <path d="M19.6 14.6 Q23.8 18.8 21.2 24 Q18.2 19.4 19.6 14.6 Z" fill="#1f5c43" />
+      {/* Head, crest, beak */}
+      <circle cx="17" cy="10" r="5.6" fill="#3d9c73" />
+      <path d="M13.6 5.2 Q14.6 0 17.4 3.4 Q20.2 -0.6 21.4 5.2 Z" fill="var(--alliance)" />
+      <path d="M22.2 9 Q27.6 11 22.2 14.4 Q20.6 11.7 22.2 9 Z" fill="#d8a13c" />
+      {/* One eye, and the patch over the other */}
+      <circle cx="19.1" cy="8.8" r="1.6" fill="#f2f6f7" />
+      <circle cx="19.4" cy="8.8" r="0.8" fill="#08161c" />
+      <path d="M11.2 6.4 h4.8 v4 h-4.8 Z" fill="#0b1c22" />
+      <path d="M8.8 5.6 L16.6 7.4" stroke="#0b1c22" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+export function SecretaryFigure({ size = 56 }: { size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 34 56"
+      height={size}
+      width={(size * 34) / 56}
+      aria-hidden="true"
+      style={{ display: 'block', overflow: 'visible' }}
+    >
+      <ellipse cx="17" cy="53" rx="10" ry="2.4" fill="#030d12" opacity="0.5" />
+      {/* Shoes under a long coat */}
+      <path d="M12.6 48 h3.6 v3.4 h-3.6 Z M17.8 48 h3.6 v3.4 h-3.6 Z" fill="#2b343a" />
+      {/* The coat: a narrow column, hem to shoulder */}
+      <path d="M10.6 49.5 Q10.2 32 12.6 21.6 Q17 19.6 21.4 21.6 Q23.8 32 23.4 49.5 Z" fill="#8e9aa1" />
+      <path d="M17 21 Q19.4 34 18.6 49.5 L23.4 49.5 Q23.8 32 21.4 21.6 Z" fill="#7d888e" />
+      {/* Cravat at the throat, as in the cameo */}
+      <path d="M17 21.4 L14.2 29 L17 26.6 L19.8 29 Z" fill="#e8edef" />
+      {/* Hands clasped, waiting */}
+      <ellipse cx="17" cy="35.4" rx="3.2" ry="2.2" fill="#b9c4c9" />
+      {/* Neck, then the long face */}
+      <rect x="15.4" y="16.6" width="3.2" height="5.4" rx="1.2" fill="#b9c4c9" />
+      <ellipse cx="17" cy="11.4" rx="5" ry="6.4" fill="#b9c4c9" />
+      {/* Severe hair, flat to the skull */}
+      <path d="M12.4 9 Q17 1.6 21.6 9 Q17 5.6 12.4 9 Z" fill="#3b464c" />
+      {/* Two unblinking eyes, and a mouth that is barely a line */}
+      <circle cx="15.1" cy="11" r="0.85" fill="#0b1c22" />
+      <circle cx="18.9" cy="11" r="0.85" fill="#0b1c22" />
+      <path d="M14.8 15.2 h4.4" stroke="#7d888e" strokeWidth="0.9" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function NarratorFigure({
+  faction,
+  size,
+}: {
+  faction: 'empire' | 'alliance';
+  size?: number;
+}) {
+  return faction === 'empire' ? <SecretaryFigure size={size} /> : <ParrotFigure size={size} />;
+}
+
 export function NarratorPortrait({
   faction,
   size,

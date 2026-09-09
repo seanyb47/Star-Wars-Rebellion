@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
 import { GALAXY_SIZE, SECTOR_RING_RADIUS, isDiplomacyTarget, seasOf } from '../sim';
-import { CompassRose, NarratorPortrait, islandPath } from './art';
+import { CompassRose, islandPath } from './art';
 
 const CENTRE = GALAXY_SIZE / 2;
 /** How far the view may be dragged before the galaxy would leave the screen. */
@@ -34,7 +34,6 @@ export interface GalaxyMapProps {
   onOpenWorlds?: () => void;
   /** Tapping the open water inside a Reach opens the whole Reach. */
   onSelectReach?: (sectorId: string) => void;
-  onAskAdvisor?: () => void;
   /** Tapping a Sea while zoomed out, when islands are too small to aim at. */
   onSelectSea?: (sea: string) => void;
 }
@@ -96,7 +95,6 @@ export function GalaxyMap({
   onCancelPick,
   onOpenWorlds,
   onSelectReach,
-  onAskAdvisor,
   onSelectSea,
 }: GalaxyMapProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -401,6 +399,7 @@ export function GalaxyMap({
             const explored = system.explored[viewer];
             const known = explored && system.populated;
             const radius = islandRadius(system);
+            const slots = system.rawSlots + system.energySlots;
             const isHq =
               system.id === state.factions[viewer].hqSystemId ||
               (explored && system.id === state.factions[viewer === 'empire' ? 'alliance' : 'empire'].hqSystemId);
@@ -492,11 +491,33 @@ export function GalaxyMap({
                     />
                   </g>
                 )}
+                {/*
+                  Rebellion prints a segmented capacity bar under every planet
+                  alongside the loyalty bars, so you can read "how much is this
+                  world worth" without opening it. Ours is one pip per slot,
+                  brass once something stands on it. Only once zoomed in — at
+                  chart scale it would be a smear.
+                */}
+                {showNames && known && slots > 0 && (
+                  <g>
+                    {Array.from({ length: slots }, (_, i) => (
+                      <rect
+                        key={i}
+                        x={ax - 9 + i * (18 / slots)}
+                        y={ay + radius + 8}
+                        width={18 / slots - 0.9}
+                        height={2}
+                        rx={0.6}
+                        fill={i < system.facilities.length ? '#93a7b1' : '#1c3b48'}
+                      />
+                    ))}
+                  </g>
+                )}
                 {showNames && explored && (
                   <text
                     className="map__system-label"
                     x={ax}
-                    y={ay + radius + 14}
+                    y={ay + radius + (known ? 19 : 12)}
                     fontSize={9 / k}
                   >
                     {system.name}
@@ -507,12 +528,6 @@ export function GalaxyMap({
           })}
         </g>
       </svg>
-
-      {onAskAdvisor && !pickingFor && (
-        <button className="advisor" onClick={onAskAdvisor} aria-label="Ask your advisor">
-          <NarratorPortrait faction={state.player} size={46} />
-        </button>
-      )}
 
       <div className="map__hud">
         {pickingFor ? (

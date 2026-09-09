@@ -123,3 +123,92 @@ Our `Narrator.tsx` — Mr Pennywhistle for the Confederacy, Secretary Crane for 
 Empire — has the faction-specific voice right but is a panel you open. The brief
 was "a character **on screen** as our narrator". Rebellion shows what that means
 literally: they are simply always there.
+
+---
+
+# Second batch
+
+## `fleet-status.png` — the fleet readout
+
+The most informative single shot so far. A plain green-on-black table:
+
+    Status:              Awaiting Orders
+    Admiral:             Admiral Brandei
+    General:             General Jerjerrod
+    Commander:           Not Assigned
+    Number Of Ships:     7
+    Capacity:
+      Fighter Squadrons: 19
+      Trooper Regiments: 14
+    Embarked:
+      Fighter Squadrons: 18
+      Trooper Regiments: 3
+    Personnel:           2
+    Damaged Ships:       0
+    Hyperdrive Rating:   Yes
+
+Four things worth taking:
+
+**Officers are slots with job titles, not a generic "leader".** Admiral,
+General, Commander — each either names someone or says *Not Assigned*. An empty
+slot is stated as plainly as a filled one, so a fleet sailing without a
+commander tells you so rather than staying silent. Our characters already have
+Diplomacy / Espionage / Combat / Leadership, which maps onto exactly this kind
+of slotting.
+
+**Capacity against Embarked.** The fleet can carry 19 fighter squadrons and 14
+trooper regiments; it is carrying 18 and 3. Two numbers, side by side, and the
+constraint is legible without arithmetic. This is the same shape as our island
+slots — total against used — and it is the shape our build screen should use.
+
+**Plain-language status.** "Awaiting Orders", not an icon. "Hyperdrive Rating:
+Yes", not a symbol.
+
+**A red nag at the top of the screen: "Idle Construction Yards".** The game
+tells you, unprompted, that you are wasting production. That is worth stealing
+whole — we have exactly the same failure mode, an island with a free slot and
+nothing being built on it, and right now nothing says so.
+
+## `two-sectors-tiled.png` and `sector-and-galaxy-overview.jpg` — the chart
+
+Two sector panes open side by side in one shot; a sector pane beside the whole
+galaxy in the other. Rebellion lets you keep more than one view open at once.
+Not something to copy on a phone, but it explains the layout's priorities.
+
+More useful: these show the per-planet display clearly, and it is **three
+elements, not two** —
+
+    [ icons: garrison, facilities ]
+    [ white segmented bar     ]   <- capacity
+    [ red bar ] [ blue bar    ]   <- support, one per side
+    Planet Name
+
+So "resources and loyalty below each sector" means a **capacity bar as well as
+the loyalty bars**. We had the loyalty bars and were missing the capacity one.
+Now added: one pip per slot under each island, pale stone where something is
+built and a dark socket where nothing is, drawn only once zoomed in.
+
+Two attempts were needed. Brass pips were tried first and thrown away — brass
+is within a shade of the Confederacy's own colour, so on a Confederacy island
+the capacity row and the allegiance bar merged into a single yellow smear. And
+the empty sockets were first drawn in the near-black used for the bar's track,
+which against open water made them invisible: an island with five of eight
+slots filled looked like an island with five slots, all full. Both only showed
+up under magnification.
+
+**Name colours are fixed by faction, not relative to the player.** Green for
+Alliance, red for Empire, pale blue for uncontrolled — the same in the Alliance
+shot and the Empire one. We do the same.
+
+## The droid, again
+
+Present in every shot of both batches, both sides, at the edge of the frame.
+Acted on: our advisor now stands at the end of the tab bar on every screen.
+
+Floating the figure over the screen was tried first, in the bottom-right corner
+above the tab bar, and thrown away after looking at it: on the crew list the
+parrot stood squarely over the rating numbers. Rebellion's droid has a console
+to stand on and a phone has no spare corner — but the tab bar *is* our console,
+so that is where the advisor stands now. Nothing is covered, and he cannot be
+mistaken for a fourth tab because he is a figure rather than an icon and a
+label.
