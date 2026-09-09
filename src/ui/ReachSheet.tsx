@@ -1,15 +1,16 @@
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import { summariseReach, type GameState, type Sector } from '../sim';
-import { IslandRow, type IslandTab } from './IslandRow';
+import { ChainMap } from './ChainMap';
+import type { IslandTab } from './IslandRow';
 import { Sheet, Stat } from './components';
 
 export type { IslandTab };
 
 /**
- * A whole Reach at once: what it earns, who its islands lean toward, and a
- * row per island carrying the three counts that matter. Tapping any of the
- * three opens that island straight onto the matching tab.
+ * A whole Reach at once: what it earns, who its islands lean toward, and then
+ * the chain itself drawn as a chart, every island carrying the marks that say
+ * what is happening on it. Tapping an island opens its panel.
  */
 export function ReachSheet({
   state,
@@ -105,16 +106,23 @@ export function ReachSheet({
       </div>
 
       <div className="section-title">Islands</div>
-      <div className="stack">
-        {summary.perIsland.map((entry) => (
-          <IslandRow
-            key={entry.systemId}
-            state={state}
-            system={byId.get(entry.systemId)!}
-            entry={entry}
-            onOpen={onOpenIsland}
-          />
-        ))}
+      {/*
+        The chain opened out as a chart rather than a list of rows: the islands
+        where they lie, each carrying who holds it, what stands on it, whether
+        your crew are working it, how it leans and how much of it is free. Tap
+        one to open it.
+      */}
+      <ChainMap
+        state={state}
+        systems={summary.perIsland.map((entry) => byId.get(entry.systemId)!)}
+        perIsland={summary.perIsland}
+        onOpenIsland={onOpenIsland}
+      />
+      <div className="chainmap__key">
+        <span><i className="key key--civil" /> Earns gold</span>
+        <span><i className="key key--military" /> Works and yards</span>
+        <span><i className="key key--ashore" /> Companies ashore</span>
+        <span><i className="key key--mission" /> Your crew here</span>
       </div>
     </Sheet>
   );

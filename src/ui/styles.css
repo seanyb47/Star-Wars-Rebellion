@@ -507,3 +507,37 @@ button {
   font-family: 'Iowan Old Style', Palatino, Georgia, serif;
   font-style: italic; letter-spacing: 0.12em;
 }
+
+/* ---------- A chain opened out as a chart ---------- */
+.chainmap {
+  display: block; width: 100%; height: auto;
+  background: var(--water); border: 1px solid var(--border); border-radius: 10px;
+  touch-action: manipulation;
+}
+.chainmap__isle { cursor: pointer; }
+.chainmap__isle:active .chainmap__name { fill: var(--text); }
+.chainmap__name {
+  font-size: 34px; text-anchor: middle;
+  font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+}
+.chainmap__badge-n {
+  font-size: 20px; font-family: inherit; font-weight: 600;
+}
+/* Legend. The marks are indicators, so they need saying once. */
+.chainmap__key {
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  margin-top: 8px; font-size: 11px; color: var(--muted);
+}
+.chainmap__key span { display: inline-flex; align-items: center; gap: 5px; }
+.key {
+  width: 11px; height: 11px; display: inline-block; flex: none;
+  background: currentColor;
+}
+.key--civil { clip-path: polygon(50% 0, 100% 40%, 100% 100%, 0 100%, 0 40%); }
+.key--military { clip-path: polygon(0 100%, 0 30%, 20% 30%, 20% 12%, 40% 12%, 40% 30%, 60% 30%, 60% 12%, 80% 12%, 80% 30%, 100% 30%, 100% 100%); }
+.key--ashore {
+  background: none;
+  background-image: linear-gradient(45deg, transparent 44%, currentColor 44% 56%, transparent 56%),
+                    linear-gradient(-45deg, transparent 44%, currentColor 44% 56%, transparent 56%);
+}
+.key--mission { clip-path: polygon(0 20%, 100% 20%, 100% 80%, 0 80%); }
