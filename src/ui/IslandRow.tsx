@@ -98,6 +98,9 @@ export function IslandRow({
           >
             <CategoryIcon kind={cat.kind} size={20} />
             <span className="isle__count">{explored ? counts[cat.kind] : '–'}</span>
+            {/* Spelled out. A crossed cutlass and pike at 20px is just an X,
+                and an icon that has to be explained is not doing its job. */}
+            <span className="isle__cat-label">{cat.label}</span>
             {cat.kind === 'facilities' && entry.building > 0 && (
               <span className="isle__working" aria-hidden="true" />
             )}

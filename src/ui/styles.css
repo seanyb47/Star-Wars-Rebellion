@@ -447,6 +447,7 @@ button {
   color: var(--muted); position: relative;
 }
 .isle__cat + .isle__cat { border-left: 1px solid var(--border); }
+.isle__cat-label { font-size: 10px; letter-spacing: 0.04em; }
 .isle__cat:active { background: #113442; }
 .isle__count {
   font-size: 13px; font-weight: 700; color: var(--muted);
