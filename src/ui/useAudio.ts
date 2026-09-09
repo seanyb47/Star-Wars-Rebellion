@@ -19,13 +19,13 @@ function readPreference(): boolean {
  * a game people close on a train. Turning it on is itself the user gesture
  * mobile browsers demand before any audio may play.
  *
- * The bed keeps running while the clock is paused. Silencing it on pause was
- * the obvious thing and the wrong one: panels hold the clock constantly, so
- * the sound cut out every time you looked at anything, and tapping the speaker
- * while paused appeared to do nothing at all. It stops when the app is
- * actually in the background, which is where the battery matters.
+ * The bed keeps running while the clock is paused, and does not change with
+ * where you are looking. Both were mistakes worth recording: silencing it on
+ * pause meant the sound cut out every time a panel opened, and retuning it per
+ * Sea meant it lurched every time the player panned the chart. It stops only
+ * when the app is genuinely in the background, which is where battery matters.
  */
-export function useAudio(state: GameState, sea: string | null) {
+export function useAudio(state: GameState) {
   const [on, setOn] = useState(readPreference);
   const engine = useRef<AudioEngine | null>(null);
   const lastEventId = useRef<string | null>(null);
@@ -41,7 +41,7 @@ export function useAudio(state: GameState, sea: string | null) {
       /* a refused write only costs us the preference next launch */
     }
     // Started here, inside the tap, which is the only place mobile allows it.
-    if (next) void engine.current?.start(sea);
+    if (next) void engine.current?.start();
     else void engine.current?.suspend();
   };
 
@@ -51,26 +51,21 @@ export function useAudio(state: GameState, sea: string | null) {
    */
   useEffect(() => {
     if (!on || engine.current?.running) return;
-    const resume = () => void engine.current?.start(sea);
+    const resume = () => void engine.current?.start();
     window.addEventListener('pointerdown', resume, { once: true });
     return () => window.removeEventListener('pointerdown', resume);
-  }, [on, sea]);
+  }, [on]);
 
   useEffect(() => {
     const onVisibility = () => {
       if (document.visibilityState === 'hidden') void engine.current?.suspend();
-      else if (on) void engine.current?.start(sea);
+      else if (on) void engine.current?.start();
     };
     document.addEventListener('visibilitychange', onVisibility);
     return () => document.removeEventListener('visibilitychange', onVisibility);
-  }, [on, sea]);
+  }, [on]);
 
   useEffect(() => () => engine.current?.stop(), []);
-
-  // Retune as the player moves between Seas.
-  useEffect(() => {
-    if (on) engine.current?.setSea(sea);
-  }, [on, sea]);
 
   // Sour the bed while your islands are in revolt.
   useEffect(() => {

@@ -69,7 +69,6 @@ export function App() {
   const [focusSystemId, setFocusSystemId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [lastSeen, setLastSeen] = useState(readLastSeen);
-  const [centredSea, setCentredSea] = useState<string | null>(null);
 
   const decision = state.pendingDecisions[0] ?? null;
   // Spec 2: any modal or panel holds the clock; closing it resumes.
@@ -95,7 +94,7 @@ export function App() {
     return () => window.clearInterval(interval);
   }, [running, state.speed]);
 
-  const sound = useAudio(state, centredSea);
+  const sound = useAudio(state);
 
   // ---- Persistence -----------------------------------------------------
   const stateRef = useRef(state);
@@ -274,7 +273,6 @@ export function App() {
             onOpenWorlds={() => setWorldsOpen(true)}
             onSelectReach={(sectorId: string) => setOpenReachId(sectorId)}
             onAskAdvisor={() => setNarratorOpen(true)}
-            onSeaChange={setCentredSea}
           />
         )}
         {tab === 'characters' && (

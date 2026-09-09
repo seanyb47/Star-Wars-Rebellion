@@ -236,16 +236,21 @@ been forty times the size of the entire game.
   when a diplomat reports.
 - *The bed* is a slow drone over filtered noise, generated as you play, so it
   never loops and never repeats — which matters when a session runs for hours.
-- *Each Sea sounds like itself.* The Crown Sea is ordered and consonant; the
-  Bone Sea is detuned against itself so it never settles; the Glass Sea is
-  nearly silent with an eight-second tail. Pan the chart and the bed retunes
-  underneath you. Islands of yours in revolt pull the whole thing darker.
+  It is one steady bed that does not change with where you are looking.
+- *Unrest* is the one thing that moves it: while islands of yours are in
+  revolt the whole bed darkens, and lifts again when order returns. That is
+  tied to the state of your war rather than to the screen, so it shifts rarely
+  and slowly.
 
-Two things worth knowing. **If your phone's ringer is on silent, Safari mutes
-this and there is no way around it** — that is the browser, not the game.
-And the bed keeps playing while the clock is paused: silencing it on pause was
-the obvious choice and the wrong one, because panels hold the clock constantly
-and the sound cut out every time you looked at anything.
+Two earlier versions were wrong in ways worth recording, because both are
+tempting. Suspending the bed while the clock is paused meant the sound cut out
+every time a panel opened, which is constantly. And giving each of the seven
+Seas its own tuning, retuning as you panned, meant the music lurched every few
+seconds as the player moved around the map — background music has to stay in
+the background.
+
+**If your phone's ringer is on silent, Safari mutes all of this and there is no
+way around it.** That is the browser, not the game.
 
 **The opponent.** Deliberately simple, per the phase 1 spec: every 5 days it
 builds whichever of camp or mill it has fewer of, at the island with the most

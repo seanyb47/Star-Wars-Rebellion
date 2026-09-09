@@ -1,4 +1,4 @@
-import { voiceFor, type SeaVoice } from './seas';
+import { BED, type BedVoice } from './bed';
 import type { EventKind } from '../sim';
 
 /**
@@ -25,7 +25,7 @@ export class AudioEngine {
   private noiseGain: GainNode | null = null;
   private swellLfo: OscillatorNode | null = null;
   private bellTimer: number | null = null;
-  private current: SeaVoice = voiceFor(null);
+  private readonly current: BedVoice = BED;
   /** Extra dissonance layered on while islands of yours are in revolt. */
   private unrest = 0;
 
@@ -34,8 +34,8 @@ export class AudioEngine {
   }
 
   /** Must be called from inside a real user gesture on mobile. */
-  async start(sea: string | null): Promise<void> {
-    if (!this.ctx) this.build(sea);
+  async start(): Promise<void> {
+    if (!this.ctx) this.build();
     await this.ctx?.resume();
     this.scheduleBell();
   }
@@ -57,11 +57,10 @@ export class AudioEngine {
     this.voiceGains = [];
   }
 
-  private build(sea: string | null): void {
+  private build(): void {
     const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     const ctx = new Ctor();
     this.ctx = ctx;
-    this.current = voiceFor(sea);
 
     this.master = ctx.createGain();
     this.master.gain.value = 0.6;
@@ -127,25 +126,6 @@ export class AudioEngine {
 
     // Fade the bed up rather than punching in.
     this.bedGain.gain.setTargetAtTime(0.5, ctx.currentTime, 2);
-  }
-
-  /** Retune the whole bed toward another Sea, over a few seconds. */
-  setSea(sea: string | null): void {
-    const ctx = this.ctx;
-    if (!ctx || !this.filter || !this.noiseGain) return;
-    const next = voiceFor(sea);
-    if (next === this.current) return;
-    this.current = next;
-
-    const now = ctx.currentTime;
-    this.voices.forEach((osc, index) => {
-      const ratio = next.intervals[index] ?? next.intervals[next.intervals.length - 1];
-      osc.frequency.setTargetAtTime(next.root * ratio, now, 2.5);
-      osc.detune.setTargetAtTime((index - 1) * next.detune, now, 2.5);
-    });
-    this.filter.frequency.setTargetAtTime(next.cutoff, now, 2.5);
-    this.noiseGain.gain.setTargetAtTime(next.swell * 0.1, now, 3);
-    if (this.reverb) this.reverb.buffer = this.impulse(next.tail);
   }
 
   /** Islands in revolt pull the bed down and sour it. */
