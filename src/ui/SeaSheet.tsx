@@ -1,7 +1,7 @@
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import { summariseSea, type GameState } from '../sim';
-import { IslandRow, type IslandTab } from './IslandRow';
+import { IslandRow } from './IslandRow';
 import { Sheet, Stat } from './components';
 
 /**
@@ -19,7 +19,7 @@ export function SeaSheet({
   state: GameState;
   sea: string;
   onClose: () => void;
-  onOpenIsland: (systemId: string, tab: IslandTab) => void;
+  onOpenIsland: (systemId: string) => void;
   onOpenReach: (sectorId: string) => void;
 }) {
   const summary = summariseSea(state, sea, state.player);

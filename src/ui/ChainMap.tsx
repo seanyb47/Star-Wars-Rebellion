@@ -1,7 +1,13 @@
 import { useMemo } from 'react';
-import { earns, type GameState, type IslandSummary, type System } from '../sim';
+import {
+  earns,
+  isDiplomacyTarget,
+  type GameState,
+  type IslandSummary,
+  type PlayableFaction,
+  type System,
+} from '../sim';
 import { islandPath } from './art';
-import type { IslandTab } from './IslandRow';
 
 /**
  * A chain opened out as a chart of its own islands, rather than a list of rows.
@@ -95,11 +101,14 @@ export function ChainMap({
   systems,
   perIsland,
   onOpenIsland,
+  pickingFor,
 }: {
   state: GameState;
   systems: System[];
   perIsland: IslandSummary[];
-  onOpenIsland: (systemId: string, tab: IslandTab) => void;
+  onOpenIsland: (systemId: string) => void;
+  /** Choosing a destination: only islands that can be parleyed with respond. */
+  pickingFor?: PlayableFaction | null;
 }) {
   const viewer = state.player;
   const spots = useMemo(() => layoutIslands(systems), [systems]);
@@ -123,6 +132,10 @@ export function ChainMap({
         const tint = controlColour(system, viewer);
         const slots = system.rawSlots + system.energySlots;
         const built = system.facilities.length;
+
+        // The chains dim when they hold nothing to sail to; the islands inside
+        // them must do the same, or you find out by tapping and being told no.
+        const live = !pickingFor || isDiplomacyTarget(system, pickingFor);
 
         const civil = system.facilities.filter((f) => earns(f.type)).length;
         const military = built - civil;
@@ -158,8 +171,11 @@ export function ChainMap({
           <g
             key={system.id}
             className="chainmap__isle"
-            onClick={() => onOpenIsland(system.id, 'overview')}
+            onClick={live ? () => onOpenIsland(system.id) : undefined}
             role="button"
+            aria-disabled={live ? undefined : true}
+            opacity={live ? 1 : 0.3}
+            style={{ cursor: live ? 'pointer' : 'default' }}
             aria-label={
               explored
                 ? `${system.name}, ${built} of ${slots} slots built`
@@ -167,7 +183,10 @@ export function ChainMap({
             }
           >
             {/* A finger-sized target over the whole island, marks included. */}
-            <circle cx={spot.x} cy={spot.y} r={62} fill="transparent" />
+            {live && <circle cx={spot.x} cy={spot.y} r={62} fill="transparent" />}
+            {pickingFor && live && (
+              <circle className="map__pick" cx={spot.x} cy={spot.y} r={52} strokeWidth={4} />
+            )}
 
             {badges.map((badge, i) => (
               <g

@@ -22,11 +22,22 @@ import { ControlBadge, Sheet, Stat, SupportBars } from './components';
 
 import type { IslandTab } from './IslandRow';
 
+/**
+ * One panel per island, holding everything the original spreads across four
+ * clickable icons on the planet — ships, military, civilian, missions — folded
+ * into the fewest tabs that keep like with like.
+ *
+ * Harbour opens first and carries what floats at the island, plus the fixed
+ * defences: a fort is a warship that cannot move, so it belongs beside the
+ * ships rather than in with the mines. Crew and Garrison are split because
+ * one is people you order about and the other is companies that hold ground.
+ * Everything built sits in Buildings, earners and yards alike.
+ */
 const TABS: Array<{ id: IslandTab; label: string }> = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'missions', label: 'Missions' },
-  { id: 'military', label: 'Military' },
-  { id: 'facilities', label: 'Facilities' },
+  { id: 'harbour', label: 'Harbour' },
+  { id: 'crew', label: 'Crew' },
+  { id: 'garrison', label: terms.garrison },
+  { id: 'buildings', label: 'Buildings' },
   { id: 'log', label: 'Log' },
 ];
 
@@ -137,7 +148,7 @@ function FacilityCard({
 export function SystemSheet({
   state,
   system,
-  initialTab = 'overview',
+  initialTab = 'harbour',
   onClose,
   onBuild,
   onCancel,
@@ -227,7 +238,7 @@ export function SystemSheet({
               onClick={() => setTab(entry.id)}
             >
               {entry.label}
-              {entry.id === 'facilities' && producers.length > 0 && (
+              {entry.id === 'buildings' && producers.length > 0 && (
                 <span className="tabs__dot" aria-hidden="true" />
               )}
             </button>
@@ -235,7 +246,7 @@ export function SystemSheet({
         </div>
       }
     >
-      {tab === 'overview' && (
+      {tab === 'harbour' && (
         <>
           <div className="portrait">
             <IslandPortrait
@@ -272,10 +283,17 @@ export function SystemSheet({
             />
             <Stat label="Built" value={system.facilities.length} />
           </div>
+
+          <div className="section-title">At anchor</div>
+          <div className="card muted small">
+            Nothing is moored here. Ships come with the fleets, and this is where they will
+            be — along with any fort or boom guarding the island, since a fixed gun is a
+            warship that cannot weigh anchor.
+          </div>
         </>
       )}
 
-      {tab === 'facilities' && (
+      {tab === 'buildings' && (
         <>
           {system.facilities.length === 0 ? (
             <div className="card muted small">Nothing has been built on this island.</div>
@@ -302,7 +320,7 @@ export function SystemSheet({
         </>
       )}
 
-      {tab === 'military' && (
+      {tab === 'garrison' && (
         <>
           <div className="card">
             <div className="row row--between" style={{ marginBottom: 8 }}>
@@ -327,7 +345,7 @@ export function SystemSheet({
         </>
       )}
 
-      {tab === 'missions' && (
+      {tab === 'crew' && (
         <>
           <div className="section-title">Ashore here</div>
           {crew.length === 0 ? (

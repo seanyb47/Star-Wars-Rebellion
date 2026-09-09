@@ -60,7 +60,7 @@ export function App() {
   const [state, setState] = useState<GameState>(() => saved ?? newGame());
   const [tab, setTab] = useState<Tab>('galaxy');
   const [openSystemId, setOpenSystemId] = useState<string | null>(null);
-  const [openSystemTab, setOpenSystemTab] = useState<IslandTab>('overview');
+  const [openSystemTab, setOpenSystemTab] = useState<IslandTab>('harbour');
   const [openReachId, setOpenReachId] = useState<string | null>(null);
   const [openSea, setOpenSea] = useState<string | null>(null);
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
@@ -166,16 +166,16 @@ export function App() {
       return;
     }
     setOpenSystemId(systemId);
-    setOpenSystemTab('overview');
+    setOpenSystemTab('harbour');
   };
 
   /**
-   * From the chain panel: open one of its islands straight onto a tab — or, if
-   * a crew member is waiting for a destination, send them there instead. The
-   * chart cannot take that tap any more, because at chart scale an island is
-   * four pixels across.
+   * From the chain chart or the Sea panel: open one of its islands — or, if a
+   * crew member is waiting for a destination, send them there instead. The
+   * counts on an island are indicators now, so there is no per-tab entry to
+   * carry: an island always opens on its Harbour.
    */
-  const openIslandTab = (systemId: string, islandTab: IslandTab) => {
+  const openIslandTab = (systemId: string) => {
     setOpenReachId(null);
     setOpenSea(null);
     if (pickingFor) {
@@ -183,13 +183,13 @@ export function App() {
       return;
     }
     setOpenSystemId(systemId);
-    setOpenSystemTab(islandTab);
+    setOpenSystemTab('harbour');
   };
 
   const jumpToSystem = (systemId: string) => {
     setTab('galaxy');
     setOpenSystemId(systemId);
-    setOpenSystemTab('overview');
+    setOpenSystemTab('harbour');
   };
 
   const startNewGame = (player: PlayableFaction) => {
@@ -338,6 +338,7 @@ export function App() {
           sector={openReach}
           onClose={() => setOpenReachId(null)}
           onOpenIsland={openIslandTab}
+          pickingFor={pickingCharacter ? (pickingCharacter.faction as PlayableFaction) : null}
           onOpenSea={(sea) => {
             // Step up from the chain to its whole Sea, rather than stacking
             // the two panels with the chain's still on top.

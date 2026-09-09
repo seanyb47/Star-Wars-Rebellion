@@ -3,22 +3,21 @@ import type { GameState, IslandSummary, System } from '../sim';
 import { CategoryIcon, IslandGlyph } from './art';
 import { ControlBadge } from './components';
 
-export type IslandTab = 'overview' | 'facilities' | 'military' | 'missions' | 'log';
+export type IslandTab = 'harbour' | 'crew' | 'garrison' | 'buildings' | 'log';
 
-const CATEGORIES: Array<{
-  kind: 'missions' | 'military' | 'facilities';
-  tab: IslandTab;
-  label: string;
-}> = [
-  { kind: 'missions', tab: 'missions', label: 'Crew' },
-  { kind: 'military', tab: 'military', label: 'Ashore' },
-  { kind: 'facilities', tab: 'facilities', label: 'Built' },
+const CATEGORIES: Array<{ kind: 'missions' | 'military' | 'facilities'; label: string }> = [
+  { kind: 'missions', label: 'Crew' },
+  { kind: 'military', label: 'Ashore' },
+  { kind: 'facilities', label: 'Built' },
 ];
 
 /**
- * One island in a list, with the three counts that matter and a tap target
- * for each. Shared by the Reach panel and the Sea panel so the two cannot
- * drift apart.
+ * One island in a list, with the three counts that matter.
+ *
+ * The counts are indicators, not buttons: the whole row is a single tap that
+ * opens the island, and everything you might have wanted to reach through a
+ * count is a tab inside it. Three small targets stacked in one row was three
+ * ways to miss.
  */
 export function IslandRow({
   state,
@@ -29,7 +28,7 @@ export function IslandRow({
   state: GameState;
   system: System;
   entry: IslandSummary;
-  onOpen: (systemId: string, tab: IslandTab) => void;
+  onOpen: (systemId: string) => void;
 }) {
   const you = state.player;
   const enemy = you === 'empire' ? 'alliance' : 'empire';
@@ -42,8 +41,8 @@ export function IslandRow({
   };
 
   return (
-    <div className="isle">
-      <button className="isle__head" onClick={() => onOpen(system.id, 'overview')}>
+    <button className="isle" onClick={() => onOpen(system.id)}>
+      <span className="isle__head">
         <IslandGlyph
           seed={system.name}
           faction={explored ? system.control : 'none'}
@@ -85,16 +84,14 @@ export function IslandRow({
         ) : (
           <span className="badge badge--none">?</span>
         )}
-      </button>
+      </span>
 
-      <div className="isle__cats">
+      <span className="isle__cats">
         {CATEGORIES.map((cat) => (
-          <button
+          <span
             key={cat.kind}
             // Empty counts recede so the ones worth looking at stand out.
             className={`isle__cat${explored && counts[cat.kind] > 0 ? ' isle__cat--has' : ''}`}
-            onClick={() => onOpen(system.id, cat.tab)}
-            aria-label={`${system.name}: ${cat.label}`}
           >
             <CategoryIcon kind={cat.kind} size={20} />
             <span className="isle__count">{explored ? counts[cat.kind] : '–'}</span>
@@ -104,9 +101,9 @@ export function IslandRow({
             {cat.kind === 'facilities' && entry.building > 0 && (
               <span className="isle__working" aria-hidden="true" />
             )}
-          </button>
+          </span>
         ))}
-      </div>
-    </div>
+      </span>
+    </button>
   );
 }

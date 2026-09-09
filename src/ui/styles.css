@@ -417,7 +417,9 @@ button {
 .isle {
   border: 1px solid var(--border); border-radius: 10px;
   background: var(--bg-sunken); overflow: hidden;
+  display: block; width: 100%; text-align: left; padding: 0;
 }
+.isle:active { background: #0f2c37; }
 .isle__head {
   display: flex; align-items: center; gap: 10px; width: 100%;
   padding: 8px 10px; text-align: left; min-height: var(--tap);
@@ -443,12 +445,11 @@ button {
 
 .isle__cats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--border); }
 .isle__cat {
-  min-height: var(--tap); display: flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px;
   color: var(--muted); position: relative;
 }
 .isle__cat + .isle__cat { border-left: 1px solid var(--border); }
 .isle__cat-label { font-size: 10px; letter-spacing: 0.04em; }
-.isle__cat:active { background: #113442; }
 .isle__count {
   font-size: 13px; font-weight: 700; color: var(--muted);
   font-variant-numeric: tabular-nums;

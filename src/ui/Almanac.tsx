@@ -140,9 +140,9 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
       <div className="stack">
         {(
           [
-            ['missions', 'Missions', 'Your crew standing on it, or sailing to it.'],
-            ['military', 'Military', 'Companies ashore, whoever holds the island.'],
-            ['facilities', 'Facilities', 'What is built there, and what you can raise.'],
+            ['missions', 'Crew', 'Your crew standing on it, or sailing to it.'],
+            ['military', 'Ashore', 'Companies ashore, whoever holds the island.'],
+            ['facilities', 'Built', 'What is built there, and what you can raise.'],
           ] as const
         ).map(([kind, label, text]) => (
           <div key={kind} className="card row" style={{ gap: 10 }}>

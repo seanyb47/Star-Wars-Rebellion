@@ -1,6 +1,6 @@
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
-import { summariseReach, type GameState, type Sector } from '../sim';
+import { summariseReach, type GameState, type PlayableFaction, type Sector } from '../sim';
 import { ChainMap } from './ChainMap';
 import type { IslandTab } from './IslandRow';
 import { Sheet, Stat } from './components';
@@ -18,11 +18,14 @@ export function ReachSheet({
   onClose,
   onOpenIsland,
   onOpenSea,
+  pickingFor,
 }: {
   state: GameState;
   sector: Sector;
   onClose: () => void;
-  onOpenIsland: (systemId: string, tab: IslandTab) => void;
+  onOpenIsland: (systemId: string) => void;
+  /** Passed through so the chart can dim islands you cannot sail to. */
+  pickingFor?: PlayableFaction | null;
   /** The Sea name is the way into the whole Sea, now the chart shows chains. */
   onOpenSea?: (sea: string) => void;
 }) {
@@ -117,6 +120,7 @@ export function ReachSheet({
         systems={summary.perIsland.map((entry) => byId.get(entry.systemId)!)}
         perIsland={summary.perIsland}
         onOpenIsland={onOpenIsland}
+        pickingFor={pickingFor}
       />
       <div className="chainmap__key">
         <span><i className="key key--civil" /> Earns gold</span>
