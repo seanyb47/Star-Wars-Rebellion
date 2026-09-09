@@ -116,10 +116,12 @@ src/
 ```
 
 **All the artwork is generated, not loaded.** Faction crests, the compass rose,
-and each island's coastline are SVG drawn in code — an island's shape is
-derived from its own name, so it looks the same every game, the download stays
-small, and there is nothing to fetch when you are offline. The layouts are
-built so a real illustration can replace any of it later without moving.
+building glyphs, garrison companies, island coastlines and character portraits
+are SVG drawn in code. Anything that should stay put between games — an
+island's coastline, a character's cameo — is derived from its own name, so it
+is identical every game and on every device. Nothing is fetched, the download
+stays small, and it all works offline. The layouts are built so a real
+illustration can replace any of it later without moving.
 
 `src/sim` is the important part. The entire game is one plain JSON object
 (`GameState`), so saving is `JSON.stringify` and loading is `JSON.parse`.

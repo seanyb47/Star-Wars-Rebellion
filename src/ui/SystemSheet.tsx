@@ -16,7 +16,7 @@ import {
   type GameState,
   type System,
 } from '../sim';
-import { IslandPortrait } from './art';
+import { CharacterPortrait, CompanyRow, FacilityIcon, IslandPortrait } from './art';
 import { ControlBadge, Sheet, Stat, SupportBars } from './components';
 
 type TabId = 'overview' | 'build' | 'garrison' | 'log';
@@ -61,15 +61,22 @@ function FacilityCard({
 
   return (
     <div className="card">
-      <div className="row row--between">
-        <div style={{ fontWeight: 600 }}>{FACILITY_LABEL[facility.type]}</div>
-        {facility.owner !== state.player && <ControlBadge faction={facility.owner} />}
-      </div>
-      {output && (
-        <div className="tiny muted" style={{ marginTop: 3 }}>
-          {output}
+      <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
+        <span className="facility__icon">
+          <FacilityIcon type={facility.type} size={30} />
+        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="row row--between">
+            <div style={{ fontWeight: 600 }}>{FACILITY_LABEL[facility.type]}</div>
+            {facility.owner !== state.player && <ControlBadge faction={facility.owner} />}
+          </div>
+          {output && (
+            <div className="tiny muted" style={{ marginTop: 2 }}>
+              {output}
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {order && (
         <div className="row row--between small muted" style={{ marginTop: 6 }}>
@@ -99,10 +106,19 @@ function FacilityCard({
                 onClick={() => onBuild(facility.id, item)}
                 title={error ?? undefined}
               >
-                <div className="build__name">{spec.label}</div>
-                <div className="build__meta">
-                  {error ?? `${spec.costRefined} ${terms.refined.toLowerCase()} · ${spec.days}d`}
-                </div>
+                <span className="build__icon">
+                  {item === 'troop' ? (
+                    <FacilityIcon type="training_facility" size={22} />
+                  ) : (
+                    <FacilityIcon type={item} size={22} />
+                  )}
+                </span>
+                <span className="build__text">
+                  <span className="build__name">{spec.label}</span>
+                  <span className="build__meta">
+                    {error ?? `${spec.costRefined} ${terms.refined.toLowerCase()} · ${spec.days}d`}
+                  </span>
+                </span>
               </button>
             );
           })}
@@ -202,6 +218,7 @@ export function SystemSheet({
               faction={system.control}
               settled={system.populated}
               facilities={system.facilities.length}
+              facilityTypes={system.facilities.map((f) => f.type)}
               mutiny={system.uprising}
               size={132}
             />
@@ -262,22 +279,19 @@ export function SystemSheet({
 
       {tab === 'garrison' && (
         <>
-          <div className="card row" style={{ gap: 18 }}>
-            <Stat label="Ashore" value={system.garrison} />
-            <Stat
-              label="Needed"
-              value={needed === 0 ? <span className="muted">none</span> : needed}
-            />
-            <Stat
-              label="Order"
-              value={
-                system.uprising ? (
-                  <span className="badge badge--warn">{terms.mutiny}</span>
-                ) : (
-                  <span className="badge badge--good">Held</span>
-                )
-              }
-            />
+          <div className="card">
+            <div className="row row--between" style={{ marginBottom: 8 }}>
+              <span className="tiny muted">
+                {system.garrison} ashore
+                {needed > 0 ? ` · ${needed} needed` : ''}
+              </span>
+              {system.uprising ? (
+                <span className="badge badge--warn">{terms.mutiny}</span>
+              ) : (
+                <span className="badge badge--good">Held</span>
+              )}
+            </div>
+            <CompanyRow present={system.garrison} needed={needed} />
           </div>
           <p className="tiny muted" style={{ marginTop: 8 }}>
             {needed > 0
@@ -293,9 +307,22 @@ export function SystemSheet({
           ) : (
             <div className="stack">
               {crew.map((character) => (
-                <div key={character.id} className="card small">
-                  {character.name}{' '}
-                  <span className="muted">— {character.status.replace('_', ' ')}</span>
+                <div key={character.id} className="card row" style={{ gap: 10 }}>
+                  <CharacterPortrait
+                    name={character.name}
+                    faction={character.faction}
+                    people={character.people}
+                    size={38}
+                    dim={character.status !== 'available'}
+                  />
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span className="small" style={{ fontWeight: 600 }}>
+                      {character.name}
+                    </span>
+                    <span className="tiny muted" style={{ display: 'block' }}>
+                      {character.status.replace('_', ' ')}
+                    </span>
+                  </span>
                 </div>
               ))}
             </div>

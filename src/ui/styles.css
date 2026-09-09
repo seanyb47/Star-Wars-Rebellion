@@ -380,3 +380,25 @@ button {
   margin: 0 0 14px; font-size: 13px; font-style: italic;
   color: var(--muted); text-align: center; line-height: 1.45;
 }
+
+/* ---------- Units, buildings and people ---------- */
+.facility__icon {
+  flex: none; width: 34px; height: 34px;
+  display: grid; place-items: center;
+  color: var(--brass); opacity: 0.9;
+}
+
+.build { display: flex; align-items: center; gap: 8px; text-align: left; }
+.build__icon { flex: none; color: var(--brass); opacity: 0.85; display: grid; place-items: center; }
+.build__text { min-width: 0; }
+.build__name { display: block; font-size: 12px; font-weight: 600; }
+.build__meta { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
+.build:disabled .build__icon { opacity: 0.4; }
+
+.companies {
+  display: flex; align-items: flex-end; gap: 4px; flex-wrap: wrap;
+  color: var(--brass); min-height: 26px;
+}
+.companies__more {
+  font-size: 11px; color: var(--muted); align-self: center; margin-left: 2px;
+}

@@ -67,6 +67,8 @@ export interface BuildOrder {
 export interface Character {
   id: string;
   name: string;
+  /** Which people they belong to. Display only — drives their portrait. */
+  people?: string;
   faction: Faction;
   diplomacy: number;
   espionage: number;

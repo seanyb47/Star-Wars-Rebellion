@@ -113,6 +113,18 @@ describe('the generated world matches the bible', () => {
     }
   });
 
+  it('carries each character\'s people through, which their portrait reads', () => {
+    for (const faction of ['empire', 'alliance'] as const) {
+      for (const character of state.characters.filter((c) => c.faction === faction)) {
+        const entry = characterRoster[faction].find((e) => e.name === character.name)!;
+        expect(character.people).toBe(entry.people);
+      }
+    }
+    // Torvik is the one non-human major, and his portrait depends on knowing it.
+    const torvik = state.characters.find((c) => c.name.includes('Torvik'))!;
+    expect(torvik.people).toBe('Urskin');
+  });
+
   it('makes Hale a better negotiator than Torvik, every game', () => {
     for (let seed = 1; seed <= 25; seed++) {
       const trial = generateGalaxy(seed);

@@ -229,6 +229,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       characters.push({
         id: makeId('chr'),
         name: entry.name,
+        people: entry.people,
         faction,
         diplomacy: roll(entry.ratings.diplomacy),
         espionage: roll(entry.ratings.espionage),

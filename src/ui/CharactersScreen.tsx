@@ -7,6 +7,7 @@ import {
   type Character,
   type GameState,
 } from '../sim';
+import { CharacterPortrait } from './art';
 import { Sheet } from './components';
 
 function statusBadge(character: Character) {
@@ -80,12 +81,23 @@ export function CharactersScreen({
             style={{ display: 'block', width: '100%', textAlign: 'left' }}
             onClick={() => setOpenId(character.id)}
           >
-            <div className="row row--between">
-              <span style={{ fontWeight: 600 }}>{character.name}</span>
-              {statusBadge(character)}
-            </div>
-            <div className="tiny muted" style={{ marginTop: 3 }}>
-              {missionLine(state, character) ?? `Ashore at ${location?.name ?? 'unknown'}`}
+            <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
+              <CharacterPortrait
+                name={character.name}
+                faction={character.faction}
+                people={character.people}
+                size={46}
+                dim={character.status !== 'available'}
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="row row--between">
+                  <span style={{ fontWeight: 600 }}>{character.name}</span>
+                  {statusBadge(character)}
+                </div>
+                <div className="tiny muted" style={{ marginTop: 3 }}>
+                  {missionLine(state, character) ?? `Ashore at ${location?.name ?? 'unknown'}`}
+                </div>
+              </div>
             </div>
             <Ratings character={character} />
           </button>
@@ -146,6 +158,20 @@ function CharacterSheet({
         </>
       }
     >
+      <div className="row" style={{ gap: 12, alignItems: 'center' }}>
+        <CharacterPortrait
+          name={character.name}
+          faction={character.faction}
+          people={character.people}
+          size={68}
+          dim={character.status !== 'available'}
+        />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {character.people && <div className="tiny muted">{character.people}</div>}
+          <div style={{ marginTop: 2 }}>{statusBadge(character)}</div>
+        </div>
+      </div>
+
       <Ratings character={character} />
       <div className="section-title">{terms.parley} briefing</div>
       <div className="card small stack">
