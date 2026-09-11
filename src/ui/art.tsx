@@ -405,14 +405,145 @@ export function CompanyRow({
  * Personnel
  * ------------------------------------------------------------------ */
 
-const HATS = ['tricorn', 'bicorn', 'cap', 'bare', 'hood', 'scarf'] as const;
+/**
+ * The ink ramp. Five inks, and every drawing uses only these plus the faction
+ * hues and brass. A fixed, small palette is most of what makes a set of
+ * drawings look like a set — see seven-seas-art-style.md §2.
+ */
+export const INK = {
+  black: '#0a1116',
+  dark: '#1d2b33',
+  mid: '#5c7078',
+  pale: '#a9bcc2',
+  bone: '#e8e2d1',
+} as const;
+
+/** Headgear, which is most of a silhouette at the size these ship at. */
+type Hat =
+  | 'coronet'
+  | 'bicorne'
+  | 'tricorn'
+  | 'shako'
+  | 'veil'
+  | 'hood'
+  | 'flatcap'
+  | 'bandana'
+  | 'headscarf'
+  | 'widebrim'
+  | 'watchcap'
+  | 'bare';
+
+/** What a people does to a body, before anything is put on its head. */
+type Stock = {
+  build: number;
+  headScale: number;
+  tusks?: boolean;
+  ears?: 'wide' | 'round';
+  crest?: boolean;
+  brow?: boolean;
+  /** No hair, ever, and a collar up to the jaw. */
+  still?: boolean;
+  hat?: Hat;
+};
+
+const STOCK: Record<string, Stock> = {
+  urskin: { build: 1.45, headScale: 1.16, tusks: true, ears: 'wide' },
+  'reef-folk': { build: 1.05, headScale: 1, crest: true },
+  'the hushed': { build: 0.7, headScale: 0.88, hat: 'hood' },
+  'shoal-folk': { build: 0.75, headScale: 0.92, ears: 'round' },
+  'bog-folk': { build: 1.1, headScale: 1.02, brow: true },
+  'the rumor guild': { build: 0.95, headScale: 1, hat: 'flatcap' },
+  'human (once)': { build: 0.95, headScale: 1, still: true },
+  human: { build: 1, headScale: 1 },
+};
+
+function stockFor(people?: string): Stock {
+  const key = (people ?? 'human').toLowerCase().trim();
+  return STOCK[key] ?? STOCK.human;
+}
 
 /**
- * A portrait medallion, cut like a cameo: one pale silhouette on a dark
- * ground, so identity comes from the outline rather than from features. No
- * faces — procedural features land in the uncanny valley, an outline never
- * does. Everything derives from the name, so a character looks the same in
- * every game.
+ * Rank decides headgear, read out of the title in the name. Nothing is random
+ * that could be meaningful: an Admiral is in a bicorne in every game, and you
+ * learn to read the roster by hat before you learn the names.
+ */
+function hatFor(name: string, stock: Stock, random: () => number): Hat {
+  if (stock.hat) return stock.hat;
+  if (/lord|regent|governor/i.test(name)) return 'coronet';
+  if (/admiral|commodore/i.test(name)) return 'bicorne';
+  if (/captain/i.test(name)) return 'tricorn';
+  if (/colonel|major|sergeant/i.test(name)) return 'shako';
+  if (/widow|dame/i.test(name)) return 'veil';
+  if (/doctor|master/i.test(name)) return 'bare';
+  // The untitled are most of the roster, so they need the widest draw or half
+  // the cast reads as one person in a cap.
+  return (['bandana', 'headscarf', 'widebrim', 'watchcap', 'bare', 'bare'] as const)[
+    Math.floor(random() * 6)
+  ];
+}
+
+const HEAD_Y = 26;
+
+function headPath(r: number): string {
+  // Flat-bottomed, so a jaw reads rather than a ball.
+  return `M 32 ${HEAD_Y - r} q ${r} 0 ${r} ${r * 1.05} q 0 ${r} ${-r} ${r * 1.2} q ${-r} ${-r * 0.2} ${-r} ${-r * 1.2} q 0 ${-r * 1.05} ${r} ${-r * 1.05} Z`;
+}
+
+function bustPath(build: number): string {
+  const w = 18 * build;
+  return `M ${32 - w} 64 v -10 q 0 -9 ${w * 0.5} -12 h ${w} q ${w * 0.5} 3 ${w * 0.5} 12 v 10 Z`;
+}
+
+function hatPath(hat: Hat, r: number): string | null {
+  const top = HEAD_Y - r;
+  switch (hat) {
+    case 'coronet':
+      return `M ${32 - r - 1} ${top + 2} h ${(r + 1) * 2} v -4 l -4 -6 l -4 6 l -4 -8 l -4 8 l -4 -6 l -4 6 Z`;
+    case 'bicorne':
+      // Worn athwart: wide, low, and pointed at both ends.
+      return `M ${32 - r - 8} ${top + 3} q ${r + 8} -16 ${(r + 8) * 2} 0 q -${r + 8} -6 -${(r + 8) * 2} 0 Z`;
+    case 'tricorn':
+      return `M ${32 - r - 6} ${top + 3} q ${r + 6} -13 ${(r + 6) * 2} 0 q -6 -3 -${r + 6} -3 q -${r} 0 -${r + 6} 3 Z M ${32 - r - 1} ${top + 3} q ${r + 1} -12 ${(r + 1) * 2} 0 Z`;
+    case 'shako':
+      return `M ${32 - r + 1} ${top + 2} v -12 h ${(r - 1) * 2} v 12 Z M ${32 - r - 4} ${top + 2} h ${(r + 4) * 2} v 3 h -${(r + 4) * 2} Z`;
+    case 'veil':
+      return `M ${32 - r - 3} ${HEAD_Y + 7} q -1 -18 ${r + 3} -18 q ${r + 3} 0 ${r + 3} 18 q -3 -9 -${r + 3} -9 q -${r} 0 -${r + 3} 9 Z`;
+    case 'hood':
+      return `M ${32 - r - 3} ${HEAD_Y + 4} q 0 -20 ${r + 3} -20 q ${r + 3} 0 ${r + 3} 20 q -4 -7 -${r + 3} -7 q -${r - 1} 0 -${r + 3} 7 Z`;
+    case 'flatcap':
+      return `M ${32 - r - 4} ${top + 1} h ${(r + 4) * 2} l -3 -5 h -${(r + 1) * 2} Z`;
+    case 'bandana':
+      return `M ${32 - r} ${top + 4} q ${r} -9 ${r * 2} 0 Z M ${32 + r - 1} ${top + 2} l 8 4 l -7 2 Z`;
+    case 'headscarf':
+      // Tied at the nape, with the tail hanging: a long shape nothing else has.
+      return `M ${32 - r - 1} ${top + 5} q ${r + 1} -12 ${(r + 1) * 2} 0 q -${r + 1} -5 -${(r + 1) * 2} 0 Z M ${32 - r - 1} ${top + 4} l -5 14 l 5 -3 Z`;
+    case 'widebrim':
+      return `M ${32 - r - 9} ${top + 4} q ${r + 9} 5 ${(r + 9) * 2} 0 q -${r + 9} -14 -${(r + 9) * 2} 0 Z`;
+    case 'watchcap':
+      return `M ${32 - r} ${top + 4} q 0 -11 ${r} -11 q ${r} 0 ${r} 11 Z`;
+    default:
+      return null;
+  }
+}
+
+/** Hair, for the bare-headed. Mass, not strands — strands vanish at 32px. */
+function hairPath(r: number, kind: number): string {
+  const top = HEAD_Y - r;
+  if (kind === 0) return `M ${32 - r} ${top + 5} q 0 -10 ${r} -10 q ${r} 0 ${r} 10 q -${r} -6 -${r * 2} 0 Z`;
+  if (kind === 1)
+    return `M ${32 - r} ${top + 6} q 0 -11 ${r} -11 q ${r} 0 ${r} 11 q -2 -5 -6 -5 q -3 6 -8 3 q -3 -1 -${r - 4} 2 Z`;
+  return `M ${32 - r - 1} ${HEAD_Y + 2} q -2 -14 ${r + 1} -14 q ${r + 1} 0 ${r + 1} 12 q -3 -8 -${r + 1} -8 q -${r} 0 -${r + 1} 10 Z`;
+}
+
+/**
+ * A portrait, in the near register: heavy outline, two flat fills, and the
+ * faction's colour in the coat rather than in a ring around it, so allegiance
+ * reads before anything else does.
+ *
+ * No faces, by rule (art style §3.7). Everything that tells one officer from
+ * another lives in the outline — build from their people, headgear from their
+ * rank, hair and beard from their name — because that is what survives at
+ * 32px, and because 26 of these have to be affordable.
  */
 export function CharacterPortrait({
   name,
@@ -428,11 +559,15 @@ export function CharacterPortrait({
   dim?: boolean;
 }) {
   const random = seededRandom(name);
-  const hat = HATS[Math.floor(random() * HATS.length)];
-  const beard = random() > 0.55;
+  const stock = stockFor(people);
+  const hat = hatFor(name, stock, random);
+  const hair = Math.floor(random() * 3);
+  const beard = !stock.still && !stock.tusks && random() > 0.62;
   const epaulettes = random() > 0.45;
-  const urskin = (people ?? '').toLowerCase().includes('urskin');
-  const clipId = `bust-${hash(name).toString(36)}`;
+  // High collar or open: a silhouette change at the one place every portrait
+  // has, which costs nothing and separates the plain-dressed from each other.
+  const highCollar = stock.still || random() > 0.5;
+  const id = `pt-${hash(name).toString(36)}`;
   const tint =
     faction === 'empire'
       ? 'var(--empire)'
@@ -440,80 +575,100 @@ export function CharacterPortrait({
         ? 'var(--alliance)'
         : 'var(--neutral)';
 
-  // Urskin stand a head taller and half again as broad as anyone else.
-  const headR = urskin ? 8.4 : 7;
-  const headY = urskin ? 15 : 15.5;
-  const cut = '#b4c7d0';
+  const r = 9.5 * stock.headScale;
+  const hatD = hatPath(hat, r);
+  // The outline, on everything, at one weight. Heavy on purpose: a hairline
+  // disappears at 32px and takes the drawing with it.
+  const line = { stroke: INK.black, strokeWidth: 3, strokeLinejoin: 'round' as const };
 
   return (
     <svg
-      viewBox="0 0 40 40"
+      viewBox="0 0 64 64"
       width={size}
       height={size}
       aria-hidden="true"
-      style={{ opacity: dim ? 0.5 : 1, display: 'block' }}
+      style={{ opacity: dim ? 0.45 : 1, display: 'block' }}
     >
       <defs>
-        <clipPath id={clipId}>
-          <circle cx="20" cy="20" r="18" />
+        <clipPath id={id}>
+          <circle cx="32" cy="32" r="30" />
         </clipPath>
       </defs>
-      <circle cx="20" cy="20" r="18" fill="#071a22" />
-      <circle cx="20" cy="20" r="18" fill={tint} opacity="0.16" />
+      <circle cx="32" cy="32" r="31" fill={INK.black} />
+      <circle cx="32" cy="32" r="31" fill={tint} opacity="0.26" />
 
-      <g clipPath={`url(#${clipId})`} fill={cut}>
-        {/* Neck, then shoulders broad enough to fill the medallion */}
-        <rect x="16.6" y={headY + headR - 2} width="6.8" height="8" rx="1.5" />
-        <path d="M1 41 Q1 27.5 20 26.2 Q39 27.5 39 41 Z" />
+      <g clipPath={`url(#${id})`}>
+        {/* Coat, then neck, then head: back to front, so each outline is cut
+            by the thing in front of it rather than drawn over it. */}
+        <path d={bustPath(stock.build)} fill={tint} {...line} />
         {epaulettes && (
-          <>
-            <circle cx="6" cy="30.5" r="4" />
-            <circle cx="34" cy="30.5" r="4" />
-          </>
+          // Boards across the shoulder, not buttons beside it. As circles they
+          // read as knobs bolted to the coat.
+          <g fill={INK.dark} stroke={INK.black} strokeWidth="1.6" strokeLinejoin="round">
+            <path d={`M ${32 - 19 * stock.build} 53 h 9 v 4 h -9 Z`} />
+            <path d={`M ${32 + 10 * stock.build} 53 h 9 v 4 h -9 Z`} />
+          </g>
         )}
-        {/* Head, and the jaw beneath it */}
-        <circle cx="20" cy={headY} r={headR} />
-        {beard && !urskin && (
-          <path d={`M${20 - headR} ${headY + 1} Q20 ${headY + 13} ${20 + headR} ${headY + 1} Z`} />
+        <path
+          d={`M 27.5 ${HEAD_Y + r - 4} h 9 v 11 h -9 Z`}
+          fill={stock.still ? INK.dark : INK.mid}
+        />
+        {highCollar && (
+          <path
+            d={`M ${32 - 9} 54 l 2 -12 q 7 4 14 0 l 2 12 Z`}
+            fill={INK.dark}
+            {...line}
+          />
         )}
-        {urskin && (
-          <>
-            <circle cx={20 - headR + 0.6} cy={headY - headR + 1.2} r="3" />
-            <circle cx={20 + headR - 0.6} cy={headY - headR + 1.2} r="3" />
-            {/* Muzzle and tusks, breaking the line of the jaw */}
-            <path d={`M15 ${headY + 4} Q20 ${headY + 11} 25 ${headY + 4} Z`} />
-            <path d={`M16.5 ${headY + 6} l-1.4 4.2 l2.4 -0.9 Z`} />
-            <path d={`M23.5 ${headY + 6} l1.4 4.2 l-2.4 -0.9 Z`} />
-          </>
+        {stock.ears && (
+          <path
+            d={
+              stock.ears === 'wide'
+                ? `M ${32 - r - 1} ${HEAD_Y - 5} a 4.5 4.5 0 1 1 3 7 Z M ${32 + r + 1} ${HEAD_Y - 5} a 4.5 4.5 0 1 0 -3 7 Z`
+                : `M ${32 - r - 2} ${HEAD_Y - 2} a 4 4 0 1 1 4 4 Z M ${32 + r + 2} ${HEAD_Y - 2} a 4 4 0 1 0 -4 4 Z`
+            }
+            fill={INK.pale}
+            {...line}
+          />
         )}
-
-        {/* Headgear, cut from the same silhouette */}
-        {hat === 'tricorn' && (
-          <path d={`M6 ${headY - 3} Q20 ${headY - 15} 34 ${headY - 3} Q20 ${headY - 8} 6 ${headY - 3} Z`} />
+        <path d={headPath(r)} fill={INK.pale} {...line} />
+        {stock.crest && (
+          <path
+            d={`M ${32 - 6} ${HEAD_Y - r + 2} l -6 -12 l 9 8 Z M 32 ${HEAD_Y - r - 1} l 0 -14 l 4.5 13 Z M ${32 + 6} ${HEAD_Y - r + 2} l 7 -11 l -2.5 11 Z`}
+            fill={INK.pale}
+            {...line}
+          />
         )}
-        {hat === 'bicorn' && (
-          <path d={`M7 ${headY - 4} Q20 ${headY - 18} 33 ${headY - 4} Q20 ${headY - 9} 7 ${headY - 4} Z`} />
+        {stock.brow && (
+          <path
+            d={`M ${32 - r + 1} ${HEAD_Y - 3} q ${r - 1} -5 ${(r - 1) * 2} 0 v 3 q -${r - 1} -4 -${(r - 1) * 2} 0 Z`}
+            fill={INK.dark}
+          />
         )}
-        {hat === 'cap' && (
-          <path d={`M${20 - headR - 1.5} ${headY - 3.5} Q20 ${headY - 14} ${20 + headR + 1.5} ${headY - 3.5} Z`} />
+        {stock.tusks && (
+          <path
+            d={`M ${32 - r + 1.5} ${HEAD_Y + 4} l -1.6 6.5 l 3.4 -5.6 Z M ${32 + r - 1.5} ${HEAD_Y + 4} l 1.6 6.5 l -3.4 -5.6 Z`}
+            fill={INK.bone}
+            stroke={INK.black}
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
         )}
-        {hat === 'hood' && (
-          <path d={`M${20 - headR - 3} ${headY + 5} Q${20 - headR - 3} ${headY - 13} 20 ${headY - 13} Q${20 + headR + 3} ${headY - 13} ${20 + headR + 3} ${headY + 5} Q20 ${headY - 5} ${20 - headR - 3} ${headY + 5} Z`} />
+        {beard && (
+          <path
+            d={`M ${32 - r} ${HEAD_Y + 2} q 0 ${r * 1.5} ${r} ${r * 1.5} q ${r} 0 ${r} ${-r * 1.5} q -${r} 5 -${r * 2} 0 Z`}
+            fill={INK.pale}
+            {...line}
+          />
         )}
-        {hat === 'scarf' && (
-          <>
-            <path d={`M${20 - headR - 0.5} ${headY - 4} Q20 ${headY - 12} ${20 + headR + 0.5} ${headY - 4} Z`} />
-            <path d={`M${20 + headR} ${headY - 6} l6 3.5 l-5 1.2 Z`} />
-          </>
+        {hatD ? (
+          <path d={hatD} fill={INK.dark} {...line} />
+        ) : (
+          !stock.still && <path d={hairPath(r, hair)} fill={INK.dark} {...line} />
         )}
-        {hat === 'bare' && <circle cx="20" cy={headY - 4.8} r={headR * 0.9} />}
       </g>
 
-      {/* A single spot of faction colour: the cockade at the collar. */}
-      <circle cx="20" cy="31.5" r="2.2" fill={tint} clipPath={`url(#${clipId})`} />
-
-      <circle cx="20" cy="20" r="18" fill="none" stroke={tint} strokeWidth="1.6" opacity="0.85" />
-      <circle cx="20" cy="20" r="15.5" fill="none" stroke="var(--brass)" strokeWidth="0.6" opacity="0.45" />
+      <circle cx="32" cy="32" r="31" fill="none" stroke={tint} strokeWidth="2.5" />
     </svg>
   );
 }

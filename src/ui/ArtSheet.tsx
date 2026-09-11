@@ -1,4 +1,5 @@
 import type { EventKind } from '../sim';
+import characterRoster from '../data/characters.json';
 import {
   CategoryIcon,
   CharacterPortrait,
@@ -31,14 +32,13 @@ import { EventScene } from './EventScene';
  */
 
 const FACTIONS = ['empire', 'alliance', 'neutral', 'none'] as const;
-const PEOPLE = ['Human', 'Reef-folk', 'Urskin', 'The Hushed', 'Shoal-folk', 'Bog-folk'];
-const NAMES = [
-  'Adaira Hale',
-  'Corvus Blackwater',
-  'Anselm Torvik',
-  'Sable',
-  'Hesper Lyn',
-  'Maren Quist',
+/** The real roster, majors and recruits both: the set has to work as a set,
+ *  and a portrait system is only proven against the names it will actually be
+ *  asked to draw. */
+const CAST: Array<{ name: string; people: string }> = [
+  ...characterRoster.empire.map((c) => ({ name: c.name, people: c.people })),
+  ...characterRoster.alliance.map((c) => ({ name: c.name, people: c.people })),
+  ...characterRoster.recruits.map((c) => ({ name: c.name, people: c.people })),
 ];
 const ISLES = ['Bysse', 'Coralhome', 'Fraytis', 'Wistrell', 'Highwater', 'Denby Cay'];
 const EVENTS: EventKind[] = ['war', 'flip', 'mutiny', 'battle', 'loss', 'order', 'mission'];
@@ -182,14 +182,27 @@ export function ArtSheet() {
         )}
       </Row>
 
-      <Row label="People" note="the same faces at 32, 44 and 68 — most portraits only work at one">
-        {NAMES.map((name, i) =>
+      <Row label="The whole cast" note="all 26, at 44 — the set judged as a set">
+        {CAST.map((c, i) => (
+          <Item key={c.name} caption={c.name.replace(/"/g, '')}>
+            <CharacterPortrait
+              name={c.name}
+              faction={i < 7 ? 'empire' : i < 14 ? 'alliance' : 'neutral'}
+              people={c.people}
+              size={44}
+            />
+          </Item>
+        ))}
+      </Row>
+
+      <Row label="At size" note="the same eight at 32, 44 and 68 — most portraits only work at one">
+        {CAST.slice(0, 8).map((c, i) =>
           [32, 44, 68].map((size) => (
-            <Item key={`${name}-${size}`} caption={`${name.split(' ')[0]} ${size}`}>
+            <Item key={`${c.name}-${size}`} caption={`${c.name.split(' ').pop()} ${size}`}>
               <CharacterPortrait
-                name={name}
+                name={c.name}
                 faction={FACTIONS[i % FACTIONS.length]}
-                people={PEOPLE[i % PEOPLE.length]}
+                people={c.people}
                 size={size}
               />
             </Item>
@@ -198,15 +211,9 @@ export function ArtSheet() {
       </Row>
 
       <Row label="People, dimmed" note="away at sea or laid up">
-        {NAMES.slice(0, 4).map((name, i) => (
-          <Item key={name} caption={name.split(' ')[0]}>
-            <CharacterPortrait
-              name={name}
-              faction={FACTIONS[i % 2]}
-              people={PEOPLE[i]}
-              size={44}
-              dim
-            />
+        {CAST.slice(0, 4).map((c, i) => (
+          <Item key={c.name} caption={c.name.split(" ").pop() ?? c.name}>
+            <CharacterPortrait name={c.name} faction={FACTIONS[i % 2]} people={c.people} size={44} dim />
           </Item>
         ))}
       </Row>
