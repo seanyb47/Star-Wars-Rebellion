@@ -1,5 +1,6 @@
 import terms from '../data/terms.json';
-import { FACILITY_LABEL, YARD_BUILDABLE, buildSpec } from './constants';
+import { buildLabel, isShipClass, shipsFor, YARD_BUILDABLE, buildSpec } from './constants';
+import { addShip } from './fleets';
 import {
   freeEnergySlots,
   freeRawSlots,
@@ -25,6 +26,9 @@ export function findFacility(
 export function buildMenu(facility: Facility): BuildItem[] {
   if (facility.type === 'construction_yard') return [...YARD_BUILDABLE];
   if (facility.type === 'training_facility') return ['troop'];
+  if (facility.type === 'shipyard' && isPlayable(facility.owner)) {
+    return shipsFor(facility.owner).map((c) => c.id);
+  }
   return [];
 }
 
@@ -46,8 +50,9 @@ export function buildError(state: GameState, facilityId: string, item: BuildItem
   if (state.factions[facility.owner].gold < spec.costGold) {
     return `Needs ${spec.costGold} ${terms.gold.toLowerCase()}.`;
   }
+  // Companies and hulls take no ground: one drills, the other floats.
   if (item === 'mine' && freeRawSlots(system) < 1) return `No free ${terms.ground.toLowerCase()}.`;
-  if (item !== 'mine' && item !== 'troop' && freeEnergySlots(system) < 1) {
+  if (item !== 'mine' && item !== 'troop' && !isShipClass(item) && freeEnergySlots(system) < 1) {
     return `No free ${terms.water.toLowerCase()}.`;
   }
   return null;
@@ -113,10 +118,20 @@ function completeBuild(
     return;
   }
 
+  if (isShipClass(item)) {
+    const fleet = addShip(state, system, owner, item);
+    pushEvent(state, {
+      kind: 'order',
+      text: `A ${buildLabel(item)} slides off the stocks at ${system.name} and joins ${fleet.name}.`,
+      systemId: system.id,
+    });
+    return;
+  }
+
   system.facilities.push({ id: nextId(state, 'fac'), type: item, owner });
   pushEvent(state, {
     kind: 'order',
-      text: `${FACILITY_LABEL[item]} completed on ${system.name}.`,
+    text: `${buildLabel(item)} completed on ${system.name}.`,
     systemId: system.id,
   });
 

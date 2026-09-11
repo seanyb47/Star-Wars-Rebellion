@@ -6,8 +6,11 @@ import {
   GOLD_PER_DAY,
   UPKEEP_PER_DAY,
   buildError,
+  buildLabel,
   buildMenu,
   buildSpec,
+  isShipClass,
+  shipClass,
   freeEnergySlots,
   freeRawSlots,
   requiredGarrison,
@@ -17,8 +20,9 @@ import {
   type GameState,
   type System,
 } from '../sim';
-import { CharacterPortrait, CompanyRow, FacilityIcon, IslandPortrait } from './art';
+import { CharacterPortrait, CompanyRow, FacilityIcon, IslandPortrait, ShipIcon } from './art';
 import { ControlBadge, Sheet, Stat, SupportBars } from './components';
+import { Harbour } from './FleetPanel';
 
 import type { IslandTab } from './IslandRow';
 
@@ -98,7 +102,7 @@ function FacilityCard({
       {order && (
         <div className="row row--between small muted" style={{ marginTop: 6 }}>
           <span>
-            Building {order.item === 'troop' ? terms.troop : FACILITY_LABEL[order.item]} —{' '}
+            Building {buildLabel(order.item)} —{' '}
             {order.daysRemaining}d left
             {system.uprising ? ' (halted)' : ''}
           </span>
@@ -126,6 +130,8 @@ function FacilityCard({
                 <span className="build__icon">
                   {item === 'troop' ? (
                     <FacilityIcon type="training_facility" size={22} />
+                  ) : isShipClass(item) ? (
+                    <ShipIcon role={shipClass(item).role} size={22} />
                   ) : (
                     <FacilityIcon type={item} size={22} />
                   )}
@@ -154,6 +160,9 @@ export function SystemSheet({
   onCancel,
   onOpenCharacter,
   onOpenReach,
+  onSail,
+  onEmbark,
+  onAssault,
 }: {
   state: GameState;
   system: System;
@@ -161,6 +170,9 @@ export function SystemSheet({
   onClose: () => void;
   onBuild: (facilityId: string, item: BuildItem) => void;
   onCancel: (facilityId: string) => void;
+  onSail: (fleetId: string) => void;
+  onEmbark: (fleetId: string, companies: number) => void;
+  onAssault: (fleetId: string) => void;
   onOpenCharacter?: (characterId: string) => void;
   onOpenReach?: (sectorId: string) => void;
 }) {
@@ -223,6 +235,7 @@ export function SystemSheet({
           )}
           · {sector.sea} <ControlBadge faction={system.control} />
           {system.uprising && <span className="badge badge--warn">{terms.mutiny}</span>}
+          {system.blockaded && <span className="badge badge--warn">Blockaded</span>}
           {!system.populated && <span className="badge badge--none">{terms.uninhabited}</span>}
         </span>
       }
@@ -284,12 +297,22 @@ export function SystemSheet({
             <Stat label="Built" value={system.facilities.length} />
           </div>
 
+          {system.blockaded && (
+            <p className="tiny" style={{ color: 'var(--bad)', margin: '8px 0 0' }}>
+              Enemy sail is lying off this island. Nothing is getting out of the harbour, so it
+              earns you nothing today — and still costs you its upkeep. Drive them off and the
+              trade resumes.
+            </p>
+          )}
+
           <div className="section-title">At anchor</div>
-          <div className="card muted small">
-            Nothing is moored here. Ships come with the fleets, and this is where they will
-            be — along with any fort or boom guarding the island, since a fixed gun is a
-            warship that cannot weigh anchor.
-          </div>
+          <Harbour
+            state={state}
+            systemId={system.id}
+            onSail={onSail}
+            onEmbark={onEmbark}
+            onAssault={onAssault}
+          />
         </>
       )}
 

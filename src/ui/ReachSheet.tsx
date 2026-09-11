@@ -19,6 +19,7 @@ export function ReachSheet({
   onOpenIsland,
   onOpenSea,
   pickingFor,
+  sailing,
 }: {
   state: GameState;
   sector: Sector;
@@ -26,6 +27,7 @@ export function ReachSheet({
   onOpenIsland: (systemId: string) => void;
   /** Passed through so the chart can dim islands you cannot sail to. */
   pickingFor?: PlayableFaction | null;
+  sailing?: boolean;
   /** The Sea name is the way into the whole Sea, now the chart shows chains. */
   onOpenSea?: (sea: string) => void;
 }) {
@@ -121,12 +123,14 @@ export function ReachSheet({
         perIsland={summary.perIsland}
         onOpenIsland={onOpenIsland}
         pickingFor={pickingFor}
+        sailing={sailing}
       />
       <div className="chainmap__key">
         <span><i className="key key--civil" /> Earns gold</span>
         <span><i className="key key--military" /> Works and yards</span>
         <span><i className="key key--ashore" /> Companies ashore</span>
         <span><i className="key key--mission" /> Your crew here</span>
+        <span><i className="key key--ships" /> Hulls at anchor</span>
       </div>
     </Sheet>
   );

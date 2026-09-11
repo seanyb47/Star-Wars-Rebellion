@@ -80,6 +80,8 @@ const MARKS = {
   ashore: 'M4 17 L16 5 M16 17 L4 5',
   /** A sealed dispatch: your crew standing on it, or sailing to it. */
   mission: 'M2 6 h16 v10 h-16 Z M2 6 l8 6 l8 -6',
+  /** Sail: hulls lying off the island, whoever they belong to. */
+  ships: 'M2 14 h16 l-2 5 h-12 Z M10 13 V3 M10 4 l5 8 h-5',
 } as const;
 
 function controlColour(system: System, viewer: 'empire' | 'alliance'): string {
@@ -102,6 +104,7 @@ export function ChainMap({
   perIsland,
   onOpenIsland,
   pickingFor,
+  sailing,
 }: {
   state: GameState;
   systems: System[];
@@ -109,6 +112,8 @@ export function ChainMap({
   onOpenIsland: (systemId: string) => void;
   /** Choosing a destination: only islands that can be parleyed with respond. */
   pickingFor?: PlayableFaction | null;
+  /** A fleet is choosing where to sail, and it can sail anywhere. */
+  sailing?: boolean;
 }) {
   const viewer = state.player;
   const spots = useMemo(() => layoutIslands(systems), [systems]);
@@ -135,7 +140,20 @@ export function ChainMap({
 
         // The chains dim when they hold nothing to sail to; the islands inside
         // them must do the same, or you find out by tapping and being told no.
-        const live = !pickingFor || isDiplomacyTarget(system, pickingFor);
+        const live = sailing || !pickingFor || isDiplomacyTarget(system, pickingFor);
+
+        // Hulls lying off it, by side. An enemy squadron in one of your
+        // harbours is the single most urgent thing the chart can tell you, so
+        // it gets its own row rather than queueing behind four land marks.
+        const moored = state.fleets.filter((f) => f.systemId === system.id && !f.voyage);
+        const sail = (['empire', 'alliance'] as const)
+          .map((side) => ({
+            side,
+            hulls: moored
+              .filter((f) => f.faction === side)
+              .reduce((n, f) => n + f.ships.length, 0),
+          }))
+          .filter((entry) => entry.hulls > 0);
 
         const civil = system.facilities.filter((f) => earns(f.type)).length;
         const military = built - civil;
@@ -163,9 +181,11 @@ export function ChainMap({
             }>)
           : [];
 
-        // Marks sit in a row over the island, centred on it.
+        // Marks sit in rows over the island, centred on it: the land above,
+        // the sail just over the water where it actually is.
         const step = 62;
         const rowLeft = spot.x - ((badges.length - 1) * step) / 2;
+        const sailLeft = spot.x - ((sail.length - 1) * step) / 2;
 
         return (
           <g
@@ -184,14 +204,40 @@ export function ChainMap({
           >
             {/* A finger-sized target over the whole island, marks included. */}
             {live && <circle cx={spot.x} cy={spot.y} r={62} fill="transparent" />}
-            {pickingFor && live && (
+            {(sailing || pickingFor) && live && (
               <circle className="map__pick" cx={spot.x} cy={spot.y} r={52} strokeWidth={4} />
             )}
+
+            {explored &&
+              sail.map((entry, i) => (
+                <g
+                  key={entry.side}
+                  transform={`translate(${sailLeft + i * step - 26} ${spot.y - 58}) scale(1.5)`}
+                  pointerEvents="none"
+                >
+                  <path
+                    d={MARKS.ships}
+                    fill="none"
+                    stroke={`var(--${entry.side})`}
+                    strokeWidth={2.2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <text
+                    className="chainmap__badge-n"
+                    x={25}
+                    y={16}
+                    fill={`var(--${entry.side})`}
+                  >
+                    {entry.hulls}
+                  </text>
+                </g>
+              ))}
 
             {badges.map((badge, i) => (
               <g
                 key={i}
-                transform={`translate(${rowLeft + i * step - 26} ${spot.y - 94}) scale(1.5)`}
+                transform={`translate(${rowLeft + i * step - 26} ${spot.y - (sail.length > 0 ? 104 : 94)}) scale(1.5)`}
                 pointerEvents="none"
               >
                 <path

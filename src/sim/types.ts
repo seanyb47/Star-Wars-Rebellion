@@ -40,6 +40,12 @@ export interface System {
   facilities: Facility[];
   garrison: number;
   uprising: boolean;
+  /**
+   * An enemy fleet is lying off it and nothing is getting out. Always a real
+   * boolean rather than an optional one: "absent" and "false" meaning the same
+   * thing is the sort of ambiguity that goes wrong quietly later.
+   */
+  blockaded: boolean;
 }
 
 export type FacilityType =
@@ -49,7 +55,48 @@ export type FacilityType =
   | 'training_facility'
   | 'shipyard';
 
-export type BuildItem = FacilityType | 'troop';
+/**
+ * What a hull is for. The three roles are the whole of naval tactics here:
+ * escorts are cheap and quick, capitals carry the guns, transports carry
+ * companies and cannot fight.
+ */
+export type ShipRole = 'escort' | 'capital' | 'transport';
+
+/** World bible section 6. Three classes a side to begin with. */
+export type ShipClassId =
+  | 'kestrel'
+  | 'sovereign'
+  | 'fluyt'
+  | 'swift'
+  | 'tempest'
+  | 'brig';
+
+export type BuildItem = FacilityType | 'troop' | ShipClassId;
+
+export interface Ship {
+  id: string;
+  classId: ShipClassId;
+  /** Damage taken. At or past the class's hull the ship is lost. */
+  damage: number;
+}
+
+/**
+ * A fleet is a container, as in the original: hulls, the companies aboard
+ * them, and (later) the officers who command it, all in one thing that moves
+ * as one thing. Where a ship is and what it is carrying is one fact.
+ */
+export interface Fleet {
+  id: string;
+  name: string;
+  faction: PlayableFaction;
+  /** Where it lies. While at sea, the island it sailed from. */
+  systemId: string;
+  ships: Ship[];
+  /** Companies aboard, never more than the hulls can carry. */
+  troops: number;
+  /** Set only while at sea. */
+  voyage?: { targetSystemId: string; daysRemaining: number };
+}
 
 export interface Facility {
   id: string;
@@ -109,7 +156,8 @@ export type EventKind =
   | 'mutiny'   // an island rising
   | 'order'    // something you ordered finishing
   | 'mission'  // a crew member departing, landing, or reporting
-  | 'loss';    // something taken from you
+  | 'loss'     // something taken from you
+  | 'battle';  // ships meeting at an island
 
 export interface GameEvent {
   id: string;
@@ -138,6 +186,7 @@ export interface GameState {
   sectors: Sector[];
   systems: System[];
   characters: Character[];
+  fleets: Fleet[];
   factions: { empire: FactionState; alliance: FactionState };
   events: GameEvent[];
   pendingDecisions: PendingMissionDecision[];

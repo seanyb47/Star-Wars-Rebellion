@@ -3,9 +3,13 @@ import { otherFaction, pushEvent, supportMultiplier } from './helpers';
 import type { Rng } from './rng';
 import type { GameState, PlayableFaction, System } from './types';
 
-/** An island contributes to the economy only while it is held and quiet. */
+/**
+ * An island contributes only while it is held, quiet, and open. A blockade
+ * does not take the island from you — it simply stops anything leaving the
+ * harbour, so the island still costs you its upkeep and pays you nothing.
+ */
 export function isProductive(system: System, faction: PlayableFaction): boolean {
-  return system.control === faction && !system.uprising;
+  return system.control === faction && !system.uprising && !system.blockaded;
 }
 
 /** What a single island earns you in a day, before smugglers take their cut. */
@@ -27,6 +31,13 @@ export function totalUpkeep(state: GameState, faction: PlayableFaction): number 
       if (facility.owner === faction) upkeep += UPKEEP_PER_DAY[facility.type];
     }
     upkeep += system.garrison * UPKEEP_PER_DAY.troop;
+  }
+  // A hull costs the same whether it is fighting or lying at anchor, and the
+  // companies aboard it eat wherever they are.
+  for (const fleet of state.fleets) {
+    if (fleet.faction !== faction) continue;
+    for (const ship of fleet.ships) upkeep += UPKEEP_PER_DAY[ship.classId];
+    upkeep += fleet.troops * UPKEEP_PER_DAY.troop;
   }
   return upkeep;
 }

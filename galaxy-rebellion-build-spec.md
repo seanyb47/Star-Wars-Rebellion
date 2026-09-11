@@ -185,10 +185,16 @@ to pause), raw / refined / maintenance (used/cap).
 - 20+ unit tests on `/sim` (economy, support flip, uprising, mission resolve)
   using a seeded RNG so results are deterministic.
 
-## 7. Roadmap (do NOT build yet)
-- **Phase 2 — Fleets.** Capital ships, fighters, troop capacity, fleet
-  movement, auto-resolved orbital combat with a summary card, assault to take
-  systems by force (raises garrison requirement), blockades.
+## 7. Roadmap
+- **Phase 2 — Fleets. BUILT (v4.0).** Hulls, troop capacity, fleet movement,
+  auto-resolved combat, assault to take islands by force, blockades. Two things
+  in the original line were not built and are deliberately deferred: fighters
+  (small craft flown off carriers — there are no carriers yet, and squadrons
+  need a second layer of combat to mean anything), and a battle summary *card*
+  — an action reports as an event line for now, and cards are the same job as
+  the event cards still outstanding for the whole feed. Command ranks stay in
+  phase 3 as written, though the fleet is already shaped to hold them.
+- **Phase 2 (not yet built).** Fighters/small craft; the battle summary card.
 - **Phase 3 — Full missions & victory.** Espionage, Sabotage, Abduction,
   Incite/Subdue Uprising, Recruitment, Recon (probe units), Rescue, R&D.
   Foilers based on defending characters' espionage/combat. Command ranks

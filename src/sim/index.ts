@@ -7,6 +7,7 @@ export * from './economy';
 export * from './support';
 export * from './reach';
 export * from './build';
+export * from './fleets';
 export * from './missions';
 export * from './ai';
 export * from './advanceDay';

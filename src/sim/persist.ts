@@ -24,8 +24,13 @@ export function loadGame(storage: Storage | undefined = globalThis.localStorage)
     const parsed = JSON.parse(raw) as GameState;
     if (!parsed || !Array.isArray(parsed.systems) || parsed.systems.length === 0) return null;
     if (typeof parsed.factions?.empire?.gold !== 'number') return null;
+    // Fleets arrived after this save version. Rather than throw away a game in
+    // progress over an additive change, a save without them is a game with no
+    // ships in the water, which is exactly what it is.
+    const fleets = Array.isArray(parsed.fleets) ? parsed.fleets : [];
+    const systems = parsed.systems.map((s) => ({ ...s, blockaded: !!s.blockaded }));
     // A restored game always comes back paused.
-    return { ...parsed, speed: 'paused' };
+    return { ...parsed, fleets, systems, speed: 'paused' };
   } catch {
     return null;
   }

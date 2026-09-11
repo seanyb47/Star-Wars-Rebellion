@@ -11,6 +11,9 @@ import {
   orderBuild,
   resolvePendingMission,
   saveGame,
+  orderAssault,
+  orderEmbark,
+  orderSail,
   sendDiplomat,
   setSpeed,
   VICTORY_CONTROL_FRACTION,
@@ -69,6 +72,8 @@ export function App() {
   const [narratorOpen, setNarratorOpen] = useState(false);
   const [almanacOpen, setAlmanacOpen] = useState(false);
   const [pickingFor, setPickingFor] = useState<string | null>(null);
+  /** A fleet waiting to be told where to sail. Every island is a valid answer. */
+  const [sailingFleetId, setSailingFleetId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [lastSeen, setLastSeen] = useState(readLastSeen);
 
@@ -154,6 +159,17 @@ export function App() {
   };
 
   const handleSelectSystem = (systemId: string) => {
+    if (sailingFleetId) {
+      const result = orderSail(state, sailingFleetId, systemId);
+      setSailingFleetId(null);
+      if (result.error) {
+        flash(result.error);
+        return;
+      }
+      setState(result.state);
+      flash('Weighing anchor.');
+      return;
+    }
     if (pickingFor) {
       const result = sendDiplomat(state, pickingFor, systemId);
       if (result.error) {
@@ -178,12 +194,31 @@ export function App() {
   const openIslandTab = (systemId: string) => {
     setOpenReachId(null);
     setOpenSea(null);
-    if (pickingFor) {
+    if (pickingFor || sailingFleetId) {
       handleSelectSystem(systemId);
       return;
     }
     setOpenSystemId(systemId);
     setOpenSystemTab('harbour');
+  };
+
+  const handleSail = (fleetId: string) => {
+    // Choosing where to sail is the same gesture as choosing where to send a
+    // crew member: close the panel, pick an island, and the order goes off.
+    setOpenSystemId(null);
+    setSailingFleetId(fleetId);
+  };
+
+  const handleEmbark = (fleetId: string, companies: number) => {
+    const result = orderEmbark(state, fleetId, companies);
+    if (result.error) return flash(result.error);
+    setState(result.state);
+  };
+
+  const handleAssault = (fleetId: string) => {
+    const result = orderAssault(state, fleetId);
+    if (result.error) return flash(result.error);
+    setState(result.state);
   };
 
   const jumpToSystem = (systemId: string) => {
@@ -202,6 +237,7 @@ export function App() {
     setOpenReachId(null);
     setOpenSea(null);
     setPickingFor(null);
+    setSailingFleetId(null);
     setLastSeen(0);
   };
 
@@ -280,7 +316,11 @@ export function App() {
                   }
                 : null
             }
-            onCancelPick={() => setPickingFor(null)}
+            sailing={sailingFleetId !== null}
+            onCancelPick={() => {
+              setPickingFor(null);
+              setSailingFleetId(null);
+            }}
             onOpenWorlds={() => setWorldsOpen(true)}
             onSelectReach={(sectorId: string) => setOpenReachId(sectorId)}
           />
@@ -324,6 +364,9 @@ export function App() {
           onClose={() => setOpenSystemId(null)}
           onBuild={handleBuild}
           onCancel={handleCancel}
+          onSail={handleSail}
+          onEmbark={handleEmbark}
+          onAssault={handleAssault}
           onOpenCharacter={setOpenCharacterId}
           onOpenReach={(sectorId) => {
             setOpenSystemId(null);
@@ -339,6 +382,7 @@ export function App() {
           onClose={() => setOpenReachId(null)}
           onOpenIsland={openIslandTab}
           pickingFor={pickingCharacter ? (pickingCharacter.faction as PlayableFaction) : null}
+          sailing={sailingFleetId !== null}
           onOpenSea={(sea) => {
             // Step up from the chain to its whole Sea, rather than stacking
             // the two panels with the chain's still on top.

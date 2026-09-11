@@ -543,3 +543,22 @@ button {
                     linear-gradient(-45deg, transparent 44%, currentColor 44% 56%, transparent 56%);
 }
 .key--mission { clip-path: polygon(0 20%, 100% 20%, 100% 80%, 0 80%); }
+.key--ships { clip-path: polygon(45% 0, 55% 0, 55% 55%, 100% 55%, 85% 100%, 15% 100%, 0 55%, 45% 55%); }
+
+/* ---------- Fleets ---------- */
+.fleet__ships {
+  display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 10px;
+}
+.fleet__class { display: inline-flex; align-items: center; gap: 5px; color: var(--text); }
+.fleet__class-n { font-weight: 600; font-size: 13px; }
+/* The original states a fleet as a table of facts with the words spelled out;
+   so does this, two to a row on a phone. */
+.fleet__facts {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px;
+  margin: 10px 0 0;
+}
+.fleet__facts > div { display: flex; justify-content: space-between; gap: 8px; }
+.fleet__facts dt { color: var(--muted); font-size: 11px; }
+.fleet__facts dd { margin: 0; font-size: 12px; font-weight: 600; }
+.fleet__orders { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.fleet__orders .btn { width: 100%; }

@@ -60,6 +60,8 @@ export interface GalaxyMapProps {
   state: GameState;
   /** When set, the map is in "choose a destination" mode for this character. */
   pickingFor?: { characterId: string; faction: PlayableFaction } | null;
+  /** A fleet waiting to be told where to sail. Anywhere is a valid answer. */
+  sailing?: boolean;
   onCancelPick?: () => void;
   onOpenWorlds?: () => void;
   /** Tapping a chain opens it. The island is then chosen from the list. */
@@ -115,6 +117,7 @@ function islandRadius(system: System): number {
 export function GalaxyMap({
   state,
   pickingFor,
+  sailing,
   onCancelPick,
   onOpenWorlds,
   onSelectReach,
@@ -188,7 +191,8 @@ export function GalaxyMap({
         </g>
 
         {chains.map(({ sector, systems, summary, targets, spot }) => {
-          const live = !pickingFor || targets > 0;
+          // Sailing can go anywhere; a parley can only go where it is welcome.
+          const live = sailing || !pickingFor || targets > 0;
           const held = summary.held;
           const labelY = spot.y + CHAIN_R + 40;
           // The names still break at the last space — "Shipwrights'" over
@@ -206,7 +210,7 @@ export function GalaxyMap({
               {/* The disc is the tap target: the whole chain, not any one island. */}
               <circle cx={spot.x} cy={spot.y} r={CHAIN_R} fill="url(#shoal)" />
               <circle className="map__sector-ring" cx={spot.x} cy={spot.y} r={CHAIN_R} />
-              {pickingFor && targets > 0 && (
+              {(sailing || (pickingFor && targets > 0)) && (
                 <circle className="map__pick" cx={spot.x} cy={spot.y} r={CHAIN_R + 7} />
               )}
 
@@ -302,7 +306,11 @@ export function GalaxyMap({
       </svg>
 
       <div className="map__hud">
-        {pickingFor ? (
+        {sailing ? (
+          <button className="chip chip--pick" onClick={onCancelPick}>
+            Open a chain and pick where to sail · cancel
+          </button>
+        ) : pickingFor ? (
           <button className="chip chip--pick" onClick={onCancelPick}>
             Open a chain and pick an island · cancel
           </button>

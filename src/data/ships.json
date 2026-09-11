@@ -1,0 +1,47 @@
+{
+  "_comment": "Hull classes, world bible section 6. Names and prose live here; the numbers live in sim/constants.ts, keyed by role, so both fleets are balanced identically and only their names and character differ. Section 6 lists fifteen classes a side; these are the three that need no research.",
+  "classes": [
+    {
+      "id": "sovereign",
+      "faction": "empire",
+      "role": "capital",
+      "name": "Sovereign",
+      "blurb": "A first-rate of the line, built straight and warded with cultivated coral. The backbone of the Crown fleet."
+    },
+    {
+      "id": "kestrel",
+      "faction": "empire",
+      "role": "escort",
+      "name": "Kestrel",
+      "blurb": "A sloop-of-war. Fast, lightly gunned, and the quickest hull the Crown can put to sea."
+    },
+    {
+      "id": "fluyt",
+      "faction": "empire",
+      "role": "transport",
+      "name": "Fluyt",
+      "blurb": "An unarmed merchantman pressed into service. Carries companies and nothing else."
+    },
+    {
+      "id": "tempest",
+      "faction": "alliance",
+      "role": "capital",
+      "name": "Tempest",
+      "blurb": "A frigate patched together out of three others. Not pretty. Fights as well as anything the Crown has."
+    },
+    {
+      "id": "swift",
+      "faction": "alliance",
+      "role": "escort",
+      "name": "Swift",
+      "blurb": "A schooner, stolen and re-rigged. Outruns everything and picks off small craft."
+    },
+    {
+      "id": "brig",
+      "faction": "alliance",
+      "role": "transport",
+      "name": "Brig",
+      "blurb": "A blunt-nosed hauler. No guns worth the name, but it lands companies where they are wanted."
+    }
+  ]
+}

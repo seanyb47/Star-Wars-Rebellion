@@ -131,6 +131,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         facilities: [],
         garrison: 0,
         uprising: false,
+        blockaded: false,
       };
       if (populated) {
         // Any inhabited world that has not picked a side is neutral, and can be
@@ -252,6 +253,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     sectors,
     systems,
     characters,
+    fleets: [],
     factions: {
       empire: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: capital.id },
       alliance: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: allianceHq.id },

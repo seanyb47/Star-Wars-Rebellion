@@ -3,6 +3,7 @@ import { advanceDay } from '../advanceDay';
 import { runAI } from '../ai';
 import { AI_MISSION_INTERVAL } from '../constants';
 import { generateGalaxy } from '../galaxy';
+import { createRng } from '../rng';
 import { getSystem } from '../helpers';
 import { continueMission } from '../missions';
 import { controlTally } from '../support';
@@ -65,7 +66,7 @@ describe('the opponent expands', () => {
     for (let seed = 1; seed <= 40; seed++) {
       const state = generateGalaxy(seed);
       state.day = AI_MISSION_INTERVAL;
-      runAI(state);
+      runAI(state, createRng(seed));
       const sent = state.characters.find((c) => c.faction === 'alliance' && c.mission);
       if (!sent) continue;
       dispatched++;
