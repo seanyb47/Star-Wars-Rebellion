@@ -4,7 +4,7 @@
  * can never crash the game.
  */
 import { cancelBuild, queueBuild } from './build';
-import { assault, embark, sailFleet } from './fleets';
+import { assault, board, embark, goAshore, sailFleet } from './fleets';
 import { createRng } from './rng';
 import { generateGalaxy } from './galaxy';
 import { cloneState } from './helpers';
@@ -76,6 +76,23 @@ export function orderEmbark(
  * Rolls from the state's own seed and advances it, so a landing is as
  * reproducible as any other day.
  */
+/** Sign a crew member on to a fleet lying off the island they are standing on. */
+export function orderBoard(
+  state: GameState,
+  fleetId: string,
+  characterId: string,
+): CommandResult {
+  return run(state, (draft) => board(draft, fleetId, characterId, draft.player));
+}
+
+export function orderAshore(
+  state: GameState,
+  fleetId: string,
+  characterId: string,
+): CommandResult {
+  return run(state, (draft) => goAshore(draft, fleetId, characterId));
+}
+
 export function orderAssault(state: GameState, fleetId: string): CommandResult {
   return run(state, (draft) => {
     const rng = createRng(draft.rngSeed);

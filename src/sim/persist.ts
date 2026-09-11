@@ -27,7 +27,10 @@ export function loadGame(storage: Storage | undefined = globalThis.localStorage)
     // Fleets arrived after this save version. Rather than throw away a game in
     // progress over an additive change, a save without them is a game with no
     // ships in the water, which is exactly what it is.
-    const fleets = Array.isArray(parsed.fleets) ? parsed.fleets : [];
+    const fleets = (Array.isArray(parsed.fleets) ? parsed.fleets : []).map((f) => ({
+      ...f,
+      officerIds: Array.isArray(f.officerIds) ? f.officerIds : [],
+    }));
     const systems = parsed.systems.map((s) => ({ ...s, blockaded: !!s.blockaded }));
     // A restored game always comes back paused.
     return { ...parsed, fleets, systems, speed: 'paused' };

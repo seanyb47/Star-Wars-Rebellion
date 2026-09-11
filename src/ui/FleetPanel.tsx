@@ -1,14 +1,18 @@
+import { useState } from 'react';
 import terms from '../data/terms.json';
 import {
+  boardError,
   fleetCapacity,
   fleetDamaged,
   fleetGuns,
   fleetStatus,
+  officerEdge,
+  officersOf,
   shipClass,
   type Fleet,
   type GameState,
 } from '../sim';
-import { ShipIcon } from './art';
+import { CharacterPortrait, ShipIcon } from './art';
 import { ControlBadge } from './components';
 
 /**
@@ -23,6 +27,8 @@ export function FleetCard({
   onSail,
   onEmbark,
   onAssault,
+  onBoard,
+  onAshore,
   canOrder,
 }: {
   state: GameState;
@@ -30,6 +36,8 @@ export function FleetCard({
   onSail: (fleetId: string) => void;
   onEmbark: (fleetId: string, companies: number) => void;
   onAssault: (fleetId: string) => void;
+  onBoard: (fleetId: string, characterId: string) => void;
+  onAshore: (fleetId: string, characterId: string) => void;
   canOrder: boolean;
 }) {
   const system = state.systems.find((s) => s.id === fleet.systemId);
@@ -40,6 +48,13 @@ export function FleetCard({
   const holdsIsland = system?.control === fleet.faction;
 
   // One row per class, so eight sloops are a line rather than eight lines.
+  const [signing, setSigning] = useState(false);
+  const officers = officersOf(state, fleet);
+  // Crew standing on this island who could be signed on.
+  const ashoreHere = state.characters.filter(
+    (c) => boardError(state, fleet.id, c.id, state.player) === null,
+  );
+
   const byClass = new Map<string, number>();
   for (const ship of fleet.ships) {
     byClass.set(ship.classId, (byClass.get(ship.classId) ?? 0) + 1);
@@ -70,6 +85,59 @@ export function FleetCard({
         })}
       </div>
 
+      {/* Who is serving with her. The original names every command slot even
+          when it is empty, and an empty slot that says so is worth more than
+          one that stays quiet. */}
+      {(officers.length > 0 || (canOrder && ashoreHere.length > 0)) && (
+        <div className="fleet__officers">
+          {officers.map((officer) => (
+            <button
+              key={officer.id}
+              className="fleet__officer"
+              onClick={() => onAshore(fleet.id, officer.id)}
+              aria-label={`Put ${officer.name} ashore`}
+            >
+              <CharacterPortrait
+                name={officer.name}
+                faction={officer.faction}
+                people={officer.people}
+                size={26}
+              />
+              <span className="fleet__officer-name">{officer.name}</span>
+            </button>
+          ))}
+          {/* The crew ashore are a list of everyone standing there, which on a
+              home island is most of your people. Behind one chip until asked. */}
+          {canOrder && ashoreHere.length > 0 && !signing && (
+            <button
+              className="fleet__officer fleet__officer--empty"
+              onClick={() => setSigning(true)}
+            >
+              <span className="fleet__officer-plus">+</span>
+              <span className="fleet__officer-name">
+                Sign on ({ashoreHere.length})
+              </span>
+            </button>
+          )}
+          {canOrder &&
+            signing &&
+            ashoreHere.map((candidate) => (
+              <button
+                key={candidate.id}
+                className="fleet__officer fleet__officer--empty"
+                onClick={() => {
+                  onBoard(fleet.id, candidate.id);
+                  setSigning(false);
+                }}
+                aria-label={`Sign ${candidate.name} on`}
+              >
+                <span className="fleet__officer-plus">+</span>
+                <span className="fleet__officer-name">{candidate.name}</span>
+              </button>
+            ))}
+        </div>
+      )}
+
       <dl className="fleet__facts">
         <div>
           <dt>Hulls</dt>
@@ -82,6 +150,16 @@ export function FleetCard({
         <div>
           <dt>Damaged</dt>
           <dd>{damaged}</dd>
+        </div>
+        <div>
+          <dt>Command</dt>
+          <dd>
+            {officers.length === 0 ? (
+              <span className="muted">Nobody</span>
+            ) : (
+              `+${Math.round((officerEdge(state, fleet, 'leadership') - 1) * 100)}%`
+            )}
+          </dd>
         </div>
         <div>
           <dt>Companies</dt>
@@ -130,12 +208,16 @@ export function Harbour({
   onSail,
   onEmbark,
   onAssault,
+  onBoard,
+  onAshore,
 }: {
   state: GameState;
   systemId: string;
   onSail: (fleetId: string) => void;
   onEmbark: (fleetId: string, companies: number) => void;
   onAssault: (fleetId: string) => void;
+  onBoard: (fleetId: string, characterId: string) => void;
+  onAshore: (fleetId: string, characterId: string) => void;
 }) {
   const here = state.fleets.filter((f) => f.systemId === systemId && !f.voyage);
   const inbound = state.fleets.filter(
@@ -162,6 +244,8 @@ export function Harbour({
           onSail={onSail}
           onEmbark={onEmbark}
           onAssault={onAssault}
+          onBoard={onBoard}
+          onAshore={onAshore}
           canOrder={fleet.faction === state.player}
         />
       ))}

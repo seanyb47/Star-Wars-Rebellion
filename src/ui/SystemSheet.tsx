@@ -163,6 +163,8 @@ export function SystemSheet({
   onSail,
   onEmbark,
   onAssault,
+  onBoard,
+  onAshore,
 }: {
   state: GameState;
   system: System;
@@ -173,6 +175,8 @@ export function SystemSheet({
   onSail: (fleetId: string) => void;
   onEmbark: (fleetId: string, companies: number) => void;
   onAssault: (fleetId: string) => void;
+  onBoard: (fleetId: string, characterId: string) => void;
+  onAshore: (fleetId: string, characterId: string) => void;
   onOpenCharacter?: (characterId: string) => void;
   onOpenReach?: (sectorId: string) => void;
 }) {
@@ -313,6 +317,8 @@ export function SystemSheet({
             onSail={onSail}
             onEmbark={onEmbark}
             onAssault={onAssault}
+            onBoard={onBoard}
+            onAshore={onAshore}
           />
         </>
       )}

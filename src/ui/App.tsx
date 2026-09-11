@@ -11,7 +11,9 @@ import {
   orderBuild,
   resolvePendingMission,
   saveGame,
+  orderAshore,
   orderAssault,
+  orderBoard,
   orderEmbark,
   orderSail,
   sendDiplomat,
@@ -243,6 +245,18 @@ export function App() {
     setState(result.state);
   };
 
+  const handleBoard = (fleetId: string, characterId: string) => {
+    const result = orderBoard(state, fleetId, characterId);
+    if (result.error) return flash(result.error);
+    setState(result.state);
+  };
+
+  const handleAshore = (fleetId: string, characterId: string) => {
+    const result = orderAshore(state, fleetId, characterId);
+    if (result.error) return flash(result.error);
+    setState(result.state);
+  };
+
   const handleAssault = (fleetId: string) => {
     const result = orderAssault(state, fleetId);
     if (result.error) return flash(result.error);
@@ -423,6 +437,8 @@ export function App() {
           onSail={handleSail}
           onEmbark={handleEmbark}
           onAssault={handleAssault}
+          onBoard={handleBoard}
+          onAshore={handleAshore}
           onOpenCharacter={setOpenCharacterId}
           onOpenReach={(sectorId) => {
             setOpenSystemId(null);

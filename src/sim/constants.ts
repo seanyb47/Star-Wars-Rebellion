@@ -194,6 +194,13 @@ export const AI_SHIP_RESERVE = 200;
  *  quiet, so it has something to put aboard a transport. */
 export const AI_TROOP_POOL = 2;
 
+/**
+ * How much the best officer aboard is worth at a rating of 100, as a fraction
+ * added on. A quarter again: enough to tip a close fight, not enough to win
+ * one against the odds.
+ */
+export const OFFICER_EDGE = 0.25;
+
 /** Facility types that a construction yard is allowed to queue. */
 export const YARD_BUILDABLE: FacilityType[] = [
   'mine',

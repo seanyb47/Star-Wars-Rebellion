@@ -676,3 +676,18 @@ button {
   flex-wrap: wrap; padding: 10px 12px 12px;
 }
 .dispatch__foot .btn { min-width: var(--tap); }
+
+/* Officers serving with a fleet, and the crew ashore who could be. */
+.fleet__officers { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.fleet__officer {
+  min-height: var(--tap); padding: 4px 9px 4px 4px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg-sunken); border: 1px solid var(--border); color: var(--text);
+}
+.fleet__officer--empty { border-style: dashed; color: var(--muted); padding-left: 10px; }
+.fleet__officer-plus { font-size: 15px; line-height: 1; }
+.fleet__officer-name {
+  font-size: 11px; max-width: 92px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fleet__officer:active { background: #143643; }

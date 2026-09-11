@@ -5,6 +5,8 @@ import { SHIP_ROLES, shipClass, shipSpec } from '../constants';
 import { islandIncome, totalUpkeep } from '../economy';
 import {
   addShip,
+  board,
+  boardError,
   advanceFleets,
   assaultError,
   embark,
@@ -420,5 +422,100 @@ describe('the opponent builds toward its navy', () => {
     const before = companies(state);
     for (let d = 0; d < 400 && !state.winner; d++) state = advanceDay(state);
     expect(companies(state)).toBeGreaterThan(before);
+  });
+});
+
+describe('officers', () => {
+  it('will not sign on somebody who is not standing where the fleet is', () => {
+    const { state, home } = setup();
+    const fleet = put(state, home, 'empire', ['kestrel']);
+    const crew = state.characters.find((c) => c.faction === 'empire')!;
+    const elsewhere = state.systems.find((s) => s.id !== home.id)!;
+    crew.locationSystemId = elsewhere.id;
+    expect(boardError(state, fleet.id, crew.id, 'empire')).toBe('Not on this island.');
+
+    crew.locationSystemId = home.id;
+    expect(boardError(state, fleet.id, crew.id, 'empire')).toBeNull();
+    board(state, fleet.id, crew.id, 'empire');
+    expect(boardError(state, fleet.id, crew.id, 'empire')).toBe('Already aboard.');
+  });
+
+  it('carries them along when the fleet sails', () => {
+    const { state, home } = setup();
+    const fleet = put(state, home, 'empire', ['kestrel']);
+    const crew = state.characters.find(
+      (c) => c.faction === 'empire' && c.locationSystemId === home.id,
+    )!;
+    board(state, fleet.id, crew.id, 'empire');
+
+    const target = state.systems.find((s) => s.sectorId === home.sectorId && s.id !== home.id)!;
+    sailFleet(state, fleet.id, target.id, 'empire');
+    // Capture the count first: the loop is decrementing the thing it reads.
+    const days = fleet.voyage!.daysRemaining;
+    const rng = createRng(1);
+    for (let i = 0; i < days; i++) advanceFleets(state, rng);
+
+    expect(fleet.systemId).toBe(target.id);
+    expect(crew.locationSystemId).toBe(target.id);
+  });
+
+  it('makes leadership tell in a fight', () => {
+    // The same battle twice, once with a good officer aboard and once without.
+    // Measure what the enemy has left, not the damage on it: a sunk ship is
+    // removed, so counting damage reads zero exactly when you hurt them most.
+    const hullLeft = (withOfficer: boolean) => {
+      const { state, home } = setup(21);
+      const mine = put(state, home, 'empire', ['sovereign', 'sovereign', 'sovereign']);
+      put(state, home, 'alliance', ['reef', 'reef', 'reef']);
+      if (withOfficer) {
+        const crew = state.characters.find((c) => c.faction === 'empire')!;
+        crew.locationSystemId = home.id;
+        crew.leadership = 100;
+        board(state, mine.id, crew.id, 'empire');
+      }
+      const rng = createRng(4);
+      for (let i = 0; i < 2; i++) advanceFleets(state, rng);
+      return state.fleets
+        .filter((f) => f.faction === 'alliance')
+        .reduce((n, f) => n + f.ships.reduce((h, s) => h + (SHIP_ROLES.large.hull - s.damage), 0), 0);
+    };
+    expect(hullLeft(true)).toBeLessThan(hullLeft(false));
+  });
+
+  it('makes combat tell in a landing', () => {
+    const land = (withOfficer: boolean) => {
+      const { state } = setup(5);
+      const target = state.systems.find((s) => s.control === 'alliance' && s.populated)!;
+      target.garrison = 3;
+      const fleet = put(state, target, 'empire', ['sovereign', 'sovereign']);
+      fleet.troops = 3;
+      if (withOfficer) {
+        const crew = state.characters.find((c) => c.faction === 'empire')!;
+        crew.locationSystemId = target.id;
+        crew.combat = 100;
+        fleet.officerIds.push(crew.id);
+      }
+      resolveLanding(state, fleet, createRng(9));
+      return target.control;
+    };
+    // Three against three is a coin toss; three led by a fighter carries it.
+    expect(land(true)).toBe('empire');
+    expect(land(false)).toBe('alliance');
+  });
+
+  it('puts them ashore rather than drowning them when the fleet is sunk', () => {
+    const { state, home } = setup();
+    const doomed = put(state, home, 'empire', ['kestrel']);
+    const crew = state.characters.find((c) => c.faction === 'empire')!;
+    crew.locationSystemId = home.id;
+    board(state, doomed.id, crew.id, 'empire');
+    put(state, home, 'alliance', ['reef', 'reef', 'reef']);
+
+    const rng = createRng(2);
+    for (let i = 0; i < 25 && state.fleets.some((f) => f.faction === 'empire'); i++) {
+      advanceFleets(state, rng);
+    }
+    expect(state.fleets.some((f) => f.faction === 'empire')).toBe(false);
+    expect(crew.locationSystemId).toBe(home.id);
   });
 });

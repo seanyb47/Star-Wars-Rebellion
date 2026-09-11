@@ -5,11 +5,12 @@
  * carrying ships and the companies aboard them, after the original's fleet
  * window rather than a stack of ships with a leader attached elsewhere.
  */
-import { SHIP_ROLES, shipClass } from './constants';
+import { OFFICER_EDGE, SHIP_ROLES, shipClass } from './constants';
 import { getSystem, nextId, otherFaction, pushEvent } from './helpers';
 import { travelDays } from './missions';
 import type { Rng } from './rng';
 import type {
+  Character,
   Fleet,
   GameState,
   PlayableFaction,
@@ -62,6 +63,28 @@ export function fleetPace(fleet: Fleet): number {
   return Math.max(...fleet.ships.map((s) => SHIP_ROLES[shipClass(s.classId).role].pace));
 }
 
+/** The crew serving with a fleet, in the order they came aboard. */
+export function officersOf(state: GameState, fleet: Fleet): Character[] {
+  return fleet.officerIds
+    .map((id) => state.characters.find((c) => c.id === id))
+    .filter((c): c is Character => c !== undefined);
+}
+
+/**
+ * What the best officer aboard is worth, as a fraction added to the fleet's
+ * effort. A rating of 100 is worth a quarter again; nobody aboard is worth
+ * nothing. Deliberately modest: a good captain should tip a close fight, not
+ * decide one against the odds.
+ */
+export function officerEdge(
+  state: GameState,
+  fleet: Fleet,
+  rating: 'leadership' | 'combat',
+): number {
+  const best = officersOf(state, fleet).reduce((n, c) => Math.max(n, c[rating]), 0);
+  return 1 + (best / 100) * OFFICER_EDGE;
+}
+
 export function fleetDamaged(fleet: Fleet): number {
   return fleet.ships.filter((s) => s.damage > 0).length;
 }
@@ -101,6 +124,7 @@ export function addShip(
     systemId: system.id,
     ships: [ship],
     troops: 0,
+    officerIds: [],
   };
   state.fleets.push(fleet);
   return fleet;
@@ -191,6 +215,46 @@ export function embark(
   fleet.troops += companies;
 }
 
+export function boardError(
+  state: GameState,
+  fleetId: string,
+  characterId: string,
+  actor: PlayableFaction,
+): string | null {
+  const fleet = findFleet(state, fleetId);
+  if (!fleet) return 'No such fleet.';
+  if (fleet.faction !== actor) return 'That fleet is not yours.';
+  if (isAtSea(fleet)) return 'The fleet is at sea.';
+  const character = state.characters.find((c) => c.id === characterId);
+  if (!character) return 'No such crew.';
+  if (character.faction !== actor) return 'Not one of yours.';
+  if (character.mission) return 'Already away on a parley.';
+  if (character.status !== 'available') return `${character.name} is ${character.status}.`;
+  if (character.locationSystemId !== fleet.systemId) return 'Not on this island.';
+  if (fleet.officerIds.includes(characterId)) return 'Already aboard.';
+  return null;
+}
+
+/** Sign a crew member on to a fleet, or put them back ashore. */
+export function board(
+  state: GameState,
+  fleetId: string,
+  characterId: string,
+  actor: PlayableFaction,
+): void {
+  const error = boardError(state, fleetId, characterId, actor);
+  if (error) throw new Error(error);
+  findFleet(state, fleetId)!.officerIds.push(characterId);
+}
+
+export function goAshore(state: GameState, fleetId: string, characterId: string): void {
+  const fleet = findFleet(state, fleetId);
+  if (!fleet || isAtSea(fleet)) throw new Error('The fleet is at sea.');
+  fleet.officerIds = fleet.officerIds.filter((id) => id !== characterId);
+  const character = state.characters.find((c) => c.id === characterId);
+  if (character) character.locationSystemId = fleet.systemId;
+}
+
 export function assaultError(
   state: GameState,
   fleetId: string,
@@ -232,6 +296,8 @@ export function advanceFleets(state: GameState, rng: Rng): void {
     fleet.voyage = undefined;
     const system = getSystem(state, fleet.systemId);
     system.explored[fleet.faction] = true;
+    // Whoever is serving with her is where she is.
+    for (const officer of officersOf(state, fleet)) officer.locationSystemId = system.id;
     pushEvent(state, {
       kind: 'order',
       text: `${fleet.name} has come to anchor off ${system.name}.`,
@@ -240,7 +306,11 @@ export function advanceFleets(state: GameState, rng: Rng): void {
   }
 
   resolveBattles(state, rng);
-  // A fleet reduced to nothing is not a fleet.
+  // A fleet reduced to nothing is not a fleet. Anyone serving with her is put
+  // ashore where she lay rather than quietly ceasing to exist.
+  for (const fleet of state.fleets.filter((f) => f.ships.length === 0)) {
+    for (const officer of officersOf(state, fleet)) officer.locationSystemId = fleet.systemId;
+  }
   state.fleets = state.fleets.filter((f) => f.ships.length > 0);
 }
 
@@ -273,8 +343,10 @@ function fightRound(
     empire: empire.reduce((n, f) => n + f.ships.length, 0),
     alliance: alliance.reduce((n, f) => n + f.ships.length, 0),
   };
-  const gunsEmpire = empire.reduce((n, f) => n + fleetGuns(f), 0);
-  const gunsAlliance = alliance.reduce((n, f) => n + fleetGuns(f), 0);
+  // Leadership tells here: a well-handled squadron gets more out of the same
+  // guns. This is the first thing in the game that reads the rating at all.
+  const gunsEmpire = empire.reduce((n, f) => n + fleetGuns(f) * officerEdge(state, f, 'leadership'), 0);
+  const gunsAlliance = alliance.reduce((n, f) => n + fleetGuns(f) * officerEdge(state, f, 'leadership'), 0);
 
   applyFire(gunsAlliance, empire, rng);
   applyFire(gunsEmpire, alliance, rng);
@@ -337,13 +409,15 @@ function sinkAndDrown(state: GameState, fleet: Fleet): void {
 export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   const system = getSystem(state, fleet.systemId);
   const defenders = system.garrison;
-  const attackers = fleet.troops;
+  // Combat tells here, for the same reason: companies led ashore by somebody
+  // who knows the business go further than the same companies alone.
+  const attackers = fleet.troops * officerEdge(state, fleet, 'combat');
   // Both sides lose companies; the smaller force is spent entirely.
-  const spent = Math.min(attackers, defenders);
+  const spent = Math.min(Math.round(attackers), defenders);
   const roll = rng.next();
   const attackerWins = attackers > defenders || (attackers === defenders && roll > 0.5);
 
-  fleet.troops -= spent;
+  fleet.troops = Math.max(0, fleet.troops - spent);
   system.garrison -= spent;
 
   if (!attackerWins) {

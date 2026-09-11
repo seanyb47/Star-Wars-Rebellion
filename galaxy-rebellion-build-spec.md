@@ -196,6 +196,11 @@ to pause), raw / refined / maintenance (used/cap).
 - **Phase 2 (not yet built).** The battle summary *card*. An action reports as
   an event line for now, because a card is the same job as the event cards
   still outstanding for the whole feed.
+- **Known gap.** `espionage` is rolled for every character and shown on every
+  sheet, and nothing reads it. It belongs to the phase-3 missions below —
+  Espionage, Sabotage, Abduction — and until those exist it is decoration.
+  `combat` and `leadership` were the same until v4.7, which put crew aboard
+  fleets; they now decide actions and landings.
 - **Phase 3 — Full missions & victory.** Espionage, Sabotage, Abduction,
   Incite/Subdue Uprising, Recruitment, Recon (probe units), Rescue, R&D.
   Foilers based on defending characters' espionage/combat. Command ranks

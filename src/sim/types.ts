@@ -102,6 +102,13 @@ export interface Fleet {
   ships: Ship[];
   /** Companies aboard, never more than the hulls can carry. */
   troops: number;
+  /**
+   * Crew serving with the fleet. Their island is wherever the fleet is, and
+   * the best Leadership among them tells in a fight, the best Combat in a
+   * landing — which is what those ratings are for, and until now they were
+   * generated, displayed and used by nothing.
+   */
+  officerIds: string[];
   /** Set only while at sea. */
   voyage?: { targetSystemId: string; daysRemaining: number };
 }
