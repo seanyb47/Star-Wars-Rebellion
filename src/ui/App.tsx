@@ -27,6 +27,7 @@ import { CharacterSheet } from './CharacterSheet';
 import { CharactersScreen } from './CharactersScreen';
 import { FeedScreen } from './FeedScreen';
 import { GalaxyMap } from './GalaxyMap';
+import { EventCards, isNotable } from './EventCard';
 import { Narrator } from './Narrator';
 import { ReachSheet } from './ReachSheet';
 import { SeaSheet } from './SeaSheet';
@@ -76,8 +77,34 @@ export function App() {
   const [sailingFleetId, setSailingFleetId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [lastSeen, setLastSeen] = useState(readLastSeen);
+  /**
+   * Dispatches the player has been shown a card for, so none is shown twice.
+   *
+   * Seeded with everything already in the log: a game resumed a hundred days
+   * in has a hundred days of news in it, and none of it is news any more.
+   * Only what happens from now on is worth stopping for.
+   */
+  const [toldOf, setToldOf] = useState<string[]>(() => state.events.map((e) => e.id));
+  /** A card opened from the log, which is one event rather than a day's worth. */
+  const [readingId, setReadingId] = useState<string | null>(null);
 
   const decision = state.pendingDecisions[0] ?? null;
+
+  /**
+   * News worth stopping for that the player has not been shown. Only the
+   * notable kinds — an island changing hands, a rising, an action, the end of
+   * the war. Orders finishing and crew reporting stay in the log, or the game
+   * would interrupt itself every other day.
+   */
+  const dispatches = state.events.filter((e) => isNotable(e) && !toldOf.includes(e.id));
+  // The log is capped, so the list of what has been read is capped with it.
+  useEffect(() => {
+    setToldOf((seen) =>
+      seen.length > 500 ? seen.filter((id) => state.events.some((e) => e.id === id)) : seen,
+    );
+  }, [state.events]);
+  const reading = readingId ? state.events.find((e) => e.id === readingId) : undefined;
+  const cards = reading ? [reading] : dispatches;
   // Spec 2: any modal or panel holds the clock; closing it resumes.
   const panelOpen =
     openSystemId !== null ||
@@ -86,6 +113,7 @@ export function App() {
     openSea !== null ||
     menuOpen ||
     worldsOpen ||
+    cards.length > 0 ||
     narratorOpen ||
     almanacOpen ||
     decision !== null;
@@ -238,6 +266,8 @@ export function App() {
     setOpenSea(null);
     setPickingFor(null);
     setSailingFleetId(null);
+    setToldOf([]);
+    setReadingId(null);
     setLastSeen(0);
   };
 
@@ -274,7 +304,11 @@ export function App() {
         <StartScreen
           hasSave={saved !== null}
           onContinue={() => {
-            if (saved) setState(saved);
+            if (saved) {
+              setState(saved);
+              // Everything in a resumed game has already happened.
+              setToldOf(saved.events.map((e) => e.id));
+            }
             setStarted(true);
           }}
           onBegin={startNewGame}
@@ -336,14 +370,32 @@ export function App() {
           <FeedScreen
             state={state}
             lastSeen={lastSeen}
-            onJumpToSystem={jumpToSystem}
             onJumpToCharacter={(characterId) => {
               setTab('characters');
               setOpenCharacterId(characterId);
             }}
+            onRead={setReadingId}
           />
         )}
       </main>
+
+      {cards.length > 0 && (
+        <EventCards
+          state={state}
+          events={cards}
+          onClose={() => {
+            if (reading) setReadingId(null);
+            else setToldOf((seen) => [...seen, ...dispatches.map((e) => e.id)]);
+          }}
+          onOpenIsland={(systemId) => {
+            if (reading) setReadingId(null);
+            else setToldOf((seen) => [...seen, ...dispatches.map((e) => e.id)]);
+            setTab('galaxy');
+            setOpenSystemId(systemId);
+            setOpenSystemTab('harbour');
+          }}
+        />
+      )}
 
       <TabBar
         tab={tab}
