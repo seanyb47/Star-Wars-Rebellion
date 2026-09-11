@@ -3,7 +3,8 @@
 A real-time grand strategy game for the phone, modeled on the mechanics of
 LucasArts' *Star Wars: Rebellion* (1998). Phase 1 delivers the galaxy map,
 the real-time clock, the mine/refinery/maintenance economy, popular support
-and control, and one mission type (Diplomacy). Everything else is roadmap.
+and control, and the officer missions of §4.5 (Diplomacy and Incite Uprising).
+Everything else is roadmap.
 
 **Personal project.** Ship with original faction/character/planet names.
 Names live in data files so a private reskin is a one-file swap.
@@ -125,6 +126,12 @@ interface GameState {
 - Uprising ends when support climbs back to ≥ 40.
 - **Sector spillover:** any support change on a system applies 20% of that
   change to every other populated system in the same sector.
+- **Drift (amended v4.10):** every populated island moves each faction's support
+  0.25 points a day toward its natural level — 55 for whoever controls the
+  island, 0 for everyone else. Support used to only ever ratchet upward, so one
+  parley moved a whole chain permanently and the war was decided by whoever
+  talked first. Drift never takes an island off you on its own; it means a hold
+  has to be kept up.
 - Unpopulated system: controlled only while garrison ≥ 1. The moment you
   complete any facility there, it becomes populated with support 100/0 for you.
 
@@ -136,18 +143,47 @@ interface GameState {
 - Build targets must be a system you control; facilities need a free energy slot,
   mines need a free raw slot.
 
-### 4.5 Diplomacy mission (the only mission in phase 1)
-- Eligible target: neutral or friendly system, populated, not in uprising,
-  not enemy-controlled.
+### 4.5 Missions
+The island decides which mission an officer sent ashore performs — there is no
+menu. Both kinds share travel, the 15-day work cycle, the continue-or-return
+prompt, and the foil check.
+
+**Diplomacy (parley).** Eligible target: neutral or friendly system, populated,
+not in uprising, charted by you.
 - Travel time: 3 days within sector, 10 days across sectors.
 - On arrival, mission "works" for 15 days, then resolves:
   - `successChance = 0.4 + diplomacy/200` (dip 50 → 65%; dip 90 → 85%)
   - Success: `support[you] += 8 + diplomacy/10`, `support[them] -= 4`.
   - Failure: no change.
-  - **Foil check** (only on neutral systems): 10% base chance the mission is
-    detected → character `injured` for 20 days.
+**Incite Uprising (amended v4.10).** Eligible target: a populated, charted
+island the *enemy* controls that is not already in revolt.
+- Same travel and 15-day cycle.
+- `successChance = (0.4 + diplomacy/200) × 0.75` — harder than a parley.
+- Success: `support[holder] -= 9 + diplomacy/10`, and 35% of that amount comes
+  to you. You do not win the island; you cost them their grip. Push the holder
+  under the uprising threshold of 30 and the island rises on its own, which
+  stops everything being built, loaded or landed there.
+- Failure: no change.
+
+**Foil check (amended v4.10).** Run on both kinds, after the outcome:
+- No risk at all on an island you control.
+- Base 10% on neutral ground, 30% on an island the enemy holds.
+- `+ 30% × (best enemy espionage on the island / 100)` — their officers do the
+  watching, so where they leave their people matters.
+- `× (1 − 0.6 × your officer's espionage/100)` — craft cuts the risk but never
+  to nothing. Capped at 85%.
+- Detected → character `injured` for 20 days.
+
+- A mission whose island no longer matches its type is stood down, checked both
+  on landfall and at the end of each cycle, so nobody works a cycle for nothing.
 - After resolving, the game asks: continue (another 15-day cycle) or return.
 - Character ratings are hidden from the enemy; visible to you.
+
+**The authoritative Phase 3 mission set**, in the order agreed: Recruitment;
+Diplomacy (friendly/neutral) and Incite Uprising (enemy-controlled) — *built*;
+Espionage; Abduction; R&D; Command (assign an officer over an island or fleet,
+boosting its output in proportion to leadership and the other core ratings —
+the fleet half already exists as ships' officers); Sabotage.
 
 ### 4.6 Victory (phase 1 placeholder)
 - Win: control 60% of populated systems. Lose: the opponent does.
@@ -200,8 +236,9 @@ to pause), raw / refined / maintenance (used/cap).
   Leadership an action at sea; Combat a landing; Espionage how much of a chain
   a fleet charts when it makes landfall. The phase-3 missions below will give
   Espionage a second use, but it is no longer decoration.
-- **Phase 3 — Full missions & victory.** Espionage, Sabotage, Abduction,
-  Incite/Subdue Uprising, Recruitment, Recon (probe units), Rescue, R&D.
+- **Phase 3 — Full missions & victory.** Incite Uprising is built (§4.5).
+  Outstanding: Recruitment, Espionage as a mission, Abduction, R&D, Command
+  over an island, Sabotage. Then Recon (probe units) and Rescue.
   Foilers based on defending characters' espionage/combat. Command ranks
   (Admiral/General/Commander). Real victory: hold enemy HQ + capture two
   named leaders; Empire must *find* the hidden Alliance HQ.
@@ -249,3 +286,43 @@ gold.*
 
 Verified: full games still resolve in roughly 670-730 days, the same as under
 §4.2, so the pacing this spec was balanced for is preserved.
+
+### A2 (2026-09-11) — Incitement, an opponent that uses its officers, and support drift
+
+Building Incite Uprising (§4.5) turned up two things that had been hiding
+behind each other. Recorded here because the second one moves a number this
+spec was balanced against.
+
+1. **The opponent was barely playing its officers.** It picked its single best
+   diplomat, left the other four on the quay for the whole war, and ranked
+   targets with a +200 bonus for its own reach — large enough that it would
+   sail to a neighbouring island at 5% sympathy in preference to one across the
+   map it could actually win. It now sends up to `AI_MISSION_PARTIES` (2)
+   officers at a time, weighs a parley and an incitement on one scale, and uses
+   a much smaller proximity bonus (25). Every order still goes through the same
+   checks a player's does.
+
+2. **Nothing in the game ever took support away.** Combined with the 20% sector
+   spillover of §4.3, one successful parley moved a whole chain and moved it
+   permanently: support only ratcheted upward, and the war went to whoever
+   talked first. Diplomacy, not the fleet or the ledger, decided everything.
+   §4.3 now has **drift**: 0.25 points a day toward 55 for the holder and 0 for
+   everyone else.
+
+**The pacing number in A1 is superseded.** The 670-730 day figure was measured
+against an opponent making both of the mistakes above; it described a weak AI,
+not a balanced game. Measured across the same eight seeds with an idle player:
+
+| | mean days |
+|---|---|
+| A1, as measured (one officer, no drift) | 686 |
+| Competent AI, no drift | 250 |
+| Competent AI, drift 0.25 (shipped) | **565** |
+
+565 days is roughly 9.5 minutes at Medium. Drift of 0.28 restores the old mean
+(664) but sits on a knife edge — single seeds swing between 464 and 824 days —
+so 0.25 was taken for its much tighter spread (514-629). **The band for future
+balance work is 520-630 days, not 670-730.**
+
+Incitement is used and matters: across four measured games the opponent opened
+63 of them, landed 68 cycles, and set 35 islands alight.

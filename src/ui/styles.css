@@ -181,6 +181,12 @@ button {
 .map__coast { stroke-linejoin: round; }
 .map__hq { fill: none; stroke-width: 3; }
 .map__pick { fill: none; stroke: var(--good); stroke-width: 5; opacity: 0.9; }
+/* Covert work, drawn as such: a broken ring, so choosing to stir up an island
+   they hold never looks like choosing to parley. Brass rather than red — red is
+   the rebels' own colour, and a ring in your own colour reads as "mine", which
+   is the opposite of what this ring means. Stroke is set here and not on the
+   element: the rule above would override an attribute. */
+.map__pick--incite { stroke: var(--brass); stroke-dasharray: 12 9; }
 
 .map__hud {
   position: absolute; left: 10px; right: 10px; bottom: 10px;

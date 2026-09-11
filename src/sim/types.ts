@@ -143,8 +143,16 @@ export interface Character {
   mission?: Mission;
 }
 
+/**
+ * What a character is doing ashore. Phase 3's full set is recorded in the
+ * build spec; these are the two that exist, and they are two halves of one
+ * verb — the same passage, the same fifteen days of work, decided by whose
+ * island you land on.
+ */
+export type MissionType = 'diplomacy' | 'incite';
+
 export interface Mission {
-  type: 'diplomacy';
+  type: MissionType;
   targetSystemId: string;
   phase: 'travelling' | 'working';
   daysRemaining: number;

@@ -1,6 +1,11 @@
 import {
   FOIL_CHANCE,
   FOIL_INJURY_DAYS,
+  FOIL_PER_WATCHER,
+  INCITE_FOIL_CHANCE,
+  INCITE_SPILLOVER,
+  INCITE_SUCCESS_SCALE,
+  INCITE_SUPPORT_LOSS,
   MISSION_SUPPORT_LOSS,
   MISSION_WORK_DAYS,
   TRAVEL_DAYS_CROSS_SECTOR,
@@ -16,7 +21,7 @@ import {
 } from './helpers';
 import { resolveControlAndUnrest } from './support';
 import type { Rng } from './rng';
-import type { Character, GameState, PlayableFaction, System } from './types';
+import type { Character, GameState, MissionType, PlayableFaction, System } from './types';
 
 /** 3 days inside a sector, 10 across (spec 4.5). */
 export function travelDays(state: GameState, fromSystemId: string, toSystemId: string): number {
@@ -34,6 +39,63 @@ export function isDiplomacyTarget(system: System, faction: PlayableFaction): boo
   return system.control === 'neutral' || system.control === faction || system.control === 'none';
 }
 
+/**
+ * Somewhere to stir up trouble: a settled island the enemy holds and you have
+ * charted. Already in revolt is no use — it is doing what you wanted.
+ */
+export function isInciteTarget(system: System, faction: PlayableFaction): boolean {
+  if (!system.populated) return false;
+  if (system.uprising) return false;
+  if (!system.explored[faction]) return false;
+  return system.control === otherFaction(faction);
+}
+
+/**
+ * What landing here would mean. The island decides, not a menu: you cannot
+ * parley with an enemy island and there is nothing to incite on your own.
+ */
+export function missionTypeFor(
+  system: System,
+  faction: PlayableFaction,
+): MissionType | null {
+  if (isDiplomacyTarget(system, faction)) return 'diplomacy';
+  if (isInciteTarget(system, faction)) return 'incite';
+  return null;
+}
+
+export function isMissionTarget(system: System, faction: PlayableFaction): boolean {
+  return missionTypeFor(system, faction) !== null;
+}
+
+/**
+ * How likely the work is to be found out.
+ *
+ * The defenders' own crew do the finding, which is what makes where you leave
+ * your people matter: an island with a good spy standing on it is dangerous to
+ * meddle with. Stirring up a revolt on enemy soil is far riskier than talking
+ * to people who have not chosen a side.
+ */
+export function foilChance(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+  agent?: Character,
+): number {
+  // Nobody is hunting you on your own island.
+  if (system.control === faction) return 0;
+  const enemy = otherFaction(faction);
+  const watchers = state.characters.filter(
+    (c) => c.faction === enemy && c.locationSystemId === system.id && c.status !== 'injured',
+  );
+  const best = watchers.reduce((n, c) => Math.max(n, c.espionage), 0);
+  const base = system.control === enemy ? INCITE_FOIL_CHANCE : FOIL_CHANCE;
+  const risk = base + (best / 100) * FOIL_PER_WATCHER;
+  // Craft cuts the risk but never to nothing: a careful officer is still a
+  // stranger asking questions in someone else's harbour.
+  const craft = agent ? 1 - (agent.espionage / 100) * 0.6 : 1;
+  return Math.max(0, Math.min(0.85, risk * craft));
+}
+
 export function missionError(
   state: GameState,
   characterId: string,
@@ -45,7 +107,7 @@ export function missionError(
   if (character.status !== 'available') return 'They are not free to sail.';
   const system = state.systems.find((s) => s.id === targetSystemId);
   if (!system) return 'No such island.';
-  if (!isDiplomacyTarget(system, character.faction)) return 'No parley to be had there.';
+  if (!isMissionTarget(system, character.faction)) return 'Nothing to be done there.';
   return null;
 }
 
@@ -57,32 +119,49 @@ export function canStartMission(
   return missionError(state, characterId, targetSystemId) === null;
 }
 
-/** Send a character on Diplomacy. Mutates `state` in place. */
+/** Send a character ashore; the island decides what they do. Mutates `state`. */
 export function startMission(state: GameState, characterId: string, targetSystemId: string): void {
   const error = missionError(state, characterId, targetSystemId);
   if (error) throw new Error(error);
   const character = getCharacter(state, characterId);
   const target = getSystem(state, targetSystemId);
   const days = travelDays(state, character.locationSystemId, targetSystemId);
+  const type = missionTypeFor(target, character.faction as PlayableFaction)!;
 
   character.status = 'on_mission';
   character.mission = {
-    type: 'diplomacy',
+    type,
     targetSystemId,
     phase: days > 0 ? 'travelling' : 'working',
     daysRemaining: days > 0 ? days : MISSION_WORK_DAYS,
   };
   pushEvent(state, {
     kind: 'mission',
-      text: `${character.name} sails for ${target.name} to parley.`,
+    text:
+      type === 'incite'
+        ? `${character.name} sails for ${target.name} to stir up trouble.`
+        : `${character.name} sails for ${target.name} to parley.`,
     systemId: targetSystemId,
     characterId,
   });
 }
 
 /** Chance the mission lands its argument (spec 4.5). */
-export function successChance(character: Character): number {
-  return 0.4 + character.diplomacy / 200;
+export function successChance(character: Character, type: MissionType = 'diplomacy'): number {
+  const base = 0.4 + character.diplomacy / 200;
+  // Talking people round who have nobody to answer to is one thing. Turning
+  // them against a governor with a garrison behind him is another.
+  return type === 'incite' ? base * INCITE_SUCCESS_SCALE : base;
+}
+
+/** How far an incitement pushes the holder's grip down, on a landed attempt. */
+export function inciteLoss(character: Character): number {
+  return INCITE_SUPPORT_LOSS + character.diplomacy / 10;
+}
+
+/** How far a parley brings an island round, on a landed attempt. */
+export function parleyGain(character: Character): number {
+  return 8 + character.diplomacy / 10;
 }
 
 /** Tick travel, work, and injury timers; resolve anything that finishes. */
@@ -110,62 +189,73 @@ export function advanceMissions(state: GameState, rng: Rng): void {
 
     if (mission.phase === 'travelling') {
       character.locationSystemId = mission.targetSystemId;
+      const landed = getSystem(state, mission.targetSystemId);
+      // A passage can take ten days, and an island can change hands inside
+      // them. Check on landfall rather than letting them spend a whole cycle
+      // ashore working at something that is no longer there.
+      if (missionTypeFor(landed, character.faction as PlayableFaction) !== mission.type) {
+        character.status = 'available';
+        character.mission = undefined;
+        pushEvent(state, {
+          kind: 'mission',
+          text: `${character.name} lands on ${landed.name} to find the work already done, and stands by.`,
+          systemId: landed.id,
+          characterId: character.id,
+        });
+        continue;
+      }
       mission.phase = 'working';
       mission.daysRemaining = MISSION_WORK_DAYS;
       pushEvent(state, {
         kind: 'mission',
-      text: `${character.name} has made landfall at ${getSystem(state, mission.targetSystemId).name}.`,
+      text: `${character.name} has made landfall at ${landed.name}.`,
         systemId: mission.targetSystemId,
         characterId: character.id,
       });
       continue;
     }
 
-    resolveDiplomacy(state, character, rng);
+    resolveMission(state, character, rng);
   }
 }
 
-function resolveDiplomacy(state: GameState, character: Character, rng: Rng): void {
+/**
+ * A cycle ashore has run out. What it was for depends on the island, which the
+ * mission remembers; what it costs depends on whose island it is.
+ */
+function resolveMission(state: GameState, character: Character, rng: Rng): void {
   const faction = character.faction as PlayableFaction;
   const mission = character.mission!;
   const system = getSystem(state, mission.targetSystemId);
 
-  if (!isDiplomacyTarget(system, faction)) {
+  // The island may have changed hands, risen, or been put down while they were
+  // at sea. If it is no longer the thing they sailed for, the work is off.
+  if (missionTypeFor(system, faction) !== mission.type) {
     character.status = 'available';
     character.mission = undefined;
     pushEvent(state, {
       kind: 'mission',
-      text: `${character.name} abandons the talks on ${system.name}; the island is beyond reach.`,
+      text:
+        mission.type === 'incite'
+          ? `${character.name} finds nothing left to stir on ${system.name} and goes quiet.`
+          : `${character.name} abandons the talks on ${system.name}; the island is beyond reach.`,
       systemId: system.id,
       characterId: character.id,
     });
     return;
   }
 
-  const wasNeutral = system.control === 'neutral';
-  const success = rng.chance(successChance(character));
-  if (success) {
-    const gain = 8 + character.diplomacy / 10;
-    applySupportChange(state, system, faction, gain);
-    applySupportChange(state, system, otherFaction(faction), -MISSION_SUPPORT_LOSS);
-    pushEvent(state, {
-      kind: 'mission',
-      text: `${character.name} sways ${system.name}: allegiance up ${gain.toFixed(1)} points.`,
-      systemId: system.id,
-      characterId: character.id,
-    });
-    resolveControlAndUnrest(state);
+  const success = rng.chance(successChance(character, mission.type));
+  if (mission.type === 'incite') {
+    inciteOutcome(state, character, system, success);
   } else {
-    pushEvent(state, {
-      kind: 'mission',
-      text: `${character.name} makes no headway on ${system.name}.`,
-      systemId: system.id,
-      characterId: character.id,
-    });
+    parleyOutcome(state, character, system, success);
   }
 
-  // Foilers only watch worlds that have not picked a side yet (spec 4.5).
-  if (wasNeutral && rng.chance(FOIL_CHANCE)) {
+  // Being found out, which is the price of working on ground that is not yours.
+  // Measured before the outcome moved anything: who was watching is what
+  // matters, not what they saw.
+  if (rng.chance(foilChance(state, system, faction, character))) {
     character.status = 'injured';
     character.injuredDays = FOIL_INJURY_DAYS;
     character.mission = undefined;
@@ -179,14 +269,85 @@ function resolveDiplomacy(state: GameState, character: Character, rng: Rng): voi
   }
 
   // Ask the player what to do next; the AI answers its own straight away —
-  // it works an island until it comes over, then frees the character up.
+  // it works an island until it has what it came for, then frees the character up.
   if (faction === state.player) {
     state.pendingDecisions.push({ characterId: character.id, systemId: system.id, success });
-  } else if (system.control === faction) {
+  } else if (done(system, faction, mission.type)) {
     endMission(state, character.id);
   } else {
     continueMission(state, character.id);
   }
+}
+
+/** Whether the island has given the mission what it came for. */
+function done(system: System, faction: PlayableFaction, type: MissionType): boolean {
+  return type === 'incite' ? system.uprising : system.control === faction;
+}
+
+/** Talking an island round: your own standing up, theirs down. */
+function parleyOutcome(
+  state: GameState,
+  character: Character,
+  system: System,
+  success: boolean,
+): void {
+  const faction = character.faction as PlayableFaction;
+  if (!success) {
+    pushEvent(state, {
+      kind: 'mission',
+      text: `${character.name} makes no headway on ${system.name}.`,
+      systemId: system.id,
+      characterId: character.id,
+    });
+    return;
+  }
+  const gain = parleyGain(character);
+  applySupportChange(state, system, faction, gain);
+  applySupportChange(state, system, otherFaction(faction), -MISSION_SUPPORT_LOSS);
+  pushEvent(state, {
+    kind: 'mission',
+    text: `${character.name} sways ${system.name}: allegiance up ${gain.toFixed(1)} points.`,
+    systemId: system.id,
+    characterId: character.id,
+  });
+  resolveControlAndUnrest(state);
+}
+
+/**
+ * Stirring up a revolt: you do not win the island, you cost the enemy their
+ * grip on it. Drive their standing under the uprising threshold and the island
+ * rises on its own — which stops their works, their drilling and their harbour
+ * dead, and leaves it ripe for a landing.
+ */
+function inciteOutcome(
+  state: GameState,
+  character: Character,
+  system: System,
+  success: boolean,
+): void {
+  const faction = character.faction as PlayableFaction;
+  const holder = otherFaction(faction);
+  if (!success) {
+    pushEvent(state, {
+      kind: 'mission',
+      text: `${character.name} finds no ear for it on ${system.name}.`,
+      systemId: system.id,
+      characterId: character.id,
+    });
+    return;
+  }
+  const loss = inciteLoss(character);
+  applySupportChange(state, system, holder, -loss);
+  // Some of what you take off them you do not get: a stirred-up island is angry
+  // at its governor, not fond of you.
+  applySupportChange(state, system, faction, loss * INCITE_SPILLOVER);
+  pushEvent(state, {
+    kind: 'mission',
+    text: `${character.name} stirs up ${system.name}: the governor's hold falls ${loss.toFixed(1)} points.`,
+    systemId: system.id,
+    characterId: character.id,
+  });
+  resolveControlAndUnrest(state);
 }
 
 /** "Continue": another 15-day cycle on the same world (spec 4.5). */
@@ -197,7 +358,7 @@ export function continueMission(state: GameState, characterId: string): void {
   if (!mission) return;
   const faction = character.faction as PlayableFaction;
   const system = getSystem(state, mission.targetSystemId);
-  if (!isDiplomacyTarget(system, faction)) {
+  if (missionTypeFor(system, faction) !== mission.type) {
     endMission(state, characterId);
     return;
   }

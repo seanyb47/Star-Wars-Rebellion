@@ -170,7 +170,8 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
             [terms.reach, 'A cluster of ten islands. Allegiance won on one spills 20% onto the rest.'],
             [terms.sea, 'One of the seven regions. Three Inner, four Outer.'],
             [terms.mutiny, `An island whose allegiance falls under ${UPRISING_SUPPORT} rises unless enough companies hold it. It earns nothing and builds nothing until allegiance climbs back to ${UPRISING_END_SUPPORT}.`],
-            [terms.parley, `Sending a crew member to talk an island round. ${TRAVEL_DAYS_IN_SECTOR} days' sail inside a ${terms.reach}, ${TRAVEL_DAYS_CROSS_SECTOR} beyond, then ${MISSION_WORK_DAYS} days' work before they report.`],
+            [terms.parley, `Sending a crew member to talk an island round, where nobody has chosen a side or the island is already yours. ${TRAVEL_DAYS_IN_SECTOR} days' sail inside a ${terms.reach}, ${TRAVEL_DAYS_CROSS_SECTOR} beyond, then ${MISSION_WORK_DAYS} days' work before they report.`],
+            [terms.incite, `The same trip to an island they hold, to turn it against its governor. You do not win the island — you cost them their grip on it, and an island pushed far enough rises on its own, which stops everything being built or loaded there. Dangerous work: their officers are watching, and yours can be hurt.`],
             ['Unaligned', `An island that has not picked a side. It comes over to you at ${FLIP_SUPPORT_MIN} allegiance with a ${FLIP_SUPPORT_MARGIN}-point lead.`],
             ['Smuggling', 'On an island where your allegiance is under 50, the day’s takings may go to the enemy instead.'],
           ] as const
@@ -191,7 +192,8 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
       <div className="section-title">Not built yet</div>
       <div className="card small muted">
         Fleets and sea battles, the other nine kinds of mission, Tidecraft, and the Leviathan are
-        all designed but not in the game. Today the only verb is {terms.parley.toLowerCase()}.
+        all designed but not in the game. Today an officer sent ashore can {terms.parley.toLowerCase()}
+        or stir up trouble, and the island decides which.
       </div>
     </Sheet>
   );

@@ -16,6 +16,7 @@ import {
   orderBoard,
   orderEmbark,
   orderSail,
+  missionTypeFor,
   sendDiplomat,
   setSpeed,
   VICTORY_CONTROL_FRACTION,
@@ -208,7 +209,14 @@ export function App() {
       }
       setState(result.state);
       setPickingFor(null);
-      flash('Under way.');
+      flash(
+        missionTypeFor(
+          state.systems.find((s) => s.id === systemId)!,
+          state.characters.find((c) => c.id === pickingFor)!.faction as PlayableFaction,
+        ) === 'incite'
+          ? 'Under way, quietly.'
+          : 'Under way.',
+      );
       return;
     }
     setOpenSystemId(systemId);
@@ -579,9 +587,13 @@ function MissionDecisionSheet({
       }
     >
       <p style={{ marginTop: 0 }}>
-        {decision.success
-          ? `The talks on ${system.name} went well. Opinion has shifted your way.`
-          : `The talks on ${system.name} went nowhere this time.`}
+        {character.mission?.type === 'incite'
+          ? decision.success
+            ? `Word is spreading on ${system.name}. The governor's hold is slipping.`
+            : `${system.name} will not be moved this time; the governor still has them.`
+          : decision.success
+            ? `The talks on ${system.name} went well. Opinion has shifted your way.`
+            : `The talks on ${system.name} went nowhere this time.`}
       </p>
       <div className="card row" style={{ gap: 18 }}>
         <Stat label={factionData.empire.shortName} value={Math.round(system.support.empire)} />

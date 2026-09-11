@@ -4,8 +4,13 @@ import {
   advanceMissions,
   continueMission,
   endMission,
+  foilChance,
   isDiplomacyTarget,
+  isInciteTarget,
+  isMissionTarget,
+  inciteLoss,
   missionError,
+  missionTypeFor,
   startMission,
   successChance,
   travelDays,
@@ -42,18 +47,38 @@ describe('mission eligibility', () => {
     expect(isDiplomacyTarget(own, 'empire')).toBe(true);
   });
 
-  it('rejects enemy-held, unpopulated and revolting worlds', () => {
+  it('rejects unpopulated and revolting worlds', () => {
     const { state, sameSector, diplomat } = setup();
-    const enemy = state.systems.find((s) => s.control === 'alliance')!;
-    enemy.explored.empire = true;
-    expect(isDiplomacyTarget(enemy, 'empire')).toBe(false);
-
     const empty = state.systems.find((s) => !s.populated)!;
     empty.explored.empire = true;
     expect(isDiplomacyTarget(empty, 'empire')).toBe(false);
+    expect(isInciteTarget(empty, 'empire')).toBe(false);
+    expect(isMissionTarget(empty, 'empire')).toBe(false);
 
     sameSector.uprising = true;
-    expect(missionError(state, diplomat.id, sameSector.id)).toBe('No parley to be had there.');
+    expect(missionError(state, diplomat.id, sameSector.id)).toBe('Nothing to be done there.');
+  });
+
+  it('lets the island decide the mission: parley yours, stir up theirs', () => {
+    const { state, sameSector } = setup();
+    const own = state.systems.find((s) => s.control === 'empire')!;
+    const enemy = state.systems.find((s) => s.control === 'alliance')!;
+    enemy.explored.empire = true;
+
+    expect(missionTypeFor(sameSector, 'empire')).toBe('diplomacy');
+    expect(missionTypeFor(own, 'empire')).toBe('diplomacy');
+    expect(missionTypeFor(enemy, 'empire')).toBe('incite');
+    // You cannot parley with an island they hold, nor stir up one of your own.
+    expect(isDiplomacyTarget(enemy, 'empire')).toBe(false);
+    expect(isInciteTarget(own, 'empire')).toBe(false);
+  });
+
+  it('will not send anyone to an island they have never charted', () => {
+    const { state, diplomat } = setup();
+    const enemy = state.systems.find((s) => s.control === 'alliance')!;
+    enemy.explored.empire = false;
+    expect(isMissionTarget(enemy, 'empire')).toBe(false);
+    expect(missionError(state, diplomat.id, enemy.id)).toBe('Nothing to be done there.');
   });
 
   it('rejects a character who is already busy', () => {
@@ -185,5 +210,109 @@ describe('resolution', () => {
       state.pendingDecisions = [];
       continueMission(state, diplomat.id);
     }
+  });
+});
+
+describe('incitement', () => {
+  /** An enemy island the empire has charted, with a given grip on it. */
+  function withEnemyIsland(allianceSupport: number, seed = 311) {
+    const state = generateGalaxy(seed);
+    const agent = state.characters.find((c) => c.faction === 'empire')!;
+    agent.diplomacy = 100;
+    agent.espionage = 0; // measure the risk undiluted by craft
+    const island = state.systems.find((s) => s.control === 'alliance' && s.populated)!;
+    island.explored.empire = true;
+    island.uprising = false;
+    island.support = { empire: 5, alliance: allianceSupport };
+    return { state, agent, island };
+  }
+
+  it('is harder than a parley and takes support off the holder, not onto you', () => {
+    const { state, agent, island } = withEnemyIsland(70);
+    expect(successChance(agent, 'incite')).toBeLessThan(successChance(agent, 'diplomacy'));
+
+    startMission(state, agent.id, island.id);
+    expect(getCharacter(state, agent.id).mission!.type).toBe('incite');
+
+    const before = { ...island.support };
+    // Long enough to travel and work a cycle. Seeds walked until one lands.
+    let landed = false;
+    for (let seed = 1; seed <= 40 && !landed; seed++) {
+      const trial = generateGalaxy(311);
+      const who = trial.characters.find((c) => c.id === agent.id)!;
+      who.diplomacy = 100;
+      const where = trial.systems.find((s) => s.id === island.id)!;
+      where.explored.empire = true;
+      where.support = { ...before };
+      startMission(trial, who.id, where.id);
+      runDays(trial, 26, seed);
+      const after = getSystem(trial, island.id);
+      if (after.support.alliance < before.alliance) {
+        landed = true;
+        // Their grip falls by the officer's measure, and only part of it comes
+        // to you — an angry island is not a friendly one.
+        const lost = before.alliance - after.support.alliance;
+        expect(lost).toBeGreaterThanOrEqual(inciteLoss(who) - 0.001);
+        expect(after.support.empire - before.empire).toBeLessThan(lost);
+        expect(after.support.empire - before.empire).toBeGreaterThan(0);
+      }
+    }
+    expect(landed).toBe(true);
+  });
+
+  it('sets an island alight once the governor drops under the threshold', () => {
+    const { state, agent, island } = withEnemyIsland(34);
+    island.garrison = 0;
+    startMission(state, agent.id, island.id);
+    // Work it until it rises, answering its own continue decisions.
+    let rose = false;
+    for (let cycle = 0; cycle < 8 && !rose; cycle++) {
+      runDays(state, 30, 7 + cycle);
+      rose = getSystem(state, island.id).uprising;
+      if (!rose && state.pendingDecisions.length > 0) {
+        state.pendingDecisions = [];
+        continueMission(state, agent.id);
+      }
+      if (getCharacter(state, agent.id).status === 'injured') break;
+    }
+    expect(rose).toBe(true);
+  });
+
+  it('is far more dangerous than a parley, and worse with a spy watching', () => {
+    const { state, agent, island } = withEnemyIsland(70);
+    const neutral = state.systems.find((s) => s.control === 'neutral' && s.populated)!;
+    neutral.explored.empire = true;
+
+    const onEnemySoil = foilChance(state, island, 'empire');
+    const onNeutral = foilChance(state, neutral, 'empire');
+    expect(onEnemySoil).toBeGreaterThan(onNeutral);
+
+    // Park one of their officers on it and the risk climbs again.
+    const watcher = state.characters.find((c) => c.faction === 'alliance')!;
+    watcher.espionage = 100;
+    watcher.locationSystemId = island.id;
+    watcher.status = 'available';
+    expect(foilChance(state, island, 'empire')).toBeGreaterThan(onEnemySoil);
+
+    // An officer with craft of their own is safer doing the same work.
+    expect(foilChance(state, island, 'empire', { ...agent, espionage: 100 })).toBeLessThan(
+      foilChance(state, island, 'empire', { ...agent, espionage: 0 }),
+    );
+  });
+
+  it('calls the work off if the island changes hands while they are at sea', () => {
+    const { state, agent, island } = withEnemyIsland(70);
+    startMission(state, agent.id, island.id);
+    runDays(state, 2, 5);
+    expect(getCharacter(state, agent.id).mission!.phase).toBe('travelling');
+    // It comes over to you on its own; there is nothing left to stir.
+    getSystem(state, island.id).control = 'empire';
+
+    // They are stood down on landfall, not after a wasted cycle ashore.
+    runDays(state, travelDays(state, agent.locationSystemId, island.id), 5);
+    const after = getCharacter(state, agent.id);
+    expect(after.mission).toBeUndefined();
+    expect(after.status).toBe('available');
+    expect(after.locationSystemId).toBe(island.id);
   });
 });

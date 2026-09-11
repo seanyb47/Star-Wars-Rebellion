@@ -1,6 +1,8 @@
 import {
   FLIP_SUPPORT_MARGIN,
   FLIP_SUPPORT_MIN,
+  HELD_SUPPORT_LEVEL,
+  SUPPORT_DRIFT,
   UPRISING_END_SUPPORT,
   UPRISING_SUPPORT,
 } from './constants';
@@ -10,6 +12,36 @@ import type { GameState, PlayableFaction, System } from './types';
 
 function factionName(faction: PlayableFaction): string {
   return factionData[faction].name;
+}
+
+/**
+ * Opinion goes cold.
+ *
+ * Nothing in the game used to take support away, so every point won was banked
+ * for good: a single parley moved a whole chain and kept it moved, and the war
+ * was decided by whoever talked first. Islands have their own lives — a hold
+ * you do not keep up fades, and an island settles into a steady regard for
+ * whoever actually governs it.
+ *
+ * It is slow. A month of neglect costs a point or two, not a province. But it
+ * means a flip has to be worked for and then held, which is the difference
+ * between courting islands and collecting them.
+ */
+export function driftSupport(state: GameState): void {
+  for (const system of state.systems) {
+    if (!system.populated) continue;
+    for (const faction of ['empire', 'alliance'] as const) {
+      // Governing is its own argument, so a holder's standing settles at a
+      // workable level rather than bleeding to nothing. Everyone else's fades.
+      const toward = system.control === faction ? HELD_SUPPORT_LEVEL : 0;
+      const gap = toward - system.support[faction];
+      if (Math.abs(gap) <= SUPPORT_DRIFT) {
+        system.support[faction] = toward;
+        continue;
+      }
+      system.support[faction] += Math.sign(gap) * SUPPORT_DRIFT;
+    }
+  }
 }
 
 /** Does this faction meet the bar to win an unaligned island over (spec 4.3)? */

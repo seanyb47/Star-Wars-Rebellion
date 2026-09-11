@@ -3,6 +3,8 @@ import {
   MISSION_WORK_DAYS,
   TRAVEL_DAYS_CROSS_SECTOR,
   TRAVEL_DAYS_IN_SECTOR,
+  inciteLoss,
+  parleyGain,
   successChance,
   type Character,
   type GameState,
@@ -77,7 +79,7 @@ export function CharacterSheet({
             disabled={character.status !== 'available'}
             onClick={onSendOnMission}
           >
-            Send to {terms.parley}
+            Send ashore
           </button>
         </>
       }
@@ -98,15 +100,24 @@ export function CharacterSheet({
 
       <Ratings character={character} />
 
-      <div className="section-title">{terms.parley} briefing</div>
+      <div className="section-title">Going ashore</div>
+      {/* Two things an officer can do ashore, and the island decides which: you
+          parley where nobody has chosen a side, and stir up trouble where the
+          enemy has. Both are shown because where you send them is the choice. */}
       <div className="card small stack">
         <div className="row row--between">
-          <span className="muted">Chance of success</span>
-          <b>{Math.round(successChance(character) * 100)}%</b>
+          <span className="muted">{terms.parley} · unaligned or your own</span>
+          <b>
+            {Math.round(successChance(character, 'diplomacy') * 100)}% · +
+            {parleyGain(character).toFixed(1)}
+          </b>
         </div>
         <div className="row row--between">
-          <span className="muted">{terms.allegiance} gained on success</span>
-          <b>+{(8 + character.diplomacy / 10).toFixed(1)}</b>
+          <span className="muted">{terms.incite} · islands they hold</span>
+          <b>
+            {Math.round(successChance(character, 'incite') * 100)}% · −
+            {inciteLoss(character).toFixed(1)}
+          </b>
         </div>
         <div className="row row--between">
           <span className="muted">Passage</span>
@@ -120,8 +131,9 @@ export function CharacterSheet({
         </div>
       </div>
       <p className="muted tiny" style={{ marginTop: 10 }}>
-        These ratings are yours alone; the enemy cannot see them. A {terms.parley.toLowerCase()} on
-        an unaligned island risks being found out.
+        These ratings are yours alone; the enemy cannot see them. Work on ground that is not yours
+        risks being found out — far more so on an island they hold, and more still with one of their
+        own officers standing on it. Espionage is what keeps your officer out of their hands.
       </p>
     </Sheet>
   );

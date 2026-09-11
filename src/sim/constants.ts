@@ -169,6 +169,13 @@ export const FLIP_SUPPORT_MARGIN = 25;
 export const UPRISING_SUPPORT = 30;
 export const UPRISING_END_SUPPORT = 40;
 export const SPILLOVER_FRACTION = 0.2;
+/** Points of support an island loses or regains per day as opinion drifts back
+ *  toward its natural level. Small on purpose: it makes gains need keeping up
+ *  without ever taking an island off you on its own. */
+export const SUPPORT_DRIFT = 0.25;
+/** Where a holder's standing settles: governing an island is its own argument,
+ *  so it never drifts to nothing, but it is not banked at a hundred either. */
+export const HELD_SUPPORT_LEVEL = 55;
 
 /** Diplomacy mission (spec 4.5). */
 export const TRAVEL_DAYS_IN_SECTOR = 3;
@@ -177,6 +184,24 @@ export const MISSION_WORK_DAYS = 15;
 export const FOIL_CHANCE = 0.1;
 export const FOIL_INJURY_DAYS = 20;
 export const MISSION_SUPPORT_LOSS = 4;
+/** Stirring up a revolt on an island the enemy holds. Far more dangerous than
+ *  talking to people who have not chosen a side: their garrison, their harbour,
+ *  their crew watching the strangers ask questions. */
+export const INCITE_FOIL_CHANCE = 0.3;
+/** How much an enemy officer standing on the island adds to the risk, scaled by
+ *  their espionage rating. A good spy in residence roughly doubles it. */
+export const FOIL_PER_WATCHER = 0.3;
+/** Support taken off the holder by a landed incitement, before the officer's own
+ *  rating. Pushing an island under UPRISING_SUPPORT is what sets it alight. */
+export const INCITE_SUPPORT_LOSS = 9;
+/** Incitement is harder work than a parley; this scales the officer's chance. */
+export const INCITE_SUCCESS_SCALE = 0.75;
+/** The share of a governor's lost grip that comes to you. Stirring an island up
+ *  makes it angry at its rulers, not fond of the strangers who stirred it. */
+export const INCITE_SPILLOVER = 0.35;
+/** How much the opponent discounts an incitement against courting an unaligned
+ *  island, so it does not spend every officer harrying islands it cannot keep. */
+export const INCITE_PRIORITY_PENALTY = 30;
 
 /** Victory (spec 4.6). */
 export const VICTORY_CONTROL_FRACTION = 0.6;
@@ -184,6 +209,12 @@ export const VICTORY_CONTROL_FRACTION = 0.6;
 /** Opponent AI cadence (spec 4.7). */
 export const AI_BUILD_INTERVAL = 5;
 export const AI_MISSION_INTERVAL = 10;
+/** How many officers the opponent will have ashore at once. One is not a
+ *  faction playing the game; all of them at once is a diplomatic blitz. */
+export const AI_MISSION_PARTIES = 2;
+/** What the opponent adds for an island in the Reach an officer already sits
+ *  in, so it is not forever sailing ten days the long way round. */
+export const AI_NEAR_BONUS = 25;
 /** How often the opponent looks at its ships. Slower than building: a fleet
  *  order should be a considered move, not a twitch. */
 export const AI_FLEET_INTERVAL = 12;

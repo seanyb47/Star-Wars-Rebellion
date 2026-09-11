@@ -2,8 +2,11 @@ import {
   AI_BUILD_INTERVAL,
   AI_FLEET_INTERVAL,
   AI_MISSION_INTERVAL,
+  AI_MISSION_PARTIES,
+  AI_NEAR_BONUS,
   AI_SHIP_RESERVE,
   AI_TROOP_POOL,
+  INCITE_PRIORITY_PENALTY,
   TROOP_BUILD,
   YARD_BUILDS,
   shipSpec,
@@ -31,9 +34,16 @@ import {
   otherFaction,
   requiredGarrison,
 } from './helpers';
-import { canStartMission, isDiplomacyTarget, startMission } from './missions';
+import { canStartMission, isMissionTarget, startMission } from './missions';
 import type { Rng } from './rng';
-import type { FacilityType, Fleet, GameState, PlayableFaction, System } from './types';
+import type {
+  Character,
+  FacilityType,
+  Fleet,
+  GameState,
+  PlayableFaction,
+  System,
+} from './types';
 
 /**
  * Deliberately simple opponent (spec 4.7): keep the mine/refinery count level,
@@ -130,28 +140,60 @@ function bestSpotFor(
   return best?.facilityId;
 }
 
+/**
+ * The opponent's officers.
+ *
+ * It keeps more than one of them at sea — a faction with five officers and one
+ * on a boat is not playing — and it weighs courting an unaligned island against
+ * stirring up one the player holds on the same scale, so an enemy island whose
+ * governor is barely hanging on is worth a visit even when there are neutrals
+ * left to woo.
+ */
 function aiMission(state: GameState, ai: PlayableFaction): void {
-  const diplomat = state.characters
+  const enemy = otherFaction(ai);
+  const idle = state.characters
     .filter((c) => c.faction === ai && c.status === 'available')
-    .sort((a, b) => b.diplomacy - a.diplomacy)[0];
-  if (!diplomat) return;
+    .sort((a, b) => b.diplomacy - a.diplomacy);
+  if (idle.length === 0) return;
 
-  const homeSector = state.systems.find((s) => s.id === diplomat.locationSystemId)?.sectorId;
-  // Only unaligned worlds are worth courting: an island already held cannot be
-  // won again, and an enemy island cannot be talked over in phase 1.
-  const eligible = state.systems.filter(
-    (s) =>
-      s.control === 'neutral' &&
-      isDiplomacyTarget(s, ai) &&
-      canStartMission(state, diplomat.id, s.id),
+  // Unaligned worlds to court, and enemy worlds to stir up. An island it already
+  // holds cannot be won again, so those are no use either way.
+  const open = state.systems.filter(
+    (s) => (s.control === 'neutral' || s.control === enemy) && isMissionTarget(s, ai),
   );
-  if (eligible.length === 0) return;
+  if (open.length === 0) return;
 
-  // The unaligned island in its own Reach with the most sympathy, falling back to
-  // the best unaligned island anywhere so the opponent never sits idle.
-  const rank = (s: System) => (s.sectorId === homeSector ? 200 : 0) + s.support[ai];
-  const target = eligible.sort((a, b) => rank(b) - rank(a))[0];
-  startMission(state, diplomat.id, target.id);
+  /**
+   * What a trip is worth, on one scale for both kinds of work.
+   *
+   * Courting keeps a premium — an island won outright is worth more than one
+   * merely made angry — but it is a premium and not a veto, which is the whole
+   * difference: with a flat preference the opponent never incited anything.
+   */
+  const worth = (officer: Character, s: System) => {
+    const home = state.systems.find((x) => x.id === officer.locationSystemId)?.sectorId;
+    const close = s.sectorId === home ? AI_NEAR_BONUS : 0;
+    if (s.control === 'neutral') return close + s.support[ai];
+    // The weaker their hold, the nearer the uprising threshold, the better.
+    return close + (100 - s.support[enemy]) - INCITE_PRIORITY_PENALTY;
+  };
+
+  const taken = new Set(
+    state.characters
+      .filter((c) => c.faction === ai && c.mission)
+      .map((c) => c.mission!.targetSystemId),
+  );
+
+  // The best officer takes the best island, and so on down, so the opponent's
+  // strongest diplomat is not left courting a backwater.
+  for (const officer of idle.slice(0, AI_MISSION_PARTIES)) {
+    const target = open
+      .filter((s) => !taken.has(s.id) && canStartMission(state, officer.id, s.id))
+      .sort((a, b) => worth(officer, b) - worth(officer, a))[0];
+    if (!target) return;
+    taken.add(target.id);
+    startMission(state, officer.id, target.id);
+  }
 }
 
 /**

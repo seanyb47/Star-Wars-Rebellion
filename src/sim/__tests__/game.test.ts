@@ -5,7 +5,13 @@ import { AI_MISSION_INTERVAL } from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
 import { getSystem } from '../helpers';
-import { continueMission } from '../missions';
+import {
+  advanceMissions,
+  continueMission,
+  isMissionTarget,
+  startMission,
+  travelDays,
+} from '../missions';
 import { controlTally } from '../support';
 import type { GameState, PlayableFaction } from '../types';
 
@@ -58,41 +64,67 @@ describe('the opponent expands', () => {
     expect(after).toBeGreaterThan(before + 5);
   });
 
-  it('only ever opens a parley on an unaligned island', () => {
+  it('never sends an officer anywhere there is nothing to do', () => {
     // Checked against the AI directly rather than inferred from a long run: an
     // island can come over while a diplomat is still at sea, so a mission in
     // flight pointing at friendly ground proves nothing either way.
+    //
+    // It may court an unaligned island or stir up one the player holds. What it
+    // must never do is send anyone to its own ground, or anywhere it has not
+    // charted, or to an island already in revolt.
     let dispatched = 0;
     for (let seed = 1; seed <= 40; seed++) {
       const state = generateGalaxy(seed);
       state.day = AI_MISSION_INTERVAL;
       runAI(state, createRng(seed));
-      const sent = state.characters.find((c) => c.faction === 'alliance' && c.mission);
-      if (!sent) continue;
-      dispatched++;
-      expect(getSystem(state, sent.mission!.targetSystemId).control).toBe('neutral');
+      for (const sent of state.characters.filter((c) => c.faction === 'alliance' && c.mission)) {
+        dispatched++;
+        const target = getSystem(state, sent.mission!.targetSystemId);
+        expect(isMissionTarget(target, 'alliance')).toBe(true);
+        expect(sent.mission!.type).toBe(target.control === 'empire' ? 'incite' : 'diplomacy');
+      }
     }
     expect(dispatched).toBeGreaterThan(30);
   });
 
-  it('lets an island come over while its diplomat is still at sea', () => {
+  it('puts more than one officer to work', () => {
+    // A faction with five officers and one of them at sea is not playing. The
+    // previous version used its best diplomat and left the rest on the quay.
+    let best = 0;
+    for (let seed = 1; seed <= 20; seed++) {
+      const state = generateGalaxy(seed);
+      state.day = AI_MISSION_INTERVAL;
+      runAI(state, createRng(seed));
+      best = Math.max(best, state.characters.filter((c) => c.faction === 'alliance' && c.mission).length);
+    }
+    expect(best).toBeGreaterThan(1);
+  });
+
+  it('stands an officer down when the island comes over while they are at sea', () => {
     // The legitimate case the previous version of the test above mistook for a
     // bug: spillover from a neighbouring parley can flip the target in transit.
-    let state = generateGalaxy(4);
-    let sawFlipInTransit = false;
-    for (let day = 0; day < 400 && !sawFlipInTransit; day++) {
-      state = advanceDay(state);
-      for (const decision of [...state.pendingDecisions]) {
-        continueMission(state, decision.characterId);
-      }
-      sawFlipInTransit = state.characters.some(
-        (c) =>
-          c.faction === 'alliance' &&
-          c.mission?.phase === 'travelling' &&
-          getSystem(state, c.mission.targetSystemId).control === 'alliance',
-      );
+    // Forced here rather than fished for across seeds, so it stays covered
+    // however the balance is tuned.
+    const state = generateGalaxy(4);
+    const diplomat = state.characters.find((c) => c.faction === 'alliance')!;
+    const target = state.systems.find(
+      (s) => s.control === 'neutral' && s.populated && s.explored.alliance,
+    )!;
+    startMission(state, diplomat.id, target.id);
+    expect(diplomat.mission!.phase).toBe('travelling');
+
+    // It runs up their colours on its own while the boat is still out.
+    getSystem(state, target.id).control = 'alliance';
+
+    const rng = createRng(9);
+    for (let day = 0; day < travelDays(state, diplomat.locationSystemId, target.id) + 2; day++) {
+      advanceMissions(state, rng);
     }
-    expect(sawFlipInTransit).toBe(true);
+    const after = state.characters.find((c) => c.id === diplomat.id)!;
+    // Their own island is still somewhere to parley, so the work goes on —
+    // what must not happen is a mission left pointing at the wrong thing.
+    expect(after.mission?.type ?? 'diplomacy').toBe('diplomacy');
+    expect(after.locationSystemId).toBe(target.id);
   });
 });
 

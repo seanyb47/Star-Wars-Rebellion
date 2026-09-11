@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import {
   earns,
-  isDiplomacyTarget,
+  isMissionTarget,
+  missionTypeFor,
   type GameState,
   type IslandSummary,
   type PlayableFaction,
@@ -158,7 +159,9 @@ export function ChainMap({
 
         // The chains dim when they hold nothing to sail to; the islands inside
         // them must do the same, or you find out by tapping and being told no.
-        const live = sailing || !pickingFor || isDiplomacyTarget(system, pickingFor);
+        const live = sailing || !pickingFor || isMissionTarget(system, pickingFor);
+        // Which work this island means, so the ring can say so before you tap.
+        const work = pickingFor && !sailing ? missionTypeFor(system, pickingFor) : null;
 
         // Hulls lying off it, by side. An enemy squadron in one of your
         // harbours is the single most urgent thing the chart can tell you, so
@@ -215,15 +218,25 @@ export function ChainMap({
             opacity={live ? 1 : 0.3}
             style={{ cursor: live ? 'pointer' : 'default' }}
             aria-label={
-              explored
-                ? `${system.name}, ${built} of ${slots} slots built`
-                : 'Uncharted island'
+              work === 'incite'
+                ? `${system.name}, stir up trouble`
+                : work === 'diplomacy'
+                  ? `${system.name}, parley`
+                  : explored
+                    ? `${system.name}, ${built} of ${slots} slots built`
+                    : 'Uncharted island'
             }
           >
             {/* A finger-sized target over the whole island, marks included. */}
             {live && <circle cx={spot.x} cy={spot.y} r={62} fill="transparent" />}
             {(sailing || pickingFor) && live && (
-              <circle className="map__pick" cx={spot.x} cy={spot.y} r={52} strokeWidth={4} />
+              <circle
+                className={`map__pick${work === 'incite' ? ' map__pick--incite' : ''}`}
+                cx={spot.x}
+                cy={spot.y}
+                r={52}
+                strokeWidth={4}
+              />
             )}
 
             {explored &&

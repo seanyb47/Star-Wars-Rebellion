@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
-import { isDiplomacyTarget, summariseReach } from '../sim';
+import { isMissionTarget, summariseReach } from '../sim';
 import { allegianceColour, allegianceSegments, segmentsFor } from './allegiance';
 import { CompassRose, islandPath } from './art';
 import { ProducerLegend } from './ProducerLegend';
@@ -155,7 +155,7 @@ export function GalaxyMap({
             spot,
             // While choosing a destination, a chain is live only if something
             // in it can actually be sailed to.
-            targets: systems.filter((s) => isDiplomacyTarget(s, viewer)).length,
+            targets: systems.filter((s) => isMissionTarget(s, viewer)).length,
           };
         }),
     [state, viewer],
