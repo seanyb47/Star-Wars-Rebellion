@@ -56,19 +56,27 @@ export type FacilityType =
   | 'shipyard';
 
 /**
- * What a hull is for. The three roles are the whole of naval tactics here:
- * escorts are cheap and quick, capitals carry the guns, transports carry
- * companies and cannot fight.
+ * A hull's size, which is the whole of naval tactics here. There are no
+ * fighters and there will not be: a small craft is just a small ship, so the
+ * range runs small to large with a transport off to one side, and each size
+ * is genuinely good at something and genuinely bad at something else.
+ *
+ * Small is fast and cheap and dies quickly. Large hits hardest and takes the
+ * most killing, and is slow enough that it arrives after the fighting starts.
+ * Medium is the compromise. A transport cannot fight at all and carries more
+ * than anything else afloat.
  */
-export type ShipRole = 'escort' | 'capital' | 'transport';
+export type ShipRole = 'small' | 'medium' | 'large' | 'transport';
 
-/** World bible section 6. Three classes a side to begin with. */
+/** World bible section 6. Four classes a side, none needing research. */
 export type ShipClassId =
   | 'kestrel'
+  | 'razorback'
   | 'sovereign'
   | 'fluyt'
   | 'swift'
   | 'tempest'
+  | 'reef'
   | 'brig';
 
 export type BuildItem = FacilityType | 'troop' | ShipClassId;

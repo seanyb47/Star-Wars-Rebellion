@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import factionData from '../data/factions.json';
-import terms from '../data/terms.json';
+import { allegianceColour, allegianceSegments, segmentsFor } from './allegiance';
 import type { Faction, System } from '../sim';
 
 export function Sheet(props: {
@@ -52,28 +52,94 @@ export function ControlBadge({ faction }: { faction: Faction }) {
   return <span className={`badge badge--${faction}`}>{factionLabel(faction)}</span>;
 }
 
+/**
+ * The island's allegiance as one bar: whoever holds it first from the left,
+ * the other side next, and the undecided remainder in neutral blue. The
+ * figures underneath name the shares so the bar never has to be guessed at.
+ */
 export function SupportBars({ system }: { system: System }) {
+  const segments = allegianceSegments(system);
+  const undecided = Math.max(0, 100 - system.support.empire - system.support.alliance);
   return (
-    <div className="stack">
-      {(['empire', 'alliance'] as const).map((faction) => (
-        <div key={faction}>
-          <div className="bar-label">
-            <span>
-              {factionData[faction].shortName} {terms.allegiance.toLowerCase()}
+    <div>
+      <div className="bar bar--tall">
+        {segments.map((segment) => (
+          <div
+            key={segment.faction}
+            style={{ width: `${segment.pct}%`, background: allegianceColour(segment.faction) }}
+          />
+        ))}
+      </div>
+      <div className="bar-key">
+        {segments
+          .filter((segment) => segment.faction !== 'neutral')
+          .map((segment) => (
+            <span key={segment.faction}>
+              <i style={{ background: allegianceColour(segment.faction) }} />
+              {factionData[segment.faction as 'empire' | 'alliance'].shortName}{' '}
+              {Math.round(segment.pct)}
             </span>
-            <span>{Math.round(system.support[faction])}</span>
-          </div>
-          <div className="bar">
-            <div
-              className="bar__fill"
-              style={{
-                width: `${system.support[faction]}%`,
-                background: `var(--${faction})`,
-              }}
-            />
-          </div>
-        </div>
-      ))}
+          ))}
+        {undecided > 0 && (
+          <span>
+            <i style={{ background: allegianceColour('neutral') }} />
+            Undecided {Math.round(undecided)}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The same bar for an average across many islands — a chain, or a whole Sea.
+ * The holder is whoever owns the most of it, and may be nobody.
+ */
+export function AverageAllegianceBar({
+  empire,
+  alliance,
+  holder,
+  note,
+}: {
+  empire: number;
+  alliance: number;
+  holder: 'empire' | 'alliance' | null;
+  note?: ReactNode;
+}) {
+  const segments = segmentsFor(empire, alliance, holder);
+  const undecided = Math.max(0, 100 - empire - alliance);
+  return (
+    <div className="card">
+      <div className="bar bar--tall">
+        {segments.map((segment) => (
+          <div
+            key={segment.faction}
+            style={{ width: `${segment.pct}%`, background: allegianceColour(segment.faction) }}
+          />
+        ))}
+      </div>
+      <div className="bar-key">
+        {segments
+          .filter((segment) => segment.faction !== 'neutral')
+          .map((segment) => (
+            <span key={segment.faction}>
+              <i style={{ background: allegianceColour(segment.faction) }} />
+              {factionData[segment.faction as 'empire' | 'alliance'].shortName}{' '}
+              {Math.round(segment.pct)}
+            </span>
+          ))}
+        {undecided > 0 && (
+          <span>
+            <i style={{ background: allegianceColour('neutral') }} />
+            Undecided {Math.round(undecided)}
+          </span>
+        )}
+      </div>
+      {note && (
+        <p className="tiny muted" style={{ margin: '6px 0 0' }}>
+          {note}
+        </p>
+      )}
     </div>
   );
 }

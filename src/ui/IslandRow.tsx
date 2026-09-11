@@ -1,5 +1,6 @@
 import terms from '../data/terms.json';
 import type { GameState, IslandSummary, System } from '../sim';
+import { allegianceColour, allegianceSegments } from './allegiance';
 import { CategoryIcon, IslandGlyph } from './art';
 import { ControlBadge } from './components';
 
@@ -31,7 +32,6 @@ export function IslandRow({
   onOpen: (systemId: string) => void;
 }) {
   const you = state.player;
-  const enemy = you === 'empire' ? 'alliance' : 'empire';
   const explored = system.explored[you];
   const slots = system.rawSlots + system.energySlots;
   const counts: Record<string, number> = {
@@ -54,10 +54,15 @@ export function IslandRow({
           {explored && system.populated && (
             <>
               <span className="isle__bar" aria-hidden="true">
-                <span style={{ width: `${system.support[you]}%`, background: `var(--${you})` }} />
-                <span
-                  style={{ width: `${system.support[enemy]}%`, background: `var(--${enemy})` }}
-                />
+                {allegianceSegments(system).map((segment) => (
+                  <span
+                    key={segment.faction}
+                    style={{
+                      width: `${segment.pct}%`,
+                      background: allegianceColour(segment.faction),
+                    }}
+                  />
+                ))}
               </span>
               {/*
                 Capacity, under allegiance — the two things the original prints

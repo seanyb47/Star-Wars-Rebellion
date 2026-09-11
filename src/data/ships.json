@@ -1,40 +1,54 @@
 {
-  "_comment": "Hull classes, world bible section 6. Names and prose live here; the numbers live in sim/constants.ts, keyed by role, so both fleets are balanced identically and only their names and character differ. Section 6 lists fifteen classes a side; these are the three that need no research.",
+  "_comment": "Hull classes, world bible section 6. Names and prose live here; the numbers live in sim/constants.ts, keyed by size, so both fleets are balanced identically and only their names and character differ. There are deliberately no fighters: a small craft is just a small ship, so the range is small / medium / large, with the transport off to one side.",
   "classes": [
     {
       "id": "sovereign",
       "faction": "empire",
-      "role": "capital",
+      "role": "large",
       "name": "Sovereign",
-      "blurb": "A first-rate of the line, built straight and warded with cultivated coral. The backbone of the Crown fleet."
+      "blurb": "A first-rate of the line, built straight and warded with cultivated coral. Nothing afloat hits harder or takes more killing. Slow to arrive anywhere."
+    },
+    {
+      "id": "razorback",
+      "faction": "empire",
+      "role": "medium",
+      "name": "Razorback",
+      "blurb": "A heavy frigate. Cheap for what it carries, quick enough to be useful, and outmatched by anything of the line."
     },
     {
       "id": "kestrel",
       "faction": "empire",
-      "role": "escort",
+      "role": "small",
       "name": "Kestrel",
-      "blurb": "A sloop-of-war. Fast, lightly gunned, and the quickest hull the Crown can put to sea."
+      "blurb": "A sloop-of-war. The fastest thing the Crown puts to sea and the first to sink. Good for closing a harbour cheaply."
     },
     {
       "id": "fluyt",
       "faction": "empire",
       "role": "transport",
       "name": "Fluyt",
-      "blurb": "An unarmed merchantman pressed into service. Carries companies and nothing else."
+      "blurb": "An unarmed merchantman pressed into service. Carries more companies than anything else and cannot defend itself at all."
+    },
+    {
+      "id": "reef",
+      "faction": "alliance",
+      "role": "large",
+      "name": "Reef-class",
+      "blurb": "Grown, not built — a living coral hull the Reef-folk sing into shape over years. No two alike. Enormous, and in no hurry."
     },
     {
       "id": "tempest",
       "faction": "alliance",
-      "role": "capital",
+      "role": "medium",
       "name": "Tempest",
-      "blurb": "A frigate patched together out of three others. Not pretty. Fights as well as anything the Crown has."
+      "blurb": "A frigate patched together out of three others. Not pretty. Holds its own against anything short of a ship of the line."
     },
     {
       "id": "swift",
       "faction": "alliance",
-      "role": "escort",
+      "role": "small",
       "name": "Swift",
-      "blurb": "A schooner, stolen and re-rigged. Outruns everything and picks off small craft."
+      "blurb": "A schooner, stolen and re-rigged. Outruns everything on the water and comes apart if anything catches it."
     },
     {
       "id": "brig",

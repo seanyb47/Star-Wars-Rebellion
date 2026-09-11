@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
 import { isDiplomacyTarget, summariseReach } from '../sim';
+import { allegianceColour, segmentsFor } from './allegiance';
 import { CompassRose, islandPath } from './art';
 
 /**
@@ -282,23 +283,36 @@ export function GalaxyMap({
               </text>
               <g pointerEvents="none">
                 <rect x={spot.x - 46} y={labelY + 50} width={92} height={9} rx={4.5} fill="#0a2b36" />
-                <rect
-                  x={spot.x - 46}
-                  y={labelY + 50}
-                  width={(92 * summary.allegiance.empire) / 100}
-                  height={9}
-                  rx={4.5}
-                  fill="var(--empire)"
-                />
-                <rect
-                  x={spot.x - 46 + 92 - (92 * summary.allegiance.alliance) / 100}
-                  y={labelY + 50}
-                  width={(92 * summary.allegiance.alliance) / 100}
-                  height={9}
-                  rx={4.5}
-                  fill="var(--alliance)"
-                  opacity={0.9}
-                />
+                {(() => {
+                  // Whoever holds most of the chain leads the bar, the other
+                  // side follows, and the undecided remainder is nobody's.
+                  const holder =
+                    summary.held > summary.enemyHeld
+                      ? viewer
+                      : summary.enemyHeld > summary.held
+                        ? enemy
+                        : null;
+                  let x = spot.x - 46;
+                  return segmentsFor(
+                    summary.allegiance.empire,
+                    summary.allegiance.alliance,
+                    holder,
+                  ).map((segment) => {
+                    const w = (92 * segment.pct) / 100;
+                    const rect = (
+                      <rect
+                        key={segment.faction}
+                        x={x}
+                        y={labelY + 50}
+                        width={w}
+                        height={9}
+                        fill={allegianceColour(segment.faction)}
+                      />
+                    );
+                    x += w;
+                    return rect;
+                  });
+                })()}
               </g>
             </g>
           );

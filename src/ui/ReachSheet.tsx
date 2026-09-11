@@ -3,7 +3,7 @@ import terms from '../data/terms.json';
 import { summariseReach, type GameState, type PlayableFaction, type Sector } from '../sim';
 import { ChainMap } from './ChainMap';
 import type { IslandTab } from './IslandRow';
-import { Sheet, Stat } from './components';
+import { AverageAllegianceBar, Sheet, Stat } from './components';
 
 export type { IslandTab };
 
@@ -86,29 +86,18 @@ export function ReachSheet({
       )}
 
       <div className="section-title">{terms.allegiance} across the {terms.reach.toLowerCase()}</div>
-      <div className="card">
-        {([you, enemy] as const).map((faction) => (
-          <div key={faction} style={{ marginBottom: 6 }}>
-            <div className="bar-label">
-              <span>{factionData[faction].shortName}</span>
-              <span>{Math.round(summary.allegiance[faction])}</span>
-            </div>
-            <div className="bar">
-              <div
-                className="bar__fill"
-                style={{
-                  width: `${summary.allegiance[faction]}%`,
-                  background: `var(--${faction})`,
-                }}
-              />
-            </div>
-          </div>
-        ))}
-        <p className="tiny muted" style={{ margin: '4px 0 0' }}>
-          Averaged over the {summary.settled} settled islands. A parley anywhere here drags the
-          rest of the {terms.reach.toLowerCase()} with it.
-        </p>
-      </div>
+      <AverageAllegianceBar
+        empire={summary.allegiance.empire}
+        alliance={summary.allegiance.alliance}
+        holder={
+          summary.held > summary.enemyHeld
+            ? you
+            : summary.enemyHeld > summary.held
+              ? enemy
+              : null
+        }
+        note={`Averaged over the ${summary.settled} settled islands. A parley anywhere here drags the rest of the ${terms.reach.toLowerCase()} with it.`}
+      />
 
       <div className="section-title">Islands</div>
       {/*

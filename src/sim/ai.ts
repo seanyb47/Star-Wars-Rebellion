@@ -4,6 +4,7 @@ import {
   AI_MISSION_INTERVAL,
   AI_SHIP_RESERVE,
   YARD_BUILDS,
+  shipSpec,
   shipsFor,
 } from './constants';
 import { buildMenu, canQueueBuild, queueBuild } from './build';
@@ -117,7 +118,14 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
   // Keep roughly two fighting hulls to every transport.
   const transports = afloat.filter((s) => s.classId === classes.find((c) => c.role === 'transport')!.id);
   const wantTransport = transports.length * 3 < afloat.length + 1;
-  const pick = classes.find((c) => c.role === (wantTransport ? 'transport' : 'capital'));
+  // Fighting hulls as big as it can afford; a transport when it is short of one.
+  const affordable = classes
+    .filter((c) => c.role !== 'transport')
+    .filter((c) => shipSpec(c.id).costGold + AI_SHIP_RESERVE <= state.factions[ai].gold)
+    .sort((a, b) => shipSpec(b.id).costGold - shipSpec(a.id).costGold);
+  const pick = wantTransport
+    ? classes.find((c) => c.role === 'transport')
+    : (affordable[0] ?? classes.find((c) => c.role === 'small'));
   if (!pick) return;
 
   for (const system of state.systems) {

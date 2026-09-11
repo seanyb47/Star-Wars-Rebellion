@@ -7,6 +7,7 @@ import {
   type PlayableFaction,
   type System,
 } from '../sim';
+import { allegianceColour, allegianceSegments } from './allegiance';
 import { islandPath } from './art';
 
 /**
@@ -301,32 +302,26 @@ export function ChainMap({
 
             {explored && system.populated && (
               <g pointerEvents="none">
-                {/* How it leans, then how much of it is still free to build on. */}
-                <rect x={spot.x - 55} y={spot.y + 86} width={110} height={10} rx={5} fill="#0a2b36" />
-                <rect
-                  x={spot.x - 55}
-                  y={spot.y + 86}
-                  width={(110 * system.support[viewer]) / 100}
-                  height={10}
-                  rx={5}
-                  fill={`var(--${viewer})`}
-                />
-                <rect
-                  x={
-                    spot.x -
-                    55 +
-                    110 -
-                    (110 * system.support[viewer === 'empire' ? 'alliance' : 'empire']) / 100
-                  }
-                  y={spot.y + 86}
-                  width={
-                    (110 * system.support[viewer === 'empire' ? 'alliance' : 'empire']) / 100
-                  }
-                  height={10}
-                  rx={5}
-                  fill={`var(--${viewer === 'empire' ? 'alliance' : 'empire'})`}
-                  opacity={0.9}
-                />
+                {/* How it leans: whoever holds it first from the left, the
+                    other side next, the undecided remainder in neutral blue. */}
+                {(() => {
+                  let x = spot.x - 55;
+                  return allegianceSegments(system).map((segment) => {
+                    const w = (110 * segment.pct) / 100;
+                    const rect = (
+                      <rect
+                        key={segment.faction}
+                        x={x}
+                        y={spot.y + 86}
+                        width={w}
+                        height={10}
+                        fill={allegianceColour(segment.faction)}
+                      />
+                    );
+                    x += w;
+                    return rect;
+                  });
+                })()}
                 {slots > 0 &&
                   Array.from({ length: slots }, (_, i) => (
                     <rect

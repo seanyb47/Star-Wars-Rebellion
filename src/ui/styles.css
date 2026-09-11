@@ -12,8 +12,12 @@
   --shallow: #10404f;
   --land: #4a5a52;
   --land-bare: #33403c;
-  --empire: #e2504a;
-  --alliance: #e8c04a;
+  /* Faction colours, after the original: the Crown green, the rebels red,
+     and light blue for people who have not picked a side. Kept clear of the
+     mint --good and the orange-leaning --bad so a faction badge never reads
+     as a status message. */
+  --empire: #3f9e58;
+  --alliance: #d8483f;
   --neutral: #5aa2e0;
   --unknown: #46595f;
   --good: #4ec98a;
@@ -270,6 +274,15 @@ button {
 .bar { height: 6px; border-radius: 3px; background: #0d2f3a; overflow: hidden; }
 .bar__fill { height: 100%; border-radius: 3px; }
 .bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+/* The allegiance bar: segments butted together, the holder first from the left. */
+.bar--tall { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: #0d2f3a; }
+.bar--tall > div { height: 100%; }
+.bar-key {
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  margin-top: 6px; font-size: 11px; color: var(--muted);
+}
+.bar-key span { display: inline-flex; align-items: center; gap: 5px; }
+.bar-key i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
 
 .btn {
   min-height: var(--tap); padding: 9px 12px; border-radius: 9px; border: 1px solid var(--border);

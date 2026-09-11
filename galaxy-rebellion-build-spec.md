@@ -186,15 +186,16 @@ to pause), raw / refined / maintenance (used/cap).
   using a seeded RNG so results are deterministic.
 
 ## 7. Roadmap
-- **Phase 2 — Fleets. BUILT (v4.0).** Hulls, troop capacity, fleet movement,
-  auto-resolved combat, assault to take islands by force, blockades. Two things
-  in the original line were not built and are deliberately deferred: fighters
-  (small craft flown off carriers — there are no carriers yet, and squadrons
-  need a second layer of combat to mean anything), and a battle summary *card*
-  — an action reports as an event line for now, and cards are the same job as
-  the event cards still outstanding for the whole feed. Command ranks stay in
-  phase 3 as written, though the fleet is already shaped to hold them.
-- **Phase 2 (not yet built).** Fighters/small craft; the battle summary card.
+- **Phase 2 — Fleets. BUILT (v4.0–4.1).** Hulls, troop capacity, fleet
+  movement, auto-resolved combat, assault to take islands by force, blockades.
+  **Fighters are cut from the design, not deferred**: a small craft is just a
+  small ship, so instead of a second combat layer the fleet is a range of sizes
+  — small, medium, large, plus the transport — and each is good and bad at
+  something, with passage time as the trade-off. Command ranks stay in phase 3
+  as written, though the fleet is already shaped to hold them.
+- **Phase 2 (not yet built).** The battle summary *card*. An action reports as
+  an event line for now, because a card is the same job as the event cards
+  still outstanding for the whole feed.
 - **Phase 3 — Full missions & victory.** Espionage, Sabotage, Abduction,
   Incite/Subdue Uprising, Recruitment, Recon (probe units), Rescue, R&D.
   Foilers based on defending characters' espionage/combat. Command ranks

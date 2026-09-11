@@ -200,7 +200,9 @@ up under magnification.
 
 **Name colours are fixed by faction, not relative to the player.** Green for
 Alliance, red for Empire, pale blue for uncontrolled — the same in the Alliance
-shot and the Empire one. We do the same.
+shot and the Empire one. We do the same, with the sides swapped by choice: here
+green is the Crown Imperium and red the Free Confederacy. Light blue means the
+same thing in both — nobody's.
 
 ## The droid, again
 

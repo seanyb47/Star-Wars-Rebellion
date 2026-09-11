@@ -43,14 +43,14 @@ function put(
 
 describe('ship classes', () => {
   it('balances the two fleets identically, role for role', () => {
-    for (const role of ['escort', 'capital', 'transport'] as const) {
+    for (const role of ['small', 'medium', 'large', 'transport'] as const) {
       const empire = shipSpec(
-        (['sovereign', 'kestrel', 'fluyt'] as ShipClassId[]).find(
+        (['sovereign', 'razorback', 'kestrel', 'fluyt'] as ShipClassId[]).find(
           (id) => shipClass(id).role === role,
         )!,
       );
       const alliance = shipSpec(
-        (['tempest', 'swift', 'brig'] as ShipClassId[]).find(
+        (['reef', 'tempest', 'swift', 'brig'] as ShipClassId[]).find(
           (id) => shipClass(id).role === role,
         )!,
       );
@@ -58,10 +58,21 @@ describe('ship classes', () => {
     }
   });
 
-  it('gives only transports and capitals room for companies', () => {
-    expect(SHIP_ROLES.escort.carries).toBe(0);
-    expect(SHIP_ROLES.transport.carries).toBeGreaterThan(0);
-    expect(SHIP_ROLES.capital.carries).toBeGreaterThan(0);
+  it('makes every size good at something and bad at something', () => {
+    const { small, medium, large, transport } = SHIP_ROLES;
+    // Bigger hits harder and takes more killing...
+    expect(small.guns).toBeLessThan(medium.guns);
+    expect(medium.guns).toBeLessThan(large.guns);
+    expect(small.hull).toBeLessThan(large.hull);
+    // ...and is slower and dearer for it.
+    expect(small.pace).toBeLessThan(medium.pace);
+    expect(medium.pace).toBeLessThan(large.pace);
+    expect(small.costGold).toBeLessThan(large.costGold);
+    // A sloop carries nobody; a transport carries more than a first-rate and
+    // cannot fire a shot.
+    expect(small.carries).toBe(0);
+    expect(transport.guns).toBe(0);
+    expect(transport.carries).toBeGreaterThan(large.carries);
   });
 });
 
@@ -98,7 +109,7 @@ describe('building a hull', () => {
     const fleet = put(state, home, 'empire', ['sovereign']);
     fleet.troops = 2;
     const after = totalUpkeep(state, 'empire');
-    expect(after).toBe(before + SHIP_ROLES.capital.upkeep + 2);
+    expect(after).toBe(before + SHIP_ROLES.large.upkeep + 2);
   });
 });
 
@@ -348,5 +359,38 @@ describe('the opponent uses its navy', () => {
     // The opponent's fleet is not the player's to order, and vice versa.
     expect(sailError(state, theirs.id, home.id, 'empire')).toBe('That fleet is not yours.');
     expect(sailError(state, theirs.id, home.id, 'alliance')).toBe('Already there.');
+  });
+});
+
+describe('pace', () => {
+  it('a fleet sails at the speed of its slowest hull', () => {
+    const { state, home } = setup();
+    const target = state.systems.find((s) => s.sectorId === home.sectorId && s.id !== home.id)!;
+
+    const sloops = put(state, home, 'empire', ['kestrel']);
+    sailFleet(state, sloops.id, target.id, 'empire');
+    const quick = sloops.voyage!.daysRemaining;
+
+    const heavy = addShip(state, home, 'empire', 'sovereign');
+    // addShip joined the fleet at anchor, so make a second one to compare.
+    const slowFleet = state.fleets.find((f) => f.id === heavy.id && f.id !== sloops.id) ?? heavy;
+    slowFleet.systemId = home.id;
+    slowFleet.voyage = undefined;
+    sailFleet(state, slowFleet.id, target.id, 'empire');
+    expect(slowFleet.voyage!.daysRemaining).toBeGreaterThan(quick);
+  });
+
+  it('one first-rate slows a squadron of sloops', () => {
+    const { state, home } = setup();
+    const target = state.systems.find((s) => s.sectorId === home.sectorId && s.id !== home.id)!;
+    const fleet = put(state, home, 'empire', ['kestrel', 'kestrel', 'sovereign']);
+    sailFleet(state, fleet.id, target.id, 'empire');
+    const withHeavy = fleet.voyage!.daysRemaining;
+
+    const { state: s2, home: h2 } = setup();
+    const t2 = s2.systems.find((s) => s.sectorId === h2.sectorId && s.id !== h2.id)!;
+    const light = put(s2, h2, 'empire', ['kestrel', 'kestrel']);
+    sailFleet(s2, light.id, t2.id, 'empire');
+    expect(withHeavy).toBeGreaterThan(light.voyage!.daysRemaining);
   });
 });

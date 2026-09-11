@@ -740,15 +740,15 @@ export function NarratorFigure({
 }
 
 /**
- * Hulls, in profile. Three silhouettes that read apart at icon size: a sloop
- * is one mast and a small hull, a ship of the line is three masts and a row of
- * gun ports, a transport is fat, high-sided and carries nothing that shoots.
+ * Hulls, in profile. Four silhouettes that read apart at icon size, and they
+ * read apart by *size*, which is the thing that matters: one mast, two masts,
+ * three masts and a row of gun ports, and a fat unarmed hull.
  */
 export function ShipIcon({
   role,
   size = 24,
 }: {
-  role: 'escort' | 'capital' | 'transport';
+  role: 'small' | 'medium' | 'large' | 'transport';
   size?: number;
 }) {
   const common = {
@@ -758,21 +758,29 @@ export function ShipIcon({
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const,
   };
+  const sail = { fill: 'currentColor', stroke: 'none', opacity: 0.85 };
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
-      {role === 'escort' && (
+      {role === 'small' && (
         <g {...common}>
-          <path d="M4 17 h15 l-2.5 3.5 h-10 Z" />
-          <path d="M11.5 16.5 V4" />
-          <path d="M11.5 5 L17 13 h-5.5" fill="currentColor" stroke="none" opacity="0.85" />
+          <path d="M6 17.5 h12 l-2 3 h-8 Z" />
+          <path d="M12 17 V5" />
+          <path d="M12 6 L16.5 14 H12 Z" {...sail} />
         </g>
       )}
-      {role === 'capital' && (
+      {role === 'medium' && (
+        <g {...common}>
+          <path d="M4 17 h16 l-2 3.5 h-12 Z" />
+          <path d="M9 16.5 V6 M15 16.5 V4" />
+          <path d="M9 7 l3.5 6.5 H9 Z M15 5 l4 8.5 H15 Z" {...sail} />
+        </g>
+      )}
+      {role === 'large' && (
         <g {...common}>
           <path d="M2 16.5 h20 l-2.5 4 h-15 Z" />
           <path d="M6 16 V5 M12 16 V3 M18 16 V6" />
-          <path d="M6 6 l4.5 7 H6 Z M12 4.5 l5 8.5 H12 Z M18 7 l3.2 6 H18 Z" fill="currentColor" stroke="none" opacity="0.85" />
-          {/* A row of gun ports is the only thing that says "capital" at 22px. */}
+          <path d="M6 6 l4.5 7 H6 Z M12 4.5 l5 8.5 H12 Z M18 7 l3.2 6 H18 Z" {...sail} />
+          {/* A row of gun ports is the only thing that says "of the line". */}
           <path d="M5 18.3 h14" strokeDasharray="1.4 1.8" strokeWidth="1.3" />
         </g>
       )}
@@ -780,7 +788,7 @@ export function ShipIcon({
         <g {...common}>
           <path d="M3 14.5 h18 q-1 6 -3.5 6 h-11 q-2.5 0 -3.5 -6 Z" />
           <path d="M8.5 14 V6 M15.5 14 V7.5" />
-          <path d="M8.5 7 l4 6 h-4 Z M15.5 8.5 l3.4 4.5 h-3.4 Z" fill="currentColor" stroke="none" opacity="0.85" />
+          <path d="M8.5 7 l4 6 h-4 Z M15.5 8.5 l3.4 4.5 h-3.4 Z" {...sail} />
         </g>
       )}
     </svg>

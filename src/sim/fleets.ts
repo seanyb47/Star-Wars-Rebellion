@@ -53,6 +53,15 @@ export function fleetCapacity(fleet: Fleet): number {
   );
 }
 
+/**
+ * A fleet sails at the pace of its slowest hull, which is what makes a sloop
+ * worth keeping once you own ships of the line.
+ */
+export function fleetPace(fleet: Fleet): number {
+  if (fleet.ships.length === 0) return 1;
+  return Math.max(...fleet.ships.map((s) => SHIP_ROLES[shipClass(s.classId).role].pace));
+}
+
 export function fleetDamaged(fleet: Fleet): number {
   return fleet.ships.filter((s) => s.damage > 0).length;
 }
@@ -129,9 +138,12 @@ export function sailFleet(
   const error = sailError(state, fleetId, targetSystemId, actor);
   if (error) throw new Error(error);
   const fleet = findFleet(state, fleetId)!;
-  const days = travelDays(state, fleet.systemId, targetSystemId);
   const target = getSystem(state, targetSystemId);
-  fleet.voyage = { targetSystemId, daysRemaining: Math.max(1, days) };
+  const days = Math.max(
+    1,
+    Math.round(travelDays(state, fleet.systemId, targetSystemId) * fleetPace(fleet)),
+  );
+  fleet.voyage = { targetSystemId, daysRemaining: days };
   pushEvent(state, {
     kind: 'order',
     text: `${fleet.name} weighs anchor for ${target.name}.`,

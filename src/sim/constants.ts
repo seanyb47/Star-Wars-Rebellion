@@ -63,12 +63,29 @@ export interface ShipRoleSpec extends BuildSpec {
   guns: number;
   hull: number;
   carries: number;
+  /** Passage time against a frigate's. Under 1 is faster. */
+  pace: number;
 }
 
+/**
+ * Size is the trade-off, and it is a real one in both directions. A sloop
+ * reaches a threatened harbour in two days where a first-rate takes four, and
+ * then dies to one broadside. A transport carries more than anything and
+ * cannot fire a shot.
+ */
 export const SHIP_ROLES: Record<ShipRole, Omit<ShipRoleSpec, 'label'>> = {
-  escort: { costGold: 45, days: 8, upkeep: 2, guns: 2, hull: 3, carries: 0 },
-  transport: { costGold: 55, days: 10, upkeep: 2, guns: 0, hull: 3, carries: 2 },
-  capital: { costGold: 130, days: 20, upkeep: 5, guns: 6, hull: 8, carries: 2 },
+  small: { costGold: 45, days: 8, upkeep: 2, guns: 2, hull: 3, carries: 0, pace: 0.7 },
+  medium: { costGold: 85, days: 14, upkeep: 3, guns: 4, hull: 5, carries: 1, pace: 1 },
+  large: { costGold: 150, days: 22, upkeep: 5, guns: 7, hull: 9, carries: 2, pace: 1.35 },
+  transport: { costGold: 55, days: 10, upkeep: 2, guns: 0, hull: 4, carries: 3, pace: 1 },
+};
+
+/** What to call a size in front of the player. */
+export const SHIP_ROLE_LABEL: Record<ShipRole, string> = {
+  small: 'Small',
+  medium: 'Medium',
+  large: 'Large',
+  transport: 'Transport',
 };
 
 export interface ShipClass {

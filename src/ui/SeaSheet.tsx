@@ -2,7 +2,7 @@ import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import { summariseSea, type GameState } from '../sim';
 import { IslandRow } from './IslandRow';
-import { Sheet, Stat } from './components';
+import { AverageAllegianceBar, Sheet, Stat } from './components';
 
 /**
  * A whole Sea. This is what a tap opens when the chart is zoomed out far
@@ -67,28 +67,18 @@ export function SeaSheet({
       </div>
 
       <div className="section-title">{terms.allegiance} across the sea</div>
-      <div className="card">
-        {([you, enemy] as const).map((faction) => (
-          <div key={faction} style={{ marginBottom: 6 }}>
-            <div className="bar-label">
-              <span>{factionData[faction].shortName}</span>
-              <span>{Math.round(summary.allegiance[faction])}</span>
-            </div>
-            <div className="bar">
-              <div
-                className="bar__fill"
-                style={{
-                  width: `${summary.allegiance[faction]}%`,
-                  background: `var(--${faction})`,
-                }}
-              />
-            </div>
-          </div>
-        ))}
-        <p className="tiny muted" style={{ margin: '4px 0 0' }}>
-          Averaged over the {summary.settled} settled islands of this sea.
-        </p>
-      </div>
+      <AverageAllegianceBar
+        empire={summary.allegiance.empire}
+        alliance={summary.allegiance.alliance}
+        holder={
+          summary.held > summary.enemyHeld
+            ? you
+            : summary.enemyHeld > summary.held
+              ? enemy
+              : null
+        }
+        note={`Averaged over the ${summary.settled} settled islands of this sea.`}
+      />
 
       {summary.perReach.map((reach) => {
         const sector = state.sectors.find((s) => s.id === reach.sectorId)!;
