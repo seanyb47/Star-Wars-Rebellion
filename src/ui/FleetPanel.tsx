@@ -8,6 +8,7 @@ import {
   fleetStatus,
   officerEdge,
   officersOf,
+  SCOUT_PER_ISLAND,
   shipClass,
   type Fleet,
   type GameState,
@@ -50,6 +51,10 @@ export function FleetCard({
   // One row per class, so eight sloops are a line rather than eight lines.
   const [signing, setSigning] = useState(false);
   const officers = officersOf(state, fleet);
+  // What the best spy aboard would open at the next landfall.
+  const scouting = Math.round(
+    officers.reduce((n, c) => Math.max(n, c.espionage), 0) / SCOUT_PER_ISLAND,
+  );
   // Crew standing on this island who could be signed on.
   const ashoreHere = state.characters.filter(
     (c) => boardError(state, fleet.id, c.id, state.player) === null,
@@ -150,6 +155,16 @@ export function FleetCard({
         <div>
           <dt>Damaged</dt>
           <dd>{damaged}</dd>
+        </div>
+        <div>
+          <dt>Charts</dt>
+          <dd>
+            {scouting === 0 ? (
+              <span className="muted">Nothing</span>
+            ) : (
+              `+${scouting} ${scouting === 1 ? 'isle' : 'isles'}`
+            )}
+          </dd>
         </div>
         <div>
           <dt>Command</dt>

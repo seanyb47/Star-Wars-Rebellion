@@ -5,7 +5,7 @@
  * carrying ships and the companies aboard them, after the original's fleet
  * window rather than a stack of ships with a leader attached elsewhere.
  */
-import { OFFICER_EDGE, SHIP_ROLES, shipClass } from './constants';
+import { OFFICER_EDGE, SCOUT_PER_ISLAND, SHIP_ROLES, shipClass } from './constants';
 import { getSystem, nextId, otherFaction, pushEvent } from './helpers';
 import { travelDays } from './missions';
 import type { Rng } from './rng';
@@ -298,6 +298,7 @@ export function advanceFleets(state: GameState, rng: Rng): void {
     system.explored[fleet.faction] = true;
     // Whoever is serving with her is where she is.
     for (const officer of officersOf(state, fleet)) officer.locationSystemId = system.id;
+    scoutFrom(state, fleet, system);
     pushEvent(state, {
       kind: 'order',
       text: `${fleet.name} has come to anchor off ${system.name}.`,
@@ -312,6 +313,46 @@ export function advanceFleets(state: GameState, rng: Rng): void {
     for (const officer of officersOf(state, fleet)) officer.locationSystemId = fleet.systemId;
   }
   state.fleets = state.fleets.filter((f) => f.ships.length > 0);
+}
+
+/**
+ * What the spy aboard sees while the ship is at anchor.
+ *
+ * Espionage is the third rating and this is what it is for. Sixty of the
+ * hundred islands start dark, and an island you have not charted cannot be
+ * parleyed with — so a fleet with a good spy aboard is how the map opens up,
+ * which makes ships the way you find things as well as the way you take them.
+ */
+function scoutFrom(state: GameState, fleet: Fleet, arrived: System): void {
+  const best = officersOf(state, fleet).reduce((n, c) => Math.max(n, c.espionage), 0);
+  const reach = Math.round(best / SCOUT_PER_ISLAND);
+  if (reach <= 0) return;
+
+  // What they can see from here: the rest of this chain, nearest first.
+  const dark = state.systems
+    .filter(
+      (s) =>
+        s.sectorId === arrived.sectorId &&
+        s.id !== arrived.id &&
+        !s.explored[fleet.faction],
+    )
+    .sort(
+      (a, b) =>
+        Math.hypot(a.x - arrived.x, a.y - arrived.y) -
+        Math.hypot(b.x - arrived.x, b.y - arrived.y),
+    )
+    .slice(0, reach);
+  if (dark.length === 0) return;
+
+  for (const system of dark) system.explored[fleet.faction] = true;
+  const sector = state.sectors.find((s) => s.id === arrived.sectorId);
+  pushEvent(state, {
+    kind: 'mission',
+    text: `Boats out from ${fleet.name} chart ${dark.length} more ${
+      dark.length === 1 ? 'island' : 'islands'
+    } of ${sector?.name ?? 'the chain'}.`,
+    systemId: arrived.id,
+  });
 }
 
 /**

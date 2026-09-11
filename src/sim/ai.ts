@@ -13,6 +13,8 @@ import { buildMenu, canQueueBuild, queueBuild } from './build';
 import {
   assault,
   assaultError,
+  board,
+  boardError,
   embark,
   embarkError,
   fleetCapacity,
@@ -166,6 +168,7 @@ function aiFleet(state: GameState, ai: PlayableFaction, rng: Rng): void {
 
   for (const fleet of fleetsOf(state, ai)) {
     if (isAtSea(fleet)) continue;
+    aiSignOn(state, fleet, ai);
     if (aiLandTroops(state, fleet, ai, rng)) continue;
     aiLoadAndSail(state, fleet, ai);
   }
@@ -238,4 +241,20 @@ function aiLoadAndSail(state: GameState, fleet: Fleet, ai: PlayableFaction): voi
   if (fleetGuns(fleet) === 0 && fleet.troops === 0) return; // nothing to offer
   if (sailError(state, fleet.id, target.id, ai) !== null) return;
   sailFleet(state, fleet.id, target.id, ai);
+}
+
+/**
+ * One officer per fleet, the most useful crew member standing where she lies.
+ * Without this the opponent would sail with nobody aboard and never scout,
+ * never fight better and never carry a close landing — all three ratings would
+ * be the player's alone.
+ */
+function aiSignOn(state: GameState, fleet: Fleet, ai: PlayableFaction): void {
+  if (fleet.officerIds.length > 0) return;
+  const worth = (c: { leadership: number; combat: number; espionage: number }) =>
+    c.leadership + c.combat + c.espionage;
+  const best = state.characters
+    .filter((c) => boardError(state, fleet.id, c.id, ai) === null)
+    .sort((a, b) => worth(b) - worth(a))[0];
+  if (best) board(state, fleet.id, best.id, ai);
 }

@@ -201,6 +201,13 @@ export const AI_TROOP_POOL = 2;
  */
 export const OFFICER_EDGE = 0.25;
 
+/**
+ * Espionage points per extra island charted when a fleet makes a landfall.
+ * At 25 a rating of 100 charts four more of the chain beyond the one you
+ * actually anchored at, so a good spy opens most of a chain in two voyages.
+ */
+export const SCOUT_PER_ISLAND = 25;
+
 /** Facility types that a construction yard is allowed to queue. */
 export const YARD_BUILDABLE: FacilityType[] = [
   'mine',

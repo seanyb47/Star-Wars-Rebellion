@@ -21,6 +21,7 @@ import {
   updateBlockades,
 } from '../fleets';
 import { generateGalaxy } from '../galaxy';
+import { isDiplomacyTarget } from '../missions';
 import { getSystem } from '../helpers';
 import { createRng } from '../rng';
 import type { GameState, PlayableFaction, ShipClassId, System } from '../types';
@@ -517,5 +518,84 @@ describe('officers', () => {
     }
     expect(state.fleets.some((f) => f.faction === 'empire')).toBe(false);
     expect(crew.locationSystemId).toBe(home.id);
+  });
+});
+
+describe('espionage charts the map', () => {
+  it('a spy aboard opens islands the fleet did not anchor at', () => {
+    const chart = (espionage: number) => {
+      const { state, home } = setup(13);
+      const fleet = put(state, home, 'empire', ['kestrel']);
+      // Somewhere with dark water around it.
+      const target = state.systems.find(
+        (s) => !s.explored.empire && s.sectorId !== home.sectorId,
+      )!;
+      const chain = target.sectorId;
+      if (espionage > 0) {
+        const spy = state.characters.find((c) => c.faction === 'empire')!;
+        spy.locationSystemId = home.id;
+        spy.espionage = espionage;
+        board(state, fleet.id, spy.id, 'empire');
+      }
+      sailFleet(state, fleet.id, target.id, 'empire');
+      const days = fleet.voyage!.daysRemaining;
+      const rng = createRng(1);
+      for (let i = 0; i < days; i++) advanceFleets(state, rng);
+      return state.systems.filter((s) => s.sectorId === chain && s.explored.empire).length;
+    };
+
+    // With nobody aboard you chart exactly the island you anchored at.
+    expect(chart(0)).toBe(1);
+    // A middling spy sees a little further; a good one opens most of the chain.
+    expect(chart(50)).toBeGreaterThan(chart(0));
+    expect(chart(100)).toBeGreaterThan(chart(50));
+  });
+
+  it('charts nothing it has already charted, and never leaves the chain', () => {
+    const { state, home } = setup(13);
+    const fleet = put(state, home, 'empire', ['kestrel']);
+    const spy = state.characters.find((c) => c.faction === 'empire')!;
+    spy.locationSystemId = home.id;
+    spy.espionage = 100;
+    board(state, fleet.id, spy.id, 'empire');
+
+    const target = state.systems.find(
+      (s) => !s.explored.empire && s.sectorId !== home.sectorId,
+    )!;
+    const elsewhere = state.systems
+      .filter((s) => s.sectorId !== target.sectorId && !s.explored.empire)
+      .map((s) => s.id);
+
+    sailFleet(state, fleet.id, target.id, 'empire');
+    const days = fleet.voyage!.daysRemaining;
+    const rng = createRng(1);
+    for (let i = 0; i < days; i++) advanceFleets(state, rng);
+
+    // Nothing outside the chain it anchored in was touched.
+    for (const id of elsewhere) {
+      expect(getSystem(state, id).explored.empire).toBe(false);
+    }
+  });
+
+  it('opens islands you can then actually parley with', () => {
+    const { state, home } = setup(13);
+    const fleet = put(state, home, 'empire', ['kestrel']);
+    const spy = state.characters.find((c) => c.faction === 'empire')!;
+    spy.locationSystemId = home.id;
+    spy.espionage = 100;
+    board(state, fleet.id, spy.id, 'empire');
+
+    const before = state.systems.filter((s) => isDiplomacyTarget(s, 'empire')).length;
+    const target = state.systems.find(
+      (s) => !s.explored.empire && s.sectorId !== home.sectorId && s.populated,
+    )!;
+    sailFleet(state, fleet.id, target.id, 'empire');
+    const days = fleet.voyage!.daysRemaining;
+    const rng = createRng(1);
+    for (let i = 0; i < days; i++) advanceFleets(state, rng);
+
+    expect(state.systems.filter((s) => isDiplomacyTarget(s, 'empire')).length).toBeGreaterThan(
+      before,
+    );
   });
 });
