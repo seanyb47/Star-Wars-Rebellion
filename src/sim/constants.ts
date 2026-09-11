@@ -190,6 +190,9 @@ export const AI_FLEET_INTERVAL = 12;
 /** Gold the opponent keeps back before it will lay down a hull, so a navy
  *  never starves the economy that pays for it. */
 export const AI_SHIP_RESERVE = 200;
+/** Spare companies the opponent keeps on a drilling island, over what holds it
+ *  quiet, so it has something to put aboard a transport. */
+export const AI_TROOP_POOL = 2;
 
 /** Facility types that a construction yard is allowed to queue. */
 export const YARD_BUILDABLE: FacilityType[] = [

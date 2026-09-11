@@ -3,6 +3,8 @@ import {
   AI_FLEET_INTERVAL,
   AI_MISSION_INTERVAL,
   AI_SHIP_RESERVE,
+  AI_TROOP_POOL,
+  TROOP_BUILD,
   YARD_BUILDS,
   shipSpec,
   shipsFor,
@@ -20,19 +22,16 @@ import {
   sailError,
   sailFleet,
 } from './fleets';
-import { freeEnergySlots, freeRawSlots, getSystem, otherFaction } from './helpers';
+import {
+  freeEnergySlots,
+  freeRawSlots,
+  getSystem,
+  otherFaction,
+  requiredGarrison,
+} from './helpers';
 import { canStartMission, isDiplomacyTarget, startMission } from './missions';
 import type { Rng } from './rng';
-import type { Fleet, GameState, PlayableFaction, System } from './types';
-
-function ownedFacilityCount(state: GameState, faction: PlayableFaction, type: 'mine' | 'refinery') {
-  let total = 0;
-  for (const system of state.systems) {
-    if (system.control !== faction) continue;
-    total += system.facilities.filter((f) => f.type === type && f.owner === faction).length;
-  }
-  return total;
-}
+import type { FacilityType, Fleet, GameState, PlayableFaction, System } from './types';
 
 /**
  * Deliberately simple opponent (spec 4.7): keep the mine/refinery count level,
@@ -45,13 +44,75 @@ export function runAI(state: GameState, rng: Rng): void {
   if (state.day % AI_FLEET_INTERVAL === 0) aiFleet(state, ai, rng);
 }
 
+/**
+ * What the opponent puts its gold into, in priority order.
+ *
+ * It used to queue nothing but mines and refineries, which meant it never
+ * built a Slipway, never put a hull in the water and never drilled a company
+ * past the ones it started with. Measured over a 700-day war it finished with
+ * zero ships and its opening eight companies — so every naval rule it was
+ * given was unreachable, and the war was one-sided in a way nothing on screen
+ * admitted.
+ *
+ * It now holds what it has, then drills, then builds a yard, then grows.
+ */
 function aiBuild(state: GameState, ai: PlayableFaction): void {
-  const mines = ownedFacilityCount(state, ai, 'mine');
-  const refineries = ownedFacilityCount(state, ai, 'refinery');
-  const item = mines <= refineries ? 'mine' : 'refinery';
-  if (state.factions[ai].gold < YARD_BUILDS[item].costGold) return;
+  const gold = state.factions[ai].gold;
+  const held = state.systems.filter((s) => s.control === ai && !s.uprising);
 
-  // The held island with the most room to grow gets the new works.
+  // 1. Companies. A drill ground raises them on its own island and nowhere
+  //    else, so this works outward from the drill grounds rather than from the
+  //    islands that are short — the short ones usually have no drill ground on
+  //    them, which is exactly why an earlier version of this never drilled at
+  //    all. Each keeps what holds its island quiet plus a small pool, because
+  //    an opponent with no spare companies can never land on anything.
+  if (gold >= TROOP_BUILD.costGold) {
+    const target = (s: System) => Math.max(requiredGarrison(s.support[ai]), 1) + AI_TROOP_POOL;
+    const short = held
+      .filter((s) => s.garrison < target(s))
+      .sort((a, b) => target(b) - b.garrison - (target(a) - a.garrison));
+    for (const system of short) {
+      const drill = system.facilities.find(
+        (f) => f.owner === ai && f.type === 'training_facility' && !f.building,
+      );
+      if (drill && canQueueBuild(state, drill.id, 'troop')) {
+        queueBuild(state, drill.id, 'troop');
+        return;
+      }
+    }
+  }
+
+  // 2. Then the buildings it is missing entirely: somewhere to drill, and a
+  //    slipway, without which none of its fleet rules can ever fire.
+  const countOf = (type: FacilityType) =>
+    held.reduce((n, s) => n + s.facilities.filter((f) => f.owner === ai && f.type === type).length, 0);
+  const wanted: FacilityType[] = [];
+  if (countOf('training_facility') < 2) wanted.push('training_facility');
+  if (countOf('shipyard') < 1) wanted.push('shipyard');
+  else if (countOf('shipyard') < 2 && gold > AI_SHIP_RESERVE * 3) wanted.push('shipyard');
+
+  for (const item of wanted) {
+    if (gold < YARD_BUILDS[item].costGold) continue;
+    const spot = bestSpotFor(state, ai, item);
+    if (spot) {
+      queueBuild(state, spot, item);
+      return;
+    }
+  }
+
+  // 3. Otherwise grow the economy, keeping the two earners level as before.
+  const item = countOf('mine') <= countOf('refinery') ? 'mine' : 'refinery';
+  if (gold < YARD_BUILDS[item].costGold) return;
+  const spot = bestSpotFor(state, ai, item);
+  if (spot) queueBuild(state, spot, item);
+}
+
+/** The held island with the most room to grow that can take this order. */
+function bestSpotFor(
+  state: GameState,
+  ai: PlayableFaction,
+  item: FacilityType,
+): string | undefined {
   let best: { facilityId: string; slots: number } | undefined;
   for (const system of state.systems) {
     if (system.control !== ai || system.uprising) continue;
@@ -64,7 +125,7 @@ function aiBuild(state: GameState, ai: PlayableFaction): void {
       if (!best || slots > best.slots) best = { facilityId: facility.id, slots };
     }
   }
-  if (best) queueBuild(state, best.facilityId, item);
+  return best?.facilityId;
 }
 
 function aiMission(state: GameState, ai: PlayableFaction): void {

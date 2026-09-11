@@ -638,6 +638,8 @@ button {
   backdrop-filter: blur(6px);
 }
 .idle__item--free { color: var(--brass); border-color: #4a3c14; }
+.idle__item--alarm { color: var(--bad); border-color: #5c2420; }
+.idle__item--alarm:active { background: #3a1b18; }
 .idle__item:disabled { opacity: 0.5; }
 .idle__item--free:active { background: #16323d; }
 .idle__n { font-weight: 700; font-size: 12px; }

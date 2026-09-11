@@ -394,3 +394,31 @@ describe('pace', () => {
     expect(withHeavy).toBeGreaterThan(light.voyage!.daysRemaining);
   });
 });
+
+describe('the opponent builds toward its navy', () => {
+  it('lays down a slipway and puts hulls in the water in a plain game', () => {
+    // No help: the opponent has to build its own way to a fleet, which it
+    // could not do at all until its build order had a priority list.
+    let state = generateGalaxy(1, 'empire');
+    for (let d = 0; d < 700 && !state.winner; d++) state = advanceDay(state);
+
+    const yards = state.systems.flatMap((s) =>
+      s.facilities.filter((f) => f.owner === 'alliance' && f.type === 'shipyard'),
+    );
+    const hulls = state.fleets
+      .filter((f) => f.faction === 'alliance')
+      .reduce((n, f) => n + f.ships.length, 0);
+    expect(yards.length).toBeGreaterThan(0);
+    expect(hulls).toBeGreaterThan(0);
+  });
+
+  it('drills companies rather than living on the ones it started with', () => {
+    let state = generateGalaxy(2, 'empire');
+    const companies = (s: typeof state) =>
+      s.systems.filter((x) => x.control === 'alliance').reduce((n, x) => n + x.garrison, 0) +
+      s.fleets.filter((f) => f.faction === 'alliance').reduce((n, f) => n + f.troops, 0);
+    const before = companies(state);
+    for (let d = 0; d < 400 && !state.winner; d++) state = advanceDay(state);
+    expect(companies(state)).toBeGreaterThan(before);
+  });
+});

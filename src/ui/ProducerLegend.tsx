@@ -36,8 +36,23 @@ export function ProducerLegend({
     }
   }
 
+  // A shut harbour is more urgent than an idle yard, so it leads the strip.
+  const blockaded = state.systems.filter(
+    (s) => s.control === state.player && s.blockaded,
+  );
+
   return (
     <div className="idle">
+      {blockaded.length > 0 && (
+        <button
+          className="idle__item idle__item--alarm"
+          onClick={() => onOpenIsland?.(blockaded[0].id)}
+          aria-label={`${blockaded.length} of your islands blockaded`}
+        >
+          <span className="idle__n">{blockaded.length}</span>
+          <span className="idle__label">Blockaded</span>
+        </button>
+      )}
       {KINDS.map((kind) => {
         const entry = idle.get(kind)!;
         const free = entry.count > 0;
