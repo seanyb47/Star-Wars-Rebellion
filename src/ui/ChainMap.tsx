@@ -85,6 +85,7 @@ const MARKS = {
   ships: 'M2 14 h16 l-2 5 h-12 Z M10 13 V3 M10 4 l5 8 h-5',
 } as const;
 
+/** Who is flying a flag over it. The name takes this colour. */
 function controlColour(system: System, viewer: 'empire' | 'alliance'): string {
   if (!system.explored[viewer]) return 'var(--unknown)';
   switch (system.control) {
@@ -97,6 +98,21 @@ function controlColour(system: System, viewer: 'empire' | 'alliance'): string {
     default:
       return '#7c8d95';
   }
+}
+
+/**
+ * Who its people lean toward. The island itself takes this colour, the same
+ * way it does out on the chart, so the two views agree.
+ *
+ * Body and name together carry both facts: an island the Crown holds whose
+ * people have gone over reads as a red island with a green name, which is
+ * exactly the island you should be worrying about.
+ */
+function loyaltyColour(system: System, viewer: 'empire' | 'alliance'): string {
+  if (!system.explored[viewer]) return 'var(--unknown)';
+  if (!system.populated) return '#7c8d95';
+  const lead = allegianceSegments(system)[0];
+  return lead ? allegianceColour(lead.faction) : 'var(--neutral)';
 }
 
 export function ChainMap({
@@ -135,7 +151,8 @@ export function ChainMap({
         const spot = spots[index];
         const entry = summaryById.get(system.id);
         const explored = system.explored[viewer];
-        const tint = controlColour(system, viewer);
+        const tint = loyaltyColour(system, viewer);
+        const flag = controlColour(system, viewer);
         const slots = system.rawSlots + system.energySlots;
         const built = system.facilities.length;
 
@@ -294,46 +311,28 @@ export function ChainMap({
               className="chainmap__name"
               x={spot.x}
               y={spot.y + 74}
-              fill={tint}
+              fill={flag}
               pointerEvents="none"
             >
               {explored ? system.name : 'Uncharted'}
             </text>
 
-            {explored && system.populated && (
+            {explored && system.populated && slots > 0 && (
               <g pointerEvents="none">
-                {/* How it leans: whoever holds it first from the left, the
-                    other side next, the undecided remainder in neutral blue. */}
-                {(() => {
-                  let x = spot.x - 55;
-                  return allegianceSegments(system).map((segment) => {
-                    const w = (110 * segment.pct) / 100;
-                    const rect = (
-                      <rect
-                        key={segment.faction}
-                        x={x}
-                        y={spot.y + 86}
-                        width={w}
-                        height={10}
-                        fill={allegianceColour(segment.faction)}
-                      />
-                    );
-                    x += w;
-                    return rect;
-                  });
-                })()}
-                {slots > 0 &&
-                  Array.from({ length: slots }, (_, i) => (
+                {/* Reserves used against reserves free. The allegiance bar that
+                    used to sit here is gone: the island is painted by loyalty,
+                    and a bar under every one of ten was a row of smears. */}
+                {Array.from({ length: slots }, (_, i) => (
                     <rect
                       key={i}
                       x={spot.x - 55 + i * (110 / slots)}
-                      y={spot.y + 101}
+                      y={spot.y + 88}
                       width={110 / slots - 2.5}
                       height={7}
                       rx={2}
                       fill={i < built ? '#93a7b1' : '#1c3b48'}
                     />
-                  ))}
+                ))}
               </g>
             )}
           </g>

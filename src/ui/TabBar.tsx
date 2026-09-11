@@ -50,7 +50,7 @@ export function TabBar({
         onClick={onAskAdvisor}
         aria-label={`Ask ${NARRATOR[player].name}`}
       >
-        <NarratorFigure faction={player} size={46} />
+        <NarratorFigure faction={player} size={62} />
       </button>
     </nav>
   );

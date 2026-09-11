@@ -323,6 +323,10 @@ export function App() {
             }}
             onOpenWorlds={() => setWorldsOpen(true)}
             onSelectReach={(sectorId: string) => setOpenReachId(sectorId)}
+            onOpenIsland={(systemId: string) => {
+              setOpenSystemId(systemId);
+              setOpenSystemTab('buildings');
+            }}
           />
         )}
         {tab === 'characters' && (

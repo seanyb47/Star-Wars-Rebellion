@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
 import { isDiplomacyTarget, summariseReach } from '../sim';
+import { allegianceColour, allegianceSegments, segmentsFor } from './allegiance';
 import { CompassRose, islandPath } from './art';
+import { ProducerLegend } from './ProducerLegend';
 
 /**
  * The chart is laid out for a phone held upright, not for the square box the
@@ -15,8 +17,9 @@ import { CompassRose, islandPath } from './art';
  * with the labels stacked on top of each other.
  */
 const CHART_W = 1000;
-/** Tall enough to leave a clear band at the foot for the chart's own controls. */
-const CHART_H = 1820;
+/** Tall enough to leave a clear band at the foot for the idle-producer strip
+ *  and the chart's own controls, neither of which may sit on a chain's name. */
+const CHART_H = 1900;
 const CHAIN_R = 100;
 /** Islands are scattered for a 105-unit disc; pull them into a 100-unit one. */
 const ISLAND_SPREAD = 0.72;
@@ -28,16 +31,16 @@ const ISLAND_SPREAD = 0.72;
  * lines of label beneath it without touching its neighbour.
  */
 const CHAIN_SPOTS: Array<{ x: number; y: number }> = [
-  { x: 270, y: 190 },
-  { x: 730, y: 250 },
-  { x: 180, y: 520 },
-  { x: 650, y: 560 },
-  { x: 300, y: 840 },
-  { x: 780, y: 870 },
-  { x: 200, y: 1150 },
-  { x: 690, y: 1170 },
-  { x: 320, y: 1450 },
-  { x: 760, y: 1460 },
+  { x: 270, y: 180 },
+  { x: 730, y: 235 },
+  { x: 180, y: 480 },
+  { x: 650, y: 520 },
+  { x: 300, y: 775 },
+  { x: 780, y: 805 },
+  { x: 200, y: 1065 },
+  { x: 690, y: 1090 },
+  { x: 320, y: 1355 },
+  { x: 760, y: 1370 },
 ];
 
 /**
@@ -66,6 +69,8 @@ export interface GalaxyMapProps {
   onOpenWorlds?: () => void;
   /** Tapping a chain opens it. The island is then chosen from the list. */
   onSelectReach?: (sectorId: string) => void;
+  /** From the idle-producer strip: jump straight to an island with a free yard. */
+  onOpenIsland?: (systemId: string) => void;
 }
 
 /**
@@ -89,18 +94,19 @@ function seaStipple(seed: number) {
 /** Rhumb lines radiating from the chart's compass, as on a portolan chart. */
 const RHUMB_ANGLES = Array.from({ length: 16 }, (_, i) => (i * 360) / 16);
 
-function controlColor(system: System, viewer: PlayableFaction): string {
+/**
+ * Out here an island is painted by **loyalty**, not by who is flying a flag
+ * over it: the side with the most of its people, or neutral blue where nobody
+ * has a majority. That is what makes the chart worth looking at from a
+ * distance — you can see sympathy moving before an island changes hands.
+ *
+ * Control is still shown, by the chain's own tally and inside the chain.
+ */
+function loyaltyColor(system: System, viewer: PlayableFaction): string {
   if (!system.explored[viewer]) return 'var(--unknown)';
-  switch (system.control) {
-    case 'empire':
-      return 'var(--empire)';
-    case 'alliance':
-      return 'var(--alliance)';
-    case 'neutral':
-      return 'var(--neutral)';
-    default:
-      return '#5d7079';
-  }
+  if (!system.populated) return '#5d7079';
+  const lead = allegianceSegments(system)[0];
+  return lead ? allegianceColour(lead.faction) : 'var(--neutral)';
 }
 
 /**
@@ -121,6 +127,7 @@ export function GalaxyMap({
   onCancelPick,
   onOpenWorlds,
   onSelectReach,
+  onOpenIsland,
 }: GalaxyMapProps) {
   const viewer = state.player;
   const stipple = useMemo(() => seaStipple(state.rngSeed), [state.rngSeed]);
@@ -193,7 +200,6 @@ export function GalaxyMap({
         {chains.map(({ sector, systems, summary, targets, spot }) => {
           // Sailing can go anywhere; a parley can only go where it is welcome.
           const live = sailing || !pickingFor || targets > 0;
-          const held = summary.held;
           const labelY = spot.y + CHAIN_R + 40;
           // The names still break at the last space — "Shipwrights'" over
           // "Reach 3/10" — which keeps every label inside its own column.
@@ -230,7 +236,7 @@ export function GalaxyMap({
                         cx={ax}
                         cy={ay}
                         r={radius + 7}
-                        stroke={controlColor(system, viewer)}
+                        stroke={loyaltyColor(system, viewer)}
                       />
                     )}
                     {/* Shelf of shallows, then the coastline itself. */}
@@ -245,14 +251,14 @@ export function GalaxyMap({
                       d={islandPath(system.name, radius)}
                       transform={`translate(${ax} ${ay})`}
                       fill={system.populated ? 'var(--land)' : 'var(--land-bare)'}
-                      stroke={controlColor(system, viewer)}
+                      stroke={loyaltyColor(system, viewer)}
                       strokeWidth={explored ? 2.2 : 1.6}
                       strokeDasharray={explored ? undefined : '5 4'}
                     />
                     <path
                       d={islandPath(system.name, radius)}
                       transform={`translate(${ax} ${ay})`}
-                      fill={controlColor(system, viewer)}
+                      fill={loyaltyColor(system, viewer)}
                       opacity={explored ? 0.28 : 0.1}
                     />
                     {system.uprising && explored && (
@@ -265,10 +271,10 @@ export function GalaxyMap({
                 );
               })}
 
-              {/* Name and how much of it is yours. An averaged allegiance bar
-                  used to sit under this and was cut: a mean across ten islands
-                  is a number that describes none of them, and the islands
-                  inside carry their own. */}
+              {/* The chain's name, and under it how the whole chain leans.
+                  The tally of how many islands are yours was cut from here:
+                  the islands are painted by loyalty now, so the chain reads
+                  without being counted. */}
               <text
                 className="map__sector-label"
                 x={spot.x}
@@ -278,14 +284,41 @@ export function GalaxyMap({
                 {head && <tspan x={spot.x}>{head}</tspan>}
                 <tspan x={spot.x} dy={head ? 36 : 0}>
                   {tail || head}
-                  <tspan className="map__chain-note"> {held}/{summary.islands}</tspan>
                   {summary.mutinies > 0 && <tspan className="map__chain-alarm"> ⚑</tspan>}
                 </tspan>
               </text>
+              <g pointerEvents="none">
+                <rect x={spot.x - 46} y={labelY + (head ? 48 : 12)} width={92} height={9} rx={4.5} fill="#0a2b36" />
+                {(() => {
+                  let x = spot.x - 46;
+                  return segmentsFor(
+                    summary.allegiance.empire,
+                    summary.allegiance.alliance,
+                  ).map((segment) => {
+                    const w = (92 * segment.pct) / 100;
+                    const rect = (
+                      <rect
+                        key={segment.faction}
+                        x={x}
+                        y={labelY + (head ? 48 : 12)}
+                        width={w}
+                        height={9}
+                        fill={allegianceColour(segment.faction)}
+                      />
+                    );
+                    x += w;
+                    return rect;
+                  });
+                })()}
+              </g>
             </g>
           );
         })}
       </svg>
+
+      {/* What is standing idle, always on screen: a yard building nothing is
+          gold you are not spending, and nothing else says so. */}
+      {!pickingFor && !sailing && <ProducerLegend state={state} onOpenIsland={onOpenIsland} />}
 
       <div className="map__hud">
         {sailing ? (
