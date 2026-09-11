@@ -587,6 +587,10 @@ button {
   padding: 8px; min-height: 132px; align-content: start;
   background: var(--bg-sunken);
   border: 1px solid var(--border); border-radius: 10px;
+  /* Three rows, then scroll. Cut just past the third row so a sliver of the
+     fourth shows: a board that ends flush looks finished when it is not. */
+  max-height: 312px; overflow-y: auto;
+  -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
 }
 .board--bare {
   display: flex; align-items: center; justify-content: center; text-align: center;
@@ -638,3 +642,4 @@ button {
 .idle__item--free:active { background: #16323d; }
 .idle__n { font-weight: 700; font-size: 12px; }
 .idle__label { max-width: 78px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board__count { margin: 5px 0 0; text-align: right; }

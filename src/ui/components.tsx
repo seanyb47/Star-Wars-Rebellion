@@ -116,13 +116,23 @@ export function SlotBoard({
   if (filled === 0 && ghosts === 0) {
     return <div className="board board--bare">{empty}</div>;
   }
+  // Three rows fit; past that the board scrolls, so say the total rather than
+  // leaving the player to guess how far it goes.
+  const total = filled + ghosts;
   return (
-    <div className="board">
-      {children}
-      {Array.from({ length: ghosts }, (_, i) => (
-        <span key={`ghost-${i}`} className="slot slot--empty" aria-hidden="true" />
-      ))}
-    </div>
+    <>
+      <div className="board">
+        {children}
+        {Array.from({ length: ghosts }, (_, i) => (
+          <span key={`ghost-${i}`} className="slot slot--empty" aria-hidden="true" />
+        ))}
+      </div>
+      {total > 9 && (
+        <p className="tiny muted board__count">
+          {total} in all — scroll the board for the rest
+        </p>
+      )}
+    </>
   );
 }
 
