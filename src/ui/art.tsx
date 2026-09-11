@@ -351,6 +351,25 @@ function CompanyFigure({ dim }: { dim?: boolean }) {
   );
 }
 
+/** One company, at slot size: a pikeman under his colours. */
+export function CompanyIcon({ size = 30 }: { size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 14 26"
+      height={size}
+      width={(size * 14) / 26}
+      aria-hidden="true"
+      style={{ display: 'block' }}
+    >
+      <path d="M11 2 V24" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M11 2 l-1.6 3.2 h3.2 Z" fill="currentColor" />
+      <circle cx="5" cy="8" r="3" fill="currentColor" />
+      <path d="M1.5 8 H8.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M5 11.5 Q1 13 1.5 24 H8.5 Q9 13 5 11.5 Z" fill="currentColor" />
+    </svg>
+  );
+}
+
 /**
  * The garrison, as figures rather than a number: `present` filled, and the
  * shortfall up to `needed` shown greyed so an under-garrisoned island reads

@@ -575,3 +575,43 @@ button {
 .fleet__facts dd { margin: 0; font-size: 12px; font-weight: 600; }
 .fleet__orders { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
 .fleet__orders .btn { width: 100%; }
+
+/* ---------- Slot boards ----------
+   The original gives personnel, regiments and construction their own framed
+   board and lets the contents fill it. A list that collapses to one line when
+   empty tells you nothing about what could be there; a board does. */
+.board {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+  padding: 8px; min-height: 132px; align-content: start;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border); border-radius: 10px;
+}
+.board--bare {
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: 18px 14px; min-height: 96px;
+  color: var(--muted); font-size: 12px; line-height: 1.45;
+  background: var(--bg-sunken);
+  border: 1px dashed var(--border); border-radius: 10px;
+}
+.slot {
+  min-height: 86px; padding: 8px 4px 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px;
+  background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px;
+  text-align: center; overflow: hidden;
+}
+.slot--tap { cursor: pointer; }
+.slot--tap:active { background: #143643; }
+/* An empty slot has to be visible or the board reads as "six things" rather
+   than "six of ten". Faint, but plainly a socket. */
+.slot--empty {
+  background: rgba(28, 59, 72, 0.22);
+  border-style: dashed; border-color: #24505f;
+}
+.slot--warn { border-color: var(--bad); }
+.slot--dim { opacity: 0.55; }
+.slot__icon { display: flex; align-items: center; justify-content: center; height: 34px; }
+.slot__name {
+  font-size: 10.5px; line-height: 1.2; color: var(--text);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.slot__note { font-size: 9.5px; color: var(--muted); line-height: 1.15; }

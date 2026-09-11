@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
+import { Children, type ReactNode } from 'react';
 import factionData from '../data/factions.json';
-import { allegianceColour, allegianceSegments, segmentsFor } from './allegiance';
+import { allegianceColour, allegianceSegments } from './allegiance';
 import type { Faction, System } from '../sim';
 
 export function Sheet(props: {
@@ -92,55 +92,71 @@ export function SupportBars({ system }: { system: System }) {
 }
 
 /**
- * The same bar for an average across many islands — a chain, or a whole Sea.
- * The holder is whoever owns the most of it, and may be nobody.
+ * A panel that is there whether or not anything is in it, and fills with
+ * icons as things arrive — after the original's personnel and regiment
+ * windows, which are a framed board with slots rather than a list that
+ * collapses to nothing.
+ *
+ * `ghosts` draws empty slots after the filled ones. Use it only where an empty
+ * slot means something real: a building slot the island has and you have not
+ * used, or a company the island needs and does not have. Where there is no cap
+ * — crew — leave it at zero and let the board simply be the size it is.
  */
-export function AverageAllegianceBar({
-  empire,
-  alliance,
-  holder,
-  note,
+export function SlotBoard({
+  children,
+  ghosts = 0,
+  empty,
 }: {
-  empire: number;
-  alliance: number;
-  holder: 'empire' | 'alliance' | null;
-  note?: ReactNode;
+  children?: ReactNode;
+  ghosts?: number;
+  /** Shown in the middle of the board when there is nothing in it at all. */
+  empty?: ReactNode;
 }) {
-  const segments = segmentsFor(empire, alliance, holder);
-  const undecided = Math.max(0, 100 - empire - alliance);
+  const filled = Children.count(children);
+  if (filled === 0 && ghosts === 0) {
+    return <div className="board board--bare">{empty}</div>;
+  }
   return (
-    <div className="card">
-      <div className="bar bar--tall">
-        {segments.map((segment) => (
-          <div
-            key={segment.faction}
-            style={{ width: `${segment.pct}%`, background: allegianceColour(segment.faction) }}
-          />
-        ))}
-      </div>
-      <div className="bar-key">
-        {segments
-          .filter((segment) => segment.faction !== 'neutral')
-          .map((segment) => (
-            <span key={segment.faction}>
-              <i style={{ background: allegianceColour(segment.faction) }} />
-              {factionData[segment.faction as 'empire' | 'alliance'].shortName}{' '}
-              {Math.round(segment.pct)}
-            </span>
-          ))}
-        {undecided > 0 && (
-          <span>
-            <i style={{ background: allegianceColour('neutral') }} />
-            Undecided {Math.round(undecided)}
-          </span>
-        )}
-      </div>
-      {note && (
-        <p className="tiny muted" style={{ margin: '6px 0 0' }}>
-          {note}
-        </p>
-      )}
+    <div className="board">
+      {children}
+      {Array.from({ length: ghosts }, (_, i) => (
+        <span key={`ghost-${i}`} className="slot slot--empty" aria-hidden="true" />
+      ))}
     </div>
+  );
+}
+
+/** One thing on the board: a picture, a name, and optionally a line under it. */
+export function Slot({
+  icon,
+  name,
+  note,
+  tone,
+  onClick,
+  label,
+}: {
+  icon: ReactNode;
+  name: string;
+  note?: string;
+  /** 'warn' for something that needs attention, 'dim' for something idle. */
+  tone?: 'warn' | 'dim';
+  onClick?: () => void;
+  label?: string;
+}) {
+  const className = `slot${tone ? ` slot--${tone}` : ''}${onClick ? ' slot--tap' : ''}`;
+  const body = (
+    <>
+      <span className="slot__icon">{icon}</span>
+      <span className="slot__name">{name}</span>
+      {note && <span className="slot__note">{note}</span>}
+    </>
+  );
+  return onClick ? (
+    <button className={className} onClick={onClick} aria-label={label ?? name}>
+      {body}
+    </button>
+  ) : (
+    <span className={className}>{body}</span>
   );
 }
 

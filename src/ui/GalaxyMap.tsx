@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
 import { isDiplomacyTarget, summariseReach } from '../sim';
-import { allegianceColour, segmentsFor } from './allegiance';
 import { CompassRose, islandPath } from './art';
 
 /**
@@ -266,8 +265,10 @@ export function GalaxyMap({
                 );
               })}
 
-              {/* The name carries the count, and the bar under it carries the
-                  lean — the two things the original prints under a sector. */}
+              {/* Name and how much of it is yours. An averaged allegiance bar
+                  used to sit under this and was cut: a mean across ten islands
+                  is a number that describes none of them, and the islands
+                  inside carry their own. */}
               <text
                 className="map__sector-label"
                 x={spot.x}
@@ -281,39 +282,6 @@ export function GalaxyMap({
                   {summary.mutinies > 0 && <tspan className="map__chain-alarm"> ⚑</tspan>}
                 </tspan>
               </text>
-              <g pointerEvents="none">
-                <rect x={spot.x - 46} y={labelY + 50} width={92} height={9} rx={4.5} fill="#0a2b36" />
-                {(() => {
-                  // Whoever holds most of the chain leads the bar, the other
-                  // side follows, and the undecided remainder is nobody's.
-                  const holder =
-                    summary.held > summary.enemyHeld
-                      ? viewer
-                      : summary.enemyHeld > summary.held
-                        ? enemy
-                        : null;
-                  let x = spot.x - 46;
-                  return segmentsFor(
-                    summary.allegiance.empire,
-                    summary.allegiance.alliance,
-                    holder,
-                  ).map((segment) => {
-                    const w = (92 * segment.pct) / 100;
-                    const rect = (
-                      <rect
-                        key={segment.faction}
-                        x={x}
-                        y={labelY + 50}
-                        width={w}
-                        height={9}
-                        fill={allegianceColour(segment.faction)}
-                      />
-                    );
-                    x += w;
-                    return rect;
-                  });
-                })()}
-              </g>
             </g>
           );
         })}

@@ -4,14 +4,14 @@ import type { PlayableFaction, System } from '../sim';
  * How an island's allegiance is drawn, everywhere it is drawn.
  *
  * One rule, in one place, so the chart, the chain chart and the panels cannot
- * disagree: the faction that **holds** the island fills from the left, the
- * other faction follows it, and whatever is left over is nobody's — drawn in
- * the neutral blue, because an island half of whose people have not made up
- * their minds should look like it.
+ * disagree: **largest share first, left to right.** The undecided remainder —
+ * people who have not picked a side — is a share like any other and sorts with
+ * them, in neutral blue.
  *
- * On an island nobody holds there is no holder to put first, so the larger
- * share leads. The bar still reads left to right in order of who has the most
- * of it.
+ * Who holds the island is deliberately not part of this. It used to lead the
+ * bar, and that made the same two numbers draw two different ways depending on
+ * a third fact, which is exactly what makes a bar hard to read at a glance.
+ * Ordering by size alone means the widest block is always on the left.
  */
 export interface AllegianceSegment {
   faction: PlayableFaction | 'neutral';
@@ -20,42 +20,41 @@ export interface AllegianceSegment {
 }
 
 export function allegianceSegments(system: System): AllegianceSegment[] {
-  const holder =
-    system.control === 'empire' || system.control === 'alliance' ? system.control : null;
-  return segmentsFor(system.support.empire, system.support.alliance, holder);
+  return segmentsFor(system.support.empire, system.support.alliance);
 }
 
 /**
- * The same rule for anything that has two shares and a holder — a whole chain
- * averaged over its islands, say, where the holder is whoever owns the most of
- * them and nobody may own any.
+ * The same rule for any pair of shares — a single island, or an average.
+ *
+ * The two sides' support are independent numbers, each 0–100, and nothing in
+ * the simulation stops both being high at once: an island can be 70 Crown and
+ * 60 rebel, with plenty of sympathy for each. So when they sum past 100 the
+ * bar shows the *balance* between them, scaled to fit, and there is no
+ * undecided share to draw. Under 100, the remainder really is undecided.
  */
 export function segmentsFor(
   empireSupport: number,
   allianceSupport: number,
-  holder: PlayableFaction | null,
 ): AllegianceSegment[] {
-  const empire = Math.max(0, Math.min(100, empireSupport));
-  const alliance = Math.max(0, Math.min(100, allianceSupport));
-
-  const order: PlayableFaction[] =
-    holder === 'empire'
-      ? ['empire', 'alliance']
-      : holder === 'alliance'
-        ? ['alliance', 'empire']
-        : empire >= alliance
-          ? ['empire', 'alliance']
-          : ['alliance', 'empire'];
-
-  const value = { empire, alliance };
-  const segments: AllegianceSegment[] = order
-    .map((faction) => ({ faction, pct: value[faction] }))
-    .filter((segment) => segment.pct > 0);
-
-  // Whoever is left has not chosen a side.
+  const clamp = (n: number) => Math.max(0, Math.min(100, n));
+  let empire = clamp(empireSupport);
+  let alliance = clamp(allianceSupport);
+  const total = empire + alliance;
+  if (total > 100) {
+    empire = (empire / total) * 100;
+    alliance = (alliance / total) * 100;
+  }
   const undecided = Math.max(0, 100 - empire - alliance);
-  if (undecided > 0) segments.push({ faction: 'neutral', pct: undecided });
-  return segments;
+
+  // A stable order behind the sort, so equal shares never swap between renders.
+  const order: Array<AllegianceSegment['faction']> = ['empire', 'alliance', 'neutral'];
+  return [
+    { faction: 'empire' as const, pct: empire },
+    { faction: 'alliance' as const, pct: alliance },
+    { faction: 'neutral' as const, pct: undecided },
+  ]
+    .filter((segment) => segment.pct > 0)
+    .sort((a, b) => b.pct - a.pct || order.indexOf(a.faction) - order.indexOf(b.faction));
 }
 
 export function allegianceColour(faction: PlayableFaction | 'neutral'): string {

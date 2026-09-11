@@ -20,8 +20,8 @@ import {
   type GameState,
   type System,
 } from '../sim';
-import { CharacterPortrait, CompanyRow, FacilityIcon, IslandPortrait, ShipIcon } from './art';
-import { ControlBadge, Sheet, Stat, SupportBars } from './components';
+import { CharacterPortrait, CompanyIcon, FacilityIcon, IslandPortrait, ShipIcon } from './art';
+import { ControlBadge, Sheet, Slot, SlotBoard, Stat, SupportBars } from './components';
 import { Harbour } from './FleetPanel';
 
 import type { IslandTab } from './IslandRow';
@@ -217,6 +217,7 @@ export function SystemSheet({
       c.mission.phase === 'travelling',
   );
   const log = state.events.filter((e) => e.systemId === system.id).slice(-40).reverse();
+  const slots = system.rawSlots + system.energySlots;
   const producers = system.facilities.filter(
     (f) => f.owner === state.player && buildMenu(f).length > 0,
   );
@@ -318,22 +319,36 @@ export function SystemSheet({
 
       {tab === 'buildings' && (
         <>
-          {system.facilities.length === 0 ? (
-            <div className="card muted small">Nothing has been built on this island.</div>
-          ) : (
-            <div className="stack">
-              {system.facilities.map((facility) => (
-                <FacilityCard
-                  key={facility.id}
-                  state={state}
-                  system={system}
-                  facility={facility}
-                  onBuild={onBuild}
-                  onCancel={onCancel}
-                />
-              ))}
-            </div>
-          )}
+          {/* One slot per slot the island has, so what is built and what is
+              still free read as the same picture rather than two numbers. */}
+          <SlotBoard
+            ghosts={Math.max(0, slots - system.facilities.length)}
+            empty={`Nothing stands on ${system.name}, and there is nowhere to put anything.`}
+          >
+            {system.facilities.map((facility) => (
+              <Slot
+                key={facility.id}
+                icon={<FacilityIcon type={facility.type} size={30} />}
+                name={FACILITY_LABEL[facility.type]}
+                note={facility.building ? `${facility.building.daysRemaining}d` : undefined}
+                tone={facility.owner !== state.player ? 'dim' : undefined}
+              />
+            ))}
+          </SlotBoard>
+
+          {producers.length > 0 && <div className="section-title">Order something built</div>}
+          <div className="stack">
+            {producers.map((facility) => (
+              <FacilityCard
+                key={facility.id}
+                state={state}
+                system={system}
+                facility={facility}
+                onBuild={onBuild}
+                onCancel={onCancel}
+              />
+            ))}
+          </div>
           {system.control === state.player && producers.length === 0 && (
             <p className="muted tiny" style={{ marginTop: 8 }}>
               A {terms.facilities.construction_yard.toLowerCase()} here would let you build on this
@@ -345,97 +360,88 @@ export function SystemSheet({
 
       {tab === 'garrison' && (
         <>
-          <div className="card">
-            <div className="row row--between" style={{ marginBottom: 8 }}>
-              <span className="tiny muted">
-                {system.garrison} ashore
-                {needed > 0 ? ` · ${needed} needed` : ''}
-              </span>
-              {system.uprising ? (
-                <span className="badge badge--warn">{terms.mutiny}</span>
-              ) : (
-                <span className="badge badge--good">Held</span>
-              )}
-            </div>
-            <CompanyRow present={system.garrison} needed={needed} />
+          <div className="row row--between" style={{ marginBottom: 8 }}>
+            <span className="tiny muted">
+              {system.garrison} ashore
+              {needed > 0 ? ` · ${needed} needed` : ''}
+            </span>
+            {system.uprising ? (
+              <span className="badge badge--warn">{terms.mutiny}</span>
+            ) : (
+              <span className="badge badge--good">Held</span>
+            )}
           </div>
+          {/* Empty slots here are the shortfall: companies the island wants
+              and has not got. That is worth drawing. */}
+          <SlotBoard
+            ghosts={Math.max(0, needed - system.garrison)}
+            empty={`No companies are ashore on ${system.name}.`}
+          >
+            {Array.from({ length: system.garrison }, (_, i) => (
+              <Slot
+                key={i}
+                icon={<CompanyIcon size={30} />}
+                name={terms.troop}
+              />
+            ))}
+          </SlotBoard>
           <p className="tiny muted" style={{ marginTop: 8 }}>
             {needed > 0
               ? `Allegiance here is low enough that ${needed} ${needed === 1 ? 'company holds' : 'companies hold'} the island quiet. Fewer and it rises.`
               : 'Allegiance is high enough that no companies are needed to keep order.'}
           </p>
-
         </>
       )}
 
       {tab === 'crew' && (
         <>
           <div className="section-title">Ashore here</div>
-          {crew.length === 0 ? (
-            <div className="card muted small">Nobody of yours is on this island.</div>
-          ) : (
-            <div className="stack">
-              {crew.map((character) => (
-                <button
-                  key={character.id}
-                  className="card card--tap row"
-                  style={{ gap: 10, width: '100%', textAlign: 'left' }}
-                  onClick={() => onOpenCharacter?.(character.id)}
-                >
+          <SlotBoard empty={`Nobody of yours is on ${system.name}.`}>
+            {crew.map((character) => (
+              <Slot
+                key={character.id}
+                icon={
                   <CharacterPortrait
                     name={character.name}
                     faction={character.faction}
                     people={character.people}
-                    size={38}
+                    size={32}
                     dim={character.status !== 'available'}
                   />
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span className="small" style={{ fontWeight: 600 }}>
-                      {character.name}
-                    </span>
-                    <span className="tiny muted" style={{ display: 'block' }}>
-                      {character.mission
-                        ? `${terms.parley} — ${character.mission.daysRemaining}d to report`
-                        : character.status.replace('_', ' ')}
-                    </span>
-                  </span>
-                  <span className="muted" aria-hidden="true">›</span>
-                </button>
-              ))}
-            </div>
-          )}
+                }
+                name={character.name}
+                note={
+                  character.mission
+                    ? `${terms.parley} ${character.mission.daysRemaining}d`
+                    : character.status === 'available'
+                      ? undefined
+                      : character.status.replace('_', ' ')
+                }
+                tone={character.status === 'injured' ? 'warn' : undefined}
+                onClick={() => onOpenCharacter?.(character.id)}
+              />
+            ))}
+          </SlotBoard>
 
           <div className="section-title">Under way to here</div>
-          {inbound.length === 0 ? (
-            <div className="card muted small">Nobody of yours is sailing for this island.</div>
-          ) : (
-            <div className="stack">
-              {inbound.map((character) => (
-                <button
-                  key={character.id}
-                  className="card card--tap row"
-                  style={{ gap: 10, width: '100%', textAlign: 'left' }}
-                  onClick={() => onOpenCharacter?.(character.id)}
-                >
+          <SlotBoard empty={`Nobody of yours is sailing for ${system.name}.`}>
+            {inbound.map((character) => (
+              <Slot
+                key={character.id}
+                icon={
                   <CharacterPortrait
                     name={character.name}
                     faction={character.faction}
                     people={character.people}
-                    size={38}
+                    size={32}
                   />
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span className="small" style={{ fontWeight: 600 }}>
-                      {character.name}
-                    </span>
-                    <span className="tiny muted" style={{ display: 'block' }}>
-                      At sea — {character.mission!.daysRemaining}d out
-                    </span>
-                  </span>
-                  <span className="muted" aria-hidden="true">›</span>
-                </button>
-              ))}
-            </div>
-          )}
+                }
+                name={character.name}
+                note={`${character.mission?.daysRemaining ?? 0}d out`}
+                onClick={() => onOpenCharacter?.(character.id)}
+              />
+            ))}
+          </SlotBoard>
         </>
       )}
 
