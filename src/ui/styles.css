@@ -187,6 +187,10 @@ button {
    is the opposite of what this ring means. Stroke is set here and not on the
    element: the rule above would override an attribute. */
 .map__pick--incite { stroke: var(--brass); stroke-dasharray: 12 9; }
+/* Somebody to sign on. Solid brass: it is not covert work — you are walking up
+   to a person on a quay — but it is not the green "an island to work on" ring
+   either, because what you are going for is the person, not the island. */
+.map__pick--recruit { stroke: var(--brass); }
 
 .map__hud {
   position: absolute; left: 10px; right: 10px; bottom: 10px;

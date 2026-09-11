@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
+import { RECRUITS_IN_PLAY } from '../constants';
 import {
   advanceMissions,
   continueMission,
@@ -8,7 +9,10 @@ import {
   isDiplomacyTarget,
   isInciteTarget,
   isMissionTarget,
+  isRecruitTarget,
   inciteLoss,
+  quality,
+  recruitChance,
   missionError,
   missionTypeFor,
   startMission,
@@ -53,7 +57,7 @@ describe('mission eligibility', () => {
     empty.explored.empire = true;
     expect(isDiplomacyTarget(empty, 'empire')).toBe(false);
     expect(isInciteTarget(empty, 'empire')).toBe(false);
-    expect(isMissionTarget(empty, 'empire')).toBe(false);
+    expect(isMissionTarget(state, empty, 'empire')).toBe(false);
 
     sameSector.uprising = true;
     expect(missionError(state, diplomat.id, sameSector.id)).toBe('Nothing to be done there.');
@@ -65,9 +69,9 @@ describe('mission eligibility', () => {
     const enemy = state.systems.find((s) => s.control === 'alliance')!;
     enemy.explored.empire = true;
 
-    expect(missionTypeFor(sameSector, 'empire')).toBe('diplomacy');
-    expect(missionTypeFor(own, 'empire')).toBe('diplomacy');
-    expect(missionTypeFor(enemy, 'empire')).toBe('incite');
+    expect(missionTypeFor(state, sameSector, 'empire')).toBe('diplomacy');
+    expect(missionTypeFor(state, own, 'empire')).toBe('diplomacy');
+    expect(missionTypeFor(state, enemy, 'empire')).toBe('incite');
     // You cannot parley with an island they hold, nor stir up one of your own.
     expect(isDiplomacyTarget(enemy, 'empire')).toBe(false);
     expect(isInciteTarget(own, 'empire')).toBe(false);
@@ -77,7 +81,7 @@ describe('mission eligibility', () => {
     const { state, diplomat } = setup();
     const enemy = state.systems.find((s) => s.control === 'alliance')!;
     enemy.explored.empire = false;
-    expect(isMissionTarget(enemy, 'empire')).toBe(false);
+    expect(isMissionTarget(state, enemy, 'empire')).toBe(false);
     expect(missionError(state, diplomat.id, enemy.id)).toBe('Nothing to be done there.');
   });
 
@@ -314,5 +318,132 @@ describe('incitement', () => {
     expect(after.mission).toBeUndefined();
     expect(after.status).toBe('available');
     expect(after.locationSystemId).toBe(island.id);
+  });
+});
+
+describe('recruitment', () => {
+  /** A charted island with exactly one unaligned person standing on it. */
+  function withRecruit(seed = 321) {
+    const state = generateGalaxy(seed);
+    const officer = state.characters.find((c) => c.faction === 'empire')!;
+    officer.diplomacy = 100;
+    const recruit = state.characters.find((c) => c.faction === 'neutral')!;
+    const island = getSystem(state, recruit.locationSystemId);
+    island.explored.empire = true;
+    island.uprising = false;
+    return { state, officer, recruit, island };
+  }
+
+  it('puts unaligned people on the map, away from either seat', () => {
+    const state = generateGalaxy(5);
+    const loose = state.characters.filter((c) => c.faction === 'neutral');
+    expect(loose).toHaveLength(RECRUITS_IN_PLAY);
+    const seats = [state.factions.empire.hqSystemId, state.factions.alliance.hqSystemId];
+    for (const person of loose) {
+      const where = getSystem(state, person.locationSystemId);
+      expect(where.populated).toBe(true);
+      expect(seats).not.toContain(where.id);
+      expect(person.status).toBe('available');
+    }
+    // One apiece: two people on one island would hide one of them.
+    expect(new Set(loose.map((c) => c.locationSystemId)).size).toBe(loose.length);
+  });
+
+  it('belongs to neither side until signed, and never shows up as crew', () => {
+    const state = generateGalaxy(6);
+    for (const faction of ['empire', 'alliance'] as const) {
+      const roster = state.characters.filter((c) => c.faction === faction);
+      expect(roster).toHaveLength(7);
+    }
+  });
+
+  it('is what an island offers when somebody is standing on it', () => {
+    const { state, island } = withRecruit();
+    expect(missionTypeFor(state, island, 'empire')).toBe('recruit');
+    // Signing someone on comes before whatever else the island was good for.
+    island.control = 'neutral';
+    expect(isDiplomacyTarget(island, 'empire')).toBe(true);
+    expect(missionTypeFor(state, island, 'empire')).toBe('recruit');
+  });
+
+  it('stays hidden on an island you have not charted', () => {
+    const { state, island, officer } = withRecruit();
+    island.explored.empire = false;
+    expect(isRecruitTarget(state, island, 'empire')).toBe(false);
+    expect(missionError(state, officer.id, island.id)).toBe('Nothing to be done there.');
+  });
+
+  it('is harder to sign on the better they are', () => {
+    const { officer, recruit } = withRecruit();
+    const plain = { ...recruit, diplomacy: 40, espionage: 40, combat: 40, leadership: 40 };
+    const star = { ...recruit, diplomacy: 40, espionage: 40, combat: 40, leadership: 95 };
+    expect(quality(star)).toBe(95);
+    expect(recruitChance(officer, star)).toBeLessThan(recruitChance(officer, plain));
+    // And a better negotiator does better on the same person.
+    expect(recruitChance({ ...officer, diplomacy: 100 }, star)).toBeGreaterThan(
+      recruitChance({ ...officer, diplomacy: 20 }, star),
+    );
+  });
+
+  it('adds them to your roster for good, and ends the mission', () => {
+    let signed = false;
+    for (let seed = 1; seed <= 40 && !signed; seed++) {
+      const { state, officer, recruit, island } = withRecruit();
+      const before = state.characters.filter((c) => c.faction === 'empire').length;
+      startMission(state, officer.id, island.id);
+      expect(getCharacter(state, officer.id).mission!.type).toBe('recruit');
+      runDays(state, 30, seed);
+
+      const after = getCharacter(state, recruit.id);
+      if (after.faction !== 'empire') continue;
+      signed = true;
+      expect(state.characters.filter((c) => c.faction === 'empire')).toHaveLength(before + 1);
+      expect(after.status).toBe('available');
+      expect(after.locationSystemId).toBe(island.id);
+      // Nothing left to do there, so the island stops offering it.
+      expect(isRecruitTarget(state, island, 'empire')).toBe(false);
+    }
+    expect(signed).toBe(true);
+  });
+
+  it('does not cancel a parley because a stranger wandered ashore', () => {
+    // Signing someone on outranks a parley when choosing where to send an
+    // officer. It must not outrank one already fifteen days under way: what
+    // matters once they are committed is whether their own errand still exists.
+    const { state } = withRecruit();
+    const officer = state.characters.filter((c) => c.faction === 'empire')[1];
+    const quiet = state.systems.find(
+      (s) => s.control === 'neutral' && s.populated && s.explored.empire,
+    )!;
+    startMission(state, officer.id, quiet.id);
+    expect(getCharacter(state, officer.id).mission!.type).toBe('diplomacy');
+
+    // Somebody turns up on the island while the boat is out.
+    const wanderer = state.characters.find((c) => c.faction === 'neutral')!;
+    wanderer.locationSystemId = quiet.id;
+    wanderer.appearsOnDay = 1;
+    expect(missionTypeFor(state, quiet, 'empire')).toBe('recruit');
+
+    runDays(state, travelDays(state, officer.locationSystemId, quiet.id) + 1, 4);
+    const after = getCharacter(state, officer.id);
+    expect(after.mission?.type).toBe('diplomacy');
+    expect(after.mission?.phase).toBe('working');
+  });
+
+  it('stands the officer down if the other side signs them first', () => {
+    const { state, officer, recruit, island } = withRecruit();
+    startMission(state, officer.id, island.id);
+    expect(getCharacter(state, officer.id).mission!.phase).toBe('travelling');
+
+    // The Alliance gets to them while the boat is still out.
+    getCharacter(state, recruit.id).faction = 'alliance';
+
+    const rng = createRng(3);
+    for (let day = 0; day < travelDays(state, officer.locationSystemId, island.id) + 2; day++) {
+      advanceMissions(state, rng);
+    }
+    const after = getCharacter(state, officer.id);
+    expect(after.mission).toBeUndefined();
+    expect(after.status).toBe('available');
   });
 });

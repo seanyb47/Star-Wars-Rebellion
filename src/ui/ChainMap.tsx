@@ -3,6 +3,7 @@ import {
   earns,
   isMissionTarget,
   missionTypeFor,
+  recruitOn,
   type GameState,
   type IslandSummary,
   type PlayableFaction,
@@ -84,6 +85,8 @@ const MARKS = {
   mission: 'M2 6 h16 v10 h-16 Z M2 6 l8 6 l8 -6',
   /** Sail: hulls lying off the island, whoever they belong to. */
   ships: 'M2 14 h16 l-2 5 h-12 Z M10 13 V3 M10 4 l5 8 h-5',
+  /** A figure on the quay: somebody ashore here the war has not claimed. */
+  person: 'M10 4 a2.6 2.6 0 1 1 0 5.2 a2.6 2.6 0 1 1 0 -5.2 M5.5 18 v-4.4 a4.5 4.5 0 0 1 9 0 V18',
 } as const;
 
 /** Who is flying a flag over it. The name takes this colour. */
@@ -159,9 +162,9 @@ export function ChainMap({
 
         // The chains dim when they hold nothing to sail to; the islands inside
         // them must do the same, or you find out by tapping and being told no.
-        const live = sailing || !pickingFor || isMissionTarget(system, pickingFor);
+        const live = sailing || !pickingFor || isMissionTarget(state, system, pickingFor);
         // Which work this island means, so the ring can say so before you tap.
-        const work = pickingFor && !sailing ? missionTypeFor(system, pickingFor) : null;
+        const work = pickingFor && !sailing ? missionTypeFor(state, system, pickingFor) : null;
 
         // Hulls lying off it, by side. An enemy squadron in one of your
         // harbours is the single most urgent thing the chart can tell you, so
@@ -176,6 +179,7 @@ export function ChainMap({
           }))
           .filter((entry) => entry.hulls > 0);
 
+        const loose = recruitOn(state, system, viewer);
         const civil = system.facilities.filter((f) => earns(f.type)).length;
         const military = built - civil;
         const badges = explored
@@ -194,6 +198,10 @@ export function ChainMap({
                 fill: false,
                 colour: `var(--${viewer})`,
               },
+              // Somebody worth sailing for. Brass, like the ring you get when
+              // you go to sign them on, and not in either side's colour —
+              // they are nobody's yet, which is the whole point of them.
+              loose && { d: MARKS.person, n: 0, fill: false, colour: 'var(--brass)' },
             ].filter(Boolean) as Array<{
               d: string;
               n: number;
@@ -218,20 +226,33 @@ export function ChainMap({
             opacity={live ? 1 : 0.3}
             style={{ cursor: live ? 'pointer' : 'default' }}
             aria-label={
-              work === 'incite'
-                ? `${system.name}, stir up trouble`
-                : work === 'diplomacy'
-                  ? `${system.name}, parley`
-                  : explored
-                    ? `${system.name}, ${built} of ${slots} slots built`
-                    : 'Uncharted island'
+              work === 'recruit'
+                ? `${system.name}, sign on ${loose?.name ?? 'someone'}`
+                : work === 'incite'
+                  ? `${system.name}, stir up trouble`
+                  : work === 'diplomacy'
+                    ? `${system.name}, parley`
+                    : explored
+                      ? // Somebody ashore is worth saying even when you are not
+                        // choosing a destination — it is the mark most worth
+                        // noticing and the one least like the others.
+                        `${system.name}, ${built} of ${slots} slots built${
+                          loose ? `, ${loose.name} ashore` : ''
+                        }`
+                      : 'Uncharted island'
             }
           >
             {/* A finger-sized target over the whole island, marks included. */}
             {live && <circle cx={spot.x} cy={spot.y} r={62} fill="transparent" />}
             {(sailing || pickingFor) && live && (
               <circle
-                className={`map__pick${work === 'incite' ? ' map__pick--incite' : ''}`}
+                className={`map__pick${
+                  work === 'incite'
+                    ? ' map__pick--incite'
+                    : work === 'recruit'
+                      ? ' map__pick--recruit'
+                      : ''
+                }`}
                 cx={spot.x}
                 cy={spot.y}
                 r={52}
@@ -280,9 +301,13 @@ export function ChainMap({
                   strokeLinejoin="round"
                   opacity={0.95}
                 />
-                <text className="chainmap__badge-n" x={25} y={16} fill={badge.colour}>
-                  {badge.n}
-                </text>
+                {/* A count, except where counting is meaningless: one person
+                    on a quay is "somebody", not "1 somebody". */}
+                {badge.n > 0 && (
+                  <text className="chainmap__badge-n" x={25} y={16} fill={badge.colour}>
+                    {badge.n}
+                  </text>
+                )}
               </g>
             ))}
 

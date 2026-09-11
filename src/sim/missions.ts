@@ -6,6 +6,7 @@ import {
   INCITE_SPILLOVER,
   INCITE_SUCCESS_SCALE,
   INCITE_SUPPORT_LOSS,
+  RECRUIT_QUALITY_DIVISOR,
   MISSION_SUPPORT_LOSS,
   MISSION_WORK_DAYS,
   TRAVEL_DAYS_CROSS_SECTOR,
@@ -51,20 +52,85 @@ export function isInciteTarget(system: System, faction: PlayableFaction): boolea
 }
 
 /**
+ * Somebody on this island the war has not claimed yet, and that you know is
+ * there. Whose island it is does not matter — an unaligned harpooner on their
+ * ground can still be talked onto your books, it is only far riskier.
+ */
+export function recruitOn(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+): Character | undefined {
+  if (!system.explored[faction]) return undefined;
+  return state.characters.find(
+    (c) =>
+      c.faction === 'neutral' &&
+      c.locationSystemId === system.id &&
+      hasArrived(state, c) &&
+      !c.mission,
+  );
+}
+
+/** Whether one of the unaligned is ashore yet. They are in the world from the
+ *  start, seeded by the same draw as everything else, but not yet anybody's. */
+export function hasArrived(state: GameState, person: Character): boolean {
+  return state.day >= (person.appearsOnDay ?? 1);
+}
+
+export function isRecruitTarget(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+): boolean {
+  return recruitOn(state, system, faction) !== undefined;
+}
+
+/**
  * What landing here would mean. The island decides, not a menu: you cannot
  * parley with an enemy island and there is nothing to incite on your own.
+ *
+ * Signing someone on comes first wherever there is someone to sign. They are
+ * the scarce thing — an island can be worked again next month, and a person
+ * standing on a quay can be gone — and it keeps the rule to one sentence a
+ * player can hold in their head.
  */
 export function missionTypeFor(
+  state: GameState,
   system: System,
   faction: PlayableFaction,
 ): MissionType | null {
+  if (isRecruitTarget(state, system, faction)) return 'recruit';
   if (isDiplomacyTarget(system, faction)) return 'diplomacy';
   if (isInciteTarget(system, faction)) return 'incite';
   return null;
 }
 
-export function isMissionTarget(system: System, faction: PlayableFaction): boolean {
-  return missionTypeFor(system, faction) !== null;
+export function isMissionTarget(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+): boolean {
+  return missionTypeFor(state, system, faction) !== null;
+}
+
+/**
+ * Whether an errand already under way still has anything to it.
+ *
+ * Deliberately *not* `missionTypeFor(...) === type`. That asks what a fresh
+ * mission to this island would be, and the answer changes under your feet:
+ * somebody wandering ashore makes signing on the island's best offer, which
+ * would have cancelled a parley already fifteen days in. What matters once an
+ * officer is committed is whether their own errand is still there.
+ */
+export function stillWorthDoing(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+  type: MissionType,
+): boolean {
+  if (type === 'recruit') return isRecruitTarget(state, system, faction);
+  if (type === 'incite') return isInciteTarget(system, faction);
+  return isDiplomacyTarget(system, faction);
 }
 
 /**
@@ -107,7 +173,7 @@ export function missionError(
   if (character.status !== 'available') return 'They are not free to sail.';
   const system = state.systems.find((s) => s.id === targetSystemId);
   if (!system) return 'No such island.';
-  if (!isMissionTarget(system, character.faction)) return 'Nothing to be done there.';
+  if (!isMissionTarget(state, system, character.faction)) return 'Nothing to be done there.';
   return null;
 }
 
@@ -126,7 +192,7 @@ export function startMission(state: GameState, characterId: string, targetSystem
   const character = getCharacter(state, characterId);
   const target = getSystem(state, targetSystemId);
   const days = travelDays(state, character.locationSystemId, targetSystemId);
-  const type = missionTypeFor(target, character.faction as PlayableFaction)!;
+  const type = missionTypeFor(state, target, character.faction as PlayableFaction)!;
 
   character.status = 'on_mission';
   character.mission = {
@@ -135,12 +201,15 @@ export function startMission(state: GameState, characterId: string, targetSystem
     phase: days > 0 ? 'travelling' : 'working',
     daysRemaining: days > 0 ? days : MISSION_WORK_DAYS,
   };
+  const errand =
+    type === 'incite'
+      ? 'to stir up trouble'
+      : type === 'recruit'
+        ? `to put it to ${recruitOn(state, target, character.faction as PlayableFaction)!.name}`
+        : 'to parley';
   pushEvent(state, {
     kind: 'mission',
-    text:
-      type === 'incite'
-        ? `${character.name} sails for ${target.name} to stir up trouble.`
-        : `${character.name} sails for ${target.name} to parley.`,
+    text: `${character.name} sails for ${target.name} ${errand}.`,
     systemId: targetSystemId,
     characterId,
   });
@@ -152,6 +221,21 @@ export function successChance(character: Character, type: MissionType = 'diploma
   // Talking people round who have nobody to answer to is one thing. Turning
   // them against a governor with a garrison behind him is another.
   return type === 'incite' ? base * INCITE_SUCCESS_SCALE : base;
+}
+
+/** How good someone is, for the purposes of how hard they are to sign on. */
+export function quality(recruit: Character): number {
+  return Math.max(recruit.diplomacy, recruit.espionage, recruit.combat, recruit.leadership);
+}
+
+/**
+ * Chance of signing a particular person on. Your officer's argument, weighed
+ * against how little the other party needs to hear it: somebody worth having
+ * knows they are worth having, and has been asked before.
+ */
+export function recruitChance(officer: Character, recruit: Character): number {
+  const base = 0.4 + officer.diplomacy / 200;
+  return base * (1 - quality(recruit) / RECRUIT_QUALITY_DIVISOR);
 }
 
 /** How far an incitement pushes the holder's grip down, on a landed attempt. */
@@ -193,7 +277,7 @@ export function advanceMissions(state: GameState, rng: Rng): void {
       // A passage can take ten days, and an island can change hands inside
       // them. Check on landfall rather than letting them spend a whole cycle
       // ashore working at something that is no longer there.
-      if (missionTypeFor(landed, character.faction as PlayableFaction) !== mission.type) {
+      if (!stillWorthDoing(state, landed, character.faction as PlayableFaction, mission.type)) {
         character.status = 'available';
         character.mission = undefined;
         pushEvent(state, {
@@ -230,7 +314,7 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
 
   // The island may have changed hands, risen, or been put down while they were
   // at sea. If it is no longer the thing they sailed for, the work is off.
-  if (missionTypeFor(system, faction) !== mission.type) {
+  if (!stillWorthDoing(state, system, faction, mission.type)) {
     character.status = 'available';
     character.mission = undefined;
     pushEvent(state, {
@@ -238,18 +322,30 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
       text:
         mission.type === 'incite'
           ? `${character.name} finds nothing left to stir on ${system.name} and goes quiet.`
-          : `${character.name} abandons the talks on ${system.name}; the island is beyond reach.`,
+          : mission.type === 'recruit'
+            ? `${character.name} lands on ${system.name} to find the berth already taken.`
+            : `${character.name} abandons the talks on ${system.name}; the island is beyond reach.`,
       systemId: system.id,
       characterId: character.id,
     });
     return;
   }
 
-  const success = rng.chance(successChance(character, mission.type));
-  if (mission.type === 'incite') {
-    inciteOutcome(state, character, system, success);
+  let success: boolean;
+  if (mission.type === 'recruit') {
+    // Who is standing there is read again now, not remembered from the order:
+    // the enemy may have signed them on while this officer was at sea, and the
+    // type check above has already let that case fall through to stand-down.
+    const recruit = recruitOn(state, system, faction)!;
+    success = rng.chance(recruitChance(character, recruit));
+    recruitOutcome(state, character, recruit, system, success);
   } else {
-    parleyOutcome(state, character, system, success);
+    success = rng.chance(successChance(character, mission.type));
+    if (mission.type === 'incite') {
+      inciteOutcome(state, character, system, success);
+    } else {
+      parleyOutcome(state, character, system, success);
+    }
   }
 
   // Being found out, which is the price of working on ground that is not yours.
@@ -272,7 +368,7 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
   // it works an island until it has what it came for, then frees the character up.
   if (faction === state.player) {
     state.pendingDecisions.push({ characterId: character.id, systemId: system.id, success });
-  } else if (done(system, faction, mission.type)) {
+  } else if (done(state, system, faction, mission.type)) {
     endMission(state, character.id);
   } else {
     continueMission(state, character.id);
@@ -280,8 +376,47 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
 }
 
 /** Whether the island has given the mission what it came for. */
-function done(system: System, faction: PlayableFaction, type: MissionType): boolean {
-  return type === 'incite' ? system.uprising : system.control === faction;
+function done(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+  type: MissionType,
+): boolean {
+  if (type === 'recruit') return !isRecruitTarget(state, system, faction);
+  if (type === 'incite') return system.uprising;
+  return system.control === faction;
+}
+
+/**
+ * Signing someone on. Unlike the other two this either happens or it does not:
+ * there is no support bar to nudge, and once they have put their name to it
+ * they are yours for the rest of the war.
+ */
+function recruitOutcome(
+  state: GameState,
+  officer: Character,
+  recruit: Character,
+  system: System,
+  success: boolean,
+): void {
+  const faction = officer.faction as PlayableFaction;
+  if (!success) {
+    pushEvent(state, {
+      kind: 'mission',
+      text: `${recruit.name} hears ${officer.name} out on ${system.name}, and says no.`,
+      systemId: system.id,
+      characterId: officer.id,
+    });
+    return;
+  }
+  recruit.faction = faction;
+  recruit.status = 'available';
+  pushEvent(state, {
+    kind: 'order',
+    text: `${recruit.name} has signed on at ${system.name}. ${recruit.blurb ?? ''}`.trim(),
+    systemId: system.id,
+    characterId: recruit.id,
+  });
 }
 
 /** Talking an island round: your own standing up, theirs down. */
@@ -358,7 +493,7 @@ export function continueMission(state: GameState, characterId: string): void {
   if (!mission) return;
   const faction = character.faction as PlayableFaction;
   const system = getSystem(state, mission.targetSystemId);
-  if (missionTypeFor(system, faction) !== mission.type) {
+  if (!stillWorthDoing(state, system, faction, mission.type)) {
     endMission(state, characterId);
     return;
   }

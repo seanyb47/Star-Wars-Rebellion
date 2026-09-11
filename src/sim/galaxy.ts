@@ -2,6 +2,7 @@ import factionData from '../data/factions.json';
 import characterRoster from '../data/characters.json';
 import reachData from '../data/reaches.json';
 import { createRng, type Rng } from './rng';
+import { RECRUITS_AT_START, RECRUIT_LAST_DAY, RECRUITS_IN_PLAY } from './constants';
 
 import type {
   Character,
@@ -245,6 +246,45 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   };
   makeCharacters('empire', capital.id);
   makeCharacters('alliance', allianceHq.id);
+
+  // --- The unaligned: people the war has not claimed yet. ---
+  // Scattered over settled islands that are not anybody's seat, so signing
+  // someone on is a reason to sail somewhere you had no other reason to go.
+  // Which of the pool turn up, and where, changes with the seed.
+  const openIslands = rng.shuffle(
+    systems.filter(
+      (s) => s.populated && s.id !== capital.id && s.id !== allianceHq.id,
+    ),
+  );
+  const inPlay = Math.min(RECRUITS_IN_PLAY, openIslands.length);
+  for (const [index, entry] of rng
+    .shuffle(characterRoster.recruits)
+    .slice(0, inPlay)
+    .entries()) {
+    const roll = (band: number[]) => rng.range(band[0], band[1]);
+    // A couple are ashore on day one so the errand is discoverable; the rest
+    // are spread over the war, evenly with a little jitter so they do not
+    // arrive on a drumbeat.
+    const later = index - RECRUITS_AT_START;
+    const spread = Math.max(1, inPlay - RECRUITS_AT_START);
+    characters.push({
+      id: makeId('chr'),
+      name: entry.name,
+      people: entry.people,
+      blurb: entry.blurb,
+      faction: 'neutral',
+      diplomacy: roll(entry.ratings.diplomacy),
+      espionage: roll(entry.ratings.espionage),
+      combat: roll(entry.ratings.combat),
+      leadership: roll(entry.ratings.leadership),
+      locationSystemId: openIslands[index].id,
+      status: 'available',
+      appearsOnDay:
+        index < RECRUITS_AT_START
+          ? 1
+          : Math.round((later + 1) * (RECRUIT_LAST_DAY / spread)) + rng.range(-12, 12),
+    });
+  }
 
   const state: GameState = {
     day: 1,

@@ -211,6 +211,7 @@ export function App() {
       setPickingFor(null);
       flash(
         missionTypeFor(
+          state,
           state.systems.find((s) => s.id === systemId)!,
           state.characters.find((c) => c.id === pickingFor)!.faction as PlayableFaction,
         ) === 'incite'

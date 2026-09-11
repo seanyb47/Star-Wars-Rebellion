@@ -145,8 +145,17 @@ interface GameState {
 
 ### 4.5 Missions
 The island decides which mission an officer sent ashore performs — there is no
-menu. Both kinds share travel, the 15-day work cycle, the continue-or-return
+menu. All kinds share travel, the 15-day work cycle, the continue-or-return
 prompt, and the foil check.
+
+**Precedence** when an island offers more than one: Recruitment, then Diplomacy,
+then Incite. A person is scarce and permanent where an island can be worked
+again next month.
+
+**Precedence decides new missions only.** Whether an errand already under way is
+still live is judged against *its own* type (`stillWorthDoing`), never against
+what the island would now offer — otherwise somebody wandering ashore would
+cancel a parley already fifteen days into its cycle.
 
 **Diplomacy (parley).** Eligible target: neutral or friendly system, populated,
 not in uprising, charted by you.
@@ -155,6 +164,21 @@ not in uprising, charted by you.
   - `successChance = 0.4 + diplomacy/200` (dip 50 → 65%; dip 90 → 85%)
   - Success: `support[you] += 8 + diplomacy/10`, `support[them] -= 4`.
   - Failure: no change.
+**Recruitment (amended v4.11).** Eligible target: any populated, charted island
+with one of the unaligned standing on it — whoever holds the island, your own
+ground included.
+- `RECRUITS_IN_PLAY` (8) of a larger pool are seeded onto settled islands that
+  are not either seat, one apiece. `RECRUITS_AT_START` (2) are ashore on day 1;
+  the rest arrive spread over the first `RECRUIT_LAST_DAY` (420) days, so
+  finding the errand late is not finding it too late.
+- Same travel and 15-day cycle. `chance = (0.4 + diplomacy/200) × (1 −
+  quality/200)`, where `quality` is the recruit's best rating: somebody worth
+  having knows it.
+- Success: they join your faction permanently, where they stand. There is no
+  support bar to nudge — it either happens or it does not.
+- They are `faction: 'neutral'` until signed, so no roster, reach tally or
+  crew list counts them for either side.
+
 **Incite Uprising (amended v4.10).** Eligible target: a populated, charted
 island the *enemy* controls that is not already in revolt.
 - Same travel and 15-day cycle.
@@ -179,8 +203,9 @@ island the *enemy* controls that is not already in revolt.
 - After resolving, the game asks: continue (another 15-day cycle) or return.
 - Character ratings are hidden from the enemy; visible to you.
 
-**The authoritative Phase 3 mission set**, in the order agreed: Recruitment;
-Diplomacy (friendly/neutral) and Incite Uprising (enemy-controlled) — *built*;
+**The authoritative Phase 3 mission set**, in the order agreed: Recruitment,
+Diplomacy (friendly/neutral) and Incite Uprising (enemy-controlled) — all
+*built*;
 Espionage; Abduction; R&D; Command (assign an officer over an island or fleet,
 boosting its output in proportion to leadership and the other core ratings —
 the fleet half already exists as ships' officers); Sabotage.
@@ -236,8 +261,8 @@ to pause), raw / refined / maintenance (used/cap).
   Leadership an action at sea; Combat a landing; Espionage how much of a chain
   a fleet charts when it makes landfall. The phase-3 missions below will give
   Espionage a second use, but it is no longer decoration.
-- **Phase 3 — Full missions & victory.** Incite Uprising is built (§4.5).
-  Outstanding: Recruitment, Espionage as a mission, Abduction, R&D, Command
+- **Phase 3 — Full missions & victory.** Recruitment and Incite Uprising are
+  built (§4.5). Outstanding: Espionage as a mission, Abduction, R&D, Command
   over an island, Sabotage. Then Recon (probe units) and Rescue.
   Foilers based on defending characters' espionage/combat. Command ranks
   (Admiral/General/Commander). Real victory: hold enemy HQ + capture two
@@ -326,3 +351,44 @@ balance work is 520-630 days, not 670-730.**
 
 Incitement is used and matters: across four measured games the opponent opened
 63 of them, landed 68 cycles, and set 35 islands alight.
+
+### A3 (2026-09-11) — Recruitment, and what the idle-player benchmark is worth
+
+Recruitment (§4.5) adds people to the world who belong to neither side. Two
+notes on it, and one on the number this spec keeps quoting.
+
+1. **Precedence is for choosing, not for cancelling.** Signing someone on
+   outranks a parley when deciding where to send an officer. Applying the same
+   rule to a mission already under way meant a stranger wandering onto an
+   island cancelled a parley thirteen days into its cycle. An errand in
+   progress is now judged against its own type. Regression-tested.
+
+2. **Officer upkeep was tried and rejected.** Officers are the one thing in the
+   game that neither earns gold nor costs it, against A1's central rule. Adding
+   1 gold a day moved the war from 449 days to 461; 2 a day moved it to 453 and
+   cut the opening net from +12.3 to +5.3. It does not touch the pacing because
+   missions cost nothing to run — gold was never the opponent's constraint on
+   them. Worth doing one day to make a large roster a commitment; not worth
+   doing as a balance lever, and not done.
+
+**The idle-player benchmark is running out of road.** Measured across the same
+eight seeds:
+
+| | mean days |
+|---|---|
+| A2 as shipped (no recruitment) | 565 |
+| Recruitment, all 8 ashore on day 1 | 352 |
+| Recruitment, arrivals spread (shipped) | **449** |
+
+The pattern to notice is not the number, it is the direction: every feature
+added so far has made the *opponent* better at playing, while a player who does
+nothing stays exactly as bad. A2 already had to withdraw one pacing target for
+this reason. Spreading arrivals over the war recovered ~100 days and is right on
+its own merits — eight strangers waiting on eight quays on day one is a
+collection task, not a war — but it does not change the direction of travel.
+
+Treat 449 as a measurement, not a target, and do not tune a good mechanic down
+to protect it. What is actually needed before the next pacing decision is a
+benchmark that plays the player's side with a simple policy, so the number
+means "a fair fight" rather than "how fast a competent side beats an inert one".
+That is the outstanding balance work.

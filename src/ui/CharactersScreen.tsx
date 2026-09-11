@@ -10,7 +10,13 @@ function missionLine(state: GameState, character: Character): string | null {
   const where = target?.name ?? 'an unknown island';
   return mission.phase === 'travelling'
     ? `At sea for ${where} — ${mission.daysRemaining}d`
-    : `${terms.parley} on ${where} — ${mission.daysRemaining}d to report`;
+    : `${
+        mission.type === 'recruit'
+          ? 'Signing on'
+          : mission.type === 'incite'
+            ? terms.incite
+            : terms.parley
+      } on ${where} — ${mission.daysRemaining}d to report`;
 }
 
 export function CharactersScreen({

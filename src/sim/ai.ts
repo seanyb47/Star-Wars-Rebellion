@@ -4,6 +4,7 @@ import {
   AI_MISSION_INTERVAL,
   AI_MISSION_PARTIES,
   AI_NEAR_BONUS,
+  AI_RECRUIT_BONUS,
   AI_SHIP_RESERVE,
   AI_TROOP_POOL,
   INCITE_PRIORITY_PENALTY,
@@ -34,7 +35,14 @@ import {
   otherFaction,
   requiredGarrison,
 } from './helpers';
-import { canStartMission, isMissionTarget, startMission } from './missions';
+import {
+  canStartMission,
+  isMissionTarget,
+  isRecruitTarget,
+  quality,
+  recruitOn,
+  startMission,
+} from './missions';
 import type { Rng } from './rng';
 import type {
   Character,
@@ -144,10 +152,10 @@ function bestSpotFor(
  * The opponent's officers.
  *
  * It keeps more than one of them at sea — a faction with five officers and one
- * on a boat is not playing — and it weighs courting an unaligned island against
- * stirring up one the player holds on the same scale, so an enemy island whose
- * governor is barely hanging on is worth a visit even when there are neutrals
- * left to woo.
+ * on a boat is not playing — and it weighs all three errands on the same scale,
+ * so an enemy island whose governor is barely hanging on is worth a visit even
+ * when there are neutrals left to woo, and somebody worth signing on outranks
+ * both. Otherwise the player would have the run of the unaligned.
  */
 function aiMission(state: GameState, ai: PlayableFaction): void {
   const enemy = otherFaction(ai);
@@ -156,23 +164,30 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     .sort((a, b) => b.diplomacy - a.diplomacy);
   if (idle.length === 0) return;
 
-  // Unaligned worlds to court, and enemy worlds to stir up. An island it already
-  // holds cannot be won again, so those are no use either way.
+  // Unaligned islands to court, enemy islands to stir up, and anywhere at all
+  // with somebody standing on it worth signing on — its own ground included,
+  // which is the one reason it has to send anyone to an island it already holds.
   const open = state.systems.filter(
-    (s) => (s.control === 'neutral' || s.control === enemy) && isMissionTarget(s, ai),
+    (s) =>
+      isMissionTarget(state, s, ai) &&
+      (s.control === 'neutral' || s.control === enemy || isRecruitTarget(state, s, ai)),
   );
   if (open.length === 0) return;
 
   /**
-   * What a trip is worth, on one scale for both kinds of work.
+   * What a trip is worth, on one scale for all three errands.
    *
-   * Courting keeps a premium — an island won outright is worth more than one
-   * merely made angry — but it is a premium and not a veto, which is the whole
-   * difference: with a flat preference the opponent never incited anything.
+   * Courting keeps a premium over inciting — an island won outright is worth
+   * more than one merely made angry — but it is a premium and not a veto, which
+   * is the whole difference: with a flat preference the opponent never incited
+   * anything. A person outranks either, because people are scarce and permanent
+   * and an island can be worked again next month.
    */
   const worth = (officer: Character, s: System) => {
     const home = state.systems.find((x) => x.id === officer.locationSystemId)?.sectorId;
     const close = s.sectorId === home ? AI_NEAR_BONUS : 0;
+    const recruit = recruitOn(state, s, ai);
+    if (recruit) return close + AI_RECRUIT_BONUS + quality(recruit);
     if (s.control === 'neutral') return close + s.support[ai];
     // The weaker their hold, the nearer the uprising threshold, the better.
     return close + (100 - s.support[enemy]) - INCITE_PRIORITY_PENALTY;

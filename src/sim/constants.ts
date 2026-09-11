@@ -203,6 +203,24 @@ export const INCITE_SPILLOVER = 0.35;
  *  island, so it does not spend every officer harrying islands it cannot keep. */
 export const INCITE_PRIORITY_PENALTY = 30;
 
+/** Recruitment (amended v4.11). */
+/** How many of the unaligned are scattered over the isles in a given game.
+ *  Fewer than the pool holds, so no two wars offer the same people. */
+export const RECRUITS_IN_PLAY = 8;
+/** How many are already ashore when the war opens. The rest drift in, so a
+ *  player who finds this on day 200 has not already lost the race, and the
+ *  first weeks are not a scramble to collect eight strangers off eight quays. */
+export const RECRUITS_AT_START = 2;
+/** The last day one of them can turn up. Past roughly this point a new officer
+ *  would not have a war left to be useful in. */
+export const RECRUIT_LAST_DAY = 420;
+/** Scales an officer's chance by how good the recruit is: someone worth having
+ *  knows it. `chance × (1 − quality/RECRUIT_QUALITY_DIVISOR)`. */
+export const RECRUIT_QUALITY_DIVISOR = 200;
+/** What the opponent adds for signing someone on, against courting an island.
+ *  People are scarce and permanent; an island can be worked again next month. */
+export const AI_RECRUIT_BONUS = 120;
+
 /** Victory (spec 4.6). */
 export const VICTORY_CONTROL_FRACTION = 0.6;
 

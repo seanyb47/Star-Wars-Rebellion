@@ -131,6 +131,13 @@ export interface Character {
   name: string;
   /** Which people they belong to. Display only — drives their portrait. */
   people?: string;
+  /** A line on who they are. Carried by the unaligned people you can sign on,
+   *  because a name on an island tells you nothing about whether to sail. */
+  blurb?: string;
+  /** For the unaligned: the day they turn up somewhere worth finding. They are
+   *  in the world from the start so the seed decides them once, but they are
+   *  nobody's to sign before this. Absent for anyone already in the war. */
+  appearsOnDay?: number;
   faction: Faction;
   diplomacy: number;
   espionage: number;
@@ -145,11 +152,11 @@ export interface Character {
 
 /**
  * What a character is doing ashore. Phase 3's full set is recorded in the
- * build spec; these are the two that exist, and they are two halves of one
- * verb — the same passage, the same fifteen days of work, decided by whose
- * island you land on.
+ * build spec; these are the ones that exist. They share a passage, fifteen
+ * days of work and a foil check, and the island decides between them: who
+ * holds it, and who happens to be standing on it.
  */
-export type MissionType = 'diplomacy' | 'incite';
+export type MissionType = 'diplomacy' | 'incite' | 'recruit';
 
 export interface Mission {
   type: MissionType;

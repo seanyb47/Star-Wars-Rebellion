@@ -5,12 +5,27 @@ import {
   TRAVEL_DAYS_IN_SECTOR,
   inciteLoss,
   parleyGain,
+  recruitChance,
   successChance,
   type Character,
   type GameState,
 } from '../sim';
 import { CharacterPortrait } from './art';
 import { Sheet } from './components';
+
+/** Yardsticks for the signing-on range: how a star and an ordinary hand would
+ *  answer this officer. Only their ratings are read, so the rest is filler. */
+const YARDSTICK = {
+  id: '', name: '', faction: 'neutral', locationSystemId: '', status: 'available',
+} as const;
+/** Someone worth having, who knows it — the hard end of the range. */
+const STAR_HAND: Character = {
+  ...YARDSTICK, diplomacy: 95, espionage: 95, combat: 95, leadership: 95,
+};
+/** An ordinary hand off a quay — the easy end. */
+const GREEN_HAND: Character = {
+  ...YARDSTICK, diplomacy: 50, espionage: 50, combat: 50, leadership: 50,
+};
 
 export function statusBadge(character: Character) {
   switch (character.status) {
@@ -95,15 +110,23 @@ export function CharacterSheet({
         <div style={{ flex: 1, minWidth: 0 }}>
           {character.people && <div className="tiny muted">{character.people}</div>}
           <div style={{ marginTop: 2 }}>{statusBadge(character)}</div>
+          {/* Who they were before they signed on. Kept after, because it is the
+              only thing distinguishing one set of four numbers from another. */}
+          {character.blurb && (
+            <p className="tiny muted" style={{ margin: '6px 0 0' }}>
+              {character.blurb}
+            </p>
+          )}
         </div>
       </div>
 
       <Ratings character={character} />
 
       <div className="section-title">Going ashore</div>
-      {/* Two things an officer can do ashore, and the island decides which: you
-          parley where nobody has chosen a side, and stir up trouble where the
-          enemy has. Both are shown because where you send them is the choice. */}
+      {/* Three things an officer can do ashore, and the island decides which:
+          sign on whoever is standing there, parley where nobody has chosen a
+          side, stir up trouble where the enemy has. All three are shown because
+          where you send them is the whole of the choice. */}
       <div className="card small stack">
         <div className="row row--between">
           <span className="muted">{terms.parley} · unaligned or your own</span>
@@ -117,6 +140,15 @@ export function CharacterSheet({
           <b>
             {Math.round(successChance(character, 'incite') * 100)}% · −
             {inciteLoss(character).toFixed(1)}
+          </b>
+        </div>
+        <div className="row row--between">
+          <span className="muted">Signing on · wherever someone is</span>
+          {/* A range, because it depends who is standing there: the numbers are
+              for a plain hand and for the best person in the world. */}
+          <b>
+            {Math.round(recruitChance(character, STAR_HAND) * 100)}–
+            {Math.round(recruitChance(character, GREEN_HAND) * 100)}%
           </b>
         </div>
         <div className="row row--between">

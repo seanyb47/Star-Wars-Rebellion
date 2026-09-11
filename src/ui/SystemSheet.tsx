@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import terms from '../data/terms.json';
 import {
+  recruitOn,
+  type MissionType,
   FACILITY_BLURB,
   FACILITY_LABEL,
   GOLD_PER_DAY,
@@ -25,6 +27,13 @@ import { ControlBadge, Sheet, Slot, SlotBoard, Stat, SupportBars } from './compo
 import { Harbour } from './FleetPanel';
 
 import type { IslandTab } from './IslandRow';
+
+/** What to call an errand in a one-line note. */
+function errandName(type: MissionType): string {
+  if (type === 'recruit') return 'Signing on';
+  if (type === 'incite') return terms.incite;
+  return terms.parley;
+}
 
 /**
  * One panel per island, holding everything the original spreads across four
@@ -214,6 +223,7 @@ export function SystemSheet({
   const crew = state.characters.filter(
     (c) => c.faction === state.player && c.locationSystemId === system.id,
   );
+  const loose = recruitOn(state, system, state.player);
   const inbound = state.characters.filter(
     (c) =>
       c.faction === state.player &&
@@ -401,6 +411,36 @@ export function SystemSheet({
 
       {tab === 'crew' && (
         <>
+          {/* Somebody the war has not claimed. First, because it is the one
+              thing on this tab you can act on that will not wait — the other
+              side is looking for them too. */}
+          {loose && (
+            <>
+              <div className="section-title">On the quay</div>
+              <div className="card small row" style={{ gap: 10, alignItems: 'flex-start' }}>
+                <CharacterPortrait
+                  name={loose.name}
+                  faction="neutral"
+                  people={loose.people}
+                  size={40}
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <b>{loose.name}</b>
+                  {loose.people && <div className="tiny muted">{loose.people}</div>}
+                  {loose.blurb && (
+                    <p className="tiny muted" style={{ margin: '4px 0 0' }}>
+                      {loose.blurb}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <p className="muted tiny" style={{ marginTop: 6 }}>
+                Send one of your own here to put it to them. They belong to
+                nobody yet, and will not wait for you.
+              </p>
+            </>
+          )}
+
           <div className="section-title">Ashore here</div>
           <SlotBoard empty={`Nobody of yours is on ${system.name}.`}>
             {crew.map((character) => (
@@ -418,7 +458,7 @@ export function SystemSheet({
                 name={character.name}
                 note={
                   character.mission
-                    ? `${terms.parley} ${character.mission.daysRemaining}d`
+                    ? `${errandName(character.mission.type)} ${character.mission.daysRemaining}d`
                     : character.status === 'available'
                       ? undefined
                       : character.status.replace('_', ' ')

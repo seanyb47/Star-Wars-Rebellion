@@ -155,7 +155,7 @@ export function GalaxyMap({
             spot,
             // While choosing a destination, a chain is live only if something
             // in it can actually be sailed to.
-            targets: systems.filter((s) => isMissionTarget(s, viewer)).length,
+            targets: systems.filter((s) => isMissionTarget(state, s, viewer)).length,
           };
         }),
     [state, viewer],

@@ -9,6 +9,7 @@ import {
   advanceMissions,
   continueMission,
   isMissionTarget,
+  missionTypeFor,
   startMission,
   travelDays,
 } from '../missions';
@@ -80,8 +81,10 @@ describe('the opponent expands', () => {
       for (const sent of state.characters.filter((c) => c.faction === 'alliance' && c.mission)) {
         dispatched++;
         const target = getSystem(state, sent.mission!.targetSystemId);
-        expect(isMissionTarget(target, 'alliance')).toBe(true);
-        expect(sent.mission!.type).toBe(target.control === 'empire' ? 'incite' : 'diplomacy');
+        expect(isMissionTarget(state, target, 'alliance')).toBe(true);
+        // The island decides the errand, so the AI's mission type must be
+        // exactly what the island would give any officer standing on it.
+        expect(sent.mission!.type).toBe(missionTypeFor(state, target, 'alliance'));
       }
     }
     expect(dispatched).toBeGreaterThan(30);
