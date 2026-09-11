@@ -115,17 +115,30 @@ export function EventScene({
       style={{ display: 'block' }}
     >
       <defs>
+        {/* The night behind the glow, and deliberately near-neutral. It used
+            to end on a saturated teal, which is a colour — and a sky that is
+            already a colour leaves no room for the one that means something.
+            Measured: with the teal in, an Empire card and an Alliance card
+            differed by about five points a channel, which is to say not at
+            all. The tint has to be the only hue up there. */}
         <linearGradient id={`sky-${id}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#06161d" />
-          <stop offset="75%" stopColor="#0f2f3c" />
+          <stop offset="0%" stopColor="#05121a" />
+          <stop offset="70%" stopColor="#0d2029" />
         </linearGradient>
         {/* Radial, not linear. A linear fade across an ellipse's box leaves a
-            hard rim along the top, and the whole thing draws as a dome. */}
-        <radialGradient id={`glow-${id}`} cx="50%" cy="100%" r="72%">
-          <stop offset="0%" stopColor={tint} stopOpacity="0.42" />
-          <stop offset="45%" stopColor={tint} stopOpacity="0.16" />
+            hard rim along the top, and the whole thing draws as a dome. Wide
+            and strong: this is the card's headline before the headline. */}
+        <radialGradient id={`glow-${id}`} cx="50%" cy="100%" r="96%">
+          <stop offset="0%" stopColor={tint} stopOpacity="0.82" />
+          <stop offset="38%" stopColor={tint} stopOpacity="0.4" />
+          <stop offset="72%" stopColor={tint} stopOpacity="0.13" />
           <stop offset="100%" stopColor={tint} stopOpacity="0" />
         </radialGradient>
+        {/* The reflection: strongest at the horizon, gone by the bottom edge. */}
+        <linearGradient id={`wake-${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={tint} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={tint} stopOpacity="0" />
+        </linearGradient>
       </defs>
 
       <rect width={W} height={H} fill={`url(#sky-${id})`} />
@@ -134,7 +147,10 @@ export function EventScene({
           and faded well before its edge, or it draws as a hill. */}
       <rect width={W} height={sea + 10} fill={`url(#glow-${id})`} />
       <rect y={sea} width={W} height={H - sea} fill="#04141b" />
-      <path d={`M 0 ${sea} H ${W}`} stroke={tint} strokeWidth="1" opacity="0.45" />
+      {/* The sea takes the light back. Without this the glow stops dead at the
+          horizon and the sky reads as a backdrop pasted behind the water. */}
+      <rect y={sea} width={W} height={H - sea} fill={`url(#wake-${id})`} />
+      <path d={`M 0 ${sea} H ${W}`} stroke={tint} strokeWidth="1.4" opacity="0.7" />
       {[0, 1, 2, 3].map((i) => (
         <path
           key={i}

@@ -701,3 +701,45 @@ button {
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .fleet__officer:active { background: #143643; }
+
+/* ---------- The contact sheet (?art) ---------- */
+/* Not part of the game. Laid out to be photographed: everything the same
+   distance apart, on the same ground, so the eye compares drawings and not
+   spacing. */
+.artsheet { padding: 16px; padding-bottom: 48px; background: var(--bg); min-height: 100%; }
+.artsheet__head h1 {
+  font-size: 20px; margin: 0 0 4px; letter-spacing: 0.02em;
+}
+.artsheet__head p { margin: 0 0 8px; font-size: 12px; line-height: 1.5; }
+.artsheet__row { margin-top: 22px; }
+.artsheet__label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--brass); margin: 0 0 8px; font-weight: 700;
+}
+.artsheet__note { text-transform: none; letter-spacing: 0; color: var(--muted); font-weight: 400; }
+.artsheet__items { display: flex; flex-wrap: wrap; gap: 10px; }
+.artsheet__item { width: 76px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+/* The ground the art actually sits on in the game, so nothing is judged
+   against a colour it never appears over. */
+.artsheet__stage {
+  width: 76px; height: 76px; border-radius: 8px;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.artsheet__swatch {
+  width: 76px; height: 44px; border-radius: 8px; border: 1px solid var(--border);
+}
+.artsheet__caption {
+  font-size: 9px; color: var(--muted); text-align: center; line-height: 1.25;
+  word-break: break-word;
+}
+.artsheet__scene {
+  /* Full width, and the same height the dispatch card gives it. Scenes are
+     drawn 320x132 and painted with preserveAspectRatio="slice": render them
+     into a narrow box and they crop to a middle band the game never shows,
+     which had this sheet reporting the mission scene as empty when it is not.
+     An instrument that lies is worse than no instrument. */
+  width: 100%; display: flex; flex-direction: column; gap: 4px;
+}
+.artsheet__scene > svg { height: 138px; }
+.artsheet__scene > svg { border-radius: 8px; border: 1px solid var(--border); }
