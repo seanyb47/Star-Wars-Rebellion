@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
-import { CHART_LAYERS, islandWorth, layerMark, layerTally } from '../layers';
+import { CHART_LAYERS, islandWorth, layerMark, layerTally, worthTier } from '../layers';
 import { getSystem } from '../helpers';
 import { addShip } from '../fleets';
 import { buildMenu } from '../build';
@@ -103,6 +103,31 @@ describe('chart layers', () => {
     rich.rawSlots = 0;
     rich.energySlots = 0;
     expect(layerMark(state, rich, 'worth', 'empire').lit).toBe(false);
+  });
+
+  it('grades worth into three, and puts the boundaries where it says', () => {
+    const { state } = setup();
+    const island = state.systems[0];
+    const grade = (raw: number) => {
+      island.rawSlots = raw;
+      island.energySlots = 0;
+      return worthTier(island);
+    };
+    expect(grade(0)).toBe('none');
+    expect(grade(1)).toBe('small');
+    expect(grade(5)).toBe('small');
+    expect(grade(6)).toBe('medium');
+    expect(grade(9)).toBe('medium');
+    expect(grade(10)).toBe('large');
+    expect(grade(14)).toBe('large');
+
+    // And across a whole world the grades stay a ladder, not a cliff: the
+    // prizes are the few, which is the only reason the layer is worth opening.
+    const fresh = generateGalaxy(501, 'empire');
+    const count = (t: string) => fresh.systems.filter((s) => worthTier(s) === t).length;
+    expect(count('large')).toBeGreaterThan(0);
+    expect(count('large')).toBeLessThan(count('medium'));
+    expect(count('none')).toBeLessThan(count('small'));
   });
 
   it('tallies only the islands that answer the layer', () => {

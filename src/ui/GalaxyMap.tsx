@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
 import {
-  islandWorth,
   isMissionTarget,
   layerMark,
   summariseReach,
+  worthTier,
   type ChartLayer,
+  type WorthTier,
 } from '../sim';
 import { LayerStrip, useLayerSwipe } from './LayerStrip';
 import { allegianceColour, allegianceSegments } from './allegiance';
@@ -203,16 +204,35 @@ function loyaltyColor(system: System, viewer: PlayableFaction): string {
 const ISLAND_RADIUS = 8;
 
 /**
- * Under the Worth layer, and only there, size carries the answer.
+ * Under the Worth layer, and only there, an island's grade sets its shape.
  *
- * Worth runs 0 to 14 across the world and bunches at 6-9, so the scale is
- * linear over the whole range rather than clipped at 9 — clipping flattened
- * the eight islands worth 12 and 14, which are the only ones the layer exists
- * to find. Capped at 12 because no two islands are closer than 24 units.
+ * Three shapes rather than a sliding radius. A continuous scale asked you to
+ * compare circles by eye, which nobody can do across a chart this size; a dot,
+ * a rhombus and a star are told apart at a glance and in any order. Size goes
+ * with the shape only so the three read as a ladder.
  */
-const WORTH_MAX = 14;
-function worthRadius(system: System): number {
-  return 4 + (Math.min(islandWorth(system), WORTH_MAX) / WORTH_MAX) * 8;
+const WORTH_SHAPE: Record<WorthTier, { shape: 'dot' | 'rhombus' | 'star'; r: number }> = {
+  none: { shape: 'dot', r: 5 },
+  small: { shape: 'dot', r: 5 },
+  medium: { shape: 'rhombus', r: 10 },
+  large: { shape: 'star', r: 13 },
+};
+
+/** A rhombus on its point, a little narrower than it is tall. */
+function rhombusPath(r: number): string {
+  const w = r * 0.74;
+  return `M 0 ${-r} L ${w} 0 L 0 ${r} L ${-w} 0 Z`;
+}
+
+/** Five points, waist at 44% — any tighter and it fills in at chart size. */
+function starPath(r: number): string {
+  const points: string[] = [];
+  for (let i = 0; i < 10; i++) {
+    const reach = i % 2 === 0 ? r : r * 0.44;
+    const angle = (Math.PI / 5) * i - Math.PI / 2;
+    points.push(`${(Math.cos(angle) * reach).toFixed(2)} ${(Math.sin(angle) * reach).toFixed(2)}`);
+  }
+  return `M ${points.join(' L ')} Z`;
 }
 
 export function GalaxyMap({
@@ -419,7 +439,11 @@ export function GalaxyMap({
                 const ax = at ? at.x : spot.x + system.x * 0.72;
                 const ay = at ? at.y : spot.y + system.y * 0.72;
                 const explored = system.explored[viewer];
-                const radius = sizing ? worthRadius(system) : ISLAND_RADIUS;
+                // An island you have not charted keeps its worth to itself:
+                // grading it here would tell you what is over the horizon.
+                const grade: WorthTier | null = sizing && explored ? worthTier(system) : null;
+                const worthMark = grade ? WORTH_SHAPE[grade] : null;
+                const radius = worthMark ? worthMark.r : ISLAND_RADIUS;
                 const isHq =
                   system.id === state.factions[viewer].hqSystemId ||
                   (explored && system.id === state.factions[enemy].hqSystemId);
@@ -461,12 +485,15 @@ export function GalaxyMap({
                       </>
                     )}
                     {isHq && (
+                      /* Tighter around a star or a rhombus: the ring is set off
+                         the points, and a circle 7 clear of those sits half a
+                         chart away from the waist. */
                       <circle
                         className="map__hq"
                         cx={ax}
                         cy={ay}
-                        r={radius + 7}
-                        stroke={loyaltyColor(system, viewer)}
+                        r={radius + (worthMark && worthMark.shape !== 'dot' ? 3.5 : 7)}
+                        stroke={tint}
                       />
                     )}
                     {ground ? (
@@ -478,23 +505,35 @@ export function GalaxyMap({
                          our own coastline on top of a painted one was two
                          islands in the same place. */
                       <>
-                        <circle
-                          cx={ax}
-                          cy={ay}
-                          r={radius}
-                          fill={tint}
-                          opacity={lit ? 1 : dim ? 0.12 : explored ? 0.42 : 0.14}
-                        />
-                        <circle
-                          cx={ax}
-                          cy={ay}
-                          r={radius}
-                          fill="none"
-                          stroke={tint}
-                          strokeWidth={lit ? 3.2 : explored ? 2.4 : 1.6}
-                          strokeDasharray={explored ? undefined : '4 3.5'}
-                          opacity={lit ? 1 : dim ? 0.26 : explored ? 0.95 : 0.5}
-                        />
+                        {(() => {
+                          /* One set of strengths, whatever shape carries them.
+                             Fill and stroke go on a single element here rather
+                             than two stacked ones, because a star drawn twice
+                             puts a seam down every point. */
+                          const skin = {
+                            fill: tint,
+                            fillOpacity: lit ? 1 : dim ? 0.12 : explored ? 0.42 : 0.14,
+                            stroke: tint,
+                            strokeOpacity: lit ? 1 : dim ? 0.26 : explored ? 0.95 : 0.5,
+                            strokeWidth: lit ? 3.2 : explored ? 2.4 : 1.6,
+                            strokeDasharray: explored ? undefined : '4 3.5',
+                            strokeLinejoin: 'round' as const,
+                          };
+                          if (worthMark && worthMark.shape !== 'dot') {
+                            return (
+                              <path
+                                d={
+                                  worthMark.shape === 'star'
+                                    ? starPath(radius)
+                                    : rhombusPath(radius)
+                                }
+                                transform={`translate(${ax} ${ay})`}
+                                {...skin}
+                              />
+                            );
+                          }
+                          return <circle cx={ax} cy={ay} r={radius} {...skin} />;
+                        })()}
                       </>
                     ) : (
                       <>

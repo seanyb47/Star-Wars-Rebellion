@@ -45,7 +45,7 @@ export const CHART_LAYERS: LayerSpec[] = [
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
   { id: 'garrisons', label: 'Garrisons', hint: 'Islands of yours holding companies ashore.' },
   { id: 'missions', label: 'Missions', hint: 'Islands your officers are working on, or sailing for.' },
-  { id: 'worth', label: 'Worth', hint: 'Every charted island drawn to the size of what it can hold. Bare rock falls away.' },
+  { id: 'worth', label: 'Worth', hint: 'What each charted island can hold: a dot is little, a rhombus is worth having, a star is a prize.' },
 ];
 
 /**
@@ -58,6 +58,30 @@ export const CHART_LAYERS: LayerSpec[] = [
  */
 export function islandWorth(system: System): number {
   return system.rawSlots + system.energySlots;
+}
+
+/**
+ * Worth in three grades, because three is what you can read at a glance.
+ *
+ * A continuous scale was honest and useless: worth runs 0 to 14 and bunches at
+ * 6-9, so most of the chart came out the same size anyway while asking you to
+ * compare radii by eye. Three grades and three shapes answer the question the
+ * layer is for — which islands are the prizes — without asking you to measure
+ * anything.
+ *
+ * The boundaries are drawn where the world actually divides. Across a generated
+ * world of 62 islands: 18 marginal, 34 ordinary, 9 prizes, and one bare rock.
+ * Most islands being ordinary is the truth about the world, and the point is
+ * that the nine stand out.
+ */
+export type WorthTier = 'none' | 'small' | 'medium' | 'large';
+
+export function worthTier(system: System): WorthTier {
+  const n = islandWorth(system);
+  if (n >= 10) return 'large';
+  if (n >= 6) return 'medium';
+  if (n >= 1) return 'small';
+  return 'none';
 }
 
 /** What a lit island is worth saying about itself, under this layer. */
