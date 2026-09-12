@@ -337,10 +337,13 @@ Things I know are wrong, in the order I mean to fix them.
 
 ## Not built yet
 
-Fleets and combat, the other nine mission types, real victory conditions,
-command ranks, Tidecraft, and a smarter opponent are all phase 2 and beyond.
+**See `PLAN.md`** for the current state and the order of work.
 
-From the world bible, still waiting on the phases that need them: the ships
-(section 6), ground forces (7), special forces (8), the 54 minor characters
-(5, since phase 1 has no recruitment), and both of the new mechanics in
-section 14 — Mythic Isles and Double Agents.
+In short: fleets and combat are built. Three of the eight mission types are
+built — parley, incite, recruitment. Still outstanding are Espionage as a
+mission, Sabotage, Abduction, Command over an island and R&D; then real victory
+conditions, command ranks, Tidecraft and a smarter opponent.
+
+From the world bible, still waiting on the phases that need them: ground forces
+(section 7), special forces (8), and both of the new mechanics in section 14 —
+Mythic Isles and Double Agents.

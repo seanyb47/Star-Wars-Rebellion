@@ -4,6 +4,14 @@ Every subject the game needs, written to the faction style guide. Paste a block
 straight into an image generator; the style line is repeated in each so they can
 be used one at a time, weeks apart, without drift.
 
+> **One image per subject, please.** A contact sheet with the whole set on it
+> cannot be used: on 12 September five arrived at 1536×1024 each, which put
+> every portrait at 250×250 against the 640×896 this asks for, and every ship
+> at 3:4 against 3:2. The aspect is the fatal half — cropping a 3:4 ship into a
+> 3:2 frame throws away its masts. The sheets are kept as the visual brief at
+> `art-masters/_sheets/`; the art on them is right and only needs re-exporting
+> one subject at a time, at the sizes in the table below.
+
 **Add the results with `npm run art:add -- <file> <folder>/<slug>`** — the slug
 is written under each prompt below. That keeps the full-resolution delivery in
 `art-masters/` and records what was cropped out of it, so a painting can be
