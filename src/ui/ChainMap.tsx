@@ -165,6 +165,13 @@ function fromScatter(systems: System[]): Array<{ x: number; y: number }> {
   }));
 }
 
+/** Roughly how wide a name renders, for placing something beside it.
+ *  Serif at 34px averages a little over half its size per character; this only
+ *  has to be close enough to put a 7-unit dot clear of the first letter. */
+function nameWidth(name: string): number {
+  return name.length * 17;
+}
+
 /** Marks drawn in a 20-unit box, so they can be placed on a 20-unit grid. */
 const MARKS = {
   /** Earns you gold: a camp or a mill. */
@@ -300,6 +307,7 @@ export function ChainMap({
       )}
 
       {systems.map((system, index) => {
+        const paintedGround = Boolean(ground && crop);
         const spot = spots[index];
         const entry = summaryById.get(system.id);
         const explored = system.explored[viewer];
@@ -432,7 +440,7 @@ export function ChainMap({
               sail.map((entry, i) => (
                 <g
                   key={entry.side}
-                  transform={`translate(${sailLeft + i * step - 26} ${spot.y - 58}) scale(1.5)`}
+                  transform={`translate(${sailLeft + i * step - 26} ${spot.y - (paintedGround ? 96 : 58)}) scale(1.5)`}
                   pointerEvents="none"
                 >
                   <path
@@ -457,7 +465,7 @@ export function ChainMap({
             {badges.map((badge, i) => (
               <g
                 key={i}
-                transform={`translate(${rowLeft + i * step - 26} ${spot.y - (sail.length > 0 ? 104 : 94)}) scale(1.5)`}
+                transform={`translate(${rowLeft + i * step - 26} ${spot.y - (sail.length > 0 ? 104 : 94) - (paintedGround ? 38 : 0)}) scale(1.5)`}
                 pointerEvents="none"
               >
                 <path
@@ -481,53 +489,75 @@ export function ChainMap({
 
             {system.uprising && explored && (
               <path
-                d={`M ${spot.x - 12} ${spot.y - 52} l 0 -26 l 30 9 l -30 9 z`}
+                d={`M ${spot.x - 12} ${spot.y - (paintedGround ? 30 : 52)} l 0 -26 l 30 9 l -30 9 z`}
                 fill="#d8574c"
                 pointerEvents="none"
               />
             )}
 
-            {/* Shelf of shallows, then the coastline. Over the painting the
-                shelf becomes a dark halo instead: the painted shallows are
-                already there, and a second wash of them only muddies the land
-                underneath — but the island body needs its own ground, because
-                it may have been pushed into open water.
-                The halo is what settles the contrast properly. Scrimming each
-                chain by its own brightness gets the typical ground to 3.5:1
-                for a Confederacy mark, but the brightest two percent — surf,
-                sun on a reef — still measured 2.2:1. Darkening the whole
-                painting to chase that would cost every chain its picture; a
-                halo under each mark fixes it where the problem actually is. */}
-            <path
-              d={islandPath(system.name, 40)}
-              transform={`translate(${spot.x} ${spot.y})`}
-              fill={ground && crop ? 'var(--water-deep)' : 'var(--shallow)'}
-              opacity={ground && crop ? (explored ? 0.82 : 0.55) : explored ? 0.5 : 0.25}
-              pointerEvents="none"
-            />
-            <path
-              d={islandPath(system.name, 34)}
-              transform={`translate(${spot.x} ${spot.y})`}
-              fill={system.populated ? 'var(--land)' : 'var(--land-bare)'}
-              stroke={tint}
-              strokeWidth={explored ? 3 : 2}
-              strokeDasharray={explored ? undefined : '7 5'}
-              strokeLinejoin="round"
-              pointerEvents="none"
-            />
-            <path
-              d={islandPath(system.name, 34)}
-              transform={`translate(${spot.x} ${spot.y})`}
-              fill={tint}
-              opacity={explored ? 0.3 : 0.1}
-              pointerEvents="none"
-            />
+            {/* On the painting there is no drawn island at all.
+                The coastline used to be drawn here — a seeded blob in the
+                loyalty colour, with a shelf of shallows under it. That made
+                sense when the ground was blank. Over a painting it is a second
+                island sitting on top of a real one, and the real one is better.
+                So what is left is the name, which is the thing you came to
+                read and the thing you tap. The blank-ground fallback keeps the
+                blob, because there it is the only island there is. */}
+            {!(ground && crop) && (
+              <>
+                <path
+                  d={islandPath(system.name, 40)}
+                  transform={`translate(${spot.x} ${spot.y})`}
+                  fill="var(--shallow)"
+                  opacity={explored ? 0.5 : 0.25}
+                  pointerEvents="none"
+                />
+                <path
+                  d={islandPath(system.name, 34)}
+                  transform={`translate(${spot.x} ${spot.y})`}
+                  fill={system.populated ? 'var(--land)' : 'var(--land-bare)'}
+                  stroke={tint}
+                  strokeWidth={explored ? 3 : 2}
+                  strokeDasharray={explored ? undefined : '7 5'}
+                  strokeLinejoin="round"
+                  pointerEvents="none"
+                />
+                <path
+                  d={islandPath(system.name, 34)}
+                  transform={`translate(${spot.x} ${spot.y})`}
+                  fill={tint}
+                  opacity={explored ? 0.3 : 0.1}
+                  pointerEvents="none"
+                />
+              </>
+            )}
+
+            {/* Whose flag flies, when anybody's does.
+                The name is coloured by loyalty, the same rule the chart uses —
+                which way the people lean. Control is the other fact and used
+                to be carried by the drawn body underneath. It is a dot now, and
+                only when somebody actually holds the island: on day one most of
+                a chain is unclaimed, and a mark on every one of ten would say
+                nothing while adding ten marks. An island you hold whose people
+                have gone over reads as a green dot on a red name, which is
+                exactly the island worth worrying about. */}
+            {ground && crop && explored && (system.control === 'empire' || system.control === 'alliance') && (
+              <circle
+                cx={spot.x - nameWidth(system.name) / 2 - 15}
+                cy={spot.y + 1}
+                r={7}
+                fill={flag}
+                stroke="#041219"
+                strokeWidth={2.5}
+                pointerEvents="none"
+              />
+            )}
 
             <text
               className={ground && crop ? 'chainmap__name chainmap__name--painted' : 'chainmap__name'}
               x={spot.x}
-              y={spot.y + 74}
-              fill={flag}
+              y={ground && crop ? spot.y + 12 : spot.y + 74}
+              fill={ground && crop ? tint : flag}
               pointerEvents="none"
             >
               {explored ? system.name : 'Uncharted'}
@@ -542,7 +572,7 @@ export function ChainMap({
                     <rect
                       key={i}
                       x={spot.x - 55 + i * (110 / slots)}
-                      y={spot.y + 88}
+                      y={spot.y + (paintedGround ? 26 : 88)}
                       width={110 / slots - 2.5}
                       height={7}
                       rx={2}
