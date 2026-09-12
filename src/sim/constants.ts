@@ -207,6 +207,50 @@ export const INCITE_SUCCESS_SCALE = 0.75;
 export const SABOTAGE_BASE = 0.34;
 
 /**
+ * Taking a named officer off the board.
+ *
+ * Lower than sabotage, because the thing being carried off can fight back and
+ * a mill cannot. The defender's own Combat is subtracted from it, so the hard
+ * cases really are hard: the fleet's best fighting captain is not something
+ * you lift off a quay because you rolled well.
+ */
+export const ABDUCT_BASE = 0.42;
+/** How much of the target's Combat protects them, as a divisor. */
+export const ABDUCT_RESIST_DIVISOR = 230;
+/** Days a rescued or exchanged prisoner is unfit for. Long: it is a real loss. */
+export const CAPTIVE_DAYS = 60;
+
+/**
+ * Putting an island of yours back in order.
+ *
+ * Read off Leadership, which until now only decided how well a company fought.
+ * Higher than the others because it is your own ground and nobody is hunting
+ * the officer — the risk in a command posting is the time, not the danger.
+ */
+export const COMMAND_BASE = 0.5;
+/** How far a command posting brings the island back on a landed attempt. */
+export const COMMAND_SUPPORT_GAIN = 11;
+
+/**
+ * The craft, and what each grade is worth.
+ *
+ * Three grades and no more. Every grade takes longer to reach than the last,
+ * so the third is a campaign's work rather than a fortnight's, and the effect
+ * is deliberately dull — cheaper and quicker hulls, not new ones — because a
+ * research track that unlocks things needs things to unlock.
+ */
+export const RESEARCH_BASE = 0.45;
+/** Allegiance an island must already have before its yards can spare the time. */
+export const RESEARCH_MIN_SUPPORT = 75;
+/** Progress a landed cycle adds, before the officer's Espionage. */
+export const RESEARCH_PROGRESS = 24;
+/** Progress needed for grades one, two and three. */
+export const CRAFT_GRADES = [100, 260, 520];
+/** What each grade takes off a hull's cost and days, as a fraction per grade. */
+export const CRAFT_COST_STEP = 0.1;
+export const CRAFT_DAYS_STEP = 0.13;
+
+/**
  * What a saboteur goes for first.
  *
  * A slipway before a mine, every time: burning a yard costs the enemy the

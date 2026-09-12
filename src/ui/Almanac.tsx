@@ -16,8 +16,15 @@ import {
   YARD_BUILDS,
   type FacilityType,
   type GameState,
+  CREATURES,
 } from '../sim';
-import { CategoryIcon, CharacterPortrait, CompanyRow, FacilityIcon } from './art';
+import {
+  CategoryIcon,
+  CharacterPortrait,
+  CompanyRow,
+  CreaturePainting,
+  FacilityIcon,
+} from './art';
 import { Sheet } from './components';
 
 /**
@@ -183,6 +190,24 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
         ))}
       </dl>
 
+      <div className="section-title">What is in the water</div>
+      <div className="card small muted" style={{ marginBottom: 14 }}>
+        None of this can be fought, built or counted. It is here because an island panel that
+        mentions the thing in its waters ought to be able to tell you what it is.
+      </div>
+      <div className="bestiary">
+        {CREATURES.map((beast) => (
+          <div key={beast.slug} className="bestiary__entry">
+            <CreaturePainting slug={beast.slug} height={120} />
+            <h4 className="bestiary__name">{beast.name}</h4>
+            <p className="bestiary__where">
+              {beast.waters.map((w) => w.replace(/-isle$/, '').replace(/-/g, ' ')).join(' · ')}
+            </p>
+            <p className="bestiary__lore">{beast.lore}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="section-title">How the war is won</div>
       <div className="card small">
         Hold {Math.round(VICTORY_CONTROL_FRACTION * 100)}% of the settled islands. Left alone, the
@@ -191,9 +216,11 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
 
       <div className="section-title">Not built yet</div>
       <div className="card small muted">
-        Fleets and sea battles, the other nine kinds of mission, Tidecraft, and the Leviathan are
-        all designed but not in the game. Today an officer sent ashore can {terms.parley.toLowerCase()}
-        or stir up trouble, and the island decides which.
+        Tidecraft, the Leviathan, and a research tree with things in it are designed but not in the
+        game. Everything else the original had is: fleets and sea battles, and eight kinds of errand
+        — {terms.parley.toLowerCase()}, stirring up trouble, signing on, {terms.survey.toLowerCase()},
+        {' '}{terms.sabotage.toLowerCase()}, abduction, command of an island in revolt, and the yards.
+        You never pick one; the island decides.
       </div>
     </Sheet>
   );

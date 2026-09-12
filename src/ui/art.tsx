@@ -458,7 +458,13 @@ export function CompanyRow({
  * Personnel
  * ------------------------------------------------------------------ */
 
-import { paintedFace, paintedIsland, paintedPortrait, paintedShip } from './painted';
+import {
+  paintedCreature,
+  paintedFace,
+  paintedIsland,
+  paintedPortrait,
+  paintedShip,
+} from './painted';
 import { useInView } from './useInView';
 
 /**
@@ -1162,6 +1168,37 @@ export function IslandBanner({
   );
 }
 
+
+/**
+ * Whatever is in the water, painted.
+ *
+ * Unlike every other painting in the game this one has no drawn fallback and
+ * renders nothing when it is missing. A ship or an island has to appear or the
+ * panel makes no sense; a sea monster is the one thing that can simply not be
+ * there, which is also the most honest thing a rumour can do.
+ */
+export function CreaturePainting({
+  slug,
+  height = 92,
+  className,
+}: {
+  slug: string;
+  height?: number;
+  className?: string;
+}) {
+  const [holder, near] = useInView<HTMLDivElement>();
+  const painting = near ? paintedCreature(slug) : undefined;
+  return (
+    <div
+      ref={holder}
+      className={`creature${className ? ` ${className}` : ''}`}
+      style={{ height }}
+    >
+      {painting && <img src={painting} alt="" loading="lazy" decoding="async" />}
+      <span className="creature__fade" />
+    </div>
+  );
+}
 
 /**
  * A hull, painted, at the size a list can hold.

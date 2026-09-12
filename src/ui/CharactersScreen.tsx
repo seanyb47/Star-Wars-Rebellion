@@ -1,4 +1,5 @@
 import terms from '../data/terms.json';
+import { MISSION_LABEL } from '../sim';
 import type { Character, GameState } from '../sim';
 import { CharacterPainting } from './art';
 import { statusBadge } from './CharacterSheet';
@@ -11,15 +12,9 @@ function missionLine(state: GameState, character: Character): string | null {
   return mission.phase === 'travelling'
     ? `At sea for ${where} — ${mission.daysRemaining}d`
     : `${
-        mission.type === 'recruit'
-          ? 'Signing on'
-          : mission.type === 'survey'
-            ? 'Surveying'
-            : mission.type === 'sabotage'
-            ? 'Sabotaging'
-            : mission.type === 'incite'
-            ? terms.incite
-            : terms.parley
+        mission.type === 'incite' ? terms.incite
+        : mission.type === 'diplomacy' ? terms.parley
+        : MISSION_LABEL[mission.type]
       } on ${where} — ${mission.daysRemaining}d to report`;
 }
 

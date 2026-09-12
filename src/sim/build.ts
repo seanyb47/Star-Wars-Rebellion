@@ -1,5 +1,14 @@
 import terms from '../data/terms.json';
-import { buildLabel, isShipClass, shipsFor, YARD_BUILDABLE, buildSpec } from './constants';
+import {
+  buildLabel,
+  isShipClass,
+  shipsFor,
+  YARD_BUILDABLE,
+  buildSpec,
+  CRAFT_COST_STEP,
+  CRAFT_DAYS_STEP,
+} from './constants';
+import { craftGrade } from './missions';
 import { addShip } from './fleets';
 import {
   freeEnergySlots,
@@ -33,6 +42,32 @@ export function buildMenu(facility: Facility): BuildItem[] {
 }
 
 /**
+ * What an order actually costs this side today, craft included.
+ *
+ * Only hulls. The research errand is shipwright craft and nothing else, so a
+ * mine costs what a mine has always cost — which also keeps the effect legible:
+ * a player who notices their ships got cheaper has exactly one thing to thank
+ * for it.
+ *
+ * Rounded up rather than down, and floored at a day: three grades of a 13%
+ * cut is a real saving, not a free hull.
+ */
+export function effectiveSpec(
+  state: GameState,
+  faction: PlayableFaction,
+  item: BuildItem,
+): { costGold: number; days: number } {
+  const spec = buildSpec(item);
+  if (!isShipClass(item)) return { costGold: spec.costGold, days: spec.days };
+  const grade = craftGrade(state.factions[faction].craft);
+  if (grade === 0) return { costGold: spec.costGold, days: spec.days };
+  return {
+    costGold: Math.ceil(spec.costGold * (1 - CRAFT_COST_STEP * grade)),
+    days: Math.max(1, Math.ceil(spec.days * (1 - CRAFT_DAYS_STEP * grade))),
+  };
+}
+
+/**
  * Why this order cannot be placed, or `null` if it can. The UI uses this to
  * grey out buttons, and `queueBuild` uses it to refuse bad commands.
  */
@@ -46,7 +81,7 @@ export function buildError(state: GameState, facilityId: string, item: BuildItem
   if (system.control !== facility.owner) return 'You do not hold this island.';
   if (system.uprising) return 'The island is in mutiny.';
 
-  const spec = buildSpec(item);
+  const spec = effectiveSpec(state, facility.owner, item);
   if (state.factions[facility.owner].gold < spec.costGold) {
     return `Needs ${spec.costGold} ${terms.gold.toLowerCase()}.`;
   }
@@ -70,7 +105,7 @@ export function queueBuild(state: GameState, facilityId: string, item: BuildItem
   const error = buildError(state, facilityId, item);
   if (error) throw new Error(error);
   const { facility } = findFacility(state, facilityId)!;
-  const spec = buildSpec(item);
+  const spec = effectiveSpec(state, facility.owner as PlayableFaction, item);
   state.factions[facility.owner as PlayableFaction].gold -= spec.costGold;
   facility.building = {
     item,

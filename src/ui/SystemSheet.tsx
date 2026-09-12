@@ -11,6 +11,7 @@ import {
   buildLabel,
   buildMenu,
   buildSpec,
+  effectiveSpec,
   isShipClass,
   shipClass,
   freeEnergySlots,
@@ -21,20 +22,33 @@ import {
   type Facility,
   type GameState,
   type System,
+  creatureFor,
+  MISSION_LABEL,
+  type PlayableFaction,
 } from '../sim';
-import { CharacterPortrait, CompanyIcon, FacilityIcon, FacilityThumb, IslandBanner, IslandPortrait, ShipIcon } from './art';
+import {
+  CharacterPortrait,
+  CompanyIcon,
+  CreaturePainting,
+  FacilityIcon,
+  FacilityThumb,
+  IslandBanner,
+  IslandPortrait,
+  ShipIcon,
+} from './art';
 import { ControlBadge, Sheet, Slot, SlotBoard, Stat, SupportBars } from './components';
 import { Harbour } from './FleetPanel';
 
 import type { IslandTab } from './IslandRow';
 
-/** What to call an errand in a one-line note. */
+/** What to call an errand in a one-line note. The world's own words where it
+ *  has them, and the shared list for the rest. */
 function errandName(type: MissionType): string {
-  if (type === 'recruit') return 'Signing on';
   if (type === 'incite') return terms.incite;
   if (type === 'sabotage') return terms.sabotage;
   if (type === 'survey') return terms.survey;
-  return terms.parley;
+  if (type === 'diplomacy') return terms.parley;
+  return MISSION_LABEL[type];
 }
 
 /**
@@ -128,7 +142,10 @@ function FacilityCard({
       {mine && !order && menu.length > 0 && (
         <div className="buildgrid" style={{ marginTop: 8 }}>
           {menu.map((item) => {
-            const spec = buildSpec(item);
+            // What it costs this side today, not the sticker price: research
+            // takes gold and days off a hull, and a button that keeps quoting
+            // the old figure makes the whole errand invisible.
+            const spec = { ...buildSpec(item), ...effectiveSpec(state, facility.owner as PlayableFaction, item) };
             const error = buildError(state, facility.id, item);
             return (
               <button
@@ -320,6 +337,22 @@ export function SystemSheet({
               trade resumes.
             </p>
           )}
+
+          {(() => {
+            /* What is in the water off this island. Last on the tab and never
+               in the way: it changes nothing you can act on, and an island
+               whose waters are unremarkable simply does not have the block. */
+            const beast = creatureFor(system);
+            if (!beast) return null;
+            return (
+              <div className="waters">
+                <div className="section-title">These waters</div>
+                <CreaturePainting slug={beast.slug} height={96} />
+                <span className="waters__name">{beast.name}</span>
+                <p className="waters__line">{beast.sighting}</p>
+              </div>
+            );
+          })()}
 
           <div className="section-title">At anchor</div>
           <Harbour

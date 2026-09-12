@@ -65,6 +65,7 @@
     {
       "id": "pryor",
       "name": "Captain Fenwick Pryor",
+      "epithet": "the Survivor",
       "people": "Human",
       "roles": [
         "Diplomat",
@@ -93,6 +94,7 @@
     {
       "id": "jarrold",
       "name": "Governor Tiberius Jarrold",
+      "epithet": "the Sleepless",
       "people": "Human",
       "roles": [
         "Diplomat",
@@ -121,6 +123,7 @@
     {
       "id": "neddam",
       "name": "Captain Lorne Neddam",
+      "epithet": "First Over the Rail",
       "people": "Human",
       "roles": [
         "Spec Ops",
@@ -149,6 +152,7 @@
     {
       "id": "ozmond",
       "name": "Admiral Kendrick Ozmond",
+      "epithet": "the Peacock",
       "people": "Human",
       "roles": [
         "Spec Ops",
@@ -177,6 +181,7 @@
     {
       "id": "vierling",
       "name": "Colonel Maximilian Vierling",
+      "epithet": "the Drillmaster",
       "people": "Human",
       "roles": [
         "Drill Research",
@@ -207,6 +212,7 @@
     {
       "id": "hale",
       "name": "Commodore-Elect Adaira Hale",
+      "epithet": "the Magistrate",
       "people": "Human",
       "roles": [
         "Diplomat",
@@ -235,6 +241,7 @@
     {
       "id": "calloway",
       "name": "Tam Calloway",
+      "epithet": "the Fisher's Boy",
       "people": "Human",
       "roles": [
         "Deep-touched",
@@ -265,6 +272,7 @@
     {
       "id": "carrow",
       "name": "Rosalind \"Ros\" Carrow",
+      "epithet": "of Carrow",
       "people": "Human",
       "roles": [
         "Diplomat",
@@ -294,6 +302,7 @@
     {
       "id": "reyne",
       "name": "Captain Silas Reyne",
+      "epithet": "the Swallowtail",
       "people": "Human",
       "roles": [
         "Spec Ops",
@@ -323,6 +332,7 @@
     {
       "id": "torvik",
       "name": "Anselm \"Big\" Torvik",
+      "epithet": "Big Torvik",
       "people": "Urskin",
       "roles": [
         "Spec Ops"
@@ -350,6 +360,7 @@
     {
       "id": "jessup",
       "name": "Admiral Dorian Jessup",
+      "epithet": "the Grandfather",
       "people": "Human",
       "roles": [
         "Diplomat",
@@ -378,6 +389,7 @@
     {
       "id": "ansell",
       "name": "Wyatt Ansell",
+      "epithet": "the Shipwright",
       "people": "Human",
       "roles": [
         "Ship Design",
@@ -408,8 +420,9 @@
   "recruits": [
     {
       "name": "Maren Quist",
+      "epithet": "the Coralwright",
       "people": "Reef-folk",
-      "blurb": "Grew her own ship and lost it to the Admiralty. Reads a sea the way other people read a page.",
+      "bio": "Grew her own hull over nine years the way the Reef-folk do, singing coral into shape a season at a time. The Admiralty took it at Coralhome on a licensing writ and broke it up for the keel-timber, which is not a thing you can do to a grown ship quietly. She reads a sea the way other people read a page, and she has not spoken about the ship since.",
       "ratings": {
         "diplomacy": [
           50,
@@ -431,8 +444,9 @@
     },
     {
       "name": "Pellam Voss",
+      "epithet": "the Master Gunner",
       "people": "Human",
-      "blurb": "Forty years an Admiralty gunner, pensioned off for saying what he thought of an admiral.",
+      "bio": "Forty years on Admiralty gundecks, the last eleven as a master gunner, and pensioned off inside a week for saying at a dinner what he thought of the admiral at the head of it. He was right, which made it worse. Lays a gun by feel in the dark, and has never yet been asked to explain himself twice.",
       "ratings": {
         "diplomacy": [
           25,
@@ -454,8 +468,9 @@
     },
     {
       "name": "Sable",
+      "epithet": "no other name",
       "people": "The Hushed",
-      "blurb": "Nobody has heard her arrive anywhere. She is listed on no roll and answers to no bargain.",
+      "bio": "Hushed, out of the Drowned Reach, and listed on no roll in either fleet. The old bargain that binds her people to the Crown does not appear to bind her, and nobody has worked out what does. She is not heard arriving. Twice now a thing that was certainly going to happen has simply not happened, and both times somebody remembers a door standing open.",
       "ratings": {
         "diplomacy": [
           20,
@@ -477,8 +492,9 @@
     },
     {
       "name": "Hesper Lyn",
+      "epithet": "the Price List",
       "people": "The Rumor Guild",
-      "blurb": "Ink to the elbows, and a price list for both sides. Whether she keeps to it is the question.",
+      "bio": "High in the Rumor Guild and entirely open about the arrangement: there is a price list, both sides are on it, and she has never pretended otherwise. Keeps a private book of every debt, affair and quiet burial in three Seas, and has never had to open it in public. Whether she keeps to the price list is the only question anybody actually asks.",
       "ratings": {
         "diplomacy": [
           70,
@@ -500,8 +516,9 @@
     },
     {
       "name": "Brannoc Tull",
+      "epithet": "the Harpoon",
       "people": "Urskin",
-      "blurb": "Whaler out of Northreach. Has put a harpoon through a hull, on purpose, more than once.",
+      "bio": "Whaler out of Northreach, and the harpoon is not decorative — he has put one through a hull on purpose more than once, and the second time was not an emergency. Took a whale off the Bone Sea shelf that fed a chain through a bad winter. Slow to anger, and afterwards there is no route round him; the Admiralty established this at Ballmoor, at length.",
       "ratings": {
         "diplomacy": [
           20,
@@ -523,8 +540,9 @@
     },
     {
       "name": "Wren Tally",
+      "epithet": "the Ear",
       "people": "Shoal-folk",
-      "blurb": "Sat a masthead nine years. Can hear a hull creak a mile off and tell you whose it is.",
+      "bio": "Nine years sat a masthead, most of them on watch towers nobody thought mattered, and came off them able to name a ship in fog by the sound of its hull working. Frightened of a great many things — weather on an open deck, officers, the dark below the waterline — and has never once left a post.",
       "ratings": {
         "diplomacy": [
           35,
@@ -546,8 +564,9 @@
     },
     {
       "name": "Doctor Ambrose Kell",
+      "epithet": "the Tide Doctor",
       "people": "Human",
-      "blurb": "Surgeon, scholar, and the only man on his island who will say the Tide can be studied.",
+      "bio": "Surgeon and scholar, and the only man on his island who will say out loud that the Tide can be studied rather than merely survived. It has cost him a licence, a post and most of his friends. Runs a surgery from whatever port will have him, takes payment in passage, and is the one person in three Seas that both fleets will pass through a blockade.",
       "ratings": {
         "diplomacy": [
           70,
@@ -569,8 +588,9 @@
     },
     {
       "name": "Captain Isolde Marrow",
+      "epithet": "the Even Hand",
       "people": "Human",
-      "blurb": "Privateer with a letter of marque nobody will admit to signing. Keeps her crew and her word.",
+      "bio": "Sails under a letter of marque nobody at the Admiralty will admit to signing, which suits everyone until it does not. Took a merchantman back off a boarding party with eleven crew and a signal gun, then put the boarders ashore alive because war had not been declared that week. Keeps her crew and keeps her word, in that order, and has resigned from both sides in writing.",
       "ratings": {
         "diplomacy": [
           55,
@@ -592,8 +612,9 @@
     },
     {
       "name": "The Widow Ashgrave",
+      "epithet": "the Widow",
       "people": "Human",
-      "blurb": "Brokers passage, marriages and truces out of a witch-island nobody charts twice.",
+      "bio": "Buried a shipowner, a governor and a Moot councillor, in that order, and inherited from all three. Brokers passage, marriages and truces out of a witch-island nobody charts twice, and holds the paper on half the yards in the Glass Sea. What she is owed is not really the point. Being owed is the point.",
       "ratings": {
         "diplomacy": [
           85,
@@ -615,8 +636,9 @@
     },
     {
       "name": "Tobias Renn",
+      "epithet": "the Swampcat",
       "people": "Bog-folk",
-      "blurb": "Fought a garrison to a standstill in the Storm swamps with eleven men and the weather.",
+      "bio": "Fought an Imperium garrison of four hundred to a standstill in the Storm swamps with eleven men and the weather, over eleven years, and never once in the open. Patient well past the point most people mean by the word. Considers a battle fought in daylight to be a battle somebody else arranged.",
       "ratings": {
         "diplomacy": [
           35,
@@ -638,8 +660,9 @@
     },
     {
       "name": "Silvaine Crow",
+      "epithet": "the Quiet Hand",
       "people": "Human",
-      "blurb": "Deep-touched, and untrained by anyone the Crown licensed. Knows a lie by its echo.",
+      "bio": "Deep-touched, and trained by nobody the Crown ever licensed, which in the Crown Sea is a charge rather than a description. Was a governor's secretary for nine years, which is how she knows where everything is written down; she left on a morning nobody can quite reconstruct, with three ledgers and a seal. Knows a lie by its echo, and does not always say so.",
       "ratings": {
         "diplomacy": [
           60,
@@ -661,8 +684,9 @@
     },
     {
       "name": "Jory Halloran",
+      "epithet": "the Understudy",
       "people": "Human",
-      "blurb": "Nineteen, quick, and desperate to be off the island. Not yet good at anything in particular.",
+      "bio": "Nineteen, quick, and desperate to be off the island by any hull that will take him. Has crewed a revenue cutter, kept books for a chandler, and spent a fortnight in a gaol over a misunderstanding about the books. Adequate at all of it, remarkable at none, and perfectly aware that this is the problem. Somebody is going to make something of him.",
       "ratings": {
         "diplomacy": [
           45,

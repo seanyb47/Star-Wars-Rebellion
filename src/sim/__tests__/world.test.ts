@@ -290,3 +290,19 @@ describe('the Sea summary', () => {
     expect(summary.allegiance.empire).toBeCloseTo(100 / settled.length, 5);
   });
 });
+
+describe('the roster', () => {
+  it('gives every single person a name, a people and something to read', () => {
+    // The character sheet has a lore panel, and a panel with nothing in it is
+    // worse than no panel: for a while the twelve unaligned had one each.
+    const state = generateGalaxy(501, 'empire');
+    expect(state.characters.length).toBeGreaterThan(20);
+    for (const person of state.characters) {
+      expect(person.name.length).toBeGreaterThan(2);
+      expect(person.people, person.name).toBeTruthy();
+      expect(person.blurb, `${person.name} has no bio`).toBeTruthy();
+      expect((person.blurb ?? '').length, person.name).toBeGreaterThan(60);
+      expect(person.epithet, `${person.name} has no epithet`).toBeTruthy();
+    }
+  });
+});

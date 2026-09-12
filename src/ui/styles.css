@@ -1010,3 +1010,44 @@ button.tcard:hover { border-color: var(--brass); }
   margin: 10px 0 2px; font-size: 14.5px; line-height: 1.55; color: #d3e3e9;
   border-left: 2px solid var(--brass); padding-left: 11px;
 }
+
+/* ---------- What is in the water ---------- */
+/* The paintings are wide and quiet, so they crop to a band and fade out at the
+   foot rather than sitting in a frame: this is a rumour on a panel, not a
+   specimen plate. */
+.creature {
+  position: relative; width: 100%; overflow: hidden;
+  border-radius: 10px; background: #0a1a22;
+}
+.creature img {
+  width: 100%; height: 100%; object-fit: cover; object-position: center 42%;
+  display: block; opacity: 0.92;
+}
+.creature__fade {
+  position: absolute; inset: auto 0 0 0; height: 46%;
+  background: linear-gradient(to bottom, transparent, var(--bg-raised));
+  pointer-events: none;
+}
+.waters { margin-top: 14px; }
+.waters__line {
+  margin: 8px 0 0; font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+  font-size: 14px; line-height: 1.5; color: var(--text-dim);
+}
+.waters__name {
+  display: block; font-size: 11px; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--brass); margin-top: 10px;
+}
+.bestiary { display: grid; gap: 18px; }
+.bestiary__entry { border-top: 1px solid var(--rule); padding-top: 14px; }
+.bestiary__name {
+  margin: 10px 0 4px; font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+  font-size: 18px; color: var(--text);
+}
+.bestiary__where {
+  margin: 0 0 8px; font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--brass);
+}
+.bestiary__lore {
+  margin: 0; font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+  font-size: 14px; line-height: 1.62; color: var(--text-dim);
+}

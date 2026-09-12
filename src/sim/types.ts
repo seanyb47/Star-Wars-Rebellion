@@ -184,7 +184,15 @@ export interface Character {
  * days of work and a foil check, and the island decides between them: who
  * holds it, and who happens to be standing on it.
  */
-export type MissionType = 'diplomacy' | 'incite' | 'recruit' | 'sabotage' | 'survey';
+export type MissionType =
+  | 'diplomacy'
+  | 'incite'
+  | 'recruit'
+  | 'sabotage'
+  | 'survey'
+  | 'abduct'
+  | 'command'
+  | 'research';
 
 export interface Mission {
   type: MissionType;
@@ -201,6 +209,15 @@ export interface FactionState {
   /** What everything you own costs to keep in a day. */
   upkeep: number;
   hqSystemId: string;
+  /**
+   * Shipwright craft: how far this side's yards have come, 0 upward.
+   *
+   * The one thing research produces, and deliberately the only one. A tier
+   * tree is a Phase 4 job; a single number that makes hulls cheaper and
+   * quicker gives the R&D errand something real to do today without inventing
+   * a system that then has to be lived with.
+   */
+  craft: number;
 }
 
 /**

@@ -130,15 +130,23 @@ with a cross-fade. Only if that fails is a regeneration worth it.
 
 ## 4. What gets built next
 
-**Phase 3, the five missions still owed.** In the order they are worth doing:
+**Phase 3 is done.** All eight errands are in, and the rule that the island
+decides — never a menu — held for every one of them, with two cases worth
+recording because they were not obvious:
 
-1. **Espionage as a mission** — the rating has a passive use already; this gives
-   it an active one, and it is the smallest of the five.
-2. **Sabotage** — destroy a facility. Reuses the mission frame wholesale.
-3. **Abduction** — take an enemy character off the board. First mission whose
-   target is a person rather than a place.
-4. **Command over an island** — a character assigned to hold rather than act.
-5. **R&D** — needs something to research first, so it waits on Phase 4's tiers.
+- **Abduction** only offers itself off the enemy's own ground. Their whole crew
+  starts at their capital, so an unrestricted rule made their capital read as an
+  abduction on day one and every day after, and incitement — the real answer to
+  an enemy island — never came up. Captives are held at your seat for sixty
+  days and exchanged; killed or converted were both tried on paper and both are
+  worse for a cast of twenty-six.
+- **Command** targets exactly the island that had no answer before: your own,
+  in revolt. Parley refused it, incitement wanted theirs, sabotage wanted their
+  works. Leadership finally has an active use.
+- **Research** sits above parley only where parley had nothing left to win
+  (allegiance ≥ 75 on an island with a yard), and produces one number —
+  shipwright craft, three grades, cheaper and quicker hulls — rather than a
+  tree with nothing in it.
 
 **Then real victory**, which is what makes it a game rather than a sandbox:
 hold the enemy HQ and capture two named leaders, with the Imperium having to
@@ -201,3 +209,34 @@ the position script re-runs against a new painting in one command.
   not.
 - ~~Two chains crowd on the chart.~~ **Gone** — Sugar, Mirage and Whalers' were
   the three Reaches cut, so the crowding went with them.
+
+
+---
+
+## State of play — 12 September, evening
+
+**Music.** Two routes, both verified live in the shipped bundle by tapping what
+the game connects to its speakers:
+
+- *A recording in `src/audio/music/`* — fetched, decoded, loop point found,
+  ducks the bed, and the written score stands down (measured: one 58.6-second
+  buffer started, and only the bed's four oscillators running).
+- *No recording* — a written theme per side plays instead: a progression, a
+  melody that drops out every fourth turn, a pluck, a frame drum. Measured
+  against the bed alone: **0 onsets a minute for the bed, 14 and 31 for the
+  themes.** It is music, not a hum. It is not your music.
+
+Your themes are in Drive as WAV, 37 MB and 46 MB. The Drive connector refuses
+anything over **10 MB** and the sandbox cannot reach Drive's download hosts, so
+they cannot come through as they are. **An MP3 export of each, under 10 MB,
+in the same folder** is the whole of what is needed: `download_file_content`
+then lands it on disk here, it goes in as `empire.mp3` / `alliance.mp3`, and
+the recording route above takes over on the next deploy.
+
+**Art.** All 96 installed subjects are on screen: 26 portraits and faces, 8
+hulls, 20 island and facility plates, 7 dispatch scenes, 2 charts, and — as of
+tonight — the 5 creatures, which had been installed and never rendered. They
+live in the almanac and on the island panel as "these waters".
+
+**Roster.** Every one of the 26 now has an epithet and a full bio, and a test
+refuses a build where anyone has lost either.

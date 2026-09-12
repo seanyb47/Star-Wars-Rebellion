@@ -32,8 +32,14 @@ export function loadGame(storage: Storage | undefined = globalThis.localStorage)
       officerIds: Array.isArray(f.officerIds) ? f.officerIds : [],
     }));
     const systems = parsed.systems.map((s) => ({ ...s, blockaded: !!s.blockaded }));
+    // Craft arrived the same way fleets did. A save from before it is a side
+    // that has researched nothing, which is true.
+    const factions = {
+      empire: { ...parsed.factions.empire, craft: parsed.factions.empire.craft ?? 0 },
+      alliance: { ...parsed.factions.alliance, craft: parsed.factions.alliance.craft ?? 0 },
+    };
     // A restored game always comes back paused.
-    return { ...parsed, fleets, systems, speed: 'paused' };
+    return { ...parsed, fleets, systems, factions, speed: 'paused' };
   } catch {
     return null;
   }

@@ -357,7 +357,11 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       id: makeId('chr'),
       name: entry.name,
       people: entry.people,
-      blurb: entry.blurb,
+      // The same field the named cast reads. The unaligned used to carry a
+      // one-line pitch here instead, which read as a caption on a page the
+      // game gives a whole panel to.
+      blurb: entry.bio,
+      epithet: entry.epithet,
       faction: 'neutral',
       diplomacy: roll(entry.ratings.diplomacy),
       espionage: roll(entry.ratings.espionage),
@@ -381,8 +385,8 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     characters,
     fleets: [],
     factions: {
-      empire: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: capital.id },
-      alliance: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: allianceHq.id },
+      empire: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: capital.id, craft: 0 },
+      alliance: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: allianceHq.id, craft: 0 },
     },
     events: [],
     pendingDecisions: [],

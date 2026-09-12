@@ -14,6 +14,8 @@ import type { EventKind } from '../sim';
  * running so it costs no battery in the background.
  */
 import { findLoop, hasMusic, introUrl, themeUrl } from './music';
+import { ScorePlayer } from './player';
+import { THEMES } from './score';
 
 export class AudioEngine {
   private ctx: AudioContext | null = null;
@@ -22,6 +24,7 @@ export class AudioEngine {
   private music: AudioBufferSourceNode | null = null;
   private musicFor: string | null = null;
   private musicToken = 0;
+  private score: ScorePlayer | null = null;
   private reverb: ConvolverNode | null = null;
   private wet: GainNode | null = null;
   private bedGain: GainNode | null = null;
@@ -50,6 +53,7 @@ export class AudioEngine {
   }
 
   async suspend(): Promise<void> {
+    this.score?.stop();
     if (this.bellTimer !== null) {
       window.clearTimeout(this.bellTimer);
       this.bellTimer = null;
@@ -62,6 +66,8 @@ export class AudioEngine {
   }
 
   stop(): void {
+    this.score?.stop();
+    this.score = null;
     if (this.bellTimer !== null) window.clearTimeout(this.bellTimer);
     this.bellTimer = null;
     if (this.driftTimer !== null) window.clearTimeout(this.driftTimer);
@@ -167,6 +173,8 @@ export class AudioEngine {
     lfoDepth.connect(this.noiseGain.gain);
     this.swellLfo.start();
 
+    this.score = new ScorePlayer(ctx, this.musicGain, this.reverb);
+
     // Fade the bed up rather than punching in.
     this.bedGain.gain.setTargetAtTime(0.5, ctx.currentTime, 2);
   }
@@ -185,8 +193,23 @@ export class AudioEngine {
    */
   async setTheme(faction: string): Promise<void> {
     const ctx = this.ctx;
-    if (!ctx || !this.musicGain || !hasMusic()) return;
+    if (!ctx || !this.musicGain) return;
     if (this.musicFor === faction) return;
+
+    // No recording for this side: play the written theme instead. Same gain,
+    // same duck, same reverb — from the mix's point of view nothing else knows
+    // the difference.
+    if (!hasMusic() || !themeUrl(faction)) {
+      const written = THEMES[faction];
+      if (!written || !this.score) return;
+      this.musicFor = faction;
+      this.musicToken++;
+      this.score.start(written);
+      this.musicGain.gain.setTargetAtTime(0.62, ctx.currentTime, 2.5);
+      this.bedGain?.gain.setTargetAtTime(0.22, ctx.currentTime, 2.5);
+      return;
+    }
+    this.score?.stop();
     const url = themeUrl(faction);
     if (!url) return;
     this.musicFor = faction;
