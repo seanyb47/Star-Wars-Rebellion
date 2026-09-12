@@ -32,6 +32,14 @@ Reaches, and every one of the game's hundred islands placed on a real one.
 Capitals take the largest island in their Reach, so Highwater sits on the great
 central island. The seven Seas are named on screen for the first time.
 
+Opening a chain now zooms into that same painting rather than showing a
+diagram of its own. It is a compromise and the view says so: a chain's islands
+sit 24 to 50 chart units apart and one island's marks need 262, so the marks
+start where the painting put them and are pushed apart only as far as they must
+be, with a hairline back to the real island where they had to move. Roomy
+chains read as a true zoom; crowded ones read as a diagram with its working
+shown.
+
 ---
 
 ## 2. The art

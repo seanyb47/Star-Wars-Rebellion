@@ -11,6 +11,8 @@ import {
 } from '../sim';
 import { allegianceColour, allegianceSegments } from './allegiance';
 import { islandPath } from './art';
+import { paintedChart } from './painted';
+import chartData from '../data/chart.json';
 
 /**
  * A chain opened out as a chart of its own islands, rather than a list of rows.
@@ -34,22 +36,99 @@ const FIELD_PAD = 150;
 /** Centre-to-centre room each island needs for its marks, name and bars. */
 const MIN_SEPARATION = 262;
 
+const CHART = chartData as {
+  width: number;
+  height: number;
+  reaches: Array<{
+    reach: string;
+    luma: number;
+    islands: Array<{ name: string; x: number; y: number }>;
+  }>;
+};
+/** Reach -> how bright the painting is where that chain sits, measured by
+ *  scripts/chart_positions.py over the same crop this view takes. */
+const LUMA = new Map(CHART.reaches.map((r) => [r.reach, r.luma] as const));
+
 /**
- * Where to draw each island.
+ * How hard to scrim the painting for a chain of this brightness.
  *
- * Starts from the scatter the simulation generated, so a chain keeps its own
- * shape, then pushes any pair that is too close apart until every island has
- * room for its label. Deterministic: same chain, same picture, every render.
+ * A flat scrim was wrong in both directions. The Crown's chain fills the frame
+ * with a lit island and needed 0.70 to bring a Confederacy mark from 1.4:1 up
+ * over the 3:1 floor; Cinder Reach's crop is dark water to begin with, and the
+ * same 0.70 erased it to a black rectangle — a zoom of nothing.
+ *
+ * The line below is fitted to the one case that was measured end to end:
+ * Sovereign at a stored luma of 52 wants 0.70. Everything else falls out of
+ * that. The floor is not zero because even a dark crop is busier than a flat
+ * ground, and a little separation costs the painting nothing.
  */
-function layoutIslands(systems: System[]): Array<{ x: number; y: number }> {
-  const xs = systems.map((s) => s.x);
-  const ys = systems.map((s) => s.y);
-  const spanX = Math.max(...xs) - Math.min(...xs) || 1;
-  const spanY = Math.max(...ys) - Math.min(...ys) || 1;
-  const points = systems.map((s) => ({
-    x: FIELD_PAD + ((s.x - Math.min(...xs)) / spanX) * (FIELD_W - FIELD_PAD * 2),
-    y: FIELD_PAD + ((s.y - Math.min(...ys)) / spanY) * (FIELD_H - FIELD_PAD * 2),
-  }));
+function scrimFor(reach: string | undefined): number {
+  const l = reach !== undefined ? (LUMA.get(reach) ?? 40) : 40;
+  return Math.max(0.12, Math.min(0.72, (l - 20) / 46));
+}
+
+/** "Reach/Island" -> where the painting put it, in chart coordinates. */
+const PAINTED = new Map(
+  CHART.reaches.flatMap((r) => r.islands.map((i) => [`${r.reach}/${i.name}`, i] as const)),
+);
+/** Water to leave around a chain when cropping the painting to it. */
+const CROP_PAD = 46;
+/** Past this much displacement an island has been pushed off its own painted
+ *  land, and gets a leader line back to it. Under it, nobody would notice. */
+const TETHER = 34;
+
+/**
+ * The window of the big chart this chain fills.
+ *
+ * The chain's own islands, plus a margin, widened to the field's proportion so
+ * the painting is never stretched. Clamped to the painting's edges, because a
+ * chain near the rim would otherwise crop past it and show a band of nothing.
+ */
+function cropFor(points: Array<{ x: number; y: number }>) {
+  const xs = points.map((p) => p.x);
+  const ys = points.map((p) => p.y);
+  let w = Math.max(...xs) - Math.min(...xs) + CROP_PAD * 2;
+  let h = Math.max(...ys) - Math.min(...ys) + CROP_PAD * 2;
+  const want = FIELD_W / FIELD_H;
+  if (w / h > want) h = w / want;
+  else w = h * want;
+  const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+  const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+  let x = cx - w / 2;
+  let y = cy - h / 2;
+  if (w <= CHART.width) x = Math.max(0, Math.min(CHART.width - w, x));
+  if (h <= CHART.height) y = Math.max(0, Math.min(CHART.height - h, y));
+  return { x, y, w, h, scale: FIELD_W / w };
+}
+
+/**
+ * Where to draw each island, and where the painting says it really is.
+ *
+ * Two positions per island, and the gap between them is the whole design
+ * problem here. The painting is the truth, and a chain in it is tight: the ten
+ * islands of a Reach sit 24 to 50 chart units apart. Blown up to fill this
+ * field that is 120 to 220 units — and one island's marks, name and slot bar
+ * need 262. Coral Reach is 39. So a faithful zoom would stack every island's
+ * information on its neighbour's.
+ *
+ * Zooming further does not rescue it: preserving 262 units of separation would
+ * need between 7.5x and 36.6x, and at 36x you are looking at twenty-eight
+ * pixels of a 1024px painting.
+ *
+ * So the marks start where the painting put the island and are pushed apart
+ * only as far as they must be. On a roomy chain nothing moves far and the mark
+ * sits on its own painted island. On a crowded one it is pushed off, and gets
+ * a hairline back to where it belongs rather than pretending. That way the
+ * view is a zoom of the chart wherever it honestly can be, and says so
+ * wherever it cannot.
+ */
+function layoutIslands(
+  systems: System[],
+  seeds: Array<{ x: number; y: number }> | null,
+): Array<{ x: number; y: number }> {
+  const points = seeds
+    ? seeds.map((p) => ({ ...p }))
+    : fromScatter(systems);
 
   for (let pass = 0; pass < 160; pass++) {
     for (let i = 0; i < points.length; i++) {
@@ -71,6 +150,19 @@ function layoutIslands(systems: System[]): Array<{ x: number; y: number }> {
     }
   }
   return points;
+}
+
+/** The old layout: spread the simulation's own scatter across the field.
+ *  Still the fallback for a chain the painting has never heard of. */
+function fromScatter(systems: System[]): Array<{ x: number; y: number }> {
+  const xs = systems.map((s) => s.x);
+  const ys = systems.map((s) => s.y);
+  const spanX = Math.max(...xs) - Math.min(...xs) || 1;
+  const spanY = Math.max(...ys) - Math.min(...ys) || 1;
+  return systems.map((s) => ({
+    x: FIELD_PAD + ((s.x - Math.min(...xs)) / spanX) * (FIELD_W - FIELD_PAD * 2),
+    y: FIELD_PAD + ((s.y - Math.min(...ys)) / spanY) * (FIELD_H - FIELD_PAD * 2),
+  }));
 }
 
 /** Marks drawn in a 20-unit box, so they can be placed on a 20-unit grid. */
@@ -137,7 +229,30 @@ export function ChainMap({
   sailing?: boolean;
 }) {
   const viewer = state.player;
-  const spots = useMemo(() => layoutIslands(systems), [systems]);
+  const ground = paintedChart('seas');
+  const reachName = state.sectors.find((r) => r.id === systems[0]?.sectorId)?.name;
+
+  // Where the painting puts each of these islands, if it knows them all. One
+  // missing island and the whole chain falls back rather than mixing a painted
+  // position with a made-up one.
+  const painted = useMemo(() => {
+    if (!ground || !reachName) return null;
+    const found = systems.map((sy) => PAINTED.get(`${reachName}/${sy.name}`));
+    return found.every(Boolean) ? (found as Array<{ x: number; y: number }>) : null;
+  }, [ground, reachName, systems]);
+
+  const crop = useMemo(() => (painted ? cropFor(painted) : null), [painted]);
+
+  /** The painting's positions, in this field's coordinates. */
+  const truth = useMemo(
+    () =>
+      painted && crop
+        ? painted.map((p) => ({ x: (p.x - crop.x) * crop.scale, y: (p.y - crop.y) * crop.scale }))
+        : null,
+    [painted, crop],
+  );
+
+  const spots = useMemo(() => layoutIslands(systems, truth), [systems, truth]);
   const summaryById = useMemo(
     () => new Map(perIsland.map((entry) => [entry.systemId, entry] as const)),
     [perIsland],
@@ -151,6 +266,39 @@ export function ChainMap({
       role="group"
       aria-label="Islands of this chain"
     >
+      {/* The same painting as the chart, wound in to this chain. Clipped
+          rather than letterboxed, so the crop fills the field exactly. */}
+      {ground && crop && (
+        <>
+          <defs>
+            <clipPath id="chainmap-frame">
+              <rect x={0} y={0} width={FIELD_W} height={FIELD_H} />
+            </clipPath>
+          </defs>
+          <g clipPath="url(#chainmap-frame)" pointerEvents="none">
+            <rect x={0} y={0} width={FIELD_W} height={FIELD_H} fill="var(--water-deep)" />
+            <g transform={`translate(${-crop.x * crop.scale} ${-crop.y * crop.scale}) scale(${crop.scale})`}>
+              <image href={ground} x={0} y={0} width={CHART.width} height={CHART.height} />
+            </g>
+            {/* Wound in this far, the painting stops being a dark sea and
+                becomes a bright island filling the frame. Measured on the
+                Crown's chain: the brightest tenth reaches luma 99, where a
+                Confederacy mark is 1.4:1 against a 3:1 floor. The whole chart
+                is darkened once for the map view and that is not enough here,
+                because this view is zoomed onto the brightest part of it —
+                and too much for the chains whose crop was already dark. */}
+            <rect
+              x={0}
+              y={0}
+              width={FIELD_W}
+              height={FIELD_H}
+              fill="var(--water-deep)"
+              opacity={scrimFor(reachName)}
+            />
+          </g>
+        </>
+      )}
+
       {systems.map((system, index) => {
         const spot = spots[index];
         const entry = summaryById.get(system.id);
@@ -242,6 +390,26 @@ export function ChainMap({
                       : 'Uncharted island'
             }
           >
+            {/* Pushed off its own painted island to make room. Say so: a
+                hairline to where it actually lies, and a tick on the land. */}
+            {(() => {
+              const real = truth?.[index];
+              if (!real) return null;
+              if (Math.hypot(real.x - spot.x, real.y - spot.y) < TETHER) return null;
+              return (
+                <g pointerEvents="none" opacity={live ? 0.55 : 0.2}>
+                  <line
+                    className="chainmap__tether"
+                    x1={spot.x}
+                    y1={spot.y}
+                    x2={real.x}
+                    y2={real.y}
+                  />
+                  <circle className="chainmap__tether-end" cx={real.x} cy={real.y} r={7} />
+                </g>
+              );
+            })()}
+
             {/* A finger-sized target over the whole island, marks included. */}
             {live && <circle cx={spot.x} cy={spot.y} r={62} fill="transparent" />}
             {(sailing || pickingFor) && live && (
@@ -319,12 +487,22 @@ export function ChainMap({
               />
             )}
 
-            {/* Shelf of shallows, then the coastline. */}
+            {/* Shelf of shallows, then the coastline. Over the painting the
+                shelf becomes a dark halo instead: the painted shallows are
+                already there, and a second wash of them only muddies the land
+                underneath — but the island body needs its own ground, because
+                it may have been pushed into open water.
+                The halo is what settles the contrast properly. Scrimming each
+                chain by its own brightness gets the typical ground to 3.5:1
+                for a Confederacy mark, but the brightest two percent — surf,
+                sun on a reef — still measured 2.2:1. Darkening the whole
+                painting to chase that would cost every chain its picture; a
+                halo under each mark fixes it where the problem actually is. */}
             <path
               d={islandPath(system.name, 40)}
               transform={`translate(${spot.x} ${spot.y})`}
-              fill="var(--shallow)"
-              opacity={explored ? 0.5 : 0.25}
+              fill={ground && crop ? 'var(--water-deep)' : 'var(--shallow)'}
+              opacity={ground && crop ? (explored ? 0.82 : 0.55) : explored ? 0.5 : 0.25}
               pointerEvents="none"
             />
             <path
@@ -346,7 +524,7 @@ export function ChainMap({
             />
 
             <text
-              className="chainmap__name"
+              className={ground && crop ? 'chainmap__name chainmap__name--painted' : 'chainmap__name'}
               x={spot.x}
               y={spot.y + 74}
               fill={flag}
