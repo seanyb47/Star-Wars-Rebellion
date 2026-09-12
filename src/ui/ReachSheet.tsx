@@ -1,16 +1,25 @@
-import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import { summariseReach, type GameState, type PlayableFaction, type Sector } from '../sim';
 import { ChainMap } from './ChainMap';
 import type { IslandTab } from './IslandRow';
-import { Sheet, Stat } from './components';
+import { Sheet } from './components';
 
 export type { IslandTab };
 
 /**
- * A whole Reach at once: what it earns, who its islands lean toward, and then
- * the chain itself drawn as a chart, every island carrying the marks that say
- * what is happening on it. Tapping an island opens its panel.
+ * A Reach is its islands, and nothing else.
+ *
+ * This used to open with two cards of numbers — how many islands you held,
+ * how many were unaligned, what the Reach earned and what it cost — above the
+ * chart. Both are gone. Every one of those figures was already on the chart
+ * underneath them: an island you hold is painted in your colour, one earning
+ * gold carries the mark for it, and how many there are of each is a glance
+ * rather than a count. Restating it in a stat card pushed the only thing worth
+ * looking at below the fold, on the screen where you spend most of the game.
+ *
+ * The rule this leaves behind: a panel says what its own level knows. A Reach
+ * knows which islands are in it. What is happening *on* an island is the
+ * island's own panel, one tap away.
  */
 export function ReachSheet({
   state,
@@ -33,8 +42,6 @@ export function ReachSheet({
 }) {
   const summary = summariseReach(state, sector.id, state.player);
   const byId = new Map(state.systems.map((s) => [s.id, s] as const));
-  const you = state.player;
-  const enemy = you === 'empire' ? 'alliance' : 'empire';
 
   return (
     <Sheet
@@ -58,41 +65,11 @@ export function ReachSheet({
       }
       onClose={onClose}
     >
-      <div className="card row" style={{ gap: 16 }}>
-        <Stat label="Yours" value={summary.held} />
-        <Stat label="Unaligned" value={summary.unaligned} />
-        <Stat label={factionData[enemy].shortName} value={summary.enemyHeld} />
-        <Stat label="Ashore" value={summary.garrison} />
-      </div>
-
-      <div className="section-title">What it earns you</div>
-      <div className="card row" style={{ gap: 16 }}>
-        <Stat label={`${terms.gold} a day`} value={summary.goldPerDay.toFixed(1)} />
-        <Stat label={`${terms.upkeep} a day`} value={summary.upkeepPerDay} />
-        <Stat
-          label="Net"
-          value={
-            <span style={{ color: summary.goldPerDay - summary.upkeepPerDay < 0 ? 'var(--bad)' : 'var(--good)' }}>
-              {summary.goldPerDay - summary.upkeepPerDay >= 0 ? '+' : '−'}
-              {Math.abs(summary.goldPerDay - summary.upkeepPerDay).toFixed(1)}
-            </span>
-          }
-        />
-      </div>
-      {summary.goldPerDay === 0 && (
-        <p className="tiny muted" style={{ marginTop: 6 }}>
-          Nothing of yours is producing in this {terms.reach.toLowerCase()}.
-        </p>
-      )}
-
-
-
-      <div className="section-title">Islands</div>
       {/*
         The chain opened out as a chart rather than a list of rows: the islands
         where they lie, each carrying who holds it, what stands on it, whether
         your crew are working it, how it leans and how much of it is free. Tap
-        one to open it.
+        one to open it. No heading above it — it is the whole panel.
       */}
       <ChainMap
         state={state}
