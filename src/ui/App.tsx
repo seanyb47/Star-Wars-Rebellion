@@ -479,6 +479,7 @@ export function App() {
           onOpenIsland={openIslandTab}
           pickingFor={pickingCharacter ? (pickingCharacter.faction as PlayableFaction) : null}
           sailing={sailingFleetId !== null}
+          layer={layer}
           onOpenSea={(sea) => {
             // Step up from the chain to its whole Sea, rather than stacking
             // the two panels with the chain's still on top.

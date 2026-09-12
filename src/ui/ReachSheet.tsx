@@ -1,5 +1,11 @@
 import terms from '../data/terms.json';
-import { summariseReach, type GameState, type PlayableFaction, type Sector } from '../sim';
+import {
+  summariseReach,
+  type ChartLayer,
+  type GameState,
+  type PlayableFaction,
+  type Sector,
+} from '../sim';
 import { ChainMap } from './ChainMap';
 import type { IslandTab } from './IslandRow';
 import { Sheet } from './components';
@@ -29,6 +35,7 @@ export function ReachSheet({
   onOpenSea,
   pickingFor,
   sailing,
+  layer,
 }: {
   state: GameState;
   sector: Sector;
@@ -37,6 +44,8 @@ export function ReachSheet({
   /** Passed through so the chart can dim islands you cannot sail to. */
   pickingFor?: PlayableFaction | null;
   sailing?: boolean;
+  /** Whatever the chart is filtering by, so the same islands stay lit in here. */
+  layer?: ChartLayer;
   /** The Sea name is the way into the whole Sea, now the chart shows chains. */
   onOpenSea?: (sea: string) => void;
 }) {
@@ -78,6 +87,7 @@ export function ReachSheet({
         onOpenIsland={onOpenIsland}
         pickingFor={pickingFor}
         sailing={sailing}
+        layer={layer}
       />
       <div className="chainmap__key">
         <span><i className="key key--civil" /> Earns gold</span>

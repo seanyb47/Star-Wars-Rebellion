@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
 import { isMissionTarget, layerMark, summariseReach, type ChartLayer } from '../sim';
 import { LayerStrip, useLayerSwipe } from './LayerStrip';
-import { allegianceColour, allegianceSegments, segmentsFor } from './allegiance';
+import { allegianceColour, allegianceSegments } from './allegiance';
 import { CompassRose, islandPath } from './art';
 import { paintedChart } from './painted';
 import chartData from '../data/chart.json';
@@ -38,6 +38,7 @@ const CHART = chartData as {
     y: number;
     r: number;
     ry: number;
+    label: { x: number; y: number };
     islands: Array<{ name: string; x: number; y: number }>;
   }>;
 };
@@ -107,7 +108,9 @@ const CHAIN_PAD = 34;
  *  middle so it is visible and obviously provisional. */
 function fallbackSpot(index: number) {
   const t = (index / 10) * Math.PI * 2;
-  return { x: CHART_W / 2 + Math.cos(t) * 380, y: CHART_H / 2 + Math.sin(t) * 560, r: 90, ry: 90 };
+  const x = CHART_W / 2 + Math.cos(t) * 380;
+  const y = CHART_H / 2 + Math.sin(t) * 560;
+  return { x, y, r: 90, ry: 90, label: { x, y: y + 150 } };
 }
 
 /**
@@ -244,10 +247,17 @@ export function GalaxyMap({
         summary: summariseReach(state, sector.id, viewer),
         spot,
         chainR: place.r + CHAIN_PAD,
-        // The label hangs off the chain's vertical extent, not its radius:
-        // those are the same for a round chain and a hundred units apart for
-        // a long thin one.
-        labelDrop: place.ry + CHAIN_PAD,
+        /**
+         * Where the name goes, worked out against the painting itself by
+         * scripts/chart_positions.py rather than hung off the cluster here.
+         *
+         * Hanging it off the cluster put half the names on their own islands —
+         * Rime's sat across the arctic peaks — and left Salt's flipping above
+         * into Sovereign's. The script has the land, so it scores a ring of
+         * candidate spots by how clear of coastline each is and how far from
+         * every name already placed, biggest chain first.
+         */
+        label: place.label,
         // While choosing a destination, a chain is live only if something
         // in it can actually be sailed to.
         targets: systems.filter((s) => isMissionTarget(state, s, viewer)).length,
@@ -337,7 +347,7 @@ export function GalaxyMap({
           ))}
         </g>
 
-        {chains.map(({ sector, systems, summary, targets, spot, chainR, labelDrop }) => {
+        {chains.map(({ sector, systems, summary, targets, spot, chainR, label }) => {
           // Sailing can go anywhere; a parley can only go where it is welcome.
           const live = sailing || !pickingFor || targets > 0;
           // Under a layer, a chain holding no answer drops back so the ones
@@ -350,17 +360,10 @@ export function GalaxyMap({
           // Below the chain normally; above it when below would put the name
           // in the water band or off the bottom of the chart entirely, which
           // is what happened to Salt Reach.
-          // Below the chain normally; above it only if below would run off the
-          // chart. The water band at the foot is fair game — that is what it is
-          // for — so the limit is the whole view, not the painting.
-          const below = spot.y + labelDrop + 34;
-          // The foot of the chart is not free: the layer strip, its hint line
-          // and the chart's own controls sit over the last 225 units of it.
-          // Measured against the rendered page, not guessed.
-          const flip = below + 100 > VIEW_H - 225;
-          const labelY = flip ? spot.y - labelDrop - 56 : below;
+          const labelX = label.x;
+          const labelY = label.y;
           // The names still break at the last space — "Shipwrights'" over
-          // "Reach 3/10" — which keeps every label inside its own column.
+          // "Reach" — which keeps every label inside its own column.
           const words = sector.name.split(' ');
           const tail = words.length > 1 ? words.pop()! : '';
           const head = words.join(' ');
@@ -502,40 +505,22 @@ export function GalaxyMap({
                   without being counted. */}
               <text
                 className="map__sector-label"
-                x={spot.x}
+                x={labelX}
                 y={labelY}
                 pointerEvents="none"
               >
-                {head && <tspan x={spot.x}>{head}</tspan>}
-                <tspan x={spot.x} dy={head ? 36 : 0}>
+                {head && <tspan x={labelX}>{head}</tspan>}
+                <tspan x={labelX} dy={head ? 36 : 0}>
                   {tail || head}
                   {summary.mutinies > 0 && <tspan className="map__chain-alarm"> ⚑</tspan>}
                 </tspan>
               </text>
-              <g pointerEvents="none">
-                <rect x={spot.x - 46} y={labelY + (head ? 48 : 12)} width={92} height={9} rx={4.5} fill="#0a2b36" />
-                {(() => {
-                  let x = spot.x - 46;
-                  return segmentsFor(
-                    summary.allegiance.empire,
-                    summary.allegiance.alliance,
-                  ).map((segment) => {
-                    const w = (92 * segment.pct) / 100;
-                    const rect = (
-                      <rect
-                        key={segment.faction}
-                        x={x}
-                        y={labelY + (head ? 48 : 12)}
-                        width={w}
-                        height={9}
-                        fill={allegianceColour(segment.faction)}
-                      />
-                    );
-                    x += w;
-                    return rect;
-                  });
-                })()}
-              </g>
+              {/* The allegiance bar under each name is gone. Seven of them
+                  turned the chart into a bar chart with a painting behind it,
+                  and every one restated something the islands above it were
+                  already saying in colour — which is the whole point of
+                  painting them by loyalty. A Reach that is in revolt still
+                  says so, because that is the one thing the islands cannot. */}
             </g>
           );
         })}

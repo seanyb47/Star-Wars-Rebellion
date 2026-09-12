@@ -2,9 +2,11 @@ import { useMemo } from 'react';
 import {
   earns,
   isMissionTarget,
+  layerMark,
   missionTypeFor,
   recruitOn,
   type GameState,
+  type ChartLayer,
   type IslandSummary,
   type PlayableFaction,
   type System,
@@ -225,6 +227,7 @@ export function ChainMap({
   onOpenIsland,
   pickingFor,
   sailing,
+  layer,
 }: {
   state: GameState;
   systems: System[];
@@ -234,8 +237,20 @@ export function ChainMap({
   pickingFor?: PlayableFaction | null;
   /** A fleet is choosing where to sail, and it can sail anywhere. */
   sailing?: boolean;
+  /**
+   * Whichever question the chart is asking, still being asked in here.
+   *
+   * Switching to Idle crew, seeing three chains light up and then opening one
+   * to a view that had forgotten all about it was the obvious fault: the whole
+   * point of a filter is to narrow the search, and it was giving up at exactly
+   * the moment the search got specific.
+   */
+  layer?: ChartLayer;
 }) {
   const viewer = state.player;
+  // Picking a destination is a different question from reading the chart, so
+  // the layers stand down while it is happening — same rule as the chart's.
+  const filtering = Boolean(layer) && layer !== 'allegiance' && !pickingFor && !sailing;
   const ground = paintedChart('seas');
   const reachName = state.sectors.find((r) => r.id === systems[0]?.sectorId)?.name;
 
@@ -379,7 +394,9 @@ export function ChainMap({
             onClick={live ? () => onOpenIsland(system.id) : undefined}
             role="button"
             aria-disabled={live ? undefined : true}
-            opacity={live ? 1 : 0.3}
+            opacity={
+              live ? (filtering && !layerMark(state, system, layer!, viewer).lit ? 0.34 : 1) : 0.3
+            }
             style={{ cursor: live ? 'pointer' : 'default' }}
             aria-label={
               work === 'recruit'
@@ -398,6 +415,23 @@ export function ChainMap({
                       : 'Uncharted island'
             }
           >
+            {/* Lit because it answers whatever the chart is filtering by.
+                Brass, and a ring rather than a wash: this is the interface
+                pointing at something, not the world saying whose it is. */}
+            {filtering && layerMark(state, system, layer!, viewer).lit && (
+              <g pointerEvents="none">
+                <circle className="chainmap__lit" cx={spot.x} cy={spot.y + 2} r={46} />
+                {(() => {
+                  const n = layerMark(state, system, layer!, viewer).count;
+                  return n !== undefined && n > 1 ? (
+                    <text className="chainmap__lit-n" x={spot.x + 50} y={spot.y - 26}>
+                      {n}
+                    </text>
+                  ) : null;
+                })()}
+              </g>
+            )}
+
             {/* Pushed off its own painted island to make room. Say so: a
                 hairline to where it actually lies, and a tick on the land. */}
             {(() => {

@@ -33,6 +33,8 @@ import json
 import os
 import sys
 
+import math
+
 import numpy as np
 from PIL import Image, ImageDraw
 from scipy import ndimage
@@ -238,6 +240,76 @@ def main() -> None:
             max(0, int(x0 * sx)) : max(1, int((x0 + w) * sx)),
         ]
         entry["luma"] = round(float(np.percentile(box, 90)), 1) if box.size else 0.0
+
+    # --- Where each chain's name goes -------------------------------------
+    #
+    # Hung off the cluster, the names landed on their own islands as often as
+    # not: Rime's sat across the arctic peaks, Salt's had to flip above and
+    # nearly collided with Sovereign's. The chart knows where the land is, so
+    # it can be asked.
+    #
+    # For each chain, try a ring of candidate spots around it and score each by
+    # how far it is from painted land and from every name already placed.
+    # Biggest chain first, so the crowded middle of the chart is settled before
+    # the edges have to work around it.
+    land_img = np.asarray(Image.open(PAINTING).convert("RGB"), dtype=float)
+    ih2, iw2, _ = land_img.shape
+    is_land = (land_img[:, :, 1] >= land_img[:, :, 2]) & (land_img[:, :, 1] > 70)
+    # Distance from every point to the nearest land, in chart units.
+    clear = ndimage.distance_transform_edt(~is_land) * (CHART_W / iw2)
+
+    def clearance(x: float, y: float) -> float:
+        px = int(min(max(x * iw2 / CHART_W, 0), iw2 - 1))
+        py = int(min(max(y * ih2 / CHART_H, 0), ih2 - 1))
+        return float(clear[py, px])
+
+    # The name is two lines of serif over an allegiance-free caption, and the
+    # foot of the chart belongs to the layer strip.
+    HALF_W, HALF_H, FOOT = 105.0, 46.0, 250.0
+    placed: list[tuple[float, float]] = []
+    for entry in sorted(out, key=lambda e: -len(e["islands"])):
+        cx, cy, ry = entry["x"], entry["y"], entry["ry"]
+        best, best_score = (cx, cy + ry + 62), -1e9
+        for angle in range(0, 360, 10):
+            t = math.radians(angle)
+            for reach_out in (ry + 40, ry + 66, ry + 95):
+                x = cx + math.cos(t) * (reach_out * 1.15)
+                y = cy + math.sin(t) * reach_out
+                if not (HALF_W + 12 < x < CHART_W - HALF_W - 12):
+                    continue
+                # The label's own height counts against the foot: Salt cleared
+                # the bound by six units on its centre and still put its second
+                # line behind the layer strip.
+                if not (HALF_H + 30 < y < CHART_H + 170 - FOOT - HALF_H):
+                    continue
+                # Clear of land at the name's own corners, not just its centre.
+                room = min(
+                    clearance(x + dx, y + dy)
+                    for dx in (-HALF_W, 0, HALF_W)
+                    for dy in (-HALF_H, 0, HALF_H)
+                )
+                apart = min(
+                    (math.hypot(x - px, (y - py) * 1.8) for px, py in placed),
+                    default=600.0,
+                )
+                # Closer to its own chain is better, and it has to outweigh
+                # the rest: the first pass let Coral's name wander 290 units
+                # left in search of open water, where it read as belonging to
+                # whatever it was nearest instead. A name floating in the
+                # middle of nowhere belongs to nothing.
+                near = -math.hypot(x - cx, y - cy) * 2.1
+                # Clearance matters less than it first seemed. Names on the
+                # chart are drawn with a dark stroke behind them, so one lying
+                # over a coastline is perfectly readable — and Coral has no
+                # open water within reach at all: the frame is to its right,
+                # its own islands below, the top edge above. Weighted the first
+                # way its name went 225 units left and read as belonging to
+                # whatever it was nearest. Belonging beats clearance.
+                score = min(room, 45) * 0.8 + min(apart, 240) * 0.8 + near
+                if score > best_score:
+                    best, best_score = (x, y), score
+        entry["label"] = {"x": round(best[0], 1), "y": round(best[1], 1)}
+        placed.append(best)
 
     doc = {
         "_comment": (

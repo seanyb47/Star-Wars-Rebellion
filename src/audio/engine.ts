@@ -31,6 +31,8 @@ export class AudioEngine {
   private noiseGain: GainNode | null = null;
   private swellLfo: OscillatorNode | null = null;
   private bellTimer: number | null = null;
+  private driftTimer: number | null = null;
+  private chord = 0;
   private readonly current: BedVoice = BED;
   /** Extra dissonance layered on while islands of yours are in revolt. */
   private unrest = 0;
@@ -44,6 +46,7 @@ export class AudioEngine {
     if (!this.ctx) this.build();
     await this.ctx?.resume();
     this.scheduleBell();
+    this.scheduleDrift();
   }
 
   async suspend(): Promise<void> {
@@ -51,12 +54,18 @@ export class AudioEngine {
       window.clearTimeout(this.bellTimer);
       this.bellTimer = null;
     }
+    if (this.driftTimer !== null) {
+      window.clearTimeout(this.driftTimer);
+      this.driftTimer = null;
+    }
     await this.ctx?.suspend();
   }
 
   stop(): void {
     if (this.bellTimer !== null) window.clearTimeout(this.bellTimer);
     this.bellTimer = null;
+    if (this.driftTimer !== null) window.clearTimeout(this.driftTimer);
+    this.driftTimer = null;
     this.musicToken++;
     try {
       this.music?.stop();
@@ -113,7 +122,7 @@ export class AudioEngine {
       osc.frequency.value = this.current.root * ratio;
       osc.detune.value = (index - 1) * this.current.detune;
       const gain = ctx.createGain();
-      gain.gain.value = 0.3 / (index + 1);
+      gain.gain.value = this.current.levels[index] ?? 0.3 / (index + 1);
       osc.connect(gain);
       gain.connect(this.filter);
       osc.start();
@@ -121,7 +130,10 @@ export class AudioEngine {
       this.voiceGains.push(gain);
     }
 
-    // The sea itself: noise under a slow swell.
+    // The sea itself: noise under a slow swell. Two bands rather than one —
+    // the low one is the swell moving under the hull, the quieter high one is
+    // the break of it, and without that second band the water reads as a
+    // rumble instead of as water.
     const noise = ctx.createBufferSource();
     noise.buffer = this.noise(4);
     noise.loop = true;
@@ -130,17 +142,27 @@ export class AudioEngine {
     noiseBand.frequency.value = 380;
     noiseBand.Q.value = 0.6;
     this.noiseGain = ctx.createGain();
-    this.noiseGain.gain.value = this.current.swell * 0.1;
+    this.noiseGain.gain.value = this.current.swell * 0.34;
     noise.connect(noiseBand);
     noiseBand.connect(this.noiseGain);
     this.noiseGain.connect(this.bedGain);
+
+    const surfBand = ctx.createBiquadFilter();
+    surfBand.type = 'bandpass';
+    surfBand.frequency.value = 1400;
+    surfBand.Q.value = 0.5;
+    const surfGain = ctx.createGain();
+    surfGain.gain.value = this.current.swell * 0.05;
+    noise.connect(surfBand);
+    surfBand.connect(surfGain);
+    surfGain.connect(this.bedGain);
     noise.start();
 
     // A long slow rise and fall, so the bed breathes rather than sits.
     this.swellLfo = ctx.createOscillator();
     this.swellLfo.frequency.value = 0.05;
     const lfoDepth = ctx.createGain();
-    lfoDepth.gain.value = this.current.swell * 0.06;
+    lfoDepth.gain.value = this.current.swell * 0.2;
     this.swellLfo.connect(lfoDepth);
     lfoDepth.connect(this.noiseGain.gain);
     this.swellLfo.start();
@@ -321,6 +343,38 @@ export class AudioEngine {
         this.ping(this.ctx.currentTime, this.current.bell, 0.22, 2.6, 'triangle');
       }
       this.scheduleBell();
+    }, wait);
+  }
+
+  /**
+   * Move the upper two voices to a new consonant position, very slowly.
+   *
+   * `setTargetAtTime` rather than a ramp, because a ramp arrives at a moment
+   * and an exponential approach never quite does: the chord is simply somewhere
+   * else the next time you listen for it.
+   */
+  private scheduleDrift(): void {
+    if (this.driftTimer !== null) window.clearTimeout(this.driftTimer);
+    const mean = this.current.driftEvery * 1000;
+    const wait = mean * (0.7 + Math.random() * 0.7);
+    this.driftTimer = window.setTimeout(() => {
+      const ctx = this.ctx;
+      const chords = this.current.chords;
+      if (ctx?.state === 'running' && chords.length > 1 && this.voices.length >= 3) {
+        // Anywhere but where we already are.
+        let next = this.chord;
+        while (next === this.chord) next = Math.floor(Math.random() * chords.length);
+        this.chord = next;
+        const glide = this.current.driftGlide / 3;
+        for (const [step, ratio] of chords[next].entries()) {
+          this.voices[step + 1]?.frequency.setTargetAtTime(
+            this.current.root * ratio,
+            ctx.currentTime,
+            glide,
+          );
+        }
+      }
+      this.scheduleDrift();
     }, wait);
   }
 
