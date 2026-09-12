@@ -359,6 +359,7 @@ button {
 
 /* ---------- Start screen ---------- */
 .start {
+  position: relative;
   height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -368,6 +369,46 @@ button {
     radial-gradient(120% 60% at 50% 0%, #0e2c38 0%, var(--bg) 60%),
     var(--bg);
 }
+/**
+ * The title screen stands on the chart it is about.
+ *
+ * The painting cannot carry text on its own: darkened to a mean luma of 14 its
+ * brightest reef still only gives body text 4.2:1, and the tagline is muted
+ * grey at 13px, which needs more. So the painting is open behind the rose and
+ * the title — large type, and the most striking part of the image — and a
+ * scrim closes over it before the first line of small text. Measured against
+ * the rendered page, not guessed.
+ */
+.start--painted { background: var(--bg); }
+.start--painted::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: var(--backdrop);
+  /* Full width, top-aligned, not `cover`: the page is far taller than 2:3, so
+     cover scaled the painting up until only a narrow vertical strip of it was
+     on screen. At 100% width the whole chart is there and the scrim disposes
+     of the part nobody needs to see. */
+  background-size: 100% auto; background-repeat: no-repeat; background-position: 50% 0;
+}
+.start--painted::after {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(6, 22, 29, 0.10) 0%,
+    rgba(6, 22, 29, 0.28) 15%,
+    rgba(6, 22, 29, 0.78) 29%,
+    rgba(6, 22, 29, 0.95) 41%,
+    var(--bg) 58%
+  );
+}
+.start--painted > * { position: relative; z-index: 1; }
+/* Measured on the rendered page with the text hidden: the brightest patch of
+   backdrop under the tagline is #415856, where muted grey is 2.56:1 against a
+   4.5:1 floor. Lifting it to #cfe0e6 gives 5.6:1. The shadow is belt as well
+   as braces — it darkens the ground locally, which the contrast figure above
+   cannot take credit for. */
+.start--painted .start__tagline { color: #cfe0e6; }
+.start--painted .start__head { text-shadow: 0 1px 7px rgba(4, 18, 25, 0.92); }
+
 .start__head { text-align: center; margin-bottom: 20px; }
 .start__rose { display: flex; justify-content: center; color: var(--brass); margin-bottom: 6px; }
 .start__title { font-size: 27px; line-height: 1.15; margin: 0 0 8px; font-weight: 700; }

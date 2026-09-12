@@ -2,6 +2,7 @@ import { useState } from 'react';
 import factionData from '../data/factions.json';
 import type { PlayableFaction } from '../sim';
 import { CompassRose, FactionCrest } from './art';
+import { paintedChart } from './painted';
 
 /**
  * Difficulty is shown because the player asked to see the choice, but only
@@ -41,9 +42,16 @@ export function StartScreen({
 }) {
   const [faction, setFaction] = useState<PlayableFaction | null>(null);
   const detail = faction ? FACTION_DETAIL[faction] : null;
+  // The world, behind the choice of which side of it to take. Clear behind the
+  // title and scrimmed away under the text — see .start--painted, which is
+  // where the legibility is actually bought.
+  const backdrop = paintedChart('title');
 
   return (
-    <div className="start">
+    <div
+      className={backdrop ? 'start start--painted' : 'start'}
+      style={backdrop ? ({ ['--backdrop' as string]: `url(${backdrop})` }) : undefined}
+    >
       <header className="start__head">
         <div className="start__rose">
           <CompassRose size={64} opacity={0.55} />

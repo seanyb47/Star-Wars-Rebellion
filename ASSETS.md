@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**8 of 63 painted.** 610KB shipped, 3.8MB of masters kept back.
+**9 of 64 painted.** 718KB shipped, 4.1MB of masters kept back.
 
 ## portraits — 640×896
 
@@ -43,15 +43,17 @@ full-bleed dispatch banner, quiet sky. 7 of 7.
 
 ## chart — 1024×1536
 
-top-down chart ground, quiet where the chains sit. 1 of 1.
+top-down chart ground, quiet where the chains sit. 2 of 2.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
 | The Seven Seas | `seas` | 1 | 100KB | 1024×1536, 464KB | whole frame, gamma 1.6 | 2026-09-12 | ChatGPT art project, 12 Sep 2026 |
+| The Shattered Blue, from the title screen | `title` | 1 | 107KB | 1024×1536, 356KB | whole frame, gamma 1.25 | 2026-09-12 | ChatGPT art project, 12 Sep 2026 |
 
 ## Notes
 
 - **chart/seas** — Delivered at luma 56 — as bright as the reference maps and about twice what the interface needs; a Confederacy mark on it measured 2.7:1 against a 3:1 floor. Darkened at ingest with gamma 1.6 rather than repainted: composition was right, only value was wrong, and the master keeps the bright original.
+- **chart/title** — The second chart painting. Darker and more evenly lit than chart/seas — sea luma 43 against 57, and a bottom edge at 43 rather than 73 — but it holds fewer separable chains (9 against 10 at a 20px dilation, 5 against 9 by area), and the chart needs ten. So it takes the title screen, where nothing has to be tapped and the dominant centre island is an asset rather than a crowding problem.
 - **scenes/battle** — Delivered 1536x1024 (square-ish) rather than the 1024x432 banner shape; the shipped band is the middle of it. Crop recovered by matching the shipped file against the master, not recorded at the time — the reason this register now exists.
 
 ## Changing one

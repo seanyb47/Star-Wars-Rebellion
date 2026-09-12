@@ -28,6 +28,34 @@
         "sha1": "b4f32d558a197df7"
       }
     },
+    "chart/title": {
+      "folder": "chart",
+      "slug": "title",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "The Shattered Blue, from the title screen",
+      "source": "ChatGPT art project, 12 Sep 2026",
+      "notes": "The second chart painting. Darker and more evenly lit than chart/seas \u2014 sea luma 43 against 57, and a bottom edge at 43 rather than 73 \u2014 but it holds fewer separable chains (9 against 10 at a 20px dilation, 5 against 9 by area), and the chart needs ten. So it takes the title screen, where nothing has to be tapped and the dominant centre island is an asset rather than a crowding problem.",
+      "crop": null,
+      "tone": {
+        "gamma": 1.25
+      },
+      "master": {
+        "file": "art-masters/chart/title.webp",
+        "w": 1024,
+        "h": 1536,
+        "bytes": 365184,
+        "sha1": "223642b50806abb8"
+      },
+      "shipped": {
+        "file": "src/art/chart/title.webp",
+        "w": 1024,
+        "h": 1536,
+        "bytes": 110070,
+        "sha1": "da657b618f171e13"
+      }
+    },
     "scenes/battle": {
       "folder": "scenes",
       "slug": "battle",
