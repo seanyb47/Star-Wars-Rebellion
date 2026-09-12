@@ -7,6 +7,8 @@ import { buildMenu } from '../build';
 
 function setup(seed = 501) {
   const state = generateGalaxy(seed, 'empire');
+  // The opening fleets are not what these tests count.
+  state.fleets.length = 0;
   const mine = state.systems.find((s) => s.control === 'empire' && s.facilities.length > 0)!;
   return { state, mine };
 }

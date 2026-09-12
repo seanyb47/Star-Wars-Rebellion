@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { advanceDay } from '../advanceDay';
 import { queueBuild } from '../build';
 import { SHIP_ROLES, shipClass, shipSpec } from '../constants';
-import { islandIncome, totalUpkeep } from '../economy';
+import { islandIncome, totalIncome, totalUpkeep } from '../economy';
 import {
   addShip,
   board,
@@ -26,9 +26,15 @@ import { getSystem } from '../helpers';
 import { createRng } from '../rng';
 import type { GameState, PlayableFaction, ShipClassId, System } from '../types';
 
-/** A game with the player holding a known island, for orders to act on. */
+/** A game with the player holding a known island, for orders to act on.
+ *
+ * Cleared of the fleets the game now starts with. Those are the opening
+ * position and are tested as such in `the opening position` below; every test
+ * here is about what happens to a fleet it puts on the water itself, and would
+ * otherwise be counting the Home Fleet's hulls as well as its own. */
 function setup(seed = 7): { state: GameState; home: System } {
   const state = generateGalaxy(seed, 'empire');
+  state.fleets.length = 0;
   const home = getSystem(state, state.factions.empire.hqSystemId);
   return { state, home };
 }
@@ -416,13 +422,24 @@ describe('the opponent builds toward its navy', () => {
   });
 
   it('drills companies rather than living on the ones it started with', () => {
+    /**
+     * Peak, not the final count. The stock of companies is production minus
+     * losses, and an opponent that is winning spends them: it ends a long game
+     * holding two dozen islands on a handful of companies because it threw the
+     * rest at taking them. Netting the two together measures the war, not the
+     * drilling, and it broke the day both sides started with troops aboard.
+     */
     let state = generateGalaxy(2, 'empire');
     const companies = (s: typeof state) =>
       s.systems.filter((x) => x.control === 'alliance').reduce((n, x) => n + x.garrison, 0) +
       s.fleets.filter((f) => f.faction === 'alliance').reduce((n, f) => n + f.troops, 0);
     const before = companies(state);
-    for (let d = 0; d < 400 && !state.winner; d++) state = advanceDay(state);
-    expect(companies(state)).toBeGreaterThan(before);
+    let peak = before;
+    for (let d = 0; d < 400 && !state.winner; d++) {
+      state = advanceDay(state);
+      peak = Math.max(peak, companies(state));
+    }
+    expect(peak).toBeGreaterThan(before);
   });
 });
 
@@ -623,5 +640,41 @@ describe('espionage charts the map', () => {
     for (const r of runs) expect(r!.charted).toBeGreaterThan(0);
     // And usually that is somewhere new worth sending an envoy.
     expect(runs.filter((r) => r!.parley > 0).length / runs.length).toBeGreaterThan(0.7);
+  });
+});
+
+
+describe('the opening position', () => {
+  it('puts a fleet on the water for both sides on day one', () => {
+    const state = generateGalaxy(7, 'empire');
+    for (const faction of ['empire', 'alliance'] as const) {
+      const fleets = state.fleets.filter((f) => f.faction === faction);
+      expect(fleets).toHaveLength(1);
+      expect(fleets[0].systemId).toBe(state.factions[faction].hqSystemId);
+      expect(fleets[0].ships.length).toBeGreaterThanOrEqual(4);
+      // Companies aboard, so the first landing does not wait on a transport
+      // being loaded before it can be thought about.
+      expect(fleets[0].troops).toBeGreaterThan(0);
+      expect(fleets[0].troops).toBeLessThanOrEqual(fleetCapacity(fleets[0]));
+    }
+  });
+
+  it('gives each side a yard that can lay down a hull', () => {
+    const state = generateGalaxy(7, 'empire');
+    for (const faction of ['empire', 'alliance'] as const) {
+      const yards = state.systems
+        .filter((s) => s.control === faction)
+        .flatMap((s) => s.facilities)
+        .filter((f) => f.type === 'shipyard');
+      expect(yards.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('leaves both sides solvent on day one', () => {
+    // A navy you cannot pay for is not an opening position, it is a countdown.
+    const state = generateGalaxy(7, 'empire');
+    for (const faction of ['empire', 'alliance'] as const) {
+      expect(totalIncome(state, faction)).toBeGreaterThan(totalUpkeep(state, faction));
+    }
   });
 });

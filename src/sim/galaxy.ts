@@ -13,6 +13,7 @@ import type {
   Sector,
   System,
   IslandArchetype,
+  ShipClassId,
 } from './types';
 import { recomputeLedger } from './economy';
 
@@ -75,6 +76,26 @@ const START_MINES = 8;
 const START_REFINERIES = 8;
 const START_YARDS = 2;
 const START_TRAINING = 1;
+/** A yard for hulls, so a slipway is not the first thing you have to build. */
+const START_SHIPYARDS = 1;
+/**
+ * The fleet each side already has on the water.
+ *
+ * The board used to open with none at all, which meant the whole naval half of
+ * the game was twenty-two days away — the time to build a slipway and then a
+ * hull — and the first three weeks were a menu. Rebellion hands you a navy on
+ * turn one and lets you find out what it is for.
+ *
+ * Asymmetric on purpose, the way the two sides are: the Crown has the ship of
+ * the line and the weight, the Confederacy has hulls that outrun it. Neither
+ * has enough to win with, which is what makes the slipway worth building.
+ */
+const START_FLEET: Record<PlayableFaction, ShipClassId[]> = {
+  empire: ['razorback', 'kestrel', 'kestrel', 'fluyt'],
+  alliance: ['swift', 'swift', 'swift', 'brig'],
+};
+/** Companies aboard the transport, ready to take somewhere. */
+const START_TROOPS_ABOARD = 2;
 const START_GARRISON = 2;
 const START_CHARACTERS = 7;
 /** Enough to lay down a camp or two before the first income arrives. */
@@ -264,6 +285,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       ...Array<FacilityType>(START_REFINERIES).fill('refinery'),
       ...Array<FacilityType>(START_YARDS).fill('construction_yard'),
       ...Array<FacilityType>(START_TRAINING).fill('training_facility'),
+      ...Array<FacilityType>(START_SHIPYARDS).fill('shipyard'),
     ];
     for (const [index, type] of plan.entries()) {
       const system = owned[index % owned.length];
@@ -359,6 +381,25 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     rngSeed: rng.seed,
     nextId: idCounter,
   };
+
+  // --- The fleet already at sea. ---
+  //
+  // Built here rather than through addShip because that lives in fleets.ts and
+  // would import back into this file; the shape is small enough to write out.
+  for (const [faction, classes] of Object.entries(START_FLEET) as Array<
+    [PlayableFaction, ShipClassId[]]
+  >) {
+    const home = faction === 'empire' ? capital : allianceHq;
+    state.fleets.push({
+      id: `flt-${++state.nextId}`,
+      name: 'Home Fleet',
+      faction,
+      systemId: home.id,
+      ships: classes.map((classId) => ({ id: `shp-${++state.nextId}`, classId, damage: 0 })),
+      troops: START_TROOPS_ABOARD,
+      officerIds: [],
+    });
+  }
 
   recomputeLedger(state);
   state.events.push({
