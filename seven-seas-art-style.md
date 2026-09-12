@@ -1,7 +1,8 @@
 # Master of the Seven Seas — Art Style
 
-**Direction set 2026-09-12. Supersedes the engraved-chart direction below it,
-which now governs only the interface layer.**
+**Direction set 2026-09-12, revised the same day against the faction style
+guide. Supersedes the engraved-chart direction, which now governs only the
+interface layer.**
 
 ## 1. The direction
 
@@ -15,6 +16,56 @@ which now governs only the interface layer.**
 
 That is the authoritative wording. It is repeated verbatim at the head of every
 prompt in `art-prompts.md` so that images generated weeks apart still match.
+
+**Register: heroic adventure, not grim.** The style guide's own cards settle
+this. Skies are blue, water is turquoise, sunlight is warm, faces are appealing
+rather than weathered, and one of the cards is a cat in a tiny hat. The 20%
+fantasy is where the dark lives — the Kraken, a ghost ship, a drowned temple —
+and it is restrained: teal, spectral green, moonlit violet, unnatural fog, no
+gore and no horror. Everything else is an adventure story.
+
+## 1a. The two factions
+
+Not colour-coded sides. Two arguments about how to live, each of which believes
+itself the decent one, and the art has to sell both.
+
+|  | Crown Imperium | Free Confederacy |
+|---|---|---|
+| crest | gold crown over a waved shield | skull and crossed cutlasses on a starburst |
+| creed | Order · Stability · A Brighter Tomorrow | Freedom · Opportunity · No Masters |
+| motto | *Through trade, duty, and discipline, a safer world.* | *A wider world for those bold enough to take it.* |
+| look | white stone, blue sky, immaculate uniforms, tall ships in line | lantern light, patched canvas, crowded quays, colour everywhere |
+
+Footer of the guide, and the line the whole thing hangs on: **Different crews.
+The same horizon.**
+
+> **Open question, flagged not resolved.** This is warmer than the world bible,
+> which has the Imperium as "order bought with cruelty" and the Confederacy as
+> "freedom paid for in plunder — half the Moot worth hanging". The guide says
+> "a safer world" and "a wider world". Both are good; they are not the same
+> game. The art is being made to the guide, so **the bible's faction blurbs and
+> the in-game copy should be softened to match, or the guide's mottos hardened**
+> — but one of the two has to move, and that is a call for the author.
+
+## 1b. Faction palettes
+
+Sampled from the guide's own swatch strips rather than eyeballed.
+
+**Crown Imperium** — deep sea-greens, olive, cream, tarnished gold.
+
+`#f0dbbe` cream · `#2f634d` sea-green · `#254b36` deep green · `#596840` olive ·
+`#635d37` brass-olive · `#122f23` shadow green
+
+**Free Confederacy** — a red ramp, coral down to near-black maroon.
+
+`#ca6150` coral · `#a03832` red · `#772321` deep red · `#6b121e` crimson ·
+`#5d292d` maroon · `#402e30` warm grey-brown
+
+**These are illustration colours, not interface colours.** `#2f634d` is
+handsome in a painting and nearly invisible as a 12px badge on a near-black
+panel. The UI keeps brighter members of the same families (`--empire #3f9e58`,
+`--alliance #d8483f`) so a status colour still reads at a glance. Same hue
+family, different luminance, on purpose.
 
 ## 2. Two layers
 
@@ -47,30 +98,69 @@ This is not a migration with an end date. Twenty-six portraits will be painted;
 the twenty-seventh character added after that will have a drawn cameo the day
 they are added, and may keep it. Both layers are permanent.
 
-## 4. The frame
+## 4. The card, which is the frame
 
-Painted art does not sit on white. It sits inside the interface the title
-screen already establishes, and it has to belong there:
+The guide answers a question I had got wrong. I had written that paintings must
+be dark-key, because the interface ground is near-black and bright art floats
+off it. The guide's art is the opposite — blue skies, turquoise water, white
+stone in sunlight — and it works, because **every image sits inside a card**.
 
-| | |
+That is the device, and it is not decoration. A bright painting on a dark page
+looks like a hole cut in the page; the same painting inside a frame with a
+title bar above it and a caption bar below it reads as an object lying on the
+page. The frame is what buys the brightness.
+
+**So the rule is reversed: paint it bright, and build the frame.** Four parts,
+in the guide's own order:
+
+1. **Crest badge**, top-left corner, overlapping the frame — the faction's, or
+   a category mark for anything unaligned.
+2. **Title bar** — the subject's name, small caps, on parchment.
+3. **The painting**, with an italic line of the subject's own voice sitting at
+   its foot: *"Discipline carries farther than the wind."*
+4. **Type bar** — `TYPE · SUBTYPE` in small caps. Warship · Imperium. Island ·
+   Natural. Creature · Mystical.
+
+The frame is an **interface** component, drawn in code, not part of the
+painting. That keeps it tintable, keeps every card identical, and means a
+painting that has not arrived yet can be framed exactly like one that has.
+
+### The taxonomy the type bar reads from
+
+The guide implies a card system the game does not have yet, and it is worth
+adopting because it makes the art self-describing.
+
+| type | subtypes seen |
 |---|---|
-| ground | `#06161d` — deep water, near-black |
-| raised | `#0d222c` — panels and cards |
-| rule | `#1c3b48` |
-| brass | `#c9a227` — instruments, accents, anything notable |
-| Imperium | `#3f9e58` green · **Confederacy** `#d8483f` red · **unaligned** `#5aa2e0` |
+| Warship, Ship | Imperium · Confederacy · Supernatural |
+| Leader, Character | Imperium · Confederacy |
+| Facility | Imperium · Confederacy · Resource |
+| Island, Port City, Location | Natural · Imperium · Confederacy · Mystical · Supernatural |
+| Creature | Natural · Companion · Mystical |
 
-Consequences for the paintings, all of them load-bearing:
+### Portraits: one painting, two crops
 
-- **Dark key.** Art that is bright overall floats off the page. Low sun, night,
-  overcast, lantern light.
-- **Faction colour belongs in the subject.** An Imperial coat is sea-green and a
-  Confederate sash is red, because the interface reads allegiance by colour and
-  a painting that ignores it fights the panel around it.
-- **Portraits are cropped to a circle** as small as 32px. Head large in frame,
-  nothing important near a corner.
-- **Dispatch scenes get a quiet sky.** The card tints itself in the colour of
-  whichever side the news concerns; a strong sky of its own will fight the tint.
+The guide's characters are **three-quarter figures with a background** — Admiral
+Ellis at the rail, Drake with a parrot, Rynn with a spyglass. The game shows
+portraits in a **circle at 32–44px**, where a three-quarter figure is a smudge.
+
+Both are right, so the painting serves both: it is made as card art, and the
+medallion crops to the head. That works only if the head is placed for it, so
+it is a requirement on every character prompt — **head and shoulders in the
+upper 45% of the frame, horizontally centred, nothing important behind them
+there.** The medallion takes that band; the card shows the whole figure.
+
+### What the interface still demands of the art
+
+- **Faction colour in the subject.** Imperial coats sea-green, Confederate
+  sashes red. The interface reads allegiance by colour and a painting that
+  ignores it fights the panel around it.
+- **Dispatch scenes keep a quiet sky.** These are the one thing that is *not*
+  framed as a card — they run full-bleed across the top of the dispatch, and the
+  card tints itself in the colour of whichever side the news concerns. A strong
+  sky of its own will fight the tint.
+- **Strong silhouette, always.** It is in the direction line for a reason: it is
+  what survives being shrunk to a thumbnail.
 
 ## 5. What survives from the drawn direction
 
@@ -102,6 +192,12 @@ govern the interface layer.
   face is the whole point. The drawn cameos keep the rule.
 - ~~One light source that never moves~~ — replaced by "dramatic natural
   lighting" for paintings. The interface keeps upper-left.
+- ~~Dark key; art that is bright overall floats off the page~~ — **written by me
+  and wrong.** It was a correct reading of a bright painting dropped straight
+  onto a near-black page, and the wrong conclusion: the fix is the card frame,
+  not a darker painting. See §4.
+- ~~Portraits are head-and-shoulders, cropped to a circle~~ — they are
+  three-quarter figures, cropped to a circle *at the head*. See §4.
 
 ## 7. The ink ramp (interface layer)
 
@@ -120,18 +216,31 @@ UI against 14 named ones; that is the outstanding cleanup.
 
 ## 8. Files and weight
 
-Naming, folders and formats are in `src/art/README.md`. Prompts for all 51
+Naming, folders and formats are in `src/art/README.md`. Prompts for all 66
 subjects are in `art-prompts.md`, in the order worth making them: scenes,
-islands, ships, then portraits.
+islands, creatures, ships, facilities, then portraits.
 
-**Sizes.** Portraits 512×512 · ships and islands 768×512 · scenes 1024×432.
-WebP, quality ~82, **under 120KB each**.
+The guide adds two subject classes the game did not have. **Creatures** — a sea
+turtle, a ship's cat, a young sea dragon, a kraken, a ghost ship — give the
+Seven Seas a natural world as well as two navies, and set the register faster
+than anything else on the list. **Facilities get faction variants**: the same
+five buildings, built twice, because a Crown shipyard under a covered slip and
+a Confederate one in a hidden cove are the clearest single statement of what
+the two sides are.
 
-**The budget is the real constraint.** The whole game is ~95KB gzipped and
-loads instantly on a phone. Fifty-one paintings at 100KB is roughly 5MB — fifty
-times the game. Lazy loading has to be built before the portrait batch lands,
-not after, and that is the one piece of engineering this direction actually
-requires.
+**Sizes.** Characters 640×896 (three-quarter figure) · ships, islands,
+facilities and creatures 768×512 · dispatch scenes 1024×432. WebP, quality ~82,
+**under 120KB each**.
+
+**Do not paint borders, frames or text.** The card frame is an interface
+component (§4). A painting with its own frame baked in cannot be reframed,
+retinted or resized.
+
+**The budget is the real constraint.** The whole game is ~95KB gzipped and loads
+instantly on a phone. Sixty-six paintings at ~100KB is roughly 6.5MB — seventy
+times the game. Lazy loading has to be built before the facility and portrait
+batches land, not after, and it is the one piece of engineering this direction
+actually requires.
 
 ## 9. Lessons already paid for
 
