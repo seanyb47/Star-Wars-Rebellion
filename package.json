@@ -9,7 +9,13 @@
     "preview": "vite preview --host",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false"
+    "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false",
+    "art": "python3 scripts/art.py",
+    "art:add": "python3 scripts/art.py add",
+    "art:recrop": "python3 scripts/art.py recrop",
+    "art:list": "python3 scripts/art.py list",
+    "art:check": "python3 scripts/art.py check",
+    "art:doc": "python3 scripts/art.py doc"
   },
   "dependencies": {
     "react": "^18.3.1",

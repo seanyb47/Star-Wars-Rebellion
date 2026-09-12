@@ -4,7 +4,10 @@ Every subject the game needs, written to the faction style guide. Paste a block
 straight into an image generator; the style line is repeated in each so they can
 be used one at a time, weeks apart, without drift.
 
-**Drop the results into `src/art/`** — see the README there for naming. Any
+**Add the results with `npm run art:add -- <file> <folder>/<slug>`** — the slug
+is written under each prompt below. That keeps the full-resolution delivery in
+`art-masters/` and records what was cropped out of it, so a painting can be
+reframed later without being remade; `ASSETS.md` is the running list. Any
 subject without a file keeps its drawn cameo, so the art can arrive in any
 order and the game is never half-finished.
 

@@ -124,10 +124,12 @@ every day of the war. Anything derived from a name is identical in every game
 and on every device.
 
 The painted layer is illustration: portraits, ships, islands and dispatch
-scenes, made outside the repo and dropped into `src/art/`. A subject with a
+scenes, made outside the repo and added with `npm run art:add`. A subject with a
 painting uses it; a subject without keeps its drawn cameo, so the art can
-arrive in any order. See `seven-seas-art-style.md` for the direction and
-`art-prompts.md` for every subject.
+arrive in any order. See `seven-seas-art-style.md` for the direction,
+`art-prompts.md` for every subject, and `ASSETS.md` for what has arrived —
+each one with its full-resolution master kept in `art-masters/` and the crop
+recorded, so a painting can be reframed later instead of remade.
 
 Until the paintings land the download is ~95KB and works offline. It will not
 stay that small, and lazy loading is the price of that.

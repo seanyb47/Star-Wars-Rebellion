@@ -1,0 +1,208 @@
+{
+  "assets": {
+    "scenes/battle": {
+      "folder": "scenes",
+      "slug": "battle",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Two ships close enough to hurt each other",
+      "source": "ChatGPT art project, 12 Sep 2026",
+      "notes": "Delivered 1536x1024 (square-ish) rather than the 1024x432 banner shape; the shipped band is the middle of it. Crop recovered by matching the shipped file against the master, not recorded at the time \u2014 the reason this register now exists.",
+      "crop": {
+        "x": 0,
+        "y": 112,
+        "w": 1536,
+        "h": 648
+      },
+      "master": {
+        "file": "art-masters/scenes/battle.webp",
+        "w": 1536,
+        "h": 1024,
+        "bytes": 634250,
+        "sha1": "12939a1acc46237b"
+      },
+      "shipped": {
+        "file": "src/art/scenes/battle.webp",
+        "w": 1024,
+        "h": 432,
+        "bytes": 95704,
+        "sha1": "5e9baa02b3a3aef8"
+      }
+    },
+    "scenes/flip": {
+      "folder": "scenes",
+      "slug": "flip",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "A new flag going up over a harbour",
+      "source": "ChatGPT art project, 12 Sep 2026",
+      "crop": {
+        "x": 2,
+        "y": 0,
+        "w": 1929,
+        "h": 814
+      },
+      "master": {
+        "file": "art-masters/scenes/flip.webp",
+        "w": 1933,
+        "h": 814,
+        "bytes": 492836,
+        "sha1": "5d6f3796697506be"
+      },
+      "shipped": {
+        "file": "src/art/scenes/flip.webp",
+        "w": 1024,
+        "h": 432,
+        "bytes": 76132,
+        "sha1": "42c39eb75b4fdb17"
+      }
+    },
+    "scenes/loss": {
+      "folder": "scenes",
+      "slug": "loss",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "A ship going down by the head",
+      "source": "ChatGPT art project, 12 Sep 2026",
+      "crop": {
+        "x": 1,
+        "y": 0,
+        "w": 1929,
+        "h": 814
+      },
+      "master": {
+        "file": "art-masters/scenes/loss.webp",
+        "w": 1932,
+        "h": 814,
+        "bytes": 489920,
+        "sha1": "4b4f4741181abe1c"
+      },
+      "shipped": {
+        "file": "src/art/scenes/loss.webp",
+        "w": 1024,
+        "h": 432,
+        "bytes": 75928,
+        "sha1": "f2994eb809bea3a0"
+      }
+    },
+    "scenes/mission": {
+      "folder": "scenes",
+      "slug": "mission",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "A boat going quietly ashore at night",
+      "source": "ChatGPT art project, 12 Sep 2026",
+      "crop": {
+        "x": 1,
+        "y": 0,
+        "w": 1929,
+        "h": 814
+      },
+      "master": {
+        "file": "art-masters/scenes/mission.webp",
+        "w": 1932,
+        "h": 814,
+        "bytes": 392774,
+        "sha1": "8657e87c09137dd0"
+      },
+      "shipped": {
+        "file": "src/art/scenes/mission.webp",
+        "w": 1024,
+        "h": 432,
+        "bytes": 54542,
+        "sha1": "85fa676841459bcb"
+      }
+    },
+    "scenes/mutiny": {
+      "folder": "scenes",
+      "slug": "mutiny",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "The same quay by night, a flag cut down",
+      "source": "ChatGPT art project, 12 Sep 2026",
+      "crop": {
+        "x": 1,
+        "y": 0,
+        "w": 1929,
+        "h": 814
+      },
+      "master": {
+        "file": "art-masters/scenes/mutiny.webp",
+        "w": 1931,
+        "h": 814,
+        "bytes": 432586,
+        "sha1": "158443c12f2e3346"
+      },
+      "shipped": {
+        "file": "src/art/scenes/mutiny.webp",
+        "w": 1024,
+        "h": 432,
+        "bytes": 64606,
+        "sha1": "5f6abdcfe07da720"
+      }
+    },
+    "scenes/order": {
+      "folder": "scenes",
+      "slug": "order",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "A new hull on the stocks at first light",
+      "source": "ChatGPT art project, 12 Sep 2026",
+      "crop": {
+        "x": 1,
+        "y": 0,
+        "w": 1929,
+        "h": 814
+      },
+      "master": {
+        "file": "art-masters/scenes/order.webp",
+        "w": 1932,
+        "h": 814,
+        "bytes": 508104,
+        "sha1": "43c203f7d00252cb"
+      },
+      "shipped": {
+        "file": "src/art/scenes/order.webp",
+        "w": 1024,
+        "h": 432,
+        "bytes": 79328,
+        "sha1": "8110bb04fecb8923"
+      }
+    },
+    "scenes/war": {
+      "folder": "scenes",
+      "slug": "war",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "A fleet under one flag at dawn",
+      "source": "ChatGPT art project, 12 Sep 2026",
+      "crop": {
+        "x": 1,
+        "y": 0,
+        "w": 1929,
+        "h": 814
+      },
+      "master": {
+        "file": "art-masters/scenes/war.webp",
+        "w": 1931,
+        "h": 814,
+        "bytes": 510444,
+        "sha1": "ea647267e2ab44e2"
+      },
+      "shipped": {
+        "file": "src/art/scenes/war.webp",
+        "w": 1024,
+        "h": 432,
+        "bytes": 76212,
+        "sha1": "35e1b586473774b1"
+      }
+    }
+  }
+}

@@ -228,7 +228,17 @@ UI against 14 named ones; that is the outstanding cleanup.
 
 Naming, folders and formats are in `src/art/README.md`. Prompts for all 66
 subjects are in `art-prompts.md`, in the order worth making them: scenes,
-islands, creatures, ships, facilities, then portraits.
+islands, creatures, ships, facilities, then portraits. What has actually
+arrived, and where each delivery's full-resolution master is kept, is in
+`ASSETS.md` — generated, never hand-edited.
+
+**Keep the delivery.** The shipped file is a small crop of a much larger
+painting, and once only the crop exists, "move it up a bit" and "can we have it
+wider" both become new commissions. `npm run art:add` stores the master at full
+resolution outside `src/`, records the crop box, and retires rather than
+overwrites when a painting is replaced. This was learned the ordinary way: the
+first seven scenes were cropped by hand and one of the crops had to be
+recovered by matching the shipped file back against the original.
 
 The guide adds two subject classes the game did not have. **Creatures** — a sea
 turtle, a ship's cat, a young sea dragon, a kraken, a ghost ship — give the

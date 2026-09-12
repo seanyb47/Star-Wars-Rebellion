@@ -5,6 +5,19 @@ globs in `src/ui/painted.ts` find whatever is present at build time, and any
 subject without a file keeps its drawn cameo. The art can therefore arrive one
 piece at a time without the game ever being half-finished.
 
+## Add them with the tool, though
+
+```sh
+npm run art:add -- ~/Downloads/whatever.png scenes/battle
+```
+
+Copying a file in by hand still works — that is the point of the glob — but it
+throws away the delivery. What ships here is small and cropped; the tool keeps
+the full-resolution original in `art-masters/`, records the crop it took, and
+writes it all into `ASSETS.md`. That is the difference between "move it up a
+bit" being one command and being a new commission. `npm run art:check` says
+whether anything has been added or edited behind its back.
+
 ## Naming
 
 The file name is a slug of the subject, so `Anselm "Big" Torvik` becomes
