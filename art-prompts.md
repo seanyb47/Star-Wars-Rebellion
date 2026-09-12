@@ -444,6 +444,74 @@ well as two navies, and they are where the 20% fantasy is allowed out.
 
 ---
 
+# The chart (1)
+
+The background of the main map — the one screen you look at more than any
+other. It is the only painting in the game the interface draws *on top of*, so
+it is governed by a rule none of the others are: **nothing in it may compete
+with a mark.**
+
+### The Seven Seas — 1024 × 1536 (2:3 portrait)
+
+`chart/seas.webp`
+
+> A hand-painted nautical chart of an archipelago world, seen from directly overhead. Deep ocean almost black — a near-black blue-teal — with the shallows over submerged banks glowing pale turquoise against it. Ten loose clusters of reef and sandbank are scattered across the upper two-thirds, each a soft irregular ring or arc of shallow water. **No land anywhere: no islands, no coastline, no green, no beaches.** Every cluster is shallow water only, the ghost of an archipelago read as pale water over dark water.
+>
+> The chart is divided into seven distinct waters, each with its own colour and behaviour, blending into one another at their edges rather than meeting at hard lines:
+>
+> **Top edge — arctic.** Ice-blue and steel grey, pack ice and brash at the margins, two shoal clusters. **Left, level with the middle — Mediterranean.** Warm and sunlit, terraced shelves, a faint sediment gold in the water, one cluster. **Dead centre — temperate and formal.** Cold slate blue, the most orderly water on the chart, one large cluster, the biggest on the map. **Right side — tropical.** Turquoise and jade, wide bright reef shelves, two clusters. **Lower left — monsoon.** Storm-dark, rain-streaked, a cyclone's spiral in open water, one cluster. **Lower centre — unnatural stillness.** Sun-bleached, flat as glass, salt-pale, the water almost white in places where it has gone still, two clusters. **Lower right corner — glowing.** Faint bioluminescent green-teal in the dark, wrecks and pale bone-coloured shoals, a permanent whirlpool turning in open water, one cluster.
+>
+> The bottom quarter of the frame is open sea, empty of clusters. A weathered compass rose sits low in that open water, understated, faded into the chart. Faint graticule lines and old rhumb lines cross the whole surface, barely visible. Aged paper grain and watercolour bloom throughout.
+>
+> **Very dark overall** — the deep ocean should read as near-black, far darker than a typical fantasy map, so that bright marks drawn on top stand clear of it. Every shoal cluster is soft, even and low-contrast; save the strongest brushwork and detail for the open water *between* them. No text, no labels, no place names, no numbers, no border, no frame, no vignette, no ships, no sea monsters. Full-bleed to all four edges.
+>
+> cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical.
+
+**Don't fight it for exact positions.** A generator will not place ten clusters
+on coordinates, and it does not need to: what matters is seven waters that read
+as seven different places, and roughly ten quiet shoal footprints in the top
+two-thirds. The chain positions in `GalaxyMap.tsx` are ten numbers in an array
+— once the painting exists, the code moves onto the painting rather than the
+other way round.
+
+### Which Sea holds which Reach
+
+Seven Seas, ten Reaches on the shipped map. The regions above, named:
+
+| Position | Sea | Reaches |
+|---|---|---|
+| Top | **The Far Sea** — arctic, Norse, whalers | Rime, Whalers' |
+| Left | **The Merchant Sea** — Mediterranean, guild towns, slipways | Shipwrights' |
+| Centre | **The Crown Sea** — temperate, grey, fortified; Highwater is here | Sovereign |
+| Right | **The Amber Sea** — tropical, plantations, reefs, hurricanes | Coral, Sugar |
+| Lower left | **The Sea of Storms** — monsoon, typhoons, volcanoes | Cinder |
+| Lower centre | **The Glass Sea** — *weird*; flat water that holds sound, islands that vanish by dusk | Salt, Mirage |
+| Lower right | **The Bone Sea** — *weird*; leviathan bones, glowing water, a permanent whirlpool | Wreckers' |
+
+### Why the sea has to be so dark
+
+Measured against the two reference maps: their deep ocean averages `#1e4452`,
+luma 61 — as bright as this game's *shallow water* token and 2.3× the deep one.
+The contrast of a faction mark drawn on top:
+
+| ground | Imperium green | Confederacy red | neutral blue |
+|---|---|---|---|
+| reference map sea `#1e4452` | 3.1:1 | **2.5:1** | 3.8:1 |
+| `--water` `#072029` | 5.0:1 | 3.9:1 | 6.2:1 |
+
+2.5:1 is below the 3:1 floor for a non-text graphic. A Confederate island on
+that sea is a red smudge on a blue smudge. The painting can be as beautiful as
+it likes in the open water; where a chain sits it has to get out of the way.
+
+### If you also want a title screen
+
+Same prompt, same seven waters — but **with** the islands painted in, in full
+detail, and a cartouche if you like. Nothing sits on top of it there, so every
+rule above about staying quiet is off. That is a separate file
+(`chart/title.webp`), not this one.
+
+---
+
 # Dispatch scenes (7)
 
 The card that stops you when something happens, and the only art in the game

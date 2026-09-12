@@ -62,6 +62,9 @@ FOLDERS: dict[str, tuple[int, int, str]] = {
     "ships": (768, 512, "three-quarter view, whole vessel"),
     "islands": (768, 512, "low approach, as if from a boat"),
     "scenes": (1024, 432, "full-bleed dispatch banner, quiet sky"),
+    # The one painting the interface draws on top of, so it ships at the chart's
+    # own proportion and is judged by whether a mark reads against it.
+    "chart": (1024, 1536, "top-down chart ground, quiet where the chains sit"),
 }
 
 # Shipped files are quality 82 and must stay under 120KB — a card should appear,

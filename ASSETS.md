@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**7 of 62 painted.** 510KB shipped, 3.3MB of masters kept back.
+**7 of 63 painted.** 510KB shipped, 3.3MB of masters kept back.
 
 ## portraits — 640×896
 
@@ -40,6 +40,12 @@ full-bleed dispatch banner, quiet sky. 7 of 7.
 | The same quay by night, a flag cut down | `mutiny` | 1 | 63KB | 1931×814, 422KB | 1929×814 @ 1,0 | 2026-09-12 | ChatGPT art project, 12 Sep 2026 |
 | A new hull on the stocks at first light | `order` | 1 | 77KB | 1932×814, 496KB | 1929×814 @ 1,0 | 2026-09-12 | ChatGPT art project, 12 Sep 2026 |
 | A fleet under one flag at dawn | `war` | 1 | 74KB | 1931×814, 498KB | 1929×814 @ 1,0 | 2026-09-12 | ChatGPT art project, 12 Sep 2026 |
+
+## chart — 1024×1536
+
+top-down chart ground, quiet where the chains sit. 0 of 1.
+
+**Still owed (1):** `seas`
 
 ## Notes
 
