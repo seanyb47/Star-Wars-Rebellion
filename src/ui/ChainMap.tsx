@@ -12,7 +12,6 @@ import {
   type System,
   worthTier,
 } from '../sim';
-import { allegianceColour, allegianceSegments } from './allegiance';
 import { islandPath } from './art';
 import { paintedChart } from './painted';
 import { worthPath } from './worth';
@@ -193,7 +192,7 @@ const MARKS = {
 } as const;
 
 /** Who is flying a flag over it. The name takes this colour. */
-function controlColour(system: System, viewer: 'empire' | 'alliance'): string {
+export function controlColour(system: System, viewer: 'empire' | 'alliance'): string {
   if (!system.explored[viewer]) return 'var(--unknown)';
   switch (system.control) {
     case 'empire':
@@ -207,20 +206,6 @@ function controlColour(system: System, viewer: 'empire' | 'alliance'): string {
   }
 }
 
-/**
- * Who its people lean toward. The island itself takes this colour, the same
- * way it does out on the chart, so the two views agree.
- *
- * Body and name together carry both facts: an island the Crown holds whose
- * people have gone over reads as a red island with a green name, which is
- * exactly the island you should be worrying about.
- */
-export function loyaltyColour(system: System, viewer: 'empire' | 'alliance'): string {
-  if (!system.explored[viewer]) return 'var(--unknown)';
-  if (!system.populated) return '#7c8d95';
-  const lead = allegianceSegments(system)[0];
-  return lead ? allegianceColour(lead.faction) : 'var(--neutral)';
-}
 
 export function ChainMap({
   state,
@@ -295,10 +280,6 @@ export function ChainMap({
       {ground && crop && (
         <>
           <defs>
-            {/* Same glow as the chart: the island's colour, burning brighter. */}
-            <filter id="chainlitglow" x="-60%" y="-160%" width="220%" height="420%">
-              <feGaussianBlur stdDeviation="14" />
-            </filter>
             <clipPath id="chainmap-frame">
               <rect x={0} y={0} width={FIELD_W} height={FIELD_H} />
             </clipPath>
@@ -332,8 +313,9 @@ export function ChainMap({
         const spot = spots[index];
         const entry = summaryById.get(system.id);
         const explored = system.explored[viewer];
-        const tint = loyaltyColour(system, viewer);
-        const flag = controlColour(system, viewer);
+        // One colour, and it is who holds the island. Lean is on the panel.
+        const tint = controlColour(system, viewer);
+        const flag = tint;
         const slots = system.rawSlots + system.energySlots;
         const built = system.facilities.length;
 
@@ -347,7 +329,6 @@ export function ChainMap({
         // size to vary, so it only clears the bare rock away. No glow: ten of
         // them at once is a lit chain, not a filter.
         const lit = filtering && mark.lit && layer !== 'worth';
-        const dim = filtering && !mark.lit;
         const litCount = 'count' in mark ? mark.count : undefined;
         // Which work this island means, so the ring can say so before you tap.
         const work = pickingFor && !sailing ? missionTypeFor(state, system, pickingFor) : null;
@@ -409,7 +390,7 @@ export function ChainMap({
             onClick={live ? () => onOpenIsland(system.id) : undefined}
             role="button"
             aria-disabled={live ? undefined : true}
-            opacity={live ? (dim ? 0.3 : 1) : 0.3}
+            opacity={live ? 1 : 0.3}
             style={{ cursor: live ? 'pointer' : 'default' }}
             aria-label={
               work === 'recruit'
@@ -435,14 +416,15 @@ export function ChainMap({
                 it, which is the same rule the chart above follows. */}
             {lit && (
               <g pointerEvents="none">
-                <ellipse
-                  cx={spot.x}
-                  cy={spot.y + 2}
-                  rx={Math.max(nameWidth(explored ? system.name : 'Uncharted') / 2 + 14, 54)}
-                  ry={22}
+                {/* The filter's star, left of the name — the same mark the
+                    chart uses, so a filter reads the same at both scales. */}
+                <path
+                  d={worthPath('large', 15)!}
+                  transform={`translate(${spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - 22} ${spot.y + 1})`}
                   fill={tint}
-                  opacity={0.42}
-                  filter="url(#chainlitglow)"
+                  stroke="#041219"
+                  strokeWidth={2}
+                  strokeLinejoin="round"
                 />
                 {litCount !== undefined && litCount > 1 && (
                   <text
@@ -589,27 +571,6 @@ export function ChainMap({
                   pointerEvents="none"
                 />
               </>
-            )}
-
-            {/* Whose flag flies, when anybody's does.
-                The name is coloured by loyalty, the same rule the chart uses —
-                which way the people lean. Control is the other fact and used
-                to be carried by the drawn body underneath. It is a dot now, and
-                only when somebody actually holds the island: on day one most of
-                a chain is unclaimed, and a mark on every one of ten would say
-                nothing while adding ten marks. An island you hold whose people
-                have gone over reads as a green dot on a red name, which is
-                exactly the island worth worrying about. */}
-            {ground && crop && explored && (system.control === 'empire' || system.control === 'alliance') && (
-              <circle
-                cx={spot.x - nameWidth(system.name) / 2 - 15}
-                cy={spot.y + 1}
-                r={7}
-                fill={flag}
-                stroke="#041219"
-                strokeWidth={2.5}
-                pointerEvents="none"
-              />
             )}
 
             <text

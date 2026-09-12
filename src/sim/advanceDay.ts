@@ -1,10 +1,10 @@
-import { VICTORY_CONTROL_FRACTION } from './constants';
+import { LEADERS, VICTORY_CONTROL_FRACTION } from './constants';
 import factionData from '../data/factions.json';
 import { runAI } from './ai';
 import { advanceBuilds } from './build';
 import { advanceFleets, updateBlockades } from './fleets';
 import { collectIncome, payUpkeep, recomputeLedger } from './economy';
-import { cloneState, pushEvent } from './helpers';
+import { cloneState, otherFaction, pushEvent } from './helpers';
 import { advanceMissions } from './missions';
 import { createRng } from './rng';
 import { controlTally } from './support';
@@ -50,8 +50,32 @@ export function advanceDay(state: GameState): GameState {
   return next;
 }
 
-/** Hold 60% of the settled islands and the war is over (spec 4.6). */
+/**
+ * Two ways the war ends.
+ *
+ * Take the enemy's seat and hold both their leaders at once — Rebellion's own
+ * condition, and the one the whole design points at: the Crown has to *find*
+ * the Free Harbour first, the Confederacy has to get past Highwater's guns.
+ * Or hold 60% of the settled islands, which is what a war of attrition looks
+ * like when nobody manages the first.
+ */
 export function checkVictory(state: GameState): void {
+  for (const faction of ['empire', 'alliance'] as const) {
+    const enemy = otherFaction(faction);
+    const seat = state.systems.find((s) => s.id === state.factions[enemy].hqSystemId);
+    const heads = LEADERS[enemy].map((name) => state.characters.find((c) => c.name === name));
+    const allTaken = heads.length > 0 && heads.every((c) => c?.status === 'captured');
+    if (seat?.control === faction && allTaken) {
+      state.winner = faction;
+      state.speed = 'paused';
+      pushEvent(state, {
+        kind: 'war',
+        text: `${seat.name} has fallen and ${LEADERS[enemy].join(' and ')} are in irons. The ${factionData[faction].name} has won the war.`,
+      });
+      return;
+    }
+  }
+
   const tally = controlTally(state);
   if (tally.populated === 0) return;
   const threshold = tally.populated * VICTORY_CONTROL_FRACTION;

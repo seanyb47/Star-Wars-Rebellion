@@ -44,7 +44,7 @@ import { TopBar } from './TopBar';
 import { useAudio } from './useAudio';
 import { FactionCrest } from './art';
 import { WorthMark } from './worth';
-import { loyaltyColour } from './ChainMap';
+import { controlColour } from './ChainMap';
 import { ControlBadge, Sheet, Stat } from './components';
 
 const SEEN_KEY = 'galactic-rebellion.lastSeenEvent.v1';
@@ -567,6 +567,10 @@ export function App() {
             setMenuOpen(false);
             setAlmanacOpen(true);
           }}
+          onHowToPlay={() => {
+            setMenuOpen(false);
+            setTeaching(true);
+          }}
         />
       )}
     </div>
@@ -652,7 +656,7 @@ function WorldsSheet({
                   <WorthMark
                     system={system}
                     size={14}
-                    colour={loyaltyColour(system, state.player)}
+                    colour={controlColour(system, state.player)}
                     className="isle__worth"
                   />
                 </span>
@@ -682,11 +686,13 @@ function MenuSheet({
   onClose,
   onReturnToTitle,
   onOpenAlmanac,
+  onHowToPlay,
 }: {
   state: GameState;
   onClose: () => void;
   onReturnToTitle: () => void;
   onOpenAlmanac: () => void;
+  onHowToPlay: () => void;
 }) {
   const tally = controlTally(state);
   const needed = Math.ceil(tally.populated * VICTORY_CONTROL_FRACTION);
@@ -710,11 +716,15 @@ function MenuSheet({
         <Stat label={factionData.alliance.shortName} value={tally.alliance} />
       </div>
       <p className="tiny muted" style={{ marginTop: 6 }}>
-        {needed} settled islands takes the Seven Seas.
+        {needed} settled islands takes the Seven Seas — or the enemy's seat with both their
+        leaders in irons.
       </p>
 
       <div className="section-title">Game</div>
       <div className="stack">
+        <button className="btn btn--block" onClick={onHowToPlay}>
+          How to play
+        </button>
         <button className="btn btn--block" onClick={onOpenAlmanac}>
           Almanac — what everything is
         </button>

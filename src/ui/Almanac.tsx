@@ -13,6 +13,8 @@ import {
   FLIP_SUPPORT_MARGIN,
   FLIP_SUPPORT_MIN,
   VICTORY_CONTROL_FRACTION,
+  LEADERS,
+  CAPTIVE_DAYS,
   YARD_BUILDS,
   type FacilityType,
   type GameState,
@@ -212,8 +214,11 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
 
       <div className="section-title">How the war is won</div>
       <div className="card small">
-        Hold {Math.round(VICTORY_CONTROL_FRACTION * 100)}% of the settled islands. Left alone, the
-        enemy gets there in roughly 700 days.
+        <b>Two ways.</b> Take the enemy's seat and hold both of their leaders in irons at the same
+        time — {LEADERS.empire.join(' and ')} for the Crown, {LEADERS.alliance.join(' and ')} for
+        the Confederacy. Captives are exchanged after {CAPTIVE_DAYS} days, so it is a window, not a
+        list. Or hold {Math.round(VICTORY_CONTROL_FRACTION * 100)}% of the settled islands. The
+        same two ways lose it.
       </div>
 
       <div className="section-title">Not built yet</div>

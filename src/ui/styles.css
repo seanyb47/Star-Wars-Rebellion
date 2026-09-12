@@ -1056,3 +1056,13 @@ button.tcard:hover { border-color: var(--brass); }
 .worthmark { display: inline-block; vertical-align: -0.18em; }
 .isle__worth { margin-left: 7px; color: var(--brass); }
 .sheet__worth { margin-left: 9px; vertical-align: -0.12em; }
+
+/* The tutorial's kicker and its way back. */
+.teach__kicker {
+  font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--brass); margin-bottom: 4px;
+}
+.teach__back {
+  background: none; border: 0; color: var(--text-dim); font-size: 14px;
+  padding: 9px 10px; cursor: pointer;
+}

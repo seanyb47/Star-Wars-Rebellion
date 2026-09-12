@@ -39,7 +39,7 @@ import {
 import { ControlBadge, Sheet, Slot, SlotBoard, Stat, SupportBars } from './components';
 import { Harbour } from './FleetPanel';
 import { WorthMark } from './worth';
-import { loyaltyColour } from './ChainMap';
+import { controlColour } from './ChainMap';
 
 import type { IslandTab } from './IslandRow';
 
@@ -264,7 +264,7 @@ export function SystemSheet({
         <WorthMark
           system={system}
           size={18}
-          colour={loyaltyColour(system, state.player)}
+          colour={controlColour(system, state.player)}
           className="sheet__worth"
         />
       }

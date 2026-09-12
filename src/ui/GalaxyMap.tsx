@@ -10,7 +10,7 @@ import {
 } from '../sim';
 import { WORTH_SHAPE, burstPath, sparkPath } from './worth';
 import { LayerStrip, useLayerSwipe } from './LayerStrip';
-import { allegianceColour, allegianceSegments } from './allegiance';
+import { allegianceColour } from './allegiance';
 import { CompassRose, islandPath } from './art';
 import { paintedChart } from './painted';
 import chartData from '../data/chart.json';
@@ -79,33 +79,6 @@ const ISLAND_PLACES = new Map(
  * names a body of water rather than a place. Seven of them, from the data, so
  * this cannot drift from the world.
  */
-const SEAS = (() => {
-  const by = new Map<string, Array<{ x: number; y: number; ry: number }>>();
-  for (const r of CHART.reaches) {
-    const at = by.get(r.sea) ?? [];
-    at.push({ x: r.x, y: r.y, ry: r.ry });
-    by.set(r.sea, at);
-  }
-  return [...by].map(([sea, pts]) => {
-    const x = pts.reduce((t, p) => t + p.x, 0) / pts.length;
-    const y = pts.reduce((t, p) => t + p.y, 0) / pts.length;
-    // Two Reaches leave a gap between them for the name; one does not, and the
-    // centroid is then the chain itself — the Crown Sea's name was landing on
-    // Highwater. So a single-Reach Sea lifts its name into the water above,
-    // which is where a chart writes one anyway.
-    //
-    // The lift is capped, and that matters more since the map went to seven
-    // Reaches: with one Reach per Sea every name lifts, the clusters are wider
-    // than they were, and a lift proportional to the whole cluster threw the
-    // Far Sea off the top of the chart and left the Merchant Sea floating four
-    // hundred units above its own islands.
-    const ry = Math.max(...pts.map((p) => p.ry));
-    const lift = pts.length > 1 ? 0 : Math.min(ry * 0.62, 96);
-    // And never off the chart: a name nobody can read is worse than one
-    // sitting a little closer to its islands than it would like.
-    return { sea, x, y: Math.max(46, Math.min(CHART_H - 40, y - lift)) };
-  });
-})();
 
 /** Room around a chain's islands for the tap target and the ring. A chain has
  *  to clear 44px on a phone; the smallest of these is 63 units, which is 26px
@@ -176,18 +149,21 @@ function seaStipple(seed: number) {
 const RHUMB_ANGLES = Array.from({ length: 16 }, (_, i) => (i * 360) / 16);
 
 /**
- * Out here an island is painted by **loyalty**, not by who is flying a flag
- * over it: the side with the most of its people, or neutral blue where nobody
- * has a majority. That is what makes the chart worth looking at from a
- * distance — you can see sympathy moving before an island changes hands.
+ * Out here an island is painted by **who holds it**, and by nothing else.
  *
- * Control is still shown, by the chain's own tally and inside the chain.
+ * Green is the Crown's, red the Confederacy's, blue nobody's yet, grey not
+ * charted or not lived on. It was painted by which way its people leaned for
+ * a while, and that was cleverer and worse: a filter that dimmed the islands
+ * that did not answer it left half the chart unreadable, and a colour that
+ * could change without the island changing hands was a colour you could not
+ * trust at a glance. Control never lies. Lean is on the island's own panel.
  */
-function loyaltyColor(system: System, viewer: PlayableFaction): string {
+function controlColor(system: System, viewer: PlayableFaction): string {
   if (!system.explored[viewer]) return 'var(--unknown)';
-  if (!system.populated) return '#5d7079';
-  const lead = allegianceSegments(system)[0];
-  return lead ? allegianceColour(lead.faction) : 'var(--neutral)';
+  if (system.control === 'empire' || system.control === 'alliance') {
+    return allegianceColour(system.control);
+  }
+  return system.populated ? 'var(--neutral)' : '#5d7079';
 }
 
 /**
@@ -203,6 +179,8 @@ function loyaltyColor(system: System, viewer: PlayableFaction): string {
  * anything past 11 would have neighbours running each other over.
  */
 const ISLAND_RADIUS = 8;
+/** The filter's star. Bigger than a dot by enough to be the thing you see. */
+const STAR_RADIUS = 14;
 
 export function GalaxyMap({
   state,
@@ -278,12 +256,6 @@ export function GalaxyMap({
         {...swipe}
       >
         <defs>
-          {/* The glow behind an island that answers the current filter. A blur
-              rather than a second ring, so what you see is the island's own
-              colour burning brighter and not a mark sitting on top of it. */}
-          <filter id="litglow" x="-120%" y="-120%" width="340%" height="340%">
-            <feGaussianBlur stdDeviation="5" />
-          </filter>
           <radialGradient id="shoal">
             <stop offset="0%" stopColor="var(--shallow)" stopOpacity="0.5" />
             <stop offset="70%" stopColor="var(--shallow)" stopOpacity="0.22" />
@@ -342,18 +314,6 @@ export function GalaxyMap({
             <rect x={0} y={CHART_H} width={CHART_W} height={BAND} fill="var(--water)" />
           </g>
         )}
-
-        {/* The seven Seas, named. Large, faint and letterspaced, under the
-            chains rather than beside them — a chart names a body of water the
-            way it names nothing else, and at this weight a chain label
-            crossing one reads as ink over ink instead of a collision. */}
-        <g pointerEvents="none">
-          {SEAS.map((s) => (
-            <text key={s.sea} className="map__sea" x={s.x} y={s.y}>
-              {s.sea.replace(/^The /, '').toUpperCase().split('').join('\u2009')}
-            </text>
-          ))}
-        </g>
 
         {chains.map(({ sector, systems, summary, targets, spot, chainR, label }) => {
           // Sailing can go anywhere; a parley can only go where it is welcome.
@@ -419,39 +379,26 @@ export function GalaxyMap({
                 const mark = filtering
                   ? layerMark(state, system, layer, viewer)
                   : { lit: false as const };
-                // One colour, at three strengths. An island is always drawn in
-                // its own loyalty colour; a filter only changes how hard that
-                // colour is pushed. The islands that answer come up bright and
-                // the rest fall back, so the filter reads as the chart lighting
-                // up rather than as a second set of marks laid over it.
+                // Every island is always on the chart, always in its own
+                // colour, whatever filter is on. A filter changes one thing:
+                // the islands that answer it are drawn as a star instead of a
+                // dot. Nothing dims, nothing glows, nothing changes colour —
+                // an earlier version did all three and left half the chart
+                // unreadable to say something a star says on its own.
                 const lit = filtering && mark.lit && !sizing;
-                const dim = filtering && !mark.lit;
-                const tint = loyaltyColor(system, viewer);
+                const tint = controlColor(system, viewer);
+                const starR = lit ? STAR_RADIUS : radius;
                 return (
                   <g key={system.id} pointerEvents="none">
-                    {lit && (
-                      <>
-                        {/* A halo in the island's own colour, so bright reads as
-                            bright at three pixels and not merely as filled. */}
-                        <circle
-                          cx={ax}
-                          cy={ay}
-                          r={radius + 5}
-                          fill={tint}
-                          opacity={0.55}
-                          filter="url(#litglow)"
-                        />
-                        {mark.count !== undefined && mark.count > 1 && (
-                          <text
-                            className="map__lit-n"
-                            x={ax + radius + 11}
-                            y={ay - radius - 3}
-                            fill={tint}
-                          >
-                            {mark.count}
-                          </text>
-                        )}
-                      </>
+                    {lit && mark.count !== undefined && mark.count > 1 && (
+                      <text
+                        className="map__lit-n"
+                        x={ax + starR + 6}
+                        y={ay - starR + 2}
+                        fill={tint}
+                      >
+                        {mark.count}
+                      </text>
                     )}
                     {isHq && (
                       /* Tighter around a star or a rhombus: the ring is set off
@@ -461,7 +408,7 @@ export function GalaxyMap({
                         className="map__hq"
                         cx={ax}
                         cy={ay}
-                        r={radius + (worthMark && worthMark.shape !== 'dot' ? 3.5 : 7)}
+                        r={starR + ((worthMark && worthMark.shape !== 'dot') || lit ? 3.5 : 7)}
                         stroke={tint}
                       />
                     )}
@@ -481,13 +428,23 @@ export function GalaxyMap({
                              puts a seam down every point. */
                           const skin = {
                             fill: tint,
-                            fillOpacity: lit ? 1 : dim ? 0.12 : explored ? 0.42 : 0.14,
+                            fillOpacity: lit ? 0.95 : explored ? 0.42 : 0.14,
                             stroke: tint,
-                            strokeOpacity: lit ? 1 : dim ? 0.26 : explored ? 0.95 : 0.5,
-                            strokeWidth: lit ? 3.2 : explored ? 2.4 : 1.6,
+                            strokeOpacity: explored ? 0.95 : 0.5,
+                            strokeWidth: lit ? 2 : explored ? 2.4 : 1.6,
                             strokeDasharray: explored ? undefined : '4 3.5',
                             strokeLinejoin: 'round' as const,
                           };
+                          // The filter's star, or the worth grade's shape.
+                          if (lit) {
+                            return (
+                              <path
+                                d={burstPath(STAR_RADIUS)}
+                                transform={`translate(${ax} ${ay})`}
+                                {...skin}
+                              />
+                            );
+                          }
                           if (worthMark && worthMark.shape !== 'dot') {
                             return (
                               <path
@@ -521,13 +478,13 @@ export function GalaxyMap({
                           stroke={tint}
                           strokeWidth={lit ? 3 : explored ? 2.2 : 1.6}
                           strokeDasharray={explored ? undefined : '5 4'}
-                          opacity={dim ? 0.3 : 1}
+                          opacity={1}
                         />
                         <path
                           d={islandPath(system.name, radius)}
                           transform={`translate(${ax} ${ay})`}
                           fill={tint}
-                          opacity={lit ? 0.9 : dim ? 0.08 : explored ? 0.28 : 0.1}
+                          opacity={lit ? 0.9 : explored ? 0.28 : 0.1}
                         />
                       </>
                     )}

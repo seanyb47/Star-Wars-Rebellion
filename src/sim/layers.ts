@@ -39,7 +39,7 @@ export interface LayerSpec {
  * chart's resting state — swiping right from anywhere gets you home.
  */
 export const CHART_LAYERS: LayerSpec[] = [
-  { id: 'allegiance', label: 'Allegiance', hint: 'Every island, coloured by which way its people lean.' },
+  { id: 'allegiance', label: 'All', hint: 'Every island, coloured by who holds it. Pick a filter and a star marks what it points at.' },
   { id: 'idleWorks', label: 'Idle works', hint: 'Yards, drill grounds and slipways of yours standing with no order on them.' },
   { id: 'idleCrew', label: 'Idle crew', hint: 'Islands where one of your officers is ashore with nothing to do.' },
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
