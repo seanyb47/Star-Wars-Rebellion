@@ -12,8 +12,11 @@ import { GOLD_PER_DAY, UPKEEP_PER_DAY } from '../constants';
 import { createRng } from '../rng';
 import type { GameState, PlayableFaction, System } from '../types';
 
-/** Strip the map down to one held island so a test can reason about it. */
+/** Strip the map down to one held island so a test can reason about it.
+ *  The starting fleets go too: their upkeep is real, and these tests are about
+ *  what an island costs, not what a navy costs. */
 function isolate(state: GameState, faction: PlayableFaction): System {
+  state.fleets.length = 0;
   const held = state.systems.filter((s) => s.control === faction);
   const keep = held[0];
   for (const system of state.systems) {

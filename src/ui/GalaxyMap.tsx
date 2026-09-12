@@ -1,50 +1,157 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
-import { GALAXY_SIZE, SECTOR_RING_RADIUS, isDiplomacyTarget, seasOf } from '../sim';
-import { CompassRose, NarratorPortrait, islandPath } from './art';
+import {
+  isMissionTarget,
+  layerMark,
+  summariseReach,
+  worthTier,
+  type ChartLayer,
+  type WorthTier,
+} from '../sim';
+import { WORTH_SHAPE, burstPath, sparkPath } from './worth';
+import { LayerStrip, useLayerSwipe } from './LayerStrip';
+import { allegianceColour, allegianceSegments } from './allegiance';
+import { CompassRose, islandPath } from './art';
+import { paintedChart } from './painted';
+import chartData from '../data/chart.json';
+import { ProducerLegend } from './ProducerLegend';
 
-const CENTRE = GALAXY_SIZE / 2;
-/** How far the view may be dragged before the galaxy would leave the screen. */
-const PAN_LIMIT = GALAXY_SIZE * 0.9;
-
-const MIN_ZOOM = 0.7;
-const MAX_ZOOM = 7;
-/** Pointer travel (in screen px) above which a gesture counts as a pan, not a tap. */
-const TAP_SLOP = 8;
 /**
- * Below this zoom an island is a few pixels across and picking one is a
- * lottery, so the chart works at the level of whole Seas instead: tap the
- * water, then choose the island from a list you can read.
+ * The chart is a painting with the war drawn on top of it.
+ *
+ * Everything about where things sit now comes out of `src/data/chart.json`,
+ * which is read off the painting itself by `scripts/chart_positions.py`. The
+ * chart used to scatter its own chains and then scatter islands inside them
+ * from a seed, which was right while the ground was blank: the scatter was
+ * free, stable across games, and there was nothing underneath to disagree
+ * with. There is now. An island mark floating in open water beside a painted
+ * island reads as a bug, so the marks go where the painting already put the
+ * land.
+ *
+ * That is allowed because the coordinates were always decoration: travel time
+ * depends on whether two islands share a chain, never on how far apart they
+ * are drawn (see travelDays). Nothing in the simulation reads them.
+ *
+ * If the painting is missing the chart still works — it falls back to the
+ * drawn ground it always had, and to the positions in the data. The game is
+ * never half-finished for want of an image.
  */
-const ISLAND_ZOOM = 1.5;
+const CHART = chartData as {
+  width: number;
+  height: number;
+  reaches: Array<{
+    reach: string;
+    sea: string;
+    x: number;
+    y: number;
+    r: number;
+    ry: number;
+    label: { x: number; y: number };
+    islands: Array<{ name: string; x: number; y: number }>;
+  }>;
+};
+const CHART_W = CHART.width;
+/** The painting's own height. Everything in chart.json is inside this. */
+const CHART_H = CHART.height;
+/**
+ * The chart is taller than the painting by a band of open water.
+ *
+ * Two things needed it. The layer strip and its hint line sit at the foot of
+ * the chart and were landing on Salt Reach — the southernmost chain — and on
+ * its label. And the painting's bottom edge is its brightest part (luma 75
+ * where the rest is 25), which is the worst possible ground for a row of
+ * chips. Fading it into flat water fixes both at once.
+ */
+const BAND = 170;
+const VIEW_H = CHART_H + BAND;
 
-interface View {
-  k: number;
-  tx: number;
-  ty: number;
+/** Reach name -> where its cluster sits on the painting. */
+const PLACES = new Map(CHART.reaches.map((r) => [r.reach, r]));
+/** "Reach/Island" -> where that island sits. Keyed by both because island
+ *  names only have to be unique inside their own chain. */
+const ISLAND_PLACES = new Map(
+  CHART.reaches.flatMap((r) => r.islands.map((i) => [`${r.reach}/${i.name}`, i] as const)),
+);
+
+/**
+ * Each Sea, and where its name belongs: the middle of the chains that are in
+ * it. Drawn large, faint and letterspaced, under everything — the way a chart
+ * names a body of water rather than a place. Seven of them, from the data, so
+ * this cannot drift from the world.
+ */
+const SEAS = (() => {
+  const by = new Map<string, Array<{ x: number; y: number; ry: number }>>();
+  for (const r of CHART.reaches) {
+    const at = by.get(r.sea) ?? [];
+    at.push({ x: r.x, y: r.y, ry: r.ry });
+    by.set(r.sea, at);
+  }
+  return [...by].map(([sea, pts]) => {
+    const x = pts.reduce((t, p) => t + p.x, 0) / pts.length;
+    const y = pts.reduce((t, p) => t + p.y, 0) / pts.length;
+    // Two Reaches leave a gap between them for the name; one does not, and the
+    // centroid is then the chain itself — the Crown Sea's name was landing on
+    // Highwater. So a single-Reach Sea lifts its name into the water above,
+    // which is where a chart writes one anyway.
+    //
+    // The lift is capped, and that matters more since the map went to seven
+    // Reaches: with one Reach per Sea every name lifts, the clusters are wider
+    // than they were, and a lift proportional to the whole cluster threw the
+    // Far Sea off the top of the chart and left the Merchant Sea floating four
+    // hundred units above its own islands.
+    const ry = Math.max(...pts.map((p) => p.ry));
+    const lift = pts.length > 1 ? 0 : Math.min(ry * 0.62, 96);
+    // And never off the chart: a name nobody can read is worse than one
+    // sitting a little closer to its islands than it would like.
+    return { sea, x, y: Math.max(46, Math.min(CHART_H - 40, y - lift)) };
+  });
+})();
+
+/** Room around a chain's islands for the tap target and the ring. A chain has
+ *  to clear 44px on a phone; the smallest of these is 63 units, which is 26px
+ *  at 420 wide — so the padding is what makes it tappable, not the islands. */
+const CHAIN_PAD = 34;
+/** Where a chain goes if the painting has never heard of it — a new Reach on a
+ *  bigger map, before someone re-runs the position script. Ringed around the
+ *  middle so it is visible and obviously provisional. */
+function fallbackSpot(index: number) {
+  const t = (index / 10) * Math.PI * 2;
+  const x = CHART_W / 2 + Math.cos(t) * 380;
+  const y = CHART_H / 2 + Math.sin(t) * 560;
+  return { x, y, r: 90, ry: 90, label: { x, y: y + 150 } };
 }
 
+/**
+ * The chart does not zoom and does not pan.
+ *
+ * It used to do both, across three levels — Seas pulled out, islands and
+ * Reaches pushed in — and it was rejected for being fiddly, which it was. A
+ * player on a phone should not have to operate a camera to find out what is
+ * happening. So the whole archipelago is on screen at once and there is one
+ * thing to tap: an island chain, which opens as a panel listing its islands.
+ *
+ * That is only possible because a chain is big. Ten chains sit on two rings in
+ * a 1200-unit square; at phone width each is about 77px across, comfortably
+ * over the 44px minimum, while a single island would be four pixels and
+ * impossible to hit. So islands are drawn but not tapped: on the chart they
+ * are the picture of the chain, and they become targets in the panel, at a
+ * size where you can read their names.
+ */
 export interface GalaxyMapProps {
   state: GameState;
-  onSelectSystem: (systemId: string) => void;
   /** When set, the map is in "choose a destination" mode for this character. */
   pickingFor?: { characterId: string; faction: PlayableFaction } | null;
-  focusSystemId?: string | null;
+  /** A fleet waiting to be told where to sail. Anywhere is a valid answer. */
+  sailing?: boolean;
   onCancelPick?: () => void;
   onOpenWorlds?: () => void;
-  /** Tapping the open water inside a Reach opens the whole Reach. */
+  /** Tapping a chain opens it. The island is then chosen from the list. */
   onSelectReach?: (sectorId: string) => void;
-  onAskAdvisor?: () => void;
-  /** Tapping a Sea while zoomed out, when islands are too small to aim at. */
-  onSelectSea?: (sea: string) => void;
-}
-
-/** A view transform that puts `system` in the middle of the screen at zoom `k`. */
-function viewCentredOn(state: GameState, systemId: string, k: number): View {
-  const system = state.systems.find((s) => s.id === systemId);
-  const sector = state.sectors.find((s) => s.id === system?.sectorId);
-  if (!system || !sector) return { k: 1, tx: 0, ty: 0 };
-  return { k, tx: CENTRE - (sector.x + system.x) * k, ty: CENTRE - (sector.y + system.y) * k };
+  /** From the idle-producer strip: jump straight to an island with a free yard. */
+  onOpenIsland?: (systemId: string) => void;
+  /** Which question the chart is answering. Swipe or tap the strip to change. */
+  layer?: ChartLayer;
+  onLayerChange?: (layer: ChartLayer) => void;
 }
 
 /**
@@ -57,9 +164,9 @@ function seaStipple(seed: number) {
     s = (s * 1664525 + 1013904223) >>> 0;
     return s / 4294967296;
   };
-  return Array.from({ length: 150 }, () => ({
-    x: random() * GALAXY_SIZE,
-    y: random() * GALAXY_SIZE,
+  return Array.from({ length: 190 }, () => ({
+    x: random() * CHART_W,
+    y: random() * VIEW_H,
     r: 0.5 + random() * 1.1,
     o: 0.06 + random() * 0.16,
   }));
@@ -68,478 +175,423 @@ function seaStipple(seed: number) {
 /** Rhumb lines radiating from the chart's compass, as on a portolan chart. */
 const RHUMB_ANGLES = Array.from({ length: 16 }, (_, i) => (i * 360) / 16);
 
-function controlColor(system: System, viewer: PlayableFaction): string {
+/**
+ * Out here an island is painted by **loyalty**, not by who is flying a flag
+ * over it: the side with the most of its people, or neutral blue where nobody
+ * has a majority. That is what makes the chart worth looking at from a
+ * distance — you can see sympathy moving before an island changes hands.
+ *
+ * Control is still shown, by the chain's own tally and inside the chain.
+ */
+function loyaltyColor(system: System, viewer: PlayableFaction): string {
   if (!system.explored[viewer]) return 'var(--unknown)';
-  switch (system.control) {
-    case 'empire':
-      return 'var(--empire)';
-    case 'alliance':
-      return 'var(--alliance)';
-    case 'neutral':
-      return 'var(--neutral)';
-    default:
-      return '#5d7079';
-  }
+  if (!system.populated) return '#5d7079';
+  const lead = allegianceSegments(system)[0];
+  return lead ? allegianceColour(lead.faction) : 'var(--neutral)';
 }
 
-/** How much of the chart an island takes up: settled ports draw larger. */
-function islandRadius(system: System): number {
-  const weight = system.rawSlots + system.energySlots;
-  return (system.populated ? 8 : 5.5) + Math.min(weight, 9) * 0.45;
-}
+/**
+ * Every island is the same size on the resting chart.
+ *
+ * Size used to scale with what an island could hold, and the Crown's seat was
+ * drawn at more than double everything else. Both were the chart answering a
+ * question nobody had asked, every second it was open. Worth is a question you
+ * ask when you are choosing where to go, so it is the Worth layer now, and the
+ * seat is an island like the others — the ring already says it is a capital.
+ *
+ * The positions come from the painting and no two are closer than 24 units, so
+ * anything past 11 would have neighbours running each other over.
+ */
+const ISLAND_RADIUS = 8;
 
 export function GalaxyMap({
   state,
-  onSelectSystem,
   pickingFor,
-  focusSystemId,
+  sailing,
   onCancelPick,
   onOpenWorlds,
   onSelectReach,
-  onAskAdvisor,
-  onSelectSea,
+  onOpenIsland,
+  layer = 'allegiance',
+  onLayerChange,
 }: GalaxyMapProps) {
-  const svgRef = useRef<SVGSVGElement | null>(null);
-  // Open looking at your own capital rather than at the whole empty galaxy.
-  const [view, setView] = useState<View>(() =>
-    viewCentredOn(state, state.factions[state.player].hqSystemId, 2),
-  );
-  const gesture = useRef({
-    pointers: new Map<number, { x: number; y: number }>(),
-    startView: { k: 1, tx: 0, ty: 0 } as View,
-    startPoint: { x: 0, y: 0 },
-    startSpread: 0,
-    moved: 0,
-  });
-
   const viewer = state.player;
+  const ground = paintedChart('seas');
+  const swipe = useLayerSwipe(layer, onLayerChange ?? (() => {}));
+  // Picking a destination is a different question from reading the chart, so
+  // the layers stand down while it is happening rather than fighting the
+  // pick rings for the same dimming.
+  const filtering = layer !== 'allegiance' && !pickingFor && !sailing;
+  /* Worth is a magnitude, so it is drawn as one: size, not the glow the
+     yes-or-no layers use. Fifty glowing islands is not a filter. */
+  const sizing = filtering && layer === 'worth';
   const stipple = useMemo(() => seaStipple(state.rngSeed), [state.rngSeed]);
-  const sectorById = useMemo(
-    () => new Map(state.sectors.map((s) => [s.id, s] as const)),
-    [state.sectors],
-  );
-
-  /** Client coordinates -> untransformed SVG user units. */
-  const toUser = useCallback((x: number, y: number) => {
-    const svg = svgRef.current;
-    if (!svg) return { x: 0, y: 0 };
-    const ctm = svg.getScreenCTM();
-    if (!ctm) return { x: 0, y: 0 };
-    const point = svg.createSVGPoint();
-    point.x = x;
-    point.y = y;
-    const local = point.matrixTransform(ctm.inverse());
-    return { x: local.x, y: local.y };
-  }, []);
-
-  const clamp = (v: View): View => ({
-    k: v.k,
-    // Keep at least a corner of the galaxy on screen at all times.
-    tx: Math.min(PAN_LIMIT, Math.max(-PAN_LIMIT * v.k, v.tx)),
-    ty: Math.min(PAN_LIMIT, Math.max(-PAN_LIMIT * v.k, v.ty)),
-  });
-
-  const onPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
-    const g = gesture.current;
-    (e.target as Element).setPointerCapture?.(e.pointerId);
-    g.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    g.moved = 0;
-    g.startView = view;
-    const points = [...g.pointers.values()];
-    if (points.length === 1) {
-      g.startPoint = toUser(points[0].x, points[0].y);
-    } else if (points.length === 2) {
-      g.startSpread = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
-      const mid = { x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2 };
-      g.startPoint = toUser(mid.x, mid.y);
-    }
-  };
-
-  const onPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
-    const g = gesture.current;
-    const previous = g.pointers.get(e.pointerId);
-    if (!previous) return;
-    g.moved += Math.hypot(e.clientX - previous.x, e.clientY - previous.y);
-    g.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-    const points = [...g.pointers.values()];
-    if (points.length === 1) {
-      const now = toUser(points[0].x, points[0].y);
-      setView((v) =>
-        clamp({
-          ...v,
-          tx: g.startView.tx + (now.x - g.startPoint.x),
-          ty: g.startView.ty + (now.y - g.startPoint.y),
-        }),
-      );
-    } else if (points.length === 2 && g.startSpread > 0) {
-      const spread = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
-      const k = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, g.startView.k * (spread / g.startSpread)));
-      // Keep the point under the fingers pinned while scaling.
-      const anchor = g.startPoint;
-      setView(
-        clamp({
-          k,
-          tx: anchor.x - ((anchor.x - g.startView.tx) / g.startView.k) * k,
-          ty: anchor.y - ((anchor.y - g.startView.ty) / g.startView.k) * k,
-        }),
-      );
-    }
-  };
-
-  const endPointer = (e: React.PointerEvent<SVGSVGElement>) => {
-    gesture.current.pointers.delete(e.pointerId);
-  };
-
-  const zoomBy = (factor: number) => {
-    setView((v) => {
-      const k = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, v.k * factor));
-      return clamp({
-        k,
-        tx: CENTRE - ((CENTRE - v.tx) / v.k) * k,
-        ty: CENTRE - ((CENTRE - v.ty) / v.k) * k,
-      });
-    });
-  };
-
-  const centreOn = useCallback((system: System) => {
-    const sector = sectorById.get(system.sectorId);
-    if (!sector) return;
-    const ax = sector.x + system.x;
-    const ay = sector.y + system.y;
-    setView(() => {
-      const k = 3;
-      return { k, tx: CENTRE - ax * k, ty: CENTRE - ay * k };
-    });
-  }, [sectorById]);
-
-  // Recentre when the feed or the character list asks to jump somewhere.
-  const lastFocus = useRef<string | null>(null);
-  if (focusSystemId && focusSystemId !== lastFocus.current) {
-    lastFocus.current = focusSystemId;
-    const system = state.systems.find((s) => s.id === focusSystemId);
-    if (system) queueMicrotask(() => centreOn(system));
-  }
-  if (!focusSystemId) lastFocus.current = null;
 
   /**
-   * Selection runs on `click`, not `pointerup`: a sheet opened on pointerup is
-   * still on screen when the browser dispatches the compatibility click, which
-   * would land on the sheet's scrim and dismiss it again.
-   */
-  const tapSystem = (systemId: string) => {
-    if (gesture.current.moved > TAP_SLOP) return;
-    onSelectSystem(systemId);
-  };
-
-  /** A circle covering all of a Sea's Reaches, for drawing and for tapping. */
-  const seaRegions = useMemo(() => {
-    return seasOf(state).map((sea) => {
-      const sectors = state.sectors.filter((s) => s.sea === sea);
-      const x = sectors.reduce((t, s) => t + s.x, 0) / sectors.length;
-      const y = sectors.reduce((t, s) => t + s.y, 0) / sectors.length;
-      const r =
-        Math.max(...sectors.map((s) => Math.hypot(s.x - x, s.y - y))) + SECTOR_RING_RADIUS + 12;
-      return { sea, x, y, r };
-    });
-  }, [state.sectors]);
-
-  /**
-   * Which Sea a tap belongs to, by nearest centre.
+   * Everything the chart needs to draw a chain, worked out once per render.
    *
-   * Drawing a circle per Sea and hanging the handler on it does not work: the
-   * circles overlap heavily, so a tap in an overlap opens whichever happens to
-   * be painted last. Nearest-centre partitions the whole chart with no gaps
-   * and no ambiguity, and every tap lands on the Sea you were aiming at.
+   * Sorted by Sea first so the two chains of a Sea come out side by side: the
+   * chart then reads as seas of archipelagos rather than ten unrelated
+   * clusters. The Sea's own name is left off — it was drawn once and landed on
+   * top of the chain names — and appears on the chain's panel instead.
    */
-  const tapSeaAt = (event: React.MouseEvent<SVGRectElement>) => {
-    if (gesture.current.moved > TAP_SLOP) return;
-    if (pickingFor) return;
-    const point = toUser(event.clientX, event.clientY);
-    const x = (point.x - view.tx) / view.k;
-    const y = (point.y - view.ty) / view.k;
-    let best: { sea: string; distance: number } | null = null;
-    for (const region of seaRegions) {
-      const distance = Math.hypot(region.x - x, region.y - y);
-      if (!best || distance < best.distance) best = { sea: region.sea, distance };
-    }
-    if (best) onSelectSea?.(best.sea);
-  };
+  const chains = useMemo(() => {
+    const sorted = [...state.sectors].sort(
+      (a, b) => a.sea.localeCompare(b.sea) || a.name.localeCompare(b.name),
+    );
+    return sorted.map((sector, index) => {
+      const place = PLACES.get(sector.name) ?? fallbackSpot(index);
+      const spot = { x: place.x, y: place.y };
+      const systems = state.systems.filter((s) => s.sectorId === sector.id);
+      return {
+        sector,
+        systems,
+        summary: summariseReach(state, sector.id, viewer),
+        spot,
+        chainR: place.r + CHAIN_PAD,
+        /**
+         * Where the name goes, worked out against the painting itself by
+         * scripts/chart_positions.py rather than hung off the cluster here.
+         *
+         * Hanging it off the cluster put half the names on their own islands —
+         * Rime's sat across the arctic peaks — and left Salt's flipping above
+         * into Sovereign's. The script has the land, so it scores a ring of
+         * candidate spots by how clear of coastline each is and how far from
+         * every name already placed, biggest chain first.
+         */
+        label: place.label,
+        // While choosing a destination, a chain is live only if something
+        // in it can actually be sailed to.
+        targets: systems.filter((s) => isMissionTarget(state, s, viewer)).length,
+      };
+    });
+  }, [state, viewer]);
 
-  const tapReach = (sectorId: string) => {
-    if (gesture.current.moved > TAP_SLOP) return;
-    if (pickingFor) return; // Choosing a destination: only islands are targets.
-    onSelectReach?.(sectorId);
-  };
-
-  const k = view.k;
-  const showNames = k >= 1.9;
-  // Far out, the chart is a chart of seas; close in, it is a chart of islands.
-  const islandsLive = k >= ISLAND_ZOOM;
-  // Once individual worlds are labelled, sector names are just clutter — and
-  // they collide with the system labels of the cluster next door.
-  const showSectorNames = !showNames && islandsLive;
+  const enemy: PlayableFaction = viewer === 'empire' ? 'alliance' : 'empire';
 
   return (
     <>
       <svg
-        ref={svgRef}
-        className="map"
-        viewBox={`0 0 ${GALAXY_SIZE} ${GALAXY_SIZE}`}
+        className={ground ? 'map map--painted' : 'map'}
+        viewBox={`0 0 ${CHART_W} ${VIEW_H}`}
         preserveAspectRatio="xMidYMid meet"
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endPointer}
-        onPointerCancel={endPointer}
-        onPointerLeave={endPointer}
+        {...swipe}
       >
         <defs>
+          {/* The glow behind an island that answers the current filter. A blur
+              rather than a second ring, so what you see is the island's own
+              colour burning brighter and not a mark sitting on top of it. */}
+          <filter id="litglow" x="-120%" y="-120%" width="340%" height="340%">
+            <feGaussianBlur stdDeviation="5" />
+          </filter>
           <radialGradient id="shoal">
             <stop offset="0%" stopColor="var(--shallow)" stopOpacity="0.5" />
             <stop offset="70%" stopColor="var(--shallow)" stopOpacity="0.22" />
             <stop offset="100%" stopColor="var(--shallow)" stopOpacity="0" />
           </radialGradient>
+          {/* The painting's foot into open water. Long, because a short fade
+              over a bright edge reads as a horizon line across the chart. */}
+          <linearGradient id="chart-foot" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--water)" stopOpacity="0" />
+            <stop offset="55%" stopColor="var(--water)" stopOpacity="0.72" />
+            <stop offset="100%" stopColor="var(--water)" stopOpacity="1" />
+          </linearGradient>
         </defs>
-        <g transform={`translate(${view.tx} ${view.ty}) scale(${k})`}>
-          {/* Rhumb lines and the chart's own compass, drawn under everything. */}
-          <g pointerEvents="none">
-            {RHUMB_ANGLES.map((deg) => {
-              const t = (deg * Math.PI) / 180;
-              return (
-                <line
-                  key={deg}
-                  className="map__rhumb"
-                  x1={CENTRE}
-                  y1={CENTRE}
-                  x2={CENTRE + Math.cos(t) * GALAXY_SIZE}
-                  y2={CENTRE + Math.sin(t) * GALAXY_SIZE}
-                  strokeWidth={0.6 / k}
-                />
-              );
-            })}
-            <g transform={`translate(${CENTRE} ${CENTRE})`} color="#17505f">
-              <CompassRose size={150} opacity={0.28} showLetters={false} />
-            </g>
-            {stipple.map((dot, index) => (
-              <circle
-                key={index}
-                cx={dot.x}
-                cy={dot.y}
-                r={dot.r}
-                fill="#7fb7c8"
-                opacity={dot.o}
-              />
-            ))}
-          </g>
 
-          {!islandsLive && (
-            <>
-              {/* One hit area for the whole chart; nearest centre decides. */}
-              <rect
-                x={-GALAXY_SIZE}
-                y={-GALAXY_SIZE}
-                width={GALAXY_SIZE * 3}
-                height={GALAXY_SIZE * 3}
-                fill="transparent"
-                style={{ cursor: 'pointer' }}
-                onClick={tapSeaAt}
-              />
-              {/* Names only, no boundaries drawn: a tap goes to the nearest
-                  Sea, and a ring would draw a border that is not really there. */}
-              {seaRegions.map((region) => (
-                <text
-                  key={region.sea}
-                  className="map__sea-label"
-                  x={region.x}
-                  y={region.y - region.r * 0.62}
-                  fontSize={30 / k}
-                  pointerEvents="none"
-                >
-                  {region.sea}
-                </text>
-              ))}
-            </>
-          )}
-
-          {state.sectors.map((sector) => (
-            <g key={sector.id}>
-              <circle
-                cx={sector.x}
-                cy={sector.y}
-                r={SECTOR_RING_RADIUS}
-                fill="url(#shoal)"
-                style={{ cursor: islandsLive ? 'pointer' : 'default' }}
-                pointerEvents={islandsLive ? 'auto' : 'none'}
-                onClick={() => tapReach(sector.id)}
-              />
-              <circle
-                className="map__sector-ring"
-                cx={sector.x}
-                cy={sector.y}
-                r={SECTOR_RING_RADIUS}
-                strokeWidth={1.5 / k}
-              />
-              {showSectorNames && (
-                <text
-                  className="map__sector-label"
-                  x={sector.x}
-                  y={sector.y - SECTOR_RING_RADIUS - 14}
-                  fontSize={15 / k}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => tapReach(sector.id)}
-                >
-                  {sector.name}
-                </text>
-              )}
-            </g>
-          ))}
-
-          {state.systems.map((system) => {
-            const sector = sectorById.get(system.sectorId)!;
-            const ax = sector.x + system.x;
-            const ay = sector.y + system.y;
-            const explored = system.explored[viewer];
-            const known = explored && system.populated;
-            const radius = islandRadius(system);
-            const isHq =
-              system.id === state.factions[viewer].hqSystemId ||
-              (explored && system.id === state.factions[viewer === 'empire' ? 'alliance' : 'empire'].hqSystemId);
-            const pickable =
-              !!pickingFor && isDiplomacyTarget(system, pickingFor.faction);
-
+        {/* The ground. The painting where it exists; the engraved chart it
+            always had where it does not. Never both: the painting carries its
+            own rhumb lines, soundings and compass, and drawing ours over the
+            top of them was two charts fighting. */}
+        {ground ? (
+          <image
+            href={ground}
+            x={0}
+            y={0}
+            width={CHART_W}
+            height={CHART_H}
+            preserveAspectRatio="xMidYMid slice"
+            pointerEvents="none"
+          />
+        ) : (
+        <g pointerEvents="none">
+          {RHUMB_ANGLES.map((deg) => {
+            const t = (deg * Math.PI) / 180;
             return (
-              <g
-                key={system.id}
-                onClick={islandsLive ? () => tapSystem(system.id) : undefined}
-                style={{ cursor: islandsLive ? 'pointer' : 'default' }}
-                pointerEvents={islandsLive ? 'auto' : 'none'}
-              >
-                {/* Generous invisible hit area for fingers. */}
-                {islandsLive && (
-                  <circle cx={ax} cy={ay} r={Math.max(14, 20 / k)} fill="transparent" />
-                )}
-                {pickable && (
-                  <circle className="map__pick" cx={ax} cy={ay} r={radius + 5} strokeWidth={2 / k} />
-                )}
-                {isHq && (
-                  <circle
-                    className="map__hq"
-                    cx={ax}
-                    cy={ay}
-                    r={radius + 6}
-                    stroke={controlColor(system, viewer)}
-                    strokeWidth={2 / k}
-                  />
-                )}
-                {/* Shelf of shallows, then the coastline itself. */}
-                <path
-                  d={islandPath(system.name, radius + 4)}
-                  transform={`translate(${ax} ${ay})`}
-                  fill="var(--shallow)"
-                  opacity={explored ? 0.5 : 0.25}
-                  pointerEvents="none"
-                />
-                <path
-                  className="map__coast"
-                  d={islandPath(system.name, radius)}
-                  transform={`translate(${ax} ${ay})`}
-                  fill={system.populated ? 'var(--land)' : 'var(--land-bare)'}
-                  stroke={controlColor(system, viewer)}
-                  strokeWidth={(explored ? 1.8 : 1.2) / k}
-                  strokeDasharray={explored ? undefined : `${3 / k} ${2.5 / k}`}
-                  pointerEvents="none"
-                />
-                <path
-                  d={islandPath(system.name, radius)}
-                  transform={`translate(${ax} ${ay})`}
-                  fill={controlColor(system, viewer)}
-                  opacity={explored ? 0.28 : 0.1}
-                  pointerEvents="none"
-                />
-                {system.uprising && explored && (
-                  <path
-                    d={`M ${ax - radius * 0.5} ${ay - radius - 2} l 0 -7 l ${radius * 0.9} 2.6 l ${-radius * 0.9} 2.6 z`}
-                    fill="#b8433a"
-                    pointerEvents="none"
-                  />
-                )}
-                {known && (
-                  <g>
-                    <rect
-                      x={ax - 9}
-                      y={ay + radius + 3}
-                      width={18}
-                      height={2.6}
-                      rx={1.3}
-                      fill="#0a2b36"
-                    />
-                    <rect
-                      x={ax - 9}
-                      y={ay + radius + 3}
-                      width={(18 * system.support.empire) / 100}
-                      height={2.6}
-                      rx={1.3}
-                      fill="var(--empire)"
-                    />
-                    <rect
-                      x={ax - 9 + 18 - (18 * system.support.alliance) / 100}
-                      y={ay + radius + 3}
-                      width={(18 * system.support.alliance) / 100}
-                      height={2.6}
-                      rx={1.3}
-                      fill="var(--alliance)"
-                      opacity={0.9}
-                    />
-                  </g>
-                )}
-                {showNames && explored && (
-                  <text
-                    className="map__system-label"
-                    x={ax}
-                    y={ay + radius + 14}
-                    fontSize={9 / k}
-                  >
-                    {system.name}
-                  </text>
-                )}
-              </g>
+              <line
+                key={deg}
+                className="map__rhumb"
+                x1={CHART_W / 2}
+                y1={CHART_H / 2}
+                x2={CHART_W / 2 + Math.cos(t) * CHART_H}
+                y2={CHART_H / 2 + Math.sin(t) * CHART_H}
+              />
             );
           })}
+          <g transform={`translate(${CHART_W / 2} ${CHART_H / 2})`} color="#17505f">
+            <CompassRose size={420} opacity={0.18} showLetters={false} />
+          </g>
+          {stipple.map((dot, index) => (
+            <circle key={index} cx={dot.x} cy={dot.y} r={dot.r} fill="#7fb7c8" opacity={dot.o} />
+          ))}
         </g>
+        )}
+
+        {ground && (
+          <g pointerEvents="none">
+            <rect x={0} y={CHART_H - 220} width={CHART_W} height={220 + BAND} fill="url(#chart-foot)" />
+            <rect x={0} y={CHART_H} width={CHART_W} height={BAND} fill="var(--water)" />
+          </g>
+        )}
+
+        {/* The seven Seas, named. Large, faint and letterspaced, under the
+            chains rather than beside them — a chart names a body of water the
+            way it names nothing else, and at this weight a chain label
+            crossing one reads as ink over ink instead of a collision. */}
+        <g pointerEvents="none">
+          {SEAS.map((s) => (
+            <text key={s.sea} className="map__sea" x={s.x} y={s.y}>
+              {s.sea.replace(/^The /, '').toUpperCase().split('').join('\u2009')}
+            </text>
+          ))}
+        </g>
+
+        {chains.map(({ sector, systems, summary, targets, spot, chainR, label }) => {
+          // Sailing can go anywhere; a parley can only go where it is welcome.
+          const live = sailing || !pickingFor || targets > 0;
+          // Under a layer, a chain holding no answer drops back so the ones
+          // that do carry the eye. It stays tappable — a filter is a way of
+          // looking, not a lock on where you can go.
+          const answers = filtering
+            ? systems.filter((sy) => layerMark(state, sy, layer, viewer).lit).length
+            : 0;
+          const faded = filtering && answers === 0;
+          // Below the chain normally; above it when below would put the name
+          // in the water band or off the bottom of the chart entirely, which
+          // is what happened to Salt Reach.
+          const labelX = label.x;
+          const labelY = label.y;
+          // The names still break at the last space — "Shipwrights'" over
+          // "Reach" — which keeps every label inside its own column.
+          const words = sector.name.split(' ');
+          const tail = words.length > 1 ? words.pop()! : '';
+          const head = words.join(' ');
+          return (
+            <g
+              key={sector.id}
+              onClick={live ? () => onSelectReach?.(sector.id) : undefined}
+              style={{ cursor: live ? 'pointer' : 'default' }}
+              opacity={live ? (faded ? 0.22 : 1) : 0.35}
+            >
+              {/* The disc is the tap target: the whole chain, not any one
+                  island. Over the painting it stays invisible — the painted
+                  shallows already show where a chain is, and a grey wash on
+                  top of them only muddies what is underneath. */}
+              <circle
+                cx={spot.x}
+                cy={spot.y}
+                r={chainR}
+                fill={ground ? 'transparent' : 'url(#shoal)'}
+              />
+              {!ground && (
+                <circle className="map__sector-ring" cx={spot.x} cy={spot.y} r={chainR} />
+              )}
+              {(sailing || (pickingFor && targets > 0)) && (
+                <circle className="map__pick" cx={spot.x} cy={spot.y} r={chainR + 7} />
+              )}
+
+              {systems.map((system) => {
+
+                // Where the painting put this island. Falling back to the old
+                // seeded scatter keeps a Reach the position script has not
+                // seen from piling all ten islands on one point.
+                const at = ISLAND_PLACES.get(`${sector.name}/${system.name}`);
+                const ax = at ? at.x : spot.x + system.x * 0.72;
+                const ay = at ? at.y : spot.y + system.y * 0.72;
+                const explored = system.explored[viewer];
+                // An island you have not charted keeps its worth to itself:
+                // grading it here would tell you what is over the horizon.
+                const grade: WorthTier | null = sizing && explored ? worthTier(system) : null;
+                const worthMark = grade ? WORTH_SHAPE[grade] : null;
+                const radius = worthMark ? worthMark.r : ISLAND_RADIUS;
+                const isHq =
+                  system.id === state.factions[viewer].hqSystemId ||
+                  (explored && system.id === state.factions[enemy].hqSystemId);
+                const mark = filtering
+                  ? layerMark(state, system, layer, viewer)
+                  : { lit: false as const };
+                // One colour, at three strengths. An island is always drawn in
+                // its own loyalty colour; a filter only changes how hard that
+                // colour is pushed. The islands that answer come up bright and
+                // the rest fall back, so the filter reads as the chart lighting
+                // up rather than as a second set of marks laid over it.
+                const lit = filtering && mark.lit && !sizing;
+                const dim = filtering && !mark.lit;
+                const tint = loyaltyColor(system, viewer);
+                return (
+                  <g key={system.id} pointerEvents="none">
+                    {lit && (
+                      <>
+                        {/* A halo in the island's own colour, so bright reads as
+                            bright at three pixels and not merely as filled. */}
+                        <circle
+                          cx={ax}
+                          cy={ay}
+                          r={radius + 5}
+                          fill={tint}
+                          opacity={0.55}
+                          filter="url(#litglow)"
+                        />
+                        {mark.count !== undefined && mark.count > 1 && (
+                          <text
+                            className="map__lit-n"
+                            x={ax + radius + 11}
+                            y={ay - radius - 3}
+                            fill={tint}
+                          >
+                            {mark.count}
+                          </text>
+                        )}
+                      </>
+                    )}
+                    {isHq && (
+                      /* Tighter around a star or a rhombus: the ring is set off
+                         the points, and a circle 7 clear of those sits half a
+                         chart away from the waist. */
+                      <circle
+                        className="map__hq"
+                        cx={ax}
+                        cy={ay}
+                        r={radius + (worthMark && worthMark.shape !== 'dot' ? 3.5 : 7)}
+                        stroke={tint}
+                      />
+                    )}
+                    {ground ? (
+                      /* On the painting the island is already drawn, in more
+                         detail than a seeded outline will ever manage. So the
+                         mark stops trying to be an island and becomes what it
+                         is: a ring saying whose this is, with just enough tint
+                         inside to carry the colour at three pixels. Drawing
+                         our own coastline on top of a painted one was two
+                         islands in the same place. */
+                      <>
+                        {(() => {
+                          /* One set of strengths, whatever shape carries them.
+                             Fill and stroke go on a single element here rather
+                             than two stacked ones, because a star drawn twice
+                             puts a seam down every point. */
+                          const skin = {
+                            fill: tint,
+                            fillOpacity: lit ? 1 : dim ? 0.12 : explored ? 0.42 : 0.14,
+                            stroke: tint,
+                            strokeOpacity: lit ? 1 : dim ? 0.26 : explored ? 0.95 : 0.5,
+                            strokeWidth: lit ? 3.2 : explored ? 2.4 : 1.6,
+                            strokeDasharray: explored ? undefined : '4 3.5',
+                            strokeLinejoin: 'round' as const,
+                          };
+                          if (worthMark && worthMark.shape !== 'dot') {
+                            return (
+                              <path
+                                d={
+                                  worthMark.shape === 'burst'
+                                    ? burstPath(radius)
+                                    : sparkPath(radius)
+                                }
+                                transform={`translate(${ax} ${ay})`}
+                                {...skin}
+                              />
+                            );
+                          }
+                          return <circle cx={ax} cy={ay} r={radius} {...skin} />;
+                        })()}
+                      </>
+                    ) : (
+                      <>
+                        {/* Shelf of shallows, then the coastline itself. */}
+                        <path
+                          d={islandPath(system.name, radius + 5)}
+                          transform={`translate(${ax} ${ay})`}
+                          fill="var(--shallow)"
+                          opacity={explored ? 0.5 : 0.25}
+                        />
+                        <path
+                          className="map__coast"
+                          d={islandPath(system.name, radius)}
+                          transform={`translate(${ax} ${ay})`}
+                          fill={system.populated ? 'var(--land)' : 'var(--land-bare)'}
+                          stroke={tint}
+                          strokeWidth={lit ? 3 : explored ? 2.2 : 1.6}
+                          strokeDasharray={explored ? undefined : '5 4'}
+                          opacity={dim ? 0.3 : 1}
+                        />
+                        <path
+                          d={islandPath(system.name, radius)}
+                          transform={`translate(${ax} ${ay})`}
+                          fill={tint}
+                          opacity={lit ? 0.9 : dim ? 0.08 : explored ? 0.28 : 0.1}
+                        />
+                      </>
+                    )}
+                    {system.uprising && explored && (
+                      <path
+                        d={`M ${ax - radius * 0.5} ${ay - radius - 3} l 0 -11 l ${radius * 0.9} 4 l ${-radius * 0.9} 4 z`}
+                        fill="#b8433a"
+                      />
+                    )}
+                  </g>
+                );
+              })}
+
+              {/* The chain's name, and under it how the whole chain leans.
+                  The tally of how many islands are yours was cut from here:
+                  the islands are painted by loyalty now, so the chain reads
+                  without being counted. */}
+              <text
+                className="map__sector-label"
+                x={labelX}
+                y={labelY}
+                pointerEvents="none"
+              >
+                {head && <tspan x={labelX}>{head}</tspan>}
+                <tspan x={labelX} dy={head ? 36 : 0}>
+                  {tail || head}
+                  {summary.mutinies > 0 && <tspan className="map__chain-alarm"> ⚑</tspan>}
+                </tspan>
+              </text>
+              {/* The allegiance bar under each name is gone. Seven of them
+                  turned the chart into a bar chart with a painting behind it,
+                  and every one restated something the islands above it were
+                  already saying in colour — which is the whole point of
+                  painting them by loyalty. A Reach that is in revolt still
+                  says so, because that is the one thing the islands cannot. */}
+            </g>
+          );
+        })}
       </svg>
 
-      {onAskAdvisor && !pickingFor && (
-        <button className="advisor" onClick={onAskAdvisor} aria-label="Ask your advisor">
-          <NarratorPortrait faction={state.player} size={46} />
-        </button>
+      {/* What is standing idle, always on screen: a yard building nothing is
+          gold you are not spending, and nothing else says so. */}
+      {/* A shut harbour, under every layer: it costs you a day's takings
+          whatever you happen to be looking at. */}
+      {!pickingFor && !sailing && <ProducerLegend state={state} onOpenIsland={onOpenIsland} />}
+
+      {!pickingFor && !sailing && onLayerChange && (
+        <LayerStrip state={state} layer={layer} onChange={onLayerChange} viewer={viewer} />
       )}
 
       <div className="map__hud">
-        {pickingFor ? (
+        {sailing ? (
           <button className="chip chip--pick" onClick={onCancelPick}>
-            Tap a highlighted island · cancel
+            Open a chain and pick where to sail · cancel
           </button>
-        ) : islandsLive ? (
+        ) : pickingFor ? (
+          <button className="chip chip--pick" onClick={onCancelPick}>
+            Open a chain and pick an island · cancel
+          </button>
+        ) : (
           <button className="chip chip--action" onClick={onOpenWorlds}>
             My islands
           </button>
-        ) : (
-          <span className="chip">Tap a sea, or zoom in</span>
         )}
-        <span className="topbar__spacer" />
-        <button className="chip chip--action" onClick={() => zoomBy(1 / 1.5)} aria-label="Zoom out">
-          −
-        </button>
-        <button className="chip chip--action" onClick={() => zoomBy(1.5)} aria-label="Zoom in">
-          +
-        </button>
-        <button
-          className="chip chip--action"
-          onClick={() => setView({ k: 1, tx: 0, ty: 0 })}
-          aria-label="Show all seven seas"
-        >
-          ⤢
-        </button>
       </div>
     </>
   );

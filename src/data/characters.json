@@ -6,116 +6,705 @@
       "name": "Lord Regent Halvard Corvane",
       "epithet": "the Old Tide",
       "people": "Human",
-      "roles": ["Tidemaster", "Leader", "Recruiter"],
+      "roles": [
+        "Tidemaster",
+        "Leader",
+        "Recruiter"
+      ],
       "bio": "Has not left the citadel of Highwater in eleven years. Can still the whole harbour by standing at a window. Ended the Corsair Wars, and keeps a ledger of every hanging and every child taken for licensing without once thinking the number too high.",
-      "ratings": { "diplomacy": [70, 85], "espionage": [60, 75], "combat": [50, 65], "leadership": [88, 97] }
+      "ratings": {
+        "diplomacy": [
+          70,
+          85
+        ],
+        "espionage": [
+          60,
+          75
+        ],
+        "combat": [
+          50,
+          65
+        ],
+        "leadership": [
+          88,
+          97
+        ]
+      }
     },
     {
       "id": "blackwater",
       "name": "Admiral Corvus Blackwater",
       "epithet": "the Drowned Admiral",
       "people": "Human (once)",
-      "roles": ["Tidemaster", "Leader", "Spec Ops", "Diplomat"],
+      "roles": [
+        "Tidemaster",
+        "Leader",
+        "Spec Ops",
+        "Diplomat"
+      ],
       "bio": "Burned and drowned at the Broken Chain, pulled from the Black Tide by the Regent's surgeons and rebuilt with brass lungs and a black leather mask. Keeps every promise, even to enemies. Executes captains for failure and feels nothing.",
-      "ratings": { "diplomacy": [55, 70], "espionage": [75, 88], "combat": [88, 97], "leadership": [85, 95] }
+      "ratings": {
+        "diplomacy": [
+          55,
+          70
+        ],
+        "espionage": [
+          75,
+          88
+        ],
+        "combat": [
+          88,
+          97
+        ],
+        "leadership": [
+          85,
+          95
+        ]
+      }
     },
     {
       "id": "pryor",
       "name": "Captain Fenwick Pryor",
+      "epithet": "the Survivor",
       "people": "Human",
-      "roles": ["Diplomat", "Leader"],
+      "roles": [
+        "Diplomat",
+        "Leader"
+      ],
       "bio": "Careful and competent; survives Blackwater's flagship by never being the one blamed. Good at parley because he listens.",
-      "ratings": { "diplomacy": [65, 80], "espionage": [40, 55], "combat": [45, 60], "leadership": [60, 75] }
+      "ratings": {
+        "diplomacy": [
+          65,
+          80
+        ],
+        "espionage": [
+          40,
+          55
+        ],
+        "combat": [
+          45,
+          60
+        ],
+        "leadership": [
+          60,
+          75
+        ]
+      }
     },
     {
       "id": "jarrold",
       "name": "Governor Tiberius Jarrold",
+      "epithet": "the Sleepless",
       "people": "Human",
-      "roles": ["Diplomat", "Leader"],
+      "roles": [
+        "Diplomat",
+        "Leader"
+      ],
       "bio": "Oversees the Leviathan's completion at Greenholm. Charming at dinner; has stopped sleeping.",
-      "ratings": { "diplomacy": [70, 85], "espionage": [45, 60], "combat": [30, 45], "leadership": [55, 70] }
+      "ratings": {
+        "diplomacy": [
+          70,
+          85
+        ],
+        "espionage": [
+          45,
+          60
+        ],
+        "combat": [
+          30,
+          45
+        ],
+        "leadership": [
+          55,
+          70
+        ]
+      }
     },
     {
       "id": "neddam",
       "name": "Captain Lorne Neddam",
+      "epithet": "First Over the Rail",
       "people": "Human",
-      "roles": ["Spec Ops", "Leader"],
+      "roles": [
+        "Spec Ops",
+        "Leader"
+      ],
       "bio": "Boarding-action specialist. Honest to a fault, which will get him killed.",
-      "ratings": { "diplomacy": [35, 50], "espionage": [60, 75], "combat": [70, 85], "leadership": [55, 70] }
+      "ratings": {
+        "diplomacy": [
+          35,
+          50
+        ],
+        "espionage": [
+          60,
+          75
+        ],
+        "combat": [
+          70,
+          85
+        ],
+        "leadership": [
+          55,
+          70
+        ]
+      }
     },
     {
       "id": "ozmond",
       "name": "Admiral Kendrick Ozmond",
+      "epithet": "the Peacock",
       "people": "Human",
-      "roles": ["Spec Ops", "Leader"],
+      "roles": [
+        "Spec Ops",
+        "Leader"
+      ],
       "bio": "Aristocrat, vain, better at raids than fleets. Blackwater despises him.",
-      "ratings": { "diplomacy": [40, 55], "espionage": [55, 70], "combat": [65, 80], "leadership": [50, 65] }
+      "ratings": {
+        "diplomacy": [
+          40,
+          55
+        ],
+        "espionage": [
+          55,
+          70
+        ],
+        "combat": [
+          65,
+          80
+        ],
+        "leadership": [
+          50,
+          65
+        ]
+      }
     },
     {
       "id": "vierling",
       "name": "Colonel Maximilian Vierling",
+      "epithet": "the Drillmaster",
       "people": "Human",
-      "roles": ["Drill Research", "General"],
+      "roles": [
+        "Drill Research",
+        "General"
+      ],
       "bio": "Marine drillmaster. Invented the Imperium's landing doctrine and the Drowned Guard's cold-baptism.",
-      "ratings": { "diplomacy": [30, 45], "espionage": [45, 60], "combat": [75, 90], "leadership": [65, 80] }
+      "ratings": {
+        "diplomacy": [
+          30,
+          45
+        ],
+        "espionage": [
+          45,
+          60
+        ],
+        "combat": [
+          75,
+          90
+        ],
+        "leadership": [
+          65,
+          80
+        ]
+      }
     }
   ],
   "alliance": [
     {
       "id": "hale",
       "name": "Commodore-Elect Adaira Hale",
+      "epithet": "the Magistrate",
       "people": "Human",
-      "roles": ["Diplomat", "Recruiter"],
+      "roles": [
+        "Diplomat",
+        "Recruiter"
+      ],
       "bio": "Former Imperium magistrate who resigned over the licensing raids, and has held a pack of pirates together for six years by force of argument. Incorruptible; has looked away from what some of her captains do because she needs their hulls.",
-      "ratings": { "diplomacy": [85, 95], "espionage": [45, 60], "combat": [25, 40], "leadership": [75, 88] }
+      "ratings": {
+        "diplomacy": [
+          85,
+          95
+        ],
+        "espionage": [
+          45,
+          60
+        ],
+        "combat": [
+          25,
+          40
+        ],
+        "leadership": [
+          75,
+          88
+        ]
+      }
     },
     {
       "id": "calloway",
       "name": "Tam Calloway",
+      "epithet": "the Fisher's Boy",
       "people": "Human",
-      "roles": ["Deep-touched", "Spec Ops", "Leader", "Recruiter"],
+      "roles": [
+        "Deep-touched",
+        "Spec Ops",
+        "Leader",
+        "Recruiter"
+      ],
       "bio": "Fisher's boy from the Far Sea. The fish come to his boat and old sailors cross themselves when he walks past. Raw, brave, and going to be either the greatest Tidecaller in a generation or dead by twenty-two.",
-      "ratings": { "diplomacy": [55, 70], "espionage": [60, 75], "combat": [65, 80], "leadership": [55, 70] }
+      "ratings": {
+        "diplomacy": [
+          55,
+          70
+        ],
+        "espionage": [
+          60,
+          75
+        ],
+        "combat": [
+          65,
+          80
+        ],
+        "leadership": [
+          55,
+          70
+        ]
+      }
     },
     {
       "id": "carrow",
       "name": "Rosalind \"Ros\" Carrow",
+      "epithet": "of Carrow",
       "people": "Human",
-      "roles": ["Diplomat", "Recruiter", "Latent Deep-touched"],
+      "roles": [
+        "Diplomat",
+        "Recruiter",
+        "Latent Deep-touched"
+      ],
       "bio": "Heir of the island of Carrow, which the Black Tide took while an Imperium fleet held position a day's sail away. The Confederacy's best negotiator: tireless, sharp, running on grief.",
-      "ratings": { "diplomacy": [80, 92], "espionage": [55, 70], "combat": [40, 55], "leadership": [70, 82] }
+      "ratings": {
+        "diplomacy": [
+          80,
+          92
+        ],
+        "espionage": [
+          55,
+          70
+        ],
+        "combat": [
+          40,
+          55
+        ],
+        "leadership": [
+          70,
+          82
+        ]
+      }
     },
     {
       "id": "reyne",
       "name": "Captain Silas Reyne",
+      "epithet": "the Swallowtail",
       "people": "Human",
-      "roles": ["Spec Ops", "Recruiter", "Leader"],
+      "roles": [
+        "Spec Ops",
+        "Recruiter",
+        "Leader"
+      ],
       "bio": "Smuggler captain of the Swallowtail, a coral-grown sloop that has no business being that fast. Owes Jubal the Fat more than a ship is worth. Claims to be in it for the money; keeps proving otherwise.",
-      "ratings": { "diplomacy": [55, 70], "espionage": [75, 88], "combat": [70, 85], "leadership": [60, 75] }
+      "ratings": {
+        "diplomacy": [
+          55,
+          70
+        ],
+        "espionage": [
+          75,
+          88
+        ],
+        "combat": [
+          70,
+          85
+        ],
+        "leadership": [
+          60,
+          75
+        ]
+      }
     },
     {
       "id": "torvik",
       "name": "Anselm \"Big\" Torvik",
+      "epithet": "Big Torvik",
       "people": "Urskin",
-      "roles": ["Spec Ops"],
+      "roles": [
+        "Spec Ops"
+      ],
       "bio": "Reyne's first mate: a tusked, shaggy mountain who can throw a harpoon through a hull. Loyal past all reason, and surprisingly good at parley when Reyne shuts up.",
-      "ratings": { "diplomacy": [35, 55], "espionage": [55, 70], "combat": [85, 95], "leadership": [45, 60] }
+      "ratings": {
+        "diplomacy": [
+          35,
+          55
+        ],
+        "espionage": [
+          55,
+          70
+        ],
+        "combat": [
+          85,
+          95
+        ],
+        "leadership": [
+          45,
+          60
+        ]
+      }
     },
     {
       "id": "jessup",
       "name": "Admiral Dorian Jessup",
+      "epithet": "the Grandfather",
       "people": "Human",
-      "roles": ["Diplomat", "General"],
+      "roles": [
+        "Diplomat",
+        "General"
+      ],
       "bio": "Elderly ex-Imperium admiral; the Confederacy's grandfather figure and its steadiest voice at a parley table.",
-      "ratings": { "diplomacy": [75, 88], "espionage": [40, 55], "combat": [45, 60], "leadership": [75, 88] }
+      "ratings": {
+        "diplomacy": [
+          75,
+          88
+        ],
+        "espionage": [
+          40,
+          55
+        ],
+        "combat": [
+          45,
+          60
+        ],
+        "leadership": [
+          75,
+          88
+        ]
+      }
     },
     {
       "id": "ansell",
       "name": "Wyatt Ansell",
+      "epithet": "the Shipwright",
       "people": "Human",
-      "roles": ["Ship Design", "Wing-Captain"],
+      "roles": [
+        "Ship Design",
+        "Wing-Captain"
+      ],
       "bio": "Young cutter-captain and self-taught shipwright, learning to grow coral hulls from the Reef-folk.",
-      "ratings": { "diplomacy": [40, 55], "espionage": [50, 65], "combat": [60, 75], "leadership": [55, 70] }
+      "ratings": {
+        "diplomacy": [
+          40,
+          55
+        ],
+        "espionage": [
+          50,
+          65
+        ],
+        "combat": [
+          60,
+          75
+        ],
+        "leadership": [
+          55,
+          70
+        ]
+      }
+    }
+  ],
+  "_recruit_comment": "People the war has not claimed, scattered across the isles. RECRUITS_IN_PLAY of these are placed on random settled islands at world generation; an officer sent to one can sign them on. Harder to win the better they are. Bands are rolled the same way the majors' are.",
+  "recruits": [
+    {
+      "name": "Maren Quist",
+      "epithet": "the Coralwright",
+      "people": "Reef-folk",
+      "bio": "Grew her own hull over nine years the way the Reef-folk do, singing coral into shape a season at a time. The Admiralty took it at Coralhome on a licensing writ and broke it up for the keel-timber, which is not a thing you can do to a grown ship quietly. She reads a sea the way other people read a page, and she has not spoken about the ship since.",
+      "ratings": {
+        "diplomacy": [
+          50,
+          65
+        ],
+        "espionage": [
+          45,
+          60
+        ],
+        "combat": [
+          40,
+          55
+        ],
+        "leadership": [
+          85,
+          95
+        ]
+      }
+    },
+    {
+      "name": "Pellam Voss",
+      "epithet": "the Master Gunner",
+      "people": "Human",
+      "bio": "Forty years on Admiralty gundecks, the last eleven as a master gunner, and pensioned off inside a week for saying at a dinner what he thought of the admiral at the head of it. He was right, which made it worse. Lays a gun by feel in the dark, and has never yet been asked to explain himself twice.",
+      "ratings": {
+        "diplomacy": [
+          25,
+          40
+        ],
+        "espionage": [
+          35,
+          50
+        ],
+        "combat": [
+          80,
+          92
+        ],
+        "leadership": [
+          55,
+          70
+        ]
+      }
+    },
+    {
+      "name": "Sable",
+      "epithet": "no other name",
+      "people": "The Hushed",
+      "bio": "Hushed, out of the Drowned Reach, and listed on no roll in either fleet. The old bargain that binds her people to the Crown does not appear to bind her, and nobody has worked out what does. She is not heard arriving. Twice now a thing that was certainly going to happen has simply not happened, and both times somebody remembers a door standing open.",
+      "ratings": {
+        "diplomacy": [
+          20,
+          35
+        ],
+        "espionage": [
+          88,
+          97
+        ],
+        "combat": [
+          55,
+          70
+        ],
+        "leadership": [
+          30,
+          45
+        ]
+      }
+    },
+    {
+      "name": "Hesper Lyn",
+      "epithet": "the Price List",
+      "people": "The Rumor Guild",
+      "bio": "High in the Rumor Guild and entirely open about the arrangement: there is a price list, both sides are on it, and she has never pretended otherwise. Keeps a private book of every debt, affair and quiet burial in three Seas, and has never had to open it in public. Whether she keeps to the price list is the only question anybody actually asks.",
+      "ratings": {
+        "diplomacy": [
+          70,
+          85
+        ],
+        "espionage": [
+          75,
+          88
+        ],
+        "combat": [
+          20,
+          35
+        ],
+        "leadership": [
+          45,
+          60
+        ]
+      }
+    },
+    {
+      "name": "Brannoc Tull",
+      "epithet": "the Harpoon",
+      "people": "Urskin",
+      "bio": "Whaler out of Northreach, and the harpoon is not decorative — he has put one through a hull on purpose more than once, and the second time was not an emergency. Took a whale off the Bone Sea shelf that fed a chain through a bad winter. Slow to anger, and afterwards there is no route round him; the Admiralty established this at Ballmoor, at length.",
+      "ratings": {
+        "diplomacy": [
+          20,
+          35
+        ],
+        "espionage": [
+          35,
+          50
+        ],
+        "combat": [
+          88,
+          97
+        ],
+        "leadership": [
+          45,
+          60
+        ]
+      }
+    },
+    {
+      "name": "Wren Tally",
+      "epithet": "the Ear",
+      "people": "Shoal-folk",
+      "bio": "Nine years sat a masthead, most of them on watch towers nobody thought mattered, and came off them able to name a ship in fog by the sound of its hull working. Frightened of a great many things — weather on an open deck, officers, the dark below the waterline — and has never once left a post.",
+      "ratings": {
+        "diplomacy": [
+          35,
+          50
+        ],
+        "espionage": [
+          80,
+          92
+        ],
+        "combat": [
+          35,
+          50
+        ],
+        "leadership": [
+          40,
+          55
+        ]
+      }
+    },
+    {
+      "name": "Doctor Ambrose Kell",
+      "epithet": "the Tide Doctor",
+      "people": "Human",
+      "bio": "Surgeon and scholar, and the only man on his island who will say out loud that the Tide can be studied rather than merely survived. It has cost him a licence, a post and most of his friends. Runs a surgery from whatever port will have him, takes payment in passage, and is the one person in three Seas that both fleets will pass through a blockade.",
+      "ratings": {
+        "diplomacy": [
+          70,
+          85
+        ],
+        "espionage": [
+          50,
+          65
+        ],
+        "combat": [
+          15,
+          30
+        ],
+        "leadership": [
+          55,
+          70
+        ]
+      }
+    },
+    {
+      "name": "Captain Isolde Marrow",
+      "epithet": "the Even Hand",
+      "people": "Human",
+      "bio": "Sails under a letter of marque nobody at the Admiralty will admit to signing, which suits everyone until it does not. Took a merchantman back off a boarding party with eleven crew and a signal gun, then put the boarders ashore alive because war had not been declared that week. Keeps her crew and keeps her word, in that order, and has resigned from both sides in writing.",
+      "ratings": {
+        "diplomacy": [
+          55,
+          70
+        ],
+        "espionage": [
+          50,
+          65
+        ],
+        "combat": [
+          65,
+          80
+        ],
+        "leadership": [
+          75,
+          88
+        ]
+      }
+    },
+    {
+      "name": "The Widow Ashgrave",
+      "epithet": "the Widow",
+      "people": "Human",
+      "bio": "Buried a shipowner, a governor and a Moot councillor, in that order, and inherited from all three. Brokers passage, marriages and truces out of a witch-island nobody charts twice, and holds the paper on half the yards in the Glass Sea. What she is owed is not really the point. Being owed is the point.",
+      "ratings": {
+        "diplomacy": [
+          85,
+          95
+        ],
+        "espionage": [
+          60,
+          75
+        ],
+        "combat": [
+          15,
+          30
+        ],
+        "leadership": [
+          50,
+          65
+        ]
+      }
+    },
+    {
+      "name": "Tobias Renn",
+      "epithet": "the Swampcat",
+      "people": "Bog-folk",
+      "bio": "Fought an Imperium garrison of four hundred to a standstill in the Storm swamps with eleven men and the weather, over eleven years, and never once in the open. Patient well past the point most people mean by the word. Considers a battle fought in daylight to be a battle somebody else arranged.",
+      "ratings": {
+        "diplomacy": [
+          35,
+          50
+        ],
+        "espionage": [
+          60,
+          75
+        ],
+        "combat": [
+          75,
+          88
+        ],
+        "leadership": [
+          60,
+          75
+        ]
+      }
+    },
+    {
+      "name": "Silvaine Crow",
+      "epithet": "the Quiet Hand",
+      "people": "Human",
+      "bio": "Deep-touched, and trained by nobody the Crown ever licensed, which in the Crown Sea is a charge rather than a description. Was a governor's secretary for nine years, which is how she knows where everything is written down; she left on a morning nobody can quite reconstruct, with three ledgers and a seal. Knows a lie by its echo, and does not always say so.",
+      "ratings": {
+        "diplomacy": [
+          60,
+          75
+        ],
+        "espionage": [
+          80,
+          92
+        ],
+        "combat": [
+          30,
+          45
+        ],
+        "leadership": [
+          70,
+          82
+        ]
+      }
+    },
+    {
+      "name": "Jory Halloran",
+      "epithet": "the Understudy",
+      "people": "Human",
+      "bio": "Nineteen, quick, and desperate to be off the island by any hull that will take him. Has crewed a revenue cutter, kept books for a chandler, and spent a fortnight in a gaol over a misunderstanding about the books. Adequate at all of it, remarkable at none, and perfectly aware that this is the problem. Somebody is going to make something of him.",
+      "ratings": {
+        "diplomacy": [
+          45,
+          60
+        ],
+        "espionage": [
+          45,
+          60
+        ],
+        "combat": [
+          45,
+          60
+        ],
+        "leadership": [
+          45,
+          60
+        ]
+      }
     }
   ]
 }

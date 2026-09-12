@@ -22,7 +22,7 @@ import { Sheet } from './components';
  * straight to what they are talking about. They do not converse — see the
  * README for why that would need a backend this game does not have.
  */
-const NARRATOR = {
+export const NARRATOR = {
   empire: {
     name: 'Secretary Crane',
     style: 'flat, precise, faintly disappointed',

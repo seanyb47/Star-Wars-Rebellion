@@ -2,12 +2,13 @@ import { VICTORY_CONTROL_FRACTION } from './constants';
 import factionData from '../data/factions.json';
 import { runAI } from './ai';
 import { advanceBuilds } from './build';
+import { advanceFleets, updateBlockades } from './fleets';
 import { collectIncome, payUpkeep, recomputeLedger } from './economy';
 import { cloneState, pushEvent } from './helpers';
 import { advanceMissions } from './missions';
 import { createRng } from './rng';
 import { controlTally } from './support';
-import { resolveControlAndUnrest } from './support';
+import { driftSupport, resolveControlAndUnrest } from './support';
 import type { GameState, PlayableFaction } from './types';
 
 /** Events kept in the feed; older ones are dropped so saves stay small. */
@@ -26,13 +27,20 @@ export function advanceDay(state: GameState): GameState {
   const rng = createRng(next.rngSeed);
   next.day += 1;
 
+  // Fleets move and fight before anything is counted, so a harbour shut this
+  // morning pays nothing this evening.
+  advanceFleets(next, rng);
+  updateBlockades(next);
   collectIncome(next, rng);
   advanceBuilds(next);
   advanceMissions(next, rng);
+  // Opinion cools before control is re-derived, so a hold nobody is keeping up
+  // can be the thing that loses an island this morning.
+  driftSupport(next);
   resolveControlAndUnrest(next);
   payUpkeep(next, rng);
   recomputeLedger(next);
-  runAI(next);
+  runAI(next, rng);
   checkVictory(next);
 
   next.rngSeed = rng.seed;

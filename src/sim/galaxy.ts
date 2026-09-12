@@ -2,6 +2,7 @@ import factionData from '../data/factions.json';
 import characterRoster from '../data/characters.json';
 import reachData from '../data/reaches.json';
 import { createRng, type Rng } from './rng';
+import { RECRUITS_AT_START, RECRUIT_LAST_DAY, RECRUITS_IN_PLAY } from './constants';
 
 import type {
   Character,
@@ -11,14 +12,52 @@ import type {
   PlayableFaction,
   Sector,
   System,
+  IslandArchetype,
+  ShipClassId,
 } from './types';
 import { recomputeLedger } from './economy';
+
+/**
+ * What each Sea's islands look like.
+ *
+ * The first entry is what a settled island there tends to be; the rest are the
+ * variety. An empty island is bare rock or ice whatever Sea it is in, because
+ * nobody has built anything on it to look at.
+ *
+ * This is the one place the world's character becomes a picture: the Far Sea is
+ * ice and bare crag, the Amber Sea is reef and jungle, the Bone Sea is drowned
+ * temples and water the Tide has reached. Seeded from the island's own name, so
+ * a given island looks the same in every game.
+ */
+const LOOKS: Record<string, IslandArchetype[]> = {
+  'The Crown Sea': ['port-city', 'rock-isle', 'jungle-isle'],
+  'The Merchant Sea': ['port-city', 'jungle-isle', 'mining-isle'],
+  'The Amber Sea': ['reef-isle', 'jungle-isle', 'port-city'],
+  'The Far Sea': ['ice-isle', 'rock-isle', 'mining-isle'],
+  'The Sea of Storms': ['storm-isle', 'jungle-isle', 'mining-isle'],
+  'The Glass Sea': ['mining-isle', 'drowned-isle', 'rock-isle'],
+  'The Bone Sea': ['drowned-isle', 'tide-isle', 'free-harbor'],
+};
+const BARE: Record<string, IslandArchetype> = {
+  'The Far Sea': 'ice-isle',
+  'The Bone Sea': 'tide-isle',
+  'The Glass Sea': 'rock-isle',
+};
+
+function looksLike(sea: string, populated: boolean, capital: boolean, pick: number): IslandArchetype {
+  if (capital) return 'port-city';
+  if (!populated) return BARE[sea] ?? 'rock-isle';
+  const set = LOOKS[sea] ?? ['jungle-isle', 'rock-isle'];
+  return set[pick % set.length];
+}
 
 const INNER_REACHES = reachData.reaches.filter((r) => r.tier === 'inner');
 const OUTER_REACHES = reachData.reaches.filter((r) => r.tier === 'outer');
 const CORE_SECTOR_COUNT = INNER_REACHES.length;
 const RIM_SECTOR_COUNT = OUTER_REACHES.length;
-const SYSTEMS_PER_SECTOR = 10;
+/** How many islands a Reach holds is the Reach's own business now. The small
+ *  map runs from seven to ten, set by how many clearly separated islands each
+ *  one's painted cluster can actually carry — see scripts/chart_positions.py. */
 
 /** Galaxy coordinate space is a square box; sectors sit on two concentric rings. */
 export const GALAXY_SIZE = 1200;
@@ -37,6 +76,26 @@ const START_MINES = 8;
 const START_REFINERIES = 8;
 const START_YARDS = 2;
 const START_TRAINING = 1;
+/** A yard for hulls, so a slipway is not the first thing you have to build. */
+const START_SHIPYARDS = 1;
+/**
+ * The fleet each side already has on the water.
+ *
+ * The board used to open with none at all, which meant the whole naval half of
+ * the game was twenty-two days away — the time to build a slipway and then a
+ * hull — and the first three weeks were a menu. Rebellion hands you a navy on
+ * turn one and lets you find out what it is for.
+ *
+ * Asymmetric on purpose, the way the two sides are: the Crown has the ship of
+ * the line and the weight, the Confederacy has hulls that outrun it. Neither
+ * has enough to win with, which is what makes the slipway worth building.
+ */
+const START_FLEET: Record<PlayableFaction, ShipClassId[]> = {
+  empire: ['razorback', 'kestrel', 'kestrel', 'fluyt'],
+  alliance: ['swift', 'swift', 'swift', 'brig'],
+};
+/** Companies aboard the transport, ready to take somewhere. */
+const START_TROOPS_ABOARD = 2;
 const START_GARRISON = 2;
 const START_CHARACTERS = 7;
 /** Enough to lay down a camp or two before the first income arrives. */
@@ -76,8 +135,19 @@ function makeFacility(id: string, type: FacilityType, owner: PlayableFaction): F
 }
 
 /**
- * Build a fresh 100-system galaxy: 10 sectors of 10 systems, 4 core sectors
- * ringed by 6 rim sectors (spec 4.1).
+ * Build a fresh archipelago: seven Reaches, one for each Sea, three inner and
+ * four outer, holding sixty-three islands between them.
+ *
+ * It used to be ten Reaches of ten. The cut is not a simplification for its own
+ * sake — the chart is a painting now, and three of the ten sat on clusters the
+ * painting could not chart clearly: two crowded against a neighbour and one
+ * drawn on islets too small to hit. Each of the three shared a Sea with a Reach
+ * that survives, so nothing about the world is lost; they are held back for the
+ * larger maps beside Scrap Reach, exactly as the bible already holds that one.
+ *
+ * A Sea and a Reach are therefore the same thing at this size, which is why the
+ * chart can name the Seas and the panels can name the Reaches without either
+ * one lying.
  */
 export function generateGalaxy(seed: number, player: PlayableFaction = 'empire'): GameState {
   const rng = createRng(seed);
@@ -110,8 +180,9 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
 
     // Islands take the positions in the order the bible lists them, so a
     // named island always sits in its own Reach.
-    const points = scatterSystems(rng, SYSTEMS_PER_SECTOR);
-    for (let i = 0; i < SYSTEMS_PER_SECTOR; i++) {
+    const count = reach.islands.length;
+    const points = scatterSystems(rng, count);
+    for (let i = 0; i < count; i++) {
       const island = reach.islands[i];
       const populated = isCoreSector ? true : rng.chance(0.3);
       const system: System = {
@@ -122,6 +193,13 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         x: points[i].x,
         y: points[i].y,
         explored: { empire: isCoreSector, alliance: isCoreSector },
+        archetype: looksLike(
+          sector.sea,
+          populated,
+          'capital' in island && Boolean(island.capital),
+          // Seeded from the name so an island looks the same in every game.
+          [...island.name].reduce((n, c) => n + c.charCodeAt(0), 0),
+        ),
         populated,
         isCore: isCoreSector,
         control: 'none',
@@ -131,6 +209,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         facilities: [],
         garrison: 0,
         uprising: false,
+        blockaded: false,
       };
       if (populated) {
         // Any inhabited world that has not picked a side is neutral, and can be
@@ -195,9 +274,14 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
 
   const seedHoldings = (owner: PlayableFaction, owned: System[]) => {
     for (const [index, system] of owned.entries()) {
+      // Room to build on from day one. Tried the other way round first —
+      // eleven mines instead of eight, to pay for the new fleet — and it filled
+      // every slot the four starting islands had: solvent, and with nowhere to
+      // put anything. An opening with no free ground is a worse opening than a
+      // thin surplus, because the answer to a thin surplus is to build.
       const generous = index === 0;
-      system.rawSlots = Math.max(system.rawSlots, generous ? 4 : 3);
-      system.energySlots = Math.max(system.energySlots, generous ? 6 : 5);
+      system.rawSlots = Math.max(system.rawSlots, generous ? 6 : 5);
+      system.energySlots = Math.max(system.energySlots, generous ? 8 : 7);
       system.garrison = START_GARRISON;
       system.explored[owner] = true;
     }
@@ -206,6 +290,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       ...Array<FacilityType>(START_REFINERIES).fill('refinery'),
       ...Array<FacilityType>(START_YARDS).fill('construction_yard'),
       ...Array<FacilityType>(START_TRAINING).fill('training_facility'),
+      ...Array<FacilityType>(START_SHIPYARDS).fill('shipyard'),
     ];
     for (const [index, type] of plan.entries()) {
       const system = owned[index % owned.length];
@@ -232,6 +317,9 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         id: makeId('chr'),
         name: entry.name,
         people: entry.people,
+        blurb: 'bio' in entry ? (entry.bio as string) : undefined,
+        epithet: 'epithet' in entry ? (entry.epithet as string) : undefined,
+        roles: 'roles' in entry ? (entry.roles as string[]) : undefined,
         faction,
         diplomacy: roll(entry.ratings.diplomacy),
         espionage: roll(entry.ratings.espionage),
@@ -245,6 +333,49 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   makeCharacters('empire', capital.id);
   makeCharacters('alliance', allianceHq.id);
 
+  // --- The unaligned: people the war has not claimed yet. ---
+  // Scattered over settled islands that are not anybody's seat, so signing
+  // someone on is a reason to sail somewhere you had no other reason to go.
+  // Which of the pool turn up, and where, changes with the seed.
+  const openIslands = rng.shuffle(
+    systems.filter(
+      (s) => s.populated && s.id !== capital.id && s.id !== allianceHq.id,
+    ),
+  );
+  const inPlay = Math.min(RECRUITS_IN_PLAY, openIslands.length);
+  for (const [index, entry] of rng
+    .shuffle(characterRoster.recruits)
+    .slice(0, inPlay)
+    .entries()) {
+    const roll = (band: number[]) => rng.range(band[0], band[1]);
+    // A couple are ashore on day one so the errand is discoverable; the rest
+    // are spread over the war, evenly with a little jitter so they do not
+    // arrive on a drumbeat.
+    const later = index - RECRUITS_AT_START;
+    const spread = Math.max(1, inPlay - RECRUITS_AT_START);
+    characters.push({
+      id: makeId('chr'),
+      name: entry.name,
+      people: entry.people,
+      // The same field the named cast reads. The unaligned used to carry a
+      // one-line pitch here instead, which read as a caption on a page the
+      // game gives a whole panel to.
+      blurb: entry.bio,
+      epithet: entry.epithet,
+      faction: 'neutral',
+      diplomacy: roll(entry.ratings.diplomacy),
+      espionage: roll(entry.ratings.espionage),
+      combat: roll(entry.ratings.combat),
+      leadership: roll(entry.ratings.leadership),
+      locationSystemId: openIslands[index].id,
+      status: 'available',
+      appearsOnDay:
+        index < RECRUITS_AT_START
+          ? 1
+          : Math.round((later + 1) * (RECRUIT_LAST_DAY / spread)) + rng.range(-12, 12),
+    });
+  }
+
   const state: GameState = {
     day: 1,
     speed: 'paused',
@@ -252,15 +383,35 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     sectors,
     systems,
     characters,
+    fleets: [],
     factions: {
-      empire: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: capital.id },
-      alliance: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: allianceHq.id },
+      empire: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: capital.id, craft: 0 },
+      alliance: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: allianceHq.id, craft: 0 },
     },
     events: [],
     pendingDecisions: [],
     rngSeed: rng.seed,
     nextId: idCounter,
   };
+
+  // --- The fleet already at sea. ---
+  //
+  // Built here rather than through addShip because that lives in fleets.ts and
+  // would import back into this file; the shape is small enough to write out.
+  for (const [faction, classes] of Object.entries(START_FLEET) as Array<
+    [PlayableFaction, ShipClassId[]]
+  >) {
+    const home = faction === 'empire' ? capital : allianceHq;
+    state.fleets.push({
+      id: `flt-${++state.nextId}`,
+      name: 'Home Fleet',
+      faction,
+      systemId: home.id,
+      ships: classes.map((classId) => ({ id: `shp-${++state.nextId}`, classId, damage: 0 })),
+      troops: START_TROOPS_ABOARD,
+      officerIds: [],
+    });
+  }
 
   recomputeLedger(state);
   state.events.push({

@@ -22,9 +22,31 @@ export interface Sector {
 }
 
 /** An island. */
+/**
+ * What an island looks like, which decides which painting it shows.
+ *
+ * Ten of them cover a hundred islands, and that is the point: an island does
+ * not need its own painting, it needs to look like the kind of place it is.
+ * Assigned once at generation from the Sea it sits in, so Rime Reach is ice and
+ * rock and the Bone Sea is drowned temples, and it never changes afterwards.
+ */
+export type IslandArchetype =
+  | 'jungle-isle'
+  | 'rock-isle'
+  | 'port-city'
+  | 'free-harbor'
+  | 'mining-isle'
+  | 'reef-isle'
+  | 'storm-isle'
+  | 'ice-isle'
+  | 'drowned-isle'
+  | 'tide-isle';
+
 export interface System {
   id: string;
   name: string;
+  /** Which of the ten island paintings this one wears. */
+  archetype: IslandArchetype;
   /** A line of colour from the world bible, shown on the island sheet. */
   note?: string;
   sectorId: string;
@@ -40,6 +62,12 @@ export interface System {
   facilities: Facility[];
   garrison: number;
   uprising: boolean;
+  /**
+   * An enemy fleet is lying off it and nothing is getting out. Always a real
+   * boolean rather than an optional one: "absent" and "false" meaning the same
+   * thing is the sort of ambiguity that goes wrong quietly later.
+   */
+  blockaded: boolean;
 }
 
 export type FacilityType =
@@ -49,7 +77,63 @@ export type FacilityType =
   | 'training_facility'
   | 'shipyard';
 
-export type BuildItem = FacilityType | 'troop';
+/**
+ * A hull's size, which is the whole of naval tactics here. There are no
+ * fighters and there will not be: a small craft is just a small ship, so the
+ * range runs small to large with a transport off to one side, and each size
+ * is genuinely good at something and genuinely bad at something else.
+ *
+ * Small is fast and cheap and dies quickly. Large hits hardest and takes the
+ * most killing, and is slow enough that it arrives after the fighting starts.
+ * Medium is the compromise. A transport cannot fight at all and carries more
+ * than anything else afloat.
+ */
+export type ShipRole = 'small' | 'medium' | 'large' | 'transport';
+
+/** World bible section 6. Four classes a side, none needing research. */
+export type ShipClassId =
+  | 'kestrel'
+  | 'razorback'
+  | 'sovereign'
+  | 'fluyt'
+  | 'swift'
+  | 'tempest'
+  | 'reef'
+  | 'brig';
+
+export type BuildItem = FacilityType | 'troop' | ShipClassId;
+
+export interface Ship {
+  id: string;
+  classId: ShipClassId;
+  /** Damage taken. At or past the class's hull the ship is lost. */
+  damage: number;
+}
+
+/**
+ * A fleet is a container, as in the original: hulls, the companies aboard
+ * them, and (later) the officers who command it, all in one thing that moves
+ * as one thing. Where a ship is and what it is carrying is one fact.
+ */
+export interface Fleet {
+  id: string;
+  name: string;
+  faction: PlayableFaction;
+  /** Where it lies. While at sea, the island it sailed from. */
+  systemId: string;
+  ships: Ship[];
+  /** Companies aboard, never more than the hulls can carry. */
+  troops: number;
+  /**
+   * Crew serving with the fleet. Their island is wherever the fleet is, and
+   * the best Leadership among them tells in a fight, the best Combat in a
+   * landing — which is what those ratings are for, and until now they were
+   * generated, displayed and used by nothing.
+   */
+  officerIds: string[];
+  /** Set only while at sea. */
+  voyage?: { targetSystemId: string; daysRemaining: number };
+}
 
 export interface Facility {
   id: string;
@@ -69,6 +153,19 @@ export interface Character {
   name: string;
   /** Which people they belong to. Display only — drives their portrait. */
   people?: string;
+  /** A line on who they are. Everyone carries it now, not only the unaligned:
+   *  it is the reason to care which of your seven you send, and it was sitting
+   *  unused in the roster while the crew screen showed four numbers instead. */
+  blurb?: string;
+  /** What they are called besides their name — "the Old Tide". */
+  epithet?: string;
+  /** What they are for, in the world bible's own words: Tidemaster, Leader,
+   *  Recruiter. Display only; the ratings are what the rules read. */
+  roles?: string[];
+  /** For the unaligned: the day they turn up somewhere worth finding. They are
+   *  in the world from the start so the seed decides them once, but they are
+   *  nobody's to sign before this. Absent for anyone already in the war. */
+  appearsOnDay?: number;
   faction: Faction;
   diplomacy: number;
   espionage: number;
@@ -81,8 +178,24 @@ export interface Character {
   mission?: Mission;
 }
 
+/**
+ * What a character is doing ashore. Phase 3's full set is recorded in the
+ * build spec; these are the ones that exist. They share a passage, fifteen
+ * days of work and a foil check, and the island decides between them: who
+ * holds it, and who happens to be standing on it.
+ */
+export type MissionType =
+  | 'diplomacy'
+  | 'incite'
+  | 'recruit'
+  | 'sabotage'
+  | 'survey'
+  | 'abduct'
+  | 'command'
+  | 'research';
+
 export interface Mission {
-  type: 'diplomacy';
+  type: MissionType;
   targetSystemId: string;
   phase: 'travelling' | 'working';
   daysRemaining: number;
@@ -96,6 +209,15 @@ export interface FactionState {
   /** What everything you own costs to keep in a day. */
   upkeep: number;
   hqSystemId: string;
+  /**
+   * Shipwright craft: how far this side's yards have come, 0 upward.
+   *
+   * The one thing research produces, and deliberately the only one. A tier
+   * tree is a Phase 4 job; a single number that makes hulls cheaper and
+   * quicker gives the R&D errand something real to do today without inventing
+   * a system that then has to be lived with.
+   */
+  craft: number;
 }
 
 /**
@@ -109,7 +231,8 @@ export type EventKind =
   | 'mutiny'   // an island rising
   | 'order'    // something you ordered finishing
   | 'mission'  // a crew member departing, landing, or reporting
-  | 'loss';    // something taken from you
+  | 'loss'     // something taken from you
+  | 'battle';  // ships meeting at an island
 
 export interface GameEvent {
   id: string;
@@ -138,6 +261,7 @@ export interface GameState {
   sectors: Sector[];
   systems: System[];
   characters: Character[];
+  fleets: Fleet[];
   factions: { empire: FactionState; alliance: FactionState };
   events: GameEvent[];
   pendingDecisions: PendingMissionDecision[];

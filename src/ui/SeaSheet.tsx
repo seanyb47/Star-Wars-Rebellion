@@ -1,7 +1,7 @@
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import { summariseSea, type GameState } from '../sim';
-import { IslandRow, type IslandTab } from './IslandRow';
+import { IslandRow } from './IslandRow';
 import { Sheet, Stat } from './components';
 
 /**
@@ -19,7 +19,7 @@ export function SeaSheet({
   state: GameState;
   sea: string;
   onClose: () => void;
-  onOpenIsland: (systemId: string, tab: IslandTab) => void;
+  onOpenIsland: (systemId: string) => void;
   onOpenReach: (sectorId: string) => void;
 }) {
   const summary = summariseSea(state, sea, state.player);
@@ -66,29 +66,7 @@ export function SeaSheet({
         />
       </div>
 
-      <div className="section-title">{terms.allegiance} across the sea</div>
-      <div className="card">
-        {([you, enemy] as const).map((faction) => (
-          <div key={faction} style={{ marginBottom: 6 }}>
-            <div className="bar-label">
-              <span>{factionData[faction].shortName}</span>
-              <span>{Math.round(summary.allegiance[faction])}</span>
-            </div>
-            <div className="bar">
-              <div
-                className="bar__fill"
-                style={{
-                  width: `${summary.allegiance[faction]}%`,
-                  background: `var(--${faction})`,
-                }}
-              />
-            </div>
-          </div>
-        ))}
-        <p className="tiny muted" style={{ margin: '4px 0 0' }}>
-          Averaged over the {summary.settled} settled islands of this sea.
-        </p>
-      </div>
+
 
       {summary.perReach.map((reach) => {
         const sector = state.sectors.find((s) => s.id === reach.sectorId)!;

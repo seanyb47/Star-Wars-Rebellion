@@ -4,6 +4,8 @@
  * can never crash the game.
  */
 import { cancelBuild, queueBuild } from './build';
+import { assault, board, embark, goAshore, sailFleet } from './fleets';
+import { createRng } from './rng';
 import { generateGalaxy } from './galaxy';
 import { cloneState } from './helpers';
 import { continueMission, endMission, startMission } from './missions';
@@ -46,6 +48,57 @@ export function orderBuild(
 
 export function cancelOrder(state: GameState, facilityId: string): CommandResult {
   return run(state, (draft) => cancelBuild(draft, facilityId));
+}
+
+/** Order a fleet to weigh anchor for another island. */
+export function orderSail(
+  state: GameState,
+  fleetId: string,
+  targetSystemId: string,
+): CommandResult {
+  return run(state, (draft) => sailFleet(draft, fleetId, targetSystemId, draft.player));
+}
+
+/**
+ * Move companies between an island and a fleet lying off it. Positive takes
+ * them aboard, negative puts them back ashore.
+ */
+export function orderEmbark(
+  state: GameState,
+  fleetId: string,
+  companies: number,
+): CommandResult {
+  return run(state, (draft) => embark(draft, fleetId, companies, draft.player));
+}
+
+/**
+ * Put the companies aboard ashore against a garrison that does not want them.
+ * Rolls from the state's own seed and advances it, so a landing is as
+ * reproducible as any other day.
+ */
+/** Sign a crew member on to a fleet lying off the island they are standing on. */
+export function orderBoard(
+  state: GameState,
+  fleetId: string,
+  characterId: string,
+): CommandResult {
+  return run(state, (draft) => board(draft, fleetId, characterId, draft.player));
+}
+
+export function orderAshore(
+  state: GameState,
+  fleetId: string,
+  characterId: string,
+): CommandResult {
+  return run(state, (draft) => goAshore(draft, fleetId, characterId));
+}
+
+export function orderAssault(state: GameState, fleetId: string): CommandResult {
+  return run(state, (draft) => {
+    const rng = createRng(draft.rngSeed);
+    assault(draft, fleetId, rng, draft.player);
+    draft.rngSeed = rng.seed;
+  });
 }
 
 export function sendDiplomat(

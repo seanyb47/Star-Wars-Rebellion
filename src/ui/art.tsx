@@ -115,38 +115,65 @@ export function CompassRose({
  * glance: the Imperium is symmetrical and straight-edged, the Confederacy is
  * lopsided and made of salvage.
  */
+/**
+ * The crests, drawn to the faction style guide's emblems rather than to my
+ * earlier guesses at them. These are the marks that fly on every ship, wall
+ * and flagstaff in the paintings, so the interface has to use the same two or
+ * the game contradicts its own art.
+ *
+ * Colours come from the guide's sampled palettes (art style §1b), not from the
+ * interface tokens: a crest is illustration, and it is allowed the deeper
+ * greens and reds that a 12px status badge cannot use.
+ */
+
+const IMP = { deep: '#183128', field: '#254b36', line: '#2f634d', gold: '#c9a227', cream: '#f0dbbe' };
+const CON = { deep: '#4a1418', field: '#6b121e', ray: '#a03832', bright: '#ca6150', bone: '#f0dbbe' };
+
 export function ImperiumCrest({ size = 96 }: { size?: number }) {
   return (
     <svg viewBox="0 0 100 110" width={size} height={size * 1.1} aria-hidden="true">
       <defs>
-        <linearGradient id="imp-shield" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#2b333f" />
-          <stop offset="100%" stopColor="#151b24" />
+        <linearGradient id="imp-field" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={IMP.field} />
+          <stop offset="100%" stopColor={IMP.deep} />
         </linearGradient>
       </defs>
-      {/* Shield */}
+
+      {/* The shield, in the Crown's own green rather than a grey plate. */}
       <path
-        d="M50 6 L92 20 L92 60 Q92 92 50 106 Q8 92 8 60 L8 20 Z"
-        fill="url(#imp-shield)"
-        stroke="var(--empire)"
+        d="M50 14 L90 26 L90 60 Q90 92 50 105 Q10 92 10 60 L10 26 Z"
+        fill="url(#imp-field)"
+        stroke={IMP.gold}
         strokeWidth="2.5"
-      />
-      {/* Crown */}
-      <path
-        d="M28 34 L34 22 L42 32 L50 18 L58 32 L66 22 L72 34 Z"
-        fill="var(--brass)"
-        stroke="var(--brass)"
-        strokeWidth="1.5"
         strokeLinejoin="round"
       />
-      {/* Seawall: three courses of stone */}
-      <g fill="none" stroke="var(--empire)" strokeWidth="3" strokeLinecap="square">
-        <path d="M22 50 H78" />
-        <path d="M26 62 H74" />
-        <path d="M30 74 H70" />
+
+      {/* Crown, above the shield as the guide has it, not inside. */}
+      <g fill={IMP.gold}>
+        <path d="M31 14 L36 4 L43 12 L50 1 L57 12 L64 4 L69 14 Z" />
+        <rect x="30" y="14" width="40" height="4.5" rx="1.2" />
+        <circle cx="50" cy="2" r="2.4" />
       </g>
-      {/* The water it holds back */}
-      <path d="M22 86 Q34 80 46 86 T70 86 T78 84" fill="none" stroke="#4a5f74" strokeWidth="2.5" />
+
+      {/* Anchor in a laurel wreath: the mark on every Imperial flag. */}
+      <g stroke={IMP.gold} strokeWidth="2.6" fill="none" strokeLinecap="round">
+        <path d="M50 38 v30" />
+        <path d="M40 46 h20" />
+        <path d="M35 62 q15 16 30 0" />
+      </g>
+      <circle cx="50" cy="34" r="4.4" fill="none" stroke={IMP.gold} strokeWidth="2.6" />
+      <g stroke={IMP.gold} strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.9">
+        <path d="M28 44 q-6 20 8 34" />
+        <path d="M72 44 q6 20 -8 34" />
+      </g>
+
+      {/* The sea the Crown keeps out, along the shield's foot. */}
+      <path
+        d="M22 84 q7 -5 14 0 t14 0 t14 0 t8 -2"
+        fill="none"
+        stroke={IMP.line}
+        strokeWidth="2.6"
+      />
     </svg>
   );
 }
@@ -154,26 +181,52 @@ export function ImperiumCrest({ size = 96 }: { size?: number }) {
 export function ConfederacyCrest({ size = 96 }: { size?: number }) {
   return (
     <svg viewBox="0 0 100 110" width={size} height={size * 1.1} aria-hidden="true">
-      {/* Rope ring, deliberately not quite round */}
-      <path
-        d="M50 10 Q88 18 90 56 Q92 96 50 102 Q10 98 9 58 Q8 20 50 10 Z"
-        fill="#1a2320"
-        stroke="var(--alliance)"
-        strokeWidth="2.5"
-        strokeDasharray="7 4"
-      />
-      {/* Crossed cutlass and harpoon */}
-      <g stroke="var(--alliance)" strokeWidth="3.5" strokeLinecap="round" fill="none">
-        <path d="M28 78 Q46 56 68 34" />
-        <path d="M72 78 Q54 56 32 34" />
+      <defs>
+        <radialGradient id="con-burst" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={CON.ray} />
+          <stop offset="100%" stopColor={CON.field} />
+        </radialGradient>
+      </defs>
+
+      {/* The starburst the guide flies it on: twelve rays, not a rope ring. */}
+      <g fill={CON.ray} opacity="0.85">
+        {Array.from({ length: 12 }, (_, i) => {
+          const a = (i * Math.PI) / 6;
+          const c = Math.cos(a);
+          const sn = Math.sin(a);
+          const p = (r: number, o: number) =>
+            `${50 + Math.cos(a + o) * r} ${55 + Math.sin(a + o) * r}`;
+          return (
+            <path key={i} d={`M ${50 + c * 48} ${55 + sn * 48} L ${p(30, 0.16)} L ${p(30, -0.16)} Z`} />
+          );
+        })}
       </g>
-      {/* Cutlass tip */}
-      <path d="M68 34 l7 -7 l-2 9 l-8 2 z" fill="var(--alliance)" />
-      {/* Harpoon head */}
-      <path d="M32 34 l-7 -7 l9 1 l1 9 z" fill="var(--alliance)" />
-      {/* Pennant */}
-      <path d="M50 20 L50 46" stroke="#cfd8dc" strokeWidth="2" />
-      <path d="M50 20 L74 27 L50 34 Z" fill="#cfd8dc" opacity="0.9" />
+      <circle cx="50" cy="55" r="34" fill="url(#con-burst)" stroke={CON.bright} strokeWidth="2.5" />
+
+      {/* Crossed cutlasses. They have to reach well past the skull on both
+          ends or the blades vanish behind it and the whole thing reads as a
+          skull with two small horns, which is what the first attempt did. */}
+      <g stroke={CON.bone} strokeWidth="3.4" fill="none" strokeLinecap="round">
+        <path d="M24 80 Q40 58 74 30" />
+        <path d="M76 80 Q60 58 26 30" />
+      </g>
+      {/* Tips out beyond the skull, grips below it. */}
+      <path d="M74 30 l9 -7 l-3 10 l-9 2 Z" fill={CON.bone} />
+      <path d="M26 30 l-9 -7 l3 10 l9 2 Z" fill={CON.bone} />
+      <g stroke={CON.bright} strokeWidth="3" strokeLinecap="round">
+        <path d="M22 82 l-4 5" />
+        <path d="M78 82 l4 5" />
+      </g>
+
+      {/* Skull, smaller than the blades and plain enough to read at 26px. */}
+      <g fill={CON.bone}>
+        <path d="M50 38 q13 0 13 13 q0 8 -5 11 v5 q-8 3 -16 0 v-5 q-5 -3 -5 -11 q0 -13 13 -13 Z" />
+      </g>
+      <g fill={CON.deep}>
+        <circle cx="45" cy="52" r="3.6" />
+        <circle cx="55" cy="52" r="3.6" />
+        <path d="M47.5 61 h5 l-2.5 4.5 Z" />
+      </g>
     </svg>
   );
 }
@@ -351,6 +404,25 @@ function CompanyFigure({ dim }: { dim?: boolean }) {
   );
 }
 
+/** One company, at slot size: a pikeman under his colours. */
+export function CompanyIcon({ size = 30 }: { size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 14 26"
+      height={size}
+      width={(size * 14) / 26}
+      aria-hidden="true"
+      style={{ display: 'block' }}
+    >
+      <path d="M11 2 V24" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M11 2 l-1.6 3.2 h3.2 Z" fill="currentColor" />
+      <circle cx="5" cy="8" r="3" fill="currentColor" />
+      <path d="M1.5 8 H8.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M5 11.5 Q1 13 1.5 24 H8.5 Q9 13 5 11.5 Z" fill="currentColor" />
+    </svg>
+  );
+}
+
 /**
  * The garrison, as figures rather than a number: `present` filled, and the
  * shortfall up to `needed` shown greyed so an under-garrisoned island reads
@@ -386,14 +458,154 @@ export function CompanyRow({
  * Personnel
  * ------------------------------------------------------------------ */
 
-const HATS = ['tricorn', 'bicorn', 'cap', 'bare', 'hood', 'scarf'] as const;
+import {
+  paintedCreature,
+  paintedFace,
+  paintedIsland,
+  paintedPortrait,
+  paintedShip,
+} from './painted';
+import { useInView } from './useInView';
 
 /**
- * A portrait medallion, cut like a cameo: one pale silhouette on a dark
- * ground, so identity comes from the outline rather than from features. No
- * faces — procedural features land in the uncanny valley, an outline never
- * does. Everything derives from the name, so a character looks the same in
- * every game.
+ * The ink ramp. Five inks, and every drawing uses only these plus the faction
+ * hues and brass. A fixed, small palette is most of what makes a set of
+ * drawings look like a set — see seven-seas-art-style.md §2.
+ */
+export const INK = {
+  black: '#0a1116',
+  dark: '#1d2b33',
+  mid: '#5c7078',
+  pale: '#a9bcc2',
+  bone: '#e8e2d1',
+} as const;
+
+/** Headgear, which is most of a silhouette at the size these ship at. */
+type Hat =
+  | 'coronet'
+  | 'bicorne'
+  | 'tricorn'
+  | 'shako'
+  | 'veil'
+  | 'hood'
+  | 'flatcap'
+  | 'bandana'
+  | 'headscarf'
+  | 'widebrim'
+  | 'watchcap'
+  | 'bare';
+
+/** What a people does to a body, before anything is put on its head. */
+type Stock = {
+  build: number;
+  headScale: number;
+  tusks?: boolean;
+  ears?: 'wide' | 'round';
+  crest?: boolean;
+  brow?: boolean;
+  /** No hair, ever, and a collar up to the jaw. */
+  still?: boolean;
+  hat?: Hat;
+};
+
+const STOCK: Record<string, Stock> = {
+  urskin: { build: 1.45, headScale: 1.16, tusks: true, ears: 'wide' },
+  'reef-folk': { build: 1.05, headScale: 1, crest: true },
+  'the hushed': { build: 0.7, headScale: 0.88, hat: 'hood' },
+  'shoal-folk': { build: 0.75, headScale: 0.92, ears: 'round' },
+  'bog-folk': { build: 1.1, headScale: 1.02, brow: true },
+  'the rumor guild': { build: 0.95, headScale: 1, hat: 'flatcap' },
+  'human (once)': { build: 0.95, headScale: 1, still: true },
+  human: { build: 1, headScale: 1 },
+};
+
+function stockFor(people?: string): Stock {
+  const key = (people ?? 'human').toLowerCase().trim();
+  return STOCK[key] ?? STOCK.human;
+}
+
+/**
+ * Rank decides headgear, read out of the title in the name. Nothing is random
+ * that could be meaningful: an Admiral is in a bicorne in every game, and you
+ * learn to read the roster by hat before you learn the names.
+ */
+function hatFor(name: string, stock: Stock, random: () => number): Hat {
+  if (stock.hat) return stock.hat;
+  if (/lord|regent|governor/i.test(name)) return 'coronet';
+  if (/admiral|commodore/i.test(name)) return 'bicorne';
+  if (/captain/i.test(name)) return 'tricorn';
+  if (/colonel|major|sergeant/i.test(name)) return 'shako';
+  if (/widow|dame/i.test(name)) return 'veil';
+  if (/doctor|master/i.test(name)) return 'bare';
+  // The untitled are most of the roster, so they need the widest draw or half
+  // the cast reads as one person in a cap.
+  return (['bandana', 'headscarf', 'widebrim', 'watchcap', 'bare', 'bare'] as const)[
+    Math.floor(random() * 6)
+  ];
+}
+
+const HEAD_Y = 26;
+
+function headPath(r: number): string {
+  // Flat-bottomed, so a jaw reads rather than a ball.
+  return `M 32 ${HEAD_Y - r} q ${r} 0 ${r} ${r * 1.05} q 0 ${r} ${-r} ${r * 1.2} q ${-r} ${-r * 0.2} ${-r} ${-r * 1.2} q 0 ${-r * 1.05} ${r} ${-r * 1.05} Z`;
+}
+
+function bustPath(build: number): string {
+  const w = 18 * build;
+  return `M ${32 - w} 64 v -10 q 0 -9 ${w * 0.5} -12 h ${w} q ${w * 0.5} 3 ${w * 0.5} 12 v 10 Z`;
+}
+
+function hatPath(hat: Hat, r: number): string | null {
+  const top = HEAD_Y - r;
+  switch (hat) {
+    case 'coronet':
+      return `M ${32 - r - 1} ${top + 2} h ${(r + 1) * 2} v -4 l -4 -6 l -4 6 l -4 -8 l -4 8 l -4 -6 l -4 6 Z`;
+    case 'bicorne':
+      // Worn athwart: wide, low, and pointed at both ends.
+      return `M ${32 - r - 8} ${top + 3} q ${r + 8} -16 ${(r + 8) * 2} 0 q -${r + 8} -6 -${(r + 8) * 2} 0 Z`;
+    case 'tricorn':
+      return `M ${32 - r - 6} ${top + 3} q ${r + 6} -13 ${(r + 6) * 2} 0 q -6 -3 -${r + 6} -3 q -${r} 0 -${r + 6} 3 Z M ${32 - r - 1} ${top + 3} q ${r + 1} -12 ${(r + 1) * 2} 0 Z`;
+    case 'shako':
+      return `M ${32 - r + 1} ${top + 2} v -12 h ${(r - 1) * 2} v 12 Z M ${32 - r - 4} ${top + 2} h ${(r + 4) * 2} v 3 h -${(r + 4) * 2} Z`;
+    case 'veil':
+      return `M ${32 - r - 3} ${HEAD_Y + 7} q -1 -18 ${r + 3} -18 q ${r + 3} 0 ${r + 3} 18 q -3 -9 -${r + 3} -9 q -${r} 0 -${r + 3} 9 Z`;
+    case 'hood':
+      return `M ${32 - r - 3} ${HEAD_Y + 4} q 0 -20 ${r + 3} -20 q ${r + 3} 0 ${r + 3} 20 q -4 -7 -${r + 3} -7 q -${r - 1} 0 -${r + 3} 7 Z`;
+    case 'flatcap':
+      return `M ${32 - r - 4} ${top + 1} h ${(r + 4) * 2} l -3 -5 h -${(r + 1) * 2} Z`;
+    case 'bandana':
+      return `M ${32 - r} ${top + 4} q ${r} -9 ${r * 2} 0 Z M ${32 + r - 1} ${top + 2} l 8 4 l -7 2 Z`;
+    case 'headscarf':
+      // Tied at the nape, with the tail hanging: a long shape nothing else has.
+      return `M ${32 - r - 1} ${top + 5} q ${r + 1} -12 ${(r + 1) * 2} 0 q -${r + 1} -5 -${(r + 1) * 2} 0 Z M ${32 - r - 1} ${top + 4} l -5 14 l 5 -3 Z`;
+    case 'widebrim':
+      return `M ${32 - r - 9} ${top + 4} q ${r + 9} 5 ${(r + 9) * 2} 0 q -${r + 9} -14 -${(r + 9) * 2} 0 Z`;
+    case 'watchcap':
+      return `M ${32 - r} ${top + 4} q 0 -11 ${r} -11 q ${r} 0 ${r} 11 Z`;
+    default:
+      return null;
+  }
+}
+
+/** Hair, for the bare-headed. Mass, not strands — strands vanish at 32px. */
+function hairPath(r: number, kind: number): string {
+  const top = HEAD_Y - r;
+  if (kind === 0) return `M ${32 - r} ${top + 5} q 0 -10 ${r} -10 q ${r} 0 ${r} 10 q -${r} -6 -${r * 2} 0 Z`;
+  if (kind === 1)
+    return `M ${32 - r} ${top + 6} q 0 -11 ${r} -11 q ${r} 0 ${r} 11 q -2 -5 -6 -5 q -3 6 -8 3 q -3 -1 -${r - 4} 2 Z`;
+  return `M ${32 - r - 1} ${HEAD_Y + 2} q -2 -14 ${r + 1} -14 q ${r + 1} 0 ${r + 1} 12 q -3 -8 -${r + 1} -8 q -${r} 0 -${r + 1} 10 Z`;
+}
+
+/**
+ * A portrait, in the near register: heavy outline, two flat fills, and the
+ * faction's colour in the coat rather than in a ring around it, so allegiance
+ * reads before anything else does.
+ *
+ * No faces, by rule (art style §3.7). Everything that tells one officer from
+ * another lives in the outline — build from their people, headgear from their
+ * rank, hair and beard from their name — because that is what survives at
+ * 32px, and because 26 of these have to be affordable.
  */
 export function CharacterPortrait({
   name,
@@ -409,11 +621,15 @@ export function CharacterPortrait({
   dim?: boolean;
 }) {
   const random = seededRandom(name);
-  const hat = HATS[Math.floor(random() * HATS.length)];
-  const beard = random() > 0.55;
+  const stock = stockFor(people);
+  const hat = hatFor(name, stock, random);
+  const hair = Math.floor(random() * 3);
+  const beard = !stock.still && !stock.tusks && random() > 0.62;
   const epaulettes = random() > 0.45;
-  const urskin = (people ?? '').toLowerCase().includes('urskin');
-  const clipId = `bust-${hash(name).toString(36)}`;
+  // High collar or open: a silhouette change at the one place every portrait
+  // has, which costs nothing and separates the plain-dressed from each other.
+  const highCollar = stock.still || random() > 0.5;
+  const id = `pt-${hash(name).toString(36)}`;
   const tint =
     faction === 'empire'
       ? 'var(--empire)'
@@ -421,80 +637,130 @@ export function CharacterPortrait({
         ? 'var(--alliance)'
         : 'var(--neutral)';
 
-  // Urskin stand a head taller and half again as broad as anyone else.
-  const headR = urskin ? 8.4 : 7;
-  const headY = urskin ? 15 : 15.5;
-  const cut = '#b4c7d0';
+  // A painting is only fetched once the medallion is near the screen; until
+  // then the drawn cameo stands in, which is the whole reason it can.
+  const [holder, near] = useInView<SVGSVGElement>();
+  // The head crop, not the whole figure: this is a circle 32 to 68 pixels
+  // across, and a three-quarter portrait shrunk into it is a smudge with a
+  // hat. The full painting is the card's job — see CharacterPainting.
+  const painting = near ? paintedFace(name) : undefined;
+  const r = 9.5 * stock.headScale;
+  const hatD = hatPath(hat, r);
+  // The outline, on everything, at one weight. Heavy on purpose: a hairline
+  // disappears at 32px and takes the drawing with it.
+  const line = { stroke: INK.black, strokeWidth: 3, strokeLinejoin: 'round' as const };
 
   return (
     <svg
-      viewBox="0 0 40 40"
+      ref={holder}
+      viewBox="0 0 64 64"
       width={size}
       height={size}
       aria-hidden="true"
-      style={{ opacity: dim ? 0.5 : 1, display: 'block' }}
+      style={{ opacity: dim ? 0.45 : 1, display: 'block' }}
     >
       <defs>
-        <clipPath id={clipId}>
-          <circle cx="20" cy="20" r="18" />
+        <clipPath id={id}>
+          <circle cx="32" cy="32" r="30" />
         </clipPath>
       </defs>
-      <circle cx="20" cy="20" r="18" fill="#071a22" />
-      <circle cx="20" cy="20" r="18" fill={tint} opacity="0.16" />
+      <circle cx="32" cy="32" r="31" fill={INK.black} />
+      <circle cx="32" cy="32" r="31" fill={tint} opacity="0.26" />
 
-      <g clipPath={`url(#${clipId})`} fill={cut}>
-        {/* Neck, then shoulders broad enough to fill the medallion */}
-        <rect x="16.6" y={headY + headR - 2} width="6.8" height="8" rx="1.5" />
-        <path d="M1 41 Q1 27.5 20 26.2 Q39 27.5 39 41 Z" />
+      {/* A painting, when one has been made for this person. The medallion and
+          its faction ring are the same either way, so a roster half-painted and
+          half-drawn still reads as one list rather than two. */}
+      {painting ? (
+        <g clipPath={`url(#${id})`}>
+          <image
+            href={painting}
+            x="2"
+            y="2"
+            width="60"
+            height="60"
+            preserveAspectRatio="xMidYMid slice"
+          />
+          {/* A whisper of the faction wash the drawn ones carry. Much lighter
+              than theirs: a painted officer is already wearing the colour —
+              Imperial coats sea-green, Confederate sashes red — so a heavy
+              wash on top only muddies a face that was doing the job already.
+              The ring outside carries the rest. */}
+          <circle cx="32" cy="32" r="30" fill={tint} opacity="0.05" />
+        </g>
+      ) : (
+      <g clipPath={`url(#${id})`}>
+        {/* Coat, then neck, then head: back to front, so each outline is cut
+            by the thing in front of it rather than drawn over it. */}
+        <path d={bustPath(stock.build)} fill={tint} {...line} />
         {epaulettes && (
-          <>
-            <circle cx="6" cy="30.5" r="4" />
-            <circle cx="34" cy="30.5" r="4" />
-          </>
+          // Boards across the shoulder, not buttons beside it. As circles they
+          // read as knobs bolted to the coat.
+          <g fill={INK.dark} stroke={INK.black} strokeWidth="1.6" strokeLinejoin="round">
+            <path d={`M ${32 - 19 * stock.build} 53 h 9 v 4 h -9 Z`} />
+            <path d={`M ${32 + 10 * stock.build} 53 h 9 v 4 h -9 Z`} />
+          </g>
         )}
-        {/* Head, and the jaw beneath it */}
-        <circle cx="20" cy={headY} r={headR} />
-        {beard && !urskin && (
-          <path d={`M${20 - headR} ${headY + 1} Q20 ${headY + 13} ${20 + headR} ${headY + 1} Z`} />
+        <path
+          d={`M 27.5 ${HEAD_Y + r - 4} h 9 v 11 h -9 Z`}
+          fill={stock.still ? INK.dark : INK.mid}
+        />
+        {highCollar && (
+          <path
+            d={`M ${32 - 9} 54 l 2 -12 q 7 4 14 0 l 2 12 Z`}
+            fill={INK.dark}
+            {...line}
+          />
         )}
-        {urskin && (
-          <>
-            <circle cx={20 - headR + 0.6} cy={headY - headR + 1.2} r="3" />
-            <circle cx={20 + headR - 0.6} cy={headY - headR + 1.2} r="3" />
-            {/* Muzzle and tusks, breaking the line of the jaw */}
-            <path d={`M15 ${headY + 4} Q20 ${headY + 11} 25 ${headY + 4} Z`} />
-            <path d={`M16.5 ${headY + 6} l-1.4 4.2 l2.4 -0.9 Z`} />
-            <path d={`M23.5 ${headY + 6} l1.4 4.2 l-2.4 -0.9 Z`} />
-          </>
+        {stock.ears && (
+          <path
+            d={
+              stock.ears === 'wide'
+                ? `M ${32 - r - 1} ${HEAD_Y - 5} a 4.5 4.5 0 1 1 3 7 Z M ${32 + r + 1} ${HEAD_Y - 5} a 4.5 4.5 0 1 0 -3 7 Z`
+                : `M ${32 - r - 2} ${HEAD_Y - 2} a 4 4 0 1 1 4 4 Z M ${32 + r + 2} ${HEAD_Y - 2} a 4 4 0 1 0 -4 4 Z`
+            }
+            fill={INK.pale}
+            {...line}
+          />
         )}
-
-        {/* Headgear, cut from the same silhouette */}
-        {hat === 'tricorn' && (
-          <path d={`M6 ${headY - 3} Q20 ${headY - 15} 34 ${headY - 3} Q20 ${headY - 8} 6 ${headY - 3} Z`} />
+        <path d={headPath(r)} fill={INK.pale} {...line} />
+        {stock.crest && (
+          <path
+            d={`M ${32 - 6} ${HEAD_Y - r + 2} l -6 -12 l 9 8 Z M 32 ${HEAD_Y - r - 1} l 0 -14 l 4.5 13 Z M ${32 + 6} ${HEAD_Y - r + 2} l 7 -11 l -2.5 11 Z`}
+            fill={INK.pale}
+            {...line}
+          />
         )}
-        {hat === 'bicorn' && (
-          <path d={`M7 ${headY - 4} Q20 ${headY - 18} 33 ${headY - 4} Q20 ${headY - 9} 7 ${headY - 4} Z`} />
+        {stock.brow && (
+          <path
+            d={`M ${32 - r + 1} ${HEAD_Y - 3} q ${r - 1} -5 ${(r - 1) * 2} 0 v 3 q -${r - 1} -4 -${(r - 1) * 2} 0 Z`}
+            fill={INK.dark}
+          />
         )}
-        {hat === 'cap' && (
-          <path d={`M${20 - headR - 1.5} ${headY - 3.5} Q20 ${headY - 14} ${20 + headR + 1.5} ${headY - 3.5} Z`} />
+        {stock.tusks && (
+          <path
+            d={`M ${32 - r + 1.5} ${HEAD_Y + 4} l -1.6 6.5 l 3.4 -5.6 Z M ${32 + r - 1.5} ${HEAD_Y + 4} l 1.6 6.5 l -3.4 -5.6 Z`}
+            fill={INK.bone}
+            stroke={INK.black}
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
         )}
-        {hat === 'hood' && (
-          <path d={`M${20 - headR - 3} ${headY + 5} Q${20 - headR - 3} ${headY - 13} 20 ${headY - 13} Q${20 + headR + 3} ${headY - 13} ${20 + headR + 3} ${headY + 5} Q20 ${headY - 5} ${20 - headR - 3} ${headY + 5} Z`} />
+        {beard && (
+          <path
+            d={`M ${32 - r} ${HEAD_Y + 2} q 0 ${r * 1.5} ${r} ${r * 1.5} q ${r} 0 ${r} ${-r * 1.5} q -${r} 5 -${r * 2} 0 Z`}
+            fill={INK.pale}
+            {...line}
+          />
         )}
-        {hat === 'scarf' && (
-          <>
-            <path d={`M${20 - headR - 0.5} ${headY - 4} Q20 ${headY - 12} ${20 + headR + 0.5} ${headY - 4} Z`} />
-            <path d={`M${20 + headR} ${headY - 6} l6 3.5 l-5 1.2 Z`} />
-          </>
+        {hatD ? (
+          <path d={hatD} fill={INK.dark} {...line} />
+        ) : (
+          !stock.still && <path d={hairPath(r, hair)} fill={INK.dark} {...line} />
         )}
-        {hat === 'bare' && <circle cx="20" cy={headY - 4.8} r={headR * 0.9} />}
       </g>
+      )}
 
-      {/* A single spot of faction colour: the cockade at the collar. */}
-      <circle cx="20" cy="31.5" r="2.2" fill={tint} clipPath={`url(#${clipId})`} />
-
-      <circle cx="20" cy="20" r="18" fill="none" stroke={tint} strokeWidth="1.6" opacity="0.85" />
-      <circle cx="20" cy="20" r="15.5" fill="none" stroke="var(--brass)" strokeWidth="0.6" opacity="0.45" />
+      <circle cx="32" cy="32" r="31" fill="none" stroke={tint} strokeWidth="2.5" />
     </svg>
   );
 }
@@ -654,6 +920,147 @@ export function SecretaryPortrait({ size = 44 }: { size?: number }) {
   );
 }
 
+/**
+ * The advisors again, standing rather than framed.
+ *
+ * Rebellion keeps its droid on screen at all times, at the edge of the frame,
+ * never summoned — that is what "a character on screen" means. A circular bust
+ * reads as a button; a figure standing on the floor reads as someone in the
+ * room with you. Same palettes as the cameos above so they are recognisably
+ * the same two characters.
+ */
+export function ParrotFigure({ size = 56 }: { size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 34 56"
+      height={size}
+      width={(size * 34) / 56}
+      aria-hidden="true"
+      style={{ display: 'block', overflow: 'visible' }}
+    >
+      <ellipse cx="17" cy="53" rx="10" ry="2.4" fill="#030d12" opacity="0.5" />
+      {/* Perch: base, post, and the bar he grips */}
+      <ellipse cx="17" cy="51.4" rx="7.5" ry="2" fill="#5a4632" />
+      <rect x="15.6" y="27" width="2.8" height="24" fill="#4a3a2a" />
+      {/* Tail hangs behind the bar */}
+      <path d="M19.5 22 Q25.5 32 21.5 37 Q17.6 30 19.5 22 Z" fill="#1f5c43" />
+      <rect x="7" y="25.2" width="20" height="2.6" rx="1.3" fill="#6b5238" />
+      {/* Feet */}
+      <path d="M14.8 22 v4 M19.2 22 v4" stroke="#d8a13c" strokeWidth="1.4" strokeLinecap="round" />
+      {/* Body and folded wing */}
+      <path d="M11.6 25 Q8.8 15.6 17 11.6 Q25.2 15.6 22.4 25 Z" fill="#2f7a5a" />
+      <path d="M19.6 14.6 Q23.8 18.8 21.2 24 Q18.2 19.4 19.6 14.6 Z" fill="#1f5c43" />
+      {/* Head, crest, beak */}
+      <circle cx="17" cy="10" r="5.6" fill="#3d9c73" />
+      <path d="M13.6 5.2 Q14.6 0 17.4 3.4 Q20.2 -0.6 21.4 5.2 Z" fill="var(--alliance)" />
+      <path d="M22.2 9 Q27.6 11 22.2 14.4 Q20.6 11.7 22.2 9 Z" fill="#d8a13c" />
+      {/* One eye, and the patch over the other */}
+      <circle cx="19.1" cy="8.8" r="1.6" fill="#f2f6f7" />
+      <circle cx="19.4" cy="8.8" r="0.8" fill="#08161c" />
+      <path d="M11.2 6.4 h4.8 v4 h-4.8 Z" fill="#0b1c22" />
+      <path d="M8.8 5.6 L16.6 7.4" stroke="#0b1c22" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+export function SecretaryFigure({ size = 56 }: { size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 34 56"
+      height={size}
+      width={(size * 34) / 56}
+      aria-hidden="true"
+      style={{ display: 'block', overflow: 'visible' }}
+    >
+      <ellipse cx="17" cy="53" rx="10" ry="2.4" fill="#030d12" opacity="0.5" />
+      {/* Shoes under a long coat */}
+      <path d="M12.6 48 h3.6 v3.4 h-3.6 Z M17.8 48 h3.6 v3.4 h-3.6 Z" fill="#2b343a" />
+      {/* The coat: a narrow column, hem to shoulder */}
+      <path d="M10.6 49.5 Q10.2 32 12.6 21.6 Q17 19.6 21.4 21.6 Q23.8 32 23.4 49.5 Z" fill="#8e9aa1" />
+      <path d="M17 21 Q19.4 34 18.6 49.5 L23.4 49.5 Q23.8 32 21.4 21.6 Z" fill="#7d888e" />
+      {/* Cravat at the throat, as in the cameo */}
+      <path d="M17 21.4 L14.2 29 L17 26.6 L19.8 29 Z" fill="#e8edef" />
+      {/* Hands clasped, waiting */}
+      <ellipse cx="17" cy="35.4" rx="3.2" ry="2.2" fill="#b9c4c9" />
+      {/* Neck, then the long face */}
+      <rect x="15.4" y="16.6" width="3.2" height="5.4" rx="1.2" fill="#b9c4c9" />
+      <ellipse cx="17" cy="11.4" rx="5" ry="6.4" fill="#b9c4c9" />
+      {/* Severe hair, flat to the skull */}
+      <path d="M12.4 9 Q17 1.6 21.6 9 Q17 5.6 12.4 9 Z" fill="#3b464c" />
+      {/* Two unblinking eyes, and a mouth that is barely a line */}
+      <circle cx="15.1" cy="11" r="0.85" fill="#0b1c22" />
+      <circle cx="18.9" cy="11" r="0.85" fill="#0b1c22" />
+      <path d="M14.8 15.2 h4.4" stroke="#7d888e" strokeWidth="0.9" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function NarratorFigure({
+  faction,
+  size,
+}: {
+  faction: 'empire' | 'alliance';
+  size?: number;
+}) {
+  return faction === 'empire' ? <SecretaryFigure size={size} /> : <ParrotFigure size={size} />;
+}
+
+/**
+ * Hulls, in profile. Four silhouettes that read apart at icon size, and they
+ * read apart by *size*, which is the thing that matters: one mast, two masts,
+ * three masts and a row of gun ports, and a fat unarmed hull.
+ */
+export function ShipIcon({
+  role,
+  size = 24,
+}: {
+  role: 'small' | 'medium' | 'large' | 'transport';
+  size?: number;
+}) {
+  const common = {
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.6,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+  };
+  const sail = { fill: 'currentColor', stroke: 'none', opacity: 0.85 };
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
+      {role === 'small' && (
+        <g {...common}>
+          <path d="M6 17.5 h12 l-2 3 h-8 Z" />
+          <path d="M12 17 V5" />
+          <path d="M12 6 L16.5 14 H12 Z" {...sail} />
+        </g>
+      )}
+      {role === 'medium' && (
+        <g {...common}>
+          <path d="M4 17 h16 l-2 3.5 h-12 Z" />
+          <path d="M9 16.5 V6 M15 16.5 V4" />
+          <path d="M9 7 l3.5 6.5 H9 Z M15 5 l4 8.5 H15 Z" {...sail} />
+        </g>
+      )}
+      {role === 'large' && (
+        <g {...common}>
+          <path d="M2 16.5 h20 l-2.5 4 h-15 Z" />
+          <path d="M6 16 V5 M12 16 V3 M18 16 V6" />
+          <path d="M6 6 l4.5 7 H6 Z M12 4.5 l5 8.5 H12 Z M18 7 l3.2 6 H18 Z" {...sail} />
+          {/* A row of gun ports is the only thing that says "of the line". */}
+          <path d="M5 18.3 h14" strokeDasharray="1.4 1.8" strokeWidth="1.3" />
+        </g>
+      )}
+      {role === 'transport' && (
+        <g {...common}>
+          <path d="M3 14.5 h18 q-1 6 -3.5 6 h-11 q-2.5 0 -3.5 -6 Z" />
+          <path d="M8.5 14 V6 M15.5 14 V7.5" />
+          <path d="M8.5 7 l4 6 h-4 Z M15.5 8.5 l3.4 4.5 h-3.4 Z" {...sail} />
+        </g>
+      )}
+    </svg>
+  );
+}
+
 export function NarratorPortrait({
   faction,
   size,
@@ -662,4 +1069,195 @@ export function NarratorPortrait({
   size?: number;
 }) {
   return faction === 'empire' ? <SecretaryPortrait size={size} /> : <ParrotPortrait size={size} />;
+}
+
+
+/**
+ * The whole painting, for a card rather than a medallion.
+ *
+ * The portraits are three-quarter figures against a harbour, and that is worth
+ * seeing at card size. The medallion crops to the head because a circle 44px
+ * across cannot hold a figure; this does the opposite job with the same file.
+ *
+ * A character with no painting gets the drawn cameo instead, at a size where it
+ * is a deliberate illustration rather than a stand-in.
+ */
+export function CharacterPainting({
+  name,
+  faction,
+  people,
+  height = 150,
+}: {
+  name: string;
+  faction: 'empire' | 'alliance' | 'neutral';
+  people?: string;
+  height?: number;
+}) {
+  const [holder, near] = useInView<HTMLDivElement>();
+  const painting = near ? paintedPortrait(name) : undefined;
+  return (
+    <div ref={holder} className="painting" style={{ height }}>
+      {painting ? (
+        <img src={painting} alt="" loading="lazy" />
+      ) : (
+        <div className="painting__cameo">
+          <CharacterPortrait name={name} faction={faction} people={people} size={height - 16} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+/**
+ * The island as a painted banner across the top of its panel.
+ *
+ * Ten archetypes cover every island in the game, which is the only way this is
+ * affordable and also the right answer: an island does not need its own
+ * painting, it needs to look like the kind of place it is. A jungle isle in the
+ * Amber Sea and one in the Sea of Storms share a picture and differ in
+ * everything the panel goes on to say about them.
+ *
+ * The drawn portrait stays as the fallback, and stays the only thing shown for
+ * an uncharted island — you have not seen it, so you do not get a painting of
+ * it.
+ */
+export function IslandBanner({
+  archetype,
+  seed,
+  faction,
+  settled,
+  facilities,
+  facilityTypes,
+  mutiny,
+  height = 132,
+}: {
+  archetype?: string;
+  seed: string;
+  faction: 'empire' | 'alliance' | 'neutral' | 'none';
+  settled: boolean;
+  facilities: number;
+  facilityTypes?: string[];
+  mutiny?: boolean;
+  height?: number;
+}) {
+  const [holder, near] = useInView<HTMLDivElement>();
+  const painting = near && archetype ? paintedIsland(archetype) : undefined;
+  if (!painting) {
+    return (
+      <div className="portrait" ref={holder}>
+        <IslandPortrait
+          seed={seed}
+          faction={faction}
+          settled={settled}
+          facilities={facilities}
+          facilityTypes={facilityTypes as never}
+          mutiny={mutiny}
+          size={height}
+        />
+      </div>
+    );
+  }
+  return (
+    <div ref={holder} className="isle-banner" style={{ height: Math.round(height * 0.86) }}>
+      <img src={painting} alt="" loading="lazy" />
+      {/* The panel's own text starts immediately under this, so the foot of the
+          banner fades rather than ending on a hard edge. */}
+      <span className="isle-banner__fade" />
+    </div>
+  );
+}
+
+
+/**
+ * Whatever is in the water, painted.
+ *
+ * Unlike every other painting in the game this one has no drawn fallback and
+ * renders nothing when it is missing. A ship or an island has to appear or the
+ * panel makes no sense; a sea monster is the one thing that can simply not be
+ * there, which is also the most honest thing a rumour can do.
+ */
+export function CreaturePainting({
+  slug,
+  height = 92,
+  className,
+}: {
+  slug: string;
+  height?: number;
+  className?: string;
+}) {
+  const [holder, near] = useInView<HTMLDivElement>();
+  const painting = near ? paintedCreature(slug) : undefined;
+  return (
+    <div
+      ref={holder}
+      className={`creature${className ? ` ${className}` : ''}`}
+      style={{ height }}
+    >
+      {painting && <img src={painting} alt="" loading="lazy" decoding="async" />}
+      <span className="creature__fade" />
+    </div>
+  );
+}
+
+/**
+ * A hull, painted, at the size a list can hold.
+ *
+ * Small on purpose. The paintings are three-quarter views of a whole vessel
+ * and they are lovely, but a fleet is a row of classes with a count against
+ * each — there is room for a thumbnail, not a plate. What survives at fifty
+ * pixels is the silhouette and the colour of the canvas, which happens to be
+ * exactly what tells a Crown ship from a Confederate one.
+ *
+ * Falls back to the drawn icon, which is still the only thing that works at
+ * the 22px the island panel uses.
+ */
+export function ShipThumb({
+  faction,
+  role,
+  size = 46,
+}: {
+  faction: 'empire' | 'alliance';
+  role: 'small' | 'medium' | 'large' | 'transport';
+  size?: number;
+}) {
+  const painting = paintedShip(`${faction}-${role}`);
+  if (!painting) return <ShipIcon role={role} size={size * 0.6} />;
+  return (
+    <span className="shipthumb" style={{ width: size, height: Math.round(size * 0.82) }}>
+      <img src={painting} alt="" loading="lazy" />
+    </span>
+  );
+}
+
+
+/**
+ * Works on an island, painted.
+ *
+ * The facility paintings came as wide strips — a quarry with ore carts, a mill
+ * with its waterwheel, a slipway with a hull on the stocks — one for each side,
+ * because a Crown shipyard under a covered slip and a Confederate one in a
+ * hidden cove are the clearest single statement of what the two are.
+ *
+ * Shown as a band beside the name rather than in place of the icon: the drawn
+ * glyph still does the work at the 22px the build buttons use, and a painting
+ * that wide only reads with room to be wide in.
+ */
+export function FacilityThumb({
+  type,
+  owner,
+  width = 96,
+}: {
+  type: string;
+  owner: 'empire' | 'alliance' | 'neutral' | 'none';
+  width?: number;
+}) {
+  const side = owner === 'alliance' ? 'alliance' : 'empire';
+  const painting = paintedIsland(`facility-${type.replace(/_/g, '-')}-${side}`);
+  if (!painting) return <FacilityIcon type={type as never} size={30} />;
+  return (
+    <span className="facthumb" style={{ width, height: Math.round(width * 0.42) }}>
+      <img src={painting} alt="" loading="lazy" />
+    </span>
+  );
 }

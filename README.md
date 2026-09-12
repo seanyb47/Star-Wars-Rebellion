@@ -111,17 +111,28 @@ hunting for its assets under the old path.
 src/
   sim/      the whole game, as pure TypeScript — no React imports anywhere
   ui/       React components; they only read state and dispatch commands
-  ui/art.tsx  every picture, drawn as SVG in code
+  ui/art.tsx  the drawn layer — icons, marks, cameos, all SVG in code
+  art/      the painted layer — illustration, dropped in as files
   data/     every name in the game
 ```
 
-**All the artwork is generated, not loaded.** Faction crests, the compass rose,
-building glyphs, garrison companies, island coastlines and character portraits
-are SVG drawn in code. Anything that should stay put between games — an
-island's coastline, a character's cameo — is derived from its own name, so it
-is identical every game and on every device. Nothing is fetched, the download
-stays small, and it all works offline. The layouts are built so a real
-illustration can replace any of it later without moving.
+**Two art layers, split by whether the thing has to change.** The interface —
+the chart, island marks, facility and ship icons, allegiance bars, capacity
+pips — is SVG drawn in code, because every one of those has to tint by faction,
+seed itself from a name, scale from 30px to 96px and show state that changes
+every day of the war. Anything derived from a name is identical in every game
+and on every device.
+
+The painted layer is illustration: portraits, ships, islands and dispatch
+scenes, made outside the repo and added with `npm run art:add`. A subject with a
+painting uses it; a subject without keeps its drawn cameo, so the art can
+arrive in any order. See `seven-seas-art-style.md` for the direction,
+`art-prompts.md` for every subject, and `ASSETS.md` for what has arrived —
+each one with its full-resolution master kept in `art-masters/` and the crop
+recorded, so a painting can be reframed later instead of remade.
+
+Until the paintings land the download is ~95KB and works offline. It will not
+stay that small, and lazy loading is the price of that.
 
 `src/sim` is the important part. The entire game is one plain JSON object
 (`GameState`), so saving is `JSON.stringify` and loading is `JSON.parse`.
@@ -149,14 +160,20 @@ mid-war, come back a week later, and the title screen offers **Continue your
 game** where you left off. "Save and return to title" in the menu does the same
 thing deliberately.
 
-**The chart works at the zoom you are at.** Pulled right out, an island is a
-few pixels across and picking one is a lottery, so islands stop being tap
-targets and the chart becomes a chart of **Seas**: seven names on open water,
-and a tap opens that whole Sea — every one of its islands, grouped by Reach,
-in a list you can actually read. Zoom in and islands become tappable again.
+**The chart does not zoom and does not pan.** The whole archipelago is on
+screen at once and there is one thing to tap: an **island chain**, which opens
+as a panel listing its islands. Each chain is about 78px across on a phone, so
+it is easy to hit; a single island would be four pixels and impossible. Islands
+are therefore drawn on the chart but not tapped — there they are the picture of
+the chain, and they become targets in the panel, at a size where you can read
+their names. Sending a crew member works the same way: the chains offering a
+destination light up, and you pick the island inside one.
 
-There are no boundaries drawn between Seas, deliberately: a tap goes to the
-nearest Sea, and a ring would draw a border that is not really there.
+It did zoom, across three levels, and that was rejected for being fiddly. The
+chart is also laid out for a phone held upright rather than in the square the
+simulation scatters its chains in, which is allowed because the coordinates are
+decoration: travel time depends on whether two islands share a chain, never on
+how far apart they are drawn.
 
 Tapping a **Reach** on the chart — its open water or its name — opens the whole
 Reach: what it earns you a day, the average allegiance across its settled
@@ -320,10 +337,13 @@ Things I know are wrong, in the order I mean to fix them.
 
 ## Not built yet
 
-Fleets and combat, the other nine mission types, real victory conditions,
-command ranks, Tidecraft, and a smarter opponent are all phase 2 and beyond.
+**See `PLAN.md`** for the current state and the order of work.
 
-From the world bible, still waiting on the phases that need them: the ships
-(section 6), ground forces (7), special forces (8), the 54 minor characters
-(5, since phase 1 has no recruitment), and both of the new mechanics in
-section 14 — Mythic Isles and Double Agents.
+In short: fleets and combat are built. Three of the eight mission types are
+built — parley, incite, recruitment. Still outstanding are Espionage as a
+mission, Sabotage, Abduction, Command over an island and R&D; then real victory
+conditions, command ranks, Tidecraft and a smarter opponent.
+
+From the world bible, still waiting on the phases that need them: ground forces
+(section 7), special forces (8), and both of the new mechanics in section 14 —
+Mythic Isles and Double Agents.

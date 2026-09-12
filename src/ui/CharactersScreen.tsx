@@ -1,7 +1,8 @@
 import terms from '../data/terms.json';
+import { MISSION_LABEL } from '../sim';
 import type { Character, GameState } from '../sim';
-import { CharacterPortrait } from './art';
-import { Ratings, statusBadge } from './CharacterSheet';
+import { CharacterPainting } from './art';
+import { statusBadge } from './CharacterSheet';
 
 function missionLine(state: GameState, character: Character): string | null {
   const mission = character.mission;
@@ -10,9 +11,27 @@ function missionLine(state: GameState, character: Character): string | null {
   const where = target?.name ?? 'an unknown island';
   return mission.phase === 'travelling'
     ? `At sea for ${where} — ${mission.daysRemaining}d`
-    : `${terms.parley} on ${where} — ${mission.daysRemaining}d to report`;
+    : `${
+        mission.type === 'incite' ? terms.incite
+        : mission.type === 'diplomacy' ? terms.parley
+        : MISSION_LABEL[mission.type]
+      } on ${where} — ${mission.daysRemaining}d to report`;
 }
 
+/**
+ * Your crew, as portraits.
+ *
+ * This was a list of rows: a 46px medallion, a name, and four rating bars that
+ * took two thirds of every card. The bars were the loudest thing on the screen
+ * and the least worth looking at — you do not choose who to send by reading a
+ * bar chart, you choose by remembering who somebody is, and the paintings do
+ * that in a way four numbers never will.
+ *
+ * So the painting is the card now and everything else is caption. The ratings
+ * are still all four, still exact, in one line of small figures: complete, and
+ * no longer shouting. Two to a row, because seven officers then fit in a screen
+ * and a half and each face is two hundred pixels rather than forty-six.
+ */
 export function CharactersScreen({
   state,
   onOpen,
@@ -23,35 +42,37 @@ export function CharactersScreen({
   const crew = state.characters.filter((c) => c.faction === state.player);
 
   return (
-    <div className="pad stack">
+    <div className="pad crewgrid">
       {crew.map((character) => {
         const location = state.systems.find((s) => s.id === character.locationSystemId);
+        const idle = character.status === 'available';
         return (
           <button
             key={character.id}
-            className="card card--tap"
-            style={{ display: 'block', width: '100%', textAlign: 'left' }}
+            className={`crewcard${idle ? '' : ' crewcard--busy'}`}
             onClick={() => onOpen(character.id)}
           >
-            <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
-              <CharacterPortrait
+            <span className="crewcard__art">
+              <CharacterPainting
                 name={character.name}
-                faction={character.faction}
+                faction={character.faction === 'empire' || character.faction === 'alliance' ? character.faction : 'neutral'}
                 people={character.people}
-                size={46}
-                dim={character.status !== 'available'}
+                height={196}
               />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="row row--between">
-                  <span style={{ fontWeight: 600 }}>{character.name}</span>
-                  {statusBadge(character)}
-                </div>
-                <div className="tiny muted" style={{ marginTop: 3 }}>
-                  {missionLine(state, character) ?? `Ashore at ${location?.name ?? 'unknown'}`}
-                </div>
-              </div>
-            </div>
-            <Ratings character={character} />
+              {/* Only when they are not free. "Available" on all seven cards
+                  said nothing and covered seven faces to say it; what you
+                  actually scan this screen for is who is already busy. */}
+              {!idle && <span className="crewcard__badge">{statusBadge(character)}</span>}
+            </span>
+            <span className="crewcard__name">{character.name}</span>
+            <span className="crewcard__where">
+              {missionLine(state, character) ?? `Ashore at ${location?.name ?? 'unknown'}`}
+            </span>
+            {/* All four, exact, and quiet. */}
+            <span className="crewcard__stats">
+              <b>D</b>{character.diplomacy} <b>E</b>{character.espionage}{' '}
+              <b>C</b>{character.combat} <b>L</b>{character.leadership}
+            </span>
           </button>
         );
       })}

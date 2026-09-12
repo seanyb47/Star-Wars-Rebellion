@@ -1,13 +1,19 @@
 import { useState } from 'react';
 import terms from '../data/terms.json';
 import {
+  recruitOn,
+  type MissionType,
   FACILITY_BLURB,
   FACILITY_LABEL,
   GOLD_PER_DAY,
   UPKEEP_PER_DAY,
   buildError,
+  buildLabel,
   buildMenu,
   buildSpec,
+  effectiveSpec,
+  isShipClass,
+  shipClass,
   freeEnergySlots,
   freeRawSlots,
   requiredGarrison,
@@ -16,17 +22,53 @@ import {
   type Facility,
   type GameState,
   type System,
+  creatureFor,
+  MISSION_LABEL,
+  type PlayableFaction,
 } from '../sim';
-import { CharacterPortrait, CompanyRow, FacilityIcon, IslandPortrait } from './art';
-import { ControlBadge, Sheet, Stat, SupportBars } from './components';
+import {
+  CharacterPortrait,
+  CompanyIcon,
+  CreaturePainting,
+  FacilityIcon,
+  FacilityThumb,
+  IslandBanner,
+  IslandPortrait,
+  ShipIcon,
+} from './art';
+import { ControlBadge, Sheet, Slot, SlotBoard, Stat, SupportBars } from './components';
+import { Harbour } from './FleetPanel';
+import { WorthMark } from './worth';
+import { loyaltyColour } from './ChainMap';
 
 import type { IslandTab } from './IslandRow';
 
+/** What to call an errand in a one-line note. The world's own words where it
+ *  has them, and the shared list for the rest. */
+function errandName(type: MissionType): string {
+  if (type === 'incite') return terms.incite;
+  if (type === 'sabotage') return terms.sabotage;
+  if (type === 'survey') return terms.survey;
+  if (type === 'diplomacy') return terms.parley;
+  return MISSION_LABEL[type];
+}
+
+/**
+ * One panel per island, holding everything the original spreads across four
+ * clickable icons on the planet — ships, military, civilian, missions — folded
+ * into the fewest tabs that keep like with like.
+ *
+ * Harbour opens first and carries what floats at the island, plus the fixed
+ * defences: a fort is a warship that cannot move, so it belongs beside the
+ * ships rather than in with the mines. Crew and Garrison are split because
+ * one is people you order about and the other is companies that hold ground.
+ * Everything built sits in Buildings, earners and yards alike.
+ */
 const TABS: Array<{ id: IslandTab; label: string }> = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'missions', label: 'Missions' },
-  { id: 'military', label: 'Military' },
-  { id: 'facilities', label: 'Facilities' },
+  { id: 'harbour', label: 'Harbour' },
+  { id: 'crew', label: 'Crew' },
+  { id: 'garrison', label: terms.garrison },
+  { id: 'buildings', label: 'Buildings' },
   { id: 'log', label: 'Log' },
 ];
 
@@ -69,7 +111,7 @@ function FacilityCard({
     <div className="card">
       <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
         <span className="facility__icon">
-          <FacilityIcon type={facility.type} size={30} />
+          <FacilityThumb type={facility.type} owner={facility.owner} width={96} />
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="row row--between">
@@ -87,7 +129,7 @@ function FacilityCard({
       {order && (
         <div className="row row--between small muted" style={{ marginTop: 6 }}>
           <span>
-            Building {order.item === 'troop' ? terms.troop : FACILITY_LABEL[order.item]} —{' '}
+            Building {buildLabel(order.item)} —{' '}
             {order.daysRemaining}d left
             {system.uprising ? ' (halted)' : ''}
           </span>
@@ -102,7 +144,10 @@ function FacilityCard({
       {mine && !order && menu.length > 0 && (
         <div className="buildgrid" style={{ marginTop: 8 }}>
           {menu.map((item) => {
-            const spec = buildSpec(item);
+            // What it costs this side today, not the sticker price: research
+            // takes gold and days off a hull, and a button that keeps quoting
+            // the old figure makes the whole errand invisible.
+            const spec = { ...buildSpec(item), ...effectiveSpec(state, facility.owner as PlayableFaction, item) };
             const error = buildError(state, facility.id, item);
             return (
               <button
@@ -115,6 +160,8 @@ function FacilityCard({
                 <span className="build__icon">
                   {item === 'troop' ? (
                     <FacilityIcon type="training_facility" size={22} />
+                  ) : isShipClass(item) ? (
+                    <ShipIcon role={shipClass(item).role} size={22} />
                   ) : (
                     <FacilityIcon type={item} size={22} />
                   )}
@@ -137,12 +184,17 @@ function FacilityCard({
 export function SystemSheet({
   state,
   system,
-  initialTab = 'overview',
+  initialTab = 'harbour',
   onClose,
   onBuild,
   onCancel,
   onOpenCharacter,
   onOpenReach,
+  onSail,
+  onEmbark,
+  onAssault,
+  onBoard,
+  onAshore,
 }: {
   state: GameState;
   system: System;
@@ -150,6 +202,11 @@ export function SystemSheet({
   onClose: () => void;
   onBuild: (facilityId: string, item: BuildItem) => void;
   onCancel: (facilityId: string) => void;
+  onSail: (fleetId: string) => void;
+  onEmbark: (fleetId: string, companies: number) => void;
+  onAssault: (fleetId: string) => void;
+  onBoard: (fleetId: string, characterId: string) => void;
+  onAshore: (fleetId: string, characterId: string) => void;
   onOpenCharacter?: (characterId: string) => void;
   onOpenReach?: (sectorId: string) => void;
 }) {
@@ -187,6 +244,7 @@ export function SystemSheet({
   const crew = state.characters.filter(
     (c) => c.faction === state.player && c.locationSystemId === system.id,
   );
+  const loose = recruitOn(state, system, state.player);
   const inbound = state.characters.filter(
     (c) =>
       c.faction === state.player &&
@@ -194,6 +252,7 @@ export function SystemSheet({
       c.mission.phase === 'travelling',
   );
   const log = state.events.filter((e) => e.systemId === system.id).slice(-40).reverse();
+  const slots = system.rawSlots + system.energySlots;
   const producers = system.facilities.filter(
     (f) => f.owner === state.player && buildMenu(f).length > 0,
   );
@@ -201,6 +260,14 @@ export function SystemSheet({
   return (
     <Sheet
       title={system.name}
+      titleMark={
+        <WorthMark
+          system={system}
+          size={18}
+          colour={loyaltyColour(system, state.player)}
+          className="sheet__worth"
+        />
+      }
       subtitle={
         <span className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
           {onOpenReach ? (
@@ -212,6 +279,7 @@ export function SystemSheet({
           )}
           · {sector.sea} <ControlBadge faction={system.control} />
           {system.uprising && <span className="badge badge--warn">{terms.mutiny}</span>}
+          {system.blockaded && <span className="badge badge--warn">Blockaded</span>}
           {!system.populated && <span className="badge badge--none">{terms.uninhabited}</span>}
         </span>
       }
@@ -227,7 +295,7 @@ export function SystemSheet({
               onClick={() => setTab(entry.id)}
             >
               {entry.label}
-              {entry.id === 'facilities' && producers.length > 0 && (
+              {entry.id === 'buildings' && producers.length > 0 && (
                 <span className="tabs__dot" aria-hidden="true" />
               )}
             </button>
@@ -235,19 +303,18 @@ export function SystemSheet({
         </div>
       }
     >
-      {tab === 'overview' && (
+      {tab === 'harbour' && (
         <>
-          <div className="portrait">
-            <IslandPortrait
-              seed={system.name}
-              faction={system.control}
-              settled={system.populated}
-              facilities={system.facilities.length}
-              facilityTypes={system.facilities.map((f) => f.type)}
-              mutiny={system.uprising}
-              size={132}
-            />
-          </div>
+          <IslandBanner
+            archetype={system.archetype}
+            seed={system.name}
+            faction={system.control}
+            settled={system.populated}
+            facilities={system.facilities.length}
+            facilityTypes={system.facilities.map((f) => f.type)}
+            mutiny={system.uprising}
+            height={132}
+          />
 
           {system.note && <p className="portrait__note serif">{system.note}</p>}
 
@@ -272,27 +339,76 @@ export function SystemSheet({
             />
             <Stat label="Built" value={system.facilities.length} />
           </div>
+
+          {system.blockaded && (
+            <p className="tiny" style={{ color: 'var(--bad)', margin: '8px 0 0' }}>
+              Enemy sail is lying off this island. Nothing is getting out of the harbour, so it
+              earns you nothing today — and still costs you its upkeep. Drive them off and the
+              trade resumes.
+            </p>
+          )}
+
+          {(() => {
+            /* What is in the water off this island. Last on the tab and never
+               in the way: it changes nothing you can act on, and an island
+               whose waters are unremarkable simply does not have the block. */
+            const beast = creatureFor(system);
+            if (!beast) return null;
+            return (
+              <div className="waters">
+                <div className="section-title">These waters</div>
+                <CreaturePainting slug={beast.slug} height={96} />
+                <span className="waters__name">{beast.name}</span>
+                <p className="waters__line">{beast.sighting}</p>
+              </div>
+            );
+          })()}
+
+          <div className="section-title">At anchor</div>
+          <Harbour
+            state={state}
+            systemId={system.id}
+            onSail={onSail}
+            onEmbark={onEmbark}
+            onAssault={onAssault}
+            onBoard={onBoard}
+            onAshore={onAshore}
+          />
         </>
       )}
 
-      {tab === 'facilities' && (
+      {tab === 'buildings' && (
         <>
-          {system.facilities.length === 0 ? (
-            <div className="card muted small">Nothing has been built on this island.</div>
-          ) : (
-            <div className="stack">
-              {system.facilities.map((facility) => (
-                <FacilityCard
-                  key={facility.id}
-                  state={state}
-                  system={system}
-                  facility={facility}
-                  onBuild={onBuild}
-                  onCancel={onCancel}
-                />
-              ))}
-            </div>
-          )}
+          {/* One slot per slot the island has, so what is built and what is
+              still free read as the same picture rather than two numbers. */}
+          <SlotBoard
+            ghosts={Math.max(0, slots - system.facilities.length)}
+            empty={`Nothing stands on ${system.name}, and there is nowhere to put anything.`}
+          >
+            {system.facilities.map((facility) => (
+              <Slot
+                key={facility.id}
+                icon={<FacilityIcon type={facility.type} size={30} />}
+                name={FACILITY_LABEL[facility.type]}
+                note={facility.building ? `${facility.building.daysRemaining}d` : undefined}
+                tone={facility.owner !== state.player ? 'dim' : undefined}
+              />
+            ))}
+          </SlotBoard>
+
+          {producers.length > 0 && <div className="section-title">Order something built</div>}
+          <div className="stack">
+            {producers.map((facility) => (
+              <FacilityCard
+                key={facility.id}
+                state={state}
+                system={system}
+                facility={facility}
+                onBuild={onBuild}
+                onCancel={onCancel}
+              />
+            ))}
+          </div>
           {system.control === state.player && producers.length === 0 && (
             <p className="muted tiny" style={{ marginTop: 8 }}>
               A {terms.facilities.construction_yard.toLowerCase()} here would let you build on this
@@ -302,99 +418,120 @@ export function SystemSheet({
         </>
       )}
 
-      {tab === 'military' && (
+      {tab === 'garrison' && (
         <>
-          <div className="card">
-            <div className="row row--between" style={{ marginBottom: 8 }}>
-              <span className="tiny muted">
-                {system.garrison} ashore
-                {needed > 0 ? ` · ${needed} needed` : ''}
-              </span>
-              {system.uprising ? (
-                <span className="badge badge--warn">{terms.mutiny}</span>
-              ) : (
-                <span className="badge badge--good">Held</span>
-              )}
-            </div>
-            <CompanyRow present={system.garrison} needed={needed} />
+          <div className="row row--between" style={{ marginBottom: 8 }}>
+            <span className="tiny muted">
+              {system.garrison} ashore
+              {needed > 0 ? ` · ${needed} needed` : ''}
+            </span>
+            {system.uprising ? (
+              <span className="badge badge--warn">{terms.mutiny}</span>
+            ) : (
+              <span className="badge badge--good">Held</span>
+            )}
           </div>
+          {/* Empty slots here are the shortfall: companies the island wants
+              and has not got. That is worth drawing. */}
+          <SlotBoard
+            ghosts={Math.max(0, needed - system.garrison)}
+            empty={`No companies are ashore on ${system.name}.`}
+          >
+            {Array.from({ length: system.garrison }, (_, i) => (
+              <Slot
+                key={i}
+                icon={<CompanyIcon size={30} />}
+                name={terms.troop}
+              />
+            ))}
+          </SlotBoard>
           <p className="tiny muted" style={{ marginTop: 8 }}>
             {needed > 0
               ? `Allegiance here is low enough that ${needed} ${needed === 1 ? 'company holds' : 'companies hold'} the island quiet. Fewer and it rises.`
               : 'Allegiance is high enough that no companies are needed to keep order.'}
           </p>
-
         </>
       )}
 
-      {tab === 'missions' && (
+      {tab === 'crew' && (
         <>
-          <div className="section-title">Ashore here</div>
-          {crew.length === 0 ? (
-            <div className="card muted small">Nobody of yours is on this island.</div>
-          ) : (
-            <div className="stack">
-              {crew.map((character) => (
-                <button
-                  key={character.id}
-                  className="card card--tap row"
-                  style={{ gap: 10, width: '100%', textAlign: 'left' }}
-                  onClick={() => onOpenCharacter?.(character.id)}
-                >
-                  <CharacterPortrait
-                    name={character.name}
-                    faction={character.faction}
-                    people={character.people}
-                    size={38}
-                    dim={character.status !== 'available'}
-                  />
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span className="small" style={{ fontWeight: 600 }}>
-                      {character.name}
-                    </span>
-                    <span className="tiny muted" style={{ display: 'block' }}>
-                      {character.mission
-                        ? `${terms.parley} — ${character.mission.daysRemaining}d to report`
-                        : character.status.replace('_', ' ')}
-                    </span>
-                  </span>
-                  <span className="muted" aria-hidden="true">›</span>
-                </button>
-              ))}
-            </div>
+          {/* Somebody the war has not claimed. First, because it is the one
+              thing on this tab you can act on that will not wait — the other
+              side is looking for them too. */}
+          {loose && (
+            <>
+              <div className="section-title">On the quay</div>
+              <div className="card small row" style={{ gap: 10, alignItems: 'flex-start' }}>
+                <CharacterPortrait
+                  name={loose.name}
+                  faction="neutral"
+                  people={loose.people}
+                  size={40}
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <b>{loose.name}</b>
+                  {loose.people && <div className="tiny muted">{loose.people}</div>}
+                  {loose.blurb && (
+                    <p className="tiny muted" style={{ margin: '4px 0 0' }}>
+                      {loose.blurb}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <p className="muted tiny" style={{ marginTop: 6 }}>
+                Send one of your own here to put it to them. They belong to
+                nobody yet, and will not wait for you.
+              </p>
+            </>
           )}
 
-          <div className="section-title">Under way to here</div>
-          {inbound.length === 0 ? (
-            <div className="card muted small">Nobody of yours is sailing for this island.</div>
-          ) : (
-            <div className="stack">
-              {inbound.map((character) => (
-                <button
-                  key={character.id}
-                  className="card card--tap row"
-                  style={{ gap: 10, width: '100%', textAlign: 'left' }}
-                  onClick={() => onOpenCharacter?.(character.id)}
-                >
+          <div className="section-title">Ashore here</div>
+          <SlotBoard empty={`Nobody of yours is on ${system.name}.`}>
+            {crew.map((character) => (
+              <Slot
+                key={character.id}
+                icon={
                   <CharacterPortrait
                     name={character.name}
                     faction={character.faction}
                     people={character.people}
-                    size={38}
+                    size={32}
+                    dim={character.status !== 'available'}
                   />
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span className="small" style={{ fontWeight: 600 }}>
-                      {character.name}
-                    </span>
-                    <span className="tiny muted" style={{ display: 'block' }}>
-                      At sea — {character.mission!.daysRemaining}d out
-                    </span>
-                  </span>
-                  <span className="muted" aria-hidden="true">›</span>
-                </button>
-              ))}
-            </div>
-          )}
+                }
+                name={character.name}
+                note={
+                  character.mission
+                    ? `${errandName(character.mission.type)} ${character.mission.daysRemaining}d`
+                    : character.status === 'available'
+                      ? undefined
+                      : character.status.replace('_', ' ')
+                }
+                tone={character.status === 'injured' ? 'warn' : undefined}
+                onClick={() => onOpenCharacter?.(character.id)}
+              />
+            ))}
+          </SlotBoard>
+
+          <div className="section-title">Under way to here</div>
+          <SlotBoard empty={`Nobody of yours is sailing for ${system.name}.`}>
+            {inbound.map((character) => (
+              <Slot
+                key={character.id}
+                icon={
+                  <CharacterPortrait
+                    name={character.name}
+                    faction={character.faction}
+                    people={character.people}
+                    size={32}
+                  />
+                }
+                name={character.name}
+                note={`${character.mission?.daysRemaining ?? 0}d out`}
+                onClick={() => onOpenCharacter?.(character.id)}
+              />
+            ))}
+          </SlotBoard>
         </>
       )}
 

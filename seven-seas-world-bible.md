@@ -3,11 +3,13 @@
 
 > **Instruction to Claude Code:** This file is the source of truth for names, lore, factions, and the map. Keep it on hand and reference it whenever you touch anything player-facing. When a name, mechanic, or lore fact changes during development, **update this file in the same commit** and add a line to the Changelog at the bottom. Sections 0–13 are the one-for-one conversion of the original game; Section 14 is new mechanics that go *beyond* the original and are scheduled for later phases.
 
-**Tone:** Fantasy pirates. Sea-magic is real and visible. The water is not always water. Ships are grown as often as built. Crews are not all human. Nothing is clean: the Imperium is order bought with cruelty, the Confederacy is freedom paid for in plunder, and something old in the sea is hungrier than either.
+**Tone:** Fantasy pirates, in the register of an adventure story rather than a grim one. Sea-magic is real and visible. The water is not always water. Ships are grown as often as built. Crews are not all human. Two sides who each believe themselves the decent one — the Imperium keeps the walls standing, the Confederacy keeps the sea open, and both are right — while something older than either moves underneath. **Different crews. The same horizon.**
+
+The dark in this world is the Tide, the kraken and the drowned places, not the people. Neither faction is written as the villain and neither is written clean: every named character gets one admirable trait and one ugly one, and the ugly ones are overreach, appetite and stubbornness rather than atrocity.
 
 **Purpose:** A one-for-one swap table so the existing Rebellion game logic (stats, research order, mission types, facility behavior) stays intact and only names, lore, and flavor change. Every original entity has exactly one replacement. Original mechanics are paraphrased from memory of the game, not from the manual text.
 
-**Status:** v2.1 — first full draft. Names are placeholders and will change; IP screening is a later step. Expect this file to grow.
+**Status:** v4.9 — living document. Names are placeholders and will change; IP screening is a later step. Expect this file to grow.
 
 ---
 
@@ -38,7 +40,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 | Original | New | Mechanic translation |
 |---|---|---|
 | Galaxy | **The Seven Seas** | Whole map |
-| Sector | **Reach** (~10 islands inside a Sea) | Same grouping as sectors. Seven Seas fixed; *number of Reaches per Sea* scales with map size (10 / 15 / 20 Reaches → ~100 / 150 / 200 islands). |
+| Sector | **Reach** (an archipelago inside a Sea) | Same grouping as sectors. Seven Seas fixed; *number of Reaches per Sea* scales with map size. **On the small map there is one Reach per Sea, so a Sea and its archipelago are the same thing** (7 Reaches, 62 islands). Medium and large add second and third Reaches inside a Sea (→ ~150 / 200 islands). |
 | Core sectors | **The Inner Seas** (3) | Rich, charted, Imperium-leaning |
 | Outer Rim sectors | **The Outer Seas** (4) | Uncharted, strange, must be explored |
 | System / planet | **Island** | One node |
@@ -68,11 +70,14 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 ### Faction A — THE CROWN IMPERIUM (original Empire slot)
 *The Sovereign Admiralty of the Crown Imperium.* Ruled from **Highwater**, a fortress-island whose seawalls are three hundred feet high and carved with the names of every island the Tide has taken. Governed by a Lord Regent in the name of a boy-king nobody has seen in eleven years.
 
-**What they say about themselves:** Before the Imperium, every Reach was its own corsair kingdom and the Tide ate a village a month. The Admiralty built the walls, charted the reefs, licensed the Tidemasters, standardized the coin, and hanged the wreckers. The islands are still here because of the Crown.
+**Creed:** Order · Stability · A brighter tomorrow.
+**Motto:** *Through trade, duty, and discipline, a safer world.*
 
-**What their enemies say:** The walls keep people in as well as the Tide out. Press gangs empty fishing villages to crew the line ships. Tidecraft "licensing" means any child born with the gift is taken to Highwater and returned — if at all — as something colder. And the Leviathan is not a wall. It is a mouth.
+**What they say about themselves:** Before the Imperium, every Reach was its own corsair kingdom and the Tide ate a village a month. The Admiralty built the walls, charted the reefs, schooled the Tidemasters, standardized the coin and ran down the wreckers. The islands are still here because of the Crown.
 
-**Truth:** Both. Individual officers range from decent to monstrous, and the decent ones know it.
+**What their enemies say:** The walls keep people in as well as the Tide out. The conscription rolls fall hardest on the smallest islands, which have the fewest voices at court. Tidecraft licensing means a child born with the gift is schooled at Highwater whether the family agrees or not. And the Leviathan is not a wall. It is a mouth.
+
+**Truth:** Both. Officers run from principled to overzealous, and the good ones spend their careers arguing with the rest.
 
 **Aesthetic:** black iron, grey stone, white sailcloth, brass. Ships are built, then *grown over* with cultivated coral for warding. Names are virtues and titles. Everything is straight lines until you look closely.
 
@@ -81,9 +86,12 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 ### Faction B — THE FREE CONFEDERACY (original Rebel slot)
 *The Free Confederacy of the Seven Seas* — "the Brethren" to friends, "the Confederacy of Thieves" to the Admiralty. A compact of pirate captains, smugglers, exiled nobles, Reef-folk clans, Urskin whaling fleets, and witch-islands that answer to nobody. Governed by an elected **Commodore** and a shouting-match council called the **Moot**. Headquartered at **the Free Harbor**, a hidden anchorage that moves when found.
 
-**What they say about themselves:** No press gangs. No licenses. Every captain elected, every share counted on deck, every Tidecaller free to be what the sea made them. The Imperium calls it piracy when a village keeps its own fish.
+**Creed:** Freedom · Opportunity · No masters.
+**Motto:** *A wider world for those bold enough to take it.*
 
-**What their enemies say:** "Free" is armed robbery with a flag. Half the Moot are honest exiles; the other half are wreckers, slavers, and Black-Tide-cultists who joined because the Crown was hanging them. Their elections are whoever has the most cutlasses that morning.
+**What they say about themselves:** No conscription. No licences. Every captain elected, every share counted on deck, every Tidecaller free to be what the sea made them. The Imperium calls it piracy when a village keeps its own fish.
+
+**What their enemies say:** "Free" is armed robbery with a flag. Half the Moot are honest exiles; the other half are wreckers, opportunists and a few who signed the articles one step ahead of a warrant. Their elections are whoever has the most cutlasses that morning.
 
 **Truth:** Both. Hale spends as much of her time managing her own worst captains as fighting the Crown.
 
@@ -100,12 +108,12 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 | Original species | New people | Where | Look / notes |
 |---|---|---|---|
 | Human | **Human** | Everywhere | Default |
-| Mon Calamari | **Reef-folk** | Coralhome (Amber Sea) | Amphibious. Gill-slits at the throat, luminous eyes, skin that shifts color with mood. Grow their ships from living coral over years. The Confederacy's best admirals. Once enslaved as Imperium oarsmen. |
+| Mon Calamari | **Reef-folk** | Coralhome (Amber Sea) | Amphibious. Gill-slits at the throat, luminous eyes, skin that shifts color with mood. Grow their ships from living coral over years. The Confederacy's best admirals. Once bound to Imperium oar-benches under an old indenture the Crown quietly stopped enforcing and has never apologised for. |
 | Sullustan | **Shoal-folk** | The Shoals (Amber Sea) | Small, webbed, night-eyed, chattering. Can hear a ship's hull creak a mile off. Best watchers in the world; cheap to arm because they arm themselves. |
 | Wookiee | **Urskin** | Northreach (Far Sea) | Huge, shaggy, tusked sea-bear folk. Harpooners and whalers. Loyal to death, slow to anger, terrifying past it. Torvik is Urskin. |
 | Bothan | **The Rumor Guild** (human) | Bothaway (Amber Sea) | A guild, not a people. Ink-stained, sharp, sells to both sides. |
 | Noghri | **The Hushed** | The Drowned Reach (Bone Sea) | Pale, eel-thin, silent folk from half-drowned islands. Bound to the Crown by an old bargain. Nobody hears them coming. |
-| Hutt | **The Fatmouths** | Fatmouth & Blackreef | Bloated slaver-kings. Nobody has seen Jubal's legs; there is a rumor he doesn't have any. |
+| Hutt | **The Fatmouths** | Fatmouth & Blackreef | Bloated harbour-kings who own the wharves, the warehouses and most of the debts. Nobody has seen Jubal's legs; there is a rumor he doesn't have any. |
 | Droids (advisors, probes, espionage droids) | **Tidewrought** | Imperium yards | Brass-and-coral automata built by Lemmick, animated by a bound sliver of the Deep. Walk the seabed. See poorly. Never tire. |
 | Dresselian (Orrimaarko) | **Bog-folk** | Sea of Storms swamps | Wrinkled, patient, amphibious guerrillas |
 | Chiss (Thrawn) | **Outlander** | Beyond the Black Tide | Thorne came from *past* the Tide, where no chart goes. Blue-grey skin, red eyes. Nobody knows what's out there. He won't say. |
@@ -162,7 +170,7 @@ Roster sizes match the original: 30 per side, 6 major (always available, cannot 
 
 | # | Original | New name | People | Role | Bio |
 |---|---|---|---|---|---|
-| 1 | Emperor Palpatine | **Lord Regent Halvard Corvane**, "the Old Tide" | Human | DEEP (Tidemaster), LEADER, RECRUITER, capital-bound | Has not left the citadel of Highwater in eleven years. Can still the whole harbor by standing at a window. Believes — with real evidence — that he is the only thing between the islands and the Black Tide. *Admirable:* ended the Corsair Wars; his walls have saved more lives than anyone's. *Ugly:* keeps a ledger of every hanging and every child taken for licensing, and has never once thought the number was too high. |
+| 1 | Emperor Palpatine | **Lord Regent Halvard Corvane**, "the Old Tide" | Human | DEEP (Tidemaster), LEADER, RECRUITER, capital-bound | Has not left the citadel of Highwater in eleven years. Can still the whole harbor by standing at a window. Believes — with real evidence — that he is the only thing between the islands and the Black Tide. *Admirable:* ended the Corsair Wars; his walls have saved more lives than anyone's. *Ugly:* keeps a ledger of every name the licensing took and every island the walls did not reach in time, and has never once thought the price was too high to pay again. |
 | 2 | Darth Vader | **Admiral Corvus Blackwater**, "the Drowned Admiral" | Human (once) | DEEP (Tidemaster), LEADER (any rank), RECRUITER, SPEC OPS, DIPLOMAT | Born Corwin Calloway, the Confederacy's most beloved captain. Burned and drowned when his ship went up at the Broken Chain; pulled from the Black Tide by the Regent's surgeons and rebuilt with brass lungs and a black leather mask. Where his flagship sails, the water goes flat and black. Cannot research; can do everything else. *Admirable:* keeps every promise, even to enemies. *Ugly:* executes captains for failure and feels nothing. Father of Tam and Ros — a secret. |
 | 3 | Firmus Piett | **Captain Fenwick Pryor** | Human | DIPLOMAT, LEADER | Careful, competent, survives Blackwater's flagship by never being the one blamed. Good at parley because he listens. |
 | 4 | Tiaan Jerjerrod | **Governor Tiberius Jarrold** | Human | DIPLOMAT, LEADER | Oversees the Leviathan's "completion" at Greenholm. Charming at dinner; has stopped sleeping. |
@@ -191,7 +199,7 @@ Roster sizes match the original: 30 per side, 6 major (always available, cannot 
 | 20 | Natasi Daala | **Admiral Natalya Dahl** | Human | LEADER (admiral) | Brilliant, ambitious, furious at being posted to a backwater. |
 | 21 | Niles Ferrier | **Niles Farrow** | Human | SPEC OPS (espionage), RESEARCH-SHIPS | Ship thief. Steals designs as readily as hulls. |
 | 22 | Noval Garaint | **Captain Nowell Garant** | Human | LEADER (admiral) | Steady convoy commander. |
-| 23 | Orlok | **Colonel Orlock** | Human | LEADER (general) | Garrison colonel. Hangs deserters, feeds his men well. |
+| 23 | Orlok | **Colonel Orlock** | Human | LEADER (general) | Garrison colonel. Hard on deserters, feeds his men better than the regulations require. |
 | 24 | Pter Thanas | **Commander Piers Thane** | Human | DIPLOMAT | Prefers a treaty to a broadside. |
 | 25 | Shenir Rix | **Sheridan Rix** | Human | SPEC OPS | Crown assassin-courier; leaves no witnesses. |
 | 26 | Thrawn | **Grand Admiral Cassian Thorne** | Outlander | WILDCARD-RESEARCH, LEADER (admiral) | Came from beyond the Black Tide. Studies an enemy's figureheads and shanties to predict how they'll fight. Coldest mind in the Imperium; the Regent doesn't fully trust him and shouldn't. |
@@ -430,30 +438,59 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 2. Should the Black Tide ever be a *mechanic* (spreading stain, allegiance drag) or stay pure flavor on the existing disaster event? Draft: flavor in phase 1, hook noted.
 3. Tidecraft in battle (⚙ hooks) — phase 2 or never?
 4. Naming register: Imperium reads English/Dutch, Confederacy mixed, Far Sea Norse. Shift any of them?
-5. **Reach count on the small map.** The bible's small map is 3 Inner + 7 Outer; the phase 1 simulation generates 4 core + 6 rim. The build kept the simulation's shape and promoted **Sugar Reach** to Inner, holding **Scrap Reach** back for the larger maps. This happens to put all seven Seas on the small map. Change the generator to 3 + 7, or leave it?
+5. ~~**Reach count on the small map.**~~ **Settled 2026-09-12.** The small map is now **seven Reaches, one per Sea** — three Inner and four Outer, as the bible always wanted. Sugar goes back to the medium map and Whalers' and Mirage join it, because the chart is a painting now and those three clusters could not be charted clearly. See §13.
 6. **Tallow Cay as the Confederacy's known start.** Phase 1 spawns the Free Harbor on a *random* Outer island, so no island can honestly be labelled the start. The island notes for Tallow Cay and Rime Island were written neutrally rather than promising something the game does not do. Fix by making the spawn fixed, or leave the hidden-harbour hunt to phase 3?
 7. **Section 14 data-model hooks.** No hidden `loyalty` field has been added to characters yet — an unused field that nothing reads or writes is dead weight until 14.2 is built. Neutral-owned islands with garrisons already exist, so 14.1 needs no groundwork.
 
 ---
 
-## 13. THE MAP — SEAS, REACHES, AND ALL 200 ISLANDS
+## 13. THE MAP — SEAS, REACHES, AND THE ISLANDS
 
-**Structure:** Sea (region/archipelago, 7 fixed) → Reach (= original sector, ~10 islands) → Island (= original system). Each island keeps its original planet's slot stats (fresh-water/energy, Stores capacity, facility slots, starting owner, starting loyalty, starting facilities). Only the name changes.
+**Structure:** Sea (region, 7 fixed) → Reach (an archipelago, 7–12 islands) → Island (= original system). Each island keeps its original planet's slot stats (fresh-water/energy, Stores capacity, facility slots, starting owner, starting loyalty, starting facilities). Only the name changes.
 
-**Map sizes** (mirrors original 10 / 15 / 20 sectors): `small` Reaches appear on every map; `medium` are added on the medium map; `large` on the large map. Inner Seas always hold the core Reaches; Outer Seas hold the rim Reaches and the possible Free Harbor spawn.
+**On the small map there are seven Reaches, one for each Sea.** A Sea and its
+archipelago are the same thing at this size, which is why the chart can name
+the Seas and an island panel can name the Reach without either of them lying
+about what you are looking at. Larger maps put a second and third archipelago
+inside a Sea; the Sea count never changes, because it is in the title.
 
-| Map | Inner (core) Reaches | Outer (rim) Reaches |
-|---|---|---|
-| Small (10) | Sovereign, Shipwrights', Coral | Rime, Whalers', Cinder, Salt, Mirage, Wreckers', Scrap |
-| Medium (15) | + Sugar | + Monsoon, Still, Drowned, Witch |
-| Large (20) | + Grey, Lantern | + Quarry, Last, Rice |
+**Map sizes.** `small` Reaches appear on every map; `medium` are added on the
+medium map; `large` on the large map.
 
-**Rendering suggestion:** draw each Sea as its own archipelago with a distinct water color and island silhouette style; Reaches are loose clusters within it. Highwater is drawn oversized with a walled harbor but is still one node.
+| Map | Inner (core) Reaches | Outer (rim) Reaches | Islands |
+|---|---|---|---|
+| Small (7) | Sovereign, Shipwrights', Coral | Rime, Cinder, Salt, Wreckers' | 62 |
+| Medium (15) | + Sugar, Grey | + Whalers', Mirage, Scrap, Monsoon, Still, Drowned, Witch | ~150 |
+| Large (20) | + Lantern | + Quarry, Last, Rice | ~200 |
+
+**Island counts are not uniform, and that is deliberate.** A Reach holds
+between seven and twelve islands, set by how many its painted cluster on the
+chart can show as separate places at a 48-unit spacing: Sovereign and Cinder
+and Salt and Wreckers' are crowded archipelagos, Coral and Rime are small ones.
+Sixty-two islands rather than a hundred, and the chain view can lay every one
+of them out clearly, which the flat ten could not.
+
+**What was cut, and why it is not a loss.** The small map used to carry ten
+Reaches. **Whalers'**, **Sugar** and **Mirage** are now held back for the medium
+map alongside **Scrap**. Each shared a Sea with a Reach that survives — Whalers'
+with Rime in the Far Sea, Sugar with Coral in the Amber, Mirage with Salt in the
+Glass — so every Sea keeps its place, its character and its named islands in the
+fiction. What went is a second archipelago inside three Seas, and each of the
+three sat on a painted cluster the chart could not show cleanly: Whalers' on
+islets too small to hit, Sugar and Mirage running together with their neighbours
+down the right-hand side.
+
+**This also settles open question 5.** The bible wanted three Inner Reaches and
+the generator was making four, because Sugar had been promoted to fill it.
+Sugar is now held back, and the small map is three Inner and four Outer as
+written.
+
+**Rendering suggestion:** draw each Sea as its own archipelago with a distinct water color and island silhouette style. Highwater is drawn oversized with a walled harbor but is still one node.
 
 ### The Crown Sea (Inner Sea)
 *Temperate, grey, fortified. Stately names. Seat of the Imperium.*
 
-**Sovereign Reach** (orig. Sesswenna sector — `small` map)
+**Sovereign Reach** (orig. Sesswenna sector — `small` map; **10 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -486,7 +523,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 ### The Merchant Sea (Inner Sea)
 *Mediterranean: sun, terraced harbors, guild towns, the best slipways. Italian/Iberian-flavored names.*
 
-**Shipwrights' Reach** (orig. Corellian sector — `small` map)
+**Shipwrights' Reach** (orig. Corellian sector — `small` map; **9 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -519,7 +556,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 ### The Amber Sea (Inner Sea)
 *Tropical / Caribbean: plantations, sugar, reefs, hurricanes, old money with divided loyalties.*
 
-**Coral Reach** (orig. Sluis sector — `small` map)
+**Coral Reach** (orig. Sluis sector — `small` map; **7 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -552,7 +589,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 ### The Far Sea (Outer Sea)
 *Arctic / Norse: ice, fjords, whalers, the last free people. Norse-flavored names.*
 
-**Rime Reach** (orig. Churba sector — `small` map)
+**Rime Reach** (orig. Churba sector — `small` map; **7 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -567,7 +604,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 | Storthus | **Storthavn** |  |
 | Tokmia | **Tokmaa** |  |
 
-**Whalers' Reach** (orig. Sumitra sector — `small` map)
+**Whalers' Reach** (orig. Sumitra sector — `medium` map)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -615,7 +652,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 ### The Sea of Storms (Outer Sea)
 *Monsoon belt: typhoons, volcanoes, rice terraces, jungle. Islands here are rich but hard to hold.*
 
-**Cinder Reach** (orig. Moddell sector — `small` map)
+**Cinder Reach** (orig. Moddell sector — `small` map; **10 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -639,7 +676,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 | Derra IV | **Derramoor** |  |
 | Mindar | **Mindaro** |  |
 | Munto Codru | **Munto** |  |
-| Nal Hutta | **Fatmouth** | slaver-port; Jubal's kin |
+| Nal Hutta | **Fatmouth** | harbour-kings' port; Jubal's kin |
 | Smarteel | **Tarrowick** |  |
 | Spuma | **Spume Reef** |  |
 | Vodran | **Vodrani** |  |
@@ -663,7 +700,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 ### The Glass Sea (Outer Sea)
 *WEIRD: the water goes flat and holds sound for miles; islands appear at noon and are gone by dusk; salt flats that were harbors last year. Ships row, or wait for a Tidecaller. The Imperium keeps a Stillwater here and nobody knows why. Sun-bleached names.*
 
-**Salt Reach** (orig. Orus sector — `small` map)
+**Salt Reach** (orig. Orus sector — `small` map; **10 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -678,7 +715,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 | Ryloth | **Rylo Salt** | salt-slave island; one side never sees dusk |
 | Tatooine | **Blackreef** | Jubal the Fat's corsair haven |
 
-**Mirage Reach** (orig. Mayagil sector — `small` map)
+**Mirage Reach** (orig. Mayagil sector — `medium` map)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -711,7 +748,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 ### The Bone Sea (Outer Sea)
 *WEIRD: the islands are the bones of dead leviathans, reef-grown over. The water glows at night. Wrecks outnumber ships. Corsair havens, witch-islands, and a permanent whirlpool. Fogmire (Old Hesper) is here but is an event location, not a node.*
 
-**Wreckers' Reach** (orig. Calaron sector — `small` map)
+**Wreckers' Reach** (orig. Calaron sector — `small` map; **9 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -726,7 +763,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 | Norval II | **Norvell** |  |
 | Skor II | **Skorra** |  |
 
-**Scrap Reach** (orig. Dufilvan sector — `small` map)
+**Scrap Reach** (orig. Dufilvan sector — `medium` map)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -849,11 +886,26 @@ These two systems are Sean's additions. Neither exists in the original game. Bot
 - **2026-09-08 v1.1** — Added Sea → Reach → Island structure and all 200 islands with map-size tags.
 - **2026-09-08 v2.0** — Fantasy tone pass: the Black Tide, visible Tidecraft, peoples, grown ships, Leviathan as a dredged carcass, weird Outer Seas.
 - **2026-09-08 v2.1** — Reframed as living world bible for Claude Code. Added Section 14: Mythic Isles and Double Agents. Section 12 open questions still open.
+- **2026-09-11 v4.8** — **Espionage clears the fog, and ships become how you find things.** The last dead rating is wired. Sixty of the hundred islands start dark and an island you have not charted cannot be parleyed with, so the map was closed to you unless the war happened to open it. A spy serving with a fleet now charts the water around a landfall: one further island of that chain per 25 points of Espionage, nearest first, so a rating of 100 opens four beyond the one you actually anchored at. It never reaches outside the chain the fleet is in, and never re-charts what is already known. That makes a fleet the way you *discover* as well as the way you take — build a ship, put a spy aboard, sail into the dark, and come back with parley targets. The opponent signs its most useful crew member on to each fleet for the same reason, or all three ratings would have been the player's alone; over a war it charts half the map. The fleet card states all three: Charts, Command and Companies. Balance unchanged at 674 days mean.
+- **2026-09-11 v4.7** — **The ratings do something.** Until now Espionage, Combat and Leadership were rolled for every character, drawn with bars and numbers on every sheet, and read by nothing at all: only Diplomacy affected the game. Crew can now be **signed on to a fleet**, which is what section 10's command ranks are for and what the fleet was always shaped to hold. The best **Leadership** aboard makes the fleet's guns tell harder in an action; the best **Combat** aboard carries a landing that would otherwise be a coin toss. A rating of 100 is worth a quarter again — enough to tip a close fight, not to win one against the odds. Officers travel with the ship, come ashore where she lies if she is sunk rather than drowning quietly, and cannot be signed on while away at a parley. **Espionage is still read by nothing**, and will be until the phase-3 missions it belongs to exist; the build spec now says so rather than leaving it to be discovered. Balance unchanged at 674 days mean.
+- **2026-09-11 v4.6** — **Dispatches.** The war is told rather than logged. Anything notable — an island changing hands, a rising, an action at sea, the war beginning or ending — stops the game with a card: a headline, a painting and one plain sentence, with arrows to page through the rest of the day, exactly as the original does it. The paintings are drawn in code like everything else: a flag going up over a cheering crowd, the same crowd with torches and nobody in charge, two ships close enough to hurt each other, a hull going down by the head, a boat pulling for a lit quay. Each is lit from the horizon in the colour of the side the news concerns, so a card reads as good or bad before a word of it is read. The log is still the log and still the place to look something up — but every line in it now opens its card, because being *notable* decides only whether the game stops you unasked, not whether a thing is worth a picture. A resumed game shows no cards for news that is a hundred days old.
+- **2026-09-11 v4.5** — **The opponent can actually build a navy now, and boards scroll.** A review of the whole simulation turned up a defect in what v4.0 shipped: the opponent's build order queued nothing but mines and refineries, so it never raised a Slipway, never put a hull in the water, and never drilled a company past the eight it started with. Measured over a 700-day war it finished with zero ships — every naval rule it had been given was unreachable, and the war was one-sided in a way nothing on screen admitted. Its build order now has a priority: companies first, wherever a drilling island is below what holds it quiet plus a small pool; then the buildings it lacks entirely, a second drill ground and a Slipway; then the economy as before. It ends a war with one or two Slipways, four to seven hulls and thirteen companies. The war still runs 614–727 days, mean 674. Crew, Garrison and Buildings boards now show three rows and scroll past that, saying how many there are in all. A **shut harbour** leads the idle-producer strip in red, because a blockade costing you a day's takings deserves to be on screen and not only inside a panel.
+- **2026-09-11 v4.4** — **The chart is painted by loyalty.** Out at chart scale an island takes the colour of the side most of its people lean toward, not of whoever is flying a flag over it — so you can watch sympathy move before an island changes hands. The chain's tally of islands held is gone from its label: the islands say it themselves. The averaged bar under each chain, cut in v4.3, is back, and the per-island bars inside the opened chain are gone instead — one bar under a whole chain reads; ten small ones under ten islands were a row of smears, and the island's own colour already carries it. Inside a chain the island's **body** is its loyalty and its **name** is who holds it, so an island the Crown holds whose people have gone over reads as a red island with a green name. An **idle-producer strip** sits on the chart at all times, after the original's "Idle Construction Yards" nag: how many Works, Drill Grounds and Slipways of yours are standing with no order on them, each one a tap to the island it is on. A yard building nothing is gold you are not spending. The advisor is half again as large.
+- **2026-09-11 v4.3** — **Slotted boards, and loyalty by size.** Crew, Garrison and Buildings are framed boards that fill with icons rather than lists that collapse to one line when empty, after the original's personnel and regiment windows. Where an empty slot means something real it is drawn: Buildings shows one slot per slot the island *has*, so what is built and what is still free read as the same picture, and Garrison draws the shortfall against what the island needs. Crew has no cap, so its board is simply the size it is. The **averaged loyalty of a chain and of a Sea is cut** — a mean across ten islands describes none of them, and every island carries its own. And the allegiance bar's rule is simpler: **largest share first, left to right**, with the undecided remainder sorted in among them. Who holds the island no longer leads the bar; the same two numbers now always draw the same way. One bug fixed on the way, caught by its own test: the two support figures are independent 0–100 numbers and nothing stops both being high, so a bar could run past its end. Over 100 it now shows the balance between the sides, scaled to fit.
+- **2026-09-11 v4.1** — **No fighters, ever.** Small craft are cut from the design rather than deferred: a fighter is just a small ship, so the fleet is a range of *sizes* and each size is genuinely good and genuinely bad at something. Four classes a side now — **Sovereign**/**Reef-class** (large: most guns, toughest, slowest, dearest), **Razorback**/**Tempest** (medium: the compromise), **Kestrel**/**Swift** (small: fastest on the water, cheapest, first to sink), **Fluyt**/**Brig** (transport: no guns at all, carries more than a first-rate). Passage time is the trade-off that makes a sloop worth keeping: a fleet sails at the pace of its slowest hull, so a squadron of sloops crosses a chain in two days where one ship of the line drags the same squadron to four. Section 6's small-craft tables are now flavour only and describe nothing the game builds.
+- **2026-09-11 v4.2** — **Faction colours and one rule for the allegiance bar.** The Crown Imperium is **green**, the Free Confederacy **red**, and **light blue** is nobody — the share of a population that has not chosen a side. The bar is now one bar rather than two: **the faction holding the island fills from the left**, the other side follows it, and the undecided remainder finishes it in blue. Where nobody holds the island the larger share leads. One helper draws it everywhere — chart, chain chart, island rows, island panel, chain and sea panels — so the six places cannot drift apart, and it is unit-tested. (Note for the record: the original uses green for the Alliance and red for the Empire, the opposite way round. This is deliberate here.)
+- **2026-09-11 v4.0** — **Fleets.** Phase 2 of the build spec, and the first thing beyond phase 1. Three hull classes a side from section 6 need no research and can be laid down at a Slipway: **Sovereign**/**Tempest** (first-rates, the guns), **Kestrel**/**Swift** (sloop and schooner, cheap and quick), **Fluyt**/**Brig** (transports, unarmed, carry companies). Their numbers are keyed by role rather than by class, so the two fleets are balanced identically and differ only in name and character — giving one side better ships is a tuning decision to take deliberately later, not a side effect of adding them. A fleet is a container, as in the original: hulls, the companies aboard them, and one status in plain words. Hulls cost gold a day to keep, and so do the companies aboard them, wherever they are. **Sailing** between islands takes the same time a crew member's passage does — three days within a chain, ten across. **Battle** happens wherever two sides lie in the same harbour: one day's exchange of fire per day rather than one fight to the death, so a fleet can still withdraw, and every roll comes from the state's own seed. Companies drown with the transport that carried them. **Blockade**: enemy guns lying off an island you hold stop anything leaving the harbour, so it earns you nothing and still costs its upkeep. **Assault**: companies put ashore against a garrison, numbers deciding it, and an island carried by storm is held but sullen rather than loyal. The opponent does all of this too, under exactly the same checks — it has no private rules. Measured over eight seeds the war still runs 587–727 days, mean 686, against the 670–730 it has always run.
+- **2026-09-09 v3.3** — One panel per island, and the counts stop being buttons. The original hangs four clickable icons off a planet — ships in orbit, military, civilian, missions — and those are now folded into the fewest tabs that keep like with like: **Harbour** (what is moored, and the fixed defences, because a fort is a warship that cannot weigh anchor), **Crew**, **Garrison**, **Buildings** (every kind, earners and yards alike) and **Log**. An island opens on its Harbour. The three counts on an island — Crew, Ashore, Built — are indicators only: the whole island is one tap and everything they pointed at is a tab inside. Islands you cannot parley with dim while you are choosing a destination, the way chains already did, so you no longer find out by tapping and being refused.
+- **2026-09-09 v3.2** — Tapping an island chain now opens it as **a chart of that chain**, not a list of rows — the original's sector view. The islands are drawn where they lie, each carrying the marks that say what is happening on it: its coastline and name coloured by who holds it, a mark and a count for buildings that **earn gold** (Camps, Mills) and separately for **works and yards** (Works, Drill Grounds, Slipways), a mark for companies ashore, a mark for your crew standing on it, the allegiance bar, and one pip per slot showing reserves used against reserves free. Unsettled rocks carry none of it, so the eye goes to the islands that matter. The marks are indicators rather than buttons: the original hangs three clickable icons off every planet, which needs a mouse — three 44px targets across ten islands does not fit a phone — so the whole island is one target and opens its panel, where the same three are tabs. The chain keeps the shape the simulation scattered it in, relaxed only enough that no two islands crowd each other's labels.
+- **2026-09-09 v3.1** — The chart no longer zooms or pans, superseding v2.9. Three levels of zoom was fiddly and was rejected on sight; there is now one view and one thing to tap. The whole archipelago is on screen at once as ten **island chains**, and tapping a chain opens it as a panel listing its islands — about 78px across on a phone, against the four pixels a single island would be. Islands are drawn on the chart but not tapped: there they are the picture of the chain, and they become targets in the panel. Sending a crew member follows the same path — the chains offering a destination light up and the island is chosen inside one. The chart is also laid out for a phone held upright rather than in the square box the simulation scatters its chains in, and chains of the same Sea are placed side by side; this is allowed because the coordinates are decoration, since travel time depends on whether two islands share a chain and never on how far apart they are drawn. Sea names are off the chart, where they landed on the chain labels, and a Sea now opens from its name on the chain's panel. Capacity pips moved with the same logic: off the chart, onto the island rows, beneath the allegiance bar, where the original prints the same two things under every planet.
+- **2026-09-09 v3.0** — Reference shots of the original are now checked into `reference/rebellion/` with a written reading of each, because they settle questions the spec is silent on. Two changes follow from them. The advisor no longer waits behind a button on the chart: Secretary Crane and Mr Pennywhistle are drawn as standing figures and stand at the end of the tab bar on every screen, which is where the original keeps its droid — on the console at the foot of the frame. And every island now shows its **capacity** as well as its allegiance: one pip per slot beneath the allegiance bar, pale stone where something is built, a dark socket where nothing is, drawn only once the chart is zoomed in. The original shows the same three things under every planet, and "resources and loyalty below each sector" meant both.
 - **2026-09-09 v2.9** — The chart now works at three levels rather than two. Zoomed out, islands are too small to aim at, so they stop taking taps and the chart becomes a chart of Seas: the seven names on open water, each opening a panel of all its islands grouped by Reach. Zoomed in, islands and Reaches take taps as before. No boundaries are drawn between Seas because a tap goes to the nearest one and a ring would imply a border that does not exist.
 - **2026-09-09 v2.8** — Sound, all synthesised in the browser so nothing is downloaded. Events have their own short sounds keyed to a new `kind` field on every event. The ambient bed is generated and never repeats. Off by default, behind a speaker in the top bar. Per-Sea tuning was built and then withdrawn the same day: retuning as the player panned made the music lurch every few seconds, because a player moves around the chart and opens panels constantly. There is one steady bed, which only darkens while islands are in revolt.
 - **2026-09-09 v2.7** — The narrators from section 1 are now in the game. Secretary Crane and Mr Pennywhistle sit on the chart and answer five questions from the live state — where you can build, who is free, where the trouble is, who might come over, how the war goes — each with a tappable list. Each speaks in their own register. Added an Almanac covering every building, company, crew member and term, generated from the simulation's own constants.
 - **2026-09-09 v2.6** — Vocabulary and economy, after playtesting. Stores and Fittings are withdrawn: they were invented words that told a player nothing. There is now one currency, **Gold**, on the rule that a building either earns gold or costs gold — Camps and Mills earn, Works, Drill Grounds, Slipways and companies cost. Sweetwater is withdrawn from the UI in favour of **Ground** and **Water** for the two slot types, for the same reason. Character ratings are spelled out rather than abbreviated. See amendment A1 in the build spec for the rules.
 - **2026-09-09 v2.5** — Added the Reach panel, after the original's sector view: a Reach's islands listed with three icons each (missions, military, facilities), over a summary of what the Reach earns and the mean allegiance across its settled islands. The island panel's tabs were re-cut to match those three — Overview / Missions / Military / Facilities / Log — so an icon on the Reach panel opens the island straight onto the matching tab.
 - **2026-09-09 v2.4** — Unit art. Every building type has its own glyph (Camp a cut hillside and pick, Mill a waterwheel, Works a shear-legs crane, Drill Ground a rack of pikes, Slipway a hull on the stocks), shown on the Build tab, on the build buttons and as marks on the island portrait. Garrisons are drawn as companies of pike figures, with the shortfall to the needed garrison greyed in. Characters have cameo portraits cut from their own names — hat, beard, epaulettes and collar vary, and Urskin are visibly not human. `Character.people` is now carried through from the roster so the portrait can read it.
+- **2026-09-12 v5.0** — **Seven Reaches, one for each Sea.** The small map was ten Reaches of ten islands; it is now seven of seven to twelve, sixty-two in all. The reason is the chart: it is a painting now, and three of the ten sat on clusters it could not show clearly — Whalers' on islets too small to hit, Sugar and Mirage running together with their neighbours down the right-hand side. All three shared a Sea with a Reach that survives, so every Sea keeps its place, its character and its islands in the fiction; what moved to the medium map is a second archipelago inside three Seas, beside Scrap Reach which was already held back. Island counts are no longer uniform: a Reach holds as many islands as its painted cluster can show as separate places at a 48-unit spacing, which is what lets the chain view lay every island out clearly instead of stacking them. A Sea and a Reach are the same thing at this size, so the chart names the Seas and the panels name the Reaches and neither is lying. Settles open question 5 — three Inner and four Outer, as written. No rules changed.
+- **2026-09-12 v4.9** — Tone retuned to the faction style guide. The register is now heroic adventure rather than grimdark: both sides believe themselves the decent one and neither is written as the villain. Added each faction's creed and motto (Order · Stability · A brighter tomorrow / Freedom · Opportunity · No masters) and put the creed on the title screen's faction cards. Softened the ugly halves throughout — conscription rolls rather than press gangs emptying villages, opportunists rather than slavers, the Fatmouths as harbour-kings rather than slaver-kings, Corvane's ledger as tragic conviction rather than cruelty. The rule that every named character carries one admirable and one ugly trait is unchanged; it says the same thing the guide's "different crews, the same horizon" does. **The darkness moved rather than left** — it is now the Black Tide, the kraken and the drowned places, not the people. No rules changed.
 - **2026-09-08 v2.3** — Presentation pass. Added a title screen (faction choice with crests, strengths and weaknesses drawn from section 2; difficulty shown but only Normal exists). Replaced the space-era chrome with an admiralty-chart look: deep-water palette, brass accents, chart lettering, rhumb lines and a compass rose. Islands are now drawn as generated coastlines rather than dots, sized by their slots, and each island's bible note appears on its panel. The island panel gained Overview / Build / Garrison / Log tabs. Faction crests and the app icon are SVG drawn in code. No rules changed.
 - **2026-09-08 v2.2** — Applied to the phase 1 build. Sections 1, 2, 5 (majors only), 9, 10, 11 and 13 are now live in `src/data/`: factions, the seven majors a side with rating bands, the ten small-map Reaches and their 100 islands, facility names and the UI vocabulary. Sections 6, 7, 8 and the minor characters wait on the phases that add ships, ground forces and recruitment. Section 14 deliberately not built. Added open questions 5–7 for the three decisions this conversion forced.

@@ -43,7 +43,7 @@ describe('advanceDay', () => {
 
   it('survives a long run without throwing or corrupting the galaxy', () => {
     const after = tick(generateGalaxy(404), 400);
-    expect(after.systems).toHaveLength(100);
+    expect(after.systems).toHaveLength(62);
     expect(after.day).toBeGreaterThan(1);
     for (const system of after.systems) {
       expect(system.support.empire).toBeGreaterThanOrEqual(0);
@@ -145,8 +145,12 @@ describe('commands', () => {
     let state = newGame(411);
     const diplomat = state.characters.find((c) => c.faction === 'empire')!;
     const home = getSystem(state, diplomat.locationSystemId);
+    // An island of our own, on purpose: there is no foil risk on ground you
+    // hold, so this exercises the command layer rather than a lucky roll. On a
+    // neutral island the officer can be found out and come home hurt, which is
+    // a perfectly good outcome but not the one this test is about.
     const target = state.systems.find(
-      (s) => s.sectorId === home.sectorId && s.control === 'neutral',
+      (s) => s.sectorId === home.sectorId && s.control === 'empire' && s.id !== home.id,
     )!;
 
     const sent = sendDiplomat(state, diplomat.id, target.id);
@@ -184,7 +188,7 @@ describe('save and load', () => {
     saveGame(state, storage);
     const loaded = loadGame(storage)!;
     expect(loaded.day).toBe(state.day);
-    expect(loaded.systems).toHaveLength(100);
+    expect(loaded.systems).toHaveLength(62);
     expect(JSON.stringify({ ...loaded, speed: state.speed })).toEqual(JSON.stringify(state));
   });
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import factionData from '../data/factions.json';
 import type { PlayableFaction } from '../sim';
 import { CompassRose, FactionCrest } from './art';
+import { paintedChart } from './painted';
 
 /**
  * Difficulty is shown because the player asked to see the choice, but only
@@ -20,12 +21,12 @@ const FACTION_DETAIL: Record<
 > = {
   empire: {
     strengths: ['Rich, charted Inner Seas', 'Strong from the first day', 'A capital nobody can find and burn'],
-    weaknesses: ['Your seat cannot move', 'Fewer envoys than the Brethren', 'Every island you press resents you'],
+    weaknesses: ['Your seat cannot move', 'Fewer envoys than the Brethren', 'Islands resent what the walls cost them'],
     opening: 'You begin at Highwater with the core of the world already in hand, and everything to lose.',
   },
   alliance: {
     strengths: ['A harbour that moves when found', 'More envoys, and better ones', 'Nothing to lose but the tide'],
-    weaknesses: ['Outgunned in open water', 'Scattered across the Outer Seas', 'Half your captains are worth hanging'],
+    weaknesses: ['Outgunned in open water', 'Scattered across the Outer Seas', 'Half your captains take some managing'],
     opening: 'You begin on the fringe with four islands and a shouting-match for a government.',
   },
 };
@@ -41,9 +42,16 @@ export function StartScreen({
 }) {
   const [faction, setFaction] = useState<PlayableFaction | null>(null);
   const detail = faction ? FACTION_DETAIL[faction] : null;
+  // The world, behind the choice of which side of it to take. Clear behind the
+  // title and scrimmed away under the text — see .start--painted, which is
+  // where the legibility is actually bought.
+  const backdrop = paintedChart('title');
 
   return (
-    <div className="start">
+    <div
+      className={backdrop ? 'start start--painted' : 'start'}
+      style={backdrop ? ({ ['--backdrop' as string]: `url(${backdrop})` }) : undefined}
+    >
       <header className="start__head">
         <div className="start__rose">
           <CompassRose size={64} opacity={0.55} />
@@ -72,6 +80,10 @@ export function StartScreen({
           >
             <FactionCrest faction={id} size={64} />
             <div className="facard__name serif">{factionData[id].name}</div>
+            {/* The creed, as the style guide sets it: three words under the
+                crest that say what the side is for, before the paragraph that
+                says what it costs. */}
+            <div className="facard__creed">{factionData[id].creed}</div>
             <div className="facard__blurb">{factionData[id].blurb}</div>
           </button>
         ))}

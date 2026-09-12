@@ -1,5 +1,15 @@
 import terms from '../data/terms.json';
-import { FACILITY_LABEL, YARD_BUILDABLE, buildSpec } from './constants';
+import {
+  buildLabel,
+  isShipClass,
+  shipsFor,
+  YARD_BUILDABLE,
+  buildSpec,
+  CRAFT_COST_STEP,
+  CRAFT_DAYS_STEP,
+} from './constants';
+import { craftGrade } from './missions';
+import { addShip } from './fleets';
 import {
   freeEnergySlots,
   freeRawSlots,
@@ -25,7 +35,36 @@ export function findFacility(
 export function buildMenu(facility: Facility): BuildItem[] {
   if (facility.type === 'construction_yard') return [...YARD_BUILDABLE];
   if (facility.type === 'training_facility') return ['troop'];
+  if (facility.type === 'shipyard' && isPlayable(facility.owner)) {
+    return shipsFor(facility.owner).map((c) => c.id);
+  }
   return [];
+}
+
+/**
+ * What an order actually costs this side today, craft included.
+ *
+ * Only hulls. The research errand is shipwright craft and nothing else, so a
+ * mine costs what a mine has always cost — which also keeps the effect legible:
+ * a player who notices their ships got cheaper has exactly one thing to thank
+ * for it.
+ *
+ * Rounded up rather than down, and floored at a day: three grades of a 13%
+ * cut is a real saving, not a free hull.
+ */
+export function effectiveSpec(
+  state: GameState,
+  faction: PlayableFaction,
+  item: BuildItem,
+): { costGold: number; days: number } {
+  const spec = buildSpec(item);
+  if (!isShipClass(item)) return { costGold: spec.costGold, days: spec.days };
+  const grade = craftGrade(state.factions[faction].craft);
+  if (grade === 0) return { costGold: spec.costGold, days: spec.days };
+  return {
+    costGold: Math.ceil(spec.costGold * (1 - CRAFT_COST_STEP * grade)),
+    days: Math.max(1, Math.ceil(spec.days * (1 - CRAFT_DAYS_STEP * grade))),
+  };
 }
 
 /**
@@ -42,12 +81,13 @@ export function buildError(state: GameState, facilityId: string, item: BuildItem
   if (system.control !== facility.owner) return 'You do not hold this island.';
   if (system.uprising) return 'The island is in mutiny.';
 
-  const spec = buildSpec(item);
+  const spec = effectiveSpec(state, facility.owner, item);
   if (state.factions[facility.owner].gold < spec.costGold) {
     return `Needs ${spec.costGold} ${terms.gold.toLowerCase()}.`;
   }
+  // Companies and hulls take no ground: one drills, the other floats.
   if (item === 'mine' && freeRawSlots(system) < 1) return `No free ${terms.ground.toLowerCase()}.`;
-  if (item !== 'mine' && item !== 'troop' && freeEnergySlots(system) < 1) {
+  if (item !== 'mine' && item !== 'troop' && !isShipClass(item) && freeEnergySlots(system) < 1) {
     return `No free ${terms.water.toLowerCase()}.`;
   }
   return null;
@@ -65,7 +105,7 @@ export function queueBuild(state: GameState, facilityId: string, item: BuildItem
   const error = buildError(state, facilityId, item);
   if (error) throw new Error(error);
   const { facility } = findFacility(state, facilityId)!;
-  const spec = buildSpec(item);
+  const spec = effectiveSpec(state, facility.owner as PlayableFaction, item);
   state.factions[facility.owner as PlayableFaction].gold -= spec.costGold;
   facility.building = {
     item,
@@ -113,10 +153,20 @@ function completeBuild(
     return;
   }
 
+  if (isShipClass(item)) {
+    const fleet = addShip(state, system, owner, item);
+    pushEvent(state, {
+      kind: 'order',
+      text: `A ${buildLabel(item)} slides off the stocks at ${system.name} and joins ${fleet.name}.`,
+      systemId: system.id,
+    });
+    return;
+  }
+
   system.facilities.push({ id: nextId(state, 'fac'), type: item, owner });
   pushEvent(state, {
     kind: 'order',
-      text: `${FACILITY_LABEL[item]} completed on ${system.name}.`,
+    text: `${buildLabel(item)} completed on ${system.name}.`,
     systemId: system.id,
   });
 

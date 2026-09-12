@@ -2,19 +2,21 @@ import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 
 describe('generateGalaxy', () => {
-  it('builds 10 sectors of 10 systems', () => {
+  it('builds seven Reaches of seven to ten islands', () => {
     const state = generateGalaxy(42);
-    expect(state.sectors).toHaveLength(10);
-    expect(state.systems).toHaveLength(100);
+    expect(state.sectors).toHaveLength(7);
+    expect(state.systems).toHaveLength(62);
     for (const sector of state.sectors) {
-      expect(sector.systemIds).toHaveLength(10);
+      expect(sector.systemIds.length).toBeGreaterThanOrEqual(7);
+      expect(sector.systemIds.length).toBeLessThanOrEqual(12);
     }
   });
 
-  it('splits the map into 4 core sectors and 6 rim sectors', () => {
+  it('splits the map into three inner Reaches and four outer', () => {
     const state = generateGalaxy(42);
-    const coreSystems = state.systems.filter((s) => s.isCore);
-    expect(coreSystems).toHaveLength(40);
+    // Sovereign 10 + Shipwrights' 9 + Coral 7.
+    expect(state.systems.filter((s) => s.isCore)).toHaveLength(26);
+    expect(state.systems.filter((s) => !s.isCore)).toHaveLength(36);
   });
 
   it('is deterministic for a seed and different across seeds', () => {
@@ -30,8 +32,8 @@ describe('generateGalaxy', () => {
 
   it('gives every system a unique id and name', () => {
     const state = generateGalaxy(3);
-    expect(new Set(state.systems.map((s) => s.id)).size).toBe(100);
-    expect(new Set(state.systems.map((s) => s.name)).size).toBe(100);
+    expect(new Set(state.systems.map((s) => s.id)).size).toBe(62);
+    expect(new Set(state.systems.map((s) => s.name)).size).toBe(62);
   });
 
   it('makes core systems populated and explored by both sides', () => {
@@ -68,7 +70,7 @@ describe('generateGalaxy', () => {
     }
   });
 
-  it('starts each side with 8 mines, 8 refineries, 2 yards and 1 training facility', () => {
+  it('starts each side with a working economy and a yard for hulls', () => {
     const state = generateGalaxy(17);
     for (const faction of ['empire', 'alliance'] as const) {
       const owned = state.systems
@@ -80,6 +82,7 @@ describe('generateGalaxy', () => {
       expect(count('refinery')).toBe(8);
       expect(count('construction_yard')).toBe(2);
       expect(count('training_facility')).toBe(1);
+      expect(count('shipyard')).toBe(1);
     }
   });
 

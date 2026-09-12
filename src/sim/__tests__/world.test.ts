@@ -15,21 +15,29 @@ import { reachesOfSea, seasOf, summariseReach, summariseSea } from '../reach';
 describe('the world bible data', () => {
   const allIslands = reachData.reaches.flatMap((r) => r.islands);
 
-  it('describes ten Reaches: four Inner, six Outer', () => {
-    expect(reachData.reaches).toHaveLength(10);
-    expect(reachData.reaches.filter((r) => r.tier === 'inner')).toHaveLength(4);
-    expect(reachData.reaches.filter((r) => r.tier === 'outer')).toHaveLength(6);
+  it('describes seven Reaches, one for each Sea: three Inner, four Outer', () => {
+    expect(reachData.reaches).toHaveLength(7);
+    expect(reachData.reaches.filter((r) => r.tier === 'inner')).toHaveLength(3);
+    expect(reachData.reaches.filter((r) => r.tier === 'outer')).toHaveLength(4);
+    // One Reach per Sea is the whole point of the small map: it is what lets
+    // the chart name the Seas and the panels name the Reaches without either
+    // of them lying about what you are looking at.
+    expect(new Set(reachData.reaches.map((r) => r.name)).size).toBe(7);
   });
 
-  it('gives every Reach exactly ten islands', () => {
+  it('gives every Reach between seven and twelve islands', () => {
+    // Not a flat ten any more. A Reach holds as many islands as its painted
+    // cluster can show as separate places, and the range is the range the
+    // chain view can lay out clearly.
     for (const reach of reachData.reaches) {
-      expect(reach.islands).toHaveLength(10);
+      expect(reach.islands.length).toBeGreaterThanOrEqual(7);
+      expect(reach.islands.length).toBeLessThanOrEqual(12);
     }
   });
 
-  it('names 100 distinct islands', () => {
-    expect(allIslands).toHaveLength(100);
-    expect(new Set(allIslands.map((i) => i.name)).size).toBe(100);
+  it('names 62 distinct islands', () => {
+    expect(allIslands).toHaveLength(62);
+    expect(new Set(allIslands.map((i) => i.name)).size).toBe(62);
   });
 
   it('covers all seven Seas', () => {
@@ -163,11 +171,12 @@ describe('the Reach summary', () => {
     )!;
     const summary = summariseReach(state, sector.id, 'empire');
 
-    expect(summary.islands).toBe(10);
+    const count = state.systems.filter((sys) => sys.sectorId === sector.id).length;
+    expect(summary.islands).toBe(count);
     expect(summary.held).toBe(
       state.systems.filter((s) => s.sectorId === sector.id && s.control === 'empire').length,
     );
-    expect(summary.perIsland).toHaveLength(10);
+    expect(summary.perIsland).toHaveLength(count);
     expect(summary.settled).toBe(
       state.systems.filter((s) => s.sectorId === sector.id && s.populated).length,
     );
@@ -246,7 +255,9 @@ describe('the Sea summary', () => {
   it('adds its Reaches up', () => {
     for (const sea of seasOf(state)) {
       const summary = summariseSea(state, sea, 'empire');
-      expect(summary.islands).toBe(summary.reaches * 10);
+      expect(summary.islands).toBe(
+        summary.perReach.reduce((total, r) => total + r.islands, 0),
+      );
       expect(summary.held).toBe(
         summary.perReach.reduce((total, r) => total + r.held, 0),
       );
@@ -259,10 +270,15 @@ describe('the Sea summary', () => {
   it('averages allegiance over islands, not over Reach averages', () => {
     // A Sea of two Reaches where one has far fewer settled islands: averaging
     // the averages would weight that Reach as heavily as the bigger one.
-    const twoReach = seasOf(state).find(
-      (sea) => reachesOfSea(state, sea).length === 2,
-    )!;
+    //
+    // The small map has one Reach per Sea, so the two methods would agree on
+    // it and prove nothing. The larger maps put several Reaches in a Sea and
+    // the code still has to be right for them, so the case is built here.
+    const [a, b] = state.sectors;
+    b.sea = a.sea;
+    const twoReach = a.sea;
     const sectors = reachesOfSea(state, twoReach);
+    expect(sectors).toHaveLength(2);
     const settled = state.systems.filter(
       (s) => s.populated && sectors.some((sec) => sec.id === s.sectorId),
     );
@@ -272,5 +288,21 @@ describe('the Sea summary', () => {
 
     const summary = summariseSea(state, twoReach, 'empire');
     expect(summary.allegiance.empire).toBeCloseTo(100 / settled.length, 5);
+  });
+});
+
+describe('the roster', () => {
+  it('gives every single person a name, a people and something to read', () => {
+    // The character sheet has a lore panel, and a panel with nothing in it is
+    // worse than no panel: for a while the twelve unaligned had one each.
+    const state = generateGalaxy(501, 'empire');
+    expect(state.characters.length).toBeGreaterThan(20);
+    for (const person of state.characters) {
+      expect(person.name.length).toBeGreaterThan(2);
+      expect(person.people, person.name).toBeTruthy();
+      expect(person.blurb, `${person.name} has no bio`).toBeTruthy();
+      expect((person.blurb ?? '').length, person.name).toBeGreaterThan(60);
+      expect(person.epithet, `${person.name} has no epithet`).toBeTruthy();
+    }
   });
 });

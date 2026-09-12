@@ -12,8 +12,12 @@
   --shallow: #10404f;
   --land: #4a5a52;
   --land-bare: #33403c;
-  --empire: #e2504a;
-  --alliance: #e8c04a;
+  /* Faction colours, after the original: the Crown green, the rebels red,
+     and light blue for people who have not picked a side. Kept clear of the
+     mint --good and the orange-leaning --bad so a faction badge never reads
+     as a status message. */
+  --empire: #3f9e58;
+  --alliance: #d8483f;
   --neutral: #5aa2e0;
   --unknown: #46595f;
   --good: #4ec98a;
@@ -129,7 +133,7 @@ button {
   flex: none;
   position: relative;
   z-index: 2;
-  display: grid; grid-template-columns: repeat(3, 1fr);
+  display: grid; grid-template-columns: repeat(3, 1fr) 66px;
   background: var(--bg-raised); border-top: 1px solid var(--border);
   padding-bottom: var(--safe-bottom);
 }
@@ -159,24 +163,46 @@ button {
 }
 
 /* ---------- Map ---------- */
-.map { width: 100%; height: 100%; touch-action: none; display: block; background: var(--water); }
+/* Sizes are in the chart's own 1200-unit space, not pixels. The chart no
+   longer zooms, so they are fixed rather than divided by a scale factor. */
+.map { width: 100%; height: 100%; touch-action: manipulation; display: block; background: var(--water); }
 .map__sector-ring {
-  fill: none; stroke: #16505f; stroke-width: 1.5;
-  stroke-dasharray: 5 7; opacity: 0.5;
+  fill: none; stroke: #16505f; stroke-width: 3;
+  stroke-dasharray: 11 15; opacity: 0.5;
 }
 .map__sector-label {
-  fill: #4c8496; font-size: 15px; text-anchor: middle;
+  fill: #8fbecd; font-size: 36px; text-anchor: middle;
   font-family: 'Iowan Old Style', Palatino, Georgia, serif;
-  font-style: italic; letter-spacing: 0.08em;
+  font-style: italic; letter-spacing: 0.06em;
 }
-.map__system-label {
-  fill: #a8c2cc; font-size: 9px; text-anchor: middle;
-  font-family: 'Iowan Old Style', Palatino, Georgia, serif;
-}
-.map__rhumb { stroke: #10404f; stroke-width: 0.6; opacity: 0.32; fill: none; }
+.map__chain-note { fill: #5f8b9b; font-style: normal; }
+.map__chain-alarm { fill: #d8574c; font-style: normal; }
+.map__rhumb { stroke: #10404f; stroke-width: 2; opacity: 0.32; fill: none; }
 .map__coast { stroke-linejoin: round; }
-.map__hq { fill: none; stroke-width: 2; }
-.map__pick { fill: none; stroke: var(--good); stroke-width: 2; opacity: 0.9; }
+/* A body of water, named the way a chart names one: big, faint, spaced out,
+   and lying under everything. It has to survive a chain label crossing it,
+   which is why it is this pale — at full strength the two fight and at half
+   they read as ink over ink, which is what a real chart looks like. */
+.map__sea {
+  fill: #cfe6ef; opacity: 0.13; font-size: 30px; text-anchor: middle;
+  font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+  font-style: italic; letter-spacing: 0.02em;
+}
+/* Over the painting the label needs its own ground: the painted sea is busy
+   and italic serif at 36px was being eaten by it. */
+.map--painted .map__sector-label { paint-order: stroke fill; stroke: #04121980; stroke-width: 7px; }
+.map__hq { fill: none; stroke-width: 3; }
+.map__pick { fill: none; stroke: var(--good); stroke-width: 5; opacity: 0.9; }
+/* Covert work, drawn as such: a broken ring, so choosing to stir up an island
+   they hold never looks like choosing to parley. Brass rather than red — red is
+   the rebels' own colour, and a ring in your own colour reads as "mine", which
+   is the opposite of what this ring means. Stroke is set here and not on the
+   element: the rule above would override an attribute. */
+.map__pick--incite { stroke: var(--brass); stroke-dasharray: 12 9; }
+/* Somebody to sign on. Solid brass: it is not covert work — you are walking up
+   to a person on a quay — but it is not the green "an island to work on" ring
+   either, because what you are going for is the person, not the island. */
+.map__pick--recruit { stroke: var(--brass); }
 
 .map__hud {
   position: absolute; left: 10px; right: 10px; bottom: 10px;
@@ -270,6 +296,15 @@ button {
 .bar { height: 6px; border-radius: 3px; background: #0d2f3a; overflow: hidden; }
 .bar__fill { height: 100%; border-radius: 3px; }
 .bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+/* The allegiance bar: segments butted together, the holder first from the left. */
+.bar--tall { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: #0d2f3a; }
+.bar--tall > div { height: 100%; }
+.bar-key {
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  margin-top: 6px; font-size: 11px; color: var(--muted);
+}
+.bar-key span { display: inline-flex; align-items: center; gap: 5px; }
+.bar-key i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
 
 .btn {
   min-height: var(--tap); padding: 9px 12px; border-radius: 9px; border: 1px solid var(--border);
@@ -324,6 +359,7 @@ button {
 
 /* ---------- Start screen ---------- */
 .start {
+  position: relative;
   height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -333,6 +369,46 @@ button {
     radial-gradient(120% 60% at 50% 0%, #0e2c38 0%, var(--bg) 60%),
     var(--bg);
 }
+/**
+ * The title screen stands on the chart it is about.
+ *
+ * The painting cannot carry text on its own: darkened to a mean luma of 14 its
+ * brightest reef still only gives body text 4.2:1, and the tagline is muted
+ * grey at 13px, which needs more. So the painting is open behind the rose and
+ * the title — large type, and the most striking part of the image — and a
+ * scrim closes over it before the first line of small text. Measured against
+ * the rendered page, not guessed.
+ */
+.start--painted { background: var(--bg); }
+.start--painted::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: var(--backdrop);
+  /* Full width, top-aligned, not `cover`: the page is far taller than 2:3, so
+     cover scaled the painting up until only a narrow vertical strip of it was
+     on screen. At 100% width the whole chart is there and the scrim disposes
+     of the part nobody needs to see. */
+  background-size: 100% auto; background-repeat: no-repeat; background-position: 50% 0;
+}
+.start--painted::after {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(6, 22, 29, 0.10) 0%,
+    rgba(6, 22, 29, 0.28) 15%,
+    rgba(6, 22, 29, 0.78) 29%,
+    rgba(6, 22, 29, 0.95) 41%,
+    var(--bg) 58%
+  );
+}
+.start--painted > * { position: relative; z-index: 1; }
+/* Measured on the rendered page with the text hidden: the brightest patch of
+   backdrop under the tagline is #415856, where muted grey is 2.56:1 against a
+   4.5:1 floor. Lifting it to #cfe0e6 gives 5.6:1. The shadow is belt as well
+   as braces — it darkens the ground locally, which the contrast figure above
+   cannot take credit for. */
+.start--painted .start__tagline { color: #cfe0e6; }
+.start--painted .start__head { text-shadow: 0 1px 7px rgba(4, 18, 25, 0.92); }
+
 .start__head { text-align: center; margin-bottom: 20px; }
 .start__rose { display: flex; justify-content: center; color: var(--brass); margin-bottom: 6px; }
 .start__title { font-size: 27px; line-height: 1.15; margin: 0 0 8px; font-weight: 700; }
@@ -347,6 +423,10 @@ button {
 }
 .facard--picked { border-color: var(--brass); background: #102b35; }
 .facard__name { font-size: 14px; font-weight: 700; line-height: 1.2; }
+.facard__creed {
+  font-size: 8.5px; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--brass); opacity: 0.85; line-height: 1.3; margin: 1px 0 4px;
+}
 .facard__blurb { font-size: 11px; color: var(--muted); line-height: 1.35; }
 
 .start__detail { margin-top: 8px; }
@@ -417,7 +497,9 @@ button {
 .isle {
   border: 1px solid var(--border); border-radius: 10px;
   background: var(--bg-sunken); overflow: hidden;
+  display: block; width: 100%; text-align: left; padding: 0;
 }
+.isle:active { background: #0f2c37; }
 .isle__head {
   display: flex; align-items: center; gap: 10px; width: 100%;
   padding: 8px 10px; text-align: left; min-height: var(--tap);
@@ -432,14 +514,22 @@ button {
   background: #0d2f3a; margin-top: 4px; max-width: 120px;
 }
 .isle__bar > span { display: block; height: 100%; }
+/* One pip per slot: pale stone where something stands, an empty socket where
+   nothing does. Kept clear of the faction colours so it cannot be misread as
+   allegiance. */
+.isle__slots { display: flex; gap: 2px; margin-top: 4px; max-width: 120px; }
+.isle__slots > span {
+  flex: 1; height: 3px; border-radius: 1.5px; background: #1c3b48;
+}
+.isle__slots > span.is-built { background: #93a7b1; }
 
 .isle__cats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--border); }
 .isle__cat {
-  min-height: var(--tap); display: flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px;
   color: var(--muted); position: relative;
 }
 .isle__cat + .isle__cat { border-left: 1px solid var(--border); }
-.isle__cat:active { background: #113442; }
+.isle__cat-label { font-size: 10px; letter-spacing: 0.04em; }
 .isle__count {
   font-size: 13px; font-weight: 700; color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -476,22 +566,493 @@ button {
 .glossary dt { font-weight: 700; font-size: 13px; }
 .glossary dd { margin: 3px 0 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
 
-/* ---------- The advisor, sitting on the chart ---------- */
+/* ---------- The advisor, standing on the console ----------
+   Their own slot at the end of the tab bar. The figure is taller than the bar
+   and overflows upward on purpose, so they stand on it rather than sit in it —
+   which is what stops them reading as a fourth tab. */
 .advisor {
-  position: absolute; right: 10px; top: 10px;
-  width: 52px; height: 52px; border-radius: 50%;
-  display: grid; place-items: center;
-  background: rgba(7, 26, 34, 0.85);
-  border: 1px solid var(--border);
-  backdrop-filter: blur(6px);
-  z-index: 3;
+  /* Taller than the bar on purpose: he stands on the console rather than
+     sitting in it, and the bar grew to give him the room. */
+  position: relative;
+  min-width: var(--tap); min-height: 66px;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: none; border: none;
+  border-left: 1px solid var(--border);
+  filter: drop-shadow(0 1px 4px rgba(3, 13, 18, 0.8));
+  -webkit-touch-callout: none; user-select: none;
 }
-.advisor:active { transform: scale(0.94); }
+.advisor > svg { margin-bottom: 1px; }
+.advisor:active { transform: translateY(1px); }
 
 .iconbtn--on { color: var(--brass); border-color: var(--brass); }
 
 .map__sea-label {
-  fill: #6ea8bb; text-anchor: middle;
+  fill: #6ea8bb; font-size: 40px; text-anchor: middle;
   font-family: 'Iowan Old Style', Palatino, Georgia, serif;
   font-style: italic; letter-spacing: 0.12em;
 }
+
+/* ---------- A chain opened out as a chart ---------- */
+.chainmap {
+  display: block; width: 100%; height: auto;
+  background: var(--water); border: 1px solid var(--border); border-radius: 10px;
+  touch-action: manipulation;
+}
+.chainmap__isle { cursor: pointer; }
+/* Where an island had to be moved to make room for its own marks, and where
+   it really lies on the chart. Brass and thin: this is the interface owning
+   up to a compromise, not part of the world. */
+/* How many of the thing an island answering the layer has. Coloured per
+   island, for the same reason as on the chart. */
+.chainmap__lit-n {
+  font-size: 26px; font-weight: 700; text-anchor: middle;
+  paint-order: stroke fill; stroke: #041219cc; stroke-width: 5px;
+}
+.chainmap__tether { stroke: var(--brass); stroke-width: 2.5; stroke-dasharray: 8 6; }
+/* Over the painting a name needs its own ground; the sea under it is busy. */
+.chainmap__name--painted { paint-order: stroke fill; stroke: #041219cc; stroke-width: 6px; }
+.chainmap__tether-end { fill: none; stroke: var(--brass); stroke-width: 2.5; }
+.chainmap__isle:active .chainmap__name { fill: var(--text); }
+.chainmap__name {
+  font-size: 34px; text-anchor: middle;
+  font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+}
+.chainmap__badge-n {
+  font-size: 20px; font-family: inherit; font-weight: 600;
+}
+/* Legend. The marks are indicators, so they need saying once. */
+.chainmap__key {
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  margin-top: 8px; font-size: 11px; color: var(--muted);
+}
+.chainmap__key span { display: inline-flex; align-items: center; gap: 5px; }
+.key {
+  width: 11px; height: 11px; display: inline-block; flex: none;
+  background: currentColor;
+}
+.key--civil { clip-path: polygon(50% 0, 100% 40%, 100% 100%, 0 100%, 0 40%); }
+.key--military { clip-path: polygon(0 100%, 0 30%, 20% 30%, 20% 12%, 40% 12%, 40% 30%, 60% 30%, 60% 12%, 80% 12%, 80% 30%, 100% 30%, 100% 100%); }
+.key--ashore {
+  background: none;
+  background-image: linear-gradient(45deg, transparent 44%, currentColor 44% 56%, transparent 56%),
+                    linear-gradient(-45deg, transparent 44%, currentColor 44% 56%, transparent 56%);
+}
+.key--mission { clip-path: polygon(0 20%, 100% 20%, 100% 80%, 0 80%); }
+.key--ships { clip-path: polygon(45% 0, 55% 0, 55% 55%, 100% 55%, 85% 100%, 15% 100%, 0 55%, 45% 55%); }
+
+/* ---------- Fleets ---------- */
+.fleet__ships {
+  display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 10px;
+}
+.fleet__class { display: inline-flex; align-items: center; gap: 5px; color: var(--text); }
+.fleet__class-n { font-weight: 600; font-size: 13px; }
+/* The original states a fleet as a table of facts with the words spelled out;
+   so does this, two to a row on a phone. */
+.fleet__facts {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px;
+  margin: 10px 0 0;
+}
+.fleet__facts > div { display: flex; justify-content: space-between; gap: 8px; }
+.fleet__facts dt { color: var(--muted); font-size: 11px; }
+.fleet__facts dd { margin: 0; font-size: 12px; font-weight: 600; }
+.fleet__orders { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.fleet__orders .btn { width: 100%; }
+
+/* ---------- Slot boards ----------
+   The original gives personnel, regiments and construction their own framed
+   board and lets the contents fill it. A list that collapses to one line when
+   empty tells you nothing about what could be there; a board does. */
+.board {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+  padding: 8px; min-height: 132px; align-content: start;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border); border-radius: 10px;
+  /* Three rows, then scroll. Cut just past the third row so a sliver of the
+     fourth shows: a board that ends flush looks finished when it is not. */
+  max-height: 312px; overflow-y: auto;
+  -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+}
+.board--bare {
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: 18px 14px; min-height: 96px;
+  color: var(--muted); font-size: 12px; line-height: 1.45;
+  background: var(--bg-sunken);
+  border: 1px dashed var(--border); border-radius: 10px;
+}
+.slot {
+  min-height: 86px; padding: 8px 4px 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px;
+  background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px;
+  text-align: center; overflow: hidden;
+}
+.slot--tap { cursor: pointer; }
+.slot--tap:active { background: #143643; }
+/* An empty slot has to be visible or the board reads as "six things" rather
+   than "six of ten". Faint, but plainly a socket. */
+.slot--empty {
+  background: rgba(28, 59, 72, 0.22);
+  border-style: dashed; border-color: #24505f;
+}
+.slot--warn { border-color: var(--bad); }
+.slot--dim { opacity: 0.55; }
+.slot__icon { display: flex; align-items: center; justify-content: center; height: 34px; }
+.slot__name {
+  font-size: 10.5px; line-height: 1.2; color: var(--text);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.slot__note { font-size: 9.5px; color: var(--muted); line-height: 1.15; }
+
+/* ---------- Idle producers ----------
+   The original nags you in red when a construction yard is sitting empty.
+   This is the same idea, always on, and tapping one takes you to it. */
+.idle {
+  /* Above the layer strip, not behind it. */
+  position: absolute; left: 8px; right: 8px; bottom: 132px;
+  display: flex; gap: 6px; justify-content: center; pointer-events: none;
+}
+.idle__item {
+  pointer-events: auto;
+  min-height: var(--tap); padding: 4px 11px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(9, 30, 39, 0.92); border: 1px solid var(--border);
+  color: var(--muted); font-size: 11px;
+  backdrop-filter: blur(6px);
+}
+.idle__item--free { color: var(--brass); border-color: #4a3c14; }
+.idle__item--alarm { color: var(--bad); border-color: #5c2420; }
+.idle__item--alarm:active { background: #3a1b18; }
+.idle__item:disabled { opacity: 0.5; }
+.idle__item--free:active { background: #16323d; }
+.idle__n { font-weight: 700; font-size: 12px; }
+.idle__label { max-width: 78px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board__count { margin: 5px 0 0; text-align: right; }
+
+/* ---------- Dispatches ----------
+   The original stops you with a headline, a painting and one sentence. A card
+   that fills the width and sits above everything, rather than a line in a list
+   you have to go looking for. */
+.dispatch {
+  position: absolute; left: 10px; right: 10px; top: 50%;
+  transform: translateY(-50%);
+  z-index: 26;
+  background: var(--bg-raised);
+  border: 1px solid var(--border); border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 18px 48px rgba(2, 10, 14, 0.66);
+}
+.dispatch__head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 8px 10px 14px;
+}
+.dispatch__title {
+  font-size: 14px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text); line-height: 1.25;
+}
+.dispatch__text {
+  margin: 0; padding: 12px 14px 4px;
+  font-size: 14px; line-height: 1.5; color: var(--text);
+}
+.dispatch__foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  flex-wrap: wrap; padding: 10px 12px 12px;
+}
+.dispatch__foot .btn { min-width: var(--tap); }
+
+/* Officers serving with a fleet, and the crew ashore who could be. */
+.fleet__officers { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.fleet__officer {
+  min-height: var(--tap); padding: 4px 9px 4px 4px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg-sunken); border: 1px solid var(--border); color: var(--text);
+}
+.fleet__officer--empty { border-style: dashed; color: var(--muted); padding-left: 10px; }
+.fleet__officer-plus { font-size: 15px; line-height: 1; }
+.fleet__officer-name {
+  font-size: 11px; max-width: 92px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fleet__officer:active { background: #143643; }
+
+/* ---------- The contact sheet (?art) ---------- */
+/* Not part of the game. Laid out to be photographed: everything the same
+   distance apart, on the same ground, so the eye compares drawings and not
+   spacing. */
+.artsheet { padding: 16px; padding-bottom: 48px; background: var(--bg); min-height: 100%; }
+.artsheet__head h1 {
+  font-size: 20px; margin: 0 0 4px; letter-spacing: 0.02em;
+}
+.artsheet__head p { margin: 0 0 8px; font-size: 12px; line-height: 1.5; }
+.artsheet__row { margin-top: 22px; }
+.artsheet__label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--brass); margin: 0 0 8px; font-weight: 700;
+}
+.artsheet__note { text-transform: none; letter-spacing: 0; color: var(--muted); font-weight: 400; }
+.artsheet__items { display: flex; flex-wrap: wrap; gap: 10px; }
+.artsheet__item { width: 76px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+/* The ground the art actually sits on in the game, so nothing is judged
+   against a colour it never appears over. */
+.artsheet__stage {
+  width: 76px; height: 76px; border-radius: 8px;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.artsheet__swatch {
+  width: 76px; height: 44px; border-radius: 8px; border: 1px solid var(--border);
+}
+.artsheet__caption {
+  font-size: 9px; color: var(--muted); text-align: center; line-height: 1.25;
+  word-break: break-word;
+}
+.artsheet__scene {
+  /* Full width, and the same height the dispatch card gives it. Scenes are
+     drawn 320x132 and painted with preserveAspectRatio="slice": render them
+     into a narrow box and they crop to a middle band the game never shows,
+     which had this sheet reporting the mission scene as empty when it is not.
+     An instrument that lies is worse than no instrument. */
+  width: 100%; display: flex; flex-direction: column; gap: 4px;
+}
+.artsheet__scene > svg { height: 138px; }
+.artsheet__scene > svg { border-radius: 8px; border: 1px solid var(--border); }
+.artsheet__blurb {
+  font-size: 11px; line-height: 1.5; color: var(--muted); margin: 0 0 10px; max-width: 46em;
+}
+
+/* ---------- Chart layers ---------- */
+/* The view switch, at the foot of the chart where the pick chip lives. It sits
+   above the tab bar rather than inside it: the tab bar says which screen you
+   are on, this says what the screen is about. */
+.layers {
+  position: absolute; left: 0; right: 0; bottom: 58px;
+  display: flex; flex-direction: column; gap: 5px; pointer-events: none;
+}
+.layers__strip {
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+  padding: 0 10px; pointer-events: auto;
+  overscroll-behavior-x: contain;
+}
+.layers__strip::-webkit-scrollbar { display: none; }
+.layers__chip {
+  flex: none; display: inline-flex; align-items: center; gap: 6px;
+  min-height: var(--tap); padding: 6px 13px; border-radius: 999px;
+  background: rgba(6, 22, 29, 0.88); border: 1px solid var(--border);
+  color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.layers__chip--on { border-color: var(--brass); color: var(--brass); }
+/* The tally. A zero is worth showing — on Idle works it is the one number that
+   means nothing of yours is standing about. */
+.layers__n {
+  font-size: 10px; font-variant-numeric: tabular-nums;
+  padding: 1px 5px; border-radius: 999px;
+  background: var(--bg-sunken); color: var(--text); opacity: 0.75;
+}
+.layers__chip--on .layers__n { background: var(--brass); color: var(--bg); opacity: 1; }
+.layers__hint {
+  margin: 0; padding: 0 14px; font-size: 10.5px; line-height: 1.35;
+  color: var(--muted); opacity: 0.85; pointer-events: none;
+}
+
+/* How many of the thing an island that answers the current layer has.
+   No fill here: the colour is set per island so the number belongs visibly to
+   its dot, and a stylesheet rule would beat that presentation attribute — which
+   has caught us before. */
+.map__lit-n {
+  font-size: 15px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke fill; stroke: #041219cc; stroke-width: 3.5px;
+}
+
+/* ---------- The card frame (style guide §4) ---------- */
+/* Crest, title, art, quote, type bar. Drawn here so it works identically
+   around a painting and around a drawn cameo, and so a bright painting reads
+   as an object lying on the page rather than a hole cut in it. */
+.tcard {
+  position: relative; display: flex; flex-direction: column;
+  width: 100%; padding: 0; text-align: left; overflow: hidden;
+  background: var(--bg-raised);
+  border: 1px solid var(--card-tint); border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(2, 10, 14, 0.5);
+}
+button.tcard { cursor: pointer; }
+button.tcard:hover { border-color: var(--brass); }
+
+/* Sits over the corner, as the guide has it — half on the frame, half off. */
+.tcard__badge {
+  position: absolute; top: 6px; left: 8px; z-index: 2;
+  display: grid; place-items: center;
+  width: 30px; height: 30px; border-radius: 7px;
+  background: rgba(4, 16, 22, 0.9); border: 1px solid var(--card-tint);
+}
+.tcard__title {
+  padding: 9px 12px 9px 46px;
+  font-size: 14px; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--text); background: var(--bg-sunken);
+  border-bottom: 1px solid var(--border);
+}
+.tcard__art { position: relative; display: block; line-height: 0; background: var(--water-deep); }
+/* A painting at card size: fill the frame, crop the sides rather than letterbox.
+   The subjects are centred in their own tiles, so a centre crop keeps them. */
+.painting { position: relative; overflow: hidden; background: var(--water-deep); }
+.painting img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; display: block; }
+.painting__cameo { display: flex; align-items: center; justify-content: center; height: 100%; }
+/* A hull in a list. Cropped to the waterline: the paintings are tall and the
+   sky above the topmast is not what tells one class from another. */
+.shipthumb {
+  display: inline-block; overflow: hidden; border-radius: 5px; flex: none;
+  border: 1px solid var(--border); background: var(--water-deep); line-height: 0;
+}
+.shipthumb img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 48%; }
+/* Works on an island. Wide, because the paintings are. */
+.facthumb {
+  display: inline-block; overflow: hidden; border-radius: 5px; flex: none;
+  border: 1px solid var(--border); background: var(--water-deep); line-height: 0;
+}
+.facthumb img { width: 100%; height: 100%; object-fit: cover; }
+/* The island, painted, across the head of its panel. */
+.isle-banner {
+  position: relative; overflow: hidden; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--water-deep); margin-bottom: 10px;
+}
+.isle-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.isle-banner__fade {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 38%; pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--bg-raised));
+}
+.tcard__art > svg, .tcard__art > img { display: block; width: 100%; height: auto; }
+/* The subject's own voice, over the foot of the picture. The scrim is what
+   keeps it legible whatever the painting is doing underneath. */
+.tcard__quote {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 22px 12px 9px;
+  font-size: 12px; line-height: 1.4; color: #e8e2d1;
+  background: linear-gradient(to top, rgba(4, 12, 16, 0.92), rgba(4, 12, 16, 0));
+}
+.tcard__type {
+  padding: 7px 12px; font-size: 9.5px; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--muted);
+  background: var(--bg-sunken); border-top: 1px solid var(--border);
+}
+.tcard__dot { color: var(--card-tint); }
+.artsheet__cards { display: flex; gap: 12px; flex-wrap: wrap; }
+.artsheet__cards > * { width: 232px; }
+
+/* ---- The opening lesson ------------------------------------------------
+   A card at the foot of the screen, over the chart's own strip. Everything
+   behind it stays live on purpose: a player who ignores this and starts
+   tapping loses nothing, which is what most people do. */
+.teach {
+  position: fixed; left: 10px; right: 10px; z-index: 60;
+  bottom: calc(var(--safe-bottom) + 68px);
+  background: linear-gradient(180deg, #123240 0%, #0c2531 100%);
+  border: 1px solid var(--brass); border-radius: 14px;
+  padding: 14px 16px 12px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  animation: teach-in 260ms ease-out both;
+}
+.teach--out { animation: teach-out 180ms ease-in both; }
+@keyframes teach-in { from { opacity: 0; transform: translateY(14px); } }
+@keyframes teach-out { to { opacity: 0; transform: translateY(10px); } }
+.teach__pips { display: flex; gap: 5px; margin-bottom: 9px; }
+.teach__pip { width: 16px; height: 3px; border-radius: 2px; background: #2c4c58; }
+.teach__pip--on { background: var(--brass); }
+.teach__title { margin: 0 0 5px; font-size: 18px; color: var(--text); }
+.teach__body { margin: 0 0 12px; font-size: 14px; line-height: 1.45; color: #cfe0e6; }
+.teach__row { display: flex; align-items: center; gap: 10px; }
+.teach__skip {
+  background: none; border: 0; color: var(--muted); font: inherit; font-size: 13px;
+  padding: 8px 4px; min-width: 44px; text-align: left; cursor: pointer;
+}
+.teach__next { margin-left: auto; padding: 9px 18px; }
+@media (prefers-reduced-motion: reduce) {
+  .teach, .teach--out { animation: none; }
+}
+
+/* ---- The crew, as portraits ------------------------------------------- */
+.crewgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (min-width: 620px) { .crewgrid { grid-template-columns: repeat(3, 1fr); } }
+.crewcard {
+  display: flex; flex-direction: column; text-align: left; padding: 0;
+  background: var(--bg-raised); border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden; cursor: pointer; color: inherit; font: inherit;
+}
+.crewcard:active { border-color: var(--brass); }
+.crewcard--busy { opacity: 0.62; }
+.crewcard__art { position: relative; display: block; line-height: 0; }
+/* The painting is the card; .painting already covers and crops for us. */
+.crewcard__art .painting { border-radius: 0; }
+/* Bottom-left over the art, on its own shadow: top-right ran off the corner of
+   a card this narrow, and the faces are all in the upper half. */
+.crewcard__badge {
+  position: absolute; left: 6px; bottom: 6px; line-height: 1;
+  filter: drop-shadow(0 1px 4px rgba(4, 18, 25, 0.9));
+}
+.crewcard__badge .badge { font-size: 10px; padding: 3px 7px; }
+.crewcard__name {
+  font-weight: 600; font-size: 13.5px; line-height: 1.25;
+  padding: 8px 9px 0; color: var(--text);
+}
+.crewcard__where {
+  font-size: 11px; color: var(--muted); padding: 3px 9px 0; line-height: 1.3;
+}
+.crewcard__stats {
+  font-size: 11px; color: #9db4bd; padding: 7px 9px 9px;
+  font-variant-numeric: tabular-nums; letter-spacing: 0.01em;
+}
+.crewcard__stats b { color: var(--brass); font-weight: 700; margin-right: 1px; }
+.crewcard__stats b:not(:first-child) { margin-left: 2px; }
+
+/* ---- A character's own page ------------------------------------------- */
+.charsheet__epithet { font-size: 16px; color: var(--brass); font-style: italic; }
+.charsheet__roles { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+/* The lore reads as the world talking, not as interface copy: serif, roomy,
+   and the one paragraph on the page allowed to be a paragraph. */
+.charsheet__lore {
+  margin: 10px 0 2px; font-size: 14.5px; line-height: 1.55; color: #d3e3e9;
+  border-left: 2px solid var(--brass); padding-left: 11px;
+}
+
+/* ---------- What is in the water ---------- */
+/* The paintings are wide and quiet, so they crop to a band and fade out at the
+   foot rather than sitting in a frame: this is a rumour on a panel, not a
+   specimen plate. */
+.creature {
+  position: relative; width: 100%; overflow: hidden;
+  border-radius: 10px; background: #0a1a22;
+}
+.creature img {
+  width: 100%; height: 100%; object-fit: cover; object-position: center 42%;
+  display: block; opacity: 0.92;
+}
+.creature__fade {
+  position: absolute; inset: auto 0 0 0; height: 46%;
+  background: linear-gradient(to bottom, transparent, var(--bg-raised));
+  pointer-events: none;
+}
+.waters { margin-top: 14px; }
+.waters__line {
+  margin: 8px 0 0; font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+  font-size: 14px; line-height: 1.5; color: var(--text-dim);
+}
+.waters__name {
+  display: block; font-size: 11px; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--brass); margin-top: 10px;
+}
+.bestiary { display: grid; gap: 18px; }
+.bestiary__entry { border-top: 1px solid var(--rule); padding-top: 14px; }
+.bestiary__name {
+  margin: 10px 0 4px; font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+  font-size: 18px; color: var(--text);
+}
+.bestiary__where {
+  margin: 0 0 8px; font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--brass);
+}
+.bestiary__lore {
+  margin: 0; font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+  font-size: 14px; line-height: 1.62; color: var(--text-dim);
+}
+
+/* ---------- The worth mark, wherever an island is named ---------- */
+.worthmark { display: inline-block; vertical-align: -0.18em; }
+.isle__worth { margin-left: 7px; color: var(--brass); }
+.sheet__worth { margin-left: 9px; vertical-align: -0.12em; }

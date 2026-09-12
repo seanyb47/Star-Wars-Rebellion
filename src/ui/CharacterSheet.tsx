@@ -3,12 +3,29 @@ import {
   MISSION_WORK_DAYS,
   TRAVEL_DAYS_CROSS_SECTOR,
   TRAVEL_DAYS_IN_SECTOR,
+  inciteLoss,
+  parleyGain,
+  recruitChance,
   successChance,
   type Character,
   type GameState,
 } from '../sim';
-import { CharacterPortrait } from './art';
+import { CharacterPainting } from './art';
 import { Sheet } from './components';
+
+/** Yardsticks for the signing-on range: how a star and an ordinary hand would
+ *  answer this officer. Only their ratings are read, so the rest is filler. */
+const YARDSTICK = {
+  id: '', name: '', faction: 'neutral', locationSystemId: '', status: 'available',
+} as const;
+/** Someone worth having, who knows it — the hard end of the range. */
+const STAR_HAND: Character = {
+  ...YARDSTICK, diplomacy: 95, espionage: 95, combat: 95, leadership: 95,
+};
+/** An ordinary hand off a quay — the easy end. */
+const GREEN_HAND: Character = {
+  ...YARDSTICK, diplomacy: 50, espionage: 50, combat: 50, leadership: 50,
+};
 
 export function statusBadge(character: Character) {
   switch (character.status) {
@@ -77,36 +94,81 @@ export function CharacterSheet({
             disabled={character.status !== 'available'}
             onClick={onSendOnMission}
           >
-            Send to {terms.parley}
+            Send ashore
           </button>
         </>
       }
     >
-      <div className="row" style={{ gap: 12, alignItems: 'center' }}>
-        <CharacterPortrait
-          name={character.name}
-          faction={character.faction}
-          people={character.people}
-          size={68}
-          dim={character.status !== 'available'}
-        />
-        <div style={{ flex: 1, minWidth: 0 }}>
+      {/* The painting, full width and full height, and the lore under it.
+          This used to be a 68px medallion beside a stack of labels, which
+          wasted the one thing on the screen anybody wants to look at. Who
+          somebody is, is the reason to send them; the ratings are only how it
+          goes once you have. */}
+      <CharacterPainting
+        name={character.name}
+        faction={
+          character.faction === 'empire' || character.faction === 'alliance'
+            ? character.faction
+            : 'neutral'
+        }
+        people={character.people}
+        height={232}
+      />
+
+      <div className="row row--between" style={{ marginTop: 10, alignItems: 'baseline' }}>
+        <div style={{ minWidth: 0 }}>
+          {character.epithet && (
+            <div className="serif charsheet__epithet">&ldquo;{character.epithet}&rdquo;</div>
+          )}
           {character.people && <div className="tiny muted">{character.people}</div>}
-          <div style={{ marginTop: 2 }}>{statusBadge(character)}</div>
         </div>
+        {statusBadge(character)}
       </div>
+
+      {character.roles && character.roles.length > 0 && (
+        <div className="charsheet__roles">
+          {character.roles.map((role) => (
+            <span key={role} className="badge">
+              {role}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Who they were before they signed on. Kept after, because it is the
+          only thing distinguishing one set of four numbers from another. */}
+      {character.blurb && <p className="charsheet__lore serif">{character.blurb}</p>}
 
       <Ratings character={character} />
 
-      <div className="section-title">{terms.parley} briefing</div>
+      <div className="section-title">Going ashore</div>
+      {/* Three things an officer can do ashore, and the island decides which:
+          sign on whoever is standing there, parley where nobody has chosen a
+          side, stir up trouble where the enemy has. All three are shown because
+          where you send them is the whole of the choice. */}
       <div className="card small stack">
         <div className="row row--between">
-          <span className="muted">Chance of success</span>
-          <b>{Math.round(successChance(character) * 100)}%</b>
+          <span className="muted">{terms.parley} · unaligned or your own</span>
+          <b>
+            {Math.round(successChance(character, 'diplomacy') * 100)}% · +
+            {parleyGain(character).toFixed(1)}
+          </b>
         </div>
         <div className="row row--between">
-          <span className="muted">{terms.allegiance} gained on success</span>
-          <b>+{(8 + character.diplomacy / 10).toFixed(1)}</b>
+          <span className="muted">{terms.incite} · islands they hold</span>
+          <b>
+            {Math.round(successChance(character, 'incite') * 100)}% · −
+            {inciteLoss(character).toFixed(1)}
+          </b>
+        </div>
+        <div className="row row--between">
+          <span className="muted">Signing on · wherever someone is</span>
+          {/* A range, because it depends who is standing there: the numbers are
+              for a plain hand and for the best person in the world. */}
+          <b>
+            {Math.round(recruitChance(character, STAR_HAND) * 100)}–
+            {Math.round(recruitChance(character, GREEN_HAND) * 100)}%
+          </b>
         </div>
         <div className="row row--between">
           <span className="muted">Passage</span>
@@ -120,8 +182,9 @@ export function CharacterSheet({
         </div>
       </div>
       <p className="muted tiny" style={{ marginTop: 10 }}>
-        These ratings are yours alone; the enemy cannot see them. A {terms.parley.toLowerCase()} on
-        an unaligned island risks being found out.
+        These ratings are yours alone; the enemy cannot see them. Work on ground that is not yours
+        risks being found out — far more so on an island they hold, and more still with one of their
+        own officers standing on it. Espionage is what keeps your officer out of their hands.
       </p>
     </Sheet>
   );

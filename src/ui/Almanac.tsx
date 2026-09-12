@@ -16,8 +16,15 @@ import {
   YARD_BUILDS,
   type FacilityType,
   type GameState,
+  CREATURES,
 } from '../sim';
-import { CategoryIcon, CharacterPortrait, CompanyRow, FacilityIcon } from './art';
+import {
+  CategoryIcon,
+  CharacterPortrait,
+  CompanyRow,
+  CreaturePainting,
+  FacilityIcon,
+} from './art';
 import { Sheet } from './components';
 
 /**
@@ -140,9 +147,9 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
       <div className="stack">
         {(
           [
-            ['missions', 'Missions', 'Your crew standing on it, or sailing to it.'],
-            ['military', 'Military', 'Companies ashore, whoever holds the island.'],
-            ['facilities', 'Facilities', 'What is built there, and what you can raise.'],
+            ['missions', 'Crew', 'Your crew standing on it, or sailing to it.'],
+            ['military', 'Ashore', 'Companies ashore, whoever holds the island.'],
+            ['facilities', 'Built', 'What is built there, and what you can raise.'],
           ] as const
         ).map(([kind, label, text]) => (
           <div key={kind} className="card row" style={{ gap: 10 }}>
@@ -170,7 +177,8 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
             [terms.reach, 'A cluster of ten islands. Allegiance won on one spills 20% onto the rest.'],
             [terms.sea, 'One of the seven regions. Three Inner, four Outer.'],
             [terms.mutiny, `An island whose allegiance falls under ${UPRISING_SUPPORT} rises unless enough companies hold it. It earns nothing and builds nothing until allegiance climbs back to ${UPRISING_END_SUPPORT}.`],
-            [terms.parley, `Sending a crew member to talk an island round. ${TRAVEL_DAYS_IN_SECTOR} days' sail inside a ${terms.reach}, ${TRAVEL_DAYS_CROSS_SECTOR} beyond, then ${MISSION_WORK_DAYS} days' work before they report.`],
+            [terms.parley, `Sending a crew member to talk an island round, where nobody has chosen a side or the island is already yours. ${TRAVEL_DAYS_IN_SECTOR} days' sail inside a ${terms.reach}, ${TRAVEL_DAYS_CROSS_SECTOR} beyond, then ${MISSION_WORK_DAYS} days' work before they report.`],
+            [terms.incite, `The same trip to an island they hold, to turn it against its governor. You do not win the island — you cost them their grip on it, and an island pushed far enough rises on its own, which stops everything being built or loaded there. Dangerous work: their officers are watching, and yours can be hurt.`],
             ['Unaligned', `An island that has not picked a side. It comes over to you at ${FLIP_SUPPORT_MIN} allegiance with a ${FLIP_SUPPORT_MARGIN}-point lead.`],
             ['Smuggling', 'On an island where your allegiance is under 50, the day’s takings may go to the enemy instead.'],
           ] as const
@@ -182,6 +190,24 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
         ))}
       </dl>
 
+      <div className="section-title">What is in the water</div>
+      <div className="card small muted" style={{ marginBottom: 14 }}>
+        None of this can be fought, built or counted. It is here because an island panel that
+        mentions the thing in its waters ought to be able to tell you what it is.
+      </div>
+      <div className="bestiary">
+        {CREATURES.map((beast) => (
+          <div key={beast.slug} className="bestiary__entry">
+            <CreaturePainting slug={beast.slug} height={120} />
+            <h4 className="bestiary__name">{beast.name}</h4>
+            <p className="bestiary__where">
+              {beast.waters.map((w) => w.replace(/-isle$/, '').replace(/-/g, ' ')).join(' · ')}
+            </p>
+            <p className="bestiary__lore">{beast.lore}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="section-title">How the war is won</div>
       <div className="card small">
         Hold {Math.round(VICTORY_CONTROL_FRACTION * 100)}% of the settled islands. Left alone, the
@@ -190,8 +216,11 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
 
       <div className="section-title">Not built yet</div>
       <div className="card small muted">
-        Fleets and sea battles, the other nine kinds of mission, Tidecraft, and the Leviathan are
-        all designed but not in the game. Today the only verb is {terms.parley.toLowerCase()}.
+        Tidecraft, the Leviathan, and a research tree with things in it are designed but not in the
+        game. Everything else the original had is: fleets and sea battles, and eight kinds of errand
+        — {terms.parley.toLowerCase()}, stirring up trouble, signing on, {terms.survey.toLowerCase()},
+        {' '}{terms.sabotage.toLowerCase()}, abduction, command of an island in revolt, and the yards.
+        You never pick one; the island decides.
       </div>
     </Sheet>
   );
