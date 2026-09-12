@@ -602,10 +602,10 @@ button {
 /* Where an island had to be moved to make room for its own marks, and where
    it really lies on the chart. Brass and thin: this is the interface owning
    up to a compromise, not part of the world. */
-/* An island that answers the layer the chart is filtering by. */
-.chainmap__lit { fill: none; stroke: var(--brass); stroke-width: 3.5; opacity: 0.95; }
+/* How many of the thing an island answering the layer has. Coloured per
+   island, for the same reason as on the chart. */
 .chainmap__lit-n {
-  fill: var(--brass); font-size: 26px; font-weight: 700; text-anchor: middle;
+  font-size: 26px; font-weight: 700; text-anchor: middle;
   paint-order: stroke fill; stroke: #041219cc; stroke-width: 5px;
 }
 .chainmap__tether { stroke: var(--brass); stroke-width: 2.5; stroke-dasharray: 8 6; }
@@ -853,16 +853,14 @@ button {
   color: var(--muted); opacity: 0.85; pointer-events: none;
 }
 
-/* An island that answers the current layer. Brass, not a faction colour: this
-   is the interface pointing at something, and a faction colour here would be
-   read as allegiance. CSS rather than an attribute, because a stylesheet rule
-   beats a presentation attribute and this has caught us before. */
-.map__lit {
-  fill: none; stroke: var(--brass); stroke-width: 3; opacity: 0.95;
-}
+/* How many of the thing an island that answers the current layer has.
+   No fill here: the colour is set per island so the number belongs visibly to
+   its dot, and a stylesheet rule would beat that presentation attribute — which
+   has caught us before. */
 .map__lit-n {
-  font-size: 15px; font-weight: 700; fill: var(--brass);
+  font-size: 15px; font-weight: 700;
   font-variant-numeric: tabular-nums;
+  paint-order: stroke fill; stroke: #041219cc; stroke-width: 3.5px;
 }
 
 /* ---------- The card frame (style guide §4) ---------- */

@@ -276,6 +276,12 @@ export function GalaxyMap({
         {...swipe}
       >
         <defs>
+          {/* The glow behind an island that answers the current filter. A blur
+              rather than a second ring, so what you see is the island's own
+              colour burning brighter and not a mark sitting on top of it. */}
+          <filter id="litglow" x="-120%" y="-120%" width="340%" height="340%">
+            <feGaussianBlur stdDeviation="5" />
+          </filter>
           <radialGradient id="shoal">
             <stop offset="0%" stopColor="var(--shallow)" stopOpacity="0.5" />
             <stop offset="70%" stopColor="var(--shallow)" stopOpacity="0.22" />
@@ -407,21 +413,35 @@ export function GalaxyMap({
                 const mark = filtering
                   ? layerMark(state, system, layer, viewer)
                   : { lit: false as const };
+                // One colour, at three strengths. An island is always drawn in
+                // its own loyalty colour; a filter only changes how hard that
+                // colour is pushed. The islands that answer come up bright and
+                // the rest fall back, so the filter reads as the chart lighting
+                // up rather than as a second set of marks laid over it.
+                const lit = filtering && mark.lit;
+                const dim = filtering && !mark.lit;
+                const tint = loyaltyColor(system, viewer);
                 return (
                   <g key={system.id} pointerEvents="none">
-                    {mark.lit && (
+                    {lit && (
                       <>
-                        {/* Brass, because this is the interface pointing at
-                            something rather than the world saying whose it is —
-                            a faction colour here would read as allegiance. */}
+                        {/* A halo in the island's own colour, so bright reads as
+                            bright at three pixels and not merely as filled. */}
                         <circle
-                          className="map__lit"
                           cx={ax}
                           cy={ay}
-                          r={radius + 9}
+                          r={radius + 5}
+                          fill={tint}
+                          opacity={0.55}
+                          filter="url(#litglow)"
                         />
                         {mark.count !== undefined && mark.count > 1 && (
-                          <text className="map__lit-n" x={ax + radius + 11} y={ay - radius - 3}>
+                          <text
+                            className="map__lit-n"
+                            x={ax + radius + 11}
+                            y={ay - radius - 3}
+                            fill={tint}
+                          >
                             {mark.count}
                           </text>
                         )}
@@ -449,18 +469,18 @@ export function GalaxyMap({
                           cx={ax}
                           cy={ay}
                           r={radius}
-                          fill={loyaltyColor(system, viewer)}
-                          opacity={explored ? 0.42 : 0.14}
+                          fill={tint}
+                          opacity={lit ? 1 : dim ? 0.12 : explored ? 0.42 : 0.14}
                         />
                         <circle
                           cx={ax}
                           cy={ay}
                           r={radius}
                           fill="none"
-                          stroke={loyaltyColor(system, viewer)}
-                          strokeWidth={explored ? 2.4 : 1.6}
+                          stroke={tint}
+                          strokeWidth={lit ? 3.2 : explored ? 2.4 : 1.6}
                           strokeDasharray={explored ? undefined : '4 3.5'}
-                          opacity={explored ? 0.95 : 0.5}
+                          opacity={lit ? 1 : dim ? 0.26 : explored ? 0.95 : 0.5}
                         />
                       </>
                     ) : (
@@ -477,15 +497,16 @@ export function GalaxyMap({
                           d={islandPath(system.name, radius)}
                           transform={`translate(${ax} ${ay})`}
                           fill={system.populated ? 'var(--land)' : 'var(--land-bare)'}
-                          stroke={loyaltyColor(system, viewer)}
-                          strokeWidth={explored ? 2.2 : 1.6}
+                          stroke={tint}
+                          strokeWidth={lit ? 3 : explored ? 2.2 : 1.6}
                           strokeDasharray={explored ? undefined : '5 4'}
+                          opacity={dim ? 0.3 : 1}
                         />
                         <path
                           d={islandPath(system.name, radius)}
                           transform={`translate(${ax} ${ay})`}
-                          fill={loyaltyColor(system, viewer)}
-                          opacity={explored ? 0.28 : 0.1}
+                          fill={tint}
+                          opacity={lit ? 0.9 : dim ? 0.08 : explored ? 0.28 : 0.1}
                         />
                       </>
                     )}

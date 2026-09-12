@@ -293,6 +293,10 @@ export function ChainMap({
       {ground && crop && (
         <>
           <defs>
+            {/* Same glow as the chart: the island's colour, burning brighter. */}
+            <filter id="chainlitglow" x="-60%" y="-160%" width="220%" height="420%">
+              <feGaussianBlur stdDeviation="14" />
+            </filter>
             <clipPath id="chainmap-frame">
               <rect x={0} y={0} width={FIELD_W} height={FIELD_H} />
             </clipPath>
@@ -334,6 +338,12 @@ export function ChainMap({
         // The chains dim when they hold nothing to sail to; the islands inside
         // them must do the same, or you find out by tapping and being told no.
         const live = sailing || !pickingFor || isMissionTarget(state, system, pickingFor);
+        // One colour at three strengths, matching the chart: the filter pushes
+        // an island's own tint up rather than adding a mark of its own.
+        const mark = filtering ? layerMark(state, system, layer!, viewer) : { lit: false as const };
+        const lit = filtering && mark.lit;
+        const dim = filtering && !mark.lit;
+        const litCount = 'count' in mark ? mark.count : undefined;
         // Which work this island means, so the ring can say so before you tap.
         const work = pickingFor && !sailing ? missionTypeFor(state, system, pickingFor) : null;
 
@@ -394,9 +404,7 @@ export function ChainMap({
             onClick={live ? () => onOpenIsland(system.id) : undefined}
             role="button"
             aria-disabled={live ? undefined : true}
-            opacity={
-              live ? (filtering && !layerMark(state, system, layer!, viewer).lit ? 0.34 : 1) : 0.3
-            }
+            opacity={live ? (dim ? 0.3 : 1) : 0.3}
             style={{ cursor: live ? 'pointer' : 'default' }}
             aria-label={
               work === 'recruit'
@@ -416,19 +424,31 @@ export function ChainMap({
             }
           >
             {/* Lit because it answers whatever the chart is filtering by.
-                Brass, and a ring rather than a wash: this is the interface
-                pointing at something, not the world saying whose it is. */}
-            {filtering && layerMark(state, system, layer!, viewer).lit && (
+                Same colour as ever, pushed harder: a glow behind the name in the
+                island's own tint, with the rest of the chain fallen back. The
+                filter reads as this island coming up, not as a mark laid over
+                it, which is the same rule the chart above follows. */}
+            {lit && (
               <g pointerEvents="none">
-                <circle className="chainmap__lit" cx={spot.x} cy={spot.y + 2} r={46} />
-                {(() => {
-                  const n = layerMark(state, system, layer!, viewer).count;
-                  return n !== undefined && n > 1 ? (
-                    <text className="chainmap__lit-n" x={spot.x + 50} y={spot.y - 26}>
-                      {n}
-                    </text>
-                  ) : null;
-                })()}
+                <ellipse
+                  cx={spot.x}
+                  cy={spot.y + 2}
+                  rx={Math.max(nameWidth(explored ? system.name : 'Uncharted') / 2 + 14, 54)}
+                  ry={22}
+                  fill={tint}
+                  opacity={0.42}
+                  filter="url(#chainlitglow)"
+                />
+                {litCount !== undefined && litCount > 1 && (
+                  <text
+                    className="chainmap__lit-n"
+                    x={spot.x + nameWidth(explored ? system.name : 'Uncharted') / 2 + 22}
+                    y={spot.y - 14}
+                    fill={tint}
+                  >
+                    {litCount}
+                  </text>
+                )}
               </g>
             )}
 
