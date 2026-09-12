@@ -80,12 +80,21 @@ const SEAS = (() => {
   return [...by].map(([sea, pts]) => {
     const x = pts.reduce((t, p) => t + p.x, 0) / pts.length;
     const y = pts.reduce((t, p) => t + p.y, 0) / pts.length;
-    // Two Reaches leave a gap between them for the name. One does not — the
-    // centroid is the chain itself, and the Crown Sea's name was landing on
-    // Highwater. Lift it clear into the water above, which is where a chart
-    // writes the name of a sea anyway.
-    const lift = pts.length > 1 ? 0 : Math.max(...pts.map((p) => p.ry)) + 62;
-    return { sea, x, y: y - lift };
+    // Two Reaches leave a gap between them for the name; one does not, and the
+    // centroid is then the chain itself — the Crown Sea's name was landing on
+    // Highwater. So a single-Reach Sea lifts its name into the water above,
+    // which is where a chart writes one anyway.
+    //
+    // The lift is capped, and that matters more since the map went to seven
+    // Reaches: with one Reach per Sea every name lifts, the clusters are wider
+    // than they were, and a lift proportional to the whole cluster threw the
+    // Far Sea off the top of the chart and left the Merchant Sea floating four
+    // hundred units above its own islands.
+    const ry = Math.max(...pts.map((p) => p.ry));
+    const lift = pts.length > 1 ? 0 : Math.min(ry * 0.62, 96);
+    // And never off the chart: a name nobody can read is worse than one
+    // sitting a little closer to its islands than it would like.
+    return { sea, x, y: Math.max(46, Math.min(CHART_H - 40, y - lift)) };
   });
 })();
 

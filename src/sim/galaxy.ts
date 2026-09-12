@@ -19,7 +19,9 @@ const INNER_REACHES = reachData.reaches.filter((r) => r.tier === 'inner');
 const OUTER_REACHES = reachData.reaches.filter((r) => r.tier === 'outer');
 const CORE_SECTOR_COUNT = INNER_REACHES.length;
 const RIM_SECTOR_COUNT = OUTER_REACHES.length;
-const SYSTEMS_PER_SECTOR = 10;
+/** How many islands a Reach holds is the Reach's own business now. The small
+ *  map runs from seven to ten, set by how many clearly separated islands each
+ *  one's painted cluster can actually carry — see scripts/chart_positions.py. */
 
 /** Galaxy coordinate space is a square box; sectors sit on two concentric rings. */
 export const GALAXY_SIZE = 1200;
@@ -77,8 +79,19 @@ function makeFacility(id: string, type: FacilityType, owner: PlayableFaction): F
 }
 
 /**
- * Build a fresh 100-system galaxy: 10 sectors of 10 systems, 4 core sectors
- * ringed by 6 rim sectors (spec 4.1).
+ * Build a fresh archipelago: seven Reaches, one for each Sea, three inner and
+ * four outer, holding sixty-three islands between them.
+ *
+ * It used to be ten Reaches of ten. The cut is not a simplification for its own
+ * sake — the chart is a painting now, and three of the ten sat on clusters the
+ * painting could not chart clearly: two crowded against a neighbour and one
+ * drawn on islets too small to hit. Each of the three shared a Sea with a Reach
+ * that survives, so nothing about the world is lost; they are held back for the
+ * larger maps beside Scrap Reach, exactly as the bible already holds that one.
+ *
+ * A Sea and a Reach are therefore the same thing at this size, which is why the
+ * chart can name the Seas and the panels can name the Reaches without either
+ * one lying.
  */
 export function generateGalaxy(seed: number, player: PlayableFaction = 'empire'): GameState {
   const rng = createRng(seed);
@@ -111,8 +124,9 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
 
     // Islands take the positions in the order the bible lists them, so a
     // named island always sits in its own Reach.
-    const points = scatterSystems(rng, SYSTEMS_PER_SECTOR);
-    for (let i = 0; i < SYSTEMS_PER_SECTOR; i++) {
+    const count = reach.islands.length;
+    const points = scatterSystems(rng, count);
+    for (let i = 0; i < count; i++) {
       const island = reach.islands[i];
       const populated = isCoreSector ? true : rng.chance(0.3);
       const system: System = {

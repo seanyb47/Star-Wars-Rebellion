@@ -43,7 +43,7 @@ describe('advanceDay', () => {
 
   it('survives a long run without throwing or corrupting the galaxy', () => {
     const after = tick(generateGalaxy(404), 400);
-    expect(after.systems).toHaveLength(100);
+    expect(after.systems).toHaveLength(62);
     expect(after.day).toBeGreaterThan(1);
     for (const system of after.systems) {
       expect(system.support.empire).toBeGreaterThanOrEqual(0);
@@ -188,7 +188,7 @@ describe('save and load', () => {
     saveGame(state, storage);
     const loaded = loadGame(storage)!;
     expect(loaded.day).toBe(state.day);
-    expect(loaded.systems).toHaveLength(100);
+    expect(loaded.systems).toHaveLength(62);
     expect(JSON.stringify({ ...loaded, speed: state.speed })).toEqual(JSON.stringify(state));
   });
 

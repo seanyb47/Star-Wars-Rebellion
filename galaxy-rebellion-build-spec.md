@@ -94,8 +94,8 @@ interface GameState {
 ## 4. Rules — Phase 1 (implement exactly these)
 
 ### 4.1 Galaxy generation
-- 10 sectors × 10 systems = 100 systems. Sectors arranged roughly in a
-  ring: 4 core sectors in the middle, 6 rim sectors around them.
+- **Superseded 2026-09-12 (A5).** 7 Reaches of 7–12 islands = 62 islands, one
+  Reach per Sea: 3 inner, 4 outer. Was 10 × 10 = 100 in a 4-core / 6-rim ring.
 - Core systems: explored by both sides, populated, 2–4 raw slots,
   3–6 energy slots, some starting facilities.
 - Rim systems: unexplored, ~70% unpopulated, 0–5 raw slots, 0–4 energy slots.
@@ -421,3 +421,33 @@ What is real is a single screen rendering the whole cast at once. Portraits
 therefore load only when near the viewport (`useInView`), with the drawn cameo
 as the placeholder — which costs nothing to design, because it is already the
 right size and shape.
+
+### A5 (2026-09-12) — Seven Reaches, and island counts the chart can carry
+
+Replaces the "10 sectors × 10 systems" line in §4.1.
+
+**Seven Reaches, one for each Sea** — three inner, four outer, 62 islands. A
+Sea and a Reach are the same thing at this size, which is what lets the chart
+name the Seas and a panel name the Reach without either of them lying.
+
+**Island counts vary from 7 to 12**, and are not a design number: they are what
+each Reach's painted cluster on the chart can show as *separate places*.
+Measured on the painting at a 55-unit spacing, the seven clusters carry
+6, 6, 9, 19, 10, 9 and 12. Clamped to the range and to the names the bible has,
+that is Sovereign 10, Shipwrights' 9, Coral 7, Rime 7, Cinder 10, Salt 10,
+Wreckers' 9.
+
+`scripts/chart_positions.py` now bisects for the widest spacing that still
+yields the count a Reach asks for, rather than stepping down through a few
+fixed fallbacks. Every Reach ends up between 48 and 63 units, against 24 before.
+
+**Whalers', Sugar and Mirage move to the medium map**, beside Scrap which was
+already there. Each shared a Sea with a Reach that survives, so no Sea leaves
+the chart; what leaves is a second archipelago inside three of them. All three
+sat on painted clusters that could not be charted clearly — Whalers' on islets
+too small to hit, Sugar and Mirage running together with their neighbours down
+the right-hand side. This is the one place the art has driven the rules, and it
+is the right way round: the map is the thing you look at.
+
+Settles open question 5 in the bible. `SYSTEMS_PER_SECTOR` is gone from the
+generator; a Reach holds however many islands it holds.

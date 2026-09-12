@@ -50,22 +50,32 @@ CHART_W, CHART_H = 1000, 1500
 # image by eye; snapped onto the painted land by the code below, so these only
 # have to be close enough to pick the right cluster.
 SEEDS: dict[str, tuple[float, float]] = {
-    "Rime Reach": (0.186, 0.091),        # snow peaks, top left — the arctic one
-    "Whalers' Reach": (0.605, 0.115),    # scattered islets along the top
-    "Coral Reach": (0.854, 0.126),       # top right
+    "Rime Reach": (0.186, 0.091),          # snow peaks, top left — the arctic one
+    "Coral Reach": (0.854, 0.126),         # top right
     "Shipwrights' Reach": (0.195, 0.293),  # the long green chain down the left
-    "Sugar Reach": (0.854, 0.280),       # upper right
-    "Sovereign Reach": (0.504, 0.449),   # dead centre, the largest — Highwater
-    "Mirage Reach": (0.883, 0.423),      # right, below Sugar
-    "Cinder Reach": (0.215, 0.638),      # thin chain, lower left
-    "Wreckers' Reach": (0.840, 0.677),   # the spiral — the Bone Sea whirlpool
-    "Salt Reach": (0.512, 0.833),        # the long chain across the bottom
+    "Sovereign Reach": (0.504, 0.449),     # dead centre, the largest — Highwater
+    "Cinder Reach": (0.215, 0.638),        # thin chain, lower left
+    "Wreckers' Reach": (0.840, 0.677),     # the spiral — the Bone Sea whirlpool
+    "Salt Reach": (0.512, 0.833),          # the long chain across the bottom
 }
+# Three seeds were removed rather than moved. Whalers' sat on islets too small
+# to chart, and Sugar and Mirage ran together with their neighbours down the
+# right-hand side. Each shared a Sea with one of the seven above, so the Sea
+# keeps its place on the chart and only the second archipelago inside it is
+# held back for a larger map.
 
 # A blob has to be this big to count as an island rather than paper grain, and
 # two islands have to be this far apart or their marks touch on a phone.
 MIN_BLOB_PX = 6
-MIN_GAP_UNITS = 24
+# Far enough apart to be separate places when a chain is opened.
+#
+# This used to be 24, which was only asking that two marks not overlap on the
+# main chart. Opening a chain zooms in 2.4x to 5.4x, and at that range 24 units
+# put two islands on top of each other with their names crossing. 55 is what a
+# chain view needs to read as seven to twelve distinct places, and it is why
+# each Reach now holds as many islands as its painted cluster can carry at that
+# spacing rather than a flat ten.
+MIN_GAP_UNITS = 55
 # Beyond this a blob belongs to no Reach. Without it the empty bottom corners
 # get adopted by whichever cluster happens to be least far away.
 MAX_REACH_UNITS = 210
@@ -93,21 +103,41 @@ def painted_islands(path: str) -> list[tuple[float, float, float]]:
     return out
 
 
-def pick(blobs: list[tuple[float, float, float]], want: int) -> list[tuple[float, float]]:
-    """The `want` biggest islands that are not on top of each other.
-
-    Biggest first, skipping anything too close to one already taken. Falls back
-    to relaxing the gap rather than returning short: a Reach with ten islands
-    has to get ten marks, even where the painting only drew eight.
-    """
-    for gap in (MIN_GAP_UNITS, MIN_GAP_UNITS * 0.7, MIN_GAP_UNITS * 0.45, 0.0):
-        taken: list[tuple[float, float]] = []
-        for x, y, _ in sorted(blobs, key=lambda b: -b[2]):
-            if all((x - px) ** 2 + (y - py) ** 2 >= gap * gap for px, py in taken):
-                taken.append((x, y))
-            if len(taken) == want:
-                return taken
+def spaced(blobs: list[tuple[float, float, float]], gap: float, want: int):
+    """The biggest islands, taken in order, none closer than `gap` to another."""
+    taken: list[tuple[float, float]] = []
+    for x, y, _ in sorted(blobs, key=lambda b: -b[2]):
+        if all((x - px) ** 2 + (y - py) ** 2 >= gap * gap for px, py in taken):
+            taken.append((x, y))
+        if len(taken) == want:
+            break
     return taken
+
+
+def pick(blobs: list[tuple[float, float, float]], want: int) -> list[tuple[float, float]]:
+    """The `want` biggest islands, as far apart as this cluster can manage.
+
+    Not "at least MIN_GAP" — the widest gap that still yields `want`. Stepping
+    down in a few fixed jumps threw away most of the room: Coral and Rime both
+    fit seven islands at 48 units, and a fallback that went straight from 55 to
+    38.5 sat them at 41 for no reason.
+
+    A Reach still gets the number of islands it asks for even where the
+    painting is tight. The chain view is built to show that honestly rather
+    than hide it — it tethers a mark to its real island when it has had to move
+    one — but there is no reason to make it work harder than the cluster
+    requires.
+    """
+    lo, hi = 0.0, MIN_GAP_UNITS
+    if len(spaced(blobs, hi, want)) == want:
+        return spaced(blobs, hi, want)
+    for _ in range(24):  # bisect to within a fraction of a unit
+        mid = (lo + hi) / 2
+        if len(spaced(blobs, mid, want)) == want:
+            lo = mid
+        else:
+            hi = mid
+    return spaced(blobs, lo, want)
 
 
 def main() -> None:

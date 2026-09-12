@@ -6,10 +6,10 @@
   {
    "reach": "Sovereign Reach",
    "sea": "The Crown Sea",
-   "x": 535.7,
-   "y": 770.1,
-   "r": 111.6,
-   "ry": 90.8,
+   "x": 499.0,
+   "y": 694.4,
+   "r": 170.8,
+   "ry": 134.0,
    "islands": [
     {
      "name": "Highwater",
@@ -28,38 +28,38 @@
     },
     {
      "name": "Bracton",
-     "x": 531.6,
-     "y": 789.3
-    },
-    {
-     "name": "Chandler's Rest",
      "x": 507.8,
      "y": 819.8
     },
     {
-     "name": "Corsham Head",
+     "name": "Chandler's Rest",
      "x": 426.0,
      "y": 749.3
     },
     {
+     "name": "Corsham Head",
+     "x": 508.5,
+     "y": 564.8
+    },
+    {
      "name": "Gorley",
-     "x": 550.8,
-     "y": 679.3
+     "x": 470.8,
+     "y": 638.0
     },
     {
      "name": "Sievern",
-     "x": 551.3,
-     "y": 818.7
+     "x": 417.3,
+     "y": 692.8
     },
     {
      "name": "Ulverne",
-     "x": 602.0,
-     "y": 793.4
+     "x": 589.1,
+     "y": 613.4
     },
     {
      "name": "Yarrow Minor",
-     "x": 558.9,
-     "y": 750.0
+     "x": 442.4,
+     "y": 564.4
     }
    ],
    "luma": 52.0
@@ -67,10 +67,10 @@
   {
    "reach": "Shipwrights' Reach",
    "sea": "The Merchant Sea",
-   "x": 171.2,
-   "y": 510.8,
-   "r": 161.4,
-   "ry": 160.9,
+   "x": 172.4,
+   "y": 482.5,
+   "r": 190.6,
+   "ry": 181.3,
    "islands": [
     {
      "name": "Comenara",
@@ -89,49 +89,44 @@
     },
     {
      "name": "Dralla",
-     "x": 225.0,
-     "y": 576.5
-    },
-    {
-     "name": "Duroso",
      "x": 105.3,
      "y": 600.6
     },
     {
-     "name": "Selona",
+     "name": "Duroso",
      "x": 239.0,
      "y": 600.7
     },
     {
+     "name": "Selona",
+     "x": 184.6,
+     "y": 349.9
+    },
+    {
      "name": "Talusa",
-     "x": 134.0,
-     "y": 504.2
+     "x": 231.3,
+     "y": 301.2
     },
     {
      "name": "Tralosa",
-     "x": 156.4,
-     "y": 397.4
+     "x": 131.8,
+     "y": 443.8
     },
     {
      "name": "Vagrano",
-     "x": 119.7,
-     "y": 570.8
-    },
-    {
-     "name": "Ciquina",
-     "x": 184.6,
-     "y": 349.9
+     "x": 111.4,
+     "y": 538.8
     }
    ],
-   "luma": 38.0
+   "luma": 35.0
   },
   {
    "reach": "Coral Reach",
    "sea": "The Amber Sea",
-   "x": 843.9,
-   "y": 191.4,
-   "r": 105.9,
-   "ry": 73.5,
+   "x": 806.0,
+   "y": 193.0,
+   "r": 197.2,
+   "ry": 197.0,
    "islands": [
     {
      "name": "Bothaway",
@@ -139,121 +134,45 @@
      "y": 151.3
     },
     {
-     "name": "Passh Bay",
+     "name": "Cothlis Cay",
+     "x": 733.9,
+     "y": 82.1
+    },
+    {
+     "name": "Coralhome",
      "x": 877.4,
      "y": 234.9
     },
     {
-     "name": "Denby Cay",
-     "x": 912.0,
-     "y": 256.8
+     "name": "Preston's Reach",
+     "x": 815.0,
+     "y": 390.0
     },
     {
-     "name": "Cothlis Cay",
-     "x": 887.5,
-     "y": 234.8
-    },
-    {
-     "name": "Coralhome",
-     "x": 864.5,
-     "y": 205.4
-    },
-    {
-     "name": "Ortovale",
+     "name": "Sluysvaan",
      "x": 771.5,
      "y": 123.9
     },
     {
-     "name": "Preston's Reach",
-     "x": 805.8,
-     "y": 171.9
-    },
-    {
-     "name": "Sluysvaan",
-     "x": 865.2,
-     "y": 214.3
-    },
-    {
      "name": "The Shoals",
-     "x": 767.6,
-     "y": 117.9
+     "x": 916.7,
+     "y": 313.4
     },
     {
      "name": "Umgulla",
-     "x": 853.4,
-     "y": 202.3
+     "x": 693.8,
+     "y": 55.7
     }
    ],
-   "luma": 36.0
-  },
-  {
-   "reach": "Sugar Reach",
-   "sea": "The Amber Sea",
-   "x": 837.2,
-   "y": 440.4,
-   "r": 149.8,
-   "ry": 127.0,
-   "islands": [
-    {
-     "name": "Bilbrin",
-     "x": 857.4,
-     "y": 419.4
-    },
-    {
-     "name": "Bysse",
-     "x": 808.7,
-     "y": 441.2
-    },
-    {
-     "name": "Charmouth",
-     "x": 876.9,
-     "y": 491.6
-    },
-    {
-     "name": "Ferrol Key",
-     "x": 802.9,
-     "y": 393.5
-    },
-    {
-     "name": "Komm Cay",
-     "x": 846.2,
-     "y": 477.7
-    },
-    {
-     "name": "Kinyon",
-     "x": 748.3,
-     "y": 460.6
-    },
-    {
-     "name": "Fraytis",
-     "x": 855.1,
-     "y": 453.9
-    },
-    {
-     "name": "Rishi Bank",
-     "x": 777.2,
-     "y": 431.1
-    },
-    {
-     "name": "Tanab",
-     "x": 882.8,
-     "y": 521.3
-    },
-    {
-     "name": "Wistrell",
-     "x": 916.7,
-     "y": 313.4
-    }
-   ],
-   "luma": 39.0
+   "luma": 38.0
   },
   {
    "reach": "Rime Reach",
    "sea": "The Far Sea",
-   "x": 167.1,
-   "y": 128.7,
-   "r": 119.6,
-   "ry": 75.2,
+   "x": 179.6,
+   "y": 129.7,
+   "r": 107.1,
+   "ry": 76.2,
    "islands": [
     {
      "name": "Alyvik",
@@ -262,120 +181,44 @@
     },
     {
      "name": "Annat Fjord",
-     "x": 112.3,
-     "y": 80.2
-    },
-    {
-     "name": "Varrow",
      "x": 151.6,
      "y": 162.5
     },
     {
-     "name": "Deyr",
+     "name": "Varrow",
      "x": 241.3,
      "y": 186.4
     },
     {
-     "name": "Gentnes",
-     "x": 139.9,
-     "y": 138.9
-    },
-    {
-     "name": "Rime Island",
-     "x": 91.2,
-     "y": 125.0
-    },
-    {
-     "name": "Lelmar",
+     "name": "Deyr",
      "x": 285.0,
      "y": 148.7
     },
     {
-     "name": "Nykov",
+     "name": "Gentnes",
      "x": 221.4,
      "y": 100.4
     },
     {
-     "name": "Storthavn",
-     "x": 164.2,
-     "y": 176.8
-    },
-    {
-     "name": "Tokmaa",
+     "name": "Rime Island",
      "x": 128.8,
      "y": 53.5
+    },
+    {
+     "name": "Lelmar",
+     "x": 94.2,
+     "y": 141.6
     }
    ],
    "luma": 43.0
   },
   {
-   "reach": "Whalers' Reach",
-   "sea": "The Far Sea",
-   "x": 575.0,
-   "y": 191.8,
-   "r": 193.1,
-   "ry": 136.1,
-   "islands": [
-    {
-     "name": "Alkellish",
-     "x": 733.9,
-     "y": 82.1
-    },
-    {
-     "name": "Boordvik",
-     "x": 623.8,
-     "y": 211.4
-    },
-    {
-     "name": "Flaxholm",
-     "x": 541.1,
-     "y": 189.5
-    },
-    {
-     "name": "Gedon",
-     "x": 618.4,
-     "y": 201.3
-    },
-    {
-     "name": "Northreach",
-     "x": 565.5,
-     "y": 148.4
-    },
-    {
-     "name": "Linnur",
-     "x": 411.8,
-     "y": 252.9
-    },
-    {
-     "name": "Kristak",
-     "x": 501.0,
-     "y": 303.2
-    },
-    {
-     "name": "Tjerfon",
-     "x": 508.5,
-     "y": 313.9
-    },
-    {
-     "name": "Vustri",
-     "x": 693.8,
-     "y": 55.7
-    },
-    {
-     "name": "Tallow Cay",
-     "x": 551.9,
-     "y": 159.7
-    }
-   ],
-   "luma": 32.0
-  },
-  {
    "reach": "Cinder Reach",
    "sea": "The Sea of Storms",
-   "x": 191.1,
-   "y": 934.4,
-   "r": 148.2,
-   "ry": 126.9,
+   "x": 209.2,
+   "y": 965.0,
+   "r": 190.4,
+   "ry": 137.9,
    "islands": [
     {
      "name": "Tamalu",
@@ -394,49 +237,49 @@
     },
     {
      "name": "Basilisk Rock",
-     "x": 275.1,
-     "y": 981.8
-    },
-    {
-     "name": "Greenholm",
      "x": 179.6,
      "y": 907.6
     },
     {
-     "name": "Gandolo Spit",
+     "name": "Greenholm",
      "x": 113.1,
      "y": 827.1
     },
     {
-     "name": "Firewatch",
+     "name": "Gandolo Spit",
      "x": 267.6,
      "y": 1061.3
     },
     {
+     "name": "Firewatch",
+     "x": 164.5,
+     "y": 1031.8
+    },
+    {
      "name": "Kuimin",
-     "x": 196.5,
-     "y": 950.9
+     "x": 374.2,
+     "y": 1060.2
     },
     {
      "name": "Emberfall",
-     "x": 92.1,
-     "y": 853.9
+     "x": 118.8,
+     "y": 941.4
     },
     {
      "name": "Vejun Keep",
-     "x": 135.9,
-     "y": 881.2
+     "x": 223.6,
+     "y": 940.9
     }
    ],
-   "luma": 27.0
+   "luma": 29.0
   },
   {
    "reach": "Salt Reach",
    "sea": "The Glass Sea",
-   "x": 501.1,
-   "y": 1256.4,
-   "r": 204.0,
-   "ry": 114.5,
+   "x": 518.6,
+   "y": 1263.0,
+   "r": 185.8,
+   "ry": 113.1,
    "islands": [
     {
      "name": "Bakuran Flats",
@@ -455,110 +298,49 @@
     },
     {
      "name": "Joyol",
-     "x": 427.6,
-     "y": 1188.4
-    },
-    {
-     "name": "Kimmen",
      "x": 366.9,
      "y": 1158.1
     },
     {
-     "name": "Lafray",
+     "name": "Kimmen",
      "x": 354.8,
      "y": 1264.5
     },
     {
-     "name": "Mantissa",
+     "name": "Lafray",
      "x": 548.3,
      "y": 1327.9
     },
     {
+     "name": "Mantissa",
+     "x": 669.9,
+     "y": 1370.9
+    },
+    {
      "name": "Powder Isle",
-     "x": 590.8,
-     "y": 1270.0
+     "x": 668.2,
+     "y": 1242.5
     },
     {
      "name": "Rylo Salt",
-     "x": 401.1,
-     "y": 1194.5
+     "x": 481.0,
+     "y": 1327.0
     },
     {
      "name": "Blackreef",
-     "x": 669.9,
-     "y": 1370.9
+     "x": 445.9,
+     "y": 1150.0
     }
    ],
    "luma": 43.0
   },
   {
-   "reach": "Mirage Reach",
-   "sea": "The Glass Sea",
-   "x": 891.3,
-   "y": 623.4,
-   "r": 134.6,
-   "ry": 134.2,
-   "islands": [
-    {
-     "name": "Ankerholm",
-     "x": 891.8,
-     "y": 546.1
-    },
-    {
-     "name": "Chalcedon",
-     "x": 904.5,
-     "y": 657.8
-    },
-    {
-     "name": "Clatter Rock",
-     "x": 897.0,
-     "y": 599.0
-    },
-    {
-     "name": "Conna",
-     "x": 912.2,
-     "y": 717.6
-    },
-    {
-     "name": "Dantoon",
-     "x": 880.9,
-     "y": 757.6
-    },
-    {
-     "name": "Nemthe",
-     "x": 853.5,
-     "y": 595.3
-    },
-    {
-     "name": "Cabal Rock",
-     "x": 910.7,
-     "y": 618.9
-    },
-    {
-     "name": "Otrago",
-     "x": 876.9,
-     "y": 667.9
-    },
-    {
-     "name": "Triton Shoal",
-     "x": 870.3,
-     "y": 534.8
-    },
-    {
-     "name": "Erdur",
-     "x": 915.7,
-     "y": 538.6
-    }
-   ],
-   "luma": 37.0
-  },
-  {
    "reach": "Wreckers' Reach",
    "sea": "The Bone Sea",
-   "x": 833.7,
-   "y": 1061.6,
-   "r": 117.4,
-   "ry": 102.0,
+   "x": 834.7,
+   "y": 1032.3,
+   "r": 134.9,
+   "ry": 132.1,
    "islands": [
     {
      "name": "Gibbet Rock",
@@ -587,31 +369,26 @@
     },
     {
      "name": "The Kettles",
-     "x": 849.4,
-     "y": 1030.4
+     "x": 748.9,
+     "y": 1073.1
     },
     {
      "name": "Cubbin",
-     "x": 813.9,
-     "y": 1144.5
+     "x": 900.5,
+     "y": 1089.9
     },
     {
      "name": "Morvogine",
-     "x": 755.0,
-     "y": 1087.5
+     "x": 861.9,
+     "y": 900.1
     },
     {
      "name": "Norvell",
-     "x": 830.9,
-     "y": 1002.1
-    },
-    {
-     "name": "Skorra",
-     "x": 900.5,
-     "y": 1089.9
+     "x": 814.3,
+     "y": 965.7
     }
    ],
-   "luma": 42.0
+   "luma": 41.0
   }
  ]
 }

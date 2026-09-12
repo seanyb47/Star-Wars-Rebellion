@@ -14,7 +14,7 @@ assets rather than bundled.
 
 | | |
 |---|---|
-| **Phase 1 — the war** | Built. 100 islands, ten Reaches, seven Seas, economy, support, control, unrest, building, the day clock. |
+| **Phase 1 — the war** | Built. 62 islands, seven Reaches — one for each Sea — economy, support, control, unrest, building, the day clock. |
 | **Phase 2 — fleets** | Built. Hulls in four sizes, troop capacity, movement, auto-resolved combat, assault, blockade. Fighters cut from the design, not deferred. |
 | **Phase 3 — missions** | 3 of 8. Parley, Incite Uprising, Recruitment. |
 | **Phase 4 — polish** | Not started. |
@@ -148,10 +148,9 @@ opponent, sound, animation.
   improved. It measures how long a do-nothing player survives, and a better
   opponent shortens that without the game being worse. It is recorded rather
   than defended; do not tune good mechanics down to protect a number.
-- **Reach count on the small map.** The bible says 3 Inner + 7 Outer; the
-  generator makes 4 + 6, so Sugar was promoted and Scrap held back. The chart
-  painting now bakes that arrangement in. Settle it or leave it, but it is no
-  longer free to change.
+- ~~Reach count on the small map.~~ **Settled.** Seven Reaches, one per Sea,
+  three inner and four outer. Sugar, Whalers' and Mirage moved to the medium
+  map with Scrap.
 - **Deploys must be dispatched by hand.** The `github-pages` environment's
   deployment-branch allow-list still names the original default branch, so a
   push to the feature branch does not deploy itself.
@@ -165,6 +164,5 @@ opponent, sound, animation.
 - **Building icons do not share a baseline**, so a row of them sits unevenly.
 - **`README.md`'s "Not built yet"** still says fleets are outstanding. They are
   not.
-- **Two chains crowd on the chart** — Sugar and Mirage run together down the
-  right side, and Whalers' is drawn on very small painted islands. Fixable in a
-  re-generation of the chart painting; not worth one on its own.
+- ~~Two chains crowd on the chart.~~ **Gone** — Sugar, Mirage and Whalers' were
+  the three Reaches cut, so the crowding went with them.

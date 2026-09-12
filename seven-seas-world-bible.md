@@ -40,7 +40,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 | Original | New | Mechanic translation |
 |---|---|---|
 | Galaxy | **The Seven Seas** | Whole map |
-| Sector | **Reach** (~10 islands inside a Sea) | Same grouping as sectors. Seven Seas fixed; *number of Reaches per Sea* scales with map size (10 / 15 / 20 Reaches → ~100 / 150 / 200 islands). |
+| Sector | **Reach** (an archipelago inside a Sea) | Same grouping as sectors. Seven Seas fixed; *number of Reaches per Sea* scales with map size. **On the small map there is one Reach per Sea, so a Sea and its archipelago are the same thing** (7 Reaches, 62 islands). Medium and large add second and third Reaches inside a Sea (→ ~150 / 200 islands). |
 | Core sectors | **The Inner Seas** (3) | Rich, charted, Imperium-leaning |
 | Outer Rim sectors | **The Outer Seas** (4) | Uncharted, strange, must be explored |
 | System / planet | **Island** | One node |
@@ -438,30 +438,59 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 2. Should the Black Tide ever be a *mechanic* (spreading stain, allegiance drag) or stay pure flavor on the existing disaster event? Draft: flavor in phase 1, hook noted.
 3. Tidecraft in battle (⚙ hooks) — phase 2 or never?
 4. Naming register: Imperium reads English/Dutch, Confederacy mixed, Far Sea Norse. Shift any of them?
-5. **Reach count on the small map.** The bible's small map is 3 Inner + 7 Outer; the phase 1 simulation generates 4 core + 6 rim. The build kept the simulation's shape and promoted **Sugar Reach** to Inner, holding **Scrap Reach** back for the larger maps. This happens to put all seven Seas on the small map. Change the generator to 3 + 7, or leave it?
+5. ~~**Reach count on the small map.**~~ **Settled 2026-09-12.** The small map is now **seven Reaches, one per Sea** — three Inner and four Outer, as the bible always wanted. Sugar goes back to the medium map and Whalers' and Mirage join it, because the chart is a painting now and those three clusters could not be charted clearly. See §13.
 6. **Tallow Cay as the Confederacy's known start.** Phase 1 spawns the Free Harbor on a *random* Outer island, so no island can honestly be labelled the start. The island notes for Tallow Cay and Rime Island were written neutrally rather than promising something the game does not do. Fix by making the spawn fixed, or leave the hidden-harbour hunt to phase 3?
 7. **Section 14 data-model hooks.** No hidden `loyalty` field has been added to characters yet — an unused field that nothing reads or writes is dead weight until 14.2 is built. Neutral-owned islands with garrisons already exist, so 14.1 needs no groundwork.
 
 ---
 
-## 13. THE MAP — SEAS, REACHES, AND ALL 200 ISLANDS
+## 13. THE MAP — SEAS, REACHES, AND THE ISLANDS
 
-**Structure:** Sea (region/archipelago, 7 fixed) → Reach (= original sector, ~10 islands) → Island (= original system). Each island keeps its original planet's slot stats (fresh-water/energy, Stores capacity, facility slots, starting owner, starting loyalty, starting facilities). Only the name changes.
+**Structure:** Sea (region, 7 fixed) → Reach (an archipelago, 7–12 islands) → Island (= original system). Each island keeps its original planet's slot stats (fresh-water/energy, Stores capacity, facility slots, starting owner, starting loyalty, starting facilities). Only the name changes.
 
-**Map sizes** (mirrors original 10 / 15 / 20 sectors): `small` Reaches appear on every map; `medium` are added on the medium map; `large` on the large map. Inner Seas always hold the core Reaches; Outer Seas hold the rim Reaches and the possible Free Harbor spawn.
+**On the small map there are seven Reaches, one for each Sea.** A Sea and its
+archipelago are the same thing at this size, which is why the chart can name
+the Seas and an island panel can name the Reach without either of them lying
+about what you are looking at. Larger maps put a second and third archipelago
+inside a Sea; the Sea count never changes, because it is in the title.
 
-| Map | Inner (core) Reaches | Outer (rim) Reaches |
-|---|---|---|
-| Small (10) | Sovereign, Shipwrights', Coral | Rime, Whalers', Cinder, Salt, Mirage, Wreckers', Scrap |
-| Medium (15) | + Sugar | + Monsoon, Still, Drowned, Witch |
-| Large (20) | + Grey, Lantern | + Quarry, Last, Rice |
+**Map sizes.** `small` Reaches appear on every map; `medium` are added on the
+medium map; `large` on the large map.
 
-**Rendering suggestion:** draw each Sea as its own archipelago with a distinct water color and island silhouette style; Reaches are loose clusters within it. Highwater is drawn oversized with a walled harbor but is still one node.
+| Map | Inner (core) Reaches | Outer (rim) Reaches | Islands |
+|---|---|---|---|
+| Small (7) | Sovereign, Shipwrights', Coral | Rime, Cinder, Salt, Wreckers' | 62 |
+| Medium (15) | + Sugar, Grey | + Whalers', Mirage, Scrap, Monsoon, Still, Drowned, Witch | ~150 |
+| Large (20) | + Lantern | + Quarry, Last, Rice | ~200 |
+
+**Island counts are not uniform, and that is deliberate.** A Reach holds
+between seven and twelve islands, set by how many its painted cluster on the
+chart can show as separate places at a 48-unit spacing: Sovereign and Cinder
+and Salt and Wreckers' are crowded archipelagos, Coral and Rime are small ones.
+Sixty-two islands rather than a hundred, and the chain view can lay every one
+of them out clearly, which the flat ten could not.
+
+**What was cut, and why it is not a loss.** The small map used to carry ten
+Reaches. **Whalers'**, **Sugar** and **Mirage** are now held back for the medium
+map alongside **Scrap**. Each shared a Sea with a Reach that survives — Whalers'
+with Rime in the Far Sea, Sugar with Coral in the Amber, Mirage with Salt in the
+Glass — so every Sea keeps its place, its character and its named islands in the
+fiction. What went is a second archipelago inside three Seas, and each of the
+three sat on a painted cluster the chart could not show cleanly: Whalers' on
+islets too small to hit, Sugar and Mirage running together with their neighbours
+down the right-hand side.
+
+**This also settles open question 5.** The bible wanted three Inner Reaches and
+the generator was making four, because Sugar had been promoted to fill it.
+Sugar is now held back, and the small map is three Inner and four Outer as
+written.
+
+**Rendering suggestion:** draw each Sea as its own archipelago with a distinct water color and island silhouette style. Highwater is drawn oversized with a walled harbor but is still one node.
 
 ### The Crown Sea (Inner Sea)
 *Temperate, grey, fortified. Stately names. Seat of the Imperium.*
 
-**Sovereign Reach** (orig. Sesswenna sector — `small` map)
+**Sovereign Reach** (orig. Sesswenna sector — `small` map; **10 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -494,7 +523,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 ### The Merchant Sea (Inner Sea)
 *Mediterranean: sun, terraced harbors, guild towns, the best slipways. Italian/Iberian-flavored names.*
 
-**Shipwrights' Reach** (orig. Corellian sector — `small` map)
+**Shipwrights' Reach** (orig. Corellian sector — `small` map; **9 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -527,7 +556,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 ### The Amber Sea (Inner Sea)
 *Tropical / Caribbean: plantations, sugar, reefs, hurricanes, old money with divided loyalties.*
 
-**Coral Reach** (orig. Sluis sector — `small` map)
+**Coral Reach** (orig. Sluis sector — `small` map; **7 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -560,7 +589,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 ### The Far Sea (Outer Sea)
 *Arctic / Norse: ice, fjords, whalers, the last free people. Norse-flavored names.*
 
-**Rime Reach** (orig. Churba sector — `small` map)
+**Rime Reach** (orig. Churba sector — `small` map; **7 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -575,7 +604,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 | Storthus | **Storthavn** |  |
 | Tokmia | **Tokmaa** |  |
 
-**Whalers' Reach** (orig. Sumitra sector — `small` map)
+**Whalers' Reach** (orig. Sumitra sector — `medium` map)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -623,7 +652,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 ### The Sea of Storms (Outer Sea)
 *Monsoon belt: typhoons, volcanoes, rice terraces, jungle. Islands here are rich but hard to hold.*
 
-**Cinder Reach** (orig. Moddell sector — `small` map)
+**Cinder Reach** (orig. Moddell sector — `small` map; **10 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -671,7 +700,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 ### The Glass Sea (Outer Sea)
 *WEIRD: the water goes flat and holds sound for miles; islands appear at noon and are gone by dusk; salt flats that were harbors last year. Ships row, or wait for a Tidecaller. The Imperium keeps a Stillwater here and nobody knows why. Sun-bleached names.*
 
-**Salt Reach** (orig. Orus sector — `small` map)
+**Salt Reach** (orig. Orus sector — `small` map; **10 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -686,7 +715,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 | Ryloth | **Rylo Salt** | salt-slave island; one side never sees dusk |
 | Tatooine | **Blackreef** | Jubal the Fat's corsair haven |
 
-**Mirage Reach** (orig. Mayagil sector — `small` map)
+**Mirage Reach** (orig. Mayagil sector — `medium` map)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -719,7 +748,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 ### The Bone Sea (Outer Sea)
 *WEIRD: the islands are the bones of dead leviathans, reef-grown over. The water glows at night. Wrecks outnumber ships. Corsair havens, witch-islands, and a permanent whirlpool. Fogmire (Old Hesper) is here but is an event location, not a node.*
 
-**Wreckers' Reach** (orig. Calaron sector — `small` map)
+**Wreckers' Reach** (orig. Calaron sector — `small` map; **9 islands charted**)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -734,7 +763,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 | Norval II | **Norvell** |  |
 | Skor II | **Skorra** |  |
 
-**Scrap Reach** (orig. Dufilvan sector — `small` map)
+**Scrap Reach** (orig. Dufilvan sector — `medium` map)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -876,6 +905,7 @@ These two systems are Sean's additions. Neither exists in the original game. Bot
 - **2026-09-09 v2.6** — Vocabulary and economy, after playtesting. Stores and Fittings are withdrawn: they were invented words that told a player nothing. There is now one currency, **Gold**, on the rule that a building either earns gold or costs gold — Camps and Mills earn, Works, Drill Grounds, Slipways and companies cost. Sweetwater is withdrawn from the UI in favour of **Ground** and **Water** for the two slot types, for the same reason. Character ratings are spelled out rather than abbreviated. See amendment A1 in the build spec for the rules.
 - **2026-09-09 v2.5** — Added the Reach panel, after the original's sector view: a Reach's islands listed with three icons each (missions, military, facilities), over a summary of what the Reach earns and the mean allegiance across its settled islands. The island panel's tabs were re-cut to match those three — Overview / Missions / Military / Facilities / Log — so an icon on the Reach panel opens the island straight onto the matching tab.
 - **2026-09-09 v2.4** — Unit art. Every building type has its own glyph (Camp a cut hillside and pick, Mill a waterwheel, Works a shear-legs crane, Drill Ground a rack of pikes, Slipway a hull on the stocks), shown on the Build tab, on the build buttons and as marks on the island portrait. Garrisons are drawn as companies of pike figures, with the shortfall to the needed garrison greyed in. Characters have cameo portraits cut from their own names — hat, beard, epaulettes and collar vary, and Urskin are visibly not human. `Character.people` is now carried through from the roster so the portrait can read it.
+- **2026-09-12 v5.0** — **Seven Reaches, one for each Sea.** The small map was ten Reaches of ten islands; it is now seven of seven to twelve, sixty-two in all. The reason is the chart: it is a painting now, and three of the ten sat on clusters it could not show clearly — Whalers' on islets too small to hit, Sugar and Mirage running together with their neighbours down the right-hand side. All three shared a Sea with a Reach that survives, so every Sea keeps its place, its character and its islands in the fiction; what moved to the medium map is a second archipelago inside three Seas, beside Scrap Reach which was already held back. Island counts are no longer uniform: a Reach holds as many islands as its painted cluster can show as separate places at a 48-unit spacing, which is what lets the chain view lay every island out clearly instead of stacking them. A Sea and a Reach are the same thing at this size, so the chart names the Seas and the panels name the Reaches and neither is lying. Settles open question 5 — three Inner and four Outer, as written. No rules changed.
 - **2026-09-12 v4.9** — Tone retuned to the faction style guide. The register is now heroic adventure rather than grimdark: both sides believe themselves the decent one and neither is written as the villain. Added each faction's creed and motto (Order · Stability · A brighter tomorrow / Freedom · Opportunity · No masters) and put the creed on the title screen's faction cards. Softened the ugly halves throughout — conscription rolls rather than press gangs emptying villages, opportunists rather than slavers, the Fatmouths as harbour-kings rather than slaver-kings, Corvane's ledger as tragic conviction rather than cruelty. The rule that every named character carries one admirable and one ugly trait is unchanged; it says the same thing the guide's "different crews, the same horizon" does. **The darkness moved rather than left** — it is now the Black Tide, the kraken and the drowned places, not the people. No rules changed.
 - **2026-09-08 v2.3** — Presentation pass. Added a title screen (faction choice with crests, strengths and weaknesses drawn from section 2; difficulty shown but only Normal exists). Replaced the space-era chrome with an admiralty-chart look: deep-water palette, brass accents, chart lettering, rhumb lines and a compass rose. Islands are now drawn as generated coastlines rather than dots, sized by their slots, and each island's bible note appears on its panel. The island panel gained Overview / Build / Garrison / Log tabs. Faction crests and the app icon are SVG drawn in code. No rules changed.
 - **2026-09-08 v2.2** — Applied to the phase 1 build. Sections 1, 2, 5 (majors only), 9, 10, 11 and 13 are now live in `src/data/`: factions, the seven majors a side with rating bands, the ten small-map Reaches and their 100 islands, facility names and the UI vocabulary. Sections 6, 7, 8 and the minor characters wait on the phases that add ships, ground forces and recruitment. Section 14 deliberately not built. Added open questions 5–7 for the three decisions this conversion forced.
