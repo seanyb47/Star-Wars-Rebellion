@@ -41,6 +41,14 @@ const SCENES = import.meta.glob('../art/scenes/*.{webp,png,jpg}', {
   import: 'default',
 }) as Record<string, string>;
 
+/** The chart's own ground. One file, but it goes through the same door as the
+ *  rest so the chart keeps working before it arrives. */
+const CHART = import.meta.glob('../art/chart/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
 /**
  * A file name from a subject's name. Quotes and punctuation go, because a
  * nickname in quotes should not decide whether a painting is found:
@@ -68,6 +76,7 @@ const PORTRAIT_URLS = bySlug(PORTRAITS);
 const SHIP_URLS = bySlug(SHIPS);
 const ISLAND_URLS = bySlug(ISLANDS);
 const SCENE_URLS = bySlug(SCENES);
+const CHART_URLS = bySlug(CHART);
 
 export function paintedPortrait(name: string): string | undefined {
   return PORTRAIT_URLS[slugify(name)];
@@ -90,6 +99,10 @@ export function paintedScene(kind: string): string | undefined {
   return SCENE_URLS[slugify(kind)];
 }
 
+export function paintedChart(name: string): string | undefined {
+  return CHART_URLS[slugify(name)];
+}
+
 /** What has arrived so far, for the contact sheet to report honestly. */
 export function paintedCounts() {
   return {
@@ -97,5 +110,6 @@ export function paintedCounts() {
     ships: Object.keys(SHIP_URLS).length,
     islands: Object.keys(ISLAND_URLS).length,
     scenes: Object.keys(SCENE_URLS).length,
+    chart: Object.keys(CHART_URLS).length,
   };
 }

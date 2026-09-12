@@ -275,6 +275,25 @@ shape, already correct, no blank boxes and no layout shift.
 Per-screen thrift, not bundle thrift. Keep files **under 120KB** anyway: it is
 the difference between a card appearing and a card arriving.
 
+## 8a. Value is the thing a painting gets wrong
+
+The chart painting came back with the composition right — seven waters, ten
+clusters, a whirlpool in the Bone Sea, open water at the foot — and the value
+wrong: sea at luma 56 where the interface needs about 25. A Confederacy mark on
+it measured **2.7:1** against a 3:1 floor.
+
+That was not a repaint. `npm run art:add -- <file> chart/seas --tone gamma:1.6`
+darkened it on the way out of the master, which kept every brushstroke, took the
+sea to luma 25 and the Confederacy mark to 4.1:1, and stayed reversible — the
+master holds the bright original and the curve is recorded in the manifest.
+
+**So: ask for the composition, fix the value here.** A generator will not hit a
+luma target and there is no reason to make it try. It cannot fix a composition
+after the fact, and that is what the prompt should spend its words on.
+
+Tone is only ever for value. Anything else — a colour cast, a crop, a thing in
+the wrong place — is a repaint.
+
 ## 9. Lessons already paid for
 
 Rules that exist because something was drawn wrong once. All still true.

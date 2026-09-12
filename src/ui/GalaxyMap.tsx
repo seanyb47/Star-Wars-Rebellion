@@ -4,55 +4,103 @@ import { isMissionTarget, layerMark, summariseReach, type ChartLayer } from '../
 import { LayerStrip, useLayerSwipe } from './LayerStrip';
 import { allegianceColour, allegianceSegments, segmentsFor } from './allegiance';
 import { CompassRose, islandPath } from './art';
+import { paintedChart } from './painted';
+import chartData from '../data/chart.json';
 import { ProducerLegend } from './ProducerLegend';
 
 /**
- * The chart is laid out for a phone held upright, not for the square box the
- * simulation scatters its chains in.
+ * The chart is a painting with the war drawn on top of it.
  *
- * That is allowed because the coordinates are decoration: travel time depends
- * on whether two islands share a chain, never on how far apart they are drawn
- * (see travelDays). Nothing else reads them. So the chart places the ten
- * chains itself, in a tall field with room between them, instead of inheriting
- * two concentric rings that fit a square and leave a phone's screen half empty
- * with the labels stacked on top of each other.
+ * Everything about where things sit now comes out of `src/data/chart.json`,
+ * which is read off the painting itself by `scripts/chart_positions.py`. The
+ * chart used to scatter its own chains and then scatter islands inside them
+ * from a seed, which was right while the ground was blank: the scatter was
+ * free, stable across games, and there was nothing underneath to disagree
+ * with. There is now. An island mark floating in open water beside a painted
+ * island reads as a bug, so the marks go where the painting already put the
+ * land.
+ *
+ * That is allowed because the coordinates were always decoration: travel time
+ * depends on whether two islands share a chain, never on how far apart they
+ * are drawn (see travelDays). Nothing in the simulation reads them.
+ *
+ * If the painting is missing the chart still works — it falls back to the
+ * drawn ground it always had, and to the positions in the data. The game is
+ * never half-finished for want of an image.
  */
-const CHART_W = 1000;
-/** Tall enough to leave a clear band at the foot for the idle-producer strip
- *  and the chart's own controls, neither of which may sit on a chain's name. */
-const CHART_H = 1900;
-const CHAIN_R = 100;
-/** The Crown's own chain sits larger, because Highwater sits inside it and
- *  Highwater is drawn as the biggest thing on the chart by a distance. */
-const CHAIN_R_SEAT = 144;
-/** Islands are scattered for a 105-unit disc; pull them into a 100-unit one. */
-const ISLAND_SPREAD = 0.72;
+const CHART = chartData as {
+  width: number;
+  height: number;
+  reaches: Array<{
+    reach: string;
+    sea: string;
+    x: number;
+    y: number;
+    r: number;
+    ry: number;
+    islands: Array<{ name: string; x: number; y: number }>;
+  }>;
+};
+const CHART_W = CHART.width;
+/** The painting's own height. Everything in chart.json is inside this. */
+const CHART_H = CHART.height;
+/**
+ * The chart is taller than the painting by a band of open water.
+ *
+ * Two things needed it. The layer strip and its hint line sit at the foot of
+ * the chart and were landing on Salt Reach — the southernmost chain — and on
+ * its label. And the painting's bottom edge is its brightest part (luma 75
+ * where the rest is 25), which is the worst possible ground for a row of
+ * chips. Fading it into flat water fixes both at once.
+ */
+const BAND = 170;
+const VIEW_H = CHART_H + BAND;
+
+/** Reach name -> where its cluster sits on the painting. */
+const PLACES = new Map(CHART.reaches.map((r) => [r.reach, r]));
+/** "Reach/Island" -> where that island sits. Keyed by both because island
+ *  names only have to be unique inside their own chain. */
+const ISLAND_PLACES = new Map(
+  CHART.reaches.flatMap((r) => r.islands.map((i) => [`${r.reach}/${i.name}`, i] as const)),
+);
 
 /**
- * Where each chain sits.
- *
- * A cluster around a centre, not two columns. The Crown's seat is the middle
- * of the charted world in the fiction, so it is the middle of the chart: the
- * chain holding Highwater takes the centre spot and everything else is
- * scattered around it. That reads as an archipelago with a capital in it,
- * which the old grid did not — a grid reads as a table of contents.
- *
- * Everything is pulled up into the top three-quarters, leaving a clear band at
- * the foot for the layer strip, its hint line and the chart's own controls.
- * No pair is closer than 290, which is the disc plus its two lines of label.
+ * Each Sea, and where its name belongs: the middle of the chains that are in
+ * it. Drawn large, faint and letterspaced, under everything — the way a chart
+ * names a body of water rather than a place. Seven of them, from the data, so
+ * this cannot drift from the world.
  */
-const CENTRE_SPOT = { x: 500, y: 620 };
-const CHAIN_SPOTS: Array<{ x: number; y: number }> = [
-  { x: 250, y: 230 },
-  { x: 620, y: 200 },
-  { x: 860, y: 380 },
-  { x: 170, y: 560 },
-  { x: 830, y: 690 },
-  { x: 240, y: 890 },
-  { x: 620, y: 970 },
-  { x: 900, y: 1060 },
-  { x: 300, y: 1180 },
-];
+const SEAS = (() => {
+  const by = new Map<string, Array<{ x: number; y: number; ry: number }>>();
+  for (const r of CHART.reaches) {
+    const at = by.get(r.sea) ?? [];
+    at.push({ x: r.x, y: r.y, ry: r.ry });
+    by.set(r.sea, at);
+  }
+  return [...by].map(([sea, pts]) => {
+    const x = pts.reduce((t, p) => t + p.x, 0) / pts.length;
+    const y = pts.reduce((t, p) => t + p.y, 0) / pts.length;
+    // Two Reaches leave a gap between them for the name. One does not — the
+    // centroid is the chain itself, and the Crown Sea's name was landing on
+    // Highwater. Lift it clear into the water above, which is where a chart
+    // writes the name of a sea anyway.
+    const lift = pts.length > 1 ? 0 : Math.max(...pts.map((p) => p.ry)) + 62;
+    return { sea, x, y: y - lift };
+  });
+})();
+
+/** Room around a chain's islands for the tap target and the ring. A chain has
+ *  to clear 44px on a phone; the smallest of these is 63 units, which is 26px
+ *  at 420 wide — so the padding is what makes it tappable, not the islands. */
+const CHAIN_PAD = 34;
+/** Where a chain goes if the painting has never heard of it — a new Reach on a
+ *  bigger map, before someone re-runs the position script. Ringed around the
+ *  middle so it is visible and obviously provisional. */
+function fallbackSpot(index: number) {
+  const t = (index / 10) * Math.PI * 2;
+  return { x: CHART_W / 2 + Math.cos(t) * 380, y: CHART_H / 2 + Math.sin(t) * 560, r: 90, ry: 90 };
+}
+
 /**
  * The chart does not zoom and does not pan.
  *
@@ -98,7 +146,7 @@ function seaStipple(seed: number) {
   };
   return Array.from({ length: 190 }, () => ({
     x: random() * CHART_W,
-    y: random() * CHART_H,
+    y: random() * VIEW_H,
     r: 0.5 + random() * 1.1,
     o: 0.06 + random() * 0.16,
   }));
@@ -125,17 +173,21 @@ function loyaltyColor(system: System, viewer: PlayableFaction): string {
 /**
  * How much of the chart an island takes up: settled ports draw larger.
  *
- * Sized up now that the view is fixed. Islands scatter with 38 units between
- * centres, so anything past a radius of 19 would run its neighbours over.
+ * Smaller than it was, and deliberately. The positions come from the painting
+ * now and no two are closer than 24 units, so a radius past 11 would have
+ * neighbours running each other over. It costs nothing: the painting is
+ * already drawing the island, and the mark only has to say whose it is.
  */
 function islandRadius(system: System): number {
   const weight = system.rawSlots + system.energySlots;
-  return (system.populated ? 11 : 8) + Math.min(weight, 9) * 0.7;
+  return (system.populated ? 7 : 5.5) + Math.min(weight, 9) * 0.42;
 }
 
 /** Highwater, and nothing else, is drawn at this. The Crown's seat should be
- *  the one island you can pick out of the whole chart without reading a word. */
-const SEAT_RADIUS = 46;
+ *  the one island you can pick out of the whole chart without reading a word.
+ *  It sits on the largest painted island in the world, which the position
+ *  script reserves for whichever island the data marks as a capital. */
+const SEAT_RADIUS = 26;
 
 export function GalaxyMap({
   state,
@@ -149,6 +201,7 @@ export function GalaxyMap({
   onLayerChange,
 }: GalaxyMapProps) {
   const viewer = state.player;
+  const ground = paintedChart('seas');
   const swipe = useLayerSwipe(layer, onLayerChange ?? (() => {}));
   // Picking a destination is a different question from reading the chart, so
   // the layers stand down while it is happening rather than fighting the
@@ -169,24 +222,23 @@ export function GalaxyMap({
   const seatId = state.factions.empire.hqSystemId;
 
   const chains = useMemo(() => {
-    const seatSector = state.systems.find((s) => s.id === seatId)?.sectorId;
     const sorted = [...state.sectors].sort(
       (a, b) => a.sea.localeCompare(b.sea) || a.name.localeCompare(b.name),
     );
-    // The Crown's chain takes the middle; everything else fills the ring in
-    // its usual order, so a chain's place on the chart is stable across games.
-    let ring = 0;
-    return sorted.map((sector) => {
-      const isSeat = sector.id === seatSector;
-      const spot = isSeat ? CENTRE_SPOT : CHAIN_SPOTS[ring++ % CHAIN_SPOTS.length];
+    return sorted.map((sector, index) => {
+      const place = PLACES.get(sector.name) ?? fallbackSpot(index);
+      const spot = { x: place.x, y: place.y };
       const systems = state.systems.filter((s) => s.sectorId === sector.id);
       return {
         sector,
         systems,
         summary: summariseReach(state, sector.id, viewer),
         spot,
-        chainR: isSeat ? CHAIN_R_SEAT : CHAIN_R,
-        isSeat,
+        chainR: place.r + CHAIN_PAD,
+        // The label hangs off the chain's vertical extent, not its radius:
+        // those are the same for a round chain and a hundred units apart for
+        // a long thin one.
+        labelDrop: place.ry + CHAIN_PAD,
         // While choosing a destination, a chain is live only if something
         // in it can actually be sailed to.
         targets: systems.filter((s) => isMissionTarget(state, s, viewer)).length,
@@ -199,8 +251,8 @@ export function GalaxyMap({
   return (
     <>
       <svg
-        className="map"
-        viewBox={`0 0 ${CHART_W} ${CHART_H}`}
+        className={ground ? 'map map--painted' : 'map'}
+        viewBox={`0 0 ${CHART_W} ${VIEW_H}`}
         preserveAspectRatio="xMidYMid meet"
         {...swipe}
       >
@@ -210,9 +262,30 @@ export function GalaxyMap({
             <stop offset="70%" stopColor="var(--shallow)" stopOpacity="0.22" />
             <stop offset="100%" stopColor="var(--shallow)" stopOpacity="0" />
           </radialGradient>
+          {/* The painting's foot into open water. Long, because a short fade
+              over a bright edge reads as a horizon line across the chart. */}
+          <linearGradient id="chart-foot" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--water)" stopOpacity="0" />
+            <stop offset="55%" stopColor="var(--water)" stopOpacity="0.72" />
+            <stop offset="100%" stopColor="var(--water)" stopOpacity="1" />
+          </linearGradient>
         </defs>
 
-        {/* Rhumb lines and the chart's own compass, drawn under everything. */}
+        {/* The ground. The painting where it exists; the engraved chart it
+            always had where it does not. Never both: the painting carries its
+            own rhumb lines, soundings and compass, and drawing ours over the
+            top of them was two charts fighting. */}
+        {ground ? (
+          <image
+            href={ground}
+            x={0}
+            y={0}
+            width={CHART_W}
+            height={CHART_H}
+            preserveAspectRatio="xMidYMid slice"
+            pointerEvents="none"
+          />
+        ) : (
         <g pointerEvents="none">
           {RHUMB_ANGLES.map((deg) => {
             const t = (deg * Math.PI) / 180;
@@ -234,8 +307,28 @@ export function GalaxyMap({
             <circle key={index} cx={dot.x} cy={dot.y} r={dot.r} fill="#7fb7c8" opacity={dot.o} />
           ))}
         </g>
+        )}
 
-        {chains.map(({ sector, systems, summary, targets, spot, chainR, isSeat }) => {
+        {ground && (
+          <g pointerEvents="none">
+            <rect x={0} y={CHART_H - 220} width={CHART_W} height={220 + BAND} fill="url(#chart-foot)" />
+            <rect x={0} y={CHART_H} width={CHART_W} height={BAND} fill="var(--water)" />
+          </g>
+        )}
+
+        {/* The seven Seas, named. Large, faint and letterspaced, under the
+            chains rather than beside them — a chart names a body of water the
+            way it names nothing else, and at this weight a chain label
+            crossing one reads as ink over ink instead of a collision. */}
+        <g pointerEvents="none">
+          {SEAS.map((s) => (
+            <text key={s.sea} className="map__sea" x={s.x} y={s.y}>
+              {s.sea.replace(/^The /, '').toUpperCase().split('').join('\u2009')}
+            </text>
+          ))}
+        </g>
+
+        {chains.map(({ sector, systems, summary, targets, spot, chainR, labelDrop }) => {
           // Sailing can go anywhere; a parley can only go where it is welcome.
           const live = sailing || !pickingFor || targets > 0;
           // Under a layer, a chain holding no answer drops back so the ones
@@ -245,7 +338,18 @@ export function GalaxyMap({
             ? systems.filter((sy) => layerMark(state, sy, layer, viewer).lit).length
             : 0;
           const faded = filtering && answers === 0;
-          const labelY = spot.y + chainR + 40;
+          // Below the chain normally; above it when below would put the name
+          // in the water band or off the bottom of the chart entirely, which
+          // is what happened to Salt Reach.
+          // Below the chain normally; above it only if below would run off the
+          // chart. The water band at the foot is fair game — that is what it is
+          // for — so the limit is the whole view, not the painting.
+          const below = spot.y + labelDrop + 34;
+          // The foot of the chart is not free: the layer strip, its hint line
+          // and the chart's own controls sit over the last 225 units of it.
+          // Measured against the rendered page, not guessed.
+          const flip = below + 100 > VIEW_H - 225;
+          const labelY = flip ? spot.y - labelDrop - 56 : below;
           // The names still break at the last space — "Shipwrights'" over
           // "Reach 3/10" — which keeps every label inside its own column.
           const words = sector.name.split(' ');
@@ -258,21 +362,31 @@ export function GalaxyMap({
               style={{ cursor: live ? 'pointer' : 'default' }}
               opacity={live ? (faded ? 0.22 : 1) : 0.35}
             >
-              {/* The disc is the tap target: the whole chain, not any one island. */}
-              <circle cx={spot.x} cy={spot.y} r={chainR} fill="url(#shoal)" />
-              <circle className="map__sector-ring" cx={spot.x} cy={spot.y} r={chainR} />
+              {/* The disc is the tap target: the whole chain, not any one
+                  island. Over the painting it stays invisible — the painted
+                  shallows already show where a chain is, and a grey wash on
+                  top of them only muddies what is underneath. */}
+              <circle
+                cx={spot.x}
+                cy={spot.y}
+                r={chainR}
+                fill={ground ? 'transparent' : 'url(#shoal)'}
+              />
+              {!ground && (
+                <circle className="map__sector-ring" cx={spot.x} cy={spot.y} r={chainR} />
+              )}
               {(sailing || (pickingFor && targets > 0)) && (
                 <circle className="map__pick" cx={spot.x} cy={spot.y} r={chainR + 7} />
               )}
 
               {systems.map((system) => {
                 const seat = system.id === seatId;
-                // The seat sits dead centre of its own chain and its
-                // neighbours are pushed outward to clear it — an island drawn
-                // at forty units would otherwise swallow the two beside it.
-                const spread = isSeat ? ISLAND_SPREAD * 1.3 : ISLAND_SPREAD;
-                const ax = seat ? spot.x : spot.x + system.x * spread;
-                const ay = seat ? spot.y : spot.y + system.y * spread;
+                // Where the painting put this island. Falling back to the old
+                // seeded scatter keeps a Reach the position script has not
+                // seen from piling all ten islands on one point.
+                const at = ISLAND_PLACES.get(`${sector.name}/${system.name}`);
+                const ax = at ? at.x : spot.x + system.x * 0.72;
+                const ay = at ? at.y : spot.y + system.y * 0.72;
                 const explored = system.explored[viewer];
                 const radius = seat ? SEAT_RADIUS : islandRadius(system);
                 const isHq =
@@ -310,28 +424,59 @@ export function GalaxyMap({
                         stroke={loyaltyColor(system, viewer)}
                       />
                     )}
-                    {/* Shelf of shallows, then the coastline itself. */}
-                    <path
-                      d={islandPath(system.name, radius + 5)}
-                      transform={`translate(${ax} ${ay})`}
-                      fill="var(--shallow)"
-                      opacity={explored ? 0.5 : 0.25}
-                    />
-                    <path
-                      className="map__coast"
-                      d={islandPath(system.name, radius)}
-                      transform={`translate(${ax} ${ay})`}
-                      fill={system.populated ? 'var(--land)' : 'var(--land-bare)'}
-                      stroke={loyaltyColor(system, viewer)}
-                      strokeWidth={explored ? 2.2 : 1.6}
-                      strokeDasharray={explored ? undefined : '5 4'}
-                    />
-                    <path
-                      d={islandPath(system.name, radius)}
-                      transform={`translate(${ax} ${ay})`}
-                      fill={loyaltyColor(system, viewer)}
-                      opacity={explored ? 0.28 : 0.1}
-                    />
+                    {ground ? (
+                      /* On the painting the island is already drawn, in more
+                         detail than a seeded outline will ever manage. So the
+                         mark stops trying to be an island and becomes what it
+                         is: a ring saying whose this is, with just enough tint
+                         inside to carry the colour at three pixels. Drawing
+                         our own coastline on top of a painted one was two
+                         islands in the same place. */
+                      <>
+                        <circle
+                          cx={ax}
+                          cy={ay}
+                          r={radius}
+                          fill={loyaltyColor(system, viewer)}
+                          opacity={explored ? 0.42 : 0.14}
+                        />
+                        <circle
+                          cx={ax}
+                          cy={ay}
+                          r={radius}
+                          fill="none"
+                          stroke={loyaltyColor(system, viewer)}
+                          strokeWidth={explored ? 2.4 : 1.6}
+                          strokeDasharray={explored ? undefined : '4 3.5'}
+                          opacity={explored ? 0.95 : 0.5}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        {/* Shelf of shallows, then the coastline itself. */}
+                        <path
+                          d={islandPath(system.name, radius + 5)}
+                          transform={`translate(${ax} ${ay})`}
+                          fill="var(--shallow)"
+                          opacity={explored ? 0.5 : 0.25}
+                        />
+                        <path
+                          className="map__coast"
+                          d={islandPath(system.name, radius)}
+                          transform={`translate(${ax} ${ay})`}
+                          fill={system.populated ? 'var(--land)' : 'var(--land-bare)'}
+                          stroke={loyaltyColor(system, viewer)}
+                          strokeWidth={explored ? 2.2 : 1.6}
+                          strokeDasharray={explored ? undefined : '5 4'}
+                        />
+                        <path
+                          d={islandPath(system.name, radius)}
+                          transform={`translate(${ax} ${ay})`}
+                          fill={loyaltyColor(system, viewer)}
+                          opacity={explored ? 0.28 : 0.1}
+                        />
+                      </>
+                    )}
                     {system.uprising && explored && (
                       <path
                         d={`M ${ax - radius * 0.5} ${ay - radius - 3} l 0 -11 l ${radius * 0.9} 4 l ${-radius * 0.9} 4 z`}

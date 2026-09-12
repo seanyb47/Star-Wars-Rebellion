@@ -1,5 +1,33 @@
 {
   "assets": {
+    "chart/seas": {
+      "folder": "chart",
+      "slug": "seas",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "The Seven Seas",
+      "source": "ChatGPT art project, 12 Sep 2026",
+      "notes": "Delivered at luma 56 \u2014 as bright as the reference maps and about twice what the interface needs; a Confederacy mark on it measured 2.7:1 against a 3:1 floor. Darkened at ingest with gamma 1.6 rather than repainted: composition was right, only value was wrong, and the master keeps the bright original.",
+      "crop": null,
+      "tone": {
+        "gamma": 1.6
+      },
+      "master": {
+        "file": "art-masters/chart/seas.webp",
+        "w": 1024,
+        "h": 1536,
+        "bytes": 475452,
+        "sha1": "3ecfa3743425e923"
+      },
+      "shipped": {
+        "file": "src/art/chart/seas.webp",
+        "w": 1024,
+        "h": 1536,
+        "bytes": 102402,
+        "sha1": "b4f32d558a197df7"
+      }
+    },
     "scenes/battle": {
       "folder": "scenes",
       "slug": "battle",

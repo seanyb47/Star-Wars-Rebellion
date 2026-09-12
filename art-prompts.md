@@ -474,6 +474,21 @@ two-thirds. The chain positions in `GalaxyMap.tsx` are ten numbers in an array
 — once the painting exists, the code moves onto the painting rather than the
 other way round.
 
+### What actually happened
+
+Delivered 12 Sep and in the game the same day. Two notes for the next one:
+
+- **The land stayed in, and that turned out better.** The prompt asked for
+  shallow water only, on the grounds that painted islands would sit underneath
+  the live ones and read as doubled. What the painting delivered instead was a
+  hundred-odd real islands — so `scripts/chart_positions.py` reads them out of
+  the image and every island in the game is placed on one. The mark stopped
+  being an island (it was drawing a coastline on top of a painted coastline)
+  and became a ring saying whose it is. Better than what was asked for.
+- **It came back too bright** and was darkened at ingest, not repainted. See
+  §8a of the style guide. The prompt's "very dark overall" did not take; do not
+  expect it to.
+
 ### Which Sea holds which Reach
 
 Seven Seas, ten Reaches on the shipped map. The regions above, named:

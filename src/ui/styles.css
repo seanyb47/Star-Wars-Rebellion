@@ -179,6 +179,18 @@ button {
 .map__chain-alarm { fill: #d8574c; font-style: normal; }
 .map__rhumb { stroke: #10404f; stroke-width: 2; opacity: 0.32; fill: none; }
 .map__coast { stroke-linejoin: round; }
+/* A body of water, named the way a chart names one: big, faint, spaced out,
+   and lying under everything. It has to survive a chain label crossing it,
+   which is why it is this pale — at full strength the two fight and at half
+   they read as ink over ink, which is what a real chart looks like. */
+.map__sea {
+  fill: #cfe6ef; opacity: 0.13; font-size: 30px; text-anchor: middle;
+  font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+  font-style: italic; letter-spacing: 0.02em;
+}
+/* Over the painting the label needs its own ground: the painted sea is busy
+   and italic serif at 36px was being eaten by it. */
+.map--painted .map__sector-label { paint-order: stroke fill; stroke: #04121980; stroke-width: 7px; }
 .map__hq { fill: none; stroke-width: 3; }
 .map__pick { fill: none; stroke: var(--good); stroke-width: 5; opacity: 0.9; }
 /* Covert work, drawn as such: a broken ring, so choosing to stir up an island

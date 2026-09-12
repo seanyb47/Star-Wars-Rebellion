@@ -67,6 +67,12 @@ FOLDERS: dict[str, tuple[int, int, str]] = {
     "chart": (1024, 1536, "top-down chart ground, quiet where the chains sit"),
 }
 
+# A card should appear rather than arrive, so 120KB. The chart is the exception:
+# it is one full-screen image that loads once and stays for the whole game, and
+# it is the thing you look at most. Starving it of detail to save 200KB would be
+# the wrong trade.
+BUDGET: dict[str, int] = {"chart": 320 * 1024}
+
 # Shipped files are quality 82 and must stay under 120KB — a card should appear,
 # not arrive. Masters are quality 96, which is a deliberate compromise: lossless
 # WebP of a 1932x814 painting is 1.8MB against 0.5MB at 96, and the measured
@@ -76,6 +82,10 @@ FOLDERS: dict[str, tuple[int, int, str]] = {
 SHIP_QUALITY = 82
 MASTER_QUALITY = 96
 SHIP_MAX_BYTES = 120 * 1024
+
+
+def budget(folder: str) -> int:
+    return BUDGET.get(folder, SHIP_MAX_BYTES)
 
 
 # --------------------------------------------------------------------------
@@ -191,7 +201,40 @@ def parse_crop(spec: str | None, mw: int, mh: int, tw: int, th: int) -> dict | N
     return {"x": x, "y": y, "w": w, "h": h}
 
 
-def render(master_path: str, folder: str, crop: dict | None, out_path: str) -> None:
+def parse_tone(spec: str | None) -> dict | None:
+    """A tone adjustment applied on the way out of the master.
+
+    Only gamma so far, and only because it was needed: the chart painting came
+    back at luma 56 where the interface needs about 25, and a Confederacy mark
+    on it measured 2.7:1 against a 3:1 floor. Darkening it here rather than
+    asking for a repaint keeps every brushstroke and stays reversible — the
+    master is untouched and the curve is recorded, so `recrop` can change it.
+
+    Never use this to fix composition. It exists for value, which is the one
+    thing a painting can be right about everywhere and still wrong for a screen.
+    """
+    if not spec:
+        return None
+    if ":" not in spec:
+        sys.exit(f"--tone wants name:value, e.g. gamma:1.6 (got {spec!r})")
+    name, value = spec.split(":", 1)
+    if name != "gamma":
+        sys.exit(f"unknown tone {name!r}; only gamma so far")
+    return {"gamma": float(value)}
+
+
+def apply_tone(im: "Image.Image", tone: dict | None) -> "Image.Image":
+    if not tone:
+        return im
+    g = tone["gamma"]
+    # 8-bit LUT: exact, fast, and no numpy dependency for the common path.
+    lut = [min(255, round(255 * ((i / 255) ** g))) for i in range(256)]
+    return im.point(lut * len(im.getbands()))
+
+
+def render(
+    master_path: str, folder: str, crop: dict | None, out_path: str, tone: dict | None = None
+) -> None:
     """Cut the shipped file out of the master. The only place this happens."""
     tw, th, _ = FOLDERS[folder]
     with Image.open(master_path) as im:
@@ -199,11 +242,14 @@ def render(master_path: str, folder: str, crop: dict | None, out_path: str) -> N
         if crop:
             im = im.crop((crop["x"], crop["y"], crop["x"] + crop["w"], crop["y"] + crop["h"]))
         im = im.resize((tw, th), Image.LANCZOS)
+        im = apply_tone(im, tone)
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
         im.save(out_path, "WEBP", quality=SHIP_QUALITY, method=6)
-    if os.path.getsize(out_path) > SHIP_MAX_BYTES:
+    cap = budget(folder)
+    if os.path.getsize(out_path) > cap:
         print(
-            f"  ! {rel(out_path)} is {os.path.getsize(out_path)//1024}KB, over the 120KB budget",
+            f"  ! {rel(out_path)} is {os.path.getsize(out_path)//1024}KB, "
+            f"over the {cap//1024}KB budget",
             file=sys.stderr,
         )
 
@@ -228,6 +274,7 @@ def retire(entry: dict) -> None:
             "retired": today(),
             "master": rel(dest),
             "crop": entry.get("crop"),
+            "tone": entry.get("tone"),
             "source": entry.get("source"),
         }
     )
@@ -266,8 +313,9 @@ def cmd_add(args) -> None:
         src.save(master_path, "WEBP", quality=MASTER_QUALITY, method=6)
 
     crop = parse_crop(args.crop, mw, mh, tw, th)
+    tone = parse_tone(args.tone)
     ship_path = os.path.join(SHIPPED, folder, f"{slug}.webp")
-    render(master_path, folder, crop, ship_path)
+    render(master_path, folder, crop, ship_path, tone)
 
     if entry is None:
         entry = {"folder": folder, "slug": slug, "version": 0, "added": today()}
@@ -281,6 +329,7 @@ def cmd_add(args) -> None:
     if args.note:
         entry["notes"] = args.note
     entry["crop"] = crop
+    entry["tone"] = tone
     entry["master"] = stamp(master_path)
     entry["shipped"] = stamp(ship_path)
 
@@ -303,9 +352,11 @@ def cmd_recrop(args) -> None:
     folder = entry["folder"]
     tw, th, _ = FOLDERS[folder]
     crop = parse_crop(args.crop, entry["master"]["w"], entry["master"]["h"], tw, th)
+    tone = parse_tone(args.tone) if args.tone is not None else entry.get("tone")
     ship_path = os.path.join(SHIPPED, folder, f"{entry['slug']}.webp")
-    render(master_path, folder, crop, ship_path)
+    render(master_path, folder, crop, ship_path, tone)
     entry["crop"] = crop
+    entry["tone"] = tone
     entry["shipped"] = stamp(ship_path)
     entry["updated"] = today()
     save(data)
@@ -373,8 +424,11 @@ def cmd_check(args) -> None:
                 f"{key}: shipped at {e['shipped']['w']}x{e['shipped']['h']}, "
                 f"the {e['folder']} size is {tw}x{th}"
             )
-        if e["shipped"]["bytes"] > SHIP_MAX_BYTES:
-            problems.append(f"{key}: shipped is {e['shipped']['bytes']//1024}KB, over the 120KB budget")
+        cap = budget(e["folder"])
+        if e["shipped"]["bytes"] > cap:
+            problems.append(
+                f"{key}: shipped is {e['shipped']['bytes']//1024}KB, over the {cap//1024}KB budget"
+            )
 
     for folder in FOLDERS:
         d = os.path.join(SHIPPED, folder)
@@ -440,6 +494,8 @@ def write_doc(data: dict | None = None) -> None:
                 e = assets[key]
                 m, sh, c = e["master"], e["shipped"], e.get("crop")
                 crop = "whole frame" if not c else f"{c['w']}×{c['h']} @ {c['x']},{c['y']}"
+                if e.get("tone"):
+                    crop += f", gamma {e['tone']['gamma']}"
                 hist = f" (+{len(e['history'])} retired)" if e.get("history") else ""
                 lines.append(
                     f"| {e.get('title', '')} | `{slug}` | {e['version']}{hist} "
@@ -491,6 +547,7 @@ def main() -> None:
     a.add_argument("file")
     a.add_argument("key", help="folder/slug, e.g. portraits/sable")
     a.add_argument("--crop", help="x,y,w,h in master pixels | auto | none")
+    a.add_argument("--tone", help="tone curve applied to the shipped file, e.g. gamma:1.6")
     a.add_argument("--title")
     a.add_argument("--source")
     a.add_argument("--note")
@@ -499,6 +556,7 @@ def main() -> None:
     r = sub.add_parser("recrop", help="re-cut the shipped file from the stored master")
     r.add_argument("key")
     r.add_argument("--crop", required=True)
+    r.add_argument("--tone", help="new tone curve; omit to keep the recorded one")
     r.set_defaults(func=cmd_recrop)
 
     l = sub.add_parser("list", help="every subject, painted or not")
