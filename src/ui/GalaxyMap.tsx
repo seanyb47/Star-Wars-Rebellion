@@ -22,28 +22,37 @@ const CHART_W = 1000;
  *  and the chart's own controls, neither of which may sit on a chain's name. */
 const CHART_H = 1900;
 const CHAIN_R = 100;
+/** The Crown's own chain sits larger, because Highwater sits inside it and
+ *  Highwater is drawn as the biggest thing on the chart by a distance. */
+const CHAIN_R_SEAT = 144;
 /** Islands are scattered for a 105-unit disc; pull them into a 100-unit one. */
 const ISLAND_SPREAD = 0.72;
 
 /**
- * Where each chain sits. Staggered rather than gridded, so the chart reads as
- * archipelagos scattered across an ocean rather than as a table of contents.
- * Every pair is at least 290 apart, which leaves each one its disc and the two
- * lines of label beneath it without touching its neighbour.
+ * Where each chain sits.
+ *
+ * A cluster around a centre, not two columns. The Crown's seat is the middle
+ * of the charted world in the fiction, so it is the middle of the chart: the
+ * chain holding Highwater takes the centre spot and everything else is
+ * scattered around it. That reads as an archipelago with a capital in it,
+ * which the old grid did not — a grid reads as a table of contents.
+ *
+ * Everything is pulled up into the top three-quarters, leaving a clear band at
+ * the foot for the layer strip, its hint line and the chart's own controls.
+ * No pair is closer than 290, which is the disc plus its two lines of label.
  */
+const CENTRE_SPOT = { x: 500, y: 620 };
 const CHAIN_SPOTS: Array<{ x: number; y: number }> = [
-  { x: 270, y: 180 },
-  { x: 730, y: 235 },
-  { x: 180, y: 480 },
-  { x: 650, y: 520 },
-  { x: 300, y: 775 },
-  { x: 780, y: 805 },
-  { x: 200, y: 1065 },
-  { x: 690, y: 1090 },
-  { x: 320, y: 1355 },
-  { x: 760, y: 1370 },
+  { x: 250, y: 230 },
+  { x: 620, y: 200 },
+  { x: 860, y: 380 },
+  { x: 170, y: 560 },
+  { x: 830, y: 690 },
+  { x: 240, y: 890 },
+  { x: 620, y: 970 },
+  { x: 900, y: 1060 },
+  { x: 300, y: 1180 },
 ];
-
 /**
  * The chart does not zoom and does not pan.
  *
@@ -124,6 +133,10 @@ function islandRadius(system: System): number {
   return (system.populated ? 11 : 8) + Math.min(weight, 9) * 0.7;
 }
 
+/** Highwater, and nothing else, is drawn at this. The Crown's seat should be
+ *  the one island you can pick out of the whole chart without reading a word. */
+const SEAT_RADIUS = 46;
+
 export function GalaxyMap({
   state,
   pickingFor,
@@ -151,26 +164,35 @@ export function GalaxyMap({
    * clusters. The Sea's own name is left off — it was drawn once and landed on
    * top of the chain names — and appears on the chain's panel instead.
    */
-  const chains = useMemo(
-    () =>
-      [...state.sectors]
-        .sort((a, b) => a.sea.localeCompare(b.sea) || a.name.localeCompare(b.name))
-        .map((sector, index) => {
-          const systems = state.systems.filter((s) => s.sectorId === sector.id);
-          const summary = summariseReach(state, sector.id, viewer);
-          const spot = CHAIN_SPOTS[index % CHAIN_SPOTS.length];
-          return {
-            sector,
-            systems,
-            summary,
-            spot,
-            // While choosing a destination, a chain is live only if something
-            // in it can actually be sailed to.
-            targets: systems.filter((s) => isMissionTarget(state, s, viewer)).length,
-          };
-        }),
-    [state, viewer],
-  );
+  /** Highwater. Always the Crown's, whichever side the player took — the seat
+   *  of the world is a fact about the world, not about who is looking. */
+  const seatId = state.factions.empire.hqSystemId;
+
+  const chains = useMemo(() => {
+    const seatSector = state.systems.find((s) => s.id === seatId)?.sectorId;
+    const sorted = [...state.sectors].sort(
+      (a, b) => a.sea.localeCompare(b.sea) || a.name.localeCompare(b.name),
+    );
+    // The Crown's chain takes the middle; everything else fills the ring in
+    // its usual order, so a chain's place on the chart is stable across games.
+    let ring = 0;
+    return sorted.map((sector) => {
+      const isSeat = sector.id === seatSector;
+      const spot = isSeat ? CENTRE_SPOT : CHAIN_SPOTS[ring++ % CHAIN_SPOTS.length];
+      const systems = state.systems.filter((s) => s.sectorId === sector.id);
+      return {
+        sector,
+        systems,
+        summary: summariseReach(state, sector.id, viewer),
+        spot,
+        chainR: isSeat ? CHAIN_R_SEAT : CHAIN_R,
+        isSeat,
+        // While choosing a destination, a chain is live only if something
+        // in it can actually be sailed to.
+        targets: systems.filter((s) => isMissionTarget(state, s, viewer)).length,
+      };
+    });
+  }, [state, viewer, seatId]);
 
   const enemy: PlayableFaction = viewer === 'empire' ? 'alliance' : 'empire';
 
@@ -213,7 +235,7 @@ export function GalaxyMap({
           ))}
         </g>
 
-        {chains.map(({ sector, systems, summary, targets, spot }) => {
+        {chains.map(({ sector, systems, summary, targets, spot, chainR, isSeat }) => {
           // Sailing can go anywhere; a parley can only go where it is welcome.
           const live = sailing || !pickingFor || targets > 0;
           // Under a layer, a chain holding no answer drops back so the ones
@@ -223,7 +245,7 @@ export function GalaxyMap({
             ? systems.filter((sy) => layerMark(state, sy, layer, viewer).lit).length
             : 0;
           const faded = filtering && answers === 0;
-          const labelY = spot.y + CHAIN_R + 40;
+          const labelY = spot.y + chainR + 40;
           // The names still break at the last space — "Shipwrights'" over
           // "Reach 3/10" — which keeps every label inside its own column.
           const words = sector.name.split(' ');
@@ -237,17 +259,22 @@ export function GalaxyMap({
               opacity={live ? (faded ? 0.22 : 1) : 0.35}
             >
               {/* The disc is the tap target: the whole chain, not any one island. */}
-              <circle cx={spot.x} cy={spot.y} r={CHAIN_R} fill="url(#shoal)" />
-              <circle className="map__sector-ring" cx={spot.x} cy={spot.y} r={CHAIN_R} />
+              <circle cx={spot.x} cy={spot.y} r={chainR} fill="url(#shoal)" />
+              <circle className="map__sector-ring" cx={spot.x} cy={spot.y} r={chainR} />
               {(sailing || (pickingFor && targets > 0)) && (
-                <circle className="map__pick" cx={spot.x} cy={spot.y} r={CHAIN_R + 7} />
+                <circle className="map__pick" cx={spot.x} cy={spot.y} r={chainR + 7} />
               )}
 
               {systems.map((system) => {
-                const ax = spot.x + system.x * ISLAND_SPREAD;
-                const ay = spot.y + system.y * ISLAND_SPREAD;
+                const seat = system.id === seatId;
+                // The seat sits dead centre of its own chain and its
+                // neighbours are pushed outward to clear it — an island drawn
+                // at forty units would otherwise swallow the two beside it.
+                const spread = isSeat ? ISLAND_SPREAD * 1.3 : ISLAND_SPREAD;
+                const ax = seat ? spot.x : spot.x + system.x * spread;
+                const ay = seat ? spot.y : spot.y + system.y * spread;
                 const explored = system.explored[viewer];
-                const radius = islandRadius(system);
+                const radius = seat ? SEAT_RADIUS : islandRadius(system);
                 const isHq =
                   system.id === state.factions[viewer].hqSystemId ||
                   (explored && system.id === state.factions[enemy].hqSystemId);
@@ -362,11 +389,9 @@ export function GalaxyMap({
 
       {/* What is standing idle, always on screen: a yard building nothing is
           gold you are not spending, and nothing else says so. */}
-      {/* The idle strip is the list answer to the same question the layers
-          answer spatially, so only one of them is on screen at a time. */}
-      {!pickingFor && !sailing && layer === 'allegiance' && (
-        <ProducerLegend state={state} onOpenIsland={onOpenIsland} />
-      )}
+      {/* A shut harbour, under every layer: it costs you a day's takings
+          whatever you happen to be looking at. */}
+      {!pickingFor && !sailing && <ProducerLegend state={state} onOpenIsland={onOpenIsland} />}
 
       {!pickingFor && !sailing && onLayerChange && (
         <LayerStrip state={state} layer={layer} onChange={onLayerChange} viewer={viewer} />

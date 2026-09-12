@@ -1,17 +1,16 @@
-import terms from '../data/terms.json';
-import { buildMenu, type GameState, type FacilityType } from '../sim';
-import { FacilityIcon } from './art';
+import { type GameState } from '../sim';
 
 /**
- * What you have standing idle and could be ordering from, after the original's
- * "Idle Construction Yards" nag.
+ * A shut harbour, and nothing else.
  *
- * A yard that is not building anything is gold you are not spending, and the
- * whole failure mode is that nothing on screen says so. Counts only what can
- * actually take an order right now: yours, on an island you hold, not in
- * mutiny, and not already busy.
+ * This used to also count idle yards, drill grounds and slipways, after the
+ * original's "Idle Construction Yards" nag. The Idle works chart layer now says
+ * the same thing better — on the islands themselves rather than as a total —
+ * and two strips at the foot of the chart fought each other for the same space.
+ *
+ * A blockade keeps its alarm because no layer covers it: it is the one thing
+ * that costs you a day's takings while you are looking at something else.
  */
-const KINDS: FacilityType[] = ['construction_yard', 'training_facility', 'shipyard'];
 
 export function ProducerLegend({
   state,
@@ -20,26 +19,8 @@ export function ProducerLegend({
   state: GameState;
   onOpenIsland?: (systemId: string) => void;
 }) {
-  const idle = new Map<FacilityType, { count: number; firstSystemId?: string }>(
-    KINDS.map((kind) => [kind, { count: 0 }]),
-  );
-
-  for (const system of state.systems) {
-    if (system.control !== state.player || system.uprising) continue;
-    for (const facility of system.facilities) {
-      if (facility.owner !== state.player || facility.building) continue;
-      if (buildMenu(facility).length === 0) continue;
-      const entry = idle.get(facility.type);
-      if (!entry) continue;
-      entry.count += 1;
-      entry.firstSystemId ??= system.id;
-    }
-  }
-
-  // A shut harbour is more urgent than an idle yard, so it leads the strip.
-  const blockaded = state.systems.filter(
-    (s) => s.control === state.player && s.blockaded,
-  );
+  const blockaded = state.systems.filter((s) => s.control === state.player && s.blockaded);
+  if (blockaded.length === 0) return null;
 
   return (
     <div className="idle">
@@ -53,25 +34,6 @@ export function ProducerLegend({
           <span className="idle__label">Blockaded</span>
         </button>
       )}
-      {KINDS.map((kind) => {
-        const entry = idle.get(kind)!;
-        const free = entry.count > 0;
-        const label = `${entry.count} ${terms.facilities[kind]}${entry.count === 1 ? '' : 's'} idle`;
-        return (
-          <button
-            key={kind}
-            className={`idle__item${free ? ' idle__item--free' : ''}`}
-            disabled={!free}
-            onClick={() => entry.firstSystemId && onOpenIsland?.(entry.firstSystemId)}
-            aria-label={label}
-            title={label}
-          >
-            <FacilityIcon type={kind} size={17} />
-            <span className="idle__n">{entry.count}</span>
-            <span className="idle__label">{terms.facilities[kind]}</span>
-          </button>
-        );
-      })}
     </div>
   );
 }

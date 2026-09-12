@@ -115,38 +115,65 @@ export function CompassRose({
  * glance: the Imperium is symmetrical and straight-edged, the Confederacy is
  * lopsided and made of salvage.
  */
+/**
+ * The crests, drawn to the faction style guide's emblems rather than to my
+ * earlier guesses at them. These are the marks that fly on every ship, wall
+ * and flagstaff in the paintings, so the interface has to use the same two or
+ * the game contradicts its own art.
+ *
+ * Colours come from the guide's sampled palettes (art style §1b), not from the
+ * interface tokens: a crest is illustration, and it is allowed the deeper
+ * greens and reds that a 12px status badge cannot use.
+ */
+
+const IMP = { deep: '#183128', field: '#254b36', line: '#2f634d', gold: '#c9a227', cream: '#f0dbbe' };
+const CON = { deep: '#4a1418', field: '#6b121e', ray: '#a03832', bright: '#ca6150', bone: '#f0dbbe' };
+
 export function ImperiumCrest({ size = 96 }: { size?: number }) {
   return (
     <svg viewBox="0 0 100 110" width={size} height={size * 1.1} aria-hidden="true">
       <defs>
-        <linearGradient id="imp-shield" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#2b333f" />
-          <stop offset="100%" stopColor="#151b24" />
+        <linearGradient id="imp-field" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={IMP.field} />
+          <stop offset="100%" stopColor={IMP.deep} />
         </linearGradient>
       </defs>
-      {/* Shield */}
+
+      {/* The shield, in the Crown's own green rather than a grey plate. */}
       <path
-        d="M50 6 L92 20 L92 60 Q92 92 50 106 Q8 92 8 60 L8 20 Z"
-        fill="url(#imp-shield)"
-        stroke="var(--empire)"
+        d="M50 14 L90 26 L90 60 Q90 92 50 105 Q10 92 10 60 L10 26 Z"
+        fill="url(#imp-field)"
+        stroke={IMP.gold}
         strokeWidth="2.5"
-      />
-      {/* Crown */}
-      <path
-        d="M28 34 L34 22 L42 32 L50 18 L58 32 L66 22 L72 34 Z"
-        fill="var(--brass)"
-        stroke="var(--brass)"
-        strokeWidth="1.5"
         strokeLinejoin="round"
       />
-      {/* Seawall: three courses of stone */}
-      <g fill="none" stroke="var(--empire)" strokeWidth="3" strokeLinecap="square">
-        <path d="M22 50 H78" />
-        <path d="M26 62 H74" />
-        <path d="M30 74 H70" />
+
+      {/* Crown, above the shield as the guide has it, not inside. */}
+      <g fill={IMP.gold}>
+        <path d="M31 14 L36 4 L43 12 L50 1 L57 12 L64 4 L69 14 Z" />
+        <rect x="30" y="14" width="40" height="4.5" rx="1.2" />
+        <circle cx="50" cy="2" r="2.4" />
       </g>
-      {/* The water it holds back */}
-      <path d="M22 86 Q34 80 46 86 T70 86 T78 84" fill="none" stroke="#4a5f74" strokeWidth="2.5" />
+
+      {/* Anchor in a laurel wreath: the mark on every Imperial flag. */}
+      <g stroke={IMP.gold} strokeWidth="2.6" fill="none" strokeLinecap="round">
+        <path d="M50 38 v30" />
+        <path d="M40 46 h20" />
+        <path d="M35 62 q15 16 30 0" />
+      </g>
+      <circle cx="50" cy="34" r="4.4" fill="none" stroke={IMP.gold} strokeWidth="2.6" />
+      <g stroke={IMP.gold} strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.9">
+        <path d="M28 44 q-6 20 8 34" />
+        <path d="M72 44 q6 20 -8 34" />
+      </g>
+
+      {/* The sea the Crown keeps out, along the shield's foot. */}
+      <path
+        d="M22 84 q7 -5 14 0 t14 0 t14 0 t8 -2"
+        fill="none"
+        stroke={IMP.line}
+        strokeWidth="2.6"
+      />
     </svg>
   );
 }
@@ -154,26 +181,52 @@ export function ImperiumCrest({ size = 96 }: { size?: number }) {
 export function ConfederacyCrest({ size = 96 }: { size?: number }) {
   return (
     <svg viewBox="0 0 100 110" width={size} height={size * 1.1} aria-hidden="true">
-      {/* Rope ring, deliberately not quite round */}
-      <path
-        d="M50 10 Q88 18 90 56 Q92 96 50 102 Q10 98 9 58 Q8 20 50 10 Z"
-        fill="#1a2320"
-        stroke="var(--alliance)"
-        strokeWidth="2.5"
-        strokeDasharray="7 4"
-      />
-      {/* Crossed cutlass and harpoon */}
-      <g stroke="var(--alliance)" strokeWidth="3.5" strokeLinecap="round" fill="none">
-        <path d="M28 78 Q46 56 68 34" />
-        <path d="M72 78 Q54 56 32 34" />
+      <defs>
+        <radialGradient id="con-burst" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={CON.ray} />
+          <stop offset="100%" stopColor={CON.field} />
+        </radialGradient>
+      </defs>
+
+      {/* The starburst the guide flies it on: twelve rays, not a rope ring. */}
+      <g fill={CON.ray} opacity="0.85">
+        {Array.from({ length: 12 }, (_, i) => {
+          const a = (i * Math.PI) / 6;
+          const c = Math.cos(a);
+          const sn = Math.sin(a);
+          const p = (r: number, o: number) =>
+            `${50 + Math.cos(a + o) * r} ${55 + Math.sin(a + o) * r}`;
+          return (
+            <path key={i} d={`M ${50 + c * 48} ${55 + sn * 48} L ${p(30, 0.16)} L ${p(30, -0.16)} Z`} />
+          );
+        })}
       </g>
-      {/* Cutlass tip */}
-      <path d="M68 34 l7 -7 l-2 9 l-8 2 z" fill="var(--alliance)" />
-      {/* Harpoon head */}
-      <path d="M32 34 l-7 -7 l9 1 l1 9 z" fill="var(--alliance)" />
-      {/* Pennant */}
-      <path d="M50 20 L50 46" stroke="#cfd8dc" strokeWidth="2" />
-      <path d="M50 20 L74 27 L50 34 Z" fill="#cfd8dc" opacity="0.9" />
+      <circle cx="50" cy="55" r="34" fill="url(#con-burst)" stroke={CON.bright} strokeWidth="2.5" />
+
+      {/* Crossed cutlasses. They have to reach well past the skull on both
+          ends or the blades vanish behind it and the whole thing reads as a
+          skull with two small horns, which is what the first attempt did. */}
+      <g stroke={CON.bone} strokeWidth="3.4" fill="none" strokeLinecap="round">
+        <path d="M24 80 Q40 58 74 30" />
+        <path d="M76 80 Q60 58 26 30" />
+      </g>
+      {/* Tips out beyond the skull, grips below it. */}
+      <path d="M74 30 l9 -7 l-3 10 l-9 2 Z" fill={CON.bone} />
+      <path d="M26 30 l-9 -7 l3 10 l9 2 Z" fill={CON.bone} />
+      <g stroke={CON.bright} strokeWidth="3" strokeLinecap="round">
+        <path d="M22 82 l-4 5" />
+        <path d="M78 82 l4 5" />
+      </g>
+
+      {/* Skull, smaller than the blades and plain enough to read at 26px. */}
+      <g fill={CON.bone}>
+        <path d="M50 38 q13 0 13 13 q0 8 -5 11 v5 q-8 3 -16 0 v-5 q-5 -3 -5 -11 q0 -13 13 -13 Z" />
+      </g>
+      <g fill={CON.deep}>
+        <circle cx="45" cy="52" r="3.6" />
+        <circle cx="55" cy="52" r="3.6" />
+        <path d="M47.5 61 h5 l-2.5 4.5 Z" />
+      </g>
     </svg>
   );
 }

@@ -640,7 +640,8 @@ button {
    The original nags you in red when a construction yard is sitting empty.
    This is the same idea, always on, and tapping one takes you to it. */
 .idle {
-  position: absolute; left: 8px; right: 8px; bottom: 64px;
+  /* Above the layer strip, not behind it. */
+  position: absolute; left: 8px; right: 8px; bottom: 132px;
   display: flex; gap: 6px; justify-content: center; pointer-events: none;
 }
 .idle__item {
