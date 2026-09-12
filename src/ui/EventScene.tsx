@@ -126,11 +126,16 @@ export function EventScene({
               a golden sunset came out green under Imperium news, which is the
               tint fighting the art instead of framing it. And on a battle,
               where both flags are flying, a heavy tint would be a lie about
-              whose news it is. */}
+              whose news it is.
+
+              Trimmed twice. The same alpha reads far stronger over a night
+              scene than over a lit one — the sunsets shrugged it off while the
+              shipyard crowd came out green — so it is set by what the darkest
+              painting can take, not the brightest. */}
           <linearGradient id={id} x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0%" stopColor={tint} stopOpacity="0.42" />
-            <stop offset="16%" stopColor={tint} stopOpacity="0.14" />
-            <stop offset="34%" stopColor={tint} stopOpacity="0" />
+            <stop offset="0%" stopColor={tint} stopOpacity="0.30" />
+            <stop offset="12%" stopColor={tint} stopOpacity="0.10" />
+            <stop offset="26%" stopColor={tint} stopOpacity="0" />
           </linearGradient>
         </defs>
         <image
