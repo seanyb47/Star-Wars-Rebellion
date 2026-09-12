@@ -153,9 +153,15 @@ export interface Character {
   name: string;
   /** Which people they belong to. Display only — drives their portrait. */
   people?: string;
-  /** A line on who they are. Carried by the unaligned people you can sign on,
-   *  because a name on an island tells you nothing about whether to sail. */
+  /** A line on who they are. Everyone carries it now, not only the unaligned:
+   *  it is the reason to care which of your seven you send, and it was sitting
+   *  unused in the roster while the crew screen showed four numbers instead. */
   blurb?: string;
+  /** What they are called besides their name — "the Old Tide". */
+  epithet?: string;
+  /** What they are for, in the world bible's own words: Tidemaster, Leader,
+   *  Recruiter. Display only; the ratings are what the rules read. */
+  roles?: string[];
   /** For the unaligned: the day they turn up somewhere worth finding. They are
    *  in the world from the start so the seed decides them once, but they are
    *  nobody's to sign before this. Absent for anyone already in the war. */

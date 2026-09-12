@@ -10,7 +10,7 @@ import {
   type Character,
   type GameState,
 } from '../sim';
-import { CharacterPortrait } from './art';
+import { CharacterPainting } from './art';
 import { Sheet } from './components';
 
 /** Yardsticks for the signing-on range: how a star and an ordinary hand would
@@ -99,26 +99,45 @@ export function CharacterSheet({
         </>
       }
     >
-      <div className="row" style={{ gap: 12, alignItems: 'center' }}>
-        <CharacterPortrait
-          name={character.name}
-          faction={character.faction}
-          people={character.people}
-          size={68}
-          dim={character.status !== 'available'}
-        />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {character.people && <div className="tiny muted">{character.people}</div>}
-          <div style={{ marginTop: 2 }}>{statusBadge(character)}</div>
-          {/* Who they were before they signed on. Kept after, because it is the
-              only thing distinguishing one set of four numbers from another. */}
-          {character.blurb && (
-            <p className="tiny muted" style={{ margin: '6px 0 0' }}>
-              {character.blurb}
-            </p>
+      {/* The painting, full width and full height, and the lore under it.
+          This used to be a 68px medallion beside a stack of labels, which
+          wasted the one thing on the screen anybody wants to look at. Who
+          somebody is, is the reason to send them; the ratings are only how it
+          goes once you have. */}
+      <CharacterPainting
+        name={character.name}
+        faction={
+          character.faction === 'empire' || character.faction === 'alliance'
+            ? character.faction
+            : 'neutral'
+        }
+        people={character.people}
+        height={232}
+      />
+
+      <div className="row row--between" style={{ marginTop: 10, alignItems: 'baseline' }}>
+        <div style={{ minWidth: 0 }}>
+          {character.epithet && (
+            <div className="serif charsheet__epithet">&ldquo;{character.epithet}&rdquo;</div>
           )}
+          {character.people && <div className="tiny muted">{character.people}</div>}
         </div>
+        {statusBadge(character)}
       </div>
+
+      {character.roles && character.roles.length > 0 && (
+        <div className="charsheet__roles">
+          {character.roles.map((role) => (
+            <span key={role} className="badge">
+              {role}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Who they were before they signed on. Kept after, because it is the
+          only thing distinguishing one set of four numbers from another. */}
+      {character.blurb && <p className="charsheet__lore serif">{character.blurb}</p>}
 
       <Ratings character={character} />
 
