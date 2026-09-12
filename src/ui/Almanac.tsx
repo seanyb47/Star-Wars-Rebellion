@@ -38,6 +38,8 @@ const BUILD_ORDER: FacilityType[] = [
   'construction_yard',
   'training_facility',
   'shipyard',
+  'fort',
+  'boom',
 ];
 
 function GoldLine({ type }: { type: FacilityType }) {

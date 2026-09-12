@@ -5,7 +5,15 @@
  * carrying ships and the companies aboard them, after the original's fleet
  * window rather than a stack of ships with a leader attached elsewhere.
  */
-import { OFFICER_EDGE, SCOUT_PER_ISLAND, SHIP_ROLES, shipClass } from './constants';
+import {
+  BOOM_BLOCKADE_GUNS,
+  BOOM_DEFENCE,
+  FORT_GUNS,
+  OFFICER_EDGE,
+  SCOUT_PER_ISLAND,
+  SHIP_ROLES,
+  shipClass,
+} from './constants';
 import { getSystem, nextId, otherFaction, pushEvent } from './helpers';
 import { travelDays } from './missions';
 import type { Rng } from './rng';
@@ -364,12 +372,37 @@ function scoutFrom(state: GameState, fleet: Fleet, arrived: System): void {
 export function resolveBattles(state: GameState, rng: Rng): void {
   const harbours = new Set(state.fleets.filter((f) => !isAtSea(f)).map((f) => f.systemId));
   for (const systemId of [...harbours].sort()) {
+    const system = getSystem(state, systemId);
     const here = fleetsAt(state, systemId);
     const empire = here.filter((f) => f.faction === 'empire');
     const alliance = here.filter((f) => f.faction === 'alliance');
-    if (empire.length === 0 || alliance.length === 0) continue;
-    fightRound(state, getSystem(state, systemId), empire, alliance, rng);
+    // A fort is a warship that cannot weigh anchor, so an enemy fleet lying
+    // off a fortified harbour is in action whether or not a fleet meets it.
+    const shore = fortGuns(system);
+    const contested =
+      (empire.length > 0 && alliance.length > 0) ||
+      (shore > 0 && here.some((f) => f.faction === otherFaction(system.control as PlayableFaction)));
+    if (!contested) continue;
+    fightRound(state, system, empire, alliance, rng);
   }
+}
+
+/** The harbour's own guns, for whoever holds it. */
+export function fortGuns(system: System): number {
+  if (system.control !== 'empire' && system.control !== 'alliance') return 0;
+  return (
+    system.facilities.filter((f) => f.type === 'fort' && f.owner === system.control && !f.building)
+      .length * FORT_GUNS
+  );
+}
+
+/** Companies' worth of chain across the harbour mouth. */
+export function boomDefence(system: System): number {
+  if (system.control !== 'empire' && system.control !== 'alliance') return 0;
+  return (
+    system.facilities.filter((f) => f.type === 'boom' && f.owner === system.control && !f.building)
+      .length * BOOM_DEFENCE
+  );
 }
 
 /** One day's exchange of fire between the two sides in a harbour. */
@@ -386,8 +419,14 @@ function fightRound(
   };
   // Leadership tells here: a well-handled squadron gets more out of the same
   // guns. This is the first thing in the game that reads the rating at all.
-  const gunsEmpire = empire.reduce((n, f) => n + fleetGuns(f) * officerEdge(state, f, 'leadership'), 0);
-  const gunsAlliance = alliance.reduce((n, f) => n + fleetGuns(f) * officerEdge(state, f, 'leadership'), 0);
+  // The harbour's forts fire for whoever holds it, on top of any fleet.
+  const shore = fortGuns(system);
+  const gunsEmpire =
+    empire.reduce((n, f) => n + fleetGuns(f) * officerEdge(state, f, 'leadership'), 0) +
+    (system.control === 'empire' ? shore : 0);
+  const gunsAlliance =
+    alliance.reduce((n, f) => n + fleetGuns(f) * officerEdge(state, f, 'leadership'), 0) +
+    (system.control === 'alliance' ? shore : 0);
 
   applyFire(gunsAlliance, empire, rng);
   applyFire(gunsEmpire, alliance, rng);
@@ -449,7 +488,11 @@ function sinkAndDrown(state: GameState, fleet: Fleet): void {
  */
 export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   const system = getSystem(state, fleet.systemId);
-  const defenders = system.garrison;
+  // A boom is cut under fire before anybody is ashore, and it costs the
+  // landing what a company would. The chain does not die with the garrison:
+  // it is spent from the attacker only.
+  const chain = boomDefence(system);
+  const defenders = system.garrison + chain;
   // Combat tells here, for the same reason: companies led ashore by somebody
   // who knows the business go further than the same companies alone.
   const attackers = fleet.troops * officerEdge(state, fleet, 'combat');
@@ -459,7 +502,7 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   const attackerWins = attackers > defenders || (attackers === defenders && roll > 0.5);
 
   fleet.troops = Math.max(0, fleet.troops - spent);
-  system.garrison -= spent;
+  system.garrison = Math.max(0, system.garrison - Math.max(0, spent - chain));
 
   if (!attackerWins) {
     pushEvent(state, {
@@ -496,7 +539,12 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
 export function isBlockaded(state: GameState, system: System): boolean {
   if (system.control !== 'empire' && system.control !== 'alliance') return false;
   const enemy = otherFaction(system.control);
-  return fleetsAt(state, system.id).some((f) => f.faction === enemy && fleetGuns(f) > 0);
+  const hostile = fleetsAt(state, system.id)
+    .filter((f) => f.faction === enemy)
+    .reduce((n, f) => n + fleetGuns(f), 0);
+  // Under the boom's floor a raider is a nuisance, not a siege.
+  const floor = boomDefence(system) > 0 ? BOOM_BLOCKADE_GUNS : 1;
+  return hostile >= floor;
 }
 
 /** Stamp today's blockades onto the islands, so the economy can read them. */

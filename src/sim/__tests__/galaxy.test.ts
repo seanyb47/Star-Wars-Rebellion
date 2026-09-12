@@ -78,8 +78,13 @@ describe('generateGalaxy', () => {
         .flatMap((s) => s.facilities)
         .filter((f) => f.owner === faction);
       const count = (type: string) => owned.filter((f) => f.type === type).length;
-      expect(count('mine')).toBe(8);
-      expect(count('refinery')).toBe(8);
+      // More earners than before, to carry the heavier opening fleets, and
+      // more for the Crown, which has six islands to put them on and two of
+      // those earning at a sullen rate. Measured to leave free ground on
+      // every island either way.
+      const earners = faction === 'empire' ? 12 : 10;
+      expect(count('mine')).toBe(earners);
+      expect(count('refinery')).toBe(earners);
       expect(count('construction_yard')).toBe(2);
       expect(count('training_facility')).toBe(1);
       expect(count('shipyard')).toBe(1);

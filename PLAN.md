@@ -242,3 +242,38 @@ live in the almanac and on the island panel as "these waters".
 
 **Roster.** Every one of the 26 now has an epithet and a full bio, and a test
 refuses a build where anyone has lost either.
+
+
+## The opening, against Rebellion's — 12 September, late
+
+Measured against the original's turn-one state and closed on the three cheapest
+gaps. Numbers below are from four seeds.
+
+**The Crown holds more and holds it worse.** Six islands (was four), two of
+them sullen at 32–45 allegiance and held by garrison — Rebellion opens the
+Empire on about six with three or four disloyal, and that is the whole feel of
+the side. The Confederacy keeps four that mean it (65–85).
+
+**Garrisons follow the rule the uprising check uses.** `requiredGarrison` plus
+two, capital plus one more, capped at six — Rebellion's ceiling. A loyal port
+opens with two companies, a sullen one with three or four, the seat with three.
+Nothing you hold is under the line on day one.
+
+**Fleets, hull for hull.** Crown: a ship of the line, two heavy frigates, a
+light cruiser, a transport (Rebellion's ISD, two VSDs, Carrack, Galleon).
+Confederacy: four sloops, a Tempest, a Brig (corvettes, a bulk cruiser, a
+transport). Earners went to 12/12 for the Crown and 10/10 for the Confederacy
+to carry it: both sides open solvent (Crown net +3.5 to +6.5 a day, Confederacy
++8 to +10) with free ground on every island.
+
+**Fort and boom.** Two works a yard can build, both taking a water slot. A fort
+is five guns on the wall that fire for whoever holds the island — including at
+an enemy fleet lying off a harbour with no navy in it. A boom counts as two
+companies against a landing, spent from the attacker only, and keeps the port
+open under fewer than six enemy guns, so a lone sloop is a nuisance rather than
+a siege. Both are listed on the Harbour tab with the hulls, because that is
+where they fight. The AI does not build them yet.
+
+What is still not matched, and stays in Phase 4: fighters, probes, research
+trees, the movable Free Harbour, the Leviathan, assassination, the Regent's
+leadership bonus.

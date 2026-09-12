@@ -9,7 +9,14 @@ function setup(seed = 501) {
   const state = generateGalaxy(seed, 'empire');
   // The opening fleets are not what these tests count.
   state.fleets.length = 0;
-  const mine = state.systems.find((s) => s.control === 'empire' && s.facilities.length > 0)!;
+  // An island of yours that actually has a yard on it. The first held island
+  // is not guaranteed one now that the Crown opens on six and the plan deals
+  // facilities round the table.
+  const mine = state.systems.find(
+    (s) =>
+      s.control === 'empire' &&
+      s.facilities.some((f) => f.owner === 'empire' && buildMenu(f).length > 0),
+  )!;
   return { state, mine };
 }
 

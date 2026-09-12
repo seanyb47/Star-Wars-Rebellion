@@ -2,7 +2,13 @@ import factionData from '../data/factions.json';
 import characterRoster from '../data/characters.json';
 import reachData from '../data/reaches.json';
 import { createRng, type Rng } from './rng';
-import { RECRUITS_AT_START, RECRUIT_LAST_DAY, RECRUITS_IN_PLAY } from './constants';
+import {
+  RECRUITS_AT_START,
+  RECRUIT_LAST_DAY,
+  RECRUITS_IN_PLAY,
+  START_GARRISON_MAX,
+  START_GARRISON_SPARE,
+} from './constants';
 
 import type {
   Character,
@@ -16,6 +22,7 @@ import type {
   ShipClassId,
 } from './types';
 import { recomputeLedger } from './economy';
+import { requiredGarrison } from './helpers';
 
 /**
  * What each Sea's islands look like.
@@ -71,9 +78,25 @@ const SECTOR_RADIUS = 105;
 const MIN_SYSTEM_SEPARATION = 38;
 
 /** Starting holdings per side (spec 4.1). */
-const START_SYSTEMS_PER_SIDE = 4;
-const START_MINES = 8;
-const START_REFINERIES = 8;
+/**
+ * The Crown holds more and holds it worse. Rebellion opens the Empire on about
+ * six core worlds with three or four of them held by garrison alone, and that
+ * is the whole feel of the side: an occupier from the first day. So the Crown
+ * gets six islands, two of them sullen, and the Confederacy four that mean it.
+ */
+const START_SYSTEMS_CROWN = 6;
+const START_SYSTEMS_CROWN_SULLEN = 2;
+const START_SYSTEMS_CONFEDERACY = 4;
+/**
+ * Earners per side. More than before, to carry the heavier opening fleets, and
+ * more for the Crown than the Confederacy because the Crown has six islands to
+ * put them on and two of those earn at a sullen island's rate. Measured: both
+ * sides open solvent and with free ground on every island.
+ */
+const START_EARNERS: Record<PlayableFaction, { mines: number; refineries: number }> = {
+  empire: { mines: 12, refineries: 12 },
+  alliance: { mines: 10, refineries: 10 },
+};
 const START_YARDS = 2;
 const START_TRAINING = 1;
 /** A yard for hulls, so a slipway is not the first thing you have to build. */
@@ -91,12 +114,25 @@ const START_SHIPYARDS = 1;
  * has enough to win with, which is what makes the slipway worth building.
  */
 const START_FLEET: Record<PlayableFaction, ShipClassId[]> = {
-  empire: ['razorback', 'kestrel', 'kestrel', 'fluyt'],
-  alliance: ['swift', 'swift', 'swift', 'brig'],
+  // Rebellion's Imperial opening, hull for hull: one ship of the line, two
+  // heavy frigates, a light cruiser and a transport.
+  empire: ['sovereign', 'razorback', 'razorback', 'kestrel', 'fluyt'],
+  // And the Rebel one: a pack of corvettes, a single bulk cruiser, a transport.
+  alliance: ['swift', 'swift', 'swift', 'swift', 'tempest', 'brig'],
 };
 /** Companies aboard the transport, ready to take somewhere. */
 const START_TROOPS_ABOARD = 2;
-const START_GARRISON = 2;
+
+/**
+ * The garrison an island opens with: what its allegiance needs, plus a
+ * margin, capped. Read off the same rule the uprising check uses, so the
+ * opening is consistent with the game that follows — a sullen holding starts
+ * with the companies that are actually keeping it, not a token two.
+ */
+function startGarrison(support: number, capital: boolean): number {
+  const needed = requiredGarrison(support) + START_GARRISON_SPARE + (capital ? 1 : 0);
+  return Math.min(START_GARRISON_MAX, Math.max(1, needed));
+}
 const START_CHARACTERS = 7;
 /** Enough to lay down a camp or two before the first income arrives. */
 const START_GOLD = 150;
@@ -250,17 +286,23 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     .shuffle(
       systems.filter((s) => s.isCore && s.id !== capital.id && s.control === 'neutral'),
     )
-    .slice(0, START_SYSTEMS_PER_SIDE - 1);
-  for (const system of otherCore) {
+    .slice(0, START_SYSTEMS_CROWN - 1);
+  for (const [index, system] of otherCore.entries()) {
     system.control = 'empire';
-    system.support = { empire: rng.range(65, 85), alliance: rng.range(5, 15) };
+    // The last two are held, not loved: allegiance in the thirties and
+    // forties, above the uprising line and under the garrison's boot. They
+    // are the islands the Confederacy will come for first, which is the point.
+    const sullen = index >= otherCore.length - START_SYSTEMS_CROWN_SULLEN;
+    system.support = sullen
+      ? { empire: rng.range(32, 45), alliance: rng.range(25, 40) }
+      : { empire: rng.range(65, 85), alliance: rng.range(5, 15) };
     empireSystems.push(system);
   }
 
   const allianceSystems: System[] = [allianceHq];
   const otherRim = rng
     .shuffle(hqSector.systemIds.filter((id) => id !== allianceHq.id))
-    .slice(0, START_SYSTEMS_PER_SIDE - 1)
+    .slice(0, START_SYSTEMS_CONFEDERACY - 1)
     .map((id) => byId.get(id)!);
   for (const system of otherRim) {
     system.control = 'alliance';
@@ -282,12 +324,12 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       const generous = index === 0;
       system.rawSlots = Math.max(system.rawSlots, generous ? 6 : 5);
       system.energySlots = Math.max(system.energySlots, generous ? 8 : 7);
-      system.garrison = START_GARRISON;
+      system.garrison = startGarrison(system.support[owner], index === 0);
       system.explored[owner] = true;
     }
     const plan: FacilityType[] = [
-      ...Array<FacilityType>(START_MINES).fill('mine'),
-      ...Array<FacilityType>(START_REFINERIES).fill('refinery'),
+      ...Array<FacilityType>(START_EARNERS[owner].mines).fill('mine'),
+      ...Array<FacilityType>(START_EARNERS[owner].refineries).fill('refinery'),
       ...Array<FacilityType>(START_YARDS).fill('construction_yard'),
       ...Array<FacilityType>(START_TRAINING).fill('training_facility'),
       ...Array<FacilityType>(START_SHIPYARDS).fill('shipyard'),

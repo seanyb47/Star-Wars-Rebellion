@@ -75,7 +75,11 @@ export type FacilityType =
   | 'refinery'
   | 'construction_yard'
   | 'training_facility'
-  | 'shipyard';
+  | 'shipyard'
+  /** A fixed gun in the harbour: a warship that cannot weigh anchor. */
+  | 'fort'
+  /** A chain across the harbour mouth: landings and blockades both find it. */
+  | 'boom';
 
 /**
  * A hull's size, which is the whole of naval tactics here. There are no

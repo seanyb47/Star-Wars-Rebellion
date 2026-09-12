@@ -12,8 +12,9 @@ import {
   shipClass,
   type Fleet,
   type GameState,
+  FORT_GUNS,
 } from '../sim';
-import { CharacterPortrait, ShipThumb } from './art';
+import { CharacterPortrait, FacilityIcon, ShipThumb } from './art';
 import { ControlBadge } from './components';
 
 /**
@@ -238,19 +239,49 @@ export function Harbour({
   const inbound = state.fleets.filter(
     (f) => f.faction === state.player && f.voyage?.targetSystemId === systemId,
   );
+  // The fixed defences sit in the harbour with the hulls: a fort is a warship
+  // that cannot weigh anchor, and it belongs on this tab rather than under
+  // Buildings with the mills, because this is where it fights.
+  const island = state.systems.find((s) => s.id === systemId);
+  const forts = island ? island.facilities.filter((x) => x.type === 'fort' && !x.building).length : 0;
+  const booms = island ? island.facilities.filter((x) => x.type === 'boom' && !x.building).length : 0;
+  const defences = (forts > 0 || booms > 0) && (
+    <div className="card row" style={{ gap: 14, alignItems: 'center' }}>
+      {forts > 0 && (
+        <span className="row" style={{ gap: 6 }}>
+          <FacilityIcon type="fort" size={22} />
+          <span className="small">
+            {forts} {forts === 1 ? 'fort' : 'forts'} · {forts * FORT_GUNS} guns on the wall
+          </span>
+        </span>
+      )}
+      {booms > 0 && (
+        <span className="row" style={{ gap: 6 }}>
+          <FacilityIcon type="boom" size={22} />
+          <span className="small">
+            {booms} {booms === 1 ? 'boom' : 'booms'} across the mouth
+          </span>
+        </span>
+      )}
+    </div>
+  );
 
   if (here.length === 0 && inbound.length === 0) {
     return (
-      <div className="card muted small">
-        Nothing is moored here. Lay down a hull at a {terms.facilities.shipyard.toLowerCase()} and
-        it will come to anchor where it was built. Any fort or boom guarding the island will sit
-        here too, since a fixed gun is a warship that cannot weigh anchor.
+      <div className="stack">
+        {defences}
+        <div className="card muted small">
+          Nothing is moored here. Lay down a hull at a {terms.facilities.shipyard.toLowerCase()} and
+          it will come to anchor where it was built. Any fort or boom guarding the island will sit
+          here too, since a fixed gun is a warship that cannot weigh anchor.
+        </div>
       </div>
     );
   }
 
   return (
     <div className="stack">
+      {defences}
       {here.map((fleet) => (
         <FleetCard
           key={fleet.id}

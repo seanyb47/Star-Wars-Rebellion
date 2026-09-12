@@ -41,7 +41,34 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
   construction_yard: { costGold: 120, days: 20, label: terms.facilities.construction_yard },
   training_facility: { costGold: 80, days: 15, label: terms.facilities.training_facility },
   shipyard: { costGold: 150, days: 25, label: terms.facilities.shipyard },
+  fort: { costGold: 100, days: 18, label: terms.facilities.fort },
+  boom: { costGold: 70, days: 12, label: terms.facilities.boom },
 };
+
+/**
+ * The fixed defences, and what they are worth.
+ *
+ * A fort fires like a medium hull and a bit — enough that two of them turn a
+ * sloop raid away, not enough that a harbour never needs a fleet. A boom is
+ * counted as companies for a landing (a chain has to be cut under fire, which
+ * costs the attacker exactly what a company would) and as a floor for a
+ * blockade: under BOOM_BLOCKADE_GUNS of enemy fire the port stays open, so a
+ * single sloop lying off a boomed harbour is a nuisance rather than a siege.
+ */
+export const FORT_GUNS = 5;
+export const BOOM_DEFENCE = 2;
+export const BOOM_BLOCKADE_GUNS = 6;
+
+/**
+ * Garrisons at setup, the two numbers Rebellion is tuned against.
+ *
+ * Every held island opens with the garrison its allegiance needs plus two, so
+ * a loyal port has a couple of companies and a sullen one has five. Capped at
+ * six, which is the original's ceiling, and the capital gets one more because
+ * a seat is defended whatever its people think.
+ */
+export const START_GARRISON_MAX = 6;
+export const START_GARRISON_SPARE = 2;
 
 /** Training-facility menu (spec 4.4). */
 export const TROOP_BUILD: BuildSpec = { costGold: 25, days: 5, label: terms.troop };
@@ -141,6 +168,8 @@ export const GOLD_PER_DAY: Record<BuildItem, number> = {
   construction_yard: 0,
   training_facility: 0,
   shipyard: 0,
+  fort: 0,
+  boom: 0,
   troop: 0,
   ...NO_SHIP_INCOME,
 };
@@ -155,6 +184,8 @@ export const UPKEEP_PER_DAY: Record<BuildItem, number> = {
   construction_yard: 3,
   training_facility: 2,
   shipyard: 4,
+  fort: 2,
+  boom: 1,
   troop: 1,
   ...SHIP_UPKEEP,
 };
@@ -344,6 +375,8 @@ export const YARD_BUILDABLE: FacilityType[] = [
   'construction_yard',
   'training_facility',
   'shipyard',
+  'fort',
+  'boom',
 ];
 
 /** Display names come from the world bible via `data/terms.json`. */

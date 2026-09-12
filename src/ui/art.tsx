@@ -326,7 +326,7 @@ export function FacilityIcon({
   type,
   size = 30,
 }: {
-  type: 'mine' | 'refinery' | 'construction_yard' | 'training_facility' | 'shipyard';
+  type: 'mine' | 'refinery' | 'construction_yard' | 'training_facility' | 'shipyard' | 'fort' | 'boom';
   size?: number;
 }) {
   const common = {
@@ -381,6 +381,23 @@ export function FacilityIcon({
           <path d="M10 12 V22 M16 15 V25 M22 12 V22" strokeWidth="1.4" />
           <path d="M3 27 H29" />
           <path d="M8 27 L11 22 M24 27 L21 22" strokeWidth="1.4" />
+        </g>
+      )}
+      {type === 'fort' && (
+        <g {...common}>
+          {/* A battery on the wall: crenellations, one gun run out. */}
+          <path d="M5 28 V13 H9 V10 H13 V13 H19 V10 H23 V13 H27 V28" />
+          <path d="M4 28 H28" />
+          <path d="M11 22 L23 16" strokeWidth="2.4" />
+          <circle cx="11" cy="22" r="2.2" strokeWidth="1.4" />
+        </g>
+      )}
+      {type === 'boom' && (
+        <g {...common}>
+          {/* A chain slung between two posts across the water. */}
+          <path d="M5 8 V28 M27 8 V28" />
+          <path d="M5 13 Q16 24 27 13" strokeDasharray="3 2.4" strokeWidth="2.2" />
+          <path d="M3 28 Q10 25 16 28 T29 28" strokeWidth="1.3" />
         </g>
       )}
     </svg>
