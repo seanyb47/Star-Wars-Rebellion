@@ -246,11 +246,24 @@ facilities and creatures 768×512 · dispatch scenes 1024×432. WebP, quality ~8
 component (§4). A painting with its own frame baked in cannot be reframed,
 retinted or resized.
 
-**The budget is the real constraint.** The whole game is ~95KB gzipped and loads
-instantly on a phone. Sixty-six paintings at ~100KB is roughly 6.5MB — seventy
-times the game. Lazy loading has to be built before the facility and portrait
-batches land, not after, and it is the one piece of engineering this direction
-actually requires.
+**On weight, a correction.** I wrote earlier that sixty-six paintings would be
+6.5MB "against a 95KB game", and that lazy loading was needed to stop the first
+load collapsing. Building it showed that was wrong in an important way.
+
+Vite emits the paintings as **separate asset files**, not bundled into the
+JavaScript — the bundle only carries their URLs. Nothing is downloaded until
+something on screen references an image, so the initial load was never going to
+be 6.5MB and the app still starts in ~95KB however much art exists.
+
+The real cost is narrower and still worth paying for: **one screen that renders
+the whole cast at once.** The crew list asks for twenty-six paintings in a
+single go, which on a slow connection is megabytes for a list you are about to
+scroll past. So portraits now load only when their medallion comes near the
+screen, and the drawn cameo is the placeholder until then — right size, right
+shape, already correct, no blank boxes and no layout shift.
+
+Per-screen thrift, not bundle thrift. Keep files **under 120KB** anyway: it is
+the difference between a card appearing and a card arriving.
 
 ## 9. Lessons already paid for
 

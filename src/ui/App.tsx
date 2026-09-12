@@ -17,6 +17,7 @@ import {
   orderEmbark,
   orderSail,
   missionTypeFor,
+  type ChartLayer,
   sendDiplomat,
   setSpeed,
   VICTORY_CONTROL_FRACTION,
@@ -76,6 +77,9 @@ export function App() {
   const [narratorOpen, setNarratorOpen] = useState(false);
   const [almanacOpen, setAlmanacOpen] = useState(false);
   const [pickingFor, setPickingFor] = useState<string | null>(null);
+  // Which question the chart is answering. Not saved: it is a way of looking
+  // at the war, not a fact about it, and it should start plain every session.
+  const [layer, setLayer] = useState<ChartLayer>('allegiance');
   /** A fleet waiting to be told where to sail. Every island is a valid answer. */
   const [sailingFleetId, setSailingFleetId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -373,6 +377,8 @@ export function App() {
                   }
                 : null
             }
+            layer={layer}
+            onLayerChange={setLayer}
             sailing={sailingFleetId !== null}
             onCancelPick={() => {
               setPickingFor(null);

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
-import { isMissionTarget, summariseReach } from '../sim';
+import { isMissionTarget, layerMark, summariseReach, type ChartLayer } from '../sim';
+import { LayerStrip, useLayerSwipe } from './LayerStrip';
 import { allegianceColour, allegianceSegments, segmentsFor } from './allegiance';
 import { CompassRose, islandPath } from './art';
 import { ProducerLegend } from './ProducerLegend';
@@ -71,6 +72,9 @@ export interface GalaxyMapProps {
   onSelectReach?: (sectorId: string) => void;
   /** From the idle-producer strip: jump straight to an island with a free yard. */
   onOpenIsland?: (systemId: string) => void;
+  /** Which question the chart is answering. Swipe or tap the strip to change. */
+  layer?: ChartLayer;
+  onLayerChange?: (layer: ChartLayer) => void;
 }
 
 /**
@@ -128,8 +132,15 @@ export function GalaxyMap({
   onOpenWorlds,
   onSelectReach,
   onOpenIsland,
+  layer = 'allegiance',
+  onLayerChange,
 }: GalaxyMapProps) {
   const viewer = state.player;
+  const swipe = useLayerSwipe(layer, onLayerChange ?? (() => {}));
+  // Picking a destination is a different question from reading the chart, so
+  // the layers stand down while it is happening rather than fighting the
+  // pick rings for the same dimming.
+  const filtering = layer !== 'allegiance' && !pickingFor && !sailing;
   const stipple = useMemo(() => seaStipple(state.rngSeed), [state.rngSeed]);
 
   /**
@@ -165,7 +176,12 @@ export function GalaxyMap({
 
   return (
     <>
-      <svg className="map" viewBox={`0 0 ${CHART_W} ${CHART_H}`} preserveAspectRatio="xMidYMid meet">
+      <svg
+        className="map"
+        viewBox={`0 0 ${CHART_W} ${CHART_H}`}
+        preserveAspectRatio="xMidYMid meet"
+        {...swipe}
+      >
         <defs>
           <radialGradient id="shoal">
             <stop offset="0%" stopColor="var(--shallow)" stopOpacity="0.5" />
@@ -200,6 +216,13 @@ export function GalaxyMap({
         {chains.map(({ sector, systems, summary, targets, spot }) => {
           // Sailing can go anywhere; a parley can only go where it is welcome.
           const live = sailing || !pickingFor || targets > 0;
+          // Under a layer, a chain holding no answer drops back so the ones
+          // that do carry the eye. It stays tappable — a filter is a way of
+          // looking, not a lock on where you can go.
+          const answers = filtering
+            ? systems.filter((sy) => layerMark(state, sy, layer, viewer).lit).length
+            : 0;
+          const faded = filtering && answers === 0;
           const labelY = spot.y + CHAIN_R + 40;
           // The names still break at the last space — "Shipwrights'" over
           // "Reach 3/10" — which keeps every label inside its own column.
@@ -211,7 +234,7 @@ export function GalaxyMap({
               key={sector.id}
               onClick={live ? () => onSelectReach?.(sector.id) : undefined}
               style={{ cursor: live ? 'pointer' : 'default' }}
-              opacity={live ? 1 : 0.35}
+              opacity={live ? (faded ? 0.22 : 1) : 0.35}
             >
               {/* The disc is the tap target: the whole chain, not any one island. */}
               <circle cx={spot.x} cy={spot.y} r={CHAIN_R} fill="url(#shoal)" />
@@ -228,8 +251,29 @@ export function GalaxyMap({
                 const isHq =
                   system.id === state.factions[viewer].hqSystemId ||
                   (explored && system.id === state.factions[enemy].hqSystemId);
+                const mark = filtering
+                  ? layerMark(state, system, layer, viewer)
+                  : { lit: false as const };
                 return (
                   <g key={system.id} pointerEvents="none">
+                    {mark.lit && (
+                      <>
+                        {/* Brass, because this is the interface pointing at
+                            something rather than the world saying whose it is —
+                            a faction colour here would read as allegiance. */}
+                        <circle
+                          className="map__lit"
+                          cx={ax}
+                          cy={ay}
+                          r={radius + 9}
+                        />
+                        {mark.count !== undefined && mark.count > 1 && (
+                          <text className="map__lit-n" x={ax + radius + 11} y={ay - radius - 3}>
+                            {mark.count}
+                          </text>
+                        )}
+                      </>
+                    )}
                     {isHq && (
                       <circle
                         className="map__hq"
@@ -318,7 +362,15 @@ export function GalaxyMap({
 
       {/* What is standing idle, always on screen: a yard building nothing is
           gold you are not spending, and nothing else says so. */}
-      {!pickingFor && !sailing && <ProducerLegend state={state} onOpenIsland={onOpenIsland} />}
+      {/* The idle strip is the list answer to the same question the layers
+          answer spatially, so only one of them is on screen at a time. */}
+      {!pickingFor && !sailing && layer === 'allegiance' && (
+        <ProducerLegend state={state} onOpenIsland={onOpenIsland} />
+      )}
+
+      {!pickingFor && !sailing && onLayerChange && (
+        <LayerStrip state={state} layer={layer} onChange={onLayerChange} viewer={viewer} />
+      )}
 
       <div className="map__hud">
         {sailing ? (

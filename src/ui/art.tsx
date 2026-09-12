@@ -406,6 +406,7 @@ export function CompanyRow({
  * ------------------------------------------------------------------ */
 
 import { paintedPortrait } from './painted';
+import { useInView } from './useInView';
 
 /**
  * The ink ramp. Five inks, and every drawing uses only these plus the faction
@@ -577,7 +578,10 @@ export function CharacterPortrait({
         ? 'var(--alliance)'
         : 'var(--neutral)';
 
-  const painting = paintedPortrait(name);
+  // A painting is only fetched once the medallion is near the screen; until
+  // then the drawn cameo stands in, which is the whole reason it can.
+  const [holder, near] = useInView<SVGSVGElement>();
+  const painting = near ? paintedPortrait(name) : undefined;
   const r = 9.5 * stock.headScale;
   const hatD = hatPath(hat, r);
   // The outline, on everything, at one weight. Heavy on purpose: a hairline
@@ -586,6 +590,7 @@ export function CharacterPortrait({
 
   return (
     <svg
+      ref={holder}
       viewBox="0 0 64 64"
       width={size}
       height={size}

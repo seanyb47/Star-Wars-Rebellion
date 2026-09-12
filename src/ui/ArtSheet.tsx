@@ -15,6 +15,7 @@ import {
   ShipIcon,
 } from './art';
 import { EventScene } from './EventScene';
+import { Card } from './Card';
 
 /**
  * Every piece of art in the game, on one page.
@@ -180,6 +181,43 @@ export function ArtSheet() {
             </Item>
           )),
         )}
+      </Row>
+
+      {/* The frame, around the art that exists today. When paintings land they
+          drop into exactly this, which is the point of building it early. */}
+      <Row label="Cards" note="the frame, around a cameo and an island — paintings drop into this unchanged">
+        <div className="artsheet__cards">
+          <Card
+            title="Admiral Corvus Blackwater"
+            type="Leader"
+            subtype="Imperium"
+            quote="Discipline carries farther than the wind."
+            art={
+              <CharacterPortrait
+                name="Admiral Corvus Blackwater"
+                faction="empire"
+                people="Human (once)"
+                size={220}
+              />
+            }
+          />
+          <Card
+            title="Coralhome"
+            type="Island"
+            subtype="Natural"
+            quote="Paradise has a price."
+            art={
+              <IslandPortrait seed="Coralhome" faction="neutral" settled facilities={3} size={220} />
+            }
+          />
+          <Card
+            title="The Kraken"
+            type="Creature"
+            subtype="Mystical"
+            quote="Some things still rule here."
+            art={<EventScene kind="loss" tint="var(--neutral)" seed="kraken" height={150} />}
+          />
+        </div>
       </Row>
 
       <Row label="The whole cast" note="all 26, at 44 — the set judged as a set">

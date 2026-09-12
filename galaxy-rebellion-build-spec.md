@@ -411,6 +411,13 @@ when one exists and falls back to the drawn cameo when it does not, with no
 manifest and no flag day, so art lands in any order and no state of the repo is
 half-finished.
 
-One number this spec should carry: the app is ~95KB gzipped today and 51
-paintings at ~100KB each is roughly 5MB. **Lazy loading is a prerequisite of
-the portrait batch, not a follow-up to it.**
+One number this spec should carry, with the correction that building it
+produced: the app is ~95KB gzipped and **stays that way**. Paintings are
+emitted as separate assets, not bundled, so nothing is fetched until a screen
+references it. The earlier claim that 66 paintings meant a 6.5MB first load was
+wrong.
+
+What is real is a single screen rendering the whole cast at once. Portraits
+therefore load only when near the viewport (`useInView`), with the drawn cameo
+as the placeholder — which costs nothing to design, because it is already the
+right size and shape.

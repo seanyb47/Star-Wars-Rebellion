@@ -750,3 +750,96 @@ button {
 .artsheet__blurb {
   font-size: 11px; line-height: 1.5; color: var(--muted); margin: 0 0 10px; max-width: 46em;
 }
+
+/* ---------- Chart layers ---------- */
+/* The view switch, at the foot of the chart where the pick chip lives. It sits
+   above the tab bar rather than inside it: the tab bar says which screen you
+   are on, this says what the screen is about. */
+.layers {
+  position: absolute; left: 0; right: 0; bottom: 58px;
+  display: flex; flex-direction: column; gap: 5px; pointer-events: none;
+}
+.layers__strip {
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+  padding: 0 10px; pointer-events: auto;
+  overscroll-behavior-x: contain;
+}
+.layers__strip::-webkit-scrollbar { display: none; }
+.layers__chip {
+  flex: none; display: inline-flex; align-items: center; gap: 6px;
+  min-height: var(--tap); padding: 6px 13px; border-radius: 999px;
+  background: rgba(6, 22, 29, 0.88); border: 1px solid var(--border);
+  color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.layers__chip--on { border-color: var(--brass); color: var(--brass); }
+/* The tally. A zero is worth showing — on Idle works it is the one number that
+   means nothing of yours is standing about. */
+.layers__n {
+  font-size: 10px; font-variant-numeric: tabular-nums;
+  padding: 1px 5px; border-radius: 999px;
+  background: var(--bg-sunken); color: var(--text); opacity: 0.75;
+}
+.layers__chip--on .layers__n { background: var(--brass); color: var(--bg); opacity: 1; }
+.layers__hint {
+  margin: 0; padding: 0 14px; font-size: 10.5px; line-height: 1.35;
+  color: var(--muted); opacity: 0.85; pointer-events: none;
+}
+
+/* An island that answers the current layer. Brass, not a faction colour: this
+   is the interface pointing at something, and a faction colour here would be
+   read as allegiance. CSS rather than an attribute, because a stylesheet rule
+   beats a presentation attribute and this has caught us before. */
+.map__lit {
+  fill: none; stroke: var(--brass); stroke-width: 3; opacity: 0.95;
+}
+.map__lit-n {
+  font-size: 15px; font-weight: 700; fill: var(--brass);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- The card frame (style guide §4) ---------- */
+/* Crest, title, art, quote, type bar. Drawn here so it works identically
+   around a painting and around a drawn cameo, and so a bright painting reads
+   as an object lying on the page rather than a hole cut in it. */
+.tcard {
+  position: relative; display: flex; flex-direction: column;
+  width: 100%; padding: 0; text-align: left; overflow: hidden;
+  background: var(--bg-raised);
+  border: 1px solid var(--card-tint); border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(2, 10, 14, 0.5);
+}
+button.tcard { cursor: pointer; }
+button.tcard:hover { border-color: var(--brass); }
+
+/* Sits over the corner, as the guide has it — half on the frame, half off. */
+.tcard__badge {
+  position: absolute; top: 6px; left: 8px; z-index: 2;
+  display: grid; place-items: center;
+  width: 30px; height: 30px; border-radius: 7px;
+  background: rgba(4, 16, 22, 0.9); border: 1px solid var(--card-tint);
+}
+.tcard__title {
+  padding: 9px 12px 9px 46px;
+  font-size: 14px; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--text); background: var(--bg-sunken);
+  border-bottom: 1px solid var(--border);
+}
+.tcard__art { position: relative; display: block; line-height: 0; background: var(--water-deep); }
+.tcard__art > svg, .tcard__art > img { display: block; width: 100%; height: auto; }
+/* The subject's own voice, over the foot of the picture. The scrim is what
+   keeps it legible whatever the painting is doing underneath. */
+.tcard__quote {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 22px 12px 9px;
+  font-size: 12px; line-height: 1.4; color: #e8e2d1;
+  background: linear-gradient(to top, rgba(4, 12, 16, 0.92), rgba(4, 12, 16, 0));
+}
+.tcard__type {
+  padding: 7px 12px; font-size: 9.5px; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--muted);
+  background: var(--bg-sunken); border-top: 1px solid var(--border);
+}
+.tcard__dot { color: var(--card-tint); }
+.artsheet__cards { display: flex; gap: 12px; flex-wrap: wrap; }
+.artsheet__cards > * { width: 232px; }
