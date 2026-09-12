@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
-import { CHART_LAYERS, layerMark, layerTally } from '../layers';
+import { CHART_LAYERS, islandWorth, layerMark, layerTally } from '../layers';
 import { getSystem } from '../helpers';
 import { addShip } from '../fleets';
 import { buildMenu } from '../build';
@@ -79,6 +79,30 @@ describe('chart layers', () => {
 
     fleet.voyage = { targetSystemId: mine.id, daysRemaining: 3 };
     expect(layerMark(state, mine, 'fleets', 'empire').lit).toBe(false);
+  });
+
+  it('measures worth as ground plus works, and leaves bare rock dark', () => {
+    const { state } = setup();
+    const rich = state.systems.find(
+      (s) => s.explored.empire && s.rawSlots + s.energySlots > 0,
+    )!;
+    expect(layerMark(state, rich, 'worth', 'empire')).toEqual({
+      lit: true,
+      count: rich.rawSlots + rich.energySlots,
+    });
+    expect(islandWorth(rich)).toBe(rich.rawSlots + rich.energySlots);
+
+    // Worth is about the island, not about who holds it: taking it changes
+    // nothing here. That is the whole point of the layer — it says where is
+    // worth having, which is a question you ask about somebody else's island.
+    const before = layerMark(state, rich, 'worth', 'empire').count;
+    rich.control = rich.control === 'empire' ? 'alliance' : 'empire';
+    expect(layerMark(state, rich, 'worth', 'empire').count).toBe(before);
+
+    // Bare rock answers nothing, however well charted.
+    rich.rawSlots = 0;
+    rich.energySlots = 0;
+    expect(layerMark(state, rich, 'worth', 'empire').lit).toBe(false);
   });
 
   it('tallies only the islands that answer the layer', () => {

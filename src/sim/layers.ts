@@ -22,7 +22,8 @@ export type ChartLayer =
   | 'idleCrew'
   | 'fleets'
   | 'garrisons'
-  | 'missions';
+  | 'missions'
+  | 'worth';
 
 export interface LayerSpec {
   id: ChartLayer;
@@ -44,7 +45,20 @@ export const CHART_LAYERS: LayerSpec[] = [
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
   { id: 'garrisons', label: 'Garrisons', hint: 'Islands of yours holding companies ashore.' },
   { id: 'missions', label: 'Missions', hint: 'Islands your officers are working on, or sailing for.' },
+  { id: 'worth', label: 'Worth', hint: 'Every charted island drawn to the size of what it can hold. Bare rock falls away.' },
 ];
+
+/**
+ * What an island can hold: ground for mines and farms, plus works.
+ *
+ * This used to set every island's size on the resting chart, which meant the
+ * chart was always answering a question nobody had asked. It is a planning
+ * question — where is worth taking — so it is a layer now, and the resting
+ * chart draws every island the same.
+ */
+export function islandWorth(system: System): number {
+  return system.rawSlots + system.energySlots;
+}
 
 /** What a lit island is worth saying about itself, under this layer. */
 export interface LayerMark {
@@ -114,6 +128,14 @@ export function layerMark(
       const n = state.characters.filter(
         (c) => c.faction === faction && c.mission?.targetSystemId === system.id,
       ).length;
+      return n > 0 ? { lit: true, count: n } : DARK;
+    }
+    case 'worth': {
+      // A magnitude rather than a yes-or-no. The chart answers this one with
+      // size instead of the glow the others use — fifty glowing islands is not
+      // a filter, it is a lit chart — so `lit` here only separates the islands
+      // that have something on them from the bare rock.
+      const n = islandWorth(system);
       return n > 0 ? { lit: true, count: n } : DARK;
     }
     default:

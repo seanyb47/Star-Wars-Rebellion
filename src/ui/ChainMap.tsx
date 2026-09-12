@@ -341,7 +341,10 @@ export function ChainMap({
         // One colour at three strengths, matching the chart: the filter pushes
         // an island's own tint up rather than adding a mark of its own.
         const mark = filtering ? layerMark(state, system, layer!, viewer) : { lit: false as const };
-        const lit = filtering && mark.lit;
+        // Worth is answered by size on the chart above; down here there is no
+        // size to vary, so it only clears the bare rock away. No glow: ten of
+        // them at once is a lit chain, not a filter.
+        const lit = filtering && mark.lit && layer !== 'worth';
         const dim = filtering && !mark.lit;
         const litCount = 'count' in mark ? mark.count : undefined;
         // Which work this island means, so the ring can say so before you tap.

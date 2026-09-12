@@ -1,6 +1,12 @@
 import { useMemo } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
-import { isMissionTarget, layerMark, summariseReach, type ChartLayer } from '../sim';
+import {
+  islandWorth,
+  isMissionTarget,
+  layerMark,
+  summariseReach,
+  type ChartLayer,
+} from '../sim';
 import { LayerStrip, useLayerSwipe } from './LayerStrip';
 import { allegianceColour, allegianceSegments } from './allegiance';
 import { CompassRose, islandPath } from './art';
@@ -183,23 +189,31 @@ function loyaltyColor(system: System, viewer: PlayableFaction): string {
 }
 
 /**
- * How much of the chart an island takes up: settled ports draw larger.
+ * Every island is the same size on the resting chart.
  *
- * Smaller than it was, and deliberately. The positions come from the painting
- * now and no two are closer than 24 units, so a radius past 11 would have
- * neighbours running each other over. It costs nothing: the painting is
- * already drawing the island, and the mark only has to say whose it is.
+ * Size used to scale with what an island could hold, and the Crown's seat was
+ * drawn at more than double everything else. Both were the chart answering a
+ * question nobody had asked, every second it was open. Worth is a question you
+ * ask when you are choosing where to go, so it is the Worth layer now, and the
+ * seat is an island like the others — the ring already says it is a capital.
+ *
+ * The positions come from the painting and no two are closer than 24 units, so
+ * anything past 11 would have neighbours running each other over.
  */
-function islandRadius(system: System): number {
-  const weight = system.rawSlots + system.energySlots;
-  return (system.populated ? 7 : 5.5) + Math.min(weight, 9) * 0.42;
-}
+const ISLAND_RADIUS = 8;
 
-/** Highwater, and nothing else, is drawn at this. The Crown's seat should be
- *  the one island you can pick out of the whole chart without reading a word.
- *  It sits on the largest painted island in the world, which the position
- *  script reserves for whichever island the data marks as a capital. */
-const SEAT_RADIUS = 26;
+/**
+ * Under the Worth layer, and only there, size carries the answer.
+ *
+ * Worth runs 0 to 14 across the world and bunches at 6-9, so the scale is
+ * linear over the whole range rather than clipped at 9 — clipping flattened
+ * the eight islands worth 12 and 14, which are the only ones the layer exists
+ * to find. Capped at 12 because no two islands are closer than 24 units.
+ */
+const WORTH_MAX = 14;
+function worthRadius(system: System): number {
+  return 4 + (Math.min(islandWorth(system), WORTH_MAX) / WORTH_MAX) * 8;
+}
 
 export function GalaxyMap({
   state,
@@ -219,6 +233,9 @@ export function GalaxyMap({
   // the layers stand down while it is happening rather than fighting the
   // pick rings for the same dimming.
   const filtering = layer !== 'allegiance' && !pickingFor && !sailing;
+  /* Worth is a magnitude, so it is drawn as one: size, not the glow the
+     yes-or-no layers use. Fifty glowing islands is not a filter. */
+  const sizing = filtering && layer === 'worth';
   const stipple = useMemo(() => seaStipple(state.rngSeed), [state.rngSeed]);
 
   /**
@@ -229,10 +246,6 @@ export function GalaxyMap({
    * clusters. The Sea's own name is left off — it was drawn once and landed on
    * top of the chain names — and appears on the chain's panel instead.
    */
-  /** Highwater. Always the Crown's, whichever side the player took — the seat
-   *  of the world is a fact about the world, not about who is looking. */
-  const seatId = state.factions.empire.hqSystemId;
-
   const chains = useMemo(() => {
     const sorted = [...state.sectors].sort(
       (a, b) => a.sea.localeCompare(b.sea) || a.name.localeCompare(b.name),
@@ -263,7 +276,7 @@ export function GalaxyMap({
         targets: systems.filter((s) => isMissionTarget(state, s, viewer)).length,
       };
     });
-  }, [state, viewer, seatId]);
+  }, [state, viewer]);
 
   const enemy: PlayableFaction = viewer === 'empire' ? 'alliance' : 'empire';
 
@@ -398,7 +411,7 @@ export function GalaxyMap({
               )}
 
               {systems.map((system) => {
-                const seat = system.id === seatId;
+
                 // Where the painting put this island. Falling back to the old
                 // seeded scatter keeps a Reach the position script has not
                 // seen from piling all ten islands on one point.
@@ -406,7 +419,7 @@ export function GalaxyMap({
                 const ax = at ? at.x : spot.x + system.x * 0.72;
                 const ay = at ? at.y : spot.y + system.y * 0.72;
                 const explored = system.explored[viewer];
-                const radius = seat ? SEAT_RADIUS : islandRadius(system);
+                const radius = sizing ? worthRadius(system) : ISLAND_RADIUS;
                 const isHq =
                   system.id === state.factions[viewer].hqSystemId ||
                   (explored && system.id === state.factions[enemy].hqSystemId);
@@ -418,7 +431,7 @@ export function GalaxyMap({
                 // colour is pushed. The islands that answer come up bright and
                 // the rest fall back, so the filter reads as the chart lighting
                 // up rather than as a second set of marks laid over it.
-                const lit = filtering && mark.lit;
+                const lit = filtering && mark.lit && !sizing;
                 const dim = filtering && !mark.lit;
                 const tint = loyaltyColor(system, viewer);
                 return (
