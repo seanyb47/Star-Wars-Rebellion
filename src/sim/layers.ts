@@ -45,7 +45,7 @@ export const CHART_LAYERS: LayerSpec[] = [
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
   { id: 'garrisons', label: 'Garrisons', hint: 'Islands of yours holding companies ashore.' },
   { id: 'missions', label: 'Missions', hint: 'Islands your officers are working on, or sailing for.' },
-  { id: 'worth', label: 'Worth', hint: 'What each charted island can hold: a dot is little, a rhombus is worth having, a star is a prize.' },
+  { id: 'worth', label: 'Worth', hint: 'What each charted island can hold: a dot is little, a spark is worth having, a starburst is a prize.' },
 ];
 
 /**

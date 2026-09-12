@@ -211,28 +211,59 @@ const ISLAND_RADIUS = 8;
  * a rhombus and a star are told apart at a glance and in any order. Size goes
  * with the shape only so the three read as a ladder.
  */
-const WORTH_SHAPE: Record<WorthTier, { shape: 'dot' | 'rhombus' | 'star'; r: number }> = {
+const WORTH_SHAPE: Record<WorthTier, { shape: 'dot' | 'spark' | 'burst'; r: number }> = {
   none: { shape: 'dot', r: 5 },
   small: { shape: 'dot', r: 5 },
-  medium: { shape: 'rhombus', r: 10 },
-  large: { shape: 'star', r: 13 },
+  medium: { shape: 'spark', r: 11 },
+  large: { shape: 'burst', r: 16 },
 };
 
-/** A rhombus on its point, a little narrower than it is tall. */
-function rhombusPath(r: number): string {
-  const w = r * 0.74;
-  return `M 0 ${-r} L ${w} 0 L 0 ${r} L ${-w} 0 Z`;
+/**
+ * A sparkle: tips joined by cubics whose control points are pulled back along
+ * the two tips they run between.
+ *
+ * That one rule is what makes the sides bow inward instead of cutting straight
+ * across, and it is why these read as light rather than as polygons — a
+ * straight-sided star at this size is a cog. `pull` is how far out along each
+ * tip its control sits: lower is a thinner needle, higher a fatter body.
+ */
+function sparklePath(tips: Array<{ x: number; y: number }>, pull: number): string {
+  const f = (n: number) => n.toFixed(2);
+  const parts = [`M ${f(tips[0].x)} ${f(tips[0].y)}`];
+  for (let i = 0; i < tips.length; i++) {
+    const from = tips[i];
+    const to = tips[(i + 1) % tips.length];
+    parts.push(
+      `C ${f(from.x * pull)} ${f(from.y * pull)} ` +
+        `${f(to.x * pull)} ${f(to.y * pull)} ${f(to.x)} ${f(to.y)}`,
+    );
+  }
+  return `${parts.join(' ')} Z`;
 }
 
-/** Five points, waist at 44% — any tighter and it fills in at chart size. */
-function starPath(r: number): string {
-  const points: string[] = [];
-  for (let i = 0; i < 10; i++) {
-    const reach = i % 2 === 0 ? r : r * 0.44;
-    const angle = (Math.PI / 5) * i - Math.PI / 2;
-    points.push(`${(Math.cos(angle) * reach).toFixed(2)} ${(Math.sin(angle) * reach).toFixed(2)}`);
-  }
-  return `M ${points.join(' L ')} Z`;
+/** Evenly spaced tips, first one straight up, reaching `radii` in rotation. */
+function tipRing(count: number, radii: number[]): Array<{ x: number; y: number }> {
+  return Array.from({ length: count }, (_, i) => {
+    const angle = (2 * Math.PI * i) / count - Math.PI / 2;
+    const reach = radii[i % radii.length];
+    return { x: Math.cos(angle) * reach, y: Math.sin(angle) * reach };
+  });
+}
+
+/** Four long needles. Worth having. */
+function sparkPath(r: number): string {
+  return sparklePath(tipRing(4, [r]), 0.3);
+}
+
+/**
+ * Eight, alternating long and short. A prize, and it should look like one.
+ *
+ * The short tips reach 62% and the pull is tighter than the four-point spark's:
+ * at half length with a fatter pull they read as a wide waist rather than as
+ * four more points, which loses the whole difference between the two grades.
+ */
+function burstPath(r: number): string {
+  return sparklePath(tipRing(8, [r, r * 0.62]), 0.34);
 }
 
 export function GalaxyMap({
@@ -523,9 +554,9 @@ export function GalaxyMap({
                             return (
                               <path
                                 d={
-                                  worthMark.shape === 'star'
-                                    ? starPath(radius)
-                                    : rhombusPath(radius)
+                                  worthMark.shape === 'burst'
+                                    ? burstPath(radius)
+                                    : sparkPath(radius)
                                 }
                                 transform={`translate(${ax} ${ay})`}
                                 {...skin}
