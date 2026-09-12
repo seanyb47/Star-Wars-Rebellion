@@ -226,12 +226,14 @@ the game connects to its speakers:
   against the bed alone: **0 onsets a minute for the bed, 14 and 31 for the
   themes.** It is music, not a hum. It is not your music.
 
-Your themes are in Drive as WAV, 37 MB and 46 MB. The Drive connector refuses
-anything over **10 MB** and the sandbox cannot reach Drive's download hosts, so
-they cannot come through as they are. **An MP3 export of each, under 10 MB,
-in the same folder** is the whole of what is needed: `download_file_content`
-then lands it on disk here, it goes in as `empire.mp3` / `alliance.mp3`, and
-the recording route above takes over on the next deploy.
+**Both of your themes are in**, as `empire.mp3` (5.3 MB, 194.9 s) and
+`alliance.mp3` (6.5 MB, 240.7 s), each verified playing on its own side in the
+shipped bundle. How they got here is worth a line for next time: the Drive
+connector refuses files over 10 MB *and*, it turned out, expires mid-transfer
+somewhere between 5.3 MB (came through) and 6.5 MB (failed four times running
+with a healthy session). The Crown came via Drive as an MP3 export; the
+Confederacy came via a GitHub web upload to the branch, which has a 25 MB cap
+and no such ceiling. For anything over ~5 MB, GitHub upload is the route.
 
 **Art.** All 96 installed subjects are on screen: 26 portraits and faces, 8
 hulls, 20 island and facility plates, 7 dispatch scenes, 2 charts, and — as of
