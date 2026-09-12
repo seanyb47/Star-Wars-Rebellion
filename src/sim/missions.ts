@@ -6,7 +6,10 @@ import {
   INCITE_SPILLOVER,
   INCITE_SUCCESS_SCALE,
   INCITE_SUPPORT_LOSS,
+  FACILITY_LABEL,
   RECRUIT_QUALITY_DIVISOR,
+  SABOTAGE_BASE,
+  SABOTAGE_PRIORITY,
   MISSION_SUPPORT_LOSS,
   MISSION_WORK_DAYS,
   TRAVEL_DAYS_CROSS_SECTOR,
@@ -20,6 +23,7 @@ import {
   otherFaction,
   pushEvent,
 } from './helpers';
+import { recomputeLedger } from './economy';
 import { resolveControlAndUnrest } from './support';
 import type { Rng } from './rng';
 import type { Character, GameState, MissionType, PlayableFaction, System } from './types';
@@ -86,6 +90,24 @@ export function isRecruitTarget(
 }
 
 /**
+ * Whether there is anything here worth breaking.
+ *
+ * An enemy island with works on it. Not your own — you would be burning your
+ * own mill — and not one nobody has built on, because there is nothing to
+ * burn. Charted, like everything else: you cannot sabotage a rumour.
+ */
+export function isSabotageTarget(
+  system: System,
+  faction: PlayableFaction,
+): boolean {
+  return (
+    system.explored[faction] &&
+    system.control === otherFaction(faction) &&
+    system.facilities.length > 0
+  );
+}
+
+/**
  * What landing here would mean. The island decides, not a menu: you cannot
  * parley with an enemy island and there is nothing to incite on your own.
  *
@@ -93,6 +115,13 @@ export function isRecruitTarget(
  * the scarce thing — an island can be worked again next month, and a person
  * standing on a quay can be gone — and it keeps the rule to one sentence a
  * player can hold in their head.
+ *
+ * Sabotage comes last, and that placement is the design rather than an
+ * afterthought. On an enemy island the better answer is nearly always to turn
+ * its people, because an island that rises is an island you can take. Sabotage
+ * is what is left when you cannot: the people are already in revolt, or there
+ * are no people, and the works are still running. It gives Espionage a use
+ * that is not passive and gives a stalled front something to do.
  */
 export function missionTypeFor(
   state: GameState,
@@ -102,6 +131,7 @@ export function missionTypeFor(
   if (isRecruitTarget(state, system, faction)) return 'recruit';
   if (isDiplomacyTarget(system, faction)) return 'diplomacy';
   if (isInciteTarget(system, faction)) return 'incite';
+  if (isSabotageTarget(system, faction)) return 'sabotage';
   return null;
 }
 
@@ -130,6 +160,7 @@ export function stillWorthDoing(
 ): boolean {
   if (type === 'recruit') return isRecruitTarget(state, system, faction);
   if (type === 'incite') return isInciteTarget(system, faction);
+  if (type === 'sabotage') return isSabotageTarget(system, faction);
   return isDiplomacyTarget(system, faction);
 }
 
@@ -204,9 +235,11 @@ export function startMission(state: GameState, characterId: string, targetSystem
   const errand =
     type === 'incite'
       ? 'to stir up trouble'
-      : type === 'recruit'
-        ? `to put it to ${recruitOn(state, target, character.faction as PlayableFaction)!.name}`
-        : 'to parley';
+      : type === 'sabotage'
+        ? 'to see what can be broken'
+        : type === 'recruit'
+          ? `to put it to ${recruitOn(state, target, character.faction as PlayableFaction)!.name}`
+          : 'to parley';
   pushEvent(state, {
     kind: 'mission',
     text: `${character.name} sails for ${target.name} ${errand}.`,
@@ -217,6 +250,10 @@ export function startMission(state: GameState, characterId: string, targetSystem
 
 /** Chance the mission lands its argument (spec 4.5). */
 export function successChance(character: Character, type: MissionType = 'diplomacy'): number {
+  // Breaking things is not an argument, so it is not read off Diplomacy. This
+  // is the active use Espionage never had: the rating that decides how much of
+  // a chain a landing charts now also decides whether a yard burns.
+  if (type === 'sabotage') return SABOTAGE_BASE + character.espionage / 260;
   const base = 0.4 + character.diplomacy / 200;
   // Talking people round who have nobody to answer to is one thing. Turning
   // them against a governor with a garrison behind him is another.
@@ -343,6 +380,8 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
     success = rng.chance(successChance(character, mission.type));
     if (mission.type === 'incite') {
       inciteOutcome(state, character, system, success);
+    } else if (mission.type === 'sabotage') {
+      sabotageOutcome(state, character, system, success);
     } else {
       parleyOutcome(state, character, system, success);
     }
@@ -384,6 +423,8 @@ function done(
 ): boolean {
   if (type === 'recruit') return !isRecruitTarget(state, system, faction);
   if (type === 'incite') return system.uprising;
+  // Nothing left standing to break.
+  if (type === 'sabotage') return system.facilities.length === 0;
   return system.control === faction;
 }
 
@@ -417,6 +458,43 @@ function recruitOutcome(
     systemId: system.id,
     characterId: recruit.id,
   });
+}
+
+/**
+ * Breaking something. Unlike a parley there is no dial to nudge: a facility is
+ * standing or it is ash, and the island notices either way.
+ *
+ * The most valuable works go first — a slipway before a mine — because that is
+ * what somebody sent to do this would pick, and because a sabotage that costs
+ * the enemy four gold a day is not worth the passage.
+ */
+function sabotageOutcome(
+  state: GameState,
+  character: Character,
+  system: System,
+  success: boolean,
+): void {
+  if (!success) {
+    pushEvent(state, {
+      kind: 'mission',
+      text: `${character.name} finds ${system.name} too well watched, and comes away with nothing.`,
+      systemId: system.id,
+      characterId: character.id,
+    });
+    return;
+  }
+  const target =
+    SABOTAGE_PRIORITY.map((type) => system.facilities.find((f) => f.type === type)).find(Boolean) ??
+    system.facilities[0];
+  if (!target) return;
+  system.facilities = system.facilities.filter((f) => f.id !== target.id);
+  pushEvent(state, {
+    kind: 'loss',
+    text: `${character.name} burns the ${FACILITY_LABEL[target.type].toLowerCase()} on ${system.name}.`,
+    systemId: system.id,
+    characterId: character.id,
+  });
+  recomputeLedger(state);
 }
 
 /** Talking an island round: your own standing up, theirs down. */

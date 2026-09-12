@@ -10,6 +10,7 @@ import {
   isInciteTarget,
   isMissionTarget,
   isRecruitTarget,
+  isSabotageTarget,
   inciteLoss,
   quality,
   recruitChance,
@@ -445,5 +446,91 @@ describe('recruitment', () => {
     const after = getCharacter(state, officer.id);
     expect(after.mission).toBeUndefined();
     expect(after.status).toBe('available');
+  });
+});
+
+
+describe('sabotage', () => {
+  /** An enemy island the empire has charted, with works standing on it. */
+  function withWorks(seed = 311) {
+    const state = generateGalaxy(seed);
+    const agent = state.characters.find((c) => c.faction === 'empire')!;
+    agent.espionage = 100;
+    const island = state.systems.find(
+      (s) => s.control === 'alliance' && s.facilities.length > 0,
+    )!;
+    island.explored.empire = true;
+    return { state, agent, island };
+  }
+
+  it('is offered on enemy works and nowhere else', () => {
+    const { state, island } = withWorks();
+    expect(isSabotageTarget(island, 'empire')).toBe(true);
+    // Not your own works, however much you dislike them.
+    const mine = state.systems.find((s) => s.control === 'empire' && s.facilities.length > 0)!;
+    expect(isSabotageTarget(mine, 'empire')).toBe(false);
+    // Not an island nobody has built on.
+    const bare = { ...island, facilities: [] };
+    expect(isSabotageTarget(bare, 'empire')).toBe(false);
+    // Not a rumour.
+    const unseen = { ...island, explored: { empire: false, alliance: true } };
+    expect(isSabotageTarget(unseen, 'empire')).toBe(false);
+  });
+
+  it('reads off Espionage rather than Diplomacy', () => {
+    const { agent } = withWorks();
+    const talker = { ...agent, espionage: 10, diplomacy: 100 };
+    const spy = { ...agent, espionage: 100, diplomacy: 10 };
+    expect(successChance(spy, 'sabotage')).toBeGreaterThan(successChance(talker, 'sabotage'));
+    // And the other way round for a parley, so the two want different people.
+    expect(successChance(talker, 'diplomacy')).toBeGreaterThan(successChance(spy, 'diplomacy'));
+  });
+
+  it('comes last: an island you could turn is worth turning instead', () => {
+    const { state, island } = withWorks();
+    // Populated and worth inciting -> incite wins.
+    island.populated = true;
+    island.uprising = false;
+    island.support = { empire: 5, alliance: 70 };
+    expect(missionTypeFor(state, island, 'empire')).toBe('incite');
+    // Already in revolt: there is nothing left to stir, so break the works.
+    island.uprising = true;
+    expect(missionTypeFor(state, island, 'empire')).toBe('sabotage');
+  });
+
+  it('takes the most valuable works first, and finishes when none are left', () => {
+    const { state, agent, island } = withWorks();
+    island.uprising = true;
+    island.facilities = [
+      { id: 'f-mine', type: 'mine', owner: 'alliance' },
+      { id: 'f-yard', type: 'shipyard', owner: 'alliance' },
+    ];
+    startMission(state, agent.id, island.id);
+    expect(getCharacter(state, agent.id).mission!.type).toBe('sabotage');
+
+    // Walk seeds until one lands, the way the incitement tests do: the point
+    // is which building goes, not how often.
+    let burnt: string | null = null;
+    for (let seed = 1; seed <= 60 && !burnt; seed++) {
+      const trial = generateGalaxy(311);
+      const who = trial.characters.find((c) => c.id === agent.id)!;
+      who.espionage = 100;
+      const where = trial.systems.find((s) => s.id === island.id)!;
+      where.explored.empire = true;
+      where.uprising = true;
+      where.facilities = [
+        { id: 'f-mine', type: 'mine', owner: 'alliance' },
+        { id: 'f-yard', type: 'shipyard', owner: 'alliance' },
+      ];
+      startMission(trial, who.id, where.id);
+      const rng = createRng(seed);
+      for (let day = 0; day < 60 && where.facilities.length === 2; day++) {
+        advanceMissions(trial, rng);
+      }
+      if (where.facilities.length < 2) burnt = where.facilities.map((f) => f.type).join(',');
+    }
+    // The slipway, not the mine: burning a yard costs them the hulls they have
+    // not laid down yet.
+    expect(burnt).toBe('mine');
   });
 });

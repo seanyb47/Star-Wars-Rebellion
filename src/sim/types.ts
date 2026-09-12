@@ -178,7 +178,7 @@ export interface Character {
  * days of work and a foil check, and the island decides between them: who
  * holds it, and who happens to be standing on it.
  */
-export type MissionType = 'diplomacy' | 'incite' | 'recruit';
+export type MissionType = 'diplomacy' | 'incite' | 'recruit' | 'sabotage';
 
 export interface Mission {
   type: MissionType;

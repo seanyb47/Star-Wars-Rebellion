@@ -32,6 +32,7 @@ import type { IslandTab } from './IslandRow';
 function errandName(type: MissionType): string {
   if (type === 'recruit') return 'Signing on';
   if (type === 'incite') return terms.incite;
+  if (type === 'sabotage') return terms.sabotage;
   return terms.parley;
 }
 

@@ -196,6 +196,31 @@ export const FOIL_PER_WATCHER = 0.3;
 export const INCITE_SUPPORT_LOSS = 9;
 /** Incitement is harder work than a parley; this scales the officer's chance. */
 export const INCITE_SUCCESS_SCALE = 0.75;
+
+/**
+ * The floor on a sabotage, before the saboteur's own Espionage is added.
+ *
+ * Lower than a parley's 0.4 because it is a harder thing to do and the cost of
+ * being caught is the same. A good spy lands around 0.72, a poor one around
+ * 0.45, so it is worth sending the right person and never a certainty.
+ */
+export const SABOTAGE_BASE = 0.34;
+
+/**
+ * What a saboteur goes for first.
+ *
+ * A slipway before a mine, every time: burning a yard costs the enemy the
+ * hulls it has not laid down yet, where burning a mine costs them a few gold a
+ * day they will not notice. Ordered by what it hurts to lose, and the outcome
+ * walks this list.
+ */
+export const SABOTAGE_PRIORITY = [
+  'shipyard',
+  'construction_yard',
+  'training_facility',
+  'refinery',
+  'mine',
+] as const;
 /** The share of a governor's lost grip that comes to you. Stirring an island up
  *  makes it angry at its rulers, not fond of the strangers who stirred it. */
 export const INCITE_SPILLOVER = 0.35;
