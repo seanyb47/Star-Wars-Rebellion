@@ -10,6 +10,7 @@ import {
   RECRUIT_QUALITY_DIVISOR,
   SABOTAGE_BASE,
   SABOTAGE_PRIORITY,
+  SURVEY_PER_ISLAND,
   MISSION_SUPPORT_LOSS,
   MISSION_WORK_DAYS,
   TRAVEL_DAYS_CROSS_SECTOR,
@@ -108,6 +109,17 @@ export function isSabotageTarget(
 }
 
 /**
+ * Somewhere you have not been.
+ *
+ * Every other mission needs the island charted first — you cannot parley with
+ * a rumour — so this is the one that can be sent into the dark, and it is how
+ * the Crown is supposed to find a harbour that moves when it is found.
+ */
+export function isSurveyTarget(system: System, faction: PlayableFaction): boolean {
+  return !system.explored[faction];
+}
+
+/**
  * What landing here would mean. The island decides, not a menu: you cannot
  * parley with an enemy island and there is nothing to incite on your own.
  *
@@ -132,6 +144,9 @@ export function missionTypeFor(
   if (isDiplomacyTarget(system, faction)) return 'diplomacy';
   if (isInciteTarget(system, faction)) return 'incite';
   if (isSabotageTarget(system, faction)) return 'sabotage';
+  // Last, and it never competes: everything above requires the island to be
+  // charted, and this is the only thing you can do with one that is not.
+  if (isSurveyTarget(system, faction)) return 'survey';
   return null;
 }
 
@@ -161,6 +176,7 @@ export function stillWorthDoing(
   if (type === 'recruit') return isRecruitTarget(state, system, faction);
   if (type === 'incite') return isInciteTarget(system, faction);
   if (type === 'sabotage') return isSabotageTarget(system, faction);
+  if (type === 'survey') return isSurveyTarget(system, faction);
   return isDiplomacyTarget(system, faction);
 }
 
@@ -237,6 +253,8 @@ export function startMission(state: GameState, characterId: string, targetSystem
       ? 'to stir up trouble'
       : type === 'sabotage'
         ? 'to see what can be broken'
+        : type === 'survey'
+          ? 'to put it on the chart'
         : type === 'recruit'
           ? `to put it to ${recruitOn(state, target, character.faction as PlayableFaction)!.name}`
           : 'to parley';
@@ -253,6 +271,10 @@ export function successChance(character: Character, type: MissionType = 'diploma
   // Breaking things is not an argument, so it is not read off Diplomacy. This
   // is the active use Espionage never had: the rating that decides how much of
   // a chain a landing charts now also decides whether a yard burns.
+  // A survey is the one thing that always tells you something: an officer who
+  // has spent a fortnight ashore has seen the island whether or not they found
+  // what they went for. The roll decides how much of the chain comes with it.
+  if (type === 'survey') return 1;
   if (type === 'sabotage') return SABOTAGE_BASE + character.espionage / 260;
   const base = 0.4 + character.diplomacy / 200;
   // Talking people round who have nobody to answer to is one thing. Turning
@@ -382,6 +404,8 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
       inciteOutcome(state, character, system, success);
     } else if (mission.type === 'sabotage') {
       sabotageOutcome(state, character, system, success);
+    } else if (mission.type === 'survey') {
+      surveyOutcome(state, character, system);
     } else {
       parleyOutcome(state, character, system, success);
     }
@@ -425,6 +449,12 @@ function done(
   if (type === 'incite') return system.uprising;
   // Nothing left standing to break.
   if (type === 'sabotage') return system.facilities.length === 0;
+  // Nothing left in the chain to put on the chart.
+  if (type === 'survey') {
+    return state.systems
+      .filter((s) => s.sectorId === system.sectorId)
+      .every((s) => s.explored[faction]);
+  }
   return system.control === faction;
 }
 
@@ -457,6 +487,55 @@ function recruitOutcome(
     text: `${recruit.name} has signed on at ${system.name}. ${recruit.blurb ?? ''}`.trim(),
     systemId: system.id,
     characterId: recruit.id,
+  });
+}
+
+/**
+ * Putting a chain on the chart.
+ *
+ * The island the officer stood on always goes down — a fortnight ashore is a
+ * fortnight ashore — and their Espionage decides how much of the rest of the
+ * chain they worked out from it. Nearest first, because that is what somebody
+ * asking questions in a harbour would learn: who your neighbours are before
+ * who lives four days' sail away.
+ */
+function surveyOutcome(
+  state: GameState,
+  character: Character,
+  system: System,
+): void {
+  const faction = character.faction as PlayableFaction;
+  const opened: string[] = [];
+  if (!system.explored[faction]) {
+    system.explored[faction] = true;
+    opened.push(system.name);
+  }
+  const extra = Math.floor(character.espionage / SURVEY_PER_ISLAND);
+  const neighbours = state.systems
+    .filter((s) => s.sectorId === system.sectorId && !s.explored[faction])
+    .sort((a, b) => Math.hypot(a.x - system.x, a.y - system.y) - Math.hypot(b.x - system.x, b.y - system.y))
+    .slice(0, extra);
+  for (const s of neighbours) {
+    s.explored[faction] = true;
+    opened.push(s.name);
+  }
+  if (opened.length === 0) {
+    pushEvent(state, {
+      kind: 'mission',
+      text: `${character.name} finds nothing on ${system.name} that the charts did not already have.`,
+      systemId: system.id,
+      characterId: character.id,
+    });
+    return;
+  }
+  pushEvent(state, {
+    kind: 'order',
+    text:
+      opened.length === 1
+        ? `${character.name} puts ${opened[0]} on the chart.`
+        : `${character.name} charts ${opened[0]} and ${opened.length - 1} more of the chain.`,
+    systemId: system.id,
+    characterId: character.id,
   });
 }
 

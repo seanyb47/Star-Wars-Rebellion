@@ -11,6 +11,7 @@ import {
   isMissionTarget,
   isRecruitTarget,
   isSabotageTarget,
+  isSurveyTarget,
   inciteLoss,
   quality,
   recruitChance,
@@ -78,12 +79,22 @@ describe('mission eligibility', () => {
     expect(isInciteTarget(own, 'empire')).toBe(false);
   });
 
-  it('will not send anyone to an island they have never charted', () => {
+  it('offers only a survey on an island nobody has charted', () => {
+    /**
+     * This used to assert that an uncharted island was no target at all, and
+     * that was right until Espionage got a mission of its own. The rule is now
+     * more precise rather than gone: you cannot parley with, incite, sabotage
+     * or recruit on a rumour — but you can go and look at one, and for the
+     * Crown, hunting a harbour that moves when it is found, that is the point.
+     */
     const { state, diplomat } = setup();
     const enemy = state.systems.find((s) => s.control === 'alliance')!;
     enemy.explored.empire = false;
-    expect(isMissionTarget(state, enemy, 'empire')).toBe(false);
-    expect(missionError(state, diplomat.id, enemy.id)).toBe('Nothing to be done there.');
+    expect(missionTypeFor(state, enemy, 'empire')).toBe('survey');
+    expect(isDiplomacyTarget(enemy, 'empire')).toBe(false);
+    expect(isInciteTarget(enemy, 'empire')).toBe(false);
+    expect(isSabotageTarget(enemy, 'empire')).toBe(false);
+    expect(missionError(state, diplomat.id, enemy.id)).toBeNull();
   });
 
   it('rejects a character who is already busy', () => {
@@ -371,7 +382,11 @@ describe('recruitment', () => {
     const { state, island, officer } = withRecruit();
     island.explored.empire = false;
     expect(isRecruitTarget(state, island, 'empire')).toBe(false);
-    expect(missionError(state, officer.id, island.id)).toBe('Nothing to be done there.');
+    // You may still sail there, but to survey it — you cannot sign on somebody
+    // you have no idea is standing on the quay. Finding them is what the trip
+    // is for.
+    expect(missionTypeFor(state, island, 'empire')).toBe('survey');
+    expect(missionError(state, officer.id, island.id)).toBeNull();
   });
 
   it('is harder to sign on the better they are', () => {
@@ -532,5 +547,38 @@ describe('sabotage', () => {
     // The slipway, not the mine: burning a yard costs them the hulls they have
     // not laid down yet.
     expect(burnt).toBe('mine');
+  });
+});
+
+
+describe('survey', () => {
+  it('is the only thing you can do with an island you have not charted', () => {
+    const state = generateGalaxy(311);
+    const dark = state.systems.find((s) => !s.explored.empire)!;
+    expect(isSurveyTarget(dark, 'empire')).toBe(true);
+    expect(missionTypeFor(state, dark, 'empire')).toBe('survey');
+    // Everything else needs the island charted first, so nothing competes.
+    dark.explored.empire = true;
+    expect(isSurveyTarget(dark, 'empire')).toBe(false);
+  });
+
+  it('always charts the island stood on, and more of the chain for a better spy', () => {
+    const run = (espionage: number) => {
+      const state = generateGalaxy(311);
+      const agent = state.characters.find((c) => c.faction === 'empire')!;
+      agent.espionage = espionage;
+      const dark = state.systems.find((s) => !s.explored.empire)!;
+      startMission(state, agent.id, dark.id);
+      expect(getCharacter(state, agent.id).mission!.type).toBe('survey');
+      const rng = createRng(4);
+      for (let day = 0; day < 60 && !dark.explored.empire; day++) advanceMissions(state, rng);
+      return state.systems.filter((s) => s.sectorId === dark.sectorId && s.explored.empire).length;
+    };
+    const poor = run(10);
+    const good = run(100);
+    // A fortnight ashore always puts that island on the chart, whoever went.
+    expect(poor).toBeGreaterThan(0);
+    // And a good spy works out the neighbours as well.
+    expect(good).toBeGreaterThan(poor);
   });
 });

@@ -33,6 +33,7 @@ function errandName(type: MissionType): string {
   if (type === 'recruit') return 'Signing on';
   if (type === 'incite') return terms.incite;
   if (type === 'sabotage') return terms.sabotage;
+  if (type === 'survey') return terms.survey;
   return terms.parley;
 }
 

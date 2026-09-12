@@ -282,6 +282,17 @@ export const OFFICER_EDGE = 0.25;
  */
 export const SCOUT_PER_ISLAND = 25;
 
+/**
+ * Islands a survey charts, beyond the one the officer landed on.
+ *
+ * Coarser than a fleet's landfall on purpose. A ship makes a passing survey of
+ * a chain from the water and charts a lot of it thinly; somebody put ashore for
+ * a fortnight learns where things are. At 34 a rating of 100 opens three more
+ * of the chain per report, so a good spy walks a chain in two or three trips
+ * and a poor one is better used elsewhere.
+ */
+export const SURVEY_PER_ISLAND = 34;
+
 /** Facility types that a construction yard is allowed to queue. */
 export const YARD_BUILDABLE: FacilityType[] = [
   'mine',

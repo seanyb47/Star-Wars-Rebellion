@@ -13,7 +13,9 @@ function missionLine(state: GameState, character: Character): string | null {
     : `${
         mission.type === 'recruit'
           ? 'Signing on'
-          : mission.type === 'sabotage'
+          : mission.type === 'survey'
+            ? 'Surveying'
+            : mission.type === 'sabotage'
             ? 'Sabotaging'
             : mission.type === 'incite'
             ? terms.incite
