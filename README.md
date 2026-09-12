@@ -111,17 +111,26 @@ hunting for its assets under the old path.
 src/
   sim/      the whole game, as pure TypeScript — no React imports anywhere
   ui/       React components; they only read state and dispatch commands
-  ui/art.tsx  every picture, drawn as SVG in code
+  ui/art.tsx  the drawn layer — icons, marks, cameos, all SVG in code
+  art/      the painted layer — illustration, dropped in as files
   data/     every name in the game
 ```
 
-**All the artwork is generated, not loaded.** Faction crests, the compass rose,
-building glyphs, garrison companies, island coastlines and character portraits
-are SVG drawn in code. Anything that should stay put between games — an
-island's coastline, a character's cameo — is derived from its own name, so it
-is identical every game and on every device. Nothing is fetched, the download
-stays small, and it all works offline. The layouts are built so a real
-illustration can replace any of it later without moving.
+**Two art layers, split by whether the thing has to change.** The interface —
+the chart, island marks, facility and ship icons, allegiance bars, capacity
+pips — is SVG drawn in code, because every one of those has to tint by faction,
+seed itself from a name, scale from 30px to 96px and show state that changes
+every day of the war. Anything derived from a name is identical in every game
+and on every device.
+
+The painted layer is illustration: portraits, ships, islands and dispatch
+scenes, made outside the repo and dropped into `src/art/`. A subject with a
+painting uses it; a subject without keeps its drawn cameo, so the art can
+arrive in any order. See `seven-seas-art-style.md` for the direction and
+`art-prompts.md` for every subject.
+
+Until the paintings land the download is ~95KB and works offline. It will not
+stay that small, and lazy loading is the price of that.
 
 `src/sim` is the important part. The entire game is one plain JSON object
 (`GameState`), so saving is `JSON.stringify` and loading is `JSON.parse`.

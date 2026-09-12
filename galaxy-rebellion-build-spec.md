@@ -392,3 +392,25 @@ to protect it. What is actually needed before the next pacing decision is a
 benchmark that plays the player's side with a simple policy, so the number
 means "a fair fight" rather than "how fast a competent side beats an inert one".
 That is the outstanding balance work.
+
+### A4 (2026-09-12) — Painted art, and what stays drawn
+
+The art direction is now cinematic stylized historical realism: hand-painted
+trading-card illustration, recorded in full in `seven-seas-art-style.md`. That
+retires §1's implicit assumption that everything is generated, but only for
+part of the game.
+
+**The split is not subject matter, it is whether the thing has to change.**
+Portraits, ships, islands and dispatch scenes become painted raster files. The
+chart, island marks, icons, bars and pips stay SVG drawn in code, because each
+of those has to tint by faction, seed from a name, scale across a 3× range and
+show state that moves every day. A painting cannot do any of that.
+
+Both layers are permanent. `src/ui/painted.ts` resolves a subject to a painting
+when one exists and falls back to the drawn cameo when it does not, with no
+manifest and no flag day, so art lands in any order and no state of the repo is
+half-finished.
+
+One number this spec should carry: the app is ~95KB gzipped today and 51
+paintings at ~100KB each is roughly 5MB. **Lazy loading is a prerequisite of
+the portrait batch, not a follow-up to it.**
