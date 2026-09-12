@@ -13,7 +13,7 @@ import {
   type Fleet,
   type GameState,
 } from '../sim';
-import { CharacterPortrait, ShipIcon } from './art';
+import { CharacterPortrait, ShipThumb } from './art';
 import { ControlBadge } from './components';
 
 /**
@@ -82,7 +82,7 @@ export function FleetCard({
           const cls = shipClass(classId as Parameters<typeof shipClass>[0]);
           return (
             <span key={classId} className="fleet__class">
-              <ShipIcon role={cls.role} size={26} />
+              <ShipThumb faction={fleet.faction} role={cls.role} size={46} />
               <span className="fleet__class-n">{count}</span>
               <span className="tiny muted">{cls.name}</span>
             </span>

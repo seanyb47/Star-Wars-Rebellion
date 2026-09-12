@@ -458,7 +458,7 @@ export function CompanyRow({
  * Personnel
  * ------------------------------------------------------------------ */
 
-import { paintedFace, paintedIsland, paintedPortrait } from './painted';
+import { paintedFace, paintedIsland, paintedPortrait, paintedShip } from './painted';
 import { useInView } from './useInView';
 
 /**
@@ -1159,5 +1159,68 @@ export function IslandBanner({
           banner fades rather than ending on a hard edge. */}
       <span className="isle-banner__fade" />
     </div>
+  );
+}
+
+
+/**
+ * A hull, painted, at the size a list can hold.
+ *
+ * Small on purpose. The paintings are three-quarter views of a whole vessel
+ * and they are lovely, but a fleet is a row of classes with a count against
+ * each — there is room for a thumbnail, not a plate. What survives at fifty
+ * pixels is the silhouette and the colour of the canvas, which happens to be
+ * exactly what tells a Crown ship from a Confederate one.
+ *
+ * Falls back to the drawn icon, which is still the only thing that works at
+ * the 22px the island panel uses.
+ */
+export function ShipThumb({
+  faction,
+  role,
+  size = 46,
+}: {
+  faction: 'empire' | 'alliance';
+  role: 'small' | 'medium' | 'large' | 'transport';
+  size?: number;
+}) {
+  const painting = paintedShip(`${faction}-${role}`);
+  if (!painting) return <ShipIcon role={role} size={size * 0.6} />;
+  return (
+    <span className="shipthumb" style={{ width: size, height: Math.round(size * 0.82) }}>
+      <img src={painting} alt="" loading="lazy" />
+    </span>
+  );
+}
+
+
+/**
+ * Works on an island, painted.
+ *
+ * The facility paintings came as wide strips — a quarry with ore carts, a mill
+ * with its waterwheel, a slipway with a hull on the stocks — one for each side,
+ * because a Crown shipyard under a covered slip and a Confederate one in a
+ * hidden cove are the clearest single statement of what the two are.
+ *
+ * Shown as a band beside the name rather than in place of the icon: the drawn
+ * glyph still does the work at the 22px the build buttons use, and a painting
+ * that wide only reads with room to be wide in.
+ */
+export function FacilityThumb({
+  type,
+  owner,
+  width = 96,
+}: {
+  type: string;
+  owner: 'empire' | 'alliance' | 'neutral' | 'none';
+  width?: number;
+}) {
+  const side = owner === 'alliance' ? 'alliance' : 'empire';
+  const painting = paintedIsland(`facility-${type.replace(/_/g, '-')}-${side}`);
+  if (!painting) return <FacilityIcon type={type as never} size={30} />;
+  return (
+    <span className="facthumb" style={{ width, height: Math.round(width * 0.42) }}>
+      <img src={painting} alt="" loading="lazy" />
+    </span>
   );
 }

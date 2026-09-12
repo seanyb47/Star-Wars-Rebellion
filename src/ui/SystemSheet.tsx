@@ -22,7 +22,7 @@ import {
   type GameState,
   type System,
 } from '../sim';
-import { CharacterPortrait, CompanyIcon, FacilityIcon, IslandBanner, IslandPortrait, ShipIcon } from './art';
+import { CharacterPortrait, CompanyIcon, FacilityIcon, FacilityThumb, IslandBanner, IslandPortrait, ShipIcon } from './art';
 import { ControlBadge, Sheet, Slot, SlotBoard, Stat, SupportBars } from './components';
 import { Harbour } from './FleetPanel';
 
@@ -94,7 +94,7 @@ function FacilityCard({
     <div className="card">
       <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
         <span className="facility__icon">
-          <FacilityIcon type={facility.type} size={30} />
+          <FacilityThumb type={facility.type} owner={facility.owner} width={96} />
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="row row--between">
