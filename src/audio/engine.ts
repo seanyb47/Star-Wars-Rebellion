@@ -13,9 +13,15 @@ import type { EventKind } from '../sim';
  * not start audio otherwise, and it is suspended whenever the game is not
  * running so it costs no battery in the background.
  */
+import { findLoop, hasMusic, introUrl, themeUrl } from './music';
+
 export class AudioEngine {
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
+  private musicGain: GainNode | null = null;
+  private music: AudioBufferSourceNode | null = null;
+  private musicFor: string | null = null;
+  private musicToken = 0;
   private reverb: ConvolverNode | null = null;
   private wet: GainNode | null = null;
   private bedGain: GainNode | null = null;
@@ -51,6 +57,14 @@ export class AudioEngine {
   stop(): void {
     if (this.bellTimer !== null) window.clearTimeout(this.bellTimer);
     this.bellTimer = null;
+    this.musicToken++;
+    try {
+      this.music?.stop();
+    } catch {
+      /* already finished */
+    }
+    this.music = null;
+    this.musicFor = null;
     this.ctx?.close().catch(() => undefined);
     this.ctx = null;
     this.voices = [];
@@ -65,6 +79,13 @@ export class AudioEngine {
     this.master = ctx.createGain();
     this.master.gain.value = 0.6;
     this.master.connect(ctx.destination);
+
+    // Music sits beside the bed rather than through the reverb: it arrives
+    // already mixed, and putting a finished recording into a synthetic hall
+    // only makes it sound like it is playing in the next room.
+    this.musicGain = ctx.createGain();
+    this.musicGain.gain.value = 0;
+    this.musicGain.connect(this.master);
 
     // Reverb from decaying noise: a hall without a file to fetch.
     this.reverb = ctx.createConvolver();
@@ -126,6 +147,84 @@ export class AudioEngine {
 
     // Fade the bed up rather than punching in.
     this.bedGain.gain.setTargetAtTime(0.5, ctx.currentTime, 2);
+  }
+
+  /**
+   * Play a side's theme, if a file for it exists.
+   *
+   * Safe to call every render: the same faction twice is a no-op, and a
+   * different one cross-fades. Everything is guarded on a token so a slow
+   * decode that finishes after the player has switched sides is discarded
+   * rather than starting a second track over the first.
+   *
+   * The synthesised bed ducks while music plays instead of stopping. It is the
+   * sea and the rigging; the score sits on top of it the way it would in a
+   * film, and cutting it entirely made the game sound like a menu.
+   */
+  async setTheme(faction: string): Promise<void> {
+    const ctx = this.ctx;
+    if (!ctx || !this.musicGain || !hasMusic()) return;
+    if (this.musicFor === faction) return;
+    const url = themeUrl(faction);
+    if (!url) return;
+    this.musicFor = faction;
+    const token = ++this.musicToken;
+
+    const fadeOut = this.music;
+    if (fadeOut) {
+      this.musicGain.gain.setTargetAtTime(0, ctx.currentTime, 1.2);
+      window.setTimeout(() => {
+        try {
+          fadeOut.stop();
+        } catch {
+          /* already finished */
+        }
+      }, 4000);
+    }
+
+    const load = async (u: string) => ctx.decodeAudioData(await (await fetch(u)).arrayBuffer());
+    let buffer: AudioBuffer;
+    try {
+      buffer = await load(url);
+    } catch {
+      this.musicFor = null;
+      return;
+    }
+    if (token !== this.musicToken || !this.ctx) return;
+
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
+    const loop = findLoop(buffer);
+    if (loop) {
+      source.loopStart = loop.start;
+      source.loopEnd = loop.end;
+    }
+    source.connect(this.musicGain);
+
+    // An intro, where one was supplied: play it once and let the loop come in
+    // underneath as it ends, so the join is a crossfade rather than a cut.
+    const intro = introUrl(faction);
+    let startAt = ctx.currentTime + 0.05;
+    if (intro) {
+      try {
+        const introBuffer = await load(intro);
+        if (token !== this.musicToken) return;
+        const head = ctx.createBufferSource();
+        head.buffer = introBuffer;
+        head.connect(this.musicGain);
+        head.start(startAt);
+        startAt += Math.max(0, introBuffer.duration - 1.5);
+      } catch {
+        /* no intro, no matter */
+      }
+    }
+
+    source.start(startAt, loop ? loop.start : 0);
+    this.music = source;
+    this.musicGain.gain.setTargetAtTime(0.55, ctx.currentTime, 2.5);
+    // Duck the bed under the score.
+    this.bedGain?.gain.setTargetAtTime(0.18, ctx.currentTime, 2.5);
   }
 
   /** Islands in revolt pull the bed down and sour it. */

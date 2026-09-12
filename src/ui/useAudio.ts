@@ -67,6 +67,13 @@ export function useAudio(state: GameState) {
 
   useEffect(() => () => engine.current?.stop(), []);
 
+  // Your side's theme, once sound is on. A no-op with no music files, which
+  // is how the game ships until somebody puts one in src/audio/music/.
+  useEffect(() => {
+    if (!on) return;
+    void engine.current?.setTheme(state.player);
+  }, [on, state.player]);
+
   // Sour the bed while your islands are in revolt.
   useEffect(() => {
     if (!on) return;
