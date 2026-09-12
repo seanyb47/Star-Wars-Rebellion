@@ -405,6 +405,8 @@ export function CompanyRow({
  * Personnel
  * ------------------------------------------------------------------ */
 
+import { paintedPortrait } from './painted';
+
 /**
  * The ink ramp. Five inks, and every drawing uses only these plus the faction
  * hues and brass. A fixed, small palette is most of what makes a set of
@@ -575,6 +577,7 @@ export function CharacterPortrait({
         ? 'var(--alliance)'
         : 'var(--neutral)';
 
+  const painting = paintedPortrait(name);
   const r = 9.5 * stock.headScale;
   const hatD = hatPath(hat, r);
   // The outline, on everything, at one weight. Heavy on purpose: a hairline
@@ -597,6 +600,24 @@ export function CharacterPortrait({
       <circle cx="32" cy="32" r="31" fill={INK.black} />
       <circle cx="32" cy="32" r="31" fill={tint} opacity="0.26" />
 
+      {/* A painting, when one has been made for this person. The medallion and
+          its faction ring are the same either way, so a roster half-painted and
+          half-drawn still reads as one list rather than two. */}
+      {painting ? (
+        <g clipPath={`url(#${id})`}>
+          <image
+            href={painting}
+            x="2"
+            y="2"
+            width="60"
+            height="60"
+            preserveAspectRatio="xMidYMid slice"
+          />
+          {/* The same faction wash the drawn ones carry, so allegiance still
+              reads at 32px where a painted coat is four pixels of colour. */}
+          <circle cx="32" cy="32" r="30" fill={tint} opacity="0.14" />
+        </g>
+      ) : (
       <g clipPath={`url(#${id})`}>
         {/* Coat, then neck, then head: back to front, so each outline is cut
             by the thing in front of it rather than drawn over it. */}
@@ -667,6 +688,7 @@ export function CharacterPortrait({
           !stock.still && <path d={hairPath(r, hair)} fill={INK.dark} {...line} />
         )}
       </g>
+      )}
 
       <circle cx="32" cy="32" r="31" fill="none" stroke={tint} strokeWidth="2.5" />
     </svg>
