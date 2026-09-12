@@ -321,10 +321,8 @@ export function GalaxyMap({
           // Under a layer, a chain holding no answer drops back so the ones
           // that do carry the eye. It stays tappable — a filter is a way of
           // looking, not a lock on where you can go.
-          const answers = filtering
-            ? systems.filter((sy) => layerMark(state, sy, layer, viewer).lit).length
-            : 0;
-          const faded = filtering && answers === 0;
+          // A chain's name never fades for a filter. Everything on the chart
+          // stays where it is and how it looks; the stars do the pointing.
           // Below the chain normally; above it when below would put the name
           // in the water band or off the bottom of the chart entirely, which
           // is what happened to Salt Reach.
@@ -340,7 +338,7 @@ export function GalaxyMap({
               key={sector.id}
               onClick={live ? () => onSelectReach?.(sector.id) : undefined}
               style={{ cursor: live ? 'pointer' : 'default' }}
-              opacity={live ? (faded ? 0.22 : 1) : 0.35}
+              opacity={live ? 1 : 0.35}
             >
               {/* The disc is the tap target: the whole chain, not any one
                   island. Over the painting it stays invisible — the painted

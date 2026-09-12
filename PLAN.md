@@ -277,3 +277,28 @@ where they fight. The AI does not build them yet.
 What is still not matched, and stays in Phase 4: fighters, probes, research
 trees, the movable Free Harbour, the Leviathan, assassination, the Regent's
 leadership bonus.
+
+
+## The chart, the tutorial and the two ways to win — 12 September, night
+
+**Colour is control, and it never changes for a filter.** Every island is
+always on the chart in the colour of who holds it — green Crown, red
+Confederacy, blue nobody, grey uncharted. A filter draws the islands that
+answer it as stars; nothing dims, nothing glows, no chain name fades. The
+earlier scheme (loyalty lean as colour, three strengths, dimmed neighbours)
+was cleverer and left half the chart unreadable. Lean lives on the island's
+panel where there is room for a bar. The chain view follows the same rule, and
+its separate control dot is gone because the name already says it. The Sea
+names are off the chart.
+
+**Two ways to win.** Rebellion's own: take the enemy's seat and hold both of
+their leaders in irons at the same time — Corvane and Blackwater, Hale and
+Calloway. Captives are exchanged after sixty days, so it is a window. Or hold
+60% of the settled islands, as before. Both ways lose it. `LEADERS` in
+constants names them; three tests pin it.
+
+**How to play** is twelve cards in the shape of the manual's introduction —
+what this is, how it ends, then the chart, an island, allegiance, the crew,
+gold, building, the fleet, the filters, the clock, and a first move for each
+side. Reopenable from the menu. The done-key is bumped so people who skipped
+the six-card version see this one.
