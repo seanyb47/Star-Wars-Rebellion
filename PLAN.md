@@ -16,7 +16,7 @@ assets rather than bundled.
 |---|---|
 | **Phase 1 — the war** | Built. 62 islands, seven Reaches — one for each Sea — economy, support, control, unrest, building, the day clock. |
 | **Phase 2 — fleets** | Built. Hulls in four sizes, troop capacity, movement, auto-resolved combat, assault, blockade. Fighters cut from the design, not deferred. |
-| **Phase 3 — missions** | 4 of 8. Parley, Incite Uprising, Recruitment, Sabotage. |
+| **Phase 3 — missions** | 5 of 8. Parley, Incite Uprising, Recruitment, Sabotage, Survey. |
 | **Phase 4 — polish** | Not started. |
 
 All four character ratings are live: Diplomacy decides a parley, Leadership an
@@ -148,6 +148,34 @@ hold the enemy HQ and capture two named leaders, with the Imperium having to
 opponent, sound, animation.
 
 ---
+
+## 4a. Fifteen islands per Reach — measured, and the answer is no
+
+You said you were open to as many as fifteen per Reach "if it makes sense on
+the map". It does not, and the reason is the painting rather than the names.
+
+At the 55-unit spacing a chain view needs, here is what each cluster can
+actually hold as separate places, against what it holds now:
+
+| Reach | now | capacity |
+|---|---|---|
+| Sovereign | 10 | 15 |
+| Salt | 10 | 12 |
+| Cinder | 10 | 10 |
+| Shipwrights' | 9 | 9 |
+| Wreckers' | 9 | 9 |
+| Coral | 7 | 6 |
+| Rime | 7 | 6 |
+| **total** | **62** | **67** |
+
+Five of the seven are already at or above what their cluster can carry. Only
+Sovereign and Salt have room, and Sovereign has no more names — the bible gives
+the Crown Sea ten islands on the small map. So the whole exercise is worth two
+extra islands on Salt, which is not worth the churn.
+
+**Going to fifteen needs a different chart painting**, with denser and better
+separated clusters, not a data change. Worth doing if you want a bigger board;
+the position script re-runs against a new painting in one command.
 
 ## 5. Open, and honestly open
 
