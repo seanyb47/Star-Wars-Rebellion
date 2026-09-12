@@ -3,11 +3,13 @@
 
 > **Instruction to Claude Code:** This file is the source of truth for names, lore, factions, and the map. Keep it on hand and reference it whenever you touch anything player-facing. When a name, mechanic, or lore fact changes during development, **update this file in the same commit** and add a line to the Changelog at the bottom. Sections 0–13 are the one-for-one conversion of the original game; Section 14 is new mechanics that go *beyond* the original and are scheduled for later phases.
 
-**Tone:** Fantasy pirates. Sea-magic is real and visible. The water is not always water. Ships are grown as often as built. Crews are not all human. Nothing is clean: the Imperium is order bought with cruelty, the Confederacy is freedom paid for in plunder, and something old in the sea is hungrier than either.
+**Tone:** Fantasy pirates, in the register of an adventure story rather than a grim one. Sea-magic is real and visible. The water is not always water. Ships are grown as often as built. Crews are not all human. Two sides who each believe themselves the decent one — the Imperium keeps the walls standing, the Confederacy keeps the sea open, and both are right — while something older than either moves underneath. **Different crews. The same horizon.**
+
+The dark in this world is the Tide, the kraken and the drowned places, not the people. Neither faction is written as the villain and neither is written clean: every named character gets one admirable trait and one ugly one, and the ugly ones are overreach, appetite and stubbornness rather than atrocity.
 
 **Purpose:** A one-for-one swap table so the existing Rebellion game logic (stats, research order, mission types, facility behavior) stays intact and only names, lore, and flavor change. Every original entity has exactly one replacement. Original mechanics are paraphrased from memory of the game, not from the manual text.
 
-**Status:** v4.8 — living document. Names are placeholders and will change; IP screening is a later step. Expect this file to grow.
+**Status:** v4.9 — living document. Names are placeholders and will change; IP screening is a later step. Expect this file to grow.
 
 ---
 
@@ -68,11 +70,14 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 ### Faction A — THE CROWN IMPERIUM (original Empire slot)
 *The Sovereign Admiralty of the Crown Imperium.* Ruled from **Highwater**, a fortress-island whose seawalls are three hundred feet high and carved with the names of every island the Tide has taken. Governed by a Lord Regent in the name of a boy-king nobody has seen in eleven years.
 
-**What they say about themselves:** Before the Imperium, every Reach was its own corsair kingdom and the Tide ate a village a month. The Admiralty built the walls, charted the reefs, licensed the Tidemasters, standardized the coin, and hanged the wreckers. The islands are still here because of the Crown.
+**Creed:** Order · Stability · A brighter tomorrow.
+**Motto:** *Through trade, duty, and discipline, a safer world.*
 
-**What their enemies say:** The walls keep people in as well as the Tide out. Press gangs empty fishing villages to crew the line ships. Tidecraft "licensing" means any child born with the gift is taken to Highwater and returned — if at all — as something colder. And the Leviathan is not a wall. It is a mouth.
+**What they say about themselves:** Before the Imperium, every Reach was its own corsair kingdom and the Tide ate a village a month. The Admiralty built the walls, charted the reefs, schooled the Tidemasters, standardized the coin and ran down the wreckers. The islands are still here because of the Crown.
 
-**Truth:** Both. Individual officers range from decent to monstrous, and the decent ones know it.
+**What their enemies say:** The walls keep people in as well as the Tide out. The conscription rolls fall hardest on the smallest islands, which have the fewest voices at court. Tidecraft licensing means a child born with the gift is schooled at Highwater whether the family agrees or not. And the Leviathan is not a wall. It is a mouth.
+
+**Truth:** Both. Officers run from principled to overzealous, and the good ones spend their careers arguing with the rest.
 
 **Aesthetic:** black iron, grey stone, white sailcloth, brass. Ships are built, then *grown over* with cultivated coral for warding. Names are virtues and titles. Everything is straight lines until you look closely.
 
@@ -81,9 +86,12 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 ### Faction B — THE FREE CONFEDERACY (original Rebel slot)
 *The Free Confederacy of the Seven Seas* — "the Brethren" to friends, "the Confederacy of Thieves" to the Admiralty. A compact of pirate captains, smugglers, exiled nobles, Reef-folk clans, Urskin whaling fleets, and witch-islands that answer to nobody. Governed by an elected **Commodore** and a shouting-match council called the **Moot**. Headquartered at **the Free Harbor**, a hidden anchorage that moves when found.
 
-**What they say about themselves:** No press gangs. No licenses. Every captain elected, every share counted on deck, every Tidecaller free to be what the sea made them. The Imperium calls it piracy when a village keeps its own fish.
+**Creed:** Freedom · Opportunity · No masters.
+**Motto:** *A wider world for those bold enough to take it.*
 
-**What their enemies say:** "Free" is armed robbery with a flag. Half the Moot are honest exiles; the other half are wreckers, slavers, and Black-Tide-cultists who joined because the Crown was hanging them. Their elections are whoever has the most cutlasses that morning.
+**What they say about themselves:** No conscription. No licences. Every captain elected, every share counted on deck, every Tidecaller free to be what the sea made them. The Imperium calls it piracy when a village keeps its own fish.
+
+**What their enemies say:** "Free" is armed robbery with a flag. Half the Moot are honest exiles; the other half are wreckers, opportunists and a few who signed the articles one step ahead of a warrant. Their elections are whoever has the most cutlasses that morning.
 
 **Truth:** Both. Hale spends as much of her time managing her own worst captains as fighting the Crown.
 
@@ -100,12 +108,12 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 | Original species | New people | Where | Look / notes |
 |---|---|---|---|
 | Human | **Human** | Everywhere | Default |
-| Mon Calamari | **Reef-folk** | Coralhome (Amber Sea) | Amphibious. Gill-slits at the throat, luminous eyes, skin that shifts color with mood. Grow their ships from living coral over years. The Confederacy's best admirals. Once enslaved as Imperium oarsmen. |
+| Mon Calamari | **Reef-folk** | Coralhome (Amber Sea) | Amphibious. Gill-slits at the throat, luminous eyes, skin that shifts color with mood. Grow their ships from living coral over years. The Confederacy's best admirals. Once bound to Imperium oar-benches under an old indenture the Crown quietly stopped enforcing and has never apologised for. |
 | Sullustan | **Shoal-folk** | The Shoals (Amber Sea) | Small, webbed, night-eyed, chattering. Can hear a ship's hull creak a mile off. Best watchers in the world; cheap to arm because they arm themselves. |
 | Wookiee | **Urskin** | Northreach (Far Sea) | Huge, shaggy, tusked sea-bear folk. Harpooners and whalers. Loyal to death, slow to anger, terrifying past it. Torvik is Urskin. |
 | Bothan | **The Rumor Guild** (human) | Bothaway (Amber Sea) | A guild, not a people. Ink-stained, sharp, sells to both sides. |
 | Noghri | **The Hushed** | The Drowned Reach (Bone Sea) | Pale, eel-thin, silent folk from half-drowned islands. Bound to the Crown by an old bargain. Nobody hears them coming. |
-| Hutt | **The Fatmouths** | Fatmouth & Blackreef | Bloated slaver-kings. Nobody has seen Jubal's legs; there is a rumor he doesn't have any. |
+| Hutt | **The Fatmouths** | Fatmouth & Blackreef | Bloated harbour-kings who own the wharves, the warehouses and most of the debts. Nobody has seen Jubal's legs; there is a rumor he doesn't have any. |
 | Droids (advisors, probes, espionage droids) | **Tidewrought** | Imperium yards | Brass-and-coral automata built by Lemmick, animated by a bound sliver of the Deep. Walk the seabed. See poorly. Never tire. |
 | Dresselian (Orrimaarko) | **Bog-folk** | Sea of Storms swamps | Wrinkled, patient, amphibious guerrillas |
 | Chiss (Thrawn) | **Outlander** | Beyond the Black Tide | Thorne came from *past* the Tide, where no chart goes. Blue-grey skin, red eyes. Nobody knows what's out there. He won't say. |
@@ -162,7 +170,7 @@ Roster sizes match the original: 30 per side, 6 major (always available, cannot 
 
 | # | Original | New name | People | Role | Bio |
 |---|---|---|---|---|---|
-| 1 | Emperor Palpatine | **Lord Regent Halvard Corvane**, "the Old Tide" | Human | DEEP (Tidemaster), LEADER, RECRUITER, capital-bound | Has not left the citadel of Highwater in eleven years. Can still the whole harbor by standing at a window. Believes — with real evidence — that he is the only thing between the islands and the Black Tide. *Admirable:* ended the Corsair Wars; his walls have saved more lives than anyone's. *Ugly:* keeps a ledger of every hanging and every child taken for licensing, and has never once thought the number was too high. |
+| 1 | Emperor Palpatine | **Lord Regent Halvard Corvane**, "the Old Tide" | Human | DEEP (Tidemaster), LEADER, RECRUITER, capital-bound | Has not left the citadel of Highwater in eleven years. Can still the whole harbor by standing at a window. Believes — with real evidence — that he is the only thing between the islands and the Black Tide. *Admirable:* ended the Corsair Wars; his walls have saved more lives than anyone's. *Ugly:* keeps a ledger of every name the licensing took and every island the walls did not reach in time, and has never once thought the price was too high to pay again. |
 | 2 | Darth Vader | **Admiral Corvus Blackwater**, "the Drowned Admiral" | Human (once) | DEEP (Tidemaster), LEADER (any rank), RECRUITER, SPEC OPS, DIPLOMAT | Born Corwin Calloway, the Confederacy's most beloved captain. Burned and drowned when his ship went up at the Broken Chain; pulled from the Black Tide by the Regent's surgeons and rebuilt with brass lungs and a black leather mask. Where his flagship sails, the water goes flat and black. Cannot research; can do everything else. *Admirable:* keeps every promise, even to enemies. *Ugly:* executes captains for failure and feels nothing. Father of Tam and Ros — a secret. |
 | 3 | Firmus Piett | **Captain Fenwick Pryor** | Human | DIPLOMAT, LEADER | Careful, competent, survives Blackwater's flagship by never being the one blamed. Good at parley because he listens. |
 | 4 | Tiaan Jerjerrod | **Governor Tiberius Jarrold** | Human | DIPLOMAT, LEADER | Oversees the Leviathan's "completion" at Greenholm. Charming at dinner; has stopped sleeping. |
@@ -191,7 +199,7 @@ Roster sizes match the original: 30 per side, 6 major (always available, cannot 
 | 20 | Natasi Daala | **Admiral Natalya Dahl** | Human | LEADER (admiral) | Brilliant, ambitious, furious at being posted to a backwater. |
 | 21 | Niles Ferrier | **Niles Farrow** | Human | SPEC OPS (espionage), RESEARCH-SHIPS | Ship thief. Steals designs as readily as hulls. |
 | 22 | Noval Garaint | **Captain Nowell Garant** | Human | LEADER (admiral) | Steady convoy commander. |
-| 23 | Orlok | **Colonel Orlock** | Human | LEADER (general) | Garrison colonel. Hangs deserters, feeds his men well. |
+| 23 | Orlok | **Colonel Orlock** | Human | LEADER (general) | Garrison colonel. Hard on deserters, feeds his men better than the regulations require. |
 | 24 | Pter Thanas | **Commander Piers Thane** | Human | DIPLOMAT | Prefers a treaty to a broadside. |
 | 25 | Shenir Rix | **Sheridan Rix** | Human | SPEC OPS | Crown assassin-courier; leaves no witnesses. |
 | 26 | Thrawn | **Grand Admiral Cassian Thorne** | Outlander | WILDCARD-RESEARCH, LEADER (admiral) | Came from beyond the Black Tide. Studies an enemy's figureheads and shanties to predict how they'll fight. Coldest mind in the Imperium; the Regent doesn't fully trust him and shouldn't. |
@@ -639,7 +647,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 | Derra IV | **Derramoor** |  |
 | Mindar | **Mindaro** |  |
 | Munto Codru | **Munto** |  |
-| Nal Hutta | **Fatmouth** | slaver-port; Jubal's kin |
+| Nal Hutta | **Fatmouth** | harbour-kings' port; Jubal's kin |
 | Smarteel | **Tarrowick** |  |
 | Spuma | **Spume Reef** |  |
 | Vodran | **Vodrani** |  |
@@ -868,5 +876,6 @@ These two systems are Sean's additions. Neither exists in the original game. Bot
 - **2026-09-09 v2.6** — Vocabulary and economy, after playtesting. Stores and Fittings are withdrawn: they were invented words that told a player nothing. There is now one currency, **Gold**, on the rule that a building either earns gold or costs gold — Camps and Mills earn, Works, Drill Grounds, Slipways and companies cost. Sweetwater is withdrawn from the UI in favour of **Ground** and **Water** for the two slot types, for the same reason. Character ratings are spelled out rather than abbreviated. See amendment A1 in the build spec for the rules.
 - **2026-09-09 v2.5** — Added the Reach panel, after the original's sector view: a Reach's islands listed with three icons each (missions, military, facilities), over a summary of what the Reach earns and the mean allegiance across its settled islands. The island panel's tabs were re-cut to match those three — Overview / Missions / Military / Facilities / Log — so an icon on the Reach panel opens the island straight onto the matching tab.
 - **2026-09-09 v2.4** — Unit art. Every building type has its own glyph (Camp a cut hillside and pick, Mill a waterwheel, Works a shear-legs crane, Drill Ground a rack of pikes, Slipway a hull on the stocks), shown on the Build tab, on the build buttons and as marks on the island portrait. Garrisons are drawn as companies of pike figures, with the shortfall to the needed garrison greyed in. Characters have cameo portraits cut from their own names — hat, beard, epaulettes and collar vary, and Urskin are visibly not human. `Character.people` is now carried through from the roster so the portrait can read it.
+- **2026-09-12 v4.9** — Tone retuned to the faction style guide. The register is now heroic adventure rather than grimdark: both sides believe themselves the decent one and neither is written as the villain. Added each faction's creed and motto (Order · Stability · A brighter tomorrow / Freedom · Opportunity · No masters) and put the creed on the title screen's faction cards. Softened the ugly halves throughout — conscription rolls rather than press gangs emptying villages, opportunists rather than slavers, the Fatmouths as harbour-kings rather than slaver-kings, Corvane's ledger as tragic conviction rather than cruelty. The rule that every named character carries one admirable and one ugly trait is unchanged; it says the same thing the guide's "different crews, the same horizon" does. **The darkness moved rather than left** — it is now the Black Tide, the kraken and the drowned places, not the people. No rules changed.
 - **2026-09-08 v2.3** — Presentation pass. Added a title screen (faction choice with crests, strengths and weaknesses drawn from section 2; difficulty shown but only Normal exists). Replaced the space-era chrome with an admiralty-chart look: deep-water palette, brass accents, chart lettering, rhumb lines and a compass rose. Islands are now drawn as generated coastlines rather than dots, sized by their slots, and each island's bible note appears on its panel. The island panel gained Overview / Build / Garrison / Log tabs. Faction crests and the app icon are SVG drawn in code. No rules changed.
 - **2026-09-08 v2.2** — Applied to the phase 1 build. Sections 1, 2, 5 (majors only), 9, 10, 11 and 13 are now live in `src/data/`: factions, the seven majors a side with rating bands, the ten small-map Reaches and their 100 islands, facility names and the UI vocabulary. Sections 6, 7, 8 and the minor characters wait on the phases that add ships, ground forces and recruitment. Section 14 deliberately not built. Added open questions 5–7 for the three decisions this conversion forced.

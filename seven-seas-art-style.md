@@ -39,13 +39,23 @@ itself the decent one, and the art has to sell both.
 Footer of the guide, and the line the whole thing hangs on: **Different crews.
 The same horizon.**
 
-> **Open question, flagged not resolved.** This is warmer than the world bible,
-> which has the Imperium as "order bought with cruelty" and the Confederacy as
-> "freedom paid for in plunder — half the Moot worth hanging". The guide says
-> "a safer world" and "a wider world". Both are good; they are not the same
-> game. The art is being made to the guide, so **the bible's faction blurbs and
-> the in-game copy should be softened to match, or the guide's mottos hardened**
-> — but one of the two has to move, and that is a call for the author.
+**Settled 2026-09-12: the guide wins, and the bible moved to it.** The world
+bible was pitched grimmer — "order bought with cruelty", "half the Moot worth
+hanging" — and has been retuned to this register, along with the faction blurbs
+on the title screen.
+
+What changed is pitch, not moral complexity. The bible's rule that every named
+character carries one admirable trait and one ugly one is untouched, because it
+says the same thing the guide's footer does: neither side is the villain. The
+ugly halves are now overreach, appetite and stubbornness rather than atrocity —
+conscription rolls that fall hardest on the smallest islands, not press gangs
+emptying villages; captains who signed the articles one step ahead of a warrant,
+not slavers.
+
+**The darkness moved rather than left.** It now lives where this guide says it
+should: the Black Tide, the kraken, the drowned temple, the ghost ship. A world
+whose people are decent and whose sea is not is a better setting than one where
+everybody is compromised, and it is the one the art is being made for.
 
 ## 1b. Faction palettes
 

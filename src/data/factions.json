@@ -8,7 +8,9 @@
     "color": "#e2504a",
     "capitalIslandName": "Highwater",
     "hqLabel": "Highwater",
-    "blurb": "Order bought with cruelty. The seawalls hold the Black Tide back, and the Crown never asks what they cost."
+    "blurb": "The seawalls hold the Black Tide back, and the Crown asks a great deal of you to keep them standing.",
+    "creed": "Order · Stability · A brighter tomorrow",
+    "motto": "Through trade, duty, and discipline, a safer world."
   },
   "alliance": {
     "name": "Free Confederacy",
@@ -16,7 +18,9 @@
     "adjective": "Confederate",
     "color": "#e8c04a",
     "hqLabel": "the Free Harbor",
-    "blurb": "Freedom paid for in plunder. Every captain elected, every share counted on deck, and half the Moot worth hanging."
+    "blurb": "Every captain elected, every share counted on deck, and the Moot argues about everything else.",
+    "creed": "Freedom · Opportunity · No masters",
+    "motto": "A wider world for those bold enough to take it."
   },
   "neutral": {
     "name": "Unaligned Isles",

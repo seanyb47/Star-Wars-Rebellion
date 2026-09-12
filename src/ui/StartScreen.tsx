@@ -72,6 +72,10 @@ export function StartScreen({
           >
             <FactionCrest faction={id} size={64} />
             <div className="facard__name serif">{factionData[id].name}</div>
+            {/* The creed, as the style guide sets it: three words under the
+                crest that say what the side is for, before the paragraph that
+                says what it costs. */}
+            <div className="facard__creed">{factionData[id].creed}</div>
             <div className="facard__blurb">{factionData[id].blurb}</div>
           </button>
         ))}
