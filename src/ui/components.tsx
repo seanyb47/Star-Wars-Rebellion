@@ -5,6 +5,9 @@ import type { Faction, System } from '../sim';
 
 export function Sheet(props: {
   title: string;
+  /** A small mark drawn after the title — the island's worth, say. Kept
+   *  separate from `title` so the accessible name stays plain text. */
+  titleMark?: ReactNode;
   subtitle?: ReactNode;
   onClose: () => void;
   children: ReactNode;
@@ -28,7 +31,10 @@ export function Sheet(props: {
         <div className="sheet__grip" />
         <div className="sheet__head">
           <div className="row row--between">
-            <div className="sheet__title">{props.title}</div>
+            <div className="sheet__title">
+              {props.title}
+              {props.titleMark}
+            </div>
             <button className="iconbtn" onClick={props.onClose} aria-label="Close">
               ✕
             </button>

@@ -43,6 +43,8 @@ import { TabBar, type Tab } from './TabBar';
 import { TopBar } from './TopBar';
 import { useAudio } from './useAudio';
 import { FactionCrest } from './art';
+import { WorthMark } from './worth';
+import { loyaltyColour } from './ChainMap';
 import { ControlBadge, Sheet, Stat } from './components';
 
 const SEEN_KEY = 'galactic-rebellion.lastSeenEvent.v1';
@@ -645,7 +647,15 @@ function WorldsSheet({
               onClick={() => onPick(system.id)}
             >
               <div className="row row--between">
-                <span style={{ fontWeight: 600 }}>{system.name}</span>
+                <span style={{ fontWeight: 600 }}>
+                  {system.name}
+                  <WorthMark
+                    system={system}
+                    size={14}
+                    colour={loyaltyColour(system, state.player)}
+                    className="isle__worth"
+                  />
+                </span>
                 {system.uprising ? (
                   <span className="badge badge--warn">{terms.mutiny}</span>
                 ) : (

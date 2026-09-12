@@ -1051,3 +1051,8 @@ button.tcard:hover { border-color: var(--brass); }
   margin: 0; font-family: 'Iowan Old Style', Palatino, Georgia, serif;
   font-size: 14px; line-height: 1.62; color: var(--text-dim);
 }
+
+/* ---------- The worth mark, wherever an island is named ---------- */
+.worthmark { display: inline-block; vertical-align: -0.18em; }
+.isle__worth { margin-left: 7px; color: var(--brass); }
+.sheet__worth { margin-left: 9px; vertical-align: -0.12em; }

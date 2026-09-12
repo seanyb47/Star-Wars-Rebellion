@@ -38,6 +38,8 @@ import {
 } from './art';
 import { ControlBadge, Sheet, Slot, SlotBoard, Stat, SupportBars } from './components';
 import { Harbour } from './FleetPanel';
+import { WorthMark } from './worth';
+import { loyaltyColour } from './ChainMap';
 
 import type { IslandTab } from './IslandRow';
 
@@ -258,6 +260,14 @@ export function SystemSheet({
   return (
     <Sheet
       title={system.name}
+      titleMark={
+        <WorthMark
+          system={system}
+          size={18}
+          colour={loyaltyColour(system, state.player)}
+          className="sheet__worth"
+        />
+      }
       subtitle={
         <span className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
           {onOpenReach ? (

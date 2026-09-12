@@ -2,6 +2,7 @@ import terms from '../data/terms.json';
 import type { GameState, IslandSummary, System } from '../sim';
 import { allegianceColour, allegianceSegments } from './allegiance';
 import { CategoryIcon, IslandGlyph } from './art';
+import { WorthMark } from './worth';
 import { ControlBadge } from './components';
 
 export type IslandTab = 'harbour' | 'crew' | 'garrison' | 'buildings' | 'log';
@@ -50,7 +51,11 @@ export function IslandRow({
           size={34}
         />
         <span className="isle__name">
-          <span className="isle__title">{explored ? system.name : terms.uncharted}</span>
+          <span className="isle__title">
+            {explored ? system.name : terms.uncharted}
+            {/* The same grade the chart shows, so a list reads like the map. */}
+            {explored && <WorthMark system={system} size={14} className="isle__worth" />}
+          </span>
           {explored && system.populated && (
             <>
               <span className="isle__bar" aria-hidden="true">
