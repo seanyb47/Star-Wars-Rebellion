@@ -1,4 +1,5 @@
 import type { EventKind } from '../sim';
+import { paintedScene } from './painted';
 
 /**
  * A picture for a thing that happened.
@@ -98,9 +99,53 @@ export function EventScene({
   seed?: string;
   height?: number;
 }) {
+  const painting = paintedScene(kind);
   const random = seeded(`${kind}-${seed}`);
   const W = 320;
   const H = 132;
+
+  if (painting) {
+    const id = `pt-${kind}-${hash(seed).toString(36)}`;
+    return (
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        width="100%"
+        height={height}
+        preserveAspectRatio="xMidYMid slice"
+        aria-hidden="true"
+        style={{ display: 'block' }}
+      >
+        <defs>
+          {/* A far lighter wash than the drawn scenes carry. Those were near
+              identical silhouettes and needed the colour to tell them apart;
+              a painting is already distinct and already has the flags in it,
+              so this only leans the card toward the side concerned.
+
+              Kept to the bottom edge, where the caption sits, rather than
+              spread up the frame. The first attempt washed the whole picture:
+              a golden sunset came out green under Imperium news, which is the
+              tint fighting the art instead of framing it. And on a battle,
+              where both flags are flying, a heavy tint would be a lie about
+              whose news it is. */}
+          <linearGradient id={id} x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor={tint} stopOpacity="0.42" />
+            <stop offset="16%" stopColor={tint} stopOpacity="0.14" />
+            <stop offset="34%" stopColor={tint} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <image
+          href={painting}
+          x="0"
+          y="0"
+          width={W}
+          height={H}
+          preserveAspectRatio="xMidYMid slice"
+        />
+        <rect width={W} height={H} fill={`url(#${id})`} />
+      </svg>
+    );
+  }
+
   // A horizon that wanders a little from card to card, so no two are identical.
   const sea = 92 + Math.round(random() * 10);
   const id = `${kind}-${hash(seed).toString(36)}`;
