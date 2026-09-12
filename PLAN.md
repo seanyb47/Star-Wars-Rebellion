@@ -16,7 +16,7 @@ assets rather than bundled.
 |---|---|
 | **Phase 1 — the war** | Built. 62 islands, seven Reaches — one for each Sea — economy, support, control, unrest, building, the day clock. |
 | **Phase 2 — fleets** | Built. Hulls in four sizes, troop capacity, movement, auto-resolved combat, assault, blockade. Fighters cut from the design, not deferred. |
-| **Phase 3 — missions** | 3 of 8. Parley, Incite Uprising, Recruitment. |
+| **Phase 3 — missions** | 4 of 8. Parley, Incite Uprising, Recruitment, Sabotage. |
 | **Phase 4 — polish** | Not started. |
 
 All four character ratings are live: Diplomacy decides a parley, Leadership an
@@ -44,16 +44,23 @@ shown.
 
 ## 2. The art
 
-**9 of 64 subjects painted.** The register is `ASSETS.md`, generated; the
+**All 63 subjects painted** — cut from the contact sheets rather than held back; see below. The register is `ASSETS.md`, generated; the
 masters are in `art-masters/`; the tool is `scripts/art.py`.
 
-| folder | done | outstanding |
+| folder | done | note |
 |---|---|---|
-| `chart/` | 2 of 2 | — |
-| `scenes/` | 7 of 7 | — |
-| `portraits/` | 0 of 26 | the whole cast |
-| `islands/` | 0 of 21 | 10 archetypes, 5 creatures, 6 facilities |
-| `ships/` | 0 of 8 | four hulls, both sides |
+| `chart/` | 2 | the map and the title screen |
+| `scenes/` | 7 | the dispatch cards |
+| `portraits/` | 26 | the whole cast, as card art |
+| `faces/` | 26 | the head of each, for the medallion |
+| `islands/` | 20 | 10 archetypes + 10 facilities |
+| `ships/` | 8 | four hulls, both sides |
+| `creatures/` | 5 | turtle, cat, dragon, kraken, ghost ship |
+
+Every one of these is **upscaled from a contact-sheet tile** and marked as such
+in `ASSETS.md`. They look right at the sizes the game shows them; individual
+exports would look better on a card. That is the one art job left, and it is a
+re-export rather than a re-decision.
 
 ### The 12 September delivery, and why it is not in the game
 
