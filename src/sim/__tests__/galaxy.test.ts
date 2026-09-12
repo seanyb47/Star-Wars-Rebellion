@@ -70,7 +70,7 @@ describe('generateGalaxy', () => {
     }
   });
 
-  it('starts each side with 8 mines, 8 refineries, 2 yards and 1 training facility', () => {
+  it('starts each side with a working economy and a yard for hulls', () => {
     const state = generateGalaxy(17);
     for (const faction of ['empire', 'alliance'] as const) {
       const owned = state.systems
@@ -82,6 +82,7 @@ describe('generateGalaxy', () => {
       expect(count('refinery')).toBe(8);
       expect(count('construction_yard')).toBe(2);
       expect(count('training_facility')).toBe(1);
+      expect(count('shipyard')).toBe(1);
     }
   });
 

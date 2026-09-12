@@ -274,9 +274,14 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
 
   const seedHoldings = (owner: PlayableFaction, owned: System[]) => {
     for (const [index, system] of owned.entries()) {
+      // Room to build on from day one. Tried the other way round first —
+      // eleven mines instead of eight, to pay for the new fleet — and it filled
+      // every slot the four starting islands had: solvent, and with nowhere to
+      // put anything. An opening with no free ground is a worse opening than a
+      // thin surplus, because the answer to a thin surplus is to build.
       const generous = index === 0;
-      system.rawSlots = Math.max(system.rawSlots, generous ? 4 : 3);
-      system.energySlots = Math.max(system.energySlots, generous ? 6 : 5);
+      system.rawSlots = Math.max(system.rawSlots, generous ? 6 : 5);
+      system.energySlots = Math.max(system.energySlots, generous ? 8 : 7);
       system.garrison = START_GARRISON;
       system.explored[owner] = true;
     }

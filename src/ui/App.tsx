@@ -38,6 +38,7 @@ import { SeaSheet } from './SeaSheet';
 import type { IslandTab } from './IslandRow';
 import { SystemSheet } from './SystemSheet';
 import { StartScreen } from './StartScreen';
+import { Tutorial, alreadyTaught } from './Tutorial';
 import { TabBar, type Tab } from './TabBar';
 import { TopBar } from './TopBar';
 import { useAudio } from './useAudio';
@@ -83,6 +84,8 @@ export function App() {
   /** A fleet waiting to be told where to sail. Every island is a valid answer. */
   const [sailingFleetId, setSailingFleetId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  /** The opening lesson, offered once ever and only on a game you started. */
+  const [teaching, setTeaching] = useState(false);
   const [lastSeen, setLastSeen] = useState(readLastSeen);
   /**
    * Dispatches the player has been shown a card for, so none is shown twice.
@@ -285,6 +288,7 @@ export function App() {
   const startNewGame = (player: PlayableFaction) => {
     setState(newGame(Date.now() >>> 0, player));
     setStarted(true);
+    setTeaching(!alreadyTaught());
     setMenuOpen(false);
     setTab('galaxy');
     setOpenSystemId(null);
@@ -346,6 +350,11 @@ export function App() {
 
   return (
     <div className="app">
+      {/* Waits for the war-begins dispatch to be read: two cards at once is
+          nobody's idea of a clean start. */}
+      {teaching && dispatches.length === 0 && !readingId && (
+        <Tutorial side={state.player} onDone={() => setTeaching(false)} />
+      )}
       <TopBar
         state={state}
         autoPaused={panelOpen}

@@ -919,3 +919,33 @@ button.tcard:hover { border-color: var(--brass); }
 .tcard__dot { color: var(--card-tint); }
 .artsheet__cards { display: flex; gap: 12px; flex-wrap: wrap; }
 .artsheet__cards > * { width: 232px; }
+
+/* ---- The opening lesson ------------------------------------------------
+   A card at the foot of the screen, over the chart's own strip. Everything
+   behind it stays live on purpose: a player who ignores this and starts
+   tapping loses nothing, which is what most people do. */
+.teach {
+  position: fixed; left: 10px; right: 10px; z-index: 60;
+  bottom: calc(var(--safe-bottom) + 68px);
+  background: linear-gradient(180deg, #123240 0%, #0c2531 100%);
+  border: 1px solid var(--brass); border-radius: 14px;
+  padding: 14px 16px 12px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  animation: teach-in 260ms ease-out both;
+}
+.teach--out { animation: teach-out 180ms ease-in both; }
+@keyframes teach-in { from { opacity: 0; transform: translateY(14px); } }
+@keyframes teach-out { to { opacity: 0; transform: translateY(10px); } }
+.teach__pips { display: flex; gap: 5px; margin-bottom: 9px; }
+.teach__pip { width: 16px; height: 3px; border-radius: 2px; background: #2c4c58; }
+.teach__pip--on { background: var(--brass); }
+.teach__title { margin: 0 0 5px; font-size: 18px; color: var(--text); }
+.teach__body { margin: 0 0 12px; font-size: 14px; line-height: 1.45; color: #cfe0e6; }
+.teach__row { display: flex; align-items: center; gap: 10px; }
+.teach__skip {
+  background: none; border: 0; color: var(--muted); font: inherit; font-size: 13px;
+  padding: 8px 4px; min-width: 44px; text-align: left; cursor: pointer;
+}
+.teach__next { margin-left: auto; padding: 9px 18px; }
+@media (prefers-reduced-motion: reduce) {
+  .teach, .teach--out { animation: none; }
+}
