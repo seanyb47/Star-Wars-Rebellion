@@ -41,6 +41,20 @@ const SCENES = import.meta.glob('../art/scenes/*.{webp,png,jpg}', {
   import: 'default',
 }) as Record<string, string>;
 
+/** The head, cropped square out of the portrait. What the medallion wants: a
+ *  three-quarter figure shrunk into a 44px circle is a smudge. */
+const FACES = import.meta.glob('../art/faces/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+const CREATURES = import.meta.glob('../art/creatures/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
 /** The chart's own ground. One file, but it goes through the same door as the
  *  rest so the chart keeps working before it arrives. */
 const CHART = import.meta.glob('../art/chart/*.{webp,png,jpg}', {
@@ -77,6 +91,8 @@ const SHIP_URLS = bySlug(SHIPS);
 const ISLAND_URLS = bySlug(ISLANDS);
 const SCENE_URLS = bySlug(SCENES);
 const CHART_URLS = bySlug(CHART);
+const FACE_URLS = bySlug(FACES);
+const CREATURE_URLS = bySlug(CREATURES);
 
 export function paintedPortrait(name: string): string | undefined {
   return PORTRAIT_URLS[slugify(name)];
@@ -103,6 +119,16 @@ export function paintedChart(name: string): string | undefined {
   return CHART_URLS[slugify(name)];
 }
 
+/** The head alone. Falls through to the full portrait so a character with one
+ *  and not the other still shows a painting rather than a drawn cameo. */
+export function paintedFace(name: string): string | undefined {
+  return FACE_URLS[slugify(name)] ?? PORTRAIT_URLS[slugify(name)];
+}
+
+export function paintedCreature(name: string): string | undefined {
+  return CREATURE_URLS[slugify(name)];
+}
+
 /** What has arrived so far, for the contact sheet to report honestly. */
 export function paintedCounts() {
   return {
@@ -111,5 +137,7 @@ export function paintedCounts() {
     islands: Object.keys(ISLAND_URLS).length,
     scenes: Object.keys(SCENE_URLS).length,
     chart: Object.keys(CHART_URLS).length,
+    faces: Object.keys(FACE_URLS).length,
+    creatures: Object.keys(CREATURE_URLS).length,
   };
 }

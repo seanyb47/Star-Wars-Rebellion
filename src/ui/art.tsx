@@ -458,7 +458,7 @@ export function CompanyRow({
  * Personnel
  * ------------------------------------------------------------------ */
 
-import { paintedPortrait } from './painted';
+import { paintedFace, paintedIsland, paintedPortrait } from './painted';
 import { useInView } from './useInView';
 
 /**
@@ -634,7 +634,10 @@ export function CharacterPortrait({
   // A painting is only fetched once the medallion is near the screen; until
   // then the drawn cameo stands in, which is the whole reason it can.
   const [holder, near] = useInView<SVGSVGElement>();
-  const painting = near ? paintedPortrait(name) : undefined;
+  // The head crop, not the whole figure: this is a circle 32 to 68 pixels
+  // across, and a three-quarter portrait shrunk into it is a smudge with a
+  // hat. The full painting is the card's job — see CharacterPainting.
+  const painting = near ? paintedFace(name) : undefined;
   const r = 9.5 * stock.headScale;
   const hatD = hatPath(hat, r);
   // The outline, on everything, at one weight. Heavy on purpose: a hairline
@@ -671,9 +674,12 @@ export function CharacterPortrait({
             height="60"
             preserveAspectRatio="xMidYMid slice"
           />
-          {/* The same faction wash the drawn ones carry, so allegiance still
-              reads at 32px where a painted coat is four pixels of colour. */}
-          <circle cx="32" cy="32" r="30" fill={tint} opacity="0.14" />
+          {/* A whisper of the faction wash the drawn ones carry. Much lighter
+              than theirs: a painted officer is already wearing the colour —
+              Imperial coats sea-green, Confederate sashes red — so a heavy
+              wash on top only muddies a face that was doing the job already.
+              The ring outside carries the rest. */}
+          <circle cx="32" cy="32" r="30" fill={tint} opacity="0.05" />
         </g>
       ) : (
       <g clipPath={`url(#${id})`}>
@@ -1057,4 +1063,101 @@ export function NarratorPortrait({
   size?: number;
 }) {
   return faction === 'empire' ? <SecretaryPortrait size={size} /> : <ParrotPortrait size={size} />;
+}
+
+
+/**
+ * The whole painting, for a card rather than a medallion.
+ *
+ * The portraits are three-quarter figures against a harbour, and that is worth
+ * seeing at card size. The medallion crops to the head because a circle 44px
+ * across cannot hold a figure; this does the opposite job with the same file.
+ *
+ * A character with no painting gets the drawn cameo instead, at a size where it
+ * is a deliberate illustration rather than a stand-in.
+ */
+export function CharacterPainting({
+  name,
+  faction,
+  people,
+  height = 150,
+}: {
+  name: string;
+  faction: 'empire' | 'alliance' | 'neutral';
+  people?: string;
+  height?: number;
+}) {
+  const [holder, near] = useInView<HTMLDivElement>();
+  const painting = near ? paintedPortrait(name) : undefined;
+  return (
+    <div ref={holder} className="painting" style={{ height }}>
+      {painting ? (
+        <img src={painting} alt="" loading="lazy" />
+      ) : (
+        <div className="painting__cameo">
+          <CharacterPortrait name={name} faction={faction} people={people} size={height - 16} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+/**
+ * The island as a painted banner across the top of its panel.
+ *
+ * Ten archetypes cover every island in the game, which is the only way this is
+ * affordable and also the right answer: an island does not need its own
+ * painting, it needs to look like the kind of place it is. A jungle isle in the
+ * Amber Sea and one in the Sea of Storms share a picture and differ in
+ * everything the panel goes on to say about them.
+ *
+ * The drawn portrait stays as the fallback, and stays the only thing shown for
+ * an uncharted island — you have not seen it, so you do not get a painting of
+ * it.
+ */
+export function IslandBanner({
+  archetype,
+  seed,
+  faction,
+  settled,
+  facilities,
+  facilityTypes,
+  mutiny,
+  height = 132,
+}: {
+  archetype?: string;
+  seed: string;
+  faction: 'empire' | 'alliance' | 'neutral' | 'none';
+  settled: boolean;
+  facilities: number;
+  facilityTypes?: string[];
+  mutiny?: boolean;
+  height?: number;
+}) {
+  const [holder, near] = useInView<HTMLDivElement>();
+  const painting = near && archetype ? paintedIsland(archetype) : undefined;
+  if (!painting) {
+    return (
+      <div className="portrait" ref={holder}>
+        <IslandPortrait
+          seed={seed}
+          faction={faction}
+          settled={settled}
+          facilities={facilities}
+          facilityTypes={facilityTypes as never}
+          mutiny={mutiny}
+          size={height}
+        />
+      </div>
+    );
+  }
+  return (
+    <div ref={holder} className="isle-banner" style={{ height: Math.round(height * 0.86) }}>
+      <img src={painting} alt="" loading="lazy" />
+      {/* The panel's own text starts immediately under this, so the foot of the
+          banner fades rather than ending on a hard edge. */}
+      <span className="isle-banner__fade" />
+    </div>
+  );
 }

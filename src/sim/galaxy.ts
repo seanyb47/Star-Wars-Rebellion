@@ -12,8 +12,43 @@ import type {
   PlayableFaction,
   Sector,
   System,
+  IslandArchetype,
 } from './types';
 import { recomputeLedger } from './economy';
+
+/**
+ * What each Sea's islands look like.
+ *
+ * The first entry is what a settled island there tends to be; the rest are the
+ * variety. An empty island is bare rock or ice whatever Sea it is in, because
+ * nobody has built anything on it to look at.
+ *
+ * This is the one place the world's character becomes a picture: the Far Sea is
+ * ice and bare crag, the Amber Sea is reef and jungle, the Bone Sea is drowned
+ * temples and water the Tide has reached. Seeded from the island's own name, so
+ * a given island looks the same in every game.
+ */
+const LOOKS: Record<string, IslandArchetype[]> = {
+  'The Crown Sea': ['port-city', 'rock-isle', 'jungle-isle'],
+  'The Merchant Sea': ['port-city', 'jungle-isle', 'mining-isle'],
+  'The Amber Sea': ['reef-isle', 'jungle-isle', 'port-city'],
+  'The Far Sea': ['ice-isle', 'rock-isle', 'mining-isle'],
+  'The Sea of Storms': ['storm-isle', 'jungle-isle', 'mining-isle'],
+  'The Glass Sea': ['mining-isle', 'drowned-isle', 'rock-isle'],
+  'The Bone Sea': ['drowned-isle', 'tide-isle', 'free-harbor'],
+};
+const BARE: Record<string, IslandArchetype> = {
+  'The Far Sea': 'ice-isle',
+  'The Bone Sea': 'tide-isle',
+  'The Glass Sea': 'rock-isle',
+};
+
+function looksLike(sea: string, populated: boolean, capital: boolean, pick: number): IslandArchetype {
+  if (capital) return 'port-city';
+  if (!populated) return BARE[sea] ?? 'rock-isle';
+  const set = LOOKS[sea] ?? ['jungle-isle', 'rock-isle'];
+  return set[pick % set.length];
+}
 
 const INNER_REACHES = reachData.reaches.filter((r) => r.tier === 'inner');
 const OUTER_REACHES = reachData.reaches.filter((r) => r.tier === 'outer');
@@ -137,6 +172,13 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         x: points[i].x,
         y: points[i].y,
         explored: { empire: isCoreSector, alliance: isCoreSector },
+        archetype: looksLike(
+          sector.sea,
+          populated,
+          'capital' in island && Boolean(island.capital),
+          // Seeded from the name so an island looks the same in every game.
+          [...island.name].reduce((n, c) => n + c.charCodeAt(0), 0),
+        ),
         populated,
         isCore: isCoreSector,
         control: 'none',

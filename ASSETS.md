@@ -7,25 +7,129 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**9 of 64 painted.** 718KB shipped, 4.1MB of masters kept back.
+**94 of 99 painted.** 3050KB shipped, 7.9MB of masters kept back.
 
-## portraits — 640×896
+## portraits — 480×436
 
-three-quarter figure; head in the upper 45%. 0 of 26.
+three-quarter figure against its harbour; the card art. 26 of 26.
 
-**Still owed (26):** `admiral-corvus-blackwater`, `admiral-dorian-jessup`, `admiral-kendrick-ozmond`, `anselm-big-torvik`, `brannoc-tull`, `captain-fenwick-pryor`, `captain-isolde-marrow`, `captain-lorne-neddam`, `captain-silas-reyne`, `colonel-maximilian-vierling`, `commodore-elect-adaira-hale`, `doctor-ambrose-kell`, `governor-tiberius-jarrold`, `hesper-lyn`, `jory-halloran`, `lord-regent-halvard-corvane`, `maren-quist`, `pellam-voss`, `rosalind-ros-carrow`, `sable`, `silvaine-crow`, `tam-calloway`, `the-widow-ashgrave`, `tobias-renn`, `wren-tally`, `wyatt-ansell`
+| subject | slug | v | shipped | master | crop | added | source |
+|---|---|---|---|---|---|---|---|
+| Admiral Corvus Blackwater | `admiral-corvus-blackwater` | 1 | 27KB | 249×201, 28KB | 221×201 @ 14,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Admiral Dorian Jessup | `admiral-dorian-jessup` | 1 | 26KB | 220×199, 24KB | 219×199 @ 0,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Admiral Kendrick Ozmond | `admiral-kendrick-ozmond` | 1 | 22KB | 252×201, 23KB | 221×201 @ 15,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Anselm "Big" Torvik | `anselm-big-torvik` | 1 | 27KB | 215×199, 24KB | 215×195 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Brannoc Tull | `brannoc-tull` | 1 | 25KB | 211×200, 23KB | 211×192 @ 0,4, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Captain Fenwick Pryor | `captain-fenwick-pryor` | 1 | 23KB | 248×201, 24KB | 221×201 @ 13,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Captain Isolde Marrow | `captain-isolde-marrow` | 1 | 26KB | 241×206, 27KB | 227×206 @ 7,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Captain Lorne Neddam | `captain-lorne-neddam` | 1 | 26KB | 248×201, 26KB | 221×201 @ 13,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Captain Silas Reyne | `captain-silas-reyne` | 1 | 19KB | 206×199, 18KB | 206×187 @ 0,6, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Colonel Maximilian Vierling | `colonel-maximilian-vierling` | 1 | 27KB | 220×199, 25KB | 219×199 @ 0,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Commodore-Elect Adaira Hale | `commodore-elect-adaira-hale` | 1 | 25KB | 214×199, 23KB | 214×194 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Doctor Ambrose Kell | `doctor-ambrose-kell` | 1 | 26KB | 270×206, 31KB | 227×206 @ 21,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Governor Tiberius Jarrold | `governor-tiberius-jarrold` | 1 | 24KB | 248×201, 25KB | 221×201 @ 13,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Hesper Lyn | `hesper-lyn` | 1 | 23KB | 210×200, 21KB | 210×191 @ 0,4, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Jory Halloran | `jory-halloran` | 1 | 26KB | 272×206, 30KB | 227×206 @ 22,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Lord Regent Halvard Corvane | `lord-regent-halvard-corvane` | 1 | 24KB | 251×201, 25KB | 221×201 @ 15,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Maren Quist | `maren-quist` | 1 | 25KB | 211×200, 22KB | 211×192 @ 0,4, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Pellam Voss | `pellam-voss` | 1 | 26KB | 215×200, 24KB | 215×195 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Rosalind "Ros" Carrow | `rosalind-ros-carrow` | 1 | 24KB | 204×199, 22KB | 204×185 @ 0,7, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Sable | `sable` | 1 | 18KB | 204×200, 18KB | 204×185 @ 0,7, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Silvaine Crow | `silvaine-crow` | 1 | 25KB | 240×206, 26KB | 227×206 @ 6,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Tam Calloway | `tam-calloway` | 1 | 26KB | 209×199, 24KB | 209×190 @ 0,4, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| The Widow Ashgrave | `the-widow-ashgrave` | 1 | 27KB | 237×206, 26KB | 227×206 @ 5,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Tobias Renn | `tobias-renn` | 1 | 26KB | 236×206, 26KB | 227×206 @ 4,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Wren Tally | `wren-tally` | 1 | 27KB | 220×200, 24KB | 220×200 @ 0,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Wyatt Ansell | `wyatt-ansell` | 1 | 25KB | 217×200, 23KB | 217×197 @ 0,1, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 
-## ships — 768×512
+## faces — 256×256
 
-three-quarter view, whole vessel. 0 of 8.
+the head, cropped square out of the portrait; the medallion. 26 of 26.
 
-**Still owed (8):** `alliance-large`, `alliance-medium`, `alliance-small`, `alliance-transport`, `empire-large`, `empire-medium`, `empire-small`, `empire-transport`
+| subject | slug | v | shipped | master | crop | added | source |
+|---|---|---|---|---|---|---|---|
+| Admiral Corvus Blackwater | `admiral-corvus-blackwater` | 1 | 8KB | 124×124, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Admiral Dorian Jessup | `admiral-dorian-jessup` | 1 | 8KB | 122×122, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Admiral Kendrick Ozmond | `admiral-kendrick-ozmond` | 1 | 7KB | 124×124, 7KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Anselm Big Torvik | `anselm-big-torvik` | 1 | 9KB | 122×122, 9KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Brannoc Tull | `brannoc-tull` | 1 | 9KB | 124×124, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Captain Fenwick Pryor | `captain-fenwick-pryor` | 1 | 8KB | 124×124, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Captain Isolde Marrow | `captain-isolde-marrow` | 1 | 9KB | 126×126, 9KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Captain Lorne Neddam | `captain-lorne-neddam` | 1 | 9KB | 124×124, 9KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Captain Silas Reyne | `captain-silas-reyne` | 1 | 6KB | 122×122, 7KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Colonel Maximilian Vierling | `colonel-maximilian-vierling` | 1 | 9KB | 122×122, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Commodore Elect Adaira Hale | `commodore-elect-adaira-hale` | 1 | 8KB | 122×122, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Doctor Ambrose Kell | `doctor-ambrose-kell` | 1 | 8KB | 126×126, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Governor Tiberius Jarrold | `governor-tiberius-jarrold` | 1 | 8KB | 124×124, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Hesper Lyn | `hesper-lyn` | 1 | 7KB | 124×124, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Jory Halloran | `jory-halloran` | 1 | 8KB | 126×126, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Lord Regent Halvard Corvane | `lord-regent-halvard-corvane` | 1 | 8KB | 124×124, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Maren Quist | `maren-quist` | 1 | 9KB | 124×124, 9KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Pellam Voss | `pellam-voss` | 1 | 10KB | 124×124, 9KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Rosalind Ros Carrow | `rosalind-ros-carrow` | 1 | 9KB | 122×122, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Sable | `sable` | 1 | 6KB | 124×124, 7KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Silvaine Crow | `silvaine-crow` | 1 | 8KB | 126×126, 9KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Tam Calloway | `tam-calloway` | 1 | 9KB | 122×122, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| The Widow Ashgrave | `the-widow-ashgrave` | 1 | 9KB | 126×126, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Tobias Renn | `tobias-renn` | 1 | 8KB | 126×126, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Wren Tally | `wren-tally` | 1 | 8KB | 124×124, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Wyatt Ansell | `wyatt-ansell` | 1 | 8KB | 124×124, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 
-## islands — 768×512
+## ships — 384×512
 
-low approach, as if from a boat. 0 of 21.
+three-quarter view, whole vessel. 8 of 8.
 
-**Still owed (21):** `creature-ghost-ship`, `creature-sea-turtle`, `creature-ships-cat`, `creature-the-kraken`, `creature-young-sea-dragon`, `drowned-isle`, `facility-mine-alliance`, `facility-mine-empire`, `facility-refinery-alliance`, `facility-refinery-empire`, `facility-shipyard-alliance`, `facility-shipyard-empire`, `free-harbor`, `ice-isle`, `jungle-isle`, `mining-isle`, `port-city`, `reef-isle`, `rock-isle`, `storm-isle`, `tide-isle`
+| subject | slug | v | shipped | master | crop | added | source |
+|---|---|---|---|---|---|---|---|
+| Reef-class — Free Confederacy large | `alliance-large` | 1 | 49KB | 379×518, 102KB | 379×505 @ 0,6, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Tempest — Free Confederacy medium | `alliance-medium` | 1 | 46KB | 376×518, 96KB | 376×501 @ 0,8, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Swift — Free Confederacy small | `alliance-small` | 1 | 40KB | 376×518, 87KB | 376×501 @ 0,8, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Brig — Free Confederacy transport | `alliance-transport` | 1 | 40KB | 381×518, 88KB | 381×508 @ 0,5, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Sovereign — Crown Imperium large | `empire-large` | 1 | 48KB | 379×506, 95KB | 379×505 @ 0,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Razorback — Crown Imperium medium | `empire-medium` | 1 | 42KB | 376×506, 85KB | 376×501 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Kestrel — Crown Imperium small | `empire-small` | 1 | 35KB | 376×506, 76KB | 376×501 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Fluyt — Crown Imperium transport | `empire-transport` | 1 | 38KB | 381×506, 81KB | 380×506 @ 0,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+
+## islands — 768×204
+
+low approach, as if from a boat; a banner on the island panel. 20 of 25.
+
+| subject | slug | v | shipped | master | crop | added | source |
+|---|---|---|---|---|---|---|---|
+| Drowned Isle | `drowned-isle` | 1 | 33KB | 763×227, 77KB | 763×203 @ 0,12, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Facility Construction Yard Alliance | `facility-construction-yard-alliance` | 1 | 44KB | 765×196, 85KB | 738×196 @ 13,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Facility Construction Yard Empire | `facility-construction-yard-empire` | 1 | 47KB | 763×196, 89KB | 738×196 @ 12,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Camp — Free Confederacy | `facility-mine-alliance` | 1 | 46KB | 765×200, 88KB | 753×200 @ 6,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Camp — Crown Imperium | `facility-mine-empire` | 1 | 49KB | 763×200, 91KB | 753×200 @ 5,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Mill — Free Confederacy | `facility-refinery-alliance` | 1 | 46KB | 765×201, 88KB | 757×201 @ 4,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Mill — Crown Imperium | `facility-refinery-empire` | 1 | 50KB | 763×201, 92KB | 757×201 @ 3,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Slipway — Free Confederacy | `facility-shipyard-alliance` | 1 | 50KB | 765×230, 106KB | 765×203 @ 0,13, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Slipway — Crown Imperium | `facility-shipyard-empire` | 1 | 47KB | 763×230, 103KB | 763×203 @ 0,13, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Facility Training Facility Alliance | `facility-training-facility-alliance` | 1 | 40KB | 765×197, 81KB | 742×197 @ 11,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Facility Training Facility Empire | `facility-training-facility-empire` | 1 | 50KB | 763×197, 92KB | 742×197 @ 10,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Free Harbor | `free-harbor` | 1 | 38KB | 765×208, 79KB | 765×203 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Ice Isle | `ice-isle` | 1 | 33KB | 765×200, 69KB | 753×200 @ 6,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Jungle Isle | `jungle-isle` | 1 | 39KB | 763×200, 76KB | 753×200 @ 5,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Mining Isle | `mining-isle` | 1 | 39KB | 763×189, 74KB | 712×189 @ 25,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Port City | `port-city` | 1 | 40KB | 763×208, 81KB | 763×203 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Reef Isle | `reef-isle` | 1 | 40KB | 765×189, 75KB | 712×189 @ 26,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Rock Isle | `rock-isle` | 1 | 32KB | 765×200, 66KB | 753×200 @ 6,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Storm Isle | `storm-isle` | 1 | 34KB | 763×200, 71KB | 753×200 @ 5,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Tide Isle | `tide-isle` | 1 | 33KB | 765×227, 74KB | 765×203 @ 0,12, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+
+**Still owed (5):** `creature-ghost-ship`, `creature-sea-turtle`, `creature-ships-cat`, `creature-the-kraken`, `creature-young-sea-dragon`
+
+## creatures — 768×352
+
+the natural world, and where the 20% fantasy is allowed out. 5 of 5.
+
+| subject | slug | v | shipped | master | crop | added | source |
+|---|---|---|---|---|---|---|---|
+| Ghost Ship | `ghost-ship` | 1 | 34KB | 765×361, 88KB | 765×351 @ 0,5, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Sea Turtle | `sea-turtle` | 1 | 60KB | 1536×312, 217KB | 681×312 @ 427,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Ships Cat | `ships-cat` | 1 | 58KB | 763×351, 122KB | 763×350 @ 0,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| The Kraken | `the-kraken` | 1 | 45KB | 763×361, 108KB | 763×350 @ 0,5, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Young Sea Dragon | `young-sea-dragon` | 1 | 61KB | 765×351, 128KB | 765×351 @ 0,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 
 ## scenes — 1024×432
 
@@ -54,7 +158,92 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 
 - **chart/seas** — Delivered at luma 56 — as bright as the reference maps and about twice what the interface needs; a Confederacy mark on it measured 2.7:1 against a 3:1 floor. Darkened at ingest with gamma 1.6 rather than repainted: composition was right, only value was wrong, and the master keeps the bright original.
 - **chart/title** — The second chart painting. Darker and more evenly lit than chart/seas — sea luma 43 against 57, and a bottom edge at 43 rather than 73 — but it holds fewer separable chains (9 against 10 at a 20px dilation, 5 against 9 by area), and the chart needs ten. So it takes the title screen, where nothing has to be tapped and the dominant centre island is an asset rather than a crowding problem.
+- **creatures/ghost-ship** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **creatures/sea-turtle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **creatures/ships-cat** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **creatures/the-kraken** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **creatures/young-sea-dragon** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/admiral-corvus-blackwater** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/admiral-dorian-jessup** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/admiral-kendrick-ozmond** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/anselm-big-torvik** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/brannoc-tull** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/captain-fenwick-pryor** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/captain-isolde-marrow** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/captain-lorne-neddam** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/captain-silas-reyne** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/colonel-maximilian-vierling** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/commodore-elect-adaira-hale** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/doctor-ambrose-kell** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/governor-tiberius-jarrold** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/hesper-lyn** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/jory-halloran** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/lord-regent-halvard-corvane** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/maren-quist** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/pellam-voss** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/rosalind-ros-carrow** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/sable** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/silvaine-crow** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/tam-calloway** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/the-widow-ashgrave** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/tobias-renn** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/wren-tally** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **faces/wyatt-ansell** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/drowned-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/facility-construction-yard-alliance** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/facility-construction-yard-empire** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/facility-mine-alliance** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/facility-mine-empire** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/facility-refinery-alliance** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/facility-refinery-empire** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/facility-shipyard-alliance** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/facility-shipyard-empire** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/facility-training-facility-alliance** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/facility-training-facility-empire** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/free-harbor** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/ice-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/jungle-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/mining-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/port-city** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/reef-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/rock-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/storm-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/tide-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/admiral-corvus-blackwater** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/admiral-dorian-jessup** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/admiral-kendrick-ozmond** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/anselm-big-torvik** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/brannoc-tull** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/captain-fenwick-pryor** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/captain-isolde-marrow** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/captain-lorne-neddam** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/captain-silas-reyne** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/colonel-maximilian-vierling** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/commodore-elect-adaira-hale** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/doctor-ambrose-kell** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/governor-tiberius-jarrold** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/hesper-lyn** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/jory-halloran** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/lord-regent-halvard-corvane** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/maren-quist** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/pellam-voss** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/rosalind-ros-carrow** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/sable** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/silvaine-crow** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/tam-calloway** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/the-widow-ashgrave** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/tobias-renn** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/wren-tally** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **portraits/wyatt-ansell** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **scenes/battle** — Delivered 1536x1024 (square-ish) rather than the 1024x432 banner shape; the shipped band is the middle of it. Crop recovered by matching the shipped file against the master, not recorded at the time — the reason this register now exists.
+- **ships/alliance-large** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **ships/alliance-medium** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **ships/alliance-small** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **ships/alliance-transport** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **ships/empire-large** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **ships/empire-medium** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **ships/empire-small** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **ships/empire-transport** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 
 ## Changing one
 

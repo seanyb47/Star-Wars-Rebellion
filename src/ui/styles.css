@@ -887,6 +887,21 @@ button.tcard:hover { border-color: var(--brass); }
   border-bottom: 1px solid var(--border);
 }
 .tcard__art { position: relative; display: block; line-height: 0; background: var(--water-deep); }
+/* A painting at card size: fill the frame, crop the sides rather than letterbox.
+   The subjects are centred in their own tiles, so a centre crop keeps them. */
+.painting { position: relative; overflow: hidden; background: var(--water-deep); }
+.painting img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; display: block; }
+.painting__cameo { display: flex; align-items: center; justify-content: center; height: 100%; }
+/* The island, painted, across the head of its panel. */
+.isle-banner {
+  position: relative; overflow: hidden; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--water-deep); margin-bottom: 10px;
+}
+.isle-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.isle-banner__fade {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 38%; pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--bg-raised));
+}
 .tcard__art > svg, .tcard__art > img { display: block; width: 100%; height: auto; }
 /* The subject's own voice, over the foot of the picture. The scrim is what
    keeps it legible whatever the painting is doing underneath. */

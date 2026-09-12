@@ -56,6 +56,2340 @@
         "sha1": "da657b618f171e13"
       }
     },
+    "creatures/ghost-ship": {
+      "folder": "creatures",
+      "slug": "ghost-ship",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Ghost Ship",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 5,
+        "w": 765,
+        "h": 351
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/creatures/ghost-ship.webp",
+        "w": 765,
+        "h": 361,
+        "bytes": 90268,
+        "sha1": "47556771c1e7db81"
+      },
+      "shipped": {
+        "file": "src/art/creatures/ghost-ship.webp",
+        "w": 768,
+        "h": 352,
+        "bytes": 35402,
+        "sha1": "410e5e94fb616eb2"
+      }
+    },
+    "creatures/sea-turtle": {
+      "folder": "creatures",
+      "slug": "sea-turtle",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Sea Turtle",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 427,
+        "y": 0,
+        "w": 681,
+        "h": 312
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/creatures/sea-turtle.webp",
+        "w": 1536,
+        "h": 312,
+        "bytes": 222926,
+        "sha1": "e03da42eefe4527b"
+      },
+      "shipped": {
+        "file": "src/art/creatures/sea-turtle.webp",
+        "w": 768,
+        "h": 352,
+        "bytes": 62420,
+        "sha1": "16bde8ad4c3bf2a5"
+      }
+    },
+    "creatures/ships-cat": {
+      "folder": "creatures",
+      "slug": "ships-cat",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Ships Cat",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 763,
+        "h": 350
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/creatures/ships-cat.webp",
+        "w": 763,
+        "h": 351,
+        "bytes": 125042,
+        "sha1": "fbb25d2258e02290"
+      },
+      "shipped": {
+        "file": "src/art/creatures/ships-cat.webp",
+        "w": 768,
+        "h": 352,
+        "bytes": 60184,
+        "sha1": "e45f34b90a727071"
+      }
+    },
+    "creatures/the-kraken": {
+      "folder": "creatures",
+      "slug": "the-kraken",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "The Kraken",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 5,
+        "w": 763,
+        "h": 350
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/creatures/the-kraken.webp",
+        "w": 763,
+        "h": 361,
+        "bytes": 111460,
+        "sha1": "ff2acfe24030221e"
+      },
+      "shipped": {
+        "file": "src/art/creatures/the-kraken.webp",
+        "w": 768,
+        "h": 352,
+        "bytes": 46302,
+        "sha1": "5f99cf78ec2233c9"
+      }
+    },
+    "creatures/young-sea-dragon": {
+      "folder": "creatures",
+      "slug": "young-sea-dragon",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Young Sea Dragon",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 765,
+        "h": 351
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/creatures/young-sea-dragon.webp",
+        "w": 765,
+        "h": 351,
+        "bytes": 131196,
+        "sha1": "35788ca55e7c16f9"
+      },
+      "shipped": {
+        "file": "src/art/creatures/young-sea-dragon.webp",
+        "w": 768,
+        "h": 352,
+        "bytes": 63376,
+        "sha1": "2d66536f5ffde31c"
+      }
+    },
+    "faces/admiral-corvus-blackwater": {
+      "folder": "faces",
+      "slug": "admiral-corvus-blackwater",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Admiral Corvus Blackwater",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/admiral-corvus-blackwater.webp",
+        "w": 124,
+        "h": 124,
+        "bytes": 9044,
+        "sha1": "6be2c4f9ebcb5d16"
+      },
+      "shipped": {
+        "file": "src/art/faces/admiral-corvus-blackwater.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 9168,
+        "sha1": "005a06fcede3f826"
+      }
+    },
+    "faces/admiral-dorian-jessup": {
+      "folder": "faces",
+      "slug": "admiral-dorian-jessup",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Admiral Dorian Jessup",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/admiral-dorian-jessup.webp",
+        "w": 122,
+        "h": 122,
+        "bytes": 8820,
+        "sha1": "c2ce43de6196d626"
+      },
+      "shipped": {
+        "file": "src/art/faces/admiral-dorian-jessup.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 8940,
+        "sha1": "a46ee08ffaf5a18f"
+      }
+    },
+    "faces/admiral-kendrick-ozmond": {
+      "folder": "faces",
+      "slug": "admiral-kendrick-ozmond",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Admiral Kendrick Ozmond",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/admiral-kendrick-ozmond.webp",
+        "w": 124,
+        "h": 124,
+        "bytes": 7858,
+        "sha1": "c4d2cfcf49e419ec"
+      },
+      "shipped": {
+        "file": "src/art/faces/admiral-kendrick-ozmond.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 7682,
+        "sha1": "fd91a0deb0cc988d"
+      }
+    },
+    "faces/anselm-big-torvik": {
+      "folder": "faces",
+      "slug": "anselm-big-torvik",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Anselm Big Torvik",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/anselm-big-torvik.webp",
+        "w": 122,
+        "h": 122,
+        "bytes": 9512,
+        "sha1": "240c01b23cc917c8"
+      },
+      "shipped": {
+        "file": "src/art/faces/anselm-big-torvik.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 9492,
+        "sha1": "074fca22144640f7"
+      }
+    },
+    "faces/brannoc-tull": {
+      "folder": "faces",
+      "slug": "brannoc-tull",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Brannoc Tull",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/brannoc-tull.webp",
+        "w": 124,
+        "h": 124,
+        "bytes": 8886,
+        "sha1": "d078e970e8229092"
+      },
+      "shipped": {
+        "file": "src/art/faces/brannoc-tull.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 9426,
+        "sha1": "f158d1a24a75dcef"
+      }
+    },
+    "faces/captain-fenwick-pryor": {
+      "folder": "faces",
+      "slug": "captain-fenwick-pryor",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Captain Fenwick Pryor",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/captain-fenwick-pryor.webp",
+        "w": 124,
+        "h": 124,
+        "bytes": 8322,
+        "sha1": "fc66196ba84f4de9"
+      },
+      "shipped": {
+        "file": "src/art/faces/captain-fenwick-pryor.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 8550,
+        "sha1": "722d2f167f3f44b4"
+      }
+    },
+    "faces/captain-isolde-marrow": {
+      "folder": "faces",
+      "slug": "captain-isolde-marrow",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Captain Isolde Marrow",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/captain-isolde-marrow.webp",
+        "w": 126,
+        "h": 126,
+        "bytes": 9540,
+        "sha1": "7030088fb29bec83"
+      },
+      "shipped": {
+        "file": "src/art/faces/captain-isolde-marrow.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 9852,
+        "sha1": "0977c407b3c615d6"
+      }
+    },
+    "faces/captain-lorne-neddam": {
+      "folder": "faces",
+      "slug": "captain-lorne-neddam",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Captain Lorne Neddam",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/captain-lorne-neddam.webp",
+        "w": 124,
+        "h": 124,
+        "bytes": 9410,
+        "sha1": "22df7db5fbc46b8a"
+      },
+      "shipped": {
+        "file": "src/art/faces/captain-lorne-neddam.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 9778,
+        "sha1": "3c0dfd3da2f31511"
+      }
+    },
+    "faces/captain-silas-reyne": {
+      "folder": "faces",
+      "slug": "captain-silas-reyne",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Captain Silas Reyne",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/captain-silas-reyne.webp",
+        "w": 122,
+        "h": 122,
+        "bytes": 7616,
+        "sha1": "552771be798e71fa"
+      },
+      "shipped": {
+        "file": "src/art/faces/captain-silas-reyne.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 7158,
+        "sha1": "4e73e07a0d35ea64"
+      }
+    },
+    "faces/colonel-maximilian-vierling": {
+      "folder": "faces",
+      "slug": "colonel-maximilian-vierling",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Colonel Maximilian Vierling",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/colonel-maximilian-vierling.webp",
+        "w": 122,
+        "h": 122,
+        "bytes": 9148,
+        "sha1": "f1259d061870a10a"
+      },
+      "shipped": {
+        "file": "src/art/faces/colonel-maximilian-vierling.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 9488,
+        "sha1": "5dee8c59208818da"
+      }
+    },
+    "faces/commodore-elect-adaira-hale": {
+      "folder": "faces",
+      "slug": "commodore-elect-adaira-hale",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Commodore Elect Adaira Hale",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/commodore-elect-adaira-hale.webp",
+        "w": 122,
+        "h": 122,
+        "bytes": 8332,
+        "sha1": "5b9f0a6f644f55f2"
+      },
+      "shipped": {
+        "file": "src/art/faces/commodore-elect-adaira-hale.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 8674,
+        "sha1": "ccf8e8c2ed104615"
+      }
+    },
+    "faces/doctor-ambrose-kell": {
+      "folder": "faces",
+      "slug": "doctor-ambrose-kell",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Doctor Ambrose Kell",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/doctor-ambrose-kell.webp",
+        "w": 126,
+        "h": 126,
+        "bytes": 9146,
+        "sha1": "913d29c2ca851181"
+      },
+      "shipped": {
+        "file": "src/art/faces/doctor-ambrose-kell.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 8976,
+        "sha1": "3fbea820847d359d"
+      }
+    },
+    "faces/governor-tiberius-jarrold": {
+      "folder": "faces",
+      "slug": "governor-tiberius-jarrold",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Governor Tiberius Jarrold",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/governor-tiberius-jarrold.webp",
+        "w": 124,
+        "h": 124,
+        "bytes": 9060,
+        "sha1": "507abc594e9d6f79"
+      },
+      "shipped": {
+        "file": "src/art/faces/governor-tiberius-jarrold.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 9084,
+        "sha1": "49ab7752792cf3e1"
+      }
+    },
+    "faces/hesper-lyn": {
+      "folder": "faces",
+      "slug": "hesper-lyn",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Hesper Lyn",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/hesper-lyn.webp",
+        "w": 124,
+        "h": 124,
+        "bytes": 8432,
+        "sha1": "7c851f8bf3cd36b6"
+      },
+      "shipped": {
+        "file": "src/art/faces/hesper-lyn.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 8066,
+        "sha1": "11549282e39483f4"
+      }
+    },
+    "faces/jory-halloran": {
+      "folder": "faces",
+      "slug": "jory-halloran",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Jory Halloran",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/jory-halloran.webp",
+        "w": 126,
+        "h": 126,
+        "bytes": 9170,
+        "sha1": "54ebdb398dcf67f7"
+      },
+      "shipped": {
+        "file": "src/art/faces/jory-halloran.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 9206,
+        "sha1": "5359b3d63068b256"
+      }
+    },
+    "faces/lord-regent-halvard-corvane": {
+      "folder": "faces",
+      "slug": "lord-regent-halvard-corvane",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Lord Regent Halvard Corvane",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/lord-regent-halvard-corvane.webp",
+        "w": 124,
+        "h": 124,
+        "bytes": 8588,
+        "sha1": "6c5eaae636e0edb6"
+      },
+      "shipped": {
+        "file": "src/art/faces/lord-regent-halvard-corvane.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 8526,
+        "sha1": "49c0a7ac132a339d"
+      }
+    },
+    "faces/maren-quist": {
+      "folder": "faces",
+      "slug": "maren-quist",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Maren Quist",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/maren-quist.webp",
+        "w": 124,
+        "h": 124,
+        "bytes": 9260,
+        "sha1": "bd165ad5b57274e7"
+      },
+      "shipped": {
+        "file": "src/art/faces/maren-quist.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 9774,
+        "sha1": "4652dbaa575e6aea"
+      }
+    },
+    "faces/pellam-voss": {
+      "folder": "faces",
+      "slug": "pellam-voss",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Pellam Voss",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/pellam-voss.webp",
+        "w": 124,
+        "h": 124,
+        "bytes": 9852,
+        "sha1": "e0bdd03cdc58330a"
+      },
+      "shipped": {
+        "file": "src/art/faces/pellam-voss.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 10492,
+        "sha1": "c039883c7582778b"
+      }
+    },
+    "faces/rosalind-ros-carrow": {
+      "folder": "faces",
+      "slug": "rosalind-ros-carrow",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Rosalind Ros Carrow",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/rosalind-ros-carrow.webp",
+        "w": 122,
+        "h": 122,
+        "bytes": 9212,
+        "sha1": "dc5ac68ef5c78282"
+      },
+      "shipped": {
+        "file": "src/art/faces/rosalind-ros-carrow.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 9550,
+        "sha1": "7696798b87e0dfef"
+      }
+    },
+    "faces/sable": {
+      "folder": "faces",
+      "slug": "sable",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Sable",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/sable.webp",
+        "w": 124,
+        "h": 124,
+        "bytes": 7390,
+        "sha1": "2b1ec35ee2a67605"
+      },
+      "shipped": {
+        "file": "src/art/faces/sable.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 6376,
+        "sha1": "a0ed1d26b48b1383"
+      }
+    },
+    "faces/silvaine-crow": {
+      "folder": "faces",
+      "slug": "silvaine-crow",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Silvaine Crow",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/silvaine-crow.webp",
+        "w": 126,
+        "h": 126,
+        "bytes": 9248,
+        "sha1": "3d45eb8ea3b8158b"
+      },
+      "shipped": {
+        "file": "src/art/faces/silvaine-crow.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 8646,
+        "sha1": "e3cb77f299a03bf6"
+      }
+    },
+    "faces/tam-calloway": {
+      "folder": "faces",
+      "slug": "tam-calloway",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Tam Calloway",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/tam-calloway.webp",
+        "w": 122,
+        "h": 122,
+        "bytes": 9160,
+        "sha1": "8cdeeba85dc685ab"
+      },
+      "shipped": {
+        "file": "src/art/faces/tam-calloway.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 9506,
+        "sha1": "0825d4fc6f742cd0"
+      }
+    },
+    "faces/the-widow-ashgrave": {
+      "folder": "faces",
+      "slug": "the-widow-ashgrave",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "The Widow Ashgrave",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/the-widow-ashgrave.webp",
+        "w": 126,
+        "h": 126,
+        "bytes": 8994,
+        "sha1": "7e93183fc5b577a5"
+      },
+      "shipped": {
+        "file": "src/art/faces/the-widow-ashgrave.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 9260,
+        "sha1": "72cbe74ba3642a50"
+      }
+    },
+    "faces/tobias-renn": {
+      "folder": "faces",
+      "slug": "tobias-renn",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Tobias Renn",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/tobias-renn.webp",
+        "w": 126,
+        "h": 126,
+        "bytes": 9032,
+        "sha1": "e39a368cc95892a7"
+      },
+      "shipped": {
+        "file": "src/art/faces/tobias-renn.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 9092,
+        "sha1": "b3cd1e708c884b05"
+      }
+    },
+    "faces/wren-tally": {
+      "folder": "faces",
+      "slug": "wren-tally",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Wren Tally",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/wren-tally.webp",
+        "w": 124,
+        "h": 124,
+        "bytes": 8856,
+        "sha1": "57386c3072a74044"
+      },
+      "shipped": {
+        "file": "src/art/faces/wren-tally.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 8690,
+        "sha1": "b66a8cfe700dea35"
+      }
+    },
+    "faces/wyatt-ansell": {
+      "folder": "faces",
+      "slug": "wyatt-ansell",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Wyatt Ansell",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/faces/wyatt-ansell.webp",
+        "w": 124,
+        "h": 124,
+        "bytes": 9050,
+        "sha1": "54a9f8f00e247f26"
+      },
+      "shipped": {
+        "file": "src/art/faces/wyatt-ansell.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 8726,
+        "sha1": "281a8d57ecfd7a47"
+      }
+    },
+    "islands/drowned-isle": {
+      "folder": "islands",
+      "slug": "drowned-isle",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Drowned Isle",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 12,
+        "w": 763,
+        "h": 203
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/drowned-isle.webp",
+        "w": 763,
+        "h": 227,
+        "bytes": 79762,
+        "sha1": "418879adfe50c6da"
+      },
+      "shipped": {
+        "file": "src/art/islands/drowned-isle.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 34372,
+        "sha1": "9aaaf8f7c4692c37"
+      }
+    },
+    "islands/facility-construction-yard-alliance": {
+      "folder": "islands",
+      "slug": "facility-construction-yard-alliance",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Facility Construction Yard Alliance",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 13,
+        "y": 0,
+        "w": 738,
+        "h": 196
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/facility-construction-yard-alliance.webp",
+        "w": 765,
+        "h": 196,
+        "bytes": 87664,
+        "sha1": "6f2265e0b7b0f903"
+      },
+      "shipped": {
+        "file": "src/art/islands/facility-construction-yard-alliance.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 46042,
+        "sha1": "9799092e092fff64"
+      }
+    },
+    "islands/facility-construction-yard-empire": {
+      "folder": "islands",
+      "slug": "facility-construction-yard-empire",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Facility Construction Yard Empire",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 12,
+        "y": 0,
+        "w": 738,
+        "h": 196
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/facility-construction-yard-empire.webp",
+        "w": 763,
+        "h": 196,
+        "bytes": 92064,
+        "sha1": "f75dde7e120653c4"
+      },
+      "shipped": {
+        "file": "src/art/islands/facility-construction-yard-empire.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 48740,
+        "sha1": "0480e06e0a146be9"
+      }
+    },
+    "islands/facility-mine-alliance": {
+      "folder": "islands",
+      "slug": "facility-mine-alliance",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Camp \u2014 Free Confederacy",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 6,
+        "y": 0,
+        "w": 753,
+        "h": 200
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/facility-mine-alliance.webp",
+        "w": 765,
+        "h": 200,
+        "bytes": 90556,
+        "sha1": "e0ff39b6ea81e79d"
+      },
+      "shipped": {
+        "file": "src/art/islands/facility-mine-alliance.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 47488,
+        "sha1": "2427a9e9d5472789"
+      }
+    },
+    "islands/facility-mine-empire": {
+      "folder": "islands",
+      "slug": "facility-mine-empire",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Camp \u2014 Crown Imperium",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 5,
+        "y": 0,
+        "w": 753,
+        "h": 200
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/facility-mine-empire.webp",
+        "w": 763,
+        "h": 200,
+        "bytes": 93928,
+        "sha1": "5dcb6cdaa12a35b7"
+      },
+      "shipped": {
+        "file": "src/art/islands/facility-mine-empire.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 51168,
+        "sha1": "b0001c57fb0bc156"
+      }
+    },
+    "islands/facility-refinery-alliance": {
+      "folder": "islands",
+      "slug": "facility-refinery-alliance",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Mill \u2014 Free Confederacy",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 4,
+        "y": 0,
+        "w": 757,
+        "h": 201
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/facility-refinery-alliance.webp",
+        "w": 765,
+        "h": 201,
+        "bytes": 91080,
+        "sha1": "4a424094b92d7306"
+      },
+      "shipped": {
+        "file": "src/art/islands/facility-refinery-alliance.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 47870,
+        "sha1": "ab373a4cd85f4a68"
+      }
+    },
+    "islands/facility-refinery-empire": {
+      "folder": "islands",
+      "slug": "facility-refinery-empire",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Mill \u2014 Crown Imperium",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 3,
+        "y": 0,
+        "w": 757,
+        "h": 201
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/facility-refinery-empire.webp",
+        "w": 763,
+        "h": 201,
+        "bytes": 95222,
+        "sha1": "9c8ab45675dad95b"
+      },
+      "shipped": {
+        "file": "src/art/islands/facility-refinery-empire.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 52008,
+        "sha1": "15a8c155858a2f31"
+      }
+    },
+    "islands/facility-shipyard-alliance": {
+      "folder": "islands",
+      "slug": "facility-shipyard-alliance",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Slipway \u2014 Free Confederacy",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 13,
+        "w": 765,
+        "h": 203
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/facility-shipyard-alliance.webp",
+        "w": 765,
+        "h": 230,
+        "bytes": 109210,
+        "sha1": "edb72223d5fd2395"
+      },
+      "shipped": {
+        "file": "src/art/islands/facility-shipyard-alliance.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 52000,
+        "sha1": "2c6550231211e9fa"
+      }
+    },
+    "islands/facility-shipyard-empire": {
+      "folder": "islands",
+      "slug": "facility-shipyard-empire",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Slipway \u2014 Crown Imperium",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 13,
+        "w": 763,
+        "h": 203
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/facility-shipyard-empire.webp",
+        "w": 763,
+        "h": 230,
+        "bytes": 106210,
+        "sha1": "d816823adb525a55"
+      },
+      "shipped": {
+        "file": "src/art/islands/facility-shipyard-empire.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 48492,
+        "sha1": "e9c2046dac7928f7"
+      }
+    },
+    "islands/facility-training-facility-alliance": {
+      "folder": "islands",
+      "slug": "facility-training-facility-alliance",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Facility Training Facility Alliance",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 11,
+        "y": 0,
+        "w": 742,
+        "h": 197
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/facility-training-facility-alliance.webp",
+        "w": 765,
+        "h": 197,
+        "bytes": 83142,
+        "sha1": "943826ffd26ca34c"
+      },
+      "shipped": {
+        "file": "src/art/islands/facility-training-facility-alliance.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 41688,
+        "sha1": "62a4683a442848f8"
+      }
+    },
+    "islands/facility-training-facility-empire": {
+      "folder": "islands",
+      "slug": "facility-training-facility-empire",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Facility Training Facility Empire",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 10,
+        "y": 0,
+        "w": 742,
+        "h": 197
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/facility-training-facility-empire.webp",
+        "w": 763,
+        "h": 197,
+        "bytes": 94726,
+        "sha1": "0305f80466b36a35"
+      },
+      "shipped": {
+        "file": "src/art/islands/facility-training-facility-empire.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 51620,
+        "sha1": "bb71d6da0a424519"
+      }
+    },
+    "islands/free-harbor": {
+      "folder": "islands",
+      "slug": "free-harbor",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Free Harbor",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 2,
+        "w": 765,
+        "h": 203
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/free-harbor.webp",
+        "w": 765,
+        "h": 208,
+        "bytes": 80968,
+        "sha1": "619cf04337abb90c"
+      },
+      "shipped": {
+        "file": "src/art/islands/free-harbor.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 39320,
+        "sha1": "694ccd062e4f58fc"
+      }
+    },
+    "islands/ice-isle": {
+      "folder": "islands",
+      "slug": "ice-isle",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Ice Isle",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 6,
+        "y": 0,
+        "w": 753,
+        "h": 200
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/ice-isle.webp",
+        "w": 765,
+        "h": 200,
+        "bytes": 70694,
+        "sha1": "1b589f205d8803fa"
+      },
+      "shipped": {
+        "file": "src/art/islands/ice-isle.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 34654,
+        "sha1": "b1f5bd9d0d7d4889"
+      }
+    },
+    "islands/jungle-isle": {
+      "folder": "islands",
+      "slug": "jungle-isle",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Jungle Isle",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 5,
+        "y": 0,
+        "w": 753,
+        "h": 200
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/jungle-isle.webp",
+        "w": 763,
+        "h": 200,
+        "bytes": 78798,
+        "sha1": "13eb8ac50ce92280"
+      },
+      "shipped": {
+        "file": "src/art/islands/jungle-isle.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 40004,
+        "sha1": "a935a8784e1a0b13"
+      }
+    },
+    "islands/mining-isle": {
+      "folder": "islands",
+      "slug": "mining-isle",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Mining Isle",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 25,
+        "y": 0,
+        "w": 712,
+        "h": 189
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/mining-isle.webp",
+        "w": 763,
+        "h": 189,
+        "bytes": 76692,
+        "sha1": "13b84fac712a594b"
+      },
+      "shipped": {
+        "file": "src/art/islands/mining-isle.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 40952,
+        "sha1": "bbf4695b09346fbc"
+      }
+    },
+    "islands/port-city": {
+      "folder": "islands",
+      "slug": "port-city",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Port City",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 2,
+        "w": 763,
+        "h": 203
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/port-city.webp",
+        "w": 763,
+        "h": 208,
+        "bytes": 83486,
+        "sha1": "a93bc214faaf8519"
+      },
+      "shipped": {
+        "file": "src/art/islands/port-city.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 41482,
+        "sha1": "24c7590963d212c1"
+      }
+    },
+    "islands/reef-isle": {
+      "folder": "islands",
+      "slug": "reef-isle",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Reef Isle",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 26,
+        "y": 0,
+        "w": 712,
+        "h": 189
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/reef-isle.webp",
+        "w": 765,
+        "h": 189,
+        "bytes": 77426,
+        "sha1": "35f969cb3fb50cfe"
+      },
+      "shipped": {
+        "file": "src/art/islands/reef-isle.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 41410,
+        "sha1": "40c42cd195ab2d44"
+      }
+    },
+    "islands/rock-isle": {
+      "folder": "islands",
+      "slug": "rock-isle",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Rock Isle",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 6,
+        "y": 0,
+        "w": 753,
+        "h": 200
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/rock-isle.webp",
+        "w": 765,
+        "h": 200,
+        "bytes": 67608,
+        "sha1": "f8961936047054c1"
+      },
+      "shipped": {
+        "file": "src/art/islands/rock-isle.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 33008,
+        "sha1": "93ea797ed39480e4"
+      }
+    },
+    "islands/storm-isle": {
+      "folder": "islands",
+      "slug": "storm-isle",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Storm Isle",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 5,
+        "y": 0,
+        "w": 753,
+        "h": 200
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/storm-isle.webp",
+        "w": 763,
+        "h": 200,
+        "bytes": 72714,
+        "sha1": "3931bc8ab58de7f5"
+      },
+      "shipped": {
+        "file": "src/art/islands/storm-isle.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 35776,
+        "sha1": "88012bd78501b39a"
+      }
+    },
+    "islands/tide-isle": {
+      "folder": "islands",
+      "slug": "tide-isle",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Tide Isle",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 12,
+        "w": 765,
+        "h": 203
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/islands/tide-isle.webp",
+        "w": 765,
+        "h": 227,
+        "bytes": 76290,
+        "sha1": "5a8822df1e1dd7df"
+      },
+      "shipped": {
+        "file": "src/art/islands/tide-isle.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 34246,
+        "sha1": "626613c4159d4419"
+      }
+    },
+    "portraits/admiral-corvus-blackwater": {
+      "folder": "portraits",
+      "slug": "admiral-corvus-blackwater",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Admiral Corvus Blackwater",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 14,
+        "y": 0,
+        "w": 221,
+        "h": 201
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/admiral-corvus-blackwater.webp",
+        "w": 249,
+        "h": 201,
+        "bytes": 28958,
+        "sha1": "148a6cb6a326eaa7"
+      },
+      "shipped": {
+        "file": "src/art/portraits/admiral-corvus-blackwater.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 27734,
+        "sha1": "8378a329e4520918"
+      }
+    },
+    "portraits/admiral-dorian-jessup": {
+      "folder": "portraits",
+      "slug": "admiral-dorian-jessup",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Admiral Dorian Jessup",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 219,
+        "h": 199
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/admiral-dorian-jessup.webp",
+        "w": 220,
+        "h": 199,
+        "bytes": 25092,
+        "sha1": "35f6d80584ce043c"
+      },
+      "shipped": {
+        "file": "src/art/portraits/admiral-dorian-jessup.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 27368,
+        "sha1": "e0b1f8d1d11c5e2b"
+      }
+    },
+    "portraits/admiral-kendrick-ozmond": {
+      "folder": "portraits",
+      "slug": "admiral-kendrick-ozmond",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Admiral Kendrick Ozmond",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 15,
+        "y": 0,
+        "w": 221,
+        "h": 201
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/admiral-kendrick-ozmond.webp",
+        "w": 252,
+        "h": 201,
+        "bytes": 23976,
+        "sha1": "4b9fad2c03a17635"
+      },
+      "shipped": {
+        "file": "src/art/portraits/admiral-kendrick-ozmond.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 23210,
+        "sha1": "1720990d71b183fb"
+      }
+    },
+    "portraits/anselm-big-torvik": {
+      "folder": "portraits",
+      "slug": "anselm-big-torvik",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Anselm \"Big\" Torvik",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 2,
+        "w": 215,
+        "h": 195
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/anselm-big-torvik.webp",
+        "w": 215,
+        "h": 199,
+        "bytes": 25180,
+        "sha1": "ca75abf3160b5cd1"
+      },
+      "shipped": {
+        "file": "src/art/portraits/anselm-big-torvik.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 27788,
+        "sha1": "7e2bd2e83dfaf70d"
+      }
+    },
+    "portraits/brannoc-tull": {
+      "folder": "portraits",
+      "slug": "brannoc-tull",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Brannoc Tull",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 4,
+        "w": 211,
+        "h": 192
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/brannoc-tull.webp",
+        "w": 211,
+        "h": 200,
+        "bytes": 24392,
+        "sha1": "2a137f7431b21d07"
+      },
+      "shipped": {
+        "file": "src/art/portraits/brannoc-tull.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 26454,
+        "sha1": "48c6f91dce263056"
+      }
+    },
+    "portraits/captain-fenwick-pryor": {
+      "folder": "portraits",
+      "slug": "captain-fenwick-pryor",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Captain Fenwick Pryor",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 13,
+        "y": 0,
+        "w": 221,
+        "h": 201
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/captain-fenwick-pryor.webp",
+        "w": 248,
+        "h": 201,
+        "bytes": 25498,
+        "sha1": "4546ff0168d35d1c"
+      },
+      "shipped": {
+        "file": "src/art/portraits/captain-fenwick-pryor.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 24526,
+        "sha1": "50f41f05c9715db8"
+      }
+    },
+    "portraits/captain-isolde-marrow": {
+      "folder": "portraits",
+      "slug": "captain-isolde-marrow",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Captain Isolde Marrow",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 7,
+        "y": 0,
+        "w": 227,
+        "h": 206
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/captain-isolde-marrow.webp",
+        "w": 241,
+        "h": 206,
+        "bytes": 27766,
+        "sha1": "2719f425d44848ad"
+      },
+      "shipped": {
+        "file": "src/art/portraits/captain-isolde-marrow.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 26716,
+        "sha1": "99d69363356aeff0"
+      }
+    },
+    "portraits/captain-lorne-neddam": {
+      "folder": "portraits",
+      "slug": "captain-lorne-neddam",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Captain Lorne Neddam",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 13,
+        "y": 0,
+        "w": 221,
+        "h": 201
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/captain-lorne-neddam.webp",
+        "w": 248,
+        "h": 201,
+        "bytes": 27470,
+        "sha1": "4041ba2272447292"
+      },
+      "shipped": {
+        "file": "src/art/portraits/captain-lorne-neddam.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 27116,
+        "sha1": "46d9b13d4f633e24"
+      }
+    },
+    "portraits/captain-silas-reyne": {
+      "folder": "portraits",
+      "slug": "captain-silas-reyne",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Captain Silas Reyne",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 6,
+        "w": 206,
+        "h": 187
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/captain-silas-reyne.webp",
+        "w": 206,
+        "h": 199,
+        "bytes": 19168,
+        "sha1": "382364dad7598d35"
+      },
+      "shipped": {
+        "file": "src/art/portraits/captain-silas-reyne.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 19882,
+        "sha1": "0e06bee69f1dda62"
+      }
+    },
+    "portraits/colonel-maximilian-vierling": {
+      "folder": "portraits",
+      "slug": "colonel-maximilian-vierling",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Colonel Maximilian Vierling",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 219,
+        "h": 199
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/colonel-maximilian-vierling.webp",
+        "w": 220,
+        "h": 199,
+        "bytes": 25894,
+        "sha1": "fff465c36fd1a1cf"
+      },
+      "shipped": {
+        "file": "src/art/portraits/colonel-maximilian-vierling.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 28224,
+        "sha1": "cc08241779b18dbe"
+      }
+    },
+    "portraits/commodore-elect-adaira-hale": {
+      "folder": "portraits",
+      "slug": "commodore-elect-adaira-hale",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Commodore-Elect Adaira Hale",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 2,
+        "w": 214,
+        "h": 194
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/commodore-elect-adaira-hale.webp",
+        "w": 214,
+        "h": 199,
+        "bytes": 23994,
+        "sha1": "fc28af6bccbc3fcd"
+      },
+      "shipped": {
+        "file": "src/art/portraits/commodore-elect-adaira-hale.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 26428,
+        "sha1": "ea6b8af63d90cb61"
+      }
+    },
+    "portraits/doctor-ambrose-kell": {
+      "folder": "portraits",
+      "slug": "doctor-ambrose-kell",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Doctor Ambrose Kell",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 21,
+        "y": 0,
+        "w": 227,
+        "h": 206
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/doctor-ambrose-kell.webp",
+        "w": 270,
+        "h": 206,
+        "bytes": 32420,
+        "sha1": "05485a3913819cd0"
+      },
+      "shipped": {
+        "file": "src/art/portraits/doctor-ambrose-kell.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 27554,
+        "sha1": "0237a31057240b39"
+      }
+    },
+    "portraits/governor-tiberius-jarrold": {
+      "folder": "portraits",
+      "slug": "governor-tiberius-jarrold",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Governor Tiberius Jarrold",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 13,
+        "y": 0,
+        "w": 221,
+        "h": 201
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/governor-tiberius-jarrold.webp",
+        "w": 248,
+        "h": 201,
+        "bytes": 26122,
+        "sha1": "36fe8c59c886e759"
+      },
+      "shipped": {
+        "file": "src/art/portraits/governor-tiberius-jarrold.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 25300,
+        "sha1": "5ba705669b424a9a"
+      }
+    },
+    "portraits/hesper-lyn": {
+      "folder": "portraits",
+      "slug": "hesper-lyn",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Hesper Lyn",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 4,
+        "w": 210,
+        "h": 191
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/hesper-lyn.webp",
+        "w": 210,
+        "h": 200,
+        "bytes": 22240,
+        "sha1": "4191310e8179f457"
+      },
+      "shipped": {
+        "file": "src/art/portraits/hesper-lyn.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 23694,
+        "sha1": "aa22d33740031913"
+      }
+    },
+    "portraits/jory-halloran": {
+      "folder": "portraits",
+      "slug": "jory-halloran",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Jory Halloran",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 22,
+        "y": 0,
+        "w": 227,
+        "h": 206
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/jory-halloran.webp",
+        "w": 272,
+        "h": 206,
+        "bytes": 30964,
+        "sha1": "7017e4a3d3128679"
+      },
+      "shipped": {
+        "file": "src/art/portraits/jory-halloran.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 27448,
+        "sha1": "0fa745957f7e22fd"
+      }
+    },
+    "portraits/lord-regent-halvard-corvane": {
+      "folder": "portraits",
+      "slug": "lord-regent-halvard-corvane",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Lord Regent Halvard Corvane",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 15,
+        "y": 0,
+        "w": 221,
+        "h": 201
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/lord-regent-halvard-corvane.webp",
+        "w": 251,
+        "h": 201,
+        "bytes": 26080,
+        "sha1": "f7b0179338fe65b5"
+      },
+      "shipped": {
+        "file": "src/art/portraits/lord-regent-halvard-corvane.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 24762,
+        "sha1": "c021b558a927353e"
+      }
+    },
+    "portraits/maren-quist": {
+      "folder": "portraits",
+      "slug": "maren-quist",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Maren Quist",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 4,
+        "w": 211,
+        "h": 192
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/maren-quist.webp",
+        "w": 211,
+        "h": 200,
+        "bytes": 23496,
+        "sha1": "6caf5b80f7441acd"
+      },
+      "shipped": {
+        "file": "src/art/portraits/maren-quist.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 26030,
+        "sha1": "d8ccbf1e40e86672"
+      }
+    },
+    "portraits/pellam-voss": {
+      "folder": "portraits",
+      "slug": "pellam-voss",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Pellam Voss",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 2,
+        "w": 215,
+        "h": 195
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/pellam-voss.webp",
+        "w": 215,
+        "h": 200,
+        "bytes": 25076,
+        "sha1": "3c534a0289f2983e"
+      },
+      "shipped": {
+        "file": "src/art/portraits/pellam-voss.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 27488,
+        "sha1": "bc1d0e2281a513fb"
+      }
+    },
+    "portraits/rosalind-ros-carrow": {
+      "folder": "portraits",
+      "slug": "rosalind-ros-carrow",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Rosalind \"Ros\" Carrow",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 7,
+        "w": 204,
+        "h": 185
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/rosalind-ros-carrow.webp",
+        "w": 204,
+        "h": 199,
+        "bytes": 23116,
+        "sha1": "f8b35b7ffb547488"
+      },
+      "shipped": {
+        "file": "src/art/portraits/rosalind-ros-carrow.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 25054,
+        "sha1": "5519c408b6b05948"
+      }
+    },
+    "portraits/sable": {
+      "folder": "portraits",
+      "slug": "sable",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Sable",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 7,
+        "w": 204,
+        "h": 185
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/sable.webp",
+        "w": 204,
+        "h": 200,
+        "bytes": 18544,
+        "sha1": "52d3dee988a5ac72"
+      },
+      "shipped": {
+        "file": "src/art/portraits/sable.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 18454,
+        "sha1": "79c491f8e3102662"
+      }
+    },
+    "portraits/silvaine-crow": {
+      "folder": "portraits",
+      "slug": "silvaine-crow",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Silvaine Crow",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 6,
+        "y": 0,
+        "w": 227,
+        "h": 206
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/silvaine-crow.webp",
+        "w": 240,
+        "h": 206,
+        "bytes": 27312,
+        "sha1": "c72f3a2f2d37c1e5"
+      },
+      "shipped": {
+        "file": "src/art/portraits/silvaine-crow.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 26514,
+        "sha1": "79cbad5a54eeb167"
+      }
+    },
+    "portraits/tam-calloway": {
+      "folder": "portraits",
+      "slug": "tam-calloway",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Tam Calloway",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 4,
+        "w": 209,
+        "h": 190
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/tam-calloway.webp",
+        "w": 209,
+        "h": 199,
+        "bytes": 24840,
+        "sha1": "f0791b8d646bc962"
+      },
+      "shipped": {
+        "file": "src/art/portraits/tam-calloway.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 26678,
+        "sha1": "ad2dc892a2b4654d"
+      }
+    },
+    "portraits/the-widow-ashgrave": {
+      "folder": "portraits",
+      "slug": "the-widow-ashgrave",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "The Widow Ashgrave",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 5,
+        "y": 0,
+        "w": 227,
+        "h": 206
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/the-widow-ashgrave.webp",
+        "w": 237,
+        "h": 206,
+        "bytes": 27364,
+        "sha1": "0ec4d73928639e25"
+      },
+      "shipped": {
+        "file": "src/art/portraits/the-widow-ashgrave.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 28298,
+        "sha1": "5b4d27687147aa09"
+      }
+    },
+    "portraits/tobias-renn": {
+      "folder": "portraits",
+      "slug": "tobias-renn",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Tobias Renn",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 4,
+        "y": 0,
+        "w": 227,
+        "h": 206
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/tobias-renn.webp",
+        "w": 236,
+        "h": 206,
+        "bytes": 27128,
+        "sha1": "3f3df4c60e25fd1a"
+      },
+      "shipped": {
+        "file": "src/art/portraits/tobias-renn.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 27338,
+        "sha1": "1823602f7c031c7b"
+      }
+    },
+    "portraits/wren-tally": {
+      "folder": "portraits",
+      "slug": "wren-tally",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Wren Tally",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 220,
+        "h": 200
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/wren-tally.webp",
+        "w": 220,
+        "h": 200,
+        "bytes": 24930,
+        "sha1": "609878e6813a96ca"
+      },
+      "shipped": {
+        "file": "src/art/portraits/wren-tally.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 28528,
+        "sha1": "98e435e5d922bfee"
+      }
+    },
+    "portraits/wyatt-ansell": {
+      "folder": "portraits",
+      "slug": "wyatt-ansell",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Wyatt Ansell",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 1,
+        "w": 217,
+        "h": 197
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/portraits/wyatt-ansell.webp",
+        "w": 217,
+        "h": 200,
+        "bytes": 24198,
+        "sha1": "fb2f2925987f0afb"
+      },
+      "shipped": {
+        "file": "src/art/portraits/wyatt-ansell.webp",
+        "w": 480,
+        "h": 436,
+        "bytes": 26558,
+        "sha1": "cb700dc31cd19b38"
+      }
+    },
     "scenes/battle": {
       "folder": "scenes",
       "slug": "battle",
@@ -258,6 +2592,262 @@
         "h": 432,
         "bytes": 76212,
         "sha1": "35e1b586473774b1"
+      }
+    },
+    "ships/alliance-large": {
+      "folder": "ships",
+      "slug": "alliance-large",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Reef-class \u2014 Free Confederacy large",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 6,
+        "w": 379,
+        "h": 505
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/ships/alliance-large.webp",
+        "w": 379,
+        "h": 518,
+        "bytes": 104996,
+        "sha1": "1cd7d161502b9d37"
+      },
+      "shipped": {
+        "file": "src/art/ships/alliance-large.webp",
+        "w": 384,
+        "h": 512,
+        "bytes": 50656,
+        "sha1": "d1388ff21c267890"
+      }
+    },
+    "ships/alliance-medium": {
+      "folder": "ships",
+      "slug": "alliance-medium",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Tempest \u2014 Free Confederacy medium",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 8,
+        "w": 376,
+        "h": 501
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/ships/alliance-medium.webp",
+        "w": 376,
+        "h": 518,
+        "bytes": 99140,
+        "sha1": "2cb9e047260cc0cf"
+      },
+      "shipped": {
+        "file": "src/art/ships/alliance-medium.webp",
+        "w": 384,
+        "h": 512,
+        "bytes": 47628,
+        "sha1": "4aa5f1f9b6000f7a"
+      }
+    },
+    "ships/alliance-small": {
+      "folder": "ships",
+      "slug": "alliance-small",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Swift \u2014 Free Confederacy small",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 8,
+        "w": 376,
+        "h": 501
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/ships/alliance-small.webp",
+        "w": 376,
+        "h": 518,
+        "bytes": 89440,
+        "sha1": "88343c74ddd19268"
+      },
+      "shipped": {
+        "file": "src/art/ships/alliance-small.webp",
+        "w": 384,
+        "h": 512,
+        "bytes": 41250,
+        "sha1": "d2e32757e371c9a4"
+      }
+    },
+    "ships/alliance-transport": {
+      "folder": "ships",
+      "slug": "alliance-transport",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Brig \u2014 Free Confederacy transport",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 5,
+        "w": 381,
+        "h": 508
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/ships/alliance-transport.webp",
+        "w": 381,
+        "h": 518,
+        "bytes": 90742,
+        "sha1": "bcfa6749a5f75d09"
+      },
+      "shipped": {
+        "file": "src/art/ships/alliance-transport.webp",
+        "w": 384,
+        "h": 512,
+        "bytes": 41132,
+        "sha1": "83a3d0546356a255"
+      }
+    },
+    "ships/empire-large": {
+      "folder": "ships",
+      "slug": "empire-large",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Sovereign \u2014 Crown Imperium large",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 379,
+        "h": 505
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/ships/empire-large.webp",
+        "w": 379,
+        "h": 506,
+        "bytes": 98078,
+        "sha1": "49691bceeecc1d46"
+      },
+      "shipped": {
+        "file": "src/art/ships/empire-large.webp",
+        "w": 384,
+        "h": 512,
+        "bytes": 49920,
+        "sha1": "2b851fd6e6896b5c"
+      }
+    },
+    "ships/empire-medium": {
+      "folder": "ships",
+      "slug": "empire-medium",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Razorback \u2014 Crown Imperium medium",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 2,
+        "w": 376,
+        "h": 501
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/ships/empire-medium.webp",
+        "w": 376,
+        "h": 506,
+        "bytes": 87854,
+        "sha1": "a13efd208123bd02"
+      },
+      "shipped": {
+        "file": "src/art/ships/empire-medium.webp",
+        "w": 384,
+        "h": 512,
+        "bytes": 43610,
+        "sha1": "5aafbc5245624ece"
+      }
+    },
+    "ships/empire-small": {
+      "folder": "ships",
+      "slug": "empire-small",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Kestrel \u2014 Crown Imperium small",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 2,
+        "w": 376,
+        "h": 501
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/ships/empire-small.webp",
+        "w": 376,
+        "h": 506,
+        "bytes": 78430,
+        "sha1": "89208e05ef8f2923"
+      },
+      "shipped": {
+        "file": "src/art/ships/empire-small.webp",
+        "w": 384,
+        "h": 512,
+        "bytes": 36696,
+        "sha1": "945616c309f15c45"
+      }
+    },
+    "ships/empire-transport": {
+      "folder": "ships",
+      "slug": "empire-transport",
+      "version": 1,
+      "added": "2026-09-12",
+      "updated": "2026-09-12",
+      "title": "Fluyt \u2014 Crown Imperium transport",
+      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
+      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 380,
+        "h": 506
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/ships/empire-transport.webp",
+        "w": 381,
+        "h": 506,
+        "bytes": 83328,
+        "sha1": "c72e52ab0a38d887"
+      },
+      "shipped": {
+        "file": "src/art/ships/empire-transport.webp",
+        "w": 384,
+        "h": 512,
+        "bytes": 39730,
+        "sha1": "cb3d96f0182f3b07"
       }
     }
   }

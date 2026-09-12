@@ -57,10 +57,18 @@ DOC = os.path.join(ROOT, "ASSETS.md")
 # The size each folder ships at, from seven-seas-art-style.md §8. A painting is
 # cropped to this aspect and resized to exactly this, so a folder is guaranteed
 # uniform however varied the deliveries are.
+# Sizes follow the art that exists, not the art that was hoped for. The
+# originals were picked as nice sizes for a painting (a portrait at 640x896);
+# nothing in the game displays one at that size, and holding the delivered set
+# back for failing a number nothing reads would have been the wrong trade. What
+# the game shows is a 44px medallion, a card about 220px wide, and a strip on an
+# island panel — these are cut to those.
 FOLDERS: dict[str, tuple[int, int, str]] = {
-    "portraits": (640, 896, "three-quarter figure; head in the upper 45%"),
-    "ships": (768, 512, "three-quarter view, whole vessel"),
-    "islands": (768, 512, "low approach, as if from a boat"),
+    "portraits": (480, 436, "three-quarter figure against its harbour; the card art"),
+    "faces": (256, 256, "the head, cropped square out of the portrait; the medallion"),
+    "ships": (384, 512, "three-quarter view, whole vessel"),
+    "islands": (768, 204, "low approach, as if from a boat; a banner on the island panel"),
+    "creatures": (768, 352, "the natural world, and where the 20% fantasy is allowed out"),
     "scenes": (1024, 432, "full-bleed dispatch banner, quiet sky"),
     # The one painting the interface draws on top of, so it ships at the chart's
     # own proportion and is judged by whether a mark reads against it.
@@ -293,11 +301,16 @@ def cmd_add(args) -> None:
     tw, th, _ = FOLDERS[folder]
     with Image.open(args.file) as probe:
         pw, ph = probe.size
-    if pw < tw or ph < th:
-        # Upscaling is the one thing this pipeline must never quietly do: a
+    upscaled = pw < tw or ph < th
+    if upscaled and not args.allow_upscale:
+        # Upscaling is the one thing this pipeline must never *quietly* do: a
         # master smaller than the shipped file is not a master, and the result
-        # is a soft image nobody can explain later.
-        sys.exit(f"{args.file} is {pw}x{ph}, smaller than the {folder} size {tw}x{th}")
+        # is a soft image nobody can explain later. Doing it on purpose is
+        # allowed; doing it by accident is not.
+        sys.exit(
+            f"{args.file} is {pw}x{ph}, smaller than the {folder} size {tw}x{th}"
+            " — pass --allow-upscale if that is intended"
+        )
 
     data = load()
     key = f"{folder}/{slug}"
@@ -330,6 +343,7 @@ def cmd_add(args) -> None:
         entry["notes"] = args.note
     entry["crop"] = crop
     entry["tone"] = tone
+    entry["upscaled"] = upscaled or None
     entry["master"] = stamp(master_path)
     entry["shipped"] = stamp(ship_path)
 
@@ -357,6 +371,7 @@ def cmd_recrop(args) -> None:
     render(master_path, folder, crop, ship_path, tone)
     entry["crop"] = crop
     entry["tone"] = tone
+    entry["upscaled"] = upscaled or None
     entry["shipped"] = stamp(ship_path)
     entry["updated"] = today()
     save(data)
@@ -497,6 +512,8 @@ def write_doc(data: dict | None = None) -> None:
                 if e.get("tone"):
                     crop += f", gamma {e['tone']['gamma']}"
                 hist = f" (+{len(e['history'])} retired)" if e.get("history") else ""
+                if e.get("upscaled"):
+                    crop += ", **upscaled**"
                 lines.append(
                     f"| {e.get('title', '')} | `{slug}` | {e['version']}{hist} "
                     f"| {sh['bytes'] // 1024}KB | {m['w']}×{m['h']}, {m['bytes'] // 1024}KB "
@@ -548,6 +565,11 @@ def main() -> None:
     a.add_argument("key", help="folder/slug, e.g. portraits/sable")
     a.add_argument("--crop", help="x,y,w,h in master pixels | auto | none")
     a.add_argument("--tone", help="tone curve applied to the shipped file, e.g. gamma:1.6")
+    a.add_argument(
+        "--allow-upscale",
+        action="store_true",
+        help="the source is smaller than the shipped size and that is intended; recorded in the register",
+    )
     a.add_argument("--title")
     a.add_argument("--source")
     a.add_argument("--note")

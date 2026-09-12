@@ -22,9 +22,31 @@ export interface Sector {
 }
 
 /** An island. */
+/**
+ * What an island looks like, which decides which painting it shows.
+ *
+ * Ten of them cover a hundred islands, and that is the point: an island does
+ * not need its own painting, it needs to look like the kind of place it is.
+ * Assigned once at generation from the Sea it sits in, so Rime Reach is ice and
+ * rock and the Bone Sea is drowned temples, and it never changes afterwards.
+ */
+export type IslandArchetype =
+  | 'jungle-isle'
+  | 'rock-isle'
+  | 'port-city'
+  | 'free-harbor'
+  | 'mining-isle'
+  | 'reef-isle'
+  | 'storm-isle'
+  | 'ice-isle'
+  | 'drowned-isle'
+  | 'tide-isle';
+
 export interface System {
   id: string;
   name: string;
+  /** Which of the ten island paintings this one wears. */
+  archetype: IslandArchetype;
   /** A line of colour from the world bible, shown on the island sheet. */
   note?: string;
   sectorId: string;

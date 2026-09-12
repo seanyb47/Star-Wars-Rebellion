@@ -22,7 +22,7 @@ import {
   type GameState,
   type System,
 } from '../sim';
-import { CharacterPortrait, CompanyIcon, FacilityIcon, IslandPortrait, ShipIcon } from './art';
+import { CharacterPortrait, CompanyIcon, FacilityIcon, IslandBanner, IslandPortrait, ShipIcon } from './art';
 import { ControlBadge, Sheet, Slot, SlotBoard, Stat, SupportBars } from './components';
 import { Harbour } from './FleetPanel';
 
@@ -276,17 +276,16 @@ export function SystemSheet({
     >
       {tab === 'harbour' && (
         <>
-          <div className="portrait">
-            <IslandPortrait
-              seed={system.name}
-              faction={system.control}
-              settled={system.populated}
-              facilities={system.facilities.length}
-              facilityTypes={system.facilities.map((f) => f.type)}
-              mutiny={system.uprising}
-              size={132}
-            />
-          </div>
+          <IslandBanner
+            archetype={system.archetype}
+            seed={system.name}
+            faction={system.control}
+            settled={system.populated}
+            facilities={system.facilities.length}
+            facilityTypes={system.facilities.map((f) => f.type)}
+            mutiny={system.uprising}
+            height={132}
+          />
 
           {system.note && <p className="portrait__note serif">{system.note}</p>}
 
