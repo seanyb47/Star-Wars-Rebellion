@@ -16,8 +16,8 @@ import { Sheet } from './components';
 
 /**
  * Your advisor. The world bible gives each side one: a sea-parrot the
- * Confederacy cannot get rid of, and the Admiralty's Second Chair — the
- * Imperator's M, dry and exact and sarcastic in the way that means she
+ * Confederacy cannot get rid of, and the First Secretary of the Admiralty
+ * — the Imperator's M, dry and exact and sarcastic in the way that means she
  * expected better. The player is the Imperator on one side and the
  * Captain-General of the Free on the other, and each advisor says so in
  * their own way (world bible §16.5).
@@ -28,7 +28,7 @@ import { Sheet } from './components';
  */
 export const NARRATOR = {
   empire: {
-    name: 'Admiral Sabine Marlow',
+    name: 'Secretary Marlow',
     style: "dry, exact, sarcastic, entirely the Imperium's",
   },
   alliance: {

@@ -8,7 +8,7 @@
 ## Status — managed by Claude Code
 
 Sean's plan is below, unchanged. This block is the live checklist; it is the
-only part of the file Claude Code edits. Last updated 2026-09-13, late: **the Crown's advisor is now Admiral Sabine Marlow**; Crane is retired. Her three stills and five clips are owed; Pennywhistle's six assets carry over unchanged.
+only part of the file Claude Code edits. Last updated 2026-09-13, late: **the Crown's advisor is now Secretary Sabine Marlow**; Crane is retired. Her three stills and five clips are owed; Pennywhistle's six assets carry over unchanged.
 
 | Step | Owner | State | Note |
 |---|---|---|---|
@@ -116,7 +116,7 @@ Claude Code: do not attempt to generate images or audio yourself. Your job is th
 
 ## The two characters
 
-**Admiral Sabine Marlow** — the Crown Imperium's advisor, the Imperator's M: Second Chair of the Admiralty, sixty-one, dry and exact and sarcastic, entirely the Imperium's. Sits at the Crown end of the tab bar. _(Replaced Secretary Crane on 2026-09-13; Crane's stills are kept in `stills/retired/` for a possible silent cameo.)_
+**Secretary Sabine Marlow** — the Crown Imperium's advisor, the Imperator's M: First Secretary of the Admiralty, sixty-one, never been to sea, dry and exact and sarcastic, and the only person allowed to lecture the Imperator. Sits at the Crown end of the tab bar. _(Replaced Secretary Crane on 2026-09-13; Crane's stills are kept in `stills/retired/` for a possible silent cameo.)_
 
 **Mr Pennywhistle** — the Free Confederacy's advisor. A one-eyed talking sea-parrot the Confederacy can't get rid of. Sits on a perch at the Confederacy end of the tab bar.
 

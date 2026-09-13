@@ -896,15 +896,9 @@ and what the viewer should feel. These are pasted into every image prompt.
 _Locked 2026-09-13; the Crown's advisor replaced the same evening. These
 are pasted verbatim into every portrait prompt._
 
-**Admiral Sabine Marlow.** A small woman of sixty-one, straight-backed, seated as if the chair were an afterthought. Iron-grey hair cropped short, no wig. A face weathered like a deck, deep lines, a thin white scar through the left eyebrow, and grey, level eyes amused at something she is not going to share. She wears Admiralty black with every inch of gold lace stripped off — the stitch-marks where it was are still visible at the cuffs — a white stock, and one plain brass clasp at the throat shaped like a narrow strait between two headlands: the Narrows clasp, the only decoration she kept. Half-moon reading spectacles, on her nose or in her hand. The signature detail: a black cane with a plain brass head leaning against the chair, which she does not need and does not explain. She should make the viewer feel briefed, judged, and — if they have earned it — trusted.
+**Secretary Sabine Marlow.** A small woman of sixty-one, straight-backed, seated at a desk as if the chair were an afterthought. Iron-grey hair cropped short, no wig. A face lined by forty-five years of reading other people's dispatches by lamplight, and grey, level eyes amused at something she is not going to share. She wears the plain black of the Admiralty's permanent staff — no lace, no braid, a high white collar and a black stock — with ink on the first two fingers of the right hand. At her throat, one small brass clasp holding three plain mourning rings on a short chain: a husband and two sons, all captains, all lost at sea, none of them discussed. Half-moon reading spectacles, on her nose or in her hand, and a black cane with a plain brass head leaning against the desk, which she does not need and does not explain. She should make the viewer feel briefed, judged, and — if they have earned it — trusted.
 
-_Who she is._ Forty years at sea, the last ten commanding the Home Fleet; she
-won the Battle of the Narrows and lost a son in it and has mentioned neither.
-Offered the Regency, she refused it — "someone has to keep the books honest"
-— and took the Admiralty's Second Chair, where the decisions are actually
-made. She believes in the Imperium entirely, not because it is kind but
-because she was born in a corsair kingdom and remembers what the Reaches were
-before the walls. Adaira Hale once served under her. Neither side says so.
+_Who she is._ First Secretary of the Admiralty: the permanent official. Admirals come and go, Lord Regents come and go, and the Secretary reads every dispatch before the Imperator does. Born to a clerk's family on Highwater, she entered the Admiralty at sixteen as a copyist and has outlasted four Regents and eleven First Sea Lords without ever once going to sea. She married a frigate captain, Aurel Marlow, lost at the Narrows; their two sons, both captains, went after him — one to the Black Tide off Whalers' Reach, one to the Confederacy off the Salt. She has never taken a day's leave for any of it. Her work is managing big men with big ships and bigger opinions, which is why she is the only person in the Imperium who will tell the Imperator, to their face, that they are wrong — and why the Imperator keeps her.
 
 **Secretary Crane** — _retired from the advisor's chair 2026-09-13, kept for
 later: he may stand behind her, silent, writing it all down._ A tall, narrow man held perfectly straight, as if
@@ -991,7 +985,7 @@ The two are opposites in every register. Crane is a held breath;
 Pennywhistle is the thing that makes you let it out. If a line could be
 said by either of them, it is wrong for both.
 
-#### Admiral Sabine Marlow
+#### Secretary Sabine Marlow
 
 - **Sound.** Contralto, clipped, quiet — quiet the way people are who have
   never once needed to shout to be obeyed. Close-miked, unhurried, dry as
@@ -999,15 +993,21 @@ said by either of them, it is wrong for both.
   with a pause, or with one word pronounced very precisely. A faint rasp of
   forty years of weather. Breath audible only when she has decided to let
   you hear it.
-- **Tone.** Briefing-room. Exact, economical, and sarcastic in the M way:
+- **Tone.** The one person in the Imperium permitted to lecture the
+  Imperator, and she uses it — briefly, precisely, and only when it is
+  deserved. Exact, economical, and sarcastic in the M way:
   understatement, the raised eyebrow you can hear, the compliment that is
   also a warning. "How novel." "I'll alert the fleet." "Do try to keep up,
   Imperator." She is never cruel and never wastes a barb on something that
   does not matter; the sarcasm is how she tells you she expected better.
   Underneath it is complete loyalty — to the Imperium first, and to you
-  exactly as far as you serve it.
-- **Diction.** Full sentences, no slang, precise numbers, naval vocabulary
-  used correctly and without ornament. Contractions allowed; she is not a
+  exactly as far as you serve it. She has managed four Regents and eleven
+  First Sea Lords; the Imperator is the fifth big personality of her career,
+  not the first.
+- **Diction.** Full sentences, no slang, precise numbers, the Admiralty's
+  vocabulary — dispatches, ledgers, establishments, the List — used
+  correctly and without ornament; she has never been to sea and does not
+  pretend to have. Contractions allowed; she is not a
   machine. Addresses the player as **"Imperator"** — with exactly the
   deference the title demands and not one grain more, so that how carefully
   she pronounces it is where the sarcasm lives. Never "sir". Once, late,
@@ -1019,7 +1019,7 @@ said by either of them, it is wrong for both.
   "Highwater." meaning: look at it.
 - **Never.** Never shouts. Never flatters. Never says "I think" — she says
   what is so, and "if I'm wrong, it will be the first time this month."
-  Never jokes about the dead. Never uses Crane's flatness: she is entirely
+  Never jokes about the dead, and never mentions her own. Never uses Crane's flatness: she is entirely
   alive, and the game should feel it.
 - **By mood.** *Neutral:* the above. *Grave:* the sarcasm drops out
   completely, which is how you know it is bad — shorter lines, longer
@@ -1150,7 +1150,8 @@ not a bark, and it goes in the text.
 
 ## 15. CHANGELOG
 
-- **2026-09-13 v5.4** — The Crown's advisor is **Admiral Sabine Marlow**, the Imperator's M: sarcastic, exact, entirely the Imperium's. Secretary Crane retires to a possible silent cameo. The player is the **Imperator** (Crown) and the **Captain-General of the Free** (Confederacy); §16.5. Marlow's look in §16.1, her voice in §16.4.
+- **2026-09-13 v5.5** — Marlow is a **Secretary**, not an admiral: First Secretary of the Admiralty, the permanent official who has never been to sea, widow of one captain and mother of two more, the only person permitted to lecture the Imperator. Look and history revised in §16.1.
+- **2026-09-13 v5.4** — The Crown's advisor is **Sabine Marlow**, the Imperator's M: sarcastic, exact, entirely the Imperium's. Secretary Crane retires to a possible silent cameo. The player is the **Imperator** (Crown) and the **Captain-General of the Free** (Confederacy); §16.5. Marlow's look in §16.1, her voice in §16.4.
 - **2026-09-13 v5.3** — §16.4: how each advisor sounds — timbre, pace, tone, diction, tics, what each never does, how the three moods change the voice, and the TTS direction for the audition. Anchored on the lines the Narrator sheet already says.
 - **2026-09-13 v5.2** — Section 16 added for the advisors' portraits and voices: slots for the two visual paragraphs, the three-word art direction and the locked ElevenLabs settings, which `scripts/render_voicelines.py` reads. The plan itself is `docs/narrator-build.md`. Moods locked to neutral / grave / encouraged in `src/ui/narrator/mood.ts`.
 - **2026-09-08 v1.0** — First conversion packet: factions, 60 characters, ships, troops, special forces, facilities, missions, key islands.

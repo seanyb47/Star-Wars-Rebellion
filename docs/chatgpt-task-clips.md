@@ -21,7 +21,7 @@ Every clip: 5 seconds, from the still named, using the prompt given, word for wo
 | 11 | pennywhistle_neutral.png | the parrot does one small hop on the perch and lands, feathers settling, camera completely static, no zoom, no pan | pennywhistle_accent_hop.mp4 |
 | 12 | pennywhistle_neutral.png | the parrot throws its head back with beak open in a silent squawking laugh and comes back to rest, camera completely static, no zoom, no pan | pennywhistle_accent_laugh.mp4 |
 
-Check each clip before accepting it: the character still looks like the still (no morphing of the face, beak, or signature details — Marlow's Narrows clasp and spectacles, Pennywhistle's eye patch and leg chain); the camera did not move, zoom or drift; nothing new appeared in the frame. Regenerate any clip that fails.
+Check each clip before accepting it: the character still looks like the still (no morphing of the face, beak, or signature details — Marlow's mourning clasp and spectacles, Pennywhistle's eye patch and leg chain); the camera did not move, zoom or drift; nothing new appeared in the frame. Regenerate any clip that fails.
 
 Delivery: convert every clip to MP4 (H.264), 512 pixels wide by 640 tall, 24 frames per second, each file under 4 MB — use your code tool to resize and compress if the generator's output is larger. Save all twelve to my Google Drive folder "7 Seas / Narrators / video", named exactly as above. If you cannot write to Drive, give me all twelve as downloads in one final message, labelled, and say they need uploading by hand.
 
