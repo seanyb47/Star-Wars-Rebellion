@@ -934,7 +934,7 @@ worse.
 
 ### 16.2 Art direction, three words (plan step A2 — Sean)
 
-**painterly, weathered, cinematic** — _locked 2026-09-13._ Drawn from the house style in `seven-seas-art-style.md`
+**the game's own style line, verbatim, plus its register** — _relocked 2026-09-13, night._ Three words were not enough: "painterly, weathered, cinematic" produced dim, cold, near-photographic portraits against a game that is blue sky, warm sunlight and appealing faces. Every advisor prompt now carries the one-line style from `art-prompts.md` word for word, the register paragraph, and three of the game's own portraits as reference images. Drawn from the house style in `seven-seas-art-style.md`
 §1 (hand-painted, textured brushwork, rich but weathered colours, dramatic
 natural lighting). "Cinematic" is the word that keeps the portraits from
 going flat: Crane lit cold from the left in a dim formal interior,

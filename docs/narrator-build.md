@@ -8,7 +8,7 @@
 ## Status — managed by Claude Code
 
 Sean's plan is below, unchanged. This block is the live checklist; it is the
-only part of the file Claude Code edits. Last updated 2026-09-13, night: all six stills are in (Secretary Marlow and Pennywhistle). Phase C — the twelve clips — is the open step.
+only part of the file Claude Code edits. Last updated 2026-09-13, night: **the first six stills were the wrong register** — dim, cold, near-photographic, against a game that is blue sky, warm light and appealing faces. They are retired to `stills/retired/v1-grim/` and all six are being redone against the game's own portraits (Drive `Narrators/style`), with the canonical style line in every prompt. Phase C waits on the redo.
 
 | Step | Owner | State | Note |
 |---|---|---|---|
@@ -16,12 +16,12 @@ only part of the file Claude Code edits. Last updated 2026-09-13, night: all six
 | A2 art direction, three words | HUMAN | done | "painterly, weathered, cinematic", §16.2 |
 | A3 moods locked | BOTH | done | `neutral` / `grave` / `encouraged` — `src/ui/narrator/mood.ts` is the only definition |
 | A4 asset directories | CLAUDE CODE | done | `public/narrator/{video,audio,stills}` + `voicelines.json` — see the path note below |
-| B1–B7 six stills | HUMAN | done | Secretary Marlow and Pennywhistle, all six 1122×1402, one set. Crane's three retired to `stills/retired/` |
-| B8 file the stills | CLAUDE CODE | done | `public/narrator/stills/`, checker 8/8 |
-| C1–C6 twelve clips | HUMAN | **can start now** | Run the ChatGPT clips task (Drive doc 3). Delivered to Drive `Narrators/video` at 512×640 under 4 MB, or to `public/narrator/video/raw/` by GitHub upload if larger |
+| B1–B7 six stills | HUMAN | **redo — can start now** | v1 set retired (wrong register). Run Drive doc "5. Task prompt (redo all six, matched to the game's art)" in the Project with instructions replaced by doc "1. v4" |
+| B8 file the stills | CLAUDE CODE | waiting on the redo | |
+| C1–C6 twelve clips | HUMAN | blocked on the redo | Then the ChatGPT clips task (Drive doc 3) |
 | D1–D4 cleanup and export | CLAUDE CODE | blocked on C | Taken over from Sean: loop seams, accent trims and the 512×640 H.264 export are done here with ffmpeg |
 | D5 naming enforced | CLAUDE CODE | done (checker) | `scripts/check_narrator_assets.py` knows the twelve names |
-| D6 tab-bar figures stay static | CLAUDE CODE | done | `marlow_tab.png` and `pennywhistle_tab.png`, 192×240, cut from the neutral stills; swapped into the tab bar when F is wired |
+| D6 tab-bar figures stay static | CLAUDE CODE | redo with the stills | crops cut again from the new neutrals |
 | E1 audition voices | HUMAN | **can start now** | Independent of the art. The brief — sound, tone, diction, tics, moods, TTS direction — is the world bible §16.4 |
 | E2 locked voice settings in the bible | HUMAN → CLAUDE CODE | **blocked on Sean** | JSON slot in the world bible §16; the render script refuses to run until it is filled |
 | E3 first twenty lines | HUMAN | **can start now** | Append to `public/narrator/voicelines.json`, `rendered: false`. Write them against §16.4 |
