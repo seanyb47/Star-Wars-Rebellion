@@ -8,7 +8,7 @@
 ## Status — managed by Claude Code
 
 Sean's plan is below, unchanged. This block is the live checklist; it is the
-only part of the file Claude Code edits. Last updated 2026-09-13 (stills in; Phase C open).
+only part of the file Claude Code edits. Last updated 2026-09-13, late: **the Crown's advisor is now Admiral Sabine Marlow**; Crane is retired. Her three stills and five clips are owed; Pennywhistle's six assets carry over unchanged.
 
 | Step | Owner | State | Note |
 |---|---|---|---|
@@ -16,12 +16,12 @@ only part of the file Claude Code edits. Last updated 2026-09-13 (stills in; Pha
 | A2 art direction, three words | HUMAN | done | "painterly, weathered, cinematic", §16.2 |
 | A3 moods locked | BOTH | done | `neutral` / `grave` / `encouraged` — `src/ui/narrator/mood.ts` is the only definition |
 | A4 asset directories | CLAUDE CODE | done | `public/narrator/{video,audio,stills}` + `voicelines.json` — see the path note below |
-| B1–B7 six stills | HUMAN | done | Made by a ChatGPT agent task from `docs/chatgpt-project.md`, 2026-09-13; 1122×1402, all six consistent, every signature detail present |
-| B8 file the stills | CLAUDE CODE | done | Pulled from Drive, in `public/narrator/stills/`, checker 6/6 |
-| C1–C6 twelve clips | HUMAN | **can start now** | The twelve prompts, one per clip, are in "Kling, ready to paste" below. Raw clips are 5–15 MB, over what the Drive connector moves: upload them to the repo at `public/narrator/video/raw/` through the GitHub web UI, the way the music came. No cleanup — Claude Code does Phase D |
+| B1–B7 six stills | HUMAN | Pennywhistle done; **Marlow's three owed** | Pennywhistle's three are in. Crane's three are retired to `stills/retired/`. Marlow's three: run `docs/chatgpt-task-marlow.md` in the same ChatGPT Project (matched to the existing style) |
+| B8 file the stills | CLAUDE CODE | Pennywhistle done | Marlow's filed when they land in Drive |
+| C1–C6 twelve clips | HUMAN | **can start now** | Pennywhistle's seven from the ChatGPT clips task; Marlow's five once her stills exist. Delivered to Drive `Narrators/video` at 512×640 under 4 MB, or to `public/narrator/video/raw/` by GitHub upload if larger |
 | D1–D4 cleanup and export | CLAUDE CODE | blocked on C | Taken over from Sean: loop seams, accent trims and the 512×640 H.264 export are done here with ffmpeg |
 | D5 naming enforced | CLAUDE CODE | done (checker) | `scripts/check_narrator_assets.py` knows the twelve names |
-| D6 tab-bar figures stay static | CLAUDE CODE | done (crops) | `crane_tab.png` and `pennywhistle_tab.png`, 192×240, cut from the neutral stills; swapped into the tab bar when F is wired |
+| D6 tab-bar figures stay static | CLAUDE CODE | Pennywhistle done | `pennywhistle_tab.png` cut; `marlow_tab.png` when her neutral still lands |
 | E1 audition voices | HUMAN | **can start now** | Independent of the art. The brief — sound, tone, diction, tics, moods, TTS direction — is the world bible §16.4 |
 | E2 locked voice settings in the bible | HUMAN → CLAUDE CODE | **blocked on Sean** | JSON slot in the world bible §16; the render script refuses to run until it is filled |
 | E3 first twenty lines | HUMAN | **can start now** | Append to `public/narrator/voicelines.json`, `rendered: false`. Write them against §16.4 |
@@ -57,11 +57,11 @@ with the same camera clause; do not drop it (C6). Twelve clips.
 
 | # | Upload this still | Prompt | Save as |
 |---|---|---|---|
-| 1 | crane_neutral.png | near-total stillness, no blinking, no breathing, only light shifting slowly across the face and the faintest drift of fabric at the collar, camera completely static, no zoom, no pan | crane_neutral_idle.mp4 |
-| 2 | crane_grave.png | absolute stillness, even stiller than a portrait, no blinking, no breathing, only the light on the face shifting almost imperceptibly, camera completely static, no zoom, no pan | crane_grave_idle.mp4 |
-| 3 | crane_encouraged.png | near-total stillness, no blinking, the head tilts by the faintest degree and holds, light shifting slowly across the face, camera completely static, no zoom, no pan | crane_encouraged_idle.mp4 |
-| 4 | crane_neutral.png | a slow deliberate turn of the head a few degrees toward the viewer and back to rest, eyes never blinking, nothing else moves, camera completely static, no zoom, no pan | crane_accent_headturn.mp4 |
-| 5 | crane_neutral.png | a slight slow lean forward of the shoulders and back to rest, eyes fixed and unblinking, nothing else moves, camera completely static, no zoom, no pan | crane_accent_lean.mp4 |
+| 1 | marlow_neutral.png | subtle idle animation, slow steady breathing, one slow blink, eyes level on the viewer, the faintest movement of the hand holding the spectacles, camera completely static, no zoom, no pan | marlow_neutral_idle.mp4 |
+| 2 | marlow_grave.png | very still, slow breathing, no blink, eyes fixed on the viewer, jaw set, the light on the face shifting slowly, camera completely static, no zoom, no pan | marlow_grave_idle.mp4 |
+| 3 | marlow_encouraged.png | subtle idle animation, slow breathing, one blink, the barest dry near-smile that comes and goes, the head lifting a degree, camera completely static, no zoom, no pan | marlow_encouraged_idle.mp4 |
+| 4 | marlow_neutral.png | she takes off her reading spectacles in one unhurried movement and looks straight at the viewer, then rests, nothing else moves, camera completely static, no zoom, no pan | marlow_accent_spectacles.mp4 |
+| 5 | marlow_neutral.png | a slight slow lean forward toward the viewer, eyes narrowing a fraction, then back to rest, camera completely static, no zoom, no pan | marlow_accent_lean.mp4 |
 | 6 | pennywhistle_neutral.png | subtle idle animation, sharp small head movements, occasional feather ruffle, shifting weight on the perch, single eye tracking the viewer, camera completely static, no zoom, no pan | pennywhistle_neutral_idle.mp4 |
 | 7 | pennywhistle_grave.png | subtle idle animation, hunched and low, small slow head movements, feathers flat, single eye narrowed and watching, minimal shifting on the perch, camera completely static, no zoom, no pan | pennywhistle_grave_idle.mp4 |
 | 8 | pennywhistle_encouraged.png | lively idle animation, bobbing head, bright and upright, feathers lifting and settling, shifting weight from foot to foot on the perch, single eye bright, camera completely static, no zoom, no pan | pennywhistle_encouraged_idle.mp4 |
@@ -116,13 +116,13 @@ Claude Code: do not attempt to generate images or audio yourself. Your job is th
 
 ## The two characters
 
-**Secretary Crane** — the Crown Imperium's advisor. The Regent's grey, unblinking private secretary, who may not be alive. Stands at the Crown end of the tab bar.
+**Admiral Sabine Marlow** — the Crown Imperium's advisor, the Imperator's M: Second Chair of the Admiralty, sixty-one, dry and exact and sarcastic, entirely the Imperium's. Sits at the Crown end of the tab bar. _(Replaced Secretary Crane on 2026-09-13; Crane's stills are kept in `stills/retired/` for a possible silent cameo.)_
 
 **Mr Pennywhistle** — the Free Confederacy's advisor. A one-eyed talking sea-parrot the Confederacy can't get rid of. Sits on a perch at the Confederacy end of the tab bar.
 
 Tapping either opens the Narrator sheet, where they answer five questions from live game state — where you can build, who is free, where the trouble is, who might come over, how the war goes — each in their own voice.
 
-**Design intent:** these two are opposites in every register. Crane is stillness, flat affect, and formality. Pennywhistle is staccato motion, wobble, and noise. If a player can tell which advisor is open with the screen covered, the build worked.
+**Design intent:** these two are opposites in every register. Marlow is discipline with no noise, the raised eyebrow you can hear. Pennywhistle is staccato motion, wobble, and noise. If a player can tell which advisor is open with the screen covered, the build worked.
 
 ---
 
@@ -200,7 +200,7 @@ Crane's unblinking stillness is characterization, not a shortcut — but it also
 
 **C4. [HUMAN]** Accent clips, generated from the **neutral** still only:
 
-- Crane: slow head turn, slight forward lean **(2 clips)**
+- Marlow: spectacles off, slight forward lean **(2 clips)**
 - Pennywhistle: head cock, wing ruffle, hop, squawk-laugh **(4 clips)**
 
 **C5.** Running total: **12 clips.**
@@ -222,11 +222,11 @@ Crane's unblinking stillness is characterization, not a shortcut — but it also
 **D5. [CLAUDE CODE]** Enforce naming in `/assets/narrator/video/`:
 
 ```
-crane_neutral_idle.mp4
-crane_grave_idle.mp4
-crane_encouraged_idle.mp4
-crane_accent_headturn.mp4
-crane_accent_lean.mp4
+marlow_neutral_idle.mp4
+marlow_grave_idle.mp4
+marlow_encouraged_idle.mp4
+marlow_accent_spectacles.mp4
+marlow_accent_lean.mp4
 pennywhistle_neutral_idle.mp4
 pennywhistle_grave_idle.mp4
 pennywhistle_encouraged_idle.mp4
