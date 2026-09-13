@@ -898,7 +898,7 @@ are pasted verbatim into every portrait prompt._
 
 **Secretary Sabine Marlow.** A small woman of sixty-one, straight-backed, seated at a desk as if the chair were an afterthought. Iron-grey hair cropped short, no wig. A face lined by forty-five years of reading other people's dispatches by lamplight, and grey, level eyes amused at something she is not going to share. She wears the plain black of the Admiralty's permanent staff — no lace, no braid, a high white collar and a black stock — with ink on the first two fingers of the right hand. At her throat, one small brass clasp holding three plain mourning rings on a short chain: a husband and two sons, all captains, all lost at sea, none of them discussed. Half-moon reading spectacles, on her nose or in her hand, and a black cane with a plain brass head leaning against the desk, which she does not need and does not explain. She should make the viewer feel briefed, judged, and — if they have earned it — trusted.
 
-_Who she is._ First Secretary of the Admiralty: the permanent official. Admirals come and go, Lord Regents come and go, and the Secretary reads every dispatch before the Imperator does. Born to a clerk's family on Highwater, she entered the Admiralty at sixteen as a copyist and has outlasted four Regents and eleven First Sea Lords without ever once going to sea. She married a frigate captain, Aurel Marlow, lost at the Narrows; their two sons, both captains, went after him — one to the Black Tide off Whalers' Reach, one to the Confederacy off the Salt. She has never taken a day's leave for any of it. Her work is managing big men with big ships and bigger opinions, which is why she is the only person in the Imperium who will tell the Imperator, to their face, that they are wrong — and why the Imperator keeps her.
+_Who she is._ First Secretary of the Admiralty: the permanent official. Admirals come and go, Lord Regents come and go, and the Secretary reads every dispatch before the Imperator does. Born to a clerk's family on Highwater, she entered the Admiralty at sixteen as a copyist and has outlasted four Regents and eleven First Sea Lords without ever once going to sea. She married a frigate captain, Aurel Marlow, lost with his ship at the Narrows holding the strait for the Crown. Their two sons went to sea after him and rose fast — Tobias, the elder, a post-captain at twenty-six, taken with all hands by the Black Tide off Whalers' Reach; Hal, the younger, commanding a sloop-of-war, driven onto the Wreckers' coast in the great gale and drowned getting his people ashore. Three of the Imperium's best officers, all hers, all lost in its service. She has never taken a day's leave for any of it, never asked the Crown for anything on their account, and has never once let it shake her faith in the thing they died for. Her work is managing big men with big ships and bigger opinions, which is why she is the only person in the Imperium who will tell the Imperator, to their face, that they are wrong — and why the Imperator keeps her.
 
 **Secretary Crane** — _retired from the advisor's chair 2026-09-13, kept for
 later: he may stand behind her, silent, writing it all down._ A tall, narrow man held perfectly straight, as if
@@ -1030,11 +1030,17 @@ said by either of them, it is wrong for both.
   room left, or no works at all. I did mention this." / "Nobody. All of them
   at sea or laid up — which is where you sent them, Imperator." / "None.
   Every island you hold is quiet and garrisoned. Enjoy it; it won't last."
-- **TTS direction.** Medium-high stability, a little style, similarity
-  high; speed normal or a touch under. An older woman's voice with weight
-  in it; if the engine makes her sound kindly or grandmotherly it is the
-  wrong voice, and if it makes her sound like a villain it is also the
-  wrong voice. Judi Dench's M is the reference and everyone will know it.
+- **Accent.** English, received pronunciation, of the older, clipped
+  kind — Judi Dench's M is the reference and everyone will know it. Not
+  regional, not aristocratic-drawling, not American in any syllable.
+  Consonants finished, vowels short, the "r" dropped at the end of a word.
+  The audition should reject any voice that could not deliver "Do try to
+  keep up, Imperator" as a complete put-down in five words.
+- **TTS direction.** A British English voice, older woman, RP. Medium-high
+  stability, a little style, similarity high; speed normal or a touch
+  under. Weight in it; if the engine makes her sound kindly or
+  grandmotherly it is the wrong voice, and if it makes her sound like a
+  villain it is also the wrong voice.
 
 #### Secretary Crane (retired; kept for a silent cameo)
 
@@ -1150,6 +1156,7 @@ not a bark, and it goes in the text.
 
 ## 15. CHANGELOG
 
+- **2026-09-13 v5.6** — Marlow's dead: husband and both sons, all captains, all lost in the Crown's service — the Narrows, the Black Tide, the Wreckers' coast — and her faith unshaken. Her accent locked: English RP, Judi Dench's M.
 - **2026-09-13 v5.5** — Marlow is a **Secretary**, not an admiral: First Secretary of the Admiralty, the permanent official who has never been to sea, widow of one captain and mother of two more, the only person permitted to lecture the Imperator. Look and history revised in §16.1.
 - **2026-09-13 v5.4** — The Crown's advisor is **Sabine Marlow**, the Imperator's M: sarcastic, exact, entirely the Imperium's. Secretary Crane retires to a possible silent cameo. The player is the **Imperator** (Crown) and the **Captain-General of the Free** (Confederacy); §16.5. Marlow's look in §16.1, her voice in §16.4.
 - **2026-09-13 v5.3** — §16.4: how each advisor sounds — timbre, pace, tone, diction, tics, what each never does, how the three moods change the voice, and the TTS direction for the audition. Anchored on the lines the Narrator sheet already says.
