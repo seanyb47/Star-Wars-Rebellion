@@ -34,7 +34,7 @@ import { GalaxyMap } from './GalaxyMap';
 import { EventCards, isNotable } from './EventCard';
 import { Narrator } from './Narrator';
 import { ReachSheet } from './ReachSheet';
-import { SeaSheet } from './SeaSheet';
+import { ReachListSheet } from './ReachListSheet';
 import type { IslandTab } from './IslandRow';
 import { SystemSheet } from './SystemSheet';
 import { StartScreen } from './StartScreen';
@@ -71,7 +71,7 @@ export function App() {
   const [openSystemId, setOpenSystemId] = useState<string | null>(null);
   const [openSystemTab, setOpenSystemTab] = useState<IslandTab>('harbour');
   const [openReachId, setOpenReachId] = useState<string | null>(null);
-  const [openSea, setOpenSea] = useState<string | null>(null);
+  const [openListId, setOpenListId] = useState<string | null>(null);
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [narratorOpen, setNarratorOpen] = useState(false);
@@ -119,7 +119,7 @@ export function App() {
     openSystemId !== null ||
     openCharacterId !== null ||
     openReachId !== null ||
-    openSea !== null ||
+    openListId !== null ||
     menuOpen ||
     cards.length > 0 ||
     narratorOpen ||
@@ -230,14 +230,14 @@ export function App() {
   };
 
   /**
-   * From the chain chart or the Sea panel: open one of its islands — or, if a
+   * From the chain chart or a Reach's island list: open one of its islands — or, if a
    * crew member is waiting for a destination, send them there instead. The
    * counts on an island are indicators now, so there is no per-tab entry to
    * carry: an island always opens on its Harbour.
    */
   const openIslandTab = (systemId: string) => {
     setOpenReachId(null);
-    setOpenSea(null);
+    setOpenListId(null);
     if (pickingFor || sailingFleetId) {
       handleSelectSystem(systemId);
       return;
@@ -292,7 +292,7 @@ export function App() {
     setOpenSystemId(null);
     setOpenCharacterId(null);
     setOpenReachId(null);
-    setOpenSea(null);
+    setOpenListId(null);
     setPickingFor(null);
     setSailingFleetId(null);
     setToldOf([]);
@@ -477,25 +477,21 @@ export function App() {
           pickingFor={pickingCharacter ? (pickingCharacter.faction as PlayableFaction) : null}
           sailing={sailingFleetId !== null}
           layer={layer}
-          onOpenSea={(sea) => {
-            // Step up from the chain to its whole Sea, rather than stacking
-            // the two panels with the chain's still on top.
+          onOpenList={(sectorId) => {
+            // The chain as a list, in place of the chain as a map — not on top
+            // of it.
             setOpenReachId(null);
-            setOpenSea(sea);
+            setOpenListId(sectorId);
           }}
         />
       )}
 
-      {openSea && (
-        <SeaSheet
+      {openListId && (
+        <ReachListSheet
           state={state}
-          sea={openSea}
-          onClose={() => setOpenSea(null)}
+          sector={state.sectors.find((x) => x.id === openListId)!}
+          onClose={() => setOpenListId(null)}
           onOpenIsland={openIslandTab}
-          onOpenReach={(sectorId) => {
-            setOpenSea(null);
-            setOpenReachId(sectorId);
-          }}
         />
       )}
 

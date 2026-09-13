@@ -1,28 +1,31 @@
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
-import { summariseSea, type GameState } from '../sim';
+import { summariseReach, type GameState, type Sector } from '../sim';
 import { IslandRow } from './IslandRow';
 import { Sheet, Stat } from './components';
 
 /**
- * A whole Sea. This is what a tap opens when the chart is zoomed out far
- * enough that an island is a few pixels across and picking one is a lottery:
- * you choose the water, then the island, from a list you can actually read.
+ * A Reach's islands as a list you can read.
+ *
+ * This was a whole Sea's worth — reaches under a Sea name, with the Sea's
+ * totals on top. The Sea was a name over water and nothing you could act on,
+ * so it has gone from the panels the way it went from the chart; what stays
+ * is the useful part, one row per island with what stands on it and who is
+ * ashore, scoped to the chain you were already looking at. Opened from the
+ * "N islands" line on the Reach's panel.
  */
-export function SeaSheet({
+export function ReachListSheet({
   state,
-  sea,
+  sector,
   onClose,
   onOpenIsland,
-  onOpenReach,
 }: {
   state: GameState;
-  sea: string;
+  sector: Sector;
   onClose: () => void;
   onOpenIsland: (systemId: string) => void;
-  onOpenReach: (sectorId: string) => void;
 }) {
-  const summary = summariseSea(state, sea, state.player);
+  const summary = summariseReach(state, sector.id, state.player);
   const byId = new Map(state.systems.map((s) => [s.id, s] as const));
   const you = state.player;
   const enemy = you === 'empire' ? 'alliance' : 'empire';
@@ -30,10 +33,9 @@ export function SeaSheet({
 
   return (
     <Sheet
-      title={sea}
+      title={sector.name}
       subtitle={
         <span>
-          {summary.reaches} {summary.reaches === 1 ? terms.reach : `${terms.reach}es`} ·{' '}
           {summary.islands} islands
           {summary.mutinies > 0 && (
             <span className="badge badge--warn" style={{ marginLeft: 8 }}>
@@ -66,34 +68,18 @@ export function SeaSheet({
         />
       </div>
 
-
-
-      {summary.perReach.map((reach) => {
-        const sector = state.sectors.find((s) => s.id === reach.sectorId)!;
-        return (
-          <div key={reach.sectorId}>
-            <div className="row row--between" style={{ marginTop: 16, marginBottom: 6 }}>
-              <button className="linkish" onClick={() => onOpenReach(sector.id)}>
-                {sector.name}
-              </button>
-              <span className="tiny muted">
-                {reach.held} yours · {reach.unaligned} unaligned
-              </span>
-            </div>
-            <div className="stack">
-              {reach.perIsland.map((entry) => (
-                <IslandRow
-                  key={entry.systemId}
-                  state={state}
-                  system={byId.get(entry.systemId)!}
-                  entry={entry}
-                  onOpen={onOpenIsland}
-                />
-              ))}
-            </div>
-          </div>
-        );
-      })}
+      <div className="section-title">The islands</div>
+      <div className="stack">
+        {summary.perIsland.map((entry) => (
+          <IslandRow
+            key={entry.systemId}
+            state={state}
+            system={byId.get(entry.systemId)!}
+            entry={entry}
+            onOpen={onOpenIsland}
+          />
+        ))}
+      </div>
     </Sheet>
   );
 }

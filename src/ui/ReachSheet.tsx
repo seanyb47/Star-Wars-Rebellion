@@ -32,7 +32,7 @@ export function ReachSheet({
   sector,
   onClose,
   onOpenIsland,
-  onOpenSea,
+  onOpenList,
   pickingFor,
   sailing,
   layer,
@@ -46,8 +46,8 @@ export function ReachSheet({
   sailing?: boolean;
   /** Whatever the chart is filtering by, so the same islands stay lit in here. */
   layer?: ChartLayer;
-  /** The Sea name is the way into the whole Sea, now the chart shows chains. */
-  onOpenSea?: (sea: string) => void;
+  /** The "N islands" line opens the Reach as a list, one row per island. */
+  onOpenList?: (sectorId: string) => void;
 }) {
   const summary = summariseReach(state, sector.id, state.player);
   const byId = new Map(state.systems.map((s) => [s.id, s] as const));
@@ -57,14 +57,13 @@ export function ReachSheet({
       title={sector.name}
       subtitle={
         <span>
-          {onOpenSea ? (
-            <button className="linkish" onClick={() => onOpenSea(sector.sea)}>
-              {sector.sea}
+          {onOpenList ? (
+            <button className="linkish" onClick={() => onOpenList(sector.id)}>
+              {summary.islands} islands
             </button>
           ) : (
-            sector.sea
-          )}{' '}
-          · {summary.islands} islands
+            `${summary.islands} islands`
+          )}
           {summary.mutinies > 0 && (
             <span className="badge badge--warn" style={{ marginLeft: 8 }}>
               {summary.mutinies} in {terms.mutiny.toLowerCase()}

@@ -218,7 +218,7 @@ export function SystemSheet({
     return (
       <Sheet
         title={`${terms.uncharted} island`}
-        subtitle={`${sector.name} · ${sector.sea}`}
+        subtitle={sector.name}
         onClose={onClose}
       >
         <div className="portrait">
@@ -277,7 +277,7 @@ export function SystemSheet({
           ) : (
             <span>{sector.name}</span>
           )}
-          · {sector.sea} <ControlBadge faction={system.control} />
+          <ControlBadge faction={system.control} />
           {system.uprising && <span className="badge badge--warn">{terms.mutiny}</span>}
           {system.blockaded && <span className="badge badge--warn">Blockaded</span>}
           {!system.populated && <span className="badge badge--none">{terms.uninhabited}</span>}
