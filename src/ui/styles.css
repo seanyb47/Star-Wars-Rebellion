@@ -1066,3 +1066,15 @@ button.tcard:hover { border-color: var(--brass); }
   background: none; border: 0; color: var(--text-dim); font-size: 14px;
   padding: 9px 10px; cursor: pointer;
 }
+
+/* A count as the mark itself: bold, haloed, centred on the island. */
+.map__num {
+  font-size: 24px; font-weight: 800; text-anchor: middle; dominant-baseline: central;
+  font-variant-numeric: tabular-nums; paint-order: stroke fill;
+  stroke: #041219; stroke-width: 5px; stroke-linejoin: round;
+}
+.chainmap__num {
+  font-size: 34px; font-weight: 800; text-anchor: middle;
+  font-variant-numeric: tabular-nums; paint-order: stroke fill;
+  stroke: #041219cc; stroke-width: 6px; stroke-linejoin: round;
+}

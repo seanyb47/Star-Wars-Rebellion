@@ -416,17 +416,29 @@ export function ChainMap({
                 it, which is the same rule the chart above follows. */}
             {lit && (
               <g pointerEvents="none">
-                {/* The filter's star, left of the name — the same mark the
-                    chart uses, so a filter reads the same at both scales. */}
-                <path
-                  d={worthPath('large', 15)!}
-                  transform={`translate(${spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - 22} ${spot.y + 1})`}
-                  fill={tint}
-                  stroke="#041219"
-                  strokeWidth={2}
-                  strokeLinejoin="round"
-                />
-                {litCount !== undefined && litCount > 1 && (
+                {/* The filter's mark, left of the name — the same as the chart,
+                    so a filter reads the same at both scales: the garrison
+                    count as a numeral, a star for everything else. */}
+                {layer === 'garrisons' && litCount !== undefined ? (
+                  <text
+                    className="chainmap__num"
+                    x={spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - 22}
+                    y={spot.y + 12}
+                    fill={tint}
+                  >
+                    {litCount}
+                  </text>
+                ) : (
+                  <path
+                    d={worthPath('large', 15)!}
+                    transform={`translate(${spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - 22} ${spot.y + 1})`}
+                    fill={tint}
+                    stroke="#041219"
+                    strokeWidth={2}
+                    strokeLinejoin="round"
+                  />
+                )}
+                {layer !== 'garrisons' && litCount !== undefined && litCount > 1 && (
                   <text
                     className="chainmap__lit-n"
                     x={spot.x + nameWidth(explored ? system.name : 'Uncharted') / 2 + 22}

@@ -389,10 +389,14 @@ export function GalaxyMap({
                 // unreadable to say something a star says on its own.
                 const lit = filtering && mark.lit && !sizing;
                 const tint = controlColor(system);
+                // Garrisons: the number is the mark. A star with "4" beside it
+                // said the same thing twice; the count on its own, in the
+                // island's colour, is the whole answer to the question.
+                const numeral = lit && layer === 'garrisons' && mark.count !== undefined ? mark.count : null;
                 const starR = lit ? STAR_RADIUS : radius;
                 return (
                   <g key={system.id} pointerEvents="none">
-                    {lit && mark.count !== undefined && mark.count > 1 && (
+                    {lit && numeral === null && mark.count !== undefined && mark.count > 1 && (
                       <text
                         className="map__lit-n"
                         x={ax + starR + 6}
@@ -437,7 +441,15 @@ export function GalaxyMap({
                             strokeDasharray: explored ? undefined : '4 3.5',
                             strokeLinejoin: 'round' as const,
                           };
-                          // The filter's star, or the worth grade's shape.
+                          // The garrison count as the mark, the filter's star,
+                          // or the worth grade's shape.
+                          if (numeral !== null) {
+                            return (
+                              <text className="map__num" x={ax} y={ay} fill={tint}>
+                                {numeral}
+                              </text>
+                            );
+                          }
                           if (lit) {
                             return (
                               <path
