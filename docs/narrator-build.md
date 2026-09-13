@@ -16,8 +16,8 @@ only part of the file Claude Code edits. Last updated 2026-09-13 (A1, A2 locked)
 | A2 art direction, three words | HUMAN | done | "painterly, weathered, cinematic", §16.2 |
 | A3 moods locked | BOTH | done | `neutral` / `grave` / `encouraged` — `src/ui/narrator/mood.ts` is the only definition |
 | A4 asset directories | CLAUDE CODE | done | `public/narrator/{video,audio,stills}` + `voicelines.json` — see the path note below |
-| B1–B7 six stills | HUMAN | **can start now** | The prompts, filled in, are in "Prompts, ready to paste" below |
-| B8 file the stills | CLAUDE CODE | waiting on B6 | `npm run narrator:check` reports what is missing or misnamed |
+| B1–B7 six stills | HUMAN | **can start now** | Paste `docs/chatgpt-brief.md` as the first message of one chat; it holds everything. Deliver the six PNGs to Google Drive under the fixed names |
+| B8 file the stills | CLAUDE CODE | waiting on B6 | Claude Code pulls them from Google Drive by name, files them, runs `npm run narrator:check` |
 | C1–C6 twelve clips | HUMAN | blocked on B | |
 | D1–D4 cleanup and export | HUMAN | blocked on C | |
 | D5 naming enforced | CLAUDE CODE | done (checker) | `scripts/check_narrator_assets.py` knows the twelve names |
