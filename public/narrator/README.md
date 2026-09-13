@@ -4,9 +4,10 @@ Served verbatim by Vite as `/narrator/…`. The plan that governs this tree is
 `docs/narrator-build.md`; the checklist at its top says what is filed and
 what is still owed.
 
-- `stills/` — six PNGs: `crane_neutral.png`, `crane_grave.png`,
-  `crane_encouraged.png`, `pennywhistle_neutral.png`,
-  `pennywhistle_grave.png`, `pennywhistle_encouraged.png`.
+- `stills/` — six PNGs: `marlow_neutral.png`, `marlow_grave.png`,
+  `marlow_encouraged.png`, `pennywhistle_neutral.png`,
+  `pennywhistle_grave.png`, `pennywhistle_encouraged.png`, plus a `_tab.png`
+  crop of each neutral. `retired/` holds Secretary Crane's set.
 - `video/` — twelve MP4s, H.264, 512×640, 24 fps, each under ~500 KB. The
   names are fixed; `scripts/check_narrator_assets.py` knows them.
 - `audio/` — one MP3 per line, named by the line's `id`.
