@@ -12,6 +12,8 @@
     "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false",
     "art": "python3 scripts/art.py",
     "art:add": "python3 scripts/art.py add",
+    "voices": "python3 scripts/render_voicelines.py",
+    "narrator:check": "python3 scripts/check_narrator_assets.py",
     "art:recrop": "python3 scripts/art.py recrop",
     "art:list": "python3 scripts/art.py list",
     "art:check": "python3 scripts/art.py check",

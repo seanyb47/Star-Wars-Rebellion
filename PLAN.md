@@ -196,6 +196,12 @@ the position script re-runs against a new painting in one command.
 
 ## 5. Open, and honestly open
 
+- **The advisors' faces and voices.** Sean's plan is `docs/narrator-build.md`,
+  with a checklist at its top that Claude Code keeps. The tooling side is in
+  place (asset tree, manifest, render script, checker, mood type); the art and
+  the voice audition are Sean's, and the in-app wiring waits until the first
+  twenty lines have been heard in the game.
+
 - **The idle-player benchmark is decaying.** 686 → 565 → 449 days as the AI has
   improved. It measures how long a do-nothing player survives, and a better
   opponent shortens that without the game being worse. It is recorded rather

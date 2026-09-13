@@ -880,8 +880,65 @@ These two systems are Sean's additions. Neither exists in the original game. Bot
 
 ---
 
+## 16. NARRATOR VOICES & PORTRAITS
+
+The build plan is `docs/narrator-build.md`; its checklist says what is done.
+This section holds the three things the plan says must live in the bible so
+that art and voice generated months apart still match. Claude Code reads
+them from here and nowhere else.
+
+### 16.1 Visual descriptions (plan step A1 — Sean)
+
+One paragraph each: build, face, clothing or plumage, one signature detail,
+and what the viewer should feel. These are pasted into every image prompt.
+
+**Secretary Crane.** _[HUMAN: not yet written.]_
+
+**Mr Pennywhistle.** _[HUMAN: not yet written.]_
+
+### 16.2 Art direction, three words (plan step A2 — Sean)
+
+_[HUMAN: not yet chosen — e.g. "painterly, muted, weathered".]_ The house
+style for everything else is `seven-seas-art-style.md` §1.
+
+### 16.3 Locked voice settings (plan step E2 — Sean, recorded here)
+
+`scripts/render_voicelines.py` reads this block. A character whose block has
+any empty field is skipped, with a message, until it is filled. Once a line
+has been rendered with these numbers it is never rendered again, so change
+them only for a character who has no rendered lines yet.
+
+<!-- narrator-voices -->
+```json
+{
+  "crane": {
+    "engine": "elevenlabs",
+    "voice_id": "",
+    "model_id": "",
+    "stability": null,
+    "similarity_boost": null,
+    "style": null,
+    "use_speaker_boost": true,
+    "note": "low, even, no dynamic range; high stability, low style"
+  },
+  "pennywhistle": {
+    "engine": "elevenlabs",
+    "voice_id": "",
+    "model_id": "",
+    "stability": null,
+    "similarity_boost": null,
+    "style": null,
+    "use_speaker_boost": true,
+    "note": "pitched up, low stability, let it wobble"
+  }
+}
+```
+
+---
+
 ## 15. CHANGELOG
 
+- **2026-09-13 v5.2** — Section 16 added for the advisors' portraits and voices: slots for the two visual paragraphs, the three-word art direction and the locked ElevenLabs settings, which `scripts/render_voicelines.py` reads. The plan itself is `docs/narrator-build.md`. Moods locked to neutral / grave / encouraged in `src/ui/narrator/mood.ts`.
 - **2026-09-08 v1.0** — First conversion packet: factions, 60 characters, ships, troops, special forces, facilities, missions, key islands.
 - **2026-09-08 v1.1** — Added Sea → Reach → Island structure and all 200 islands with map-size tags.
 - **2026-09-08 v2.0** — Fantasy tone pass: the Black Tide, visible Tidecraft, peoples, grown ships, Leviathan as a dredged carcass, weird Outer Seas.
