@@ -8,7 +8,7 @@
 ## Status — managed by Claude Code
 
 Sean's plan is below, unchanged. This block is the live checklist; it is the
-only part of the file Claude Code edits. Last updated 2026-09-13 (A1, A2 locked).
+only part of the file Claude Code edits. Last updated 2026-09-13 (stills in; Phase C open).
 
 | Step | Owner | State | Note |
 |---|---|---|---|
@@ -16,12 +16,12 @@ only part of the file Claude Code edits. Last updated 2026-09-13 (A1, A2 locked)
 | A2 art direction, three words | HUMAN | done | "painterly, weathered, cinematic", §16.2 |
 | A3 moods locked | BOTH | done | `neutral` / `grave` / `encouraged` — `src/ui/narrator/mood.ts` is the only definition |
 | A4 asset directories | CLAUDE CODE | done | `public/narrator/{video,audio,stills}` + `voicelines.json` — see the path note below |
-| B1–B7 six stills | HUMAN | **can start now** | Paste `docs/chatgpt-brief.md` as the first message of one chat; it holds everything. Deliver the six PNGs to Google Drive under the fixed names |
-| B8 file the stills | CLAUDE CODE | waiting on B6 | Claude Code pulls them from Google Drive by name, files them, runs `npm run narrator:check` |
-| C1–C6 twelve clips | HUMAN | blocked on B | Raw clips are 5–15 MB, over what the Drive connector can move: upload them to the repo at `public/narrator/video/raw/` through the GitHub web UI, the way the music came. No cleanup — Claude Code does Phase D |
+| B1–B7 six stills | HUMAN | done | Made by a ChatGPT agent task from `docs/chatgpt-project.md`, 2026-09-13; 1122×1402, all six consistent, every signature detail present |
+| B8 file the stills | CLAUDE CODE | done | Pulled from Drive, in `public/narrator/stills/`, checker 6/6 |
+| C1–C6 twelve clips | HUMAN | **can start now** | The twelve prompts, one per clip, are in "Kling, ready to paste" below. Raw clips are 5–15 MB, over what the Drive connector moves: upload them to the repo at `public/narrator/video/raw/` through the GitHub web UI, the way the music came. No cleanup — Claude Code does Phase D |
 | D1–D4 cleanup and export | CLAUDE CODE | blocked on C | Taken over from Sean: loop seams, accent trims and the 512×640 H.264 export are done here with ffmpeg |
 | D5 naming enforced | CLAUDE CODE | done (checker) | `scripts/check_narrator_assets.py` knows the twelve names |
-| D6 tab-bar figures stay static | CLAUDE CODE | noted | Applied when F is wired: the tab bar keeps the drawn figures; video only in the sheet |
+| D6 tab-bar figures stay static | CLAUDE CODE | done (crops) | `crane_tab.png` and `pennywhistle_tab.png`, 192×240, cut from the neutral stills; swapped into the tab bar when F is wired |
 | E1 audition voices | HUMAN | **can start now** | Independent of the art. The brief — sound, tone, diction, tics, moods, TTS direction — is the world bible §16.4 |
 | E2 locked voice settings in the bible | HUMAN → CLAUDE CODE | **blocked on Sean** | JSON slot in the world bible §16; the render script refuses to run until it is filled |
 | E3 first twenty lines | HUMAN | **can start now** | Append to `public/narrator/voicelines.json`, `rendered: false`. Write them against §16.4 |
@@ -45,9 +45,33 @@ stills `12TC_zFqGyvu9tP4XieGrZkewn8-DnrHq`, video
 The connector handles files up to about 5 MB; Kling's raw clips are larger
 than that, so those come by GitHub upload instead — see the note at Phase C.
 
-**What Sean can do today, in parallel:** B (the six stills, prompts
+**What Sean can do today, in parallel:** C (the twelve clips, prompts
 below); E1 and E2 (unblocks the voices); E3 (the twenty lines). Everything
 Claude Code owns after that runs from those.
+
+### Kling, ready to paste
+
+Image-to-video, 5 seconds, standard mode (C1). Upload the still named, paste
+the prompt, download the result under the name given. Every prompt ends
+with the same camera clause; do not drop it (C6). Twelve clips.
+
+| # | Upload this still | Prompt | Save as |
+|---|---|---|---|
+| 1 | crane_neutral.png | near-total stillness, no blinking, no breathing, only light shifting slowly across the face and the faintest drift of fabric at the collar, camera completely static, no zoom, no pan | crane_neutral_idle.mp4 |
+| 2 | crane_grave.png | absolute stillness, even stiller than a portrait, no blinking, no breathing, only the light on the face shifting almost imperceptibly, camera completely static, no zoom, no pan | crane_grave_idle.mp4 |
+| 3 | crane_encouraged.png | near-total stillness, no blinking, the head tilts by the faintest degree and holds, light shifting slowly across the face, camera completely static, no zoom, no pan | crane_encouraged_idle.mp4 |
+| 4 | crane_neutral.png | a slow deliberate turn of the head a few degrees toward the viewer and back to rest, eyes never blinking, nothing else moves, camera completely static, no zoom, no pan | crane_accent_headturn.mp4 |
+| 5 | crane_neutral.png | a slight slow lean forward of the shoulders and back to rest, eyes fixed and unblinking, nothing else moves, camera completely static, no zoom, no pan | crane_accent_lean.mp4 |
+| 6 | pennywhistle_neutral.png | subtle idle animation, sharp small head movements, occasional feather ruffle, shifting weight on the perch, single eye tracking the viewer, camera completely static, no zoom, no pan | pennywhistle_neutral_idle.mp4 |
+| 7 | pennywhistle_grave.png | subtle idle animation, hunched and low, small slow head movements, feathers flat, single eye narrowed and watching, minimal shifting on the perch, camera completely static, no zoom, no pan | pennywhistle_grave_idle.mp4 |
+| 8 | pennywhistle_encouraged.png | lively idle animation, bobbing head, bright and upright, feathers lifting and settling, shifting weight from foot to foot on the perch, single eye bright, camera completely static, no zoom, no pan | pennywhistle_encouraged_idle.mp4 |
+| 9 | pennywhistle_neutral.png | the parrot cocks its head sharply to one side, holds, and returns, single eye on the viewer, camera completely static, no zoom, no pan | pennywhistle_accent_headcock.mp4 |
+| 10 | pennywhistle_neutral.png | the parrot ruffles its wing and body feathers in one shake and settles, stays on the perch, camera completely static, no zoom, no pan | pennywhistle_accent_ruffle.mp4 |
+| 11 | pennywhistle_neutral.png | the parrot does one small hop on the perch and lands, feathers settling, camera completely static, no zoom, no pan | pennywhistle_accent_hop.mp4 |
+| 12 | pennywhistle_neutral.png | the parrot throws its head back with beak open in a silent squawking laugh and comes back to rest, camera completely static, no zoom, no pan | pennywhistle_accent_laugh.mp4 |
+
+Then upload the twelve raw files to `public/narrator/video/raw/` on the
+branch through the GitHub web UI (Add file → Upload files) and say so.
 
 ### Prompts, ready to paste
 

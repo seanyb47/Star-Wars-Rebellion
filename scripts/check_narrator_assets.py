@@ -20,7 +20,7 @@ CHARACTERS = ("crane", "pennywhistle")
 MOODS = ("neutral", "grave", "encouraged")
 ACCENTS = {"crane": ("headturn", "lean"), "pennywhistle": ("headcock", "ruffle", "hop", "laugh")}
 
-STILLS = [f"{c}_{m}.png" for c in CHARACTERS for m in MOODS]
+STILLS = [f"{c}_{m}.png" for c in CHARACTERS for m in MOODS] + [f"{c}_tab.png" for c in CHARACTERS]
 VIDEOS = [f"{c}_{m}_idle.mp4" for c in CHARACTERS for m in MOODS] + [
     f"{c}_accent_{a}.mp4" for c in CHARACTERS for a in ACCENTS[c]
 ]
