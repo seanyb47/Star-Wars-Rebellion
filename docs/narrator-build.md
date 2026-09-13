@@ -18,8 +18,8 @@ only part of the file Claude Code edits. Last updated 2026-09-13 (A1, A2 locked)
 | A4 asset directories | CLAUDE CODE | done | `public/narrator/{video,audio,stills}` + `voicelines.json` — see the path note below |
 | B1–B7 six stills | HUMAN | **can start now** | Paste `docs/chatgpt-brief.md` as the first message of one chat; it holds everything. Deliver the six PNGs to Google Drive under the fixed names |
 | B8 file the stills | CLAUDE CODE | waiting on B6 | Claude Code pulls them from Google Drive by name, files them, runs `npm run narrator:check` |
-| C1–C6 twelve clips | HUMAN | blocked on B | |
-| D1–D4 cleanup and export | HUMAN | blocked on C | |
+| C1–C6 twelve clips | HUMAN | blocked on B | Raw clips are 5–15 MB, over what the Drive connector can move: upload them to the repo at `public/narrator/video/raw/` through the GitHub web UI, the way the music came. No cleanup — Claude Code does Phase D |
+| D1–D4 cleanup and export | CLAUDE CODE | blocked on C | Taken over from Sean: loop seams, accent trims and the 512×640 H.264 export are done here with ffmpeg |
 | D5 naming enforced | CLAUDE CODE | done (checker) | `scripts/check_narrator_assets.py` knows the twelve names |
 | D6 tab-bar figures stay static | CLAUDE CODE | noted | Applied when F is wired: the tab bar keeps the drawn figures; video only in the sheet |
 | E1 audition voices | HUMAN | **can start now** | Independent of the art. The brief — sound, tone, diction, tics, moods, TTS direction — is the world bible §16.4 |
@@ -36,6 +36,14 @@ directory Vite serves verbatim at runtime is `public/`, so the tree lives at
 `public/narrator/` and is reachable in the app as `/narrator/video/…`,
 `/narrator/audio/…`. Same layout, one directory over. Media files are not
 bundled, which is what you want for twelve MP4s.
+
+**Google Drive.** Deliverables go to `7 Seas / Narrators /` — subfolders
+`stills`, `video`, `audio`. Claude Code pulls from these by name. Folder ids,
+for the Drive connector: Narrators `1xdBFSUEXgHS8bk0PhFOcA6pfP5aIIBTc`,
+stills `12TC_zFqGyvu9tP4XieGrZkewn8-DnrHq`, video
+`1ephzhUQIy_Qrse3v69EtoXoMthurwUD5`, audio `1S_ijodgp_eiZyaGrFljlp0HXn0MIDndn`.
+The connector handles files up to about 5 MB; Kling's raw clips are larger
+than that, so those come by GitHub upload instead — see the note at Phase C.
 
 **What Sean can do today, in parallel:** B (the six stills, prompts
 below); E1 and E2 (unblocks the voices); E3 (the twenty lines). Everything
