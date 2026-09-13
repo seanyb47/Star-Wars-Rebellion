@@ -617,10 +617,7 @@ button {
   font-size: 34px; text-anchor: middle;
   font-family: 'Iowan Old Style', Palatino, Georgia, serif;
 }
-.chainmap__badge-n {
-  font-size: 20px; font-family: inherit; font-weight: 600;
-}
-/* Legend. The marks are indicators, so they need saying once. */
+/* Legend. The two bars under every name, said once. */
 .chainmap__key {
   display: flex; flex-wrap: wrap; gap: 4px 14px;
   margin-top: 8px; font-size: 11px; color: var(--muted);
@@ -630,15 +627,11 @@ button {
   width: 11px; height: 11px; display: inline-block; flex: none;
   background: currentColor;
 }
-.key--civil { clip-path: polygon(50% 0, 100% 40%, 100% 100%, 0 100%, 0 40%); }
-.key--military { clip-path: polygon(0 100%, 0 30%, 20% 30%, 20% 12%, 40% 12%, 40% 30%, 60% 30%, 60% 12%, 80% 12%, 80% 30%, 100% 30%, 100% 100%); }
-.key--ashore {
-  background: none;
-  background-image: linear-gradient(45deg, transparent 44%, currentColor 44% 56%, transparent 56%),
-                    linear-gradient(-45deg, transparent 44%, currentColor 44% 56%, transparent 56%);
+.key--room { width: 22px; background: linear-gradient(90deg, #93a7b1 0 50%, #1c3b48 50% 100%); border-radius: 2px; }
+.key--lean {
+  width: 22px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--empire) 0 45%, var(--neutral) 45% 75%, var(--alliance) 75% 100%);
 }
-.key--mission { clip-path: polygon(0 20%, 100% 20%, 100% 80%, 0 80%); }
-.key--ships { clip-path: polygon(45% 0, 55% 0, 55% 55%, 100% 55%, 85% 100%, 15% 100%, 0 55%, 45% 55%); }
 
 /* ---------- Fleets ---------- */
 .fleet__ships {

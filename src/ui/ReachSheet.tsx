@@ -75,25 +75,21 @@ export function ReachSheet({
     >
       {/*
         The chain opened out as a chart rather than a list of rows: the islands
-        where they lie, each carrying who holds it, what stands on it, whether
-        your crew are working it, how it leans and how much of it is free. Tap
-        one to open it. No heading above it — it is the whole panel.
+        where they lie, each with who holds it, how much of it is free and how
+        it leans. Tap one to open it. No heading above it — it is the whole
+        panel.
       */}
       <ChainMap
         state={state}
         systems={summary.perIsland.map((entry) => byId.get(entry.systemId)!)}
-        perIsland={summary.perIsland}
         onOpenIsland={onOpenIsland}
         pickingFor={pickingFor}
         sailing={sailing}
         layer={layer}
       />
       <div className="chainmap__key">
-        <span><i className="key key--civil" /> Earns gold</span>
-        <span><i className="key key--military" /> Works and yards</span>
-        <span><i className="key key--ashore" /> Companies ashore</span>
-        <span><i className="key key--mission" /> Your crew here</span>
-        <span><i className="key key--ships" /> Hulls at anchor</span>
+        <span><i className="key key--room" /> Room to build</span>
+        <span><i className="key key--lean" /> Loyalty</span>
       </div>
     </Sheet>
   );

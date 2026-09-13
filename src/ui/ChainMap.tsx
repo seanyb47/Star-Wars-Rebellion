@@ -1,17 +1,16 @@
 import { useMemo } from 'react';
 import {
-  earns,
   isMissionTarget,
   layerMark,
   missionTypeFor,
   recruitOn,
   type GameState,
   type ChartLayer,
-  type IslandSummary,
   type PlayableFaction,
   type System,
   showsNumber,
 } from '../sim';
+import { allegianceColour, allegianceSegments } from './allegiance';
 import { islandPath } from './art';
 import { paintedChart } from './painted';
 import { worthPath } from './worth';
@@ -20,17 +19,17 @@ import chartData from '../data/chart.json';
 /**
  * A chain opened out as a chart of its own islands, rather than a list of rows.
  *
- * This is the original's sector view: the islands where they lie, and around
- * each one the marks that say what is going on there — who holds it, what
- * stands on it, whether any of your crew are working it, how it leans, and how
- * much of it is still free to build on. You read the whole chain at a glance
- * instead of scrolling ten rows to find the one that changed.
+ * This is the original's sector view: the islands where they lie, each with
+ * its name in the colour of who holds it and, under the name, the two things
+ * the original prints beneath every planet — how much of it is still free to
+ * build on, and how its people lean. That is all. There used to be a row of
+ * counts over every island too (camps, works, companies, crew, hulls), and
+ * next to ten names it was a wall of small numbers nobody read. Those live on
+ * the island's own panel, one tap away; the chain view is for choosing which
+ * island to tap.
  *
- * The marks are indicators, not buttons. The original hangs three clickable
- * icons off every planet, which works with a mouse and cannot work here: three
- * 44px targets per island, ten islands, is more than a phone screen holds. So
- * the whole island is one target and opens its panel, where the same three
- * live as tabs.
+ * The whole island is one target. The original hangs three clickable icons off
+ * every planet, which works with a mouse and cannot work here.
  */
 
 const FIELD_W = 1000;
@@ -175,22 +174,6 @@ function nameWidth(name: string): number {
   return name.length * 17;
 }
 
-/** Marks drawn in a 20-unit box, so they can be placed on a 20-unit grid. */
-const MARKS = {
-  /** Earns you gold: a camp or a mill. */
-  civil: 'M2 18 v-7 l8 -6 l8 6 v7 Z',
-  /** Costs you gold and makes things: works, drill ground, slipway. */
-  military: 'M4 18 v-11 h2.5 v-2.5 h2.5 v2.5 h2 v-2.5 h2.5 v2.5 H16 v11 Z',
-  /** Crossed cutlass and pike: companies ashore. */
-  ashore: 'M4 17 L16 5 M16 17 L4 5',
-  /** A sealed dispatch: your crew standing on it, or sailing to it. */
-  mission: 'M2 6 h16 v10 h-16 Z M2 6 l8 6 l8 -6',
-  /** Sail: hulls lying off the island, whoever they belong to. */
-  ships: 'M2 14 h16 l-2 5 h-12 Z M10 13 V3 M10 4 l5 8 h-5',
-  /** A figure on the quay: somebody ashore here the war has not claimed. */
-  person: 'M10 4 a2.6 2.6 0 1 1 0 5.2 a2.6 2.6 0 1 1 0 -5.2 M5.5 18 v-4.4 a4.5 4.5 0 0 1 9 0 V18',
-} as const;
-
 /** Who is flying a flag over it. The name takes this colour. */
 export function controlColour(system: System, viewer: 'empire' | 'alliance'): string {
   if (!system.explored[viewer]) return 'var(--unknown)';
@@ -210,7 +193,6 @@ export function controlColour(system: System, viewer: 'empire' | 'alliance'): st
 export function ChainMap({
   state,
   systems,
-  perIsland,
   onOpenIsland,
   pickingFor,
   sailing,
@@ -218,7 +200,6 @@ export function ChainMap({
 }: {
   state: GameState;
   systems: System[];
-  perIsland: IslandSummary[];
   onOpenIsland: (systemId: string) => void;
   /** Choosing a destination: only islands that can be parleyed with respond. */
   pickingFor?: PlayableFaction | null;
@@ -262,10 +243,6 @@ export function ChainMap({
   );
 
   const spots = useMemo(() => layoutIslands(systems, truth), [systems, truth]);
-  const summaryById = useMemo(
-    () => new Map(perIsland.map((entry) => [entry.systemId, entry] as const)),
-    [perIsland],
-  );
 
   return (
     <svg
@@ -311,7 +288,6 @@ export function ChainMap({
       {systems.map((system, index) => {
         const paintedGround = Boolean(ground && crop);
         const spot = spots[index];
-        const entry = summaryById.get(system.id);
         const explored = system.explored[viewer];
         // One colour, and it is who holds the island. Lean is on the panel.
         const tint = controlColour(system, viewer);
@@ -329,56 +305,8 @@ export function ChainMap({
         const litCount = 'count' in mark ? mark.count : undefined;
         // Which work this island means, so the ring can say so before you tap.
         const work = pickingFor && !sailing ? missionTypeFor(state, system, pickingFor) : null;
-
-        // Hulls lying off it, by side. An enemy squadron in one of your
-        // harbours is the single most urgent thing the chart can tell you, so
-        // it gets its own row rather than queueing behind four land marks.
-        const moored = state.fleets.filter((f) => f.systemId === system.id && !f.voyage);
-        const sail = (['empire', 'alliance'] as const)
-          .map((side) => ({
-            side,
-            hulls: moored
-              .filter((f) => f.faction === side)
-              .reduce((n, f) => n + f.ships.length, 0),
-          }))
-          .filter((entry) => entry.hulls > 0);
-
-        const loose = recruitOn(state, system, viewer);
-        const civil = system.facilities.filter((f) => earns(f.type)).length;
-        const military = built - civil;
-        const badges = explored
-          ? ([
-              civil > 0 && { d: MARKS.civil, n: civil, fill: true, colour: tint },
-              military > 0 && { d: MARKS.military, n: military, fill: true, colour: tint },
-              (entry?.military ?? 0) > 0 && {
-                d: MARKS.ashore,
-                n: entry!.military,
-                fill: false,
-                colour: tint,
-              },
-              (entry?.missions ?? 0) > 0 && {
-                d: MARKS.mission,
-                n: entry!.missions,
-                fill: false,
-                colour: `var(--${viewer})`,
-              },
-              // Somebody worth sailing for. Brass, like the ring you get when
-              // you go to sign them on, and not in either side's colour —
-              // they are nobody's yet, which is the whole point of them.
-              loose && { d: MARKS.person, n: 0, fill: false, colour: 'var(--brass)' },
-            ].filter(Boolean) as Array<{
-              d: string;
-              n: number;
-              fill: boolean;
-              colour: string;
-            }>)
-          : [];
-
-        // Marks sit in rows over the island, centred on it: the land above,
-        // the sail just over the water where it actually is.
-        const step = 62;
-        const rowLeft = spot.x - ((badges.length - 1) * step) / 2;
-        const sailLeft = spot.x - ((sail.length - 1) * step) / 2;
+        // Named in the label when the errand is to sign them on.
+        const loose = work === 'recruit' ? recruitOn(state, system, viewer) : null;
 
         return (
           <g
@@ -397,12 +325,7 @@ export function ChainMap({
                   : work === 'diplomacy'
                     ? `${system.name}, parley`
                     : explored
-                      ? // Somebody ashore is worth saying even when you are not
-                        // choosing a destination — it is the mark most worth
-                        // noticing and the one least like the others.
-                        `${system.name}, ${built} of ${slots} slots built${
-                          loose ? `, ${loose.name} ashore` : ''
-                        }`
+                      ? `${system.name}, ${built} of ${slots} slots built`
                       : 'Uncharted island'
             }
           >
@@ -486,57 +409,6 @@ export function ChainMap({
               />
             )}
 
-            {explored &&
-              sail.map((entry, i) => (
-                <g
-                  key={entry.side}
-                  transform={`translate(${sailLeft + i * step - 26} ${spot.y - (paintedGround ? 96 : 58)}) scale(1.5)`}
-                  pointerEvents="none"
-                >
-                  <path
-                    d={MARKS.ships}
-                    fill="none"
-                    stroke={`var(--${entry.side})`}
-                    strokeWidth={2.2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <text
-                    className="chainmap__badge-n"
-                    x={25}
-                    y={16}
-                    fill={`var(--${entry.side})`}
-                  >
-                    {entry.hulls}
-                  </text>
-                </g>
-              ))}
-
-            {badges.map((badge, i) => (
-              <g
-                key={i}
-                transform={`translate(${rowLeft + i * step - 26} ${spot.y - (sail.length > 0 ? 104 : 94) - (paintedGround ? 38 : 0)}) scale(1.5)`}
-                pointerEvents="none"
-              >
-                <path
-                  d={badge.d}
-                  fill={badge.fill ? badge.colour : 'none'}
-                  stroke={badge.colour}
-                  strokeWidth={badge.fill ? 0 : 2.2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  opacity={0.95}
-                />
-                {/* A count, except where counting is meaningless: one person
-                    on a quay is "somebody", not "1 somebody". */}
-                {badge.n > 0 && (
-                  <text className="chainmap__badge-n" x={25} y={16} fill={badge.colour}>
-                    {badge.n}
-                  </text>
-                )}
-              </g>
-            ))}
-
             {system.uprising && explored && (
               <path
                 d={`M ${spot.x - 12} ${spot.y - (paintedGround ? 30 : 52)} l 0 -26 l 30 9 l -30 9 z`}
@@ -592,12 +464,13 @@ export function ChainMap({
               {explored ? system.name : 'Uncharted'}
             </text>
 
-            {explored && system.populated && slots > 0 && (
+            {explored && system.populated && (
               <g pointerEvents="none">
-                {/* Reserves used against reserves free. The allegiance bar that
-                    used to sit here is gone: the island is painted by loyalty,
-                    and a bar under every one of ten was a row of smears. */}
-                {Array.from({ length: slots }, (_, i) => (
+                {/* Room to build: one pip per slot, pale where something
+                    stands, an empty socket where nothing does. Kept clear of
+                    the faction colours so it cannot be misread as loyalty. */}
+                {slots > 0 &&
+                  Array.from({ length: slots }, (_, i) => (
                     <rect
                       key={i}
                       x={spot.x - 55 + i * (110 / slots)}
@@ -607,7 +480,31 @@ export function ChainMap({
                       rx={2}
                       fill={i < built ? '#93a7b1' : '#1c3b48'}
                     />
-                ))}
+                  ))}
+                {/* Loyalty: the same bar as the island's panel and its row in
+                    the list, largest share first. It came off this view once
+                    for being a smear under ten names; it is back because the
+                    counts that crowded it are gone and it is the one thing,
+                    with free ground, the chain view is now for. */}
+                {(() => {
+                  const y = spot.y + (paintedGround ? 37 : 99);
+                  let x = spot.x - 55;
+                  return allegianceSegments(system).map((segment) => {
+                    const w = (110 * segment.pct) / 100;
+                    const el = (
+                      <rect
+                        key={segment.faction}
+                        x={x}
+                        y={y}
+                        width={w}
+                        height={7}
+                        fill={allegianceColour(segment.faction)}
+                      />
+                    );
+                    x += w;
+                    return el;
+                  });
+                })()}
               </g>
             )}
           </g>
