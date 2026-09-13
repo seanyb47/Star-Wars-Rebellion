@@ -68,7 +68,8 @@ const LUMA = new Map(CHART.reaches.map((r) => [r.reach, r.luma] as const));
  */
 function scrimFor(reach: string | undefined): number {
   const l = reach !== undefined ? (LUMA.get(reach) ?? 40) : 40;
-  return Math.max(0.12, Math.min(0.72, (l - 20) / 46));
+  // Eased by a fifth since the painting is lifted before the scrim lands.
+  return Math.max(0.1, Math.min(0.6, ((l - 20) / 46) * 0.8));
 }
 
 /** "Reach/Island" -> where the painting put it, in chart coordinates. */
@@ -265,11 +266,28 @@ export function ChainMap({
             <clipPath id="chainmap-frame">
               <rect x={0} y={0} width={FIELD_W} height={FIELD_H} />
             </clipPath>
+            {/* The same lift as the chart, so a chain opened out is not
+                darker than the chart it was opened from. The scrim below
+                still does its per-chain work on top. */}
+            <filter id="chainmap-lift" colorInterpolationFilters="sRGB">
+              <feComponentTransfer>
+                <feFuncR type="gamma" amplitude="1" exponent="0.72" offset="0.03" />
+                <feFuncG type="gamma" amplitude="1" exponent="0.72" offset="0.03" />
+                <feFuncB type="gamma" amplitude="1" exponent="0.72" offset="0.03" />
+              </feComponentTransfer>
+            </filter>
           </defs>
           <g clipPath="url(#chainmap-frame)" pointerEvents="none">
             <rect x={0} y={0} width={FIELD_W} height={FIELD_H} fill="var(--water-deep)" />
             <g transform={`translate(${-crop.x * crop.scale} ${-crop.y * crop.scale}) scale(${crop.scale})`}>
-              <image href={ground} x={0} y={0} width={CHART.width} height={CHART.height} />
+              <image
+                href={ground}
+                x={0}
+                y={0}
+                width={CHART.width}
+                height={CHART.height}
+                filter="url(#chainmap-lift)"
+              />
             </g>
             {/* Wound in this far, the painting stops being a dark sea and
                 becomes a bright island filling the frame. Measured on the

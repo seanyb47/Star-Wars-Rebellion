@@ -205,7 +205,7 @@ button {
 .map__pick--recruit { stroke: var(--brass); }
 
 .map__hud {
-  position: absolute; left: 10px; right: 10px; bottom: 10px;
+  position: absolute; left: 10px; right: 10px; bottom: 66px;
   display: flex; gap: 6px; align-items: center; pointer-events: none;
 }
 .map__hud > * { pointer-events: auto; }
@@ -816,8 +816,10 @@ button {
 /* The view switch, at the foot of the chart where the pick chip lives. It sits
    above the tab bar rather than inside it: the tab bar says which screen you
    are on, this says what the screen is about. */
+/* At the very foot of the chart. The pick chip, when there is one, sits
+   above the strip rather than the strip sitting above an empty row. */
 .layers {
-  position: absolute; left: 0; right: 0; bottom: 58px;
+  position: absolute; left: 0; right: 0; bottom: 12px;
   display: flex; flex-direction: column; gap: 5px; pointer-events: none;
 }
 .layers__strip {
