@@ -38,7 +38,9 @@ directory Vite serves verbatim at runtime is `public/`, so the tree lives at
 bundled, which is what you want for twelve MP4s.
 
 **Google Drive.** Deliverables go to `7 Seas / Narrators /` — subfolders
-`stills`, `video`, `audio`. Claude Code pulls from these by name. Folder ids,
+`stills`, `video`, `audio`, plus `style` (three of the game's own portraits,
+the reference images every ChatGPT prompt points at; folder id
+`1MEqHpn46pzJ1lL7YHjZbYSIORqh_fxVr`). Claude Code pulls from these by name. Folder ids,
 for the Drive connector: Narrators `1xdBFSUEXgHS8bk0PhFOcA6pfP5aIIBTc`,
 stills `12TC_zFqGyvu9tP4XieGrZkewn8-DnrHq`, video
 `1ephzhUQIy_Qrse3v69EtoXoMthurwUD5`, audio `1S_ijodgp_eiZyaGrFljlp0HXn0MIDndn`.
