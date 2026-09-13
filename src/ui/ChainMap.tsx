@@ -10,7 +10,6 @@ import {
   type IslandSummary,
   type PlayableFaction,
   type System,
-  worthTier,
   showsNumber,
 } from '../sim';
 import { islandPath } from './art';
@@ -592,31 +591,6 @@ export function ChainMap({
             >
               {explored ? system.name : 'Uncharted'}
             </text>
-
-            {/* What the island can hold, the same three marks as the chart and
-                every panel. Right of the name, where control sits to the left:
-                one fact each side, and the name between them. */}
-            {ground && crop && explored && (() => {
-              const tier = worthTier(system);
-              // Sized against the 34px name it sits beside, not the chart's
-              // 8px islands: at the chart's radii these were specks.
-              const cx = spot.x + nameWidth(system.name) / 2 + 22;
-              const cy = spot.y + 1;
-              const d = worthPath(tier, tier === 'large' ? 21 : 15);
-              return d ? (
-                <path
-                  d={d}
-                  transform={`translate(${cx} ${cy})`}
-                  fill={tint}
-                  stroke="#041219"
-                  strokeWidth={2}
-                  strokeLinejoin="round"
-                  pointerEvents="none"
-                />
-              ) : (
-                <circle cx={cx} cy={cy} r={7} fill={tint} stroke="#041219" strokeWidth={2} pointerEvents="none" />
-              );
-            })()}
 
             {explored && system.populated && slots > 0 && (
               <g pointerEvents="none">
