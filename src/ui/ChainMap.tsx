@@ -8,7 +8,7 @@ import {
   type ChartLayer,
   type PlayableFaction,
   type System,
-  isIdleLayer,
+  isLoudLayer,
   showsNumber,
 } from '../sim';
 import factionData from '../data/factions.json';
@@ -355,9 +355,9 @@ export function ChainMap({
                 {/* The filter's mark, left of the name — the same as the chart,
                     so a filter reads the same at both scales: the garrison
                     count as a numeral, a star for everything else. */}
-                {/* Idle works and idle crew: whatever the mark, a pulse
-                    behind it — the same as on the chart. */}
-                {layer && isIdleLayer(layer) && (
+                {/* Idle works, idle crew and fleets: whatever the mark, a
+                    pulse behind it — the same as on the chart. */}
+                {layer && isLoudLayer(layer) && (
                   <circle
                     className="map__idle-halo"
                     cx={spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - (showsNumber(layer) ? 22 : 26)}
@@ -378,8 +378,8 @@ export function ChainMap({
                 ) : (
                   <>
                     <path
-                      d={worthPath('large', layer && isIdleLayer(layer) ? 26 : 15)!}
-                      transform={`translate(${spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - (layer && isIdleLayer(layer) ? 26 : 22)} ${spot.y + 1})`}
+                      d={worthPath('large', layer && isLoudLayer(layer) ? 26 : 15)!}
+                      transform={`translate(${spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - (layer && isLoudLayer(layer) ? 26 : 22)} ${spot.y + 1})`}
                       fill={tint}
                       stroke="#041219"
                       strokeWidth={2}

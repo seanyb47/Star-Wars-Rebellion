@@ -95,13 +95,15 @@ export function showsNumber(layer: ChartLayer): boolean {
 }
 
 /**
- * Layers whose answer is a fault to fix now — something of yours standing
- * idle. These are the filters you check often, and the mark they light has
- * to be seen from across the chart, not found: it is drawn bigger, with a
- * pulse behind it.
+ * Layers whose answer you act on now — something of yours standing idle, or
+ * hulls lying off an island, yours or theirs. These are the filters you
+ * check often, and the mark they light has to be seen from across the
+ * chart, not found: it is drawn bigger, with a pulse behind it. Fleets
+ * joined the idle two because a star the size of every other filter's was
+ * not enough to find a squadron by.
  */
-export function isIdleLayer(layer: ChartLayer): boolean {
-  return layer === 'idleWorks' || layer === 'idleCrew';
+export function isLoudLayer(layer: ChartLayer): boolean {
+  return layer === 'idleWorks' || layer === 'idleCrew' || layer === 'fleets';
 }
 
 /** What a lit island is worth saying about itself, under this layer. */

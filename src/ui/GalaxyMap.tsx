@@ -4,7 +4,7 @@ import {
   isMissionTarget,
   layerMark,
   summariseReach,
-  isIdleLayer,
+  isLoudLayer,
   showsNumber,
   type ChartLayer,
 } from '../sim';
@@ -199,8 +199,8 @@ export const OPEN_GREY = '#93a3ab';
 const OPEN_FILL = '#dfe8ec';
 /** The filter's star. Bigger than a dot by enough to be the thing you see. */
 const STAR_RADIUS = 14;
-/** The idle filters' star: something of yours is standing idle, and that is
- *  the one thing the chart has to shout. Bigger still, with a pulse behind. */
+/** The loud filters' star: idle works, idle crew, fleets — the thing is
+ *  the one the chart has to shout. Bigger still, with a pulse behind. */
 const IDLE_STAR_RADIUS = 24;
 const IDLE_HALO_RADIUS = 44;
 
@@ -461,10 +461,11 @@ export function GalaxyMap({
                 // dark outline, dashed where you have not been. The slate at
                 // real opacity still sank into the sea.
                 const open = !explored || (system.control !== 'empire' && system.control !== 'alliance' && !system.populated);
-                // Idle works and idle crew are the faults you are looking
-                // for, so their star is bigger than any other filter's and
-                // pulses: found from across the chart, not searched for.
-                const idle = lit && isIdleLayer(layer);
+                // Idle works, idle crew and fleets are the things you are
+                // looking for, so their mark is bigger than any other
+                // filter's and pulses: found from across the chart, not
+                // searched for.
+                const idle = lit && isLoudLayer(layer);
                 const litR = idle ? IDLE_STAR_RADIUS : STAR_RADIUS;
                 const starR = lit ? litR : radius;
                 return (
