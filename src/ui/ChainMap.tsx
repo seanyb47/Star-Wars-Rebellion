@@ -10,6 +10,7 @@ import {
   type System,
   showsNumber,
 } from '../sim';
+import factionData from '../data/factions.json';
 import { allegianceColour, allegianceSegments } from './allegiance';
 import { islandPath } from './art';
 import { paintedChart } from './painted';
@@ -174,6 +175,9 @@ function nameWidth(name: string): number {
   return name.length * 17;
 }
 
+/** A sail, in a 20-unit box: hulls lying off the island. */
+const SHIP = 'M2 14 h16 l-2 5 h-12 Z M10 13 V3 M10 4 l5 8 h-5';
+
 /** Who is flying a flag over it. The name takes this colour. */
 export function controlColour(system: System, viewer: 'empire' | 'alliance'): string {
   if (!system.explored[viewer]) return 'var(--unknown)';
@@ -307,6 +311,12 @@ export function ChainMap({
         const work = pickingFor && !sailing ? missionTypeFor(state, system, pickingFor) : null;
         // Named in the label when the errand is to sign them on.
         const loose = work === 'recruit' ? recruitOn(state, system, viewer) : null;
+        // Whose hulls lie off it. One sail per side present, no count: the
+        // count is on the Harbour tab, and a sail beside the name is the
+        // whole message — there is a fleet here, and it is theirs or yours.
+        const moored = (['empire', 'alliance'] as const).filter((side) =>
+          state.fleets.some((f) => f.systemId === system.id && !f.voyage && f.faction === side),
+        );
 
         return (
           <g
@@ -325,7 +335,11 @@ export function ChainMap({
                   : work === 'diplomacy'
                     ? `${system.name}, parley`
                     : explored
-                      ? `${system.name}, ${built} of ${slots} slots built`
+                      ? `${system.name}, ${built} of ${slots} slots built${
+                          moored.length > 0
+                            ? `, ${moored.map((m) => factionData[m].shortName).join(' and ')} hulls at anchor`
+                            : ''
+                        }`
                       : 'Uncharted island'
             }
           >
@@ -464,11 +478,51 @@ export function ChainMap({
               {explored ? system.name : 'Uncharted'}
             </text>
 
-            {explored && system.populated && (
+            {/* A sail right of the name for each side with hulls here, in
+                that side's colour. Shifted along when a filter's count is
+                already sitting there. */}
+            {explored &&
+              moored.map((side, i) => (
+                <g
+                  key={side}
+                  transform={`translate(${
+                    spot.x +
+                    nameWidth(system.name) / 2 +
+                    8 +
+                    i * 34 +
+                    (lit && !(layer && showsNumber(layer)) && litCount !== undefined && litCount > 1 ? 30 : 0)
+                  } ${spot.y - 15}) scale(1.5)`}
+                  pointerEvents="none"
+                >
+                  <path
+                    d={SHIP}
+                    fill="none"
+                    stroke={`var(--${side})`}
+                    strokeWidth={2.2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ paintOrder: 'stroke fill' }}
+                  />
+                </g>
+              ))}
+
+            {explored && (
               <g pointerEvents="none">
                 {/* Room to build: one pip per slot, pale where something
                     stands, an empty socket where nothing does. Kept clear of
-                    the faction colours so it cannot be misread as loyalty. */}
+                    the faction colours so it cannot be misread as loyalty. An
+                    island with no room at all gets one unbroken dark bar:
+                    still a bar, so every charted island reads the same. */}
+                {slots === 0 && (
+                  <rect
+                    x={spot.x - 55}
+                    y={spot.y + (paintedGround ? 26 : 88)}
+                    width={110}
+                    height={7}
+                    rx={2}
+                    fill="#1c3b48"
+                  />
+                )}
                 {slots > 0 &&
                   Array.from({ length: slots }, (_, i) => (
                     <rect
@@ -485,7 +539,9 @@ export function ChainMap({
                     the list, largest share first. It came off this view once
                     for being a smear under ten names; it is back because the
                     counts that crowded it are gone and it is the one thing,
-                    with free ground, the chain view is now for. */}
+                    with free ground, the chain view is now for. Every charted
+                    island carries it, settled or not: an unsettled one is all
+                    undecided, which is the truth of it. */}
                 {(() => {
                   const y = spot.y + (paintedGround ? 37 : 99);
                   let x = spot.x - 55;

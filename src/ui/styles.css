@@ -632,6 +632,7 @@ button {
   width: 22px; border-radius: 2px;
   background: linear-gradient(90deg, var(--empire) 0 45%, var(--neutral) 45% 75%, var(--alliance) 75% 100%);
 }
+.key--ships { clip-path: polygon(45% 0, 55% 0, 55% 55%, 100% 55%, 85% 100%, 15% 100%, 0 55%, 45% 55%); }
 
 /* ---------- Fleets ---------- */
 .fleet__ships {

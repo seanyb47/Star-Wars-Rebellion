@@ -90,6 +90,7 @@ export function ReachSheet({
       <div className="chainmap__key">
         <span><i className="key key--room" /> Room to build</span>
         <span><i className="key key--lean" /> Loyalty</span>
+        <span><i className="key key--ships" /> Hulls at anchor</span>
       </div>
     </Sheet>
   );
