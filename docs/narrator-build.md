@@ -8,7 +8,7 @@
 ## Status — managed by Claude Code
 
 Sean's plan is below, unchanged. This block is the live checklist; it is the
-only part of the file Claude Code edits. Last updated 2026-09-13, late: **the Crown's advisor is now Secretary Sabine Marlow**; Crane is retired. Her three stills and five clips are owed; Pennywhistle's six assets carry over unchanged.
+only part of the file Claude Code edits. Last updated 2026-09-13, night: all six stills are in (Secretary Marlow and Pennywhistle). Phase C — the twelve clips — is the open step.
 
 | Step | Owner | State | Note |
 |---|---|---|---|
@@ -16,12 +16,12 @@ only part of the file Claude Code edits. Last updated 2026-09-13, late: **the Cr
 | A2 art direction, three words | HUMAN | done | "painterly, weathered, cinematic", §16.2 |
 | A3 moods locked | BOTH | done | `neutral` / `grave` / `encouraged` — `src/ui/narrator/mood.ts` is the only definition |
 | A4 asset directories | CLAUDE CODE | done | `public/narrator/{video,audio,stills}` + `voicelines.json` — see the path note below |
-| B1–B7 six stills | HUMAN | Pennywhistle done; **Marlow's three owed** | Pennywhistle's three are in. Crane's three are retired to `stills/retired/`. Marlow's three: run `docs/chatgpt-task-marlow.md` in the same ChatGPT Project (matched to the existing style) |
-| B8 file the stills | CLAUDE CODE | Pennywhistle done | Marlow's filed when they land in Drive |
-| C1–C6 twelve clips | HUMAN | **can start now** | Pennywhistle's seven from the ChatGPT clips task; Marlow's five once her stills exist. Delivered to Drive `Narrators/video` at 512×640 under 4 MB, or to `public/narrator/video/raw/` by GitHub upload if larger |
+| B1–B7 six stills | HUMAN | done | Secretary Marlow and Pennywhistle, all six 1122×1402, one set. Crane's three retired to `stills/retired/` |
+| B8 file the stills | CLAUDE CODE | done | `public/narrator/stills/`, checker 8/8 |
+| C1–C6 twelve clips | HUMAN | **can start now** | Run the ChatGPT clips task (Drive doc 3). Delivered to Drive `Narrators/video` at 512×640 under 4 MB, or to `public/narrator/video/raw/` by GitHub upload if larger |
 | D1–D4 cleanup and export | CLAUDE CODE | blocked on C | Taken over from Sean: loop seams, accent trims and the 512×640 H.264 export are done here with ffmpeg |
 | D5 naming enforced | CLAUDE CODE | done (checker) | `scripts/check_narrator_assets.py` knows the twelve names |
-| D6 tab-bar figures stay static | CLAUDE CODE | Pennywhistle done | `pennywhistle_tab.png` cut; `marlow_tab.png` when her neutral still lands |
+| D6 tab-bar figures stay static | CLAUDE CODE | done | `marlow_tab.png` and `pennywhistle_tab.png`, 192×240, cut from the neutral stills; swapped into the tab bar when F is wired |
 | E1 audition voices | HUMAN | **can start now** | Independent of the art. The brief — sound, tone, diction, tics, moods, TTS direction — is the world bible §16.4 |
 | E2 locked voice settings in the bible | HUMAN → CLAUDE CODE | **blocked on Sean** | JSON slot in the world bible §16; the render script refuses to run until it is filled |
 | E3 first twenty lines | HUMAN | **can start now** | Append to `public/narrator/voicelines.json`, `rendered: false`. Write them against §16.4 |
