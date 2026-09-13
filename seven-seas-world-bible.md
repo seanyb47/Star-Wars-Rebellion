@@ -40,7 +40,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 | Original | New | Mechanic translation |
 |---|---|---|
 | Galaxy | **The Seven Seas** | Whole map |
-| Sector | **Reach** (an archipelago inside a Sea) | Same grouping as sectors. Seven Seas fixed; *number of Reaches per Sea* scales with map size. **On the small map there is one Reach per Sea, so a Sea and its archipelago are the same thing** (8 Reaches, 69 islands — the Amber Sea holds two). Medium and large add second and third Reaches inside a Sea (→ ~150 / 200 islands). |
+| Sector | **Reach** (an archipelago inside a Sea) | Same grouping as sectors. Seven Seas fixed; *number of Reaches per Sea* scales with map size. **On the small map there is one Reach per Sea, so a Sea and its archipelago are the same thing** (8 Reaches, 71 islands — the Far Sea holds two). Medium and large add second and third Reaches inside a Sea (→ ~150 / 200 islands). |
 | Core sectors | **The Inner Seas** (3) | Rich, charted, Imperium-leaning |
 | Outer Rim sectors | **The Outer Seas** (4) | Uncharted, strange, must be explored |
 | System / planet | **Island** | One node |
@@ -467,7 +467,7 @@ medium map; `large` on the large map.
 between seven and twelve islands, set by how many its painted cluster on the
 chart can show as separate places at a 48-unit spacing: Sovereign and Cinder
 and Salt and Wreckers' are crowded archipelagos, Coral and Rime are small ones.
-Sixty-nine islands rather than a hundred, and the chain view can lay every one
+Seventy-one islands rather than a hundred, and the chain view can lay every one
 of them out clearly, which the flat ten could not.
 
 **What was cut, and why it is not a loss.** The small map used to carry ten
@@ -556,7 +556,7 @@ written.
 ### The Amber Sea (Inner Sea)
 *Tropical / Caribbean: plantations, sugar, reefs, hurricanes, old money with divided loyalties.*
 
-**Coral Reach** (orig. Sluis sector — `small` map; **7 islands charted**, the diagonal archipelago; **Sugar Reach**, the long chain below it, is the Amber Sea's second — 7 charted)
+**Coral Reach** (orig. Sluis sector — `small` map; **9 islands charted** — the spiral atoll in the south-east, which is where a reef belongs)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -604,7 +604,7 @@ written.
 | Storthus | **Storthavn** |  |
 | Tokmia | **Tokmaa** |  |
 
-**Whalers' Reach** (orig. Sumitra sector — `medium` map)
+**Whalers' Reach** (orig. Sumitra sector — `small` map; **7 islands charted** — the dark diagonal in the north-east, the Far Sea's second Reach)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -748,7 +748,7 @@ written.
 ### The Bone Sea (Outer Sea)
 *WEIRD: the islands are the bones of dead leviathans, reef-grown over. The water glows at night. Wrecks outnumber ships. Corsair havens, witch-islands, and a permanent whirlpool. Fogmire (Old Hesper) is here but is an event location, not a node.*
 
-**Wreckers' Reach** (orig. Calaron sector — `small` map; **9 islands charted**)
+**Wreckers' Reach** (orig. Calaron sector — `small` map; **9 islands charted** — the long chain down the right edge, an Inner Reach beside the Crown)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -905,7 +905,7 @@ These two systems are Sean's additions. Neither exists in the original game. Bot
 - **2026-09-09 v2.6** — Vocabulary and economy, after playtesting. Stores and Fittings are withdrawn: they were invented words that told a player nothing. There is now one currency, **Gold**, on the rule that a building either earns gold or costs gold — Camps and Mills earn, Works, Drill Grounds, Slipways and companies cost. Sweetwater is withdrawn from the UI in favour of **Ground** and **Water** for the two slot types, for the same reason. Character ratings are spelled out rather than abbreviated. See amendment A1 in the build spec for the rules.
 - **2026-09-09 v2.5** — Added the Reach panel, after the original's sector view: a Reach's islands listed with three icons each (missions, military, facilities), over a summary of what the Reach earns and the mean allegiance across its settled islands. The island panel's tabs were re-cut to match those three — Overview / Missions / Military / Facilities / Log — so an icon on the Reach panel opens the island straight onto the matching tab.
 - **2026-09-09 v2.4** — Unit art. Every building type has its own glyph (Camp a cut hillside and pick, Mill a waterwheel, Works a shear-legs crane, Drill Ground a rack of pikes, Slipway a hull on the stocks), shown on the Build tab, on the build buttons and as marks on the island portrait. Garrisons are drawn as companies of pike figures, with the shortfall to the needed garrison greyed in. Characters have cameo portraits cut from their own names — hat, beard, epaulettes and collar vary, and Urskin are visibly not human. `Character.people` is now carried through from the roster so the portrait can read it.
-- **2026-09-13 v5.1** — **Sugar Reach is back: eight Reaches, still seven Seas.** The painting has two archipelagos in the Amber Sea, and after v5.0 the long one down the right edge had no islands — Sugar Reach's had gone with its name — while Coral's label was landing on the empty chain. They were tried as one Reach of thirteen with one label; it read as one name over a lot of sea. So the Amber Sea holds two Reaches again, each labelled on its own islands: Coral on the diagonal with its seven, Sugar on the chain with seven of its own (Passh Bay, Denby Cay and Ortovale from Coral's old list, Charmouth, Ferrol Key, Rishi Bank and Bilbrin from Sugar's). Sixty-nine islands. Nothing else changes.
+- **2026-09-13 v5.1** — **Names follow latitude; eight Reaches, still seven Seas.** The top of the chart is north, and Coral Reach had been sitting at the same latitude as Rime. So the names moved to the clusters they describe: the dark forested diagonal in the north-east is **Whalers' Reach** (Far Sea — the name cut at v5.0 comes back, seven islands), the long chain down the right edge is **Wreckers' Reach** (Bone Sea, now an Inner Reach beside the Crown), and the spiral atoll in the south-east is **Coral Reach** (Amber Sea, nine islands, Passh Bay and Denby Cay restored) — because an atoll ring is a reef and that is where Coralhome belongs. Sugar Reach, which stood in for the empty chain for one deploy, returns to the medium map. Seventy-one islands; three Inner Reaches, five Outer. No rules changed.
 - **2026-09-12 v5.0** — **Seven Reaches, one for each Sea.** The small map was ten Reaches of ten islands; it is now seven of seven to twelve, sixty-two in all. The reason is the chart: it is a painting now, and three of the ten sat on clusters it could not show clearly — Whalers' on islets too small to hit, Sugar and Mirage running together with their neighbours down the right-hand side. All three shared a Sea with a Reach that survives, so every Sea keeps its place, its character and its islands in the fiction; what moved to the medium map is a second archipelago inside three Seas, beside Scrap Reach which was already held back. Island counts are no longer uniform: a Reach holds as many islands as its painted cluster can show as separate places at a 48-unit spacing, which is what lets the chain view lay every island out clearly instead of stacking them. A Sea and a Reach are the same thing at this size, so the chart names the Seas and the panels name the Reaches and neither is lying. Settles open question 5 — three Inner and four Outer, as written. No rules changed.
 - **2026-09-12 v4.9** — Tone retuned to the faction style guide. The register is now heroic adventure rather than grimdark: both sides believe themselves the decent one and neither is written as the villain. Added each faction's creed and motto (Order · Stability · A brighter tomorrow / Freedom · Opportunity · No masters) and put the creed on the title screen's faction cards. Softened the ugly halves throughout — conscription rolls rather than press gangs emptying villages, opportunists rather than slavers, the Fatmouths as harbour-kings rather than slaver-kings, Corvane's ledger as tragic conviction rather than cruelty. The rule that every named character carries one admirable and one ugly trait is unchanged; it says the same thing the guide's "different crews, the same horizon" does. **The darkness moved rather than left** — it is now the Black Tide, the kraken and the drowned places, not the people. No rules changed.
 - **2026-09-08 v2.3** — Presentation pass. Added a title screen (faction choice with crests, strengths and weaknesses drawn from section 2; difficulty shown but only Normal exists). Replaced the space-era chrome with an admiralty-chart look: deep-water palette, brass accents, chart lettering, rhumb lines and a compass rose. Islands are now drawn as generated coastlines rather than dots, sized by their slots, and each island's bible note appears on its panel. The island panel gained Overview / Build / Garrison / Log tabs. Faction crests and the app icon are SVG drawn in code. No rules changed.

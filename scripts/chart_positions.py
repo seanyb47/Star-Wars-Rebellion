@@ -51,19 +51,19 @@ CHART_W, CHART_H = 1000, 1500
 # Reach -> where its cluster sits, as a fraction of the painting. Read off the
 # image by eye; snapped onto the painted land by the code below, so these only
 # have to be close enough to pick the right cluster.
-# A Reach may have more than one seed point, though none needs it now. The
-# Amber Sea is painted as two archipelagos — the diagonal at the top right and
-# the long chain down the right edge — and they are two Reaches again: Sugar
-# Reach was cut with the move to seven, its chain sat unmarked, and merging it
-# into Coral put one label over a lot of sea. Eight Reaches; still seven Seas.
+# Names follow latitude. The top of the chart is north — Rime's peaks are the
+# arctic — so the northern clusters carry the cold names and the southern ones
+# the warm: Coral is the spiral atoll in the south-east, because an atoll ring
+# is a reef, and the dark forested diagonal in the north-east is the whaling
+# ground. A Reach may have more than one seed point, though none needs it now.
 SEEDS: dict[str, tuple[float, float] | list[tuple[float, float]]] = {
     "Rime Reach": (0.186, 0.091),          # snow peaks, top left — the arctic one
-    "Coral Reach": (0.854, 0.126),         # top right, the diagonal
-    "Sugar Reach": (0.849, 0.372),         # the long chain down the right edge
+    "Whalers' Reach": (0.854, 0.126),      # top right, the dark diagonal — the whaling ground
     "Shipwrights' Reach": (0.195, 0.293),  # the long green chain down the left
     "Sovereign Reach": (0.504, 0.449),     # dead centre, the largest — Highwater
+    "Wreckers' Reach": (0.849, 0.372),     # the long chain down the right edge — the wrecking coast
     "Cinder Reach": (0.215, 0.638),        # thin chain, lower left
-    "Wreckers' Reach": (0.840, 0.677),     # the spiral — the Bone Sea whirlpool
+    "Coral Reach": (0.840, 0.677),         # the spiral atoll, lower right — the reef
     "Salt Reach": (0.512, 0.833),          # the long chain across the bottom
 }
 # Three seeds were removed rather than moved. Whalers' sat on islets too small

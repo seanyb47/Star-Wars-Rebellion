@@ -129,103 +129,63 @@
    }
   },
   {
-   "reach": "Coral Reach",
-   "sea": "The Amber Sea",
-   "x": 819.9,
-   "y": 174.0,
-   "r": 172.9,
-   "ry": 139.4,
+   "reach": "Wreckers' Reach",
+   "sea": "The Bone Sea",
+   "x": 853.9,
+   "y": 570.4,
+   "r": 188.2,
+   "ry": 187.7,
    "islands": [
     {
-     "name": "Bothaway",
-     "x": 833.9,
-     "y": 151.3
-    },
-    {
-     "name": "Cothlis Cay",
-     "x": 733.9,
-     "y": 82.1
-    },
-    {
-     "name": "Coralhome",
-     "x": 877.4,
-     "y": 234.9
-    },
-    {
-     "name": "Preston's Reach",
-     "x": 912.0,
-     "y": 256.8
-    },
-    {
-     "name": "Sluysvaan",
-     "x": 771.5,
-     "y": 123.9
-    },
-    {
-     "name": "The Shoals",
-     "x": 916.7,
-     "y": 313.4
-    },
-    {
-     "name": "Umgulla",
-     "x": 693.8,
-     "y": 55.7
-    }
-   ],
-   "luma": 38.0,
-   "label": {
-    "x": 784.1,
-    "y": 350.7
-   }
-  },
-  {
-   "reach": "Sugar Reach",
-   "sea": "The Amber Sea",
-   "x": 870.0,
-   "y": 553.1,
-   "r": 169.9,
-   "ry": 164.6,
-   "islands": [
-    {
-     "name": "Passh Bay",
+     "name": "Gibbet Rock",
      "x": 891.8,
      "y": 546.1
     },
     {
-     "name": "Denby Cay",
+     "name": "Fetral",
      "x": 904.5,
      "y": 657.8
     },
     {
-     "name": "Ortovale",
+     "name": "Fillsving",
      "x": 857.4,
      "y": 419.4
     },
     {
-     "name": "Charmouth",
+     "name": "Gardenholm",
      "x": 794.0,
      "y": 443.6
     },
     {
-     "name": "Ferrol Key",
+     "name": "Jerrador",
      "x": 876.9,
      "y": 491.6
     },
     {
-     "name": "Rishi Bank",
+     "name": "The Kettles",
      "x": 912.2,
      "y": 717.6
     },
     {
-     "name": "Bilbrin",
+     "name": "Cubbin",
      "x": 853.5,
      "y": 595.3
+    },
+    {
+     "name": "Morvogine",
+     "x": 727.1,
+     "y": 503.8
+    },
+    {
+     "name": "Norvell",
+     "x": 868.2,
+     "y": 758.0
     }
    ],
-   "luma": 39.0,
+   "luma": 37.0,
    "label": {
-    "x": 752.4,
-    "y": 730.3
+    "x": 808.4,
+    "y": 794.6
    }
   },
   {
@@ -276,6 +236,56 @@
    "label": {
     "x": 179.6,
     "y": 245.9
+   }
+  },
+  {
+   "reach": "Whalers' Reach",
+   "sea": "The Far Sea",
+   "x": 819.9,
+   "y": 174.0,
+   "r": 172.9,
+   "ry": 139.4,
+   "islands": [
+    {
+     "name": "Northreach",
+     "x": 833.9,
+     "y": 151.3
+    },
+    {
+     "name": "Tallow Cay",
+     "x": 733.9,
+     "y": 82.1
+    },
+    {
+     "name": "Tjerfon",
+     "x": 877.4,
+     "y": 234.9
+    },
+    {
+     "name": "Alkellish",
+     "x": 912.0,
+     "y": 256.8
+    },
+    {
+     "name": "Boordvik",
+     "x": 771.5,
+     "y": 123.9
+    },
+    {
+     "name": "Flaxholm",
+     "x": 916.7,
+     "y": 313.4
+    },
+    {
+     "name": "Gedon",
+     "x": 693.8,
+     "y": 55.7
+    }
+   ],
+   "luma": 38.0,
+   "label": {
+    "x": 784.1,
+    "y": 350.7
    }
   },
   {
@@ -409,55 +419,55 @@
    }
   },
   {
-   "reach": "Wreckers' Reach",
-   "sea": "The Bone Sea",
+   "reach": "Coral Reach",
+   "sea": "The Amber Sea",
    "x": 834.7,
    "y": 1032.3,
    "r": 134.9,
    "ry": 132.1,
    "islands": [
     {
-     "name": "Gibbet Rock",
+     "name": "Coralhome",
      "x": 906.4,
      "y": 969.4
     },
     {
-     "name": "Fetral",
+     "name": "Bothaway",
      "x": 873.1,
      "y": 1018.8
     },
     {
-     "name": "Fillsving",
+     "name": "Cothlis Cay",
      "x": 864.0,
      "y": 1163.6
     },
     {
-     "name": "Gardenholm",
+     "name": "Preston's Reach",
      "x": 764.4,
      "y": 989.8
     },
     {
-     "name": "Jerrador",
+     "name": "Sluysvaan",
      "x": 779.0,
      "y": 1120.1
     },
     {
-     "name": "The Kettles",
+     "name": "The Shoals",
      "x": 748.9,
      "y": 1073.1
     },
     {
-     "name": "Cubbin",
+     "name": "Umgulla",
      "x": 900.5,
      "y": 1089.9
     },
     {
-     "name": "Morvogine",
+     "name": "Passh Bay",
      "x": 861.9,
      "y": 900.1
     },
     {
-     "name": "Norvell",
+     "name": "Denby Cay",
      "x": 814.3,
      "y": 965.7
     }
@@ -465,7 +475,7 @@
    "luma": 41.0,
    "label": {
     "x": 800.3,
-    "y": 862.8
+    "y": 1201.8
    }
   }
  ]

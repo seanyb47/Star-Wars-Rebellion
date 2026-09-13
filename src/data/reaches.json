@@ -81,58 +81,39 @@
       ]
     },
     {
-      "name": "Coral Reach",
-      "sea": "The Amber Sea",
+      "name": "Wreckers' Reach",
+      "sea": "The Bone Sea",
       "tier": "inner",
       "islands": [
         {
-          "name": "Bothaway"
+          "name": "Gibbet Rock",
+          "note": "An Imperium prison. The name is not a metaphor."
         },
         {
-          "name": "Cothlis Cay"
+          "name": "Fetral"
         },
         {
-          "name": "Coralhome"
+          "name": "Fillsving"
         },
         {
-          "name": "Preston's Reach"
+          "name": "Gardenholm",
+          "note": "Sacred and green. No tree on it has ever been cut."
         },
         {
-          "name": "Sluysvaan"
+          "name": "Jerrador"
         },
         {
-          "name": "The Shoals"
+          "name": "The Kettles",
+          "note": "Prison mines, cutting ambergris out of a dead leviathan's skull."
         },
         {
-          "name": "Umgulla"
-        }
-      ]
-    },
-    {
-      "name": "Sugar Reach",
-      "sea": "The Amber Sea",
-      "tier": "inner",
-      "islands": [
-        {
-          "name": "Passh Bay"
+          "name": "Cubbin"
         },
         {
-          "name": "Denby Cay"
+          "name": "Morvogine"
         },
         {
-          "name": "Ortovale"
-        },
-        {
-          "name": "Charmouth"
-        },
-        {
-          "name": "Ferrol Key"
-        },
-        {
-          "name": "Rishi Bank"
-        },
-        {
-          "name": "Bilbrin"
+          "name": "Norvell"
         }
       ]
     },
@@ -165,6 +146,37 @@
         },
         {
           "name": "Lelmar"
+        }
+      ]
+    },
+    {
+      "name": "Whalers' Reach",
+      "sea": "The Far Sea",
+      "tier": "outer",
+      "islands": [
+        {
+          "name": "Northreach",
+          "note": "Torvik's homeland. Urskin whalers and harpooners."
+        },
+        {
+          "name": "Tallow Cay",
+          "note": "Whale-oil and salt. Far enough out that nobody counts the ships."
+        },
+        {
+          "name": "Tjerfon",
+          "note": "A cutter base, of sorts."
+        },
+        {
+          "name": "Alkellish"
+        },
+        {
+          "name": "Boordvik"
+        },
+        {
+          "name": "Flaxholm"
+        },
+        {
+          "name": "Gedon"
         }
       ]
     },
@@ -249,39 +261,43 @@
       ]
     },
     {
-      "name": "Wreckers' Reach",
-      "sea": "The Bone Sea",
+      "name": "Coral Reach",
+      "sea": "The Amber Sea",
       "tier": "outer",
       "islands": [
         {
-          "name": "Gibbet Rock",
-          "note": "An Imperium prison. The name is not a metaphor."
+          "name": "Coralhome",
+          "note": "The Reef-folk. Their ships are sung into shape over years."
         },
         {
-          "name": "Fetral"
+          "name": "Bothaway",
+          "note": "Home of the Rumor Guild, who sell to both sides."
         },
         {
-          "name": "Fillsving"
+          "name": "Cothlis Cay",
+          "note": "Rumor Guild outpost."
         },
         {
-          "name": "Gardenholm",
-          "note": "Sacred and green. No tree on it has ever been cut."
+          "name": "Preston's Reach",
+          "note": "Signal towers. Word travels fast from here."
         },
         {
-          "name": "Jerrador"
+          "name": "Sluysvaan",
+          "note": "The great civilian dockyards."
         },
         {
-          "name": "The Kettles",
-          "note": "Prison mines, cutting ambergris out of a dead leviathan's skull."
+          "name": "The Shoals",
+          "note": "Shoal-folk. They can hear a hull creak a mile off."
         },
         {
-          "name": "Cubbin"
+          "name": "Umgulla",
+          "note": "Gambling and racing. Everyone owes someone here."
         },
         {
-          "name": "Morvogine"
+          "name": "Passh Bay"
         },
         {
-          "name": "Norvell"
+          "name": "Denby Cay"
         }
       ]
     }

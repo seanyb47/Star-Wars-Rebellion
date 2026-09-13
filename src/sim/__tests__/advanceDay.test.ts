@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { advanceDay, checkVictory } from '../advanceDay';
-import { YARD_BUILDS } from '../constants';
+import { MISSION_WORK_DAYS, YARD_BUILDS } from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { newGame, orderBuild, resolvePendingMission, sendDiplomat, setSpeed } from '../commands';
 import { clearSave, loadGame, saveGame } from '../persist';
 import { getSystem } from '../helpers';
+import { travelDays } from '../missions';
 import type { GameState } from '../types';
 
 /** What a new game starts with; kept here so the test states the intent. */
@@ -43,7 +44,7 @@ describe('advanceDay', () => {
 
   it('survives a long run without throwing or corrupting the galaxy', () => {
     const after = tick(generateGalaxy(404), 400);
-    expect(after.systems).toHaveLength(69);
+    expect(after.systems).toHaveLength(71);
     expect(after.day).toBeGreaterThan(1);
     for (const system of after.systems) {
       expect(system.support.empire).toBeGreaterThanOrEqual(0);
@@ -148,17 +149,19 @@ describe('commands', () => {
     // An island of our own, on purpose: there is no foil risk on ground you
     // hold, so this exercises the command layer rather than a lucky roll. On a
     // neutral island the officer can be found out and come home hurt, which is
-    // a perfectly good outcome but not the one this test is about.
-    const target = state.systems.find(
-      (s) => s.sectorId === home.sectorId && s.control === 'empire' && s.id !== home.id,
-    )!;
+    // a perfectly good outcome but not the one this test is about. Any Crown
+    // island will do — the Crown's other holdings are not always in the seat's
+    // own chain — so the clock runs for the real passage plus the work.
+    const target = state.systems.find((s) => s.control === 'empire' && s.id !== home.id)!;
     // Under the research floor, so the island asks for a parley and not for
     // its yards to be put to work.
     target.support.empire = 60;
 
     const sent = sendDiplomat(state, diplomat.id, target.id);
     expect(sent.error).toBeUndefined();
-    state = tick(sent.state, 18);
+    // Exactly the passage plus the work: the clock pauses on a decision in
+    // play, and a test that runs past it sees the same decision raised again.
+    state = tick(sent.state, travelDays(state, home.id, target.id) + MISSION_WORK_DAYS);
     expect(state.pendingDecisions).toHaveLength(1);
 
     const resolved = resolvePendingMission(state, diplomat.id, 'return');
@@ -191,7 +194,7 @@ describe('save and load', () => {
     saveGame(state, storage);
     const loaded = loadGame(storage)!;
     expect(loaded.day).toBe(state.day);
-    expect(loaded.systems).toHaveLength(69);
+    expect(loaded.systems).toHaveLength(71);
     expect(JSON.stringify({ ...loaded, speed: state.speed })).toEqual(JSON.stringify(state));
   });
 

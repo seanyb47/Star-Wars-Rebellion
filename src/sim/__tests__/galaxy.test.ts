@@ -4,21 +4,21 @@ import { generateGalaxy } from '../galaxy';
 describe('generateGalaxy', () => {
   it('builds eight Reaches of seven to ten islands', () => {
     const state = generateGalaxy(42);
-    // Eight: the Amber Sea holds two, Coral and Sugar, since the painting has two.
+    // Eight: the Far Sea holds two, Rime and Whalers', since the painting has two.
     expect(state.sectors).toHaveLength(8);
-    // 10 + 9 + 7 + 7 inner, 7 + 10 + 10 + 9 outer.
-    expect(state.systems).toHaveLength(69);
+    // 10 + 9 + 9 inner, 7 + 7 + 10 + 10 + 9 outer.
+    expect(state.systems).toHaveLength(71);
     for (const sector of state.sectors) {
       expect(sector.systemIds.length).toBeGreaterThanOrEqual(7);
       expect(sector.systemIds.length).toBeLessThanOrEqual(15);
     }
   });
 
-  it('splits the map into four inner Reaches and four outer', () => {
+  it('splits the map into three inner Reaches and five outer', () => {
     const state = generateGalaxy(42);
-    // Sovereign 10 + Shipwrights' 9 + Coral 7 + Sugar 7.
-    expect(state.systems.filter((s) => s.isCore)).toHaveLength(33);
-    expect(state.systems.filter((s) => !s.isCore)).toHaveLength(36);
+    // Sovereign 10 + Shipwrights' 9 + Wreckers' 9.
+    expect(state.systems.filter((s) => s.isCore)).toHaveLength(28);
+    expect(state.systems.filter((s) => !s.isCore)).toHaveLength(43);
   });
 
   it('is deterministic for a seed and different across seeds', () => {
@@ -34,8 +34,8 @@ describe('generateGalaxy', () => {
 
   it('gives every system a unique id and name', () => {
     const state = generateGalaxy(3);
-    expect(new Set(state.systems.map((s) => s.id)).size).toBe(69);
-    expect(new Set(state.systems.map((s) => s.name)).size).toBe(69);
+    expect(new Set(state.systems.map((s) => s.id)).size).toBe(71);
+    expect(new Set(state.systems.map((s) => s.name)).size).toBe(71);
   });
 
   it('makes core systems populated and explored by both sides', () => {
