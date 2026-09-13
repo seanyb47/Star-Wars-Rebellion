@@ -43,8 +43,6 @@ import { TabBar, type Tab } from './TabBar';
 import { TopBar } from './TopBar';
 import { useAudio } from './useAudio';
 import { FactionCrest } from './art';
-import { WorthMark } from './worth';
-import { controlColour } from './ChainMap';
 import { ControlBadge, Sheet, Stat } from './components';
 
 const SEEN_KEY = 'galactic-rebellion.lastSeenEvent.v1';
@@ -76,7 +74,6 @@ export function App() {
   const [openSea, setOpenSea] = useState<string | null>(null);
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [worldsOpen, setWorldsOpen] = useState(false);
   const [narratorOpen, setNarratorOpen] = useState(false);
   const [almanacOpen, setAlmanacOpen] = useState(false);
   const [pickingFor, setPickingFor] = useState<string | null>(null);
@@ -124,7 +121,6 @@ export function App() {
     openReachId !== null ||
     openSea !== null ||
     menuOpen ||
-    worldsOpen ||
     cards.length > 0 ||
     narratorOpen ||
     almanacOpen ||
@@ -395,7 +391,6 @@ export function App() {
               setPickingFor(null);
               setSailingFleetId(null);
             }}
-            onOpenWorlds={() => setWorldsOpen(true)}
             onSelectReach={(sectorId: string) => setOpenReachId(sectorId)}
             onOpenIsland={(systemId: string) => {
               setOpenSystemId(systemId);
@@ -526,17 +521,6 @@ export function App() {
 
       {decision && <MissionDecisionSheet state={state} onResolve={setState} />}
 
-      {worldsOpen && (
-        <WorldsSheet
-          state={state}
-          onClose={() => setWorldsOpen(false)}
-          onPick={(systemId) => {
-            setWorldsOpen(false);
-            jumpToSystem(systemId);
-          }}
-        />
-      )}
-
       {narratorOpen && (
         <Narrator
           state={state}
@@ -627,59 +611,6 @@ function MissionDecisionSheet({
   );
 }
 
-function WorldsSheet({
-  state,
-  onClose,
-  onPick,
-}: {
-  state: GameState;
-  onClose: () => void;
-  onPick: (systemId: string) => void;
-}) {
-  const held = state.systems.filter((s) => s.control === state.player);
-  return (
-    <Sheet title="My islands" subtitle={`${held.length} held`} onClose={onClose}>
-      <div className="stack">
-        {held.map((system) => {
-          const sector = state.sectors.find((s) => s.id === system.sectorId);
-          const building = system.facilities.filter((f) => f.building).length;
-          return (
-            <button
-              key={system.id}
-              className="card card--tap"
-              style={{ display: 'block', width: '100%', textAlign: 'left' }}
-              onClick={() => onPick(system.id)}
-            >
-              <div className="row row--between">
-                <span style={{ fontWeight: 600 }}>
-                  {system.name}
-                  <WorthMark
-                    system={system}
-                    size={14}
-                    colour={controlColour(system, state.player)}
-                    className="isle__worth"
-                  />
-                </span>
-                {system.uprising ? (
-                  <span className="badge badge--warn">{terms.mutiny}</span>
-                ) : (
-                  <span className="tiny muted">
-                    {Math.round(system.support[state.player])} {terms.allegiance.toLowerCase()}
-                  </span>
-                )}
-              </div>
-              <div className="tiny muted" style={{ marginTop: 3 }}>
-                {sector?.name} · {system.facilities.length} built · {system.garrison} ashore
-                {building > 0 ? ` · ${building} building` : ''}
-              </div>
-            </button>
-          );
-        })}
-        {held.length === 0 && <div className="empty">You hold nothing at all.</div>}
-      </div>
-    </Sheet>
-  );
-}
 
 function MenuSheet({
   state,

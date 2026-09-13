@@ -116,7 +116,6 @@ export interface GalaxyMapProps {
   /** A fleet waiting to be told where to sail. Anywhere is a valid answer. */
   sailing?: boolean;
   onCancelPick?: () => void;
-  onOpenWorlds?: () => void;
   /** Tapping a chain opens it. The island is then chosen from the list. */
   onSelectReach?: (sectorId: string) => void;
   /** From the idle-producer strip: jump straight to an island with a free yard. */
@@ -199,7 +198,6 @@ export function GalaxyMap({
   pickingFor,
   sailing,
   onCancelPick,
-  onOpenWorlds,
   onSelectReach,
   onOpenIsland,
   layer = 'allegiance',
@@ -591,11 +589,7 @@ export function GalaxyMap({
           <button className="chip chip--pick" onClick={onCancelPick}>
             Open a chain and pick an island · cancel
           </button>
-        ) : (
-          <button className="chip chip--action" onClick={onOpenWorlds}>
-            My islands
-          </button>
-        )}
+        ) : null}
       </div>
     </>
   );
