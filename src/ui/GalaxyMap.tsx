@@ -158,13 +158,14 @@ const RHUMB_ANGLES = Array.from({ length: 16 }, (_, i) => (i * 360) / 16);
  * could change without the island changing hands was a colour you could not
  * trust at a glance. Control never lies. Lean is on the island's own panel.
  */
-function controlColor(system: System): string {
+function controlColor(system: System, viewer: PlayableFaction): string {
+  if (!system.explored[viewer]) return 'var(--unknown)';
   if (system.control === 'empire' || system.control === 'alliance') {
     return allegianceColour(system.control);
   }
-  // One grey, and it means nobody lives there. What you have not charted is
-  // not drawn at all — that is the fog of war, and a second grey for it was
-  // a distinction nobody read.
+  // One grey for both the unexplored and the unsettled: either way it is
+  // nobody's and open, and a second shade to tell them apart was a
+  // distinction nobody read. The dashed edge says which.
   return system.populated ? 'var(--neutral)' : 'var(--unknown)';
 }
 
@@ -368,11 +369,12 @@ export function GalaxyMap({
                 const ax = at ? at.x : spot.x + system.x * 0.72;
                 const ay = at ? at.y : spot.y + system.y * 0.72;
                 const explored = system.explored[viewer];
-                // Fog of war: an island you have not charted is not on the
-                // chart. The painting shows the sea; the markers show what you
-                // know is in it, and a survey is how you learn more.
-                if (!explored) return null;
-                const grade: WorthTier | null = sizing ? worthTier(system) : null;
+                // Every island is on the chart, always. One you have not been
+                // to is grey with a dashed edge: open ground, somewhere to
+                // survey and settle. Hiding them was tried and looked wrong —
+                // a sea with islands painted on it and nothing marking them.
+                // Its worth stays its own until you have been.
+                const grade: WorthTier | null = sizing && explored ? worthTier(system) : null;
                 const worthMark = grade ? WORTH_SHAPE[grade] : null;
                 const radius = worthMark ? worthMark.r : ISLAND_RADIUS;
                 const isHq =
@@ -388,7 +390,7 @@ export function GalaxyMap({
                 // an earlier version did all three and left half the chart
                 // unreadable to say something a star says on its own.
                 const lit = filtering && mark.lit && !sizing;
-                const tint = controlColor(system);
+                const tint = controlColor(system, viewer);
                 // Garrisons: the number is the mark. A star with "4" beside it
                 // said the same thing twice; the count on its own, in the
                 // island's colour, is the whole answer to the question.

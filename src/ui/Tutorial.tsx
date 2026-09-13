@@ -49,7 +49,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'The chart',
     body: () =>
-      'Every island you know of is a dot in the colour of who holds it: green the Crown, red the Confederacy, blue nobody yet, grey nobody lives there. What you have not charted is not on the chart at all — send someone to survey. A ring marks a capital. Tap a chain to zoom in.',
+      'Every island is a dot in the colour of who holds it: green the Crown, red the Confederacy, blue settled but nobody\'s, grey unexplored or empty — open ground to survey and settle. A ring marks a capital. Tap a chain to zoom in.',
   },
   {
     title: 'One island',
