@@ -94,6 +94,16 @@ export function showsNumber(layer: ChartLayer): boolean {
   return layer === 'garrisons' || layer === 'worth';
 }
 
+/**
+ * Layers whose answer is a fault to fix now — something of yours standing
+ * idle. These are the filters you check often, and the mark they light has
+ * to be seen from across the chart, not found: it is drawn bigger, with a
+ * pulse behind it.
+ */
+export function isIdleLayer(layer: ChartLayer): boolean {
+  return layer === 'idleWorks' || layer === 'idleCrew';
+}
+
 /** What a lit island is worth saying about itself, under this layer. */
 export interface LayerMark {
   /** Whether the island answers the layer's question at all. */

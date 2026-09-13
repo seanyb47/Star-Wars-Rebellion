@@ -851,6 +851,15 @@ button {
    No fill here: the colour is set per island so the number belongs visibly to
    its dot, and a stylesheet rule would beat that presentation attribute — which
    has caught us before. */
+/* The pulse behind an idle star. Something of yours is standing idle and the
+   chart is saying so from across the room: a soft disc in the island's own
+   colour, breathing. Opacity only — a growing disc under a still star reads
+   as a ripple, which is a different thing. */
+.map__idle-halo { opacity: 0.32; animation: idle-pulse 1.6s ease-in-out infinite; }
+@keyframes idle-pulse { 0%, 100% { opacity: 0.18; } 50% { opacity: 0.5; } }
+@media (prefers-reduced-motion: reduce) {
+  .map__idle-halo { animation: none; opacity: 0.35; }
+}
 .map__lit-n {
   font-size: 15px; font-weight: 700;
   font-variant-numeric: tabular-nums;

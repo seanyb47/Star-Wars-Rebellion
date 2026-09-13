@@ -8,6 +8,7 @@ import {
   type ChartLayer,
   type PlayableFaction,
   type System,
+  isIdleLayer,
   showsNumber,
 } from '../sim';
 import factionData from '../data/factions.json';
@@ -364,14 +365,27 @@ export function ChainMap({
                     {litCount}
                   </text>
                 ) : (
-                  <path
-                    d={worthPath('large', 15)!}
-                    transform={`translate(${spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - 22} ${spot.y + 1})`}
-                    fill={tint}
-                    stroke="#041219"
-                    strokeWidth={2}
-                    strokeLinejoin="round"
-                  />
+                  <>
+                    {/* Idle works and idle crew: the chart's biggest star,
+                        with a pulse behind it — the same as on the chart. */}
+                    {layer && isIdleLayer(layer) && (
+                      <circle
+                        className="map__idle-halo"
+                        cx={spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - 26}
+                        cy={spot.y + 1}
+                        r={54}
+                        fill={tint}
+                      />
+                    )}
+                    <path
+                      d={worthPath('large', layer && isIdleLayer(layer) ? 26 : 15)!}
+                      transform={`translate(${spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - (layer && isIdleLayer(layer) ? 26 : 22)} ${spot.y + 1})`}
+                      fill={tint}
+                      stroke="#041219"
+                      strokeWidth={2}
+                      strokeLinejoin="round"
+                    />
+                  </>
                 )}
                 {!(layer && showsNumber(layer)) && litCount !== undefined && litCount > 1 && (
                   <text
