@@ -279,6 +279,19 @@ def main() -> None:
     def overlaps(a, b, pad=0.0) -> bool:
         return a[0] - pad < b[2] and b[0] - pad < a[2] and a[1] - pad < b[3] and b[1] - pad < a[3]
 
+    # Names placed by hand, in chart units, where the scorer's best was not
+    # where the eye wanted it. The scorer still searches around the pin and
+    # still refuses to cover an island's mark; the pin only says which side
+    # of the chain the name belongs on. Rime reads as its snow islands' name
+    # from under their left end, not from the open water to their right;
+    # Shipwrights' belongs under the foot of its chain, not out in the
+    # channel beside Sovereign; Salt sits on its own chain's shoulder.
+    LABEL_PINS: dict[str, tuple[float, float]] = {
+        "Rime Reach": (120.0, 240.0),
+        "Shipwrights' Reach": (172.0, 662.0),
+        "Salt Reach": (590.0, 1165.0),
+    }
+
     # The foot of the chart belongs to the layer strip.
     FOOT = 250.0
     placed: list[tuple[float, float, float, float]] = []
@@ -286,10 +299,13 @@ def main() -> None:
         cx, cy = entry["x"], entry["y"]
         name = entry["reach"]
         mine = {(i["x"], i["y"]) for i in entry["islands"]}
-        best, best_score = (cx, cy), -1e9
-        for dy in range(-260, 261, 12):
-            for dx in range(-260, 261, 12):
-                x, y = cx + dx, cy + dy
+        pinned = name in LABEL_PINS
+        hx, hy = LABEL_PINS.get(name, (cx, cy))
+        span = 72 if pinned else 260
+        best, best_score = (hx, hy), -1e9
+        for dy in range(-span, span + 1, 12):
+            for dx in range(-span, span + 1, 12):
+                x, y = hx + dx, hy + dy
                 b = box(name, x, y)
                 if b[0] < 8 or b[2] > CHART_W - 8 or b[1] < 8:
                     continue
@@ -311,7 +327,7 @@ def main() -> None:
                 # Home first: the pull to the centre is what keeps a name on
                 # its chain rather than in the nearest clear water.
                 score = (
-                    -math.hypot(dx, dy * 1.3)
+                    -math.hypot(dx, dy * 1.3) * (3 if pinned else 1)
                     - covered * 400
                     - clash * 800
                     + min(own, 5) * 22
