@@ -110,8 +110,15 @@ describe('the opponent expands', () => {
     // however the balance is tuned.
     const state = generateGalaxy(4);
     const diplomat = state.characters.find((c) => c.faction === 'alliance')!;
+    // A neutral island with nobody unaligned ashore: somebody standing on the
+    // quay would make signing them on the island's answer, and this test is
+    // about a parley.
     const target = state.systems.find(
-      (s) => s.control === 'neutral' && s.populated && s.explored.alliance,
+      (s) =>
+        s.control === 'neutral' &&
+        s.populated &&
+        s.explored.alliance &&
+        !state.characters.some((c) => c.faction === 'neutral' && c.locationSystemId === s.id),
     )!;
     startMission(state, diplomat.id, target.id);
     expect(diplomat.mission!.phase).toBe('travelling');

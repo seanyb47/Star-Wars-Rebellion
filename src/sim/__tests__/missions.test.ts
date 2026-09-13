@@ -68,6 +68,10 @@ describe('mission eligibility', () => {
   it('lets the island decide the mission: parley yours, stir up theirs', () => {
     const { state, sameSector } = setup();
     const own = state.systems.find((s) => s.control === 'empire')!;
+    // An island of yours with a yard and its people already won over would
+    // put the officer to research instead; this test is about parley, so
+    // give it something left to be talked round about.
+    own.support.empire = 60;
     const enemy = state.systems.find((s) => s.control === 'alliance')!;
     enemy.explored.empire = true;
 

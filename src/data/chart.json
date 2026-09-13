@@ -131,81 +131,101 @@
   {
    "reach": "Coral Reach",
    "sea": "The Amber Sea",
-   "x": 842.4,
-   "y": 406.2,
-   "r": 341.8,
-   "ry": 324.1,
+   "x": 819.9,
+   "y": 174.0,
+   "r": 172.9,
+   "ry": 139.4,
    "islands": [
     {
      "name": "Bothaway",
-     "x": 891.8,
-     "y": 546.1
-    },
-    {
-     "name": "Cothlis Cay",
-     "x": 904.5,
-     "y": 657.8
-    },
-    {
-     "name": "Coralhome",
-     "x": 857.4,
-     "y": 419.4
-    },
-    {
-     "name": "Preston's Reach",
-     "x": 794.0,
-     "y": 443.6
-    },
-    {
-     "name": "Sluysvaan",
-     "x": 876.9,
-     "y": 491.6
-    },
-    {
-     "name": "The Shoals",
      "x": 833.9,
      "y": 151.3
     },
     {
-     "name": "Umgulla",
-     "x": 912.2,
-     "y": 717.6
-    },
-    {
-     "name": "Passh Bay",
+     "name": "Cothlis Cay",
      "x": 733.9,
      "y": 82.1
     },
     {
-     "name": "Denby Cay",
-     "x": 853.5,
-     "y": 595.3
-    },
-    {
-     "name": "Ortovale",
+     "name": "Coralhome",
      "x": 877.4,
      "y": 234.9
     },
     {
-     "name": "Charmouth",
+     "name": "Preston's Reach",
+     "x": 912.0,
+     "y": 256.8
+    },
+    {
+     "name": "Sluysvaan",
      "x": 771.5,
      "y": 123.9
     },
     {
-     "name": "Ferrol Key",
+     "name": "The Shoals",
      "x": 916.7,
      "y": 313.4
     },
     {
-     "name": "Rishi Bank",
-     "x": 727.1,
-     "y": 503.8
+     "name": "Umgulla",
+     "x": 693.8,
+     "y": 55.7
     }
    ],
-   "luma": 35.0,
+   "luma": 38.0,
    "label": {
-    "x": 842.4,
-    "y": 770.3
+    "x": 784.1,
+    "y": 350.7
+   }
+  },
+  {
+   "reach": "Sugar Reach",
+   "sea": "The Amber Sea",
+   "x": 870.0,
+   "y": 553.1,
+   "r": 169.9,
+   "ry": 164.6,
+   "islands": [
+    {
+     "name": "Passh Bay",
+     "x": 891.8,
+     "y": 546.1
+    },
+    {
+     "name": "Denby Cay",
+     "x": 904.5,
+     "y": 657.8
+    },
+    {
+     "name": "Ortovale",
+     "x": 857.4,
+     "y": 419.4
+    },
+    {
+     "name": "Charmouth",
+     "x": 794.0,
+     "y": 443.6
+    },
+    {
+     "name": "Ferrol Key",
+     "x": 876.9,
+     "y": 491.6
+    },
+    {
+     "name": "Rishi Bank",
+     "x": 912.2,
+     "y": 717.6
+    },
+    {
+     "name": "Bilbrin",
+     "x": 853.5,
+     "y": 595.3
+    }
+   ],
+   "luma": 39.0,
+   "label": {
+    "x": 752.4,
+    "y": 730.3
    }
   },
   {
@@ -445,7 +465,7 @@
    "luma": 41.0,
    "label": {
     "x": 800.3,
-    "y": 1201.8
+    "y": 862.8
    }
   }
  ]

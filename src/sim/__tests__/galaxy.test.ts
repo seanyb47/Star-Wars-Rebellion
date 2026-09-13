@@ -2,23 +2,22 @@ import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 
 describe('generateGalaxy', () => {
-  it('builds seven Reaches of seven to thirteen islands', () => {
+  it('builds eight Reaches of seven to ten islands', () => {
     const state = generateGalaxy(42);
-    expect(state.sectors).toHaveLength(7);
-    // Sixty-eight since Coral took the second Amber Sea chain: 7 + 9 + 13 inner,
-    // 7 + 10 + 10 + 9 outer.
-    expect(state.systems).toHaveLength(68);
+    // Eight: the Amber Sea holds two, Coral and Sugar, since the painting has two.
+    expect(state.sectors).toHaveLength(8);
+    // 10 + 9 + 7 + 7 inner, 7 + 10 + 10 + 9 outer.
+    expect(state.systems).toHaveLength(69);
     for (const sector of state.sectors) {
       expect(sector.systemIds.length).toBeGreaterThanOrEqual(7);
-      // Coral is the big one, and fifteen is the ceiling the bible allows.
       expect(sector.systemIds.length).toBeLessThanOrEqual(15);
     }
   });
 
-  it('splits the map into three inner Reaches and four outer', () => {
+  it('splits the map into four inner Reaches and four outer', () => {
     const state = generateGalaxy(42);
-    // Sovereign 10 + Shipwrights' 9 + Coral 13.
-    expect(state.systems.filter((s) => s.isCore)).toHaveLength(32);
+    // Sovereign 10 + Shipwrights' 9 + Coral 7 + Sugar 7.
+    expect(state.systems.filter((s) => s.isCore)).toHaveLength(33);
     expect(state.systems.filter((s) => !s.isCore)).toHaveLength(36);
   });
 
@@ -35,8 +34,8 @@ describe('generateGalaxy', () => {
 
   it('gives every system a unique id and name', () => {
     const state = generateGalaxy(3);
-    expect(new Set(state.systems.map((s) => s.id)).size).toBe(68);
-    expect(new Set(state.systems.map((s) => s.name)).size).toBe(68);
+    expect(new Set(state.systems.map((s) => s.id)).size).toBe(69);
+    expect(new Set(state.systems.map((s) => s.name)).size).toBe(69);
   });
 
   it('makes core systems populated and explored by both sides', () => {

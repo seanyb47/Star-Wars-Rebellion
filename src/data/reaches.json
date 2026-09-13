@@ -86,33 +86,33 @@
       "tier": "inner",
       "islands": [
         {
-          "name": "Bothaway",
-          "note": "Home of the Rumor Guild, who sell to both sides."
+          "name": "Bothaway"
         },
         {
-          "name": "Cothlis Cay",
-          "note": "Rumor Guild outpost."
+          "name": "Cothlis Cay"
         },
         {
-          "name": "Coralhome",
-          "note": "The Reef-folk. Their ships are sung into shape over years."
+          "name": "Coralhome"
         },
         {
-          "name": "Preston's Reach",
-          "note": "Signal towers. Word travels fast from here."
+          "name": "Preston's Reach"
         },
         {
-          "name": "Sluysvaan",
-          "note": "The great civilian dockyards."
+          "name": "Sluysvaan"
         },
         {
-          "name": "The Shoals",
-          "note": "Shoal-folk. They can hear a hull creak a mile off."
+          "name": "The Shoals"
         },
         {
-          "name": "Umgulla",
-          "note": "Gambling and racing. Everyone owes someone here."
-        },
+          "name": "Umgulla"
+        }
+      ]
+    },
+    {
+      "name": "Sugar Reach",
+      "sea": "The Amber Sea",
+      "tier": "inner",
+      "islands": [
         {
           "name": "Passh Bay"
         },
@@ -130,6 +130,9 @@
         },
         {
           "name": "Rishi Bank"
+        },
+        {
+          "name": "Bilbrin"
         }
       ]
     },

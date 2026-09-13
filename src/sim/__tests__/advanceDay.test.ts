@@ -43,7 +43,7 @@ describe('advanceDay', () => {
 
   it('survives a long run without throwing or corrupting the galaxy', () => {
     const after = tick(generateGalaxy(404), 400);
-    expect(after.systems).toHaveLength(68);
+    expect(after.systems).toHaveLength(69);
     expect(after.day).toBeGreaterThan(1);
     for (const system of after.systems) {
       expect(system.support.empire).toBeGreaterThanOrEqual(0);
@@ -152,6 +152,9 @@ describe('commands', () => {
     const target = state.systems.find(
       (s) => s.sectorId === home.sectorId && s.control === 'empire' && s.id !== home.id,
     )!;
+    // Under the research floor, so the island asks for a parley and not for
+    // its yards to be put to work.
+    target.support.empire = 60;
 
     const sent = sendDiplomat(state, diplomat.id, target.id);
     expect(sent.error).toBeUndefined();
@@ -188,7 +191,7 @@ describe('save and load', () => {
     saveGame(state, storage);
     const loaded = loadGame(storage)!;
     expect(loaded.day).toBe(state.day);
-    expect(loaded.systems).toHaveLength(68);
+    expect(loaded.systems).toHaveLength(69);
     expect(JSON.stringify({ ...loaded, speed: state.speed })).toEqual(JSON.stringify(state));
   });
 

@@ -15,14 +15,16 @@ import { reachesOfSea, seasOf, summariseReach, summariseSea } from '../reach';
 describe('the world bible data', () => {
   const allIslands = reachData.reaches.flatMap((r) => r.islands);
 
-  it('describes seven Reaches, one for each Sea: three Inner, four Outer', () => {
-    expect(reachData.reaches).toHaveLength(7);
-    expect(reachData.reaches.filter((r) => r.tier === 'inner')).toHaveLength(3);
+  it('describes eight Reaches across seven Seas: four Inner, four Outer', () => {
+    expect(reachData.reaches).toHaveLength(8);
+    expect(reachData.reaches.filter((r) => r.tier === 'inner')).toHaveLength(4);
     expect(reachData.reaches.filter((r) => r.tier === 'outer')).toHaveLength(4);
-    // One Reach per Sea is the whole point of the small map: it is what lets
-    // the chart name the Seas and the panels name the Reaches without either
-    // of them lying about what you are looking at.
-    expect(new Set(reachData.reaches.map((r) => r.name)).size).toBe(7);
+    // Seven Seas, and one of them — the Amber Sea — holds two Reaches, because
+    // the painting has two archipelagos there and one label over both read
+    // as a name floating on a lot of water.
+    expect(new Set(reachData.reaches.map((r) => r.name)).size).toBe(8);
+    expect(new Set(reachData.reaches.map((r) => r.sea)).size).toBe(7);
+    expect(reachData.reaches.filter((r) => r.sea === 'The Amber Sea')).toHaveLength(2);
   });
 
   it('gives every Reach between seven and fifteen islands', () => {
@@ -36,9 +38,9 @@ describe('the world bible data', () => {
     }
   });
 
-  it('names 68 distinct islands', () => {
-    expect(allIslands).toHaveLength(68);
-    expect(new Set(allIslands.map((i) => i.name)).size).toBe(68);
+  it('names 69 distinct islands', () => {
+    expect(allIslands).toHaveLength(69);
+    expect(new Set(allIslands.map((i) => i.name)).size).toBe(69);
   });
 
   it('covers all seven Seas', () => {
