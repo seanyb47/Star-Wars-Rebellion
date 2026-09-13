@@ -158,15 +158,21 @@ const RHUMB_ANGLES = Array.from({ length: 16 }, (_, i) => (i * 360) / 16);
  * could change without the island changing hands was a colour you could not
  * trust at a glance. Control never lies. Lean is on the island's own panel.
  */
-function controlColor(system: System, viewer: PlayableFaction): string {
-  if (!system.explored[viewer]) return 'var(--unknown)';
+export function controlColor(system: System, viewer: PlayableFaction): string {
+  // Unexplored first, before anything about whose it is: an island you have
+  // not been to is grey whoever holds it. Checking control first painted the
+  // Confederacy's hidden harbour red on the Crown's chart for one build,
+  // which is the one thing this chart must never do.
+  if (!system.explored[viewer]) return OPEN_GREY;
   if (system.control === 'empire' || system.control === 'alliance') {
     return allegianceColour(system.control);
   }
   // One grey for both the unexplored and the unsettled: either way it is
   // nobody's and open, and a second shade to tell them apart was a
-  // distinction nobody read. The dashed edge says which.
-  return system.populated ? 'var(--neutral)' : 'var(--unknown)';
+  // distinction nobody read. The dashed edge says which. Light enough to be
+  // seen against the water — the old --unknown was a ghost, and a ghost was
+  // as good as hidden.
+  return system.populated ? 'var(--neutral)' : OPEN_GREY;
 }
 
 /**
@@ -182,6 +188,8 @@ function controlColor(system: System, viewer: PlayableFaction): string {
  * anything past 11 would have neighbours running each other over.
  */
 const ISLAND_RADIUS = 8;
+/** Unexplored or unsettled: open ground. Readable on dark water at 8px. */
+export const OPEN_GREY = '#93a3ab';
 /** The filter's star. Bigger than a dot by enough to be the thing you see. */
 const STAR_RADIUS = 14;
 
@@ -436,10 +444,10 @@ export function GalaxyMap({
                              puts a seam down every point. */
                           const skin = {
                             fill: tint,
-                            fillOpacity: lit ? 0.95 : explored ? 0.42 : 0.14,
+                            fillOpacity: lit ? 0.95 : explored ? 0.42 : 0.3,
                             stroke: tint,
-                            strokeOpacity: explored ? 0.95 : 0.5,
-                            strokeWidth: lit ? 2 : explored ? 2.4 : 1.6,
+                            strokeOpacity: explored ? 0.95 : 0.9,
+                            strokeWidth: lit ? 2 : explored ? 2.4 : 2,
                             strokeDasharray: explored ? undefined : '4 3.5',
                             strokeLinejoin: 'round' as const,
                           };
