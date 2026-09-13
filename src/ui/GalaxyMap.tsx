@@ -59,7 +59,13 @@ const CHART_H = CHART.height;
  * the chart and were landing on Salt Reach — the southernmost chain — and on
  * its label. And the painting's bottom edge is its brightest part (luma 75
  * where the rest is 25), which is the worst possible ground for a row of
- * chips. Fading it into flat water fixes both at once.
+ * chips.
+ *
+ * The band used to be flat water, faded into. On a phone that flat strip read
+ * as a border under the chart — the one place the sea stopped being painted.
+ * So it is painted now: the painting's own foot, mirrored down past its edge
+ * and darkened, so the sea runs on to the bottom of the screen and only gets
+ * deeper. Mirroring is seamless at the join by construction.
  */
 const BAND = 170;
 const VIEW_H = CHART_H + BAND;
@@ -297,13 +303,18 @@ export function GalaxyMap({
             <stop offset="70%" stopColor="var(--shallow)" stopOpacity="0.22" />
             <stop offset="100%" stopColor="var(--shallow)" stopOpacity="0" />
           </radialGradient>
-          {/* The painting's foot into open water. Long, because a short fade
-              over a bright edge reads as a horizon line across the chart. */}
+          {/* The painting's foot into deeper water. Long, because a short
+              fade over a bright edge reads as a horizon line across the
+              chart; and never to full, because a flat strip at the bottom is
+              a border, and the sea under the layer strip should still be sea. */}
           <linearGradient id="chart-foot" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="var(--water)" stopOpacity="0" />
-            <stop offset="55%" stopColor="var(--water)" stopOpacity="0.72" />
-            <stop offset="100%" stopColor="var(--water)" stopOpacity="1" />
+            <stop offset="55%" stopColor="var(--water)" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="var(--water)" stopOpacity="0.6" />
           </linearGradient>
+          <clipPath id="chart-band">
+            <rect x={0} y={CHART_H} width={CHART_W} height={BAND} />
+          </clipPath>
         </defs>
 
         {/* The ground. The painting where it exists; the engraved chart it
@@ -346,8 +357,24 @@ export function GalaxyMap({
 
         {ground && (
           <g pointerEvents="none">
+            {/* The band: the painting's last rows mirrored downward, so the
+                sea continues past the painting's edge instead of stopping at
+                it, and darkened so it reads as deeper water rather than a
+                reflection. Drawn flipped at twice the height and clipped to
+                the band, which puts the painting's bottom row on the seam. */}
+            <g clipPath="url(#chart-band)">
+              <image
+                href={ground}
+                x={0}
+                y={-2 * CHART_H}
+                width={CHART_W}
+                height={CHART_H}
+                preserveAspectRatio="xMidYMid slice"
+                transform="scale(1 -1)"
+              />
+              <rect x={0} y={CHART_H} width={CHART_W} height={BAND} fill="#000" opacity={0.3} />
+            </g>
             <rect x={0} y={CHART_H - 220} width={CHART_W} height={220 + BAND} fill="url(#chart-foot)" />
-            <rect x={0} y={CHART_H} width={CHART_W} height={BAND} fill="var(--water)" />
           </g>
         )}
 
