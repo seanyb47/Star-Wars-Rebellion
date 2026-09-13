@@ -892,14 +892,50 @@ them from here and nowhere else.
 One paragraph each: build, face, clothing or plumage, one signature detail,
 and what the viewer should feel. These are pasted into every image prompt.
 
-**Secretary Crane.** _[HUMAN: not yet written.]_
+_Drafted by Claude Code 2026-09-13 from the bible and the drawn figures;
+Sean to edit. Anything in these two paragraphs is his to strike._
 
-**Mr Pennywhistle.** _[HUMAN: not yet written.]_
+**Secretary Crane.** A tall, narrow man held perfectly straight, as if
+hung from a hook rather than standing. A long face the grey of wet slate,
+no colour in the lips, and eyes so pale they are almost the colour of the
+whites — set wide, lashless, and never once closing. Iron-grey hair combed
+flat to the skull with something that has dried hard. He wears the
+Admiralty's black: a high-collared coat buttoned to the throat, a white
+stock beneath it starched to a blade, one brass button at the collar bearing
+the Crown's fouled anchor, and a thin brass chain running from the collar
+to a pocket ledger he is never seen to open. The signature detail: along
+the seam of one collar-wing a fine white coral has grown, the warding kind
+the Crown grows over its hulls, spreading across the black cloth like frost
+— the only thing on him that is visibly alive, and it is not him. He should
+make the viewer sit up straighter and feel that whatever they are about to
+say has already been written down.
+
+**Mr Pennywhistle.** A big, battered sea-parrot, salt-stiff and heavier
+than a parrot has any right to be, perched on a length of whalebone lashed
+to a stanchion. Plumage in the Confederacy's own patchwork: a rust-red body
+faded to pink at the breast, a mantle of squid-ink blue-black across the
+shoulders, wing coverts that look dyed rather than grown, and a ragged tail
+with two feathers missing. The beak is a big grey hook with a chip out of
+the upper edge. One eye — the left — is a hard yellow ring around a black
+pupil that is fixed on the viewer and does not wander; where the right eye
+was there is a puckered scar under a tiny square of leather stitched on
+with sailmaker's thread and finished with a bone button. The signature
+detail: a brass ring on one leg with three links of snapped chain still
+hanging from it. Somebody owned him once. He is leaning forward off the
+perch, weight on one foot, head cocked to bring the good eye round. He
+should make the viewer want to laugh and know that he is about to make it
+worse.
 
 ### 16.2 Art direction, three words (plan step A2 — Sean)
 
-_[HUMAN: not yet chosen — e.g. "painterly, muted, weathered".]_ The house
-style for everything else is `seven-seas-art-style.md` §1.
+**painterly, weathered, cinematic** — _Claude Code's draft; Sean to
+confirm or replace._ Drawn from the house style in `seven-seas-art-style.md`
+§1 (hand-painted, textured brushwork, rich but weathered colours, dramatic
+natural lighting). "Cinematic" is the word that keeps the portraits from
+going flat: Crane lit cold from the left in a dim formal interior,
+Pennywhistle in the same light on his perch. If a different third word is
+wanted, "lamplit" pulls warmer and "muted" pulls quieter; both fit the
+house style.
 
 ### 16.3 Locked voice settings (plan step E2 — Sean, recorded here)
 

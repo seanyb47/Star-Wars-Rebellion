@@ -12,8 +12,8 @@ only part of the file Claude Code edits. Last updated 2026-09-13.
 
 | Step | Owner | State | Note |
 |---|---|---|---|
-| A1 visual paragraphs | HUMAN | **blocked on Sean** | Slots ready in the world bible §16 |
-| A2 art direction, three words | HUMAN | **blocked on Sean** | Slot ready in the world bible §16. The house style is in `seven-seas-art-style.md` §1 if you want to derive from it |
+| A1 visual paragraphs | HUMAN | **drafted — Sean to edit** | Claude Code's drafts are in the world bible §16.1; strike and rewrite freely |
+| A2 art direction, three words | HUMAN | **drafted — Sean to confirm** | "painterly, weathered, cinematic" in §16.2, with two alternatives noted |
 | A3 moods locked | BOTH | done | `neutral` / `grave` / `encouraged` — `src/ui/narrator/mood.ts` is the only definition |
 | A4 asset directories | CLAUDE CODE | done | `public/narrator/{video,audio,stills}` + `voicelines.json` — see the path note below |
 | B1–B7 six stills | HUMAN | blocked on A1, A2 | |
