@@ -892,8 +892,7 @@ them from here and nowhere else.
 One paragraph each: build, face, clothing or plumage, one signature detail,
 and what the viewer should feel. These are pasted into every image prompt.
 
-_Drafted by Claude Code 2026-09-13 from the bible and the drawn figures;
-Sean to edit. Anything in these two paragraphs is his to strike._
+_Locked 2026-09-13. These are pasted verbatim into every portrait prompt._
 
 **Secretary Crane.** A tall, narrow man held perfectly straight, as if
 hung from a hook rather than standing. A long face the grey of wet slate,
@@ -928,8 +927,7 @@ worse.
 
 ### 16.2 Art direction, three words (plan step A2 — Sean)
 
-**painterly, weathered, cinematic** — _Claude Code's draft; Sean to
-confirm or replace._ Drawn from the house style in `seven-seas-art-style.md`
+**painterly, weathered, cinematic** — _locked 2026-09-13._ Drawn from the house style in `seven-seas-art-style.md`
 §1 (hand-painted, textured brushwork, rich but weathered colours, dramatic
 natural lighting). "Cinematic" is the word that keeps the portraits from
 going flat: Crane lit cold from the left in a dim formal interior,
