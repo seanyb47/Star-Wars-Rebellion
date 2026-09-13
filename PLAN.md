@@ -1,5 +1,14 @@
 # Master of the Seven Seas — where it stands, and what is next
 
+> **The focus of the game is the islands.** An island is the unit: the thing
+> you hold, turn, garrison, build on, earn from, and lose. The chart is a chart
+> of islands; Reaches and Seas are how you find one, never what you act on.
+> Every filter answers a question about islands. Every officer, hull and coin
+> exists to change an island — who holds it, who its people lean to, what
+> stands on it. When a screen or a rule pulls attention anywhere else, it is
+> wrong, and this line is why.
+
+
 *12 September 2026. Written after the art delivery. The two specifications
 (`galaxy-rebellion-build-spec.md`, `seven-seas-world-bible.md`) say what the
 game **is**; this says what is **done**, what is **owed**, and in what order.*
