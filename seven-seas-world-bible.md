@@ -61,7 +61,8 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 | Energy | **Sweetwater** (fresh water that hasn't been soured) | Every facility needs one unit |
 | Natural disaster (resources destroyed) | **Black Tide landfall** | Same event. ⚙ Later: show the black stain on the map. |
 | New resources appear | **The Tide recedes** — ambergris and living coral left behind | Same event |
-| Advisor droid (C-3PO / IMP-22) | **Mr. Pennywhistle**, a one-eyed talking sea-parrot the Confederacy can't get rid of / **Secretary Crane**, the Regent's grey, unblinking private secretary who may not be alive | UI narrator |
+| Advisor droid (C-3PO / IMP-22) | **Mr. Pennywhistle**, a one-eyed talking sea-parrot the Confederacy can't get rid of / **Admiral Sabine Marlow**, Second Chair of the Admiralty — the Imperator's M | UI narrator |
+| Player's rank | **Imperator** (Crown) / **Captain-General of the Free** (Confederacy) | How the advisors address you; see §16.5 |
 
 ---
 
@@ -892,9 +893,21 @@ them from here and nowhere else.
 One paragraph each: build, face, clothing or plumage, one signature detail,
 and what the viewer should feel. These are pasted into every image prompt.
 
-_Locked 2026-09-13. These are pasted verbatim into every portrait prompt._
+_Locked 2026-09-13; the Crown's advisor replaced the same evening. These
+are pasted verbatim into every portrait prompt._
 
-**Secretary Crane.** A tall, narrow man held perfectly straight, as if
+**Admiral Sabine Marlow.** A small woman of sixty-one, straight-backed, seated as if the chair were an afterthought. Iron-grey hair cropped short, no wig. A face weathered like a deck, deep lines, a thin white scar through the left eyebrow, and grey, level eyes amused at something she is not going to share. She wears Admiralty black with every inch of gold lace stripped off — the stitch-marks where it was are still visible at the cuffs — a white stock, and one plain brass clasp at the throat shaped like a narrow strait between two headlands: the Narrows clasp, the only decoration she kept. Half-moon reading spectacles, on her nose or in her hand. The signature detail: a black cane with a plain brass head leaning against the chair, which she does not need and does not explain. She should make the viewer feel briefed, judged, and — if they have earned it — trusted.
+
+_Who she is._ Forty years at sea, the last ten commanding the Home Fleet; she
+won the Battle of the Narrows and lost a son in it and has mentioned neither.
+Offered the Regency, she refused it — "someone has to keep the books honest"
+— and took the Admiralty's Second Chair, where the decisions are actually
+made. She believes in the Imperium entirely, not because it is kind but
+because she was born in a corsair kingdom and remembers what the Reaches were
+before the walls. Adaira Hale once served under her. Neither side says so.
+
+**Secretary Crane** — _retired from the advisor's chair 2026-09-13, kept for
+later: he may stand behind her, silent, writing it all down._ A tall, narrow man held perfectly straight, as if
 hung from a hook rather than standing. A long face the grey of wet slate,
 no colour in the lips, and eyes so pale they are almost the colour of the
 whites — set wide, lashless, and never once closing. Iron-grey hair combed
@@ -945,7 +958,7 @@ them only for a character who has no rendered lines yet.
 <!-- narrator-voices -->
 ```json
 {
-  "crane": {
+  "marlow": {
     "engine": "elevenlabs",
     "voice_id": "",
     "model_id": "",
@@ -953,7 +966,7 @@ them only for a character who has no rendered lines yet.
     "similarity_boost": null,
     "style": null,
     "use_speaker_boost": true,
-    "note": "low, even, no dynamic range; high stability, low style"
+    "note": "older woman, contralto, dry; medium-high stability, a little style"
   },
   "pennywhistle": {
     "engine": "elevenlabs",
@@ -978,7 +991,52 @@ The two are opposites in every register. Crane is a held breath;
 Pennywhistle is the thing that makes you let it out. If a line could be
 said by either of them, it is wrong for both.
 
-#### Secretary Crane
+#### Admiral Sabine Marlow
+
+- **Sound.** Contralto, clipped, quiet — quiet the way people are who have
+  never once needed to shout to be obeyed. Close-miked, unhurried, dry as
+  gunpowder. Almost no volume change across a line; the emphasis is done
+  with a pause, or with one word pronounced very precisely. A faint rasp of
+  forty years of weather. Breath audible only when she has decided to let
+  you hear it.
+- **Tone.** Briefing-room. Exact, economical, and sarcastic in the M way:
+  understatement, the raised eyebrow you can hear, the compliment that is
+  also a warning. "How novel." "I'll alert the fleet." "Do try to keep up,
+  Imperator." She is never cruel and never wastes a barb on something that
+  does not matter; the sarcasm is how she tells you she expected better.
+  Underneath it is complete loyalty — to the Imperium first, and to you
+  exactly as far as you serve it.
+- **Diction.** Full sentences, no slang, precise numbers, naval vocabulary
+  used correctly and without ornament. Contractions allowed; she is not a
+  machine. Addresses the player as **"Imperator"** — with exactly the
+  deference the title demands and not one grain more, so that how carefully
+  she pronounces it is where the sarcasm lives. Never "sir". Once, late,
+  when it has been earned, "well done" with nothing after it.
+- **Tics.** Takes off her spectacles before the line that matters. Ends a
+  bad report with the next order rather than sympathy: "Good. Now the next
+  thing." The withdrawn warmth — one degree kinder, then immediately
+  business. Occasionally a line that is only a name and a full stop:
+  "Highwater." meaning: look at it.
+- **Never.** Never shouts. Never flatters. Never says "I think" — she says
+  what is so, and "if I'm wrong, it will be the first time this month."
+  Never jokes about the dead. Never uses Crane's flatness: she is entirely
+  alive, and the game should feel it.
+- **By mood.** *Neutral:* the above. *Grave:* the sarcasm drops out
+  completely, which is how you know it is bad — shorter lines, longer
+  pauses, the spectacles come off and stay off. *Encouraged:* one degree
+  warmer, a dry near-smile in the voice, and the withdrawal — "Good. Don't
+  let it go to your head."
+- **In the game.** "Nowhere. Every works you own is on an island with no
+  room left, or no works at all. I did mention this." / "Nobody. All of them
+  at sea or laid up — which is where you sent them, Imperator." / "None.
+  Every island you hold is quiet and garrisoned. Enjoy it; it won't last."
+- **TTS direction.** Medium-high stability, a little style, similarity
+  high; speed normal or a touch under. An older woman's voice with weight
+  in it; if the engine makes her sound kindly or grandmotherly it is the
+  wrong voice, and if it makes her sound like a villain it is also the
+  wrong voice. Judi Dench's M is the reference and everyone will know it.
+
+#### Secretary Crane (retired; kept for a silent cameo)
 
 - **Sound.** Low baritone, dry, close-miked and quiet — a voice for a
   reading room, never a deck. No breath in it: he does not audibly inhale,
@@ -1056,6 +1114,31 @@ said by either of them, it is wrong for both.
   character. If a take sounds like a calm narrator doing a funny voice, it
   is the wrong take.
 
+#### Mr Pennywhistle, addressing the player
+
+He calls the player **"General"** — short for Captain-General, the Moot's
+title, which he refuses to say in full because it takes too long — and
+**"Cap'n"** when he is pleased, which is rarer. Never "Captain-General",
+never anything respectful, never the Crown's word.
+
+### 16.5 Forms of address
+
+The player is the highest rank on their side by a long way; every named
+character, Corvane and Hale included, answers to them.
+
+- **Crown: Imperator.** The Imperator commands the war; the Lord Regent
+  keeps the civil Crown in the Imperator's name; the Admirals command
+  fleets. Marlow says it with precision. Everyone else says it with fear.
+- **Confederacy: Captain-General of the Free.** Elected by the Moot for
+  the duration of the war, above the Commodore-Elect, who commands the
+  fleet. The Brethren chose a title that sounds like an army because they
+  do not have one; it is half a joke and wholly obeyed. Pennywhistle says
+  "General". Hale says "Captain-General" and means it.
+
+`factions.json` carries `playerTitle` for each side; the tutorial's first
+card and the advisors use it. Nothing else in the interface addresses the
+player directly.
+
 #### The rule for every line, both of them
 
 A line is a complete thought that would still be right tomorrow. It carries
@@ -1067,6 +1150,7 @@ not a bark, and it goes in the text.
 
 ## 15. CHANGELOG
 
+- **2026-09-13 v5.4** — The Crown's advisor is **Admiral Sabine Marlow**, the Imperator's M: sarcastic, exact, entirely the Imperium's. Secretary Crane retires to a possible silent cameo. The player is the **Imperator** (Crown) and the **Captain-General of the Free** (Confederacy); §16.5. Marlow's look in §16.1, her voice in §16.4.
 - **2026-09-13 v5.3** — §16.4: how each advisor sounds — timbre, pace, tone, diction, tics, what each never does, how the three moods change the voice, and the TTS direction for the audition. Anchored on the lines the Narrator sheet already says.
 - **2026-09-13 v5.2** — Section 16 added for the advisors' portraits and voices: slots for the two visual paragraphs, the three-word art direction and the locked ElevenLabs settings, which `scripts/render_voicelines.py` reads. The plan itself is `docs/narrator-build.md`. Moods locked to neutral / grave / encouraged in `src/ui/narrator/mood.ts`.
 - **2026-09-08 v1.0** — First conversion packet: factions, 60 characters, ships, troops, special forces, facilities, missions, key islands.

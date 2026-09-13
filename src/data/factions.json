@@ -8,6 +8,7 @@
     "color": "#e2504a",
     "capitalIslandName": "Highwater",
     "hqLabel": "Highwater",
+    "playerTitle": "Imperator",
     "blurb": "The seawalls hold the Black Tide back, and the Crown asks a great deal of you to keep them standing.",
     "creed": "Order · Stability · A brighter tomorrow",
     "motto": "Through trade, duty, and discipline, a safer world."
@@ -18,6 +19,7 @@
     "adjective": "Confederate",
     "color": "#e8c04a",
     "hqLabel": "the Free Harbor",
+    "playerTitle": "Captain-General",
     "blurb": "Every captain elected, every share counted on deck, and the Moot argues about everything else.",
     "creed": "Freedom · Opportunity · No masters",
     "motto": "A wider world for those bold enough to take it."

@@ -12,7 +12,7 @@ export const NARRATOR_MOODS = ['neutral', 'grave', 'encouraged'] as const;
 export type NarratorMood = (typeof NARRATOR_MOODS)[number];
 
 /** The two advisors, by the stem their files use. */
-export const NARRATOR_IDS = ['crane', 'pennywhistle'] as const;
+export const NARRATOR_IDS = ['marlow', 'pennywhistle'] as const;
 export type NarratorId = (typeof NARRATOR_IDS)[number];
 
 /** The five questions a line can answer, plus the tutorial. */

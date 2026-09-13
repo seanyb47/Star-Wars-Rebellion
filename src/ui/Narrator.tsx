@@ -16,7 +16,11 @@ import { Sheet } from './components';
 
 /**
  * Your advisor. The world bible gives each side one: a sea-parrot the
- * Confederacy cannot get rid of, and a private secretary who may not be alive.
+ * Confederacy cannot get rid of, and the Admiralty's Second Chair — the
+ * Imperator's M, dry and exact and sarcastic in the way that means she
+ * expected better. The player is the Imperator on one side and the
+ * Captain-General of the Free on the other, and each advisor says so in
+ * their own way (world bible §16.5).
  *
  * They answer a fixed set of questions from the live state and take you
  * straight to what they are talking about. They do not converse — see the
@@ -24,8 +28,8 @@ import { Sheet } from './components';
  */
 export const NARRATOR = {
   empire: {
-    name: 'Secretary Crane',
-    style: 'flat, precise, faintly disappointed',
+    name: 'Admiral Sabine Marlow',
+    style: "dry, exact, sarcastic, entirely the Imperium's",
   },
   alliance: {
     name: 'Mr Pennywhistle',
@@ -73,11 +77,11 @@ function buildAnswers(state: GameState): Answer[] {
       reply:
         canBuild.length === 0
           ? voice
-            ? 'Nowhere. Every works you own is on an island with no room left, or no works at all.'
+            ? 'Nowhere. Every works you own is on an island with no room left, or no works at all. I did mention this.'
             : "Nowhere! Not a scrap of room left, and you've no works to build with anyway."
           : voice
-            ? `${canBuild.length} of your islands have a works and space to use it.`
-            : `${canBuild.length} islands with room and a works to fill it. Get on with it.`,
+            ? `${canBuild.length} of your islands have a works and room to use it. I would start, Imperator.`
+            : `${canBuild.length} islands with room and a works to fill it. Get on with it, General.`,
       islands: canBuild,
     },
     {
@@ -86,10 +90,10 @@ function buildAnswers(state: GameState): Answer[] {
       reply:
         idle.length === 0
           ? voice
-            ? 'Nobody. Every one of them is at sea or laid up.'
-            : "Nobody! They're all out. You sent them, remember."
+            ? 'Nobody. All of them at sea or laid up — which is where you sent them, Imperator.'
+            : "Nobody! They're all out. You sent them, General, remember."
           : voice
-            ? `${idle.length} idle. The best negotiator among them is listed first.`
+            ? `${idle.length} idle. The best negotiator is listed first; the rest are waiting to be noticed.`
             : `${idle.length} of them sitting about. Best talker's at the top.`,
       crew: [...idle]
         .sort((a, b) => b.diplomacy - a.diplomacy)
@@ -107,11 +111,11 @@ function buildAnswers(state: GameState): Answer[] {
       reply:
         restless.length === 0
           ? voice
-            ? 'None. Every island you hold is quiet and adequately garrisoned.'
+            ? "None. Every island you hold is quiet and garrisoned. Enjoy it; it won't last."
             : 'Nothing! Quiet as a chapel. Enjoy it.'
           : voice
-            ? `${restless.length} islands are in mutiny or too thinly held to prevent one.`
-            : `${restless.length} islands about to go up, or already have. Land some companies.`,
+            ? `${restless.length} islands in mutiny, or too thinly held to prevent one. I would attend to those before luncheon.`
+            : `${restless.length} islands about to go up, or already have. Land some companies, General.`,
       islands: restless,
     },
     {
@@ -120,10 +124,10 @@ function buildAnswers(state: GameState): Answer[] {
       reply:
         targets.length === 0
           ? voice
-            ? 'No unaligned island is charted. Send someone out to look.'
+            ? 'No unaligned island is charted. Send someone out to look. Preferably today.'
             : "Can't court what you haven't found. Go and look."
           : voice
-            ? 'The unaligned islands most sympathetic to us, in order.'
+            ? 'The unaligned islands most sympathetic to us, in order. The top of the list will not stay there.'
             : 'These lot like us best. Send a talker before the other side does.',
       islands: targets,
     },
@@ -133,10 +137,10 @@ function buildAnswers(state: GameState): Answer[] {
       reply: voice
         ? `${Math.floor(fs.gold)} ${terms.gold.toLowerCase()} in hand, ${
             net >= 0 ? `up ${net.toFixed(1)}` : `down ${Math.abs(net).toFixed(1)}`
-          } a day. You hold ${tally[you]} settled islands of the ${needed} the war needs.`
+          } a day. You hold ${tally[you]} settled islands of the ${needed} the war needs. The arithmetic is not complicated, Imperator.`
         : `${Math.floor(fs.gold)} in the chest and ${
             net >= 0 ? `${net.toFixed(1)} a day coming in` : `${Math.abs(net).toFixed(1)} a day going out`
-          }. ${tally[you]} islands. You want ${needed}.`,
+          }. ${tally[you]} islands. You want ${needed}, General.`,
     },
   ];
 }
@@ -169,7 +173,11 @@ export function Narrator({
       <div className="row" style={{ gap: 12, alignItems: 'center', marginBottom: 12 }}>
         <NarratorPortrait faction={state.player} size={64} />
         <p className="small" style={{ margin: 0, flex: 1 }}>
-          {open ? open.reply : 'Ask, and I will tell you where to look.'}
+          {open
+            ? open.reply
+            : state.player === 'empire'
+              ? 'Ask, Imperator. The ledgers are open.'
+              : "Well? Ask, General. I haven't got all day."}
         </p>
       </div>
 

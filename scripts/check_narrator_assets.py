@@ -16,9 +16,9 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = os.path.join(ROOT, "public", "narrator")
 
-CHARACTERS = ("crane", "pennywhistle")
+CHARACTERS = ("marlow", "pennywhistle")
 MOODS = ("neutral", "grave", "encouraged")
-ACCENTS = {"crane": ("headturn", "lean"), "pennywhistle": ("headcock", "ruffle", "hop", "laugh")}
+ACCENTS = {"marlow": ("spectacles", "lean"), "pennywhistle": ("headcock", "ruffle", "hop", "laugh")}
 
 STILLS = [f"{c}_{m}.png" for c in CHARACTERS for m in MOODS] + [f"{c}_tab.png" for c in CHARACTERS]
 VIDEOS = [f"{c}_{m}_idle.mp4" for c in CHARACTERS for m in MOODS] + [
@@ -29,7 +29,11 @@ VIDEO_MAX_KB = 600
 
 def listing(sub: str) -> set[str]:
     d = os.path.join(BASE, sub)
-    return {f for f in os.listdir(d) if not f.startswith(".")} if os.path.isdir(d) else set()
+    return (
+        {f for f in os.listdir(d) if not f.startswith(".") and os.path.isfile(os.path.join(d, f))}
+        if os.path.isdir(d)
+        else set()
+    )
 
 
 def report(title: str, expected: list[str], have: set[str]) -> int:

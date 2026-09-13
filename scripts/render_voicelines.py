@@ -36,7 +36,7 @@ BIBLE = os.path.join(ROOT, "seven-seas-world-bible.md")
 MANIFEST = os.path.join(ROOT, "public", "narrator", "voicelines.json")
 AUDIO_DIR = os.path.join(ROOT, "public", "narrator", "audio")
 
-CHARACTERS = ("crane", "pennywhistle")
+CHARACTERS = ("marlow", "pennywhistle")
 MOODS = ("neutral", "grave", "encouraged")
 QUESTIONS = ("tutorial", "build", "free", "trouble", "defect", "war")
 REQUIRED = ("voice_id", "model_id", "stability", "similarity_boost", "style")
