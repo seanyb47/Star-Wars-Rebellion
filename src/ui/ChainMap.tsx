@@ -355,6 +355,17 @@ export function ChainMap({
                 {/* The filter's mark, left of the name — the same as the chart,
                     so a filter reads the same at both scales: the garrison
                     count as a numeral, a star for everything else. */}
+                {/* Idle works and idle crew: whatever the mark, a pulse
+                    behind it — the same as on the chart. */}
+                {layer && isIdleLayer(layer) && (
+                  <circle
+                    className="map__idle-halo"
+                    cx={spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - (showsNumber(layer) ? 22 : 26)}
+                    cy={spot.y + 1}
+                    r={54}
+                    fill={tint}
+                  />
+                )}
                 {layer && showsNumber(layer) && litCount !== undefined ? (
                   <text
                     className="chainmap__num"
@@ -366,17 +377,6 @@ export function ChainMap({
                   </text>
                 ) : (
                   <>
-                    {/* Idle works and idle crew: the chart's biggest star,
-                        with a pulse behind it — the same as on the chart. */}
-                    {layer && isIdleLayer(layer) && (
-                      <circle
-                        className="map__idle-halo"
-                        cx={spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - 26}
-                        cy={spot.y + 1}
-                        r={54}
-                        fill={tint}
-                      />
-                    )}
                     <path
                       d={worthPath('large', layer && isIdleLayer(layer) ? 26 : 15)!}
                       transform={`translate(${spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - (layer && isIdleLayer(layer) ? 26 : 22)} ${spot.y + 1})`}

@@ -91,7 +91,7 @@ export function worthTier(system: System): WorthTier {
  * with a number beside it, which said the same thing twice.
  */
 export function showsNumber(layer: ChartLayer): boolean {
-  return layer === 'garrisons' || layer === 'worth';
+  return layer === 'garrisons' || layer === 'worth' || layer === 'idleCrew';
 }
 
 /**

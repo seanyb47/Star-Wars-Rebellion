@@ -453,7 +453,7 @@ export function GalaxyMap({
                 // unreadable to say something a star says on its own.
                 const lit = filtering && mark.lit;
                 const tint = controlColor(system, viewer);
-                // Garrisons and Production: the number is the mark. A star
+                // Garrisons, Production and Idle crew: the number is the mark. A star
                 // with "4" beside it said the same thing twice; the count on
                 // its own, in the island's colour, is the whole answer.
                 const numeral = lit && showsNumber(layer) && mark.count !== undefined ? mark.count : null;
