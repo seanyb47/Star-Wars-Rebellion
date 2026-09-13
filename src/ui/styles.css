@@ -842,10 +842,6 @@ button {
   background: var(--bg-sunken); color: var(--text); opacity: 0.75;
 }
 .layers__chip--on .layers__n { background: var(--brass); color: var(--bg); opacity: 1; }
-.layers__hint {
-  margin: 0; padding: 0 14px; font-size: 10.5px; line-height: 1.35;
-  color: var(--muted); opacity: 0.85; pointer-events: none;
-}
 
 /* How many of the thing an island that answers the current layer has.
    No fill here: the colour is set per island so the number belongs visibly to

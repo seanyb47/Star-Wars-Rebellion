@@ -10,6 +10,12 @@ import { CHART_LAYERS, layerTally, type ChartLayer, type GameState, type Playabl
  * tally beside each name so you can see there is something to look at before
  * you go and look. A zero on Idle works is the one number in the game that
  * means you are wasting nothing, so it is shown rather than hidden.
+ *
+ * There used to be a line of explanation under the chips, one per layer. It
+ * was cut: the chip's name and its tally say what it is, the stars on the
+ * chart say the rest, and the Almanac has the long form for anyone who wants
+ * it. A sentence under the chart on every view was a caption on a picture
+ * that did not need one.
  */
 export function LayerStrip({
   state,
@@ -23,7 +29,6 @@ export function LayerStrip({
   viewer: PlayableFaction;
 }) {
   const strip = useRef<HTMLDivElement>(null);
-  const spec = CHART_LAYERS.find((l) => l.id === layer)!;
 
   // Keep the live chip in view when the layer changes by swipe rather than tap.
   useEffect(() => {
@@ -50,7 +55,6 @@ export function LayerStrip({
           );
         })}
       </div>
-      <p className="layers__hint">{spec.hint}</p>
     </div>
   );
 }
