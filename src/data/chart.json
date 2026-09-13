@@ -131,51 +131,81 @@
   {
    "reach": "Coral Reach",
    "sea": "The Amber Sea",
-   "x": 806.0,
-   "y": 193.0,
-   "r": 197.2,
-   "ry": 197.0,
+   "x": 842.4,
+   "y": 406.2,
+   "r": 341.8,
+   "ry": 324.1,
    "islands": [
     {
      "name": "Bothaway",
+     "x": 891.8,
+     "y": 546.1
+    },
+    {
+     "name": "Cothlis Cay",
+     "x": 904.5,
+     "y": 657.8
+    },
+    {
+     "name": "Coralhome",
+     "x": 857.4,
+     "y": 419.4
+    },
+    {
+     "name": "Preston's Reach",
+     "x": 794.0,
+     "y": 443.6
+    },
+    {
+     "name": "Sluysvaan",
+     "x": 876.9,
+     "y": 491.6
+    },
+    {
+     "name": "The Shoals",
      "x": 833.9,
      "y": 151.3
     },
     {
-     "name": "Cothlis Cay",
+     "name": "Umgulla",
+     "x": 912.2,
+     "y": 717.6
+    },
+    {
+     "name": "Passh Bay",
      "x": 733.9,
      "y": 82.1
     },
     {
-     "name": "Coralhome",
+     "name": "Denby Cay",
+     "x": 853.5,
+     "y": 595.3
+    },
+    {
+     "name": "Ortovale",
      "x": 877.4,
      "y": 234.9
     },
     {
-     "name": "Preston's Reach",
-     "x": 815.0,
-     "y": 390.0
-    },
-    {
-     "name": "Sluysvaan",
+     "name": "Charmouth",
      "x": 771.5,
      "y": 123.9
     },
     {
-     "name": "The Shoals",
+     "name": "Ferrol Key",
      "x": 916.7,
      "y": 313.4
     },
     {
-     "name": "Umgulla",
-     "x": 693.8,
-     "y": 55.7
+     "name": "Rishi Bank",
+     "x": 727.1,
+     "y": 503.8
     }
    ],
-   "luma": 38.0,
+   "luma": 35.0,
    "label": {
-    "x": 806.0,
-    "y": 430.0
+    "x": 842.4,
+    "y": 770.3
    }
   },
   {
@@ -415,7 +445,7 @@
    "luma": 41.0,
    "label": {
     "x": 800.3,
-    "y": 862.8
+    "y": 1201.8
    }
   }
  ]

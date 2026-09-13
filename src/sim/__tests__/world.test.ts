@@ -25,18 +25,19 @@ describe('the world bible data', () => {
     expect(new Set(reachData.reaches.map((r) => r.name)).size).toBe(7);
   });
 
-  it('gives every Reach between seven and twelve islands', () => {
+  it('gives every Reach between seven and fifteen islands', () => {
     // Not a flat ten any more. A Reach holds as many islands as its painted
     // cluster can show as separate places, and the range is the range the
     // chain view can lay out clearly.
     for (const reach of reachData.reaches) {
       expect(reach.islands.length).toBeGreaterThanOrEqual(7);
-      expect(reach.islands.length).toBeLessThanOrEqual(12);
+      // Coral holds thirteen across both Amber Sea chains; fifteen is the bible's ceiling.
+      expect(reach.islands.length).toBeLessThanOrEqual(15);
     }
   });
 
-  it('names 62 distinct islands', () => {
-    expect(allIslands).toHaveLength(62);
+  it('names 68 distinct islands', () => {
+    expect(allIslands).toHaveLength(68);
     expect(new Set(allIslands.map((i) => i.name)).size).toBe(62);
   });
 

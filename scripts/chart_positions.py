@@ -51,9 +51,14 @@ CHART_W, CHART_H = 1000, 1500
 # Reach -> where its cluster sits, as a fraction of the painting. Read off the
 # image by eye; snapped onto the painted land by the code below, so these only
 # have to be close enough to pick the right cluster.
-SEEDS: dict[str, tuple[float, float]] = {
+# A Reach may have more than one seed: a blob joins the nearest seed point, and
+# the point's Reach owns it. Coral is the one that needs two, because the Amber
+# Sea is painted as two archipelagos — the diagonal at the top right and the
+# long chain down the right edge — and when the map went to seven Reaches the
+# second lost its own name (Sugar Reach) and, for a while, its islands.
+SEEDS: dict[str, tuple[float, float] | list[tuple[float, float]]] = {
     "Rime Reach": (0.186, 0.091),          # snow peaks, top left — the arctic one
-    "Coral Reach": (0.854, 0.126),         # top right
+    "Coral Reach": [(0.854, 0.126), (0.849, 0.372)],  # top right, and the chain below it
     "Shipwrights' Reach": (0.195, 0.293),  # the long green chain down the left
     "Sovereign Reach": (0.504, 0.449),     # dead centre, the largest — Highwater
     "Cinder Reach": (0.215, 0.638),        # thin chain, lower left
@@ -152,17 +157,22 @@ def main() -> None:
     reaches = json.load(open(REACHES))["reaches"]
     blobs = painted_islands(PAINTING)
 
-    seeds = {k: (x * CHART_W, y * CHART_H) for k, (x, y) in SEEDS.items()}
-    names = list(seeds)
-    pos = np.array([seeds[n] for n in names])
+    # Flatten to (reach, point) pairs so a Reach with two seeds is two points.
+    points: list[tuple[str, tuple[float, float]]] = []
+    for k, v in SEEDS.items():
+        for (x, y) in (v if isinstance(v, list) else [v]):
+            points.append((k, (x * CHART_W, y * CHART_H)))
+    names = list(SEEDS)
+    pos = np.array([p for _, p in points])
 
-    # Every blob joins its nearest seed, if it is near enough to belong at all.
+    # Every blob joins its nearest seed point, if it is near enough to belong
+    # at all, and the point's Reach owns it.
     owned: dict[str, list] = {n: [] for n in names}
     for b in blobs:
         d = np.hypot(pos[:, 0] - b[0], pos[:, 1] - b[1])
         i = int(d.argmin())
         if d[i] <= MAX_REACH_UNITS:
-            owned[names[i]].append(b)
+            owned[points[i][0]].append(b)
 
     out = []
     for reach in reaches:

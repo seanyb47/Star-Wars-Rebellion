@@ -1,5 +1,5 @@
 {
-  "_comment": "World bible section 13. Seven Reaches on the small map, one for each Sea, so a Sea and its archipelago are the same thing at this size. Sugar, Whalers' and Mirage are held back for the larger maps alongside Scrap \u2014 each shared a Sea with a Reach that survives, and each sat on a painted cluster too crowded or too sparse to chart clearly. Island counts are set by how many clearly separated islands each painted cluster holds.",
+  "_comment": "World bible section 13. Seven Reaches on the small map, one for each Sea, so a Sea and its archipelago are the same thing at this size. Sugar, Whalers' and Mirage are held back for the larger maps alongside Scrap — each shared a Sea with a Reach that survives, and each sat on a painted cluster too crowded or too sparse to chart clearly. Island counts are set by how many clearly separated islands each painted cluster holds.",
   "reaches": [
     {
       "name": "Sovereign Reach",
@@ -112,6 +112,24 @@
         {
           "name": "Umgulla",
           "note": "Gambling and racing. Everyone owes someone here."
+        },
+        {
+          "name": "Passh Bay"
+        },
+        {
+          "name": "Denby Cay"
+        },
+        {
+          "name": "Ortovale"
+        },
+        {
+          "name": "Charmouth"
+        },
+        {
+          "name": "Ferrol Key"
+        },
+        {
+          "name": "Rishi Bank"
         }
       ]
     },

@@ -34,7 +34,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
     body: (side) => {
       const you = factionData[side];
       const them = factionData[side === 'empire' ? 'alliance' : 'empire'];
-      return `A war for the Seven Seas: sixty-two islands in seven chains. You are the ${you.name}. ${them.name} is out there with ships, officers and islands of its own, and it wants what you have.`;
+      return `A war for the Seven Seas: sixty-eight islands in seven chains. You are the ${you.name}. ${them.name} is out there with ships, officers and islands of its own, and it wants what you have.`;
     },
   },
   {

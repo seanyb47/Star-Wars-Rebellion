@@ -14,7 +14,7 @@ assets rather than bundled.
 
 | | |
 |---|---|
-| **Phase 1 — the war** | Built. 62 islands, seven Reaches — one for each Sea — economy, support, control, unrest, building, the day clock. |
+| **Phase 1 — the war** | Built. 68 islands, seven Reaches — one for each Sea — economy, support, control, unrest, building, the day clock. |
 | **Phase 2 — fleets** | Built. Hulls in four sizes, troop capacity, movement, auto-resolved combat, assault, blockade. Fighters cut from the design, not deferred. |
 | **Phase 3 — missions** | 5 of 8. Parley, Incite Uprising, Recruitment, Sabotage, Survey. |
 | **Phase 4 — polish** | Not started. |
