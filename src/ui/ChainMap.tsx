@@ -311,7 +311,8 @@ export function ChainMap({
         const work = pickingFor && !sailing ? missionTypeFor(state, system, pickingFor) : null;
         // Named in the label when the errand is to sign them on.
         const loose = work === 'recruit' ? recruitOn(state, system, viewer) : null;
-        // Whose hulls lie off it. One sail per side present, no count: the
+        // Whose hulls lie off it. One sail per side present, in that side's
+        // colour — the fleet's owner, not the island's — and no count: the
         // count is on the Harbour tab, and a sail beside the name is the
         // whole message — there is a fleet here, and it is theirs or yours.
         const moored = (['empire', 'alliance'] as const).filter((side) =>
@@ -494,11 +495,14 @@ export function ChainMap({
                   } ${spot.y - 15}) scale(1.5)`}
                   pointerEvents="none"
                 >
+                  {/* Solid in the owner's colour — the fleet's side, which is
+                      not always the island's — with a dark edge so it holds
+                      against the painting. As an outline it read as grey. */}
                   <path
                     d={SHIP}
-                    fill="none"
-                    stroke={`var(--${side})`}
-                    strokeWidth={2.2}
+                    fill={`var(--${side})`}
+                    stroke="#041219"
+                    strokeWidth={1.4}
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     style={{ paintOrder: 'stroke fill' }}
