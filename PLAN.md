@@ -302,3 +302,10 @@ what this is, how it ends, then the chart, an island, allegiance, the crew,
 gold, building, the fleet, the filters, the clock, and a first move for each
 side. Reopenable from the menu. The done-key is bumped so people who skipped
 the six-card version see this one.
+
+## Decision — 13 September
+
+**The Reach count is not a constraint.** Eight is fine; so would nine be if
+the painting had nine chains. Reaches follow the painting and names follow
+latitude; the seven Seas are the water they sit in and carry no rule of their
+own. Stop treating "one Reach per Sea" as a thing to preserve.
