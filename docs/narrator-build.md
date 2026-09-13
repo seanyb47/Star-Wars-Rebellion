@@ -22,9 +22,9 @@ only part of the file Claude Code edits. Last updated 2026-09-13 (A1, A2 locked)
 | D1–D4 cleanup and export | HUMAN | blocked on C | |
 | D5 naming enforced | CLAUDE CODE | done (checker) | `scripts/check_narrator_assets.py` knows the twelve names |
 | D6 tab-bar figures stay static | CLAUDE CODE | noted | Applied when F is wired: the tab bar keeps the drawn figures; video only in the sheet |
-| E1 audition voices | HUMAN | **can start now** | Independent of the art |
+| E1 audition voices | HUMAN | **can start now** | Independent of the art. The brief — sound, tone, diction, tics, moods, TTS direction — is the world bible §16.4 |
 | E2 locked voice settings in the bible | HUMAN → CLAUDE CODE | **blocked on Sean** | JSON slot in the world bible §16; the render script refuses to run until it is filled |
-| E3 first twenty lines | HUMAN | **can start now** | Append to `public/narrator/voicelines.json`, `rendered: false` |
+| E3 first twenty lines | HUMAN | **can start now** | Append to `public/narrator/voicelines.json`, `rendered: false`. Write them against §16.4 |
 | E4 no variables in any line | BOTH | rule recorded | The checker rejects a line containing `{`, `}` or `[` |
 | E5 `voicelines.json` | CLAUDE CODE | done (empty) | Schema below; ids permanent |
 | E6 render script | CLAUDE CODE | done | `npm run voices` — append-only, skips `rendered: true`, settings from the bible only |

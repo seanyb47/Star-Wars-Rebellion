@@ -968,10 +968,106 @@ them only for a character who has no rendered lines yet.
 }
 ```
 
+### 16.4 Speaking voice (for the audition, the lines, and every bark after)
+
+_Drafted by Claude Code 2026-09-13 from the register the Narrator sheet
+already uses; Sean to edit. This is the brief for E1 (audition) and E3
+(the lines), and the check every later batch is read against._
+
+The two are opposites in every register. Crane is a held breath;
+Pennywhistle is the thing that makes you let it out. If a line could be
+said by either of them, it is wrong for both.
+
+#### Secretary Crane
+
+- **Sound.** Low baritone, dry, close-miked and quiet — a voice for a
+  reading room, never a deck. No breath in it: he does not audibly inhale,
+  and sentences end without a fall or a lift. Slight rasp on sibilants, as
+  if the mouth were not quite damp enough. Pace slow and perfectly even;
+  the same speed whether the news is a lost island or a quiet day. Almost
+  no dynamic range: nothing rises, nothing drops. The flatness is the tell
+  that something in him is not alive, and it is the whole performance.
+- **Tone.** Courteous, exact, and faintly disappointed in you. He never
+  raises his voice, never jokes, never reassures. Bad news is delivered as a
+  correction to the record; good news as a fact he expected. He does not
+  say "I think" — he says what is so.
+- **Diction.** Full sentences, formal vocabulary, no contractions
+  ("it is", never "it's"). Numbers stated precisely. Titles used: "the
+  Regent", "the Admiralty", "your fleet". Addresses the player as "sir" or
+  by rank, rarely, and only at the end of a line. Favours the passive and
+  the impersonal: "It has been noted." "That will not be necessary."
+- **Tics.** A pause before the worst word, as if checking it against the
+  ledger. Occasionally finishes with a short flat afterthought: "Nowhere."
+  "As expected." "I had written as much."
+- **Never.** Never exclaims. Never uses slang or nautical colour. Never
+  laughs, sighs, or clears his throat. Never apologises. Never uses a
+  metaphor that could not appear in a minute of a meeting.
+- **By mood.** *Neutral:* the above. *Grave:* slower still, quieter still,
+  more pauses — the record is being amended. *Encouraged:* exactly the same
+  voice; the words allow it — "Satisfactory." "That will do." — and the
+  fact that nothing else changes is the joke.
+- **In the game today.** "Nowhere. Every works you own is on an island
+  with no room left, or no works at all." / "Nobody. Every one of them is
+  at sea or laid up." / "None. Every island you hold is quiet and
+  adequately garrisoned." Keep to that.
+- **TTS direction.** High stability, low style, similarity high; speed a
+  touch under normal. If the engine adds warmth or lilt, it is the wrong
+  voice. Kokoro's flatter voices may suit him better than anything
+  expressive; try him there first.
+
+#### Mr Pennywhistle
+
+- **Sound.** Pitched up, hoarse, and loud — a parrot who learnt to talk in
+  a tavern and has never once been asked to lower his voice. Sharp attacks
+  on consonants, a squawk that breaks into the vowels when he pushes, a
+  wobble in the pitch that a good take keeps and a bad take smooths away.
+  Pace fast and staccato: short bursts, then a beat, then the point. Wide
+  dynamic range — he can drop to a rasped aside and come back up to a
+  shout in one line. Breath is audible and part of it.
+- **Tone.** Rude, delighted, and usually right. He talks to the player as
+  an equal who is slower than he is. Bad news is a chance to be proved
+  correct; good news he takes credit for. He is never afraid and never
+  reverent, of the Tide, the Crown, or the captain.
+- **Diction.** Contractions, dropped words, nautical slang: "the other
+  lot", "a talker", "get on with it", "you sent them, remember". Short
+  sentences. Exclamations that are a whole line: "Nowhere!" "Nobody!"
+  "Nothing!" Calls the player "captain" — never "sir" — and sometimes
+  nothing at all. Repeats a word when he likes it. Insults are affectionate
+  and specific.
+- **Tics.** Opens on the loud one-word answer, then explains. A squawk-laugh
+  when the news is bad for the Crown. Interrupts himself: "Storm's — no,
+  wait — storm's brewing west." Occasionally a parrot noise where a word
+  should be, as if he has forgotten he can talk.
+- **Never.** Never formal. Never gentle. Never uses a title with respect.
+  Never delivers a line evenly — if it came out smooth, it is Crane's.
+  Never says the data (island names, counts): the on-screen text does that;
+  he says what he thinks of it.
+- **By mood.** *Neutral:* the above. *Grave:* lower and hunched — the
+  volume drops but the edge stays, the words get shorter, the laugh goes.
+  *Encouraged:* bobbing, bright, faster, the laugh back and louder, ends
+  lines high.
+- **In the game today.** "Nowhere! Not a scrap of room left, and you've no
+  works to build with anyway." / "Nobody! They're all out. You sent them,
+  remember." / "Nothing! Quiet as a chapel. Enjoy it." / "Can't court what
+  you haven't found. Go and look." Keep to that.
+- **TTS direction.** Low stability, style up, let it wobble; pitch above
+  the default if the engine allows; speed above normal. Bark-length lines
+  only — over about twelve words the wobble reads as a glitch instead of a
+  character. If a take sounds like a calm narrator doing a funny voice, it
+  is the wrong take.
+
+#### The rule for every line, both of them
+
+A line is a complete thought that would still be right tomorrow. It carries
+the personality; the screen carries the facts. No island names, no numbers,
+no player name. If a line needs a variable to make sense, it is a caption,
+not a bark, and it goes in the text.
+
 ---
 
 ## 15. CHANGELOG
 
+- **2026-09-13 v5.3** — §16.4: how each advisor sounds — timbre, pace, tone, diction, tics, what each never does, how the three moods change the voice, and the TTS direction for the audition. Anchored on the lines the Narrator sheet already says.
 - **2026-09-13 v5.2** — Section 16 added for the advisors' portraits and voices: slots for the two visual paragraphs, the three-word art direction and the locked ElevenLabs settings, which `scripts/render_voicelines.py` reads. The plan itself is `docs/narrator-build.md`. Moods locked to neutral / grave / encouraged in `src/ui/narrator/mood.ts`.
 - **2026-09-08 v1.0** — First conversion packet: factions, 60 characters, ships, troops, special forces, facilities, missions, key islands.
 - **2026-09-08 v1.1** — Added Sea → Reach → Island structure and all 200 islands with map-size tags.
