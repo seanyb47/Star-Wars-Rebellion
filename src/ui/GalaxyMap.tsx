@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
 import {
   isMissionTarget,
@@ -207,6 +207,33 @@ export function GalaxyMap({
   const viewer = state.player;
   const ground = paintedChart('seas');
   const swipe = useLayerSwipe(layer, onLayerChange ?? (() => {}));
+
+  /**
+   * Full bleed on a phone.
+   *
+   * The chart is 1000 by 1670 and a phone's map area is taller than that, so
+   * "meet" left a gutter down each side — the painting sitting inside the
+   * screen instead of being it. On a screen taller than the chart the SVG
+   * now covers the width and lets a few percent of sea go off each edge;
+   * nothing the chart needs lives there. On a screen wider than the chart —
+   * a tablet turned, a desktop — covering would crop the top of the map
+   * instead, so those keep "meet". Measured on the element itself rather
+   * than the viewport, because the bars above and below are what set it.
+   */
+  const frame = useRef<SVGSVGElement>(null);
+  const [cover, setCover] = useState(false);
+  useEffect(() => {
+    const el = frame.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const check = () => {
+      const { width, height } = el.getBoundingClientRect();
+      if (width > 0 && height > 0) setCover(width / height < CHART_W / VIEW_H);
+    };
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   // Picking a destination is a different question from reading the chart, so
   // the layers stand down while it is happening rather than fighting the
   // pick rings for the same dimming.
@@ -261,9 +288,10 @@ export function GalaxyMap({
   return (
     <>
       <svg
+        ref={frame}
         className={ground ? 'map map--painted' : 'map'}
         viewBox={`0 0 ${CHART_W} ${VIEW_H}`}
-        preserveAspectRatio="xMidYMid meet"
+        preserveAspectRatio={cover ? 'xMidYMid slice' : 'xMidYMid meet'}
         {...swipe}
       >
         <defs>
