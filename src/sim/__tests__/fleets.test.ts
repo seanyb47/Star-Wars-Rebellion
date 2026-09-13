@@ -408,17 +408,30 @@ describe('the opponent builds toward its navy', () => {
   it('lays down a slipway and puts hulls in the water in a plain game', () => {
     // No help: the opponent has to build its own way to a fleet, which it
     // could not do at all until its build order had a priority list.
+    // Measured at the peak, not the end. The opponent runs its treasury dry
+    // around day 250 and its buildings start falling apart for want of
+    // maintenance — a slipway among them, some seeds — so what the end of a
+    // game shows is the wreckage, not whether it ever built. Whether it
+    // built more yards than it started with, and put hulls in the water
+    // from them, is the question.
     let state = generateGalaxy(1, 'empire');
-    for (let d = 0; d < 700 && !state.winner; d++) state = advanceDay(state);
-
-    const yards = state.systems.flatMap((s) =>
-      s.facilities.filter((f) => f.owner === 'alliance' && f.type === 'shipyard'),
-    );
-    const hulls = state.fleets
-      .filter((f) => f.faction === 'alliance')
-      .reduce((n, f) => n + f.ships.length, 0);
-    expect(yards.length).toBeGreaterThan(0);
-    expect(hulls).toBeGreaterThan(0);
+    const yardsOf = (s: typeof state) =>
+      s.systems.flatMap((x) =>
+        x.facilities.filter((f) => f.owner === 'alliance' && f.type === 'shipyard' && !f.building),
+      ).length;
+    const hullsOf = (s: typeof state) =>
+      s.fleets.filter((f) => f.faction === 'alliance').reduce((n, f) => n + f.ships.length, 0);
+    const startYards = yardsOf(state);
+    const startHulls = hullsOf(state);
+    let peakYards = startYards;
+    let peakHulls = startHulls;
+    for (let d = 0; d < 700 && !state.winner; d++) {
+      state = advanceDay(state);
+      peakYards = Math.max(peakYards, yardsOf(state));
+      peakHulls = Math.max(peakHulls, hullsOf(state));
+    }
+    expect(peakYards).toBeGreaterThan(startYards);
+    expect(peakHulls).toBeGreaterThan(startHulls);
   });
 
   it('drills companies rather than living on the ones it started with', () => {

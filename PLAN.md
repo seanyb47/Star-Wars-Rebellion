@@ -203,6 +203,16 @@ the position script re-runs against a new painting in one command.
 - ~~Reach count on the small map.~~ **Settled.** Seven Reaches, one per Sea,
   three inner and four outer. Sugar, Whalers' and Mirage moved to the medium
   map with Scrap.
+- **The opponent runs itself broke.** Measured 13 September over seeds 1–5:
+  the Confederacy AI is solvent to about day 200, then over-expands, goes to
+  zero gold with a net of −6 to −34 a day, and its buildings fall apart for
+  want of maintenance — 29–35 breakdowns a game, the Slipway among them in
+  most seeds. It still wins against an idle Crown by about day 450–500 on
+  the 60% rule, on the hulls it built before the money ran out. It is winning
+  by land-grab while bankrupt, which is not how it should read. The build
+  order needs an upkeep ceiling: no new works, drill grounds or hulls while
+  net is under zero, and no more islands than the treasury can garrison. The
+  fleets test now measures the AI at its peak for this reason.
 - **Deploys must be dispatched by hand.** The `github-pages` environment's
   deployment-branch allow-list still names the original default branch, so a
   push to the feature branch does not deploy itself.
