@@ -4,11 +4,10 @@ import {
   isMissionTarget,
   layerMark,
   summariseReach,
-  worthTier,
+  showsNumber,
   type ChartLayer,
-  type WorthTier,
 } from '../sim';
-import { WORTH_SHAPE, burstPath, sparkPath } from './worth';
+import { burstPath } from './worth';
 import { LayerStrip, useLayerSwipe } from './LayerStrip';
 import { allegianceColour } from './allegiance';
 import { CompassRose, islandPath } from './art';
@@ -190,6 +189,8 @@ export function controlColor(system: System, viewer: PlayableFaction): string {
 const ISLAND_RADIUS = 8;
 /** Unexplored or unsettled: open ground. Readable on dark water at 8px. */
 export const OPEN_GREY = '#93a3ab';
+/** The dot itself for open ground: near white, so it reads on the water. */
+const OPEN_FILL = '#dfe8ec';
 /** The filter's star. Bigger than a dot by enough to be the thing you see. */
 const STAR_RADIUS = 14;
 
@@ -238,9 +239,7 @@ export function GalaxyMap({
   // the layers stand down while it is happening rather than fighting the
   // pick rings for the same dimming.
   const filtering = layer !== 'allegiance' && !pickingFor && !sailing;
-  /* Worth is a magnitude, so it is drawn as one: size, not the glow the
-     yes-or-no layers use. Fifty glowing islands is not a filter. */
-  const sizing = filtering && layer === 'worth';
+
   const stipple = useMemo(() => seaStipple(state.rngSeed), [state.rngSeed]);
 
   /**
@@ -409,10 +408,7 @@ export function GalaxyMap({
                 // to is grey with a dashed edge: open ground, somewhere to
                 // survey and settle. Hiding them was tried and looked wrong —
                 // a sea with islands painted on it and nothing marking them.
-                // Its worth stays its own until you have been.
-                const grade: WorthTier | null = sizing && explored ? worthTier(system) : null;
-                const worthMark = grade ? WORTH_SHAPE[grade] : null;
-                const radius = worthMark ? worthMark.r : ISLAND_RADIUS;
+                const radius = ISLAND_RADIUS;
                 const isHq =
                   system.id === state.factions[viewer].hqSystemId ||
                   (explored && system.id === state.factions[enemy].hqSystemId);
@@ -425,12 +421,16 @@ export function GalaxyMap({
                 // dot. Nothing dims, nothing glows, nothing changes colour —
                 // an earlier version did all three and left half the chart
                 // unreadable to say something a star says on its own.
-                const lit = filtering && mark.lit && !sizing;
+                const lit = filtering && mark.lit;
                 const tint = controlColor(system, viewer);
-                // Garrisons: the number is the mark. A star with "4" beside it
-                // said the same thing twice; the count on its own, in the
-                // island's colour, is the whole answer to the question.
-                const numeral = lit && layer === 'garrisons' && mark.count !== undefined ? mark.count : null;
+                // Garrisons and Production: the number is the mark. A star
+                // with "4" beside it said the same thing twice; the count on
+                // its own, in the island's colour, is the whole answer.
+                const numeral = lit && showsNumber(layer) && mark.count !== undefined ? mark.count : null;
+                // Open ground has to be seen on dark water: a light fill and a
+                // dark outline, dashed where you have not been. The slate at
+                // real opacity still sank into the sea.
+                const open = !explored || (system.control !== 'empire' && system.control !== 'alliance' && !system.populated);
                 const starR = lit ? STAR_RADIUS : radius;
                 return (
                   <g key={system.id} pointerEvents="none">
@@ -452,7 +452,7 @@ export function GalaxyMap({
                         className="map__hq"
                         cx={ax}
                         cy={ay}
-                        r={starR + ((worthMark && worthMark.shape !== 'dot') || lit ? 3.5 : 7)}
+                        r={starR + (lit ? 3.5 : 7)}
                         stroke={tint}
                       />
                     )}
@@ -470,17 +470,25 @@ export function GalaxyMap({
                              Fill and stroke go on a single element here rather
                              than two stacked ones, because a star drawn twice
                              puts a seam down every point. */
-                          const skin = {
-                            fill: tint,
-                            fillOpacity: lit ? 0.95 : explored ? 0.42 : 0.3,
-                            stroke: tint,
-                            strokeOpacity: explored ? 0.95 : 0.9,
-                            strokeWidth: lit ? 2 : explored ? 2.4 : 2,
-                            strokeDasharray: explored ? undefined : '4 3.5',
-                            strokeLinejoin: 'round' as const,
-                          };
-                          // The garrison count as the mark, the filter's star,
-                          // or the worth grade's shape.
+                          const skin = open
+                            ? {
+                                fill: OPEN_FILL,
+                                fillOpacity: 0.9,
+                                stroke: '#041219',
+                                strokeOpacity: 0.9,
+                                strokeWidth: 2,
+                                strokeDasharray: explored ? undefined : '3 2.5',
+                                strokeLinejoin: 'round' as const,
+                              }
+                            : {
+                                fill: tint,
+                                fillOpacity: lit ? 0.95 : 0.42,
+                                stroke: tint,
+                                strokeOpacity: 0.95,
+                                strokeWidth: lit ? 2 : 2.4,
+                                strokeLinejoin: 'round' as const,
+                              };
+                          // The count as the mark, or the filter's star.
                           if (numeral !== null) {
                             return (
                               <text className="map__num" x={ax} y={ay} fill={tint}>
@@ -492,19 +500,6 @@ export function GalaxyMap({
                             return (
                               <path
                                 d={burstPath(STAR_RADIUS)}
-                                transform={`translate(${ax} ${ay})`}
-                                {...skin}
-                              />
-                            );
-                          }
-                          if (worthMark && worthMark.shape !== 'dot') {
-                            return (
-                              <path
-                                d={
-                                  worthMark.shape === 'burst'
-                                    ? burstPath(radius)
-                                    : sparkPath(radius)
-                                }
                                 transform={`translate(${ax} ${ay})`}
                                 {...skin}
                               />

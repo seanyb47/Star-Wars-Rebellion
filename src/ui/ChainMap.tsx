@@ -11,6 +11,7 @@ import {
   type PlayableFaction,
   type System,
   worthTier,
+  showsNumber,
 } from '../sim';
 import { islandPath } from './art';
 import { paintedChart } from './painted';
@@ -325,10 +326,7 @@ export function ChainMap({
         // One colour at three strengths, matching the chart: the filter pushes
         // an island's own tint up rather than adding a mark of its own.
         const mark = filtering ? layerMark(state, system, layer!, viewer) : { lit: false as const };
-        // Worth is answered by size on the chart above; down here there is no
-        // size to vary, so it only clears the bare rock away. No glow: ten of
-        // them at once is a lit chain, not a filter.
-        const lit = filtering && mark.lit && layer !== 'worth';
+        const lit = filtering && mark.lit;
         const litCount = 'count' in mark ? mark.count : undefined;
         // Which work this island means, so the ring can say so before you tap.
         const work = pickingFor && !sailing ? missionTypeFor(state, system, pickingFor) : null;
@@ -419,7 +417,7 @@ export function ChainMap({
                 {/* The filter's mark, left of the name — the same as the chart,
                     so a filter reads the same at both scales: the garrison
                     count as a numeral, a star for everything else. */}
-                {layer === 'garrisons' && litCount !== undefined ? (
+                {layer && showsNumber(layer) && litCount !== undefined ? (
                   <text
                     className="chainmap__num"
                     x={spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - 22}
@@ -438,7 +436,7 @@ export function ChainMap({
                     strokeLinejoin="round"
                   />
                 )}
-                {layer !== 'garrisons' && litCount !== undefined && litCount > 1 && (
+                {!(layer && showsNumber(layer)) && litCount !== undefined && litCount > 1 && (
                   <text
                     className="chainmap__lit-n"
                     x={spot.x + nameWidth(explored ? system.name : 'Uncharted') / 2 + 22}

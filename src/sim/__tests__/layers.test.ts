@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { CHART_LAYERS, islandWorth, layerMark, layerTally, worthTier } from '../layers';
+import { islandIncome } from '../economy';
 import { getSystem } from '../helpers';
 import { addShip } from '../fleets';
 import { buildMenu } from '../build';
@@ -88,28 +89,24 @@ describe('chart layers', () => {
     expect(layerMark(state, mine, 'fleets', 'empire').lit).toBe(false);
   });
 
-  it('measures worth as ground plus works, and leaves bare rock dark', () => {
+  it('shows production as what an island earns its holder today, and nothing for the idle', () => {
     const { state } = setup();
-    const rich = state.systems.find(
-      (s) => s.explored.empire && s.rawSlots + s.energySlots > 0,
+    const earner = state.systems.find(
+      (s) => s.explored.empire && s.control === 'empire' && islandIncome(s, 'empire') > 0,
     )!;
-    expect(layerMark(state, rich, 'worth', 'empire')).toEqual({
+    expect(layerMark(state, earner, 'worth', 'empire')).toEqual({
       lit: true,
-      count: rich.rawSlots + rich.energySlots,
+      count: Math.round(islandIncome(earner, 'empire')),
     });
-    expect(islandWorth(rich)).toBe(rich.rawSlots + rich.energySlots);
-
-    // Worth is about the island, not about who holds it: taking it changes
-    // nothing here. That is the whole point of the layer — it says where is
-    // worth having, which is a question you ask about somebody else's island.
-    const before = layerMark(state, rich, 'worth', 'empire').count;
-    rich.control = rich.control === 'empire' ? 'alliance' : 'empire';
-    expect(layerMark(state, rich, 'worth', 'empire').count).toBe(before);
-
-    // Bare rock answers nothing, however well charted.
-    rich.rawSlots = 0;
-    rich.energySlots = 0;
-    expect(layerMark(state, rich, 'worth', 'empire').lit).toBe(false);
+    // A blockade stops the trade, and the chart says so.
+    earner.blockaded = true;
+    expect(layerMark(state, earner, 'worth', 'empire').lit).toBe(false);
+    earner.blockaded = false;
+    // Nobody's island earns nobody anything.
+    const nobodys = state.systems.find((s) => s.explored.empire && s.control === 'neutral')!;
+    expect(layerMark(state, nobodys, 'worth', 'empire').lit).toBe(false);
+    // Capacity is still measured, for the panels' worth mark.
+    expect(islandWorth(earner)).toBe(earner.rawSlots + earner.energySlots);
   });
 
   it('grades worth into three, and puts the boundaries where it says', () => {

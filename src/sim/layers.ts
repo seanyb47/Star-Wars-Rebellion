@@ -1,4 +1,5 @@
 import { buildMenu } from './build';
+import { islandIncome } from './economy';
 import { fleetsAt, isAtSea } from './fleets';
 import type { GameState, PlayableFaction, System } from './types';
 
@@ -39,13 +40,13 @@ export interface LayerSpec {
  * chart's resting state — swiping right from anywhere gets you home.
  */
 export const CHART_LAYERS: LayerSpec[] = [
-  { id: 'allegiance', label: 'All', hint: 'Every island, coloured by who holds it. Pick a filter and a star marks what it points at.' },
+  { id: 'allegiance', label: 'Loyalty', hint: 'Every island, coloured by whose it is. Pick a filter and it marks what it points at.' },
   { id: 'idleWorks', label: 'Idle works', hint: 'Yards, drill grounds and slipways of yours standing with no order on them.' },
   { id: 'idleCrew', label: 'Idle crew', hint: 'Islands where one of your officers is ashore with nothing to do.' },
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
   { id: 'garrisons', label: 'Garrisons', hint: 'Islands of yours holding companies ashore.' },
   { id: 'missions', label: 'Missions', hint: 'Islands your officers are working on, or sailing for.' },
-  { id: 'worth', label: 'Worth', hint: 'What each charted island can hold: a dot is little, a spark is worth having, a starburst is a prize.' },
+  { id: 'worth', label: 'Production', hint: 'What each island earns its holder in gold a day, right now.' },
 ];
 
 /**
@@ -82,6 +83,15 @@ export function worthTier(system: System): WorthTier {
   if (n >= 6) return 'medium';
   if (n >= 1) return 'small';
   return 'none';
+}
+
+/**
+ * Layers whose answer is a quantity rather than a yes: on these the count is
+ * drawn as the mark itself — the numeral on the island — instead of a star
+ * with a number beside it, which said the same thing twice.
+ */
+export function showsNumber(layer: ChartLayer): boolean {
+  return layer === 'garrisons' || layer === 'worth';
 }
 
 /** What a lit island is worth saying about itself, under this layer. */
@@ -155,12 +165,14 @@ export function layerMark(
       return n > 0 ? { lit: true, count: n } : DARK;
     }
     case 'worth': {
-      // A magnitude rather than a yes-or-no. The chart answers this one with
-      // size instead of the glow the others use — fifty glowing islands is not
-      // a filter, it is a lit chart — so `lit` here only separates the islands
-      // that have something on them from the bare rock.
-      const n = islandWorth(system);
-      return n > 0 ? { lit: true, count: n } : DARK;
+      // Production: what the island earns its holder today, as the number on
+      // the chart. It was capacity for a while — what the island could hold —
+      // graded into three shapes; capacity is still what the panels' worth
+      // mark shows, but the chart is better used telling you what the war is
+      // actually paying out, island by island, this morning.
+      if (system.control !== 'empire' && system.control !== 'alliance') return DARK;
+      const gold = Math.round(islandIncome(system, system.control));
+      return gold > 0 ? { lit: true, count: gold } : DARK;
     }
     default:
       return DARK;
