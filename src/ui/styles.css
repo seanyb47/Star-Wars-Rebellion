@@ -93,7 +93,13 @@ button {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
-.screen--map { overflow: hidden; position: relative; }
+.screen--map { overflow: hidden; position: relative; display: flex; flex-direction: column; }
+/* The chart's scroll box. Up and down only, and only when the chart at full
+   width is taller than the room it has; there is still no zoom. */
+.map__scroll {
+  flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+}
 .pad { padding: 12px; }
 .stack > * + * { margin-top: 8px; }
 
@@ -205,7 +211,7 @@ button {
 .map__pick--recruit { stroke: var(--brass); }
 
 .map__hud {
-  position: absolute; left: 10px; right: 10px; bottom: 66px;
+  position: absolute; left: 10px; right: 10px; bottom: 12px;
   display: flex; gap: 6px; align-items: center; pointer-events: none;
 }
 .map__hud > * { pointer-events: auto; }
@@ -700,8 +706,8 @@ button {
    The original nags you in red when a construction yard is sitting empty.
    This is the same idea, always on, and tapping one takes you to it. */
 .idle {
-  /* Above the layer strip, not behind it. */
-  position: absolute; left: 8px; right: 8px; bottom: 132px;
+  /* Above the layer strip's row, not behind it. */
+  position: absolute; left: 8px; right: 8px; bottom: 72px;
   display: flex; gap: 6px; justify-content: center; pointer-events: none;
 }
 .idle__item {
@@ -816,11 +822,12 @@ button {
 /* The view switch, at the foot of the chart where the pick chip lives. It sits
    above the tab bar rather than inside it: the tab bar says which screen you
    are on, this says what the screen is about. */
-/* At the very foot of the chart. The pick chip, when there is one, sits
-   above the strip rather than the strip sitting above an empty row. */
+/* Its own row under the chart, not laid over it: the chart scrolls under
+   nothing, and the chips never sit on an island. */
 .layers {
-  position: absolute; left: 0; right: 0; bottom: 12px;
-  display: flex; flex-direction: column; gap: 5px; pointer-events: none;
+  flex: none; padding: 8px 0 8px;
+  display: flex; flex-direction: column; gap: 5px;
+  background: var(--bg); border-top: 1px solid var(--border);
 }
 .layers__strip {
   display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;

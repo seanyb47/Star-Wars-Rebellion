@@ -54,30 +54,25 @@ const CHART_W = CHART.width;
 /** The painting's own height. Everything in chart.json is inside this. */
 const CHART_H = CHART.height;
 /**
- * The chart is the shape of the screen, whatever shape that is.
+ * The chart is as wide as the screen, whatever the screen.
  *
  * The painting is 1000 by 1500 and no phone's map area is. Every fixed
- * answer to that left something blank: "meet" left a gutter of flat water
- * down each side on a phone with browser chrome, "slice" cropped Rime's
- * peaks on a tablet, and a fixed band of open water under the painting was
- * the right depth on one phone and a black strip on the next. So the canvas
- * is now sized to the container's own proportion on every resize, and the
- * difference between that and the painting — a band under it on a tall
- * screen, a strip down each side on a wide one, never both — is painted
- * with the painting's own edge, mirrored outward and darkened into deeper
- * water. Mirroring is seamless at the join by construction, and nothing is
- * ever cropped: every island and every name is on screen at every size.
- *
- * The band under the painting also keeps the layer strip off Salt Reach on
- * a tall screen, which is what it was first for.
+ * answer to that left something blank or small: "meet" left a gutter of
+ * flat water down each side on a phone with browser chrome, "slice" cropped
+ * Rime's peaks on a tablet, and shaping the canvas to the box — mirrored
+ * strips down each side — kept the painting at three-quarters of the width
+ * on any screen shorter than two-to-three, which with a browser's bars is
+ * most of them. So the painting now takes the full width, always. On a
+ * screen taller than that leaves, the rest is a band of open water under
+ * it: the painting's own foot mirrored downward and darkened into deeper
+ * water, seamless at the join by construction. On a screen shorter, the
+ * chart is taller than its box and scrolls — up and down only; there is
+ * still no zoom — with the layer strip out of the way in its own row below,
+ * so it never covers an island. Nothing is ever cropped: every island and
+ * every name is on the chart at every size, at the biggest it can be.
  */
 /** What to assume before the element has been measured: a phone. */
 const ASSUMED_BOX = { w: 390, h: 650 };
-/** Pixels the layer strip takes at the foot of the chart. The canvas always
- *  carries at least this much water under the painting, so the chips never
- *  sit on Salt Reach — on a short box that means a little sea down each
- *  side instead, which is the better of the two. */
-const STRIP_PX = 66;
 
 /** Reach name -> where its cluster sits on the painting. */
 const PLACES = new Map(CHART.reaches.map((r) => [r.reach, r]));
@@ -227,12 +222,12 @@ export function GalaxyMap({
   const swipe = useLayerSwipe(layer, onLayerChange ?? (() => {}));
 
   /**
-   * Full bleed at any size. The element's own box, measured — the bars
+   * Full width at any size. The scroll box's own size, measured — the bars
    * above and below are what set it, not the viewport — and from it the
-   * canvas the chart draws on: the painting plus whatever band or side
-   * strips make it the box's shape. See the note on ASSUMED_BOX.
+   * canvas the chart draws on: the painting at the box's width, plus the
+   * band of water that fills a taller box. See the note on ASSUMED_BOX.
    */
-  const frame = useRef<SVGSVGElement>(null);
+  const frame = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState(ASSUMED_BOX);
   useEffect(() => {
     const el = frame.current;
@@ -295,22 +290,22 @@ export function GalaxyMap({
 
   const enemy: PlayableFaction = viewer === 'empire' ? 'alliance' : 'empire';
 
-  // The canvas: the painting, widened or deepened to the box's proportion,
-  // and never with less than the layer strip's height of water under it.
-  // Centred sideways, hung from the top downward.
-  const minH = box.h > STRIP_PX * 2 ? CHART_H / (1 - STRIP_PX / box.h) : CHART_H;
-  const viewH = Math.round(Math.max(minH, (CHART_W * box.h) / box.w));
-  const viewW = Math.round((viewH * box.w) / box.h);
-  const side = Math.max(0, (viewW - CHART_W) / 2);
-  const band = Math.max(0, viewH - CHART_H);
+  // The canvas: the painting at the box's full width. A taller box gets a
+  // band of water under the painting to fill it; a shorter one gets a chart
+  // taller than itself, and scrolls.
+  const scale = box.w / CHART_W;
+  const viewH = Math.max(CHART_H, Math.round(box.h / scale));
+  const band = viewH - CHART_H;
+  const chartPx = Math.max(box.h, Math.round(viewH * scale));
 
   return (
     <>
+      <div className="map__scroll" ref={frame}>
       <svg
-        ref={frame}
         className={ground ? 'map map--painted' : 'map'}
-        viewBox={`${-side} 0 ${viewW} ${viewH}`}
+        viewBox={`0 0 ${CHART_W} ${viewH}`}
         preserveAspectRatio="xMidYMid slice"
+        style={{ height: chartPx }}
         {...swipe}
       >
         <defs>
@@ -352,31 +347,16 @@ export function GalaxyMap({
             <stop offset="55%" stopColor="var(--water)" stopOpacity="0.3" />
             <stop offset="100%" stopColor="var(--water)" stopOpacity="0.45" />
           </linearGradient>
-          {/* The side strips into deeper water, the same idea sideways. */}
-          <linearGradient id="chart-west" x1="1" y1="0" x2="0" y2="0">
-            <stop offset="0%" stopColor="var(--water)" stopOpacity="0" />
-            <stop offset="100%" stopColor="var(--water)" stopOpacity="0.75" />
-          </linearGradient>
-          <linearGradient id="chart-east" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="var(--water)" stopOpacity="0" />
-            <stop offset="100%" stopColor="var(--water)" stopOpacity="0.75" />
-          </linearGradient>
           {/* The band under the painting, the same: nothing at the seam. */}
           <linearGradient id="chart-south" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="var(--water)" stopOpacity="0.45" />
             <stop offset="100%" stopColor="var(--water)" stopOpacity="0.7" />
           </linearGradient>
-          {/* Each strip's clip reaches six units under the painting, which
-              is drawn over it: no hairline of background at the seam where
-              two antialiased edges meet. */}
+          {/* The band's clip reaches six units under the painting, which is
+              drawn over it: no hairline of background at the seam where two
+              antialiased edges meet. */}
           <clipPath id="chart-band">
-            <rect x={-side} y={CHART_H - 6} width={viewW} height={band + 6} />
-          </clipPath>
-          <clipPath id="chart-west-clip">
-            <rect x={-side} y={0} width={side + 6} height={viewH} />
-          </clipPath>
-          <clipPath id="chart-east-clip">
-            <rect x={CHART_W - 6} y={0} width={side + 6} height={viewH} />
+            <rect x={0} y={CHART_H - 6} width={CHART_W} height={band + 6} />
           </clipPath>
         </defs>
 
@@ -410,70 +390,10 @@ export function GalaxyMap({
                 transform="scale(1 -1)"
                 filter="url(#chart-edge)"
               />
-              <rect x={-side} y={CHART_H} width={viewW} height={band} fill="url(#chart-south)" />
+              <rect x={0} y={CHART_H} width={CHART_W} height={band} fill="url(#chart-south)" />
             </g>
           </g>
         )}
-        {ground && side > 0 && (
-          <g pointerEvents="none">
-            {/* The side strips: the painting's outer columns mirrored out
-                past each edge, for a screen wider than the painting is —
-                a phone with browser chrome eating the height, a tablet.
-                Drawn flipped and clipped, the painting's edge column on
-                each seam. */}
-            <g clipPath="url(#chart-west-clip)">
-              {/* Sharp under blurred: the blur's soft edge at the seam then
-                  fades into the same sea, not into the background. */}
-              <image
-                href={ground}
-                x={0}
-                y={0}
-                width={CHART_W}
-                height={CHART_H}
-                preserveAspectRatio="xMidYMid slice"
-                transform="scale(-1 1)"
-                filter="url(#chart-lift)"
-              />
-              <image
-                href={ground}
-                x={0}
-                y={0}
-                width={CHART_W}
-                height={CHART_H}
-                preserveAspectRatio="xMidYMid slice"
-                transform="scale(-1 1)"
-                filter="url(#chart-edge)"
-              />
-              <rect x={-side} y={0} width={side} height={viewH} fill="url(#chart-west)" />
-            </g>
-            <g clipPath="url(#chart-east-clip)">
-              {/* Sharp under blurred: the blur's soft edge at the seam then
-                  fades into the same sea, not into the background. */}
-              <image
-                href={ground}
-                x={-2 * CHART_W}
-                y={0}
-                width={CHART_W}
-                height={CHART_H}
-                preserveAspectRatio="xMidYMid slice"
-                transform="scale(-1 1)"
-                filter="url(#chart-lift)"
-              />
-              <image
-                href={ground}
-                x={-2 * CHART_W}
-                y={0}
-                width={CHART_W}
-                height={CHART_H}
-                preserveAspectRatio="xMidYMid slice"
-                transform="scale(-1 1)"
-                filter="url(#chart-edge)"
-              />
-              <rect x={CHART_W} y={0} width={side} height={viewH} fill="url(#chart-east)" />
-            </g>
-          </g>
-        )}
-
         {/* The ground. The painting where it exists; the engraved chart it
             always had where it does not. Never both: the painting carries its
             own rhumb lines, soundings and compass, and drawing ours over the
@@ -515,7 +435,7 @@ export function GalaxyMap({
 
         {/* The painting's foot into deeper water, over the seam. */}
         {ground && (
-          <rect x={-side} y={CHART_H - 220} width={viewW} height={220} fill="url(#chart-foot)" pointerEvents="none" />
+          <rect x={0} y={CHART_H - 220} width={CHART_W} height={220} fill="url(#chart-foot)" pointerEvents="none" />
         )}
 
         {chains.map(({ sector, systems, summary, targets, spot, chainR, label }) => {
@@ -752,6 +672,7 @@ export function GalaxyMap({
           );
         })}
       </svg>
+      </div>
 
       {/* What is standing idle, always on screen: a yard building nothing is
           gold you are not spending, and nothing else says so. */}
