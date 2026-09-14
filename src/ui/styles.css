@@ -200,7 +200,6 @@ button {
 /* Over the painting the label needs its own ground: the painted sea is busy
    and italic serif at 36px was being eaten by it. */
 .map--painted .map__sector-label { paint-order: stroke fill; stroke: #04121980; stroke-width: 7px; }
-.map__hq { fill: none; stroke-width: 3; }
 .map__pick { fill: none; stroke: var(--good); stroke-width: 5; opacity: 0.9; }
 /* Covert work, drawn as such: a broken ring, so choosing to stir up an island
    they hold never looks like choosing to parley. Brass rather than red — red is

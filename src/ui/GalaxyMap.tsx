@@ -209,6 +209,8 @@ const STAR_RADIUS = 20;
  *  the one the chart has to shout. Bigger still, with a pulse behind. */
 const IDLE_STAR_RADIUS = 30;
 const IDLE_HALO_RADIUS = 52;
+/** The seat of each side: the star, always, and the biggest mark at rest. */
+const HQ_STAR_RADIUS = 26;
 
 export function GalaxyMap({
   state,
@@ -547,18 +549,6 @@ export function GalaxyMap({
                         {mark.count}
                       </text>
                     )}
-                    {isHq && (
-                      /* Tighter around a star or a rhombus: the ring is set off
-                         the points, and a circle 7 clear of those sits half a
-                         chart away from the waist. */
-                      <circle
-                        className="map__hq"
-                        cx={ax}
-                        cy={ay}
-                        r={starR + (lit ? 3.5 : 7)}
-                        stroke={tint}
-                      />
-                    )}
                     {ground ? (
                       /* On the painting the island is already drawn, in more
                          detail than a seeded outline will ever manage. So the
@@ -603,10 +593,15 @@ export function GalaxyMap({
                               </text>
                             );
                           }
-                          if (lit) {
+                          // A capital is the star, always, and larger than any
+                          // filter's: the shape alone says seat of the war. It
+                          // used to wear a ring as well, which was saying it
+                          // twice.
+                          if (lit || isHq) {
+                            const r = isHq ? Math.max(HQ_STAR_RADIUS, lit ? litR : 0) : litR;
                             return (
                               <path
-                                d={burstPath(litR)}
+                                d={burstPath(r)}
                                 transform={`translate(${ax} ${ay})`}
                                 {...skin}
                                 strokeWidth={idle ? 3 : skin.strokeWidth}
