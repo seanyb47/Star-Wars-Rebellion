@@ -2,7 +2,7 @@ import chartData from '../data/chart.json';
 import { paintedChart } from './painted';
 
 /**
- * An uncharted island, shown as exactly what the player has: the mark on
+ * An unexplored island, shown as exactly what the player has: the mark on
  * their chart. A crop of the painted chart, centred on the island's position,
  * with the surveyor's ring drawn over it. No drawn coastline, because nobody
  * has seen the coast — the painting of the place arrives when a crew does.

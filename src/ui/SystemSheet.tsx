@@ -217,8 +217,8 @@ export function SystemSheet({
   if (!explored) {
     return (
       <Sheet
-        title={`${terms.uncharted} island`}
-        subtitle={sector.name}
+        title={system.name}
+        subtitle={`${sector.name} · ${terms.uncharted}`}
         onClose={onClose}
       >
         <div className="isle-banner isle-banner--chart" style={{ height: 118 }}>
@@ -226,8 +226,9 @@ export function SystemSheet({
           <span className="isle-banner__fade" />
         </div>
         <p className="muted small" style={{ textAlign: 'center' }}>
-          No survey. Your charts show this only as a mark in open water and somebody else's
-          rumour.
+          Charted, never explored. Nobody of yours has set foot here, so whether anyone lives
+          on it, and whether a garrison landed would be enough to claim it, is rumour until
+          someone goes and looks.
         </p>
       </Sheet>
     );

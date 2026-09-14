@@ -360,9 +360,14 @@ export function ChainMap({
                             ? `, ${moored.map((m) => factionData[m].shortName).join(' and ')} hulls at anchor`
                             : ''
                         }`
-                      : 'Uncharted island'
+                      : `${system.name}, unexplored`
             }
           >
+            {/* Something to tap. The name itself refuses pointer events so
+                the glyphs under it stay hittable; this is the hit area for
+                the whole label, and it matters most for an island nobody has
+                explored, which draws almost nothing else. */}
+            <rect x={spot.x - 72} y={spot.y - 12} width={144} height={58} fill="transparent" />
             {/* Lit because it answers whatever the chart is filtering by.
                 Same colour as ever, pushed harder: a glow behind the name in the
                 island's own tint, with the rest of the chain fallen back. The
@@ -378,7 +383,7 @@ export function ChainMap({
                 {layer && isLoudLayer(layer) && (
                   <circle
                     className="map__idle-halo"
-                    cx={spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - (showsNumber(layer) ? 22 : 26)}
+                    cx={spot.x - nameWidth(system.name) / 2 - (showsNumber(layer) ? 22 : 26)}
                     cy={spot.y + 1}
                     r={54}
                     fill={tint}
@@ -387,7 +392,7 @@ export function ChainMap({
                 {layer && showsNumber(layer) && litCount !== undefined ? (
                   <text
                     className="chainmap__num"
-                    x={spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - 22}
+                    x={spot.x - nameWidth(system.name) / 2 - 22}
                     y={spot.y + 12}
                     fill={tint}
                   >
@@ -397,7 +402,7 @@ export function ChainMap({
                   <>
                     <path
                       d={worthPath('large', layer && isLoudLayer(layer) ? 26 : 15)!}
-                      transform={`translate(${spot.x - nameWidth(explored ? system.name : 'Uncharted') / 2 - (layer && isLoudLayer(layer) ? 26 : 22)} ${spot.y + 1})`}
+                      transform={`translate(${spot.x - nameWidth(system.name) / 2 - (layer && isLoudLayer(layer) ? 26 : 22)} ${spot.y + 1})`}
                       fill={tint}
                       stroke="#041219"
                       strokeWidth={2}
@@ -408,7 +413,7 @@ export function ChainMap({
                 {!(layer && showsNumber(layer)) && litCount !== undefined && litCount > 1 && (
                   <text
                     className="chainmap__lit-n"
-                    x={spot.x + nameWidth(explored ? system.name : 'Uncharted') / 2 + 22}
+                    x={spot.x + nameWidth(system.name) / 2 + 22}
                     y={spot.y - 14}
                     fill={tint}
                   >
@@ -508,7 +513,7 @@ export function ChainMap({
               fill={ground && crop ? tint : flag}
               pointerEvents="none"
             >
-              {explored ? system.name : 'Uncharted'}
+              {system.name}
             </text>
 
             {/* A sail right of the name for each side with hulls here, in

@@ -52,7 +52,7 @@ export function IslandRow({
         )}
         <span className="isle__name">
           <span className="isle__title">
-            {explored ? system.name : terms.uncharted}
+            {system.name}
             {/* The same grade the chart shows, so a list reads like the map. */}
             {explored && <WorthMark system={system} size={14} className="isle__worth" />}
           </span>
@@ -87,6 +87,11 @@ export function IslandRow({
                 </span>
               )}
             </>
+          )}
+          {!explored && (
+            <span className="tiny muted" style={{ display: 'block' }}>
+              {terms.uncharted}
+            </span>
           )}
         </span>
         {explored ? (

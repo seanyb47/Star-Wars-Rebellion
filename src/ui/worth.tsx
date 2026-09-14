@@ -83,7 +83,7 @@ export function worthPath(tier: WorthTier, r: number): string | null {
 /**
  * The mark on its own, inline, for anywhere that is HTML rather than SVG.
  *
- * Only ever for a charted island: an uncharted one keeps its worth to itself,
+ * Only ever for an explored island: an unexplored one keeps its worth to itself,
  * and the caller is expected not to ask. Sized so the burst's long tips reach
  * `size` and the other two sit inside the same box, which keeps a column of
  * them aligned in a list.

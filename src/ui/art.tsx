@@ -1169,7 +1169,7 @@ export function CharacterPainting({
  * everything the panel goes on to say about them.
  *
  * The drawn portrait stays as the fallback, and stays the only thing shown for
- * an uncharted island — you have not seen it, so you do not get a painting of
+ * an unexplored island — you have not seen it, so you do not get a painting of
  * it.
  */
 export function IslandBanner({
