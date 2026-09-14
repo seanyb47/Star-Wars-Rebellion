@@ -1,6 +1,7 @@
 import factionData from '../data/factions.json';
 import characterRoster from '../data/characters.json';
 import reachData from '../data/reaches.json';
+import chartData from '../data/chart.json';
 import { createRng, type Rng } from './rng';
 import {
   RECRUITS_AT_START,
@@ -201,6 +202,33 @@ function makeFacility(id: string, type: FacilityType, owner: PlayableFaction): F
  * chart can name the Seas and the panels can name the Reaches without either
  * one lying.
  */
+/**
+ * How much of the chart around each island's mark is painted land, 0 to 1,
+ * measured by scripts/chart_positions.py. Room follows the look of the chart:
+ * a rock in open water has nowhere to build, a harbour with the great island
+ * at its back has room for a city.
+ */
+const LAND_ON_THE_CHART = new Map<string, number>(
+  chartData.reaches.flatMap((r) => r.islands.map((i) => [i.name, i.land] as const)),
+);
+
+/** The most an island can hold, ground and water together. */
+export const ROOM_MAX = 12;
+/** The least: a rock with a jetty. */
+export const ROOM_MIN = 3;
+
+/**
+ * An island's room, from the land around its mark. Square-rooted so a
+ * quarter-land coast is not a quarter of a city: 3 on a bare rock, 6 or 7
+ * on an ordinary island, 12 where the great island fills the frame.
+ */
+export function roomFor(name: string): { ground: number; water: number } {
+  const land = LAND_ON_THE_CHART.get(name) ?? 0.2;
+  const total = Math.max(ROOM_MIN, Math.min(ROOM_MAX, Math.round(1 + 11 * Math.sqrt(land))));
+  const ground = Math.round(total * 0.45);
+  return { ground, water: total - ground };
+}
+
 export function generateGalaxy(seed: number, player: PlayableFaction = 'empire'): GameState {
   const rng = createRng(seed);
 
@@ -261,8 +289,10 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         isCore: isCoreSector,
         control: 'none',
         support: { empire: 0, alliance: 0 },
-        rawSlots: isCoreSector ? rng.range(2, 4) : rng.range(0, 5),
-        energySlots: isCoreSector ? rng.range(3, 6) : rng.range(0, 4),
+        // Room follows the painting, not the dice: the same island has the
+        // same ground in every game. A port keeps one more berth on the water.
+        rawSlots: roomFor(island.name).ground,
+        energySlots: roomFor(island.name).water + (port ? 1 : 0),
         facilities: [],
         garrison: 0,
         uprising: false,
@@ -370,14 +400,9 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
 
   const seedHoldings = (owner: PlayableFaction, owned: System[]) => {
     for (const [index, system] of owned.entries()) {
-      // Room to build on from day one. Tried the other way round first —
-      // eleven mines instead of eight, to pay for the new fleet — and it filled
-      // every slot the four starting islands had: solvent, and with nowhere to
-      // put anything. An opening with no free ground is a worse opening than a
-      // thin surplus, because the answer to a thin surplus is to build.
-      const generous = index === 0;
-      system.rawSlots = Math.max(system.rawSlots, generous ? 6 : 5);
-      system.energySlots = Math.max(system.energySlots, generous ? 8 : 7);
+      // Room is the painting's to give, not the opening's: a starting island
+      // keeps the ground the chart shows it. The deal below only ever widens
+      // an island by the one spare slot that lets it build on day one.
       system.garrison = startGarrison(system.support[owner], index === 0);
       system.explored[owner] = true;
     }
@@ -401,6 +426,13 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       if (type === 'mine') system.rawSlots = Math.max(system.rawSlots, countOf(system, true) + 1);
       else system.energySlots = Math.max(system.energySlots, countOf(system, false) + 1);
       system.facilities.push(makeFacility(makeId('fac'), type, owner));
+    }
+    // One spare slot of each kind on every starting island. An opening with
+    // no free ground is a worse opening than a thin surplus, because the
+    // answer to a thin surplus is to build.
+    for (const system of owned) {
+      system.rawSlots = Math.max(system.rawSlots, countOf(system, true) + 1);
+      system.energySlots = Math.max(system.energySlots, countOf(system, false) + 1);
     }
   };
   seedHoldings('empire', empireSystems);

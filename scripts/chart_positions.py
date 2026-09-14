@@ -102,9 +102,14 @@ BIG_LANDMASS_PX = 1500
 # big one carries one. Sean's rule: three port cities on the great island,
 # and a city is never on a mountain in a maritime world.
 PORTS_ON_THE_GREAT_ISLAND = 3
-# Pairs of islands that trade places on the chart once the painting has
-# placed them. Both must be in the same Reach.
-SWAPS = [("Highwater", "Obroa Scala")]
+# Islands placed by hand, in chart units, after the painting has had its say.
+# Sean looked at the chart and wanted the seat of the world on the great
+# island's lagoon, and the library on its eastern bay. A pinned island takes
+# no pick from the painting; the pin counts as taken when the rest are spaced.
+PINS: dict[str, tuple[float, float]] = {
+    "Highwater": (485.2, 707.0),
+    "Obroa Scala": (584.0, 754.9),
+}
 PORT_GAP_PX = 60
 
 
@@ -167,6 +172,12 @@ def painted_islands(path: str) -> list[tuple[float, float, float, bool]]:
     lbl, n = ndimage.label(land, structure=np.ones((3, 3)))
     sizes = ndimage.sum(land, lbl, range(1, n + 1))
     cents = ndimage.center_of_mass(land, lbl, range(1, n + 1))
+    # A blob inside a hole of a bigger landmass — an islet in a lake, a peak
+    # the green test missed — is not an island. A city in a maritime world
+    # is on a coast; a mark on a mountain top says otherwise.
+    filled = ndimage.binary_fill_holes(land)
+    flbl, fn = ndimage.label(filled, structure=np.ones((3, 3)))
+    fsizes = ndimage.sum(filled, flbl, range(1, fn + 1))
     sx, sy = CHART_W / w, CHART_H / h
     ice_share = ndimage.sum(ice, lbl, range(1, n + 1)) / np.maximum(sizes, 1)
     greatest = int(np.argmax(sizes)) + 1
@@ -178,6 +189,9 @@ def painted_islands(path: str) -> list[tuple[float, float, float, bool]]:
         if not (16 < cx < w - 16 and 16 < cy < h - 16):
             continue
         frozen = bool(ice_share[i - 1] > 0.5)
+        f = flbl[int(cy), int(cx)]
+        if f and fsizes[f - 1] > 3 * area:
+            continue
         if area >= BIG_LANDMASS_PX:
             want = PORTS_ON_THE_GREAT_ISLAND if i == greatest else 1
             for (px, py) in bays(lbl == i, want, PORT_GAP_PX):
@@ -187,18 +201,53 @@ def painted_islands(path: str) -> list[tuple[float, float, float, bool]]:
     return out
 
 
-def spaced(blobs: list[tuple[float, float, float]], gap: float, want: int):
-    """The biggest islands, taken in order, none closer than `gap` to another."""
-    taken: list[tuple[float, float]] = []
-    for x, y, *_ in sorted(blobs, key=lambda b: -b[2]):
-        if all((x - px) ** 2 + (y - py) ** 2 >= gap * gap for px, py in taken):
-            taken.append((x, y))
+# The radius, in chart units, of the water an island's room is measured in.
+# About the width of a chain-map mark and its label: the land you would say
+# "belongs" to the place when you look at the chart.
+ROOM_RADIUS_UNITS = 40
+
+_land_mask: np.ndarray | None = None
+
+
+def land_near(x: float, y: float) -> float:
+    """The fraction of a ROOM_RADIUS disc around (x, y) that is painted land."""
+    global _land_mask
+    if _land_mask is None:
+        a = np.asarray(Image.open(PAINTING).convert("RGB"), dtype=float)
+        land = (a[:, :, 1] >= a[:, :, 2]) & (a[:, :, 1] > 70)
+        ice = (a[:, :, 0] > 185) & (a[:, :, 1] > 185) & (a[:, :, 2] > 185)
+        closed = ndimage.binary_closing(land | ice, structure=np.ones((3, 3)))
+        # Holes filled: a lagoon, a lake, a peak the green test missed are all
+        # the island's own ground when you look at the chart.
+        _land_mask = ndimage.binary_fill_holes(closed)
+    h, w = _land_mask.shape
+    px, py = x * w / CHART_W, y * h / CHART_H
+    r = ROOM_RADIUS_UNITS * w / CHART_W
+    y0, y1 = max(0, int(py - r)), min(h, int(py + r) + 1)
+    x0, x1 = max(0, int(px - r)), min(w, int(px + r) + 1)
+    yy, xx = np.mgrid[y0:y1, x0:x1]
+    disc = (xx - px) ** 2 + (yy - py) ** 2 <= r * r
+    return round(float(_land_mask[y0:y1, x0:x1][disc].sum() / max(disc.sum(), 1)), 3)
+
+
+def spaced(blobs: list[tuple[float, float, float]], gap: float, want: int, held=()):
+    """The biggest islands, taken in order, none closer than `gap` to another.
+
+    `held` are points already taken — pinned islands — that the picks keep
+    their distance from without being counted.
+    """
+    taken: list = []
+    for b in sorted(blobs, key=lambda b: -b[2]):
+        x, y = b[0], b[1]
+        near = [(q[0], q[1]) for q in taken] + list(held)
+        if all((x - px) ** 2 + (y - py) ** 2 >= gap * gap for px, py in near):
+            taken.append(b)
         if len(taken) == want:
             break
     return taken
 
 
-def pick(blobs: list[tuple[float, float, float]], want: int) -> list[tuple[float, float]]:
+def pick(blobs: list[tuple[float, float, float]], want: int, held=()) -> list:
     """The `want` biggest islands, as far apart as this cluster can manage.
 
     Not "at least MIN_GAP" — the widest gap that still yields `want`. Stepping
@@ -213,15 +262,15 @@ def pick(blobs: list[tuple[float, float, float]], want: int) -> list[tuple[float
     requires.
     """
     lo, hi = 0.0, MIN_GAP_UNITS
-    if len(spaced(blobs, hi, want)) == want:
-        return spaced(blobs, hi, want)
+    if len(spaced(blobs, hi, want, held)) == want:
+        return spaced(blobs, hi, want, held)
     for _ in range(24):  # bisect to within a fraction of a unit
         mid = (lo + hi) / 2
-        if len(spaced(blobs, mid, want)) == want:
+        if len(spaced(blobs, mid, want, held)) == want:
             lo = mid
         else:
             hi = mid
-    return spaced(blobs, lo, want)
+    return spaced(blobs, lo, want, held)
 
 
 def main() -> None:
@@ -268,14 +317,17 @@ def main() -> None:
         # Islands flagged as ice take the bergs; everything else takes the
         # rock. Rime is the one Reach with both, and "a few icy islands" is
         # exactly as many as carry the flag.
-        ice_names = [i for i in order if i.get("ice")]
-        land_names = [i for i in order if not i.get("ice")]
+        pinned = [i for i in order if i["name"] in PINS]
+        held = [PINS[i["name"]] for i in pinned]
+        ice_names = [i for i in order if i.get("ice") and i["name"] not in PINS]
+        land_names = [i for i in order if not i.get("ice") and i["name"] not in PINS]
         land_blobs = [b for b in group if not b[3]]
         ice_blobs = [b for b in group if b[3]]
-        land_picks = pick(land_blobs, len(land_names))
-        ice_picks = pick(ice_blobs, len(ice_names)) if ice_names else []
-        order = land_names + ice_names
-        islands = land_picks + ice_picks
+        land_picks = pick(land_blobs, len(land_names), held)
+        ice_picks = pick(ice_blobs, len(ice_names), held) if ice_names else []
+        order = pinned + land_names + ice_names
+        # A pinned island's land is measured where it stands, like any other.
+        islands = [(x, y, 0.0, False) for x, y in held] + land_picks + ice_picks
         want = len(order)
         if len(islands) < want:
             # Short means the painting has fewer islands here than the game does.
@@ -289,15 +341,6 @@ def main() -> None:
         # the radius pushed it a hundred units past its own southern island and
         # into the next chain's name.
         ry = max(abs(p[1] - cy) for p in islands)
-        # Hand-swaps after the painting has had its say. Sean looked at the
-        # chart and wanted the seat of the world where the library sat; the
-        # names trade places and keep their flags, so Highwater is still the
-        # capital and still a port, just moored on the other harbour.
-        for a, b in SWAPS:
-            ia = next((i for i, isl in enumerate(order) if isl["name"] == a), None)
-            ib = next((i for i, isl in enumerate(order) if isl["name"] == b), None)
-            if ia is not None and ib is not None:
-                islands[ia], islands[ib] = islands[ib], islands[ia]
         out.append(
             {
                 "reach": name,
@@ -307,7 +350,17 @@ def main() -> None:
                 "r": round(r, 1),
                 "ry": round(ry, 1),
                 "islands": [
-                    {"name": isl["name"], "x": round(p[0], 1), "y": round(p[1], 1)}
+                    {
+                        "name": isl["name"],
+                        "x": round(p[0], 1),
+                        "y": round(p[1], 1),
+                        # How much of the sea around the mark is painted
+                        # land, 0 to 1. The game sizes an island's room from
+                        # this: a rock in open water has nowhere to build, a
+                        # harbour with the great island at its back has room
+                        # for a city.
+                        "land": land_near(p[0], p[1]),
+                    }
                     for isl, p in zip(order, islands)
                 ],
             }

@@ -75,6 +75,11 @@ export function resolveControlAndUnrest(state: GameState): void {
     for (const faction of ['empire', 'alliance'] as const) {
       if (canFlip(system, faction)) {
         system.control = faction;
+        // The companies that held it for somebody else go home; one stays
+        // under the new colours. An island won over is a prize, not a
+        // garrison bill — and a treasury that inherits forty militia it
+        // never asked for runs dry with nothing to show for it.
+        system.garrison = Math.min(system.garrison, 1);
         pushEvent(state, {
           kind: 'flip',
       text: `${system.name} has run up the colours of the ${factionName(faction)}.`,

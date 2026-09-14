@@ -7,3 +7,6 @@ dist-ssr
 coverage
 *.tsbuildinfo
 chart-overlay.png
+
+# Python bytecode from the chart and art scripts.
+__pycache__/

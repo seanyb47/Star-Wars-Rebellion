@@ -21,6 +21,21 @@ thirties and forties, held by the garrison). The Confederacy opens with one
 or two islands in the Reach, never on the great island itself. The rest are
 settled and nobody's.
 
+**Room.** What an island can hold follows the chart, not the dice. The chart
+script measures how much painted land lies within forty units of each mark
+(`land` in `src/data/chart.json`, lagoons and peaks counted as land) and the
+game turns that into room: 3 slots on a bare rock, 6 or 7 on an ordinary
+island, 12 where the great island fills the frame, split about 45/55 between
+ground and water, with one more berth on the water at a flagged port. The same
+island has the same room in every game. A starting island keeps the chart's
+room; the opening only ever widens it by the one spare slot of each kind that
+lets it build on day one.
+
+**Won over.** When an island runs up a side's colours, the companies that held
+it stand down to one under the new flag. It used to hand over the whole
+militia, and an opponent that talked twenty islands round inherited forty
+companies' wages and went broke with nothing built.
+
 **Contested — Wreckers' Reach, Whalers' Reach, Cinder Reach.** Each side
 opens with two islands; the rest are settled, nobody's, and garrisoned.
 
