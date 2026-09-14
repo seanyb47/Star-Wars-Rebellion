@@ -386,7 +386,7 @@ export function App() {
   }
 
   return (
-    <div className="app">
+    <div className="app" data-side={state.player}>
       {/* Waits for the war-begins dispatch to be read: two cards at once is
           nobody's idea of a clean start. */}
       {teaching && dispatches.length === 0 && !readingId && (

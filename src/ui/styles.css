@@ -137,25 +137,101 @@ button {
   display: grid; place-items: center; font-size: 15px;
 }
 
+/* ---------- The chrome: wood, brass and rust, one per side ----------
+   The layout is one; the plates swap. The Crown gets green-black oak and
+   brass, the Confederacy red-brown planking and rusted iron with red. All
+   of it is CSS over one tiny wood tile, so it costs nothing to load and
+   the text stays the game's own. */
+.app { --chrome: #1a3428; --chrome-2: #0f2119; --metal: #c9a227; --metal-hi: #f1d77a; --metal-lo: #6f5612; --chrome-text: #e8dcc0; --chrome-muted: #a89f8a; }
+.app[data-side='alliance'] { --chrome: #3d1d16; --chrome-2: #24100c; --metal: #d8533f; --metal-hi: #f59a80; --metal-lo: #7a2a1e; --chrome-text: #efdcc4; --chrome-muted: #b39a86; }
+.wood, .topbar, .tabbar, .layers {
+  background-color: var(--chrome);
+  background-image: url('../art/chrome/wood.webp'), linear-gradient(180deg, var(--chrome), var(--chrome-2));
+  background-blend-mode: soft-light, normal;
+  background-size: 256px 256px, auto;
+}
+.topbar { border-bottom: 1px solid var(--metal-lo); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); padding: 0; }
+.banner {
+  position: relative; display: flex; align-items: center; gap: 10px;
+  padding: calc(var(--safe-top) + 8px) 12px 6px;
+  min-height: 62px; background-size: cover; background-position: center 35%;
+  border-bottom: 1px solid var(--metal-lo);
+}
+.banner__scrim { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(6, 12, 10, 0.94) 0%, rgba(6, 12, 10, 0.86) 55%, rgba(6, 12, 10, 0.45) 100%); }
+.app[data-side='alliance'] .banner__scrim { background: linear-gradient(90deg, rgba(20, 6, 4, 0.94) 0%, rgba(20, 6, 4, 0.86) 55%, rgba(20, 6, 4, 0.45) 100%); }
+.banner > :not(.banner__scrim) { position: relative; }
+/* A phone narrower than an iPhone 12 loses the word on the speed button; the glyph says it. */
+@media (max-width: 374px) { .topbar .speed > span:last-child { display: none; } .topbar .speed { padding: 4px 12px; } }
+.banner__crest { flex: none; filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8)); }
+.banner__text { flex: 1; min-width: 0; }
+.banner__name {
+  font-family: 'Iowan Old Style', Palatino, 'Book Antiqua', Georgia, serif;
+  font-size: 19px; font-weight: 700; letter-spacing: 0.06em; color: var(--metal-hi);
+  text-shadow: 0 1px 0 var(--metal-lo), 0 2px 6px rgba(0, 0, 0, 0.8); line-height: 1.1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.banner__creed {
+  font-size: 8.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--chrome-text);
+  opacity: 0.9; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+.banner__day {
+  flex: none; width: 52px; height: 52px; border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  background: radial-gradient(circle at 35% 30%, var(--chrome), var(--chrome-2) 70%);
+  border: 2px solid var(--metal); box-shadow: 0 0 0 2px var(--chrome-2), 0 0 0 3px var(--metal-lo), 0 2px 8px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: var(--metal-hi); font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+}
+.banner__daylabel { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1; color: var(--chrome-text); opacity: 0.8; }
+.banner__day b { font-size: 20px; line-height: 1.05; font-weight: 700; }
+.console { display: flex; align-items: center; gap: 5px; padding: 6px 8px 7px; }
+.plaque {
+  display: flex; align-items: center; gap: 5px; min-height: 40px; padding: 4px 8px 4px 6px; border-radius: 7px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.5));
+  border: 1px solid var(--metal-lo); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 2px rgba(0, 0, 0, 0.5);
+  color: var(--chrome-text); flex: none;
+}
+.plaque__text { display: flex; flex-direction: column; line-height: 1.05; }
+.plaque__label { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--chrome-muted); }
+.plaque b { font-size: 15px; font-variant-numeric: tabular-nums; color: var(--chrome-text); }
+.plaque__net { font-size: 10px; font-weight: 600; color: var(--good); margin-left: 2px; white-space: nowrap; }
+.plaque__net--over { color: var(--bad); }
+.topbar .speed {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.5));
+  border: 1px solid var(--metal-lo); color: var(--chrome-text); min-height: 40px; padding: 4px 9px; border-radius: 7px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.topbar .speed--running { border-color: var(--good); color: var(--good); }
+.topbar .iconbtn {
+  width: 38px; height: 40px; border-radius: 7px; color: var(--metal); flex: none;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.5));
+  border: 1px solid var(--metal-lo); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.topbar .iconbtn--on { color: var(--metal-hi); border-color: var(--metal); }
+.map__compass { color: var(--metal); opacity: 0.85; }
+.app[data-side='alliance'] .map__compass { color: #e0a084; }
+
 /* ---------- Tab bar ---------- */
 .tabbar {
   flex: none;
   position: relative;
   z-index: 2;
   display: grid; grid-template-columns: repeat(4, 1fr) 84px;
-  background: var(--bg-raised); border-top: 1px solid var(--border);
+  border-top: 1px solid var(--metal-lo); box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.5);
   padding-bottom: var(--safe-bottom);
 }
 .tab {
   min-height: var(--tap);
   padding: 9px 0 8px; display: flex; flex-direction: column; align-items: center; gap: 2px;
   justify-content: center;
-  color: var(--muted); font-size: 10px; position: relative;
+  color: var(--chrome-muted); font-size: 10px; position: relative;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
 }
-.tab--active { color: var(--brass); }
+.tab--active { color: var(--metal-hi); }
+.tab--active .tab__icon { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--metal) 60%, transparent)); }
 .tab--active::after {
   content: ''; position: absolute; top: 0; left: 22%; right: 22%; height: 2px;
-  background: var(--brass); border-radius: 0 0 2px 2px;
+  background: var(--metal); border-radius: 0 0 2px 2px;
 }
 .tab__icon { display: grid; place-items: center; height: 24px; }
 .tab__icon svg { display: block; }
@@ -590,7 +666,7 @@ button {
   min-width: var(--tap); min-height: 72px;
   display: flex; align-items: flex-end; justify-content: center;
   background: none; border: none;
-  border-left: 1px solid var(--border);
+  border-left: 1px solid var(--metal-lo);
   filter: drop-shadow(0 1px 4px rgba(3, 13, 18, 0.8));
   -webkit-touch-callout: none; user-select: none;
 }
@@ -870,32 +946,43 @@ button {
 /* Its own row under the chart, not laid over it: the chart scrolls under
    nothing, and the chips never sit on an island. */
 .layers {
-  flex: none; padding: 8px 0 8px;
+  flex: none; padding: 7px 0 7px;
   display: flex; flex-direction: column; gap: 5px;
-  background: var(--bg); border-top: 1px solid var(--border);
+  border-top: 1px solid var(--metal-lo);
 }
 .layers__strip {
   display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
-  padding: 0 10px; pointer-events: auto;
+  padding: 0 10px 6px; pointer-events: auto;
   overscroll-behavior-x: contain;
 }
 .layers__strip::-webkit-scrollbar { display: none; }
 .layers__chip {
   flex: none; display: inline-flex; align-items: center; gap: 6px;
-  min-height: var(--tap); padding: 6px 13px; border-radius: 999px;
-  background: rgba(6, 22, 29, 0.88); border: 1px solid var(--border);
-  color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
-  white-space: nowrap;
+  min-height: 40px; padding: 6px 13px; border-radius: 6px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.48));
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  color: var(--chrome-text); font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  white-space: nowrap; position: relative; font-family: 'Iowan Old Style', Palatino, Georgia, serif;
 }
-.layers__chip--on { border-color: var(--brass); color: var(--brass); }
+.layers__chip--on {
+  border-color: var(--metal); color: var(--metal-hi);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--metal) 28%, rgba(0, 0, 0, 0.3)), rgba(0, 0, 0, 0.5));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 0 1px var(--metal-lo), 0 0 8px color-mix(in srgb, var(--metal) 35%, transparent);
+}
+/* The little pennant under the live chip, after the mock-up's shield tab. */
+.layers__chip--on::after {
+  content: ''; position: absolute; left: 50%; bottom: -6px; width: 10px; height: 6px; transform: translateX(-50%);
+  background: var(--metal); clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
 /* The tally. A zero is worth showing — on Idle works it is the one number that
    means nothing of yours is standing about. */
 .layers__n {
-  font-size: 10px; font-variant-numeric: tabular-nums;
-  padding: 1px 5px; border-radius: 999px;
-  background: var(--bg-sunken); color: var(--text); opacity: 0.75;
+  font-size: 10px; font-variant-numeric: tabular-nums; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 50%; display: inline-grid; place-items: center;
+  background: rgba(0, 0, 0, 0.5); border: 1px solid var(--metal-lo); color: var(--chrome-text);
 }
-.layers__chip--on .layers__n { background: var(--brass); color: var(--bg); opacity: 1; }
+.layers__chip--on .layers__n { background: var(--metal); color: var(--chrome-2); border-color: var(--metal-hi); }
 
 /* How many of the thing an island that answers the current layer has.
    No fill here: the colour is set per island so the number belongs visibly to

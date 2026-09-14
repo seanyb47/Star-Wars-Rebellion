@@ -214,6 +214,15 @@ const IDLE_HALO_RADIUS = 52;
 /** The seat of each side: the star, always, and the biggest mark at rest. */
 const HQ_STAR_RADIUS = 31;
 
+/** One kite-shaped point of the compass rose, tip to centre. */
+function rosePoint(angle: number, long: number, wide: number): string {
+  const at = (deg: number, rad: number) => {
+    const t = (deg * Math.PI) / 180;
+    return `${(Math.cos(t) * rad).toFixed(2)} ${(Math.sin(t) * rad).toFixed(2)}`;
+  };
+  return `M ${at(angle, long)} L ${at(angle + 90, wide)} L ${at(angle + 180, long * 0.06)} L ${at(angle - 90, wide)} Z`;
+}
+
 export function GalaxyMap({
   state,
   pickingFor,
@@ -443,6 +452,25 @@ export function GalaxyMap({
           ))}
         </g>
         )}
+
+        {/* A compass rose in the one corner with nothing but water. */}
+        <g className="map__compass" transform="translate(895 1400)" pointerEvents="none">
+          <svg x={-66} y={-66} width={132} height={132} viewBox="-60 -60 120 120" overflow="visible">
+            <circle r="50" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.4" />
+            <circle r="39" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
+            {[45, 135, 225, 315].map((a) => (
+              <path key={a} d={rosePoint(a, 36, 5)} fill="currentColor" opacity="0.35" />
+            ))}
+            {[0, 90, 180, 270].map((a) => (
+              <path key={a} d={rosePoint(a, 47.5, 7)} fill="currentColor" opacity="0.75" />
+            ))}
+            <circle r="3" fill="currentColor" />
+            <text x="0" y="-52" textAnchor="middle" fontSize="11" fill="currentColor" fontFamily="Georgia, serif">N</text>
+            <text x="0" y="60" textAnchor="middle" fontSize="9" fill="currentColor" fontFamily="Georgia, serif" opacity="0.7">S</text>
+            <text x="-56" y="3.5" textAnchor="middle" fontSize="9" fill="currentColor" fontFamily="Georgia, serif" opacity="0.7">W</text>
+            <text x="56" y="3.5" textAnchor="middle" fontSize="9" fill="currentColor" fontFamily="Georgia, serif" opacity="0.7">E</text>
+          </svg>
+        </g>
 
         {/* The painting's foot into deeper water, over the seam. */}
         {ground && (

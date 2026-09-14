@@ -362,3 +362,17 @@ with a works of its own so its orders are made on the spot.
 
 Idle works is gone from the layer strip: after Loyalty comes Idle crew, then
 idle works, drill grounds and slipways each as their own filter.
+
+## The chrome — 14 September
+
+Sean's mock-up, built in code rather than painted: one layout, two skins.
+The Crown gets green-black oak and brass, the Confederacy red-brown planking
+and rust with red. A 3KB wood tile under CSS gradients does the wood; the
+banner is the side's own painting (Highwater's port for the Crown, the Free
+Harbor for the rebels) under a scrim, with crest, name, creed and the day in
+a medallion; the ledger sits on plaques with a coin and a ledger icon; the
+layer chips are plaques with a pennant under the live one; a compass rose
+sits in the empty water bottom right. The chart keeps three-quarters of the
+screen — the mock-up's desk of telescopes under the tab bar was cut, and so
+was its side column of tools, which duplicated the strip. No text is baked
+into any image, so it stays crisp and changeable.
