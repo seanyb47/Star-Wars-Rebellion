@@ -690,6 +690,9 @@ function MenuSheet({
         Your game saves itself constantly — after every order and whenever you switch away from
         the app — so you can close it at any point and pick the war back up from the title screen.
       </p>
+      <p className="tiny muted" style={{ marginTop: 14, textAlign: 'center' }}>
+        Version {__APP_VERSION__}
+      </p>
     </Sheet>
   );
 }
