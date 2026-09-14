@@ -78,9 +78,11 @@ button {
 .app {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
-  width: 100%;
-  position: relative;
+  /* Pinned to the screen's edges rather than sized from a viewport unit: on
+     an iPhone in standalone mode the units and the screen have disagreed, and
+     the difference showed as a dead band under the console. */
+  position: fixed;
+  inset: 0;
   overflow: hidden;
 }
 
@@ -102,6 +104,8 @@ button {
 .map__scroll {
   flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
   -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  /* Room to scroll the chart's foot out from under the layer strip. */
+  padding-bottom: 60px;
 }
 .pad { padding: 12px; }
 .stack > * + * { margin-top: 8px; }
@@ -152,9 +156,9 @@ button {
 }
 .topbar { border-bottom: 1px solid var(--metal-lo); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); padding: 0; }
 .banner {
-  position: relative; display: flex; align-items: center; gap: 10px;
-  padding: calc(var(--safe-top) + 8px) 12px 6px;
-  min-height: 62px; background-size: cover; background-position: center 35%;
+  position: relative; display: flex; align-items: center; gap: 8px;
+  padding: calc(var(--safe-top) + 5px) 10px 4px;
+  min-height: 50px; background-size: cover; background-position: center 35%;
   border-bottom: 1px solid var(--metal-lo);
 }
 .banner__scrim { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(6, 12, 10, 0.94) 0%, rgba(6, 12, 10, 0.86) 55%, rgba(6, 12, 10, 0.45) 100%); }
@@ -166,45 +170,45 @@ button {
 .banner__text { flex: 1; min-width: 0; }
 .banner__name {
   font-family: 'Iowan Old Style', Palatino, 'Book Antiqua', Georgia, serif;
-  font-size: 19px; font-weight: 700; letter-spacing: 0.06em; color: var(--metal-hi);
+  font-size: 17px; font-weight: 700; letter-spacing: 0.06em; color: var(--metal-hi);
   text-shadow: 0 1px 0 var(--metal-lo), 0 2px 6px rgba(0, 0, 0, 0.8); line-height: 1.1;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .banner__creed {
-  font-size: 8.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--chrome-text);
-  opacity: 0.9; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: 8px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--chrome-text);
+  opacity: 0.9; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
 }
 .banner__day {
-  flex: none; width: 52px; height: 52px; border-radius: 50%;
+  flex: none; width: 44px; height: 44px; border-radius: 50%;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
   background: radial-gradient(circle at 35% 30%, var(--chrome), var(--chrome-2) 70%);
   border: 2px solid var(--metal); box-shadow: 0 0 0 2px var(--chrome-2), 0 0 0 3px var(--metal-lo), 0 2px 8px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   color: var(--metal-hi); font-family: 'Iowan Old Style', Palatino, Georgia, serif;
 }
-.banner__daylabel { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1; color: var(--chrome-text); opacity: 0.8; }
-.banner__day b { font-size: 20px; line-height: 1.05; font-weight: 700; }
-.console { display: flex; align-items: center; gap: 5px; padding: 6px 8px 7px; }
+.banner__daylabel { font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1; color: var(--chrome-text); opacity: 0.8; }
+.banner__day b { font-size: 17px; line-height: 1.05; font-weight: 700; }
+.console { display: flex; align-items: center; gap: 5px; padding: 5px 8px 6px; }
 .plaque {
-  display: flex; align-items: center; gap: 5px; min-height: 40px; padding: 4px 8px 4px 6px; border-radius: 7px;
+  display: flex; align-items: center; gap: 5px; min-height: 36px; padding: 3px 8px 3px 6px; border-radius: 7px;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.5));
   border: 1px solid var(--metal-lo); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 2px rgba(0, 0, 0, 0.5);
   color: var(--chrome-text); flex: none;
 }
 .plaque__text { display: flex; flex-direction: column; line-height: 1.05; }
 .plaque__label { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--chrome-muted); }
-.plaque b { font-size: 15px; font-variant-numeric: tabular-nums; color: var(--chrome-text); }
+.plaque b { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--chrome-text); }
 .plaque__net { font-size: 10px; font-weight: 600; color: var(--good); margin-left: 2px; white-space: nowrap; }
 .plaque__net--over { color: var(--bad); }
 .topbar .speed {
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.5));
-  border: 1px solid var(--metal-lo); color: var(--chrome-text); min-height: 40px; padding: 4px 9px; border-radius: 7px;
+  border: 1px solid var(--metal-lo); color: var(--chrome-text); min-height: 36px; padding: 3px 9px; border-radius: 7px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   white-space: nowrap; flex: none;
 }
 .topbar .speed--running { border-color: var(--good); color: var(--good); }
 .topbar .iconbtn {
-  width: 38px; height: 40px; border-radius: 7px; color: var(--metal); flex: none;
+  width: 38px; height: 36px; border-radius: 7px; color: var(--metal); flex: none;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.5));
   border: 1px solid var(--metal-lo); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
@@ -223,7 +227,7 @@ button {
 }
 .tab {
   min-height: var(--tap);
-  padding: 9px 0 8px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 0 5px; display: flex; flex-direction: column; align-items: center; gap: 1px;
   justify-content: center;
   color: var(--chrome-muted); font-size: 10px; position: relative;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
@@ -702,7 +706,7 @@ button {
   /* Taller than the bar on purpose: he stands on the console rather than
      sitting in it, and the bar grew to give him the room. */
   position: relative;
-  min-width: var(--tap); min-height: 72px;
+  min-width: var(--tap); min-height: 62px;
   display: flex; align-items: flex-end; justify-content: center;
   background: none; border: none;
   border-left: 1px solid var(--metal-lo);
@@ -867,7 +871,7 @@ button {
    This is the same idea, always on, and tapping one takes you to it. */
 .idle {
   /* Above the layer strip's row, not behind it. */
-  position: absolute; left: 8px; right: 8px; bottom: 72px;
+  position: absolute; left: 8px; right: 8px; bottom: 66px; z-index: 3;
   display: flex; gap: 6px; justify-content: center; pointer-events: none;
 }
 .idle__item {
@@ -987,9 +991,14 @@ button {
 /* Its own row under the chart, not laid over it: the chart scrolls under
    nothing, and the chips never sit on an island. */
 .layers {
-  flex: none; padding: 7px 0 7px;
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+  padding: 6px 0 6px;
   display: flex; flex-direction: column; gap: 5px;
   border-top: 1px solid var(--metal-lo);
+  /* Over the water, not beside it: the chart keeps the whole screen and the
+     strip floats on its foot, the wood let through just enough to sit on. */
+  background-image: url('../art/chrome/wood.webp'), linear-gradient(180deg, color-mix(in srgb, var(--chrome) 84%, transparent), color-mix(in srgb, var(--chrome-2) 92%, transparent));
+  box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.35);
 }
 .layers__strip {
   display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
@@ -1369,3 +1378,12 @@ button.tcard:hover { border-color: var(--brass); }
 .tally__row--loss b { color: var(--bad); }
 .tally__foot { grid-column: 1 / -1; padding: 0 2px; }
 @media (max-width: 359px) { .tally { grid-template-columns: 1fr; } }
+
+/* Short screens — an older iPhone, or one with the browser's bars showing —
+   lose the creed and a little padding rather than any of the chart. */
+@media (max-height: 700px) {
+  .banner__creed { display: none; }
+  .banner { min-height: 44px; padding-bottom: 3px; }
+  .banner__day { width: 40px; height: 40px; }
+  .console { padding: 4px 8px 5px; }
+}

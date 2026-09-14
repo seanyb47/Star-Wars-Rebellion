@@ -110,7 +110,7 @@ export function TopBar({
       <div className="banner" style={banner ? { backgroundImage: `url(${banner})` } : undefined}>
         <div className="banner__scrim" />
         <div className="banner__crest">
-          <FactionCrest faction={state.player} size={46} />
+          <FactionCrest faction={state.player} size={40} />
         </div>
         <div className="banner__text">
           <div className="banner__name">{side.name}</div>
