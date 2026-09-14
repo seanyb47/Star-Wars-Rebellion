@@ -40,7 +40,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 | Original | New | Mechanic translation |
 |---|---|---|
 | Galaxy | **The Seven Seas** | Whole map |
-| Sector | **Reach** (an archipelago inside a Sea) | Same grouping as sectors. Seven Seas fixed; *number of Reaches per Sea* scales with map size. **On the small map there is one Reach per Sea, so a Sea and its archipelago are the same thing** (8 Reaches, 71 islands — the Far Sea holds two). Medium and large add second and third Reaches inside a Sea (→ ~150 / 200 islands). |
+| Sector | **Reach** (an archipelago inside a Sea) | Same grouping as sectors. Seven Seas fixed; *number of Reaches per Sea* scales with map size. **On the small map there is one Reach per Sea, so a Sea and its archipelago are the same thing** (8 Reaches, 100 islands — the Far Sea holds two). Medium and large add second and third Reaches inside a Sea (→ ~150 / 200 islands). |
 | Core sectors | **The Inner Seas** (3) | Rich, charted, Imperium-leaning |
 | Outer Rim sectors | **The Outer Seas** (4) | Uncharted, strange, must be explored |
 | System / planet | **Island** | One node |
@@ -1156,6 +1156,7 @@ not a bark, and it goes in the text.
 
 ## 15. CHANGELOG
 
+- **2026-09-14 v5.7** — The small map goes to 100 islands. Twenty-nine promoted from the Reaches held back for larger maps, each into the surviving Reach of its Sea: Lantern's civic islands (Caridad, Raltiera, Obroa Scala, Bimisario, Palanca) into Sovereign Reach and its fisherfolk (Andoro, Berquessa, Marista) into Coral; Grey Reach's timber islands (Belfrey, Capperil, Kempsley, Ketterly, Ombwick) into Shipwrights'; Still Reach's Jomarrow, Douglass Rock and Crondre into Wreckers'; Last Reach's Thanta Isle, Tundvik and Kirdholm into Cinder; Rice Reach's The Terraces, Catshead, Heff Island and Tio Isle into Salt; Sugar's Ferrol Key and Rishi Bank into Rime; Whalers' own Linnur, Kristak and Vustri plus Sugar's Bilbrin into Whalers'. Their notes travel with them. On the chart a big island's mark is its port on the coast and a small island is the island; the great island of Sovereign Reach carries Highwater, Gorley and Ballmoor on its shore.
 - **2026-09-13 v5.6** — Marlow's dead: husband and both sons, all captains, all lost in the Crown's service — the Narrows, the Black Tide, the Wreckers' coast — and her faith unshaken. Her accent locked: English RP, Judi Dench's M.
 - **2026-09-13 v5.5** — Marlow is a **Secretary**, not an admiral: First Secretary of the Admiralty, the permanent official who has never been to sea, widow of one captain and mother of two more, the only person permitted to lecture the Imperator. Look and history revised in §16.1.
 - **2026-09-13 v5.4** — The Crown's advisor is **Sabine Marlow**, the Imperator's M: sarcastic, exact, entirely the Imperium's. Secretary Crane retires to a possible silent cameo. The player is the **Imperator** (Crown) and the **Captain-General of the Free** (Confederacy); §16.5. Marlow's look in §16.1, her voice in §16.4.

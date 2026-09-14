@@ -1,5 +1,7 @@
 # The opening
 
+(Counts as of the 100-island chart: Sovereign 15, Shipwrights' 14, Wreckers' 12, Cinder 13, Salt 14, Coral 12, Rime 9, Whalers' 11.)
+
 Sean's rules, 14 September 2026, implemented in `src/sim/galaxy.ts` and
 tested in `src/sim/__tests__/galaxy.test.ts` and `defences.test.ts`. Every
 Reach carries a `role` in `src/data/reaches.json`; the three port cities of

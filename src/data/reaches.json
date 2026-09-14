@@ -44,6 +44,25 @@
         {
           "name": "Yarrow Minor",
           "note": "The royal dockyard."
+        },
+        {
+          "name": "Caridad",
+          "note": "The Imperium's naval academy."
+        },
+        {
+          "name": "Raltiera",
+          "note": "Banking houses. Half the war is paid for here."
+        },
+        {
+          "name": "Obroa Scala",
+          "note": "The Great Library: charts and archives."
+        },
+        {
+          "name": "Bimisario",
+          "note": "Market island."
+        },
+        {
+          "name": "Palanca"
         }
       ],
       "role": "home"
@@ -81,6 +100,21 @@
         },
         {
           "name": "Vagrano"
+        },
+        {
+          "name": "Belfrey"
+        },
+        {
+          "name": "Capperil"
+        },
+        {
+          "name": "Kempsley"
+        },
+        {
+          "name": "Ketterly"
+        },
+        {
+          "name": "Ombwick"
         }
       ],
       "role": "contested"
@@ -119,6 +153,16 @@
         },
         {
           "name": "Norvell"
+        },
+        {
+          "name": "Jomarrow",
+          "note": "Hermit island."
+        },
+        {
+          "name": "Douglass Rock"
+        },
+        {
+          "name": "Crondre"
         }
       ],
       "role": "contested"
@@ -152,6 +196,12 @@
         },
         {
           "name": "Lelmar"
+        },
+        {
+          "name": "Ferrol Key"
+        },
+        {
+          "name": "Rishi Bank"
         }
       ],
       "role": "frontier"
@@ -184,6 +234,19 @@
         },
         {
           "name": "Gedon"
+        },
+        {
+          "name": "Linnur"
+        },
+        {
+          "name": "Kristak"
+        },
+        {
+          "name": "Vustri"
+        },
+        {
+          "name": "Bilbrin",
+          "note": "An old Imperium dockyard, iced in."
         }
       ],
       "role": "frontier"
@@ -225,6 +288,16 @@
         {
           "name": "Vejun Keep",
           "note": "Admiral Blackwater's private fortress. The water below it is always flat."
+        },
+        {
+          "name": "Thanta Isle"
+        },
+        {
+          "name": "Tundvik",
+          "note": "The edge of the charts."
+        },
+        {
+          "name": "Kirdholm"
         }
       ],
       "role": "contested"
@@ -266,6 +339,19 @@
         {
           "name": "Blackreef",
           "note": "Jubal the Fat's corsair haven. Debts are collected here."
+        },
+        {
+          "name": "The Terraces",
+          "note": "Rice breadbasket of the Outer Seas."
+        },
+        {
+          "name": "Catshead"
+        },
+        {
+          "name": "Heff Island"
+        },
+        {
+          "name": "Tio Isle"
         }
       ],
       "role": "frontier"
@@ -308,6 +394,16 @@
         },
         {
           "name": "Denby Cay"
+        },
+        {
+          "name": "Andoro",
+          "note": "Fisherfolk; rough."
+        },
+        {
+          "name": "Berquessa"
+        },
+        {
+          "name": "Marista"
         }
       ],
       "role": "open"

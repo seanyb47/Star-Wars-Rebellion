@@ -38,6 +38,7 @@ import math
 import numpy as np
 from PIL import Image, ImageDraw
 from scipy import ndimage
+from scipy.spatial import ConvexHull
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PAINTING = os.path.join(ROOT, "src", "art", "chart", "seas.webp")
@@ -86,14 +87,70 @@ MIN_BLOB_PX = 6
 # chain view needs to read as seven to twelve distinct places, and it is why
 # each Reach now holds as many islands as its painted cluster can carry at that
 # spacing rather than a flat ten.
-MIN_GAP_UNITS = 55
+MIN_GAP_UNITS = 46
 # Beyond this a blob belongs to no Reach. Without it the empty bottom corners
 # get adopted by whichever cluster happens to be least far away.
 MAX_REACH_UNITS = 210
 
 
+# A landmass at least this big (painting pixels) is a coast with a port on
+# it, not a dot: its mark goes where a harbour would be. Below it the island
+# is the location. Tuned against the 1024x1536 chart: 1500px is an island
+# about forty pixels across, the smallest at which centre and coast differ
+# by more than a mark's width.
+BIG_LANDMASS_PX = 1500
+# The greatest landmass on the chart carries this many ports; every other
+# big one carries one. Sean's rule: three port cities on the great island,
+# and a city is never on a mountain in a maritime world.
+PORTS_ON_THE_GREAT_ISLAND = 3
+PORT_GAP_PX = 60
+
+
+def bays(mask: np.ndarray, want: int, gap_px: float) -> list[tuple[float, float]]:
+    """The `want` deepest bays of a landmass's outer coast, spaced apart.
+
+    A bay is a stretch of coast that sits well inside the landmass's convex
+    hull: the deeper inside, the more sheltered the water, the more a port
+    belongs there. The mask is hole-filled first so an inland lake or a dark
+    valley cannot pass for a coast — the first draft of this put Highwater on
+    the great island's mountain for exactly that reason.
+    """
+    filled = ndimage.binary_fill_holes(mask)
+    edge = filled & ~ndimage.binary_erosion(filled, structure=np.ones((3, 3)))
+    ys, xs = np.nonzero(edge)
+    pts = np.stack([xs, ys], 1).astype(float)
+    if len(pts) < 12:
+        cy, cx = ndimage.center_of_mass(filled)
+        return [(float(cx), float(cy))]
+    hull = ConvexHull(pts)
+    hp = pts[hull.vertices]
+    step = max(1, len(pts) // 400)
+    cand = pts[::step]
+
+    def seg_dist(p, a, b):
+        ab = b - a
+        t = np.clip(((p - a) @ ab) / max(float(ab @ ab), 1e-9), 0, 1)
+        return float(np.linalg.norm(p - (a + t * ab)))
+
+    depth = np.array([min(seg_dist(p, hp[k], hp[(k + 1) % len(hp)]) for k in range(len(hp))) for p in cand])
+    sites: list[tuple[float, float]] = []
+    for j in np.argsort(-depth):
+        p = cand[j]
+        if all(np.hypot(p[0] - q[0], p[1] - q[1]) >= gap_px for q in sites):
+            sites.append((float(p[0]), float(p[1])))
+        if len(sites) == want:
+            break
+    return sites
+
+
 def painted_islands(path: str) -> list[tuple[float, float, float]]:
-    """Every piece of land in the painting, as (x, y, area) in chart units."""
+    """Every location the painting offers, as (x, y, weight) in chart units.
+
+    A small island is its own centre. A big one is a port on its coast — the
+    deepest bay — and the greatest of all carries three. The weight is the
+    landmass's area, so the biggest places are taken first and a capital
+    lands on the great island rather than an islet.
+    """
     a = np.asarray(Image.open(path).convert("RGB"), dtype=float)
     h, w, _ = a.shape
     # Land is green or tan: its green channel at least matches its blue. Every
@@ -103,18 +160,26 @@ def painted_islands(path: str) -> list[tuple[float, float, float]]:
     # any water in the painting, including the pale shallows.
     ice = (a[:, :, 0] > 185) & (a[:, :, 1] > 185) & (a[:, :, 2] > 185)
     land = land | ice
+    # A coastline drawn with a broken pen is still one island.
+    land = ndimage.binary_closing(land, structure=np.ones((3, 3)))
     lbl, n = ndimage.label(land, structure=np.ones((3, 3)))
     sizes = ndimage.sum(land, lbl, range(1, n + 1))
     cents = ndimage.center_of_mass(land, lbl, range(1, n + 1))
     sx, sy = CHART_W / w, CHART_H / h
+    greatest = int(np.argmax(sizes)) + 1
     out = []
-    for (cy, cx), area in zip(cents, sizes):
+    for i, ((cy, cx), area) in enumerate(zip(cents, sizes), 1):
         if area < MIN_BLOB_PX:
             continue
         # The frame edge is paper, not coastline.
         if not (16 < cx < w - 16 and 16 < cy < h - 16):
             continue
-        out.append((cx * sx, cy * sy, float(area)))
+        if area >= BIG_LANDMASS_PX:
+            want = PORTS_ON_THE_GREAT_ISLAND if i == greatest else 1
+            for (px, py) in bays(lbl == i, want, PORT_GAP_PX):
+                out.append((px * sx, py * sy, float(area)))
+        else:
+            out.append((cx * sx, cy * sy, float(area)))
     return out
 
 
@@ -193,7 +258,9 @@ def main() -> None:
         # the pairing is alphabetical accident and Highwater — the seat of the
         # world, drawn larger than anything else — lands on whatever islet the
         # list happened to start with.
-        order = sorted(order, key=lambda i: not i.get("capital"))
+        # …and the ports of the great island take its other harbours, which are
+        # the next-heaviest places in the Reach after the capital's.
+        order = sorted(order, key=lambda i: (not i.get("capital"), not i.get("port")))
         want = len(order)
         islands = pick(group, want)
         if len(islands) < want:

@@ -76,10 +76,21 @@ function surplus(state: GameState, ai: PlayableFaction): number {
 }
 /** Kept clear over and above whatever the next order will cost to run. */
 const AI_SURPLUS_MARGIN = 3;
+/** Orders the opponent may place in one build tick, gold permitting. */
+const AI_ORDERS_PER_TICK = 3;
 
 export function runAI(state: GameState, rng: Rng): void {
   const ai = otherFaction(state.player);
-  if (state.day % AI_BUILD_INTERVAL === 0) aiBuild(state, ai);
+  if (state.day % AI_BUILD_INTERVAL === 0) {
+    // More than one order a tick. One every five days could not keep up
+    // with a war that hands the opponent an island a week, each with a
+    // garrison to feed: the earners it needed sat unordered behind the
+    // cadence, not the treasury. It keeps ordering while it has the gold
+    // and something to order, a few at a time.
+    for (let n = 0; n < AI_ORDERS_PER_TICK; n++) {
+      if (!aiBuild(state, ai)) break;
+    }
+  }
   if (state.day % AI_MISSION_INTERVAL === 0) aiMission(state, ai);
   if (state.day % AI_FLEET_INTERVAL === 0) aiFleet(state, ai, rng);
 }
@@ -96,12 +107,16 @@ export function runAI(state: GameState, rng: Rng): void {
  *
  * It now holds what it has, then drills, then builds a yard, then grows.
  */
-function aiBuild(state: GameState, ai: PlayableFaction): void {
+function aiBuild(state: GameState, ai: PlayableFaction): boolean {
   const gold = state.factions[ai].gold;
   const held = state.systems.filter((s) => s.control === ai && !s.uprising);
   const spare = surplus(state, ai);
   const canCarry = (item: FacilityType | 'troop') =>
     spare - UPKEEP_PER_DAY[item] >= AI_SURPLUS_MARGIN;
+  // A thin surplus is spent on earners before anything that eats: islands
+  // taken and won over keep adding garrisons to the bill, and the only
+  // answer to that is income.
+  const thin = spare < AI_SURPLUS_MARGIN * 2;
 
   // 1. Companies. A drill ground raises them on its own island and nowhere
   //    else, so this works outward from the drill grounds rather than from the
@@ -109,7 +124,7 @@ function aiBuild(state: GameState, ai: PlayableFaction): void {
   //    them, which is exactly why an earlier version of this never drilled at
   //    all. Each keeps what holds its island quiet plus a small pool, because
   //    an opponent with no spare companies can never land on anything.
-  if (gold >= TROOP_BUILD.costGold && canCarry('troop')) {
+  if (!thin && gold >= TROOP_BUILD.costGold && canCarry('troop')) {
     const target = (s: System) => Math.max(requiredGarrison(s.support[ai]), 1) + AI_TROOP_POOL;
     const short = held
       .filter((s) => s.garrison < target(s))
@@ -120,7 +135,7 @@ function aiBuild(state: GameState, ai: PlayableFaction): void {
       );
       if (drill && canQueueBuild(state, drill.id, 'troop')) {
         queueBuild(state, drill.id, 'troop');
-        return;
+        return true;
       }
     }
   }
@@ -135,21 +150,21 @@ function aiBuild(state: GameState, ai: PlayableFaction): void {
   else if (countOf('shipyard') < 2 && gold > AI_SHIP_RESERVE * 3) wanted.push('shipyard');
 
   for (const item of wanted) {
-    if (gold < YARD_BUILDS[item].costGold || !canCarry(item)) continue;
+    if (thin || gold < YARD_BUILDS[item].costGold || !canCarry(item)) continue;
     const spot = bestSpotFor(state, ai, item);
     if (spot) {
       queueBuild(state, spot, item);
-      return;
+      return true;
     }
   }
 
   // 3. Otherwise grow the economy, keeping the two earners level as before.
   const item = countOf('mine') <= countOf('refinery') ? 'mine' : 'refinery';
-  if (gold < YARD_BUILDS[item].costGold) return;
+  if (gold < YARD_BUILDS[item].costGold) return false;
   const spot = bestSpotFor(state, ai, item);
   if (spot) {
     queueBuild(state, spot, item);
-    return;
+    return true;
   }
 
   // 4. No works with ground left beside it: lay one down on the held island
@@ -157,13 +172,15 @@ function aiBuild(state: GameState, ai: PlayableFaction): void {
   //    what used to stop the opponent dead the day its starting islands
   //    filled — every island it took after that was a garrison bill and
   //    nothing else.
-  if (gold < YARD_BUILDS.construction_yard.costGold || !canCarry('construction_yard')) return;
+  if (gold < YARD_BUILDS.construction_yard.costGold || !canCarry('construction_yard')) return false;
   const open = held
     .filter((s) => foundWorksError(state, s.id, ai) === null)
     .sort((a, b) => freeRawSlots(b) + freeEnergySlots(b) - (freeRawSlots(a) + freeEnergySlots(a)));
   if (open.length > 0 && freeRawSlots(open[0]) + freeEnergySlots(open[0]) >= 3) {
     foundWorks(state, open[0].id, ai);
+    return true;
   }
+  return false;
 }
 
 /** The held island with the most room to grow that can take this order. */

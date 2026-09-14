@@ -27,7 +27,7 @@ assets rather than bundled.
 
 | | |
 |---|---|
-| **Phase 1 — the war** | Built. 71 islands, eight Reaches — one for each Sea — economy, support, control, unrest, building, the day clock. |
+| **Phase 1 — the war** | Built. 100 islands, eight Reaches — one for each Sea — economy, support, control, unrest, building, the day clock. |
 | **Phase 2 — fleets** | Built. Hulls in four sizes, troop capacity, movement, auto-resolved combat, assault, blockade. Fighters cut from the design, not deferred. |
 | **Phase 3 — missions** | 5 of 8. Parley, Incite Uprising, Recruitment, Sabotage, Survey. |
 | **Phase 4 — polish** | Not started. |
@@ -227,6 +227,10 @@ the position script re-runs against a new painting in one command.
   down on any held island (`foundWorks`; the sheet offers it, the opponent
   uses it). Measured over a year on four runs: net stays positive
   throughout, works keep growing, and the fleet with them.
+  The opponent now places up to three orders a build tick and the reverse
+  problem shows: by day 400 it sits on thousands of gold it has no cadence
+  to spend. Not urgent — a solvent hoarder beats a bankrupt spender — but
+  the next balance pass should let it lay down hulls faster when rich.
 - **Deploys must be dispatched by hand.** The `github-pages` environment's
   deployment-branch allow-list still names the original default branch, so a
   push to the feature branch does not deploy itself.
