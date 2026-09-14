@@ -98,89 +98,101 @@ Every island in the game gets its own painting instead of sharing one of ten by 
 
 > Palanca, a green jungle island of Sovereign Reach in the Crown Sea, the Imperium's heart: white stone towns on green hills, seawalls, blue sky, warm sun, ships in line on the roads. A trim white-stone town on a green islet, a customs house and a mole, Crown flags on the quay. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Comenara — Shipwrights' Reach
+### Comenara — Whalers' Reach
 
 `comenara.png`
 
-> Comenara, a mining island of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. Timber and iron cut out of the hills; log flumes and ore carts running down to the water. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Comenara, a mining island of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. Timber and iron cut out of the hills; log flumes and ore carts running down to the water. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Wrightsport — Shipwrights' Reach
+### Wrightsport — Whalers' Reach
 
 `wrightsport.png`
 
-> Wrightsport, a settled port of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. Shipwright capital of the Seven Seas; Reyne's home port. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Wrightsport, a settled port of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. Shipwright capital of the Seven Seas; Reyne's home port. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Corfino — Shipwrights' Reach
+### Corfino — Whalers' Reach
 
 `corfino.png`
 
-> Corfino, a settled port of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A trading port of tiled roofs and counting-houses, merchant hulls three deep along the quay. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Corfino, a settled port of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A trading port of tiled roofs and counting-houses, merchant hulls three deep along the quay. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Dralla — Shipwrights' Reach
+### Dralla — Whalers' Reach
 
 `dralla.png`
 
-> Dralla, a green jungle island of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A forest island that feeds the yards: sawpits on the shore, rafts of logs in the bay. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Dralla, a green jungle island of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A forest island that feeds the yards: sawpits on the shore, rafts of logs in the bay. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Duroso — Shipwrights' Reach
+### Duroso — Whalers' Reach
 
 `duroso.png`
 
-> Duroso, a settled port of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. Old seafaring people. The best navigators alive. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Duroso, a settled port of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. Old seafaring people. The best navigators alive. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Selona — Shipwrights' Reach
+### Selona — Whalers' Reach
 
 `selona.png`
 
-> Selona, a green jungle island of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. Green and gentle, vineyards on the slopes, a small harbour with a chapel above it. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Selona, a green jungle island of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. Green and gentle, vineyards on the slopes, a small harbour with a chapel above it. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Talusa — Shipwrights' Reach
+### Talusa — Whalers' Reach
 
 `talusa.png`
 
-> Talusa, a settled port of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. Rope-walks and sail-lofts along a long straight quay, canvas drying in the sun. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Talusa, a settled port of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. Rope-walks and sail-lofts along a long straight quay, canvas drying in the sun. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Tralosa — Shipwrights' Reach
+### Tralosa — Whalers' Reach
 
 `tralosa.png`
 
-> Tralosa, a settled port of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A port on a river mouth: barges, warehouses, a bridge, a customs house. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Tralosa, a settled port of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A port on a river mouth: barges, warehouses, a bridge, a customs house. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Vagrano — Shipwrights' Reach
+### Vagrano — Whalers' Reach
 
 `vagrano.png`
 
-> Vagrano, a green jungle island of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A wooded island with a single sheltered anchorage and a customs house on the point. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Vagrano, a green jungle island of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A wooded island with a single sheltered anchorage and a customs house on the point. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Belfrey — Shipwrights' Reach
+### Belfrey — Whalers' Reach
 
 `belfrey.png`
 
-> Belfrey, a mining island of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A bell-tower over a timber town, the harbour full of coasters loading planks. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Belfrey, a mining island of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A bell-tower over a timber town, the harbour full of coasters loading planks. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Capperil — Shipwrights' Reach
+### Capperil — Whalers' Reach
 
 `capperil.png`
 
-> Capperil, a settled port of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. Charcoal burners' island: smoke over the woods, barges of charcoal at a plank quay. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Capperil, a settled port of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. Charcoal burners' island: smoke over the woods, barges of charcoal at a plank quay. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Kempsley — Shipwrights' Reach
+### Kempsley — Whalers' Reach
 
 `kempsley.png`
 
-> Kempsley, a mining island of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A mast-pond island: straight timber floating in a tidal basin, a crane, a rigger's loft. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Kempsley, a mining island of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A mast-pond island: straight timber floating in a tidal basin, a crane, a rigger's loft. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Ketterly — Shipwrights' Reach
+### Ketterly — Whalers' Reach
 
 `ketterly.png`
 
-> Ketterly, a settled port of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A pitch-and-tar works on a rocky shore, black smoke, barrels stacked to the water. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Ketterly, a settled port of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A pitch-and-tar works on a rocky shore, black smoke, barrels stacked to the water. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Ombwick — Shipwrights' Reach
+### Ombwick — Whalers' Reach
 
 `ombwick.png`
 
-> Ombwick, a mining island of Shipwrights' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A quiet wooded anchorage with a ferry and an inn, the yards' back door. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Ombwick, a mining island of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A quiet wooded anchorage with a ferry and an inn, the yards' back door. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Pantlow — Whalers' Reach
+
+`pantlow.png`
+
+> Pantlow, a settled port of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A timber town on a wide river mouth, log booms across the water and a sawmill's wheel turning. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Forliss — Whalers' Reach
+
+`forliss.png`
+
+> Forliss, a settled port of Whalers' Reach in the Merchant Sea, timber country: slipways and sawpits, cranes on the quays, tiled trading towns, warm afternoon light. A wooded island with a ropewalk along the shore and a chandler's quay. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
 ### Gibbet Rock — Wreckers' Reach
 
@@ -254,125 +266,95 @@ Every island in the game gets its own painting instead of sharing one of ten by 
 
 > Crondre, a half-drowned island of Wreckers' Reach in the Bone Sea, where the Tide has reached: drowned stone, roofs and colonnades standing out of the water, salvage hulks, mudflats, a restrained spectral green in the fog at the edges. Mudflats and eel-traps, a village on stilts, hulks broken up for timber on the shore. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Alyvik — Rime Reach
+### Northreach — Rime Reach
 
-`alyvik.png`
+`northreach.png`
 
-> Alyvik, an ice-bound island of Rime Reach in the Far Sea's pack ice: bergs and floes, black rock under snow, grey-blue water, sealers' smoke, hard clear light. A fjord village of black rock and snow, sealers' huts, smoke standing straight up in still cold air. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Northreach, an ice-bound island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. Torvik's homeland. Urskin whalers and harpooners. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
-### Annat Fjord — Rime Reach
+### Tallow Cay — Rime Reach
 
-`annat-fjord.png`
+`tallow-cay.png`
 
-> Annat Fjord, a mining island of Rime Reach in the Far Sea's pack ice: bergs and floes, black rock under snow, grey-blue water, sealers' smoke, hard clear light. A mining fjord, and it smells like one. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Tallow Cay, an ice-bound island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. Whale-oil and salt. Far enough out that nobody counts the ships. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Tjerfon — Rime Reach
+
+`tjerfon.png`
+
+> Tjerfon, an ice-bound island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. A cutter base, of sorts. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Alkellish — Rime Reach
+
+`alkellish.png`
+
+> Alkellish, an ice-bound island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. A whaling station: try-works smoking, bone racks along the beach, floes in the bay. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Boordvik — Rime Reach
+
+`boordvik.png`
+
+> Boordvik, a rocky island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. A grey fishing town in a fjord, drying racks, boats hauled up above the ice line. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Flaxholm — Rime Reach
+
+`flaxholm.png`
+
+> Flaxholm, an ice-bound island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. A low green island in a cold sea, flax fields to the water, a stone harbour. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Gedon — Rime Reach
+
+`gedon.png`
+
+> Gedon, an ice-bound island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. Bare rock with a whalers' lookout on the summit and ice in the bay below. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Linnur — Rime Reach
+
+`linnur.png`
+
+> Linnur, an ice-bound island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. A whalers' anchorage in a dark wooded inlet, a flensing stage, gulls in a cloud. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Kristak — Rime Reach
+
+`kristak.png`
+
+> Kristak, an ice-bound island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. A black-timber station on a cold shore, oil casks on the beach, a whale hauled up. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Vustri — Rime Reach
+
+`vustri.png`
+
+> Vustri, an ice-bound island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. A cold island of firs and rock, a chapel of whalebone, boats under snow. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Bilbrin — Rime Reach
+
+`bilbrin.png`
+
+> Bilbrin, an ice-bound island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. An old Imperium dockyard, iced in. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
 ### Varrow — Rime Reach
 
 `varrow.png`
 
-> Varrow, an ice-bound island of Rime Reach in the Far Sea's pack ice: bergs and floes, black rock under snow, grey-blue water, sealers' smoke, hard clear light. Fairweather's floating market: a city of lashed-together hulks. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Deyr — Rime Reach
-
-`deyr.png`
-
-> Deyr, an ice-bound island of Rime Reach in the Far Sea's pack ice: bergs and floes, black rock under snow, grey-blue water, sealers' smoke, hard clear light. Fishing. All water and no ground. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Varrow, an ice-bound island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. Fairweather's floating market: a city of lashed-together hulks. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
 ### Gentnes — Rime Reach
 
 `gentnes.png`
 
-> Gentnes, a rocky island of Rime Reach in the Far Sea's pack ice: bergs and floes, black rock under snow, grey-blue water, sealers' smoke, hard clear light. A white headland of ice cliffs with a lone light on it and floes drifting past. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Gentnes, a rocky island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. A white headland of ice cliffs with a lone light on it and floes drifting past. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
 ### Rime Island — Rime Reach
 
 `rime-island.png`
 
-> Rime Island, an ice-bound island of Rime Reach in the Far Sea's pack ice: bergs and floes, black rock under snow, grey-blue water, sealers' smoke, hard clear light. Frozen rock. Nothing here but weather. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Lelmar — Rime Reach
-
-`lelmar.png`
-
-> Lelmar, a mining island of Rime Reach in the Far Sea's pack ice: bergs and floes, black rock under snow, grey-blue water, sealers' smoke, hard clear light. A frozen sound with ships iced in for the season and a trading post on the shore. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Ferrol Key — Rime Reach
-
-`ferrol-key.png`
-
-> Ferrol Key, a mining island of Rime Reach in the Far Sea's pack ice: bergs and floes, black rock under snow, grey-blue water, sealers' smoke, hard clear light. A low key of shingle and ice with a sealers' hut and boats hauled up on the floes. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Rime Island, an ice-bound island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. Frozen rock. Nothing here but weather. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
 ### Rishi Bank — Rime Reach
 
 `rishi-bank.png`
 
-> Rishi Bank, an ice-bound island of Rime Reach in the Far Sea's pack ice: bergs and floes, black rock under snow, grey-blue water, sealers' smoke, hard clear light. A bank of pack ice and black rock where the bergs ground; a lookout on a pole. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Northreach — Whalers' Reach
-
-`northreach.png`
-
-> Northreach, an ice-bound island of Whalers' Reach in the Far Sea's whaling ground: dark forested islands, whaling stations, try-works smoke, bone racks on the shore, ice in the bays, low bright sun. Torvik's homeland. Urskin whalers and harpooners. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Tallow Cay — Whalers' Reach
-
-`tallow-cay.png`
-
-> Tallow Cay, an ice-bound island of Whalers' Reach in the Far Sea's whaling ground: dark forested islands, whaling stations, try-works smoke, bone racks on the shore, ice in the bays, low bright sun. Whale-oil and salt. Far enough out that nobody counts the ships. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Tjerfon — Whalers' Reach
-
-`tjerfon.png`
-
-> Tjerfon, an ice-bound island of Whalers' Reach in the Far Sea's whaling ground: dark forested islands, whaling stations, try-works smoke, bone racks on the shore, ice in the bays, low bright sun. A cutter base, of sorts. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Alkellish — Whalers' Reach
-
-`alkellish.png`
-
-> Alkellish, an ice-bound island of Whalers' Reach in the Far Sea's whaling ground: dark forested islands, whaling stations, try-works smoke, bone racks on the shore, ice in the bays, low bright sun. A whaling station: try-works smoking, bone racks along the beach, floes in the bay. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Boordvik — Whalers' Reach
-
-`boordvik.png`
-
-> Boordvik, an ice-bound island of Whalers' Reach in the Far Sea's whaling ground: dark forested islands, whaling stations, try-works smoke, bone racks on the shore, ice in the bays, low bright sun. A grey fishing town in a fjord, drying racks, boats hauled up above the ice line. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Flaxholm — Whalers' Reach
-
-`flaxholm.png`
-
-> Flaxholm, an ice-bound island of Whalers' Reach in the Far Sea's whaling ground: dark forested islands, whaling stations, try-works smoke, bone racks on the shore, ice in the bays, low bright sun. A low green island in a cold sea, flax fields to the water, a stone harbour. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Gedon — Whalers' Reach
-
-`gedon.png`
-
-> Gedon, an ice-bound island of Whalers' Reach in the Far Sea's whaling ground: dark forested islands, whaling stations, try-works smoke, bone racks on the shore, ice in the bays, low bright sun. Bare rock with a whalers' lookout on the summit and ice in the bay below. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Linnur — Whalers' Reach
-
-`linnur.png`
-
-> Linnur, an ice-bound island of Whalers' Reach in the Far Sea's whaling ground: dark forested islands, whaling stations, try-works smoke, bone racks on the shore, ice in the bays, low bright sun. A whalers' anchorage in a dark wooded inlet, a flensing stage, gulls in a cloud. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Kristak — Whalers' Reach
-
-`kristak.png`
-
-> Kristak, an ice-bound island of Whalers' Reach in the Far Sea's whaling ground: dark forested islands, whaling stations, try-works smoke, bone racks on the shore, ice in the bays, low bright sun. A black-timber station on a cold shore, oil casks on the beach, a whale hauled up. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Vustri — Whalers' Reach
-
-`vustri.png`
-
-> Vustri, an ice-bound island of Whalers' Reach in the Far Sea's whaling ground: dark forested islands, whaling stations, try-works smoke, bone racks on the shore, ice in the bays, low bright sun. A cold island of firs and rock, a chapel of whalebone, boats under snow. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Bilbrin — Whalers' Reach
-
-`bilbrin.png`
-
-> Bilbrin, an ice-bound island of Whalers' Reach in the Far Sea's whaling ground: dark forested islands, whaling stations, try-works smoke, bone racks on the shore, ice in the bays, low bright sun. An old Imperium dockyard, iced in. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Rishi Bank, an ice-bound island of Rime Reach in the Far Sea: dark forested islands under snow, whaling stations and try-works smoke, bergs and pack ice to the north, grey-blue water, low bright sun. A bank of pack ice and black rock where the bergs ground; a lookout on a pole. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
 ### Tamalu — Cinder Reach
 
@@ -452,6 +434,12 @@ Every island in the game gets its own painting instead of sharing one of ten by 
 
 > Kirdholm, a green jungle island of Cinder Reach in the Sea of Storms: volcanic islands, black sand, jungle on the slopes, steam and ash at the summits, a storm standing on the horizon. A steep green island with a harbour in a drowned crater, storm clouds standing off it. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
+### Ambrey — Cinder Reach
+
+`ambrey.png`
+
+> Ambrey, a mining island of Cinder Reach in the Sea of Storms: volcanic islands, black sand, jungle on the slopes, steam and ash at the summits, a storm standing on the horizon. A jungle island with a black-sand landing and a village under a smoking ridge. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
 ### Bakuran Flats — Salt Reach
 
 `bakuran-flats.png`
@@ -480,7 +468,7 @@ Every island in the game gets its own painting instead of sharing one of ten by 
 
 `kimmen.png`
 
-> Kimmen, a rocky island of Salt Reach in the Glass Sea: salt pans and white flats, dry rock, mines, glassy still water and heat haze, a hard white sun. A bare rock with a customs post, a well, and nothing else. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Kimmen, a mining island of Salt Reach in the Glass Sea: salt pans and white flats, dry rock, mines, glassy still water and heat haze, a hard white sun. A bare rock with a customs post, a well, and nothing else. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
 ### Lafray — Salt Reach
 
@@ -492,13 +480,13 @@ Every island in the game gets its own painting instead of sharing one of ten by 
 
 `mantissa.png`
 
-> Mantissa, a rocky island of Salt Reach in the Glass Sea: salt pans and white flats, dry rock, mines, glassy still water and heat haze, a hard white sun. A drowned salt town, the sea lying calm over the old streets. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Mantissa, a half-drowned island of Salt Reach in the Glass Sea: salt pans and white flats, dry rock, mines, glassy still water and heat haze, a hard white sun. A drowned salt town, the sea lying calm over the old streets. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
 ### Powder Isle — Salt Reach
 
 `powder-isle.png`
 
-> Powder Isle, a rocky island of Salt Reach in the Glass Sea: salt pans and white flats, dry rock, mines, glassy still water and heat haze, a hard white sun. Saltpetre. Every gun in the Seven Seas owes this rock. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Powder Isle, a half-drowned island of Salt Reach in the Glass Sea: salt pans and white flats, dry rock, mines, glassy still water and heat haze, a hard white sun. Saltpetre. Every gun in the Seven Seas owes this rock. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
 ### Rylo Salt — Salt Reach
 
@@ -510,7 +498,7 @@ Every island in the game gets its own painting instead of sharing one of ten by 
 
 `blackreef.png`
 
-> Blackreef, a half-drowned island of Salt Reach in the Glass Sea: salt pans and white flats, dry rock, mines, glassy still water and heat haze, a hard white sun. Jubal the Fat's corsair haven. Debts are collected here. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+> Blackreef, a rocky island of Salt Reach in the Glass Sea: salt pans and white flats, dry rock, mines, glassy still water and heat haze, a hard white sun. Jubal the Fat's corsair haven. Debts are collected here. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
 ### The Terraces — Salt Reach
 
@@ -535,6 +523,12 @@ Every island in the game gets its own painting instead of sharing one of ten by 
 `tio-isle.png`
 
 > Tio Isle, a rocky island of Salt Reach in the Glass Sea: salt pans and white flats, dry rock, mines, glassy still water and heat haze, a hard white sun. A white islet with a single fig tree, a chapel and a salt boat drawn up. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Galpos — Salt Reach
+
+`galpos.png`
+
+> Galpos, a rocky island of Salt Reach in the Glass Sea: salt pans and white flats, dry rock, mines, glassy still water and heat haze, a hard white sun. A dry rock with a salt cistern, a lookout and fishing boats hauled up on white shingle. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
 ### Coralhome — Coral Reach
 
@@ -607,6 +601,12 @@ Every island in the game gets its own painting instead of sharing one of ten by 
 `marista.png`
 
 > Marista, a green jungle island of Coral Reach in the Amber Sea: turquoise lagoons and reef, palms, stilt villages, amber evening light. A reef island of white sand and a pearl-divers' village on stilts. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Delaira — Coral Reach
+
+`delaira.png`
+
+> Delaira, a reef island of Coral Reach in the Amber Sea: turquoise lagoons and reef, palms, stilt villages, amber evening light. Sister-island of drowned Carrow; Ros Carrow's exile home. Seen from a low approach, as if from a boat coming in: the island fills the frame, its shore and water in front, landscape composition, figures or boats for scale where the place has people. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
 
 ## 2. The two works with no painting — Fort and Boom, both sides (Drive: `7 Seas / Art / buildings`)
 

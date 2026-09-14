@@ -2,23 +2,23 @@ import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 
 describe('generateGalaxy', () => {
-  it('builds eight Reaches of nine to fifteen islands, a hundred in all', () => {
+  it('builds seven Reaches of twelve to sixteen islands, a hundred in all', () => {
     const state = generateGalaxy(42);
-    // Eight: the Far Sea holds two, Rime and Whalers', since the painting has two.
-    expect(state.sectors).toHaveLength(8);
-    // 15 + 14 + 12 inner, 9 + 11 + 13 + 14 + 12 outer.
+    // Seven: the Far Sea's ice and its whaling chain are one Reach, Rime.
+    expect(state.sectors).toHaveLength(7);
+    // 15 + 16 + 12 inner, 15 + 14 + 15 + 13 outer.
     expect(state.systems).toHaveLength(100);
     for (const sector of state.sectors) {
-      expect(sector.systemIds.length).toBeGreaterThanOrEqual(9);
-      expect(sector.systemIds.length).toBeLessThanOrEqual(15);
+      expect(sector.systemIds.length).toBeGreaterThanOrEqual(12);
+      expect(sector.systemIds.length).toBeLessThanOrEqual(16);
     }
   });
 
-  it('splits the map into three inner Reaches and five outer', () => {
+  it('splits the map into three inner Reaches and four outer', () => {
     const state = generateGalaxy(42);
-    // Sovereign 15 + Shipwrights' 14 + Wreckers' 12.
-    expect(state.systems.filter((s) => s.isCore)).toHaveLength(41);
-    expect(state.systems.filter((s) => !s.isCore)).toHaveLength(59);
+    // Sovereign 15 + Whalers' 16 + Wreckers' 12.
+    expect(state.systems.filter((s) => s.isCore)).toHaveLength(43);
+    expect(state.systems.filter((s) => !s.isCore)).toHaveLength(57);
   });
 
   it('is deterministic for a seed and different across seeds', () => {
@@ -103,14 +103,14 @@ describe('generateGalaxy', () => {
     }
   });
 
-  it('starts the three frontier Reaches unexplored, a quarter of them settled behind the fog', () => {
+  it('starts the two frontier Reaches unexplored, a quarter of them settled behind the fog', () => {
     let settled = 0;
     let total = 0;
     for (const seed of [31, 32, 33, 34, 35, 36, 37, 38]) {
       const state = generateGalaxy(seed);
       const base = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
       for (const sector of state.sectors) {
-        if (!['Rime Reach', "Whalers' Reach", 'Salt Reach'].includes(sector.name)) continue;
+        if (!['Rime Reach', 'Salt Reach'].includes(sector.name)) continue;
         for (const id of sector.systemIds) {
           const system = state.systems.find((s) => s.id === id)!;
           expect(system.explored.empire, `${system.name} seed ${seed}`).toBe(false);
@@ -137,7 +137,7 @@ describe('generateGalaxy', () => {
       const state = generateGalaxy(seed);
       const base = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
       const baseReach = state.sectors.find((s) => s.id === base.sectorId)!;
-      expect(['Rime Reach', "Whalers' Reach", 'Salt Reach']).toContain(baseReach.name);
+      expect(['Rime Reach', 'Salt Reach']).toContain(baseReach.name);
       expect(state.fleets.find((f) => f.faction === 'alliance')!.systemId).toBe(base.id);
       const seat = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
       expect(seat.name).toBe('Highwater');
@@ -167,7 +167,7 @@ describe('generateGalaxy', () => {
 
   it('opens each contested Reach with two islands a side and the rest settled and garrisoned', () => {
     const state = generateGalaxy(61);
-    for (const name of ["Shipwrights' Reach", "Wreckers' Reach", 'Cinder Reach']) {
+    for (const name of ["Whalers' Reach", "Wreckers' Reach", 'Cinder Reach']) {
       const reach = state.sectors.find((s) => s.name === name)!;
       const islands = reach.systemIds.map((id) => state.systems.find((s) => s.id === id)!);
       expect(islands.filter((s) => s.control === 'empire')).toHaveLength(2);

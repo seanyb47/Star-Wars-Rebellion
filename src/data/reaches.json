@@ -1,5 +1,5 @@
 {
-  "_comment": "World bible section 13. Seven Reaches on the small map, one for each Sea, so a Sea and its archipelago are the same thing at this size. Sugar, Whalers' and Mirage are held back for the larger maps alongside Scrap — each shared a Sea with a Reach that survives, and each sat on a painted cluster too crowded or too sparse to chart clearly. Island counts are set by how many clearly separated islands each painted cluster holds. Each Reach has a role in the opening (docs/opening.md): home is the Crown's, contested Reaches open with two islands a side, open Reaches are charted and nobody's, frontier Reaches start unexplored and hide the Confederacy's base. An island marked port is one of the three port cities on Sovereign Reach's great island.",
+  "_comment": "World bible section 13. Seven Reaches on the small map, one for each Sea (the Far Sea's ice and its whaling chain are one Reach, Rime), so a Sea and its archipelago are the same thing at this size. Sugar, Whalers' and Mirage are held back for the larger maps alongside Scrap — each shared a Sea with a Reach that survives, and each sat on a painted cluster too crowded or too sparse to chart clearly. Island counts are set by how many clearly separated islands each painted cluster holds. Each Reach has a role in the opening (docs/opening.md): home is the Crown's, contested Reaches open with two islands a side, open Reaches are charted and nobody's, frontier Reaches start unexplored and hide the Confederacy's base. An island marked port is one of the three port cities on Sovereign Reach's great island.",
   "reaches": [
     {
       "name": "Sovereign Reach",
@@ -68,7 +68,7 @@
       "role": "home"
     },
     {
-      "name": "Shipwrights' Reach",
+      "name": "Whalers' Reach",
       "sea": "The Merchant Sea",
       "tier": "inner",
       "islands": [
@@ -115,6 +115,12 @@
         },
         {
           "name": "Ombwick"
+        },
+        {
+          "name": "Pantlow"
+        },
+        {
+          "name": "Forliss"
         }
       ],
       "role": "contested"
@@ -173,45 +179,6 @@
       "tier": "outer",
       "islands": [
         {
-          "name": "Alyvik"
-        },
-        {
-          "name": "Annat Fjord",
-          "note": "A mining fjord, and it smells like one."
-        },
-        {
-          "name": "Varrow",
-          "note": "Fairweather's floating market: a city of lashed-together hulks."
-        },
-        {
-          "name": "Deyr",
-          "note": "Fishing. All water and no ground."
-        },
-        {
-          "name": "Gentnes"
-        },
-        {
-          "name": "Rime Island",
-          "note": "Frozen rock. Nothing here but weather."
-        },
-        {
-          "name": "Lelmar"
-        },
-        {
-          "name": "Ferrol Key"
-        },
-        {
-          "name": "Rishi Bank"
-        }
-      ],
-      "role": "frontier"
-    },
-    {
-      "name": "Whalers' Reach",
-      "sea": "The Far Sea",
-      "tier": "outer",
-      "islands": [
-        {
           "name": "Northreach",
           "note": "Torvik's homeland. Urskin whalers and harpooners."
         },
@@ -247,6 +214,24 @@
         {
           "name": "Bilbrin",
           "note": "An old Imperium dockyard, iced in."
+        },
+        {
+          "name": "Varrow",
+          "note": "Fairweather's floating market: a city of lashed-together hulks.",
+          "ice": true
+        },
+        {
+          "name": "Gentnes",
+          "ice": true
+        },
+        {
+          "name": "Rime Island",
+          "note": "Frozen rock. Nothing here but weather.",
+          "ice": true
+        },
+        {
+          "name": "Rishi Bank",
+          "ice": true
         }
       ],
       "role": "frontier"
@@ -298,6 +283,9 @@
         },
         {
           "name": "Kirdholm"
+        },
+        {
+          "name": "Ambrey"
         }
       ],
       "role": "contested"
@@ -352,6 +340,9 @@
         },
         {
           "name": "Tio Isle"
+        },
+        {
+          "name": "Galpos"
         }
       ],
       "role": "frontier"
@@ -404,6 +395,10 @@
         },
         {
           "name": "Marista"
+        },
+        {
+          "name": "Delaira",
+          "note": "Sister-island of drowned Carrow; Ros Carrow's exile home."
         }
       ],
       "role": "open"

@@ -94,12 +94,12 @@
    }
   },
   {
-   "reach": "Shipwrights' Reach",
+   "reach": "Whalers' Reach",
    "sea": "The Merchant Sea",
-   "x": 195.8,
-   "y": 414.0,
-   "r": 200.0,
-   "ry": 173.8,
+   "x": 188.9,
+   "y": 418.7,
+   "r": 199.2,
+   "ry": 178.4,
    "islands": [
     {
      "name": "Comenara",
@@ -170,12 +170,22 @@
      "name": "Ombwick",
      "x": 240.9,
      "y": 392.9
+    },
+    {
+     "name": "Pantlow",
+     "x": 208.0,
+     "y": 572.8
+    },
+    {
+     "name": "Forliss",
+     "x": 74.1,
+     "y": 329.2
     }
    ],
    "luma": 64.0,
    "label": {
-    "x": 175.8,
-    "y": 178.0
+    "x": 120.9,
+    "y": 170.7
    }
   },
   {
@@ -256,70 +266,10 @@
   {
    "reach": "Rime Reach",
    "sea": "The Far Sea",
-   "x": 503.8,
-   "y": 80.5,
-   "r": 138.0,
-   "ry": 75.6,
-   "islands": [
-    {
-     "name": "Alyvik",
-     "x": 506.8,
-     "y": 30.3
-    },
-    {
-     "name": "Annat Fjord",
-     "x": 526.1,
-     "y": 90.5
-    },
-    {
-     "name": "Varrow",
-     "x": 428.8,
-     "y": 87.6
-    },
-    {
-     "name": "Deyr",
-     "x": 580.9,
-     "y": 89.9
-    },
-    {
-     "name": "Gentnes",
-     "x": 454.7,
-     "y": 29.5
-    },
-    {
-     "name": "Rime Island",
-     "x": 628.2,
-     "y": 121.0
-    },
-    {
-     "name": "Lelmar",
-     "x": 417.0,
-     "y": 156.1
-    },
-    {
-     "name": "Ferrol Key",
-     "x": 625.6,
-     "y": 49.4
-    },
-    {
-     "name": "Rishi Bank",
-     "x": 366.2,
-     "y": 69.9
-    }
-   ],
-   "luma": 134.0,
-   "label": {
-    "x": 158.0,
-    "y": 60.0
-   }
-  },
-  {
-   "reach": "Whalers' Reach",
-   "sea": "The Far Sea",
-   "x": 484.6,
-   "y": 248.0,
-   "r": 162.4,
-   "ry": 71.7,
+   "x": 491.1,
+   "y": 200.1,
+   "r": 174.5,
+   "ry": 169.8,
    "islands": [
     {
      "name": "Northreach",
@@ -358,8 +308,8 @@
     },
     {
      "name": "Linnur",
-     "x": 423.4,
-     "y": 181.0
+     "x": 417.0,
+     "y": 156.1
     },
     {
      "name": "Kristak",
@@ -375,21 +325,41 @@
      "name": "Bilbrin",
      "x": 540.7,
      "y": 319.8
+    },
+    {
+     "name": "Varrow",
+     "x": 506.8,
+     "y": 30.3
+    },
+    {
+     "name": "Gentnes",
+     "x": 526.1,
+     "y": 90.5
+    },
+    {
+     "name": "Rime Island",
+     "x": 428.8,
+     "y": 87.6
+    },
+    {
+     "name": "Rishi Bank",
+     "x": 580.9,
+     "y": 89.9
     }
    ],
    "luma": 125.0,
    "label": {
-    "x": 476.6,
-    "y": 372.0
+    "x": 495.1,
+    "y": 156.1
    }
   },
   {
    "reach": "Cinder Reach",
    "sea": "The Sea of Storms",
-   "x": 154.0,
-   "y": 894.8,
-   "r": 201.1,
-   "ry": 187.0,
+   "x": 157.1,
+   "y": 885.5,
+   "r": 208.7,
+   "ry": 196.3,
    "islands": [
     {
      "name": "Tamalu",
@@ -455,21 +425,26 @@
      "name": "Kirdholm",
      "x": 98.7,
      "y": 864.0
+    },
+    {
+     "name": "Ambrey",
+     "x": 197.9,
+     "y": 763.8
     }
    ],
    "luma": 62.0,
    "label": {
-    "x": 230.0,
-    "y": 946.8
+    "x": 101.1,
+    "y": 1009.5
    }
   },
   {
    "reach": "Salt Reach",
    "sea": "The Glass Sea",
-   "x": 523.1,
-   "y": 1267.3,
-   "r": 192.6,
-   "ry": 122.6,
+   "x": 535.4,
+   "y": 1270.2,
+   "r": 184.2,
+   "ry": 125.5,
    "islands": [
     {
      "name": "Bakuran Flats",
@@ -540,21 +515,26 @@
      "name": "Tio Isle",
      "x": 414.7,
      "y": 1284.1
+    },
+    {
+     "name": "Galpos",
+     "x": 707.6,
+     "y": 1311.5
     }
    ],
-   "luma": 55.0,
+   "luma": 54.0,
    "label": {
-    "x": 419.1,
-    "y": 1367.3
+    "x": 419.4,
+    "y": 1370.2
    }
   },
   {
    "reach": "Coral Reach",
    "sea": "The Amber Sea",
-   "x": 854.0,
-   "y": 974.5,
-   "r": 170.6,
-   "ry": 164.7,
+   "x": 849.6,
+   "y": 980.7,
+   "r": 165.8,
+   "ry": 158.5,
    "islands": [
     {
      "name": "Coralhome",
@@ -603,24 +583,29 @@
     },
     {
      "name": "Andoro",
+     "x": 796.7,
+     "y": 1055.6
+    },
+    {
+     "name": "Berquessa",
      "x": 883.8,
      "y": 1021.6
     },
     {
-     "name": "Berquessa",
+     "name": "Marista",
      "x": 843.6,
      "y": 869.8
     },
     {
-     "name": "Marista",
+     "name": "Delaira",
      "x": 900.9,
      "y": 877.0
     }
    ],
    "luma": 63.0,
    "label": {
-    "x": 918.0,
-    "y": 1074.5
+    "x": 913.6,
+    "y": 1068.7
    }
   }
  ]

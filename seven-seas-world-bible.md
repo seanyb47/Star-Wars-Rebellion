@@ -40,7 +40,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 | Original | New | Mechanic translation |
 |---|---|---|
 | Galaxy | **The Seven Seas** | Whole map |
-| Sector | **Reach** (an archipelago inside a Sea) | Same grouping as sectors. Seven Seas fixed; *number of Reaches per Sea* scales with map size. **On the small map there is one Reach per Sea, so a Sea and its archipelago are the same thing** (8 Reaches, 100 islands — the Far Sea holds two). Medium and large add second and third Reaches inside a Sea (→ ~150 / 200 islands). |
+| Sector | **Reach** (an archipelago inside a Sea) | Same grouping as sectors. Seven Seas fixed; *number of Reaches per Sea* scales with map size. **On the small map there is one Reach per Sea, so a Sea and its archipelago are the same thing** (7 Reaches, 100 islands). Medium and large add second and third Reaches inside a Sea (→ ~150 / 200 islands). |
 | Core sectors | **The Inner Seas** (3) | Rich, charted, Imperium-leaning |
 | Outer Rim sectors | **The Outer Seas** (4) | Uncharted, strange, must be explored |
 | System / planet | **Island** | One node |
@@ -524,7 +524,7 @@ written.
 ### The Merchant Sea (Inner Sea)
 *Mediterranean: sun, terraced harbors, guild towns, the best slipways. Italian/Iberian-flavored names.*
 
-**Shipwrights' Reach** (orig. Corellian sector — `small` map; **9 islands charted**)
+**Whalers' Reach** (orig. Corellian sector — `small` map; **16 islands charted** — the long chain down the west; called Shipwrights' Reach until v5.8)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -590,7 +590,7 @@ written.
 ### The Far Sea (Outer Sea)
 *Arctic / Norse: ice, fjords, whalers, the last free people. Norse-flavored names.*
 
-**Rime Reach** (orig. Churba sector — `small` map; **7 islands charted**)
+**Rime Reach, the ice** (orig. Churba sector — folded into the Reach above in v5.8: Rime Island, Gentnes, Rishi Bank and Varrow stay on the chart; the rest are held back for larger maps)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -605,7 +605,7 @@ written.
 | Storthus | **Storthavn** |  |
 | Tokmia | **Tokmaa** |  |
 
-**Whalers' Reach** (orig. Sumitra sector — `small` map; **7 islands charted** — the dark diagonal in the north-east, the Far Sea's second Reach)
+**Rime Reach** (orig. Sumitra sector — `small` map; **15 islands charted** — the dark northern chain and a few bergs of the pack ice above it; the Far Sea's one Reach since v5.8)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -1156,6 +1156,7 @@ not a bark, and it goes in the text.
 
 ## 15. CHANGELOG
 
+- **2026-09-14 v5.8** — Reach names follow the chart. **Rime Reach** is the dark northern chain plus four bergs of the pack ice (Rime Island, Gentnes, Rishi Bank, Varrow); the Far Sea has one Reach. The long chain down the west is **Whalers' Reach**; the name Shipwrights' Reach is retired. Seven Reaches, still 100 islands: Pantlow and Forliss (Grey) join Whalers', Delaira (Lantern) joins Coral, Galpos (Rice) joins Salt, Ambrey (Last) joins Cinder. The frontier is Rime and Salt; the Confederacy's base is in one of the two.
 - **2026-09-14 v5.7** — The small map goes to 100 islands. Twenty-nine promoted from the Reaches held back for larger maps, each into the surviving Reach of its Sea: Lantern's civic islands (Caridad, Raltiera, Obroa Scala, Bimisario, Palanca) into Sovereign Reach and its fisherfolk (Andoro, Berquessa, Marista) into Coral; Grey Reach's timber islands (Belfrey, Capperil, Kempsley, Ketterly, Ombwick) into Shipwrights'; Still Reach's Jomarrow, Douglass Rock and Crondre into Wreckers'; Last Reach's Thanta Isle, Tundvik and Kirdholm into Cinder; Rice Reach's The Terraces, Catshead, Heff Island and Tio Isle into Salt; Sugar's Ferrol Key and Rishi Bank into Rime; Whalers' own Linnur, Kristak and Vustri plus Sugar's Bilbrin into Whalers'. Their notes travel with them. On the chart a big island's mark is its port on the coast and a small island is the island; the great island of Sovereign Reach carries Highwater, Gorley and Ballmoor on its shore.
 - **2026-09-13 v5.6** — Marlow's dead: husband and both sons, all captains, all lost in the Crown's service — the Narrows, the Black Tide, the Wreckers' coast — and her faith unshaken. Her accent locked: English RP, Judi Dench's M.
 - **2026-09-13 v5.5** — Marlow is a **Secretary**, not an admiral: First Secretary of the Admiralty, the permanent official who has never been to sea, widow of one captain and mother of two more, the only person permitted to lecture the Imperator. Look and history revised in §16.1.

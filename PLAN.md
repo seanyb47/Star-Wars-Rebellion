@@ -183,7 +183,7 @@ actually hold as separate places, against what it holds now:
 | Sovereign | 10 | 15 |
 | Salt | 10 | 12 |
 | Cinder | 10 | 10 |
-| Shipwrights' | 9 | 9 |
+| Whalers' (was Shipwrights') | 9 | 9 |
 | Wreckers' | 9 | 9 |
 | Coral | 7 | 6 |
 | Rime | 7 | 6 |

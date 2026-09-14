@@ -15,25 +15,24 @@ import { reachesOfSea, seasOf, summariseReach, summariseSea } from '../reach';
 describe('the world bible data', () => {
   const allIslands = reachData.reaches.flatMap((r) => r.islands);
 
-  it('describes eight Reaches across seven Seas: three Inner, five Outer', () => {
-    expect(reachData.reaches).toHaveLength(8);
+  it('describes seven Reaches across seven Seas: three Inner, four Outer', () => {
+    expect(reachData.reaches).toHaveLength(7);
     expect(reachData.reaches.filter((r) => r.tier === 'inner')).toHaveLength(3);
-    expect(reachData.reaches.filter((r) => r.tier === 'outer')).toHaveLength(5);
-    // Seven Seas, and one of them — the Far Sea — holds two Reaches: the
-    // painting has two northern archipelagos, and names follow latitude.
-    expect(new Set(reachData.reaches.map((r) => r.name)).size).toBe(8);
+    expect(reachData.reaches.filter((r) => r.tier === 'outer')).toHaveLength(4);
+    // One Reach per Sea. The Far Sea's ice and its whaling chain are one
+    // Reach, Rime; the chain down the west is Whalers'.
+    expect(new Set(reachData.reaches.map((r) => r.name)).size).toBe(7);
     expect(new Set(reachData.reaches.map((r) => r.sea)).size).toBe(7);
-    expect(reachData.reaches.filter((r) => r.sea === 'The Far Sea')).toHaveLength(2);
+    expect(reachData.reaches.filter((r) => r.sea === 'The Far Sea')).toHaveLength(1);
   });
 
-  it('gives every Reach between seven and fifteen islands', () => {
-    // Not a flat ten any more. A Reach holds as many islands as its painted
-    // cluster can show as separate places, and the range is the range the
-    // chain view can lay out clearly.
+  it('gives every Reach between twelve and sixteen islands', () => {
+    // A Reach holds as many islands as its painted cluster can show as
+    // separate places, and the range is the range the chain view can lay
+    // out clearly at a hundred islands.
     for (const reach of reachData.reaches) {
-      expect(reach.islands.length).toBeGreaterThanOrEqual(7);
-      // Coral holds thirteen across both Amber Sea chains; fifteen is the bible's ceiling.
-      expect(reach.islands.length).toBeLessThanOrEqual(15);
+      expect(reach.islands.length).toBeGreaterThanOrEqual(12);
+      expect(reach.islands.length).toBeLessThanOrEqual(16);
     }
   });
 

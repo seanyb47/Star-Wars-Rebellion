@@ -58,17 +58,16 @@ CHART_W, CHART_H = 1000, 1500
 # is a reef, and the dark forested diagonal in the north-east is the whaling
 # ground. A Reach may have more than one seed point, though none needs it now.
 SEEDS: dict[str, tuple[float, float] | list[tuple[float, float]]] = {
-    # Sean's chart, 14 September: the ice cap along the top is Rime — bergs and
-    # frozen rock, "nothing here but weather" — and the dark chain under it is
-    # the whaling ground.
-    "Rime Reach": (0.50, 0.05),            # the pack ice along the top edge
-    "Whalers' Reach": (0.50, 0.16),        # the dark chain just under the ice
-    "Shipwrights' Reach": (0.18, 0.27),    # the long green chain down the left
-    "Sovereign Reach": (0.50, 0.48),       # dead centre, the largest — Highwater
-    "Wreckers' Reach": (0.86, 0.32),       # the chain down the right edge — the wrecking coast
-    "Cinder Reach": (0.15, 0.60),          # the chain at the lower left
-    "Coral Reach": (0.85, 0.65),           # the spiral atoll, lower right — the reef
-    "Salt Reach": (0.55, 0.84),            # the long chain across the bottom
+    # Sean's chart, 14 September. Rime is the dark northern chain and a few
+    # of the bergs in the pack ice above it; Whalers' is the long chain down
+    # the west; the rest sit where they are.
+    "Rime Reach": [(0.50, 0.16), (0.50, 0.05)],
+    "Whalers' Reach": (0.18, 0.27),
+    "Sovereign Reach": (0.50, 0.48),
+    "Wreckers' Reach": (0.86, 0.32),
+    "Cinder Reach": (0.15, 0.60),
+    "Coral Reach": (0.85, 0.65),
+    "Salt Reach": (0.55, 0.84),
 }
 # Three seeds were removed rather than moved. Whalers' sat on islets too small
 # to chart, and Sugar and Mirage ran together with their neighbours down the
@@ -143,8 +142,8 @@ def bays(mask: np.ndarray, want: int, gap_px: float) -> list[tuple[float, float]
     return sites
 
 
-def painted_islands(path: str) -> list[tuple[float, float, float]]:
-    """Every location the painting offers, as (x, y, weight) in chart units.
+def painted_islands(path: str) -> list[tuple[float, float, float, bool]]:
+    """Every location the painting offers, as (x, y, weight, ice) in chart units.
 
     A small island is its own centre. A big one is a port on its coast — the
     deepest bay — and the greatest of all carries three. The weight is the
@@ -166,6 +165,7 @@ def painted_islands(path: str) -> list[tuple[float, float, float]]:
     sizes = ndimage.sum(land, lbl, range(1, n + 1))
     cents = ndimage.center_of_mass(land, lbl, range(1, n + 1))
     sx, sy = CHART_W / w, CHART_H / h
+    ice_share = ndimage.sum(ice, lbl, range(1, n + 1)) / np.maximum(sizes, 1)
     greatest = int(np.argmax(sizes)) + 1
     out = []
     for i, ((cy, cx), area) in enumerate(zip(cents, sizes), 1):
@@ -174,19 +174,20 @@ def painted_islands(path: str) -> list[tuple[float, float, float]]:
         # The frame edge is paper, not coastline.
         if not (16 < cx < w - 16 and 16 < cy < h - 16):
             continue
+        frozen = bool(ice_share[i - 1] > 0.5)
         if area >= BIG_LANDMASS_PX:
             want = PORTS_ON_THE_GREAT_ISLAND if i == greatest else 1
             for (px, py) in bays(lbl == i, want, PORT_GAP_PX):
-                out.append((px * sx, py * sy, float(area)))
+                out.append((px * sx, py * sy, float(area), frozen))
         else:
-            out.append((cx * sx, cy * sy, float(area)))
+            out.append((cx * sx, cy * sy, float(area), frozen))
     return out
 
 
 def spaced(blobs: list[tuple[float, float, float]], gap: float, want: int):
     """The biggest islands, taken in order, none closer than `gap` to another."""
     taken: list[tuple[float, float]] = []
-    for x, y, _ in sorted(blobs, key=lambda b: -b[2]):
+    for x, y, *_ in sorted(blobs, key=lambda b: -b[2]):
         if all((x - px) ** 2 + (y - py) ** 2 >= gap * gap for px, py in taken):
             taken.append((x, y))
         if len(taken) == want:
@@ -261,8 +262,18 @@ def main() -> None:
         # …and the ports of the great island take its other harbours, which are
         # the next-heaviest places in the Reach after the capital's.
         order = sorted(order, key=lambda i: (not i.get("capital"), not i.get("port")))
+        # Islands flagged as ice take the bergs; everything else takes the
+        # rock. Rime is the one Reach with both, and "a few icy islands" is
+        # exactly as many as carry the flag.
+        ice_names = [i for i in order if i.get("ice")]
+        land_names = [i for i in order if not i.get("ice")]
+        land_blobs = [b for b in group if not b[3]]
+        ice_blobs = [b for b in group if b[3]]
+        land_picks = pick(land_blobs, len(land_names))
+        ice_picks = pick(ice_blobs, len(ice_names)) if ice_names else []
+        order = land_names + ice_names
+        islands = land_picks + ice_picks
         want = len(order)
-        islands = pick(group, want)
         if len(islands) < want:
             # Short means the painting has fewer islands here than the game does.
             # Say so rather than silently drawing nine of ten.
@@ -360,10 +371,7 @@ def main() -> None:
     # from under their left end, not from the open water to their right;
     # Shipwrights' belongs under the foot of its chain, not out in the
     # channel beside Sovereign; Salt sits on its own chain's shoulder.
-    LABEL_PINS: dict[str, tuple[float, float]] = {
-        # In the water left of the ice, clear of the whaling chain beneath it.
-        "Rime Reach": (170.0, 60.0),
-    }
+    LABEL_PINS: dict[str, tuple[float, float]] = {}
 
     # The foot of the chart belongs to the layer strip.
     FOOT = 250.0
