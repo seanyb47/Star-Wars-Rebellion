@@ -1352,3 +1352,20 @@ button.tcard:hover { border-color: var(--brass); }
 .choice__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .choice__name { font-size: 14px; }
 .choice__what { white-space: normal; line-height: 1.35; }
+
+/* The battle summary on a dispatch card: two sides, side by side. */
+.tally { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 14px 0; }
+.tally__side {
+  display: flex; gap: 8px; align-items: flex-start; padding: 8px; border-radius: 10px;
+  background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border);
+}
+.tally__side--empire { border-color: rgba(79, 196, 106, 0.4); }
+.tally__side--alliance { border-color: rgba(216, 72, 63, 0.45); }
+.tally__body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.tally__name { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--chrome-text); }
+.tally__row { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+.tally__row b { color: var(--text); }
+.tally__row--loss { color: var(--bad); }
+.tally__row--loss b { color: var(--bad); }
+.tally__foot { grid-column: 1 / -1; padding: 0 2px; }
+@media (max-width: 359px) { .tally { grid-template-columns: 1fr; } }

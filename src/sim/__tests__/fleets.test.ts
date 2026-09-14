@@ -174,6 +174,13 @@ describe('battle', () => {
     expect(rounds).toBeLessThan(50);
     const sides = new Set(fleetsAt(state, home.id).map((f) => f.faction));
     expect(sides.size).toBeLessThanOrEqual(1);
+    // And the action carries its tally for the card: what each side brought
+    // and lost, and the harbour's guns.
+    const action = state.events.find((e) => e.kind === 'battle' && e.battle);
+    expect(action).toBeDefined();
+    expect(action!.battle!.sides.empire.hulls).toBe(2);
+    expect(action!.battle!.sides.alliance.hulls).toBe(2);
+    expect(action!.battle!.sides.empire.lost + action!.battle!.sides.alliance.lost).toBeGreaterThan(0);
   });
 
   it('is deterministic: the same seed fights the same battle', () => {

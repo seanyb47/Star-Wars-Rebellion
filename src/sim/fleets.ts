@@ -446,6 +446,14 @@ function fightRound(
     kind: 'battle',
     text: `Action off ${system.name}. The Imperium loses ${tally(lostEmpire)}, the Confederacy ${tally(lostAlliance)}.`,
     systemId: system.id,
+    battle: {
+      sides: {
+        empire: { hulls: before.empire, lost: lostEmpire, guns: Math.round(gunsEmpire) },
+        alliance: { hulls: before.alliance, lost: lostAlliance, guns: Math.round(gunsAlliance) },
+      },
+      shore,
+      holder: system.control,
+    },
   });
 }
 
@@ -501,14 +509,26 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   const roll = rng.next();
   const attackerWins = attackers > defenders || (attackers === defenders && roll > 0.5);
 
+  const landed = fleet.troops;
+  const garrisonBefore = system.garrison;
   fleet.troops = Math.max(0, fleet.troops - spent);
   system.garrison = Math.max(0, system.garrison - Math.max(0, spent - chain));
+  const report = {
+    attacker: fleet.faction,
+    landed,
+    defenders: garrisonBefore,
+    boom: chain,
+    lost: landed - fleet.troops,
+    defendersLost: garrisonBefore - system.garrison,
+    taken: attackerWins,
+  };
 
   if (!attackerWins) {
     pushEvent(state, {
       kind: 'battle',
       text: `The landing on ${system.name} is thrown back into the sea.`,
       systemId: system.id,
+      landing: report,
     });
     return;
   }
@@ -529,6 +549,7 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
     kind: 'flip',
     text: `${system.name} is carried by storm. ${holding} ${holding === 1 ? 'company holds' : 'companies hold'} it, and the people are sullen.`,
     systemId: system.id,
+    landing: report,
   });
 }
 

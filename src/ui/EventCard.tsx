@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+import factionData from '../data/factions.json';
 import type { EventKind, GameEvent, GameState } from '../sim';
+import { CompanyIcon, FactionCrest, ShipIcon } from './art';
 import { EventScene } from './EventScene';
 
 /**
@@ -120,6 +122,9 @@ export function EventCards({
 
         <p className="dispatch__text serif">{event.text}</p>
 
+        {event.battle && <BattleTally report={event.battle} />}
+        {event.landing && <LandingTally report={event.landing} />}
+
         <div className="dispatch__foot">
           <span className="tiny muted">
             Day {event.day}
@@ -160,5 +165,96 @@ export function EventCards({
         </div>
       </div>
     </>
+  );
+}
+
+/**
+ * Rebellion's battle summary: each side's crest, what it brought, what it
+ * lost, and the harbour's guns if they fired. Laid out rather than told, so
+ * the sentence above can stay a sentence.
+ */
+function BattleTally({ report }: { report: NonNullable<GameEvent['battle']> }) {
+  const holder = report.holder === 'empire' || report.holder === 'alliance' ? report.holder : null;
+  return (
+    <div className="tally">
+      {(['empire', 'alliance'] as const).map((side) => {
+        const s = report.sides[side];
+        return (
+          <div key={side} className={`tally__side tally__side--${side}`}>
+            <FactionCrest faction={side} size={34} />
+            <div className="tally__body">
+              <div className="tally__name">{factionData[side].shortName}</div>
+              <div className="tally__row">
+                <ShipIcon role="medium" size={16} />
+                <span>
+                  <b>{s.hulls}</b> {s.hulls === 1 ? 'hull' : 'hulls'} · <b>{s.guns}</b> guns
+                </span>
+              </div>
+              <div className={`tally__row${s.lost > 0 ? ' tally__row--loss' : ''}`}>
+                {s.lost > 0 ? (
+                  <span>
+                    <b>{s.lost}</b> {s.lost === 1 ? 'hull' : 'hulls'} lost
+                  </span>
+                ) : (
+                  <span className="muted">No hulls lost</span>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+      {report.shore > 0 && holder && (
+        <div className="tally__foot tiny muted">
+          The harbour's own guns fired for the {factionData[holder].shortName}: {report.shore}.
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LandingTally({ report }: { report: NonNullable<GameEvent['landing']> }) {
+  const attacker = report.attacker;
+  const defender = attacker === 'empire' ? 'alliance' : 'empire';
+  return (
+    <div className="tally">
+      <div className={`tally__side tally__side--${attacker}`}>
+        <FactionCrest faction={attacker} size={34} />
+        <div className="tally__body">
+          <div className="tally__name">{factionData[attacker].shortName} · landing</div>
+          <div className="tally__row">
+            <CompanyIcon size={16} />
+            <span>
+              <b>{report.landed}</b> {report.landed === 1 ? 'company' : 'companies'} ashore
+            </span>
+          </div>
+          <div className={`tally__row${report.lost > 0 ? ' tally__row--loss' : ''}`}>
+            <span>
+              <b>{report.lost}</b> lost
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className={`tally__side tally__side--${defender}`}>
+        <FactionCrest faction={defender} size={34} />
+        <div className="tally__body">
+          <div className="tally__name">Holding the island</div>
+          <div className="tally__row">
+            <CompanyIcon size={16} />
+            <span>
+              <b>{report.defenders}</b> {report.defenders === 1 ? 'company' : 'companies'}
+              {report.boom > 0 ? ` · a boom worth ${report.boom}` : ''}
+            </span>
+          </div>
+          <div className={`tally__row${report.defendersLost > 0 ? ' tally__row--loss' : ''}`}>
+            <span>
+              <b>{report.defendersLost}</b> lost
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="tally__foot tiny muted">
+        {report.taken ? 'The island is carried.' : 'The landing is thrown back.'}
+      </div>
+    </div>
   );
 }

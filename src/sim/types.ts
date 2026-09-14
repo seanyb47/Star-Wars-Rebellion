@@ -251,6 +251,26 @@ export type EventKind =
   | 'loss'     // something taken from you
   | 'battle';  // ships meeting at an island
 
+/** What each side brought to an action at sea, and what it cost them. */
+export interface BattleReport {
+  sides: Record<PlayableFaction, { hulls: number; lost: number; guns: number }>;
+  /** The harbour's own guns, and whose harbour it is. */
+  shore: number;
+  holder: Faction;
+}
+
+/** A landing: who went ashore against whom, and how it ended. */
+export interface LandingReport {
+  attacker: PlayableFaction;
+  landed: number;
+  defenders: number;
+  /** Chain across the harbour mouth, counted among the defenders. */
+  boom: number;
+  lost: number;
+  defendersLost: number;
+  taken: boolean;
+}
+
 export interface GameEvent {
   id: string;
   day: number;
@@ -258,6 +278,10 @@ export interface GameEvent {
   text: string;
   systemId?: string;
   characterId?: string;
+  /** The tally behind an action at sea, for the card to lay out. */
+  battle?: BattleReport;
+  /** The tally behind a landing. */
+  landing?: LandingReport;
 }
 
 /**
