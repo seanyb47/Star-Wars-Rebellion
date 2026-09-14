@@ -236,7 +236,7 @@ export function App() {
     const island = state.systems.find((s) => s.id === systemId)!;
     const officer = state.characters.find((c) => c.id === characterId)!;
     const errand = type ?? missionTypeFor(state, island, officer.faction as PlayableFaction);
-    flash(errand === 'incite' || errand === 'sabotage' || errand === 'abduct' ? 'Under way, quietly.' : 'Under way.');
+    flash(errand === 'incite' || errand === 'sabotage' || errand === 'abduct' || errand === 'rescue' ? 'Under way, quietly.' : 'Under way.');
   };
 
   const handleSelectSystem = (systemId: string) => {

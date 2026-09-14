@@ -29,7 +29,7 @@ assets rather than bundled.
 |---|---|
 | **Phase 1 — the war** | Built. 60 islands, seven Reaches — one for each Sea — economy, support, control, unrest, building, the day clock. |
 | **Phase 2 — fleets** | Built. Hulls in four sizes, troop capacity, movement, auto-resolved combat, assault, blockade. Fighters cut from the design, not deferred. |
-| **Phase 3 — missions** | 5 of 8. Parley, Incite Uprising, Recruitment, Sabotage, Survey. |
+| **Phase 3 — missions** | Built, and one past the plan: Parley, Incite Uprising, Recruitment, Sabotage, Survey, Abduction, Command, Research, and Rescue. |
 | **Phase 4 — polish** | Not started. |
 
 All four character ratings are live: Diplomacy decides a parley, Leadership an
@@ -392,6 +392,16 @@ copy counts the world it is in instead of a hundred islands in eight chains.
 errand, a sheet lists each with what it does and the odds, and the player
 chooses — Rebellion's menu, offered only where there is a choice to make.
 `missionsOffered` in the sim; the opponent keeps the old precedence.
+
+**Rescue.** One of yours held at the enemy's seat can be broken out, once
+the seat is found. Read off Espionage, harder than a lift off a quay, and
+worked on enemy ground with the risks that carries. The freed officer goes
+home fit for sea. The opponent values a rescue above any island. The ninth
+errand, and the last of Rebellion's that fits a cast this size.
+
+**The battle summary card.** An action at sea and a landing carry their
+tally on the event — hulls and guns a side, losses, the harbour's guns, the
+boom — and the dispatch card lays it out crest to crest under the sentence.
 
 **The rich opponent.** Above six hundred gold it doubles its orders a tick,
 lays down a hull at every idle slipway, wants a third slipway and a battery

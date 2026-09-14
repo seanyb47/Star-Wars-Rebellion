@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
-import { advanceMissions, craftGrade, isAbductTarget, isCommandTarget, isResearchTarget, missionTypeFor, startMission } from '../missions';
+import { advanceMissions, craftGrade, isAbductTarget, isCommandTarget, isResearchTarget, isRescueTarget, missionTypeFor, missionsOffered, startMission } from '../missions';
 import { effectiveSpec, queueBuild } from '../build';
 import { buildSpec, shipsFor } from '../constants';
 import { CAPTIVE_DAYS, MISSION_WORK_DAYS, RESEARCH_MIN_SUPPORT } from '../constants';
@@ -149,5 +149,48 @@ describe('research', () => {
     queueBuild(state, slipway.id, hull);
     expect(state.factions.empire.gold).toBe(purse - spec.costGold);
     expect(slipway.building!.daysRemaining).toBe(spec.days);
+  });
+});
+
+describe('rescue', () => {
+  it('breaks one of yours out of the enemy seat and sends them home', () => {
+    const state = world();
+    const empireHq = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
+    const allianceHq = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
+    const [held, rescuer] = state.characters.filter((c) => c.faction === 'alliance');
+    // Held at the Crown's seat, as an abduction leaves them.
+    held.status = 'captured';
+    held.injuredDays = CAPTIVE_DAYS;
+    held.mission = undefined;
+    held.locationSystemId = empireHq.id;
+    // Not on offer until the seat is known.
+    empireHq.explored.alliance = false;
+    expect(isRescueTarget(state, empireHq, 'alliance')).toBe(false);
+    empireHq.explored.alliance = true;
+    expect(isRescueTarget(state, empireHq, 'alliance')).toBe(true);
+    expect(missionsOffered(state, empireHq, 'alliance')).toContain('rescue');
+    // Outranks stirring the Crown's own capital.
+    expect(missionTypeFor(state, empireHq, 'alliance')).toBe('rescue');
+
+    place(state, rescuer, allianceHq);
+    rescuer.espionage = 100;
+    // Seven in ten with a master spy; a handful of seeds finds a landing.
+    let freed = false;
+    for (let seed = 1; seed <= 12 && !freed; seed++) {
+      const trial = structuredClone(state);
+      const who = trial.characters.find((c) => c.id === rescuer.id)!;
+      const them = trial.characters.find((c) => c.id === held.id)!;
+      startMission(trial, who.id, empireHq.id, 'rescue');
+      expect(who.mission?.type).toBe('rescue');
+      const rng = createRng(seed);
+      for (let d = 0; d < 40 && them.status === 'captured'; d++) advanceMissions(trial, rng);
+      if (them.status === 'available') {
+        freed = true;
+        // Home, not standing on the enemy quay.
+        expect(them.locationSystemId).toBe(allianceHq.id);
+        expect(trial.events.some((e) => /out of the cells/.test(e.text))).toBe(true);
+      }
+    }
+    expect(freed).toBe(true);
   });
 });

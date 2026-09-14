@@ -1,6 +1,7 @@
 import {
   MISSION_LABEL,
   abductOn,
+  captiveOn,
   missionsOffered,
   recruitOn,
   successChance,
@@ -27,6 +28,7 @@ const WHAT: Record<MissionType, string> = {
   abduct: 'Carry off the enemy officer ashore here and hold them at your seat.',
   command: 'Take command and put the island back in order.',
   research: 'Put the yards to work on the craft: cheaper, quicker hulls.',
+  rescue: 'Break one of yours out of the cells and get them home.',
 };
 
 export function MissionChoiceSheet({
@@ -49,6 +51,7 @@ export function MissionChoiceSheet({
   const sail = travelDays(state, character.locationSystemId, systemId);
   const recruit = recruitOn(state, island, faction);
   const captive = abductOn(state, island, faction);
+  const held = captiveOn(state, island, faction);
 
   return (
     <Sheet
@@ -65,7 +68,9 @@ export function MissionChoiceSheet({
               ? `Sign on ${recruit.name}, who is ashore here, for good.`
               : type === 'abduct' && captive
                 ? `Carry off ${captive.name} and hold them at your seat.`
-                : WHAT[type];
+                : type === 'rescue' && held
+                  ? `Break ${held.name} out of the cells and get them home.`
+                  : WHAT[type];
           return (
             <button key={type} className="card card--tap choice" onClick={() => onChoose(type)}>
               <span className="choice__icon">

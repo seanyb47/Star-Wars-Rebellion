@@ -43,6 +43,7 @@ import {
   quality,
   recruitOn,
   startMission,
+  captiveOn,
 } from './missions';
 import type { Rng } from './rng';
 import type {
@@ -266,6 +267,9 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     const close = s.sectorId === home ? AI_NEAR_BONUS : 0;
     const recruit = recruitOn(state, s, ai);
     if (recruit) return close + AI_RECRUIT_BONUS + quality(recruit);
+    // One of its own in the enemy's cells: worth more than any island.
+    const held = captiveOn(state, s, ai);
+    if (held) return close + AI_RECRUIT_BONUS + quality(held);
     if (s.control === 'neutral') return close + s.support[ai];
     // The weaker their hold, the nearer the uprising threshold, the better.
     return close + (100 - s.support[enemy]) - INCITE_PRIORITY_PENALTY;

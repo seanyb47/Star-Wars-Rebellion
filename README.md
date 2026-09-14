@@ -339,9 +339,9 @@ Things I know are wrong, in the order I mean to fix them.
 
 **See `PLAN.md`** for the current state and the order of work.
 
-In short: the war, the fleets and all eight errands are built — parley,
-incitement, recruitment, sabotage, survey, abduction, command and research —
-and both ways to win. Still outstanding are command ranks, Tidecraft tiers and
+In short: the war, the fleets and all nine errands are built — parley,
+incitement, recruitment, sabotage, survey, abduction, command, research and
+rescue — and both ways to win. Still outstanding are command ranks, Tidecraft tiers and
 training, the Leviathan, and a smarter opponent.
 
 From the world bible, still waiting on the phases that need them: ground forces

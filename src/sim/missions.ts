@@ -24,6 +24,7 @@ import {
   MISSION_WORK_DAYS,
   TRAVEL_DAYS_CROSS_SECTOR,
   TRAVEL_DAYS_IN_SECTOR,
+  RESCUE_BASE,
 } from './constants';
 import {
   applySupportChange,
@@ -173,6 +174,29 @@ export function isAbductTarget(
  * you something today, were the only islands in the game with no answer. A
  * commander ashore is the answer, and it is the one Rebellion gave too.
  */
+/**
+ * One of yours held here. Captives are kept at the captor's seat, so this is
+ * only ever the enemy capital — and only once you have found it.
+ */
+export function captiveOn(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+): Character | undefined {
+  if (!system.explored[faction]) return undefined;
+  return state.characters.find(
+    (c) => c.faction === faction && c.status === 'captured' && c.locationSystemId === system.id,
+  );
+}
+
+export function isRescueTarget(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+): boolean {
+  return captiveOn(state, system, faction) !== undefined;
+}
+
 export function isCommandTarget(system: System, faction: PlayableFaction): boolean {
   return system.explored[faction] && system.control === faction && system.uprising;
 }
@@ -215,6 +239,9 @@ export function missionTypeFor(
   faction: PlayableFaction,
 ): MissionType | null {
   if (isRecruitTarget(state, system, faction)) return 'recruit';
+  // One of your own in their cells outranks anything done to the island
+  // holding them: two months out of the war is two months you get back.
+  if (isRescueTarget(state, system, faction)) return 'rescue';
   // A person of theirs caught off their own ground outranks anything that can
   // be done to the island under them: the island will be there next month and
   // they will not.
@@ -257,6 +284,7 @@ export function missionsOffered(
 ): MissionType[] {
   const out: MissionType[] = [];
   if (isRecruitTarget(state, system, faction)) out.push('recruit');
+  if (isRescueTarget(state, system, faction)) out.push('rescue');
   if (isAbductTarget(state, system, faction)) out.push('abduct');
   if (isCommandTarget(system, faction)) out.push('command');
   if (isResearchTarget(system, faction)) out.push('research');
@@ -287,6 +315,7 @@ export function stillWorthDoing(
   if (type === 'sabotage') return isSabotageTarget(system, faction);
   if (type === 'survey') return isSurveyTarget(system, faction);
   if (type === 'abduct') return isAbductTarget(state, system, faction);
+  if (type === 'rescue') return isRescueTarget(state, system, faction);
   if (type === 'command') return isCommandTarget(system, faction);
   if (type === 'research') return isResearchTarget(system, faction);
   return isDiplomacyTarget(system, faction);
@@ -387,7 +416,9 @@ export function startMission(
                 ? 'to put its yards to work on the craft'
                 : type === 'recruit'
                   ? `to put it to ${recruitOn(state, target, character.faction as PlayableFaction)!.name}`
-                  : 'to parley';
+                  : type === 'rescue'
+                    ? `to break ${captiveOn(state, target, character.faction as PlayableFaction)!.name} out`
+                    : 'to parley';
   pushEvent(state, {
     kind: 'mission',
     text: `${character.name} sails for ${target.name} ${errand}.`,
@@ -412,6 +443,7 @@ export const MISSION_LABEL: Record<MissionType, string> = {
   abduct: 'Abduction',
   command: 'In command',
   research: 'In the yards',
+  rescue: 'Rescue',
 };
 
 /** Chance the mission lands its argument (spec 4.5). */
@@ -424,6 +456,7 @@ export function successChance(character: Character, type: MissionType = 'diploma
   // what they went for. The roll decides how much of the chain comes with it.
   if (type === 'survey') return 1;
   if (type === 'sabotage') return SABOTAGE_BASE + character.espionage / 260;
+  if (type === 'rescue') return RESCUE_BASE + character.espionage / 250;
   // Restoring order is what Leadership is for. It only ever rated how well a
   // company fought until now, which left the best commanders in the game with
   // nothing to do but stand on a deck.
@@ -565,6 +598,8 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
             ? `${character.name} lands on ${system.name} to find the berth already taken.`
             : mission.type === 'abduct'
               ? `${character.name} finds the quay at ${system.name} empty; their mark has sailed.`
+              : mission.type === 'rescue'
+                ? `${character.name} finds the cells at ${system.name} empty; the exchange came first.`
               : mission.type === 'command'
                 ? `${character.name} lands on ${system.name} to find order already restored.`
                 : `${character.name} abandons the talks on ${system.name}; the island is beyond reach.`,
@@ -595,6 +630,8 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
       inciteOutcome(state, character, system, success);
     } else if (mission.type === 'sabotage') {
       sabotageOutcome(state, character, system, success);
+    } else if (mission.type === 'rescue') {
+      rescueOutcome(state, character, system, success);
     } else if (mission.type === 'survey') {
       surveyOutcome(state, character, system);
     } else if (mission.type === 'command') {
@@ -652,6 +689,8 @@ function done(
   }
   // Nobody of theirs left on the quay.
   if (type === 'abduct') return !isAbductTarget(state, system, faction);
+  // Nobody of yours left in the cells.
+  if (type === 'rescue') return !isRescueTarget(state, system, faction);
   // Order restored, which is the whole of the posting.
   if (type === 'command') return !system.uprising;
   // Never: the yards can always be improved on, and it is the player who
@@ -749,6 +788,42 @@ function abductOutcome(
     text: `${officer.name} has taken ${mark.name} off the quay at ${system.name}. They are held at ${held.name}.`,
     systemId: system.id,
     characterId: mark.id,
+  });
+}
+
+/**
+ * Breaking one of yours out.
+ *
+ * The captive goes home the way an exchange would send them — to their own
+ * seat, fit for sea — rather than standing on the enemy quay beside the
+ * officer who freed them, which would be two of yours in the lion's mouth.
+ */
+function rescueOutcome(
+  state: GameState,
+  officer: Character,
+  system: System,
+  success: boolean,
+): void {
+  const faction = officer.faction as PlayableFaction;
+  const captive = captiveOn(state, system, faction)!;
+  if (!success) {
+    pushEvent(state, {
+      kind: 'mission',
+      text: `${officer.name} cannot reach ${captive.name} in the cells at ${system.name}. Not this fortnight.`,
+      systemId: system.id,
+      characterId: officer.id,
+    });
+    return;
+  }
+  captive.status = 'available';
+  captive.injuredDays = undefined;
+  captive.mission = undefined;
+  captive.locationSystemId = state.factions[faction].hqSystemId;
+  pushEvent(state, {
+    kind: 'mission',
+    text: `${officer.name} has ${captive.name} out of the cells at ${system.name} and away. They are home and fit for sea.`,
+    systemId: system.id,
+    characterId: captive.id,
   });
 }
 

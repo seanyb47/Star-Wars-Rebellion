@@ -456,7 +456,7 @@ export function ChainMap({
                 className={`map__pick${
                   work === 'incite'
                     ? ' map__pick--incite'
-                    : work === 'recruit'
+                    : work === 'recruit' || work === 'rescue'
                       ? ' map__pick--recruit'
                       : ''
                 }`}

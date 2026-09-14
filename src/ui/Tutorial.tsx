@@ -69,7 +69,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'Your crew',
     body: () =>
-      'Seven officers, each rated for Diplomacy, Espionage, Combat and Leadership. Send one to an island and the island offers the errand: parley with the undecided, stir up trouble on theirs, sign on somebody worth having, chart the unknown, burn their works, carry off their officer, restore order on yours. Where it offers more than one, you choose.',
+      'Seven officers, each rated for Diplomacy, Espionage, Combat and Leadership. Send one to an island and the island offers the errand: parley with the undecided, stir up trouble on theirs, sign on somebody worth having, chart the unknown, burn their works, carry off their officer, break one of yours out of their cells, restore order on yours. Where it offers more than one, you choose.',
   },
   {
     title: 'Gold',

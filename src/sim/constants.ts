@@ -246,6 +246,12 @@ export const SABOTAGE_BASE = 0.34;
  * you lift off a quay because you rolled well.
  */
 export const ABDUCT_BASE = 0.42;
+/**
+ * Breaking one of yours out of the enemy's seat. Harder than lifting someone
+ * off a quay — the whole harbour is watching the cells — and read off
+ * Espionage, since it is craft and not argument.
+ */
+export const RESCUE_BASE = 0.3;
 /** How much of the target's Combat protects them, as a divisor. */
 export const ABDUCT_RESIST_DIVISOR = 230;
 /** Days a rescued or exchanged prisoner is unfit for. Long: it is a real loss. */

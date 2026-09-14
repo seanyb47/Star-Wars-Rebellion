@@ -209,7 +209,8 @@ export type MissionType =
   | 'survey'
   | 'abduct'
   | 'command'
-  | 'research';
+  | 'research'
+  | 'rescue';
 
 export interface Mission {
   type: MissionType;
