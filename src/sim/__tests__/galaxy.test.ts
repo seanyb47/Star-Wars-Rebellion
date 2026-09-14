@@ -159,6 +159,8 @@ describe('generateGalaxy', () => {
       expect(crown.some((s) => s.name === 'Gorley' || s.name === 'Ballmoor')).toBe(true);
       expect(confed.length).toBeGreaterThanOrEqual(1);
       expect(confed.length).toBeLessThanOrEqual(2);
+      // Never on the great island: its ports are the Crown's ground to start.
+      for (const s of confed) expect(['Highwater', 'Gorley', 'Ballmoor']).not.toContain(s.name);
       // The three ports of the great island, whoever holds them.
       for (const name of ['Highwater', 'Gorley', 'Ballmoor']) {
         expect(islands.find((s) => s.name === name)!.archetype).toBe('port-city');

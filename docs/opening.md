@@ -18,7 +18,8 @@ seat, with the Home Fleet there. The great island has three ports: Highwater,
 Gorley and Ballmoor. The Crown opens with Highwater, one of the other two
 ports, and one more island in the Reach (that one sullen: allegiance in the
 thirties and forties, held by the garrison). The Confederacy opens with one
-or two islands in the Reach. The rest are settled and nobody's.
+or two islands in the Reach, never on the great island itself. The rest are
+settled and nobody's.
 
 **Contested — Wreckers' Reach, Whalers' Reach, Cinder Reach.** Each side
 opens with two islands; the rest are settled, nobody's, and garrisoned.

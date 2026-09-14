@@ -334,9 +334,14 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   hold(third, 'empire', { empire: rng.range(32, 45), alliance: rng.range(25, 40) });
   empireSystems.push(third);
 
-  // The Confederacy has a foothold in the Crown's own Reach: one island, or two.
+  // The Confederacy has a foothold in the Crown's own Reach: one island, or
+  // two — never on the great island itself. Its three ports are the Crown's
+  // ground whoever holds them at the start; the rebels begin on an outlying
+  // island of the chain.
   const allianceSystems: System[] = [];
-  const homeLeft = rng.shuffle(homeIslands.filter((s) => s.control === 'neutral'));
+  const homeLeft = rng.shuffle(
+    homeIslands.filter((s) => s.control === 'neutral' && !flaggedPorts.has(s.name)),
+  );
   for (const system of homeLeft.slice(0, rng.range(...START_HOME_CONFEDERACY))) {
     hold(system, 'alliance', loyal('alliance'));
     allianceSystems.push(system);
