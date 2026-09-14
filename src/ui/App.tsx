@@ -17,6 +17,7 @@ import {
   orderEmbark,
   orderSail,
   missionTypeFor,
+  missionsOffered,
   type ChartLayer,
   sendDiplomat,
   setSpeed,
@@ -26,10 +27,12 @@ import {
   type PlayableFaction,
   type Speed,
   orderFoundWorks,
+  type MissionType,
 } from '../sim';
 import { Almanac } from './Almanac';
 import { CharacterSheet } from './CharacterSheet';
 import { BuildMenuSheet, BuildOrderSheet, firstItem, type BuildDraft } from './BuildSheet';
+import { MissionChoiceSheet } from './MissionChoiceSheet';
 import { CharactersScreen } from './CharactersScreen';
 import { FeedScreen } from './FeedScreen';
 import { GalaxyMap } from './GalaxyMap';
@@ -82,6 +85,8 @@ export function App() {
   const voice = useAdvisorVoice();
   const [almanacOpen, setAlmanacOpen] = useState(false);
   const [pickingFor, setPickingFor] = useState<string | null>(null);
+  // An island that offers an officer more than one errand asks which.
+  const [missionChoice, setMissionChoice] = useState<{ characterId: string; systemId: string } | null>(null);
   // The build flow: the three-button menu, the order being drafted, and
   // whether the chart is open to choose the island it lands on. The draft
   // outlives the trip to the chart so what you had chosen is still chosen.
@@ -133,6 +138,7 @@ export function App() {
     openReachId !== null ||
     openListId !== null ||
     menuOpen ||
+    missionChoice !== null ||
     buildMenuOpen ||
     orderOpen ||
     cards.length > 0 ||
@@ -218,6 +224,21 @@ export function App() {
     setState(result.state);
   };
 
+  const sendOfficer = (characterId: string, systemId: string, type?: MissionType) => {
+    const result = sendDiplomat(state, characterId, systemId, type);
+    if (result.error) {
+      flash(result.error);
+      return;
+    }
+    setState(result.state);
+    setPickingFor(null);
+    setMissionChoice(null);
+    const island = state.systems.find((s) => s.id === systemId)!;
+    const officer = state.characters.find((c) => c.id === characterId)!;
+    const errand = type ?? missionTypeFor(state, island, officer.faction as PlayableFaction);
+    flash(errand === 'incite' || errand === 'sabotage' || errand === 'abduct' ? 'Under way, quietly.' : 'Under way.');
+  };
+
   const handleSelectSystem = (systemId: string) => {
     if (choosingSite) {
       const where = state.systems.find((s) => s.id === systemId)!;
@@ -242,22 +263,17 @@ export function App() {
       return;
     }
     if (pickingFor) {
-      const result = sendDiplomat(state, pickingFor, systemId);
-      if (result.error) {
-        flash(result.error);
+      const island = state.systems.find((s) => s.id === systemId)!;
+      const officer = state.characters.find((c) => c.id === pickingFor)!;
+      const offered = missionsOffered(state, island, officer.faction as PlayableFaction);
+      if (offered.length > 1) {
+        // More than one thing to do there: the original's mission menu.
+        setOpenReachId(null);
+        setOpenListId(null);
+        setMissionChoice({ characterId: pickingFor, systemId });
         return;
       }
-      setState(result.state);
-      setPickingFor(null);
-      flash(
-        missionTypeFor(
-          state,
-          state.systems.find((s) => s.id === systemId)!,
-          state.characters.find((c) => c.id === pickingFor)!.faction as PlayableFaction,
-        ) === 'incite'
-          ? 'Under way, quietly.'
-          : 'Under way.',
-      );
+      sendOfficer(pickingFor, systemId);
       return;
     }
     setOpenSystemId(systemId);
@@ -329,6 +345,7 @@ export function App() {
     setOpenReachId(null);
     setOpenListId(null);
     setPickingFor(null);
+    setMissionChoice(null);
     setSailingFleetId(null);
     setBuildMenuOpen(false);
     setOrderOpen(false);
@@ -606,6 +623,16 @@ export function App() {
             setOrderOpen(false);
           }}
           onClose={() => setOrderOpen(false)}
+        />
+      )}
+
+      {missionChoice && (
+        <MissionChoiceSheet
+          state={state}
+          characterId={missionChoice.characterId}
+          systemId={missionChoice.systemId}
+          onChoose={(type) => sendOfficer(missionChoice.characterId, missionChoice.systemId, type)}
+          onClose={() => setMissionChoice(null)}
         />
       )}
 

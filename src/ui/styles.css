@@ -1328,3 +1328,10 @@ button.tcard:hover { border-color: var(--brass); }
 .unit__body { min-width: 0; flex: 1; }
 .unit__name { font-weight: 700; font-size: 15px; }
 .unit__stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+
+/* The mission menu: one card an errand. */
+.choice { display: flex; gap: 10px; align-items: flex-start; text-align: left; width: 100%; }
+.choice__icon { flex: none; width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; color: var(--metal); background: rgba(0, 0, 0, 0.3); border: 1px solid var(--metal-lo); }
+.choice__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.choice__name { font-size: 14px; }
+.choice__what { white-space: normal; line-height: 1.35; }

@@ -241,6 +241,33 @@ export function isMissionTarget(
 }
 
 /**
+ * Everything an officer could do on this island, best first.
+ *
+ * `missionTypeFor` answers with one errand, which is what the opponent and
+ * the chart's pick rings want. The player gets the whole list, the way the
+ * original offered a menu when a character was dropped on a planet: an
+ * enemy island with their officer ashore and a works running is an
+ * abduction, an incitement and a sabotage, and which of the three is the
+ * player's call.
+ */
+export function missionsOffered(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+): MissionType[] {
+  const out: MissionType[] = [];
+  if (isRecruitTarget(state, system, faction)) out.push('recruit');
+  if (isAbductTarget(state, system, faction)) out.push('abduct');
+  if (isCommandTarget(system, faction)) out.push('command');
+  if (isResearchTarget(system, faction)) out.push('research');
+  if (isDiplomacyTarget(system, faction)) out.push('diplomacy');
+  if (isInciteTarget(system, faction)) out.push('incite');
+  if (isSabotageTarget(system, faction)) out.push('sabotage');
+  if (isSurveyTarget(system, faction)) out.push('survey');
+  return out;
+}
+
+/**
  * Whether an errand already under way still has anything to it.
  *
  * Deliberately *not* `missionTypeFor(...) === type`. That asks what a fresh
@@ -298,6 +325,7 @@ export function missionError(
   state: GameState,
   characterId: string,
   targetSystemId: string,
+  type?: MissionType,
 ): string | null {
   const character = state.characters.find((c) => c.id === characterId);
   if (!character) return 'No such character.';
@@ -306,6 +334,9 @@ export function missionError(
   const system = state.systems.find((s) => s.id === targetSystemId);
   if (!system) return 'No such island.';
   if (!isMissionTarget(state, system, character.faction)) return 'Nothing to be done there.';
+  if (type && !missionsOffered(state, system, character.faction).includes(type)) {
+    return `${MISSION_LABEL[type]} is not on offer there.`;
+  }
   return null;
 }
 
@@ -317,14 +348,22 @@ export function canStartMission(
   return missionError(state, characterId, targetSystemId) === null;
 }
 
-/** Send a character ashore; the island decides what they do. Mutates `state`. */
-export function startMission(state: GameState, characterId: string, targetSystemId: string): void {
-  const error = missionError(state, characterId, targetSystemId);
+/**
+ * Send a character ashore. The island decides what they do unless the player
+ * chose from what it offered. Mutates `state`.
+ */
+export function startMission(
+  state: GameState,
+  characterId: string,
+  targetSystemId: string,
+  chosen?: MissionType,
+): void {
+  const error = missionError(state, characterId, targetSystemId, chosen);
   if (error) throw new Error(error);
   const character = getCharacter(state, characterId);
   const target = getSystem(state, targetSystemId);
   const days = travelDays(state, character.locationSystemId, targetSystemId);
-  const type = missionTypeFor(state, target, character.faction as PlayableFaction)!;
+  const type = chosen ?? missionTypeFor(state, target, character.faction as PlayableFaction)!;
 
   character.status = 'on_mission';
   character.mission = {

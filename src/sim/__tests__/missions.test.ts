@@ -613,3 +613,27 @@ describe('survey', () => {
     expect(good).toBeGreaterThan(poor);
   });
 });
+
+describe('choosing among what an island offers', () => {
+  it('lists every errand an enemy island with a works offers, and starts the chosen one', async () => {
+    const { generateGalaxy } = await import('../galaxy');
+    const { missionsOffered, startMission, missionError } = await import('../missions');
+    const state = generateGalaxy(77, 'empire');
+    // Somewhere the Confederacy holds that the Crown has charted, with something
+    // to break; one of theirs is walked ashore so there is someone to carry off.
+    const theirs = state.systems.find(
+      (s) => s.control === 'alliance' && s.explored.empire && !s.uprising && s.facilities.length > 0,
+    )!;
+    expect(theirs).toBeDefined();
+    // Their own ground offers no abduction — that is only off it — but it
+    // offers both an incitement and a sabotage, and the player picks.
+    const offered = missionsOffered(state, theirs, 'empire');
+    expect(offered).toEqual(expect.arrayContaining(['incite', 'sabotage']));
+    expect(offered.length).toBeGreaterThanOrEqual(2);
+    const officer = state.characters.find((c) => c.faction === 'empire' && c.status === 'available')!;
+    // A choice the island does not offer is refused; one it does is taken as chosen.
+    expect(missionError(state, officer.id, theirs.id, 'diplomacy')).toMatch(/not on offer/);
+    startMission(state, officer.id, theirs.id, 'incite');
+    expect(officer.mission?.type).toBe('incite');
+  });
+});

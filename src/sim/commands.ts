@@ -10,7 +10,7 @@ import { generateGalaxy } from './galaxy';
 import { cloneState } from './helpers';
 import { continueMission, endMission, startMission } from './missions';
 import { resolveControlAndUnrest } from './support';
-import type { BuildItem, GameState, PlayableFaction, Speed } from './types';
+import type { BuildItem, GameState, MissionType, PlayableFaction, Speed } from './types';
 
 export interface CommandResult {
   state: GameState;
@@ -111,8 +111,9 @@ export function sendDiplomat(
   state: GameState,
   characterId: string,
   targetSystemId: string,
+  type?: MissionType,
 ): CommandResult {
-  return run(state, (draft) => startMission(draft, characterId, targetSystemId));
+  return run(state, (draft) => startMission(draft, characterId, targetSystemId, type));
 }
 
 export function resolvePendingMission(
