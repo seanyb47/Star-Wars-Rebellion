@@ -376,3 +376,26 @@ sits in the empty water bottom right. The chart keeps three-quarters of the
 screen — the mock-up's desk of telescopes under the tab bar was cut, and so
 was its side column of tools, which duplicated the strip. No text is baked
 into any image, so it stays crisp and changeable.
+
+## The night pass — 14 September, late
+
+**Polish, throughout.** The sheets, cards and lists took the console's
+metal: the action button is brass or red with dark lettering, headings rule
+off to the margin, sheet heads and panel tabs, the dispatch card and the
+tutorial frame in the same metal. The title screen's side cards wear their
+own colours. Island lists show each island as its place on the chart, ringed
+by whose it is. Hull icons differ by hull; building icons share a ground
+line. The log is kept by day with a mark in the margin per kind of news. The
+copy counts the world it is in instead of a hundred islands in eight chains.
+
+**The mission menu.** Where an island offers an officer more than one
+errand, a sheet lists each with what it does and the odds, and the player
+chooses — Rebellion's menu, offered only where there is a choice to make.
+`missionsOffered` in the sim; the opponent keeps the old precedence.
+
+**The rich opponent.** Above six hundred gold it doubles its orders a tick,
+lays down a hull at every idle slipway, wants a third slipway and a battery
+on a third of its ports; pending orders count against its surplus so it
+cannot overcommit. Banked gold roughly halved over a year; fleets larger;
+solvent on all six seeds. What is left in the bank is structural — its
+islands are nearly full — and the next lever is room, not cadence.
