@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import {
@@ -11,8 +11,11 @@ import {
   type GameState,
   type System,
 } from '../sim';
-import { IslandGlyph, NarratorPortrait } from './art';
+import { IslandGlyph } from './art';
 import { Sheet } from './components';
+import { AdvisorPortrait } from './narrator/AdvisorPortrait';
+import { narratorIdFor, preloadClips } from './narrator/assets';
+import type { NarratorMood } from './narrator/mood';
 
 /**
  * Your advisor. The world bible gives each side one: a sea-parrot the
@@ -42,6 +45,9 @@ type Answer = {
   question: string;
   /** Line the advisor says before the list. */
   reply: string;
+  /** The face that goes with it (plan F2): the tone of the answer, not the
+   *  state of a battle. */
+  mood: NarratorMood;
   islands?: System[];
   crew?: Array<{ id: string; name: string; note: string }>;
 };
@@ -82,6 +88,7 @@ function buildAnswers(state: GameState): Answer[] {
           : voice
             ? `${canBuild.length} of your islands have a works and room to use it. I would start, Imperator.`
             : `${canBuild.length} islands with room and a works to fill it. Get on with it, General.`,
+      mood: 'neutral',
       islands: canBuild,
     },
     {
@@ -95,6 +102,7 @@ function buildAnswers(state: GameState): Answer[] {
           : voice
             ? `${idle.length} idle. The best negotiator is listed first; the rest are waiting to be noticed.`
             : `${idle.length} of them sitting about. Best talker's at the top.`,
+      mood: 'neutral',
       crew: [...idle]
         .sort((a, b) => b.diplomacy - a.diplomacy)
         .map((c) => ({
@@ -116,6 +124,7 @@ function buildAnswers(state: GameState): Answer[] {
           : voice
             ? `${restless.length} islands in mutiny, or too thinly held to prevent one. I would attend to those before luncheon.`
             : `${restless.length} islands about to go up, or already have. Land some companies, General.`,
+      mood: restless.length === 0 ? 'neutral' : 'grave',
       islands: restless,
     },
     {
@@ -129,6 +138,7 @@ function buildAnswers(state: GameState): Answer[] {
           : voice
             ? 'The unaligned islands most sympathetic to us, in order. The top of the list will not stay there.'
             : 'These lot like us best. Send a talker before the other side does.',
+      mood: targets.length > 0 && targets[0].support[you] >= 50 ? 'encouraged' : 'neutral',
       islands: targets,
     },
     {
@@ -141,6 +151,7 @@ function buildAnswers(state: GameState): Answer[] {
         : `${Math.floor(fs.gold)} in the chest and ${
             net >= 0 ? `${net.toFixed(1)} a day coming in` : `${Math.abs(net).toFixed(1)} a day going out`
           }. ${tally[you]} islands. You want ${needed}, General.`,
+      mood: net < 0 ? 'grave' : tally[you] >= needed / 2 ? 'encouraged' : 'neutral',
     },
   ];
 }
@@ -162,6 +173,11 @@ export function Narrator({
   const advisor = NARRATOR[state.player];
   const answers = buildAnswers(state);
   const open = answers.find((a) => a.id === openId) ?? null;
+  const advisorId = narratorIdFor(state.player);
+
+  // Plan F5: warm the cache for every clip that exists, the moment the sheet
+  // mounts, so a mood change never waits on a download.
+  useEffect(() => preloadClips(advisorId), [advisorId]);
 
   return (
     <Sheet
@@ -170,8 +186,8 @@ export function Narrator({
       onClose={onClose}
       stacked
     >
-      <div className="row" style={{ gap: 12, alignItems: 'center', marginBottom: 12 }}>
-        <NarratorPortrait faction={state.player} size={64} />
+      <div className="row" style={{ gap: 12, alignItems: 'flex-start', marginBottom: 12 }}>
+        <AdvisorPortrait id={advisorId} mood={open?.mood ?? 'neutral'} width={120} />
         <p className="small" style={{ margin: 0, flex: 1 }}>
           {open
             ? open.reply

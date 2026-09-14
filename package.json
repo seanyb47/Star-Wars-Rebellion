@@ -13,6 +13,7 @@
     "art": "python3 scripts/art.py",
     "art:add": "python3 scripts/art.py add",
     "voices": "python3 scripts/render_voicelines.py",
+    "narrator:web": "python3 scripts/narrator_web_stills.py",
     "narrator:check": "python3 scripts/check_narrator_assets.py",
     "art:recrop": "python3 scripts/art.py recrop",
     "art:list": "python3 scripts/art.py list",

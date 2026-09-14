@@ -7,6 +7,9 @@
  * layouts changing.
  */
 
+import { useState } from 'react';
+import { narratorIdFor, tabUrl } from './narrator/assets';
+
 /** Cheap deterministic hash, so a name always yields the same coastline. */
 function hash(seed: string): number {
   let h = 2166136261;
@@ -1014,12 +1017,26 @@ export function SecretaryFigure({ size = 56 }: { size?: number }) {
 
 export function NarratorFigure({
   faction,
-  size,
+  size = 62,
 }: {
   faction: 'empire' | 'alliance';
   size?: number;
 }) {
-  return faction === 'empire' ? <SecretaryFigure size={size} /> : <ParrotFigure size={size} />;
+  // The painted crop of the neutral still (plan D6): static, 4:5, standing
+  // on the bar. The drawn figures are the fallback if it fails to load.
+  const [failed, setFailed] = useState(false);
+  if (failed) return faction === 'empire' ? <SecretaryFigure size={size} /> : <ParrotFigure size={size} />;
+  return (
+    <img
+      className="advisor__figure"
+      src={tabUrl(narratorIdFor(faction))}
+      width={Math.round((size * 4) / 5)}
+      height={size}
+      alt=""
+      draggable={false}
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 /**

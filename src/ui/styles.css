@@ -588,6 +588,11 @@ button {
   -webkit-touch-callout: none; user-select: none;
 }
 .advisor > svg { margin-bottom: 1px; }
+.advisor__figure {
+  display: block; margin-bottom: 1px;
+  border-radius: 3px 3px 0 0;
+  object-fit: cover;
+}
 .advisor:active { transform: translateY(1px); }
 
 .iconbtn--on { color: var(--brass); border-color: var(--brass); }
@@ -1085,4 +1090,36 @@ button.tcard:hover { border-color: var(--brass); }
   font-size: 34px; font-weight: 800; text-anchor: middle;
   font-variant-numeric: tabular-nums; paint-order: stroke fill;
   stroke: #041219cc; stroke-width: 6px; stroke-linejoin: round;
+}
+
+/* ---------- The advisor's frame ----------
+   A fixed 4:5 rectangle (narrator plan F6). The three mood stills sit
+   stacked and cross-fade; a clip, when one exists, plays over the top of
+   the matching still, so a clip that stalls or 404s leaves the face behind
+   it rather than a hole. The still breathes a little so an advisor with no
+   clip yet is not a photograph. */
+.advisor-frame {
+  position: relative; flex: none; overflow: hidden;
+  border-radius: 6px; border: 1px solid var(--border);
+  background: #071a22;
+  box-shadow: 0 2px 10px rgba(3, 13, 18, 0.6);
+}
+.advisor-frame__still, .advisor-frame__clip {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+.advisor-frame__still {
+  opacity: 0; transition: opacity 0.45s ease;
+  transform-origin: 50% 85%;
+  animation: advisor-breathe 4.6s ease-in-out infinite;
+}
+.advisor-frame__still--on { opacity: 1; }
+.advisor-frame__clip { animation: fade 0.3s ease; }
+@keyframes advisor-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.014); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .advisor-frame__still { animation: none; }
+  .advisor-frame__clip { display: none; }
 }

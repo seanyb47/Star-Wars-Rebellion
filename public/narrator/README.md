@@ -7,7 +7,8 @@ what is still owed.
 - `stills/` — six PNGs: `marlow_neutral.png`, `marlow_grave.png`,
   `marlow_encouraged.png`, `pennywhistle_neutral.png`,
   `pennywhistle_grave.png`, `pennywhistle_encouraged.png`, plus a `_tab.png`
-  crop of each neutral. `retired/` holds Secretary Crane's set and the first, too-grim
+  crop of each neutral. `web/` holds the 512×640 WebP copies the game
+  actually loads, made by `npm run narrator:web`; the PNGs are the masters. `retired/` holds Secretary Crane's set and the first, too-grim
   advisor set (`v1-grim/`).
 - `video/` — twelve MP4s, H.264, 512×640, 24 fps, each under ~500 KB. The
   names are fixed; `scripts/check_narrator_assets.py` knows them.

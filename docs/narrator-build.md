@@ -8,7 +8,7 @@
 ## Status — managed by Claude Code
 
 Sean's plan is below, unchanged. This block is the live checklist; it is the
-only part of the file Claude Code edits. Last updated 2026-09-14, 04:00: first clip in and exported as a seamless loop; clips paused on cost (300 credits each). Before that, 2026-09-14, late: Pennywhistle's three redone on a wooden quay (task 6) — filed, tab crop re-cut, checker 8/8; Drive stills folder verified ready for the clips task. Before that, 2026-09-14, night: Pennywhistle's background was the Imperium's capital — task 6 (Drive doc 6) redoes his three on a Confederacy quay; clips task re-issued with a frozen-background rule. Before that, 2026-09-14, later: **the six v2 stills are in** — bright, warm, painterly, Marlow in the Imperium's sea-green; filed, tab crops cut, checker 8/8. Phase C (clips) is open. Earlier that day: Marlow's costume changed from Admiralty black to the Imperium's sea-green and cream (bible §16.1, Drive docs 1 and 5 re-issued); the redo has not been run yet. Earlier, 2026-09-13, night: **the first six stills were the wrong register** — dim, cold, near-photographic, against a game that is blue sky, warm light and appealing faces. They are retired to `stills/retired/v1-grim/` and all six are being redone against the game's own portraits (Drive `Narrators/style`), with the canonical style line in every prompt. Phase C waits on the redo.
+only part of the file Claude Code edits. Last updated 2026-09-14, 04:20: **the narrator is in the game** — painted frame in the sheet, painted figures on the tab bar, idle clip when one exists, still otherwise; F1, F2, F4, F5, F6 done ahead of the sequencing rule because the visuals do not depend on the voice. Before that, 2026-09-14, 04:00: first clip in and exported as a seamless loop; clips paused on cost (300 credits each). Before that, 2026-09-14, late: Pennywhistle's three redone on a wooden quay (task 6) — filed, tab crop re-cut, checker 8/8; Drive stills folder verified ready for the clips task. Before that, 2026-09-14, night: Pennywhistle's background was the Imperium's capital — task 6 (Drive doc 6) redoes his three on a Confederacy quay; clips task re-issued with a frozen-background rule. Before that, 2026-09-14, later: **the six v2 stills are in** — bright, warm, painterly, Marlow in the Imperium's sea-green; filed, tab crops cut, checker 8/8. Phase C (clips) is open. Earlier that day: Marlow's costume changed from Admiralty black to the Imperium's sea-green and cream (bible §16.1, Drive docs 1 and 5 re-issued); the redo has not been run yet. Earlier, 2026-09-13, night: **the first six stills were the wrong register** — dim, cold, near-photographic, against a game that is blue sky, warm light and appealing faces. They are retired to `stills/retired/v1-grim/` and all six are being redone against the game's own portraits (Drive `Narrators/style`), with the canonical style line in every prompt. Phase C waits on the redo.
 
 | Step | Owner | State | Note |
 |---|---|---|---|
@@ -21,7 +21,7 @@ only part of the file Claude Code edits. Last updated 2026-09-14, 04:00: first c
 | C1–C6 twelve clips | HUMAN | **paused at 1/12 — cost** | OpenArt charges ~300 credits a clip (4000 budget); first clip (Marlow neutral idle) is good and is filed. Recommendation: one more (Pennywhistle neutral idle), then stop; moods and accents done in code from the stills |
 | D1–D4 cleanup and export | CLAUDE CODE | working (1/12) | ffmpeg loop: play from 0.5 s, crossfade the last 0.5 s into frames 0–0.5 s so the seam lands on the same frame; 512×640, 24 fps, H.264 crf 27, no audio; `marlow_neutral_idle.mp4` 121 KB |
 | D5 naming enforced | CLAUDE CODE | done (checker) | `scripts/check_narrator_assets.py` knows the twelve names |
-| D6 tab-bar figures stay static | CLAUDE CODE | done | `marlow_tab.png`, `pennywhistle_tab.png` cut from the v2 neutrals, 192×240 |
+| D6 tab-bar figures stay static | CLAUDE CODE | done | `marlow_tab.png`, `pennywhistle_tab.png` cut from the neutrals, 192×240; the tab bar shows the WebP copy, drawn figure as fallback |
 | E1 audition voices | HUMAN | **can start now** | Independent of the art. The brief — sound, tone, diction, tics, moods, TTS direction — is the world bible §16.4 |
 | E2 locked voice settings in the bible | HUMAN → CLAUDE CODE | **blocked on Sean** | JSON slot in the world bible §16; the render script refuses to run until it is filled |
 | E3 first twenty lines | HUMAN | **can start now** | Append to `public/narrator/voicelines.json`, `rendered: false`. Write them against §16.4 |
@@ -29,7 +29,13 @@ only part of the file Claude Code edits. Last updated 2026-09-14, 04:00: first c
 | E5 `voicelines.json` | CLAUDE CODE | done (empty) | Schema below; ids permanent |
 | E6 render script | CLAUDE CODE | done | `npm run voices` — append-only, skips `rendered: true`, settings from the bible only |
 | E7 render the twenty | HUMAN | blocked on E2, E3 | Needs `ELEVENLABS_API_KEY` in the environment |
-| F1–F7 wiring | CLAUDE CODE | **held until E7** | Per the sequencing rule: hear the first twenty in context first |
+| F1 idle plays on open | CLAUDE CODE | done | `AdvisorPortrait`: the current mood's idle loops when the clip exists on the server; the still, breathing slightly, when it does not |
+| F2 mood from the answer | CLAUDE CODE | done | trouble with restless islands → grave; a warm target or a healthy ledger → encouraged; else neutral |
+| F3 one bark per question | CLAUDE CODE | held until E7 | Text renders first regardless; audio waits on the rendered lines |
+| F4 accent timer | CLAUDE CODE | done | 15–30 s of idle, one random accent that exists, never within 1 s of a mood change; none exist yet |
+| F5 preload | CLAUDE CODE | done | the sheet probes the twelve names once (HEAD) and warms the cache for those present |
+| F6 fixed rectangular frame | CLAUDE CODE | done | 4:5, 120 px wide in the sheet, stills stacked and cross-faded under the clip; reduced motion shows the still only |
+| F7 mute | CLAUDE CODE | held until E7 | Barks will follow the game's existing sound toggle; nothing to mute yet |
 
 **Path note.** The plan says `/assets/narrator/`. In this project the only
 directory Vite serves verbatim at runtime is `public/`, so the tree lives at
