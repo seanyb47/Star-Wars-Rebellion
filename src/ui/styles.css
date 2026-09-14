@@ -19,7 +19,10 @@
   --empire: #3f9e58;
   --alliance: #d8483f;
   --neutral: #5aa2e0;
-  --unknown: #46595f;
+  --unknown: #93a7af;
+  /* An unexplored island's name on the chain map: pale enough to read over
+     a scrimmed painting, kept off white so a charted island still stands out. */
+  --unknown-name: #cdd8dd;
   --good: #4ec98a;
   --bad: #e2504a;
   /* Minimum comfortable touch target (iOS HIG 44pt, Android 48dp). */

@@ -182,7 +182,7 @@ const SHIP = 'M2 14 h16 l-2 5 h-12 Z M10 13 V3 M10 4 l5 8 h-5';
 
 /** Who is flying a flag over it. The name takes this colour. */
 export function controlColour(system: System, viewer: 'empire' | 'alliance'): string {
-  if (!system.explored[viewer]) return 'var(--unknown)';
+  if (!system.explored[viewer]) return 'var(--unknown-name)';
   switch (system.control) {
     case 'empire':
       return 'var(--empire)';
