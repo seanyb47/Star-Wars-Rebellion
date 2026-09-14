@@ -110,7 +110,7 @@ A Lord's ship does not sink. When her hull gives she strikes her colours, is tak
 
 **Aesthetic:** patched, painted, mismatched. Coral-grown hulls, whalebone masts, sails dyed with squid ink. Tamed sea-beasts in the small-craft squadrons. Names are jokes, threats, and dead lovers.
 
-**Strengths (mirror original):** movable HQ, more diplomats and recruiters, better small craft all game. **Weaknesses:** outgunned early; cannot assassinate (the Moot forbids it — the Imperium finds this hilarious).
+**Strengths (mirror original):** three Pirate Lords and their ships, no capital to lose, more diplomats and recruiters, better small craft all game. **Weaknesses:** outgunned early; lose all three Lords and the cause dies; cannot assassinate (the Moot forbids it — the Imperium finds this hilarious).
 
 **Design rule for ambiguity:** every named character on both sides gets one admirable trait and one ugly one. No faction owns either.
 

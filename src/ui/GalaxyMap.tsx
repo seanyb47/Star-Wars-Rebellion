@@ -213,6 +213,16 @@ const STAR_RADIUS = 20;
 const IDLE_STAR_RADIUS = 30;
 const IDLE_HALO_RADIUS = 52;
 /**
+ * The sail planted on an island with a fleet lying off it. The same glyph as
+ * the chain view's, drawn big enough to be the first thing seen on the chart:
+ * a fleet is where the war is happening today.
+ */
+const SAIL = 'M2 14 h16 l-2 5 h-12 Z M10 13 V3 M10 4 l5 8 h-5';
+const SAIL_SCALE = 2.6;
+const SAIL_W = 20 * SAIL_SCALE;
+const SAIL_H = 19 * SAIL_SCALE;
+
+/**
  * The star, and only the star, marks the things the war is about: Highwater,
  * and every island a Pirate Lord's ship is lying off — your own always, the
  * enemy's once you have charted the island. Nothing else on the chart is a
@@ -726,6 +736,56 @@ export function GalaxyMap({
             </g>
           );
         })}
+
+        {/* Fleets, over the top of everything: a sail planted on the island
+            each one lies off, in its owner's colour, with the hull count
+            beside it. Yours always; theirs once you have charted the island.
+            Drawn last so no neighbour's mark or name covers a fleet. */}
+        {!bare &&
+          chains.map(({ sector, systems, spot }) =>
+            systems.map((system) => {
+              const explored = system.explored[viewer];
+              const at = ISLAND_PLACES.get(`${sector.name}/${system.name}`);
+              const ax = at ? at.x : spot.x + system.x * 0.72;
+              const ay = at ? at.y : spot.y + system.y * 0.72;
+              const sides = (['empire', 'alliance'] as const)
+                .filter((side) => side === viewer || explored)
+                .map((side) => ({
+                  side,
+                  hulls: state.fleets
+                    .filter((f) => f.faction === side && !f.voyage && f.systemId === system.id)
+                    .reduce((n, f) => n + f.ships.length, 0),
+                }))
+                .filter((x) => x.hulls > 0);
+              if (sides.length === 0) return null;
+              return (
+                <g key={`sail-${system.id}`} pointerEvents="none">
+                  {sides.map(({ side, hulls }, i) => {
+                    const x = ax + (sides.length === 1 ? 0 : i === 0 ? -SAIL_W * 0.55 : SAIL_W * 0.55);
+                    const y = ay - ISLAND_RADIUS - SAIL_H + 10;
+                    return (
+                      <g key={side} transform={`translate(${x - SAIL_W / 2} ${y}) scale(${SAIL_SCALE})`}>
+                        <path
+                          d={SAIL}
+                          fill={`var(--${side})`}
+                          stroke="#041219"
+                          strokeWidth={1.6}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          style={{ paintOrder: 'stroke fill' }}
+                        />
+                        {hulls > 1 && (
+                          <text className="map__sail-n" x={19} y={7} fill={`var(--${side})`}>
+                            {hulls}
+                          </text>
+                        )}
+                      </g>
+                    );
+                  })}
+                </g>
+              );
+            }),
+          )}
       </svg>
       </div>
 
