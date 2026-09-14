@@ -2,6 +2,7 @@ import terms from '../data/terms.json';
 import type { GameState, IslandSummary, System } from '../sim';
 import { allegianceColour, allegianceSegments } from './allegiance';
 import { CategoryIcon, IslandGlyph } from './art';
+import { ChartMark } from './ChartMark';
 import { WorthMark } from './worth';
 import { ControlBadge } from './components';
 
@@ -44,12 +45,11 @@ export function IslandRow({
   return (
     <button className="isle" onClick={() => onOpen(system.id)}>
       <span className="isle__head">
-        <IslandGlyph
-          seed={system.name}
-          faction={explored ? system.control : 'none'}
-          settled={system.populated}
-          size={34}
-        />
+        {explored ? (
+          <IslandGlyph seed={system.name} faction={system.control} settled={system.populated} size={34} />
+        ) : (
+          <ChartMark name={system.name} width={34} height={34} className="isle__chart" />
+        )}
         <span className="isle__name">
           <span className="isle__title">
             {explored ? system.name : terms.uncharted}

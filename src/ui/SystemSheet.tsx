@@ -33,9 +33,9 @@ import {
   FacilityIcon,
   FacilityThumb,
   IslandBanner,
-  IslandPortrait,
   ShipIcon,
 } from './art';
+import { ChartMark } from './ChartMark';
 import { ControlBadge, Sheet, Slot, SlotBoard, Stat, SupportBars } from './components';
 import { Harbour } from './FleetPanel';
 import { WorthMark } from './worth';
@@ -221,14 +221,9 @@ export function SystemSheet({
         subtitle={sector.name}
         onClose={onClose}
       >
-        <div className="portrait">
-          <IslandPortrait
-            seed={system.name}
-            faction="none"
-            settled={false}
-            facilities={0}
-            size={128}
-          />
+        <div className="isle-banner isle-banner--chart" style={{ height: 118 }}>
+          <ChartMark name={system.name} width={362} height={118} className="isle-banner__chart" />
+          <span className="isle-banner__fade" />
         </div>
         <p className="muted small" style={{ textAlign: 'center' }}>
           No survey. Your charts show this only as a mark in open water and somebody else's
