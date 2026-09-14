@@ -18,12 +18,10 @@ BASE = os.path.join(ROOT, "public", "narrator")
 
 CHARACTERS = ("marlow", "pennywhistle")
 MOODS = ("neutral", "grave", "encouraged")
-ACCENTS = {"marlow": ("spectacles", "lean"), "pennywhistle": ("headcock", "ruffle", "hop", "laugh")}
 
 STILLS = [f"{c}_{m}.png" for c in CHARACTERS for m in MOODS] + [f"{c}_tab.png" for c in CHARACTERS]
-VIDEOS = [f"{c}_{m}_idle.mp4" for c in CHARACTERS for m in MOODS] + [
-    f"{c}_accent_{a}.mp4" for c in CHARACTERS for a in ACCENTS[c]
-]
+# Optional polish: an idle loop per mood. Speaking is done in CSS.
+VIDEOS = [f"{c}_{m}_idle.mp4" for c in CHARACTERS for m in MOODS]
 VIDEO_MAX_KB = 600
 
 

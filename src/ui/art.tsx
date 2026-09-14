@@ -1037,7 +1037,7 @@ export function NarratorFigure({
   const id = narratorIdFor(faction);
   return (
     <span
-      className={`advisor__figure${talking ? ' advisor__figure--talking' : ''}`}
+      className={`advisor__figure advisor__figure--${id} advisor__figure--${mood}${talking ? ' advisor__figure--talking' : ''}`}
       style={{ width: Math.round((size * 4) / 5), height: size }}
     >
       {NARRATOR_MOODS.map((m) => (

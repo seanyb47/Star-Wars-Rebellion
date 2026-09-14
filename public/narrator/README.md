@@ -10,8 +10,9 @@ what is still owed.
   crop of each neutral. `web/` holds the 512×640 WebP copies the game
   actually loads, made by `npm run narrator:web`; the PNGs are the masters. `retired/` holds Secretary Crane's set and the first, too-grim
   advisor set (`v1-grim/`).
-- `video/` — twelve MP4s, H.264, 512×640, 24 fps, each under ~500 KB. The
-  names are fixed; `scripts/check_narrator_assets.py` knows them.
+- `video/` — optional: up to six idle loops, one per mood (`marlow_neutral_idle.mp4`
+  and so on), H.264, 512×640, 24 fps, each under ~500 KB. Speaking and mood
+  are done in code from the stills; a loop only adds breath and a blink.
 - `audio/` — one MP3 per line, named by the line's `id`.
 - `voicelines.json` — the manifest. Append-only. `id` is the filename stem
   and is never renumbered; `rendered` is flipped by `scripts/render_voicelines.py`

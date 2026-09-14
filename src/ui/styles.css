@@ -602,14 +602,24 @@ button {
 }
 .advisor__face--on { opacity: 1; }
 /* Talking is a gesture, not a mouth: the figure rocks on its feet for as
-   long as the line takes to read. Rebellion's droids did exactly this. */
-.advisor__figure--talking { animation: advisor-talk 0.44s ease-in-out infinite; }
+   long as the line takes to read. Rebellion's droids did exactly this.
+   The gesture is sized to the mood — grave is a slow, small nod; encouraged
+   is quick and lifted — and to the character: the parrot bobs harder than
+   the Secretary, who barely moves and means it. */
+.advisor__figure, .advisor-frame {
+  --talk-dur: 0.44s; --talk-y: -2px; --talk-rot: 1.1deg; --talk-scale: 1;
+}
+.advisor__figure--grave, .advisor-frame--grave { --talk-dur: 0.72s; --talk-y: -1px; --talk-rot: 0.6deg; }
+.advisor__figure--encouraged, .advisor-frame--encouraged { --talk-dur: 0.36s; --talk-y: -3px; --talk-rot: 1.6deg; }
+.advisor__figure--marlow, .advisor-frame--marlow { --talk-scale: 0.7; }
+.advisor__figure--pennywhistle, .advisor-frame--pennywhistle { --talk-scale: 1.5; }
+.advisor__figure--talking { animation: advisor-talk var(--talk-dur) ease-in-out infinite; }
 .advisor-frame--talking .advisor-frame__still--on,
-.advisor-frame--talking .advisor-frame__clip { animation: advisor-talk 0.44s ease-in-out infinite; }
+.advisor-frame--talking .advisor-frame__clip { animation: advisor-talk var(--talk-dur) ease-in-out infinite; }
 @keyframes advisor-talk {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  30% { transform: translateY(-2px) rotate(-1.1deg); }
-  70% { transform: translateY(-1px) rotate(1.1deg); }
+  30% { transform: translateY(calc(var(--talk-y) * var(--talk-scale))) rotate(calc(var(--talk-rot) * -1 * var(--talk-scale))); }
+  70% { transform: translateY(calc(var(--talk-y) * var(--talk-scale) * 0.5)) rotate(calc(var(--talk-rot) * var(--talk-scale))); }
 }
 @media (prefers-reduced-motion: reduce) {
   .advisor__figure--talking,

@@ -3,17 +3,12 @@
  *
  * Everything under `public/narrator/` is served verbatim, so a URL is just
  * the base path plus the file's name — and the names are fixed by the plan
- * (docs/narrator-build.md, D5). The stills are always there. The clips arrive
- * one at a time as they are made, so nothing here assumes a clip exists: the
- * sheet probes for them once and the portrait falls back to the still.
+ * (docs/narrator-build.md, D5). The stills are always there and carry the
+ * whole performance: speaking is a gesture done in CSS, per mood. An idle
+ * clip is optional polish; the sheet probes for one and falls back to the
+ * still, so nothing here assumes a clip exists.
  */
 import { NARRATOR_IDS, NARRATOR_MOODS, type NarratorId, type NarratorMood } from './mood';
-
-/** Accent clips per advisor, by the stem after `_accent_`. Fixed by the plan. */
-export const NARRATOR_ACCENTS: Record<NarratorId, readonly string[]> = {
-  marlow: ['spectacles', 'lean'],
-  pennywhistle: ['headcock', 'ruffle', 'hop', 'laugh'],
-};
 
 const BASE = `${import.meta.env.BASE_URL}narrator/`;
 
@@ -28,15 +23,9 @@ export const tabUrl = (id: NarratorId, mood: NarratorMood = 'neutral') =>
 export const idleUrl = (id: NarratorId, mood: NarratorMood) =>
   `${BASE}video/${id}_${mood}_idle.mp4`;
 
-export const accentUrl = (id: NarratorId, accent: string) =>
-  `${BASE}video/${id}_accent_${accent}.mp4`;
-
-/** Every clip the plan names, whether or not it has been made yet. */
+/** Every clip the plan allows for, whether or not it has been made yet. */
 export function allClipUrls(id: NarratorId): string[] {
-  return [
-    ...NARRATOR_MOODS.map((m) => idleUrl(id, m)),
-    ...NARRATOR_ACCENTS[id].map((a) => accentUrl(id, a)),
-  ];
+  return NARRATOR_MOODS.map((m) => idleUrl(id, m));
 }
 
 const probed = new Map<string, Promise<boolean>>();
