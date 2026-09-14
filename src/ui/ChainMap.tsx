@@ -224,7 +224,7 @@ export function ChainMap({
   const viewer = state.player;
   // Picking a destination is a different question from reading the chart, so
   // the layers stand down while it is happening — same rule as the chart's.
-  const filtering = Boolean(layer) && layer !== 'allegiance' && !pickingFor && !sailing;
+  const filtering = Boolean(layer) && layer !== 'allegiance' && layer !== 'none' && !pickingFor && !sailing;
   const ground = paintedChart('seas');
   const reachName = state.sectors.find((r) => r.id === systems[0]?.sectorId)?.name;
 

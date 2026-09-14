@@ -24,7 +24,8 @@
   "tabs": {
     "map": "Seas",
     "characters": "Crew",
-    "feed": "Log"
+    "feed": "Log",
+    "build": "Build"
   },
   "facilities": {
     "mine": "Camp",

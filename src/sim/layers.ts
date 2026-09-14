@@ -18,6 +18,7 @@ import type { GameState, PlayableFaction, System } from './types';
  * more than one buried in a component.
  */
 export type ChartLayer =
+  | 'none'
   | 'allegiance'
   | 'idleWorks'
   | 'idleCrew'
@@ -40,6 +41,9 @@ export interface LayerSpec {
  * chart's resting state — swiping right from anywhere gets you home.
  */
 export const CHART_LAYERS: LayerSpec[] = [
+  // The painting alone. Left of Loyalty so a swipe right from home clears
+  // the chart; Loyalty stays the resting state.
+  { id: 'none', label: 'None', hint: 'The chart alone: no marks, just the sea and the Reaches.' },
   { id: 'allegiance', label: 'Loyalty', hint: 'Every island, coloured by whose it is. Pick a filter and it marks what it points at.' },
   { id: 'idleWorks', label: 'Idle works', hint: 'Yards, drill grounds and slipways of yours standing with no order on them.' },
   { id: 'idleCrew', label: 'Idle crew', hint: 'Islands where one of your officers is ashore with nothing to do.' },

@@ -249,7 +249,10 @@ export function GalaxyMap({
   // Picking a destination is a different question from reading the chart, so
   // the layers stand down while it is happening rather than fighting the
   // pick rings for the same dimming.
-  const filtering = layer !== 'allegiance' && !pickingFor && !sailing;
+  const filtering = layer !== 'allegiance' && layer !== 'none' && !pickingFor && !sailing;
+  // None: the painting and the Reach names, nothing marked. Picking a target
+  // or sailing still needs the marks, so those override it.
+  const bare = layer === 'none' && !pickingFor && !sailing;
 
   const stipple = useMemo(() => seaStipple(state.rngSeed), [state.rngSeed]);
 
@@ -528,6 +531,7 @@ export function GalaxyMap({
                 const idle = lit && isLoudLayer(layer);
                 const litR = idle ? IDLE_STAR_RADIUS : STAR_RADIUS;
                 const starR = lit ? litR : radius;
+                if (bare) return null;
                 return (
                   <g key={system.id} pointerEvents="none">
                     {idle && (

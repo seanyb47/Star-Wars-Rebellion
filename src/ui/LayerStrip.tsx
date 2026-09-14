@@ -40,7 +40,7 @@ export function LayerStrip({
     <div className="layers">
       <div className="layers__strip" ref={strip} role="tablist" aria-label="Chart layer">
         {CHART_LAYERS.map((l) => {
-          const n = l.id === 'allegiance' ? null : layerTally(state, l.id, viewer);
+          const n = l.id === 'allegiance' || l.id === 'none' ? null : layerTally(state, l.id, viewer);
           return (
             <button
               key={l.id}

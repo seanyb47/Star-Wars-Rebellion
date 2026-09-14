@@ -29,6 +29,7 @@ import {
 } from '../sim';
 import { Almanac } from './Almanac';
 import { CharacterSheet } from './CharacterSheet';
+import { BuildScreen } from './BuildScreen';
 import { CharactersScreen } from './CharactersScreen';
 import { FeedScreen } from './FeedScreen';
 import { GalaxyMap } from './GalaxyMap';
@@ -410,6 +411,18 @@ export function App() {
         )}
         {tab === 'characters' && (
           <CharactersScreen state={state} onOpen={setOpenCharacterId} />
+        )}
+        {tab === 'build' && (
+          <BuildScreen
+            state={state}
+            onBuild={handleBuild}
+            onFound={handleFound}
+            onCancel={handleCancel}
+            onOpenIsland={(systemId) => {
+              setOpenSystemId(systemId);
+              setOpenSystemTab('buildings');
+            }}
+          />
         )}
         {tab === 'feed' && (
           <FeedScreen
