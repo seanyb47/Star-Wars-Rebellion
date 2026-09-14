@@ -72,12 +72,29 @@ import type {
  */
 function surplus(state: GameState, ai: PlayableFaction): number {
   const f = state.factions[ai];
-  return f.income - f.upkeep;
+  // Orders still on the stocks are wages not yet on the ledger. Without
+  // counting them, six orders in one tick each saw the same surplus and the
+  // opponent committed to more than it could carry.
+  let pending = 0;
+  for (const system of state.systems) {
+    for (const facility of system.facilities) {
+      if (facility.owner === ai && facility.building && !facility.founding) {
+        pending += UPKEEP_PER_DAY[facility.building.item];
+      }
+    }
+  }
+  return f.income - f.upkeep - pending;
 }
 /** Kept clear over and above whatever the next order will cost to run. */
 const AI_SURPLUS_MARGIN = 3;
 /** Orders the opponent may place in one build tick, gold permitting. */
 const AI_ORDERS_PER_TICK = 3;
+/**
+ * Above this the opponent is hoarding, not saving: by day 400 it sat on
+ * thousands of gold with no cadence to spend it. Rich, it places twice the
+ * orders a tick and lays down a hull at every free slipway rather than one.
+ */
+const AI_RICH = 600;
 
 export function runAI(state: GameState, rng: Rng): void {
   const ai = otherFaction(state.player);
@@ -87,7 +104,8 @@ export function runAI(state: GameState, rng: Rng): void {
     // garrison to feed: the earners it needed sat unordered behind the
     // cadence, not the treasury. It keeps ordering while it has the gold
     // and something to order, a few at a time.
-    for (let n = 0; n < AI_ORDERS_PER_TICK; n++) {
+    const orders = state.factions[ai].gold > AI_RICH ? AI_ORDERS_PER_TICK * 2 : AI_ORDERS_PER_TICK;
+    for (let n = 0; n < orders; n++) {
       if (!aiBuild(state, ai)) break;
     }
   }
@@ -148,6 +166,10 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
   if (countOf('training_facility') < 2) wanted.push('training_facility');
   if (countOf('shipyard') < 1) wanted.push('shipyard');
   else if (countOf('shipyard') < 2 && gold > AI_SHIP_RESERVE * 3) wanted.push('shipyard');
+  else if (countOf('shipyard') < 3 && gold > AI_RICH * 2) wanted.push('shipyard');
+  // Rich, it also fortifies: a battery on each held port that has none, so a
+  // treasury with nothing to buy turns into something a raider has to reckon with.
+  if (gold > AI_RICH * 2 && countOf('fort') < Math.ceil(held.length / 3)) wanted.push('fort');
 
   for (const item of wanted) {
     if (thin || gold < YARD_BUILDS[item].costGold || !canCarry(item)) continue;
@@ -308,14 +330,18 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
     : (affordable[0] ?? classes.find((c) => c.role === 'small'));
   if (!pick || !carried(pick.id)) return;
 
+  // One hull, or — with gold to burn — one at every slipway standing idle.
+  let laid = 0;
   for (const system of state.systems) {
     if (system.control !== ai || system.uprising) continue;
     for (const facility of system.facilities) {
       if (facility.type !== 'shipyard' || facility.owner !== ai || facility.building) continue;
       if (!buildMenu(facility).includes(pick.id)) continue;
       if (!canQueueBuild(state, facility.id, pick.id)) continue;
+      if (laid > 0 && state.factions[ai].gold < AI_RICH + shipSpec(pick.id).costGold) return;
+      if (laid > 0 && surplus(state, ai) - UPKEEP_PER_DAY[pick.id] < AI_SURPLUS_MARGIN) return;
       queueBuild(state, facility.id, pick.id);
-      return;
+      laid += 1;
     }
   }
 }

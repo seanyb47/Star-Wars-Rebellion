@@ -339,10 +339,10 @@ Things I know are wrong, in the order I mean to fix them.
 
 **See `PLAN.md`** for the current state and the order of work.
 
-In short: fleets and combat are built. Three of the eight mission types are
-built — parley, incite, recruitment. Still outstanding are Espionage as a
-mission, Sabotage, Abduction, Command over an island and R&D; then real victory
-conditions, command ranks, Tidecraft and a smarter opponent.
+In short: the war, the fleets and all eight errands are built — parley,
+incitement, recruitment, sabotage, survey, abduction, command and research —
+and both ways to win. Still outstanding are command ranks, Tidecraft tiers and
+training, the Leviathan, and a smarter opponent.
 
 From the world bible, still waiting on the phases that need them: ground forces
 (section 7), special forces (8), and both of the new mechanics in section 14 —
