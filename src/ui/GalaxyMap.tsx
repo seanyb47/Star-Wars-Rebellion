@@ -581,11 +581,15 @@ export function GalaxyMap({
                                 strokeLinejoin: 'round' as const,
                               }
                             : {
+                                // Solid colour with a dark edge. A tinted ring
+                                // at forty percent vanished into the painting's
+                                // own greens and blues; the edge is what makes
+                                // a mark read as a mark on a busy chart.
                                 fill: tint,
-                                fillOpacity: lit ? 0.95 : 0.42,
-                                stroke: tint,
-                                strokeOpacity: 0.95,
-                                strokeWidth: lit ? 2 : 2.4,
+                                fillOpacity: 0.96,
+                                stroke: '#041219',
+                                strokeOpacity: 0.9,
+                                strokeWidth: 2,
                                 strokeLinejoin: 'round' as const,
                               };
                           // The count as the mark, or the filter's star.

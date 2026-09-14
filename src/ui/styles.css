@@ -16,9 +16,9 @@
      and light blue for people who have not picked a side. Kept clear of the
      mint --good and the orange-leaning --bad so a faction badge never reads
      as a status message. */
-  --empire: #3f9e58;
+  --empire: #4fc46a;
   --alliance: #d8483f;
-  --neutral: #5aa2e0;
+  --neutral: #7cc6f5;
   --unknown: #93a7af;
   /* An unexplored island's name on the chain map: pale enough to read over
      a scrimmed painting, kept off white so a charted island still stands out. */
