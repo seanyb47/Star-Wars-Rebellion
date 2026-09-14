@@ -162,8 +162,8 @@ for fac, title in (('empire', 'The Crown Imperium'), ('alliance', 'The Free Conf
 # ---------------- The map ----------------
 w("## 7. The Seas, the Reaches and the Islands\n")
 w("Seven Seas, each its own archipelago with its own water, its own weather and its own idea of what is normal. The three Inner Seas behave like seas. The four Outer Seas do not always. On the chart each Sea shows one Reach — one chain of islands — and the war is fought across the seven of them.\n")
-sea_lines = dict(re.findall(r'### (The [A-Za-z ]+ Sea) \((?:Inner|Outer) Sea\)\n\*(.+?)\*', BIBLE))
-sea_kind = dict(re.findall(r'### (The [A-Za-z ]+ Sea) \((Inner|Outer) Sea\)', BIBLE))
+sea_lines = dict(re.findall(r'### (The [A-Za-z ]+?) \((?:Inner|Outer) Sea\)\n\*(.+?)\*', BIBLE))
+sea_kind = dict(re.findall(r'### (The [A-Za-z ]+?) \((Inner|Outer) Sea\)', BIBLE))
 for reach in reaches['reaches']:
     sea = reach['sea']
     w(f"### {sea} — {reach['name']}\n")

@@ -341,6 +341,8 @@ Frontier: uncharted at the start, and where the Pirate Lords met.
 
 ### The Sea of Storms — Cinder Reach
 
+_Outer Sea. Monsoon belt: typhoons, volcanoes, rice terraces, jungle. Islands here are rich but hard to hold._
+
 Contested: both sides hold islands here from the first day.
 
 - **Greenholm**. Forested and heavily patrolled. Something large is being finished here.
