@@ -8,7 +8,7 @@
 ## Status — managed by Claude Code
 
 Sean's plan is below, unchanged. This block is the live checklist; it is the
-only part of the file Claude Code edits. Last updated 2026-09-14, night: Pennywhistle's background was the Imperium's capital — task 6 (Drive doc 6) redoes his three on a Confederacy quay; clips task re-issued with a frozen-background rule. Before that, 2026-09-14, later: **the six v2 stills are in** — bright, warm, painterly, Marlow in the Imperium's sea-green; filed, tab crops cut, checker 8/8. Phase C (clips) is open. Earlier that day: Marlow's costume changed from Admiralty black to the Imperium's sea-green and cream (bible §16.1, Drive docs 1 and 5 re-issued); the redo has not been run yet. Earlier, 2026-09-13, night: **the first six stills were the wrong register** — dim, cold, near-photographic, against a game that is blue sky, warm light and appealing faces. They are retired to `stills/retired/v1-grim/` and all six are being redone against the game's own portraits (Drive `Narrators/style`), with the canonical style line in every prompt. Phase C waits on the redo.
+only part of the file Claude Code edits. Last updated 2026-09-14, late: Pennywhistle's three redone on a wooden quay (task 6) — filed, tab crop re-cut, checker 8/8; Drive stills folder verified ready for the clips task. Before that, 2026-09-14, night: Pennywhistle's background was the Imperium's capital — task 6 (Drive doc 6) redoes his three on a Confederacy quay; clips task re-issued with a frozen-background rule. Before that, 2026-09-14, later: **the six v2 stills are in** — bright, warm, painterly, Marlow in the Imperium's sea-green; filed, tab crops cut, checker 8/8. Phase C (clips) is open. Earlier that day: Marlow's costume changed from Admiralty black to the Imperium's sea-green and cream (bible §16.1, Drive docs 1 and 5 re-issued); the redo has not been run yet. Earlier, 2026-09-13, night: **the first six stills were the wrong register** — dim, cold, near-photographic, against a game that is blue sky, warm light and appealing faces. They are retired to `stills/retired/v1-grim/` and all six are being redone against the game's own portraits (Drive `Narrators/style`), with the canonical style line in every prompt. Phase C waits on the redo.
 
 | Step | Owner | State | Note |
 |---|---|---|---|
@@ -16,9 +16,9 @@ only part of the file Claude Code edits. Last updated 2026-09-14, night: Pennywh
 | A2 art direction, three words | HUMAN | done | "painterly, weathered, cinematic", §16.2 |
 | A3 moods locked | BOTH | done | `neutral` / `grave` / `encouraged` — `src/ui/narrator/mood.ts` is the only definition |
 | A4 asset directories | CLAUDE CODE | done | `public/narrator/{video,audio,stills}` + `voicelines.json` — see the path note below |
-| B1–B7 six stills | HUMAN | **Marlow done (v2); Pennywhistle background redo — can start now** | Marlow's three approved. Pennywhistle's bird approved but his background was the Imperium's white-stone capital; run Drive doc "6. Task prompt (Pennywhistle on a Confederacy quay)" |
+| B1–B7 six stills | HUMAN | **done (v2, Pennywhistle v3)** | All six approved: Marlow at the Admiralty window, Pennywhistle on a wooden Confederacy quay with no white stone; bright, warm, painterly |
 | B8 file the stills | CLAUDE CODE | done | `public/narrator/stills/`, byte-for-byte against Drive |
-| C1–C6 twelve clips | HUMAN | after task 6 | Drive doc 3 re-issued: every prompt now freezes the background as well as the camera |
+| C1–C6 twelve clips | HUMAN | **can start now** | Drive doc 3; every prompt freezes camera and background; source stills verified current in Drive |
 | D1–D4 cleanup and export | CLAUDE CODE | blocked on C | Taken over from Sean: loop seams, accent trims and the 512×640 H.264 export are done here with ffmpeg |
 | D5 naming enforced | CLAUDE CODE | done (checker) | `scripts/check_narrator_assets.py` knows the twelve names |
 | D6 tab-bar figures stay static | CLAUDE CODE | done | `marlow_tab.png`, `pennywhistle_tab.png` cut from the v2 neutrals, 192×240 |
