@@ -1,3 +1,4 @@
+import { GARRISON_FAIR, GARRISON_STRONG, garrisonBand, type MarkSize } from './constants';
 import { buildMenu } from './build';
 import { islandIncome } from './economy';
 import { fleetsAt, isAtSea } from './fleets';
@@ -53,7 +54,7 @@ export const CHART_LAYERS: LayerSpec[] = [
   { id: 'idleDrills', label: 'Idle training', hint: `A ${terms.facilities.training_facility.toLowerCase()} of yours drilling nobody.` },
   { id: 'idleSlips', label: 'Idle shipyards', hint: `A ${terms.facilities.shipyard.toLowerCase()} of yours with nothing on the stocks.` },
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
-  { id: 'garrisons', label: 'Garrisons', hint: 'Islands of yours holding companies ashore.' },
+  { id: 'garrisons', label: 'Garrisons', hint: `Islands of yours holding companies ashore, sized by how many: big is ${GARRISON_STRONG} or more, small is under ${GARRISON_FAIR}.` },
   { id: 'missions', label: 'Missions', hint: 'Islands your officers are working on, or sailing for.' },
   { id: 'worth', label: 'Production', hint: 'What each island earns its holder in gold a day, right now.' },
 ];
@@ -96,11 +97,15 @@ export function worthTier(system: System): WorthTier {
 
 /**
  * Layers whose answer is a quantity rather than a yes: on these the count is
- * drawn as the mark itself — the numeral on the island — instead of a star
+ * drawn as the mark itself — the numeral on the island — instead of a mark
  * with a number beside it, which said the same thing twice.
+ *
+ * Garrisons used to be one of these and is not any more: how hard an island
+ * is held is a question the three dot sizes answer at a glance, where a
+ * numeral had to be read one island at a time.
  */
 export function showsNumber(layer: ChartLayer): boolean {
-  return layer === 'garrisons' || layer === 'worth' || layer === 'idleCrew';
+  return layer === 'worth' || layer === 'idleCrew';
 }
 
 /**
@@ -127,6 +132,11 @@ export interface LayerMark {
   lit: boolean;
   /** A count worth showing on the island, when there is one. */
   count?: number;
+  /**
+   * How big to draw it, when the layer answers in degrees rather than yes or
+   * no. Absent means the usual: large if it answers, small if it does not.
+   */
+  size?: MarkSize;
 }
 
 const DARK: LayerMark = { lit: false };
@@ -195,7 +205,7 @@ export function layerMark(
     }
     case 'garrisons': {
       if (system.control !== faction || system.garrison < 1) return DARK;
-      return { lit: true, count: system.garrison };
+      return { lit: true, count: system.garrison, size: garrisonBand(system.garrison) };
     }
     case 'missions': {
       const n = state.characters.filter(

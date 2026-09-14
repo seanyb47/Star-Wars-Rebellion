@@ -331,6 +331,7 @@ export function ChainMap({
         const mark = filtering ? layerMark(state, system, layer!, viewer) : { lit: false as const };
         const lit = filtering && mark.lit;
         const litCount = 'count' in mark ? mark.count : undefined;
+        const litSize = 'size' in mark ? mark.size : undefined;
         // Which work this island means, so the ring can say so before you tap.
         const work = pickingFor && !sailing ? missionTypeFor(state, system, pickingFor) : null;
         // Named in the label when the errand is to sign them on.
@@ -407,14 +408,18 @@ export function ChainMap({
                   <circle
                     cx={spot.x - nameWidth(system.name) / 2 - (layer && isLoudLayer(layer) ? 26 : 22)}
                     cy={spot.y + 1}
-                    r={layer && isLoudLayer(layer) ? 20 : 12}
+                    r={
+                      layer && isLoudLayer(layer)
+                        ? 20
+                        : { small: 8, medium: 12, large: 18 }[litSize ?? 'large']
+                    }
                     fill={tint}
                     fillOpacity={0.35}
                     stroke={tint}
                     strokeWidth={4}
                   />
                 )}
-                {!(layer && showsNumber(layer)) && litCount !== undefined && litCount > 1 && (
+                {!(layer && showsNumber(layer)) && litSize === undefined && litCount !== undefined && litCount > 1 && (
                   <text
                     className="chainmap__lit-n"
                     x={spot.x + nameWidth(system.name) / 2 + 22}

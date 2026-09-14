@@ -461,6 +461,12 @@ answer: large if the island answers, small if it does not. The fleet sail is
 gone from the full chart — a fleet is a large dot under the Fleets filter now,
 and the sail itself lives in the chain view and the island's Harbour tab.
 
+**Garrisons read the same way** (Sean, the same evening): under three
+companies is a small dot, three to five medium, six and up large — six being
+the cap a starting garrison is held to, so a large dot is an island held as
+hard as the rules allow. The numeral it used to print is gone; Production and
+Idle crew keep theirs, because those are figures you want exactly.
+
 **Smuggling.** Every day, a share of an island's trade goes out the back to the
 other side: nothing at firm, 15% at steady, 25% at thin, half in a revolt — and
 in a revolt the holder gets nothing at all, so the enemy is the only one paid.
@@ -488,3 +494,10 @@ consolidated or fetched lift, so it could neither land nor leave. It now folds
 in whatever lies in the same harbour, calls in berths as well as guns, and
 sails home for companies when it cannot carry the island. Sixteen idle games of
 sixteen now end, median 411 days, range 204 to 794.
+
+
+**Noted while doing it:** `CHART_LAYERS[].hint` is dead data — no component
+renders it, so the one-line explanation of each filter is written and never
+shown. The chart's rules live in the Almanac instead, under *Reading the
+chart*. Worth either surfacing the hints under the layer strip or deleting
+them.

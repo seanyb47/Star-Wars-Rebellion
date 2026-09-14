@@ -12,6 +12,8 @@ import {
   UPRISING_SUPPORT,
   FLIP_SUPPORT_MARGIN,
   FLIP_SUPPORT_MIN,
+  GARRISON_FAIR,
+  GARRISON_STRONG,
   PIRATE_LORDS,
   SMUGGLED_SHARE,
   SUPPORT_FIRM,
@@ -214,6 +216,21 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
             <p className="bestiary__lore">{beast.lore}</p>
           </div>
         ))}
+      </div>
+
+      <div className="section-title">Reading the chart</div>
+      <div className="card small">
+        <b>One mark, three sizes.</b> Every island is a dot in the colour of whoever holds it, and
+        the chart speaks by making that dot bigger or smaller — never by changing what it is. Two
+        things are not dots: the <b>star</b>, which marks Highwater and wherever a Pirate Lord's
+        ship lies and nothing else ever, and a <b>numeral</b> on the two filters whose answer is a
+        figure you want exactly — Production and Idle crew.
+        <br />
+        <br />
+        At rest, on Loyalty, the size is how firmly the island is held. Under a filter it is the
+        answer: large if the island answers, small if it does not. Garrisons has three sizes of its
+        own — {GARRISON_STRONG} companies or more is large, {GARRISON_FAIR} to{' '}
+        {GARRISON_STRONG - 1} medium, under {GARRISON_FAIR} small.
       </div>
 
       <div className="section-title">What loyalty is worth</div>

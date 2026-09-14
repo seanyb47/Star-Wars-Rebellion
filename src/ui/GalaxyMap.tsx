@@ -5,6 +5,9 @@ import {
   layerMark,
   lordFleets,
   loyaltyBand,
+  type LayerMark,
+  type LoyaltyBand,
+  type MarkSize,
   summariseReach,
   isLoudLayer,
   showsNumber,
@@ -216,6 +219,18 @@ const ISLAND_RADIUS = 16;
 const DOT_SMALL = 10;
 const DOT_MEDIUM = ISLAND_RADIUS;
 const DOT_LARGE = 26;
+const DOT: Record<MarkSize, number> = {
+  small: DOT_SMALL,
+  medium: DOT_MEDIUM,
+  large: DOT_LARGE,
+};
+/** The loyalty bands, in the same three sizes. */
+const LOYALTY_DOT: Record<LoyaltyBand, MarkSize> = {
+  firm: 'large',
+  steady: 'medium',
+  thin: 'small',
+  uprising: 'small',
+};
 /** Unexplored or unsettled: open ground. Readable on dark water at 8px. */
 export const OPEN_GREY = '#93a3ab';
 /** The dot itself for open ground: near white, so it reads on the water. */
@@ -567,9 +582,9 @@ export function GalaxyMap({
                 const isHq =
                   system.id === state.factions.empire.hqSystemId ||
                   (lordsAt.has(system.id) && (viewer === 'alliance' || explored));
-                const mark = filtering
+                const mark: LayerMark = filtering
                   ? layerMark(state, system, layer, viewer)
-                  : { lit: false as const };
+                  : { lit: false };
                 // Every island is always on the chart, always in its own
                 // colour, whatever filter is on. A filter changes one thing:
                 // the islands that answer it are drawn as a star instead of a
@@ -603,13 +618,11 @@ export function GalaxyMap({
                  */
                 const radius = filtering
                   ? lit
-                    ? DOT_LARGE
+                    ? DOT[mark.size ?? 'large']
                     : DOT_SMALL
                   : !explored
                     ? DOT_SMALL
-                    : { firm: DOT_LARGE, steady: DOT_MEDIUM, thin: DOT_SMALL, uprising: DOT_SMALL }[
-                        loyaltyBand(chartLoyalty(system, viewer), system.uprising)
-                      ];
+                    : DOT[LOYALTY_DOT[loyaltyBand(chartLoyalty(system, viewer), system.uprising)]];
                 if (bare) return null;
                 return (
                   <g key={system.id} pointerEvents="none">
@@ -622,7 +635,7 @@ export function GalaxyMap({
                         fill={tint}
                       />
                     )}
-                    {lit && numeral === null && mark.count !== undefined && mark.count > 1 && (
+                    {lit && numeral === null && mark.size === undefined && mark.count !== undefined && mark.count > 1 && (
                       <text
                         className="map__lit-n"
                         x={ax + radius + 6}

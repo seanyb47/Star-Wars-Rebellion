@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
-import { CHART_LAYERS, islandWorth, layerMark, layerTally, worthTier } from '../layers';
+import { CHART_LAYERS, islandWorth, layerMark, layerTally, showsNumber, worthTier } from '../layers';
+import { GARRISON_FAIR, GARRISON_STRONG } from '../constants';
 import { islandIncome } from '../economy';
 import { getSystem } from '../helpers';
 import { addShip } from '../fleets';
@@ -139,5 +140,33 @@ describe('chart layers', () => {
     const byHand = state.systems.filter((s) => layerMark(state, s, 'garrisons', 'empire').lit).length;
     expect(layerTally(state, 'garrisons', 'empire')).toBe(byHand);
     expect(byHand).toBeGreaterThan(0);
+  });
+});
+
+describe('garrisons answer in three sizes', () => {
+  it('draws under three companies small, three to five medium, six and up large', () => {
+    const { state } = setup();
+    const island = state.systems.find((s) => s.control === 'empire')!;
+    const sizeAt = (companies: number) => {
+      island.garrison = companies;
+      return layerMark(state, island, 'garrisons', 'empire').size;
+    };
+    expect(sizeAt(1)).toBe('small');
+    expect(sizeAt(GARRISON_FAIR - 1)).toBe('small');
+    expect(sizeAt(GARRISON_FAIR)).toBe('medium');
+    expect(sizeAt(GARRISON_STRONG - 1)).toBe('medium');
+    expect(sizeAt(GARRISON_STRONG)).toBe('large');
+    expect(sizeAt(9)).toBe('large');
+
+    // An island holding nobody is not an answer at all, and an island of
+    // theirs never is.
+    island.garrison = 0;
+    expect(layerMark(state, island, 'garrisons', 'empire').lit).toBe(false);
+    island.garrison = 4;
+    expect(layerMark(state, island, 'garrisons', 'alliance').lit).toBe(false);
+  });
+
+  it('says it with the dot and not with a numeral as well', () => {
+    expect(showsNumber('garrisons')).toBe(false);
   });
 });

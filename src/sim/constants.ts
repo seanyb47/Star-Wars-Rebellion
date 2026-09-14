@@ -394,6 +394,28 @@ export const AI_RECRUIT_BONUS = 120;
 export const SUPPORT_FIRM = 90;
 export const SUPPORT_STEADY = 60;
 
+/**
+ * The three sizes a mark on the chart comes in. The chart's whole vocabulary:
+ * one dot, three sizes, and a layer that answers with a quantity says which
+ * size it means rather than making the chart guess from a number.
+ */
+export type MarkSize = 'small' | 'medium' | 'large';
+
+/**
+ * A garrison, in the same three bands. Sean's ladder, 14 September: under
+ * three companies is a small dot, three to five a medium one, six and up a
+ * large one. Six is the ceiling a starting garrison is capped at, so a large
+ * dot means an island held as hard as the rules allow.
+ */
+export const GARRISON_FAIR = 3;
+export const GARRISON_STRONG = 6;
+
+export function garrisonBand(companies: number): MarkSize {
+  if (companies >= GARRISON_STRONG) return 'large';
+  if (companies >= GARRISON_FAIR) return 'medium';
+  return 'small';
+}
+
 export type LoyaltyBand = 'uprising' | 'thin' | 'steady' | 'firm';
 
 export function loyaltyBand(support: number, uprising = false): LoyaltyBand {
