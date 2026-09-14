@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { advanceDay } from '../advanceDay';
 import { queueBuild } from '../build';
-import { SHIP_ROLES, shipClass, shipSpec } from '../constants';
+import { SHIP_ROLES, shipClass, shipSpec, shipsFor } from '../constants';
 import { islandIncome, totalIncome, totalUpkeep } from '../economy';
 import {
   addShip,
@@ -15,7 +15,11 @@ import {
   fleetGuns,
   fleetsAt,
   isBlockaded,
+  isSeatShip,
   resolveLanding,
+  seatAfloat,
+  seatFleet,
+  syncSeat,
   sailError,
   sailFleet,
   updateBlockades,
@@ -668,7 +672,8 @@ describe('the opening position', () => {
   it('puts a fleet on the water for both sides on day one', () => {
     const state = generateGalaxy(7, 'empire');
     for (const faction of ['empire', 'alliance'] as const) {
-      const fleets = state.fleets.filter((f) => f.faction === faction);
+      // The Confederacy's second fleet is the Free Harbor herself, tested below.
+      const fleets = state.fleets.filter((f) => f.faction === faction && !f.ships.some(isSeatShip));
       expect(fleets).toHaveLength(1);
       expect(fleets[0].systemId).toBe(state.factions[faction].hqSystemId);
       expect(fleets[0].ships.length).toBeGreaterThanOrEqual(4);
@@ -695,6 +700,72 @@ describe('the opening position', () => {
     const state = generateGalaxy(7, 'empire');
     for (const faction of ['empire', 'alliance'] as const) {
       expect(totalIncome(state, faction)).toBeGreaterThan(totalUpkeep(state, faction));
+    }
+  });
+});
+
+describe('the seat that sails', () => {
+  it('lies in the base harbour on day one, alone, unique and free to keep', () => {
+    const state = generateGalaxy(7, 'alliance');
+    const seat = seatFleet(state)!;
+    expect(seat).toBeDefined();
+    expect(seat.systemId).toBe(state.factions.alliance.hqSystemId);
+    expect(seat.ships).toHaveLength(1);
+    expect(shipSpec('harbor').upkeep).toBe(0);
+    expect(shipSpec('harbor').hull).toBeGreaterThan(SHIP_ROLES.large.hull);
+    // Never on a shipyard's menu.
+    expect(shipsFor('alliance').some((c) => c.id === 'harbor')).toBe(false);
+    expect(seatAfloat(state)).toBe(true);
+  });
+
+  it('moves the seat with her when she comes to anchor off an island of theirs', () => {
+    const state = generateGalaxy(7, 'alliance');
+    const seat = seatFleet(state)!;
+    const from = state.factions.alliance.hqSystemId;
+    const other = state.systems.find((s) => s.control === 'alliance' && s.id !== from)!;
+    sailFleet(state, seat.id, other.id, 'alliance');
+    let next = state;
+    for (let d = 0; d < 40 && seatFleet(next)!.voyage; d++) next = advanceDay(next);
+    expect(seatFleet(next)!.systemId).toBe(other.id);
+    expect(next.factions.alliance.hqSystemId).toBe(other.id);
+  });
+
+  it('keeps the seat at the last island of theirs when she lies off the enemy', () => {
+    const state = generateGalaxy(7, 'alliance');
+    const seat = seatFleet(state)!;
+    const home = state.factions.alliance.hqSystemId;
+    seat.systemId = state.factions.empire.hqSystemId;
+    syncSeat(state);
+    expect(state.factions.alliance.hqSystemId).toBe(home);
+  });
+
+  it('sinks like any hull, and the Confederacy then has no seat', () => {
+    const state = generateGalaxy(7, 'alliance');
+    const seat = seatFleet(state)!;
+    const here = getSystem(state, seat.systemId);
+    // Strip the escort so the seat fights alone, and bring the Crown's guns.
+    state.fleets = state.fleets.filter((f) => f.faction !== 'alliance' || f.id === seat.id);
+    const crown = addShip(state, here, 'empire', 'sovereign');
+    for (let i = 0; i < 5; i++) addShip(state, here, 'empire', 'sovereign');
+    expect(crown.ships).toHaveLength(6);
+    let next = state;
+    for (let d = 0; d < 30 && seatAfloat(next); d++) next = advanceDay(next);
+    expect(seatAfloat(next)).toBe(false);
+    expect(next.factions.alliance.seatLost).toBe(true);
+    expect(next.events.some((e) => /Free Harbor burns/.test(e.text))).toBe(true);
+    // The seat stays where she went down.
+    expect(next.factions.alliance.hqSystemId).toBe(here.id);
+  });
+
+  it('is never sailed into a raid by the Confederate opponent, only out of sight', () => {
+    let state = generateGalaxy(11, 'empire');
+    const seatId = seatFleet(state)!.id;
+    for (let d = 0; d < 240 && state.fleets.some((f) => f.id === seatId); d++) {
+      state = advanceDay(state);
+      const seat = state.fleets.find((f) => f.id === seatId);
+      if (!seat) break;
+      const at = seat.voyage ? getSystem(state, seat.voyage.targetSystemId) : getSystem(state, seat.systemId);
+      expect(at.control, `day ${state.day}`).toBe('alliance');
     }
   });
 });

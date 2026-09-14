@@ -103,7 +103,9 @@ export type ShipClassId =
   | 'swift'
   | 'tempest'
   | 'reef'
-  | 'brig';
+  | 'brig'
+  /** The Confederacy's seat: one hull, never built, never replaced. */
+  | 'harbor';
 
 export type BuildItem = FacilityType | 'troop' | ShipClassId;
 
@@ -226,7 +228,15 @@ export interface FactionState {
   income: number;
   /** What everything you own costs to keep in a day. */
   upkeep: number;
+  /**
+   * The Crown's is Highwater, always. The Confederacy's is wherever the Free
+   * Harbor lies — a ship, not an island — and is kept in step with her every
+   * day, so everything that "goes home" goes to the island she is anchored
+   * off. Once she is sunk it stays where she went down.
+   */
   hqSystemId: string;
+  /** Set the day the Free Harbor burns. The Confederacy plays on without a seat. */
+  seatLost?: true;
   /**
    * Shipwright craft: how far this side's yards have come, 0 upward.
    *

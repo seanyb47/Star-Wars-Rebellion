@@ -121,7 +121,14 @@ export interface ShipClass {
   role: ShipRole;
   name: string;
   blurb: string;
+  /** One of a kind: never on a shipyard's menu, and costs nothing to keep. */
+  unique?: true;
+  /** A hull of its own, over the size's. */
+  hull?: number;
 }
+
+/** The Confederacy's seat, which is a ship. */
+export const SEAT_SHIP: ShipClassId = 'harbor';
 
 export const SHIP_CLASSES: ShipClass[] = shipData.classes as ShipClass[];
 
@@ -139,12 +146,16 @@ export function isShipClass(item: BuildItem): item is ShipClassId {
 
 export function shipSpec(id: ShipClassId): ShipRoleSpec {
   const cls = shipClass(id);
-  return { ...SHIP_ROLES[cls.role], label: cls.name };
+  const spec = { ...SHIP_ROLES[cls.role], label: cls.name };
+  if (cls.hull) spec.hull = cls.hull;
+  // The Brethren keep their seat out of their own pockets.
+  if (cls.unique) spec.upkeep = 0;
+  return spec;
 }
 
 /** Hulls a faction can lay down without research. */
 export function shipsFor(faction: PlayableFaction): ShipClass[] {
-  return SHIP_CLASSES.filter((c) => c.faction === faction);
+  return SHIP_CLASSES.filter((c) => c.faction === faction && !c.unique);
 }
 
 export function buildSpec(item: BuildItem): BuildSpec {
@@ -175,7 +186,7 @@ export const GOLD_PER_DAY: Record<BuildItem, number> = {
 };
 
 const SHIP_UPKEEP = Object.fromEntries(
-  (shipData.classes as ShipClass[]).map((c) => [c.id, SHIP_ROLES[c.role].upkeep]),
+  (shipData.classes as ShipClass[]).map((c) => [c.id, c.unique ? 0 : SHIP_ROLES[c.role].upkeep]),
 ) as Record<ShipClassId, number>;
 
 export const UPKEEP_PER_DAY: Record<BuildItem, number> = {

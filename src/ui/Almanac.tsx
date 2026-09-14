@@ -216,7 +216,8 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
 
       <div className="section-title">How the war is won</div>
       <div className="card small">
-        <b>Two ways.</b> Take the enemy's seat and hold both of their leaders in irons at the same
+        <b>Two ways.</b> Take the enemy's seat — Highwater held, or the Free Harbor sunk, since the
+        Confederacy's seat is a ship — and hold both of their leaders in irons at the same
         time — {LEADERS.empire.join(' and ')} for the Crown, {LEADERS.alliance.join(' and ')} for
         the Confederacy. Captives are exchanged after {CAPTIVE_DAYS} days, so it is a window, not a
         list. Or hold {Math.round(VICTORY_CONTROL_FRACTION * 100)}% of the settled islands. The

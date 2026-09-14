@@ -764,8 +764,8 @@ function MenuSheet({
         <Stat label={factionData.alliance.shortName} value={tally.alliance} />
       </div>
       <p className="tiny muted" style={{ marginTop: 6 }}>
-        {needed} settled islands takes the Seven Seas — or the enemy's seat with both their
-        leaders in irons.
+        {needed} settled islands takes the Seven Seas — or the enemy's seat (Highwater, or the
+        Free Harbor sunk) with both their leaders in irons.
       </p>
 
       <div className="section-title">Game</div>

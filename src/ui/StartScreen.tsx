@@ -27,7 +27,7 @@ const FACTION_DETAIL: Record<
     opening: 'You begin at Highwater with the core of the world already in hand, and everything to lose.',
   },
   alliance: {
-    strengths: ['A harbour that moves when found', 'More envoys, and better ones', 'Nothing to lose but the tide'],
+    strengths: ['A seat that sails: the Free Harbor herself', 'More envoys, and better ones', 'Nothing to lose but the tide'],
     weaknesses: ['Outgunned in open water', 'Scattered across the Outer Seas', 'Half your captains take some managing'],
     opening: 'You begin on the fringe with four islands and a shouting-match for a government.',
   },

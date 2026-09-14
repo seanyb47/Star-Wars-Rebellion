@@ -11,8 +11,10 @@ import {
   FORT_GUNS,
   OFFICER_EDGE,
   SCOUT_PER_ISLAND,
+  SEAT_SHIP,
   SHIP_ROLES,
   shipClass,
+  shipSpec,
 } from './constants';
 import { getSystem, nextId, otherFaction, pushEvent } from './helpers';
 import { travelDays } from './missions';
@@ -46,8 +48,43 @@ export function findFleet(state: GameState, fleetId: string): Fleet | undefined 
 
 /** Guns a hull still brings, which is nothing once it is on the bottom. */
 export function shipGuns(ship: Ship): number {
-  const spec = SHIP_ROLES[shipClass(ship.classId).role];
+  const spec = shipSpec(ship.classId);
   return ship.damage >= spec.hull ? 0 : spec.guns;
+}
+
+// --- The seat that sails ----------------------------------------------------
+//
+// The Crown's seat is Highwater and cannot move. The Confederacy's is a ship,
+// the Free Harbor: the Moot sits on her quarterdeck, captives are held in her
+// cells, and officers coming home come to whichever island she is lying off.
+// She is sailed like any fleet, and to take the Confederacy's seat the Crown
+// has to find her and sink her.
+
+export function isSeatShip(ship: Ship): boolean {
+  return ship.classId === SEAT_SHIP;
+}
+
+/** The fleet the Free Harbor is sailing with, while she floats. */
+export function seatFleet(state: GameState): Fleet | undefined {
+  return state.fleets.find((f) => f.faction === 'alliance' && f.ships.some(isSeatShip));
+}
+
+/** Whether the Confederacy still has a seat afloat. */
+export function seatAfloat(state: GameState): boolean {
+  return !state.factions.alliance.seatLost && seatFleet(state) !== undefined;
+}
+
+/**
+ * Keep the Confederacy's seat where the Free Harbor is. Only an island of
+ * theirs counts: lying off an enemy harbour, the seat stays at the last
+ * island of their own she called at, so nobody "comes home" to the Crown's
+ * cells.
+ */
+export function syncSeat(state: GameState): void {
+  const fleet = seatFleet(state);
+  if (!fleet || isAtSea(fleet)) return;
+  const here = getSystem(state, fleet.systemId);
+  if (here.control === 'alliance') state.factions.alliance.hqSystemId = here.id;
 }
 
 export function fleetGuns(fleet: Fleet): number {
@@ -106,6 +143,7 @@ export function fleetStatus(state: GameState, fleet: Fleet): string {
   }
   const here = state.systems.find((s) => s.id === fleet.systemId);
   if (here && here.control !== fleet.faction && here.populated) return 'Blockading';
+  if (fleet.ships.some(isSeatShip)) return 'At anchor — the seat of the Confederacy';
   return 'At anchor';
 }
 
@@ -120,7 +158,10 @@ export function addShip(
   classId: ShipClassId,
 ): Fleet {
   const ship: Ship = { id: nextId(state, 'shp'), classId, damage: 0 };
-  const existing = fleetsAt(state, system.id).find((f) => f.faction === faction);
+  // Join whatever fleet of ours lies here, preferring one that is not the
+  // seat's own so new hulls do not quietly tie themselves to the Free Harbor.
+  const here = fleetsAt(state, system.id).filter((f) => f.faction === faction);
+  const existing = here.find((f) => !f.ships.some(isSeatShip)) ?? here[0];
   if (existing) {
     existing.ships.push(ship);
     return existing;
@@ -471,13 +512,24 @@ function applyFire(guns: number, targets: Fleet[], rng: Rng): void {
 }
 
 function hullOf(ship: Ship): number {
-  return SHIP_ROLES[shipClass(ship.classId).role].hull;
+  return shipSpec(ship.classId).hull;
 }
 
 /** Clear the wrecks, and drown whatever companies were aboard them. */
 function sinkAndDrown(state: GameState, fleet: Fleet): void {
   const survivors = fleet.ships.filter((s) => s.damage < hullOf(s));
   if (survivors.length === fleet.ships.length) return;
+  if (fleet.ships.some(isSeatShip) && !survivors.some(isSeatShip)) {
+    // The seat of the Confederacy goes down. Its hq stays where she sank,
+    // as the last island she called at, and the war goes on without her.
+    state.factions.alliance.seatLost = true;
+    const here = getSystem(state, fleet.systemId);
+    pushEvent(state, {
+      kind: 'war',
+      text: `The Free Harbor burns to the waterline off ${here.name}. The Brethren have no harbour now.`,
+      systemId: here.id,
+    });
+  }
   fleet.ships = survivors;
   const room = fleetCapacity(fleet);
   if (fleet.troops > room) {

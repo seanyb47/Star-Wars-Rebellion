@@ -6,12 +6,21 @@ import { LEADERS } from '../constants';
 describe('how the war ends', () => {
   it('is won by taking the enemy seat while both their leaders are in irons', () => {
     const state = generateGalaxy(501, 'empire');
-    const seat = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
     const heads = LEADERS.alliance.map((n) => state.characters.find((c) => c.name === n)!);
     expect(heads.every(Boolean)).toBe(true);
 
-    // The seat alone is not enough.
+    // The Confederacy's seat is a ship. Holding the island she lay off is
+    // nothing; she has to be on the seabed.
+    const seat = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
     seat.control = 'empire';
+    for (const n of LEADERS.alliance) state.characters.find((c) => c.name === n)!.status = 'captured';
+    checkVictory(state);
+    expect(state.winner).toBeUndefined();
+    for (const n of LEADERS.alliance) state.characters.find((c) => c.name === n)!.status = 'available';
+
+    // The seat alone is not enough.
+    state.factions.alliance.seatLost = true;
+    state.fleets = state.fleets.filter((f) => !f.ships.some((s) => s.classId === 'harbor'));
     checkVictory(state);
     expect(state.winner).toBeUndefined();
 

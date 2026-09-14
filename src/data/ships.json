@@ -1,5 +1,5 @@
 {
-  "_comment": "Hull classes, world bible section 6. Names and prose live here; the numbers live in sim/constants.ts, keyed by size, so both fleets are balanced identically and only their names and character differ. There are deliberately no fighters: a small craft is just a small ship, so the range is small / medium / large, with the transport off to one side.",
+  "_comment": "Hull classes, world bible section 6. Names and prose live here; the numbers live in sim/constants.ts, keyed by size, so both fleets are balanced identically and only their names and character differ. There are deliberately no fighters: a small craft is just a small ship, so the range is small / medium / large, with the transport off to one side. One class is unique: the Free Harbor, the Confederacy's seat, which is a ship and cannot be built.",
   "classes": [
     {
       "id": "sovereign",
@@ -56,6 +56,15 @@
       "role": "transport",
       "name": "Brig",
       "blurb": "A blunt-nosed hauler. No guns worth the name, but it lands companies where they are wanted."
+    },
+    {
+      "id": "harbor",
+      "faction": "alliance",
+      "role": "large",
+      "unique": true,
+      "hull": 16,
+      "name": "Free Harbor",
+      "blurb": "Corwin Calloway's old three-decker, coral-grown over a whale-spine keel, named for what he meant her to be: any deck of his was a free harbour to anyone the Crown wanted. Sailors who fled the licensing raids found a berth aboard her, then a flag, then a cause. Everyone saw her burn at the Broken Chain; the Reef-folk sang the coral closed over the char and brought her out of the smoke, and the Moot has sat on her quarterdeck since. The Confederacy has no capital. It has her."
     }
   ]
 }

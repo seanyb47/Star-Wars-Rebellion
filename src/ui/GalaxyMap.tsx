@@ -533,9 +533,12 @@ export function GalaxyMap({
                 // survey and settle. Hiding them was tried and looked wrong —
                 // a sea with islands painted on it and nothing marking them.
                 const radius = ISLAND_RADIUS;
+                // The Confederacy's seat is a ship: the star sits on the
+                // island she is lying off, and goes when she goes.
+                const seatOf = (f: PlayableFaction) =>
+                  f === 'alliance' && state.factions.alliance.seatLost ? null : state.factions[f].hqSystemId;
                 const isHq =
-                  system.id === state.factions[viewer].hqSystemId ||
-                  (explored && system.id === state.factions[enemy].hqSystemId);
+                  system.id === seatOf(viewer) || (explored && system.id === seatOf(enemy));
                 const mark = filtering
                   ? layerMark(state, system, layer, viewer)
                   : { lit: false as const };

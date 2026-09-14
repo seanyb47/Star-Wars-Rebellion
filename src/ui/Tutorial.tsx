@@ -100,8 +100,8 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
     title: 'A first move',
     body: (side) =>
       side === 'empire'
-        ? 'Two of your islands are sullen and held by garrison alone. Send a diplomat to one of them before the Confederacy sends theirs. Then find the Free Harbour: it is out in the outer Reaches and you have not charted it.'
-        : 'You hold four islands the Crown cannot see. Send your best diplomat to a neutral island in your own chain and turn it. Put Wyatt Ansell on the Shipyard. And keep your seat hidden: the Crown has to find it before it can take it.',
+        ? 'Two of your islands are sullen and held by garrison alone. Send a diplomat to one of them before the Confederacy sends theirs. Then find the Free Harbor: she is a ship, lying off some island in the outer Reaches you have not charted, and she will weigh anchor when she sees you coming.'
+        : 'You hold four islands the Crown cannot see. Send your best diplomat to a neutral island in your own chain and turn it. Put Wyatt Ansell on the Shipyard. And keep your seat hidden: it is a ship, the Free Harbor, lying in the harbour of your base. The Crown has to find her before it can sink her, so weigh anchor when they come looking.',
   },
 ];
 

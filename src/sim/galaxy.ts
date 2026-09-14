@@ -9,6 +9,7 @@ import {
   RECRUITS_IN_PLAY,
   START_GARRISON_MAX,
   START_GARRISON_SPARE,
+  SEAT_SHIP,
 } from './constants';
 
 import type {
@@ -556,6 +557,17 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       officerIds: [],
     });
   }
+  // The Confederacy's seat, lying in the base's harbour. A ship, not an
+  // island: sail her and the seat sails with her.
+  state.fleets.push({
+    id: `flt-${++state.nextId}`,
+    name: 'Free Harbor',
+    faction: 'alliance',
+    systemId: allianceHq.id,
+    ships: [{ id: `shp-${++state.nextId}`, classId: SEAT_SHIP, damage: 0 }],
+    troops: 0,
+    officerIds: [],
+  });
 
   recomputeLedger(state);
   state.events.push({

@@ -1387,3 +1387,12 @@ button.tcard:hover { border-color: var(--brass); }
   .banner__day { width: 40px; height: 40px; }
   .console { padding: 4px 8px 5px; }
 }
+
+/* The Free Harbor's line on her fleet card. */
+.fleet__seat {
+  margin: 6px 0 2px;
+  padding: 6px 8px;
+  border-left: 2px solid var(--metal, #b08a4a);
+  color: var(--muted);
+  font-style: italic;
+}

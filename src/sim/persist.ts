@@ -38,6 +38,25 @@ export function loadGame(storage: Storage | undefined = globalThis.localStorage)
       empire: { ...parsed.factions.empire, craft: parsed.factions.empire.craft ?? 0 },
       alliance: { ...parsed.factions.alliance, craft: parsed.factions.alliance.craft ?? 0 },
     };
+    // The Confederacy's seat became a ship. A save from before that has no
+    // Free Harbor afloat and never lost her, so she is lying at the seat
+    // island, which is where she would have been all along.
+    if (
+      !factions.alliance.seatLost &&
+      !fleets.some((f) => f.faction === 'alliance' && f.ships.some((sh) => sh.classId === 'harbor'))
+    ) {
+      const nextId = (parsed.nextId ?? 0) + 2;
+      fleets.push({
+        id: `flt-${nextId - 1}`,
+        name: 'Free Harbor',
+        faction: 'alliance',
+        systemId: factions.alliance.hqSystemId,
+        ships: [{ id: `shp-${nextId}`, classId: 'harbor', damage: 0 }],
+        troops: 0,
+        officerIds: [],
+      });
+      parsed.nextId = nextId;
+    }
     // A restored game always comes back paused.
     return { ...parsed, fleets, systems, factions, speed: 'paused' };
   } catch {

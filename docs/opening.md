@@ -11,7 +11,10 @@ the great island carry `port: true`.
 unexplored, for everyone. Each island has a 25% chance of being settled and
 held by neutral forces, behind the fog. The Confederacy's base is one random
 island in one of these two Reaches; the Confederacy knows that Reach and
-nothing else out here; its Home Fleet lies at the base.
+nothing else out here; its Home Fleet lies at the base, and so does the
+Free Harbor — the Confederacy's seat, which is a ship. Sail her and the seat
+sails with her; wherever she lies off an island of theirs is home. The Crown
+takes that seat by sinking her, not by landing.
 
 **Home — Sovereign Reach.** Highwater is a port city and always the Crown's
 seat, with the Home Fleet there. The great island has three ports: Highwater,

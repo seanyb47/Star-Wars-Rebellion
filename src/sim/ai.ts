@@ -26,8 +26,10 @@ import {
   fleetGuns,
   fleetsOf,
   isAtSea,
+  isSeatShip,
   sailError,
   sailFleet,
+  seatFleet,
 } from './fleets';
 import {
   freeEnergySlots,
@@ -44,6 +46,7 @@ import {
   recruitOn,
   startMission,
   captiveOn,
+  travelDays,
 } from './missions';
 import type { Rng } from './rng';
 import type {
@@ -307,10 +310,48 @@ function aiFleet(state: GameState, ai: PlayableFaction, rng: Rng): void {
 
   for (const fleet of fleetsOf(state, ai)) {
     if (isAtSea(fleet)) continue;
+    // The seat is not a warship. It hides; it does not raid.
+    if (fleet.ships.some(isSeatShip)) {
+      aiHideSeat(state, fleet);
+      continue;
+    }
     aiSignOn(state, fleet, ai);
     if (aiLandTroops(state, fleet, ai, rng)) continue;
     aiLoadAndSail(state, fleet, ai);
   }
+}
+
+/**
+ * Keep the Free Harbor out of sight. She lies where she is until the Crown
+ * has charted that island or has hulls off it; then she weighs anchor for an
+ * island of the Confederacy's the Crown has not charted, the nearest first,
+ * or failing that the one furthest from any Crown holding.
+ */
+function aiHideSeat(state: GameState, fleet: Fleet): void {
+  const here = getSystem(state, fleet.systemId);
+  const crownHere = state.fleets.some(
+    (f) => f.faction === 'empire' && !isAtSea(f) && f.systemId === here.id,
+  );
+  const safeHere = here.control === 'alliance' && !here.uprising && !here.explored.empire && !crownHere;
+  if (safeHere) return;
+
+  const crownIslands = state.systems.filter((s) => s.control === 'empire');
+  const farFromCrown = (s: System) =>
+    crownIslands.reduce((n, c) => Math.min(n, Math.hypot(s.x - c.x, s.y - c.y)), Infinity);
+  const havens = state.systems
+    .filter((s) => s.control === 'alliance' && !s.uprising && s.id !== here.id)
+    .filter((s) => !state.fleets.some((f) => f.faction === 'empire' && !isAtSea(f) && f.systemId === s.id))
+    .sort((a, b) => {
+      const hidden = Number(!!a.explored.empire) - Number(!!b.explored.empire);
+      if (hidden !== 0) return hidden;
+      const near = travelDays(state, here.id, a.id) - travelDays(state, here.id, b.id);
+      if (a.explored.empire && b.explored.empire) return farFromCrown(b) - farFromCrown(a);
+      return near;
+    });
+  const haven = havens[0];
+  if (!haven) return;
+  if (sailError(state, fleet.id, haven.id, 'alliance') !== null) return;
+  sailFleet(state, fleet.id, haven.id, 'alliance');
 }
 
 /** One hull at a time, and never at the expense of the economy. */
@@ -377,11 +418,19 @@ function aiLoadAndSail(state: GameState, fleet: Fleet, ai: PlayableFaction): voi
   // Somewhere worth going: an enemy island, richest first. With companies
   // aboard, prefer one it can actually carry.
   const enemy = otherFaction(ai);
-  const targets = state.systems.filter((s) => s.control === enemy && s.populated);
+  const seat = ai === 'empire' ? seatFleet(state) : undefined;
+  // The Free Harbor has to be found, not known about: the island she lies
+  // off is not a target until the Crown has charted it. Everything else the
+  // opponent may sail at as before.
+  const hides = (s: System) =>
+    seat !== undefined && !isAtSea(seat) && seat.systemId === s.id && !s.explored.empire;
+  const targets = state.systems.filter((s) => s.control === enemy && s.populated && !hides(s));
   if (targets.length === 0) return;
   const worth = (s: System) =>
     s.facilities.filter((f) => f.owner === enemy).length * 10 -
-    s.garrison * (fleet.troops > 0 ? 6 : 0);
+    s.garrison * (fleet.troops > 0 ? 6 : 0) +
+    // The Free Harbor, once charted, is the richest prize on the water.
+    (seat && !isAtSea(seat) && seat.systemId === s.id && s.explored.empire ? 40 : 0);
   const target = [...targets].sort((a, b) => worth(b) - worth(a))[0];
   if (target.id === fleet.systemId) return;
   if (fleetGuns(fleet) === 0 && fleet.troops === 0) return; // nothing to offer

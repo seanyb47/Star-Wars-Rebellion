@@ -6,6 +6,7 @@ import {
   fleetDamaged,
   fleetGuns,
   fleetStatus,
+  isSeatShip,
   officerEdge,
   officersOf,
   SCOUT_PER_ISLAND,
@@ -77,6 +78,13 @@ export function FleetCard({
         </div>
         {fleet.faction !== state.player && <ControlBadge faction={fleet.faction} />}
       </div>
+
+      {fleet.ships.some(isSeatShip) && (
+        <p className="tiny fleet__seat">
+          The seat of the Confederacy. The Moot sits on her quarterdeck and captives are held in her
+          cells; wherever she lies is home. Sink her, and the Brethren have no harbour.
+        </p>
+      )}
 
       <div className="fleet__ships">
         {[...byClass.entries()].map(([classId, count]) => {

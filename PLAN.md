@@ -312,8 +312,8 @@ a siege. Both are listed on the Harbour tab with the hulls, because that is
 where they fight. The AI does not build them yet.
 
 What is still not matched, and stays in Phase 4: fighters, probes, research
-trees, the movable Free Harbour, the Leviathan, assassination, the Regent's
-leadership bonus.
+trees, the Leviathan, assassination, the Regent's leadership bonus. (The
+movable Free Harbour came 14 September: she is a ship, see below.)
 
 
 ## The chart, the tutorial and the two ways to win — 12 September, night
@@ -409,3 +409,22 @@ on a third of its ports; pending orders count against its surplus so it
 cannot overcommit. Banked gold roughly halved over a year; fleets larger;
 solvent on all six seeds. What is left in the bank is structural — its
 islands are nearly full — and the next lever is room, not cadence.
+
+
+## The Free Harbor is a ship — 14 September
+
+Sean's call: the Confederacy's seat is not a base but the ship and captain the
+rebellion was born on. Corwin Calloway's coral-grown three-decker, the *Free
+Harbor*, lies in the base's harbour on day one as a fleet of her own. She is a
+unique large hull with a heavier hull than a first-rate, nothing to keep, never
+on a shipyard's menu. The seat follows her: every day, if she is at anchor off
+an island of the Confederacy's, that island is `hqSystemId`, so captives,
+returning officers and the star on the chart all go where she is. Lying off a
+Crown island, the seat stays at the last island of theirs she called at.
+
+Sinking her sets `seatLost` and the Crown's half of the leaders-and-seat win;
+the Confederacy plays on without a seat. The opponent never raids with her: it
+keeps her where the Crown has not charted and no Crown hull lies, and runs for
+the nearest such island the day that stops being true. The Crown's opponent
+weights a charted Free Harbor as the richest target on the water. Old saves get
+her at the seat island on load.
