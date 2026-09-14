@@ -235,7 +235,26 @@ export function ConfederacyCrest({ size = 96 }: { size?: number }) {
   );
 }
 
-export function FactionCrest({ faction, size }: { faction: 'empire' | 'alliance'; size?: number }) {
+/**
+ * The side's crest. Painted when the painting is there — Sean's crowned
+ * anchor in laurels, the skull over crossed cutlasses — and drawn otherwise,
+ * so nothing breaks while the art is on its way.
+ */
+export function FactionCrest({ faction, size = 40 }: { faction: 'empire' | 'alliance'; size?: number }) {
+  const painting = paintedCrest(faction);
+  if (painting) {
+    return (
+      <img
+        className="crest"
+        src={painting}
+        alt=""
+        width={size}
+        height={size}
+        style={{ width: size, height: size, objectFit: 'contain', display: 'block' }}
+        draggable={false}
+      />
+    );
+  }
   return faction === 'empire' ? <ImperiumCrest size={size} /> : <ConfederacyCrest size={size} />;
 }
 
@@ -486,6 +505,7 @@ import {
   paintedIsle,
   paintedPortrait,
   paintedShip,
+  paintedCrest,
 } from './painted';
 import { useInView } from './useInView';
 

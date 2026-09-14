@@ -54,6 +54,13 @@ const FACES = import.meta.glob('../art/faces/*.{webp,png,jpg}', {
   import: 'default',
 }) as Record<string, string>;
 
+/** The two crests, painted: Sean's, over the drawn ones. */
+const CRESTS = import.meta.glob('../art/crests/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
 /** One painting per building type: the works, the slipway, the fort. */
 const BUILDINGS = import.meta.glob('../art/buildings/*.{webp,png,jpg}', {
   eager: true,
@@ -107,6 +114,7 @@ const FACE_URLS = bySlug(FACES);
 const ISLE_URLS = bySlug(ISLES);
 const CREATURE_URLS = bySlug(CREATURES);
 const BUILDING_URLS = bySlug(BUILDINGS);
+const CREST_URLS = bySlug(CRESTS);
 
 export function paintedPortrait(name: string): string | undefined {
   return PORTRAIT_URLS[slugify(name)];
@@ -142,6 +150,11 @@ export function paintedChart(name: string): string | undefined {
  *  and not the other still shows a painting rather than a drawn cameo. */
 export function paintedFace(name: string): string | undefined {
   return FACE_URLS[slugify(name)] ?? PORTRAIT_URLS[slugify(name)];
+}
+
+/** A side's crest, painted, by the side's short name (`imperium`, `confederacy`). */
+export function paintedCrest(faction: 'empire' | 'alliance'): string | undefined {
+  return CREST_URLS[faction === 'empire' ? 'imperium' : 'confederacy'];
 }
 
 /** A building's painting, by its type name (`training-facility`, `fort`). */
