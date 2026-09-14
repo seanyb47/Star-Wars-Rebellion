@@ -435,7 +435,9 @@ describe('the opponent builds toward its navy', () => {
       peakYards = Math.max(peakYards, yardsOf(state));
       peakHulls = Math.max(peakHulls, hullsOf(state));
     }
-    expect(peakYards).toBeGreaterThan(startYards);
+    // Both sides now open with two shipyards, so a third is a choice, not a
+    // need; what matters is that the water fills.
+    expect(peakYards).toBeGreaterThanOrEqual(startYards);
     expect(peakHulls).toBeGreaterThan(startHulls);
   });
 

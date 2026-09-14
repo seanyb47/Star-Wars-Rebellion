@@ -47,8 +47,17 @@ has to beat it; a parley has to win it over. Nobody pays for it.
 
 **Economy.** Nine islands a side is twice the garrison upkeep of the old
 six-and-four opening, so the Crown opens with fifteen camps and fifteen
-mills and the Confederacy with fourteen of each. Measured across eleven
-seeds: both sides clear a surplus of thirteen to twenty a day on day one.
+mills and the Confederacy with fourteen of each. Measured across eight
+seeds after the makers below went in: both sides clear a surplus of eight
+to fourteen a day on day one.
+
+**Makers.** Two of each production facility a side — two construction
+yards, two training facilities, two shipyards — dealt at random across
+the side's starting islands, so a seed may double them up on one island
+and leave another with none. The one fixed thing: the Confederacy's base
+always holds a construction yard, so the hidden harbour can raise its own
+works from day one. The Crown's are wholly random. Earners still go round
+in order so every island opens with something to pay its way.
 
 **Chart.** Highwater must be painted as a port on the great island's coast,
 not on its mountain; Gorley and Ballmoor as the other two ports on that

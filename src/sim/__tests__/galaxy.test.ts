@@ -88,9 +88,20 @@ describe('generateGalaxy', () => {
       const earners = faction === 'empire' ? 15 : 14;
       expect(count('mine')).toBe(earners);
       expect(count('refinery')).toBe(earners);
+      // Two of each maker, dealt at random across the side's islands.
       expect(count('construction_yard')).toBe(2);
-      expect(count('training_facility')).toBe(1);
-      expect(count('shipyard')).toBe(1);
+      expect(count('training_facility')).toBe(2);
+      expect(count('shipyard')).toBe(2);
+    }
+  });
+
+  it('always puts a construction yard at the Confederacy base', () => {
+    for (let seed = 1; seed <= 12; seed++) {
+      const state = generateGalaxy(seed);
+      const base = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
+      expect(
+        base.facilities.some((f) => f.owner === 'alliance' && f.type === 'construction_yard'),
+      ).toBe(true);
     }
   });
 
