@@ -102,6 +102,9 @@ BIG_LANDMASS_PX = 1500
 # big one carries one. Sean's rule: three port cities on the great island,
 # and a city is never on a mountain in a maritime world.
 PORTS_ON_THE_GREAT_ISLAND = 3
+# Pairs of islands that trade places on the chart once the painting has
+# placed them. Both must be in the same Reach.
+SWAPS = [("Highwater", "Obroa Scala")]
 PORT_GAP_PX = 60
 
 
@@ -286,6 +289,15 @@ def main() -> None:
         # the radius pushed it a hundred units past its own southern island and
         # into the next chain's name.
         ry = max(abs(p[1] - cy) for p in islands)
+        # Hand-swaps after the painting has had its say. Sean looked at the
+        # chart and wanted the seat of the world where the library sat; the
+        # names trade places and keep their flags, so Highwater is still the
+        # capital and still a port, just moored on the other harbour.
+        for a, b in SWAPS:
+            ia = next((i for i, isl in enumerate(order) if isl["name"] == a), None)
+            ib = next((i for i, isl in enumerate(order) if isl["name"] == b), None)
+            if ia is not None and ib is not None:
+                islands[ia], islands[ib] = islands[ib], islands[ia]
         out.append(
             {
                 "reach": name,

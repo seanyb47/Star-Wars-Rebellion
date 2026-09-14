@@ -210,7 +210,7 @@ const STAR_RADIUS = 20;
 const IDLE_STAR_RADIUS = 30;
 const IDLE_HALO_RADIUS = 52;
 /** The seat of each side: the star, always, and the biggest mark at rest. */
-const HQ_STAR_RADIUS = 26;
+const HQ_STAR_RADIUS = 31;
 
 export function GalaxyMap({
   state,
