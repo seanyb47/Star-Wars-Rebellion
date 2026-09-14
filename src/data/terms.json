@@ -30,9 +30,9 @@
   "facilities": {
     "mine": "Camp",
     "refinery": "Mill",
-    "construction_yard": "Works",
-    "training_facility": "Drill Ground",
-    "shipyard": "Slipway",
+    "construction_yard": "Construction Yard",
+    "training_facility": "Training Facility",
+    "shipyard": "Shipyard",
     "fort": "Fort",
     "boom": "Boom"
   },

@@ -84,11 +84,11 @@ function buildAnswers(state: GameState): Answer[] {
       reply:
         canBuild.length === 0
           ? voice
-            ? 'Nowhere. Every works you own is on an island with no room left, or no works at all. I did mention this.'
-            : "Nowhere! Not a scrap of room left, and you've no works to build with anyway."
+            ? 'Nowhere. Every construction yard you own is on an island with no room left, or no yard at all. I did mention this.'
+            : "Nowhere! Not a scrap of room left, and you've no construction yard to build with anyway."
           : voice
-            ? `${canBuild.length} of your islands have a works and room to use it. I would start, Imperator.`
-            : `${canBuild.length} islands with room and a works to fill it. Get on with it, General.`,
+            ? `${canBuild.length} of your islands have a construction yard and room to use it. I would start, Imperator.`
+            : `${canBuild.length} islands with room and a construction yard to fill it. Get on with it, General.`,
       mood: 'neutral',
       islands: canBuild,
     },

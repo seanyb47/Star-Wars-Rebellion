@@ -76,7 +76,7 @@ export function BuildMenuSheet({
           </span>
           <span className="buildmenu__text">
             <b>{KIND_LABEL.facilities}</b>
-            <span className="tiny muted">Camps and mills that earn, works that make, forts and booms that hold.</span>
+            <span className="tiny muted">Camps and mills that earn, construction yards that make, forts and booms that hold.</span>
           </span>
         </button>
         <button className="btn btn--block buildmenu__btn" onClick={() => onPick('troops')}>
@@ -94,7 +94,7 @@ export function BuildMenuSheet({
           </span>
           <span className="buildmenu__text">
             <b>{KIND_LABEL.ships}</b>
-            <span className="tiny muted">Hulls laid down on a slipway and sailed to their station.</span>
+            <span className="tiny muted">Hulls laid down at a shipyard and sailed to their station.</span>
           </span>
         </button>
       </div>

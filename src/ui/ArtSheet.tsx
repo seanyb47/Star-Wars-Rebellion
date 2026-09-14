@@ -118,7 +118,7 @@ export function ArtSheet() {
         )}
       </Row>
 
-      <Row label="Island portraits" note="the big one, with and without works ashore">
+      <Row label="Island portraits" note="the big one, with and without buildings ashore">
         {ISLES.map((seed, i) => (
           <Item key={seed} caption={seed}>
             <IslandPortrait

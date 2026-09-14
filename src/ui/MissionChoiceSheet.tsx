@@ -23,7 +23,7 @@ const WHAT: Record<MissionType, string> = {
   diplomacy: 'Talk the island round. Its allegiance to you rises with every landed argument.',
   incite: 'Set its people against their holder. Push them far enough and the island rises.',
   recruit: 'Sign on the unaligned officer ashore here, for good.',
-  sabotage: 'Break something of theirs on the island — a works, a mill, a slipway.',
+  sabotage: 'Break something of theirs on the island — a yard, a mill, a shipyard.',
   survey: 'Chart the island: who lives on it, what stands on it, whether a garrison would hold it.',
   abduct: 'Carry off the enemy officer ashore here and hold them at your seat.',
   command: 'Take command and put the island back in order.',

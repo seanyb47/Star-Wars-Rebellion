@@ -69,17 +69,17 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'Your crew',
     body: () =>
-      'Seven officers, each rated for Diplomacy, Espionage, Combat and Leadership. Send one to an island and the island offers the errand: parley with the undecided, stir up trouble on theirs, sign on somebody worth having, chart the unknown, burn their works, carry off their officer, break one of yours out of their cells, restore order on yours. Where it offers more than one, you choose.',
+      'Seven officers, each rated for Diplomacy, Espionage, Combat and Leadership. Send one to an island and the island offers the errand: parley with the undecided, stir up trouble on theirs, sign on somebody worth having, chart the unknown, burn their yards, carry off their officer, break one of yours out of their cells, restore order on yours. Where it offers more than one, you choose.',
   },
   {
     title: 'Gold',
     body: () =>
-      'Camps and Mills earn it, more on loyal islands than sullen ones. Works, Slipways, companies and hulls cost it every day. The number at the top is what you make a day after paying for everything. Keep it above nothing.',
+      'Camps and Mills earn it, more on loyal islands than sullen ones. Construction Yards, Shipyards, companies and hulls cost it every day. The number at the top is what you make a day after paying for everything. Keep it above nothing.',
   },
   {
     title: 'Building',
     body: () =>
-      'A Works builds everything. A Drill Ground raises companies. A Slipway lays down hulls. A Fort is guns on the harbour wall; a Boom is a chain across its mouth. Camps take ground, everything else takes water, and every island has only so much of each.',
+      'A Construction Yard builds everything. A Training Facility raises companies. A Shipyard lays down hulls. A Fort is guns on the harbour wall; a Boom is a chain across its mouth. Camps take ground, everything else takes water, and every island has only so much of each.',
   },
   {
     title: 'Your fleet',
@@ -89,7 +89,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'The filters',
     body: () =>
-      'The strip under the chart. Every island stays on the chart in its own colour, whatever you pick; the ones that answer the filter turn into stars, or into a number where a number is the answer — companies under Garrisons, gold a day under Production. The idle filters are the ones to check often: a works, drill ground or slipway building nothing is gold you are not making.',
+      'The strip under the chart. Every island stays on the chart in its own colour, whatever you pick; the ones that answer the filter turn into stars, or into a number where a number is the answer — companies under Garrisons, gold a day under Production. The idle filters are the ones to check often: a construction yard, training facility or shipyard building nothing is gold you are not making.',
   },
   {
     title: 'The clock',
@@ -101,7 +101,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
     body: (side) =>
       side === 'empire'
         ? 'Two of your islands are sullen and held by garrison alone. Send a diplomat to one of them before the Confederacy sends theirs. Then find the Free Harbour: it is out in the outer Reaches and you have not charted it.'
-        : 'You hold four islands the Crown cannot see. Send your best diplomat to a neutral island in your own chain and turn it. Put Wyatt Ansell on the Slipway. And keep your seat hidden: the Crown has to find it before it can take it.',
+        : 'You hold four islands the Crown cannot see. Send your best diplomat to a neutral island in your own chain and turn it. Put Wyatt Ansell on the Shipyard. And keep your seat hidden: the Crown has to find it before it can take it.',
   },
 ];
 

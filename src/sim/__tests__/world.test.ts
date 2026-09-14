@@ -148,10 +148,13 @@ describe('the generated world matches the bible', () => {
 });
 
 describe('terminology', () => {
-  it('labels facilities from the bible, not the old space names', () => {
+  it('labels the earners from the bible and the makers as Rebellion did', () => {
     expect(FACILITY_LABEL.mine).toBe('Camp');
     expect(FACILITY_LABEL.refinery).toBe('Mill');
-    expect(FACILITY_LABEL.construction_yard).toBe('Works');
+    // Sean's call, 14 September: the makers keep the original's plain names.
+    expect(FACILITY_LABEL.construction_yard).toBe('Construction Yard');
+    expect(FACILITY_LABEL.training_facility).toBe('Training Facility');
+    expect(FACILITY_LABEL.shipyard).toBe('Shipyard');
     expect(YARD_BUILDS.shipyard.label).toBe(terms.facilities.shipyard);
   });
 

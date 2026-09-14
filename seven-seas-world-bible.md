@@ -378,11 +378,11 @@ Keep original offense/defense/watch ratings and research positions.
 
 | Original | New | Notes |
 |---|---|---|
-| Construction Yard | **Works** | Builds facilities and shore defenses |
-| Advanced Construction Yard | **Master Works** | 2× speed |
-| Orbital Shipyard | **Slipway** | Builds ships and small craft |
+| Construction Yard | **Construction Yard** | Builds facilities and shore defenses |
+| Advanced Construction Yard | **Master Yard** | 2× speed |
+| Orbital Shipyard | **Shipyard** | Builds ships and small craft |
 | Advanced Shipyard | **Dry Dock** (Imperium) / **Coral Bed** (Confederacy) | 2× speed; same stats, different art |
-| Training Facility | **Drill Ground** | Troops and special forces |
+| Training Facility | **Training Facility** | Troops and special forces |
 | Advanced Training Facility | **Marine Barracks** (Imperium) / **War-Lodge** (Confederacy) | 2× speed |
 | Mine | **Camp** (timber / iron / hemp / coral-bed — art varies by island) | Produces Stores |
 | Refinery | **Mill** (sawmill / foundry / ropewalk / coral-kiln) | Stores → Fittings; each Camp+Mill pair adds 50 Upkeep |
