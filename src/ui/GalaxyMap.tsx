@@ -740,8 +740,12 @@ export function GalaxyMap({
         {/* Fleets, over the top of everything: a sail planted on the island
             each one lies off, in its owner's colour, with the hull count
             beside it. Yours always; theirs once you have charted the island.
-            Drawn last so no neighbour's mark or name covers a fleet. */}
-        {!bare &&
+            Drawn last so no neighbour's mark or name covers a fleet.
+
+            Under a filter only. Loyalty is the chart at rest — who holds
+            what, and nothing else on top of it — so the sails stay off it,
+            the same way they stay off the bare chart. */}
+        {filtering &&
           chains.map(({ sector, systems, spot }) =>
             systems.map((system) => {
               const explored = system.explored[viewer];
