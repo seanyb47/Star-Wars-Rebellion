@@ -1,15 +1,15 @@
-import { LEADERS, VICTORY_CONTROL_FRACTION } from './constants';
+import { MOOT_SUPPORT_PER_DAY, PIRATE_LORDS } from './constants';
 import factionData from '../data/factions.json';
 import { runAI } from './ai';
 import { advanceBuilds } from './build';
-import { advanceFleets, seatAfloat, syncSeat, updateBlockades } from './fleets';
+import { advanceFleets, updateBlockades } from './fleets';
+import { allLordsTaken, powerAt, syncHome } from './lords';
 import { collectIncome, payUpkeep, recomputeLedger } from './economy';
-import { cloneState, otherFaction, pushEvent } from './helpers';
+import { cloneState, pushEvent } from './helpers';
 import { advanceMissions } from './missions';
 import { createRng } from './rng';
-import { controlTally } from './support';
 import { driftSupport, resolveControlAndUnrest } from './support';
-import type { GameState, PlayableFaction } from './types';
+import type { GameState } from './types';
 
 /** Events kept in the feed; older ones are dropped so saves stay small. */
 const MAX_EVENTS = 400;
@@ -30,7 +30,8 @@ export function advanceDay(state: GameState): GameState {
   // Fleets move and fight before anything is counted, so a harbour shut this
   // morning pays nothing this evening.
   advanceFleets(next, rng);
-  syncSeat(next);
+  syncHome(next);
+  holdTheMoot(next);
   updateBlockades(next);
   collectIncome(next, rng);
   advanceBuilds(next);
@@ -51,50 +52,39 @@ export function advanceDay(state: GameState): GameState {
   return next;
 }
 
+/** The Free Harbor's power: the island she lies off comes round a point a day. */
+function holdTheMoot(state: GameState): void {
+  for (const system of state.systems) {
+    if (system.control === 'empire' || !powerAt(state, system.id, 'moot')) continue;
+    system.support.alliance = Math.min(100, system.support.alliance + MOOT_SUPPORT_PER_DAY);
+  }
+}
+
 /**
- * Two ways the war ends.
+ * Two ways the war ends, one each, and nothing else.
  *
- * Take the enemy's seat and hold both their leaders at once — Rebellion's own
- * condition, and the one the whole design points at: the Crown has to *find*
- * the Free Harbour first, the Confederacy has to get past Highwater's guns.
- * Or hold 60% of the settled islands, which is what a war of attrition looks
- * like when nobody manages the first.
+ * The Confederacy wins the day it holds Highwater. The Crown wins the day all
+ * three Pirate Lords are in irons at once — it has to find their ships out
+ * in the Reaches and take them, which is the hunt the whole design points at.
  */
 export function checkVictory(state: GameState): void {
-  for (const faction of ['empire', 'alliance'] as const) {
-    const enemy = otherFaction(faction);
-    const seat = state.systems.find((s) => s.id === state.factions[enemy].hqSystemId);
-    const heads = LEADERS[enemy].map((name) => state.characters.find((c) => c.name === name));
-    const allTaken = heads.length > 0 && heads.every((c) => c?.status === 'captured');
-    // The Crown's seat is taken by holding Highwater; the Confederacy's by
-    // sinking the Free Harbor, since their seat is a ship.
-    const seatTaken = enemy === 'alliance' ? !seatAfloat(state) : seat?.control === faction;
-    if (seatTaken && allTaken) {
-      state.winner = faction;
-      state.speed = 'paused';
-      pushEvent(state, {
-        kind: 'war',
-        text:
-          enemy === 'alliance'
-            ? `The Free Harbor is on the seabed and ${LEADERS[enemy].join(' and ')} are in irons. The ${factionData[faction].name} has won the war.`
-            : `${seat?.name ?? 'Highwater'} has fallen and ${LEADERS[enemy].join(' and ')} are in irons. The ${factionData[faction].name} has won the war.`,
-      });
-      return;
-    }
+  const capital = state.systems.find((s) => s.id === state.factions.empire.hqSystemId);
+  if (capital && capital.control === 'alliance') {
+    state.winner = 'alliance';
+    state.speed = 'paused';
+    pushEvent(state, {
+      kind: 'war',
+      text: `${capital.name} has fallen to the ${factionData.alliance.name}. The Crown is finished; the war is over.`,
+      systemId: capital.id,
+    });
+    return;
   }
-
-  const tally = controlTally(state);
-  if (tally.populated === 0) return;
-  const threshold = tally.populated * VICTORY_CONTROL_FRACTION;
-  for (const faction of ['empire', 'alliance'] as const) {
-    if (tally[faction] >= threshold) {
-      state.winner = faction as PlayableFaction;
-      state.speed = 'paused';
-      pushEvent(state, {
-        kind: 'war',
-      text: `The ${factionData[faction].name} holds the Seven Seas. The war is over.`,
-      });
-      return;
-    }
+  if (allLordsTaken(state)) {
+    state.winner = 'empire';
+    state.speed = 'paused';
+    pushEvent(state, {
+      kind: 'war',
+      text: `${PIRATE_LORDS.map((l) => l.name).join(', ')} are all in irons at once. The ${factionData.alliance.name} has no one left to lead it; the ${factionData.empire.name} has won the war.`,
+    });
   }
 }

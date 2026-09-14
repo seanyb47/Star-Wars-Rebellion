@@ -36,6 +36,7 @@ import {
 } from './helpers';
 import { recomputeLedger } from './economy';
 import { resolveControlAndUnrest } from './support';
+import { isLord, restoreLord } from './lords';
 import type { Rng } from './rng';
 import type { Character, GameState, MissionType, PlayableFaction, System } from './types';
 
@@ -147,12 +148,16 @@ export function abductOn(
 ): Character | undefined {
   if (!system.explored[faction]) return undefined;
   if (system.control === otherFaction(faction)) return undefined;
+  // Only somebody actually on the quay: an officer aboard a ship in the
+  // harbour is not there to be taken, and a Lord never is.
+  const aboard = new Set(state.fleets.flatMap((f) => f.officerIds));
   return state.characters.find(
     (c) =>
       c.faction === otherFaction(faction) &&
       c.locationSystemId === system.id &&
       c.status !== 'captured' &&
       c.status !== 'injured' &&
+      !aboard.has(c.id) &&
       !(c.mission && c.mission.phase === 'travelling'),
   );
 }
@@ -359,6 +364,7 @@ export function missionError(
   const character = state.characters.find((c) => c.id === characterId);
   if (!character) return 'No such character.';
   if (!isPlayable(character.faction)) return 'That character has no faction.';
+  if (isLord(character)) return `${character.name} is a Pirate Lord and does not leave their ship.`;
   if (character.status !== 'available') return 'They are not free to sail.';
   const system = state.systems.find((s) => s.id === targetSystemId);
   if (!system) return 'No such island.';
@@ -394,6 +400,11 @@ export function startMission(
   const days = travelDays(state, character.locationSystemId, targetSystemId);
   const type = chosen ?? missionTypeFor(state, target, character.faction as PlayableFaction)!;
 
+  // Whoever was serving aboard a fleet here goes over the side for the boat:
+  // an officer away at a parley is not also commanding a squadron.
+  for (const fleet of state.fleets) {
+    fleet.officerIds = fleet.officerIds.filter((id) => id !== character.id);
+  }
   character.status = 'on_mission';
   character.mission = {
     type,
@@ -519,6 +530,7 @@ export function advanceMissions(state: GameState, rng: Rng): void {
           text: `${character.name} has been exchanged and is back in the war.`,
           characterId: character.id,
         });
+        restoreLord(state, character);
       }
       continue;
     }
@@ -825,6 +837,7 @@ function rescueOutcome(
     systemId: system.id,
     characterId: captive.id,
   });
+  restoreLord(state, captive);
 }
 
 /**

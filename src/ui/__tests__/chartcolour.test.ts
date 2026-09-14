@@ -5,8 +5,9 @@ import { controlColor, OPEN_GREY } from '../GalaxyMap';
 describe('the chart never says whose an island is before you have been there', () => {
   it('paints every unexplored island grey, whoever holds it', () => {
     const state = generateGalaxy(501, 'empire');
-    const hidden = state.systems.filter((s) => s.control === 'alliance' && !s.explored.empire);
-    // The Confederacy's own islands start uncharted by the Crown; that is the game.
+    // An island the Confederacy has settled out past the Crown's charts.
+    const hidden = state.systems.filter((s) => !s.explored.empire).slice(0, 3);
+    for (const s of hidden) s.control = 'alliance';
     expect(hidden.length).toBeGreaterThan(0);
     for (const s of hidden) expect(controlColor(s, 'empire')).toBe(OPEN_GREY);
     // And the moment you have charted one, it shows its colour.

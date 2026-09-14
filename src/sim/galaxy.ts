@@ -9,8 +9,9 @@ import {
   RECRUITS_IN_PLAY,
   START_GARRISON_MAX,
   START_GARRISON_SPARE,
-  SEAT_SHIP,
+  PIRATE_LORDS,
 } from './constants';
+import { shipClass } from './constants';
 
 import type {
   Character,
@@ -388,13 +389,13 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     }
   }
 
-  // --- The Confederacy's base: one island in one frontier Reach, hidden. ---
+  // --- The meeting place: one island in one frontier Reach, nobody's. ---
+  //
+  // The Confederacy has no base. Its three Lords met somewhere the Crown has
+  // not charted and their ships are lying there on day one; the island itself
+  // is whatever it was — settled or bare, and not theirs.
   const baseSector = rng.pick(frontierSectors);
   const allianceHq = rng.pick(islandsOf(baseSector));
-  hold(allianceHq, 'alliance', { empire: 0, alliance: 100 });
-  allianceHq.garrison = 0;
-  allianceSystems.unshift(allianceHq);
-  const hqSector = baseSector;
 
   const countOf = (system: System, mines: boolean) =>
     system.facilities.filter((f) => (f.type === 'mine') === mines).length;
@@ -404,7 +405,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       // Room is the painting's to give, not the opening's: a starting island
       // keeps the ground the chart shows it. The deal below only ever widens
       // an island by the one spare slot that lets it build on day one.
-      system.garrison = startGarrison(system.support[owner], index === 0);
+      system.garrison = startGarrison(system.support[owner], owner === 'empire' && index === 0);
       system.explored[owner] = true;
     }
     const plan: FacilityType[] = [
@@ -416,21 +417,10 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     ];
     // Sean's rule, 14 September: two of each maker a side, dealt at random
     // across the side's starting islands — doubling up on one island is
-    // fine. The one exception is the Confederacy's base, which always has a
-    // construction yard, so the hidden harbour can raise anything from its
-    // first day. Earners still go round the table.
-    let firstYard = true;
+    // fine. Earners still go round the table.
     for (const [index, type] of plan.entries()) {
       const maker = type === 'construction_yard' || type === 'training_facility' || type === 'shipyard';
-      let system: System;
-      if (type === 'construction_yard' && firstYard && owner === 'alliance') {
-        system = owned[0];
-        firstYard = false;
-      } else if (maker) {
-        system = rng.pick(owned);
-      } else {
-        system = owned[index % owned.length];
-      }
+      const system = maker ? rng.pick(owned) : owned[index % owned.length];
       if (type === 'mine') system.rawSlots = Math.max(system.rawSlots, countOf(system, true) + 1);
       else system.energySlots = Math.max(system.energySlots, countOf(system, false) + 1);
       system.facilities.push(makeFacility(makeId('fac'), type, owner));
@@ -446,9 +436,9 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   seedHoldings('empire', empireSystems);
   seedHoldings('alliance', allianceSystems);
 
-  // The Confederacy knows the Reach its base is in; nobody else does, and
-  // the other frontier Reaches are a blank to both.
-  for (const id of hqSector.systemIds) byId.get(id)!.explored.alliance = true;
+  // The Confederacy knows the island it met on and nothing else out here;
+  // the frontier Reaches are otherwise a blank to both sides.
+  allianceHq.explored.alliance = true;
 
   // --- Characters: the world bible's seven majors per side, all at HQ. ---
   const characters: Character[] = [];
@@ -484,7 +474,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   // Which of the pool turn up, and where, changes with the seed.
   const openIslands = rng.shuffle(
     systems.filter(
-      (s) => s.populated && s.id !== capital.id && s.id !== allianceHq.id,
+      (s) => s.populated && s.id !== capital.id && s.id !== allianceHq.id && s.control !== 'alliance',
     ),
   );
   const inPlay = Math.min(RECRUITS_IN_PLAY, openIslands.length);
@@ -557,24 +547,43 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       officerIds: [],
     });
   }
-  // The Confederacy's seat, lying in the base's harbour. A ship, not an
-  // island: sail her and the seat sails with her.
-  state.fleets.push({
-    id: `flt-${++state.nextId}`,
-    name: 'Free Harbor',
-    faction: 'alliance',
-    systemId: allianceHq.id,
-    ships: [{ id: `shp-${++state.nextId}`, classId: SEAT_SHIP, damage: 0 }],
-    troops: 0,
-    officerIds: [],
-  });
+  // The three Pirate Lords, each aboard their own ship, lying at the meeting
+  // place. The rest of the Confederacy's people are aboard the Free Harbor
+  // with the Commodore, which is where the Moot sits.
+  const lordShips: string[] = [];
+  for (const [index, lord] of PIRATE_LORDS.entries()) {
+    const who = characters.find((c) => c.name === lord.name);
+    const aboard = who ? [who.id] : [];
+    if (index === 0) {
+      for (const c of characters) {
+        if (c.faction === 'alliance' && !PIRATE_LORDS.some((l) => l.name === c.name)) aboard.push(c.id);
+      }
+    }
+    const name = shipClass(lord.ship).name;
+    lordShips.push(name);
+    state.fleets.push({
+      id: `flt-${++state.nextId}`,
+      name,
+      faction: 'alliance',
+      systemId: allianceHq.id,
+      ships: [{ id: `shp-${++state.nextId}`, classId: lord.ship, damage: 0 }],
+      troops: 0,
+      officerIds: aboard,
+    });
+  }
 
   recomputeLedger(state);
+  const meeting = allianceHq.name;
+  const lordLine = PIRATE_LORDS.map((l, i) => `${l.name} aboard the ${lordShips[i]}`).join(', ');
   state.events.push({
     id: `evt-${++state.nextId}`,
     day: 1,
     kind: 'war',
-      text: `The ${factionData.alliance.name} declares against the ${factionData.empire.name}. The war for the Seven Seas begins.`,
+    text:
+      player === 'alliance'
+        ? `The ${factionData.alliance.name} is formed at ${meeting}, beyond the Crown's charts, under three Pirate Lords: ${lordLine}. Several islands have already declared for it. Take ${capital.name} and the Crown falls; lose all three Lords and the cause dies with them.`
+        : `Word reaches ${capital.name}: a meeting has taken place in uncharted waters, and the ${factionData.alliance.name} has been formed under three Pirate Lords. Several islands have openly declared for it. Hunt the Lords down before they become a problem — and hold ${capital.name}, whatever else.`,
+    systemId: player === 'alliance' ? allianceHq.id : capital.id,
   });
   return state;
 }

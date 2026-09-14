@@ -1,5 +1,5 @@
 {
-  "_comment": "Hull classes, world bible section 6. Names and prose live here; the numbers live in sim/constants.ts, keyed by size, so both fleets are balanced identically and only their names and character differ. There are deliberately no fighters: a small craft is just a small ship, so the range is small / medium / large, with the transport off to one side. One class is unique: the Free Harbor, the Confederacy's seat, which is a ship and cannot be built.",
+  "_comment": "Hull classes, world bible section 6. Names and prose live here; the numbers live in sim/constants.ts, keyed by size, so both fleets are balanced identically and only their names and character differ. There are deliberately no fighters: a small craft is just a small ship, so the range is small / medium / large, with the transport off to one side. Three classes are unique: the Pirate Lords' own ships, which cannot be built, cost nothing to keep, and carry a power each.",
   "classes": [
     {
       "id": "sovereign",
@@ -64,7 +64,32 @@
       "unique": true,
       "hull": 16,
       "name": "Free Harbor",
-      "blurb": "Corwin Calloway's old three-decker, coral-grown over a whale-spine keel, named for what he meant her to be: any deck of his was a free harbour to anyone the Crown wanted. Sailors who fled the licensing raids found a berth aboard her, then a flag, then a cause. Everyone saw her burn at the Broken Chain; the Reef-folk sang the coral closed over the char and brought her out of the smoke, and the Moot has sat on her quarterdeck since. The Confederacy has no capital. It has her."
+      "blurb": "Commodore-Elect Adaira Hale's ship, and the Confederacy's floating parliament. Corwin Calloway's old coral-grown three-decker, named for what he meant her to be: any deck of his was a free harbour to anyone the Crown wanted. The Moot sits on her quarterdeck. Wherever she lies at anchor the island comes round to the Confederacy a point a day, and she is home to anyone coming back from a parley.",
+      "power": "moot"
+    },
+    {
+      "id": "swallowtail",
+      "faction": "alliance",
+      "role": "small",
+      "unique": true,
+      "hull": 8,
+      "guns": 4,
+      "pace": 0.5,
+      "carries": 1,
+      "name": "Swallowtail",
+      "blurb": "Captain Silas Reyne's coral-grown sloop, which should not be as fast as she is. Faster than anything afloat, and the last thing in a harbour the enemy's guns can find: while another Confederate hull floats beside her, she is not hit.",
+      "power": "runner"
+    },
+    {
+      "id": "ironback",
+      "faction": "alliance",
+      "role": "large",
+      "unique": true,
+      "hull": 14,
+      "guns": 10,
+      "name": "Ironback",
+      "blurb": "The Crown dreadnought Admiral Dorian Jessup took with him when he left the Imperium's service. The heaviest guns on the water, and every Confederate fleet lying in her harbour fights under his command.",
+      "power": "line"
     }
   ]
 }

@@ -9,12 +9,12 @@ the great island carry `port: true`.
 
 **Frontier — Salt Reach and Rime Reach.** Always start
 unexplored, for everyone. Each island has a 25% chance of being settled and
-held by neutral forces, behind the fog. The Confederacy's base is one random
-island in one of these two Reaches; the Confederacy knows that Reach and
-nothing else out here; its Home Fleet lies at the base, and so does the
-Free Harbor — the Confederacy's seat, which is a ship. Sail her and the seat
-sails with her; wherever she lies off an island of theirs is home. The Crown
-takes that seat by sinking her, not by landing.
+held by neutral forces, behind the fog. The Confederacy has no base: its three
+Pirate Lords met on one random island in one of these two Reaches and their
+ships — the *Free Harbor*, the *Swallowtail*, the *Ironback* — lie there on
+day one with the Home Fleet and the rest of the Confederacy's people aboard the
+*Free Harbor*. The island is nobody's. The Confederacy knows that island and
+nothing else out here.
 
 **Home — Sovereign Reach.** Highwater is a port city and always the Crown's
 seat, with the Home Fleet there. The great island has three ports: Highwater,
@@ -57,10 +57,12 @@ to fourteen a day on day one.
 **Makers.** Two of each production facility a side — two construction
 yards, two training facilities, two shipyards — dealt at random across
 the side's starting islands, so a seed may double them up on one island
-and leave another with none. The one fixed thing: the Confederacy's base
-always holds a construction yard, so the hidden harbour can raise its own
-works from day one. The Crown's are wholly random. Earners still go round
-in order so every island opens with something to pay its way.
+and leave another with none. Earners still go round in order so every
+island opens with something to pay its way.
+
+**How the war ends.** The Confederacy wins the day it holds Highwater. The
+Crown wins the day all three Lords are in irons at once: a Lord never leaves
+their ship, so that means finding the ships and taking them.
 
 **Chart.** Highwater must be painted as a port on the great island's coast,
 not on its mountain; Gorley and Ballmoor as the other two ports on that

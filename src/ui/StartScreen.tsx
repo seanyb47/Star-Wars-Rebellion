@@ -22,14 +22,14 @@ const FACTION_DETAIL: Record<
   { strengths: string[]; weaknesses: string[]; opening: string }
 > = {
   empire: {
-    strengths: ['Rich, charted Inner Seas', 'Strong from the first day', 'A capital nobody can find and burn'],
-    weaknesses: ['Your seat cannot move', 'Fewer envoys than the Brethren', 'Islands resent what the walls cost them'],
-    opening: 'You begin at Highwater with the core of the world already in hand, and everything to lose.',
+    strengths: ['Rich, charted Inner Seas', 'Ships of the line from the first day', 'The Lords have to be found; Highwater is on every chart'],
+    weaknesses: ['Lose Highwater and lose everything', 'Fewer envoys than the Brethren', 'Islands resent what the walls cost them'],
+    opening: 'You begin at Highwater with the core of the world in hand. Somewhere past your charts three Pirate Lords have met, and islands are already declaring for them.',
   },
   alliance: {
-    strengths: ['A seat that sails: the Free Harbor herself', 'More envoys, and better ones', 'Nothing to lose but the tide'],
-    weaknesses: ['Outgunned in open water', 'Scattered across the Outer Seas', 'Half your captains take some managing'],
-    opening: 'You begin on the fringe with four islands and a shouting-match for a government.',
+    strengths: ['Three Pirate Lords, three ships with powers', 'More envoys, and better ones', 'No capital to lose'],
+    weaknesses: ['Outgunned in open water', 'Lose all three Lords and the cause dies', 'Half your captains take some managing'],
+    opening: 'You begin at a meeting place beyond the Crown\'s charts, three Lords and their ships, with islands across the Reaches already declared for you.',
   },
 };
 

@@ -1,58 +1,50 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { checkVictory } from '../advanceDay';
-import { LEADERS } from '../constants';
+import { PIRATE_LORDS } from '../constants';
+import { lords } from '../lords';
 
 describe('how the war ends', () => {
-  it('is won by taking the enemy seat while both their leaders are in irons', () => {
+  it('is won by the Crown when all three Pirate Lords are in irons at once', () => {
     const state = generateGalaxy(501, 'empire');
-    const heads = LEADERS.alliance.map((n) => state.characters.find((c) => c.name === n)!);
-    expect(heads.every(Boolean)).toBe(true);
+    const heads = lords(state);
+    expect(heads).toHaveLength(PIRATE_LORDS.length);
 
-    // The Confederacy's seat is a ship. Holding the island she lay off is
-    // nothing; she has to be on the seabed.
-    const seat = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
-    seat.control = 'empire';
-    for (const n of LEADERS.alliance) state.characters.find((c) => c.name === n)!.status = 'captured';
-    checkVictory(state);
-    expect(state.winner).toBeUndefined();
-    for (const n of LEADERS.alliance) state.characters.find((c) => c.name === n)!.status = 'available';
-
-    // The seat alone is not enough.
-    state.factions.alliance.seatLost = true;
-    state.fleets = state.fleets.filter((f) => !f.ships.some((s) => s.classId === 'harbor'));
-    checkVictory(state);
-    expect(state.winner).toBeUndefined();
-
-    // One leader is not enough.
+    // Two are not enough.
     heads[0].status = 'captured';
+    heads[1].status = 'captured';
     checkVictory(state);
     expect(state.winner).toBeUndefined();
 
-    // Both, and the seat: the war is over.
-    heads[1].status = 'captured';
+    // Three, together: the war is over.
+    heads[2].status = 'captured';
     checkVictory(state);
     expect(state.winner).toBe('empire');
     expect(state.speed).toBe('paused');
     expect(state.events.at(-1)!.kind).toBe('war');
   });
 
-  it('needs the seat as well as the people — a raid is not a war', () => {
-    const state = generateGalaxy(501, 'empire');
-    for (const n of LEADERS.alliance) state.characters.find((c) => c.name === n)!.status = 'captured';
+  it('is won by the Confederacy the day it holds Highwater, and by nothing less', () => {
+    const state = generateGalaxy(7, 'alliance');
+    // Holding most of the world is not the war.
+    for (const s of state.systems) if (s.populated && s.control !== 'empire') s.control = 'alliance';
     checkVictory(state);
     expect(state.winner).toBeUndefined();
-  });
-
-  it('cuts both ways, and names real people on both sides', () => {
-    const state = generateGalaxy(7, 'alliance');
-    for (const f of ['empire', 'alliance'] as const) {
-      for (const n of LEADERS[f]) expect(state.characters.some((c) => c.name === n), n).toBe(true);
-    }
-    const seat = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
-    seat.control = 'alliance';
-    for (const n of LEADERS.empire) state.characters.find((c) => c.name === n)!.status = 'captured';
+    const capital = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
+    expect(capital.name).toBe('Highwater');
+    capital.control = 'alliance';
     checkVictory(state);
     expect(state.winner).toBe('alliance');
+  });
+
+  it('names real people: every Lord is in the cast, aboard their own ship', () => {
+    const state = generateGalaxy(3, 'alliance');
+    for (const lord of PIRATE_LORDS) {
+      const who = state.characters.find((c) => c.name === lord.name)!;
+      expect(who, lord.name).toBeDefined();
+      const ship = state.fleets.find((f) => f.ships.some((s) => s.classId === lord.ship))!;
+      expect(ship, lord.ship).toBeDefined();
+      expect(ship.officerIds).toContain(who.id);
+    }
   });
 });

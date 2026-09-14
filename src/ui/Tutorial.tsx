@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import factionData from '../data/factions.json';
 import reachData from '../data/reaches.json';
 import { numberWord } from './words';
-import { CAPTIVE_DAYS, LEADERS, VICTORY_CONTROL_FRACTION, type PlayableFaction } from '../sim';
+import { CAPTIVE_DAYS, PIRATE_LORDS, type PlayableFaction } from '../sim';
 
 /** Bumped when the tutorial is rewritten, so people who skipped the old one see the new. */
 const DONE_KEY = 'seven-seas.taught.v2';
@@ -45,16 +45,16 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'How you win',
     body: (side) => {
-      const enemy = side === 'empire' ? 'alliance' : 'empire';
-      const them = factionData[enemy];
-      const [first, second] = LEADERS[enemy];
-      return `Two ways. Take ${them.hqLabel} and hold both ${first} and ${second} in irons at the same time — captives are exchanged after ${CAPTIVE_DAYS} days, so it is a window. Or hold ${Math.round(VICTORY_CONTROL_FRACTION * 100)}% of the settled islands. They win the same two ways against you.`;
+      const lords = PIRATE_LORDS.map((l) => l.name).join(', ');
+      return side === 'empire'
+        ? `Hunt down the three Pirate Lords — ${lords}. Each is bound to a ship; take the ship and you take the Lord. Hold all three in irons at once and the Confederacy is finished. Captives are exchanged after ${CAPTIVE_DAYS} days, so it is a window. And hold Highwater: the day it falls, the Crown falls.`
+        : `Take Highwater. The day the Confederacy holds it, the Crown is finished. You lose the day all three Pirate Lords — ${lords}, each bound to their own ship — are in the Crown's irons at once. Captives are exchanged after ${CAPTIVE_DAYS} days, so keep at least one of them out of reach.`;
     },
   },
   {
     title: 'The chart',
     body: () =>
-      'Every island is a dot in the colour of who holds it: green the Crown, red the Confederacy, blue settled but nobody\'s, grey unexplored or empty — open ground to survey and settle. The large burst is a capital. Tap a chain to zoom in.',
+      'Every island is a dot in the colour of who holds it: green the Crown, red the Confederacy, blue settled but nobody\'s, grey unexplored or empty — open ground to survey and settle. The star is the thing to watch: it marks Highwater, and wherever a Pirate Lord\'s ship is lying. Tap a chain to zoom in.',
   },
   {
     title: 'One island',
@@ -100,8 +100,8 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
     title: 'A first move',
     body: (side) =>
       side === 'empire'
-        ? 'Two of your islands are sullen and held by garrison alone. Send a diplomat to one of them before the Confederacy sends theirs. Then find the Free Harbor: she is a ship, lying off some island in the outer Reaches you have not charted, and she will weigh anchor when she sees you coming.'
-        : 'You hold four islands the Crown cannot see. Send your best diplomat to a neutral island in your own chain and turn it. Put Wyatt Ansell on the Shipyard. And keep your seat hidden: it is a ship, the Free Harbor, lying in the harbour of your base. The Crown has to find her before it can sink her, so weigh anchor when they come looking.',
+        ? 'Two of your islands are sullen and held by garrison alone. Send a diplomat to one of them before the Confederacy sends theirs. Then start the hunt: the three Lords\' ships are lying off some island in the outer Reaches you have not charted, and they will scatter when they see you coming. Survey the frontier, and watch for the star.'
+        : 'Your three Lords and their ships lie at the meeting place, beyond the Crown\'s charts, with the rest of your people aboard the Free Harbor. Put them ashore where you hold ground and send your best diplomat to a neutral island in your own chain. Put Wyatt Ansell on the Shipyard. And keep the Lords apart and out of sight: the Crown needs all three at once.',
   },
 ];
 

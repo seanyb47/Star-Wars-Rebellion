@@ -341,8 +341,8 @@ Things I know are wrong, in the order I mean to fix them.
 
 In short: the war, the fleets and all nine errands are built — parley,
 incitement, recruitment, sabotage, survey, abduction, command, research and
-rescue — and both ways to win. The Confederacy's seat is a ship, the Free
-Harbor, which sails, hides, and has to be sunk. Still outstanding are command ranks, Tidecraft tiers and
+rescue — and both ways to win: the Confederacy takes Highwater, the Crown
+takes all three Pirate Lords, each of whom is bound to a ship of their own. Still outstanding are command ranks, Tidecraft tiers and
 training, the Leviathan, and a smarter opponent.
 
 From the world bible, still waiting on the phases that need them: ground forces

@@ -411,20 +411,37 @@ solvent on all six seeds. What is left in the bank is structural — its
 islands are nearly full — and the next lever is room, not cadence.
 
 
-## The Free Harbor is a ship — 14 September
+## No base: three Pirate Lords — 14 September
 
-Sean's call: the Confederacy's seat is not a base but the ship and captain the
-rebellion was born on. Corwin Calloway's coral-grown three-decker, the *Free
-Harbor*, lies in the base's harbour on day one as a fleet of her own. She is a
-unique large hull with a heavier hull than a first-rate, nothing to keep, never
-on a shipyard's menu. The seat follows her: every day, if she is at anchor off
-an island of the Confederacy's, that island is `hqSystemId`, so captives,
-returning officers and the star on the chart all go where she is. Lying off a
-Crown island, the seat stays at the last island of theirs she called at.
+Sean's call, an hour after the seat-ship: the Confederacy has no seat at all.
+It has three Pirate Lords, each bound to a ship with a power of its own —
+Hale and the *Free Harbor* (the Moot: allegiance a point a day where she
+lies, and home for anyone coming back), Reyne and the *Swallowtail* (fastest
+afloat, hit last while another hull floats beside her), Jessup and the
+*Ironback* (heaviest guns, and every Confederate fleet in her harbour fights
+under his edge). Their ships lie at a random uncharted frontier island where
+the Confederacy was formed, with the Home Fleet and the rest of the crew
+aboard the *Free Harbor*. A Lord never goes ashore, never boards another
+ship, never takes a parley; the AI's diplomat list skips them.
 
-Sinking her sets `seatLost` and the Crown's half of the leaders-and-seat win;
-the Confederacy plays on without a seat. The opponent never raids with her: it
-keeps her where the Crown has not charted and no Crown hull lies, and runs for
-the nearest such island the day that stops being true. The Crown's opponent
-weights a charted Free Harbor as the richest target on the water. Old saves get
-her at the seat island on load.
+A Lord's ship strikes rather than sinks: the Lord goes in irons to Highwater
+and the ship comes back with them when they are exchanged or rescued. The
+Crown wins with all three in irons at once; the Confederacy wins the day it
+holds Highwater. The 60% rule is gone. Home for the Confederacy (`hqSystemId`)
+follows the *Free Harbor*, then any Lord's ship, then the island that loves
+them best, never a Crown island.
+
+The opponent had to learn both wins. The Crown keeps one picket fleet charting
+the nearest dark island whenever it has no companies aboard and nobody else is
+out looking, and treats a charted Lord's island as the richest target on the
+water. The Confederacy keeps its strongest non-Lord fleet for Highwater:
+it folds every other fleet in the same harbour into it, calls the rest to
+join while it is outgunned, stages at the island with the most companies to
+spare, and sails when it carries more than the capital's garrison and boom.
+Fifteen of sixteen idle-player games across eight seeds now end, most inside
+a year and a half.
+
+The star on the chart marks exactly two things: Highwater, and every island a
+Lord's ship is lying off (the Crown sees those only once it has charted the
+island). Thirty percent bigger than before. Filters answer with a ring now,
+never a star.

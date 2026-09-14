@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
+import { isLord } from '../lords';
 import { advanceMissions, craftGrade, isAbductTarget, isCommandTarget, isResearchTarget, isRescueTarget, missionTypeFor, missionsOffered, startMission } from '../missions';
 import { effectiveSpec, queueBuild } from '../build';
 import { buildSpec, shipsFor } from '../constants';
@@ -12,10 +13,12 @@ function world(seed = 501): GameState {
 }
 
 /** Put a character on an island, ready to be sent. */
-function place(_state: GameState, who: Character, system: System) {
+function place(state: GameState, who: Character, system: System) {
   who.locationSystemId = system.id;
   who.status = 'available';
   who.mission = undefined;
+  // Ashore, not serving with a fleet.
+  for (const f of state.fleets) f.officerIds = f.officerIds.filter((id) => id !== who.id);
 }
 
 /** Run enough days for a mission started on the spot to land and report. */
@@ -41,7 +44,8 @@ describe('abduction', () => {
   it('takes an enemy officer caught off their own ground, and gives them back later', () => {
     const state = world();
     const mine = state.systems.find((s) => s.control === 'empire' && s.populated)!;
-    const them = state.characters.find((c) => c.faction === 'alliance')!;
+    // Not a Lord: they never leave their ships and cannot be lifted off a quay.
+    const them = state.characters.find((c) => c.faction === 'alliance' && !isLord(c))!;
     const me = state.characters.find((c) => c.faction === 'empire')!;
     place(state, them, mine);
     place(state, me, mine);

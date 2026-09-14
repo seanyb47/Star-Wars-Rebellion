@@ -7,6 +7,7 @@ import {
   parleyGain,
   recruitChance,
   successChance,
+  isLord,
   type Character,
   type GameState,
 } from '../sim';
@@ -77,11 +78,19 @@ export function CharacterSheet({
   onLocate: () => void;
 }) {
   const location = state.systems.find((s) => s.id === character.locationSystemId);
+  const ship = state.fleets.find((f) => f.officerIds.includes(character.id));
+  const bound = isLord(character);
 
   return (
     <Sheet
       title={character.name}
-      subtitle={`Ashore at ${location?.name ?? 'unknown'}`}
+      subtitle={
+        character.status === 'captured'
+          ? `In irons at ${location?.name ?? 'unknown'}`
+          : ship
+            ? `Aboard the ${ship.name}${ship.voyage ? ', at sea' : `, at ${location?.name ?? 'unknown'}`}`
+            : `Ashore at ${location?.name ?? 'unknown'}`
+      }
       onClose={onClose}
       stacked
       actions={
@@ -91,10 +100,10 @@ export function CharacterSheet({
           </button>
           <button
             className="btn btn--flex btn--primary"
-            disabled={character.status !== 'available'}
+            disabled={character.status !== 'available' || bound}
             onClick={onSendOnMission}
           >
-            Send ashore
+            {bound ? 'Bound to their ship' : 'Send ashore'}
           </button>
         </>
       }

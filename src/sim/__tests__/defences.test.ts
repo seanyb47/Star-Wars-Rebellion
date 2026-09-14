@@ -17,15 +17,17 @@ function build(system: System, type: 'fort' | 'boom', owner: 'empire' | 'allianc
 }
 
 describe('the opening, against Rebellion', () => {
-  it('opens the Crown on nine islands, one of them sullen, and the Confederacy on eight or nine', () => {
+  it('opens the Crown on nine islands, one of them sullen, and the Confederacy on seven or eight', () => {
     for (const seed of [17, 501, 7, 99]) {
       const state = world(seed);
       const crown = state.systems.filter((s) => s.control === 'empire');
       const confed = state.systems.filter((s) => s.control === 'alliance');
       // Three in the home Reach and two in each of the three contested ones.
       expect(crown).toHaveLength(9);
-      expect(confed.length).toBeGreaterThanOrEqual(8);
-      expect(confed.length).toBeLessThanOrEqual(9);
+      // One or two in the home Reach and two in each of the three contested
+      // ones. No base: the Lords' meeting place is nobody's.
+      expect(confed.length).toBeGreaterThanOrEqual(7);
+      expect(confed.length).toBeLessThanOrEqual(8);
       const sullen = crown.filter((s) => s.support.empire < 50);
       expect(sullen).toHaveLength(1);
       for (const s of sullen) {

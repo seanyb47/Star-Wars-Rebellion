@@ -104,8 +104,13 @@ export type ShipClassId =
   | 'tempest'
   | 'reef'
   | 'brig'
-  /** The Confederacy's seat: one hull, never built, never replaced. */
-  | 'harbor';
+  /** The Pirate Lords' own ships: one hull each, never built. */
+  | 'harbor'
+  | 'swallowtail'
+  | 'ironback';
+
+/** What a Pirate Lord's ship does that no other hull does. */
+export type LordPower = 'moot' | 'runner' | 'line';
 
 export type BuildItem = FacilityType | 'troop' | ShipClassId;
 
@@ -229,14 +234,12 @@ export interface FactionState {
   /** What everything you own costs to keep in a day. */
   upkeep: number;
   /**
-   * The Crown's is Highwater, always. The Confederacy's is wherever the Free
-   * Harbor lies — a ship, not an island — and is kept in step with her every
-   * day, so everything that "goes home" goes to the island she is anchored
-   * off. Once she is sunk it stays where she went down.
+   * The Crown's is Highwater, always, and losing it loses the war. The
+   * Confederacy has no seat: this is only where its people go home to —
+   * wherever the Free Harbor lies, failing her another Lord's ship, failing
+   * that the island that loves them best — and is kept in step every day.
    */
   hqSystemId: string;
-  /** Set the day the Free Harbor burns. The Confederacy plays on without a seat. */
-  seatLost?: true;
   /**
    * Shipwright craft: how far this side's yards have come, 0 upward.
    *

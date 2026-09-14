@@ -92,14 +92,12 @@ describe('the opponent AI', () => {
 });
 
 describe('victory', () => {
-  it('declares a winner at 60% of populated systems', () => {
+  it('declares the Confederacy the winner the day it holds Highwater', () => {
     const state = generateGalaxy(409);
-    const populated = state.systems.filter((s) => s.populated);
-    for (const system of populated.slice(0, Math.ceil(populated.length * 0.6))) {
-      system.control = 'empire';
-    }
+    const capital = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
+    capital.control = 'alliance';
     checkVictory(state);
-    expect(state.winner).toBe('empire');
+    expect(state.winner).toBe('alliance');
     expect(state.speed).toBe('paused');
   });
 

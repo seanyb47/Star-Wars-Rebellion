@@ -48,20 +48,21 @@ describe('generateGalaxy', () => {
     }
   });
 
-  it('puts the Empire HQ on a core world and the Alliance HQ on the rim', () => {
+  it('puts the Crown at Highwater and the Confederacy at a meeting place that is nobody\'s', () => {
     const state = generateGalaxy(21);
     const empireHq = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
-    const allianceHq = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
+    const meeting = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
     expect(empireHq.isCore).toBe(true);
     expect(empireHq.control).toBe('empire');
     expect(empireHq.support.empire).toBe(100);
-    expect(allianceHq.isCore).toBe(false);
-    expect(allianceHq.control).toBe('alliance');
-    expect(allianceHq.support.alliance).toBe(100);
-    expect(allianceHq.populated).toBe(true);
+    // No base: the Lords met somewhere out past the charts and it is not theirs.
+    expect(meeting.isCore).toBe(false);
+    expect(meeting.control).not.toBe('alliance');
+    expect(meeting.explored.alliance).toBe(true);
+    expect(meeting.explored.empire).toBe(false);
   });
 
-  it('starts each side with seven characters at its HQ', () => {
+  it('starts each side with seven characters at home: the Crown\'s ashore, the Confederacy\'s aboard', () => {
     const state = generateGalaxy(13);
     for (const faction of ['empire', 'alliance'] as const) {
       const crew = state.characters.filter((c) => c.faction === faction);
@@ -69,6 +70,8 @@ describe('generateGalaxy', () => {
       for (const character of crew) {
         expect(character.locationSystemId).toBe(state.factions[faction].hqSystemId);
         expect(character.status).toBe('available');
+        const aboard = state.fleets.some((f) => f.officerIds.includes(character.id));
+        expect(aboard).toBe(faction === 'alliance');
       }
     }
   });
@@ -95,13 +98,13 @@ describe('generateGalaxy', () => {
     }
   });
 
-  it('always puts a construction yard at the Confederacy base', () => {
+  it('gives the Confederacy eight islands that have declared for it, none of them the meeting place', () => {
     for (let seed = 1; seed <= 12; seed++) {
       const state = generateGalaxy(seed);
-      const base = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
-      expect(
-        base.facilities.some((f) => f.owner === 'alliance' && f.type === 'construction_yard'),
-      ).toBe(true);
+      const held = state.systems.filter((s) => s.control === 'alliance');
+      expect(held.length).toBeGreaterThanOrEqual(7);
+      expect(held.length).toBeLessThanOrEqual(8);
+      expect(held.map((s) => s.id)).not.toContain(state.factions.alliance.hqSystemId);
     }
   });
 
@@ -126,8 +129,8 @@ describe('generateGalaxy', () => {
         for (const id of sector.systemIds) {
           const system = state.systems.find((s) => s.id === id)!;
           expect(system.explored.empire, `${system.name} seed ${seed}`).toBe(false);
-          // The Confederacy knows the Reach its base is in and nothing else out here.
-          expect(system.explored.alliance).toBe(sector.id === base.sectorId);
+          // The Confederacy knows the island it met on and nothing else out here.
+          expect(system.explored.alliance).toBe(system.id === base.id);
           if (system.id !== base.id) {
             total += 1;
             if (system.populated) {
@@ -144,13 +147,15 @@ describe('generateGalaxy', () => {
     expect(settled / total).toBeLessThan(0.35);
   });
 
-  it('puts the Confederacy base on one frontier island with its fleet, and the Home Fleet at Highwater', () => {
+  it('holds the meeting on one frontier island, every Confederate hull lying there, and the Home Fleet at Highwater', () => {
     for (const seed of [41, 42, 43]) {
       const state = generateGalaxy(seed);
       const base = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
       const baseReach = state.sectors.find((s) => s.id === base.sectorId)!;
       expect(['Rime Reach', 'Salt Reach']).toContain(baseReach.name);
-      expect(state.fleets.find((f) => f.faction === 'alliance')!.systemId).toBe(base.id);
+      const confed = state.fleets.filter((f) => f.faction === 'alliance');
+      expect(confed).toHaveLength(4);
+      for (const f of confed) expect(f.systemId).toBe(base.id);
       const seat = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
       expect(seat.name).toBe('Highwater');
       expect(seat.archetype).toBe('port-city');

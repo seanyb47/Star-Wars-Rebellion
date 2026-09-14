@@ -15,7 +15,6 @@ import factionData from '../data/factions.json';
 import { allegianceColour, allegianceSegments } from './allegiance';
 import { islandPath } from './art';
 import { paintedChart } from './painted';
-import { worthPath } from './worth';
 import chartData from '../data/chart.json';
 
 /**
@@ -405,16 +404,15 @@ export function ChainMap({
                     {litCount}
                   </text>
                 ) : (
-                  <>
-                    <path
-                      d={worthPath('large', layer && isLoudLayer(layer) ? 26 : 15)!}
-                      transform={`translate(${spot.x - nameWidth(system.name) / 2 - (layer && isLoudLayer(layer) ? 26 : 22)} ${spot.y + 1})`}
-                      fill={tint}
-                      stroke="#041219"
-                      strokeWidth={2}
-                      strokeLinejoin="round"
-                    />
-                  </>
+                  <circle
+                    cx={spot.x - nameWidth(system.name) / 2 - (layer && isLoudLayer(layer) ? 26 : 22)}
+                    cy={spot.y + 1}
+                    r={layer && isLoudLayer(layer) ? 20 : 12}
+                    fill={tint}
+                    fillOpacity={0.35}
+                    stroke={tint}
+                    strokeWidth={4}
+                  />
                 )}
                 {!(layer && showsNumber(layer)) && litCount !== undefined && litCount > 1 && (
                   <text

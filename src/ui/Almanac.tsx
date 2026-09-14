@@ -12,8 +12,7 @@ import {
   UPRISING_SUPPORT,
   FLIP_SUPPORT_MARGIN,
   FLIP_SUPPORT_MIN,
-  VICTORY_CONTROL_FRACTION,
-  LEADERS,
+  PIRATE_LORDS,
   CAPTIVE_DAYS,
   YARD_BUILDS,
   type FacilityType,
@@ -216,12 +215,10 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
 
       <div className="section-title">How the war is won</div>
       <div className="card small">
-        <b>Two ways.</b> Take the enemy's seat — Highwater held, or the Free Harbor sunk, since the
-        Confederacy's seat is a ship — and hold both of their leaders in irons at the same
-        time — {LEADERS.empire.join(' and ')} for the Crown, {LEADERS.alliance.join(' and ')} for
-        the Confederacy. Captives are exchanged after {CAPTIVE_DAYS} days, so it is a window, not a
-        list. Or hold {Math.round(VICTORY_CONTROL_FRACTION * 100)}% of the settled islands. The
-        same two ways lose it.
+        <b>One way each.</b> The Confederacy wins the day it holds Highwater. The Crown wins the
+        day all three Pirate Lords — {PIRATE_LORDS.map((l) => l.name).join(', ')} — are in irons
+        at once. A Lord never leaves their ship: take the ship and you take the Lord. Captives are
+        exchanged after {CAPTIVE_DAYS} days, so the Crown's is a window, not a list.
       </div>
 
       <div className="section-title">Not built yet</div>

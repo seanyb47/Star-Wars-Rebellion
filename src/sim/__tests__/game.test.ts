@@ -5,6 +5,7 @@ import { AI_MISSION_INTERVAL } from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
 import { getSystem } from '../helpers';
+import { isLord } from '../lords';
 import {
   advanceMissions,
   continueMission,
@@ -13,7 +14,6 @@ import {
   startMission,
   travelDays,
 } from '../missions';
-import { controlTally } from '../support';
 import type { GameState, PlayableFaction } from '../types';
 
 /**
@@ -44,10 +44,11 @@ describe('a full game', () => {
     expect(state.winner).toBe('empire');
   });
 
-  it('ends with the winner over the 60% threshold', () => {
+  it('ends the way the rules say: Highwater fallen, or every Lord in irons', () => {
     const state = playOut(2, 'empire');
-    const tally = controlTally(state);
-    expect(tally.alliance).toBeGreaterThanOrEqual(tally.populated * 0.6);
+    expect(state.winner).toBe('alliance');
+    const capital = getSystem(state, state.factions.empire.hqSystemId);
+    expect(capital.control).toBe('alliance');
   });
 });
 
@@ -55,14 +56,16 @@ describe('the opponent expands', () => {
   it('takes worlds over by diplomacy alone', () => {
     let state = generateGalaxy(1);
     const before = state.systems.filter((s) => s.control === 'alliance').length;
-    for (let day = 0; day < 400; day++) {
+    // Until the war ends: the opponent can now take Highwater inside a year,
+    // and the count freezes the day it does.
+    for (let day = 0; day < 400 && !state.winner; day++) {
       state = advanceDay(state);
       for (const decision of [...state.pendingDecisions]) {
         continueMission(state, decision.characterId);
       }
     }
     const after = state.systems.filter((s) => s.control === 'alliance').length;
-    expect(after).toBeGreaterThan(before + 5);
+    expect(after).toBeGreaterThan(before + 1);
   });
 
   it('never sends an officer anywhere there is nothing to do', () => {
@@ -109,7 +112,8 @@ describe('the opponent expands', () => {
     // Forced here rather than fished for across seeds, so it stays covered
     // however the balance is tuned.
     const state = generateGalaxy(4);
-    const diplomat = state.characters.find((c) => c.faction === 'alliance')!;
+    // Not a Lord: they never go ashore.
+    const diplomat = state.characters.find((c) => c.faction === 'alliance' && !isLord(c))!;
     // A neutral island with nobody unaligned ashore: somebody standing on the
     // quay would make signing them on the island's answer, and this test is
     // about a parley.

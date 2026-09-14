@@ -21,7 +21,6 @@ import {
   type ChartLayer,
   sendDiplomat,
   setSpeed,
-  VICTORY_CONTROL_FRACTION,
   type BuildItem,
   type GameState,
   type PlayableFaction,
@@ -743,7 +742,6 @@ function MenuSheet({
   onHowToPlay: () => void;
 }) {
   const tally = controlTally(state);
-  const needed = Math.ceil(tally.populated * VICTORY_CONTROL_FRACTION);
   return (
     <Sheet
       title={factionData.gameTitle}
@@ -764,8 +762,8 @@ function MenuSheet({
         <Stat label={factionData.alliance.shortName} value={tally.alliance} />
       </div>
       <p className="tiny muted" style={{ marginTop: 6 }}>
-        {needed} settled islands takes the Seven Seas — or the enemy's seat (Highwater, or the
-        Free Harbor sunk) with both their leaders in irons.
+        Highwater falling ends the Crown. All three Pirate Lords in irons at once ends the
+        Confederacy.
       </p>
 
       <div className="section-title">Game</div>

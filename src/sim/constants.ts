@@ -3,6 +3,7 @@ import terms from '../data/terms.json';
 import type {
   BuildItem,
   FacilityType,
+  LordPower,
   PlayableFaction,
   ShipClassId,
   ShipRole,
@@ -123,12 +124,41 @@ export interface ShipClass {
   blurb: string;
   /** One of a kind: never on a shipyard's menu, and costs nothing to keep. */
   unique?: true;
-  /** A hull of its own, over the size's. */
+  /** Numbers of its own, over the size's. */
   hull?: number;
+  guns?: number;
+  pace?: number;
+  carries?: number;
+  /** A Pirate Lord's ship carries one power. */
+  power?: LordPower;
 }
 
-/** The Confederacy's seat, which is a ship. */
-export const SEAT_SHIP: ShipClassId = 'harbor';
+/**
+ * The three Pirate Lords who lead the Confederacy, each bound to a ship.
+ *
+ * They never go ashore: the ship is the Lord, and what the ship does is what
+ * the Lord does for the cause. Take the ship and you take the Lord. Take all
+ * three at once and the Confederacy is finished — Rebellion's Mothma-and-Luke
+ * condition, made naval. By name, because characters take fresh ids each game.
+ */
+export interface PirateLord {
+  name: string;
+  ship: ShipClassId;
+}
+export const PIRATE_LORDS: PirateLord[] = [
+  { name: 'Commodore-Elect Adaira Hale', ship: 'harbor' },
+  { name: 'Captain Silas Reyne', ship: 'swallowtail' },
+  { name: 'Admiral Dorian Jessup', ship: 'ironback' },
+];
+
+/** What each power does, in the player's words. */
+export const LORD_POWER_TEXT: Record<LordPower, string> = {
+  moot: 'The Moot sails with her. Wherever she lies at anchor the island comes round to the Confederacy a point a day, and she is home to anyone coming back from a parley.',
+  runner: 'Faster than anything afloat, and the last thing in a harbour the enemy can hit: while another Confederate hull floats beside her, the guns find that one instead.',
+  line: 'The heaviest guns on the water, and every Confederate fleet lying in her harbour fights under the Admiral\'s command.',
+};
+/** Allegiance a day the Moot brings an island round by. */
+export const MOOT_SUPPORT_PER_DAY = 1;
 
 export const SHIP_CLASSES: ShipClass[] = shipData.classes as ShipClass[];
 
@@ -148,7 +178,10 @@ export function shipSpec(id: ShipClassId): ShipRoleSpec {
   const cls = shipClass(id);
   const spec = { ...SHIP_ROLES[cls.role], label: cls.name };
   if (cls.hull) spec.hull = cls.hull;
-  // The Brethren keep their seat out of their own pockets.
+  if (cls.guns !== undefined) spec.guns = cls.guns;
+  if (cls.pace !== undefined) spec.pace = cls.pace;
+  if (cls.carries !== undefined) spec.carries = cls.carries;
+  // A Lord keeps their own ship out of their own pocket.
   if (cls.unique) spec.upkeep = 0;
   return spec;
 }
@@ -338,24 +371,12 @@ export const RECRUIT_QUALITY_DIVISOR = 200;
  *  People are scarce and permanent; an island can be worked again next month. */
 export const AI_RECRUIT_BONUS = 120;
 
-/** Victory (spec 4.6). */
-export const VICTORY_CONTROL_FRACTION = 0.6;
-
 /**
- * The other way to win, and the one the original was built around: take the
- * enemy's seat and hold both of their leaders in irons at the same moment.
- *
- * By name, because characters take fresh ids each game. The Crown's are the
- * Regent and the Admiral; the Confederacy's the Commodore and the fisher's boy
- * — Emperor and Vader, Mothma and Skywalker. Captives are exchanged after
- * sixty days, so this is a window rather than a checklist: you have to hold
- * the seat while you hold the people, which is what makes it a war and not a
- * collection.
+ * Victory. Two ways, one each, and nothing else: the Confederacy wins the day
+ * it holds Highwater; the Crown wins the day all three Pirate Lords are in
+ * irons at once. Captives are exchanged after sixty days, so the Crown's is a
+ * window rather than a checklist.
  */
-export const LEADERS: Record<PlayableFaction, string[]> = {
-  empire: ['Lord Regent Halvard Corvane', 'Admiral Corvus Blackwater'],
-  alliance: ['Commodore-Elect Adaira Hale', 'Tam Calloway'],
-};
 
 /** Opponent AI cadence (spec 4.7). */
 export const AI_BUILD_INTERVAL = 5;

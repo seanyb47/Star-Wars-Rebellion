@@ -11,12 +11,10 @@ import {
   FORT_GUNS,
   OFFICER_EDGE,
   SCOUT_PER_ISLAND,
-  SEAT_SHIP,
-  SHIP_ROLES,
-  shipClass,
   shipSpec,
 } from './constants';
 import { getSystem, nextId, otherFaction, pushEvent } from './helpers';
+import { captureLord, isLord, isLordShip, shipPower } from './lords';
 import { travelDays } from './missions';
 import type { Rng } from './rng';
 import type {
@@ -52,40 +50,6 @@ export function shipGuns(ship: Ship): number {
   return ship.damage >= spec.hull ? 0 : spec.guns;
 }
 
-// --- The seat that sails ----------------------------------------------------
-//
-// The Crown's seat is Highwater and cannot move. The Confederacy's is a ship,
-// the Free Harbor: the Moot sits on her quarterdeck, captives are held in her
-// cells, and officers coming home come to whichever island she is lying off.
-// She is sailed like any fleet, and to take the Confederacy's seat the Crown
-// has to find her and sink her.
-
-export function isSeatShip(ship: Ship): boolean {
-  return ship.classId === SEAT_SHIP;
-}
-
-/** The fleet the Free Harbor is sailing with, while she floats. */
-export function seatFleet(state: GameState): Fleet | undefined {
-  return state.fleets.find((f) => f.faction === 'alliance' && f.ships.some(isSeatShip));
-}
-
-/** Whether the Confederacy still has a seat afloat. */
-export function seatAfloat(state: GameState): boolean {
-  return !state.factions.alliance.seatLost && seatFleet(state) !== undefined;
-}
-
-/**
- * Keep the Confederacy's seat where the Free Harbor is. Only an island of
- * theirs counts: lying off an enemy harbour, the seat stays at the last
- * island of their own she called at, so nobody "comes home" to the Crown's
- * cells.
- */
-export function syncSeat(state: GameState): void {
-  const fleet = seatFleet(state);
-  if (!fleet || isAtSea(fleet)) return;
-  const here = getSystem(state, fleet.systemId);
-  if (here.control === 'alliance') state.factions.alliance.hqSystemId = here.id;
-}
 
 export function fleetGuns(fleet: Fleet): number {
   return fleet.ships.reduce((total, ship) => total + shipGuns(ship), 0);
@@ -93,10 +57,7 @@ export function fleetGuns(fleet: Fleet): number {
 
 /** Companies this fleet could carry if it were empty. */
 export function fleetCapacity(fleet: Fleet): number {
-  return fleet.ships.reduce(
-    (total, ship) => total + SHIP_ROLES[shipClass(ship.classId).role].carries,
-    0,
-  );
+  return fleet.ships.reduce((total, ship) => total + shipSpec(ship.classId).carries, 0);
 }
 
 /**
@@ -105,7 +66,7 @@ export function fleetCapacity(fleet: Fleet): number {
  */
 export function fleetPace(fleet: Fleet): number {
   if (fleet.ships.length === 0) return 1;
-  return Math.max(...fleet.ships.map((s) => SHIP_ROLES[shipClass(s.classId).role].pace));
+  return Math.max(...fleet.ships.map((s) => shipSpec(s.classId).pace));
 }
 
 /** The crew serving with a fleet, in the order they came aboard. */
@@ -143,7 +104,6 @@ export function fleetStatus(state: GameState, fleet: Fleet): string {
   }
   const here = state.systems.find((s) => s.id === fleet.systemId);
   if (here && here.control !== fleet.faction && here.populated) return 'Blockading';
-  if (fleet.ships.some(isSeatShip)) return 'At anchor — the seat of the Confederacy';
   return 'At anchor';
 }
 
@@ -158,10 +118,10 @@ export function addShip(
   classId: ShipClassId,
 ): Fleet {
   const ship: Ship = { id: nextId(state, 'shp'), classId, damage: 0 };
-  // Join whatever fleet of ours lies here, preferring one that is not the
-  // seat's own so new hulls do not quietly tie themselves to the Free Harbor.
+  // Join whatever fleet of ours lies here, preferring one that is not a
+  // Lord's own so new hulls do not quietly tie themselves to the Swallowtail.
   const here = fleetsAt(state, system.id).filter((f) => f.faction === faction);
-  const existing = here.find((f) => !f.ships.some(isSeatShip)) ?? here[0];
+  const existing = here.find((f) => !f.ships.some(isLordShip)) ?? here[0];
   if (existing) {
     existing.ships.push(ship);
     return existing;
@@ -281,6 +241,7 @@ export function boardError(
   if (character.status !== 'available') return `${character.name} is ${character.status}.`;
   if (character.locationSystemId !== fleet.systemId) return 'Not on this island.';
   if (fleet.officerIds.includes(characterId)) return 'Already aboard.';
+  if (isLord(character)) return `${character.name} does not leave their own ship.`;
   return null;
 }
 
@@ -299,6 +260,8 @@ export function board(
 export function goAshore(state: GameState, fleetId: string, characterId: string): void {
   const fleet = findFleet(state, fleetId);
   if (!fleet || isAtSea(fleet)) throw new Error('The fleet is at sea.');
+  const who = state.characters.find((c) => c.id === characterId);
+  if (who && isLord(who)) throw new Error(`${who.name} does not leave their own ship.`);
   fleet.officerIds = fleet.officerIds.filter((id) => id !== characterId);
   const character = state.characters.find((c) => c.id === characterId);
   if (character) character.locationSystemId = fleet.systemId;
@@ -465,8 +428,15 @@ function fightRound(
   const gunsEmpire =
     empire.reduce((n, f) => n + fleetGuns(f) * officerEdge(state, f, 'leadership'), 0) +
     (system.control === 'empire' ? shore : 0);
+  // The Ironback's power: every Confederate fleet in her harbour fights with
+  // the Admiral's edge, not only her own.
+  const line = alliance.find((f) => f.ships.some((sh) => shipPower(sh.classId) === 'line' && sh.damage < hullOf(sh)));
+  const lineEdge = line ? officerEdge(state, line, 'leadership') : 1;
   const gunsAlliance =
-    alliance.reduce((n, f) => n + fleetGuns(f) * officerEdge(state, f, 'leadership'), 0) +
+    alliance.reduce(
+      (n, f) => n + fleetGuns(f) * Math.max(officerEdge(state, f, 'leadership'), lineEdge),
+      0,
+    ) +
     (system.control === 'alliance' ? shore : 0);
 
   applyFire(gunsAlliance, empire, rng);
@@ -507,7 +477,11 @@ function applyFire(guns: number, targets: Fleet[], rng: Rng): void {
   for (let i = 0; i < hits; i++) {
     const live = hulls.filter((s) => s.damage < hullOf(s));
     if (live.length === 0) return;
-    live[rng.int(live.length)].damage += 1;
+    // The Swallowtail's power: while another hull of her side floats in the
+    // harbour, the shot finds that one.
+    const cover = live.filter((s) => shipPower(s.classId) !== 'runner');
+    const pool = cover.length > 0 ? cover : live;
+    pool[rng.int(pool.length)].damage += 1;
   }
 }
 
@@ -519,16 +493,9 @@ function hullOf(ship: Ship): number {
 function sinkAndDrown(state: GameState, fleet: Fleet): void {
   const survivors = fleet.ships.filter((s) => s.damage < hullOf(s));
   if (survivors.length === fleet.ships.length) return;
-  if (fleet.ships.some(isSeatShip) && !survivors.some(isSeatShip)) {
-    // The seat of the Confederacy goes down. Its hq stays where she sank,
-    // as the last island she called at, and the war goes on without her.
-    state.factions.alliance.seatLost = true;
-    const here = getSystem(state, fleet.systemId);
-    pushEvent(state, {
-      kind: 'war',
-      text: `The Free Harbor burns to the waterline off ${here.name}. The Brethren have no harbour now.`,
-      systemId: here.id,
-    });
+  // A Lord's ship does not sink: she strikes, and the Lord goes in irons.
+  for (const ship of fleet.ships) {
+    if (ship.damage >= hullOf(ship) && isLordShip(ship)) captureLord(state, fleet, ship);
   }
   fleet.ships = survivors;
   const room = fleetCapacity(fleet);

@@ -3,6 +3,7 @@ import type { GameState, PlayableFaction, System } from '../sim';
 import {
   isMissionTarget,
   layerMark,
+  lordFleets,
   summariseReach,
   isLoudLayer,
   showsNumber,
@@ -211,8 +212,13 @@ const STAR_RADIUS = 20;
  *  the one the chart has to shout. Bigger still, with a pulse behind. */
 const IDLE_STAR_RADIUS = 30;
 const IDLE_HALO_RADIUS = 52;
-/** The seat of each side: the star, always, and the biggest mark at rest. */
-const HQ_STAR_RADIUS = 31;
+/**
+ * The star, and only the star, marks the things the war is about: Highwater,
+ * and every island a Pirate Lord's ship is lying off — your own always, the
+ * enemy's once you have charted the island. Nothing else on the chart is a
+ * star. Thirty percent up on the old capital mark, at Sean's ask.
+ */
+const HQ_STAR_RADIUS = 40;
 
 /** One kite-shaped point of the compass rose, tip to centre. */
 function rosePoint(angle: number, long: number, wide: number): string {
@@ -308,7 +314,7 @@ export function GalaxyMap({
     });
   }, [state, viewer]);
 
-  const enemy: PlayableFaction = viewer === 'empire' ? 'alliance' : 'empire';
+  const lordsAt = new Set(lordFleets(state).filter((f) => !f.voyage).map((f) => f.systemId));
 
   // The canvas: the painting at the box's full width. A taller box gets a
   // band of water under the painting to fill it; a shorter one gets a chart
@@ -533,12 +539,12 @@ export function GalaxyMap({
                 // survey and settle. Hiding them was tried and looked wrong —
                 // a sea with islands painted on it and nothing marking them.
                 const radius = ISLAND_RADIUS;
-                // The Confederacy's seat is a ship: the star sits on the
-                // island she is lying off, and goes when she goes.
-                const seatOf = (f: PlayableFaction) =>
-                  f === 'alliance' && state.factions.alliance.seatLost ? null : state.factions[f].hqSystemId;
+                // Highwater, always; the Lords' ships wherever they lie at
+                // anchor — the Confederacy sees its own, the Crown sees the
+                // ones on islands it has charted.
                 const isHq =
-                  system.id === seatOf(viewer) || (explored && system.id === seatOf(enemy));
+                  system.id === state.factions.empire.hqSystemId ||
+                  (lordsAt.has(system.id) && (viewer === 'alliance' || explored));
                 const mark = filtering
                   ? layerMark(state, system, layer, viewer)
                   : { lit: false as const };
@@ -635,15 +641,24 @@ export function GalaxyMap({
                           // filter's: the shape alone says seat of the war. It
                           // used to wear a ring as well, which was saying it
                           // twice.
-                          if (lit || isHq) {
-                            const r = isHq ? Math.max(HQ_STAR_RADIUS, lit ? litR : 0) : litR;
+                          if (isHq) {
                             return (
                               <path
-                                d={burstPath(r)}
+                                d={burstPath(HQ_STAR_RADIUS)}
                                 transform={`translate(${ax} ${ay})`}
                                 {...skin}
                                 strokeWidth={idle ? 3 : skin.strokeWidth}
                               />
+                            );
+                          }
+                          // A filter's answer is a ring, not a star: the star
+                          // is kept for the capital and the Lords.
+                          if (lit) {
+                            return (
+                              <g>
+                                <circle cx={ax} cy={ay} r={litR} fill={tint} fillOpacity={0.28} stroke={tint} strokeWidth={idle ? 5 : 4} />
+                                <circle cx={ax} cy={ay} r={radius * 0.7} {...skin} />
+                              </g>
                             );
                           }
                           return <circle cx={ax} cy={ay} r={radius} {...skin} />;

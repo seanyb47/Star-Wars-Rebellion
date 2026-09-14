@@ -85,9 +85,19 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 **Strengths (mirror original):** better ships early, more skilled admirals/generals (leadership bonus when the Regent is at Highwater), can assassinate. **Weaknesses:** fixed capital, fewer diplomats and recruiters, weak early small craft.
 
 ### Faction B — THE FREE CONFEDERACY (original Rebel slot)
-*The Free Confederacy of the Seven Seas* — "the Brethren" to friends, "the Confederacy of Thieves" to the Admiralty. A compact of pirate captains, smugglers, exiled nobles, Reef-folk clans, Urskin whaling fleets, and witch-islands that answer to nobody. Governed by an elected **Commodore** and a shouting-match council called the **Moot**. Headquartered aboard **the Free Harbor** — not an anchorage but a ship, the one the Confederacy was born on. The Moot sits on her quarterdeck; captives are held in her cells; wherever she lies is home. When the Crown finds her, she weighs anchor.
+*The Free Confederacy of the Seven Seas* — "the Brethren" to friends, "the Confederacy of Thieves" to the Admiralty. A compact of pirate captains, smugglers, exiled nobles, Reef-folk clans, Urskin whaling fleets, and witch-islands that answer to nobody. Governed by an elected **Commodore** and a shouting-match council called the **Moot**. It has no capital and no base. It has **three Pirate Lords**, each bound to a ship, and wherever the *Free Harbor* lies at anchor the Moot is sitting.
 
-**The Free Harbor and the captain who inspired the rebellion.** Corwin Calloway was the Crown's best captain in the licensing years, and the first to turn his guns on a licensing cutter rather than let it take a Reef-folk singer off his deck. His ship was a coral-grown three-decker the Reef-folk had sung up around a whale-spine keel for him, and he named her for what he meant her to be: any deck of his was a free harbour to anyone the Crown wanted. Sailors who fled the raids found a berth aboard her, then a flag, then a cause; the captains who followed her out of the Inner Seas became the Brethren, and the shouting on her deck became the Moot. Everyone saw her burn at the Broken Chain and Calloway go into the Black Tide. The Reef-folk sang the coral closed over the char and brought her out of the smoke; Calloway came out of the Tide as Admiral Corvus Blackwater, and now hunts his own old ship for the Crown. The Confederacy has no capital. It has her. (In the game: one unique large hull, tougher than any first-rate, never built and never replaced, upkeep nothing. The seat follows her; the Crown takes the Confederacy's seat by sinking her.)
+**The three Pirate Lords.** The Confederacy was formed at a meeting on an island past the Crown's charts, and the three captains who called it are the Confederacy: take all three and there is nobody left to lead it. Each never leaves their ship; the ship is the Lord, and what the ship does is what the Lord does for the cause.
+
+| Lord | Ship | What she does |
+|---|---|---|
+| **Commodore-Elect Adaira Hale** | the ***Free Harbor*** — Corwin Calloway's old coral-grown three-decker, named for what he meant her to be: any deck of his was a free harbour to anyone the Crown wanted. Sailors who fled the licensing raids found a berth aboard her, then a flag, then a cause. Everyone saw her burn at the Broken Chain; the Reef-folk sang the coral closed over the char and brought her out of the smoke. | The Moot sails with her. Wherever she lies at anchor the island comes round to the Confederacy a point a day, and she is home to anyone coming back from a parley. Heaviest hull afloat. |
+| **Captain Silas Reyne** | the ***Swallowtail*** — a coral-grown sloop that should not be as fast as she is. | Faster than anything on the water. The last thing in a harbour the enemy can hit: while another Confederate hull floats beside her, the shot finds that one. |
+| **Admiral Dorian Jessup** | the ***Ironback*** — the Crown dreadnought he took with him when he left the Imperium's service. | The heaviest guns on the water, and every Confederate fleet lying in her harbour fights under the Admiral's command. |
+
+A Lord's ship does not sink. When her hull gives she strikes her colours, is taken as a prize, and the Lord goes in irons to Highwater. Exchanged or broken out, the Lord comes home with the ship, cut out of the Crown's harbour the same night. Calloway, meanwhile, came out of the Black Tide as Admiral Corvus Blackwater and hunts his own old ship for the Crown.
+
+**How the war ends.** One way each. The Confederacy wins the day it holds Highwater. The Crown wins the day all three Lords are in irons at once.
 
 **Creed:** Freedom · Opportunity · No masters.
 **Motto:** *A wider world for those bold enough to take it.*
@@ -319,7 +329,9 @@ Design rule: Imperium ships are built straight and then warded with cultivated c
 | 13 | CC-9600 Frigate | **Razee** | Capital (light) | A cut-down ship of the line; cheaper Marauder. |
 | 14 | Dauntless Cruiser | **Undaunted** great ship | Capital | Rough equal of a Dominion; 4 squadrons. |
 | 15 | Bulwark Battlecruiser | **Bastion** great ship | Capital (apex) | Coral-grown over a leviathan rib the Reef-folk pulled from the Bone Sea. The Confederacy's answer to the Colossus. |
-| — | Alliance headquarters | **the *Free Harbor*** | Unique | Calloway's old three-decker, the Confederacy's seat. One hull, never built, never replaced; the Moot sails with her. See §2, Faction B. |
+| — | Alliance headquarters | **the *Free Harbor*** | Unique (Lord) | Hale's ship, the Moot's deck. Never built, never replaced. See §2, Faction B. |
+| — | Millennium Falcon | **the *Swallowtail*** | Unique (Lord) | Reyne's sloop. Fastest thing afloat; hit last. See §2, Faction B. |
+| — | (none) | **the *Ironback*** | Unique (Lord) | Jessup's captured dreadnought. Heaviest guns; commands every Confederate fleet in her harbour. See §2, Faction B. |
 
 **Confederacy small craft (all warded and deepwater-capable, mirroring "all Rebel fighters have shields and hyperdrive"):**
 
@@ -443,7 +455,7 @@ Admiral → **Admiral**. General → **General**. Commander → **Wing-Captain**
 3. Tidecraft in battle (⚙ hooks) — phase 2 or never?
 4. Naming register: Imperium reads English/Dutch, Confederacy mixed, Far Sea Norse. Shift any of them?
 5. ~~**Reach count on the small map.**~~ **Settled 2026-09-12.** The small map is now **seven Reaches, one per Sea** — three Inner and four Outer, as the bible always wanted. Sugar goes back to the medium map and Whalers' and Mirage join it, because the chart is a painting now and those three clusters could not be charted clearly. See §13.
-6. ~~**Tallow Cay as the Confederacy's known start.**~~ **Settled 2026-09-14.** The Free Harbor is a ship (§2, Faction B). She starts in the harbour of a random Outer island and sails from there, so no island is the start and none need be labelled one; Rime Island stays the "classic second Free Harbor" as the place she most often runs to.
+6. ~~**Tallow Cay as the Confederacy's known start.**~~ **Settled 2026-09-14.** There is no base. The three Lords' ships lie at a random uncharted Outer island on day one — the meeting where the Confederacy was formed — and sail from there. No island is the start and none need be labelled one.
 7. **Section 14 data-model hooks.** No hidden `loyalty` field has been added to characters yet — an unused field that nothing reads or writes is dead weight until 14.2 is built. Neutral-owned islands with garrisons already exist, so 14.1 needs no groundwork.
 
 ---
@@ -1159,6 +1171,7 @@ not a bark, and it goes in the text.
 
 ## 15. CHANGELOG
 
+- **2026-09-14 v6.0** — **No base. Three Pirate Lords.** Sean's call: the Confederacy has no seat at all. It has three Lords — Hale, Reyne, Jessup — each bound to a ship with a power of its own (§2 Faction B, §6B). They start together at a random uncharted Outer island where the Confederacy was formed; the Crown hears only that a meeting took place and that islands are declaring. One way to win each: the Confederacy takes Highwater; the Crown takes all three Lords, which means finding and taking their ships. The 60% attrition rule is gone. The star on the chart now marks exactly two things — Highwater and wherever a Lord's ship lies — and nothing else.
 - **2026-09-14 v5.9** — Sixty islands, not a hundred. The chart's sixty best sites — the biggest landmasses' harbours and the clearest islands, ranked by the painting itself, with no quota per chain — and the names that carry a note or a character keep their places. Sovereign 15, Whalers' 9, Wreckers' 8, Rime 6 (three on the chain, three bergs), Cinder 8, Salt 9, Coral 5. Everything dropped goes back on the shelf for the larger maps.
 - **2026-09-14 v5.9** — **The Free Harbor is a ship.** The Confederacy's seat is Corwin Calloway's old three-decker, not an anchorage: the Moot sits on her quarterdeck, captives are held in her cells, and officers come home to whichever island she is lying off. She sails like any fleet; the opponent keeps her out of sight and runs when the Crown charts her island; the Crown takes the Confederacy's seat by sinking her. §2 Faction B carries the lore of the ship and the captain, §6B lists her, open question 6 is settled.
 - **2026-09-14 v5.8** — Reach names follow the chart. **Rime Reach** is the dark northern chain plus four bergs of the pack ice (Rime Island, Gentnes, Rishi Bank, Varrow); the Far Sea has one Reach. The long chain down the west is **Whalers' Reach**; the name Shipwrights' Reach is retired. Seven Reaches, still 100 islands: Pantlow and Forliss (Grey) join Whalers', Delaira (Lantern) joins Coral, Galpos (Rice) joins Salt, Ambrey (Last) joins Cinder. The frontier is Rime and Salt; the Confederacy's base is in one of the two.

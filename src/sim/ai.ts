@@ -20,17 +20,19 @@ import {
   assaultError,
   board,
   boardError,
+  boomDefence,
   embark,
   embarkError,
+  fortGuns,
   fleetCapacity,
   fleetGuns,
+  fleetsAt,
   fleetsOf,
   isAtSea,
-  isSeatShip,
   sailError,
   sailFleet,
-  seatFleet,
 } from './fleets';
+import { isLord, isLordShip, lordFleets } from './lords';
 import {
   freeEnergySlots,
   freeRawSlots,
@@ -241,8 +243,9 @@ function bestSpotFor(
  */
 function aiMission(state: GameState, ai: PlayableFaction): void {
   const enemy = otherFaction(ai);
+  // A Lord never goes ashore, so the Commodore's diplomacy is not on offer.
   const idle = state.characters
-    .filter((c) => c.faction === ai && c.status === 'available')
+    .filter((c) => c.faction === ai && c.status === 'available' && !isLord(c))
     .sort((a, b) => b.diplomacy - a.diplomacy);
   if (idle.length === 0) return;
 
@@ -290,7 +293,7 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     const target = open
       .filter((s) => !taken.has(s.id) && canStartMission(state, officer.id, s.id))
       .sort((a, b) => worth(officer, b) - worth(officer, a))[0];
-    if (!target) return;
+    if (!target) continue;
     taken.add(target.id);
     startMission(state, officer.id, target.id);
   }
@@ -307,11 +310,15 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
  */
 function aiFleet(state: GameState, ai: PlayableFaction, rng: Rng): void {
   aiLayDownHull(state, ai);
+  // The Confederacy's one way to win is Highwater. One fleet is always the
+  // one meant for it, and it does nothing else.
+  const strike = ai === 'alliance' ? aiStrikeCapital(state, rng) : undefined;
 
   for (const fleet of fleetsOf(state, ai)) {
     if (isAtSea(fleet)) continue;
-    // The seat is not a warship. It hides; it does not raid.
-    if (fleet.ships.some(isSeatShip)) {
+    if (fleet.id === strike) continue;
+    // A Lord's ship is the cause itself. It hides; it does not raid.
+    if (fleet.ships.some(isLordShip)) {
       aiHideSeat(state, fleet);
       continue;
     }
@@ -322,8 +329,8 @@ function aiFleet(state: GameState, ai: PlayableFaction, rng: Rng): void {
 }
 
 /**
- * Keep the Free Harbor out of sight. She lies where she is until the Crown
- * has charted that island or has hulls off it; then she weighs anchor for an
+ * Keep a Lord's ship out of sight. She lies where she is until the Crown has
+ * charted that island or has hulls off it; then she weighs anchor for an
  * island of the Confederacy's the Crown has not charted, the nearest first,
  * or failing that the one furthest from any Crown holding.
  */
@@ -332,7 +339,7 @@ function aiHideSeat(state: GameState, fleet: Fleet): void {
   const crownHere = state.fleets.some(
     (f) => f.faction === 'empire' && !isAtSea(f) && f.systemId === here.id,
   );
-  const safeHere = here.control === 'alliance' && !here.uprising && !here.explored.empire && !crownHere;
+  const safeHere = here.control !== 'empire' && !here.uprising && !here.explored.empire && !crownHere;
   if (safeHere) return;
 
   const crownIslands = state.systems.filter((s) => s.control === 'empire');
@@ -361,7 +368,10 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
   const afloat = fleetsOf(state, ai).flatMap((f) => f.ships);
   // Keep roughly two fighting hulls to every transport.
   const transports = afloat.filter((s) => s.classId === classes.find((c) => c.role === 'transport')!.id);
-  const wantTransport = transports.length * 3 < afloat.length + 1;
+  const capital = getSystem(state, state.factions.empire.hqSystemId);
+  const carryAll = fleetsOf(state, ai).reduce((n, f) => n + fleetCapacity(f), 0);
+  const shortOfLift = ai === 'alliance' && carryAll < capital.garrison + boomDefence(capital) + 2;
+  const wantTransport = transports.length * 3 < afloat.length + 1 || shortOfLift;
   // Fighting hulls as big as it can afford; a transport when it is short of one.
   const spare = surplus(state, ai);
   const carried = (id: ShipClassId) => spare - UPKEEP_PER_DAY[id] >= AI_SURPLUS_MARGIN;
@@ -418,24 +428,143 @@ function aiLoadAndSail(state: GameState, fleet: Fleet, ai: PlayableFaction): voi
   // Somewhere worth going: an enemy island, richest first. With companies
   // aboard, prefer one it can actually carry.
   const enemy = otherFaction(ai);
-  const seat = ai === 'empire' ? seatFleet(state) : undefined;
-  // The Free Harbor has to be found, not known about: the island she lies
-  // off is not a target until the Crown has charted it. Everything else the
-  // opponent may sail at as before.
-  const hides = (s: System) =>
-    seat !== undefined && !isAtSea(seat) && seat.systemId === s.id && !s.explored.empire;
-  const targets = state.systems.filter((s) => s.control === enemy && s.populated && !hides(s));
+  // A Lord's ship has to be found, not known about: an island one lies off
+  // is not a target until the Crown has charted it. Once charted it is the
+  // richest prize on the water, and the Crown may sail at it whoever holds it.
+  const lordsAt = new Set(
+    ai === 'empire' ? lordFleets(state).filter((f) => !isAtSea(f)).map((f) => f.systemId) : [],
+  );
+  const hides = (s: System) => lordsAt.has(s.id) && !s.explored.empire;
+  const targets = state.systems.filter(
+    (s) => (s.control === enemy && s.populated && !hides(s)) || (lordsAt.has(s.id) && s.explored.empire),
+  );
+  // The hunt. The Crown cannot win without finding the Lords, and they are
+  // out past its charts: with nothing worth sailing at, or with a fleet that
+  // has no companies aboard while none of its others is already out looking,
+  // the fleet goes and charts the nearest dark island instead.
+  if (ai === 'empire' && aiScout(state, fleet, targets.length === 0)) return;
   if (targets.length === 0) return;
   const worth = (s: System) =>
     s.facilities.filter((f) => f.owner === enemy).length * 10 -
     s.garrison * (fleet.troops > 0 ? 6 : 0) +
-    // The Free Harbor, once charted, is the richest prize on the water.
-    (seat && !isAtSea(seat) && seat.systemId === s.id && s.explored.empire ? 40 : 0);
+    (lordsAt.has(s.id) && s.explored.empire ? 40 : 0);
   const target = [...targets].sort((a, b) => worth(b) - worth(a))[0];
   if (target.id === fleet.systemId) return;
   if (fleetGuns(fleet) === 0 && fleet.troops === 0) return; // nothing to offer
   if (sailError(state, fleet.id, target.id, ai) !== null) return;
   sailFleet(state, fleet.id, target.id, ai);
+}
+
+/** Day before which the Admiral's ship is not committed to the strike. */
+const AI_STRIKE_LORD_DAY = 150;
+
+/**
+ * The strike on Highwater.
+ *
+ * The Confederate opponent's whole war ends there, so its strongest fleet
+ * without a Lord aboard is kept for it. It stages at the island of the
+ * Confederacy's with the most companies to spare, takes them aboard until it
+ * carries more than the capital's garrison and boom together, and then sails
+ * — but not into a harbour where the Crown's guns outweigh its own. Returns
+ * the strike fleet's id so the general routine leaves it alone.
+ */
+function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
+  const capital = getSystem(state, state.factions.empire.hqSystemId);
+  if (capital.control !== 'empire') return undefined;
+  // The Admiral's ship may lead the strike — it is what she is for — but
+  // the Commodore and the smuggler stay out of it.
+  const committable = (f: Fleet) => !f.ships.some((sh) => isLordShip(sh) && sh.classId !== 'ironback');
+  const candidates = fleetsOf(state, 'alliance').filter((f) => committable(f) && fleetCapacity(f) > 0);
+  if (candidates.length === 0) return undefined;
+  const fleet = [...candidates].sort((a, b) => fleetGuns(b) - fleetGuns(a))[0];
+  if (isAtSea(fleet)) return fleet.id;
+
+  const need = capital.garrison + boomDefence(capital) + 1;
+  const crownGuns = fleetsAt(state, capital.id)
+    .filter((f) => f.faction === 'empire')
+    .reduce((n, f) => n + fleetGuns(f), 0);
+  const here = getSystem(state, fleet.systemId);
+
+  // Already off the capital: land if it can carry the island, else hold.
+  if (here.id === capital.id) {
+    if (fleet.troops > capital.garrison + boomDefence(capital) && assaultError(state, fleet.id, 'alliance') === null) {
+      assault(state, fleet.id, rng, 'alliance');
+    }
+    return fleet.id;
+  }
+
+  // Concentrate. Any other fleet of the Confederacy's lying in the same
+  // harbour folds into the strike; while the strike is outgunned, the rest
+  // sail to join it rather than raiding on their own.
+  // A clear edge, not a coin toss: the Crown's harbour has its forts and
+  // whatever the Crown adds while the strike is forming. The Admiral's ship
+  // is not thrown in before the war is a few months old.
+  const wall = (crownGuns + fortGuns(capital)) * 1.25;
+  const outgunned = fleetGuns(fleet) < wall;
+  for (const other of fleetsOf(state, 'alliance')) {
+    if (other.id === fleet.id || isAtSea(other) || !committable(other)) continue;
+    if (other.ships.some(isLordShip) && state.day < AI_STRIKE_LORD_DAY) continue;
+    if (other.systemId === fleet.systemId) {
+      fleet.ships.push(...other.ships);
+      fleet.troops += other.troops;
+      fleet.officerIds.push(...other.officerIds);
+      other.ships = [];
+      other.troops = 0;
+      other.officerIds = [];
+    } else if (outgunned && fleetGuns(other) > 0 && sailError(state, other.id, fleet.systemId, 'alliance') === null) {
+      sailFleet(state, other.id, fleet.systemId, 'alliance');
+    }
+  }
+  state.fleets = state.fleets.filter((f) => f.ships.length > 0);
+
+  // Enough aboard and the harbour is not a death trap: go.
+  if (fleet.troops >= need && fleetCapacity(fleet) >= need) {
+    if (!outgunned && sailError(state, fleet.id, capital.id, 'alliance') === null) {
+      sailFleet(state, fleet.id, capital.id, 'alliance');
+    }
+    return fleet.id;
+  }
+
+  // Otherwise fill up: take what is spare here, then go where more is spare.
+  const spareOn = (s: System) => Math.max(0, s.garrison - Math.max(1, requiredGarrison(s.support.alliance)));
+  const room = fleetCapacity(fleet) - fleet.troops;
+  if (here.control === 'alliance' && room > 0 && spareOn(here) > 0) {
+    const take = Math.min(room, spareOn(here));
+    if (embarkError(state, fleet.id, take, 'alliance') === null) embark(state, fleet.id, take, 'alliance');
+    return fleet.id;
+  }
+  if (room > 0) {
+    const depot = state.systems
+      .filter((s) => s.control === 'alliance' && !s.uprising && s.id !== here.id && spareOn(s) > 0)
+      .sort((a, b) => spareOn(b) - spareOn(a) || travelDays(state, here.id, a.id) - travelDays(state, here.id, b.id))[0];
+    if (depot && sailError(state, fleet.id, depot.id, 'alliance') === null) {
+      sailFleet(state, fleet.id, depot.id, 'alliance');
+    }
+  }
+  return fleet.id;
+}
+
+/**
+ * Sail for the nearest island the Crown has not charted. One picket at a time
+ * unless there is nothing else to do, so the raiding goes on while the
+ * looking does. Returns whether the fleet was sent.
+ */
+function aiScout(state: GameState, fleet: Fleet, idle: boolean): boolean {
+  const dark = state.systems.filter((s) => !s.explored.empire);
+  if (dark.length === 0) return false;
+  const alreadyOut = fleetsOf(state, 'empire').some(
+    (f) => f.voyage && !getSystem(state, f.voyage.targetSystemId).explored.empire,
+  );
+  if (!idle && (fleet.troops > 0 || alreadyOut)) return false;
+  const here = getSystem(state, fleet.systemId);
+  const nearest = [...dark].sort(
+    (a, b) =>
+      travelDays(state, here.id, a.id) - travelDays(state, here.id, b.id) ||
+      Math.hypot(a.x - here.x, a.y - here.y) - Math.hypot(b.x - here.x, b.y - here.y),
+  )[0];
+  if (sailError(state, fleet.id, nearest.id, 'empire') !== null) return false;
+  sailFleet(state, fleet.id, nearest.id, 'empire');
+  return true;
 }
 
 /**

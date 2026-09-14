@@ -7,7 +7,6 @@ import {
   freeEnergySlots,
   freeRawSlots,
   requiredGarrison,
-  VICTORY_CONTROL_FRACTION,
   type GameState,
   type System,
 } from '../sim';
@@ -59,7 +58,7 @@ function buildAnswers(state: GameState): Answer[] {
   const fs = state.factions[you];
   const net = fs.income - fs.upkeep;
   const tally = controlTally(state);
-  const needed = Math.ceil(tally.populated * VICTORY_CONTROL_FRACTION);
+  const theirs = tally[you === 'empire' ? 'alliance' : 'empire'];
   const voice = you === 'empire';
 
   const canBuild = held.filter(
@@ -148,11 +147,11 @@ function buildAnswers(state: GameState): Answer[] {
       reply: voice
         ? `${Math.floor(fs.gold)} ${terms.gold.toLowerCase()} in hand, ${
             net >= 0 ? `up ${net.toFixed(1)}` : `down ${Math.abs(net).toFixed(1)}`
-          } a day. You hold ${tally[you]} settled islands of the ${needed} the war needs. The arithmetic is not complicated, Imperator.`
+          } a day. You hold ${tally[you]} settled islands; they hold ${theirs}. The arithmetic is not complicated, Imperator.`
         : `${Math.floor(fs.gold)} in the chest and ${
             net >= 0 ? `${net.toFixed(1)} a day coming in` : `${Math.abs(net).toFixed(1)} a day going out`
-          }. ${tally[you]} islands. You want ${needed}, General.`,
-      mood: net < 0 ? 'grave' : tally[you] >= needed / 2 ? 'encouraged' : 'neutral',
+          }. ${tally[you]} islands to their ${theirs}, General.`,
+      mood: net < 0 ? 'grave' : tally[you] >= theirs ? 'encouraged' : 'neutral',
     },
   ];
 }
