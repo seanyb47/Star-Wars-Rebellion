@@ -33,6 +33,8 @@ import { FeedScreen } from './FeedScreen';
 import { GalaxyMap } from './GalaxyMap';
 import { EventCards, isNotable } from './EventCard';
 import { Narrator } from './Narrator';
+import { moodForEvent } from './narrator/mood';
+import { useAdvisorVoice } from './narrator/useAdvisorVoice';
 import { ReachSheet } from './ReachSheet';
 import { ReachListSheet } from './ReachListSheet';
 import type { IslandTab } from './IslandRow';
@@ -75,6 +77,7 @@ export function App() {
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [narratorOpen, setNarratorOpen] = useState(false);
+  const voice = useAdvisorVoice();
   const [almanacOpen, setAlmanacOpen] = useState(false);
   const [pickingFor, setPickingFor] = useState<string | null>(null);
   // Which question the chart is answering. Not saved: it is a way of looking
@@ -418,6 +421,7 @@ export function App() {
         <EventCards
           state={state}
           events={cards}
+          onShow={(event) => voice.say(event.text, moodForEvent(event, state))}
           onClose={() => {
             if (reading) setReadingId(null);
             else setToldOf((seen) => [...seen, ...dispatches.map((e) => e.id)]);
@@ -438,6 +442,8 @@ export function App() {
         unread={unread}
         player={state.player}
         onAskAdvisor={() => setNarratorOpen(true)}
+        mood={voice.mood}
+        talking={voice.talking}
       />
 
       {notice && (

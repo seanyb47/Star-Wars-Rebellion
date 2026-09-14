@@ -9,6 +9,7 @@
 
 import { useState } from 'react';
 import { narratorIdFor, tabUrl } from './narrator/assets';
+import { NARRATOR_MOODS, type NarratorMood } from './narrator/mood';
 
 /** Cheap deterministic hash, so a name always yields the same coastline. */
 function hash(seed: string): number {
@@ -1017,25 +1018,39 @@ export function SecretaryFigure({ size = 56 }: { size?: number }) {
 
 export function NarratorFigure({
   faction,
-  size = 62,
+  size = 70,
+  mood = 'neutral',
+  talking = false,
 }: {
   faction: 'empire' | 'alliance';
   size?: number;
+  mood?: NarratorMood;
+  talking?: boolean;
 }) {
-  // The painted crop of the neutral still (plan D6): static, 4:5, standing
-  // on the bar. The drawn figures are the fallback if it fails to load.
+  // The painted crop of each mood still (plan D6), all three mounted and
+  // cross-faded so a change of mood is a change of face and nothing else.
+  // Talking is a gesture, not a mouth: the whole figure rocks a little for
+  // as long as the line takes to read, the way Rebellion's droids do. The
+  // drawn figures are the fallback if the paintings fail to load.
   const [failed, setFailed] = useState(false);
   if (failed) return faction === 'empire' ? <SecretaryFigure size={size} /> : <ParrotFigure size={size} />;
+  const id = narratorIdFor(faction);
   return (
-    <img
-      className="advisor__figure"
-      src={tabUrl(narratorIdFor(faction))}
-      width={Math.round((size * 4) / 5)}
-      height={size}
-      alt=""
-      draggable={false}
-      onError={() => setFailed(true)}
-    />
+    <span
+      className={`advisor__figure${talking ? ' advisor__figure--talking' : ''}`}
+      style={{ width: Math.round((size * 4) / 5), height: size }}
+    >
+      {NARRATOR_MOODS.map((m) => (
+        <img
+          key={m}
+          className={`advisor__face${m === mood ? ' advisor__face--on' : ''}`}
+          src={tabUrl(id, m)}
+          alt=""
+          draggable={false}
+          onError={() => setFailed(true)}
+        />
+      ))}
+    </span>
   );
 }
 

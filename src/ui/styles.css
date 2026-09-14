@@ -139,7 +139,7 @@ button {
   flex: none;
   position: relative;
   z-index: 2;
-  display: grid; grid-template-columns: repeat(3, 1fr) 66px;
+  display: grid; grid-template-columns: repeat(3, 1fr) 84px;
   background: var(--bg-raised); border-top: 1px solid var(--border);
   padding-bottom: var(--safe-bottom);
 }
@@ -229,7 +229,7 @@ button {
 
 .chip--toast {
   z-index: 30;
-  bottom: calc(var(--safe-bottom) + 72px);
+  bottom: calc(var(--safe-bottom) + 78px);
 }
 
 .legend { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -580,7 +580,7 @@ button {
   /* Taller than the bar on purpose: he stands on the console rather than
      sitting in it, and the bar grew to give him the room. */
   position: relative;
-  min-width: var(--tap); min-height: 66px;
+  min-width: var(--tap); min-height: 72px;
   display: flex; align-items: flex-end; justify-content: center;
   background: none; border: none;
   border-left: 1px solid var(--border);
@@ -589,9 +589,32 @@ button {
 }
 .advisor > svg { margin-bottom: 1px; }
 .advisor__figure {
-  display: block; margin-bottom: 1px;
-  border-radius: 3px 3px 0 0;
-  object-fit: cover;
+  position: relative; display: block; margin-bottom: 1px; overflow: hidden;
+  border-radius: 4px 4px 0 0;
+  border: 1px solid rgba(201, 162, 74, 0.55); border-bottom: none;
+  background: #071a22;
+  transform-origin: 50% 100%;
+}
+.advisor__face {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.advisor__face--on { opacity: 1; }
+/* Talking is a gesture, not a mouth: the figure rocks on its feet for as
+   long as the line takes to read. Rebellion's droids did exactly this. */
+.advisor__figure--talking { animation: advisor-talk 0.44s ease-in-out infinite; }
+.advisor-frame--talking .advisor-frame__still--on,
+.advisor-frame--talking .advisor-frame__clip { animation: advisor-talk 0.44s ease-in-out infinite; }
+@keyframes advisor-talk {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  30% { transform: translateY(-2px) rotate(-1.1deg); }
+  70% { transform: translateY(-1px) rotate(1.1deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .advisor__figure--talking,
+  .advisor-frame--talking .advisor-frame__still--on,
+  .advisor-frame--talking .advisor-frame__clip { animation: none; }
 }
 .advisor:active { transform: translateY(1px); }
 

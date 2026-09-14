@@ -76,19 +76,28 @@ export function EventCards({
   events,
   onClose,
   onOpenIsland,
+  onShow,
 }: {
   state: GameState;
   events: GameEvent[];
   onClose: () => void;
   onOpenIsland?: (systemId: string) => void;
+  /** Fired when the card on top changes — the advisor reads it out. */
+  onShow?: (event: GameEvent) => void;
 }) {
   const [index, setIndex] = useState(0);
   // A new batch always starts at the front.
   useEffect(() => setIndex(0), [events]);
 
-  if (events.length === 0) return null;
-  const at = Math.min(index, events.length - 1);
-  const event = events[at];
+  const at = Math.min(index, Math.max(0, events.length - 1));
+  const event = events[at] as GameEvent | undefined;
+  useEffect(() => {
+    if (event) onShow?.(event);
+    // Only when a different card comes up, not on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event?.id]);
+
+  if (!event) return null;
   const island = state.systems.find((s) => s.id === event.systemId);
 
   return (

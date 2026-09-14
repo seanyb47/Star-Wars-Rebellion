@@ -21,8 +21,9 @@ const BASE = `${import.meta.env.BASE_URL}narrator/`;
 export const stillUrl = (id: NarratorId, mood: NarratorMood) =>
   `${BASE}stills/web/${id}_${mood}.webp`;
 
-/** The static tab-bar crop of the neutral still. */
-export const tabUrl = (id: NarratorId) => `${BASE}stills/web/${id}_tab.webp`;
+/** The tab-bar crop of a mood still: same box on all three, so only the face changes. */
+export const tabUrl = (id: NarratorId, mood: NarratorMood = 'neutral') =>
+  `${BASE}stills/web/${id}_tab_${mood}.webp`;
 
 export const idleUrl = (id: NarratorId, mood: NarratorMood) =>
   `${BASE}video/${id}_${mood}_idle.mp4`;

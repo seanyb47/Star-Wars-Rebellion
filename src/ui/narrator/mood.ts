@@ -18,3 +18,32 @@ export type NarratorId = (typeof NARRATOR_IDS)[number];
 /** The five questions a line can answer, plus the tutorial. */
 export const NARRATOR_QUESTIONS = ['tutorial', 'build', 'free', 'trouble', 'defect', 'war'] as const;
 export type NarratorQuestion = (typeof NARRATOR_QUESTIONS)[number];
+
+/**
+ * The face an advisor pulls when a dispatch lands (plan F2, applied to the
+ * feed): what the event means for the player, not what kind it is. An island
+ * changing hands is good news or bad depending on whose colours went up.
+ */
+export function moodForEvent(
+  event: { kind: string; text: string; systemId?: string },
+  state: {
+    player: string;
+    winner?: string | null;
+    systems: Array<{ id: string; control: string }>;
+  },
+): NarratorMood {
+  const island = event.systemId ? state.systems.find((s) => s.id === event.systemId) : undefined;
+  switch (event.kind) {
+    case 'war':
+      return state.winner ? (state.winner === state.player ? 'encouraged' : 'grave') : 'neutral';
+    case 'flip':
+      return island ? (island.control === state.player ? 'encouraged' : 'grave') : 'neutral';
+    case 'mutiny':
+    case 'loss':
+      return 'grave';
+    case 'battle':
+      return island ? (island.control === state.player ? 'encouraged' : 'grave') : 'neutral';
+    default:
+      return 'neutral';
+  }
+}

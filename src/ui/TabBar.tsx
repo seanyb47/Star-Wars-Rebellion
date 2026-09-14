@@ -1,6 +1,7 @@
 import terms from '../data/terms.json';
 import { NarratorFigure } from './art';
 import { NARRATOR } from './Narrator';
+import type { NarratorMood } from './narrator/mood';
 
 export type Tab = 'galaxy' | 'characters' | 'feed';
 
@@ -16,12 +17,17 @@ export function TabBar({
   unread,
   player,
   onAskAdvisor,
+  mood = 'neutral',
+  talking = false,
 }: {
   tab: Tab;
   onChange: (tab: Tab) => void;
   unread: number;
   player: 'empire' | 'alliance';
   onAskAdvisor: () => void;
+  /** The advisor's face and whether they are mid-sentence (see useAdvisorVoice). */
+  mood?: NarratorMood;
+  talking?: boolean;
 }) {
   return (
     <nav className="tabbar">
@@ -50,7 +56,7 @@ export function TabBar({
         onClick={onAskAdvisor}
         aria-label={`Ask ${NARRATOR[player].name}`}
       >
-        <NarratorFigure faction={player} size={62} />
+        <NarratorFigure faction={player} size={70} mood={mood} talking={talking} />
       </button>
     </nav>
   );

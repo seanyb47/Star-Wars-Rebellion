@@ -16,6 +16,7 @@ import { Sheet } from './components';
 import { AdvisorPortrait } from './narrator/AdvisorPortrait';
 import { narratorIdFor, preloadClips } from './narrator/assets';
 import type { NarratorMood } from './narrator/mood';
+import { useAdvisorVoice } from './narrator/useAdvisorVoice';
 
 /**
  * Your advisor. The world bible gives each side one: a sea-parrot the
@@ -174,6 +175,7 @@ export function Narrator({
   const answers = buildAnswers(state);
   const open = answers.find((a) => a.id === openId) ?? null;
   const advisorId = narratorIdFor(state.player);
+  const voice = useAdvisorVoice();
 
   // Plan F5: warm the cache for every clip that exists, the moment the sheet
   // mounts, so a mood change never waits on a download.
@@ -187,7 +189,7 @@ export function Narrator({
       stacked
     >
       <div className="row" style={{ gap: 12, alignItems: 'flex-start', marginBottom: 12 }}>
-        <AdvisorPortrait id={advisorId} mood={open?.mood ?? 'neutral'} width={120} />
+        <AdvisorPortrait id={advisorId} mood={open?.mood ?? 'neutral'} talking={voice.talking} width={120} />
         <p className="small" style={{ margin: 0, flex: 1 }}>
           {open
             ? open.reply
@@ -203,7 +205,12 @@ export function Narrator({
             key={answer.id}
             className={`btn btn--block${open?.id === answer.id ? ' btn--primary' : ''}`}
             style={{ justifyContent: 'flex-start' }}
-            onClick={() => setOpenId(open?.id === answer.id ? null : answer.id)}
+            onClick={() => {
+              const next = open?.id === answer.id ? null : answer.id;
+              setOpenId(next);
+              if (next) voice.say(answer.reply, answer.mood);
+              else voice.hush();
+            }}
           >
             {answer.question}
           </button>

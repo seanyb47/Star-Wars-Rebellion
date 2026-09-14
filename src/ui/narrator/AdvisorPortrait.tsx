@@ -19,10 +19,13 @@ export function AdvisorPortrait({
   mood,
   width = 128,
   accents = true,
+  talking = false,
 }: {
   id: NarratorId;
   mood: NarratorMood;
   width?: number;
+  /** Mid-sentence: the figure gestures (see useAdvisorVoice). */
+  talking?: boolean;
   /** Fire the accent timer (plan F4). Off while the sheet is doing something else. */
   accents?: boolean;
 }) {
@@ -70,7 +73,11 @@ export function AdvisorPortrait({
   const idle = idleOk[mood] ? idleUrl(id, mood) : null;
 
   return (
-    <div className="advisor-frame" style={{ width, height }} aria-hidden="true">
+    <div
+      className={`advisor-frame${talking ? ' advisor-frame--talking' : ''}`}
+      style={{ width, height }}
+      aria-hidden="true"
+    >
       {NARRATOR_MOODS.map((m) => (
         <img
           key={m}

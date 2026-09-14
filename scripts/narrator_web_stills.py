@@ -18,6 +18,10 @@ BASE = os.path.join(os.path.dirname(__file__), "..", "public", "narrator", "stil
 OUT = os.path.join(BASE, "web")
 CHARACTERS = ("marlow", "pennywhistle")
 MOODS = ("neutral", "grave", "encouraged")
+# The head-and-shoulders box cut from each 1122×1402 still for the tab bar.
+# One box per character, applied to all three moods, so a change of mood on
+# the bar is a change of face and nothing else.
+TAB_BOX = {"marlow": (260, 40, 900, 840), "pennywhistle": (200, 80, 1000, 1080)}
 
 
 def main() -> int:
@@ -34,10 +38,13 @@ def main() -> int:
             dst = os.path.join(OUT, f"{c}_{m}.webp")
             im.save(dst, "WEBP", quality=82, method=6)
             print(f"  {os.path.relpath(dst)}  {os.path.getsize(dst) // 1024} KB")
-        src = os.path.join(BASE, f"{c}_tab.png")
-        if os.path.exists(src):
-            dst = os.path.join(OUT, f"{c}_tab.webp")
-            Image.open(src).convert("RGB").save(dst, "WEBP", quality=85, method=6)
+        for m in MOODS:
+            src = os.path.join(BASE, f"{c}_{m}.png")
+            if not os.path.exists(src):
+                continue
+            im = Image.open(src).convert("RGB").crop(TAB_BOX[c]).resize((192, 240), Image.LANCZOS)
+            dst = os.path.join(OUT, f"{c}_tab_{m}.webp")
+            im.save(dst, "WEBP", quality=85, method=6)
             print(f"  {os.path.relpath(dst)}  {os.path.getsize(dst) // 1024} KB")
     return 1 if missing else 0
 
