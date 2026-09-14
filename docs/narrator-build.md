@@ -8,7 +8,7 @@
 ## Status — managed by Claude Code
 
 Sean's plan is below, unchanged. This block is the live checklist; it is the
-only part of the file Claude Code edits. Last updated 2026-09-13, night: **the first six stills were the wrong register** — dim, cold, near-photographic, against a game that is blue sky, warm light and appealing faces. They are retired to `stills/retired/v1-grim/` and all six are being redone against the game's own portraits (Drive `Narrators/style`), with the canonical style line in every prompt. Phase C waits on the redo.
+only part of the file Claude Code edits. Last updated 2026-09-14: Marlow's costume changed from Admiralty black to the Imperium's sea-green and cream (bible §16.1, Drive docs 1 and 5 re-issued); the redo has not been run yet. Earlier, 2026-09-13, night: **the first six stills were the wrong register** — dim, cold, near-photographic, against a game that is blue sky, warm light and appealing faces. They are retired to `stills/retired/v1-grim/` and all six are being redone against the game's own portraits (Drive `Narrators/style`), with the canonical style line in every prompt. Phase C waits on the redo.
 
 | Step | Owner | State | Note |
 |---|---|---|---|
