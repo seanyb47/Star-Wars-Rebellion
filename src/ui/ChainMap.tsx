@@ -549,8 +549,8 @@ export function ChainMap({
 
             {explored && (
               <g pointerEvents="none">
-                {/* Room to build: one pip per slot, pale where something
-                    stands, an empty socket where nothing does. Kept clear of
+                {/* Room to build: one pip per slot, white where something
+                    stands, light grey where the ground is free. Kept clear of
                     the faction colours so it cannot be misread as loyalty. An
                     island with no room at all gets one unbroken dark bar:
                     still a bar, so every charted island reads the same. */}
@@ -561,7 +561,7 @@ export function ChainMap({
                     width={110}
                     height={7}
                     rx={2}
-                    fill="#1c3b48"
+                    fill="#3d515a"
                   />
                 )}
                 {slots > 0 &&
@@ -573,7 +573,7 @@ export function ChainMap({
                       width={110 / slots - 2.5}
                       height={7}
                       rx={2}
-                      fill={i < built ? '#93a7b1' : '#1c3b48'}
+                      fill={i < built ? '#f4f7f8' : '#8fa0a8'}
                     />
                   ))}
                 {/* Loyalty: the same bar as the island's panel and its row in

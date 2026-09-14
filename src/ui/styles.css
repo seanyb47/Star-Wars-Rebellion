@@ -674,7 +674,7 @@ button {
   width: 11px; height: 11px; display: inline-block; flex: none;
   background: currentColor;
 }
-.key--room { width: 22px; background: linear-gradient(90deg, #93a7b1 0 50%, #1c3b48 50% 100%); border-radius: 2px; }
+.key--room { width: 22px; background: linear-gradient(90deg, #f4f7f8 0 50%, #8fa0a8 50% 100%); border-radius: 2px; }
 .key--lean {
   width: 22px; border-radius: 2px;
   background: linear-gradient(90deg, var(--empire) 0 45%, var(--neutral) 45% 75%, var(--alliance) 75% 100%);
