@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import factionData from '../data/factions.json';
+import reachData from '../data/reaches.json';
+import { numberWord } from './words';
 import type { PlayableFaction } from '../sim';
 import { CompassRose, FactionCrest } from './art';
 import { paintedChart } from './painted';
@@ -31,6 +33,9 @@ const FACTION_DETAIL: Record<
   },
 };
 
+const ISLANDS = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
+const REACHES = reachData.reaches.length;
+
 export function StartScreen({
   hasSave,
   onContinue,
@@ -58,7 +63,7 @@ export function StartScreen({
         </div>
         <h1 className="start__title serif">Master of the Seven Seas</h1>
         <p className="start__tagline">
-          Seven seas, a hundred islands, and something older than both fleets moving underneath.
+          {numberWord(REACHES)[0].toUpperCase() + numberWord(REACHES).slice(1)} seas, {numberWord(ISLANDS)} islands, and something older than both fleets moving underneath.
         </p>
       </header>
 
@@ -74,7 +79,7 @@ export function StartScreen({
         {(['empire', 'alliance'] as const).map((id) => (
           <button
             key={id}
-            className={`facard${faction === id ? ' facard--picked' : ''}`}
+            className={`facard facard--${id}${faction === id ? ' facard--picked' : ''}`}
             onClick={() => setFaction(id)}
             aria-pressed={faction === id}
           >

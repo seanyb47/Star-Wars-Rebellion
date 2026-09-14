@@ -112,7 +112,7 @@ function FacilityCard({
   return (
     <div className="card">
       <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
-        <span className="facility__icon">
+        <span className="facility__thumb">
           <FacilityThumb type={facility.type} owner={facility.owner} width={96} />
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>

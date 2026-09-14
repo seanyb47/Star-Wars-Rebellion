@@ -375,7 +375,7 @@ export function FacilityIcon({
           {/* Waterwheel over its race. */}
           <circle cx="14" cy="15" r="8.5" />
           <path d="M14 6.5 V23.5 M5.5 15 H22.5 M8 9 L20 21 M20 9 L8 21" strokeWidth="1.3" />
-          <path d="M3 27 Q10 24 16 27 T29 27" />
+          <path d="M3 28 Q10 25 16 28 T29 28" />
         </g>
       )}
       {type === 'construction_yard' && (
@@ -394,7 +394,7 @@ export function FacilityIcon({
           <path d="M9 27 V9 M16 27 V6 M23 27 V9" />
           <path d="M9 9 L7 5 L11 5 Z M16 6 L14 2 L18 2 Z M23 9 L21 5 L25 5 Z" />
           <path d="M5 20 H27" />
-          <path d="M4 29 H28" />
+          <path d="M4 28 H28" />
         </g>
       )}
       {type === 'shipyard' && (
@@ -402,8 +402,8 @@ export function FacilityIcon({
           {/* A hull's ribs, still up on the stocks. */}
           <path d="M6 8 Q16 26 26 8" />
           <path d="M10 12 V22 M16 15 V25 M22 12 V22" strokeWidth="1.4" />
-          <path d="M3 27 H29" />
-          <path d="M8 27 L11 22 M24 27 L21 22" strokeWidth="1.4" />
+          <path d="M3 28 H29" />
+          <path d="M8 28 L11 22 M24 28 L21 22" strokeWidth="1.4" />
         </g>
       )}
       {type === 'fort' && (
@@ -1087,44 +1087,50 @@ export function ShipIcon({
   role: 'small' | 'medium' | 'large' | 'transport';
   size?: number;
 }) {
-  const common = {
+  const line = {
     fill: 'none',
     stroke: 'currentColor',
-    strokeWidth: 1.6,
+    strokeWidth: 1.5,
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const,
   };
-  const sail = { fill: 'currentColor', stroke: 'none', opacity: 0.85 };
+  const hull = { fill: 'currentColor', stroke: 'none' };
+  const sail = { fill: 'currentColor', stroke: 'none', opacity: 0.55 };
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
       {role === 'small' && (
-        <g {...common}>
-          <path d="M6 17.5 h12 l-2 3 h-8 Z" />
-          <path d="M12 17 V5" />
-          <path d="M12 6 L16.5 14 H12 Z" {...sail} />
+        <g>
+          {/* A sloop: one mast, fore-and-aft canvas, a low sharp hull. */}
+          <path d="M5 17.5 H18.5 L16.5 20.5 H7 Z" {...hull} />
+          <path d="M12 17 V4.5" {...line} />
+          <path d="M12.5 5.5 L17.5 15.5 H12.5 Z" {...sail} />
+          <path d="M11.5 8 L7.5 15.5 H11.5 Z" {...sail} opacity={0.35} />
         </g>
       )}
       {role === 'medium' && (
-        <g {...common}>
-          <path d="M4 17 h16 l-2 3.5 h-12 Z" />
-          <path d="M9 16.5 V6 M15 16.5 V4" />
-          <path d="M9 7 l3.5 6.5 H9 Z M15 5 l4 8.5 H15 Z" {...sail} />
+        <g>
+          {/* A frigate: two masts of square sail on a longer, taller hull. */}
+          <path d="M3 16 H21 L19 20.5 H5 Z" {...hull} />
+          <path d="M4 16 L3 13.5 M20 16 L21.5 13" {...line} />
+          <path d="M8.5 15.5 V4 M15.5 15.5 V3" {...line} />
+          <path d="M5.5 6 H11.5 L11 11 H6 Z M12.5 5 H18.5 L18 10.5 H13 Z" {...sail} />
         </g>
       )}
       {role === 'large' && (
-        <g {...common}>
-          <path d="M2 16.5 h20 l-2.5 4 h-15 Z" />
-          <path d="M6 16 V5 M12 16 V3 M18 16 V6" />
-          <path d="M6 6 l4.5 7 H6 Z M12 4.5 l5 8.5 H12 Z M18 7 l3.2 6 H18 Z" {...sail} />
-          {/* A row of gun ports is the only thing that says "of the line". */}
-          <path d="M5 18.3 h14" strokeDasharray="1.4 1.8" strokeWidth="1.3" />
+        <g>
+          {/* A ship of the line: three masts, and two decks of guns. */}
+          <path d="M1.5 14.5 H22.5 L20.5 21 H3.5 Z" {...hull} />
+          <path d="M4 17.2 H20 M4.6 19.2 H19.4" stroke="#041219" strokeWidth="0.9" opacity="0.7" fill="none" />
+          <path d="M6.5 14 V3.5 M12 14 V2 M17.5 14 V3.5" {...line} />
+          <path d="M4 5 H9 L8.5 9.5 H4.5 Z M9.5 3.5 H14.5 L14 9 H10 Z M15 5 H20 L19.5 9.5 H15.5 Z" {...sail} />
         </g>
       )}
       {role === 'transport' && (
-        <g {...common}>
-          <path d="M3 14.5 h18 q-1 6 -3.5 6 h-11 q-2.5 0 -3.5 -6 Z" />
-          <path d="M8.5 14 V6 M15.5 14 V7.5" />
-          <path d="M8.5 7 l4 6 h-4 Z M15.5 8.5 l3.4 4.5 h-3.4 Z" {...sail} />
+        <g>
+          {/* A fluyt: a fat, round-bellied hull with high sides, one mast, no guns. */}
+          <path d="M3 12.5 H21 C21 18 17.5 21 12 21 S3 18 3 12.5 Z" {...hull} />
+          <path d="M12 12 V3" {...line} />
+          <path d="M7.5 4.5 H16.5 L16 10.5 H8 Z" {...sail} />
         </g>
       )}
     </svg>

@@ -334,7 +334,7 @@ button {
 }
 .sheet__grip { width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 8px auto 4px; }
 .map__rhumb { stroke: #0f3a47; }
-.sheet__head { padding: 4px 14px 10px; border-bottom: 1px solid var(--border); }
+.sheet__head { padding: 4px 14px 10px; border-bottom: 1px solid var(--metal-lo); }
 .sheet__title {
   font-size: 19px; font-weight: 700;
   font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
@@ -366,8 +366,11 @@ button {
 .tiny { font-size: 11px; }
 .section-title {
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
-  color: var(--brass); margin: 14px 0 6px; opacity: 0.85;
+  color: var(--metal); margin: 14px 0 6px; opacity: 0.95;
+  display: flex; align-items: center; gap: 8px;
 }
+/* A hairline off the end of every heading, the way a chart rules its margins. */
+.section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--metal-lo), transparent); opacity: 0.9; }
 .section-title:first-child { margin-top: 0; }
 
 .badge {
@@ -401,7 +404,15 @@ button {
   display: flex; align-items: center; justify-content: center; gap: 6px;
 }
 .btn:active:not(:disabled) { background: #113442; }
-.btn--primary { background: #1b3a6b; border-color: #2b5698; }
+/* The action button is the side's metal: brass for the Crown, red for the
+   Confederacy. Dark lettering on it, so it reads as a plaque and not a link. */
+.btn--primary {
+  background: linear-gradient(180deg, var(--metal-hi), var(--metal) 55%, color-mix(in srgb, var(--metal) 80%, #000));
+  border-color: var(--metal-lo); color: #0b1410;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.btn--primary:active:not(:disabled) { background: linear-gradient(180deg, var(--metal), var(--metal-lo)); color: #0b1410; }
 .btn--danger { color: var(--bad); }
 .btn--block { width: 100%; }
 .btn--flex { flex: 1; }
@@ -432,12 +443,13 @@ button {
 
 .event { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); text-align: left; width: 100%; }
 .event__day {
-  flex: none; width: 42px; font-variant-numeric: tabular-nums;
-  font-size: 11px; color: var(--muted); padding-top: 1px;
+  flex: none; width: 46px; font-variant-numeric: tabular-nums;
+  font-size: 11px; color: var(--metal); padding-top: 2px; opacity: 0.85;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
 }
 .event__text { flex: 1; font-size: 13px; }
 .event--unread .event__text { color: var(--text); }
-.event--unread .event__day::before { content: '•'; color: var(--empire); margin-right: 3px; }
+.event--unread .event__day::before { content: '•'; color: var(--metal-hi); margin-right: 3px; }
 
 .banner {
   border-radius: 10px; padding: 10px 12px; font-size: 13px;
@@ -511,6 +523,12 @@ button {
   border: 1px solid var(--border); background: var(--bg-sunken);
 }
 .facard--picked { border-color: var(--brass); background: #102b35; }
+/* Each side's card in its own colours, so the choice reads before the words do. */
+.facard--empire { border-color: rgba(79, 196, 106, 0.35); }
+.facard--alliance { border-color: rgba(216, 72, 63, 0.4); }
+.facard--empire.facard--picked { border-color: #c9a227; background: linear-gradient(180deg, #14301f, #0c2018); box-shadow: 0 0 0 1px #6f5612, 0 0 14px rgba(201, 162, 39, 0.25); }
+.facard--alliance.facard--picked { border-color: #d8533f; background: linear-gradient(180deg, #33151a, #23100d); box-shadow: 0 0 0 1px #7a2a1e, 0 0 14px rgba(216, 83, 63, 0.25); }
+.facard--alliance .facard__creed { color: #e08a72; }
 .facard__name { font-size: 14px; font-weight: 700; line-height: 1.2; }
 .facard__creed {
   font-size: 8.5px; letter-spacing: 0.09em; text-transform: uppercase;
@@ -531,7 +549,7 @@ button {
   flex: 1; min-height: var(--tap); border-radius: 999px; font-size: 13px;
   border: 1px solid var(--border); background: var(--bg-sunken); color: var(--muted);
 }
-.pill--on { border-color: var(--brass); color: var(--text); background: #102b35; }
+.pill--on { border-color: var(--metal); color: var(--metal-hi); background: rgba(0, 0, 0, 0.3); }
 .pill:disabled { opacity: 0.4; }
 .start__note { margin: 8px 0 0; }
 .start__begin { margin-top: 18px; }
@@ -548,10 +566,10 @@ button {
   border-bottom: 2px solid transparent;
   position: relative;
 }
-.tabs__tab--on { color: var(--text); border-bottom-color: var(--brass); }
+.tabs__tab--on { color: var(--metal-hi); border-bottom-color: var(--metal); }
 .tabs__dot {
   position: absolute; top: 11px; right: 50%; transform: translateX(24px);
-  width: 5px; height: 5px; border-radius: 50%; background: var(--brass);
+  width: 5px; height: 5px; border-radius: 50%; background: var(--metal);
 }
 
 .portrait { display: flex; justify-content: center; margin: 2px 0 10px; }
@@ -561,6 +579,10 @@ button {
 }
 
 /* ---------- Units, buildings and people ---------- */
+/* The painted band beside a building's name: its own box, so it never sits
+   under the text. */
+.facility__thumb { flex: none; line-height: 0; }
+.facility__thumb .facthumb { display: block; }
 .facility__icon {
   flex: none; width: 34px; height: 34px;
   display: grid; place-items: center;
@@ -857,7 +879,8 @@ button {
   transform: translateY(-50%);
   z-index: 26;
   background: var(--bg-raised);
-  border: 1px solid var(--border); border-radius: 14px;
+  border: 1px solid var(--metal-lo); border-radius: 14px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 18px 48px rgba(2, 10, 14, 0.66);
   overflow: hidden;
   box-shadow: 0 18px 48px rgba(2, 10, 14, 0.66);
 }
@@ -866,8 +889,9 @@ button {
   padding: 10px 8px 10px 14px;
 }
 .dispatch__title {
-  font-size: 14px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--text); line-height: 1.25;
+  font-size: 15px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--metal-hi); line-height: 1.25;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
 }
 .dispatch__text {
   margin: 0; padding: 12px 14px 4px;
@@ -1085,8 +1109,8 @@ button.tcard:hover { border-color: var(--brass); }
   position: fixed; left: 10px; right: 10px; z-index: 60;
   bottom: calc(var(--safe-bottom) + 68px);
   background: linear-gradient(180deg, #123240 0%, #0c2531 100%);
-  border: 1px solid var(--brass); border-radius: 14px;
-  padding: 14px 16px 12px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--metal); border-radius: 14px;
+  padding: 14px 16px 12px; box-shadow: 0 0 0 1px var(--metal-lo), 0 14px 40px rgba(0, 0, 0, 0.55);
   animation: teach-in 260ms ease-out both;
 }
 .teach--out { animation: teach-out 180ms ease-in both; }
@@ -1094,7 +1118,7 @@ button.tcard:hover { border-color: var(--brass); }
 @keyframes teach-out { to { opacity: 0; transform: translateY(10px); } }
 .teach__pips { display: flex; gap: 5px; margin-bottom: 9px; }
 .teach__pip { width: 16px; height: 3px; border-radius: 2px; background: #2c4c58; }
-.teach__pip--on { background: var(--brass); }
+.teach__pip--on { background: var(--metal); }
 .teach__title { margin: 0 0 5px; font-size: 18px; color: var(--text); }
 .teach__body { margin: 0 0 12px; font-size: 14px; line-height: 1.45; color: #cfe0e6; }
 .teach__row { display: flex; align-items: center; gap: 10px; }
@@ -1115,7 +1139,7 @@ button.tcard:hover { border-color: var(--brass); }
   background: var(--bg-raised); border: 1px solid var(--border); border-radius: 12px;
   overflow: hidden; cursor: pointer; color: inherit; font: inherit;
 }
-.crewcard:active { border-color: var(--brass); }
+.crewcard:active { border-color: var(--metal); }
 .crewcard--busy { opacity: 0.62; }
 .crewcard__art { position: relative; display: block; line-height: 0; }
 /* The painting is the card; .painting already covers and crops for us. */

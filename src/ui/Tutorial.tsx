@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import factionData from '../data/factions.json';
+import reachData from '../data/reaches.json';
+import { numberWord } from './words';
 import { CAPTIVE_DAYS, LEADERS, VICTORY_CONTROL_FRACTION, type PlayableFaction } from '../sim';
 
 /** Bumped when the tutorial is rewritten, so people who skipped the old one see the new. */
@@ -28,13 +30,16 @@ export function alreadyTaught(): boolean {
  * of the interface stays live, and Skip is always there. It can be reopened
  * from the menu as "How to play".
  */
+const ISLANDS = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
+const REACHES = reachData.reaches.length;
+
 const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> = [
   {
     title: 'What this is',
     body: (side) => {
       const you = factionData[side];
       const them = factionData[side === 'empire' ? 'alliance' : 'empire'];
-      return `A war for the Seven Seas: seventy-one islands in eight chains. You are the ${you.name}'s ${you.playerTitle} — the highest rank it has, and every admiral and captain answers to you. ${them.name} is out there with ships, officers and islands of its own, and it wants what you have.`;
+      return `A war for the Seven Seas: ${numberWord(ISLANDS)} islands in ${numberWord(REACHES)} chains. You are the ${you.name}'s ${you.playerTitle} — the highest rank it has, and every admiral and captain answers to you. ${them.name} is out there with ships, officers and islands of its own, and it wants what you have.`;
     },
   },
   {
@@ -49,7 +54,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'The chart',
     body: () =>
-      'Every island is a dot in the colour of who holds it: green the Crown, red the Confederacy, blue settled but nobody\'s, grey unexplored or empty — open ground to survey and settle. A ring marks a capital. Tap a chain to zoom in.',
+      'Every island is a dot in the colour of who holds it: green the Crown, red the Confederacy, blue settled but nobody\'s, grey unexplored or empty — open ground to survey and settle. The large burst is a capital. Tap a chain to zoom in.',
   },
   {
     title: 'One island',

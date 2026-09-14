@@ -23,11 +23,14 @@ export function ChartMark({
   width,
   height,
   className,
+  ring: ringColour,
 }: {
   name: string;
   width: number;
   height: number;
   className?: string;
+  /** Explored: a solid ring in the holder's colour instead of the surveyor's dashes. */
+  ring?: string;
 }) {
   const spot = SPOTS.get(name);
   const chart = paintedChart('seas');
@@ -52,9 +55,18 @@ export function ChartMark({
       ) : (
         <rect x={cx - view.w} y={cy - view.h} width={view.w * 2} height={view.h * 2} fill="#0b2a36" />
       )}
-      {/* The surveyor's ring: the one thing the chart actually records here. */}
-      <circle cx={cx} cy={cy} r={ring} fill="none" stroke="#e8d9a8" strokeWidth={view.w * 0.012} strokeDasharray={`${ring * 0.6} ${ring * 0.35}`} opacity={0.9} />
-      <circle cx={cx} cy={cy} r={ring * 0.18} fill="#e8d9a8" opacity={0.9} />
+      {ringColour ? (
+        <>
+          <circle cx={cx} cy={cy} r={ring} fill="none" stroke="#041219" strokeWidth={view.w * 0.03} opacity={0.7} />
+          <circle cx={cx} cy={cy} r={ring} fill="none" stroke={ringColour} strokeWidth={view.w * 0.016} />
+        </>
+      ) : (
+        <>
+          {/* The surveyor's ring: the one thing the chart actually records here. */}
+          <circle cx={cx} cy={cy} r={ring} fill="none" stroke="#e8d9a8" strokeWidth={view.w * 0.012} strokeDasharray={`${ring * 0.6} ${ring * 0.35}`} opacity={0.9} />
+          <circle cx={cx} cy={cy} r={ring * 0.18} fill="#e8d9a8" opacity={0.9} />
+        </>
+      )}
     </svg>
   );
 }
