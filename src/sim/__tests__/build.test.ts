@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
-import { advanceBuilds, buildError, findFacility, queueBuild } from '../build';
+import {
+  advanceBuilds,
+  buildError,
+  cancelBuild,
+  findFacility,
+  foundWorks,
+  foundWorksError,
+  queueBuild,
+} from '../build';
 import { getSystem } from '../helpers';
 import type { GameState } from '../types';
 
@@ -136,5 +144,58 @@ describe('completing builds', () => {
     system.uprising = true;
     for (let day = 0; day < 20; day++) advanceBuilds(state);
     expect(findFacility(state, facility.id)!.facility.building!.daysRemaining).toBe(8);
+  });
+});
+
+describe('laying down a works', () => {
+  function bare(state: GameState, faction: 'empire' | 'alliance') {
+    // A held island with no works on it: the shape of every island taken in the war.
+    for (const system of state.systems) {
+      if (system.control !== faction) continue;
+      system.facilities = system.facilities.filter((f) => f.type !== 'construction_yard');
+      if (system.energySlots - system.facilities.filter((f) => f.type !== 'mine').length >= 1) {
+        return system;
+      }
+    }
+    throw new Error('no bare island');
+  }
+
+  it('stands in its slot at once and is done when the clock runs out', () => {
+    const state = generateGalaxy(301);
+    const island = bare(state, 'empire');
+    state.factions.empire.gold = 200;
+    expect(foundWorksError(state, island.id, 'empire')).toBeNull();
+    foundWorks(state, island.id, 'empire');
+    expect(state.factions.empire.gold).toBe(80);
+    const works = island.facilities.find((f) => f.type === 'construction_yard')!;
+    expect(works.founding).toBe(true);
+    expect(works.building?.daysRemaining).toBe(20);
+    for (let d = 0; d < 20; d++) advanceBuilds(state);
+    expect(works.building).toBeUndefined();
+    expect(works.founding).toBeUndefined();
+    // One works, not two: finishing the order must not raise a second one.
+    expect(island.facilities.filter((f) => f.type === 'construction_yard')).toHaveLength(1);
+  });
+
+  it('refuses where a works already stands, where there is no room, and when broke', () => {
+    const state = generateGalaxy(301);
+    const island = bare(state, 'empire');
+    state.factions.empire.gold = 50;
+    expect(foundWorksError(state, island.id, 'empire')).toMatch(/Needs 120 gold/);
+    state.factions.empire.gold = 500;
+    foundWorks(state, island.id, 'empire');
+    expect(foundWorksError(state, island.id, 'empire')).toMatch(/already/);
+    const other = state.systems.find((s) => s.control === 'alliance')!;
+    expect(foundWorksError(state, other.id, 'empire')).toMatch(/do not hold/);
+  });
+
+  it('comes down again if the order is cancelled', () => {
+    const state = generateGalaxy(301);
+    const island = bare(state, 'empire');
+    state.factions.empire.gold = 500;
+    foundWorks(state, island.id, 'empire');
+    const works = island.facilities.find((f) => f.type === 'construction_yard')!;
+    cancelBuild(state, works.id);
+    expect(island.facilities.find((f) => f.id === works.id)).toBeUndefined();
   });
 });

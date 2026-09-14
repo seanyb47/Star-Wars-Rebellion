@@ -78,7 +78,8 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
       <p className="tiny muted" style={{ marginTop: 0 }}>
         A building either earns {terms.gold.toLowerCase()} or costs it. A camp needs free{' '}
         {terms.ground.toLowerCase()}; everything else needs free {terms.water.toLowerCase()}.
-        Buildings are raised by a {FACILITY_LABEL.construction_yard} standing on the same island.
+        Buildings are raised by a {FACILITY_LABEL.construction_yard} standing on the same island; an island
+        with none can have one laid down from its Buildings tab.
       </p>
       <div className="stack">
         {BUILD_ORDER.map((type) => (

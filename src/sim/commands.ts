@@ -3,7 +3,7 @@
  * new state, and never throws: failures come back as `error` so a mistimed tap
  * can never crash the game.
  */
-import { cancelBuild, queueBuild } from './build';
+import { cancelBuild, foundWorks, queueBuild } from './build';
 import { assault, board, embark, goAshore, sailFleet } from './fleets';
 import { createRng } from './rng';
 import { generateGalaxy } from './galaxy';
@@ -44,6 +44,11 @@ export function orderBuild(
   item: BuildItem,
 ): CommandResult {
   return run(state, (draft) => queueBuild(draft, facilityId, item));
+}
+
+/** Lay down a works on a held island with none; see foundWorks. */
+export function orderFoundWorks(state: GameState, systemId: string): CommandResult {
+  return run(state, (draft) => foundWorks(draft, systemId, draft.player));
 }
 
 export function cancelOrder(state: GameState, facilityId: string): CommandResult {

@@ -25,6 +25,7 @@ import {
   type GameState,
   type PlayableFaction,
   type Speed,
+  orderFoundWorks,
 } from '../sim';
 import { Almanac } from './Almanac';
 import { CharacterSheet } from './CharacterSheet';
@@ -195,6 +196,12 @@ export function App() {
 
   const handleCancel = (facilityId: string) => {
     setState(cancelOrder(state, facilityId).state);
+  };
+
+  const handleFound = (systemId: string) => {
+    const result = orderFoundWorks(state, systemId);
+    if (result.error) flash(result.error);
+    setState(result.state);
   };
 
   const handleSelectSystem = (systemId: string) => {
@@ -461,6 +468,7 @@ export function App() {
           onClose={() => setOpenSystemId(null)}
           onBuild={handleBuild}
           onCancel={handleCancel}
+          onFound={handleFound}
           onSail={handleSail}
           onEmbark={handleEmbark}
           onAssault={handleAssault}

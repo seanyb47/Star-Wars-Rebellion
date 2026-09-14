@@ -9,11 +9,12 @@ import {
   AI_TROOP_POOL,
   INCITE_PRIORITY_PENALTY,
   TROOP_BUILD,
+  UPKEEP_PER_DAY,
   YARD_BUILDS,
   shipSpec,
   shipsFor,
 } from './constants';
-import { buildMenu, canQueueBuild, queueBuild } from './build';
+import { buildMenu, canQueueBuild, foundWorks, foundWorksError, queueBuild } from './build';
 import {
   assault,
   assaultError,
@@ -48,6 +49,7 @@ import type {
   Character,
   FacilityType,
   Fleet,
+  ShipClassId,
   GameState,
   PlayableFaction,
   System,
@@ -57,6 +59,24 @@ import type {
  * Deliberately simple opponent (spec 4.7): keep the mine/refinery count level,
  * and keep the best diplomat working the most promising world.
  */
+/**
+ * What the opponent clears a day after everything it owns is paid for.
+ *
+ * The upkeep ceiling. Measured over a year of play the opponent used to run
+ * its treasury dry by day 180 on either side — every island it took added
+ * a garrison to feed, every hull a crew, and nothing ever asked whether the
+ * ledger could carry it. It won land-grabs while bankrupt, with its works
+ * falling down behind it. So: nothing that costs upkeep is ordered unless
+ * the surplus can carry it with room to spare, and when the surplus is thin
+ * the only thing it builds is an earner.
+ */
+function surplus(state: GameState, ai: PlayableFaction): number {
+  const f = state.factions[ai];
+  return f.income - f.upkeep;
+}
+/** Kept clear over and above whatever the next order will cost to run. */
+const AI_SURPLUS_MARGIN = 3;
+
 export function runAI(state: GameState, rng: Rng): void {
   const ai = otherFaction(state.player);
   if (state.day % AI_BUILD_INTERVAL === 0) aiBuild(state, ai);
@@ -79,6 +99,9 @@ export function runAI(state: GameState, rng: Rng): void {
 function aiBuild(state: GameState, ai: PlayableFaction): void {
   const gold = state.factions[ai].gold;
   const held = state.systems.filter((s) => s.control === ai && !s.uprising);
+  const spare = surplus(state, ai);
+  const canCarry = (item: FacilityType | 'troop') =>
+    spare - UPKEEP_PER_DAY[item] >= AI_SURPLUS_MARGIN;
 
   // 1. Companies. A drill ground raises them on its own island and nowhere
   //    else, so this works outward from the drill grounds rather than from the
@@ -86,7 +109,7 @@ function aiBuild(state: GameState, ai: PlayableFaction): void {
   //    them, which is exactly why an earlier version of this never drilled at
   //    all. Each keeps what holds its island quiet plus a small pool, because
   //    an opponent with no spare companies can never land on anything.
-  if (gold >= TROOP_BUILD.costGold) {
+  if (gold >= TROOP_BUILD.costGold && canCarry('troop')) {
     const target = (s: System) => Math.max(requiredGarrison(s.support[ai]), 1) + AI_TROOP_POOL;
     const short = held
       .filter((s) => s.garrison < target(s))
@@ -112,7 +135,7 @@ function aiBuild(state: GameState, ai: PlayableFaction): void {
   else if (countOf('shipyard') < 2 && gold > AI_SHIP_RESERVE * 3) wanted.push('shipyard');
 
   for (const item of wanted) {
-    if (gold < YARD_BUILDS[item].costGold) continue;
+    if (gold < YARD_BUILDS[item].costGold || !canCarry(item)) continue;
     const spot = bestSpotFor(state, ai, item);
     if (spot) {
       queueBuild(state, spot, item);
@@ -124,7 +147,23 @@ function aiBuild(state: GameState, ai: PlayableFaction): void {
   const item = countOf('mine') <= countOf('refinery') ? 'mine' : 'refinery';
   if (gold < YARD_BUILDS[item].costGold) return;
   const spot = bestSpotFor(state, ai, item);
-  if (spot) queueBuild(state, spot, item);
+  if (spot) {
+    queueBuild(state, spot, item);
+    return;
+  }
+
+  // 4. No works with ground left beside it: lay one down on the held island
+  //    with the most room, so the next earner has somewhere to go. This is
+  //    what used to stop the opponent dead the day its starting islands
+  //    filled — every island it took after that was a garrison bill and
+  //    nothing else.
+  if (gold < YARD_BUILDS.construction_yard.costGold || !canCarry('construction_yard')) return;
+  const open = held
+    .filter((s) => foundWorksError(state, s.id, ai) === null)
+    .sort((a, b) => freeRawSlots(b) + freeEnergySlots(b) - (freeRawSlots(a) + freeEnergySlots(a)));
+  if (open.length > 0 && freeRawSlots(open[0]) + freeEnergySlots(open[0]) >= 3) {
+    foundWorks(state, open[0].id, ai);
+  }
 }
 
 /** The held island with the most room to grow that can take this order. */
@@ -240,14 +279,17 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
   const transports = afloat.filter((s) => s.classId === classes.find((c) => c.role === 'transport')!.id);
   const wantTransport = transports.length * 3 < afloat.length + 1;
   // Fighting hulls as big as it can afford; a transport when it is short of one.
+  const spare = surplus(state, ai);
+  const carried = (id: ShipClassId) => spare - UPKEEP_PER_DAY[id] >= AI_SURPLUS_MARGIN;
   const affordable = classes
     .filter((c) => c.role !== 'transport')
+    .filter((c) => carried(c.id))
     .filter((c) => shipSpec(c.id).costGold + AI_SHIP_RESERVE <= state.factions[ai].gold)
     .sort((a, b) => shipSpec(b.id).costGold - shipSpec(a.id).costGold);
   const pick = wantTransport
     ? classes.find((c) => c.role === 'transport')
     : (affordable[0] ?? classes.find((c) => c.role === 'small'));
-  if (!pick) return;
+  if (!pick || !carried(pick.id)) return;
 
   for (const system of state.systems) {
     if (system.control !== ai || system.uprising) continue;

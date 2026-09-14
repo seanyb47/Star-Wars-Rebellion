@@ -408,12 +408,10 @@ describe('the opponent builds toward its navy', () => {
   it('lays down a slipway and puts hulls in the water in a plain game', () => {
     // No help: the opponent has to build its own way to a fleet, which it
     // could not do at all until its build order had a priority list.
-    // Measured at the peak, not the end. The opponent runs its treasury dry
-    // around day 250 and its buildings start falling apart for want of
-    // maintenance — a slipway among them, some seeds — so what the end of a
-    // game shows is the wreckage, not whether it ever built. Whether it
-    // built more yards than it started with, and put hulls in the water
-    // from them, is the question.
+    // Measured at the peak rather than the end, from the days when the
+    // opponent ran its treasury dry and its yards fell down; it no longer
+    // does, but the question is the same: did it build more yards than it
+    // started with, and put hulls in the water from them.
     let state = generateGalaxy(1, 'empire');
     const yardsOf = (s: typeof state) =>
       s.systems.flatMap((x) =>

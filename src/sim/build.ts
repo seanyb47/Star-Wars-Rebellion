@@ -4,6 +4,7 @@ import {
   isShipClass,
   shipsFor,
   YARD_BUILDABLE,
+  YARD_BUILDS,
   buildSpec,
   CRAFT_COST_STEP,
   CRAFT_DAYS_STEP,
@@ -117,7 +118,56 @@ export function queueBuild(state: GameState, facilityId: string, item: BuildItem
 /** Cancel an order. The gold already laid out is not refunded. */
 export function cancelBuild(state: GameState, facilityId: string): void {
   const found = findFacility(state, facilityId);
-  if (found?.facility.building) found.facility.building = undefined;
+  if (!found?.facility.building) return;
+  // A works that was only ever an order comes down with it.
+  if (found.facility.founding) {
+    found.system.facilities = found.system.facilities.filter((f) => f.id !== facilityId);
+    return;
+  }
+  found.facility.building = undefined;
+}
+
+/**
+ * Lay down a works on a held island that has none.
+ *
+ * Everything else is raised by a works standing on the same island, which
+ * left an island taken in the war a dead end: nothing could ever be built on
+ * it, by the player or the opponent, and both economies stalled the day their
+ * starting islands filled. This is the one order that needs no builder. It
+ * costs what a works costs and takes as long; the works stands in its slot
+ * from the day it is ordered so nothing else can take the ground.
+ */
+export function foundWorksError(
+  state: GameState,
+  systemId: string,
+  owner: PlayableFaction,
+): string | null {
+  const system = state.systems.find((s) => s.id === systemId);
+  if (!system) return 'No such island.';
+  if (system.control !== owner) return 'You do not hold this island.';
+  if (system.uprising) return 'The island is in mutiny.';
+  if (system.facilities.some((f) => f.owner === owner && f.type === 'construction_yard')) {
+    return `There is already a ${terms.facilities.construction_yard.toLowerCase()} here.`;
+  }
+  if (freeEnergySlots(system) < 1) return `No free ${terms.water.toLowerCase()}.`;
+  const cost = YARD_BUILDS.construction_yard.costGold;
+  if (state.factions[owner].gold < cost) return `Needs ${cost} gold.`;
+  return null;
+}
+
+export function foundWorks(state: GameState, systemId: string, owner: PlayableFaction): void {
+  const error = foundWorksError(state, systemId, owner);
+  if (error) throw new Error(error);
+  const system = state.systems.find((s) => s.id === systemId)!;
+  const spec = YARD_BUILDS.construction_yard;
+  state.factions[owner].gold -= spec.costGold;
+  system.facilities.push({
+    id: `fac-${++state.nextId}`,
+    type: 'construction_yard',
+    owner,
+    founding: true,
+    building: { item: 'construction_yard', daysRemaining: spec.days, costGold: spec.costGold },
+  });
 }
 
 /** Tick every in-progress order and resolve the ones that finish (spec 2). */
@@ -132,6 +182,16 @@ export function advanceBuilds(state: GameState): void {
       if (order.daysRemaining > 0) continue;
 
       facility.building = undefined;
+      if (facility.founding) {
+        // The works is the thing that was being built.
+        delete facility.founding;
+        pushEvent(state, {
+          kind: 'order',
+          text: `A ${terms.facilities.construction_yard.toLowerCase()} now stands on ${system.name}. Anything can be raised here.`,
+          systemId: system.id,
+        });
+        continue;
+      }
       completeBuild(state, system, facility.owner as PlayableFaction, order.item);
     }
   }

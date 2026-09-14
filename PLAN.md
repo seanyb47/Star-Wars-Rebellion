@@ -218,11 +218,15 @@ the position script re-runs against a new painting in one command.
   zero gold with a net of −6 to −34 a day, and its buildings fall apart for
   want of maintenance — 29–35 breakdowns a game, the Slipway among them in
   most seeds. It still wins against an idle Crown by about day 450–500 on
-  the 60% rule, on the hulls it built before the money ran out. It is winning
-  by land-grab while bankrupt, which is not how it should read. The build
-  order needs an upkeep ceiling: no new works, drill grounds or hulls while
-  net is under zero, and no more islands than the treasury can garrison. The
-  fleets test now measures the AI at its peak for this reason.
+  the 60% rule, on the hulls it built before the money ran out.
+  **Fixed, 14 September.** Two causes. The opponent ordered troops, yards
+  and hulls with no eye on the ledger — now nothing that costs upkeep is
+  ordered unless the surplus can carry it with three to spare. And an
+  island with no works could never get one, for anybody, so both economies
+  stalled the day the starting islands filled — now a works can be laid
+  down on any held island (`foundWorks`; the sheet offers it, the opponent
+  uses it). Measured over a year on four runs: net stays positive
+  throughout, works keep growing, and the fleet with them.
 - **Deploys must be dispatched by hand.** The `github-pages` environment's
   deployment-branch allow-list still names the original default branch, so a
   push to the feature branch does not deploy itself.

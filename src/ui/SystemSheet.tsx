@@ -10,6 +10,8 @@ import {
   buildError,
   buildLabel,
   buildMenu,
+  foundWorksError,
+  YARD_BUILDS,
   buildSpec,
   effectiveSpec,
   isShipClass,
@@ -188,6 +190,7 @@ export function SystemSheet({
   onClose,
   onBuild,
   onCancel,
+  onFound,
   onOpenCharacter,
   onOpenReach,
   onSail,
@@ -202,6 +205,7 @@ export function SystemSheet({
   onClose: () => void;
   onBuild: (facilityId: string, item: BuildItem) => void;
   onCancel: (facilityId: string) => void;
+  onFound: (systemId: string) => void;
   onSail: (fleetId: string) => void;
   onEmbark: (fleetId: string, companies: number) => void;
   onAssault: (fleetId: string) => void;
@@ -250,7 +254,7 @@ export function SystemSheet({
   const log = state.events.filter((e) => e.systemId === system.id).slice(-40).reverse();
   const slots = system.rawSlots + system.energySlots;
   const producers = system.facilities.filter(
-    (f) => f.owner === state.player && buildMenu(f).length > 0,
+    (f) => f.owner === state.player && !f.founding && buildMenu(f).length > 0,
   );
 
   return (
@@ -406,10 +410,26 @@ export function SystemSheet({
             ))}
           </div>
           {system.control === state.player && producers.length === 0 && (
-            <p className="muted tiny" style={{ marginTop: 8 }}>
-              A {terms.facilities.construction_yard.toLowerCase()} here would let you build on this
-              island.
-            </p>
+            <>
+              <div className="section-title">Nothing to build with</div>
+              <p className="muted tiny" style={{ margin: '0 0 8px' }}>
+                Everything is raised by a {terms.facilities.construction_yard.toLowerCase()} standing on
+                the same island. Lay one down and this island can build.
+              </p>
+              <button
+                className="btn btn--block btn--primary"
+                disabled={foundWorksError(state, system.id, state.player) !== null}
+                onClick={() => onFound(system.id)}
+              >
+                Lay down a {terms.facilities.construction_yard.toLowerCase()} ·{' '}
+                {YARD_BUILDS.construction_yard.costGold} gold · {YARD_BUILDS.construction_yard.days} days
+              </button>
+              {foundWorksError(state, system.id, state.player) && (
+                <p className="muted tiny" style={{ marginTop: 6 }}>
+                  {foundWorksError(state, system.id, state.player)}
+                </p>
+              )}
+            </>
           )}
         </>
       )}

@@ -144,6 +144,12 @@ export interface Facility {
   type: FacilityType;
   owner: Faction;
   building?: BuildOrder;
+  /**
+   * A works being laid down on an island that had none. It stands in its slot
+   * from the day it is ordered, with its own build order counting down; when
+   * that finishes it is simply done, rather than producing a second works.
+   */
+  founding?: true;
 }
 
 export interface BuildOrder {
