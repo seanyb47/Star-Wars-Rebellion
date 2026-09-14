@@ -68,6 +68,7 @@ FOLDERS: dict[str, tuple[int, int, str]] = {
     "faces": (256, 256, "the head, cropped square out of the portrait; the medallion"),
     "ships": (384, 512, "three-quarter view, whole vessel"),
     "islands": (768, 204, "low approach, as if from a boat; a banner on the island panel"),
+    "isles": (768, 204, "one island's own painting, by name; wins over its type's"),
     "creatures": (768, 352, "the natural world, and where the 20% fantasy is allowed out"),
     "scenes": (1024, 432, "full-bleed dispatch banner, quiet sky"),
     # The one painting the interface draws on top of, so it ships at the chart's

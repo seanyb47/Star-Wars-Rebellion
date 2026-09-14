@@ -35,6 +35,11 @@ const ISLANDS = import.meta.glob('../art/islands/*.{webp,png,jpg}', {
   import: 'default',
 }) as Record<string, string>;
 
+const ISLES = import.meta.glob('../art/isles/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
 const SCENES = import.meta.glob('../art/scenes/*.{webp,png,jpg}', {
   eager: true,
   query: '?url',
@@ -92,6 +97,7 @@ const ISLAND_URLS = bySlug(ISLANDS);
 const SCENE_URLS = bySlug(SCENES);
 const CHART_URLS = bySlug(CHART);
 const FACE_URLS = bySlug(FACES);
+const ISLE_URLS = bySlug(ISLES);
 const CREATURE_URLS = bySlug(CREATURES);
 
 export function paintedPortrait(name: string): string | undefined {
@@ -107,6 +113,11 @@ export function paintedShip(role: string): string | undefined {
  * each have their own painting, and they do not need one. An island names its
  * archetype and shares that painting with every other island like it.
  */
+/** An island's own painting, by name. Wins over its type's when it exists. */
+export function paintedIsle(name: string): string | undefined {
+  return ISLE_URLS[slugify(name)];
+}
+
 export function paintedIsland(archetype: string): string | undefined {
   return ISLAND_URLS[slugify(archetype)];
 }
@@ -135,6 +146,7 @@ export function paintedCounts() {
     portraits: Object.keys(PORTRAIT_URLS).length,
     ships: Object.keys(SHIP_URLS).length,
     islands: Object.keys(ISLAND_URLS).length,
+    isles: Object.keys(ISLE_URLS).length,
     scenes: Object.keys(SCENE_URLS).length,
     chart: Object.keys(CHART_URLS).length,
     faces: Object.keys(FACE_URLS).length,

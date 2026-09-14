@@ -5,6 +5,30 @@
 
 ---
 
+## PARKED — 2026-09-14
+
+Sean parked this project to put the art first. Nothing here is broken; it
+stops at a clean point. **State when parked:**
+
+- **In the game, live:** both advisors on the tab bar with three mood faces
+  and a speaking gesture per mood and per character; the advisor sheet with
+  the 4:5 frame; moods from dispatches and from answers. All code, no video
+  needed. Deploy run 98.
+- **Art, done:** six stills (v2 Marlow at the Admiralty window, v3
+  Pennywhistle on a wooden quay) in `public/narrator/stills/`; tab crops and
+  web copies made by `npm run narrator:web`.
+- **Clips:** optional. One exists (`marlow_neutral_idle.mp4`) and plays.
+  Accents are cut from the code and the checker. Make no more unless the
+  credits are worth it; if ever, neutral idles first.
+- **Voice (Phase E), not started:** E1 audition, E2 settings in the bible
+  §16.3, E3 first twenty lines in `public/narrator/voicelines.json`, E7
+  render with `npm run voices` (needs `ELEVENLABS_API_KEY`). The voice brief
+  is bible §16.4. F3 (one bark per question) and F7 (mute) wait on E7.
+
+**To resume:** read this block, then the checklist below. The first task is
+E3 — draft twenty lines per advisor against §16.4 — and it needs nothing but
+this file and the bible.
+
 ## Status — managed by Claude Code
 
 Sean's plan is below, unchanged. This block is the live checklist; it is the
