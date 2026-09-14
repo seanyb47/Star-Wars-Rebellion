@@ -23,7 +23,17 @@ import {
 } from '../missions';
 import { getCharacter, getSystem } from '../helpers';
 import { createRng } from '../rng';
-import type { GameState } from '../types';
+import type { GameState, System } from '../types';
+
+
+/**
+ * No stranger ashore. An island with somebody to sign on offers recruitment
+ * before anything else, which is never the errand under test here; with sixty
+ * islands the unaligned land on the ones the finders below reach first.
+ */
+function quiet(state: GameState, s: System): boolean {
+  return !state.characters.some((c) => c.faction === 'neutral' && c.locationSystemId === s.id);
+}
 
 function setup(seed = 301) {
   const state = generateGalaxy(seed);
@@ -31,10 +41,10 @@ function setup(seed = 301) {
   diplomat.diplomacy = 60;
   const home = getSystem(state, diplomat.locationSystemId);
   const sameSector = state.systems.find(
-    (s) => s.sectorId === home.sectorId && s.control === 'neutral',
+    (s) => s.sectorId === home.sectorId && s.control === 'neutral' && quiet(state, s),
   )!;
   const crossSector = state.systems.find(
-    (s) => s.sectorId !== home.sectorId && s.control === 'neutral' && s.isCore,
+    (s) => s.sectorId !== home.sectorId && s.control === 'neutral' && s.isCore && quiet(state, s),
   )!;
   return { state, diplomat, home, sameSector, crossSector };
 }
@@ -197,7 +207,16 @@ describe('resolution', () => {
       const trial = generateGalaxy(301);
       const agent = trial.characters.find((c) => c.id === diplomat.id)!;
       agent.diplomacy = 100;
+      // Far from coming over: a parley this good on a warm island flips it
+      // in one cycle, and nobody is hunting you on your own ground.
+      getSystem(trial, sameSector.id).support = { empire: 5, alliance: 5 };
       startMission(trial, agent.id, sameSector.id);
+      // Somebody of theirs turns up to watch the harbour once the parley is
+      // under way — after, or the errand would be to abduct them — so a foil
+      // is a live chance rather than a one-in-sixteen on an unwatched island.
+      const spy = trial.characters.find((c) => c.faction === 'alliance')!;
+      spy.locationSystemId = sameSector.id;
+      spy.espionage = 100;
       runDays(trial, 18, seed);
       const after = getCharacter(trial, agent.id);
       if (after.status === 'injured') {
@@ -240,7 +259,9 @@ describe('incitement', () => {
     const agent = state.characters.find((c) => c.faction === 'empire')!;
     agent.diplomacy = 100;
     agent.espionage = 0; // measure the risk undiluted by craft
-    const island = state.systems.find((s) => s.control === 'alliance' && s.populated)!;
+    const island = state.systems.find(
+      (s) => s.control === 'alliance' && s.populated && quiet(state, s),
+    )!;
     island.explored.empire = true;
     island.uprising = false;
     island.support = { empire: 5, alliance: allianceSupport };
@@ -482,7 +503,7 @@ describe('sabotage', () => {
     const agent = state.characters.find((c) => c.faction === 'empire')!;
     agent.espionage = 100;
     const island = state.systems.find(
-      (s) => s.control === 'alliance' && s.facilities.length > 0,
+      (s) => s.control === 'alliance' && s.facilities.length > 0 && quiet(state, s),
     )!;
     island.explored.empire = true;
     return { state, agent, island };

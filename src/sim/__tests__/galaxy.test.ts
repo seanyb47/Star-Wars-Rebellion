@@ -2,23 +2,24 @@ import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 
 describe('generateGalaxy', () => {
-  it('builds seven Reaches of twelve to sixteen islands, a hundred in all', () => {
+  it('builds seven Reaches of five to fifteen islands, sixty in all', () => {
     const state = generateGalaxy(42);
     // Seven: the Far Sea's ice and its whaling chain are one Reach, Rime.
     expect(state.sectors).toHaveLength(7);
-    // 15 + 16 + 12 inner, 15 + 14 + 15 + 13 outer.
-    expect(state.systems).toHaveLength(100);
+    // 15 + 9 + 8 inner, 6 + 8 + 9 + 5 outer: the sixty best sites the
+    // painting offers, however they fall across the chains.
+    expect(state.systems).toHaveLength(60);
     for (const sector of state.sectors) {
-      expect(sector.systemIds.length).toBeGreaterThanOrEqual(12);
-      expect(sector.systemIds.length).toBeLessThanOrEqual(16);
+      expect(sector.systemIds.length).toBeGreaterThanOrEqual(5);
+      expect(sector.systemIds.length).toBeLessThanOrEqual(15);
     }
   });
 
   it('splits the map into three inner Reaches and four outer', () => {
     const state = generateGalaxy(42);
-    // Sovereign 15 + Whalers' 16 + Wreckers' 12.
-    expect(state.systems.filter((s) => s.isCore)).toHaveLength(43);
-    expect(state.systems.filter((s) => !s.isCore)).toHaveLength(57);
+    // Sovereign 15 + Whalers' 9 + Wreckers' 8.
+    expect(state.systems.filter((s) => s.isCore)).toHaveLength(32);
+    expect(state.systems.filter((s) => !s.isCore)).toHaveLength(28);
   });
 
   it('is deterministic for a seed and different across seeds', () => {
@@ -34,8 +35,8 @@ describe('generateGalaxy', () => {
 
   it('gives every system a unique id and name', () => {
     const state = generateGalaxy(3);
-    expect(new Set(state.systems.map((s) => s.id)).size).toBe(100);
-    expect(new Set(state.systems.map((s) => s.name)).size).toBe(100);
+    expect(new Set(state.systems.map((s) => s.id)).size).toBe(60);
+    expect(new Set(state.systems.map((s) => s.name)).size).toBe(60);
   });
 
   it('makes core systems populated and explored by both sides', () => {

@@ -73,21 +73,21 @@
       "tier": "inner",
       "islands": [
         {
-          "name": "Comenara"
-        },
-        {
           "name": "Wrightsport",
           "note": "Shipwright capital of the Seven Seas; Reyne's home port."
+        },
+        {
+          "name": "Duroso",
+          "note": "Old seafaring people. The best navigators alive."
+        },
+        {
+          "name": "Comenara"
         },
         {
           "name": "Corfino"
         },
         {
           "name": "Dralla"
-        },
-        {
-          "name": "Duroso",
-          "note": "Old seafaring people. The best navigators alive."
         },
         {
           "name": "Selona"
@@ -100,27 +100,6 @@
         },
         {
           "name": "Vagrano"
-        },
-        {
-          "name": "Belfrey"
-        },
-        {
-          "name": "Capperil"
-        },
-        {
-          "name": "Kempsley"
-        },
-        {
-          "name": "Ketterly"
-        },
-        {
-          "name": "Ombwick"
-        },
-        {
-          "name": "Pantlow"
-        },
-        {
-          "name": "Forliss"
         }
       ],
       "role": "contested"
@@ -135,40 +114,28 @@
           "note": "An Imperium prison. The name is not a metaphor."
         },
         {
-          "name": "Fetral"
-        },
-        {
-          "name": "Fillsving"
-        },
-        {
           "name": "Gardenholm",
           "note": "Sacred and green. No tree on it has ever been cut."
-        },
-        {
-          "name": "Jerrador"
         },
         {
           "name": "The Kettles",
           "note": "Prison mines, cutting ambergris out of a dead leviathan's skull."
         },
         {
-          "name": "Cubbin"
-        },
-        {
-          "name": "Morvogine"
-        },
-        {
-          "name": "Norvell"
-        },
-        {
           "name": "Jomarrow",
           "note": "Hermit island."
         },
         {
-          "name": "Douglass Rock"
+          "name": "Fetral"
         },
         {
-          "name": "Crondre"
+          "name": "Fillsving"
+        },
+        {
+          "name": "Jerrador"
+        },
+        {
+          "name": "Cubbin"
         }
       ],
       "role": "contested"
@@ -191,33 +158,8 @@
           "note": "A cutter base, of sorts."
         },
         {
-          "name": "Alkellish"
-        },
-        {
-          "name": "Boordvik"
-        },
-        {
-          "name": "Flaxholm"
-        },
-        {
-          "name": "Gedon"
-        },
-        {
-          "name": "Linnur"
-        },
-        {
-          "name": "Kristak"
-        },
-        {
-          "name": "Vustri"
-        },
-        {
-          "name": "Bilbrin",
-          "note": "An old Imperium dockyard, iced in."
-        },
-        {
-          "name": "Varrow",
-          "note": "Fairweather's floating market: a city of lashed-together hulks.",
+          "name": "Rime Island",
+          "note": "Frozen rock. Nothing here but weather.",
           "ice": true
         },
         {
@@ -225,12 +167,8 @@
           "ice": true
         },
         {
-          "name": "Rime Island",
-          "note": "Frozen rock. Nothing here but weather.",
-          "ice": true
-        },
-        {
-          "name": "Rishi Bank",
+          "name": "Varrow",
+          "note": "Fairweather's floating market: a city of lashed-together hulks.",
           "ice": true
         }
       ],
@@ -242,6 +180,22 @@
       "tier": "outer",
       "islands": [
         {
+          "name": "Greenholm",
+          "note": "Forested and heavily patrolled. Something large is being finished here."
+        },
+        {
+          "name": "Firewatch",
+          "note": "An active volcano. The ash never quite settles."
+        },
+        {
+          "name": "Vejun Keep",
+          "note": "Admiral Blackwater's private fortress. The water below it is always flat."
+        },
+        {
+          "name": "Tundvik",
+          "note": "The edge of the charts."
+        },
+        {
           "name": "Tamalu"
         },
         {
@@ -252,40 +206,6 @@
         },
         {
           "name": "Basilisk Rock"
-        },
-        {
-          "name": "Greenholm",
-          "note": "Forested and heavily patrolled. Something large is being finished here."
-        },
-        {
-          "name": "Gandolo Spit"
-        },
-        {
-          "name": "Firewatch",
-          "note": "An active volcano. The ash never quite settles."
-        },
-        {
-          "name": "Kuimin"
-        },
-        {
-          "name": "Emberfall"
-        },
-        {
-          "name": "Vejun Keep",
-          "note": "Admiral Blackwater's private fortress. The water below it is always flat."
-        },
-        {
-          "name": "Thanta Isle"
-        },
-        {
-          "name": "Tundvik",
-          "note": "The edge of the charts."
-        },
-        {
-          "name": "Kirdholm"
-        },
-        {
-          "name": "Ambrey"
         }
       ],
       "role": "contested"
@@ -295,27 +215,6 @@
       "sea": "The Glass Sea",
       "tier": "outer",
       "islands": [
-        {
-          "name": "Bakuran Flats"
-        },
-        {
-          "name": "Chaswell"
-        },
-        {
-          "name": "Dalter"
-        },
-        {
-          "name": "Joyol"
-        },
-        {
-          "name": "Kimmen"
-        },
-        {
-          "name": "Lafray"
-        },
-        {
-          "name": "Mantissa"
-        },
         {
           "name": "Powder Isle",
           "note": "Saltpetre. Every gun in the Seven Seas owes this rock."
@@ -333,16 +232,19 @@
           "note": "Rice breadbasket of the Outer Seas."
         },
         {
-          "name": "Catshead"
+          "name": "Bakuran Flats"
         },
         {
-          "name": "Heff Island"
+          "name": "Chaswell"
         },
         {
-          "name": "Tio Isle"
+          "name": "Dalter"
         },
         {
-          "name": "Galpos"
+          "name": "Joyol"
+        },
+        {
+          "name": "Kimmen"
         }
       ],
       "role": "frontier"
@@ -361,44 +263,16 @@
           "note": "Home of the Rumor Guild, who sell to both sides."
         },
         {
-          "name": "Cothlis Cay",
-          "note": "Rumor Guild outpost."
-        },
-        {
-          "name": "Preston's Reach",
-          "note": "Signal towers. Word travels fast from here."
-        },
-        {
           "name": "Sluysvaan",
           "note": "The great civilian dockyards."
-        },
-        {
-          "name": "The Shoals",
-          "note": "Shoal-folk. They can hear a hull creak a mile off."
         },
         {
           "name": "Umgulla",
           "note": "Gambling and racing. Everyone owes someone here."
         },
         {
-          "name": "Passh Bay"
-        },
-        {
-          "name": "Denby Cay"
-        },
-        {
-          "name": "Andoro",
-          "note": "Fisherfolk; rough."
-        },
-        {
-          "name": "Berquessa"
-        },
-        {
-          "name": "Marista"
-        },
-        {
-          "name": "Delaira",
-          "note": "Sister-island of drowned Carrow; Ros Carrow's exile home."
+          "name": "Preston's Reach",
+          "note": "Signal towers. Word travels fast from here."
         }
       ],
       "role": "open"

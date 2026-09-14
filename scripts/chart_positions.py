@@ -86,7 +86,7 @@ MIN_BLOB_PX = 6
 # chain view needs to read as seven to twelve distinct places, and it is why
 # each Reach now holds as many islands as its painted cluster can carry at that
 # spacing rather than a flat ten.
-MIN_GAP_UNITS = 46
+MIN_GAP_UNITS = 60
 # Beyond this a blob belongs to no Reach. Without it the empty bottom corners
 # get adopted by whichever cluster happens to be least far away.
 MAX_REACH_UNITS = 210

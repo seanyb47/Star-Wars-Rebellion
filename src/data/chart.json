@@ -6,10 +6,10 @@
   {
    "reach": "Sovereign Reach",
    "sea": "The Crown Sea",
-   "x": 521.1,
-   "y": 705.5,
-   "r": 192.7,
-   "ry": 189.4,
+   "x": 510.2,
+   "y": 721.8,
+   "r": 195.8,
+   "ry": 193.6,
    "islands": [
     {
      "name": "Highwater",
@@ -18,111 +18,111 @@
     },
     {
      "name": "Ballmoor",
-     "x": 562.5,
-     "y": 700.2
-    },
-    {
-     "name": "Gorley",
-     "x": 642.6,
-     "y": 763.7
-    },
-    {
-     "name": "Avermere",
      "x": 583.0,
      "y": 858.4
     },
     {
-     "name": "Bracton",
+     "name": "Gorley",
      "x": 446.1,
      "y": 624.2
     },
     {
-     "name": "Chandler's Rest",
+     "name": "Avermere",
      "x": 657.7,
      "y": 841.3
     },
     {
-     "name": "Corsham Head",
+     "name": "Bracton",
      "x": 447.8,
      "y": 853.4
     },
     {
-     "name": "Sievern",
+     "name": "Chandler's Rest",
      "x": 376.4,
      "y": 709.8
     },
     {
-     "name": "Ulverne",
+     "name": "Corsham Head",
      "x": 578.4,
      "y": 631.1
     },
     {
-     "name": "Yarrow Minor",
+     "name": "Sievern",
      "x": 553.7,
      "y": 569.3
     },
     {
-     "name": "Caridad",
+     "name": "Ulverne",
      "x": 403.7,
      "y": 780.9
     },
     {
-     "name": "Raltiera",
+     "name": "Yarrow Minor",
      "x": 338.8,
      "y": 766.7
     },
     {
-     "name": "Obroa Scala",
-     "x": 470.6,
-     "y": 570.2
+     "name": "Caridad",
+     "x": 480.8,
+     "y": 528.2
     },
     {
-     "name": "Bimisario",
+     "name": "Raltiera",
      "x": 652.8,
      "y": 642.0
     },
     {
+     "name": "Obroa Scala",
+     "x": 485.2,
+     "y": 707.0
+    },
+    {
+     "name": "Bimisario",
+     "x": 550.4,
+     "y": 911.8
+    },
+    {
      "name": "Palanca",
-     "x": 518.4,
-     "y": 516.0
+     "x": 514.3,
+     "y": 648.3
     }
    ],
    "luma": 80.0,
    "label": {
-    "x": 705.1,
-    "y": 697.5
+    "x": 634.2,
+    "y": 689.8
    }
   },
   {
    "reach": "Whalers' Reach",
    "sea": "The Merchant Sea",
-   "x": 188.9,
-   "y": 418.7,
-   "r": 199.2,
-   "ry": 178.4,
+   "x": 187.3,
+   "y": 410.6,
+   "r": 191.9,
+   "ry": 170.3,
    "islands": [
     {
-     "name": "Comenara",
+     "name": "Wrightsport",
      "x": 174.8,
      "y": 373.0
     },
     {
-     "name": "Wrightsport",
+     "name": "Duroso",
      "x": 131.8,
      "y": 240.2
     },
     {
-     "name": "Corfino",
+     "name": "Comenara",
      "x": 224.1,
      "y": 477.9
     },
     {
-     "name": "Dralla",
+     "name": "Corfino",
      "x": 282.8,
      "y": 459.6
     },
     {
-     "name": "Duroso",
+     "name": "Dralla",
      "x": 267.4,
      "y": 561.4
     },
@@ -138,63 +138,28 @@
     },
     {
      "name": "Tralosa",
-     "x": 207.7,
-     "y": 523.4
-    },
-    {
-     "name": "Vagrano",
-     "x": 160.0,
-     "y": 288.2
-    },
-    {
-     "name": "Belfrey",
      "x": 235.6,
      "y": 342.7
     },
     {
-     "name": "Capperil",
+     "name": "Vagrano",
      "x": 146.4,
      "y": 443.3
-    },
-    {
-     "name": "Kempsley",
-     "x": 128.2,
-     "y": 401.0
-    },
-    {
-     "name": "Ketterly",
-     "x": 318.1,
-     "y": 496.0
-    },
-    {
-     "name": "Ombwick",
-     "x": 240.9,
-     "y": 392.9
-    },
-    {
-     "name": "Pantlow",
-     "x": 208.0,
-     "y": 572.8
-    },
-    {
-     "name": "Forliss",
-     "x": 74.1,
-     "y": 329.2
     }
    ],
-   "luma": 64.0,
+   "luma": 72.0,
    "label": {
-    "x": 120.9,
-    "y": 170.7
+    "x": 287.3,
+    "y": 390.6
    }
   },
   {
    "reach": "Wreckers' Reach",
    "sea": "The Bone Sea",
-   "x": 837.8,
-   "y": 452.4,
-   "r": 237.6,
-   "ry": 219.4,
+   "x": 846.8,
+   "y": 449.6,
+   "r": 190.3,
+   "ry": 170.8,
    "islands": [
     {
      "name": "Gibbet Rock",
@@ -202,74 +167,54 @@
      "y": 402.3
     },
     {
-     "name": "Fetral",
+     "name": "Gardenholm",
      "x": 924.4,
      "y": 541.1
     },
     {
-     "name": "Fillsving",
+     "name": "The Kettles",
      "x": 930.7,
      "y": 620.4
     },
     {
-     "name": "Gardenholm",
+     "name": "Jomarrow",
      "x": 789.9,
      "y": 392.3
     },
     {
-     "name": "Jerrador",
+     "name": "Fetral",
      "x": 871.9,
      "y": 328.8
     },
     {
-     "name": "The Kettles",
+     "name": "Fillsving",
      "x": 865.3,
      "y": 519.7
     },
     {
-     "name": "Cubbin",
+     "name": "Jerrador",
      "x": 735.4,
      "y": 468.8
     },
     {
-     "name": "Morvogine",
-     "x": 782.2,
-     "y": 352.1
-    },
-    {
-     "name": "Norvell",
-     "x": 838.3,
-     "y": 306.2
-    },
-    {
-     "name": "Jomarrow",
-     "x": 697.6,
-     "y": 365.4
-    },
-    {
-     "name": "Douglass Rock",
-     "x": 928.9,
-     "y": 671.8
-    },
-    {
-     "name": "Crondre",
-     "x": 834.0,
-     "y": 459.5
+     "name": "Cubbin",
+     "x": 802.2,
+     "y": 323.8
     }
    ],
-   "luma": 61.0,
+   "luma": 71.0,
    "label": {
-    "x": 805.8,
-    "y": 576.4
+    "x": 850.8,
+    "y": 453.6
    }
   },
   {
    "reach": "Rime Reach",
    "sea": "The Far Sea",
-   "x": 491.1,
-   "y": 200.1,
-   "r": 174.5,
-   "ry": 169.8,
+   "x": 488.3,
+   "y": 155.1,
+   "r": 168.1,
+   "ry": 147.5,
    "islands": [
     {
      "name": "Northreach",
@@ -283,51 +228,11 @@
     },
     {
      "name": "Tjerfon",
-     "x": 338.7,
-     "y": 176.7
-    },
-    {
-     "name": "Alkellish",
      "x": 569.0,
      "y": 302.6
     },
     {
-     "name": "Boordvik",
-     "x": 618.3,
-     "y": 319.5
-    },
-    {
-     "name": "Flaxholm",
-     "x": 485.4,
-     "y": 254.0
-    },
-    {
-     "name": "Gedon",
-     "x": 564.3,
-     "y": 247.2
-    },
-    {
-     "name": "Linnur",
-     "x": 417.0,
-     "y": 156.1
-    },
-    {
-     "name": "Kristak",
-     "x": 435.8,
-     "y": 235.7
-    },
-    {
-     "name": "Vustri",
-     "x": 455.6,
-     "y": 272.3
-    },
-    {
-     "name": "Bilbrin",
-     "x": 540.7,
-     "y": 319.8
-    },
-    {
-     "name": "Varrow",
+     "name": "Rime Island",
      "x": 506.8,
      "y": 30.3
     },
@@ -337,204 +242,139 @@
      "y": 90.5
     },
     {
-     "name": "Rime Island",
+     "name": "Varrow",
      "x": 428.8,
      "y": 87.6
-    },
-    {
-     "name": "Rishi Bank",
-     "x": 580.9,
-     "y": 89.9
     }
    ],
-   "luma": 125.0,
+   "luma": 165.0,
    "label": {
-    "x": 495.1,
-    "y": 156.1
+    "x": 492.3,
+    "y": 159.1
    }
   },
   {
    "reach": "Cinder Reach",
    "sea": "The Sea of Storms",
-   "x": 157.1,
-   "y": 885.5,
-   "r": 208.7,
-   "ry": 196.3,
+   "x": 159.9,
+   "y": 896.1,
+   "r": 184.5,
+   "ry": 154.2,
    "islands": [
     {
-     "name": "Tamalu",
+     "name": "Greenholm",
      "x": 85.0,
      "y": 787.1
     },
     {
-     "name": "Sorrowhead",
+     "name": "Firewatch",
      "x": 139.6,
      "y": 959.0
     },
     {
-     "name": "Anaja",
+     "name": "Vejun Keep",
      "x": 261.1,
      "y": 1050.3
     },
     {
-     "name": "Basilisk Rock",
+     "name": "Tundvik",
      "x": 224.4,
      "y": 770.6
     },
     {
-     "name": "Greenholm",
+     "name": "Tamalu",
      "x": 73.1,
      "y": 887.1
     },
     {
-     "name": "Gandolo Spit",
+     "name": "Sorrowhead",
      "x": 188.9,
      "y": 1022.2
     },
     {
-     "name": "Firewatch",
-     "x": 228.1,
-     "y": 1081.8
-    },
-    {
-     "name": "Kuimin",
-     "x": 116.0,
-     "y": 772.3
-    },
-    {
-     "name": "Emberfall",
-     "x": 224.3,
-     "y": 1010.8
-    },
-    {
-     "name": "Vejun Keep",
+     "name": "Anaja",
      "x": 148.2,
      "y": 795.8
     },
     {
-     "name": "Thanta Isle",
+     "name": "Basilisk Rock",
      "x": 158.6,
      "y": 896.4
-    },
-    {
-     "name": "Tundvik",
-     "x": 55.5,
-     "y": 735.3
-    },
-    {
-     "name": "Kirdholm",
-     "x": 98.7,
-     "y": 864.0
-    },
-    {
-     "name": "Ambrey",
-     "x": 197.9,
-     "y": 763.8
     }
    ],
-   "luma": 62.0,
+   "luma": 72.0,
    "label": {
-    "x": 101.1,
-    "y": 1009.5
+    "x": 223.9,
+    "y": 948.1
    }
   },
   {
    "reach": "Salt Reach",
    "sea": "The Glass Sea",
-   "x": 535.4,
-   "y": 1270.2,
-   "r": 184.2,
-   "ry": 125.5,
+   "x": 524.3,
+   "y": 1276.9,
+   "r": 187.6,
+   "ry": 89.4,
    "islands": [
     {
-     "name": "Bakuran Flats",
+     "name": "Powder Isle",
      "x": 382.8,
      "y": 1195.3
     },
     {
-     "name": "Chaswell",
+     "name": "Rylo Salt",
      "x": 545.9,
      "y": 1273.4
     },
     {
-     "name": "Dalter",
+     "name": "Blackreef",
      "x": 628.9,
      "y": 1294.9
     },
     {
-     "name": "Joyol",
+     "name": "The Terraces",
      "x": 697.1,
      "y": 1349.9
     },
     {
-     "name": "Kimmen",
+     "name": "Bakuran Flats",
      "x": 450.3,
      "y": 1315.2
     },
     {
-     "name": "Lafray",
+     "name": "Chaswell",
      "x": 608.1,
      "y": 1228.6
     },
     {
-     "name": "Mantissa",
+     "name": "Dalter",
      "x": 496.3,
      "y": 1355.1
     },
     {
-     "name": "Powder Isle",
-     "x": 592.1,
-     "y": 1337.8
-    },
-    {
-     "name": "Rylo Salt",
+     "name": "Joyol",
      "x": 370.6,
      "y": 1292.2
     },
     {
-     "name": "Blackreef",
-     "x": 559.5,
-     "y": 1201.9
-    },
-    {
-     "name": "The Terraces",
-     "x": 400.5,
-     "y": 1144.7
-    },
-    {
-     "name": "Catshead",
-     "x": 492.2,
-     "y": 1194.3
-    },
-    {
-     "name": "Heff Island",
-     "x": 684.4,
-     "y": 1274.5
-    },
-    {
-     "name": "Tio Isle",
-     "x": 414.7,
-     "y": 1284.1
-    },
-    {
-     "name": "Galpos",
-     "x": 707.6,
-     "y": 1311.5
+     "name": "Kimmen",
+     "x": 538.3,
+     "y": 1187.5
     }
    ],
-   "luma": 54.0,
+   "luma": 55.0,
    "label": {
-    "x": 419.4,
-    "y": 1370.2
+    "x": 468.3,
+    "y": 1244.9
    }
   },
   {
    "reach": "Coral Reach",
    "sea": "The Amber Sea",
-   "x": 849.6,
-   "y": 980.7,
-   "r": 165.8,
-   "ry": 158.5,
+   "x": 848.0,
+   "y": 1012.3,
+   "r": 136.5,
+   "ry": 126.9,
    "islands": [
     {
      "name": "Coralhome",
@@ -547,65 +387,25 @@
      "y": 1067.4
     },
     {
-     "name": "Cothlis Cay",
+     "name": "Sluysvaan",
      "x": 788.8,
      "y": 970.7
     },
     {
-     "name": "Preston's Reach",
+     "name": "Umgulla",
      "x": 812.7,
      "y": 900.0
     },
     {
-     "name": "Sluysvaan",
-     "x": 800.6,
-     "y": 1016.3
-    },
-    {
-     "name": "The Shoals",
-     "x": 859.8,
-     "y": 936.1
-    },
-    {
-     "name": "Umgulla",
+     "name": "Preston's Reach",
      "x": 898.3,
      "y": 1139.2
-    },
-    {
-     "name": "Passh Bay",
-     "x": 773.5,
-     "y": 920.6
-    },
-    {
-     "name": "Denby Cay",
-     "x": 946.4,
-     "y": 990.8
-    },
-    {
-     "name": "Andoro",
-     "x": 796.7,
-     "y": 1055.6
-    },
-    {
-     "name": "Berquessa",
-     "x": 883.8,
-     "y": 1021.6
-    },
-    {
-     "name": "Marista",
-     "x": 843.6,
-     "y": 869.8
-    },
-    {
-     "name": "Delaira",
-     "x": 900.9,
-     "y": 877.0
     }
    ],
-   "luma": 63.0,
+   "luma": 71.0,
    "label": {
-    "x": 913.6,
-    "y": 1068.7
+    "x": 912.0,
+    "y": 1040.3
    }
   }
  ]

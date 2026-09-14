@@ -1,6 +1,6 @@
 # The opening
 
-(Seven Reaches, 100 islands: Sovereign 15, Whalers' 16, Wreckers' 12, Rime 15, Cinder 14, Salt 15, Coral 13. Rime is the northern chain and a few of the ice islands; Whalers' is the long chain down the west; there is no Shipwrights' Reach.)
+(Seven Reaches, 60 islands, chosen by where the painting has its best harbours and islands rather than a quota per chain: Sovereign 15, Whalers' 9, Wreckers' 8, Rime 6, Cinder 8, Salt 9, Coral 5. Rime is the northern chain and three bergs of the ice; Whalers' is the long chain down the west.)
 
 Sean's rules, 14 September 2026, implemented in `src/sim/galaxy.ts` and
 tested in `src/sim/__tests__/galaxy.test.ts` and `defences.test.ts`. Every

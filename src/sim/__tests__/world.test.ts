@@ -26,19 +26,19 @@ describe('the world bible data', () => {
     expect(reachData.reaches.filter((r) => r.sea === 'The Far Sea')).toHaveLength(1);
   });
 
-  it('gives every Reach between twelve and sixteen islands', () => {
+  it('gives every Reach between five and fifteen islands', () => {
     // A Reach holds as many islands as its painted cluster can show as
     // separate places, and the range is the range the chain view can lay
     // out clearly at a hundred islands.
     for (const reach of reachData.reaches) {
-      expect(reach.islands.length).toBeGreaterThanOrEqual(12);
-      expect(reach.islands.length).toBeLessThanOrEqual(16);
+      expect(reach.islands.length).toBeGreaterThanOrEqual(5);
+      expect(reach.islands.length).toBeLessThanOrEqual(15);
     }
   });
 
-  it('names 100 distinct islands', () => {
-    expect(allIslands).toHaveLength(100);
-    expect(new Set(allIslands.map((i) => i.name)).size).toBe(100);
+  it('names 60 distinct islands', () => {
+    expect(allIslands).toHaveLength(60);
+    expect(new Set(allIslands.map((i) => i.name)).size).toBe(60);
   });
 
   it('covers all seven Seas', () => {

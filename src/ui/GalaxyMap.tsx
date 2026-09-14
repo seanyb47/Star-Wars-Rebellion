@@ -195,10 +195,10 @@ export function controlColor(system: System, viewer: PlayableFaction): string {
  * The positions come from the painting and no two are closer than 24 units, so
  * anything past 11 would have neighbours running each other over.
  */
-// Fourteen, up from eight: at eight a mark was six pixels across on a phone
-// and its colour was a rumour. The marks sit no closer than 46 units, so
-// fourteen still leaves clear water between neighbours.
-const ISLAND_RADIUS = 14;
+// Sixteen, up from eight: at eight a mark was six pixels across on a phone
+// and its colour was a rumour. The marks sit no closer than 60 units, so
+// sixteen still leaves clear water between neighbours.
+const ISLAND_RADIUS = 16;
 /** Unexplored or unsettled: open ground. Readable on dark water at 8px. */
 export const OPEN_GREY = '#93a3ab';
 /** The dot itself for open ground: near white, so it reads on the water. */
