@@ -202,9 +202,10 @@ describe('the Reach summary', () => {
     island.support.empire = 0;
     const atNone = summariseReach(state, island.sectorId, 'empire').goldPerDay;
 
-    // 1.0x versus 0.5x on this island's whole earning rate.
+    // Full pace and nothing smuggled at a hundred; half pace and a quarter of
+    // that gone out the back at nothing.
     expect(mines).toBeGreaterThan(0);
-    expect(atFull - atNone).toBeCloseTo(rate * 0.5, 5);
+    expect(atFull - atNone).toBeCloseTo(rate - rate * 0.5 * 0.75, 5);
   });
 
   it('stops counting an island in mutiny', () => {

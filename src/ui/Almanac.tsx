@@ -13,6 +13,9 @@ import {
   FLIP_SUPPORT_MARGIN,
   FLIP_SUPPORT_MIN,
   PIRATE_LORDS,
+  SMUGGLED_SHARE,
+  SUPPORT_FIRM,
+  SUPPORT_STEADY,
   CAPTIVE_DAYS,
   YARD_BUILDS,
   type FacilityType,
@@ -211,6 +214,19 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
             <p className="bestiary__lore">{beast.lore}</p>
           </div>
         ))}
+      </div>
+
+      <div className="section-title">What loyalty is worth</div>
+      <div className="card small">
+        <b>Three bands, and the chart draws them.</b> An island firmly yours — {SUPPORT_FIRM} and
+        up — is a large dot and ships everything it makes to you. Steady, from {SUPPORT_STEADY},
+        is a medium dot and loses{' '}
+        {Math.round(SMUGGLED_SHARE.steady * 100)}% of its trade out the back door. Thin, below
+        that, is a small dot and loses {Math.round(SMUGGLED_SHARE.thin * 100)}%, and an island in{' '}
+        {terms.mutiny.toLowerCase()} pays you nothing and hands the enemy{' '}
+        {Math.round(SMUGGLED_SHARE.uprising * 100)}%. Every coin the smugglers take is a coin the
+        other side banks, so a Reach you have let go sour is paying for their fleet. A thin island
+        talks, too: sooner or later it turns up on their charts.
       </div>
 
       <div className="section-title">How the war is won</div>

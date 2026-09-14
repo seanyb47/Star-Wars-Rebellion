@@ -4,6 +4,7 @@ import {
   isMissionTarget,
   layerMark,
   lordFleets,
+  loyaltyBand,
   summariseReach,
   isLoudLayer,
   showsNumber,
@@ -202,26 +203,26 @@ export function controlColor(system: System, viewer: PlayableFaction): string {
 // and its colour was a rumour. The marks sit no closer than 60 units, so
 // sixteen still leaves clear water between neighbours.
 const ISLAND_RADIUS = 16;
+/**
+ * One mark, three sizes.
+ *
+ * Sean's rule, 14 September: the chart says things by making a dot bigger or
+ * smaller, never by changing what the dot is. Medium is the size it has always
+ * been and means nothing in particular; large is the answer to whatever is
+ * being asked; small is everything that is not. The only marks that are not a
+ * dot are the star — Highwater and the Pirate Lords, and nothing else ever —
+ * and a count, where the number is the mark.
+ */
+const DOT_SMALL = 10;
+const DOT_MEDIUM = ISLAND_RADIUS;
+const DOT_LARGE = 26;
 /** Unexplored or unsettled: open ground. Readable on dark water at 8px. */
 export const OPEN_GREY = '#93a3ab';
 /** The dot itself for open ground: near white, so it reads on the water. */
 const OPEN_FILL = '#dfe8ec';
-/** The filter's star. Bigger than a dot by enough to be the thing you see. */
-const STAR_RADIUS = 20;
-/** The loud filters' star: idle works, idle crew, fleets — the thing is
- *  the one the chart has to shout. Bigger still, with a pulse behind. */
-const IDLE_STAR_RADIUS = 30;
+/** The loud filters — idle works, idle crew, fleets — keep their pulse behind
+ *  the large dot, so a squadron is found from across the chart. */
 const IDLE_HALO_RADIUS = 52;
-/**
- * The sail planted on an island with a fleet lying off it. The same glyph as
- * the chain view's, drawn big enough to be the first thing seen on the chart:
- * a fleet is where the war is happening today.
- */
-const SAIL = 'M2 14 h16 l-2 5 h-12 Z M10 13 V3 M10 4 l5 8 h-5';
-const SAIL_SCALE = 2.6;
-const SAIL_W = 20 * SAIL_SCALE;
-const SAIL_H = 19 * SAIL_SCALE;
-
 /**
  * The star, and only the star, marks the things the war is about: Highwater,
  * and every island a Pirate Lord's ship is lying off — your own always, the
@@ -229,6 +230,18 @@ const SAIL_H = 19 * SAIL_SCALE;
  * star. Thirty percent up on the old capital mark, at Sean's ask.
  */
 const HQ_STAR_RADIUS = 40;
+
+/**
+ * The loyalty the chart sizes an island by: its regard for whoever holds it,
+ * or — on an island nobody holds — its regard for you, which is the number
+ * that decides whether it is worth a parley.
+ */
+export function chartLoyalty(system: System, viewer: PlayableFaction): number {
+  if (system.control === 'empire' || system.control === 'alliance') {
+    return system.support[system.control];
+  }
+  return system.support[viewer];
+}
 
 /** One kite-shaped point of the compass rose, tip to centre. */
 function rosePoint(angle: number, long: number, wide: number): string {
@@ -548,7 +561,6 @@ export function GalaxyMap({
                 // to is grey with a dashed edge: open ground, somewhere to
                 // survey and settle. Hiding them was tried and looked wrong —
                 // a sea with islands painted on it and nothing marking them.
-                const radius = ISLAND_RADIUS;
                 // Highwater, always; the Lords' ships wherever they lie at
                 // anchor — the Confederacy sees its own, the Crown sees the
                 // ones on islands it has charted.
@@ -579,8 +591,25 @@ export function GalaxyMap({
                 // filter's and pulses: found from across the chart, not
                 // searched for.
                 const idle = lit && isLoudLayer(layer);
-                const litR = idle ? IDLE_STAR_RADIUS : STAR_RADIUS;
-                const starR = lit ? litR : radius;
+                /**
+                 * How big this island's dot is, and the whole of what the
+                 * chart is saying. Under a filter: large if it answers, small
+                 * if it does not. At rest, on Loyalty: large for an island
+                 * that is firmly its holder's, medium for one that is steady,
+                 * small for one that is thin or in revolt — the same three
+                 * bands that decide how much of its trade the smugglers take.
+                 * An island you have never charted keeps its loyalty to
+                 * itself, so it is small.
+                 */
+                const radius = filtering
+                  ? lit
+                    ? DOT_LARGE
+                    : DOT_SMALL
+                  : !explored
+                    ? DOT_SMALL
+                    : { firm: DOT_LARGE, steady: DOT_MEDIUM, thin: DOT_SMALL, uprising: DOT_SMALL }[
+                        loyaltyBand(chartLoyalty(system, viewer), system.uprising)
+                      ];
                 if (bare) return null;
                 return (
                   <g key={system.id} pointerEvents="none">
@@ -596,8 +625,8 @@ export function GalaxyMap({
                     {lit && numeral === null && mark.count !== undefined && mark.count > 1 && (
                       <text
                         className="map__lit-n"
-                        x={ax + starR + 6}
-                        y={ay - starR + 2}
+                        x={ax + radius + 6}
+                        y={ay - radius + 2}
                         fill={tint}
                       >
                         {mark.count}
@@ -661,16 +690,9 @@ export function GalaxyMap({
                               />
                             );
                           }
-                          // A filter's answer is a ring, not a star: the star
-                          // is kept for the capital and the Lords.
-                          if (lit) {
-                            return (
-                              <g>
-                                <circle cx={ax} cy={ay} r={litR} fill={tint} fillOpacity={0.28} stroke={tint} strokeWidth={idle ? 5 : 4} />
-                                <circle cx={ax} cy={ay} r={radius * 0.7} {...skin} />
-                              </g>
-                            );
-                          }
+                          // Everything else is the dot, at whatever size it
+                          // has earned. A filter's answer is the same mark as
+                          // the island next to it, drawn bigger.
                           return <circle cx={ax} cy={ay} r={radius} {...skin} />;
                         })()}
                       </>
@@ -737,59 +759,6 @@ export function GalaxyMap({
           );
         })}
 
-        {/* Fleets, over the top of everything: a sail planted on the island
-            each one lies off, in its owner's colour, with the hull count
-            beside it. Yours always; theirs once you have charted the island.
-            Drawn last so no neighbour's mark or name covers a fleet.
-
-            Under a filter only. Loyalty is the chart at rest — who holds
-            what, and nothing else on top of it — so the sails stay off it,
-            the same way they stay off the bare chart. */}
-        {filtering &&
-          chains.map(({ sector, systems, spot }) =>
-            systems.map((system) => {
-              const explored = system.explored[viewer];
-              const at = ISLAND_PLACES.get(`${sector.name}/${system.name}`);
-              const ax = at ? at.x : spot.x + system.x * 0.72;
-              const ay = at ? at.y : spot.y + system.y * 0.72;
-              const sides = (['empire', 'alliance'] as const)
-                .filter((side) => side === viewer || explored)
-                .map((side) => ({
-                  side,
-                  hulls: state.fleets
-                    .filter((f) => f.faction === side && !f.voyage && f.systemId === system.id)
-                    .reduce((n, f) => n + f.ships.length, 0),
-                }))
-                .filter((x) => x.hulls > 0);
-              if (sides.length === 0) return null;
-              return (
-                <g key={`sail-${system.id}`} pointerEvents="none">
-                  {sides.map(({ side, hulls }, i) => {
-                    const x = ax + (sides.length === 1 ? 0 : i === 0 ? -SAIL_W * 0.55 : SAIL_W * 0.55);
-                    const y = ay - ISLAND_RADIUS - SAIL_H + 10;
-                    return (
-                      <g key={side} transform={`translate(${x - SAIL_W / 2} ${y}) scale(${SAIL_SCALE})`}>
-                        <path
-                          d={SAIL}
-                          fill={`var(--${side})`}
-                          stroke="#041219"
-                          strokeWidth={1.6}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          style={{ paintOrder: 'stroke fill' }}
-                        />
-                        {hulls > 1 && (
-                          <text className="map__sail-n" x={19} y={7} fill={`var(--${side})`}>
-                            {hulls}
-                          </text>
-                        )}
-                      </g>
-                    );
-                  })}
-                </g>
-              );
-            }),
-          )}
       </svg>
       </div>
 

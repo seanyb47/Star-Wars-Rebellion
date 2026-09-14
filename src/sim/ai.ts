@@ -7,7 +7,9 @@ import {
   AI_RECRUIT_BONUS,
   AI_SHIP_RESERVE,
   AI_TROOP_POOL,
+  HELD_SUPPORT_LEVEL,
   INCITE_PRIORITY_PENALTY,
+  loyaltyBand,
   TROOP_BUILD,
   UPKEEP_PER_DAY,
   YARD_BUILDS,
@@ -252,10 +254,17 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
   // Unaligned islands to court, enemy islands to stir up, and anywhere at all
   // with somebody standing on it worth signing on — its own ground included,
   // which is the one reason it has to send anyone to an island it already holds.
+  // Unaligned islands to court, enemy islands to stir up, anywhere at all with
+  // somebody worth signing on — and now its own ground when its own ground has
+  // stopped paying: an island of yours in revolt earns you nothing and hands
+  // the enemy half its trade, and a thin one hands them a quarter. Before this
+  // the opponent would let a Reach rot and wonder where the gold went.
+  const failing = (s: System) =>
+    s.control === ai && (s.uprising || loyaltyBand(s.support[ai]) === 'thin');
   const open = state.systems.filter(
     (s) =>
       isMissionTarget(state, s, ai) &&
-      (s.control === 'neutral' || s.control === enemy || isRecruitTarget(state, s, ai)),
+      (s.control === 'neutral' || s.control === enemy || failing(s) || isRecruitTarget(state, s, ai)),
   );
   if (open.length === 0) return;
 
@@ -276,6 +285,9 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     // One of its own in the enemy's cells: worth more than any island.
     const held = captiveOn(state, s, ai);
     if (held) return close + AI_RECRUIT_BONUS + quality(held);
+    // Its own, and slipping: worth more the further it has slipped, and an
+    // island in open revolt outranks any island it might merely win over.
+    if (s.control === ai) return close + (s.uprising ? 110 : (HELD_SUPPORT_LEVEL - s.support[ai]) * 1.5);
     if (s.control === 'neutral') return close + s.support[ai];
     // The weaker their hold, the nearer the uprising threshold, the better.
     return close + (100 - s.support[enemy]) - INCITE_PRIORITY_PENALTY;
@@ -370,7 +382,9 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
   const transports = afloat.filter((s) => s.classId === classes.find((c) => c.role === 'transport')!.id);
   const capital = getSystem(state, state.factions.empire.hqSystemId);
   const carryAll = fleetsOf(state, ai).reduce((n, f) => n + fleetCapacity(f), 0);
-  const shortOfLift = ai === 'alliance' && carryAll < capital.garrison + boomDefence(capital) + 2;
+  // Two clear of what the capital holds, so a landing is possible at all after
+  // the losses on the way in.
+  const shortOfLift = ai === 'alliance' && carryAll < capital.garrison + boomDefence(capital) + 3;
   const wantTransport = transports.length * 3 < afloat.length + 1 || shortOfLift;
   // Fighting hulls as big as it can afford; a transport when it is short of one.
   const spare = surplus(state, ai);
@@ -485,22 +499,15 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
     .reduce((n, f) => n + fleetGuns(f), 0);
   const here = getSystem(state, fleet.systemId);
 
-  // Already off the capital: land if it can carry the island, else hold.
-  if (here.id === capital.id) {
-    if (fleet.troops > capital.garrison + boomDefence(capital) && assaultError(state, fleet.id, 'alliance') === null) {
-      assault(state, fleet.id, rng, 'alliance');
-    }
-    return fleet.id;
-  }
-
-  // Concentrate. Any other fleet of the Confederacy's lying in the same
-  // harbour folds into the strike; while the strike is outgunned, the rest
-  // sail to join it rather than raiding on their own.
-  // A clear edge, not a coin toss: the Crown's harbour has its forts and
-  // whatever the Crown adds while the strike is forming. The Admiral's ship
-  // is not thrown in before the war is a few months old.
+  // Everything of ours lying in this harbour folds into the strike, and while
+  // it is short of guns or of berths the rest are called in from wherever they
+  // are. Guns are not the only shortage that matters: a squadron that cannot
+  // carry more companies than the capital has ashore will never sail, however
+  // many hulls it has, and the whole navy will gather behind it and wait out
+  // the war.
   const wall = (crownGuns + fortGuns(capital)) * 1.25;
   const outgunned = fleetGuns(fleet) < wall;
+  const needLift = fleetCapacity(fleet) < need;
   for (const other of fleetsOf(state, 'alliance')) {
     if (other.id === fleet.id || isAtSea(other) || !committable(other)) continue;
     if (other.ships.some(isLordShip) && state.day < AI_STRIKE_LORD_DAY) continue;
@@ -511,15 +518,29 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
       other.ships = [];
       other.troops = 0;
       other.officerIds = [];
-    } else if (outgunned && fleetGuns(other) > 0 && sailError(state, other.id, fleet.systemId, 'alliance') === null) {
+    } else if (
+      ((outgunned && fleetGuns(other) > 0) || (needLift && fleetCapacity(other) > 0)) &&
+      sailError(state, other.id, fleet.systemId, 'alliance') === null
+    ) {
       sailFleet(state, other.id, fleet.systemId, 'alliance');
     }
   }
   state.fleets = state.fleets.filter((f) => f.ships.length > 0);
 
-  // Enough aboard and the harbour is not a death trap: go.
-  if (fleet.troops >= need && fleetCapacity(fleet) >= need) {
-    if (!outgunned && sailError(state, fleet.id, capital.id, 'alliance') === null) {
+  // Off the capital already: go ashore if it can carry the island. If it
+  // cannot, it does not lie there hoping — there are no companies to be had
+  // in the enemy's harbour, so it falls through and goes to fetch some.
+  if (here.id === capital.id) {
+    if (
+      fleet.troops > capital.garrison + boomDefence(capital) &&
+      assaultError(state, fleet.id, 'alliance') === null
+    ) {
+      assault(state, fleet.id, rng, 'alliance');
+      return fleet.id;
+    }
+  } else if (fleet.troops >= need && fleetCapacity(fleet) >= need && !outgunned) {
+    // Enough aboard and the harbour is not a death trap: go.
+    if (sailError(state, fleet.id, capital.id, 'alliance') === null) {
       sailFleet(state, fleet.id, capital.id, 'alliance');
     }
     return fleet.id;
@@ -533,7 +554,7 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
     if (embarkError(state, fleet.id, take, 'alliance') === null) embark(state, fleet.id, take, 'alliance');
     return fleet.id;
   }
-  if (room > 0) {
+  if (room > 0 || fleet.troops < need) {
     const depot = state.systems
       .filter((s) => s.control === 'alliance' && !s.uprising && s.id !== here.id && spareOn(s) > 0)
       .sort((a, b) => spareOn(b) - spareOn(a) || travelDays(state, here.id, a.id) - travelDays(state, here.id, b.id))[0];

@@ -54,7 +54,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'The chart',
     body: () =>
-      'Every island is a dot in the colour of who holds it: green the Crown, red the Confederacy, blue settled but nobody\'s, grey unexplored or empty — open ground to survey and settle. The star is the thing to watch: it marks Highwater, and wherever a Pirate Lord\'s ship is lying. Tap a chain to zoom in.',
+      'Every island is a dot in the colour of who holds it: green the Crown, red the Confederacy, blue settled but nobody\'s, grey unexplored or empty. How big the dot is says how firmly it is held — a big one is loyal, a small one is thin and running a quarter of its trade to the other side. A filter draws what it points at big and everything else small. The star is the thing to watch: it marks Highwater, and wherever a Pirate Lord\'s ship is lying. Tap a chain to zoom in.',
   },
   {
     title: 'One island',

@@ -1,4 +1,10 @@
-import { FACILITY_LABEL, GOLD_PER_DAY, UPKEEP_PER_DAY } from './constants';
+import {
+  FACILITY_LABEL,
+  GOLD_PER_DAY,
+  SMUGGLED_SHARE,
+  UPKEEP_PER_DAY,
+  loyaltyBand,
+} from './constants';
 import { otherFaction, pushEvent, supportMultiplier } from './helpers';
 import type { Rng } from './rng';
 import type { GameState, PlayableFaction, System } from './types';
@@ -12,14 +18,37 @@ export function isProductive(system: System, faction: PlayableFaction): boolean 
   return system.control === faction && !system.uprising && !system.blockaded;
 }
 
-/** What a single island earns you in a day, before smugglers take their cut. */
-export function islandIncome(system: System, faction: PlayableFaction): number {
-  if (!isProductive(system, faction)) return 0;
+/**
+ * Everything an island's works put on the quay in a day, before anybody
+ * decides where it goes.
+ *
+ * Held and open: a blockade stops the trade dead, but a revolt does not — the
+ * works keep working, the harbour keeps loading, and none of it reaches you.
+ */
+export function islandTrade(system: System, faction: PlayableFaction): number {
+  if (system.control !== faction || system.blockaded) return 0;
   const rate = system.facilities
     .filter((f) => f.owner === faction)
     .reduce((total, f) => total + GOLD_PER_DAY[f.type], 0);
-  // A grudging population works slowly, and skims on the way.
+  // A grudging population works slowly.
   return rate * supportMultiplier(system.support[faction]);
+}
+
+/** The share of this island's trade that goes out the back to the enemy. */
+export function smuggledShare(system: System, faction: PlayableFaction): number {
+  if (system.control !== faction) return 0;
+  return SMUGGLED_SHARE[loyaltyBand(system.support[faction], system.uprising)];
+}
+
+/** What the smugglers actually hand the other side, in gold a day. */
+export function smuggledOff(system: System, faction: PlayableFaction): number {
+  return islandTrade(system, faction) * smuggledShare(system, faction);
+}
+
+/** What a single island earns you in a day, after the smugglers take theirs. */
+export function islandIncome(system: System, faction: PlayableFaction): number {
+  if (!isProductive(system, faction)) return 0;
+  return islandTrade(system, faction) - smuggledOff(system, faction);
 }
 
 /** What everything a faction owns costs to keep standing for a day. */
@@ -42,34 +71,38 @@ export function totalUpkeep(state: GameState, faction: PlayableFaction): number 
   return upkeep;
 }
 
+/**
+ * What a faction banks in a day: its own islands after smuggling, plus what
+ * the enemy's smugglers bring it. The second half is why the figure in the
+ * banner can stay healthy while a Reach of yours goes sour — somebody else's
+ * sour Reach is paying you.
+ */
 export function totalIncome(state: GameState, faction: PlayableFaction): number {
-  return state.systems.reduce((total, system) => total + islandIncome(system, faction), 0);
+  const enemy = otherFaction(faction);
+  return state.systems.reduce(
+    (total, system) => total + islandIncome(system, faction) + smuggledOff(system, enemy),
+    0,
+  );
 }
 
 /**
- * A day's earnings. Everything a faction owns that earns, earns; on an island
- * whose allegiance is thin, smugglers may run the day's takings to the enemy
- * instead (spec 4.2.6).
+ * A day's earnings, and a day's losses.
+ *
+ * Every island works; where its takings end up is the question. The holder
+ * banks what is left after the smugglers, and the smugglers' share crosses
+ * the water to the other side the same day. No event is pushed for it: it
+ * happens on most islands most days, and a feed that said so would say
+ * nothing else. The island's own panel carries the number, and the banner
+ * carries the total.
  */
-export function collectIncome(state: GameState, rng: Rng): void {
+export function collectIncome(state: GameState, _rng: Rng): void {
   for (const faction of ['empire', 'alliance'] as const) {
     const enemy = otherFaction(faction);
     for (const system of state.systems) {
-      const earned = islandIncome(system, faction);
-      if (earned <= 0) continue;
-
-      const allegiance = system.support[faction];
-      const smuggleChance = allegiance < 50 ? (50 - allegiance) / 200 : 0;
-      if (smuggleChance > 0 && rng.chance(smuggleChance)) {
-        state.factions[enemy].gold += earned;
-        pushEvent(state, {
-          kind: 'loss',
-      text: `Smugglers run a day's takings off ${system.name} and sell them to the enemy.`,
-          systemId: system.id,
-        });
-      } else {
-        state.factions[faction].gold += earned;
-      }
+      const kept = islandIncome(system, faction);
+      if (kept > 0) state.factions[faction].gold += kept;
+      const lost = smuggledOff(system, faction);
+      if (lost > 0) state.factions[enemy].gold += lost;
     }
   }
 }

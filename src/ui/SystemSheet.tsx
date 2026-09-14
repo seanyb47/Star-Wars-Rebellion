@@ -1,11 +1,17 @@
 import { useState } from 'react';
 import terms from '../data/terms.json';
+import factionData from '../data/factions.json';
 import {
   recruitOn,
   type MissionType,
   FACILITY_BLURB,
   FACILITY_LABEL,
   GOLD_PER_DAY,
+  LEAK_CHANCE,
+  LOYALTY_BAND_LABEL,
+  SMUGGLED_SHARE,
+  loyaltyBand,
+  smuggledOff,
   UPKEEP_PER_DAY,
   buildError,
   buildLabel,
@@ -73,6 +79,33 @@ const TABS: Array<{ id: IslandTab; label: string }> = [
   { id: 'buildings', label: 'Buildings' },
   { id: 'log', label: 'Log' },
 ];
+
+/**
+ * What this island's allegiance is costing whoever holds it, today.
+ *
+ * The smugglers' cut is taken every day and announced on no day, so this is
+ * where a player finds out why a Reach that looks held is not paying like it.
+ */
+function LoyaltyLine({ system }: { system: System }) {
+  const holder = system.control;
+  if (holder !== 'empire' && holder !== 'alliance') return null;
+  const enemy = holder === 'empire' ? 'alliance' : 'empire';
+  const band = loyaltyBand(system.support[holder], system.uprising);
+  const share = SMUGGLED_SHARE[band];
+  const lost = smuggledOff(system, holder);
+  const quiet = LEAK_CHANCE[band] === 0 || system.explored[enemy];
+  return (
+    <p className="tiny muted" style={{ margin: '8px 0 0' }}>
+      <b>{LOYALTY_BAND_LABEL[band]}.</b>{' '}
+      {share === 0
+        ? 'Nothing leaves this harbour but what you load.'
+        : `${Math.round(share * 100)}% of what it ships goes out the back to the ${
+            factionData[enemy].shortName
+          }${lost > 0 ? `, ${lost.toFixed(1)} ${terms.gold.toLowerCase()} a day` : ''}.`}
+      {!quiet && ' Word of what you keep here gets out, too.'}
+    </p>
+  );
+}
 
 /** One line explaining what a facility actually does for you right now. */
 function facilityOutput(system: System, facility: Facility): string | null {
@@ -319,7 +352,10 @@ export function SystemSheet({
           {system.note && <p className="portrait__note serif">{system.note}</p>}
 
           {system.populated ? (
-            <SupportBars system={system} />
+            <>
+              <SupportBars system={system} />
+              <LoyaltyLine system={system} />
+            </>
           ) : (
             <p className="muted small" style={{ margin: 0 }}>
               Nobody lives here. Held only while a company remains ashore; finish any building and

@@ -248,9 +248,17 @@ export const SPILLOVER_FRACTION = 0.2;
  *  toward its natural level. Small on purpose: it makes gains need keeping up
  *  without ever taking an island off you on its own. */
 export const SUPPORT_DRIFT = 0.25;
-/** Where a holder's standing settles: governing an island is its own argument,
- *  so it never drifts to nothing, but it is not banked at a hundred either. */
-export const HELD_SUPPORT_LEVEL = 55;
+/**
+ * Where a holder's standing settles: governing an island is its own argument,
+ * so it never drifts to nothing, but it is not banked at a hundred either.
+ *
+ * Inside the steady band on purpose, with a little headroom above sixty. An
+ * island nobody works at is worth keeping and leaks a fifteenth of its trade;
+ * getting one to firm is work you choose to do, and letting one fall to thin
+ * takes the enemy pushing or you ignoring it. Settling below sixty instead
+ * would have made the thin band the whole game's resting state.
+ */
+export const HELD_SUPPORT_LEVEL = 65;
 
 /** Diplomacy mission (spec 4.5). */
 export const TRAVEL_DAYS_IN_SECTOR = 3;
@@ -370,6 +378,64 @@ export const RECRUIT_QUALITY_DIVISOR = 200;
 /** What the opponent adds for signing someone on, against courting an island.
  *  People are scarce and permanent; an island can be worked again next month. */
 export const AI_RECRUIT_BONUS = 120;
+
+/**
+ * Loyalty, in three bands, and what each one costs you.
+ *
+ * Allegiance used to be a number that moved a multiplier and nothing else.
+ * It is now the thing the chart is drawn by and the thing that decides how
+ * much of an island's trade you actually see: an island that does not love
+ * you keeps working, but its harbour leaks — goods go out the back to the
+ * other side, and so does word of what you have there.
+ *
+ * Firm at ninety and up, steady from sixty, thin below it, and an island in
+ * open revolt is its own band and the worst of them.
+ */
+export const SUPPORT_FIRM = 90;
+export const SUPPORT_STEADY = 60;
+
+export type LoyaltyBand = 'uprising' | 'thin' | 'steady' | 'firm';
+
+export function loyaltyBand(support: number, uprising = false): LoyaltyBand {
+  if (uprising) return 'uprising';
+  if (support >= SUPPORT_FIRM) return 'firm';
+  if (support >= SUPPORT_STEADY) return 'steady';
+  return 'thin';
+}
+
+/**
+ * What share of an island's trade the smugglers run to the other side, by
+ * band. Sean's ladder, 14 September: half in a revolt, nothing at all on an
+ * island that is firmly yours. It is a transfer and not a tax — every coin
+ * lost here is a coin the enemy banks, so an island you have let go sour is
+ * paying for their fleet.
+ */
+export const SMUGGLED_SHARE: Record<LoyaltyBand, number> = {
+  uprising: 0.5,
+  thin: 0.25,
+  steady: 0.15,
+  firm: 0,
+};
+
+/**
+ * The other half of a leaky harbour: word gets out. Each day, this is the
+ * chance that an island of yours the enemy has never charted turns up on
+ * their charts anyway, because somebody talked. A firm island keeps its
+ * mouth shut.
+ */
+export const LEAK_CHANCE: Record<LoyaltyBand, number> = {
+  uprising: 0.04,
+  thin: 0.02,
+  steady: 0,
+  firm: 0,
+};
+
+export const LOYALTY_BAND_LABEL: Record<LoyaltyBand, string> = {
+  uprising: 'In revolt',
+  thin: 'Thin',
+  steady: 'Steady',
+  firm: 'Firm',
+};
 
 /**
  * Victory. Two ways, one each, and nothing else: the Confederacy wins the day

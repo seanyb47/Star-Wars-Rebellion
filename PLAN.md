@@ -445,3 +445,46 @@ The star on the chart marks exactly two things: Highwater, and every island a
 Lord's ship is lying off (the Crown sees those only once it has charted the
 island). Thirty percent bigger than before. Filters answer with a ring now,
 never a star.
+
+
+## Loyalty does something — 14 September, evening
+
+Sean's rule: allegiance is three bands, the chart draws them by size, and the
+bands cost money.
+
+**The chart speaks in one mark at three sizes.** A dot, small, medium or
+large, and nothing else — except the star, which is Highwater and the Pirate
+Lords and never anything else, and a count, where the number is the mark. On
+Loyalty the size is the band: large at ninety, medium at sixty, small below it
+or in revolt, and small for anything uncharted. Under a filter the size is the
+answer: large if the island answers, small if it does not. The fleet sail is
+gone from the full chart — a fleet is a large dot under the Fleets filter now,
+and the sail itself lives in the chain view and the island's Harbour tab.
+
+**Smuggling.** Every day, a share of an island's trade goes out the back to the
+other side: nothing at firm, 15% at steady, 25% at thin, half in a revolt — and
+in a revolt the holder gets nothing at all, so the enemy is the only one paid.
+It is a transfer, not a tax, and `totalIncome` counts what the enemy's
+smugglers bring you, so the banner still adds up. No event fires for it daily;
+the island's panel carries the number and a dispatch says so the day an island
+slips a band.
+
+**Information.** A thin or rebellious island of yours the enemy has never
+charted may simply turn up on their charts: 2% a day thin, 4% in revolt, never
+when firm or steady. It rarely fires in the opening, where almost everything is
+already charted; it is what keeps a frontier holding quiet later.
+
+**Two things had to move for the ladder to mean anything.**
+`HELD_SUPPORT_LEVEL` went from 55 to 65, because a governed island drifting to
+55 would have made thin — a quarter of everything, on every island — the
+resting state of the whole game. And the opponent now courts its own slipping
+islands and puts down its own revolts, which it never did: it would let a Reach
+rot and wonder where the gold went.
+
+**A stall went with it.** Seed 4 as the Crown never ended: the Confederate
+navy lay off Highwater for two thousand days with nine fleets and no companies
+aboard. The strike fleet returned early at the capital before it ever
+consolidated or fetched lift, so it could neither land nor leave. It now folds
+in whatever lies in the same harbour, calls in berths as well as guns, and
+sails home for companies when it cannot carry the island. Sixteen idle games of
+sixteen now end, median 411 days, range 204 to 794.

@@ -64,6 +64,14 @@ island opens with something to pay its way.
 Crown wins the day all three Lords are in irons at once: a Lord never leaves
 their ship, so that means finding the ships and taking them.
 
+**Loyalty.** Three bands, and they cost money. Firm at ninety and up: the
+island ships everything to you. Steady from sixty: a seventh of its trade goes
+out the back to the other side. Thin below sixty: a quarter. In revolt: half,
+and you get none of the rest. A governed island settles at sixty-five, inside
+the steady band, so the middle rate is the resting state and both ends are
+earned. A thin island also talks — the enemy may chart it without ever sailing
+there.
+
 **Chart.** Highwater must be painted as a port on the great island's coast,
 not on its mountain; Gorley and Ballmoor as the other two ports on that
 coast. This is in the chart prompt (scratch `chart-prompt.txt`, and below).

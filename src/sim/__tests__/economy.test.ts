@@ -3,6 +3,8 @@ import { generateGalaxy } from '../galaxy';
 import {
   collectIncome,
   islandIncome,
+  islandTrade,
+  smuggledShare,
   payUpkeep,
   recomputeLedger,
   totalIncome,
@@ -52,13 +54,16 @@ describe('income', () => {
       { id: 'f1', type: 'mine', owner: 'empire' },
       { id: 'f2', type: 'refinery', owner: 'empire' },
     ];
-    island.support.empire = 100;
-    expect(islandIncome(island, 'empire')).toBeCloseTo(GOLD_PER_DAY.mine + GOLD_PER_DAY.refinery);
+    const rate = GOLD_PER_DAY.mine + GOLD_PER_DAY.refinery;
 
-    island.support.empire = 0; // 0.5x
-    expect(islandIncome(island, 'empire')).toBeCloseTo(
-      (GOLD_PER_DAY.mine + GOLD_PER_DAY.refinery) * 0.5,
-    );
+    // Firm: the island works at full pace and nothing leaves by the back door.
+    island.support.empire = 100;
+    expect(islandIncome(island, 'empire')).toBeCloseTo(rate);
+
+    // Thin: half pace for a grudging crew, and a quarter of what is left
+    // goes to the other side.
+    island.support.empire = 0;
+    expect(islandIncome(island, 'empire')).toBeCloseTo(rate * 0.5 * 0.75);
   });
 
   it('pays nothing from an island in mutiny', () => {
@@ -90,30 +95,59 @@ describe('income', () => {
     expect(state.factions.empire.gold).toBeCloseTo(GOLD_PER_DAY.mine);
   });
 
-  it('lets smugglers run a disloyal island’s takings to the enemy', () => {
+  it('runs a share of a disloyal island’s trade to the enemy, by band', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
     island.facilities = [{ id: 'f1', type: 'mine', owner: 'empire' }];
-    island.support.empire = 0; // a 25% chance every day
-    state.factions.alliance.gold = 0;
 
-    let smuggled = 0;
-    for (let seed = 1; seed <= 200; seed++) {
-      const before = state.factions.alliance.gold;
-      collectIncome(state, createRng(seed));
-      if (state.factions.alliance.gold > before) smuggled++;
+    // Every band, top to bottom: what the holder keeps and what crosses over
+    // always add up to the island's whole trade.
+    for (const [support, share] of [
+      [95, 0],
+      [70, 0.15],
+      [30, 0.25],
+    ] as const) {
+      island.support.empire = support;
+      const trade = islandTrade(island, 'empire');
+      expect(smuggledShare(island, 'empire')).toBe(share);
+      state.factions.empire.gold = 0;
+      state.factions.alliance.gold = 0;
+      collectIncome(state, createRng(1));
+      expect(state.factions.alliance.gold, `support ${support}`).toBeCloseTo(trade * share);
+      expect(state.factions.empire.gold, `support ${support}`).toBeCloseTo(trade * (1 - share));
     }
-    expect(smuggled).toBeGreaterThan(20);
-    expect(smuggled).toBeLessThan(80);
   });
 
-  it('never smuggles from a loyal island', () => {
+  it('takes half of an island in revolt, and gives its holder nothing at all', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
     island.facilities = [{ id: 'f1', type: 'mine', owner: 'empire' }];
-    island.support.empire = 50;
+    island.support.empire = 40;
+    island.uprising = true;
+    const trade = islandTrade(island, 'empire');
+    expect(trade).toBeGreaterThan(0);
+    state.factions.empire.gold = 0;
+    state.factions.alliance.gold = 0;
+    collectIncome(state, createRng(1));
+    expect(state.factions.empire.gold).toBe(0);
+    expect(state.factions.alliance.gold).toBeCloseTo(trade * 0.5);
+  });
+
+  it('never smuggles from a firm island, and a blockade stops even that', () => {
+    const state = generateGalaxy(101);
+    const island = isolate(state, 'empire');
+    island.facilities = [{ id: 'f1', type: 'mine', owner: 'empire' }];
+    island.support.empire = 90;
     state.factions.alliance.gold = 0;
     for (let seed = 1; seed <= 100; seed++) collectIncome(state, createRng(seed));
+    expect(state.factions.alliance.gold).toBe(0);
+
+    // Shut the harbour on a thin island: nothing leaves it either way.
+    island.support.empire = 20;
+    island.blockaded = true;
+    state.factions.empire.gold = 0;
+    collectIncome(state, createRng(1));
+    expect(state.factions.empire.gold).toBe(0);
     expect(state.factions.alliance.gold).toBe(0);
   });
 });

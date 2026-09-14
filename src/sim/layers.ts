@@ -47,7 +47,7 @@ export const CHART_LAYERS: LayerSpec[] = [
   // The painting alone. Left of Loyalty so a swipe right from home clears
   // the chart; Loyalty stays the resting state.
   { id: 'none', label: 'None', hint: 'The chart alone: no marks, just the sea and the Reaches.' },
-  { id: 'allegiance', label: 'Loyalty', hint: 'Every island, coloured by whose it is. Pick a filter and it marks what it points at.' },
+  { id: 'allegiance', label: 'Loyalty', hint: 'Every island, coloured by whose it is and sized by how firmly they hold it: big is firm, small is thin and leaking trade to the other side.' },
   { id: 'idleCrew', label: 'Idle crew', hint: 'Islands where one of your officers is ashore with nothing to do.' },
   { id: 'idleYards', label: 'Idle yards', hint: `A ${terms.facilities.construction_yard.toLowerCase()} of yours standing with no order on it.` },
   { id: 'idleDrills', label: 'Idle training', hint: `A ${terms.facilities.training_facility.toLowerCase()} of yours drilling nobody.` },
