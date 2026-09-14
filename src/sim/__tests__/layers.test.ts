@@ -16,7 +16,7 @@ function setup(seed = 501) {
   const mine = state.systems.find(
     (s) =>
       s.control === 'empire' &&
-      s.facilities.some((f) => f.owner === 'empire' && buildMenu(f).length > 0),
+      s.facilities.some((f) => f.owner === 'empire' && f.type === 'construction_yard' && buildMenu(f).length > 0),
   )!;
   return { state, mine };
 }
@@ -48,20 +48,20 @@ describe('chart layers', () => {
     // is testing nothing: a yard with an empty build menu is not idle, it is
     // finished, and setting it to work changes no count.
     const yard = mine.facilities.find(
-      (f) => f.owner === 'empire' && !f.building && buildMenu(f).length > 0,
+      (f) => f.owner === 'empire' && f.type === 'construction_yard' && !f.building && buildMenu(f).length > 0,
     )!;
     expect(yard).toBeDefined();
-    const before = layerMark(state, mine, 'idleWorks', 'empire').count ?? 0;
+    const before = layerMark(state, mine, 'idleYards', 'empire').count ?? 0;
     expect(before).toBeGreaterThan(0);
 
     // Busy is not idle.
     yard.building = { item: 'mine', daysRemaining: 4, costGold: 40 };
-    expect(layerMark(state, mine, 'idleWorks', 'empire').count ?? 0).toBe(before - 1);
+    expect(layerMark(state, mine, 'idleYards', 'empire').count ?? 0).toBe(before - 1);
     yard.building = undefined;
 
     // Nor is an island in revolt: nothing is being worked there at all.
     mine.uprising = true;
-    expect(layerMark(state, mine, 'idleWorks', 'empire').lit).toBe(false);
+    expect(layerMark(state, mine, 'idleYards', 'empire').lit).toBe(false);
   });
 
   it('lights islands where an officer is ashore with nothing to do', () => {

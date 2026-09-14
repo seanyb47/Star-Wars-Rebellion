@@ -42,8 +42,9 @@ export function orderBuild(
   state: GameState,
   facilityId: string,
   item: BuildItem,
+  destinationId?: string,
 ): CommandResult {
-  return run(state, (draft) => queueBuild(draft, facilityId, item));
+  return run(state, (draft) => queueBuild(draft, facilityId, item, destinationId));
 }
 
 /** Lay down a works on a held island with none; see foundWorks. */

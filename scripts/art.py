@@ -70,6 +70,7 @@ FOLDERS: dict[str, tuple[int, int, str]] = {
     "islands": (768, 204, "low approach, as if from a boat; a banner on the island panel"),
     "isles": (768, 204, "one island's own painting, by name; wins over its type's"),
     "creatures": (768, 352, "the natural world, and where the 20% fantasy is allowed out"),
+    "buildings": (512, 384, "one building on its island, three-quarter view; the build order card"),
     "scenes": (1024, 432, "full-bleed dispatch banner, quiet sky"),
     # The one painting the interface draws on top of, so it ships at the chart's
     # own proportion and is judged by whether a mark reads against it.

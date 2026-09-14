@@ -202,6 +202,7 @@ export function ChainMap({
   onOpenIsland,
   pickingFor,
   sailing,
+  choosing,
   layer,
 }: {
   state: GameState;
@@ -211,6 +212,8 @@ export function ChainMap({
   pickingFor?: PlayableFaction | null;
   /** A fleet is choosing where to sail, and it can sail anywhere. */
   sailing?: boolean;
+  /** A build order is choosing where it lands: only islands of yours answer. */
+  choosing?: boolean;
   /**
    * Whichever question the chart is asking, still being asked in here.
    *
@@ -224,7 +227,8 @@ export function ChainMap({
   const viewer = state.player;
   // Picking a destination is a different question from reading the chart, so
   // the layers stand down while it is happening — same rule as the chart's.
-  const filtering = Boolean(layer) && layer !== 'allegiance' && layer !== 'none' && !pickingFor && !sailing;
+  const filtering =
+    Boolean(layer) && layer !== 'allegiance' && layer !== 'none' && !pickingFor && !sailing && !choosing;
   const ground = paintedChart('seas');
   const reachName = state.sectors.find((r) => r.id === systems[0]?.sectorId)?.name;
 
@@ -320,7 +324,9 @@ export function ChainMap({
 
         // The chains dim when they hold nothing to sail to; the islands inside
         // them must do the same, or you find out by tapping and being told no.
-        const live = sailing || !pickingFor || isMissionTarget(state, system, pickingFor);
+        const live = choosing
+          ? system.control === viewer && !system.uprising
+          : sailing || !pickingFor || isMissionTarget(state, system, pickingFor);
         // One colour at three strengths, matching the chart: the filter pushes
         // an island's own tint up rather than adding a mark of its own.
         const mark = filtering ? layerMark(state, system, layer!, viewer) : { lit: false as const };
@@ -445,7 +451,7 @@ export function ChainMap({
 
             {/* A finger-sized target over the whole island, marks included. */}
             {live && <circle cx={spot.x} cy={spot.y} r={62} fill="transparent" />}
-            {(sailing || pickingFor) && live && (
+            {(sailing || pickingFor || choosing) && live && (
               <circle
                 className={`map__pick${
                   work === 'incite'

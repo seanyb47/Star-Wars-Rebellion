@@ -1192,3 +1192,28 @@ button.tcard:hover { border-color: var(--brass); }
 .build__act { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex: none; }
 .build__why { max-width: 160px; text-align: right; }
 .btn--sm { min-height: 36px; padding: 0 12px; font-size: 13px; }
+
+/* The build flow: the three-button menu and the order sheet. */
+.buildmenu__btn { justify-content: flex-start; text-align: left; gap: 12px; padding: 12px 14px; }
+.buildmenu__icon { flex: none; width: 40px; height: 40px; display: grid; place-items: center; color: var(--brass); background: var(--bg-sunken); border-radius: 10px; }
+.buildmenu__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.buildmenu__text b { font-size: 14px; }
+.buildmenu__text .tiny { white-space: normal; font-weight: 400; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field__label { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brass); font-weight: 600; }
+.field__select {
+  min-height: var(--tap); padding: 8px 36px 8px 12px; border-radius: 9px;
+  border: 1px solid var(--border); background: var(--bg-sunken); color: var(--text);
+  font: inherit; font-size: 14px; font-weight: 600; width: 100%; appearance: none; -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size: 6px 6px; background-repeat: no-repeat;
+}
+.field__static { min-height: var(--tap); display: flex; align-items: center; padding: 8px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg-sunken); font-weight: 600; }
+.unit { margin-top: 10px; padding: 10px; display: flex; gap: 12px; align-items: flex-start; }
+.unit__art { flex: none; width: 96px; height: 96px; border-radius: 10px; overflow: hidden; background: var(--bg-sunken); display: grid; place-items: center; color: var(--brass); border: 1px solid var(--border); }
+.unit__art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.unit__art--tall { height: 116px; }
+.unit__art--wide { width: 128px; height: 74px; }
+.unit__body { min-width: 0; flex: 1; }
+.unit__name { font-weight: 700; font-size: 15px; }
+.unit__stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }

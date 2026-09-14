@@ -35,6 +35,7 @@ export function ReachSheet({
   onOpenList,
   pickingFor,
   sailing,
+  choosing,
   layer,
 }: {
   state: GameState;
@@ -44,6 +45,7 @@ export function ReachSheet({
   /** Passed through so the chart can dim islands you cannot sail to. */
   pickingFor?: PlayableFaction | null;
   sailing?: boolean;
+  choosing?: boolean;
   /** Whatever the chart is filtering by, so the same islands stay lit in here. */
   layer?: ChartLayer;
   /** The "N islands" line opens the Reach as a list, one row per island. */
@@ -85,6 +87,7 @@ export function ReachSheet({
         onOpenIsland={onOpenIsland}
         pickingFor={pickingFor}
         sailing={sailing}
+        choosing={choosing}
         layer={layer}
       />
       <div className="chainmap__key">

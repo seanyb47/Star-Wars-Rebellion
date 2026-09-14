@@ -7,6 +7,7 @@ import {
   findFacility,
   foundWorks,
   foundWorksError,
+  planBuild,
   queueBuild,
 } from '../build';
 import { getSystem } from '../helpers';
@@ -54,7 +55,7 @@ describe('queueing builds', () => {
     const { system, facility } = yardOf(state, 'empire');
     state.factions.empire.gold = 500;
     system.rawSlots = system.facilities.filter((f) => f.type === 'mine').length;
-    expect(buildError(state, facility.id, 'mine')).toBe('No free ground.');
+    expect(buildError(state, facility.id, 'mine')).toMatch(/^No free ground on /);
   });
 
   it('refuses a facility with no free energy slot', () => {
@@ -62,7 +63,7 @@ describe('queueing builds', () => {
     const { system, facility } = yardOf(state, 'empire');
     state.factions.empire.gold = 500;
     system.energySlots = system.facilities.filter((f) => f.type !== 'mine').length;
-    expect(buildError(state, facility.id, 'refinery')).toBe('No free water.');
+    expect(buildError(state, facility.id, 'refinery')).toMatch(/^No free water on /);
   });
 
   it('refuses to build on a world in revolt', () => {
@@ -197,5 +198,95 @@ describe('laying down a works', () => {
     const works = island.facilities.find((f) => f.type === 'construction_yard')!;
     cancelBuild(state, works.id);
     expect(island.facilities.find((f) => f.id === works.id)).toBeUndefined();
+  });
+});
+
+describe('orders sent to another island', () => {
+  function elsewhere(state: GameState, faction: 'empire' | 'alliance', notId: string) {
+    return state.systems.find(
+      (s) => s.control === faction && s.id !== notId && !s.uprising && s.rawSlots - s.facilities.filter((f) => f.type === 'mine').length > 0,
+    )!;
+  }
+
+  it('adds the passage to the clock and lands the thing where it was sent', () => {
+    const state = generateGalaxy(201);
+    const { system, facility } = yardOf(state, 'empire');
+    const there = elsewhere(state, 'empire', system.id);
+    state.factions.empire.gold = 500;
+    queueBuild(state, facility.id, 'mine', there.id);
+    const sail = system.sectorId === there.sectorId ? 3 : 10;
+    expect(facility.building).toEqual({ item: 'mine', daysRemaining: 8 + sail, costGold: 40, destinationId: there.id });
+    const minesBefore = there.facilities.filter((f) => f.type === 'mine').length;
+    const hereBefore = system.facilities.length;
+    for (let d = 0; d < 8 + sail; d++) advanceBuilds(state);
+    expect(facility.building).toBeUndefined();
+    expect(there.facilities.filter((f) => f.type === 'mine').length).toBe(minesBefore + 1);
+    expect(system.facilities.length).toBe(hereBefore);
+  });
+
+  it('sends an order to an island of yours with no works of its own', () => {
+    const state = generateGalaxy(201);
+    const { system, facility } = yardOf(state, 'empire');
+    const bare = state.systems.find(
+      (s) => s.control === 'empire' && s.id !== system.id && !s.facilities.some((f) => f.type === 'construction_yard'),
+    );
+    if (!bare) return; // this seed has a works everywhere; nothing to prove
+    state.factions.empire.gold = 500;
+    expect(buildError(state, facility.id, 'construction_yard', bare.id)).toBeNull();
+  });
+
+  it('counts an order already at sea against the room it is sailing for', () => {
+    const state = generateGalaxy(201);
+    const { system, facility } = yardOf(state, 'empire');
+    const there = elsewhere(state, 'empire', system.id);
+    there.rawSlots = there.facilities.filter((f) => f.type === 'mine').length + 1;
+    state.factions.empire.gold = 500;
+    queueBuild(state, facility.id, 'mine', there.id);
+    const other = state.systems
+      .flatMap((s) => s.facilities.map((f) => ({ s, f })))
+      .find(({ s, f }) => s.control === 'empire' && f.type === 'construction_yard' && f.owner === 'empire' && !f.building);
+    if (!other) return;
+    expect(buildError(state, other.f.id, 'mine', there.id)).toMatch(/No free ground/);
+  });
+
+  it('turns back to where it was made if the island is lost on the way', () => {
+    const state = generateGalaxy(201);
+    const { system, facility } = yardOf(state, 'empire');
+    const there = elsewhere(state, 'empire', system.id);
+    state.factions.empire.gold = 500;
+    queueBuild(state, facility.id, 'mine', there.id);
+    const hereBefore = system.facilities.length;
+    there.control = 'alliance';
+    for (let d = 0; d < 20; d++) advanceBuilds(state);
+    expect(facility.building).toBeUndefined();
+    expect(system.facilities.length).toBe(hereBefore + 1);
+    expect(state.events.some((e) => /turns back/.test(e.text))).toBe(true);
+  });
+
+  it('refuses a destination you do not hold', () => {
+    const state = generateGalaxy(201);
+    const { facility } = yardOf(state, 'empire');
+    const theirs = state.systems.find((s) => s.control === 'alliance')!;
+    state.factions.empire.gold = 500;
+    expect(buildError(state, facility.id, 'mine', theirs.id)).toMatch(/do not hold/);
+  });
+
+  it('plans from the nearest free maker and says why when none can', () => {
+    const state = generateGalaxy(201);
+    const { system, facility } = yardOf(state, 'empire');
+    const there = elsewhere(state, 'empire', system.id);
+    state.factions.empire.gold = 500;
+    const plan = planBuild(state, 'empire', 'mine', there.id);
+    expect(plan.error).toBeNull();
+    expect(plan.facilityId).not.toBeNull();
+    expect(plan.days).toBe(8);
+    expect([0, 3, 10]).toContain(plan.travel);
+    // Made on the spot when the island has its own works.
+    if (there.facilities.some((f) => f.type === 'construction_yard' && f.owner === 'empire')) {
+      expect(plan.travel).toBe(0);
+    }
+    state.factions.empire.gold = 0;
+    expect(planBuild(state, 'empire', 'mine', there.id).error).toMatch(/Needs 40 gold/);
+    void facility;
   });
 });

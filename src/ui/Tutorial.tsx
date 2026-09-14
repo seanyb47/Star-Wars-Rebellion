@@ -84,7 +84,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'The filters',
     body: () =>
-      'The strip under the chart. Every island stays on the chart in its own colour, whatever you pick; the ones that answer the filter turn into stars, or into a number where a number is the answer — companies under Garrisons, gold a day under Production. Idle works is the one to check often: a yard building nothing is gold you are not making.',
+      'The strip under the chart. Every island stays on the chart in its own colour, whatever you pick; the ones that answer the filter turn into stars, or into a number where a number is the answer — companies under Garrisons, gold a day under Production. The idle filters are the ones to check often: a works, drill ground or slipway building nothing is gold you are not making.',
   },
   {
     title: 'The clock',

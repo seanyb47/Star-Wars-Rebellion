@@ -29,7 +29,7 @@ import {
 } from '../sim';
 import { Almanac } from './Almanac';
 import { CharacterSheet } from './CharacterSheet';
-import { BuildScreen } from './BuildScreen';
+import { BuildMenuSheet, BuildOrderSheet, firstItem, type BuildDraft } from './BuildSheet';
 import { CharactersScreen } from './CharactersScreen';
 import { FeedScreen } from './FeedScreen';
 import { GalaxyMap } from './GalaxyMap';
@@ -82,6 +82,13 @@ export function App() {
   const voice = useAdvisorVoice();
   const [almanacOpen, setAlmanacOpen] = useState(false);
   const [pickingFor, setPickingFor] = useState<string | null>(null);
+  // The build flow: the three-button menu, the order being drafted, and
+  // whether the chart is open to choose the island it lands on. The draft
+  // outlives the trip to the chart so what you had chosen is still chosen.
+  const [buildMenuOpen, setBuildMenuOpen] = useState(false);
+  const [draft, setDraft] = useState<BuildDraft | null>(null);
+  const [orderOpen, setOrderOpen] = useState(false);
+  const [choosingSite, setChoosingSite] = useState(false);
   // Which question the chart is answering. Not saved: it is a way of looking
   // at the war, not a fact about it, and it should start plain every session.
   const [layer, setLayer] = useState<ChartLayer>('allegiance');
@@ -126,6 +133,8 @@ export function App() {
     openReachId !== null ||
     openListId !== null ||
     menuOpen ||
+    buildMenuOpen ||
+    orderOpen ||
     cards.length > 0 ||
     narratorOpen ||
     almanacOpen ||
@@ -189,9 +198,13 @@ export function App() {
   }, []);
 
   // ---- Commands --------------------------------------------------------
-  const handleBuild = (facilityId: string, item: BuildItem) => {
-    const result = orderBuild(state, facilityId, item);
+  const handleBuild = (facilityId: string, item: BuildItem, destinationId?: string) => {
+    const result = orderBuild(state, facilityId, item, destinationId);
     if (result.error) flash(result.error);
+    else if (destinationId) {
+      const where = state.systems.find((s) => s.id === destinationId)!;
+      flash(`Ordered for ${where.name}.`);
+    }
     setState(result.state);
   };
 
@@ -206,6 +219,17 @@ export function App() {
   };
 
   const handleSelectSystem = (systemId: string) => {
+    if (choosingSite) {
+      const where = state.systems.find((s) => s.id === systemId)!;
+      if (where.control !== state.player || where.uprising) {
+        flash(where.uprising ? `${where.name} is in mutiny.` : `You do not hold ${where.name}.`);
+        return;
+      }
+      setDraft((d) => (d ? { ...d, destinationId: systemId } : d));
+      setChoosingSite(false);
+      setOrderOpen(true);
+      return;
+    }
     if (sailingFleetId) {
       const result = orderSail(state, sailingFleetId, systemId);
       setSailingFleetId(null);
@@ -249,7 +273,7 @@ export function App() {
   const openIslandTab = (systemId: string) => {
     setOpenReachId(null);
     setOpenListId(null);
-    if (pickingFor || sailingFleetId) {
+    if (pickingFor || sailingFleetId || choosingSite) {
       handleSelectSystem(systemId);
       return;
     }
@@ -306,6 +330,10 @@ export function App() {
     setOpenListId(null);
     setPickingFor(null);
     setSailingFleetId(null);
+    setBuildMenuOpen(false);
+    setOrderOpen(false);
+    setChoosingSite(false);
+    setDraft(null);
     setToldOf([]);
     setReadingId(null);
     setLastSeen(0);
@@ -398,9 +426,14 @@ export function App() {
             layer={layer}
             onLayerChange={setLayer}
             sailing={sailingFleetId !== null}
+            choosing={choosingSite}
             onCancelPick={() => {
               setPickingFor(null);
               setSailingFleetId(null);
+              if (choosingSite) {
+                setChoosingSite(false);
+                setOrderOpen(true);
+              }
             }}
             onSelectReach={(sectorId: string) => setOpenReachId(sectorId)}
             onOpenIsland={(systemId: string) => {
@@ -411,18 +444,6 @@ export function App() {
         )}
         {tab === 'characters' && (
           <CharactersScreen state={state} onOpen={setOpenCharacterId} />
-        )}
-        {tab === 'build' && (
-          <BuildScreen
-            state={state}
-            onBuild={handleBuild}
-            onFound={handleFound}
-            onCancel={handleCancel}
-            onOpenIsland={(systemId) => {
-              setOpenSystemId(systemId);
-              setOpenSystemTab('buildings');
-            }}
-          />
         )}
         {tab === 'feed' && (
           <FeedScreen
@@ -457,8 +478,12 @@ export function App() {
       )}
 
       <TabBar
-        tab={tab}
-        onChange={setTab}
+        tab={buildMenuOpen || orderOpen || choosingSite ? 'build' : tab}
+        onChange={(next) => {
+          // Build is a popup over whatever you are looking at, not a screen.
+          if (next === 'build') setBuildMenuOpen(true);
+          else setTab(next);
+        }}
         unread={unread}
         player={state.player}
         onAskAdvisor={() => setNarratorOpen(true)}
@@ -503,6 +528,7 @@ export function App() {
           onOpenIsland={openIslandTab}
           pickingFor={pickingCharacter ? (pickingCharacter.faction as PlayableFaction) : null}
           sailing={sailingFleetId !== null}
+          choosing={choosingSite}
           layer={layer}
           onOpenList={(sectorId) => {
             // The chain as a list, in place of the chain as a map — not on top
@@ -539,6 +565,47 @@ export function App() {
             setOpenCharacterId(null);
             jumpToSystem(openCharacter.locationSystemId);
           }}
+        />
+      )}
+
+      {buildMenuOpen && (
+        <BuildMenuSheet
+          onPick={(kind) => {
+            setBuildMenuOpen(false);
+            setDraft((d) =>
+              d && d.kind === kind
+                ? d
+                : {
+                    kind,
+                    item: firstItem(kind, state.player),
+                    destinationId: state.factions[state.player].hqSystemId,
+                  },
+            );
+            setOrderOpen(true);
+          }}
+          onClose={() => setBuildMenuOpen(false)}
+        />
+      )}
+
+      {orderOpen && draft && (
+        <BuildOrderSheet
+          state={state}
+          draft={draft}
+          onChange={setDraft}
+          onChooseOnChart={() => {
+            setOrderOpen(false);
+            setOpenSystemId(null);
+            setOpenReachId(null);
+            setOpenListId(null);
+            setOpenCharacterId(null);
+            setChoosingSite(true);
+            setTab('galaxy');
+          }}
+          onBuild={(facilityId, item, destinationId) => {
+            handleBuild(facilityId, item, destinationId);
+            setOrderOpen(false);
+          }}
+          onClose={() => setOrderOpen(false)}
         />
       )}
 

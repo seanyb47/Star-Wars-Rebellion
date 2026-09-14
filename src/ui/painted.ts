@@ -54,6 +54,13 @@ const FACES = import.meta.glob('../art/faces/*.{webp,png,jpg}', {
   import: 'default',
 }) as Record<string, string>;
 
+/** One painting per building type: the works, the slipway, the fort. */
+const BUILDINGS = import.meta.glob('../art/buildings/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
 const CREATURES = import.meta.glob('../art/creatures/*.{webp,png,jpg}', {
   eager: true,
   query: '?url',
@@ -99,6 +106,7 @@ const CHART_URLS = bySlug(CHART);
 const FACE_URLS = bySlug(FACES);
 const ISLE_URLS = bySlug(ISLES);
 const CREATURE_URLS = bySlug(CREATURES);
+const BUILDING_URLS = bySlug(BUILDINGS);
 
 export function paintedPortrait(name: string): string | undefined {
   return PORTRAIT_URLS[slugify(name)];
@@ -134,6 +142,11 @@ export function paintedChart(name: string): string | undefined {
  *  and not the other still shows a painting rather than a drawn cameo. */
 export function paintedFace(name: string): string | undefined {
   return FACE_URLS[slugify(name)] ?? PORTRAIT_URLS[slugify(name)];
+}
+
+/** A building's painting, by its type name (`training-facility`, `fort`). */
+export function paintedBuilding(type: string): string | undefined {
+  return BUILDING_URLS[slugify(type.replace(/_/g, ' '))];
 }
 
 export function paintedCreature(name: string): string | undefined {

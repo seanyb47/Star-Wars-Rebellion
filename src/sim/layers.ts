@@ -1,7 +1,8 @@
 import { buildMenu } from './build';
 import { islandIncome } from './economy';
 import { fleetsAt, isAtSea } from './fleets';
-import type { GameState, PlayableFaction, System } from './types';
+import terms from '../data/terms.json';
+import type { FacilityType, GameState, PlayableFaction, System } from './types';
 
 /**
  * Chart layers — the original's view menu, made swipeable.
@@ -20,8 +21,10 @@ import type { GameState, PlayableFaction, System } from './types';
 export type ChartLayer =
   | 'none'
   | 'allegiance'
-  | 'idleWorks'
   | 'idleCrew'
+  | 'idleYards'
+  | 'idleDrills'
+  | 'idleSlips'
   | 'fleets'
   | 'garrisons'
   | 'missions'
@@ -45,8 +48,10 @@ export const CHART_LAYERS: LayerSpec[] = [
   // the chart; Loyalty stays the resting state.
   { id: 'none', label: 'None', hint: 'The chart alone: no marks, just the sea and the Reaches.' },
   { id: 'allegiance', label: 'Loyalty', hint: 'Every island, coloured by whose it is. Pick a filter and it marks what it points at.' },
-  { id: 'idleWorks', label: 'Idle works', hint: 'Yards, drill grounds and slipways of yours standing with no order on them.' },
   { id: 'idleCrew', label: 'Idle crew', hint: 'Islands where one of your officers is ashore with nothing to do.' },
+  { id: 'idleYards', label: `Idle ${terms.facilities.construction_yard.toLowerCase()}`, hint: `A ${terms.facilities.construction_yard.toLowerCase()} of yours standing with no order on it.` },
+  { id: 'idleDrills', label: `Idle ${terms.facilities.training_facility.toLowerCase()}s`, hint: `A ${terms.facilities.training_facility.toLowerCase()} of yours drilling nobody.` },
+  { id: 'idleSlips', label: `Idle ${terms.facilities.shipyard.toLowerCase()}s`, hint: `A ${terms.facilities.shipyard.toLowerCase()} of yours with nothing on the stocks.` },
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
   { id: 'garrisons', label: 'Garrisons', hint: 'Islands of yours holding companies ashore.' },
   { id: 'missions', label: 'Missions', hint: 'Islands your officers are working on, or sailing for.' },
@@ -107,7 +112,13 @@ export function showsNumber(layer: ChartLayer): boolean {
  * not enough to find a squadron by.
  */
 export function isLoudLayer(layer: ChartLayer): boolean {
-  return layer === 'idleWorks' || layer === 'idleCrew' || layer === 'fleets';
+  return (
+    layer === 'idleYards' ||
+    layer === 'idleDrills' ||
+    layer === 'idleSlips' ||
+    layer === 'idleCrew' ||
+    layer === 'fleets'
+  );
 }
 
 /** What a lit island is worth saying about itself, under this layer. */
@@ -125,10 +136,14 @@ const DARK: LayerMark = { lit: false };
  * you hold that is not in revolt, and with something it could be building.
  * A yard with nothing left to build is not idle, it is done.
  */
-function idleFacilities(system: System, faction: PlayableFaction): number {
+export function idleFacilities(
+  system: System,
+  faction: PlayableFaction,
+  type: FacilityType,
+): number {
   if (system.control !== faction || system.uprising) return 0;
   return system.facilities.filter(
-    (f) => f.owner === faction && !f.building && buildMenu(f).length > 0,
+    (f) => f.owner === faction && f.type === type && !f.building && buildMenu(f).length > 0,
   ).length;
 }
 
@@ -150,8 +165,16 @@ export function layerMark(
   if (!system.explored[faction]) return DARK;
 
   switch (layer) {
-    case 'idleWorks': {
-      const n = idleFacilities(system, faction);
+    case 'idleYards': {
+      const n = idleFacilities(system, faction, 'construction_yard');
+      return n > 0 ? { lit: true, count: n } : DARK;
+    }
+    case 'idleDrills': {
+      const n = idleFacilities(system, faction, 'training_facility');
+      return n > 0 ? { lit: true, count: n } : DARK;
+    }
+    case 'idleSlips': {
+      const n = idleFacilities(system, faction, 'shipyard');
       return n > 0 ? { lit: true, count: n } : DARK;
     }
     case 'idleCrew': {

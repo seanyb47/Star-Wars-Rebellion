@@ -4,7 +4,7 @@ import { type GameState } from '../sim';
  * A shut harbour, and nothing else.
  *
  * This used to also count idle yards, drill grounds and slipways, after the
- * original's "Idle Construction Yards" nag. The Idle works chart layer now says
+ * original's "Idle Construction Yards" nag. The idle chart layers now say
  * the same thing better — on the islands themselves rather than as a total —
  * and two strips at the foot of the chart fought each other for the same space.
  *

@@ -413,16 +413,20 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       ...Array<FacilityType>(START_TRAINING).fill('training_facility'),
       ...Array<FacilityType>(START_SHIPYARDS).fill('shipyard'),
     ];
+    let yards = 0;
     for (const [index, type] of plan.entries()) {
       // The seat is the naval base: the Slipway and the Drill Ground stand
       // where the Home Fleet lies, the way the original keeps the Imperial
       // yards at Coruscant. Dealt round-robin with the rest they landed on
       // the fourth island, and the capital had a fleet at anchor and no
-      // port to have built it.
+      // port to have built it. The works go to the seat and the island
+      // after it, so the capital can raise anything from day one.
       const system =
         type === 'shipyard' || type === 'training_facility'
           ? owned[0]
-          : owned[index % owned.length];
+          : type === 'construction_yard'
+            ? owned[yards++ % owned.length]
+            : owned[index % owned.length];
       if (type === 'mine') system.rawSlots = Math.max(system.rawSlots, countOf(system, true) + 1);
       else system.energySlots = Math.max(system.energySlots, countOf(system, false) + 1);
       system.facilities.push(makeFacility(makeId('fac'), type, owner));

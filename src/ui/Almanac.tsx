@@ -78,8 +78,10 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
       <p className="tiny muted" style={{ marginTop: 0 }}>
         A building either earns {terms.gold.toLowerCase()} or costs it. A camp needs free{' '}
         {terms.ground.toLowerCase()}; everything else needs free {terms.water.toLowerCase()}.
-        Buildings are raised by a {FACILITY_LABEL.construction_yard} standing on the same island; an island
-        with none can have one laid down from its Buildings tab.
+        Buildings are raised by a {FACILITY_LABEL.construction_yard} — the island's own, or the nearest of
+        yours, whose builders sail over and add the passage to the clock. Companies and hulls are
+        sent the same way: drilled or laid down where you have the ground for it, and delivered
+        where you asked.
       </p>
       <div className="stack">
         {BUILD_ORDER.map((type) => (

@@ -156,6 +156,13 @@ export interface BuildOrder {
   item: BuildItem;
   daysRemaining: number;
   costGold: number;
+  /**
+   * Where the thing lands when it is done, when that is not the island it is
+   * made on: a company drilled here and shipped there, a hull that sails to
+   * its station, builders sent to raise a camp on an island with no works.
+   * The passage is counted into the days.
+   */
+  destinationId?: string;
 }
 
 export interface Character {

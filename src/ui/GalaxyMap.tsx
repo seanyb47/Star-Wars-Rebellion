@@ -125,6 +125,8 @@ export interface GalaxyMapProps {
   pickingFor?: { characterId: string; faction: PlayableFaction } | null;
   /** A fleet waiting to be told where to sail. Anywhere is a valid answer. */
   sailing?: boolean;
+  /** A build order is choosing the island of yours it will land on. */
+  choosing?: boolean;
   onCancelPick?: () => void;
   /** Tapping a chain opens it. The island is then chosen from the list. */
   onSelectReach?: (sectorId: string) => void;
@@ -216,6 +218,7 @@ export function GalaxyMap({
   state,
   pickingFor,
   sailing,
+  choosing,
   onCancelPick,
   onSelectReach,
   onOpenIsland,
@@ -249,10 +252,10 @@ export function GalaxyMap({
   // Picking a destination is a different question from reading the chart, so
   // the layers stand down while it is happening rather than fighting the
   // pick rings for the same dimming.
-  const filtering = layer !== 'allegiance' && layer !== 'none' && !pickingFor && !sailing;
+  const filtering = layer !== 'allegiance' && layer !== 'none' && !pickingFor && !sailing && !choosing;
   // None: the painting and the Reach names, nothing marked. Picking a target
   // or sailing still needs the marks, so those override it.
-  const bare = layer === 'none' && !pickingFor && !sailing;
+  const bare = layer === 'none' && !pickingFor && !sailing && !choosing;
 
   const stipple = useMemo(() => seaStipple(state.rngSeed), [state.rngSeed]);
 
@@ -448,7 +451,7 @@ export function GalaxyMap({
 
         {chains.map(({ sector, systems, summary, targets, spot, chainR, label }) => {
           // Sailing can go anywhere; a parley can only go where it is welcome.
-          const live = sailing || !pickingFor || targets > 0;
+          const live = sailing || choosing || !pickingFor || targets > 0;
           // Under a layer, a chain holding no answer drops back so the ones
           // that do carry the eye. It stays tappable — a filter is a way of
           // looking, not a lock on where you can go.
@@ -484,7 +487,7 @@ export function GalaxyMap({
               {!ground && (
                 <circle className="map__sector-ring" cx={spot.x} cy={spot.y} r={chainR} />
               )}
-              {(sailing || (pickingFor && targets > 0)) && (
+              {(sailing || choosing || (pickingFor && targets > 0)) && (
                 <circle className="map__pick" cx={spot.x} cy={spot.y} r={chainR + 7} />
               )}
 
@@ -684,9 +687,9 @@ export function GalaxyMap({
           gold you are not spending, and nothing else says so. */}
       {/* A shut harbour, under every layer: it costs you a day's takings
           whatever you happen to be looking at. */}
-      {!pickingFor && !sailing && <ProducerLegend state={state} onOpenIsland={onOpenIsland} />}
+      {!pickingFor && !sailing && !choosing && <ProducerLegend state={state} onOpenIsland={onOpenIsland} />}
 
-      {!pickingFor && !sailing && onLayerChange && (
+      {!pickingFor && !sailing && !choosing && onLayerChange && (
         <LayerStrip state={state} layer={layer} onChange={onLayerChange} viewer={viewer} />
       )}
 
@@ -694,6 +697,10 @@ export function GalaxyMap({
         {sailing ? (
           <button className="chip chip--pick" onClick={onCancelPick}>
             Open a chain and pick where to sail · cancel
+          </button>
+        ) : choosing ? (
+          <button className="chip chip--pick" onClick={onCancelPick}>
+            Open a chain and pick an island of yours to build on · back
           </button>
         ) : pickingFor ? (
           <button className="chip chip--pick" onClick={onCancelPick}>

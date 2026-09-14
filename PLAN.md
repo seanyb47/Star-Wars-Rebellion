@@ -346,3 +346,19 @@ the six-card version see this one.
 the painting had nine chains. Reaches follow the painting and names follow
 latitude; the seven Seas are the water they sit in and carry no rule of their
 own. Stop treating "one Reach per Sea" as a thing to preserve.
+
+## The build flow — 14 September
+
+Rebellion's, in two sheets. The Build tab is a popup now, not a screen: three
+buttons (facilities, companies, ships), then the order — a dropdown for the
+thing, its painting, cost, days and upkeep, its stats where it has any, a
+dropdown for the island or a trip to the chart to tap one, and the clock:
+work plus passage. Every order carries a destination in the sim
+(`BuildOrder.destinationId`); the nearest free maker takes it and the sea
+adds three or ten days. An island lost while the order is at sea sends the
+thing back to where it was made; room on the destination is reserved from the
+day of the order so two crews never sail for one berth. The capital opens
+with a works of its own so its orders are made on the spot.
+
+Idle works is gone from the layer strip: after Loyalty comes Idle crew, then
+idle works, drill grounds and slipways each as their own filter.
