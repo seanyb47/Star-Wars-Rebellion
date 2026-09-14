@@ -57,14 +57,17 @@ CHART_W, CHART_H = 1000, 1500
 # is a reef, and the dark forested diagonal in the north-east is the whaling
 # ground. A Reach may have more than one seed point, though none needs it now.
 SEEDS: dict[str, tuple[float, float] | list[tuple[float, float]]] = {
-    "Rime Reach": (0.186, 0.091),          # snow peaks, top left — the arctic one
-    "Whalers' Reach": (0.854, 0.126),      # top right, the dark diagonal — the whaling ground
-    "Shipwrights' Reach": (0.195, 0.293),  # the long green chain down the left
-    "Sovereign Reach": (0.504, 0.449),     # dead centre, the largest — Highwater
-    "Wreckers' Reach": (0.849, 0.372),     # the long chain down the right edge — the wrecking coast
-    "Cinder Reach": (0.215, 0.638),        # thin chain, lower left
-    "Coral Reach": (0.840, 0.677),         # the spiral atoll, lower right — the reef
-    "Salt Reach": (0.512, 0.833),          # the long chain across the bottom
+    # Sean's chart, 14 September: the ice cap along the top is Rime — bergs and
+    # frozen rock, "nothing here but weather" — and the dark chain under it is
+    # the whaling ground.
+    "Rime Reach": (0.50, 0.05),            # the pack ice along the top edge
+    "Whalers' Reach": (0.50, 0.16),        # the dark chain just under the ice
+    "Shipwrights' Reach": (0.18, 0.27),    # the long green chain down the left
+    "Sovereign Reach": (0.50, 0.48),       # dead centre, the largest — Highwater
+    "Wreckers' Reach": (0.86, 0.32),       # the chain down the right edge — the wrecking coast
+    "Cinder Reach": (0.15, 0.60),          # the chain at the lower left
+    "Coral Reach": (0.85, 0.65),           # the spiral atoll, lower right — the reef
+    "Salt Reach": (0.55, 0.84),            # the long chain across the bottom
 }
 # Three seeds were removed rather than moved. Whalers' sat on islets too small
 # to chart, and Sugar and Mirage ran together with their neighbours down the
@@ -96,6 +99,10 @@ def painted_islands(path: str) -> list[tuple[float, float, float]]:
     # Land is green or tan: its green channel at least matches its blue. Every
     # water in the painting, however pale, keeps blue above green.
     land = (a[:, :, 1] >= a[:, :, 2]) & (a[:, :, 1] > 70)
+    # Ice is land too: pack ice and bergs read as near-white, brighter than
+    # any water in the painting, including the pale shallows.
+    ice = (a[:, :, 0] > 185) & (a[:, :, 1] > 185) & (a[:, :, 2] > 185)
+    land = land | ice
     lbl, n = ndimage.label(land, structure=np.ones((3, 3)))
     sizes = ndimage.sum(land, lbl, range(1, n + 1))
     cents = ndimage.center_of_mass(land, lbl, range(1, n + 1))
@@ -287,9 +294,8 @@ def main() -> None:
     # Shipwrights' belongs under the foot of its chain, not out in the
     # channel beside Sovereign; Salt sits on its own chain's shoulder.
     LABEL_PINS: dict[str, tuple[float, float]] = {
-        "Rime Reach": (120.0, 240.0),
-        "Shipwrights' Reach": (172.0, 662.0),
-        "Salt Reach": (590.0, 1165.0),
+        # In the water left of the ice, clear of the whaling chain beneath it.
+        "Rime Reach": (170.0, 60.0),
     }
 
     # The foot of the chart belongs to the layer strip.

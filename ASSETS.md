@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**94 of 99 painted.** 3050KB shipped, 7.9MB of masters kept back.
+**94 of 99 painted.** 3077KB shipped, 7.9MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -151,7 +151,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
-| The Seven Seas | `seas` | 1 | 100KB | 1024×1536, 464KB | whole frame, gamma 1.6 | 2026-09-12 | ChatGPT art project, 12 Sep 2026 |
+| The Seven Seas | `seas` | 2 (+1 retired) | 127KB | 1024×1536, 383KB | whole frame | 2026-09-12 | ChatGPT art project, 12 Sep 2026 |
 | The Shattered Blue, from the title screen | `title` | 1 | 107KB | 1024×1536, 356KB | whole frame, gamma 1.25 | 2026-09-12 | ChatGPT art project, 12 Sep 2026 |
 
 ## Notes
