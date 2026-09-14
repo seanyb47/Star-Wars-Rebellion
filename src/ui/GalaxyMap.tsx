@@ -195,17 +195,20 @@ export function controlColor(system: System, viewer: PlayableFaction): string {
  * The positions come from the painting and no two are closer than 24 units, so
  * anything past 11 would have neighbours running each other over.
  */
-const ISLAND_RADIUS = 8;
+// Fourteen, up from eight: at eight a mark was six pixels across on a phone
+// and its colour was a rumour. The marks sit no closer than 46 units, so
+// fourteen still leaves clear water between neighbours.
+const ISLAND_RADIUS = 14;
 /** Unexplored or unsettled: open ground. Readable on dark water at 8px. */
 export const OPEN_GREY = '#93a3ab';
 /** The dot itself for open ground: near white, so it reads on the water. */
 const OPEN_FILL = '#dfe8ec';
 /** The filter's star. Bigger than a dot by enough to be the thing you see. */
-const STAR_RADIUS = 14;
+const STAR_RADIUS = 20;
 /** The loud filters' star: idle works, idle crew, fleets — the thing is
  *  the one the chart has to shout. Bigger still, with a pulse behind. */
-const IDLE_STAR_RADIUS = 24;
-const IDLE_HALO_RADIUS = 44;
+const IDLE_STAR_RADIUS = 30;
+const IDLE_HALO_RADIUS = 52;
 
 export function GalaxyMap({
   state,
@@ -576,7 +579,7 @@ export function GalaxyMap({
                                 fillOpacity: 0.9,
                                 stroke: '#041219',
                                 strokeOpacity: 0.9,
-                                strokeWidth: 2,
+                                strokeWidth: 3,
                                 strokeDasharray: explored ? undefined : '3 2.5',
                                 strokeLinejoin: 'round' as const,
                               }
@@ -588,8 +591,8 @@ export function GalaxyMap({
                                 fill: tint,
                                 fillOpacity: 0.96,
                                 stroke: '#041219',
-                                strokeOpacity: 0.9,
-                                strokeWidth: 2,
+                                strokeOpacity: 0.92,
+                                strokeWidth: 3,
                                 strokeLinejoin: 'round' as const,
                               };
                           // The count as the mark, or the filter's star.
