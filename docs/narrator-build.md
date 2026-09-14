@@ -8,7 +8,7 @@
 ## Status — managed by Claude Code
 
 Sean's plan is below, unchanged. This block is the live checklist; it is the
-only part of the file Claude Code edits. Last updated 2026-09-14: Marlow's costume changed from Admiralty black to the Imperium's sea-green and cream (bible §16.1, Drive docs 1 and 5 re-issued); the redo has not been run yet. Earlier, 2026-09-13, night: **the first six stills were the wrong register** — dim, cold, near-photographic, against a game that is blue sky, warm light and appealing faces. They are retired to `stills/retired/v1-grim/` and all six are being redone against the game's own portraits (Drive `Narrators/style`), with the canonical style line in every prompt. Phase C waits on the redo.
+only part of the file Claude Code edits. Last updated 2026-09-14, later: **the six v2 stills are in** — bright, warm, painterly, Marlow in the Imperium's sea-green; filed, tab crops cut, checker 8/8. Phase C (clips) is open. Earlier that day: Marlow's costume changed from Admiralty black to the Imperium's sea-green and cream (bible §16.1, Drive docs 1 and 5 re-issued); the redo has not been run yet. Earlier, 2026-09-13, night: **the first six stills were the wrong register** — dim, cold, near-photographic, against a game that is blue sky, warm light and appealing faces. They are retired to `stills/retired/v1-grim/` and all six are being redone against the game's own portraits (Drive `Narrators/style`), with the canonical style line in every prompt. Phase C waits on the redo.
 
 | Step | Owner | State | Note |
 |---|---|---|---|
@@ -16,12 +16,12 @@ only part of the file Claude Code edits. Last updated 2026-09-14: Marlow's costu
 | A2 art direction, three words | HUMAN | done | "painterly, weathered, cinematic", §16.2 |
 | A3 moods locked | BOTH | done | `neutral` / `grave` / `encouraged` — `src/ui/narrator/mood.ts` is the only definition |
 | A4 asset directories | CLAUDE CODE | done | `public/narrator/{video,audio,stills}` + `voicelines.json` — see the path note below |
-| B1–B7 six stills | HUMAN | **redo — can start now** | v1 set retired (wrong register). Run Drive doc "5. Task prompt (redo all six, matched to the game's art)" in the Project with instructions replaced by doc "1. v4" |
-| B8 file the stills | CLAUDE CODE | waiting on the redo | |
-| C1–C6 twelve clips | HUMAN | blocked on the redo | Then the ChatGPT clips task (Drive doc 3) |
+| B1–B7 six stills | HUMAN | **done (v2)** | Six stills in Drive `stills/`, 1122×1402, bright warm trading-card register, Marlow in sea-green and cream; match the game's portraits on the contact sheet |
+| B8 file the stills | CLAUDE CODE | done | `public/narrator/stills/`, byte-for-byte against Drive |
+| C1–C6 twelve clips | HUMAN | **can start now** | Run Drive doc "3. Task prompt (twelve clips, v2 Marlow)" in the same Project; the v2 stills are the source frames |
 | D1–D4 cleanup and export | CLAUDE CODE | blocked on C | Taken over from Sean: loop seams, accent trims and the 512×640 H.264 export are done here with ffmpeg |
 | D5 naming enforced | CLAUDE CODE | done (checker) | `scripts/check_narrator_assets.py` knows the twelve names |
-| D6 tab-bar figures stay static | CLAUDE CODE | redo with the stills | crops cut again from the new neutrals |
+| D6 tab-bar figures stay static | CLAUDE CODE | done | `marlow_tab.png`, `pennywhistle_tab.png` cut from the v2 neutrals, 192×240 |
 | E1 audition voices | HUMAN | **can start now** | Independent of the art. The brief — sound, tone, diction, tics, moods, TTS direction — is the world bible §16.4 |
 | E2 locked voice settings in the bible | HUMAN → CLAUDE CODE | **blocked on Sean** | JSON slot in the world bible §16; the render script refuses to run until it is filled |
 | E3 first twenty lines | HUMAN | **can start now** | Append to `public/narrator/voicelines.json`, `rendered: false`. Write them against §16.4 |
