@@ -412,23 +412,47 @@ export function SystemSheet({
           {system.control === state.player && producers.length === 0 && (
             <>
               <div className="section-title">Nothing to build with</div>
-              <p className="muted tiny" style={{ margin: '0 0 8px' }}>
-                Everything is raised by a {terms.facilities.construction_yard.toLowerCase()} standing on
-                the same island. Lay one down and this island can build.
-              </p>
-              <button
-                className="btn btn--block btn--primary"
-                disabled={foundWorksError(state, system.id, state.player) !== null}
-                onClick={() => onFound(system.id)}
-              >
-                Lay down a {terms.facilities.construction_yard.toLowerCase()} ·{' '}
-                {YARD_BUILDS.construction_yard.costGold} gold · {YARD_BUILDS.construction_yard.days} days
-              </button>
-              {foundWorksError(state, system.id, state.player) && (
-                <p className="muted tiny" style={{ marginTop: 6 }}>
-                  {foundWorksError(state, system.id, state.player)}
-                </p>
-              )}
+              {(() => {
+                const founding = system.facilities.find(
+                  (f) => f.owner === state.player && f.founding,
+                );
+                if (founding) {
+                  return (
+                    <div className="row" style={{ gap: 8, alignItems: 'center' }}>
+                      <p className="muted tiny" style={{ margin: 0, flex: 1 }}>
+                        A {terms.facilities.construction_yard.toLowerCase()} is being laid down —{' '}
+                        {founding.building?.daysRemaining} days to go.
+                      </p>
+                      <button className="tiny btn--danger" onClick={() => onCancel(founding.id)}>
+                        Cancel
+                      </button>
+                    </div>
+                  );
+                }
+                const why = foundWorksError(state, system.id, state.player);
+                return (
+                  <>
+                    <p className="muted tiny" style={{ margin: '0 0 8px' }}>
+                      Everything is raised by a {terms.facilities.construction_yard.toLowerCase()}{' '}
+                      standing on the same island. Lay one down and this island can build.
+                    </p>
+                    <button
+                      className="btn btn--block btn--primary"
+                      disabled={why !== null}
+                      onClick={() => onFound(system.id)}
+                    >
+                      Lay down a {terms.facilities.construction_yard.toLowerCase()} ·{' '}
+                      {YARD_BUILDS.construction_yard.costGold} gold ·{' '}
+                      {YARD_BUILDS.construction_yard.days} days
+                    </button>
+                    {why && (
+                      <p className="muted tiny" style={{ marginTop: 6 }}>
+                        {why}
+                      </p>
+                    )}
+                  </>
+                );
+              })()}
             </>
           )}
         </>
