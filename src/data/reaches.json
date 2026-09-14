@@ -1,5 +1,5 @@
 {
-  "_comment": "World bible section 13. Seven Reaches on the small map, one for each Sea, so a Sea and its archipelago are the same thing at this size. Sugar, Whalers' and Mirage are held back for the larger maps alongside Scrap — each shared a Sea with a Reach that survives, and each sat on a painted cluster too crowded or too sparse to chart clearly. Island counts are set by how many clearly separated islands each painted cluster holds.",
+  "_comment": "World bible section 13. Seven Reaches on the small map, one for each Sea, so a Sea and its archipelago are the same thing at this size. Sugar, Whalers' and Mirage are held back for the larger maps alongside Scrap — each shared a Sea with a Reach that survives, and each sat on a painted cluster too crowded or too sparse to chart clearly. Island counts are set by how many clearly separated islands each painted cluster holds. Each Reach has a role in the opening (docs/opening.md): home is the Crown's, contested Reaches open with two islands a side, open Reaches are charted and nobody's, frontier Reaches start unexplored and hide the Confederacy's base. An island marked port is one of the three port cities on Sovereign Reach's great island.",
   "reaches": [
     {
       "name": "Sovereign Reach",
@@ -11,7 +11,8 @@
         },
         {
           "name": "Ballmoor",
-          "note": "Foundries. The Crown's arms come from here."
+          "note": "Foundries. The Crown's arms come from here.",
+          "port": true
         },
         {
           "name": "Bracton"
@@ -26,11 +27,13 @@
         {
           "name": "Highwater",
           "note": "Seawalls three hundred feet high, carved with the name of every island the Tide has taken.",
-          "capital": true
+          "capital": true,
+          "port": true
         },
         {
           "name": "Gorley",
-          "note": "Site of an old massacre. Hates the Crown."
+          "note": "Site of an old massacre. Hates the Crown.",
+          "port": true
         },
         {
           "name": "Sievern"
@@ -42,7 +45,8 @@
           "name": "Yarrow Minor",
           "note": "The royal dockyard."
         }
-      ]
+      ],
+      "role": "home"
     },
     {
       "name": "Shipwrights' Reach",
@@ -78,7 +82,8 @@
         {
           "name": "Vagrano"
         }
-      ]
+      ],
+      "role": "contested"
     },
     {
       "name": "Wreckers' Reach",
@@ -115,7 +120,8 @@
         {
           "name": "Norvell"
         }
-      ]
+      ],
+      "role": "contested"
     },
     {
       "name": "Rime Reach",
@@ -147,7 +153,8 @@
         {
           "name": "Lelmar"
         }
-      ]
+      ],
+      "role": "frontier"
     },
     {
       "name": "Whalers' Reach",
@@ -178,7 +185,8 @@
         {
           "name": "Gedon"
         }
-      ]
+      ],
+      "role": "frontier"
     },
     {
       "name": "Cinder Reach",
@@ -218,7 +226,8 @@
           "name": "Vejun Keep",
           "note": "Admiral Blackwater's private fortress. The water below it is always flat."
         }
-      ]
+      ],
+      "role": "contested"
     },
     {
       "name": "Salt Reach",
@@ -258,7 +267,8 @@
           "name": "Blackreef",
           "note": "Jubal the Fat's corsair haven. Debts are collected here."
         }
-      ]
+      ],
+      "role": "frontier"
     },
     {
       "name": "Coral Reach",
@@ -299,7 +309,8 @@
         {
           "name": "Denby Cay"
         }
-      ]
+      ],
+      "role": "open"
     }
   ]
 }

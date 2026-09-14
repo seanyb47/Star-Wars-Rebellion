@@ -432,8 +432,14 @@ describe('recruitment', () => {
     // matters once they are committed is whether their own errand still exists.
     const { state } = withRecruit();
     const officer = state.characters.filter((c) => c.faction === 'empire')[1];
+    // Nobody's, charted, and with nobody ashore to sign on — or the errand
+    // would already be a recruitment.
     const quiet = state.systems.find(
-      (s) => s.control === 'neutral' && s.populated && s.explored.empire,
+      (s) =>
+        s.control === 'neutral' &&
+        s.populated &&
+        s.explored.empire &&
+        !state.characters.some((c) => c.faction === 'neutral' && c.locationSystemId === s.id),
     )!;
     startMission(state, officer.id, quiet.id);
     expect(getCharacter(state, officer.id).mission!.type).toBe('diplomacy');

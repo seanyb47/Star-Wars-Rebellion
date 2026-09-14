@@ -15,6 +15,10 @@ game **is**; this says what is **done**, what is **owed**, and in what order.*
 
 ---
 
+## 0. The opening
+
+Rebellion's shape, by Sean's rules: see `docs/opening.md`. Frontier Reaches unexplored with the Confederacy's base hidden in one; the Crown on Highwater and two more in Sovereign Reach; two a side in each contested Reach; everything settled and nobody's is garrisoned.
+
 ## 1. The state of it
 
 Playable end to end on a phone. 184 tests across 12 files. 102KB gzipped, and

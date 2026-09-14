@@ -37,7 +37,9 @@ import { requiredGarrison } from './helpers';
  * a given island looks the same in every game.
  */
 const LOOKS: Record<string, IslandArchetype[]> = {
-  'The Crown Sea': ['port-city', 'rock-isle', 'jungle-isle'],
+  // The Crown Sea's ports are the three flagged on the great island; the rest
+  // of the Reach is the country around them.
+  'The Crown Sea': ['jungle-isle', 'rock-isle'],
   'The Merchant Sea': ['port-city', 'jungle-isle', 'mining-isle'],
   'The Amber Sea': ['reef-isle', 'jungle-isle', 'port-city'],
   'The Far Sea': ['ice-isle', 'rock-isle', 'mining-isle'],
@@ -51,12 +53,15 @@ const BARE: Record<string, IslandArchetype> = {
   'The Glass Sea': 'rock-isle',
 };
 
-function looksLike(sea: string, populated: boolean, capital: boolean, pick: number): IslandArchetype {
-  if (capital) return 'port-city';
+function looksLike(sea: string, populated: boolean, port: boolean, pick: number): IslandArchetype {
+  if (port) return 'port-city';
   if (!populated) return BARE[sea] ?? 'rock-isle';
   const set = LOOKS[sea] ?? ['jungle-isle', 'rock-isle'];
   return set[pick % set.length];
 }
+
+type ReachRole = 'home' | 'contested' | 'open' | 'frontier';
+const roleOf = (reach: { role: string }) => reach.role as ReachRole;
 
 const INNER_REACHES = reachData.reaches.filter((r) => r.tier === 'inner');
 const OUTER_REACHES = reachData.reaches.filter((r) => r.tier === 'outer');
@@ -77,25 +82,36 @@ const RIM_RING_RADIUS = 460;
 const SECTOR_RADIUS = 105;
 const MIN_SYSTEM_SEPARATION = 38;
 
-/** Starting holdings per side (spec 4.1). */
 /**
- * The Crown holds more and holds it worse. Rebellion opens the Empire on about
- * six core worlds with three or four of them held by garrison alone, and that
- * is the whole feel of the side: an occupier from the first day. So the Crown
- * gets six islands, two of them sullen, and the Confederacy four that mean it.
+ * The opening, Rebellion's shape (docs/opening.md).
+ *
+ * Every Reach has a role. The Crown's home Reach holds the seat and the three
+ * port cities of the great island; the Crown opens with the seat, one of the
+ * other two ports and one more island there, and the Confederacy with one or
+ * two. Three contested Reaches open with two islands a side and the rest
+ * settled and nobody's — garrisoned, so taking them is a landing, not a
+ * stroll. One Reach is charted and open. Three frontier Reaches start
+ * unexplored by everyone, a quarter of their islands settled behind the fog,
+ * and the Confederacy's base is one island in one of them, with its fleet.
  */
-const START_SYSTEMS_CROWN = 6;
-const START_SYSTEMS_CROWN_SULLEN = 2;
-const START_SYSTEMS_CONFEDERACY = 4;
+const START_CONTESTED_PER_SIDE = 2;
+const START_HOME_CONFEDERACY: [number, number] = [1, 2];
+const FRONTIER_SETTLED_CHANCE = 0.25;
+/** Companies a settled island that is nobody's opens with, by how far out it is. */
+const NEUTRAL_GARRISON: Record<ReachRole, [number, number]> = {
+  home: [1, 3],
+  contested: [1, 3],
+  open: [1, 2],
+  frontier: [2, 4],
+};
 /**
- * Earners per side. More than before, to carry the heavier opening fleets, and
- * more for the Crown than the Confederacy because the Crown has six islands to
- * put them on and two of those earn at a sullen island's rate. Measured: both
- * sides open solvent and with free ground on every island.
+ * Earners per side. Nine islands a side now, each with a garrison to feed, so
+ * more than the old six-and-four opening carried. Measured across seeds to
+ * leave both sides a clear surplus on day one and free ground everywhere.
  */
 const START_EARNERS: Record<PlayableFaction, { mines: number; refineries: number }> = {
-  empire: { mines: 12, refineries: 12 },
-  alliance: { mines: 10, refineries: 10 },
+  empire: { mines: 15, refineries: 15 },
+  alliance: { mines: 14, refineries: 14 },
 };
 const START_YARDS = 2;
 const START_TRAINING = 1;
@@ -220,7 +236,12 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     const points = scatterSystems(rng, count);
     for (let i = 0; i < count; i++) {
       const island = reach.islands[i];
-      const populated = isCoreSector ? true : rng.chance(0.3);
+      const role = roleOf(reach);
+      // Frontier islands are settled a quarter of the time, and nobody knows
+      // which until somebody lands. Everywhere else is settled and charted.
+      const populated = role === 'frontier' ? rng.chance(FRONTIER_SETTLED_CHANCE) : true;
+      const charted = role !== 'frontier';
+      const port = 'port' in island && Boolean(island.port);
       const system: System = {
         id: makeId('sys'),
         name: island.name,
@@ -228,11 +249,11 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         sectorId: sector.id,
         x: points[i].x,
         y: points[i].y,
-        explored: { empire: isCoreSector, alliance: isCoreSector },
+        explored: { empire: charted, alliance: charted },
         archetype: looksLike(
           sector.sea,
           populated,
-          'capital' in island && Boolean(island.capital),
+          port,
           // Seeded from the name so an island looks the same in every game.
           [...island.name].reduce((n, c) => n + c.charCodeAt(0), 0),
         ),
@@ -248,13 +269,18 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         blockaded: false,
       };
       if (populated) {
-        // Any inhabited world that has not picked a side is neutral, and can be
-        // courted. Core worlds are closer to the war and more polarised than
-        // the scattered settlements out on the rim.
+        // Any inhabited island that has not picked a side is neutral, and can
+        // be courted. The home and contested Reaches are closer to the war and
+        // more polarised than the settlements out on the open sea and beyond.
         system.control = 'neutral';
-        system.support = isCoreSector
-          ? { empire: rng.range(15, 45), alliance: rng.range(10, 40) }
-          : { empire: rng.range(0, 20), alliance: rng.range(0, 20) };
+        system.support =
+          role === 'home' || role === 'contested'
+            ? { empire: rng.range(15, 45), alliance: rng.range(10, 40) }
+            : { empire: rng.range(0, 20), alliance: rng.range(0, 20) };
+        // Settled and nobody's means somebody is holding it. A landing has to
+        // beat these companies; a parley has to win them over.
+        const [lo, hi] = NEUTRAL_GARRISON[role];
+        system.garrison = rng.range(lo, hi);
       }
       sector.systemIds.push(system.id);
       systems.push(system);
@@ -263,53 +289,76 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   }
 
   const byId = new Map(systems.map((s) => [s.id, s] as const));
-  const coreSectors = sectors.slice(0, CORE_SECTOR_COUNT);
-  const rimSectors = sectors.slice(CORE_SECTOR_COUNT);
+  const reachOf = (sector: Sector) => reaches.find((r) => r.name === sector.name)!;
+  const islandsOf = (sector: Sector) => sector.systemIds.map((id) => byId.get(id)!);
+  const homeSector = sectors.find((sec) => roleOf(reachOf(sec)) === 'home')!;
+  const contestedSectors = sectors.filter((sec) => roleOf(reachOf(sec)) === 'contested');
+  const frontierSectors = sectors.filter((sec) => roleOf(reachOf(sec)) === 'frontier');
 
-  // --- Imperium capital: the island the world bible marks as the seat. ---
+  const hold = (
+    system: System,
+    owner: PlayableFaction,
+    support: { empire: number; alliance: number },
+  ) => {
+    system.control = owner;
+    system.populated = true;
+    system.support = support;
+  };
+  const loyal = (owner: PlayableFaction) =>
+    owner === 'empire'
+      ? { empire: rng.range(65, 85), alliance: rng.range(5, 15) }
+      : { empire: rng.range(5, 15), alliance: rng.range(65, 85) };
+
+  // --- The Crown's seat: Highwater, the port city the world bible marks. ---
   const capital =
     systems.find((system) => system.name === factionData.empire.capitalIslandName) ??
-    byId.get(coreSectors[0].systemIds[0])!;
-  capital.control = 'empire';
-  capital.support = { empire: 100, alliance: 0 };
+    byId.get(homeSector.systemIds[0])!;
+  hold(capital, 'empire', { empire: 100, alliance: 0 });
 
-  // --- Alliance HQ: a random rim world, hidden out on the fringe. ---
-  const hqSector = rng.pick(rimSectors);
-  const allianceHq = byId.get(rng.pick(hqSector.systemIds))!;
-  allianceHq.control = 'alliance';
-  allianceHq.populated = true;
-  allianceHq.support = { empire: 0, alliance: 100 };
-
-  // --- Starting holdings. ---
+  // --- Home Reach: the seat, one of the other two ports, one more island. ---
   const empireSystems: System[] = [capital];
-  const otherCore = rng
-    .shuffle(
-      systems.filter((s) => s.isCore && s.id !== capital.id && s.control === 'neutral'),
-    )
-    .slice(0, START_SYSTEMS_CROWN - 1);
-  for (const [index, system] of otherCore.entries()) {
-    system.control = 'empire';
-    // The last two are held, not loved: allegiance in the thirties and
-    // forties, above the uprising line and under the garrison's boot. They
-    // are the islands the Confederacy will come for first, which is the point.
-    const sullen = index >= otherCore.length - START_SYSTEMS_CROWN_SULLEN;
-    system.support = sullen
-      ? { empire: rng.range(32, 45), alliance: rng.range(25, 40) }
-      : { empire: rng.range(65, 85), alliance: rng.range(5, 15) };
-    empireSystems.push(system);
-  }
+  const homeIslands = islandsOf(homeSector).filter((s) => s.id !== capital.id);
+  const flaggedPorts = new Set(
+    reachOf(homeSector)
+      .islands.filter((i) => 'port' in i && Boolean(i.port))
+      .map((i) => i.name),
+  );
+  const otherPorts = homeIslands.filter((s) => flaggedPorts.has(s.name));
+  const secondPort = rng.pick(otherPorts.length > 0 ? otherPorts : homeIslands);
+  hold(secondPort, 'empire', loyal('empire'));
+  empireSystems.push(secondPort);
+  const third = rng.pick(homeIslands.filter((s) => s.id !== secondPort.id));
+  // Held, not loved: allegiance in the thirties and forties, above the
+  // uprising line and under the garrison's boot. The island the Confederacy
+  // will come for first, which is the point.
+  hold(third, 'empire', { empire: rng.range(32, 45), alliance: rng.range(25, 40) });
+  empireSystems.push(third);
 
-  const allianceSystems: System[] = [allianceHq];
-  const otherRim = rng
-    .shuffle(hqSector.systemIds.filter((id) => id !== allianceHq.id))
-    .slice(0, START_SYSTEMS_CONFEDERACY - 1)
-    .map((id) => byId.get(id)!);
-  for (const system of otherRim) {
-    system.control = 'alliance';
-    system.populated = true;
-    system.support = { empire: rng.range(5, 15), alliance: rng.range(65, 85) };
+  // The Confederacy has a foothold in the Crown's own Reach: one island, or two.
+  const allianceSystems: System[] = [];
+  const homeLeft = rng.shuffle(homeIslands.filter((s) => s.control === 'neutral'));
+  for (const system of homeLeft.slice(0, rng.range(...START_HOME_CONFEDERACY))) {
+    hold(system, 'alliance', loyal('alliance'));
     allianceSystems.push(system);
   }
+
+  // --- Contested Reaches: two islands a side, the rest nobody's. ---
+  for (const sector of contestedSectors) {
+    const picks = rng.shuffle(islandsOf(sector)).slice(0, START_CONTESTED_PER_SIDE * 2);
+    for (const [index, system] of picks.entries()) {
+      const owner: PlayableFaction = index < START_CONTESTED_PER_SIDE ? 'empire' : 'alliance';
+      hold(system, owner, loyal(owner));
+      (owner === 'empire' ? empireSystems : allianceSystems).push(system);
+    }
+  }
+
+  // --- The Confederacy's base: one island in one frontier Reach, hidden. ---
+  const baseSector = rng.pick(frontierSectors);
+  const allianceHq = rng.pick(islandsOf(baseSector));
+  hold(allianceHq, 'alliance', { empire: 0, alliance: 100 });
+  allianceHq.garrison = 0;
+  allianceSystems.unshift(allianceHq);
+  const hqSector = baseSector;
 
   const countOf = (system: System, mines: boolean) =>
     system.facilities.filter((f) => (f.type === 'mine') === mines).length;
@@ -352,7 +401,8 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   seedHoldings('empire', empireSystems);
   seedHoldings('alliance', allianceSystems);
 
-  // The Alliance knows its own corner of the rim; the Empire does not.
+  // The Confederacy knows the Reach its base is in; nobody else does, and
+  // the other frontier Reaches are a blank to both.
   for (const id of hqSector.systemIds) byId.get(id)!.explored.alliance = true;
 
   // --- Characters: the world bible's seven majors per side, all at HQ. ---

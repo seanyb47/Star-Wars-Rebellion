@@ -17,15 +17,17 @@ function build(system: System, type: 'fort' | 'boom', owner: 'empire' | 'allianc
 }
 
 describe('the opening, against Rebellion', () => {
-  it('gives the Crown six islands, two of them sullen, and the Confederacy four that mean it', () => {
+  it('opens the Crown on nine islands, one of them sullen, and the Confederacy on eight or nine', () => {
     for (const seed of [17, 501, 7, 99]) {
       const state = world(seed);
       const crown = state.systems.filter((s) => s.control === 'empire');
       const confed = state.systems.filter((s) => s.control === 'alliance');
-      expect(crown).toHaveLength(6);
-      expect(confed).toHaveLength(4);
+      // Three in the home Reach and two in each of the three contested ones.
+      expect(crown).toHaveLength(9);
+      expect(confed.length).toBeGreaterThanOrEqual(8);
+      expect(confed.length).toBeLessThanOrEqual(9);
       const sullen = crown.filter((s) => s.support.empire < 50);
-      expect(sullen).toHaveLength(2);
+      expect(sullen).toHaveLength(1);
       for (const s of sullen) {
         // Above the uprising line, so day one is an occupation, not a revolt.
         expect(s.support.empire).toBeGreaterThanOrEqual(30);
