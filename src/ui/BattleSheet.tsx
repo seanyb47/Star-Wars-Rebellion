@@ -71,20 +71,21 @@ export function BattleSheet({
               instead of a decision. */}
           <div className={`odds odds--${view.odds}`}>{BATTLE_ODDS_LABEL[view.odds]}</div>
 
-          <Side
-            faction={me}
-            side={view.mine}
-            label="Yours"
-            lost={view.last ? view.last[me] : 0}
-            shore={view.shoreIsMine ? view.shore : 0}
-          />
-          <Side
-            faction={them}
-            side={view.theirs}
-            label={factionData[them].shortName}
-            lost={view.last ? view.last[them] : 0}
-            shore={view.shoreIsMine ? 0 : view.shore}
-          />
+          {/* A side is drawn when it is in the fight: hulls in the water,
+              guns on the wall, or something it lost this broadside. A whole
+              empty board for a faction that never turned up — which is every
+              action fought against a creature alone — is noise in the middle
+              of a decision. */}
+          {sides(view, me, them).map(({ faction, side, label, lost, shore }) => (
+            <Side
+              key={faction}
+              faction={faction}
+              side={side}
+              label={label}
+              lost={lost}
+              shore={shore}
+            />
+          ))}
 
           {view.beast && (
             <div className="battle__side battle__side--beast">
@@ -95,9 +96,11 @@ export function BattleSheet({
                 </span>
               </div>
               <div className="tiny battle__note">
-                {view.beast.damage > 0
-                  ? `${view.beast.damage} of ${view.beast.hull} in it, and it is firing on both of you.`
-                  : 'Not a mark on it yet, and it is firing on both of you.'}
+                {`${
+                  view.beast.damage > 0
+                    ? `${view.beast.damage} of ${view.beast.hull} in it`
+                    : 'Not a mark on it yet'
+                }, and it fires on ${view.theirs.hulls > 0 ? 'both of you' : 'anything afloat'}.`}
               </div>
             </div>
           )}
@@ -171,8 +174,12 @@ function Side({
       <div className="battle__side-head">
         <FactionCrest faction={faction} size={24} />
         <b className="battle__side-name">{label}</b>
+        {/* Guns include the wall's, because that is what is firing at you and
+            what the assessment above is made of. The line under the roster
+            says how many of them are the wall's. */}
         <span className="battle__side-sum">
-          <b>{side.hulls}</b> {side.hulls === 1 ? 'hull' : 'hulls'} · <b>{side.guns}</b> guns
+          <b>{side.hulls}</b> {side.hulls === 1 ? 'hull' : 'hulls'} · <b>{side.guns + shore}</b>{' '}
+          guns
         </span>
       </div>
 
@@ -189,7 +196,15 @@ function Side({
           ))}
         </div>
       ) : (
-        <div className="tiny muted battle__note">Nothing left afloat here.</div>
+        <div className="tiny muted battle__note">
+          {/* Two different nothings. A wall firing with no fleet behind it was
+              never afloat in the first place, and telling the player it has
+              been sunk would be a lie about the one thing they are deciding
+              on. */}
+          {shore > 0
+            ? "No ships — the harbor's guns are fighting alone."
+            : 'Nothing left afloat here.'}
+        </div>
       )}
 
       <div className="battle__notes">
@@ -244,6 +259,27 @@ function HullRow({ faction, row }: { faction: PlayableFaction; row: BattleHulls 
   );
 }
 
+/** The sides worth drawing, yours first. */
+function sides(view: BattleView, me: PlayableFaction, them: PlayableFaction) {
+  const rows = [
+    {
+      faction: me,
+      side: view.mine,
+      label: 'Yours',
+      lost: view.last ? view.last[me] : 0,
+      shore: view.shoreIsMine ? view.shore : 0,
+    },
+    {
+      faction: them,
+      side: view.theirs,
+      label: factionData[them].shortName,
+      lost: view.last ? view.last[them] : 0,
+      shore: view.shoreIsMine ? 0 : view.shore,
+    },
+  ];
+  return rows.filter((r) => r.side.hulls > 0 || r.shore > 0 || r.lost > 0);
+}
+
 function roundLine(view: BattleView, me: PlayableFaction, them: PlayableFaction): string {
   const last = view.last!;
   if (last[me] === 0 && last[them] === 0) {
@@ -252,6 +288,11 @@ function roundLine(view: BattleView, me: PlayableFaction, them: PlayableFaction)
       : 'Shot traded, and neither side has anything to show for it.';
   }
   const tell = (n: number) => `${n} ${n === 1 ? 'hull' : 'hulls'}`;
+  // Against a creature alone there is no second fleet to report on, and
+  // saying they lost nothing implies they were there.
+  if (view.theirs.hulls === 0 && last[them] === 0) {
+    return `That broadside: you lose ${tell(last[me])}.`;
+  }
   return `That broadside: you lose ${tell(last[me])}, the ${factionData[them].shortName} ${tell(
     last[them],
   )}.`;

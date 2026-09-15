@@ -1588,3 +1588,127 @@ counts, caught before reporting. So this ships as reasoned-and-unverified,
 which is a weaker claim than everything else in this file, and `?diag` now
 prints every figure side by side so one screenshot from the phone ends the
 guessing.
+
+## The clock, the distance, and an action you command — 15 September, night
+
+Seven of Sean's, and they turned out to be three decisions wearing seven
+coats.
+
+**The band under the console, settled by giving up on it.** Six passes went
+into growing the app to the glass and the last of them — gate on
+`env(safe-area-inset-bottom)` rather than on `display-mode: standalone` —
+shipped reasoned and unverified because Chromium has no insets to exercise it
+with. It did not work either. Sean's call ended it: *"let's just avoid the cut
+off at bottom."* So the `screen.height` branch is gone. Every height the app
+considers is now one the browser reports for the viewport it is actually
+laying out, which can never exceed the glass, which means the console can
+never be pushed off the bottom — and the tab labels, which had been clipped by
+exactly that, came back.
+
+What is left is the strip itself, and the honest answer is that nothing inside
+the page can paint there. Only the canvas can. The fixed wood backstop from
+the last pass could never have covered it: a fixed element is laid out against
+the same short viewport that leaves the strip over, so it stopped exactly
+where the app stopped. Deleted. In its place the bottom of the tab bar fades
+out of its own grain into flat `--chrome-2`, which is what the canvas is
+painted, so the two sides of the seam are the same colour and the same
+flatness. Forced the failure — app 80px short — and measured across it: grain
+gone by 8px above the edge, identical colour and zero variance either side.
+
+The band is still there. It no longer reads as a hole, and that was the trade
+Sean chose.
+
+**Distance is a distance, and the clock pays for it.** Travel was two numbers,
+three days inside a Reach and ten to leave it, which made the chart a diagram:
+every island in a Reach equally close, and the far side of the world three
+days further than the Sea next door. It is measured now in the galaxy's own
+1200 units — a fixed cost to cast off, a day per league, and a toll for
+leaving your own Sea.
+
+One trap worth writing down. An island's x and y are relative to its Reach,
+because that is how the chart draws a cluster. A distance between two islands
+means nothing until each is placed in the world, Reach centre plus island
+offset. Getting that wrong would have been quiet rather than loud: two islands
+in different Reaches would still come out a plausible distance apart, just the
+wrong one.
+
+Measured over every pair on a generated world: inside a Sea 3 to 8 days,
+median 5; across Seas 9 to 36, median 21. Against the old 3 and 10 that is
+about double for a crossing, and a fleet is slower or quicker than the figure
+by its pace, so a first-rate crossing the world is closer to seven weeks and a
+sloop closer to three.
+
+Which is why the clock moved with it: **30 / 15 / 5 / 2 seconds a day**, five
+times quicker at every setting than the table Sean set this morning. The two
+are one decision. Days are cheap now, so a crossing can cost more of them
+without costing the player an evening — which is the whole point of making
+distance mean anything. Re-measured both ways, since longer travel could
+easily have stalled the AI: 8–8 across sixteen games with the seat
+alternating, no stalls, median 642 days against 532 on the same seeds before.
+The war runs a fifth longer in game-days and a good deal shorter in real ones.
+
+**The war does not stop while you look at it.** Every panel used to hold the
+clock — island sheet, crew, Reach, build menu, almanac, the menu itself —
+which is most of what a player does, so the war ran only while you were
+staring at the chart touching nothing. Sean's rule: a sub-screen is somewhere
+you went to look at something, and the world does not stop for that. What
+still holds it is what stopped *you*: an action your ships are in, a dispatch
+raised over whatever you were doing, and a decision it is waiting on an answer
+for. The third is my call rather than his — he said combat and nothing else —
+and it is there because an unanswered continue-or-return is the game asking a
+question, not a screen you went to. One clause to drop if he disagrees.
+
+**An action is a sheet, not a report.** Sean, on a battle dispatch: *"shouldn't
+this be flee or fight?"* Yes.
+
+The first broadside is still fired by the clock — you met them, shots were
+exchanged, and declining to be shot at was never on offer — and then the
+action is handed over. The clock holds, and every round after the first is the
+player's to order: Break off, or Fight on, until it settles.
+
+The design decision worth recording is what the flag *is*. My first pass had
+`advanceDay` refuse to advance while an action was open, and it was wrong: it
+made the sim depend on somebody being at the wheel, and eleven tests went red
+because a headless run stopped dead at the first battle. Now the sim waits for
+nobody. If days keep passing, as they do in a test or a balance run, the
+action is fought a round a day exactly as it always was and the flag is simply
+overwritten each morning. Only a player holding the clock makes it mean
+anything — and the balance harness comes back 8–8 with a median of 642 days,
+identical to the run before it, which is the proof.
+
+The assessment is the point of the sheet: five bands off the guns still
+firing, the wall counted for whoever holds it and the creature counted against
+everybody. A player who has to add up two columns to decide whether to run is
+being handed arithmetic instead of a decision.
+
+Then Sean, the same evening: *"I need to be able to look at both sides and
+what they have."* Each side is a full board now — every class of hull with its
+count, what those hulls have left out of what they started with, what they are
+worth in guns, heaviest first; and under it the three things that change the
+arithmetic without appearing in it: who is handling the fleet and what their
+leadership is worth as a percentage, how many companies are aboard and will go
+down with the hulls carrying them, and the harbor's guns where they fire. Four
+hulls and seventy-two guns against two and sixty is arithmetic. Two sloops and
+a brig against two ships of the line is a decision, and they are the same
+fact.
+
+The other side can break off too — at twice the guns with somewhere to run,
+and never on the first exchange, because that is a decision taken after you
+have seen what the other fellow's broadside does. Keeping it out of the
+opening also keeps it where the player can watch it happen, since every round
+after the first is fought from the sheet.
+
+**One real bug, found by the shape of the feature.** A fleet whose last hull
+goes down stays in `state.fleets` until the day's wrecks are cleared, so a
+finished action went on looking contested and never settled. `fightingAt` is
+`fleetsAt` with the empty ones dropped, and everything that asks "is anyone
+still in this" uses it now.
+
+**And the small ones.** Berths carry their figure — free berths, not built
+ones, since nobody builds on the ones already taken — set in the track's
+thirteenth column, which no island can fill because twelve is the most there
+is, so it lands immediately after the last pip rather than at a fixed right
+edge where on a small island it read as belonging to the loyalty bar
+underneath. Allegiance moved above the island sheet's tabs, slim, on all four
+of them: it is the number the rest of the island is read off, and asking for
+it used to mean a tab change and a tab change back.

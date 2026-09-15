@@ -3,6 +3,7 @@ import { BATTLE_ODDS_LABEL } from '../fleets';
 import {
   addShip,
   battleOdds,
+  board,
   battleView,
   breakOffBattle,
   fightBattleRound,
@@ -147,6 +148,36 @@ describe('the assessment', () => {
     expect(battleOdds(20, 100)).toBe('desperate');
     // Nothing left to shoot back is not a close-run thing.
     expect(battleOdds(1, 0)).toBe('overwhelming');
+  });
+
+  it('lays out each side hull by hull, heaviest first, with who is aboard', () => {
+    const { state, home } = world();
+    const mine = put(state, home, 'alliance', ['swift', 'swift', 'reef', 'brig']);
+    state.player = 'alliance';
+    const crew = state.characters.find(
+      (c) => c.faction === 'alliance' && !/Hale|Reyne|Jessup/.test(c.name),
+    )!;
+    crew.locationSystemId = home.id;
+    crew.leadership = 90;
+    board(state, mine.id, crew.id, 'alliance');
+    mine.troops = 2;
+    put(state, home, 'empire', ['sovereign']);
+    resolveBattles(state, createRng(13));
+    const view = battleView(state)!;
+
+    // Grouped by class, and the thing that decides the action is at the top
+    // rather than wherever it happened to be built.
+    const roster = view.mine.roster;
+    expect(roster.length).toBeGreaterThan(1);
+    const perHull = roster.map((r) => r.guns / r.count);
+    expect([...perHull].sort((a, b) => b - a)).toEqual(perHull);
+    // Every hull present is accounted for exactly once.
+    expect(roster.reduce((n, r) => n + r.count, 0)).toBe(view.mine.hulls);
+    expect(roster.reduce((n, r) => n + r.guns, 0)).toBe(view.mine.guns);
+    // And the three things that change the arithmetic without appearing in it.
+    expect(view.mine.officers[0].name).toBe(crew.name);
+    expect(view.mine.edge).toBeGreaterThan(1);
+    expect(view.mine.troops).toBe(2);
   });
 
   it('counts the shore for whoever holds it and the creature against everyone', () => {

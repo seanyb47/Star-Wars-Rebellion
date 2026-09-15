@@ -22,11 +22,18 @@ import {
   type GameState,
   CREATURES,
   troopsOf,
+  BATTLE_ODDS_LABEL,
+  BREAK_OFF_ODDS,
+  FORT_GUNS,
+  LONG_GUN_SHARE,
+  shipsFor,
+  shipSpec,
 } from '../sim';
 import {
   CategoryIcon,
   CharacterPortrait,
   CompanyIcon,
+  ShipThumb,
   CompanyRow,
   CreaturePainting,
   FacilityIcon,
@@ -270,6 +277,90 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
           </>
         );
       })()}
+
+      {/* An action is the one place the game takes the wheel off the player
+          for a moment, so the rules behind it had better be somewhere they can
+          be read at leisure rather than at the moment of deciding. */}
+      <div className="section-title">An action at sea</div>
+      <div className="card small">
+        <b>Where it happens.</b> Wherever your hulls and theirs lie in the same
+        water — nobody manoeuvres and there is no open sea to meet in. A fort on
+        the wall is a warship that cannot weigh anchor, so lying off a fortified
+        harbor is an action whether or not a fleet comes out; and a creature is
+        nobody's, so anchoring in its water is an action on its own.
+        <br />
+        <br />
+        <b>How it runs.</b> The day you meet, one broadside is fired and the
+        clock stops. After that it is yours: fight on a round at a time, or
+        break off. Everyone fires at once each round, worked out against the
+        state at the start of it, so a hull that goes down still got its shot
+        away. Most actions are decided in two or three.
+        <br />
+        <br />
+        <b>What you are told.</b> Two words over the sheet, off the guns still
+        firing on both sides with the wall counted for whoever holds it and the
+        creature counted against everybody:{' '}
+        {(['overwhelming', 'favorable', 'even', 'unfavorable', 'desperate'] as const)
+          .map((band) => BATTLE_ODDS_LABEL[band])
+          .join(' · ')}
+        . Under it, every hull in the water on both sides and what it has left.
+        <br />
+        <br />
+        <b>Breaking off.</b> Always works — there is no roll that keeps you in a
+        fight you have decided to leave. What it costs is the run. Only guns
+        that reach can touch a fleet already under way: the wall can, a creature
+        always can, and a hull only if she carries long guns, at{' '}
+        {Math.round(LONG_GUN_SHARE * 100)}% of her weight. How many shots you
+        eat on the way out is your speed, which is why a first-rate is an
+        expensive thing to have to withdraw and a sloop is nearly free. You run
+        for the nearest island you hold; with nowhere to run, or companies of
+        yours ashore, you stay.
+        <br />
+        <br />
+        <b>They break off too</b>, once the guns still firing against them are{' '}
+        {BREAK_OFF_ODDS} times their own and there is somewhere to run — never
+        on the first exchange. It is a rule rather than a judgement, which means
+        you can bait it.
+        <br />
+        <br />
+        <b>Who is aboard.</b> The best Leadership with a fleet is worth a hit
+        chance to every gun in it. Companies aboard go down with the hull
+        carrying them, which is what makes a loaded transport worth escorting
+        and worth sinking. A fort is {FORT_GUNS} guns.
+      </div>
+
+      {/* The four hulls as a table, because the decision the battle sheet asks
+          for is made of exactly these numbers. */}
+      <div className="stack" style={{ marginTop: 10 }}>
+        {shipsFor(state.player).map((cls) => {
+          const spec = shipSpec(cls.id);
+          return (
+            <div key={cls.id} className="card row" style={{ gap: 10, alignItems: 'center' }}>
+              <ShipThumb faction={state.player} role={cls.role} size={30} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="row row--between">
+                  <b className="small">{cls.name}</b>
+                  <span className="tiny muted">
+                    {spec.guns} guns · {spec.hull} hull
+                    {spec.longGuns ? ' · long guns' : ''}
+                  </span>
+                </div>
+                <div className="tiny muted" style={{ marginTop: 1 }}>
+                  {spec.guns === 0
+                    ? 'Cannot fight. Carries more than anything else afloat.'
+                    : `Speed ${spec.speed} — ${
+                        spec.speed >= 8
+                          ? 'slips away under fire'
+                          : spec.speed >= 5
+                            ? 'gets clear at a price'
+                            : 'pays dearly to withdraw'
+                      }.`}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       <div className="section-title">Reading the chart</div>
       <div className="card small">
