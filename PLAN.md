@@ -2026,3 +2026,24 @@ out a hunt. Worth watching rather than fixing.
 - The Almanac gained a **What the three Lords do** section. The powers used to
   live on three ship sheets, where a Crown player never saw them and a
   Confederate player only saw them by tapping a hull.
+
+## The island in "On Freeport" goes to the chart — 15 September, night
+
+Sean: *"On personnel where it says 'On [location]' can you make the location
+clickable?"*
+
+It does now, in all three shapes the line takes — *On Freeport*, *On the Home
+Fleet, at Freeport*, *In irons at Highwater*. Only the island is the link; the
+fleet's name beside it stays plain, because a squadron is not a place on the
+chart.
+
+A "Show Freeport on the chart" link used to sit under the painting doing exactly
+this. It is gone, because keeping it would leave two controls a thumb's width
+apart saying the same thing, and the worse of the two was the one that had to
+name the island a second time to explain itself. The words that already say
+where somebody is are the right thing to tap.
+
+`.linkish` grows its hit area with 14px of padding and a matching negative
+margin. In a sheet header that reach would put the target over the officer's
+name above it, so `.linkish--inline` trims it to 8px — still a thumb at this
+size, and no further.

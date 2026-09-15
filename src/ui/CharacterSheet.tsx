@@ -16,6 +16,27 @@ import {
 import { CharacterPainting } from './art';
 import { Sheet } from './components';
 
+/**
+ * An island's name in the line that says where somebody is, as a way to the
+ * chart. Absent rather than plain when the island is unknown: a word that is
+ * not a place cannot be shown on a chart, and an underline promising it could
+ * would be a lie.
+ */
+function Where({
+  system,
+  onLocate,
+}: {
+  system: { name: string } | undefined;
+  onLocate: () => void;
+}) {
+  if (!system) return <>unknown</>;
+  return (
+    <button className="linkish linkish--inline" onClick={onLocate} title="Show on the chart">
+      {system.name}
+    </button>
+  );
+}
+
 /** Yardsticks for the signing-on range: how a star and an ordinary hand would
  *  answer this officer. Only their ratings are read, so the rest is filler. */
 const YARDSTICK = {
@@ -110,13 +131,24 @@ export function CharacterSheet({
     <Sheet
       title={character.name}
       subtitle={
-        character.status === 'captured'
-          ? `In irons at ${location?.name ?? 'unknown'}`
-          : escorting
-            ? `Away with ${escorting.name}`
-          : ship
-            ? `On the ${ship.name}${ship.voyage ? ', at sea' : `, at ${location?.name ?? 'unknown'}`}`
-            : `On ${location?.name ?? 'unknown'}`
+        /* Where they are, and the island name in it goes to the chart.
+           Sean: "where it says 'On [location]' can you make the location
+           clickable". It replaces a "Show Freeport on the chart" link that
+           used to sit below the painting doing exactly this — one control,
+           on the words that already name the place, rather than two a
+           thumb's width apart saying the same thing. */
+        character.status === 'captured' ? (
+          <>In irons at <Where system={location} onLocate={onLocate} /></>
+        ) : escorting ? (
+          `Away with ${escorting.name}`
+        ) : ship ? (
+          <>
+            On the {ship.name}
+            {ship.voyage ? ', at sea' : <>, at <Where system={location} onLocate={onLocate} /></>}
+          </>
+        ) : (
+          <>On <Where system={location} onLocate={onLocate} /></>
+        )
       }
       onClose={onClose}
       stacked
@@ -163,11 +195,6 @@ export function CharacterSheet({
 
       <div className="row row--between" style={{ marginTop: 10, alignItems: 'baseline' }}>
         <div style={{ minWidth: 0 }}>
-          {location && (
-            <button className="linkish" onClick={onLocate}>
-              Show {location.name} on the chart
-            </button>
-          )}
           {character.epithet && (
             <div className="serif charsheet__epithet">&ldquo;{character.epithet}&rdquo;</div>
           )}

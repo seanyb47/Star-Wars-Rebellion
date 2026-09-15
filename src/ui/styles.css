@@ -840,6 +840,11 @@ button {
   padding: 14px 4px;
   margin: -14px -4px;
 }
+/* The same link sitting inside a running line rather than on its own.
+   The full 14px reach would put the hit area over the title above it in a
+   sheet header, so it is trimmed to what still clears a thumb at this size
+   and no further. */
+.linkish--inline { padding: 8px 2px; margin: -8px -2px; }
 
 /* ---------- Almanac ---------- */
 .almanac__earn { color: var(--good); }
