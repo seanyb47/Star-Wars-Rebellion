@@ -361,6 +361,13 @@ export interface GameEvent {
   battle?: BattleReport;
   /** The tally behind a landing. */
   landing?: LandingReport;
+  /**
+   * Keep this one out of the dispatch cards. It still belongs in the log — it
+   * happened and the player should be able to find it — but something else is
+   * already telling them about it. Set on the rounds of an action the player
+   * is fighting by hand, where the battle sheet is the report.
+   */
+  quiet?: boolean;
 }
 
 /**
@@ -374,6 +381,38 @@ export interface PendingMissionDecision {
   success: boolean;
 }
 
+/**
+ * An action in progress, waiting on the player.
+ *
+ * `rounds` is what has been fought so far, so the sheet can say "second
+ * broadside" rather than opening the same way every time. `last` is what the
+ * round just fought cost each side — held here rather than recomputed,
+ * because after the round the ships that paid for it are gone.
+ */
+export interface PendingBattle {
+  systemId: string;
+  rounds: number;
+  last?: {
+    empire: number;
+    alliance: number;
+    /** Damage taken across every hull present, both sides. */
+    hurt: number;
+    /** True if this was the round the creature went down. */
+    beastSlain: boolean;
+  };
+  /** Set when the other side has broken off rather than fight on. */
+  theyFled?: boolean;
+  /**
+   * How it ended, once it has. The action stays on the state after it is
+   * settled rather than vanishing, so the player reads the result of the round
+   * they just ordered instead of watching the sheet disappear. Cleared when
+   * they close it.
+   */
+  settled?: BattleOutcome;
+}
+
+export type BattleOutcome = 'won' | 'lost' | 'they-fled' | 'you-fled' | 'beast-slain';
+
 export interface GameState {
   day: number;
   speed: Speed;
@@ -385,6 +424,16 @@ export interface GameState {
   factions: { empire: FactionState; alliance: FactionState };
   events: GameEvent[];
   pendingDecisions: PendingMissionDecision[];
+  /**
+   * An action the player is in and has not settled yet.
+   *
+   * Set by `resolveBattles` when the day's fighting reaches an island the
+   * player has a fleet at, instead of resolving it. While it is set the clock
+   * is held and no day passes: the player fights the action round by round, or
+   * breaks off. Battles the player is not at are settled the way they always
+   * were, in one round a day, and reported to the log.
+   */
+  battle?: PendingBattle;
   /** Set once a victory condition trips; the clock stops afterwards. */
   winner?: PlayableFaction;
   rngSeed: number;

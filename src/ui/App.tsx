@@ -21,6 +21,9 @@ import {
   reorderShips,
   orderAssault,
   orderEmbark,
+  orderBreakOff,
+  orderCloseBattle,
+  orderFightRound,
   orderSail,
   sailError,
   missionTypeFor,
@@ -43,6 +46,7 @@ import { SailConfirmSheet } from './SailConfirmSheet';
 import { CharactersScreen } from './CharactersScreen';
 import { FeedScreen } from './FeedScreen';
 import { GalaxyMap } from './GalaxyMap';
+import { BattleSheet } from './BattleSheet';
 import { EventCards, isNotable } from './EventCard';
 import { Narrator } from './Narrator';
 import { moodForEvent } from './narrator/mood';
@@ -160,17 +164,19 @@ export function App() {
    * rule is the better one — a sub-screen is somewhere you went to look at
    * something, and the world does not stop while you look.
    *
-   * What still stops it is the things that stopped *you*: a dispatch the game
-   * raised over whatever you were doing, and a decision it is waiting on an
-   * answer for. Neither is a screen you opened. Combat joins them when the
-   * modal battle lands, which is the one case Sean named.
+   * What still stops it is the things that stopped *you*: an action your ships
+   * are in, a dispatch the game raised over whatever you were doing, and a
+   * decision it is waiting on an answer for. None of the three is a screen you
+   * opened. The action is the case Sean named, and it is first because it is
+   * the one where a day passing while you think would decide the fight for
+   * you.
    *
    * Nothing downstream needs guarding for this. Every panel reads the same
    * live state and redraws as the days pass, and the two flows that compute a
    * figure before you confirm — a voyage's length, a mission's passage — work
    * it out again at the moment you say yes, not when the sheet opened.
    */
-  const clockHeld = cards.length > 0 || decision !== null;
+  const clockHeld = state.battle !== undefined || cards.length > 0 || decision !== null;
 
   // ---- The clock -------------------------------------------------------
   //
@@ -586,7 +592,22 @@ export function App() {
         )}
       </main>
 
-      {cards.length > 0 && (
+      {/* Above everything, including the dispatches: while your ships are in
+          action, that is the only thing on the screen. */}
+      {state.battle && (
+        <BattleSheet
+          state={state}
+          onFight={() => setState(orderFightRound(state).state)}
+          onBreakOff={() => {
+            const result = orderBreakOff(state);
+            if (result.error) return flash(result.error);
+            setState(result.state);
+          }}
+          onClose={() => setState(orderCloseBattle(state).state)}
+        />
+      )}
+
+      {cards.length === 0 || state.battle ? null : (
         <EventCards
           state={state}
           events={cards}

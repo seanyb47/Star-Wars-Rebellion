@@ -6,6 +6,7 @@
  * window rather than a stack of ships with a leader attached elsewhere.
  */
 import {
+  BREAK_OFF_ODDS,
   BOOM_BLOCKADE_GUNS,
   BOOM_DEFENCE,
   FORT_GUNS,
@@ -20,6 +21,7 @@ import {
   beastAlive,
   beastAt,
   beastCombatant,
+  beastGuns,
   monsterShots,
   monsterStrike,
   sightBeast,
@@ -30,9 +32,11 @@ import { captureLord, fleetHeldAshore, isLord, isLordShip, shipPower } from './l
 import { travelDays } from './missions';
 import type { Rng } from './rng';
 import type {
+  BattleOutcome,
   Character,
   Fleet,
   GameState,
+  PendingBattle,
   PlayableFaction,
   Ship,
   ShipClassId,
@@ -415,27 +419,148 @@ function scoutFrom(state: GameState, fleet: Fleet, arrived: System): void {
  *
  * Deterministic: every roll comes from the seeded RNG carried in the state.
  */
+/**
+ * The fleets at an island that still have something to fight with.
+ *
+ * A fleet whose last hull went down in this round is still in `state.fleets`
+ * until the day's wrecks are cleared, and counting it is how a finished action
+ * goes on looking contested — the bug this exists to stop.
+ */
+export function fightingAt(state: GameState, systemId: string): Fleet[] {
+  return fleetsAt(state, systemId).filter((f) => f.ships.length > 0);
+}
+
+/**
+ * Is anybody in action at this island?
+ *
+ * Three ways to be. Two fleets in the same water is the obvious one. A fort is
+ * a warship that cannot weigh anchor, so an enemy fleet lying off a fortified
+ * harbor is in action whether or not a fleet meets it. And whatever is in the
+ * water is nobody's, does not care whose colours are flying, and has anybody
+ * anchored there in action whether or not the other side ever turns up.
+ */
+export function contestedAt(state: GameState, system: System): boolean {
+  const here = fightingAt(state, system.id);
+  if (here.length === 0) return false;
+  if (beastAlive(system)) return true;
+  if (here.some((f) => f.faction === 'empire') && here.some((f) => f.faction === 'alliance')) {
+    return true;
+  }
+  if (system.control !== 'empire' && system.control !== 'alliance') return false;
+  return fortGuns(system) > 0 && here.some((f) => f.faction === otherFaction(system.control as PlayableFaction));
+}
+
+/**
+ * The day's fighting, everywhere at once.
+ *
+ * Every contested island trades a round, the way it always has. What is new is
+ * only that an action the player's own ships are in is *flagged* —
+ * `state.battle` — so the UI can hold the clock and hand them the rest of the
+ * fight round by round instead of reading them the result afterwards.
+ *
+ * The flag is an affordance and nothing more, which is the point of doing it
+ * this way. The sim waits for nobody: if days keep passing, as they do in a
+ * test or a balance run, the action is fought a round a day exactly as before
+ * and the flag is simply overwritten each morning. Only a player holding the
+ * clock makes it mean anything.
+ *
+ * One at a time. If the player is in two actions on the same day the second is
+ * still fought — nobody's ships stand idle — but only the first is handed to
+ * them; the other turns up in the log. Nobody should be asked to command two
+ * battles in the same breath.
+ */
 export function resolveBattles(state: GameState, rng: Rng): void {
+  // A new day: whatever was flagged last night is history. In the UI this is
+  // already empty, because the clock does not run while an action is open.
+  state.battle = undefined;
   const harbors = new Set(state.fleets.filter((f) => !isAtSea(f)).map((f) => f.systemId));
   for (const systemId of [...harbors].sort()) {
     const system = getSystem(state, systemId);
-    const here = fleetsAt(state, systemId);
-    const empire = here.filter((f) => f.faction === 'empire');
-    const alliance = here.filter((f) => f.faction === 'alliance');
-    // A fort is a warship that cannot weigh anchor, so an enemy fleet lying
-    // off a fortified harbor is in action whether or not a fleet meets it.
-    const shore = fortGuns(system);
-    // And whatever is in the water. It is nobody's, it does not care whose
-    // colours are flying, and anybody lying in its harbor is in action
-    // whether or not the other side ever turns up.
-    const monster = beastAlive(system) && here.length > 0;
-    const contested =
-      monster ||
-      (empire.length > 0 && alliance.length > 0) ||
-      (shore > 0 && here.some((f) => f.faction === otherFaction(system.control as PlayableFaction)));
-    if (!contested) continue;
-    fightRound(state, system, empire, alliance, rng);
+    if (!contestedAt(state, system)) continue;
+    const here = fightingAt(state, systemId);
+    const hand = here.some((f) => f.faction === state.player) && !state.battle;
+    // Quiet in the dispatch sense only. It still goes in the log; what it does
+    // not do is arrive as a card over the top of the battle sheet.
+    const tally = fightRound(state, system, here, rng, hand);
+    if (!hand) continue;
+    // Note what the first exchange cost, but do not let them run from it.
+    // Breaking off is a decision taken after you have seen what the other
+    // fellow's broadside does, not before — and keeping it out of this path
+    // means it only ever happens where the player can watch it, since the
+    // rounds after the first are all fought from the battle sheet.
+    const pending: PendingBattle = { systemId, rounds: 1, last: tally };
+    state.battle = pending;
+    pending.settled = outcomeOf(state, system, pending);
   }
+}
+
+/**
+ * Fight one more round of the action the player is in.
+ *
+ * Called from the battle sheet rather than from the clock, so the pace after
+ * the first broadside is the player's. Afterwards three things can be true:
+ * the action is over, the other side has had enough and runs, or there is
+ * another broadside to trade.
+ */
+export function fightBattleRound(state: GameState, rng: Rng): void {
+  const pending = state.battle;
+  if (!pending || pending.settled) return;
+  const system = getSystem(state, pending.systemId);
+  const tally = fightRound(state, system, fightingAt(state, system.id), rng, true);
+  pending.rounds += 1;
+  pending.last = tally;
+  pending.theyFled = enemyBreaksOff(state, system, rng);
+  pending.settled = outcomeOf(state, system, pending);
+}
+
+/**
+ * Whether the action is over, and how.
+ *
+ * `undefined` means there is another broadside to trade. Anything else ends
+ * it, and the sheet stays up showing which — the player ordered that round and
+ * should see what it bought, rather than have the screen vanish under them.
+ * Order matters: losing your last hull here is the answer even if the enemy
+ * also broke off in the same round.
+ */
+function outcomeOf(
+  state: GameState,
+  system: System,
+  pending: PendingBattle,
+): BattleOutcome | undefined {
+  const here = fightingAt(state, system.id);
+  if (!here.some((f) => f.faction === state.player)) return 'lost';
+  if (pending.theyFled) return 'they-fled';
+  if (pending.last?.beastSlain && !contestedAt(state, system)) return 'beast-slain';
+  if (!contestedAt(state, system)) return 'won';
+  return undefined;
+}
+
+/**
+ * Whether the other side has had enough, and runs if so.
+ *
+ * Their policy is the one a reasonable captain would follow and no cleverer:
+ * break off when the guns still firing on the far side are twice yours and
+ * there is somewhere to run to. Creatures are not covered by it — what a
+ * creature does with a wound is its own business, and `stirBeasts` decides
+ * that at the end of the day.
+ */
+function enemyBreaksOff(state: GameState, system: System, rng: Rng): boolean {
+  const them = otherFaction(state.player);
+  const theirs = fightingAt(state, system.id).filter((f) => f.faction === them);
+  if (theirs.length === 0) return false;
+  const theirGuns = theirs.reduce((n, f) => n + fleetGuns(f), 0);
+  const mine =
+    fightingAt(state, system.id)
+      .filter((f) => f.faction === state.player)
+      .reduce((n, f) => n + fleetGuns(f), 0) + (system.control === state.player ? fortGuns(system) : 0);
+  if (theirGuns === 0 || mine < theirGuns * BREAK_OFF_ODDS) return false;
+  let ran = false;
+  for (const fleet of theirs) {
+    if (fleeError(state, fleet.id, them)) continue;
+    fleeBattle(state, fleet.id, rng, them);
+    ran = true;
+  }
+  return ran;
 }
 
 /** The harbor's own guns, for whoever holds it. */
@@ -527,6 +652,7 @@ function reportRound(
   alliance: Fleet[],
   before: { empire: number; alliance: number; hurt: number },
   killedBeast: boolean,
+  quiet: boolean,
 ): void {
   const beast = beastAt(system);
   if (killedBeast && beast) {
@@ -534,6 +660,7 @@ function reportRound(
       kind: 'battle',
       text: `${beast.name} is killed off ${system.name}. The water there is only water now.`,
       systemId: system.id,
+      quiet,
     });
   }
   const after = {
@@ -555,6 +682,7 @@ function reportRound(
           system.beastDamage ? `; it has ${system.beastDamage} of ${beast.hull} in it` : ''
         }.`,
         systemId: system.id,
+        quiet,
       });
     }
     return;
@@ -565,6 +693,7 @@ function reportRound(
     kind: 'battle',
     text: `Action off ${system.name}${against}. The Imperium loses ${tally(lostEmpire)}, the Confederacy ${tally(lostAlliance)}.`,
     systemId: system.id,
+    quiet,
     battle: {
       sides: {
         empire: {
@@ -584,13 +713,22 @@ function reportRound(
   });
 }
 
+/**
+ * One day's exchange of fire at an island, and what it cost.
+ *
+ * `quiet` keeps the round out of the dispatch cards — not out of the log. It
+ * is set for the action the player is being handed, where the battle sheet is
+ * the report and a card over the top of it would be the same news twice.
+ */
 function fightRound(
   state: GameState,
   system: System,
-  empire: Fleet[],
-  alliance: Fleet[],
+  here: Fleet[],
   rng: Rng,
-): void {
+  quiet = false,
+): NonNullable<PendingBattle['last']> {
+  const empire = here.filter((f) => f.faction === 'empire');
+  const alliance = here.filter((f) => f.faction === 'alliance');
   const before = {
     empire: empire.reduce((n, f) => n + f.ships.length, 0),
     alliance: alliance.reduce((n, f) => n + f.ships.length, 0),
@@ -653,7 +791,16 @@ function fightRound(
   }
 
   for (const fleet of [...empire, ...alliance]) sinkAndDrown(state, fleet);
-  reportRound(state, system, empire, alliance, before, killed);
+  reportRound(state, system, empire, alliance, before, killed, quiet);
+  const after = fleetsAt(state, system.id);
+  const count = (side: PlayableFaction) =>
+    after.filter((f) => f.faction === side).reduce((n, f) => n + f.ships.length, 0);
+  return {
+    empire: before.empire - count('empire'),
+    alliance: before.alliance - count('alliance'),
+    hurt: hurtIn(after) - before.hurt,
+    beastSlain: killed,
+  };
 }
 
 
@@ -898,3 +1045,154 @@ export function fleeBattle(
     });
   }
 }
+
+/* ---------------------------------------------------------------- the sheet */
+
+export type BattleOdds =
+  | 'overwhelming'
+  | 'favorable'
+  | 'even'
+  | 'unfavorable'
+  | 'desperate';
+
+export const BATTLE_ODDS_LABEL: Record<BattleOdds, string> = {
+  overwhelming: 'Overwhelmingly favorable',
+  favorable: 'Favorable',
+  even: 'Even',
+  unfavorable: 'Unfavorable',
+  desperate: 'Desperate',
+};
+
+/**
+ * How the action looks from your quarterdeck, in five words.
+ *
+ * Rebellion prints one of these over every battle and it is most of what the
+ * screen is for: a player who has to add up two columns of guns to find out
+ * whether to run is being given arithmetic instead of a decision. Guns still
+ * firing, both sides, the shore counted for whoever holds it and the creature
+ * counted against everybody.
+ */
+export function battleOdds(mine: number, theirs: number): BattleOdds {
+  if (theirs <= 0) return 'overwhelming';
+  const ratio = mine / theirs;
+  if (ratio >= 2.5) return 'overwhelming';
+  if (ratio >= 1.4) return 'favorable';
+  if (ratio >= 0.72) return 'even';
+  if (ratio >= 0.4) return 'unfavorable';
+  return 'desperate';
+}
+
+export interface BattleSide {
+  hulls: number;
+  guns: number;
+  /** Hull points left, and out of how many, across everything present. */
+  left: number;
+  whole: number;
+}
+
+export interface BattleView {
+  system: System;
+  rounds: number;
+  mine: BattleSide;
+  theirs: BattleSide;
+  /** Guns on the harbor wall, and whose they are. */
+  shore: number;
+  shoreIsMine: boolean;
+  beast?: { name: string; damage: number; hull: number; guns: number };
+  odds: BattleOdds;
+  /** Which of your fleets could break off, if any. */
+  fleeable: string[];
+  fleeBlockedBecause: string | null;
+  last?: PendingBattle['last'];
+  theyFled: boolean;
+  settled?: BattleOutcome;
+}
+
+function sideOf(fleets: Fleet[]): BattleSide {
+  const ships = fleets.flatMap((f) => f.ships);
+  return {
+    hulls: ships.length,
+    guns: fleets.reduce((n, f) => n + fleetGuns(f), 0),
+    left: ships.reduce((n, sh) => n + Math.max(0, hullOf(sh) - sh.damage), 0),
+    whole: ships.reduce((n, sh) => n + hullOf(sh), 0),
+  };
+}
+
+/**
+ * Everything the battle sheet draws, worked out in one place.
+ *
+ * The sheet asks a question — fight on or run — and every figure here exists
+ * to answer it. Nothing is stored: this is read off the live state each time,
+ * so it is the same numbers the next round will actually be fought with.
+ */
+export function battleView(state: GameState): BattleView | undefined {
+  const pending = state.battle;
+  if (!pending) return undefined;
+  const system = state.systems.find((s) => s.id === pending.systemId);
+  if (!system) return undefined;
+  const here = fightingAt(state, system.id);
+  const mineFleets = here.filter((f) => f.faction === state.player);
+  const theirFleets = here.filter((f) => f.faction === otherFaction(state.player));
+  const shore = fortGuns(system);
+  const shoreIsMine = system.control === state.player;
+  const beast = beastAt(system);
+  const alive = beastAlive(system);
+
+  const mine = sideOf(mineFleets);
+  const theirs = sideOf(theirFleets);
+  // Guns bearing on each side, for the assessment only: the wall fires for
+  // whoever holds the island, and the creature fires on everybody, so it
+  // counts against both.
+  const beastGunsHere = alive && beast ? beastGuns(system) : 0;
+  const forMe = mine.guns + (shoreIsMine ? shore : 0);
+  const againstMe = theirs.guns + (shoreIsMine ? 0 : shore) + beastGunsHere;
+
+  const fleeable = mineFleets.filter((f) => fleeError(state, f.id, state.player) === null);
+  const firstReason = mineFleets.length === 0 ? null : fleeError(state, mineFleets[0].id, state.player);
+
+  return {
+    system,
+    rounds: pending.rounds,
+    mine,
+    theirs,
+    shore,
+    shoreIsMine,
+    beast:
+      beast && alive
+        ? { name: beast.name, damage: system.beastDamage ?? 0, hull: beast.hull, guns: beastGunsHere }
+        : undefined,
+    odds: battleOdds(forMe, againstMe),
+    fleeable: fleeable.map((f) => f.id),
+    fleeBlockedBecause: fleeable.length > 0 ? null : firstReason,
+    last: pending.last,
+    theyFled: Boolean(pending.theyFled),
+    settled: pending.settled,
+  };
+}
+
+/**
+ * Break off the whole action: every fleet of yours here runs for the nearest
+ * island you hold, each taking its own parting fire.
+ *
+ * Anything that cannot run — a fleet with companies ashore, or one with
+ * nowhere to go — stays, and so does the battle, which is the honest outcome
+ * rather than a silent half-retreat.
+ */
+export function breakOffBattle(state: GameState, rng: Rng): void {
+  const pending = state.battle;
+  if (!pending) return;
+  const system = getSystem(state, pending.systemId);
+  for (const fleet of fightingAt(state, system.id).filter((f) => f.faction === state.player)) {
+    if (fleeError(state, fleet.id, state.player)) continue;
+    fleeBattle(state, fleet.id, rng, state.player);
+  }
+  if (!fightingAt(state, system.id).some((f) => f.faction === state.player)) {
+    pending.settled = 'you-fled';
+  }
+}
+
+/** Dismiss a settled action. The clock starts again when this clears. */
+export function closeBattle(state: GameState): void {
+  if (state.battle?.settled) state.battle = undefined;
+}
+

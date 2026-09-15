@@ -122,6 +122,20 @@ export const LONG_GUN_SHARE = 0.5;
  * range almost at once; a first-rate wears the whole broadside twice over.
  * Indexed by speed, so a hull between bands reads off the nearest entry.
  */
+/**
+ * When the other side gives up a fight.
+ *
+ * Their captain breaks off once the guns still firing on your side are this
+ * many times theirs — and only if there is somewhere to run to. Two is a
+ * beating rather than a bad day: below it they stay and trade, which is what
+ * keeps an even action from being decided by somebody losing their nerve on
+ * the first broadside.
+ *
+ * It is deliberately not a policy the player has. You choose when to run; they
+ * follow a rule, and the rule is legible enough that you can bait it.
+ */
+export const BREAK_OFF_ODDS = 2;
+
 export const RETREAT_SHOTS: Record<number, [number, number]> = {
   10: [0, 0],
   9: [0, 1],

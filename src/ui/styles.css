@@ -1588,6 +1588,44 @@ button.tcard:hover { border-color: var(--brass); }
 .choice__what { white-space: normal; line-height: 1.35; }
 
 /* The battle summary on a dispatch card: two sides, side by side. */
+/* ---------- The battle sheet ---------- */
+/* Rebellion's assessment line: two words, big enough to be the first thing
+   read, coloured by how bad it is. Everything else on the sheet is detail
+   under this. */
+.odds {
+  margin: 10px 14px 2px;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  font-size: 19px; font-weight: 700; letter-spacing: 0.02em;
+  text-align: center; text-transform: uppercase;
+}
+.odds--overwhelming { color: #6fe4a4; }
+.odds--favorable { color: #9ede8a; }
+.odds--even { color: #e8dcc0; }
+.odds--unfavorable { color: #efa46a; }
+.odds--desperate { color: #f0705c; }
+/* A losing sheet should feel like one. Only the bottom two pulse, and slowly:
+   an assessment that flashes at you every round is a slot machine. */
+.odds--desperate { animation: odds-pulse 1.6s ease-in-out infinite; }
+@keyframes odds-pulse { 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .odds--desperate { animation: none; } }
+
+.battle__cond { margin: 4px 0 3px; height: 4px; background: #0d2f3a; }
+.tally__side--empire .battle__cond .bar__fill { background: var(--empire); }
+.tally__side--alliance .battle__cond .bar__fill { background: var(--alliance); }
+.battle__line { margin: 6px 14px 0; }
+.battle__verdict { margin-top: 8px; }
+.battle__beast {
+  margin: 8px 14px 0; padding: 8px 10px; font-size: 12px;
+  border: 1px solid #5a4a2a; border-radius: 9px; background: rgba(90, 74, 42, 0.16);
+  color: #e8dcc0;
+}
+/* The action is not a screen you closed; it is one you finished. No close
+   button, so the foot's two buttons share the width evenly. */
+.dispatch--battle .dispatch__foot { gap: 8px; }
+/* The two choices share the width evenly; the single button that dismisses a
+   finished action does not, or it shoulders the date off the edge. */
+.dispatch__foot--choice .btn { flex: 1; }
+
 .tally { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 14px 0; }
 .tally__side {
   display: flex; gap: 8px; align-items: flex-start; padding: 8px; border-radius: 10px;

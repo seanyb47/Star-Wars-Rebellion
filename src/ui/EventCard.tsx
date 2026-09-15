@@ -17,7 +17,10 @@ import { EventScene } from './EventScene';
 const NOTABLE: EventKind[] = ['war', 'flip', 'mutiny', 'battle'];
 
 export function isNotable(event: GameEvent): boolean {
-  return NOTABLE.includes(event.kind);
+  // `quiet` is set on the rounds of an action the player is fighting by hand.
+  // The battle sheet is already telling them; a card over the top of it would
+  // be the same news twice.
+  return !event.quiet && NOTABLE.includes(event.kind);
 }
 
 /**

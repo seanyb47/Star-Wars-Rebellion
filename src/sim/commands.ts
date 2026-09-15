@@ -4,7 +4,15 @@
  * can never crash the game.
  */
 import { cancelBuild, foundWorks, queueBuild } from './build';
-import { assault, embark, fleeBattle, sailFleet } from './fleets';
+import {
+  assault,
+  breakOffBattle,
+  closeBattle,
+  embark,
+  fightBattleRound,
+  fleeBattle,
+  sailFleet,
+} from './fleets';
 import { isLord } from './lords';
 import { createRng } from './rng';
 import { generateGalaxy } from './galaxy';
@@ -190,6 +198,29 @@ export function orderRelieve(state: GameState, characterId: string): CommandResu
 /** Break off a fight: take the parting volley, run for the nearest holding. */
 export function orderFlee(state: GameState, fleetId: string): CommandResult {
   return run(state, (draft) => fleeBattle(draft, fleetId, createRng(draft.rngSeed), draft.player));
+}
+
+/** One more broadside in the action the battle sheet is showing. */
+export function orderFightRound(state: GameState): CommandResult {
+  return run(state, (draft) => {
+    const rng = createRng(draft.rngSeed);
+    fightBattleRound(draft, rng);
+    draft.rngSeed = rng.seed;
+  });
+}
+
+/** Dismiss a settled action and let the clock start again. */
+export function orderCloseBattle(state: GameState): CommandResult {
+  return run(state, (draft) => closeBattle(draft));
+}
+
+/** Break off the whole action: everything of yours that can run, runs. */
+export function orderBreakOff(state: GameState): CommandResult {
+  return run(state, (draft) => {
+    const rng = createRng(draft.rngSeed);
+    breakOffBattle(draft, rng);
+    draft.rngSeed = rng.seed;
+  });
 }
 
 export function orderAssault(state: GameState, fleetId: string): CommandResult {
