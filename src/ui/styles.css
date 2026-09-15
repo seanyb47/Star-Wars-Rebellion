@@ -628,6 +628,72 @@ button {
 .event--unread .event__text { color: var(--text); }
 
 
+/* ---------- The running report ----------
+   What has just gone into the log, over the top of whatever the player is
+   looking at. Pinned under the utility bar rather than laid out in the flow:
+   a strip that pushed the chart down every time a mill finished would move
+   the thing under the player's thumb to deliver the news. */
+.reports-slot { position: relative; z-index: 26; height: 0; }
+.reports {
+  position: absolute;
+  left: 10px; right: 10px; top: 8px;
+  display: flex; flex-direction: column; gap: 6px;
+  /* The strip is a place things appear, not a surface: only the lines in it
+     take a tap, so the chart underneath stays draggable between them. */
+  pointer-events: none;
+}
+.report {
+  pointer-events: auto;
+  /* Top-aligned, so the mark and the arrow stay level with the first line of
+     a report that runs to two. Centring them looked right on one line and
+     adrift on two. */
+  display: flex; align-items: flex-start; gap: 9px;
+  width: 100%; text-align: left;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted);
+  border-radius: 9px;
+  background: var(--bg-raised);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.42);
+  font: inherit; color: var(--text);
+  animation: report-in 220ms ease-out;
+}
+@keyframes report-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .report { animation: none; }
+}
+.report__kind {
+  flex: none; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--muted); margin-top: 5px;
+}
+.report__text {
+  flex: 1; min-width: 0; font-size: 12.5px; line-height: 1.35;
+  /* Two lines at most. A report is a glance; the log is where the whole of it
+     is, and that is one tap away. */
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.report__chev { flex: none; color: var(--muted); font-size: 15px; line-height: 1.1; }
+/* The same colours the log's margin marks use, so a line means the same thing
+   in both places. */
+.report--order { border-left-color: var(--neutral); }
+.report--order .report__kind { background: var(--neutral); }
+.report--mission { border-left-color: var(--metal-hi); }
+.report--mission .report__kind { background: var(--metal-hi); }
+.report--loss { border-left-color: var(--bad); }
+.report--loss .report__kind { background: var(--bad); }
+
+/* The entry the log was opened at, marked until the player looks elsewhere. */
+.event--focus {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  box-shadow: inset 3px 0 0 var(--brass);
+  padding-left: 8px;
+}
+
 /* How the war ended, said once across the top of the chart. It was called
    `banner` too, and being later in the file it was quietly taking the header
    banner's padding away with it — including the inset that keeps the Crown's

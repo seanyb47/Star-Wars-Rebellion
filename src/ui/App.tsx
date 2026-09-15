@@ -45,6 +45,7 @@ import { MissionChoiceSheet } from './MissionChoiceSheet';
 import { SailConfirmSheet } from './SailConfirmSheet';
 import { CharactersScreen } from './CharactersScreen';
 import { FeedScreen } from './FeedScreen';
+import { Dispatches } from './Dispatches';
 import { GalaxyMap } from './GalaxyMap';
 import { BattleSheet } from './BattleSheet';
 import { EventCards, isNotable } from './EventCard';
@@ -137,6 +138,8 @@ export function App() {
   const [toldOf, setToldOf] = useState<string[]>(() => state.events.map((e) => e.id));
   /** A card opened from the log, which is one event rather than a day's worth. */
   const [readingId, setReadingId] = useState<string | null>(null);
+  /** The entry the log was opened at, from a line in the running report. */
+  const [focusEventId, setFocusEventId] = useState<string | null>(null);
 
   const decision = state.pendingDecisions[0] ?? null;
 
@@ -179,6 +182,7 @@ export function App() {
    * time, which is the honest price of not deciding.
    */
   const clockHeld = state.battle !== undefined;
+
 
   // ---- The clock -------------------------------------------------------
   //
@@ -410,6 +414,32 @@ export function App() {
 
   /** Which hull's sheet is open, if any. */
   const [openShip, setOpenShip] = useState<{ fleetId: string; shipId: string } | null>(null);
+  /**
+   * Anything the player opened, which the running report defers to.
+   *
+   * A sheet is anchored to the bottom and runs to 82% of the screen, so it
+   * stops just short of where the report strip hangs — near enough that a
+   * report would sit on its top edge, and a report you tap while a sheet is
+   * open would take you to the log behind the sheet. Neither is right: a
+   * report is news arriving, not an interruption, and it waits.
+   *
+   * It waits rather than expiring. Lines only age while they are on the
+   * screen (see `Dispatches`), so a long look at an island costs no news.
+   */
+  const panelOpen =
+    Boolean(openSystemId) ||
+    Boolean(openCharacterId) ||
+    Boolean(openReachId) ||
+    Boolean(openListId) ||
+    Boolean(openShip) ||
+    Boolean(missionChoice) ||
+    Boolean(sailPlan) ||
+    menuOpen ||
+    narratorOpen ||
+    almanacOpen ||
+    buildMenuOpen ||
+    orderOpen ||
+    teaching;
 
   /**
    * Putting a list in the order the player wants it.
@@ -539,6 +569,20 @@ export function App() {
         onOpenMenu={() => setMenuOpen(true)}
       />
 
+      {/* What has just gone into the log, said on the screen. Under the
+          utility bar and over everything below it, at Sean's ask: "a running
+          place where messages post... you can click on it to open the log to
+          that entry." Silent while an action or a dispatch card is up — those
+          own the screen, and a card is already the louder telling. */}
+      <Dispatches
+        state={state}
+        hidden={Boolean(state.battle) || cards.length > 0 || panelOpen}
+        onOpen={(eventId) => {
+          setFocusEventId(eventId);
+          setTab('feed');
+        }}
+      />
+
       {state.winner && (
         <div className="pad" style={{ paddingBottom: 0 }}>
           <div className={`verdict verdict--${state.winner === state.player ? 'win' : 'lose'}`}>
@@ -587,6 +631,7 @@ export function App() {
           <FeedScreen
             state={state}
             lastSeen={lastSeen}
+            focusId={focusEventId}
             onJumpToCharacter={(characterId) => {
               setTab('characters');
               setOpenCharacterId(characterId);
@@ -635,7 +680,13 @@ export function App() {
         onChange={(next) => {
           // Build is a popup over whatever you are looking at, not a screen.
           if (next === 'build') setBuildMenuOpen(true);
-          else setTab(next);
+          else {
+            // The mark on a log entry belongs to one visit. Coming back to the
+            // log later should show it as a log, not still pointing at
+            // whatever was tapped an hour ago.
+            if (next !== 'feed') setFocusEventId(null);
+            setTab(next);
+          }
         }}
         unread={unread}
         player={state.player}

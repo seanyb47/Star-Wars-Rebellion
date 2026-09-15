@@ -1,19 +1,33 @@
+import { useEffect, useRef } from 'react';
 import type { GameEvent, GameState } from '../sim';
 
 export function FeedScreen({
   state,
   lastSeen,
+  focusId,
   onJumpToCharacter,
   onRead,
 }: {
   state: GameState;
   /** Highest event ordinal the player has already read. */
   lastSeen: number;
+  /**
+   * The entry the log was opened at, from a line in the running report.
+   *
+   * A log is a long page and the thing you tapped is somewhere down it. It is
+   * scrolled to and marked rather than filtered to, because what you usually
+   * want next is what happened *around* it.
+   */
+  focusId?: string | null;
   onJumpToCharacter: (characterId: string) => void;
   /** Open the card for a dispatch worth seeing as a picture. */
   onRead: (eventId: string) => void;
 }) {
   const events = [...state.events].reverse();
+  const focus = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    if (focusId) focus.current?.scrollIntoView({ block: 'center' });
+  }, [focusId]);
 
   if (events.length === 0) {
     return <div className="empty">The log is empty. Start the clock.</div>;
@@ -38,7 +52,10 @@ export function FeedScreen({
           {entries.map((event) => (
             <button
               key={event.id}
-              className={`event event--${event.kind}${order(event) > lastSeen ? ' event--unread' : ''}`}
+              ref={event.id === focusId ? focus : undefined}
+              className={`event event--${event.kind}${
+                order(event) > lastSeen ? ' event--unread' : ''
+              }${event.id === focusId ? ' event--focus' : ''}`}
               // Every dispatch has a card, and the card has a way through to the
               // island. Being *notable* decides only whether the game stops you for
               // it unasked — not whether it is worth a picture when you go looking.

@@ -2047,3 +2047,61 @@ where somebody is are the right thing to tap.
 margin. In a sheet header that reach would put the target over the officer's
 name above it, so `.linkish--inline` trims it to 8px — still a thumb at this
 size, and no further.
+
+## The running report — 15 September, night
+
+Sean:
+
+> Next thing we need to add is a report on the bottom underneath the utility
+> bar, or above, wherever there's open space. We need a running place where
+> messages post. So anytime somebody's posted the log, there's an alert that
+> pops up on the screen while you're playing. And then you can click on it to
+> open the log to that entry.
+
+Half the log had no presence on the screen at all, and it was the half the
+player set in motion themselves.
+
+The loud half always had one: an island changing hands, a rising, an action, the
+war ending — `isNotable` — stops the player with a full dispatch card. The quiet
+half is orders finishing, officers reporting, and things taken from you. It went
+in silently, and the only way to learn any of it was to stop playing and go and
+read. Which is the gap: you queue a mill, and then nothing ever tells you it is
+built.
+
+So the division is the existing one, and nothing is told twice: **notable news
+gets a card, everything else gets a line in the strip.** The strip is the
+complement of the dispatch card, not a second copy of it.
+
+**Where it sits.** Under the utility bar, over whatever is below it. The slot it
+hangs from has no height, so the bar's own height — two rows, a notch, a home
+indicator — decides where the strip lands rather than a number in the
+stylesheet, and the chart never moves to deliver the news. `pointer-events` are
+off on the strip and on only for the lines, so the chart stays draggable in the
+gaps between them.
+
+**A report waits for you.** The obvious build starts a five-second timer the
+moment a line posts. Then a dispatch card held open for a minute, or a long look
+at an island, expires every report behind it — news that was never read, thrown
+away silently. So a line ages only while it is actually on the screen: the sweep
+that ages them runs only while the strip is up, and the ages live in a ref
+rather than in state, because they move four times a second and nothing changes
+until one reaches the end. Measured: a line caught the instant it posted survived
+a twelve-second island sheet, and the two that posted behind that sheet came up
+with it.
+
+**What it defers to.** An action, a dispatch card, and any panel the player
+opened. A sheet is anchored to the bottom and runs to 82% of the screen, which
+stops just about where the strip hangs — so a report would sit on a sheet's top
+edge, and tapping one would take you to the log *behind* the sheet. `panelOpen`
+in `App` is one derived boolean rather than a z-index fight, and because lines
+wait rather than expire, deferring costs nothing.
+
+**And the tap.** It opens the Log scrolled to that entry, marked with a brass
+rule. Scrolled to and marked rather than filtered to, because what you usually
+want next is what happened *around* it. The mark belongs to one visit and is
+dropped on the way out, so the log is a log again when you come back.
+
+Three on screen at once, five seconds each. The cap applies to what is waiting
+as well as what is up: a card read at leisure could have a hundred quiet days
+behind it, and the answer to that is the three most recent, not a hundred lines
+to sit through.
