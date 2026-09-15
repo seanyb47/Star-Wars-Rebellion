@@ -398,11 +398,16 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
 
   // --- Freeport: where the articles were signed. ---
   //
-  // Not a base and not a capital — the Confederacy has neither. It is the
-  // island the three Lords met on, and it is a different island every game:
+  // Still not a base: losing it loses nothing, because the Crown wins by
+  // taking the three Lords and nothing else. But it is the island the
+  // Confederacy was declared on, and it answers to the Confederacy the way
+  // Highwater answers to the Crown — a hundred to nothing on day one, by
+  // Sean's rule of 15 September. It could not have been left merely fond of
+  // them: anything over eighty runs up a neutral island's colours on the next
+  // tick, so a warm Freeport would have flipped on day one anyway and
+  // announced it in the log as news. It is a different island every game —
   // one out in the unexplored Reaches takes the name, keeping the position,
-  // the outline and the room the painting gave it. The Brethren are well
-  // liked there and govern nothing.
+  // the outline and the room the painting gave it.
   const baseSector = rng.pick(frontierSectors);
   const allianceHq = rng.pick(islandsOf(baseSector));
   allianceHq.chartName = allianceHq.name;
@@ -410,11 +415,13 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   allianceHq.archetype = 'free-harbor';
   allianceHq.note =
     'Where the articles were signed: three Lords, one table, and no Crown within three hundred miles.';
-  allianceHq.populated = true;
-  allianceHq.control = 'neutral';
-  allianceHq.garrison = 0;
-  // A lean, not a flag: short of the bar that would run up their colours.
-  setSupport(allianceHq, 'alliance', rng.range(65, 78));
+  hold(allianceHq, 'alliance', 100);
+  // A seat's garrison, the same as Highwater's: firm islands ask for none at
+  // all, so both of these are the spare company that keeps the harbour plus
+  // the one a seat is worth. It is not dealt any of the opening's camps,
+  // mills or yards, though — the articles were signed on it a week ago, not
+  // settled on.
+  allianceHq.garrison = startGarrison(100, true);
 
   const seedHoldings = (owner: PlayableFaction, owned: System[]) => {
     for (const [index, system] of owned.entries()) {

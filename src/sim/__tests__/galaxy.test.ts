@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import reachData from '../../data/reaches.json';
-import { FLIP_SUPPORT_MIN } from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { isLord, isLordShip } from '../lords';
 
@@ -59,16 +58,23 @@ describe('generateGalaxy', () => {
     }
   });
 
-  it('puts the Crown at Highwater and the Confederacy at a meeting place that is nobody\'s', () => {
+  it('opens both seats at a hundred: Highwater the Crown\'s, Freeport the Brethren\'s', () => {
     const state = generateGalaxy(21);
     const empireHq = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
     const meeting = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
     expect(empireHq.isCore).toBe(true);
     expect(empireHq.control).toBe('empire');
     expect(empireHq.support.empire).toBe(100);
-    // No base: the Lords met somewhere out past the charts and it is not theirs.
+    // Freeport answers to the Confederacy the way Highwater answers to the
+    // Crown — and one to nothing, so neither side has an argument to start.
+    expect(meeting.name).toBe('Freeport');
+    expect(meeting.control).toBe('alliance');
+    expect(meeting.support.alliance).toBe(100);
+    expect(meeting.support.empire).toBe(0);
+    // Still no base, in the sense that matters: it is out past the charts,
+    // the Crown cannot see it, and losing it loses nothing — the Crown wins
+    // by taking the three Lords and by nothing else.
     expect(meeting.isCore).toBe(false);
-    expect(meeting.control).not.toBe('alliance');
     expect(meeting.explored.alliance).toBe(true);
     expect(meeting.explored.empire).toBe(false);
   });
@@ -116,12 +122,11 @@ describe('generateGalaxy', () => {
       // Out past the charts, and nobody's: the Brethren govern nothing.
       const reach = state.sectors.find((r) => r.id === freeport.sectorId)!;
       expect(FRONTIER).toContain(reach.name);
-      expect(freeport.control).toBe('neutral');
+      expect(freeport.control).toBe('alliance');
       expect(freeport.explored.empire).toBe(false);
       expect(freeport.explored.alliance).toBe(true);
       // Well liked, but short of the bar that would run up their colours.
-      expect(freeport.support.alliance).toBeGreaterThanOrEqual(65);
-      expect(freeport.support.alliance).toBeLessThan(FLIP_SUPPORT_MIN);
+      expect(freeport.support.alliance).toBe(100);
       // The three ships lie there on day one.
       const lying = state.fleets.filter((f) => f.systemId === freeport.id && f.ships.some(isLordShip));
       expect(lying).toHaveLength(3);
@@ -152,13 +157,17 @@ describe('generateGalaxy', () => {
     }
   });
 
-  it('gives the Confederacy eight islands that have declared for it, none of them the meeting place', () => {
+  it('gives the Confederacy the islands that have declared for it, and Freeport among them', () => {
     for (let seed = 1; seed <= 12; seed++) {
       const state = generateGalaxy(seed);
       const held = state.systems.filter((s) => s.control === 'alliance');
-      expect(held.length).toBeGreaterThanOrEqual(7);
-      expect(held.length).toBeLessThanOrEqual(8);
-      expect(held.map((s) => s.id)).not.toContain(state.factions.alliance.hqSystemId);
+      // Seven or eight that declared in the settled Reaches, plus Freeport.
+      expect(held.length).toBeGreaterThanOrEqual(8);
+      expect(held.length).toBeLessThanOrEqual(9);
+      expect(held.map((s) => s.id)).toContain(state.factions.alliance.hqSystemId);
+      // Freeport is the only one of them the Crown cannot see on day one.
+      const dark = held.filter((s) => !s.explored.empire);
+      expect(dark.map((s) => s.name)).toEqual(['Freeport']);
     }
   });
 

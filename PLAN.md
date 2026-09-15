@@ -753,3 +753,19 @@ winning, so the grid renders pixel for pixel what it rendered before; the dead
 selectors are gone. This is the same fault that put the phone's clock on the
 Crown's name, found by looking for the rest of its kind rather than waiting
 for the next one to show up on a screenshot.
+
+**Freeport opens at a hundred — 15 September.** Sean's rule: the island the
+articles were signed on answers to the Confederacy the way Highwater answers
+to the Crown. It had been left merely fond of them, at sixty-five to
+seventy-eight, and that could not stand once you look at what the rules do
+with it: anything over eighty runs a neutral island's colours up on the next
+tick, so a warm Freeport would have flipped on day one anyway and announced it
+in the log as though it were news. So it is held outright, a hundred to
+nothing, with a seat's two companies — the same `startGarrison(100, true)`
+Highwater gets. It is still dealt none of the opening's camps, mills or yards,
+because the articles were signed on it a week ago rather than settled on, and
+it is still not a base in the sense that matters: losing it loses nothing,
+because the Crown wins by taking the three Lords and by nothing else. Sixteen
+idle games of sixteen end, median 481 days, eight wins each way; the
+Confederacy's day-one upkeep goes 49 to 51 for the two companies and its
+income is unchanged.

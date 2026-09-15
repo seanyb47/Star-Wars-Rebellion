@@ -35,7 +35,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 
 ### The Free Confederacy
 
-*The Free Confederacy of the Seven Seas* — "the Brethren" to friends, "the Confederacy of Thieves" to the Admiralty. A compact of pirate captains, smugglers, exiled nobles, Reef-folk clans, Urskin whaling fleets, and witch-islands that answer to nobody. Governed by an elected **Commodore** and a shouting-match council called the **Moot**. It has no capital and no base. It has **three Pirate Lords**, each bound to a ship, and wherever the *Free Harbor* lies at anchor the Moot is sitting. It has one place, **Freeport** — the island the articles were signed on, a different island every game, held by nobody and owed to nobody.
+*The Free Confederacy of the Seven Seas* — "the Brethren" to friends, "the Confederacy of Thieves" to the Admiralty. A compact of pirate captains, smugglers, exiled nobles, Reef-folk clans, Urskin whaling fleets, and witch-islands that answer to nobody. Governed by an elected **Commodore** and a shouting-match council called the **Moot**. It has no capital and no base. It has **three Pirate Lords**, each bound to a ship, and wherever the *Free Harbor* lies at anchor the Moot is sitting. It has one place, **Freeport** — the island the articles were signed on, a different island every game. It flies Confederate colours and owes the Crown nothing, but it is a birthplace rather than a capital: nothing is lost by losing it.
 
 **The three Pirate Lords.** The Confederacy was formed at a meeting on an island past the Crown's charts, and the three captains who called it are the Confederacy: take all three and there is nobody left to lead it. Each never leaves their ship; the ship is the Lord, and what the ship does is what the Lord does for the cause.
 
@@ -330,7 +330,7 @@ Contested: both sides hold islands here from the first day.
 
 _Outer Sea. Arctic / Norse: ice, fjords, whalers, the last free people. Norse-flavored names._
 
-Frontier: uncharted at the start, and where the Pirate Lords signed the articles. One island of these two Reaches is renamed **Freeport** every game and keeps its own position, outline and room — the place the Confederacy was founded, held by nobody.
+Frontier: uncharted at the start, and where the Pirate Lords signed the articles. One island of these Reaches is renamed **Freeport** every game and keeps its own position, outline and room — the place the Confederacy was founded, and the one island out here that flies its colours from the first day.
 
 - **Northreach**. Torvik's homeland. Urskin whalers and harpooners.
 - **Tallow Cay**. Whale-oil and salt. Far enough out that nobody counts the ships.
@@ -358,7 +358,7 @@ Contested: both sides hold islands here from the first day.
 
 _Outer Sea. WEIRD: the water goes flat and holds sound for miles; islands appear at noon and are gone by dusk; salt flats that were harbors last year. Ships row, or wait for a Tidecaller. The Imperium keeps a Stillwater here and nobody knows why. Sun-bleached names._
 
-Frontier: uncharted at the start, and where the Pirate Lords signed the articles. One island of these two Reaches is renamed **Freeport** every game and keeps its own position, outline and room — the place the Confederacy was founded, held by nobody.
+Frontier: uncharted at the start, and where the Pirate Lords signed the articles. One island of these Reaches is renamed **Freeport** every game and keeps its own position, outline and room — the place the Confederacy was founded, and the one island out here that flies its colours from the first day.
 
 - **Powder Isle**. Saltpetre. Every gun in the Seven Seas owes this rock.
 - **Rylo Salt**. A salt-slave island. One side never sees dusk.
@@ -374,7 +374,7 @@ Frontier: uncharted at the start, and where the Pirate Lords signed the articles
 
 _Inner Sea. Tropical / Caribbean: plantations, sugar, reefs, hurricanes, old money with divided loyalties._
 
-Frontier: uncharted at the start, and where the Pirate Lords signed the articles. One island of these two Reaches is renamed **Freeport** every game and keeps its own position, outline and room — the place the Confederacy was founded, held by nobody.
+Frontier: uncharted at the start, and where the Pirate Lords signed the articles. One island of these Reaches is renamed **Freeport** every game and keeps its own position, outline and room — the place the Confederacy was founded, and the one island out here that flies its colours from the first day.
 
 - **Coralhome**. The Reef-folk. Their ships are sung into shape over years.
 - **Bothaway**. Home of the Rumor Guild, who sell to both sides.

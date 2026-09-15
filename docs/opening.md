@@ -15,9 +15,12 @@ Reaches, and that island is called **Freeport** for the rest of the game. It
 is a different island every game — the name is laid over whichever the dice
 pick, and that island keeps the position, the outline and the room the
 painting gave it, held in `chartName` so the chart can still find its coast.
-Freeport is nobody's: settled, ungarrisoned, and fond of the Brethren at
-sixty-five to seventy-eight, which is short of the eighty that would run up
-their colours. The three ships — the *Free Harbor*, the *Swallowtail*, the
+Freeport answers to the Confederacy the way Highwater answers to the Crown:
+a hundred to nothing on day one, with a seat's two companies ashore. It is
+still not a base in the sense that matters — losing it loses nothing, because
+the Crown wins by taking the three Lords and by nothing else — and it is dealt
+none of the opening's camps, mills or yards, because the articles were signed
+on it a week ago rather than settled on. The three ships — the *Free Harbor*, the *Swallowtail*, the
 *Ironback* — and the Home Fleet lie there on day one. The Confederacy knows
 Freeport and nothing else out here; the Crown knows only that a meeting took
 place.
