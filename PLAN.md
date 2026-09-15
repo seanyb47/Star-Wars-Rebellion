@@ -794,3 +794,26 @@ it says so instead of opening an empty sheet.
 "Stay in harbour" abandons the order outright rather than leaving the chart
 waiting for another destination — it was a cancel that had not cancelled, and
 the next island you touched was taken for a second attempt.
+
+**The dead band under the console — 15 September.** Sean circled a strip of
+flat dark nothing below the tab bar. Sampling his screenshot gave `#0a161c`,
+which is `--bg`, the sea-dark — so it was not the console's wood failing to
+stretch, it was the **document canvas** showing through.
+
+An iPhone can lay the page out shorter than the glass, reserving the strip the
+home indicator sits over, and nothing inside the page can paint there: fixed
+positioning, `inset: 0`, `100dvh`, none of it reaches. What fills that strip is
+the canvas, and the canvas takes its colour from `body`. Reproduced by laying
+the app out 48px short of the viewport, which puts the same band back.
+
+So `body` is painted in the console's own dark now — `#0f2119` for the Crown,
+`#24100c` for the Brethren, kept in step by a `data-side` on the body — and
+the strip reads as the bottom of the console rather than a band of sea under
+it. `.app` paints `--bg` itself so nothing inside changes; that was previously
+inherited from the canvas. The tab bar keeps its `padding-bottom:
+var(--safe-bottom)`, so where the inset *is* reported the wood genuinely fills
+it: the two together cover it whichever way the viewport resolves.
+
+Worth remembering: the effect went in above every early return. Put below one,
+it rendered more hooks on some passes than others and React threw #310 on the
+title screen.

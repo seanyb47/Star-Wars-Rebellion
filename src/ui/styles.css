@@ -55,6 +55,7 @@
 }
 
 html, body, #root { height: 100%; }
+body[data-side='alliance'] { background: #24100c; }
 
 html {
   /* Stops Android Chrome's pull-to-refresh, which would otherwise reload the
@@ -63,10 +64,21 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/*
+ * The document canvas, which is not the same thing as the app.
+ *
+ * On an iPhone the page can be laid out shorter than the glass — the strip
+ * the home indicator sits over is reserved, and nothing inside the page can
+ * paint there. What fills it is the canvas, and the canvas takes its colour
+ * from here. Left as the sea-dark it read as a band of nothing under the
+ * console; in the console's own dark it reads as the bottom of the console.
+ * `data-side` is set on the body to match the app, so the Crown gets its
+ * green-black and the Brethren their rust-black.
+ */
 body {
   margin: 0;
   overflow: hidden;
-  background: var(--bg);
+  background: #0f2119;
   color: var(--text);
   font: 14px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overscroll-behavior: none;
@@ -89,6 +101,9 @@ button {
 .app {
   display: flex;
   flex-direction: column;
+  /* The app paints its own floor rather than letting the canvas show through,
+     so moving the canvas to the console's dark changes nothing in here. */
+  background: var(--bg);
   /* Pinned to the screen's edges rather than sized from a viewport unit: on
      an iPhone in standalone mode the units and the screen have disagreed, and
      the difference showed as a dead band under the console. */

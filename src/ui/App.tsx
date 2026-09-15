@@ -100,6 +100,16 @@ export function App() {
   const [layer, setLayer] = useState<ChartLayer>('allegiance');
   /** A fleet waiting to be told where to sail. Every island is a valid answer. */
   const [sailingFleetId, setSailingFleetId] = useState<string | null>(null);
+
+  // The canvas behind the page wears the same side's colours. An iPhone lays
+  // the page out shorter than the glass, reserving the strip the home
+  // indicator sits over, and nothing inside the page can paint there — what
+  // fills it is the canvas. In the console's own dark it reads as the bottom
+  // of the console instead of a band of sea under it. Above every early
+  // return, because hooks are.
+  useEffect(() => {
+    document.body.dataset.side = state.player;
+  }, [state.player]);
   /** A voyage the player has picked a destination for but not yet ordered. */
   const [sailPlan, setSailPlan] = useState<{ fleetId: string; systemId: string } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
