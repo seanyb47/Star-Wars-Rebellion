@@ -27,7 +27,14 @@ import {
   sightBeast,
 } from './creatures';
 import { fireOnce, pickTarget, type Combatant } from './round';
-import { getSystem, nextId, otherFaction, pushEvent, setSupport } from './helpers';
+import {
+  getSystem,
+  nextId,
+  otherFaction,
+  pushEvent,
+  requiredGarrison,
+  setSupport,
+} from './helpers';
 import { captureLord, fleetHeldAshore, isLord, isLordShip, shipPower } from './lords';
 import { travelDays } from './missions';
 import type { Rng } from './rng';
@@ -204,6 +211,57 @@ export function sailDays(state: GameState, fleetId: string, targetSystemId: stri
   );
 }
 
+/**
+ * Companies an island can let go of.
+ *
+ * What it needs to stay quiet is not spare: strip a garrison below its
+ * requirement and the island rises behind the fleet that did it, which is a
+ * worse outcome than the landing was worth. An island nobody lives on is held
+ * by the company standing on it and nothing else, so its last one never moves
+ * either.
+ */
+export function sparedCompanies(system: System): number {
+  if (system.control !== 'empire' && system.control !== 'alliance') return 0;
+  const keep = Math.max(
+    requiredGarrison(system.support[system.control], system.uprising),
+    system.populated ? 0 : 1,
+  );
+  return Math.max(0, system.garrison - keep);
+}
+
+/**
+ * A fleet leaving one of your islands takes the companies it can spare.
+ *
+ * There used to be a control for this and Sean cut it: *"cut this ashore /
+ * aboard thing."* He is right that it was never a decision. Nobody leaves
+ * companies standing on a quiet island when the hulls going somewhere have
+ * room, and nobody carries them past an island of theirs that could use them —
+ * so the two taps only ever had one sensible answer, and a control with one
+ * sensible answer is a chore.
+ *
+ * So it happens by itself, at the two moments it would have been done by hand:
+ * load what the island can spare on the way out (see `sparedCompanies`), and
+ * put everything ashore on arriving anywhere you hold. Arrive anywhere else
+ * and they stay aboard, which is what a landing is made of.
+ */
+function loadSpareCompanies(state: GameState, fleet: Fleet): void {
+  const system = getSystem(state, fleet.systemId);
+  if (system.control !== fleet.faction) return;
+  const room = fleetCapacity(fleet) - fleet.troops;
+  const take = Math.min(room, sparedCompanies(system));
+  if (take <= 0) return;
+  system.garrison -= take;
+  fleet.troops += take;
+}
+
+/** The other end of it: everything aboard goes ashore on your own island. */
+function landCompanies(state: GameState, fleet: Fleet): void {
+  const system = getSystem(state, fleet.systemId);
+  if (system.control !== fleet.faction || fleet.troops <= 0) return;
+  system.garrison += fleet.troops;
+  fleet.troops = 0;
+}
+
 export function sailFleet(
   state: GameState,
   fleetId: string,
@@ -214,6 +272,7 @@ export function sailFleet(
   if (error) throw new Error(error);
   const fleet = findFleet(state, fleetId)!;
   const target = getSystem(state, targetSystemId);
+  loadSpareCompanies(state, fleet);
   const days = sailDays(state, fleetId, targetSystemId);
   fleet.voyage = { targetSystemId, daysRemaining: days };
   pushEvent(state, {
@@ -345,6 +404,9 @@ export function advanceFleets(state: GameState, rng: Rng): void {
     if (fleet.voyage.daysRemaining > 0) continue;
     fleet.systemId = fleet.voyage.targetSystemId;
     fleet.voyage = undefined;
+    // Home, or somewhere of yours: the companies go ashore. Anywhere else they
+    // stay aboard, and the fleet card offers the landing.
+    landCompanies(state, fleet);
     const system = getSystem(state, fleet.systemId);
     system.explored[fleet.faction] = true;
     // Whoever is serving with her is where she is.

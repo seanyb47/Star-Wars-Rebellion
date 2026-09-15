@@ -1712,3 +1712,33 @@ edge where on a small island it read as belonging to the loyalty bar
 underneath. Allegiance moved above the island sheet's tabs, slim, on all four
 of them: it is the number the rest of the island is read off, and asking for
 it used to mean a tab change and a tab change back.
+
+## Companies carry themselves — 15 September, night
+
+*"Cut this ashore / aboard thing."*
+
+He is right, and the reason is worth stating because it is a test the rest of
+the interface should pass too: **a control with one sensible answer is a
+chore.** Nobody leaves companies standing on a quiet island when the hulls
+going somewhere have room, and nobody sails past an island of theirs that could
+use the ones aboard. Both ends of that stepper only ever had one answer, so it
+was two taps asking a question nobody had.
+
+So it happens by itself, at exactly the two moments it used to be done by hand.
+A fleet leaving an island you hold takes what the island can spare — everything
+above what it needs to stay quiet, and never the last company off an island
+nobody lives on, which is held by that company and nothing else. A fleet
+arriving anywhere you hold puts everything ashore. Arriving anywhere else it
+keeps them, which is what a landing is made of.
+
+Nothing replaced the control, because the fact was never missing: the fleet's
+own line already reads `3 hulls · 17 guns · 3/7 companies`.
+
+The opponent had its own figure for this — everything over two — which was a
+private rule, and it is not allowed those. It uses `sparedCompanies` now, the
+same one the player's fleets follow.
+
+Balance after: 8–8 across sixteen games with the seat alternating, no stalls,
+median 580 days against 642 before. Wars run a little shorter, which is the
+expected consequence of companies actually reaching the front instead of
+sitting on an island because nobody tapped a plus sign eleven times.

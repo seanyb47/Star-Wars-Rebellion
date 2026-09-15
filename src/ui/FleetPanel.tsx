@@ -108,7 +108,6 @@ export function FleetCard({
   state,
   fleet,
   onSail,
-  onEmbark,
   onAssault,
   onFlee,
   onOpenCharacter,
@@ -120,7 +119,6 @@ export function FleetCard({
   state: GameState;
   fleet: Fleet;
   onSail: (fleetId: string) => void;
-  onEmbark: (fleetId: string, companies: number) => void;
   onAssault: (fleetId: string) => void;
   onFlee?: (fleetId: string) => void;
   onOpenCharacter?: (characterId: string) => void;
@@ -133,7 +131,6 @@ export function FleetCard({
   const capacity = fleetCapacity(fleet);
   const damaged = fleetDamaged(fleet);
   const atSea = fleet.voyage !== undefined;
-  const ashore = system?.garrison ?? 0;
   const holdsIsland = system?.control === fleet.faction;
   /** A Lord of this fleet who is off on an errand, and so pinning the hull. */
   const waitingFor = fleetHeldAshore(state, fleet);
@@ -184,6 +181,19 @@ export function FleetCard({
         </div>
         {fleet.faction !== state.player && <ControlBadge faction={fleet.faction} />}
       </div>
+
+      {/* There was a stepper here — companies aboard, with a plus and a minus
+          — and Sean cut it: "cut this ashore / aboard thing." He is right that
+          it was never a decision. Nobody leaves companies standing on a quiet
+          island when the hulls going somewhere have room, and nobody carries
+          them past an island of theirs that could use them, so both ends of
+          the control only ever had one sensible answer, and a control with one
+          sensible answer is a chore.
+
+          They load and unload themselves now (see `loadSpareCompanies`), and
+          nothing replaces the control, because the fact was never missing: the
+          fleet's own line below already says how many are aboard out of what
+          the hulls will carry. */}
 
       {/* The hulls, as a list. One line each, or one line per class with a
           count when grouping is on. */}
@@ -294,41 +304,6 @@ export function FleetCard({
           >
             {waitingFor ? `Waiting for ${waitingFor.name.split(' ').slice(-1)[0]}` : 'Set sail'}
           </button>
-          {/* Loading companies is not a spare button, it is the whole of how
-              an island changes hands: a fleet with an empty hold can blockade
-              a harbor and can never take it. What was wrong was the shape —
-              two buttons that each moved one company, so putting five aboard
-              was five taps at one end and five at the other, and the pair of
-              them sat there on every fleet whether or not there was anybody
-              ashore to load. One row: how many are aboard, out of what the
-              hulls will carry, with the two ends of it either side. */}
-          {holdsIsland && (ashore > 0 || fleet.troops > 0) && (
-            <div className="stepper">
-              <button
-                className="stepper__btn"
-                disabled={fleet.troops === 0}
-                onClick={() => onEmbark(fleet.id, -1)}
-                aria-label={`Put a ${terms.troop.toLowerCase()} ashore`}
-              >
-                −
-              </button>
-              <span className="stepper__read">
-                <b>{fleet.troops}</b>
-                <span className="muted"> of {capacity} aboard</span>
-                <span className="tiny muted stepper__spare">
-                  {ashore} ashore on {system?.name ?? 'the island'}
-                </span>
-              </span>
-              <button
-                className="stepper__btn"
-                disabled={ashore === 0 || fleet.troops >= capacity}
-                onClick={() => onEmbark(fleet.id, 1)}
-                aria-label={`Take a ${terms.troop.toLowerCase()} aboard`}
-              >
-                +
-              </button>
-            </div>
-          )}
           {/* Breaking off, where there is something to break off from. It
               always works; what it costs is the run, and how much depends on
               whether anything here can reach a fleet already going. */}
@@ -353,7 +328,6 @@ export function ShipsHere({
   state,
   systemId,
   onSail,
-  onEmbark,
   onAssault,
   onFlee,
   onOpenCharacter,
@@ -364,7 +338,6 @@ export function ShipsHere({
   state: GameState;
   systemId: string;
   onSail: (fleetId: string) => void;
-  onEmbark: (fleetId: string, companies: number) => void;
   onAssault: (fleetId: string) => void;
   onFlee?: (fleetId: string) => void;
   onOpenCharacter?: (characterId: string) => void;
@@ -475,7 +448,6 @@ export function ShipsHere({
           state={state}
           fleet={fleet}
           onSail={onSail}
-          onEmbark={onEmbark}
           onAssault={onAssault}
           onFlee={onFlee}
           onOpenCharacter={onOpenCharacter}

@@ -1012,37 +1012,6 @@ button {
 .slot-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 3px; }
 .slot-wrap__order { display: flex; gap: 3px; }
 .slot-wrap__order .orderbtn { flex: 1; width: auto; }
-/* One quantity with its two ends, for anything counted a unit at a time:
-   companies into a hold, so far. The reading in the middle is the control —
-   the buttons are just the ends of it — which is why the number is the only
-   thing at full weight. */
-.stepper {
-  display: flex; align-items: stretch; gap: 8px;
-  border: 1px solid var(--border); border-radius: 9px; padding: 4px;
-  background: rgba(0, 0, 0, 0.18);
-}
-.stepper__btn {
-  flex: none; width: 44px; min-height: var(--tap);
-  border: 1px solid var(--border); border-radius: 7px;
-  font-size: 20px; line-height: 1; color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
-}
-.stepper__btn:disabled { opacity: 0.35; }
-.stepper__read {
-  flex: 1; min-width: 0; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; text-align: center;
-  font-size: 13px; line-height: 1.25;
-}
-.stepper__read b { font-size: 17px; font-variant-numeric: tabular-nums; }
-.stepper__spare { display: block; }
-.fleet__orders { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
-.fleet__orders .btn { width: 100%; }
-/* A creature lying in the harbor is carded like a fleet, because that is what
-   it is to the player: a thing with guns that has to be got past. Marked out
-   by its edge rather than a different shape, so it reads as one more thing at
-   anchor and not as a panel of its own. */
-.fleet--beast { border-color: color-mix(in srgb, var(--bad) 45%, var(--border)); }
-.fleet--beast .fleet__beast-art { width: 100%; }
 
 /* ---------- Slot boards ----------
    The original gives personnel, regiments and construction their own framed

@@ -8,7 +8,6 @@ import {
   assault,
   breakOffBattle,
   closeBattle,
-  embark,
   fightBattleRound,
   fleeBattle,
   sailFleet,
@@ -155,18 +154,6 @@ export function orderSail(
   targetSystemId: string,
 ): CommandResult {
   return run(state, (draft) => sailFleet(draft, fleetId, targetSystemId, draft.player));
-}
-
-/**
- * Move companies between an island and a fleet lying off it. Positive takes
- * them aboard, negative puts them back ashore.
- */
-export function orderEmbark(
-  state: GameState,
-  fleetId: string,
-  companies: number,
-): CommandResult {
-  return run(state, (draft) => embark(draft, fleetId, companies, draft.player));
 }
 
 /**

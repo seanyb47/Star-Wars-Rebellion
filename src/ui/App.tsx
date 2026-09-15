@@ -20,7 +20,6 @@ import {
   reorderOfficers,
   reorderShips,
   orderAssault,
-  orderEmbark,
   orderBreakOff,
   orderCloseBattle,
   orderFightRound,
@@ -384,12 +383,6 @@ export function App() {
     setSailingFleetId(fleetId);
   };
 
-  const handleEmbark = (fleetId: string, companies: number) => {
-    const result = orderEmbark(state, fleetId, companies);
-    if (result.error) return flash(result.error);
-    setState(result.state);
-  };
-
   /** Break off a fight: take the parting volley, run for the nearest holding. */
   const handleFlee = (fleetId: string) => {
     const result = orderFlee(state, fleetId);
@@ -657,7 +650,6 @@ export function App() {
           onCancel={handleCancel}
           onFound={handleFound}
           onSail={handleSail}
-          onEmbark={handleEmbark}
           onAssault={handleAssault}
           onFlee={handleFlee}
           onOpenShip={(fleetId, shipId) => setOpenShip({ fleetId, shipId })}

@@ -25,6 +25,7 @@ import {
   boomDefence,
   embark,
   embarkError,
+  sparedCompanies,
   fortGuns,
   fleetCapacity,
   fleetGuns,
@@ -430,9 +431,11 @@ function aiLoadAndSail(state: GameState, fleet: Fleet, ai: PlayableFaction): voi
   const here = getSystem(state, fleet.systemId);
   const room = fleetCapacity(fleet) - fleet.troops;
   if (room > 0 && here.control === ai) {
-    // Leave enough ashore that the island does not rise the moment they sail.
-    const spare = Math.max(0, here.garrison - 2);
-    const take = Math.min(room, spare);
+    // The same rule the player's fleets follow now that the stepper is gone:
+    // whatever the island can spare above what it needs to stay quiet. It had
+    // its own figure here — everything over two — which was a private rule,
+    // and the opponent is not allowed those.
+    const take = Math.min(room, sparedCompanies(here));
     if (take > 0 && embarkError(state, fleet.id, take, ai) === null) {
       embark(state, fleet.id, take, ai);
     }
@@ -546,7 +549,7 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
   }
 
   // Otherwise fill up: take what is spare here, then go where more is spare.
-  const spareOn = (s: System) => Math.max(0, s.garrison - Math.max(1, requiredGarrison(s.support.alliance)));
+  const spareOn = (s: System) => sparedCompanies(s);
   const room = fleetCapacity(fleet) - fleet.troops;
   if (here.control === 'alliance' && room > 0 && spareOn(here) > 0) {
     const take = Math.min(room, spareOn(here));

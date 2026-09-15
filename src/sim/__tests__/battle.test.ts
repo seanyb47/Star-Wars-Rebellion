@@ -2,8 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { BATTLE_ODDS_LABEL } from '../fleets';
 import {
   addShip,
+  advanceFleets,
   battleOdds,
   board,
+  fleetCapacity,
+  sailFleet,
+  sparedCompanies,
   battleView,
   breakOffBattle,
   fightBattleRound,
@@ -12,7 +16,7 @@ import {
   resolveBattles,
 } from '../fleets';
 import { generateGalaxy } from '../galaxy';
-import { getSystem } from '../helpers';
+import { getSystem, requiredGarrison } from '../helpers';
 import { createRng } from '../rng';
 import { isNotable } from '../../ui/EventCard';
 import type { GameState, PlayableFaction, ShipClassId, System } from '../types';
@@ -195,5 +199,77 @@ describe('the assessment', () => {
     expect(view.mine.left).toBeLessThanOrEqual(view.mine.whole);
     expect(view.mine.whole).toBeGreaterThan(0);
     expect(BATTLE_ODDS_LABEL[view.odds]).toBeTruthy();
+  });
+});
+
+describe('companies load and unload themselves', () => {
+  it('takes what the island can spare when a fleet sails, and no more', () => {
+    const { state, home } = world();
+    state.player = 'alliance';
+    home.control = 'alliance';
+    home.support = { empire: 20, alliance: 80 };
+    home.garrison = 6;
+    const fleet = put(state, home, 'alliance', ['brig', 'brig']);
+    const spare = sparedCompanies(home);
+    expect(spare).toBeGreaterThan(0);
+    expect(spare).toBeLessThan(home.garrison);
+
+    const to = state.systems.find((s) => s.id !== home.id && s.explored.alliance)!;
+    sailFleet(state, fleet.id, to.id, 'alliance');
+    // Aboard, but never so many that the island drops under what holds it
+    // quiet — an island that rises behind the fleet that emptied it is worse
+    // than the landing was worth.
+    expect(fleet.troops).toBe(Math.min(fleetCapacity(fleet), spare));
+    expect(home.garrison).toBeGreaterThanOrEqual(
+      requiredGarrison(home.support.alliance, home.uprising),
+    );
+    expect(home.garrison + fleet.troops).toBe(6);
+  });
+
+  it('never strips the last company off an island nobody lives on', () => {
+    const { state, home } = world();
+    state.player = 'alliance';
+    const rock = state.systems.find((s) => !s.populated)!;
+    rock.control = 'alliance';
+    rock.explored.alliance = true;
+    rock.garrison = 1;
+    const fleet = put(state, rock, 'alliance', ['brig']);
+    expect(sparedCompanies(rock)).toBe(0);
+    sailFleet(state, fleet.id, home.id, 'alliance');
+    expect(fleet.troops).toBe(0);
+    expect(rock.garrison).toBe(1);
+  });
+
+  it('puts them ashore on arriving at an island of yours, and not on theirs', () => {
+    const { state, home } = world();
+    state.player = 'alliance';
+    home.control = 'alliance';
+    home.garrison = 8;
+    const mine = state.systems.find(
+      (s) => s.id !== home.id && s.control === 'alliance' && s.populated,
+    )!;
+    const theirs = state.systems.find((s) => s.control === 'empire' && s.populated)!;
+    theirs.explored.alliance = true;
+
+    const rng = createRng(3);
+    const home1 = put(state, home, 'alliance', ['brig', 'brig']);
+    sailFleet(state, home1.id, mine.id, 'alliance');
+    const carried = home1.troops;
+    expect(carried).toBeGreaterThan(0);
+    const before = mine.garrison;
+    for (let d = 0; d < 60 && home1.voyage; d++) advanceFleets(state, rng);
+    expect(home1.troops).toBe(0);
+    expect(mine.garrison).toBe(before + carried);
+
+    // And on the enemy's ground they stay aboard, because that is what a
+    // landing is made of.
+    const second = put(state, home, 'alliance', ['brig', 'brig']);
+    home.garrison = 8;
+    sailFleet(state, second.id, theirs.id, 'alliance');
+    const aboard = second.troops;
+    expect(aboard).toBeGreaterThan(0);
+    for (let d = 0; d < 80 && second.voyage; d++) advanceFleets(state, rng);
+    const still = state.fleets.find((f) => f.id === second.id);
+    if (still) expect(still.troops).toBe(aboard);
   });
 });

@@ -231,7 +231,6 @@ export function SystemSheet({
   onOpenCharacter,
   onOpenReach,
   onSail,
-  onEmbark,
   onAssault,
   onFlee,
   onOpenShip,
@@ -249,7 +248,6 @@ export function SystemSheet({
   onCancel: (facilityId: string) => void;
   onFound: (systemId: string) => void;
   onSail: (fleetId: string) => void;
-  onEmbark: (fleetId: string, companies: number) => void;
   onAssault: (fleetId: string) => void;
   onFlee?: (fleetId: string) => void;
   onOpenShip?: (fleetId: string, shipId: string) => void;
@@ -433,7 +431,6 @@ export function SystemSheet({
             state={state}
             systemId={system.id}
             onSail={onSail}
-            onEmbark={onEmbark}
             onAssault={onAssault}
             onFlee={onFlee}
             onOpenCharacter={onOpenCharacter}
