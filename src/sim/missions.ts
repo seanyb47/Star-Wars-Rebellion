@@ -357,10 +357,11 @@ export function foilChance(
 /**
  * Officers who could go along on an errand leaving from where this one stands.
  *
- * Same side, free, and in the same harbour — ashore on the island or aboard a
- * fleet lying off it, because a boat pulls for the beach from either. A Lord
- * may not: their ship would be pinned by their absence and the point of a
- * Lord's errand is that it costs them their hull, not somebody else's.
+ * Same side, free, and at the same island. There is no third place in this
+ * game: you are on a fleet or you are on an island, and a fleet lying at an
+ * island is at that island — so both count and the test is one comparison. A
+ * Lord may not go along: their absence pins their own ship, and that cost
+ * should be theirs to choose rather than somebody else's to pay.
  */
 export function companionsFor(state: GameState, leader: Character): Character[] {
   const here = leader.locationSystemId;
@@ -451,7 +452,7 @@ export function missionError(
   if (!isPlayable(character.faction)) return 'That character has no faction.';
   if (character.status !== 'available') return 'They are not free to sail.';
   // A Lord may go ashore, but they leave from their own deck and their ship
-  // has to be in a harbour to leave it from. Everything that makes this cost
+  // has to be at an island to leave from it. Everything that makes this cost
   // something — the hull pinned at anchor, the power asleep, the Lord
   // takeable — follows from their being off the ship, not from a special rule
   // about errands.
@@ -459,7 +460,7 @@ export function missionError(
   if (lord) {
     const ship = lordFleet(state, lord);
     if (!ship) return `${character.name} has no ship to leave from.`;
-    if (ship.voyage) return `The ${ship.name} is at sea. ${character.name} goes ashore from a harbour.`;
+    if (ship.voyage) return `The ${ship.name} is at sea. ${character.name} leaves from an island, not mid-passage.`;
   }
   const system = state.systems.find((s) => s.id === targetSystemId);
   if (!system) return 'No such island.';

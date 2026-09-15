@@ -59,7 +59,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'One island',
     body: () =>
-      'Inside a chain, tap an island for its panel: Harbour for ships and defences, Crew for your officers there, Garrison for companies ashore, Buildings for what stands and what you can order, Log for what has happened.',
+      'Inside a chain, tap an island for its panel: Island for ships and defences, Crew for your officers there, Garrison for companies ashore, Buildings for what stands and what you can order, Log for what has happened.',
   },
   {
     title: 'Allegiance',

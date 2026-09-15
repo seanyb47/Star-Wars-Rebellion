@@ -57,8 +57,9 @@ export function MissionChoiceSheet({
   const captive = abductOn(state, island, faction);
   const held = captiveOn(state, island, faction);
 
-  // Who else is in this harbour and free to get in the boat. Up to four go,
-  // the officer leading it included.
+  // Who else is at this island and free to go. There is no third place: you
+  // are on a fleet or you are on an island, and either way you are here.
+  // Up to four go, the officer leading it included.
   const mates = companionsFor(state, character);
   const [taking, setTaking] = useState<string[]>([]);
   const full = taking.length >= MISSION_PARTY_MAX - 1;
@@ -81,8 +82,8 @@ export function MissionChoiceSheet({
         <>
           <div className="section-title">Who else goes</div>
           <p className="tiny muted" style={{ margin: '0 0 8px' }}>
-            Anyone in this harbour, ashore or aboard a hull lying off it. Four in the boat at
-            most, and it is only as good as its best hand at the job — take who the work needs.
+            Anyone at this island, on it or on a fleet here. Four go at most, and they are
+            only as good as the best hand among them at the job — take who the work needs.
           </p>
           <div className="chips" style={{ marginBottom: 12 }}>
             {mates.map((mate) => {

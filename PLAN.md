@@ -1023,3 +1023,24 @@ Research — eleven labels, read by no rule anywhere in `src/sim`. They are
 badges on the card; the four ratings decide everything. Whether they should
 gate anything is the Admiral/Commander/General question from
 `docs/rebellion-personnel.md`, still open.
+
+**Two places, not three — 15 September.** Sean: *"There is no harbor vs
+ashore. You're either on a fleet or island. That simple."* He is right, and
+the mechanics always agreed — `companionsFor` compares one `locationSystemId`
+and nothing else. It was the words that invented a third place, mine included:
+*"anyone in this harbour, ashore or aboard a hull lying off it"* describes two
+locations where the code has one.
+
+Gone: the island panel's first tab is **Island**, not Harbour, and the
+component behind it is `ShipsHere` rather than `Harbour`. An officer is **On
+Highwater** or **On the Swallowtail, at Avermere** — never "ashore at". The
+errand sheet says *"anyone at this island, on it or on a fleet here"*. "Stay in
+harbour" on the sail sheet is "Don't sail"; a Lord who cannot leave mid-passage
+"leaves from an island, not mid-passage"; the officer sheet's "Going ashore" is
+"On a mission" and its "Time ashore" is "Time on the island".
+
+Kept, deliberately: **"companies ashore"**. That is not a third place, it is
+the word for troops on the island as against troops on a ship — which is
+exactly the two-place model. And an island still *has* a harbour the way it has
+a coast: the harbour's guns fire, a boom closes the harbour mouth, a blockade
+shuts it. What is gone is the harbour as somewhere a person can be.

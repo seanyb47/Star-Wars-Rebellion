@@ -78,7 +78,7 @@ export function SailConfirmSheet({
       actions={
         <>
           <button className="btn" onClick={onClose}>
-            Stay in harbour
+            Don't sail
           </button>
           <button className="btn btn--primary" onClick={onConfirm}>
             Weigh anchor — {days} {days === 1 ? 'day' : 'days'}
@@ -117,7 +117,7 @@ export function SailConfirmSheet({
           {target.name} is held by the {factionData[enemy].shortName}.{' '}
           {landing
             ? `Arriving with ${fleet.troops} ${fleet.troops === 1 ? 'company' : 'companies'} aboard, you can put them ashore.`
-            : 'With no companies aboard you can close the harbour, but you cannot take the island.'}
+            : 'With no companies aboard you can blockade it, but you cannot take the island.'}
         </p>
       )}
     </Sheet>

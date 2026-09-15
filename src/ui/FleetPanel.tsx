@@ -242,8 +242,8 @@ export function FleetCard({
   );
 }
 
-/** Everything lying off an island, yours and theirs. */
-export function Harbour({
+/** Every fleet at an island, yours and theirs, with its fixed defences. */
+export function ShipsHere({
   state,
   systemId,
   onSail,

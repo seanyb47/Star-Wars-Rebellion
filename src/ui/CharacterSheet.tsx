@@ -106,8 +106,8 @@ export function CharacterSheet({
           : escorting
             ? `Away with ${escorting.name}`
           : ship
-            ? `Aboard the ${ship.name}${ship.voyage ? ', at sea' : `, at ${location?.name ?? 'unknown'}`}`
-            : `Ashore at ${location?.name ?? 'unknown'}`
+            ? `On the ${ship.name}${ship.voyage ? ', at sea' : `, at ${location?.name ?? 'unknown'}`}`
+            : `On ${location?.name ?? 'unknown'}`
       }
       onClose={onClose}
       stacked
@@ -182,8 +182,8 @@ export function CharacterSheet({
 
       <Ratings character={character} />
 
-      <div className="section-title">Going ashore</div>
-      {/* Three things an officer can do ashore, and the island decides which:
+      <div className="section-title">On a mission</div>
+      {/* Three things an officer can do on an island, and the island decides which:
           sign on whoever is standing there, parley where nobody has chosen a
           side, stir up trouble where the enemy has. All three are shown because
           where you send them is the whole of the choice. */}
@@ -218,7 +218,7 @@ export function CharacterSheet({
           </b>
         </div>
         <div className="row row--between">
-          <span className="muted">Time ashore</span>
+          <span className="muted">Time on the island</span>
           <b>{MISSION_WORK_DAYS}d per cycle</b>
         </div>
       </div>

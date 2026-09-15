@@ -5,11 +5,18 @@ import { CharacterPainting } from './art';
 import { statusBadge } from './CharacterSheet';
 
 /** "Aboard the Swallowtail, at Rime Island" for anyone serving with a fleet. */
+/**
+ * Where somebody is. There are two answers and no others: on a fleet, or on
+ * an island. A fleet lying at an island is still a fleet, so the line names
+ * the ship and then where she is — it does not invent a harbour to stand in.
+ */
 function aboardLine(state: GameState, character: Character): string | null {
   const ship = state.fleets.find((f) => f.officerIds.includes(character.id));
   if (!ship) return null;
   const here = state.systems.find((s) => s.id === ship.systemId);
-  return ship.voyage ? `Aboard the ${ship.name}, at sea` : `Aboard the ${ship.name}, at ${here?.name ?? 'unknown'}`;
+  return ship.voyage
+    ? `On the ${ship.name}, at sea`
+    : `On the ${ship.name}, at ${here?.name ?? 'unknown'}`;
 }
 
 function missionLine(state: GameState, character: Character): string | null {
@@ -85,7 +92,7 @@ export function CharactersScreen({
               {missionLine(state, character) ??
                 (character.status === 'captured'
                   ? `In irons at ${location?.name ?? 'unknown'}`
-                  : aboardLine(state, character) ?? `Ashore at ${location?.name ?? 'unknown'}`)}
+                  : aboardLine(state, character) ?? `On ${location?.name ?? 'unknown'}`)}
             </span>
             {/* All four, exact, and quiet. */}
             <span className="crewcard__stats">

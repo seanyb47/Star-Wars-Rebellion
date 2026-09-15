@@ -45,7 +45,7 @@ import {
 import { ChartMark } from './ChartMark';
 import { useSideSwipe } from './LayerStrip';
 import { ControlBadge, RoomBar, Sheet, Slot, SlotBoard, Stat, SupportBars } from './components';
-import { Harbour } from './FleetPanel';
+import { ShipsHere } from './FleetPanel';
 import { WorthMark } from './worth';
 import { controlColour } from './ChainMap';
 
@@ -66,14 +66,14 @@ function errandName(type: MissionType): string {
  * clickable icons on the planet — ships, military, civilian, missions — folded
  * into the fewest tabs that keep like with like.
  *
- * Harbour opens first and carries what floats at the island, plus the fixed
+ * The island's own tab opens first and carries what floats there, plus the fixed
  * defences: a fort is a warship that cannot move, so it belongs beside the
  * ships rather than in with the mines. Crew and Garrison are split because
  * one is people you order about and the other is companies that hold ground.
  * Everything built sits in Buildings, earners and yards alike.
  */
 const TABS: Array<{ id: IslandTab; label: string }> = [
-  { id: 'harbour', label: 'Harbour' },
+  { id: 'island', label: 'Island' },
   { id: 'crew', label: 'Crew' },
   { id: 'garrison', label: terms.garrison },
   { id: 'buildings', label: 'Buildings' },
@@ -219,7 +219,7 @@ function FacilityCard({
 export function SystemSheet({
   state,
   system,
-  initialTab = 'harbour',
+  initialTab = 'island',
   onClose,
   onBuild,
   onCancel,
@@ -343,7 +343,7 @@ export function SystemSheet({
         </div>
       }
     >
-      {tab === 'harbour' && (
+      {tab === 'island' && (
         <>
           <IslandBanner
             archetype={system.archetype}
@@ -407,7 +407,7 @@ export function SystemSheet({
           })()}
 
           <div className="section-title">At anchor</div>
-          <Harbour
+          <ShipsHere
             state={state}
             systemId={system.id}
             onSail={onSail}
