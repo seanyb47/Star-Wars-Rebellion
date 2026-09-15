@@ -1366,3 +1366,51 @@ a log line that is only written where the player has charted the island. Both
 said the feature was barely firing. Counted off the rumour log, which is
 always public, and off the set of islands holding creatures, it fires exactly
 as intended.
+
+**The band under the console, measured at last — 15 September.** Sixth pass,
+and the first one with a number instead of an inference. Sean sent a
+screenshot; I measured it rather than looking at it.
+
+**What it actually is.** Sampling the bottom of that image row by row — with
+his red annotation masked out, because the first pass at this mistook the ink
+for texture — the console's wood runs to y=2412 and below that sit **164
+device pixels of perfectly flat `rgb(32,17,12)`**, standard deviation 0.1
+across the width. Flat, not textured. That is the page showing under the app,
+not the tab bar padding itself. On a 393pt phone at 3x it is **55 points of
+app that is not reaching the glass**.
+
+So the previous two rounds were both wrong, and wrong in an interesting way.
+The inset theory was wrong because the strip is not the tab bar's background.
+The offset theory was wrong because the app is the right height in the right
+place and simply too short.
+
+**Why it kept being wrong: I kept picking one number to trust.**
+`visualViewport.height` is a measurement rather than a unit's opinion, which
+is true, and on that phone it is also 55 points short of the glass. The fix is
+not a better source. It is that **the two failure directions are not
+symmetric**: an app taller than the glass hides the overflow under
+`overflow: hidden` and looks perfect, while an app shorter than it shows a
+dead band. So the height is now the **largest** of everything the browser will
+say — `innerHeight`, `clientHeight`, `visualViewport.height + offsetTop`, and,
+installed to the home screen where there is no toolbar to account for,
+`screen.height` bounded to +140px. In CSS it is `max(100dvh, var(--app-h))`,
+so the unit and the measurement cannot undershoot each other either.
+
+**Reproduced and controlled**, which is the part the last two rounds skipped.
+Chromium will not lie about its viewport, so the lie was injected —
+`visualViewport.height` redefined to report 55 less, exactly the fault in the
+screenshot. Before: a 55pt gap. After: **gap 0**. And a control that pins the
+app short on purpose still shows its 55pt gap, so the passes mean something
+rather than being a harness that cannot see a gap at all. That control is the
+same mistake I made twice earlier today with the balance runs, caught this
+time before reporting.
+
+**And a backstop, because five rounds said the same thing and were wrong.**
+The page now wears the console's own wood rather than a flat colour. What made
+this ugly was never that a gap existed — it was that the gap was a dark slab
+under a textured console, which reads as the app having stopped early. Wood
+under wood reads as the console being a little deeper, which is nothing. If a
+sliver survives on some phone neither of us has, it will not look broken.
+
+`?diag` now prints every number the browser offers for the height of the glass
+side by side, and the gap below the console measured against two of them.

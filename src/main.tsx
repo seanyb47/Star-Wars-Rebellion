@@ -32,10 +32,49 @@ import './ui/styles.css';
  */
 function measureGlass(): void {
   const vv = window.visualViewport;
-  if (!vv) return;
   const root = document.documentElement.style;
-  root.setProperty('--app-h', `${Math.round(vv.height)}px`);
-  root.setProperty('--app-top', `${Math.round(vv.offsetTop)}px`);
+
+  /*
+   * Take the largest credible number, not the most authoritative one.
+   *
+   * This is the sixth pass at the band under the console, and the first with
+   * a measurement of it: Sean's screenshot has 164 device pixels of perfectly
+   * flat page colour below the last row of console wood — 55 points on a
+   * 393pt phone. Flat, not textured, so it is the page showing under a short
+   * app rather than the tab bar padding itself.
+   *
+   * Every earlier pass picked one source and trusted it. `visualViewport` is
+   * a measurement rather than a unit's opinion, which is true, and on that
+   * phone it is also 55 points short of the glass. So the rule is not "which
+   * number is right" — it is that the two failures are not symmetric. An app
+   * taller than the glass hides the overflow and looks perfect. An app
+   * shorter than it shows a dead band. So: overshoot on purpose, and take the
+   * biggest of everything the browser will tell us.
+   */
+  const candidates = [
+    window.innerHeight,
+    document.documentElement.clientHeight,
+    vv ? Math.round(vv.height + vv.offsetTop) : 0,
+  ];
+
+  /*
+   * And the screen itself, where there is no browser chrome to account for.
+   *
+   * Installed to the home screen there is no toolbar and no address bar, so
+   * the glass and the viewport should be the same thing; when they are not,
+   * the difference is exactly the fault. Bounded, because `screen.height` can
+   * report the portrait dimension in landscape, and because growing the app
+   * by half a screen on some browser we have never seen would push the
+   * console off the bottom — which is the one outcome worse than a gap.
+   */
+  const standalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (navigator as { standalone?: boolean }).standalone === true;
+  if (standalone && screen.height > window.innerHeight) {
+    candidates.push(Math.min(screen.height, window.innerHeight + 140));
+  }
+
+  root.setProperty('--app-h', `${Math.max(...candidates)}px`);
 }
 measureGlass();
 window.visualViewport?.addEventListener('resize', measureGlass);
@@ -77,22 +116,18 @@ if (new URLSearchParams(window.location.search).has('diag')) {
       `inner ${window.innerHeight}  visual ${Math.round(window.visualViewport?.height ?? 0)}  client ${document.documentElement.clientHeight}`,
       `inset top ${top}  bottom ${bottom}  paid ${paid || '0px'}  dpr ${window.devicePixelRatio}`,
       `app ${px(app?.top)}→${px(app?.bottom)} (${px(app?.height)})  tabbar ${px(bar?.top)}→${px(bar?.bottom)} (${px(bar?.height)})`,
-      `standalone ${window.matchMedia('(display-mode: standalone)').matches}  offsetTop ${Math.round(
-        window.visualViewport?.offsetTop ?? -1,
-      )}  gap below tabbar ${px(
-        (window.visualViewport?.height ?? window.innerHeight) - (bar?.bottom ?? 0),
+      `standalone ${window.matchMedia('(display-mode: standalone)').matches}  nav.standalone ${
+        (navigator as { standalone?: boolean }).standalone
+      }  offsetTop ${Math.round(window.visualViewport?.offsetTop ?? -1)}`,
+      // Every number the browser offers for "how tall is the glass", side by
+      // side. The app takes the largest of them, so the one to look at is
+      // whether any of them is bigger than the one the console reached.
+      `screen ${screen.height}  inner ${window.innerHeight}  visual ${Math.round(
+        window.visualViewport?.height ?? 0,
+      )}  app-h ${getComputedStyle(document.documentElement).getPropertyValue('--app-h').trim() || 'unset'}`,
+      `gap below tabbar: vs screen ${px(screen.height - (bar?.bottom ?? 0))}  vs inner ${px(
+        window.innerHeight - (bar?.bottom ?? 0),
       )}`,
-      // The gap is the answer, and these two are the only things that make
-      // one. A non-zero offsetTop means the app is hung off the wrong
-      // viewport; a non-zero safe-bottom in a browser means the tab bar is
-      // padding itself for a strip Safari's toolbar already owns.
-      `cause: ${
-        Math.round(window.visualViewport?.offsetTop ?? 0) !== 0
-          ? 'viewport offset'
-          : parseFloat(paid) > 0 && !window.matchMedia('(display-mode: standalone)').matches
-            ? 'bottom inset paid twice'
-            : 'neither — the gap, if any, is something else'
-      }`,
     ].join('\n');
   };
   document.body.appendChild(box);

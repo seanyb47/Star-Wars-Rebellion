@@ -76,7 +76,31 @@
 }
 
 html, body, #root { height: 100%; }
-body[data-side='alliance'] { background: #24100c; }
+/*
+ * The page wears the console's own wood, and this is a backstop rather than a
+ * fix.
+ *
+ * The app is sized to overshoot the glass now, so nothing of the page should
+ * ever be visible. But five rounds of this said the same thing and were wrong,
+ * and the thing that made it ugly was never the gap's existence — it was that
+ * the gap was a flat dark slab under a textured console, which reads as the
+ * app having stopped early. Wood under wood reads as the console being a
+ * little taller, which is nothing at all. If a sliver survives on some phone
+ * neither of us has, it will not look broken.
+ */
+body {
+  background-color: #14322a;
+  background-image: url('../art/chrome/wood.webp'),
+    linear-gradient(180deg, #1a3428, #0f2119);
+  background-blend-mode: soft-light, normal;
+  background-size: 300px auto, auto;
+  background-repeat: repeat, no-repeat;
+}
+body[data-side='alliance'] {
+  background-color: #3d1d16;
+  background-image: url('../art/chrome/wood.webp'),
+    linear-gradient(180deg, #3d1d16, #24100c);
+}
 
 html {
   /* Stops Android Chrome's pull-to-refresh, which would otherwise reload the
@@ -99,7 +123,8 @@ html {
 body {
   margin: 0;
   overflow: hidden;
-  background: #0f2119;
+  /* Background is set above, with the wood: a flat colour here would win on
+     order and put the dark slab back. */
   color: var(--text);
   font: 14px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overscroll-behavior: none;
@@ -138,15 +163,14 @@ button {
    */
   position: fixed;
   inset: 0;
-  height: 100dvh;
-  /* And, where the browser will tell us rather than leaving us to a unit,
-     the measured height of the glass — and where that glass starts. A fixed
-     element hangs off the top of the *layout* viewport, which the visual one
-     can be offset from; without the offset the app comes out the right height
-     in the wrong place, and what you see is a band of nothing along the
-     bottom edge. Both are set from `main.tsx`. */
-  height: var(--app-h, 100dvh);
-  top: var(--app-top, 0px);
+  /* Whichever is taller: the unit or the measurement.
+     `max()` rather than an override, because the two disagree in both
+     directions on real phones and only one direction of error shows — too
+     tall hides under `overflow: hidden`, too short is a band of dead page
+     under the console. `--app-h` is the largest number the browser will give
+     us for the glass (see measureGlass), and 100dvh covers the case where it
+     has not been set yet or is smaller than the unit already knew. */
+  height: max(100dvh, var(--app-h, 0px));
   overflow: hidden;
 }
 
