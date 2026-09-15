@@ -615,3 +615,37 @@ it, which is what you look at a Reach to find.
 five small targets; a sideways drag across the panel now moves between them.
 The chart's layer swipe and this one are the same hook, `useSideSwipe`, which
 is what the layer version always was under its own name.
+
+
+## Four answers, and one rule that still cannot fire — 15 September
+
+Sean's answers to the questions from the last round.
+
+**The scaling indicator was the Buildings tab.** Not the bars — those measure
+39, 120 and 362 pixels and are identical across islands — but the board of
+boxes, one per berth, which grew downward and scrolled past nine. The tab now
+leads with the same fixed bar and a line saying *4 of 13 berths taken, 9 free*,
+and the board below holds only what actually stands. No ghost boxes.
+
+**A twentieth per company, not a tenth.** A garrison should be a hand on
+disloyalty rather than a cure: twenty companies would close the back door and
+nobody will ever keep twenty on one island, so a sour harbour always leaks
+something.
+
+**Balance is parked** at Sean's word. For the record, sixteen idle games of
+sixteen end, median 472 days.
+
+**Leaks bite harder and still never fire, and it is worth knowing why.** A leak
+now gives away what stands on the island and how many companies hold it, plus
+any island of yours in the same chain the enemy had not found; the rates went
+from a fiftieth and a twenty-fifth a day to a twentieth and a tenth. It fired
+zero times in eight more games. Instrumented: 1,689 island-days of thin or
+rebellious holdings in one game, of which **nought** had anything left to
+reveal, and at the end **no island at all** was dark to the Crown. The reason
+is structural rather than a tuning error — charting is the only hidden state
+in the game, and the Crown's picket charts the whole map by the time anything
+of the Confederacy's has gone sour. The rule is correct and will bite a human
+who takes a frontier island and neglects it. To make it bite the opponent, the
+game would need charts that go stale — an island the enemy has not visited in
+a long time falling off them — which is a real design decision and not one to
+sneak in.

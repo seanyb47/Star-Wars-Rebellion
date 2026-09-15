@@ -447,12 +447,17 @@ export const SMUGGLED_SHARE: Record<LoyaltyBand, number> = {
 /**
  * The other half of a leaky harbour: word gets out. Each day, this is the
  * chance that an island of yours the enemy has never charted turns up on
- * their charts anyway, because somebody talked. A firm island keeps its
+ * their charts anyway, because somebody talked — and what they learn is not
+ * only that it is there but what stands on it and how many companies hold
+ * it, which is everything charting an island gives. A firm island keeps its
  * mouth shut.
+ *
+ * Raised from a fiftieth and a twenty-fifth on 15 September: at those rates
+ * it fired in none of sixteen games, which is a rule that does not exist.
  */
 export const LEAK_CHANCE: Record<LoyaltyBand, number> = {
-  uprising: 0.04,
-  thin: 0.02,
+  uprising: 0.1,
+  thin: 0.05,
   steady: 0,
   firm: 0,
 };
@@ -471,12 +476,14 @@ export const GARRISON_FOR_BAND: Record<LoyaltyBand, number> = {
 };
 
 /**
- * What each company ashore takes off the smugglers: a tenth of what they
- * were running, so ten companies close the back door altogether. Troops are
- * not a business — a company costs more to keep than it saves on most
- * islands — but on a rich island that has gone sour they pay for themselves.
+ * What each company ashore takes off the smugglers: a twentieth of what they
+ * were running. Troops help at the margin and no further — twenty companies
+ * would close the back door and nobody will ever keep twenty on one island,
+ * so a sour harbour always leaks something. Sean's call, 15 September, over
+ * a tenth: a garrison should not be an answer to disloyalty, only a hand on
+ * it while you fix the real thing.
  */
-export const GARRISON_SMUGGLING_CUT = 0.1;
+export const GARRISON_SMUGGLING_CUT = 0.05;
 
 export const LOYALTY_BAND_LABEL: Record<LoyaltyBand, string> = {
   uprising: 'In revolt',

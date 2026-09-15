@@ -199,13 +199,37 @@ export function leakInformation(state: GameState, rng: Rng): void {
     const holder = system.control;
     if (!isPlayable(holder)) continue;
     const enemy = otherFaction(holder);
-    if (system.explored[enemy]) continue;
     const chance = LEAK_CHANCE[loyaltyBand(system.support[holder], system.uprising)];
-    if (chance <= 0 || !rng.chance(chance)) continue;
+    if (chance <= 0) continue;
+    // A harbour that talks talks about its neighbours too, so an island the
+    // enemy already has on their charts is still worth watching: what it
+    // gives away next is the rest of the chain. Hiding a Reach means keeping
+    // all of it content, not most of it.
+    const alongside = state.systems.filter(
+      (s) =>
+        s.sectorId === system.sectorId &&
+        s.id !== system.id &&
+        s.control === holder &&
+        !s.explored[enemy],
+    );
+    if (system.explored[enemy] && alongside.length === 0) continue;
+    if (!rng.chance(chance)) continue;
+    const itself = !system.explored[enemy];
     system.explored[enemy] = true;
+    for (const s of alongside) s.explored[enemy] = true;
+    const works = system.facilities.length;
+    const more =
+      alongside.length > 0
+        ? `${alongside.length} more of yours in the same chain`
+        : '';
     pushEvent(state, {
       kind: 'loss',
-      text: `Somebody on ${system.name} has talked. The ${factionName(enemy)} has it on their charts now.`,
+      text: itself
+        ? `Somebody on ${system.name} has talked. The ${factionName(enemy)} has its ${works} ` +
+          `${works === 1 ? 'building' : 'buildings'} and ${system.garrison} ashore on their charts now` +
+          (more ? `, and ${more} with it.` : '.')
+        : `Somebody on ${system.name} has talked, and it was not about ${system.name}. The ` +
+          `${factionName(enemy)} has ${more} on their charts now.`,
       systemId: system.id,
     });
   }

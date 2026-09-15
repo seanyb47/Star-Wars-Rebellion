@@ -49,13 +49,17 @@ describe('what a leaky harbour costs', () => {
     expect(smuggledShare(theirs, 'alliance')).toBe(0);
   });
 
-  it('puts a thin island of yours on the enemy’s charts, and never a firm one', () => {
+  it('puts a thin island of yours on the enemy’s charts, and the chain with it', () => {
     const state = generateGalaxy(101, 'empire');
     // Every Confederate island starts inside a Reach the Crown has charted,
-    // so this is an island of theirs taken later, out past the charts.
-    const [thin, firm] = state.systems.filter((s) => s.control === 'alliance');
-    thin.explored.empire = false;
+    // so these are islands of theirs taken later, out past the charts.
+    const held = state.systems.filter((s) => s.control === 'alliance');
+    const thin = held[0];
+    const neighbour = held.find((s) => s.sectorId === thin.sectorId && s.id !== thin.id);
+    for (const s of held) s.explored.empire = false;
+    for (const s of held) s.support.alliance = 95;
     thin.support.alliance = 20;
+
     let leaked = 0;
     for (let seed = 1; seed <= 300 && !thin.explored.empire; seed++) {
       leakInformation(state, createRng(seed));
@@ -63,11 +67,19 @@ describe('what a leaky harbour costs', () => {
     }
     expect(leaked).toBeGreaterThan(0);
     expect(state.events.some((e) => /has talked/.test(e.text))).toBe(true);
+    // A harbour that talks talks about its neighbours: anything of theirs in
+    // the same chain goes on the charts with it, however firm it is itself.
+    if (neighbour) expect(neighbour.explored.empire).toBe(true);
 
-    firm.explored.empire = false;
-    firm.support.alliance = 95;
-    for (let seed = 1; seed <= 300; seed++) leakInformation(state, createRng(seed));
-    expect(firm.explored.empire).toBe(false);
+    // A firm island in a chain of its own never says a word.
+    const quiet = held.find((s) => s.sectorId !== thin.sectorId && !s.explored.empire);
+    if (quiet) {
+      for (const s of state.systems) {
+        if (s.control === 'alliance' && s.sectorId === quiet.sectorId) s.support.alliance = 95;
+      }
+      for (let seed = 1; seed <= 300; seed++) leakInformation(state, createRng(seed));
+      expect(quiet.explored.empire).toBe(false);
+    }
   });
 
   it('says so the day an island slips a band, and says nothing on the days it holds', () => {

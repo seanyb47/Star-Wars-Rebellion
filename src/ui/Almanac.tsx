@@ -242,14 +242,15 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
         {terms.mutiny.toLowerCase()} pays you nothing and hands the enemy{' '}
         {Math.round(SMUGGLED_SHARE.uprising * 100)}%. Every coin the smugglers take is a coin the
         other side banks, so a Reach you have let go sour is paying for their fleet. A thin island
-        talks, too: sooner or later it turns up on their charts.
+        talks, too: sooner or later it turns up on their charts with everything on it — its
+        buildings, its companies, and any island of yours in the same chain they had not found.
         <br />
         <br />
         <b>Companies ashore answer both.</b> A firm island needs none; a steady one asks for{' '}
         {GARRISON_FOR_BAND.steady}; a thin one for {GARRISON_FOR_BAND.thin}, and under that it will
         rise; {GARRISON_FOR_BAND.uprising} will face down a {terms.mutiny.toLowerCase()} whatever
-        the island still thinks of you. Every company also takes a tenth off what the smugglers
-        move, so ten of them shut the back door however sour the island has gone.
+        the island still thinks of you. Every company also takes a twentieth off what the
+        smugglers move — a hand on the problem, not an answer to it.
       </div>
 
       <div className="section-title">How the war is won</div>

@@ -1171,6 +1171,7 @@ not a bark, and it goes in the text.
 
 ## 15. CHANGELOG
 
+- **2026-09-15 v6.5** — Companies take a **twentieth** off the smugglers apiece, not a tenth: a hand on disloyalty rather than a cure. A leaking island now gives away what stands on it, how many hold it, and any island of yours in the same chain the enemy had not charted.
 - **2026-09-15 v6.4** — **One pool of room.** Ground and Water are withdrawn as separate slot types, for the reason Sweetwater was withdrawn before them: two numbers per island to answer one question. An island has room to build, every building takes one berth of it whatever the building is, and companies and hulls take none. Saves bump to v4.
 - **2026-09-15 v6.3** — **Garrisons answer to allegiance.** What an island asks for is set by its band — none when firm, one steady, four thin, six in revolt — and six companies ashore will face down a revolt whatever the island thinks. Every company also takes a tenth off the smugglers' share, so ten shut the back door. Both advisors will now explain allegiance and garrisons on request, and name the islands it is costing.
 - **2026-09-15 v6.2** — **Allegiance is a balance.** Every inhabited island's loyalty to the two factions adds up to a hundred; there is no undecided share. A point one side wins is a point the other loses, so a parley no longer takes a separate bite out of the enemy and an incitement hands the inciter everything it strips from the governor. An unaligned island comes over at a flat eighty — a supermajority — rather than sixty with a lead.

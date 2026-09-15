@@ -176,7 +176,7 @@ function buildAnswers(state: GameState): Answer[] {
             SMUGGLED_SHARE.steady * 100,
           )}% of its trade goes out the back to them. Under that it is thin — ${Math.round(
             SMUGGLED_SHARE.thin * 100,
-          )}%, and it starts telling them things. An island in ${terms.mutiny.toLowerCase()} pays us nothing and pays them half. These are the islands costing us most, Imperator.`
+          )}%, and it starts telling them what we have here and in the rest of the chain. An island in ${terms.mutiny.toLowerCase()} pays us nothing and pays them half. These are the islands costing us most, Imperator.`
         : `Nobody's half in love with both of us — every island's hundred points are split between us and the Crown, so a point we take is a point off them. Firm at ${SUPPORT_FIRM} and the harbour's honest. Steady at ${SUPPORT_STEADY} and ${Math.round(
             SMUGGLED_SHARE.steady * 100,
           )} in every hundred slips out the back. Thin, and it's ${Math.round(
@@ -189,8 +189,8 @@ function buildAnswers(state: GameState): Answer[] {
       id: 'garrisons',
       question: `What are ${terms.garrison.toLowerCase()}s for?`,
       reply: voice
-        ? `Order, and the customs books. A firm island needs nobody; a steady one wants ${GARRISON_FOR_BAND.steady}; a thin one wants ${GARRISON_FOR_BAND.thin} or it will rise; ${GARRISON_FOR_BAND.uprising} companies will face down a ${terms.mutiny.toLowerCase()} whatever the island thinks of us. And every company ashore takes a tenth off what the smugglers move, so ten of them shut the back door altogether. These are short of what they are asking for.`
-        : `Keeping the peace and watching the wharf. Firm island, nobody. Steady, ${GARRISON_FOR_BAND.steady}. Thin, ${GARRISON_FOR_BAND.thin} or it goes up. ${GARRISON_FOR_BAND.uprising} will sit on a ${terms.mutiny.toLowerCase()} till it stops shouting. Every company takes a tenth off the smugglers too — ten and nothing leaves that shouldn't. These are undermanned, General.`,
+        ? `Order, and the customs books. A firm island needs nobody; a steady one wants ${GARRISON_FOR_BAND.steady}; a thin one wants ${GARRISON_FOR_BAND.thin} or it will rise; ${GARRISON_FOR_BAND.uprising} companies will face down a ${terms.mutiny.toLowerCase()} whatever the island thinks of us. And every company ashore takes a twentieth off what the smugglers move, which is a hand on it rather than a cure. These are short of what they are asking for.`
+        : `Keeping the peace and watching the wharf. Firm island, nobody. Steady, ${GARRISON_FOR_BAND.steady}. Thin, ${GARRISON_FOR_BAND.thin} or it goes up. ${GARRISON_FOR_BAND.uprising} will sit on a ${terms.mutiny.toLowerCase()} till it stops shouting. Every company takes a twentieth off the smugglers too — it helps, it doesn't fix it. These are undermanned, General.`,
       mood: short.length > 2 ? 'grave' : short.length > 0 ? 'neutral' : 'encouraged',
       islands: short,
     },

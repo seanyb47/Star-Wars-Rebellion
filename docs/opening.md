@@ -73,7 +73,7 @@ level.
 
 **Garrisons.** What an island asks for follows its band: none when firm, one
 when steady, four when thin, six in revolt — and six ashore will end a revolt
-on its own. Every company also takes a tenth off the smugglers' share. Starting
+on its own. Every company also takes a twentieth off the smugglers' share. Starting
 garrisons are the requirement plus one, capped at six, so a loyal island opens
 with two companies and a sullen one with five.
 

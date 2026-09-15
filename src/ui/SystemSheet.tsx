@@ -446,11 +446,18 @@ export function SystemSheet({
 
       {tab === 'buildings' && (
         <>
-          {/* One slot per slot the island has, so what is built and what is
-              still free read as the same picture rather than two numbers. */}
+          {/* Room first, at one length: a bar that is the width of the panel
+              on every island, so two islands are compared by how full they
+              are. The board under it holds what actually stands — an empty
+              berth is a space on the bar, not a box in a grid that grew
+              longer the more room an island had. */}
+          <RoomBar system={system} />
+          <p className="tiny muted" style={{ margin: '6px 0 10px' }}>
+            {system.facilities.length} of {slots} berths taken
+            {freeSlots(system) > 0 ? `, ${freeSlots(system)} free` : ', and no room left'}.
+          </p>
           <SlotBoard
-            ghosts={Math.max(0, slots - system.facilities.length)}
-            empty={`Nothing stands on ${system.name}, and there is nowhere to put anything.`}
+            empty={`Nothing stands on ${system.name}${slots > 0 ? ' yet' : ', and there is nowhere to put anything'}.`}
           >
             {system.facilities.map((facility) => (
               <Slot

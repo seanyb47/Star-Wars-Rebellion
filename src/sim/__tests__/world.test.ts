@@ -3,7 +3,7 @@ import factionData from '../../data/factions.json';
 import characterRoster from '../../data/characters.json';
 import reachData from '../../data/reaches.json';
 import terms from '../../data/terms.json';
-import { FACILITY_LABEL, GOLD_PER_DAY, YARD_BUILDS } from '../constants';
+import { FACILITY_LABEL, GARRISON_SMUGGLING_CUT, GOLD_PER_DAY, YARD_BUILDS } from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { startMission } from '../missions';
 import { reachesOfSea, seasOf, summariseReach, summariseSea } from '../reach';
@@ -205,7 +205,7 @@ describe('the Reach summary', () => {
     // Full pace and nothing smuggled at a hundred; half pace at nothing, less
     // whatever the companies ashore fail to stop leaving by the back door.
     expect(mines).toBeGreaterThan(0);
-    const leak = Math.max(0, 0.25 * (1 - 0.1 * island.garrison));
+    const leak = Math.max(0, 0.25 * (1 - GARRISON_SMUGGLING_CUT * island.garrison));
     expect(atFull - atNone).toBeCloseTo(rate - rate * 0.5 * (1 - leak), 5);
   });
 
