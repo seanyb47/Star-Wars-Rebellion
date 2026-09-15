@@ -19,6 +19,7 @@ import {
   RESEARCH_PROGRESS,
   SABOTAGE_PRIORITY,
   SURVEY_PER_ISLAND,
+  MISSION_PARTY_MAX,
   MISSION_WORK_DAYS,
   TRAVEL_DAYS_CROSS_SECTOR,
   TRAVEL_DAYS_IN_SECTOR,
@@ -353,6 +354,92 @@ export function foilChance(
   return Math.max(0, Math.min(0.85, risk * craft));
 }
 
+/**
+ * Officers who could go along on an errand leaving from where this one stands.
+ *
+ * Same side, free, and in the same harbour — ashore on the island or aboard a
+ * fleet lying off it, because a boat pulls for the beach from either. A Lord
+ * may not: their ship would be pinned by their absence and the point of a
+ * Lord's errand is that it costs them their hull, not somebody else's.
+ */
+export function companionsFor(state: GameState, leader: Character): Character[] {
+  const here = leader.locationSystemId;
+  return state.characters.filter(
+    (c) =>
+      c.id !== leader.id &&
+      c.faction === leader.faction &&
+      c.status === 'available' &&
+      !c.mission &&
+      !c.escorting &&
+      !lordOfName(c.name) &&
+      c.locationSystemId === here,
+  );
+}
+
+/** Everyone on this officer's errand, the officer first. */
+export function partyOf(state: GameState, leader: Character): Character[] {
+  const ids = leader.mission?.party ?? [];
+  return [
+    leader,
+    ...ids
+      .map((id) => state.characters.find((c) => c.id === id))
+      .filter((c): c is Character => c !== undefined),
+  ];
+}
+
+/**
+ * What the boat is worth at each thing, which is what its best hand is worth.
+ *
+ * A party is not a committee: you bring the forger for the forging and the
+ * talker for the talking, and the errand goes as well as the best person on it
+ * could have made it go alone. Adding a second-best nobody changes nothing,
+ * which is the right incentive — take who the job needs, not everybody.
+ */
+export function partyStrength(state: GameState, leader: Character): Character {
+  return bestOf(partyOf(state, leader));
+}
+
+/**
+ * The same question asked of a boat that has not sailed yet, so the sheet can
+ * show the odds moving as people are added to it.
+ */
+export function bestOf(members: Character[]): Character {
+  const [first, ...rest] = members;
+  if (rest.length === 0) return first;
+  return {
+    ...first,
+    diplomacy: Math.max(...members.map((c) => c.diplomacy)),
+    espionage: Math.max(...members.map((c) => c.espionage)),
+    combat: Math.max(...members.map((c) => c.combat)),
+    leadership: Math.max(...members.map((c) => c.leadership)),
+  };
+}
+
+/**
+ * Put the boat's crew back where their errand left them.
+ *
+ * Companions carry no Mission of their own, so nothing in the day's tick moves
+ * or frees them; this does, once a day, off the leader's state. Run rather
+ * than hooked into the six places an errand can end, for the same reason the
+ * Lords are reseated the same way: five would have been remembered.
+ */
+export function syncMissionParties(state: GameState): void {
+  for (const c of state.characters) {
+    if (!c.escorting) continue;
+    const leader = state.characters.find((x) => x.id === c.escorting);
+    const mission = leader?.mission;
+    if (!leader || !mission || !mission.party?.includes(c.id)) {
+      // The errand is over, however it ended. They are free where they stand.
+      c.escorting = undefined;
+      if (c.status === 'on_mission') c.status = 'available';
+      continue;
+    }
+    // Still out: they are wherever the errand is.
+    c.status = 'on_mission';
+    c.locationSystemId = leader.locationSystemId;
+  }
+}
+
 export function missionError(
   state: GameState,
   characterId: string,
@@ -400,6 +487,7 @@ export function startMission(
   characterId: string,
   targetSystemId: string,
   chosen?: MissionType,
+  companionIds: string[] = [],
 ): void {
   const error = missionError(state, characterId, targetSystemId, chosen);
   if (error) throw new Error(error);
@@ -408,10 +496,17 @@ export function startMission(
   const days = travelDays(state, character.locationSystemId, targetSystemId);
   const type = chosen ?? missionTypeFor(state, target, character.faction as PlayableFaction)!;
 
+  // Whoever is actually allowed in the boat, capped at a boatful. Anybody
+  // named who cannot go is dropped rather than refusing the whole errand: the
+  // sheet offers only the eligible, so a stale id is a race, not an order.
+  const allowed = new Set(companionsFor(state, character).map((c) => c.id));
+  const party = companionIds.filter((id) => allowed.has(id)).slice(0, MISSION_PARTY_MAX - 1);
+
   // Whoever was serving aboard a fleet here goes over the side for the boat:
   // an officer away at a parley is not also commanding a squadron.
+  const aboard = new Set([character.id, ...party]);
   for (const fleet of state.fleets) {
-    fleet.officerIds = fleet.officerIds.filter((id) => id !== character.id);
+    fleet.officerIds = fleet.officerIds.filter((id) => !aboard.has(id));
   }
   character.status = 'on_mission';
   character.mission = {
@@ -419,7 +514,13 @@ export function startMission(
     targetSystemId,
     phase: days > 0 ? 'travelling' : 'working',
     daysRemaining: days > 0 ? days : MISSION_WORK_DAYS,
+    party: party.length > 0 ? party : undefined,
   };
+  for (const id of party) {
+    const mate = getCharacter(state, id);
+    mate.status = 'on_mission';
+    mate.escorting = character.id;
+  }
   const errand =
     type === 'incite'
       ? 'to stir up trouble'
@@ -645,7 +746,8 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
     success = rng.chance(recruitChance(character, recruit));
     recruitOutcome(state, character, recruit, system, success);
   } else {
-    success = rng.chance(successChance(character, mission.type));
+    // The boat's best hand at the thing, not the officer who signed for it.
+    success = rng.chance(successChance(partyStrength(state, character), mission.type));
     if (mission.type === 'incite') {
       inciteOutcome(state, character, system, success);
     } else if (mission.type === 'sabotage') {

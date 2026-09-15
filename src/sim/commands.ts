@@ -112,8 +112,11 @@ export function sendDiplomat(
   characterId: string,
   targetSystemId: string,
   type?: MissionType,
+  companionIds: string[] = [],
 ): CommandResult {
-  return run(state, (draft) => startMission(draft, characterId, targetSystemId, type));
+  return run(state, (draft) =>
+    startMission(draft, characterId, targetSystemId, type, companionIds),
+  );
 }
 
 export function resolvePendingMission(

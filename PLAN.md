@@ -983,3 +983,43 @@ measurement.
 Proved rather than hoped: with `--app-h` forced 98pt taller than `inset: 0`
 gives, the app and the tab bar both follow it to the new bottom. Unchanged at
 the normal height, so nothing moves where nothing was wrong.
+
+## One order, four in the boat — 15 September
+
+**The console was already tethered.** Sean asked whether the bottom panel could
+be pinned to the screen with the map flexing to fit. It is, and it does:
+`.app` is a flex column, the tab bar is `flex: none` at 64pt, and `.screen` is
+`flex: 1`. Measured at three glass heights: the tab bar stays 64pt hard against
+the bottom and the map absorbs every point of the difference — 678, 574, 774.
+The dead band was never the layout, it was the app being told the wrong height,
+which `--app-h` now measures off `visualViewport` rather than inferring.
+
+**"Send on mission", and nothing else.** An officer had two buttons of equal
+weight, one of which was a way of looking rather than an order. Finding
+somebody is now a quiet link on the line that says where they are — *Show
+Highwater on the chart* — and the action row is one primary button.
+
+**Up to four in a boat.** Sean's rule. A mission carries a `party`, the leader
+holds it and the companions carry `escorting` pointing back, so the day's tick
+still resolves one errand however many went on it. Who may go: same side, free,
+and in the same harbour — ashore or aboard a hull lying off it, because a boat
+pulls for the beach from either. A Lord may not, because their absence pins
+their own ship and that cost should not be somebody else's to pay.
+
+**A boat is worth its best hand, not its average.** `bestOf` takes the highest
+of each ability across everyone in it. Bring the forger for the forging; a
+second-best passenger changes nothing, which is the right incentive — take who
+the work needs, not everybody. The errand sheet shows the odds moving as chips
+are added, off the same function the resolution uses.
+
+`syncMissionParties` runs daily after the errands resolve, and moves or frees
+the companions off the leader's state — the same pattern as `reseatLords`, and
+for the same reason: there are six ways an errand can end and five of them
+would have been remembered.
+
+**Roles are decorative and always have been.** Spec Ops, Diplomat, Recruiter,
+Leader, General, Tidemaster, Deep-touched, Ship Design, Wing-Captain, Drill
+Research — eleven labels, read by no rule anywhere in `src/sim`. They are
+badges on the card; the four ratings decide everything. Whether they should
+gate anything is the Admiral/Commander/General question from
+`docs/rebellion-personnel.md`, still open.

@@ -274,6 +274,12 @@ export const HELD_SUPPORT_LEVEL = 65;
 export const TRAVEL_DAYS_IN_SECTOR = 3;
 export const TRAVEL_DAYS_CROSS_SECTOR = 10;
 export const MISSION_WORK_DAYS = 15;
+/**
+ * How many can go on one errand, the officer leading it included. Sean's rule,
+ * 15 September. Four is enough for a boat and few enough that sending one is
+ * still a decision about who you are leaving behind.
+ */
+export const MISSION_PARTY_MAX = 4;
 export const FOIL_CHANCE = 0.1;
 export const FOIL_INJURY_DAYS = 20;
 /** Stirring up a revolt on an island the enemy holds. Far more dangerous than

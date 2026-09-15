@@ -91,6 +91,10 @@ export function CharacterSheet({
   // sleeps until they are back aboard. The button says so, because the cost
   // is the whole point of the choice.
   const lord = isLord(character);
+  // Along on somebody else's errand: they have no mission of their own to read.
+  const escorting = character.escorting
+    ? state.characters.find((c) => c.id === character.escorting)
+    : undefined;
   const atSea = Boolean(ship?.voyage);
 
   return (
@@ -99,6 +103,8 @@ export function CharacterSheet({
       subtitle={
         character.status === 'captured'
           ? `In irons at ${location?.name ?? 'unknown'}`
+          : escorting
+            ? `Away with ${escorting.name}`
           : ship
             ? `Aboard the ${ship.name}${ship.voyage ? ', at sea' : `, at ${location?.name ?? 'unknown'}`}`
             : `Ashore at ${location?.name ?? 'unknown'}`
@@ -106,18 +112,17 @@ export function CharacterSheet({
       onClose={onClose}
       stacked
       actions={
-        <>
-          <button className="btn btn--flex" onClick={onLocate}>
-            Show on chart
-          </button>
-          <button
-            className="btn btn--flex btn--primary"
-            disabled={character.status !== 'available' || (lord && atSea)}
-            onClick={onSendOnMission}
-          >
-            {lord && atSea ? 'At sea' : 'Send ashore'}
-          </button>
-        </>
+        /* One thing to do with an officer. "Show on chart" was sitting beside
+           it as an equal, which it is not — finding somebody is a way of
+           looking, not an order — so it is a quiet link on the line that says
+           where they are, and this row is the order. */
+        <button
+          className="btn btn--flex btn--primary"
+          disabled={character.status !== 'available' || (lord && atSea)}
+          onClick={onSendOnMission}
+        >
+          {lord && atSea ? 'At sea' : 'Send on mission'}
+        </button>
       }
     >
       {/* The painting, full width and full height, and the lore under it.
@@ -138,6 +143,11 @@ export function CharacterSheet({
 
       <div className="row row--between" style={{ marginTop: 10, alignItems: 'baseline' }}>
         <div style={{ minWidth: 0 }}>
+          {location && (
+            <button className="linkish" onClick={onLocate}>
+              Show {location.name} on the chart
+            </button>
+          )}
           {character.epithet && (
             <div className="serif charsheet__epithet">&ldquo;{character.epithet}&rdquo;</div>
           )}

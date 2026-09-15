@@ -1,5 +1,9 @@
+import { useState } from 'react';
 import {
+  bestOf,
+  companionsFor,
   MISSION_LABEL,
+  MISSION_PARTY_MAX,
   abductOn,
   captiveOn,
   missionsOffered,
@@ -41,7 +45,7 @@ export function MissionChoiceSheet({
   state: GameState;
   characterId: string;
   systemId: string;
-  onChoose: (type: MissionType) => void;
+  onChoose: (type: MissionType, companionIds: string[]) => void;
   onClose: () => void;
 }) {
   const character = state.characters.find((c) => c.id === characterId)!;
@@ -53,6 +57,19 @@ export function MissionChoiceSheet({
   const captive = abductOn(state, island, faction);
   const held = captiveOn(state, island, faction);
 
+  // Who else is in this harbour and free to get in the boat. Up to four go,
+  // the officer leading it included.
+  const mates = companionsFor(state, character);
+  const [taking, setTaking] = useState<string[]>([]);
+  const full = taking.length >= MISSION_PARTY_MAX - 1;
+  const toggle = (id: string) =>
+    setTaking((was) =>
+      was.includes(id) ? was.filter((x) => x !== id) : full ? was : [...was, id],
+    );
+  // The odds on each card are the boat's, not the officer's, so adding the
+  // right person visibly moves them before you commit to anything.
+  const boat = bestOf([character, ...mates.filter((m) => taking.includes(m.id))]);
+
   return (
     <Sheet
       title={island.name}
@@ -60,9 +77,34 @@ export function MissionChoiceSheet({
       onClose={onClose}
       stacked
     >
+      {mates.length > 0 && (
+        <>
+          <div className="section-title">Who else goes</div>
+          <p className="tiny muted" style={{ margin: '0 0 8px' }}>
+            Anyone in this harbour, ashore or aboard a hull lying off it. Four in the boat at
+            most, and it is only as good as its best hand at the job — take who the work needs.
+          </p>
+          <div className="chips" style={{ marginBottom: 12 }}>
+            {mates.map((mate) => {
+              const on = taking.includes(mate.id);
+              return (
+                <button
+                  key={mate.id}
+                  className={`chip${on ? ' chip--on' : ''}`}
+                  disabled={!on && full}
+                  onClick={() => toggle(mate.id)}
+                >
+                  {mate.name.split(' ').slice(-1)[0]}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
       <div className="stack">
         {offered.map((type) => {
-          const odds = type === 'recruit' ? null : Math.round(successChance(character, type) * 100);
+          const odds = type === 'recruit' ? null : Math.round(successChance(boat, type) * 100);
           const what =
             type === 'recruit' && recruit
               ? `Sign on ${recruit.name}, who is ashore here, for good.`
@@ -72,7 +114,7 @@ export function MissionChoiceSheet({
                   ? `Break ${held.name} out of the cells and get them home.`
                   : WHAT[type];
           return (
-            <button key={type} className="card card--tap choice" onClick={() => onChoose(type)}>
+            <button key={type} className="card card--tap choice" onClick={() => onChoose(type, taking)}>
               <span className="choice__icon">
                 <CategoryIcon kind="missions" size={22} />
               </span>

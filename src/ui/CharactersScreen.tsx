@@ -13,6 +13,14 @@ function aboardLine(state: GameState, character: Character): string | null {
 }
 
 function missionLine(state: GameState, character: Character): string | null {
+  // Somebody along on another officer's errand carries no errand of their own,
+  // so read it off whoever is leading them. Without this a companion's card
+  // wore the badge for being away and a line saying they were still at home.
+  if (character.escorting) {
+    const leader = state.characters.find((c) => c.id === character.escorting);
+    const line = leader ? missionLine(state, leader) : null;
+    if (leader && line) return `${line}, with ${leader.name.split(' ').slice(-1)[0]}`;
+  }
   const mission = character.mission;
   if (!mission) return null;
   const target = state.systems.find((s) => s.id === mission.targetSystemId);

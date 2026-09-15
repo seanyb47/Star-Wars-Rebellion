@@ -1,11 +1,29 @@
 import { describe, expect, it } from 'vitest';
+import { advanceDay } from '../advanceDay';
 import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
 import { isLord } from '../lords';
-import { advanceMissions, craftGrade, isAbductTarget, isCommandTarget, isResearchTarget, isRescueTarget, missionTypeFor, missionsOffered, startMission } from '../missions';
+import {
+  advanceMissions,
+  bestOf,
+  companionsFor,
+  craftGrade,
+  endMission,
+  isAbductTarget,
+  isCommandTarget,
+  isMissionTarget,
+  isResearchTarget,
+  isRescueTarget,
+  missionTypeFor,
+  missionsOffered,
+  partyOf,
+  partyStrength,
+  successChance,
+  startMission,
+} from '../missions';
 import { effectiveSpec, queueBuild } from '../build';
 import { buildSpec, shipsFor } from '../constants';
-import { CAPTIVE_DAYS, MISSION_WORK_DAYS, RESEARCH_MIN_SUPPORT } from '../constants';
+import { CAPTIVE_DAYS, MISSION_PARTY_MAX, MISSION_WORK_DAYS, RESEARCH_MIN_SUPPORT } from '../constants';
 import type { Character, GameState, System } from '../types';
 
 function world(seed = 501): GameState {
@@ -196,5 +214,106 @@ describe('rescue', () => {
       }
     }
     expect(freed).toBe(true);
+  });
+});
+
+describe('a boat with more than one in it', () => {
+  it('takes who is in the same harbour, ashore or afloat, and nobody else', () => {
+    const state = generateGalaxy(21, 'empire');
+    const leader = state.characters.find((c) => c.faction === 'empire')!;
+    const here = leader.locationSystemId;
+    const eligible = companionsFor(state, leader);
+    for (const c of eligible) {
+      expect(c.locationSystemId).toBe(here);
+      expect(c.faction).toBe('empire');
+      expect(c.status).toBe('available');
+      expect(c.id).not.toBe(leader.id);
+    }
+    // Somebody on another island is not in the boat.
+    const far = state.characters.find(
+      (c) => c.faction === 'empire' && c.locationSystemId !== here,
+    );
+    if (far) expect(eligible.map((c) => c.id)).not.toContain(far.id);
+    // Nor is one of theirs.
+    const theirs = state.characters.find((c) => c.faction === 'alliance')!;
+    expect(eligible.map((c) => c.id)).not.toContain(theirs.id);
+  });
+
+  it('carries four at most, and the extras are simply not in it', () => {
+    const state = generateGalaxy(21, 'empire');
+    const leader = state.characters.find((c) => c.faction === 'empire')!;
+    const mates = companionsFor(state, leader);
+    const target = state.systems.find(
+      (s) => s.id !== leader.locationSystemId && isMissionTarget(state, s, 'empire'),
+    )!;
+    startMission(state, leader.id, target.id, undefined, mates.map((c) => c.id));
+    const party = partyOf(state, leader);
+    expect(party.length).toBeLessThanOrEqual(MISSION_PARTY_MAX);
+    expect(party[0].id).toBe(leader.id);
+    for (const mate of party.slice(1)) {
+      expect(mate.status).toBe('on_mission');
+      expect(mate.escorting).toBe(leader.id);
+      // A companion carries no errand of their own, so the day resolves one.
+      expect(mate.mission).toBeUndefined();
+    }
+  });
+
+  it('is worth its best hand at each thing, not its average', () => {
+    const state = generateGalaxy(21, 'empire');
+    const leader = state.characters.find((c) => c.faction === 'empire')!;
+    const mates = companionsFor(state, leader);
+    if (mates.length === 0) return;
+    const target = state.systems.find(
+      (s) => s.id !== leader.locationSystemId && isMissionTarget(state, s, 'empire'),
+    )!;
+    startMission(state, leader.id, target.id, undefined, mates.map((c) => c.id));
+    const all = partyOf(state, leader);
+    const boat = partyStrength(state, leader);
+    for (const ability of ['diplomacy', 'espionage', 'combat', 'leadership'] as const) {
+      expect(boat[ability]).toBe(Math.max(...all.map((c) => c[ability])));
+    }
+  });
+
+  it('is lifted by a specialist and unmoved by a passenger', () => {
+    const state = generateGalaxy(21, 'empire');
+    const leader = state.characters.find((c) => c.faction === 'empire')!;
+    const better = { ...leader, id: 'chr-ace', espionage: leader.espionage + 25 };
+    const worse = { ...leader, id: 'chr-dud', espionage: 1, diplomacy: 1, combat: 1, leadership: 1 };
+
+    // A better spy raises what the boat can do; a worse one changes nothing.
+    expect(bestOf([leader, better]).espionage).toBe(leader.espionage + 25);
+    expect(bestOf([leader, worse]).espionage).toBe(leader.espionage);
+    expect(successChance(bestOf([leader, better]), 'sabotage')).toBeGreaterThan(
+      successChance(leader, 'sabotage'),
+    );
+    expect(successChance(bestOf([leader, worse]), 'sabotage')).toBe(
+      successChance(leader, 'sabotage'),
+    );
+  });
+
+  it('brings everybody home when the errand ends, wherever it ended', () => {
+    let state = generateGalaxy(21, 'empire');
+    const leaderId = state.characters.find((c) => c.faction === 'empire')!.id;
+    const leader = state.characters.find((c) => c.id === leaderId)!;
+    const mates = companionsFor(state, leader).slice(0, 2);
+    if (mates.length === 0) return;
+    const mateIds = mates.map((c) => c.id);
+    const target = state.systems.find(
+      (s) => s.id !== leader.locationSystemId && isMissionTarget(state, s, 'empire'),
+    )!;
+    startMission(state, leaderId, target.id, undefined, mateIds);
+
+    state = advanceDay(state);
+    for (const id of mateIds) {
+      expect(state.characters.find((c) => c.id === id)!.status).toBe('on_mission');
+    }
+    // End it however it ends, then let a day pass.
+    endMission(state, leaderId);
+    state = advanceDay(state);
+    for (const id of mateIds) {
+      const mate = state.characters.find((c) => c.id === id)!;
+      expect(mate.status).toBe('available');
+      expect(mate.escorting).toBeUndefined();
+    }
   });
 });

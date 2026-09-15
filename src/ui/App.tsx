@@ -238,8 +238,13 @@ export function App() {
     setState(result.state);
   };
 
-  const sendOfficer = (characterId: string, systemId: string, type?: MissionType) => {
-    const result = sendDiplomat(state, characterId, systemId, type);
+  const sendOfficer = (
+    characterId: string,
+    systemId: string,
+    type?: MissionType,
+    companionIds: string[] = [],
+  ) => {
+    const result = sendDiplomat(state, characterId, systemId, type, companionIds);
     if (result.error) {
       flash(result.error);
       return;
@@ -685,7 +690,9 @@ export function App() {
           state={state}
           characterId={missionChoice.characterId}
           systemId={missionChoice.systemId}
-          onChoose={(type) => sendOfficer(missionChoice.characterId, missionChoice.systemId, type)}
+          onChoose={(type, companionIds) =>
+            sendOfficer(missionChoice.characterId, missionChoice.systemId, type, companionIds)
+          }
           onClose={() => setMissionChoice(null)}
         />
       )}

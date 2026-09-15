@@ -211,6 +211,11 @@ export interface Character {
   /** Days left of an `injured` status. Absent when not injured. */
   injuredDays?: number;
   mission?: Mission;
+  /**
+   * The officer whose errand this one is along on. Set on a companion for as
+   * long as the errand lasts; the leader holds the Mission itself.
+   */
+  escorting?: string;
 }
 
 /**
@@ -235,6 +240,12 @@ export interface Mission {
   targetSystemId: string;
   phase: 'travelling' | 'working';
   daysRemaining: number;
+  /**
+   * Who else went. Only the officer leading an errand carries the Mission;
+   * the rest of the boat carry `escorting` pointing back at them, so the
+   * day's tick resolves one errand however many people are on it.
+   */
+  party?: string[];
 }
 
 export interface FactionState {

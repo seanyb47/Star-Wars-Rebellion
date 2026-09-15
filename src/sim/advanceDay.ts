@@ -6,7 +6,7 @@ import { advanceFleets, updateBlockades } from './fleets';
 import { allLordsTaken, powerAt, reseatLords, syncHome } from './lords';
 import { collectIncome, payUpkeep, recomputeLedger } from './economy';
 import { cloneState, pushEvent, shiftSupport } from './helpers';
-import { advanceMissions } from './missions';
+import { advanceMissions, syncMissionParties } from './missions';
 import { createRng } from './rng';
 import {
   driftSupport,
@@ -48,6 +48,11 @@ export function advanceDay(state: GameState): GameState {
   // say which ones slipped.
   const bands = loyaltyBands(next);
   advanceMissions(next, rng);
+  // Everyone else out in a boat moves and comes home with whoever is leading
+  // them; only the leader carries the errand. After the errands run, so a
+  // party lands and is freed on the same day its leader is rather than the
+  // morning after.
+  syncMissionParties(next);
   // Opinion cools before control is re-derived, so a hold nobody is keeping up
   // can be the thing that loses an island this morning.
   driftSupport(next);
