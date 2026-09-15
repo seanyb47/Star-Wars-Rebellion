@@ -13,6 +13,7 @@ import {
   GARRISON_FOR_BAND,
   GARRISON_STRONG,
   PIRATE_LORDS,
+  LORD_POWER_TEXT,
   SMUGGLED_SHARE,
   SUPPORT_FIRM,
   SUPPORT_STEADY,
@@ -366,8 +367,8 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
       <div className="card small">
         <b>One mark, three sizes.</b> Every island is a dot in the colour of whoever holds it, and
         the chart speaks by making that dot bigger or smaller — never by changing what it is. Two
-        things are not dots: the <b>star</b>, which marks Highwater and wherever a Pirate Lord's
-        ship lies and nothing else ever, and a <b>numeral</b> on the two filters whose answer is a
+        things are not dots: the <b>star</b>, which marks Highwater and wherever a Pirate Lord is
+        standing and nothing else ever, and a <b>numeral</b> on the two filters whose answer is a
         figure you want exactly — Production and Idle crew.
         <br />
         <br />
@@ -402,8 +403,26 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
       <div className="card small">
         <b>One way each.</b> The Confederacy wins the day it holds Highwater. The Crown wins the
         day all three Pirate Lords — {PIRATE_LORDS.map((l) => l.name).join(', ')} — are in irons
-        at once. A Lord never leaves their ship: take the ship and you take the Lord. Captives are
-        exchanged after {CAPTIVE_DAYS} days, so the Crown's is a window, not a list.
+        at once. They are people, not ships: you take one by carrying them off a quay, the same
+        way anyone is taken. Captives are exchanged after {CAPTIVE_DAYS} days, so the Crown's is a
+        window, not a list.
+      </div>
+
+      {/* The three powers as rules, because they are rules. They used to live
+          on three ship sheets, where a Crown player never saw them and a
+          Confederate player only saw them by tapping a hull. */}
+      <div className="section-title">What the three Lords do</div>
+      <div className="card small">
+        Each of the three brings one thing nobody else in the war can. Two of them are paid for
+        with a posting — put the Lord in command of an island and the power works there — so a
+        power is somewhere you chose, costs you the officer, and can be seen and gone after.
+        {PIRATE_LORDS.map((l) => (
+          <span key={l.name}>
+            <br />
+            <br />
+            <b>{l.name.split(' ').slice(-1)[0]}.</b> {LORD_POWER_TEXT[l.power]}
+          </span>
+        ))}
       </div>
 
       <div className="section-title">Not built yet</div>

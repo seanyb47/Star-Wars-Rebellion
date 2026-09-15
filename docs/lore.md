@@ -35,7 +35,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 
 ### The Free Confederacy
 
-*The Free Confederacy of the Seven Seas* — "the Brethren" to friends, "the Confederacy of Thieves" to the Admiralty. A compact of pirate captains, smugglers, exiled nobles, Reef-folk clans, Urskin whaling fleets, and witch-islands that answer to nobody. Governed by an elected **Commodore** and a shouting-match council called the **Moot**. It has no capital and no base. It has **three Pirate Lords**, each bound to a ship, and wherever the *Free Harbor* lies at anchor the Moot is sitting. It has one place, **Freeport** — the island the articles were signed on, a different island every game. It flies Confederate colours and owes the Crown nothing, but it is a birthplace rather than a capital: nothing is lost by losing it.
+*The Free Confederacy of the Seven Seas* — "the Brethren" to friends, "the Confederacy of Thieves" to the Admiralty. A compact of pirate captains, smugglers, exiled nobles, Reef-folk clans, Urskin whaling fleets, and witch-islands that answer to nobody. Governed by an elected **Commodore** and a shouting-match council called the **Moot**. It has no capital and no base. It has **three Pirate Lords**. They are people, not hulls: the ships the stories give them are legends, named and never sailed, and where a Lord stands is where their power works. It has one place, **Freeport** — the island the articles were signed on, a different island every game. It flies Confederate colours and owes the Crown nothing, but it is a birthplace rather than a capital: nothing is lost by losing it.
 
 **The three Pirate Lords.** The Confederacy was formed at a meeting on an island past the Crown's charts, and the three captains who called it are the Confederacy: take all three and there is nobody left to lead it.
 
@@ -60,15 +60,15 @@ A Lord's ship does not sink. When her hull gives she strikes her colours, is tak
 
 **Commodore-Elect Adaira Hale** — the ***Free Harbor*** — Corwin Calloway's old coral-grown three-decker, named for what he meant her to be: any deck of his was a free harbor to anyone the Crown wanted. Sailors who fled the licensing raids found a berth aboard her, then a flag, then a cause. Everyone saw her burn at the Broken Chain; the Reef-folk sang the coral closed over the char and brought her out of the smoke.
 
-The Moot sails with her. Wherever she lies at anchor the island comes round to the Confederacy a point a day, and she is home to anyone coming back from a parley. Heaviest hull afloat.
+The Moot sails with *her*, not with the ship. While Hale holds a posting, that island comes round to the Confederacy a point a day — their ground, unaligned ground, or the Crown's.
 
 **Captain Silas Reyne** — the ***Swallowtail*** — a coral-grown sloop that should not be as fast as she is.
 
-Faster than anything on the water. The last thing in a harbor the enemy can hit: while another Confederate hull floats beside her, the shot finds that one.
+He is not off her for a night in his life, so far as anyone tells it. Any errand Reyne leads makes the passage in half the time.
 
 **Admiral Dorian Jessup** — the ***Ironback*** — the Crown dreadnought he took with him when he left the Imperium's service.
 
-The heaviest guns on the water, and every Confederate fleet lying in her harbor fights under the Admiral's command.
+What he learned aboard her he teaches to whatever squadron is lying where he is. While Jessup holds a posting, every fleet in that harbor fights under the Admiral's command.
 
 ## 3. The Peoples
 

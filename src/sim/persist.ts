@@ -3,10 +3,12 @@ import type { GameState } from './types';
 /**
  * Bumped when the shape of a saved game changes. v2 replaced the two-resource
  * economy with gold; v3 replaced the Confederacy's base with the three Pirate
- * Lords and their ships; v4 made an island's room one pool instead of two.
+ * Lords and their ships; v4 made an island's room one pool instead of two; v5
+ * took the Lords off the water and made them personnel, which leaves a v4 save
+ * carrying three hulls of classes that no longer have numbers.
  * An older save cannot be read and is not offered.
  */
-export const SAVE_KEY = 'seven-seas.save.v4';
+export const SAVE_KEY = 'seven-seas.save.v5';
 
 /** Saving is just `JSON.stringify` — the whole game is one plain object. */
 export function saveGame(state: GameState, storage: Storage | undefined = globalThis.localStorage): void {

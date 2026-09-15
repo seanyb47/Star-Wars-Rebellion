@@ -86,8 +86,17 @@ describe('the opponent expands', () => {
         const target = getSystem(state, sent.mission!.targetSystemId);
         expect(isMissionTarget(state, target, 'alliance')).toBe(true);
         // The island decides the errand, so the AI's mission type must be
-        // exactly what the island would give any officer standing on it.
-        expect(sent.mission!.type).toBe(missionTypeFor(state, target, 'alliance'));
+        // exactly what the island would give any officer standing on it —
+        // with one exception, which is the whole point of a posting. Command
+        // is offered everywhere and defaulted almost nowhere, so it is asked
+        // for by name; the opponent asks for it only to seat a Lord, and only
+        // on ground it is not already handing over.
+        if (sent.mission!.type === 'command') {
+          expect(isLord(sent)).toBe(true);
+          expect(target.control).not.toBe('empire');
+        } else {
+          expect(sent.mission!.type).toBe(missionTypeFor(state, target, 'alliance'));
+        }
       }
     }
     expect(dispatched).toBeGreaterThan(30);

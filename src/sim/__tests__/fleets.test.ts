@@ -14,7 +14,6 @@ import {
   fleetCapacity,
   fleetGuns,
   fleetsAt,
-  goAshore,
   isBlockaded,
   resolveLanding,
   sailDays,
@@ -24,17 +23,15 @@ import {
 } from '../fleets';
 import { generateGalaxy } from '../galaxy';
 import {
-  captureLord,
-  isLordShip,
-  lordFleet,
-  lordFleets,
+  allLordsTaken,
+  holdTheMoot,
+  lordPowerAt,
   lords,
-  powerAt,
-  reseatLords,
+  passageShare,
   syncHome,
 } from '../lords';
 import { PIRATE_LORDS } from '../constants';
-import { endMission, isDiplomacyTarget, missionError, startMission } from '../missions';
+import { isDiplomacyTarget, startMission } from '../missions';
 import { getSystem } from '../helpers';
 import { createRng } from '../rng';
 import type { GameState, PlayableFaction, ShipClassId, System } from '../types';
@@ -685,8 +682,7 @@ describe('the opening position', () => {
   it('puts a fleet on the water for both sides on day one', () => {
     const state = generateGalaxy(7, 'empire');
     for (const faction of ['empire', 'alliance'] as const) {
-      // The Confederacy's other three fleets are the Lords' own ships, tested below.
-      const fleets = state.fleets.filter((f) => f.faction === faction && !f.ships.some(isLordShip));
+      const fleets = state.fleets.filter((f) => f.faction === faction);
       expect(fleets).toHaveLength(1);
       expect(fleets[0].systemId).toBe(state.factions[faction].hqSystemId);
       expect(fleets[0].ships.length).toBeGreaterThanOrEqual(4);
@@ -717,182 +713,95 @@ describe('the opening position', () => {
   });
 });
 
-describe('the Pirate Lords and their ships', () => {
-  it('lie at the meeting place on day one, one ship each, unique and free to keep', () => {
+describe('the Pirate Lords', () => {
+  it('are three people ashore at the meeting place, and no hull of theirs is on the water', () => {
     const state = generateGalaxy(7, 'alliance');
-    expect(lordFleets(state)).toHaveLength(3);
+    const three = lords(state);
+    expect(three).toHaveLength(3);
+    for (const lord of three) {
+      expect(lord.faction).toBe('alliance');
+      expect(lord.status).toBe('available');
+      expect(lord.locationSystemId).toBe(state.factions.alliance.hqSystemId);
+    }
+    // The ships are legends. They are in the bible so a bio has something to
+    // name, and nowhere else: not buildable, and not floating.
     for (const lord of PIRATE_LORDS) {
-      const fleet = lordFleet(state, lord)!;
-      expect(fleet.systemId).toBe(state.factions.alliance.hqSystemId);
-      expect(fleet.ships).toHaveLength(1);
-      expect(shipSpec(lord.ship).upkeep).toBe(0);
+      expect(shipClass(lord.ship).legend).toBe(true);
       expect(shipsFor('alliance').some((c) => c.id === lord.ship)).toBe(false);
+      expect(state.fleets.some((f) => f.ships.some((sh) => sh.classId === lord.ship))).toBe(false);
     }
-    expect(shipSpec('harbor').hull).toBeGreaterThan(SHIP_ROLES.large.hull);
-    expect(shipSpec('swallowtail').pace).toBeLessThan(SHIP_ROLES.small.pace);
-    expect(shipSpec('ironback').guns).toBeGreaterThan(SHIP_ROLES.large.guns);
   });
 
-  it('lets a Lord take an errand, from their own deck and no other', () => {
+  it("halves the passage for Reyne's errands and nobody else's", () => {
     const state = generateGalaxy(7, 'alliance');
-    const [hale] = lords(state);
-    const fleet = lordFleet(state, PIRATE_LORDS[0])!;
+    const named = (n: string) => state.characters.find((c) => c.name === n)!;
+    expect(passageShare(named(PIRATE_LORDS[1].name))).toBe(0.5);
+    expect(passageShare(named(PIRATE_LORDS[0].name))).toBe(1);
+    expect(passageShare(named(PIRATE_LORDS[2].name))).toBe(1);
+
+    // And it shows in the errand: the same crossing, ordered by each of them.
     const target = state.systems.find(
       (s) => s.control === 'neutral' && s.populated && s.explored.alliance,
     )!;
-    // Her ship is in harbor, so she may go.
-    expect(missionError(state, hale.id, target.id)).toBeNull();
-
-    // At sea she may not: an errand starts on a quay.
-    fleet.voyage = { targetSystemId: target.id, daysRemaining: 3 };
-    expect(missionError(state, hale.id, target.id)).toMatch(/at sea/i);
-    fleet.voyage = undefined;
-
-    // She is still nobody else's crew, and not put ashore by hand.
-    expect(() => goAshore(state, fleet.id, hale.id)).toThrow(/does not leave/);
-    const other = lordFleet(state, PIRATE_LORDS[1])!;
-    expect(boardError(state, other.id, hale.id, 'alliance')).toMatch(/does not leave/);
-  });
-
-  it('pins the ship and puts her power to sleep while her Lord is ashore', () => {
-    const state = generateGalaxy(7, 'alliance');
-    const [hale] = lords(state);
-    const fleet = lordFleet(state, PIRATE_LORDS[0])!;
-    const here = fleet.systemId;
-    const target = state.systems.find(
-      (s) => s.control === 'neutral' && s.populated && s.explored.alliance,
-    )!;
-
-    // Aboard: she sails, and the Moot sits on her deck.
-    expect(sailError(state, fleet.id, target.id, 'alliance')).toBeNull();
-    expect(powerAt(state, here, 'moot')?.id).toBe(fleet.id);
-
+    const reyne = named(PIRATE_LORDS[1].name);
+    const hale = named(PIRATE_LORDS[0].name);
+    startMission(state, reyne.id, target.id);
     startMission(state, hale.id, target.id);
-    reseatLords(state);
-    expect(fleet.officerIds).not.toContain(hale.id);
-    // Ashore: the hull waits, and an empty deck works no power.
-    expect(sailError(state, fleet.id, target.id, 'alliance')).toMatch(/ashore/i);
-    expect(powerAt(state, here, 'moot')).toBeUndefined();
-
-    // Home again, and both come back.
-    endMission(state, hale.id);
-    reseatLords(state);
-    expect(fleet.officerIds).toContain(hale.id);
-    expect(sailError(state, fleet.id, target.id, 'alliance')).toBeNull();
-    expect(powerAt(state, here, 'moot')?.id).toBe(fleet.id);
+    expect(reyne.mission!.daysRemaining).toBeLessThan(hale.mission!.daysRemaining);
   });
 
-  it('seats and unseats the Lords as the days pass, without being asked', () => {
-    let state = generateGalaxy(7, 'alliance');
-    const haleId = lords(state)[0].id;
-    const target = state.systems.find(
-      (s) => s.control === 'neutral' && s.populated && s.explored.alliance,
-    )!;
-    startMission(state, haleId, target.id);
-
-    // One day is enough for the day's own pass to take her off the deck.
-    state = advanceDay(state);
-    let hale = state.characters.find((c) => c.id === haleId)!;
-    let harbor = lordFleet(state, PIRATE_LORDS[0])!;
-    expect(hale.status).not.toBe('available');
-    expect(harbor.officerIds).not.toContain(haleId);
-    expect(sailError(state, harbor.id, target.id, 'alliance')).toMatch(/ashore/i);
-
-    // And run it out. A player's own mission stops at the end of the work and
-    // asks whether to stay at it; answering "come home" is what a player does,
-    // so the test does it too.
-    for (let d = 0; d < 120; d++) {
-      state = advanceDay(state);
-      if (state.pendingDecisions.some((p) => p.characterId === haleId)) {
-        endMission(state, haleId);
-        state = advanceDay(state);
-        break;
-      }
-    }
-    hale = state.characters.find((c) => c.id === haleId)!;
-    harbor = lordFleet(state, PIRATE_LORDS[0])!;
-    expect(hale.status).toBe('available');
-    expect(harbor.officerIds).toContain(haleId);
-    expect(hale.locationSystemId).toBe(harbor.systemId);
-  });
-
-  it('takes the prize but not the Lord when the hull strikes with nobody aboard', () => {
+  it('brings an island round a point a day wherever Hale is posted, the Crown\'s included', () => {
     const state = generateGalaxy(7, 'alliance');
-    const [hale] = lords(state);
-    const fleet = lordFleet(state, PIRATE_LORDS[0])!;
-    const target = state.systems.find(
-      (s) => s.control === 'neutral' && s.populated && s.explored.alliance,
-    )!;
-    startMission(state, hale.id, target.id);
-    reseatLords(state);
+    const hale = state.characters.find((c) => c.name === PIRATE_LORDS[0].name)!;
+    // A Crown island, which the old rule would not touch at all.
+    const theirs = state.systems.find((s) => s.control === 'empire' && s.populated)!;
+    const before = theirs.support.alliance;
 
-    captureLord(state, fleet, fleet.ships[0]);
-    expect(hale.status).not.toBe('captured');
-    expect(state.events.some((e) => /does not have the Lord/.test(e.text))).toBe(true);
+    // Merely standing there does nothing. The power is bought with a posting.
+    hale.locationSystemId = theirs.id;
+    holdTheMoot(state);
+    expect(theirs.support.alliance).toBe(before);
+
+    theirs.commanderId = hale.id;
+    holdTheMoot(state);
+    expect(theirs.support.alliance).toBe(before + 1);
+    expect(theirs.support.empire).toBe(100 - (before + 1));
   });
 
-  it('moves home with the Free Harbor, and never onto a Crown island', () => {
+  it('never moves the Confederacy home onto a Crown island', () => {
     const state = generateGalaxy(7, 'alliance');
-    const harbor = lordFleet(state, PIRATE_LORDS[0])!;
-    const other = state.systems.find((s) => s.control === 'alliance')!;
-    harbor.systemId = other.id;
+    const mine = state.systems.filter((s) => s.control === 'alliance' && !s.uprising);
     syncHome(state);
-    expect(state.factions.alliance.hqSystemId).toBe(other.id);
-    harbor.systemId = state.factions.empire.hqSystemId;
-    syncHome(state);
+    expect(mine.some((s) => s.id === state.factions.alliance.hqSystemId)).toBe(true);
     expect(state.factions.alliance.hqSystemId).not.toBe(state.factions.empire.hqSystemId);
   });
 
-  it('strikes rather than sinks: the Lord goes in irons to Highwater, and comes back with the ship', () => {
+  it('ends the Confederacy only when all three are in irons at once', () => {
     const state = generateGalaxy(7, 'alliance');
-    const fleet = lordFleet(state, PIRATE_LORDS[1])!; // the Swallowtail
-    const here = getSystem(state, fleet.systemId);
-    // Alone in the harbor against the Crown's line.
-    state.fleets = state.fleets.filter((f) => f.faction !== 'alliance' || f.id === fleet.id);
-    for (let i = 0; i < 6; i++) addShip(state, here, 'empire', 'sovereign');
-    let next = state;
-    for (let d = 0; d < 30 && lordFleet(next, PIRATE_LORDS[1]); d++) next = advanceDay(next);
-    const reyne = next.characters.find((c) => c.name === PIRATE_LORDS[1].name)!;
-    expect(reyne.status).toBe('captured');
-    expect(reyne.locationSystemId).toBe(next.factions.empire.hqSystemId);
-    expect(next.events.some((e) => /strikes her colours/.test(e.text))).toBe(true);
-    // Exchanged after the usual sixty days, ship and all.
-    for (let d = 0; d < 70 && reyne.status === 'captured'; d++) {
-      next = advanceDay(next);
-      Object.assign(reyne, next.characters.find((c) => c.name === reyne.name)!);
-    }
-    expect(reyne.status).toBe('available');
-    const back = lordFleet(next, PIRATE_LORDS[1])!;
-    expect(back).toBeDefined();
-    expect(back.officerIds).toContain(reyne.id);
+    const three = lords(state);
+    expect(allLordsTaken(state)).toBe(false);
+    three[0].status = 'captured';
+    three[1].status = 'captured';
+    expect(allLordsTaken(state)).toBe(false);
+    three[2].status = 'captured';
+    expect(allLordsTaken(state)).toBe(true);
+    // One exchanged and the cause is alive again.
+    three[1].status = 'available';
+    expect(allLordsTaken(state)).toBe(false);
   });
 
-  it('the Swallowtail is hit last while another Confederate hull floats beside her', () => {
+  it('works a power only while the Lord holding the posting is available', () => {
     const state = generateGalaxy(7, 'alliance');
-    const fleet = lordFleet(state, PIRATE_LORDS[1])!;
-    const here = getSystem(state, fleet.systemId);
-    state.fleets = state.fleets.filter((f) => f.faction !== 'alliance' || f.id === fleet.id);
-    put(state, here, 'alliance', ['swift', 'swift']);
-    put(state, here, 'empire', ['razorback']);
-    const rng = createRng(3);
-    advanceFleets(state, rng);
-    advanceFleets(state, rng);
-    const tail = fleet.ships.find((s) => s.classId === 'swallowtail')!;
-    expect(tail.damage).toBe(0);
-  });
-
-  it('keeps the Commodore and the smuggler out of the fighting; only the Admiral leads the strike', () => {
-    let state = generateGalaxy(11, 'empire');
-    for (let d = 0; d < 240 && !state.winner; d++) {
-      state = advanceDay(state);
-      for (const fleet of lordFleets(state)) {
-        // The Ironback may sail with the strike on Highwater once the war is a
-        // few months old; the other two never go near a Crown island.
-        if (fleet.ships.some((s) => s.classId === 'ironback') && state.day >= 150) continue;
-        const at = fleet.voyage ? getSystem(state, fleet.voyage.targetSystemId) : getSystem(state, fleet.systemId);
-        expect(at.control, `day ${state.day}`).not.toBe('empire');
-      }
+    const hale = state.characters.find((c) => c.name === PIRATE_LORDS[0].name)!;
+    const here = getSystem(state, state.factions.alliance.hqSystemId);
+    here.commanderId = hale.id;
+    expect(lordPowerAt(state, here.id, 'moot')?.id).toBe(hale.id);
+    for (const status of ['on_mission', 'injured', 'captured'] as const) {
+      hale.status = status;
+      expect(lordPowerAt(state, here.id, 'moot')).toBeUndefined();
     }
+    hale.status = 'available';
+    expect(lordPowerAt(state, here.id, 'moot')?.id).toBe(hale.id);
   });
 });
 

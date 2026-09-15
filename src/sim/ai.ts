@@ -4,6 +4,8 @@ import {
   AI_MISSION_INTERVAL,
   AI_MISSION_PARTIES,
   AI_NEAR_BONUS,
+  AI_ABDUCT_BONUS,
+  AI_LORD_BOUNTY,
   AI_RECRUIT_BONUS,
   AI_SHIP_RESERVE,
   AI_TROOP_POOL,
@@ -35,7 +37,7 @@ import {
   sailError,
   sailFleet,
 } from './fleets';
-import { isLord, isLordShip, lordFleets } from './lords';
+import { isLord, lords, powerOf } from './lords';
 import {
   freeSlots,
   getSystem,
@@ -45,6 +47,7 @@ import {
 import {
   canStartMission,
   isMissionTarget,
+  abductOn,
   isRecruitTarget,
   quality,
   recruitOn,
@@ -117,7 +120,12 @@ export function runAI(state: GameState, rng: Rng): void {
       if (!aiBuild(state, ai)) break;
     }
   }
-  if (state.day % AI_MISSION_INTERVAL === 0) aiMission(state, ai);
+  if (state.day % AI_MISSION_INTERVAL === 0) {
+    // Postings before errands, so a Lord it wants in a chair is in the chair
+    // before the errand pass can send them somewhere else.
+    aiPostLords(state, ai);
+    aiMission(state, ai);
+  }
   if (state.day % AI_FLEET_INTERVAL === 0) aiFleet(state, ai, rng);
 }
 
@@ -235,6 +243,56 @@ function bestSpotFor(
 }
 
 /**
+ * Where the opponent puts its two seated Lords.
+ *
+ * Two of the three powers are bought with a Command posting, which means they
+ * are worth exactly as much as the island they are spent on — and the opponent
+ * had no way to spend them at all. It never took a posting of any kind: over
+ * eight wars and 2,620 days, commanders held a chair on zero island-days.
+ *
+ * So it seats them, on the island where each power does the most:
+ *
+ * - **The Moot** goes where there is allegiance left to win. An island already
+ *   at a hundred for the Confederacy gains nothing from an argument, so she
+ *   takes the nearest-to-flipping island that is not already theirs, and never
+ *   one the enemy holds — the power would work, and she would be lifted off
+ *   the quay inside a month.
+ * - **The Admiral** goes to the harbor with the most of its own hulls in it.
+ *   His edge is worth a share of every gun lying there, so it is worth most
+ *   where the guns are.
+ *
+ * Reyne is never seated: his power is the passage, and it is spent by sending
+ * him, which the errand pass below does on its own.
+ */
+function aiPostLords(state: GameState, ai: PlayableFaction): void {
+  for (const lord of lords(state)) {
+    if (lord.faction !== ai || lord.status !== 'available') continue;
+    if (state.systems.some((s) => s.commanderId === lord.id)) continue;
+    const power = powerOf(lord);
+    if (power === 'runner') continue;
+
+    const seats = state.systems.filter(
+      (s) =>
+        s.populated &&
+        s.explored[ai] &&
+        s.control !== otherFaction(ai) &&
+        canStartMission(state, lord.id, s.id),
+    );
+    const score = (s: System) =>
+      power === 'moot'
+        ? s.support[ai] >= 100
+          ? -1
+          : s.support[ai]
+        : state.fleets
+            .filter((f) => f.faction === ai && f.systemId === s.id && !f.voyage)
+            .reduce((n, f) => n + f.ships.length, 0);
+    const want = seats.sort((a, b) => score(b) - score(a))[0];
+    if (!want || score(want) <= 0) continue;
+    startMission(state, lord.id, want.id, 'command');
+  }
+}
+
+/**
  * The opponent's officers.
  *
  * It keeps more than one of them at sea — a faction with five officers and one
@@ -245,9 +303,17 @@ function bestSpotFor(
  */
 function aiMission(state: GameState, ai: PlayableFaction): void {
   const enemy = otherFaction(ai);
-  // A Lord never goes ashore, so the Commodore's diplomacy is not on offer.
+  // Lords are in the pool now. The line here used to read `&& !isLord(c)`,
+  // which was honest about the old design — a Lord was a hull, and a hull does
+  // not walk onto a quay — and it was why the opponent never used any of the
+  // three powers in sixteen measured wars. They are people; they take errands.
+  //
+  // Anyone already holding a posting is not: a chair is a job, and the errand
+  // pass would otherwise walk every commander it appointed straight back out
+  // of the room (`startMission` ends a posting when its holder leaves).
+  const posted = new Set(state.systems.map((s) => s.commanderId).filter(Boolean) as string[]);
   const idle = state.characters
-    .filter((c) => c.faction === ai && c.status === 'available' && !isLord(c))
+    .filter((c) => c.faction === ai && c.status === 'available' && !posted.has(c.id))
     .sort((a, b) => b.diplomacy - a.diplomacy);
   if (idle.length === 0) return;
 
@@ -264,7 +330,14 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
   const open = state.systems.filter(
     (s) =>
       isMissionTarget(state, s, ai) &&
-      (s.control === 'neutral' || s.control === enemy || failing(s) || isRecruitTarget(state, s, ai)),
+      (s.control === 'neutral' ||
+        s.control === enemy ||
+        failing(s) ||
+        isRecruitTarget(state, s, ai) ||
+        // Its own ground too, when one of theirs is standing on it: an enemy
+        // officer in your own harbor is the easiest prize in the game and the
+        // opponent used to walk straight past it.
+        abductOn(state, s, ai) !== undefined),
   );
   if (open.length === 0) return;
 
@@ -280,6 +353,15 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
   const worth = (officer: Character, s: System) => {
     const home = state.systems.find((x) => x.id === officer.locationSystemId)?.sectorId;
     const close = s.sectorId === home ? AI_NEAR_BONUS : 0;
+    // Somebody of theirs standing on a quay, and one of them is the war.
+    // This is new: the opponent had no term for abduction at all, so across
+    // sixteen measured games it never once tried it — while somebody was
+    // liftable somewhere on 95% of days. With the Lords made personnel, that
+    // was the Crown's whole route to victory going unused.
+    const mark = abductOn(state, s, ai);
+    if (mark) {
+      return close + AI_ABDUCT_BONUS + quality(mark) + (isLord(mark) ? AI_LORD_BOUNTY : 0);
+    }
     const recruit = recruitOn(state, s, ai);
     if (recruit) return close + AI_RECRUIT_BONUS + quality(recruit);
     // One of its own in the enemy's cells: worth more than any island.
@@ -329,49 +411,12 @@ function aiFleet(state: GameState, ai: PlayableFaction, rng: Rng): void {
   for (const fleet of fleetsOf(state, ai)) {
     if (isAtSea(fleet)) continue;
     if (fleet.id === strike) continue;
-    // A Lord's ship is the cause itself. It hides; it does not raid.
-    if (fleet.ships.some(isLordShip)) {
-      aiHideSeat(state, fleet);
-      continue;
-    }
     aiSignOn(state, fleet, ai);
     if (aiLandTroops(state, fleet, ai, rng)) continue;
     aiLoadAndSail(state, fleet, ai);
   }
 }
 
-/**
- * Keep a Lord's ship out of sight. She lies where she is until the Crown has
- * charted that island or has hulls off it; then she weighs anchor for an
- * island of the Confederacy's the Crown has not charted, the nearest first,
- * or failing that the one furthest from any Crown holding.
- */
-function aiHideSeat(state: GameState, fleet: Fleet): void {
-  const here = getSystem(state, fleet.systemId);
-  const crownHere = state.fleets.some(
-    (f) => f.faction === 'empire' && !isAtSea(f) && f.systemId === here.id,
-  );
-  const safeHere = here.control !== 'empire' && !here.uprising && !here.explored.empire && !crownHere;
-  if (safeHere) return;
-
-  const crownIslands = state.systems.filter((s) => s.control === 'empire');
-  const farFromCrown = (s: System) =>
-    crownIslands.reduce((n, c) => Math.min(n, Math.hypot(s.x - c.x, s.y - c.y)), Infinity);
-  const havens = state.systems
-    .filter((s) => s.control === 'alliance' && !s.uprising && s.id !== here.id)
-    .filter((s) => !state.fleets.some((f) => f.faction === 'empire' && !isAtSea(f) && f.systemId === s.id))
-    .sort((a, b) => {
-      const hidden = Number(!!a.explored.empire) - Number(!!b.explored.empire);
-      if (hidden !== 0) return hidden;
-      const near = travelDays(state, here.id, a.id) - travelDays(state, here.id, b.id);
-      if (a.explored.empire && b.explored.empire) return farFromCrown(b) - farFromCrown(a);
-      return near;
-    });
-  const haven = havens[0];
-  if (!haven) return;
-  if (sailError(state, fleet.id, haven.id, 'alliance') !== null) return;
-  sailFleet(state, fleet.id, haven.id, 'alliance');
-}
 
 /** One hull at a time, and never at the expense of the economy. */
 function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
@@ -444,15 +489,11 @@ function aiLoadAndSail(state: GameState, fleet: Fleet, ai: PlayableFaction): voi
   // Somewhere worth going: an enemy island, richest first. With companies
   // aboard, prefer one it can actually carry.
   const enemy = otherFaction(ai);
-  // A Lord's ship has to be found, not known about: an island one lies off
-  // is not a target until the Crown has charted it. Once charted it is the
-  // richest prize on the water, and the Crown may sail at it whoever holds it.
-  const lordsAt = new Set(
-    ai === 'empire' ? lordFleets(state).filter((f) => !isAtSea(f)).map((f) => f.systemId) : [],
-  );
-  const hides = (s: System) => lordsAt.has(s.id) && !s.explored.empire;
+  // The Lords are people now, so there is no hull to sail at: the Crown takes
+  // them off a quay with an officer, not out of the water with a squadron.
+  // What the navy is for is islands.
   const targets = state.systems.filter(
-    (s) => (s.control === enemy && s.populated && !hides(s)) || (lordsAt.has(s.id) && s.explored.empire),
+    (s) => s.control === enemy && s.populated,
   );
   // The hunt. The Crown cannot win without finding the Lords, and they are
   // out past its charts: with nothing worth sailing at, or with a fleet that
@@ -462,8 +503,7 @@ function aiLoadAndSail(state: GameState, fleet: Fleet, ai: PlayableFaction): voi
   if (targets.length === 0) return;
   const worth = (s: System) =>
     s.facilities.filter((f) => f.owner === enemy).length * 10 -
-    s.garrison * (fleet.troops > 0 ? 6 : 0) +
-    (lordsAt.has(s.id) && s.explored.empire ? 40 : 0);
+    s.garrison * (fleet.troops > 0 ? 6 : 0);
   const target = [...targets].sort((a, b) => worth(b) - worth(a))[0];
   if (target.id === fleet.systemId) return;
   if (fleetGuns(fleet) === 0 && fleet.troops === 0) return; // nothing to offer
@@ -472,7 +512,6 @@ function aiLoadAndSail(state: GameState, fleet: Fleet, ai: PlayableFaction): voi
 }
 
 /** Day before which the Admiral's ship is not committed to the strike. */
-const AI_STRIKE_LORD_DAY = 150;
 
 /**
  * The strike on Highwater.
@@ -487,10 +526,9 @@ const AI_STRIKE_LORD_DAY = 150;
 function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
   const capital = getSystem(state, state.factions.empire.hqSystemId);
   if (capital.control !== 'empire') return undefined;
-  // The Admiral's ship may lead the strike — it is what she is for — but
-  // the Commodore and the smuggler stay out of it.
-  const committable = (f: Fleet) => !f.ships.some((sh) => isLordShip(sh) && sh.classId !== 'ironback');
-  const candidates = fleetsOf(state, 'alliance').filter((f) => committable(f) && fleetCapacity(f) > 0);
+  // Every hull is committable now: there are no Lords' ships to hold back,
+  // and the thing the Confederacy cannot afford to lose walks about on land.
+  const candidates = fleetsOf(state, 'alliance').filter((f) => fleetCapacity(f) > 0);
   if (candidates.length === 0) return undefined;
   const fleet = [...candidates].sort((a, b) => fleetGuns(b) - fleetGuns(a))[0];
   if (isAtSea(fleet)) return fleet.id;
@@ -511,8 +549,7 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
   const outgunned = fleetGuns(fleet) < wall;
   const needLift = fleetCapacity(fleet) < need;
   for (const other of fleetsOf(state, 'alliance')) {
-    if (other.id === fleet.id || isAtSea(other) || !committable(other)) continue;
-    if (other.ships.some(isLordShip) && state.day < AI_STRIKE_LORD_DAY) continue;
+    if (other.id === fleet.id || isAtSea(other)) continue;
     if (other.systemId === fleet.systemId) {
       fleet.ships.push(...other.ships);
       fleet.troops += other.troops;

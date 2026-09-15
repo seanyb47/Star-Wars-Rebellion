@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import reachData from '../../data/reaches.json';
 import { generateGalaxy, START_CHARACTERS } from '../galaxy';
-import { isLord, isLordShip } from '../lords';
+import { isLord, lords } from '../lords';
 
 /** The Reaches the war has not charted: Rime and Salt, and Coral since Sean
  *  moved the atoll out past the charts to make it a third place the
@@ -100,12 +100,12 @@ describe('generateGalaxy', () => {
     const first = state.characters.find((c) => c.faction === 'empire')!;
     expect(first.locationSystemId).toBe(state.factions.empire.hqSystemId);
 
-    // A Lord is their ship: aboard at Freeport on day one, and the only
-    // Confederate aboard anything. Everyone else stands on the quay.
+    // Nobody opens aboard anything, Lords included. They were hulls until
+    // 15 September; now the Confederacy starts as eight people on quays, the
+    // three Lords among them and all three at Freeport.
     for (const character of state.characters.filter((c) => c.faction === 'alliance')) {
-      const aboard = state.fleets.some((f) => f.officerIds.includes(character.id));
-      expect(aboard).toBe(isLord(character));
-      if (aboard) expect(character.locationSystemId).toBe(freeport.id);
+      expect(state.fleets.some((f) => f.officerIds.includes(character.id))).toBe(false);
+      if (isLord(character)) expect(character.locationSystemId).toBe(freeport.id);
     }
   });
 
@@ -128,9 +128,10 @@ describe('generateGalaxy', () => {
       expect(freeport.explored.alliance).toBe(true);
       // Well liked, but short of the bar that would run up their colours.
       expect(freeport.support.alliance).toBe(100);
-      // The three ships lie there on day one.
-      const lying = state.fleets.filter((f) => f.systemId === freeport.id && f.ships.some(isLordShip));
-      expect(lying).toHaveLength(3);
+      // The three Lords stand there on day one — people on a quay, since
+      // 15 September, rather than three hulls at anchor.
+      const there = lords(state).filter((c) => c.locationSystemId === freeport.id);
+      expect(there).toHaveLength(3);
     }
     // A different island every game, not the same one dressed up.
     expect(seen.size).toBeGreaterThan(1);
@@ -210,14 +211,17 @@ describe('generateGalaxy', () => {
     expect(settled / total).toBeLessThan(0.35);
   });
 
-  it('holds the meeting on one frontier island, every Confederate hull lying there, and the Home Fleet at Highwater', () => {
+  it('holds the meeting on one frontier island, with a squadron each and the Home Fleet at Highwater', () => {
     for (const seed of [41, 42, 43]) {
       const state = generateGalaxy(seed);
       const base = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
       const baseReach = state.sectors.find((s) => s.id === base.sectorId)!;
       expect(FRONTIER).toContain(baseReach.name);
+      // One squadron a side. It was four for the Confederacy while the three
+      // Lords were hulls of their own; they are people now and the meeting
+      // place has the one fleet, like Highwater.
       const confed = state.fleets.filter((f) => f.faction === 'alliance');
-      expect(confed).toHaveLength(4);
+      expect(confed).toHaveLength(1);
       for (const f of confed) expect(f.systemId).toBe(base.id);
       const seat = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
       expect(seat.name).toBe('Highwater');

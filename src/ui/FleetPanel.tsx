@@ -7,10 +7,8 @@ import {
   fleetGuns,
   fleetStatus,
   fleetsToJoin,
-  fleetHeldAshore,
   fleeError,
   refugeFor,
-  isLordShip,
   officerEdge,
   officersOf,
   SCOUT_PER_ISLAND,
@@ -35,8 +33,8 @@ import { ControlBadge, ListOpts } from './components';
  * lore or advanced stats I can click on the ship."
  *
  * So the row carries what you steer by — how many, how much hull is left, how
- * many guns — and nothing you would only read once. The blurb, the pace, what
- * a Lord's ship does, all of it is behind the row.
+ * many guns — and nothing you would only read once. The blurb and the pace are
+ * behind the row.
  */
 function ShipRow({
   ships,
@@ -76,10 +74,6 @@ function ShipRow({
         <span className="shiprow__name">
           {grouped && ships.length > 1 && <b className="shiprow__n">{ships.length}×</b>}
           {cls.name}
-          {/* The one fact that decides what you are choosing: a Lord's ship
-              takes her Lord with it, pins whatever squadron it is in whenever
-              she is ashore, and is a third of the war if it is taken. */}
-          {isLordShip(ships[0]) && <span className="tiny shiprow__lord"> · a Lord's ship</span>}
         </span>
         <span className="shiprow__stats">
           {whole - hurt}/{whole}
@@ -116,7 +110,6 @@ function ShipRow({
         <span className="shiprow__name">
           {grouped && ships.length > 1 && <b className="shiprow__n">{ships.length}×</b>}
           {cls.name}
-          {isLordShip(ships[0]) && <span className="tiny shiprow__lord"> · a Lord's ship</span>}
         </span>
         <span className="shiprow__stats">
           <span className={hurt > 0 ? 'shiprow__hurt' : undefined}>
@@ -168,8 +161,6 @@ export function FleetCard({
   const damaged = fleetDamaged(fleet);
   const atSea = fleet.voyage !== undefined;
   const holdsIsland = system?.control === fleet.faction;
-  /** A Lord of this fleet who is off on an errand, and so pinning the hull. */
-  const waitingFor = fleetHeldAshore(state, fleet);
   // Something to break off from, and somewhere to break off to.
   const canFlee = canOrder && !atSea && fleeError(state, fleet.id, state.player) === null;
   const refuge = canFlee ? refugeFor(state, fleet) : undefined;
@@ -404,15 +395,12 @@ export function FleetCard({
 
       {canOrder && !atSea && (
         <div className="fleet__orders">
-          {/* A Lord's ship does not sail without her Lord, and the button says
-              so here rather than letting you pick a destination and be told
-              no at the end of it. */}
-          <button
-            className="btn"
-            disabled={waitingFor !== undefined}
-            onClick={() => onSail(fleet.id)}
-          >
-            {waitingFor ? `Waiting for ${waitingFor.name.split(' ').slice(-1)[0]}` : 'Set sail'}
+          {/* Every squadron sails. There was a fourth state here — a hull
+              pinned in harbor because the Lord who owned her was away on an
+              errand — and it went with the Lords: they are people now, and a
+              person being elsewhere does not stop a ship. */}
+          <button className="btn" onClick={() => onSail(fleet.id)}>
+            Set sail
           </button>
           {/* Breaking off, where there is something to break off from. It
               always works; what it costs is the run, and how much depends on

@@ -4,7 +4,7 @@ import type { Character, GameState } from '../sim';
 import { CharacterPainting } from './art';
 import { statusBadge } from './CharacterSheet';
 
-/** "Aboard the Swallowtail, at Rime Island" for anyone serving with a fleet. */
+/** "Aboard the Home Fleet, at Rime Island" for anyone serving with a fleet. */
 /**
  * Where somebody is. There are two answers and no others: on a fleet, or on
  * an island. A fleet lying at an island is still a fleet, so the line names

@@ -575,13 +575,13 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   // The Regent has not left the citadel in eleven years; the rest of the
   // Admiralty is posted about the Crown's holdings.
   makeCharacters('empire', (_name, index) => (index === 0 ? capital.id : rng.pick(empireSystems).id));
-  // The three Lords are aboard their ships at Freeport, and one or two of the
+  // The three Lords are at Freeport where they signed, and one or two of the
   // others are there with them. The rest are out on the islands that have
   // already declared.
   const atFreeport = rng.range(1, 2);
   let ashore = 0;
   makeCharacters('alliance', (name) => {
-    // A Lord is aboard their own ship and the ship is at Freeport.
+    // A Lord is at the table where the articles were signed.
     if (PIRATE_LORDS.some((l) => l.name === name)) return allianceHq.id;
     ashore += 1;
     return ashore <= atFreeport || allianceSystems.length === 0
@@ -673,31 +673,14 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       officerIds: [],
     });
   }
-  // The three Pirate Lords, each aboard their own ship, lying at Freeport.
-  // A Lord never goes ashore and never changes ship: the Lord and the hull
-  // are one piece, and taking the hull is the only way to take the Lord. The
-  // Confederacy's other officers stand on the quay at Freeport or out on the
-  // islands that have declared, and are free to sail with anybody.
-  const lordShips: string[] = [];
-  for (const lord of PIRATE_LORDS) {
-    const who = characters.find((c) => c.name === lord.name);
-    const aboard = who ? [who.id] : [];
-    const name = shipClass(lord.ship).name;
-    lordShips.push(name);
-    state.fleets.push({
-      id: `flt-${++state.nextId}`,
-      name,
-      faction: 'alliance',
-      systemId: allianceHq.id,
-      ships: [{ id: `shp-${++state.nextId}`, classId: lord.ship, damage: 0 }],
-      troops: 0,
-      officerIds: aboard,
-    });
-  }
+  // No Lord's ship goes on the water. The three of them are people standing
+  // at Freeport with the rest of the Brethren, and their ships live in their
+  // bios — which is Sean's call, 15 September: a thing that is a person and a
+  // hull at once is a thing no rule can reason about.
 
   recomputeLedger(state);
   const meeting = allianceHq.name;
-  const lordLine = PIRATE_LORDS.map((l, i) => `${l.name} aboard the ${lordShips[i]}`).join(', ');
+  const lordLine = PIRATE_LORDS.map((l) => `${l.name} of the ${shipClass(l.ship).name}`).join(', ');
   state.events.push({
     id: `evt-${++state.nextId}`,
     day: 1,

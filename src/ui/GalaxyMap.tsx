@@ -3,7 +3,7 @@ import type { GameState, PlayableFaction, System } from '../sim';
 import {
   isMissionTarget,
   layerMark,
-  lordFleets,
+  lordIslands,
   loyaltyBand,
   type LayerMark,
   type LoyaltyBand,
@@ -240,8 +240,10 @@ const OPEN_FILL = '#dfe8ec';
 const IDLE_HALO_RADIUS = 52;
 /**
  * The star, and only the star, marks the things the war is about: Highwater,
- * and every island a Pirate Lord's ship is lying off — your own always, the
- * enemy's once you have charted the island. Nothing else on the chart is a
+ * and every island a Pirate Lord is standing on — your own always, the enemy's
+ * once you have charted the island. It followed the three hulls until the
+ * Lords stopped being hulls; it follows the three people now, which is the
+ * same thing it was pointing at all along. Nothing else on the chart is a
  * star. Thirty percent up on the old capital mark, at Sean's ask.
  */
 const HQ_STAR_RADIUS = 40;
@@ -370,7 +372,7 @@ export function GalaxyMap({
     });
   }, [state, viewer]);
 
-  const lordsAt = new Set(lordFleets(state).filter((f) => !f.voyage).map((f) => f.systemId));
+  const lordsAt = lordIslands(state);
 
   // The canvas: the painting at the box's full width. A taller box gets a
   // band of water under the painting to fill it; a shorter one gets a chart
@@ -603,9 +605,9 @@ export function GalaxyMap({
                 // to is grey with a dashed edge: open ground, somewhere to
                 // survey and settle. Hiding them was tried and looked wrong —
                 // a sea with islands painted on it and nothing marking them.
-                // Highwater, always; the Lords' ships wherever they lie at
-                // anchor — the Confederacy sees its own, the Crown sees the
-                // ones on islands it has charted.
+                // Highwater, always; the Lords wherever they are standing —
+                // the Confederacy sees its own, the Crown sees the ones on
+                // islands it has charted.
                 const isHq =
                   system.id === state.factions.empire.hqSystemId ||
                   (lordsAt.has(system.id) && (viewer === 'alliance' || explored));

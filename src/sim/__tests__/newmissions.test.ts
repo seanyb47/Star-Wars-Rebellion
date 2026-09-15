@@ -46,10 +46,12 @@ function runMission(state: GameState, days = MISSION_WORK_DAYS + 2) {
 }
 
 describe('abduction', () => {
-  it('offers no lift on an island the enemy holds, however many of them are on it', () => {
+  it('offers no lift on an island the enemy holds — unless a Lord is standing on it', () => {
     const state = world();
     const theirs = state.systems.find((s) => s.control === 'alliance')!;
-    const them = state.characters.find((c) => c.faction === 'alliance')!;
+    const them = state.characters.find((c) => c.faction === 'alliance' && !isLord(c))!;
+    const lord = state.characters.find((c) => c.faction === 'alliance' && isLord(c))!;
+    for (const c of state.characters) if (c.faction === 'alliance') place(state, c, state.systems[0]);
     place(state, them, theirs);
     theirs.explored.empire = true;
     // Their own ground, their own garrison. This is what incitement is for,
@@ -57,6 +59,14 @@ describe('abduction', () => {
     // anything else — every one of their crew starts standing on it.
     expect(isAbductTarget(state, theirs, 'empire')).toBe(false);
     expect(missionTypeFor(state, theirs, 'empire')).not.toBe('abduct');
+
+    // A Lord is the one exception, because a Lord is the war. Without it the
+    // Crown has no route to its own victory at all: the three of them stand on
+    // Confederate ground, and measured over sixteen wars with their harbor
+    // closed the Crown won none of them and took no Lord.
+    place(state, lord, theirs);
+    expect(isAbductTarget(state, theirs, 'empire')).toBe(true);
+    expect(missionTypeFor(state, theirs, 'empire')).toBe('abduct');
   });
 
   it('takes an enemy officer caught off their own ground, and gives them back later', () => {

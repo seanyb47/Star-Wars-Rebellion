@@ -1,12 +1,12 @@
-import { MOOT_SUPPORT_PER_DAY, PIRATE_LORDS } from './constants';
+import { PIRATE_LORDS } from './constants';
 import factionData from '../data/factions.json';
 import { runAI } from './ai';
 import { advanceBuilds } from './build';
 import { stirBeasts } from './creatures';
 import { advanceFleets, updateBlockades } from './fleets';
-import { allLordsTaken, powerAt, reseatLords, syncHome } from './lords';
+import { allLordsTaken, holdTheMoot, syncHome } from './lords';
 import { collectIncome, payUpkeep, recomputeLedger } from './economy';
-import { cloneState, pushEvent, shiftSupport } from './helpers';
+import { cloneState, pushEvent } from './helpers';
 import { advanceMissions, syncMissionParties } from './missions';
 import { createRng } from './rng';
 import {
@@ -37,9 +37,6 @@ export function advanceDay(state: GameState): GameState {
   // Fleets move and fight before anything is counted, so a harbor shut this
   // morning pays nothing this evening.
   advanceFleets(next, rng);
-  // Whoever came back from an errand overnight is on their own deck again,
-  // and whoever left it is off. One pass, before anything reads a fleet.
-  reseatLords(next);
   syncHome(next);
   holdTheMoot(next);
   updateBlockades(next);
@@ -73,14 +70,6 @@ export function advanceDay(state: GameState): GameState {
     next.events = next.events.slice(next.events.length - MAX_EVENTS);
   }
   return next;
-}
-
-/** The Free Harbor's power: the island she lies off comes round a point a day. */
-function holdTheMoot(state: GameState): void {
-  for (const system of state.systems) {
-    if (system.control === 'empire' || !powerAt(state, system.id, 'moot')) continue;
-    shiftSupport(system, 'alliance', MOOT_SUPPORT_PER_DAY);
-  }
 }
 
 /**

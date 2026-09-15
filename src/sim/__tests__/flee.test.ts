@@ -90,16 +90,21 @@ describe('breaking off', () => {
     expect(orderFlee(state, fleet.id).error).toBe('Nowhere to run to.');
   });
 
-  it('will not leave a Lord standing on the beach', () => {
+  it('does not hold a squadron in harbor because a Lord is standing on the beach', () => {
+    // The inverse of a rule that used to live here. A Lord was a hull and a
+    // person at once, so one ashore pinned their ship and anything it was
+    // sailing with. They are people now: where a Lord happens to be standing
+    // has nothing to do with whether a squadron can break off.
     const state = generateGalaxy(501, 'alliance');
-    const lordShip = state.fleets.find((f) => f.faction === 'alliance' && f.ships.length === 1)!;
-    const isle = state.systems.find((s) => s.id === lordShip.systemId)!;
+    const isle = state.systems.find((s) => s.control === 'alliance' && s.populated)!;
+    const mine = addShip(state, isle, 'alliance', 'tempest');
     addShip(state, isle, 'empire', 'sovereign');
+    const before = fleeError(state, mine.id, 'alliance');
+
     const lord = state.characters.find((c) => c.name.includes('Hale'))!;
     lord.locationSystemId = isle.id;
     lord.mission = { type: 'diplomacy', targetSystemId: isle.id, phase: 'working', daysRemaining: 3 };
     lord.status = 'on_mission';
-    const err = fleeError(state, lordShip.id, 'alliance');
-    if (err) expect(err).toMatch(/ashore|break off/);
+    expect(fleeError(state, mine.id, 'alliance')).toBe(before);
   });
 });

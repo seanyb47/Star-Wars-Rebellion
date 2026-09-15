@@ -156,12 +156,12 @@ export type ShipClassId =
   | 'tempest'
   | 'reef'
   | 'brig'
-  /** The Pirate Lords' own ships: one hull each, never built. */
+  /** The Pirate Lords' ships. Legends: named in the lore, never on the water. */
   | 'harbor'
   | 'swallowtail'
   | 'ironback';
 
-/** What a Pirate Lord's ship does that no other hull does. */
+/** What a Pirate Lord does that nobody else in the war can. */
 export type LordPower = 'moot' | 'runner' | 'line';
 
 export type BuildItem = FacilityType | 'troop' | ShipClassId;
@@ -300,9 +300,8 @@ export interface FactionState {
   upkeep: number;
   /**
    * The Crown's is Highwater, always, and losing it loses the war. The
-   * Confederacy has no seat: this is only where its people go home to —
-   * wherever the Free Harbor lies, failing her another Lord's ship, failing
-   * that the island that loves them best — and is kept in step every day.
+   * Confederacy has no seat: this is only where its people go home to — the
+   * island of theirs that loves them best — and is kept in step every day.
    */
   hqSystemId: string;
   /**

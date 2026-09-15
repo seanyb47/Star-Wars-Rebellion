@@ -12,7 +12,6 @@ import {
   FORT_GUNS,
   OFFICER_EDGE,
   SCOUT_PER_ISLAND,
-  shipClass,
   shipSpec,
   HIT_CHANCE,
   LONG_GUN_SHARE,
@@ -36,7 +35,7 @@ import {
   requiredGarrison,
   setSupport,
 } from './helpers';
-import { captureLord, fleetHeldAshore, isLord, isLordShip, lordOfShip, shipPower } from './lords';
+import { isLord, lordPowerAt } from './lords';
 import { travelDays } from './missions';
 import type { Rng } from './rng';
 import type {
@@ -142,10 +141,9 @@ export function addShip(
   classId: ShipClassId,
 ): Fleet {
   const ship: Ship = { id: nextId(state, 'shp'), classId, damage: 0 };
-  // Join whatever fleet of ours lies here, preferring one that is not a
-  // Lord's own so new hulls do not quietly tie themselves to the Swallowtail.
-  const here = fleetsAt(state, system.id).filter((f) => f.faction === faction);
-  const existing = here.find((f) => !f.ships.some(isLordShip)) ?? here[0];
+  // Join whatever fleet of ours lies here, so a player does not end up with
+  // nine fleets of one.
+  const existing = fleetsAt(state, system.id).find((f) => f.faction === faction);
   if (existing) {
     existing.ships.push(ship);
     return existing;
@@ -227,15 +225,9 @@ export function detachShips(
 
   let target = into ? findFleet(state, into)! : undefined;
   if (!target) {
-    // A squadron that is one Lord's ship and nothing else is called by her
-    // name, not Fleet 4 — the same as on day one and the same as when a Lord
-    // is got back out of the Crown's harbor. Splitting her out of a squadron
-    // is the third way to arrive at that fleet and it should not be the odd
-    // one out.
-    const alone = moving.length === 1 && lordOfShip(moving[0].classId);
     target = {
       id: nextId(state, 'flt'),
-      name: alone ? shipClass(moving[0].classId).name : nextFleetName(state, actor),
+      name: nextFleetName(state, actor),
       faction: actor,
       systemId: fleet.systemId,
       ships: [],
@@ -306,11 +298,6 @@ export function sailError(
   if (fleet.systemId === targetSystemId) return 'Already there.';
   if (!state.systems.some((s) => s.id === targetSystemId)) return 'No such island.';
   if (fleet.ships.length === 0) return 'Nothing left to sail.';
-  // A Lord's ship does not sail without her Lord. This is the other half of
-  // the cost of sending one ashore: not just a person at risk, a hull out of
-  // the war until they are back aboard.
-  const ashore = fleetHeldAshore(state, fleet);
-  if (ashore) return `${ashore.name} is ashore. Their ship waits for them.`;
   return null;
 }
 
@@ -931,14 +918,13 @@ function fightRound(
   // out of the same guns. It is a hit-chance edge now rather than a multiplier
   // on a pool, which is the same idea at the level the round actually works.
   const empireEdge = bestEdge(state, empire, 'leadership');
-  // The Ironback's power: every Confederate fleet in her harbor fights with
-  // the Admiral's edge, not only her own.
-  const line = alliance.find((f) =>
-    f.ships.some((sh) => shipPower(sh.classId) === 'line' && sh.damage < shipSpec(sh.classId).hull),
-  );
+  // The Admiral's power, and it is a posting now rather than a hull: while
+  // Jessup holds this island, every Confederate fleet in its harbor fights
+  // under his command whether or not he is aboard any of them.
+  const admiral = lordPowerAt(state, system.id, 'line');
   const allianceEdge = Math.max(
     bestEdge(state, alliance, 'leadership'),
-    line ? officerEdge(state, line, 'leadership') : 1,
+    admiral ? 1 + (admiral.leadership / 100) * OFFICER_EDGE : 1,
   );
 
   // Everyone shoots once, and everyone shoots at the same moment: the volleys
@@ -998,10 +984,6 @@ function hullOf(ship: Ship): number {
 function sinkAndDrown(state: GameState, fleet: Fleet): void {
   const survivors = fleet.ships.filter((s) => s.damage < hullOf(s));
   if (survivors.length === fleet.ships.length) return;
-  // A Lord's ship does not sink: she strikes, and the Lord goes in irons.
-  for (const ship of fleet.ships) {
-    if (ship.damage >= hullOf(ship) && isLordShip(ship)) captureLord(state, fleet, ship);
-  }
   fleet.ships = survivors;
   const room = fleetCapacity(fleet);
   if (fleet.troops > room) {
@@ -1138,8 +1120,6 @@ export function fleeError(state: GameState, fleetId: string, actor: PlayableFact
     (f) => f.faction !== fleet.faction && fleetGuns(f) > 0,
   );
   if (!enemies && !beastAlive(system) && fortGuns(system) === 0) return 'Nothing to break off from.';
-  const held = fleetHeldAshore(state, fleet);
-  if (held) return `${held.name} is ashore.`;
   if (!refugeFor(state, fleet)) return 'Nowhere to run to.';
   return null;
 }

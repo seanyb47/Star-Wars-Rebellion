@@ -1,24 +1,38 @@
 /**
- * The Pirate Lords: three people, three ships, one thing each.
+ * The Pirate Lords: three people who between them are the Confederacy.
  *
- * Sean's rule, 14 September: the Confederacy has no base. It has three Lords,
- * each bound to a ship with a power of its own. The Crown wins by taking all
- * three; the Confederacy wins by taking Highwater.
+ * **Rewritten 15 September, night, at Sean's word.** They used to be a person
+ * and a ship at once — idle they were a hull in the water, on an errand they
+ * were an officer on a quay, and their ship could not sail without them. The
+ * lore was right and the mechanic was not. From sixteen measured wars: their
+ * powers moved zero allegiance, a Lord was off their ship on one per cent of
+ * days, and the opponent was hard-coded never to send one anywhere, because a
+ * thing that is two things at once is a thing no rule can reason about. Every
+ * file had a special case for them.
  *
- * Amended 15 September: a Lord is a ship when idle and a person on an errand.
- * They can be sent to parley, to spy, to sign somebody on — and the moment
- * they step onto the quay they are an officer like any other, who can be found
- * out, hurt, and carried off to Highwater. Their ship lies where they left it,
- * cannot sail without them, and her power sleeps until they are back aboard.
+ * So: personnel. The ships are lore — named in their bios, on their sheets,
+ * never on the water. What a Lord brings is what they can do, and each brings
+ * one thing nobody else has, after Rebellion's habit of hiding a real rule
+ * inside a piece of character:
  *
- * That is the whole of the Confederacy's dilemma and it is meant to hurt: the
- * three best people they have are also three of their best hulls, and early on
- * there is nothing else to send. Every errand is a squadron out of the war and
- * a third of the war's losing condition standing on somebody else's beach.
+ * - **Reyne** and the Swallowtail. Any errand he leads makes the passage in
+ *   half the time. Han Solo's trick, and the one Sean asked for by name.
+ * - **Hale** and the Free Harbor. While she holds a posting, the Moot sits
+ *   with her and the island comes round a point a day.
+ * - **Jessup** and the Ironback. While he holds a posting, every fleet in that
+ *   harbor fights under the Admiral's command.
+ *
+ * Two of the three hang off Command, which is already a mission and already
+ * asks who may take it — so the powers cost an officer's time, are placed
+ * somewhere on purpose, and can be seen by the other side.
+ *
+ * And they can be taken. A Lord is abducted off a quay like anybody else now,
+ * which is what makes them a losing condition worth defending: the Crown's war
+ * becomes a manhunt rather than a search for three hulls.
  */
-import { CAPTIVE_DAYS, PIRATE_LORDS, shipClass, type PirateLord } from './constants';
-import { getSystem, nextId, pushEvent } from './helpers';
-import type { Character, Fleet, GameState, LordPower, Ship, ShipClassId } from './types';
+import { CAPTIVE_DAYS, MOOT_SUPPORT_PER_DAY, PIRATE_LORDS, type PirateLord } from './constants';
+import { getSystem, pushEvent } from './helpers';
+import type { Character, GameState, LordPower } from './types';
 
 export function lordOfName(name: string): PirateLord | undefined {
   return PIRATE_LORDS.find((l) => l.name === name);
@@ -28,76 +42,6 @@ export function isLord(character: Character): boolean {
   return lordOfName(character.name) !== undefined;
 }
 
-export function isLordShip(ship: Ship): boolean {
-  return PIRATE_LORDS.some((l) => l.ship === ship.classId);
-}
-
-/** The Lord a hull belongs to, by class. */
-export function lordOfShip(classId: ShipClassId): PirateLord | undefined {
-  return PIRATE_LORDS.find((l) => l.ship === classId);
-}
-
-export function shipPower(classId: ShipClassId): LordPower | undefined {
-  return shipClass(classId).power;
-}
-
-/**
- * Whether this Lord is standing on their own deck.
- *
- * Away means away for any reason: on an errand, hurt and recovering ashore,
- * or in the Crown's cells. Only an aboard Lord sails their ship and works
- * her power; the tests for both ask this rather than assuming, because for
- * a day and a half after this rule went in they assumed.
- */
-export function lordAboard(state: GameState, lord: PirateLord): Character | undefined {
-  const who = state.characters.find((c) => c.name === lord.name);
-  if (!who) return undefined;
-  return who.status === 'available' && !who.mission ? who : undefined;
-}
-
-/** The Lord this hull answers to, if they are off it and it cannot sail. */
-export function awayLordOfShip(state: GameState, ship: Ship): Character | undefined {
-  const lord = lordOfShip(ship.classId);
-  if (!lord) return undefined;
-  if (lordAboard(state, lord)) return undefined;
-  return state.characters.find((c) => c.name === lord.name);
-}
-
-/** The first Lord keeping a fleet at anchor by being somewhere else. */
-export function fleetHeldAshore(state: GameState, fleet: Fleet): Character | undefined {
-  for (const ship of fleet.ships) {
-    const away = awayLordOfShip(state, ship);
-    if (away) return away;
-  }
-  return undefined;
-}
-
-/**
- * Put every Lord back on their own deck, and take off the ones who are not
- * there any more.
- *
- * Run once a day rather than hooked into each of the six places a mission can
- * end, because five of those places would have been remembered and the sixth
- * would have quietly left the Commodore standing on a beach with her ship
- * three Reaches away.
- */
-export function reseatLords(state: GameState): void {
-  for (const lord of PIRATE_LORDS) {
-    const who = state.characters.find((c) => c.name === lord.name);
-    if (!who || who.status === 'captured') continue;
-    const fleet = lordFleet(state, lord);
-    if (!fleet) continue;
-    const home = lordAboard(state, lord);
-    if (home) {
-      if (!fleet.officerIds.includes(who.id)) fleet.officerIds.push(who.id);
-      // A Lord aboard is wherever their ship is, even mid-voyage.
-      who.locationSystemId = fleet.systemId;
-    } else {
-      fleet.officerIds = fleet.officerIds.filter((id) => id !== who.id);
-    }
-  }
-}
-
 /** The characters who are Lords, in the bible's order. */
 export function lords(state: GameState): Character[] {
   return PIRATE_LORDS.map((l) => state.characters.find((c) => c.name === l.name)).filter(
@@ -105,35 +49,41 @@ export function lords(state: GameState): Character[] {
   );
 }
 
-/** The fleet a Lord's ship is sailing with, while she floats. */
-export function lordFleet(state: GameState, lord: PirateLord): Fleet | undefined {
-  return state.fleets.find((f) => f.faction === 'alliance' && f.ships.some((s) => s.classId === lord.ship));
-}
-
-/** Every fleet with a Lord's ship in it. */
-export function lordFleets(state: GameState): Fleet[] {
-  return state.fleets.filter((f) => f.faction === 'alliance' && f.ships.some(isLordShip));
+/** What this person brings that nobody else does, if they are a Lord. */
+export function powerOf(character: Character): LordPower | undefined {
+  return lordOfName(character.name)?.power;
 }
 
 /**
- * A fleet at anchor at this island carrying this power — and carrying the
- * Lord who works it. An empty deck is a fine hull and nothing more: the Moot
- * does not sit without the Commodore, and the Admiral cannot command a
- * harbor he is not in.
+ * A Lord holding a posting on this island, with this power.
+ *
+ * Posted, not merely standing there. A posting is a deliberate thing — it
+ * spends an officer indefinitely and the island says whose it is — so the
+ * power is somewhere the player put it on purpose, and somewhere the other
+ * side can see and go after.
  */
-export function powerAt(state: GameState, systemId: string, power: LordPower): Fleet | undefined {
-  return state.fleets.find(
-    (f) =>
-      f.faction === 'alliance' &&
-      !f.voyage &&
-      f.systemId === systemId &&
-      f.ships.some(
-        (s) =>
-          shipPower(s.classId) === power &&
-          s.damage < shipClass(s.classId).hull! &&
-          !awayLordOfShip(state, s),
-      ),
-  );
+export function lordPowerAt(
+  state: GameState,
+  systemId: string,
+  power: LordPower,
+): Character | undefined {
+  const system = state.systems.find((s) => s.id === systemId);
+  if (!system?.commanderId) return undefined;
+  const held = state.characters.find((c) => c.id === system.commanderId);
+  if (!held || held.status !== 'available') return undefined;
+  return powerOf(held) === power ? held : undefined;
+}
+
+/**
+ * How much of the usual passage an errand takes, given who is leading it.
+ *
+ * The Swallowtail is the fastest thing afloat and Reyne is aboard her whenever
+ * he goes anywhere, so anywhere he goes, he is there in half the time. It is
+ * the one power that is not a posting: it is about the man travelling, which
+ * is the only way a ship that is not on the water can still be felt.
+ */
+export function passageShare(character: Character): number {
+  return powerOf(character) === 'runner' ? 0.5 : 1;
 }
 
 /** Whether every Lord is in irons at once — the Crown's victory. */
@@ -143,99 +93,76 @@ export function allLordsTaken(state: GameState): boolean {
 }
 
 /**
- * A Lord's ship has struck. The Crown wants the Lord alive, so the ship is
- * not sunk but taken as a prize and the Lord goes in irons to Highwater.
- * Returns the ship's class so the caller can drop the hull from the water.
+ * The Moot, worked once a day wherever Hale is posted.
+ *
+ * It used to be "wherever the Free Harbor lies at anchor", which measured zero
+ * over a whole war: the ship never moved, because she was also the Confederacy's
+ * seat and the opponent would not commit her, and she sat on an island already
+ * at a hundred. A posting is chosen, so it is somewhere it can do something.
+ *
+ * It works on the Crown's islands too. That was forbidden before and it was the
+ * wrong call — the one power the Confederacy has that can be aimed had nothing
+ * to aim at. Sailing an argument into their water is the Confederacy's answer
+ * to a wall it cannot storm.
  */
-export function captureLord(state: GameState, fleet: Fleet, ship: Ship): void {
-  const lord = lordOfShip(ship.classId);
-  if (!lord) return;
-  // The ship can strike with nobody aboard her, now that a Lord can be off on
-  // an errand. Then she is a prize and no more: you cannot put irons on a
-  // quarterdeck. The Lord hears about it wherever they are.
-  if (!lordAboard(state, lord)) {
-    const here = getSystem(state, fleet.systemId);
-    pushEvent(state, {
-      kind: 'war',
-      text: `The ${shipClass(ship.classId).name} strikes her colours off ${here.name} with ${lord.name} ashore. The Crown has the ship; it does not have the Lord.`,
-      systemId: here.id,
-    });
-    return;
+export function holdTheMoot(state: GameState): void {
+  for (const system of state.systems) {
+    if (!lordPowerAt(state, system.id, 'moot')) continue;
+    const from = system.support.empire;
+    system.support.alliance = Math.min(100, system.support.alliance + MOOT_SUPPORT_PER_DAY);
+    system.support.empire = 100 - system.support.alliance;
+    if (system.support.empire === from) continue;
   }
-  const character = state.characters.find((c) => c.name === lord.name);
-  const here = getSystem(state, fleet.systemId);
-  const cells = getSystem(state, state.factions.empire.hqSystemId);
-  fleet.officerIds = fleet.officerIds.filter((id) => id !== character?.id);
-  if (character) {
-    character.status = 'captured';
-    character.injuredDays = CAPTIVE_DAYS;
-    character.mission = undefined;
-    character.locationSystemId = cells.id;
-  }
-  pushEvent(state, {
-    kind: 'war',
-    text: `The ${shipClass(ship.classId).name} strikes her colours off ${here.name}. ${lord.name} is taken in irons to ${cells.name}.`,
-    systemId: here.id,
-    characterId: character?.id,
-  });
 }
 
 /**
- * A Lord comes home — exchanged or broken out — and their ship with them,
- * cut out of the Crown's harbor the same night. The ship is the Lord; one
- * without the other would be a person with nothing to do.
+ * A Lord comes home, exchanged or broken out.
+ *
+ * There is no ship to cut out of the Crown's harbor any more. They are put
+ * ashore where the Confederacy keeps its books, and that is the whole of it.
  */
 export function restoreLord(state: GameState, character: Character): void {
-  const lord = lordOfName(character.name);
-  if (!lord) return;
+  if (!isLord(character)) return;
   const home = getSystem(state, state.factions.alliance.hqSystemId);
-  const existing = lordFleet(state, lord);
-  if (existing) {
-    // Her ship still floats — she was taken off a beach, not off a deck — so
-    // she goes back to it wherever it is lying, not to the Confederacy's
-    // nominal home.
-    character.locationSystemId = existing.systemId;
-    if (!existing.officerIds.includes(character.id)) existing.officerIds.push(character.id);
-    return;
-  }
   character.locationSystemId = home.id;
-  const fleet: Fleet = {
-    id: nextId(state, 'flt'),
-    name: shipClass(lord.ship).name,
-    faction: 'alliance',
-    systemId: home.id,
-    ships: [{ id: nextId(state, 'shp'), classId: lord.ship, damage: 0 }],
-    troops: 0,
-    officerIds: [character.id],
-  };
-  state.fleets.push(fleet);
   pushEvent(state, {
     kind: 'order',
-    text: `The ${fleet.name} is cut out of the Crown's harbor and comes in to ${home.name} with ${lord.name} aboard.`,
+    text: `${character.name} is back among the Brethren at ${home.name}.`,
     systemId: home.id,
     characterId: character.id,
   });
 }
 
 /**
- * Where the Confederacy goes home to. It has no seat; it has the Free Harbor,
- * and failing her whichever Lord's ship is at anchor, and failing them all the
- * island that loves it best. Never an island the Crown holds.
+ * Where the Confederacy goes home to.
+ *
+ * It has no seat and now has no flagship either, so it is the island that
+ * loves it best — which is what the old rule fell back to once every Lord's
+ * ship was gone, and is now simply the rule. Never an island the Crown holds.
  */
 export function syncHome(state: GameState): void {
-  const candidates = [
-    lordFleet(state, PIRATE_LORDS[0]),
-    ...lordFleets(state),
-  ].filter((f): f is Fleet => f !== undefined && !f.voyage);
-  for (const fleet of candidates) {
-    const here = getSystem(state, fleet.systemId);
-    if (here.control !== 'empire') {
-      state.factions.alliance.hqSystemId = here.id;
-      return;
-    }
-  }
   const held = state.systems
     .filter((s) => s.control === 'alliance' && !s.uprising)
     .sort((a, b) => b.support.alliance - a.support.alliance);
   if (held[0]) state.factions.alliance.hqSystemId = held[0].id;
+}
+
+/** Days a Lord spends in the Crown's cells before an exchange. */
+export const LORD_CAPTIVE_DAYS = CAPTIVE_DAYS;
+
+/**
+ * The islands a Lord is standing on, for the chart's star.
+ *
+ * The star used to follow the three hulls. There are no hulls, so it follows
+ * the three people, which is what it was always pointing at: here is a third
+ * of the Confederacy, come and take it. Anyone in irons or at sea is nowhere
+ * in particular and gets no mark.
+ */
+export function lordIslands(state: GameState): Set<string> {
+  const at = new Set<string>();
+  for (const lord of lords(state)) {
+    if (lord.status === 'captured') continue;
+    at.add(lord.locationSystemId);
+  }
+  return at;
 }

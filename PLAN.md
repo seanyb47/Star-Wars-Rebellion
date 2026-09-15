@@ -1903,3 +1903,126 @@ Five tests moved rather than deleted. They had assumed a seven-strong roster or
 the presence of a particular person — "the first officer of the Crown is the
 Regent", "Torvik's people is Urskin" — and each now asks the bible where the
 war no longer answers.
+
+## Personnel are personnel: the Pirate Lords retooled — 15 September, night
+
+Sean, after a day of the Lords feeling clunky:
+
+> Maybe I'm just making things too complicated. Maybe personnel should be
+> personnel, fleet should be fleets. And we don't overthink it. […] So we make
+> them personnel, and then in the lore we talk about their pirate ships and
+> things like that […] and then we can give them an ability like, for example,
+> while they command, you know, such and such happens. […] but to the degree
+> that they have a pirate ship, it's a lore pirate ship, not a physical game
+> piece.
+
+He is right, and the measurements from the afternoon say exactly why. A Lord
+was a person and a hull at the same time: idle they were a ship in the water,
+on an errand they were an officer on a quay, and their ship could not sail
+without them. Over sixteen measured wars that design produced:
+
+- **0 points of allegiance** from the Moot. The *Free Harbor* never moved,
+  because she was also the Confederacy's seat and no opponent would commit her,
+  and she sat on an island already at a hundred.
+- **1% of days** with a Lord off their ship. The one thing that made them
+  people almost never happened.
+- **0 abductions in 16 games**, though somebody was liftable somewhere on 95%
+  of days — because a Lord could not be lifted at all, and the opponent had no
+  term for abduction in its scoring.
+- **26 ship strikes → 8 Crown wins out of 8.** Every Crown victory was three
+  hulls sunk. Not a manhunt; a naval accounting exercise.
+
+And every file in `sim/` carried a special case for them, because a thing that
+is two things at once is a thing no rule can reason about.
+
+### What they are now
+
+People. Three of them, in the cast like anybody else, each carrying one thing
+nobody else in the war can do — Rebellion's habit of hiding a real rule inside
+a piece of character, which is where Sean started (Han Solo and the Falcon):
+
+- **Reyne** — *the passage.* Any errand he leads makes the crossing in half the
+  time. The one power that is not a posting, because it is about the man
+  travelling, and the only way a ship that is not on the water can still be
+  felt. `passageShare()`.
+- **Hale** — *the Moot.* While she holds a Command posting, that island comes
+  round a point a day. It works on Crown ground too, which was forbidden before
+  and was the wrong call: the one power the Confederacy can *aim* had nothing
+  to aim at.
+- **Jessup** — *the line.* While he holds a posting, every fleet in that harbor
+  fights under the Admiral's command, whoever is on the deck.
+
+Two of the three hang off Command, which is already a mission and already asks
+who may take it. So a power costs an officer indefinitely, is placed somewhere
+on purpose, and can be seen and gone after by the other side. That is the whole
+design: the powers are *positions*, not passives.
+
+The ships stay in `ships.json` as **legends** — `legend: true`, no numbers, no
+`power` field. Nothing builds them, nothing sails them, nothing fights them.
+They are named in the Lords' bios and printed under the bio on the character
+sheet, which is where they belong and where they now read better than they ever
+did as three stat blocks nobody could see without tapping a hull.
+
+### The rule that had to change
+
+`abductOn` refused an island the enemy held. With Lords made personnel, that
+closed the Crown's only route to victory: the three of them stand on
+Confederate ground. Measured with the rule as it was — **Crown 0, Confederacy
+8, 8 wars unfinished at 3,000 days, and not one Lord ever taken.**
+
+So: their harbor is worth going into for one of three people and nobody else.
+An ordinary officer caught off their own ground is still a chance you take;
+sailing into their anchorage to lift a clerk is not a war aim — and if it were,
+abduction would outrank inciting on every enemy island in the game and the
+chart would have one answer everywhere. The raid is priced rather than free:
+work on enemy soil already carries the higher foil chance, so this is how
+officers get hurt.
+
+### And the opponent had to be taught all of it
+
+Three hard-coded rules went:
+
+- `aiMission` filtered Lords out of its officer pool outright (`&& !isLord(c)`).
+  Honest about the old design; the reason the powers measured zero.
+- It had no abduction term at all. Now scored, with a bounty on a Lord.
+- It never took a Command posting of any kind: over eight wars and 2,620 days,
+  **commanders held a chair on zero island-days.** `aiPostLords` seats the two
+  seated powers where each is worth most — the Moot on the nearest-to-flipping
+  island that is not already theirs and never one the enemy holds; the Admiral
+  in the harbor with the most of its own hulls. Reyne is never seated: his
+  power is spent by sending him, which the errand pass does on its own.
+
+Officers holding a posting are now skipped by the errand pass, or it would have
+walked every commander it appointed straight back out of the room.
+
+### Measured after
+
+| | before the retool | after |
+|---|---|---|
+| Crown — Confederacy | 8 — 8 | **8 — 8** |
+| Wars unfinished at 3,000 days | 0 | **0** |
+| Lords ever in irons, per war | — | **1.5 mean; 3 in every Crown win** |
+| Lord-posted island-days / 8 wars | 0 | **3,553** (Moot 1,120, line 2,433) |
+| Reyne travelling, days / 8 wars | 0 | **214** |
+
+Every Crown win is now a manhunt that ends with all three in irons, and they
+run long — 356 to 2,145 days against the Confederacy's 288 to 360. That
+asymmetry is the theme: the Confederacy races for Highwater, the Crown grinds
+out a hunt. Worth watching rather than fixing.
+
+340 tests green.
+
+### Smaller things that fell out of it
+
+- `startMission` clamped every passage to a minimum of one day, to stop Reyne's
+  halving reaching nought. It also broke taking a posting in the room you are
+  standing in — the `days === 0` branch could never fire. Nought is now an
+  explicit exception.
+- The chart's star followed the three hulls. It follows the three people, which
+  is what it was pointing at all along.
+- The Confederacy's `hqLabel` was "the Free Harbor". It is "the meeting place".
+- `unique` on a ship class became `legend`, because the field's meaning changed
+  from "one of a kind" to "never on the water".
+- The Almanac gained a **What the three Lords do** section. The powers used to
+  live on three ship sheets, where a Crown player never saw them and a
+  Confederate player only saw them by tapping a hull.

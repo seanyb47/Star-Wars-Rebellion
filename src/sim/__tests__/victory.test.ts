@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { checkVictory } from '../advanceDay';
 import { PIRATE_LORDS } from '../constants';
-import { lords } from '../lords';
+import { lords, powerOf } from '../lords';
 
 describe('how the war ends', () => {
   it('is won by the Crown when all three Pirate Lords are in irons at once', () => {
@@ -37,14 +37,20 @@ describe('how the war ends', () => {
     expect(state.winner).toBe('alliance');
   });
 
-  it('names real people: every Lord is in the cast, aboard their own ship', () => {
+  it('names real people: every Lord is in the cast, ashore, with a power of their own', () => {
     const state = generateGalaxy(3, 'alliance');
+    const powers = new Set<string>();
     for (const lord of PIRATE_LORDS) {
-      const who = state.characters.find((c) => c.name === lord.name)!;
+      const who = state.characters.find((c) => c.name === lord.name);
       expect(who, lord.name).toBeDefined();
-      const ship = state.fleets.find((f) => f.ships.some((s) => s.classId === lord.ship))!;
-      expect(ship, lord.ship).toBeDefined();
-      expect(ship.officerIds).toContain(who.id);
+      expect(who!.faction).toBe('alliance');
+      // Ashore, not aboard. The losing condition is a manhunt now, not a
+      // search for three hulls.
+      expect(state.fleets.some((f) => f.officerIds.includes(who!.id))).toBe(false);
+      // Each brings something the other two do not.
+      expect(powerOf(who!)).toBe(lord.power);
+      powers.add(lord.power);
     }
+    expect(powers.size).toBe(PIRATE_LORDS.length);
   });
 });

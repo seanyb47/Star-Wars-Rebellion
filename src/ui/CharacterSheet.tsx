@@ -5,7 +5,11 @@ import {
   parleyGain,
   recruitChance,
   successChance,
-  isLord,
+  LORD_POWER_LABEL,
+  lordOfName,
+  shipClass,
+  LORD_POWER_TEXT,
+  powerOf,
   type Character,
   type GameState,
 } from '../sim';
@@ -86,11 +90,12 @@ export function CharacterSheet({
 }) {
   const location = state.systems.find((s) => s.id === character.locationSystemId);
   const ship = state.fleets.find((f) => f.officerIds.includes(character.id));
-  // A Lord is their ship when idle and a person on an errand. Sending one
-  // ashore is allowed now, and costs: the hull waits at anchor and its power
-  // sleeps until they are back aboard. The button says so, because the cost
-  // is the whole point of the choice.
-  const lord = isLord(character);
+  // A Lord is a person, and the sheet treats them as one — no special
+  // disabling, no hull waiting on them. What is different is the paragraph
+  // below: the one thing they can do that nobody else can.
+  const power = powerOf(character);
+  // The hull in the stories. Lore, and only ever lore.
+  const lordShip = power ? shipClass(lordOfName(character.name)!.ship) : undefined;
   // Along on somebody else's errand: they have no mission of their own to read.
   const escorting = character.escorting
     ? state.characters.find((c) => c.id === character.escorting)
@@ -99,7 +104,7 @@ export function CharacterSheet({
   // A post held: a deck, or an island. Taking one is an errand that costs a
   // voyage; giving one up is instant, because they are already standing there.
   const holding = state.systems.find((s) => s.commanderId === character.id);
-  const posted = Boolean(holding) || Boolean(ship && !lord);
+  const posted = Boolean(holding) || Boolean(ship);
 
   return (
     <Sheet
@@ -123,10 +128,10 @@ export function CharacterSheet({
         <>
           <button
             className="btn btn--flex btn--primary"
-            disabled={character.status !== 'available' || (lord && atSea)}
+            disabled={character.status !== 'available'}
             onClick={onSendOnMission}
           >
-            {lord && atSea ? 'At sea' : 'Send on mission'}
+            Send on mission
           </button>
           {posted && onRelieve && (
             <button
@@ -189,13 +194,16 @@ export function CharacterSheet({
         </p>
       )}
 
-      {lord && (
+      {/* What a Lord brings, said plainly, because it is a rule and not a
+          flourish. Two of the three are paid for by a posting, which is where
+          the decision is: the power costs you the officer, and the other side
+          can see where you spent them. The ship is named because the story is
+          the reason the rule exists — it is on the Lore tab and nowhere near
+          the water. */}
+      {power && (
         <p className="tiny" style={{ color: 'var(--brass)', marginTop: 10 }}>
-          A Pirate Lord is their ship when idle and a person on an errand. Send{' '}
-          {character.name.split(' ').slice(-1)[0]} ashore and the {ship?.name ?? 'their ship'} lies
-          at anchor until they are back aboard — she cannot sail and her power sleeps — and
-          ashore they can be found out, hurt, or carried off to Highwater in irons. The Crown
-          needs all three of them at once.
+          <b>{LORD_POWER_LABEL[power]}.</b> {LORD_POWER_TEXT[power]} They are one of three, and the
+          Crown needs all three in irons at once.
         </p>
       )}
 
@@ -212,6 +220,16 @@ export function CharacterSheet({
       {/* Who they were before they signed on. Kept after, because it is the
           only thing distinguishing one set of four numbers from another. */}
       {character.blurb && <p className="charsheet__lore serif">{character.blurb}</p>}
+
+      {/* And the ship the stories give them. This is where the Lords' hulls
+          went when they stopped being game pieces: a paragraph under the bio.
+          It is not a fleet you command, it never appears in a harbor, and it
+          is the reason the rule above is the rule it is. */}
+      {lordShip && (
+        <p className="charsheet__lore serif">
+          <b>The {lordShip.name}.</b> {lordShip.blurb}
+        </p>
+      )}
 
       <Ratings character={character} />
 

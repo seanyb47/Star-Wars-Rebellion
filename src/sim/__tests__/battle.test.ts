@@ -14,13 +14,12 @@ import {
   breakOffBattle,
   fightBattleRound,
   fleetsAt,
-  sailError,
   isAtSea,
   resolveBattles,
 } from '../fleets';
 import { generateGalaxy } from '../galaxy';
-import { PIRATE_LORDS, shipClass } from '../constants';
-import { fleetHeldAshore, isLordShip, lordFleet, powerAt } from '../lords';
+import { PIRATE_LORDS } from '../constants';
+import { lordPowerAt, lords } from '../lords';
 import { getCharacter, getSystem, requiredGarrison } from '../helpers';
 import {
   advanceMissions,
@@ -458,40 +457,36 @@ describe('a posting is not a rank', () => {
   });
 });
 
-describe("a Lord's ship in an ordinary squadron", () => {
-  it('can join one, and pins the whole squadron whenever she is ashore', () => {
+describe("the Admiral's harbor", () => {
+  it('fights every squadron lying there under his command, whoever is aboard', () => {
     const state = generateGalaxy(7, 'alliance');
-    const hale = PIRATE_LORDS[0];
-    const hers = lordFleet(state, hale)!;
-    const home = getSystem(state, hers.systemId);
-    let mine = hers;
-    for (const c of ['tempest', 'swift'] as const) mine = addShip(state, home, 'alliance', c);
-    expect(mine.id).not.toBe(hers.id);
+    const jessup = lords(state).find((c) => c.name === PIRATE_LORDS[2].name)!;
+    const here = getSystem(state, state.factions.alliance.hqSystemId);
+    state.fleets.length = 0;
+    // A squadron with nobody aboard at all: the edge cannot be coming from an
+    // officer on the deck, because there is no officer on the deck.
+    const mine = addShip(state, here, 'alliance', 'tempest');
+    expect(mine.officerIds).toHaveLength(0);
 
-    // She can be put in with them.
-    expect(detachError(state, hers.id, [hers.ships[0].id], mine.id, 'alliance')).toBeNull();
-    detachShips(state, hers.id, [hers.ships[0].id], mine.id, 'alliance');
-    const merged = lordFleet(state, hale)!;
-    expect(merged.id).toBe(mine.id);
-    // Her power does not care which squadron she is in, only where she lies.
-    expect(powerAt(state, home.id, 'moot')).toBeDefined();
+    // Nobody posted: no power, and no edge.
+    expect(lordPowerAt(state, here.id, 'line')).toBeUndefined();
 
-    // Send her ashore: the whole squadron waits, not just her hull.
-    const target = state.systems.find(
-      (s) => s.control === 'neutral' && s.populated && s.explored.alliance,
-    )!;
-    startMission(state, state.characters.find((c) => c.name === hale.name)!.id, target.id);
-    expect(fleetHeldAshore(state, merged)?.name).toBe(hale.name);
-    expect(sailError(state, merged.id, target.id, 'alliance')).toMatch(/ashore/);
-    expect(powerAt(state, home.id, 'moot')).toBeUndefined();
+    // Post him, and the harbor fights his way.
+    jessup.locationSystemId = here.id;
+    here.commanderId = jessup.id;
+    expect(lordPowerAt(state, here.id, 'line')?.id).toBe(jessup.id);
 
-    // And the way out: split her hull back off, and the rest sails.
-    const hull = merged.ships.find(isLordShip)!;
-    expect(detachError(state, merged.id, [hull.id], undefined, 'alliance')).toBeNull();
-    const parked = detachShips(state, merged.id, [hull.id], undefined, 'alliance');
-    // Called by her name, as on day one and as when a Lord is got back.
-    expect(parked.name).toBe(shipClass(hull.classId).name);
-    expect(fleetHeldAshore(state, merged)).toBeUndefined();
-    expect(sailError(state, merged.id, target.id, 'alliance')).toBeNull();
+    // In irons, the posting is a name on a page and nothing more.
+    jessup.status = 'captured';
+    expect(lordPowerAt(state, here.id, 'line')).toBeUndefined();
+    jessup.status = 'available';
+
+    // And it is his power, not any commander's: the Commodore in the same
+    // chair does the Moot, not the line.
+    const hale = lords(state).find((c) => c.name === PIRATE_LORDS[0].name)!;
+    here.commanderId = hale.id;
+    hale.locationSystemId = here.id;
+    expect(lordPowerAt(state, here.id, 'line')).toBeUndefined();
+    expect(lordPowerAt(state, here.id, 'moot')?.id).toBe(hale.id);
   });
 });

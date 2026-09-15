@@ -1,7 +1,4 @@
 import {
-  LORD_POWER_TEXT,
-  isLordShip,
-  lordOfShip,
   shipClass,
   shipSpec,
   type Fleet,
@@ -16,9 +13,8 @@ import { Sheet, Stat } from './components';
  *
  * The harbor is a list now — a line per class with how many, how much hull is
  * left and how many guns — and everything a line cannot carry is here. Which
- * is most of what a ship is: what she was built for, how fast she is, what she
- * can lift, and, for the three that have one, what the Lord aboard does for
- * the squadron around her.
+ * is most of what a ship is: what she was built for, how fast she is, and what
+ * she can lift.
  *
  * The sheet is about the class rather than one hull, because that is what the
  * player tapped: nobody wants four sheets for four Kestrels. Where the hulls
@@ -40,7 +36,6 @@ export function ShipSheet({
   const cls = shipClass(ship.classId);
   const spec = shipSpec(ship.classId);
   const sisters: Ship[] = fleet.ships.filter((s) => s.classId === ship.classId);
-  const lord = lordOfShip(ship.classId);
   const island = state.systems.find((s) => s.id === fleet.systemId);
 
   return (
@@ -72,7 +67,7 @@ export function ShipSheet({
           label="Pace"
           value={spec.pace < 1 ? 'Fast' : spec.pace > 1 ? 'Slow' : 'Steady'}
         />
-        <Stat label="Upkeep" value={cls.unique ? 'Nothing' : `${spec.upkeep} a day`} />
+        <Stat label="Upkeep" value={`${spec.upkeep} a day`} />
       </div>
 
       {/* Under its own heading, as on the island's Lore tab. A ship sheet is
@@ -83,15 +78,6 @@ export function ShipSheet({
       <p className="charsheet__lore serif" style={{ marginTop: 0 }}>
         {cls.blurb}
       </p>
-
-      {lord && (
-        <p className="tiny" style={{ color: 'var(--brass)' }}>
-          <b>{lord.name}'s ship.</b>{' '}
-          {shipClass(ship.classId).power ? LORD_POWER_TEXT[shipClass(ship.classId).power!] : ''}{' '}
-          She cannot be built and costs nothing to keep. Take her and you take the Lord — and she
-          lies at anchor whenever {lord.name.split(' ').slice(-1)[0]} is ashore on an errand.
-        </p>
-      )}
 
       {/* Damage is the one thing the sisters do not share, so it is the one
           thing listed hull by hull rather than once for the class. */}
@@ -106,7 +92,6 @@ export function ShipSheet({
               <span>
                 {cls.name}
                 {sisters.length > 1 ? ` ${i + 1}` : ''}
-                {isLordShip(sister) ? " · the Lord's own" : ''}
               </span>
               <span className={sister.damage > 0 ? 'shiprow__hurt' : 'muted'}>
                 {sister.damage === 0 ? 'Sound' : `${left} of ${spec.hull} hull`}

@@ -47,14 +47,14 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
     body: (side) => {
       const lords = PIRATE_LORDS.map((l) => l.name).join(', ');
       return side === 'empire'
-        ? `Hunt down the three Pirate Lords — ${lords}. Each is bound to a ship; take the ship and you take the Lord. Hold all three in irons at once and the Confederacy is finished. Captives are exchanged after ${CAPTIVE_DAYS} days, so it is a window. And hold Highwater: the day it falls, the Crown falls.`
-        : `Take Highwater. The day the Confederacy holds it, the Crown is finished. You lose the day all three Pirate Lords — ${lords}, each bound to their own ship — are in the Crown's irons at once. Captives are exchanged after ${CAPTIVE_DAYS} days, so keep at least one of them out of reach.`;
+        ? `Hunt down the three Pirate Lords — ${lords}. They are people, not ships: find where one is standing and carry them off a quay. Hold all three in irons at once and the Confederacy is finished. Captives are exchanged after ${CAPTIVE_DAYS} days, so it is a window. And hold Highwater: the day it falls, the Crown falls.`
+        : `Take Highwater. The day the Confederacy holds it, the Crown is finished. You lose the day all three Pirate Lords — ${lords} — are in the Crown's irons at once. They can be carried off a quay like anyone else, so keep at least one of them out of reach. Captives are exchanged after ${CAPTIVE_DAYS} days.`;
     },
   },
   {
     title: 'The chart',
     body: () =>
-      'Every island is a dot in the colour of who holds it: green the Crown, red the Confederacy, blue settled but nobody\'s, grey unexplored or empty. How big the dot is says how firmly it is held — a big one is loyal, a small one is thin and running a quarter of its trade to the other side. A filter draws what it points at big and everything else small. The star is the thing to watch: it marks Highwater, and wherever a Pirate Lord\'s ship is lying. Tap a chain to zoom in.',
+      'Every island is a dot in the colour of who holds it: green the Crown, red the Confederacy, blue settled but nobody\'s, grey unexplored or empty. How big the dot is says how firmly it is held — a big one is loyal, a small one is thin and running a quarter of its trade to the other side. A filter draws what it points at big and everything else small. The star is the thing to watch: it marks Highwater, and wherever a Pirate Lord is standing. Tap a chain to zoom in.',
   },
   {
     title: 'One island',
@@ -100,8 +100,8 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
     title: 'A first move',
     body: (side) =>
       side === 'empire'
-        ? 'Two of your islands are sullen and held by garrison alone. Send a diplomat to one of them before the Confederacy sends theirs. Then start the hunt: the three Lords\' ships are lying off some island in the outer Reaches you have not charted, and they will scatter when they see you coming. Survey the frontier, and watch for the star.'
-        : 'Your three Lords and their ships lie at the meeting place, beyond the Crown\'s charts, with the rest of your people aboard the Free Harbor. Put them ashore where you hold ground and send your best diplomat to a neutral island in your own chain. Put Wyatt Ansell on the Shipyard. And keep the Lords apart and out of sight: the Crown needs all three at once.',
+        ? 'Two of your islands are sullen and held by garrison alone. Send a diplomat to one of them before the Confederacy sends theirs. Then start the hunt: the three Lords are ashore on islands in the outer Reaches you have not charted, and they move. Survey the frontier, and watch for the star.'
+        : 'Your three Lords are at the meeting place beyond the Crown\'s charts, with the rest of your people. Each brings one thing nobody else can — read their sheets. Two of the three want a posting to work, so put them in command of an island where it will do something, and send your best diplomat to a neutral island in your own chain. Put Wyatt Ansell on the Shipyard. And keep the Lords apart: the Crown needs all three at once.',
   },
 ];
 

@@ -38,7 +38,7 @@ import {
 import { sightBeast } from './creatures';
 import { recomputeLedger } from './economy';
 import { resolveControlAndUnrest } from './support';
-import { lordFleet, lordOfName, restoreLord } from './lords';
+import { isLord, passageShare, restoreLord } from './lords';
 import type { Rng } from './rng';
 import type { Character, GameState, MissionType, PlayableFaction, System } from './types';
 
@@ -173,9 +173,27 @@ export function abductOn(
   faction: PlayableFaction,
 ): Character | undefined {
   if (!system.explored[faction]) return undefined;
-  if (system.control === otherFaction(faction)) return undefined;
+  // Their own harbor is worth going into for one of three people and nobody
+  // else. An ordinary officer caught off their ground is a chance you take;
+  // sailing into their anchorage to lift a clerk is not a war aim, and if it
+  // were, abduction would outrank inciting on every enemy island in the game
+  // and the chart would have one answer everywhere.
+  //
+  // A Lord is the exception because a Lord is the war. This is the Crown's
+  // whole route to victory: measured over sixteen wars with the old rule, it
+  // won none of them and never took a single Lord, because the three of them
+  // stand on Confederate ground and Confederate ground was closed. It is
+  // priced, not free — working on enemy soil carries the higher foil chance,
+  // so a raid into their harbor is how officers get hurt.
+  const theirs = system.control === otherFaction(faction);
+
   // Only somebody actually on the quay: an officer aboard a ship in the
-  // harbor is not there to be taken, and a Lord never is.
+  // harbor is not there to be taken.
+  //
+  // A Lord is, now. That line used to end "and a Lord never is", because a
+  // Lord was a hull and you took the hull. They are people, so they are taken
+  // the way people are taken — which is the reason every errand the Brethren
+  // send one on is a risk worth weighing.
   const aboard = new Set(state.fleets.flatMap((f) => f.officerIds));
   return state.characters.find(
     (c) =>
@@ -184,7 +202,8 @@ export function abductOn(
       c.status !== 'captured' &&
       c.status !== 'injured' &&
       !aboard.has(c.id) &&
-      !(c.mission && c.mission.phase === 'travelling'),
+      !(c.mission && c.mission.phase === 'travelling') &&
+      (!theirs || isLord(c)),
   );
 }
 
@@ -471,7 +490,9 @@ export function companionsFor(state: GameState, leader: Character): Character[] 
       c.status === 'available' &&
       !c.mission &&
       !c.escorting &&
-      !lordOfName(c.name) &&
+      // A Lord may ride in somebody else's boat now. They are personnel and
+      // nothing else, and putting two of the three in one party is a way to
+      // lose a war in an afternoon — which is the player's risk to take.
       c.locationSystemId === here,
   );
 }
@@ -550,17 +571,6 @@ export function missionError(
   if (!character) return 'No such character.';
   if (!isPlayable(character.faction)) return 'That character has no faction.';
   if (character.status !== 'available') return 'They are not free to sail.';
-  // A Lord may go ashore, but they leave from their own deck and their ship
-  // has to be at an island to leave from it. Everything that makes this cost
-  // something — the hull pinned at anchor, the power asleep, the Lord
-  // takeable — follows from their being off the ship, not from a special rule
-  // about errands.
-  const lord = lordOfName(character.name);
-  if (lord) {
-    const ship = lordFleet(state, lord);
-    if (!ship) return `${character.name} has no ship to leave from.`;
-    if (ship.voyage) return `The ${ship.name} is at sea. ${character.name} leaves from an island, not mid-passage.`;
-  }
   const system = state.systems.find((s) => s.id === targetSystemId);
   if (!system) return 'No such island.';
   if (!isMissionTarget(state, system, character.faction)) return 'Nothing to be done there.';
@@ -598,7 +608,17 @@ export function startMission(
   if (error) throw new Error(error);
   const character = getCharacter(state, characterId);
   const target = getSystem(state, targetSystemId);
-  const days = travelDays(state, character.locationSystemId, targetSystemId);
+  // The Swallowtail's power: Reyne is never off her, so anywhere he leads a
+  // boat he is there in half the time. Rounded up, and never less than a day —
+  // fast is not the same as instant.
+  //
+  // Standing on the island already is the one case that stays at nought. It
+  // has to: a posting taken in the room you are standing in is taken now (see
+  // the `days === 0` branch below), and clamping the halving to a minimum of
+  // one without excepting it would have sent every officer on a day's voyage
+  // to the quay they were already on.
+  const passage = travelDays(state, character.locationSystemId, targetSystemId);
+  const days = passage === 0 ? 0 : Math.max(1, Math.ceil(passage * passageShare(character)));
   const type = chosen ?? missionTypeFor(state, target, character.faction as PlayableFaction)!;
 
   // Whoever is actually allowed in the boat, capped at a boatful. Anybody

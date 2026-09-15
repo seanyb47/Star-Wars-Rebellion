@@ -13,7 +13,6 @@ import {
   fleeBattle,
   sailFleet,
 } from './fleets';
-import { isLord } from './lords';
 import { createRng } from './rng';
 import { generateGalaxy } from './galaxy';
 import { cloneState } from './helpers';
@@ -176,7 +175,6 @@ export function orderRelieve(state: GameState, characterId: string): CommandResu
     const who = draft.characters.find((c) => c.id === characterId);
     if (!who) throw new Error('No such crew.');
     if (who.faction !== draft.player) throw new Error('Not one of yours.');
-    if (isLord(who)) throw new Error(`${who.name} does not leave their own ship.`);
     const fleet = draft.fleets.find((f) => f.officerIds.includes(characterId));
     if (fleet && fleet.voyage) throw new Error('The fleet is at sea.');
     relieve(draft, characterId);

@@ -295,40 +295,59 @@ export interface ShipClass {
   role: ShipRole;
   name: string;
   blurb: string;
-  /** One of a kind: never on a shipyard's menu, and costs nothing to keep. */
-  unique?: true;
+  /**
+   * Lore only. A legend is a ship the stories tell about — the three the
+   * Pirate Lords are named for — and it is never put on the water: nothing
+   * builds it, nothing sails it, nothing fights it. It is here so a name on a
+   * bio resolves to something with prose attached.
+   */
+  legend?: true;
   /** Numbers of its own, over the size's. */
   hull?: number;
   guns?: number;
   pace?: number;
   carries?: number;
-  /** A Pirate Lord's ship carries one power. */
-  power?: LordPower;
 }
 
 /**
- * The three Pirate Lords who lead the Confederacy, each bound to a ship.
+ * The three Pirate Lords who lead the Confederacy.
  *
- * They never go ashore: the ship is the Lord, and what the ship does is what
- * the Lord does for the cause. Take the ship and you take the Lord. Take all
- * three at once and the Confederacy is finished — Rebellion's Mothma-and-Luke
- * condition, made naval. By name, because characters take fresh ids each game.
+ * People, like everybody else in this game, each carrying one thing nobody
+ * else can do. Take all three at once and the Confederacy is finished —
+ * Rebellion's Mothma-and-Luke condition. By name, because characters take
+ * fresh ids each game.
  */
 export interface PirateLord {
   name: string;
+  /** Lore only: the ship the stories give them. Never put on the water. */
   ship: ShipClassId;
+  power: LordPower;
 }
+/*
+ * The three, their ships and their powers.
+ *
+ * `ship` is lore now and nothing else — a name for the bio and the sheet. No
+ * hull of these classes is ever put on the water. What a Lord brings is the
+ * power, and where it applies is in `lords.ts`.
+ */
 export const PIRATE_LORDS: PirateLord[] = [
-  { name: 'Commodore-Elect Adaira Hale', ship: 'harbor' },
-  { name: 'Captain Silas Reyne', ship: 'swallowtail' },
-  { name: 'Admiral Dorian Jessup', ship: 'ironback' },
+  { name: 'Commodore-Elect Adaira Hale', ship: 'harbor', power: 'moot' },
+  { name: 'Captain Silas Reyne', ship: 'swallowtail', power: 'runner' },
+  { name: 'Admiral Dorian Jessup', ship: 'ironback', power: 'line' },
 ];
+
+/** What each power is called, so it can be named before it is explained. */
+export const LORD_POWER_LABEL: Record<LordPower, string> = {
+  moot: 'The Moot sails with her',
+  runner: 'He is never off the Swallowtail',
+  line: "He fights a harbor the Ironback's way",
+};
 
 /** What each power does, in the player's words. */
 export const LORD_POWER_TEXT: Record<LordPower, string> = {
-  moot: 'The Moot sails with her. Wherever she lies at anchor the island comes round to the Confederacy a point a day, and she is home to anyone coming back from a parley.',
-  runner: 'Faster than anything afloat, and the last thing in a harbor the enemy can hit: while another Confederate hull floats beside her, the guns find that one instead.',
-  line: 'The heaviest guns on the water, and every Confederate fleet lying in her harbor fights under the Admiral\'s command.',
+  moot: 'The Moot sits where she does. While she holds a posting, that island comes round to the Confederacy a point a day — their own ground, unaligned ground, or the Crown\'s.',
+  runner: 'The Swallowtail is the fastest thing afloat and he is never off her. Any errand he leads makes the passage in half the time.',
+  line: 'While he holds a posting, every fleet lying in that harbor fights under the Admiral\'s command.',
 };
 /** Allegiance a day the Moot brings an island round by. */
 export const MOOT_SUPPORT_PER_DAY = 1;
@@ -354,14 +373,12 @@ export function shipSpec(id: ShipClassId): ShipRoleSpec {
   if (cls.guns !== undefined) spec.guns = cls.guns;
   if (cls.pace !== undefined) spec.pace = cls.pace;
   if (cls.carries !== undefined) spec.carries = cls.carries;
-  // A Lord keeps their own ship out of their own pocket.
-  if (cls.unique) spec.upkeep = 0;
   return spec;
 }
 
 /** Hulls a faction can lay down without research. */
 export function shipsFor(faction: PlayableFaction): ShipClass[] {
-  return SHIP_CLASSES.filter((c) => c.faction === faction && !c.unique);
+  return SHIP_CLASSES.filter((c) => c.faction === faction && !c.legend);
 }
 
 export function buildSpec(item: BuildItem): BuildSpec {
@@ -392,7 +409,7 @@ export const GOLD_PER_DAY: Record<BuildItem, number> = {
 };
 
 const SHIP_UPKEEP = Object.fromEntries(
-  (shipData.classes as ShipClass[]).map((c) => [c.id, c.unique ? 0 : SHIP_ROLES[c.role].upkeep]),
+  (shipData.classes as ShipClass[]).map((c) => [c.id, c.legend ? 0 : SHIP_ROLES[c.role].upkeep]),
 ) as Record<ShipClassId, number>;
 
 export const UPKEEP_PER_DAY: Record<BuildItem, number> = {
@@ -564,6 +581,18 @@ export const SABOTAGE_PRIORITY = [
 /** How much the opponent discounts an incitement against courting an unaligned
  *  island, so it does not spend every officer harrying islands it cannot keep. */
 export const INCITE_PRIORITY_PENALTY = 30;
+
+/**
+ * What the opponent will cross a Sea for.
+ *
+ * Lifting somebody off a quay is worth more than any island, because a person
+ * is permanent and an island can be worked again next month — and a Pirate
+ * Lord is worth more again, being a third of the Confederacy's losing
+ * condition. Set high enough to outrank a slipping holding, which is the only
+ * thing that has ever competed for an officer's time.
+ */
+export const AI_ABDUCT_BONUS = 150;
+export const AI_LORD_BOUNTY = 200;
 
 /** Recruitment (amended v4.11). */
 /** How many of the unaligned are scattered over the isles in a given game.
