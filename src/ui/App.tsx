@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import {
+  CLOCK_TICK_MS,
   SPEED_MS,
   advanceDay,
   cancelOrder,
@@ -161,14 +162,48 @@ export function App() {
     decision !== null;
 
   // ---- The clock -------------------------------------------------------
+  //
+  // A day is a hundred and fifty seconds at the slow end now, and that turns
+  // a detail that never mattered into the whole behaviour of the clock.
+  //
+  // This used to be a `setInterval` of one day's length, torn down and rebuilt
+  // whenever the game paused — and it pauses every time a panel opens, which
+  // is most of what a player does. At four seconds a day the lost progress was
+  // invisible. At a hundred and fifty, opening an island two minutes into a
+  // day and closing it would cost those two minutes, every time, and a player
+  // who taps about would find the date never moved.
+  //
+  // So the clock counts real elapsed time into a running total instead, and
+  // the total survives the pause. Whatever the day had behind it when you
+  // opened the panel is still there when you close it.
   const running = started && !panelOpen && !state.winner && state.speed !== 'paused';
+  /** Milliseconds of this game day already served. Kept across pauses. */
+  const servedRef = useRef(0);
   useEffect(() => {
+    // How far through the day we are, published as a custom property rather
+    // than as React state: this moves five times a second, and re-rendering
+    // the chart at that rate to turn a ring a few degrees would be absurd.
+    const show = (fraction: number) =>
+      document.documentElement.style.setProperty('--day-progress', fraction.toFixed(3));
     if (!running) return;
+    let last = performance.now();
     const interval = window.setInterval(() => {
+      const now = performance.now();
+      servedRef.current += now - last;
+      last = now;
+      const dayLength = SPEED_MS[state.speed];
+      if (servedRef.current < dayLength) {
+        show(servedRef.current / dayLength);
+        return;
+      }
+      // One day per crossing, never a burst: a tab left in the background
+      // should not come back and run a fortnight in one frame.
+      servedRef.current = 0;
+      show(0);
       setState((current) =>
         current.speed === 'paused' || current.winner ? current : advanceDay(current),
       );
-    }, SPEED_MS[state.speed]);
+    }, CLOCK_TICK_MS);
     return () => window.clearInterval(interval);
   }, [running, state.speed]);
 

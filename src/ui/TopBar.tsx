@@ -73,7 +73,11 @@ export function TopBar({
   onOpenMenu: () => void;
 }) {
   const longPress = useRef<{ timer: number; fired: boolean }>({ timer: 0, fired: false });
-  const last = useRef<Speed>('slow');
+  /* What the first tap on a paused clock starts at, and what a hold-to-pause
+     comes back to. Medium, not Slow: a day is thirty seconds there against
+     seventy-five, and the first minute of a new game should not be spent
+     watching a date that has not changed yet. */
+  const last = useRef<Speed>('medium');
   const faction = state.factions[state.player];
   const side = factionData[state.player];
   const net = faction.income - faction.upkeep;

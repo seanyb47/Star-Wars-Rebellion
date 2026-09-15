@@ -1267,3 +1267,39 @@ the player on each side in turn — which is what the original measurement must
 have done — gives **8–8, no stalls, median 589 days** with the creatures in.
 Checked against the previous commit before believing it, which showed the same
 16–0, proving the fault was in the measurement and not in today's work.
+
+**The clock runs at Rebellion's pace — 15 September.** Sean's reference
+table: **150 / 75 / 30 / 15 seconds** a game day for Very Slow, Slow, Medium
+and Fast. The game had been running 4 / 2 / 1 / 0.4, so this is about
+thirty-seven times slower, and it is the original's pacing rather than a
+strategy game's demo loop. A war here runs a few hundred days, which puts
+Fast at a couple of hours, Medium at about five, and Very Slow at something
+you leave going and come back to.
+
+**Two things had to come with it, and the first is not optional.** The clock
+was a `setInterval` one day long, torn down and rebuilt whenever the game
+paused — and it pauses every time a panel opens, which is most of what a
+player does. At four seconds a day the lost progress was invisible. At a
+hundred and fifty, opening an island two minutes into a day and closing it
+would cost those two minutes every time, and a player who taps about would
+find the date never moved at all. So the clock counts real elapsed time into
+a total that survives the pause: whatever the day had behind it when you
+opened the panel is still there when you close it. Measured in a browser —
+at Fast the day sat at 0.44 when a panel opened, was still 0.44 four seconds
+later, and carried on from 0.467. It also advances exactly one day per
+crossing, never a burst, so a backgrounded tab does not come back and run a
+fortnight in a frame.
+
+**And the day badge has hands now.** A date that sits unchanged for two and a
+half minutes is a clock with no hands — there is no way to tell the game from
+a freeze. A ring round the badge fills from noon, clockwise, and resets on the
+turn of the day; it holds its place while paused, which is half the point of
+it. Driven by a `--day-progress` custom property written on the root element
+five times a second rather than by React state, because re-rendering the chart
+to move a ring three degrees would be absurd.
+
+**One judgement call, flagged.** The first tap on a paused clock used to start
+at Slow. At the old speeds that was two seconds a day; at the new ones it is
+seventy-five, and the first minute of a new game would be spent watching a
+date that has not moved. It starts at **Medium** now. Still inside Sean's
+table, and a tap either way from there.

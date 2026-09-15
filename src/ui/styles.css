@@ -243,13 +243,38 @@ button {
   opacity: 0.9; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
 }
+/* The day badge wears a ring of how far through the day it is.
+   A day is up to two and a half minutes now, so the date on its own is a
+   clock with no hands: it sits unchanged for longer than anyone will believe
+   the game is still running. The ring fills clockwise from noon and resets on
+   the turn of the day. Driven by --day-progress, which App's clock writes on
+   the root element five times a second — a custom property rather than React
+   state, because re-rendering the chart to move a ring three degrees would be
+   absurd. It holds its place while paused, which is the point of it. */
 .banner__day {
+  position: relative;
   flex: none; width: 44px; height: 44px; border-radius: 50%;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
   background: radial-gradient(circle at 35% 30%, var(--chrome), var(--chrome-2) 70%);
   border: 2px solid var(--metal); box-shadow: 0 0 0 2px var(--chrome-2), 0 0 0 3px var(--metal-lo), 0 2px 8px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   color: var(--metal-hi); font-family: 'Iowan Old Style', Palatino, Georgia, serif;
 }
+.banner__day::after {
+  content: ''; position: absolute; inset: -5px; border-radius: 50%;
+  pointer-events: none;
+  /* From noon, clockwise, the way every clock anybody has ever read goes.
+     conic-gradient's own zero is already noon, so there is no `from` to set. */
+  background: conic-gradient(
+    var(--metal-hi) calc(var(--day-progress, 0) * 360deg),
+    transparent 0
+  );
+  /* Keep only the outer band, so it reads as a ring around the badge rather
+     than a pie chart behind it. */
+  -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  mask: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  opacity: 0.85;
+}
+@media (prefers-reduced-motion: reduce) { .banner__day::after { transition: none; } }
 .banner__daylabel { font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1; color: var(--chrome-text); opacity: 0.8; }
 .banner__day b { font-size: 17px; line-height: 1.05; font-weight: 700; }
 .console { display: flex; align-items: center; gap: 5px; padding: 5px 8px 6px; }

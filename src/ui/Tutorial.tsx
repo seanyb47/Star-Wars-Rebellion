@@ -94,7 +94,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'The clock',
     body: () =>
-      'Nothing moves while it says Paused. Start it and a day passes every few seconds, whether you are watching or not. Passages take days, errands take a fortnight ashore, hulls take weeks. The Log at the foot tells you what happened while you looked away.',
+      'Nothing moves while it says Paused. Start it and the ring round the date fills, and at the turn of it a day has gone by — half a minute at Medium, two and a half at Very Slow. Tap to change the pace, hold to stop. Passages take days, errands take a fortnight ashore, hulls take weeks, so this is a war to leave running and come back to. The Log at the foot tells you what happened while you looked away.',
   },
   {
     title: 'A first move',

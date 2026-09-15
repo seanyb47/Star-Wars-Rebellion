@@ -11,14 +11,36 @@ import type {
   Speed,
 } from './types';
 
-/** Milliseconds between ticks. One tick = one day (spec 2). */
+/**
+ * Real time a game day takes, in milliseconds. One day is one tick (spec 2).
+ *
+ * Sean's reference, 15 September: 150 / 75 / 30 / 15 seconds a day. That is
+ * about thirty-seven times slower than the game had been running, and it is
+ * the original's pace rather than a strategy game's demo loop — Rebellion is
+ * played over evenings, not minutes. A war here runs a few hundred days, so
+ * Fast is a couple of hours, Medium about five, and Very Slow is a thing you
+ * leave going and come back to.
+ *
+ * What that changes about the clock is in `App.tsx`: at four seconds a day
+ * nobody noticed that opening a panel threw away the progress toward the next
+ * one, and at a hundred and fifty they would notice nothing else.
+ */
 export const SPEED_MS: Record<Speed, number> = {
   paused: Number.POSITIVE_INFINITY,
-  very_slow: 4000,
-  slow: 2000,
-  medium: 1000,
-  fast: 400,
+  very_slow: 150_000,
+  slow: 75_000,
+  medium: 30_000,
+  fast: 15_000,
 };
+
+/**
+ * How often the clock looks at itself.
+ *
+ * Not how often a day passes — that is SPEED_MS. This is the resolution the
+ * day's progress is measured and drawn at, fine enough that the ring around
+ * the day badge moves smoothly and coarse enough to cost nothing.
+ */
+export const CLOCK_TICK_MS = 200;
 
 export const SPEED_ORDER: Speed[] = ['paused', 'very_slow', 'slow', 'medium', 'fast'];
 
