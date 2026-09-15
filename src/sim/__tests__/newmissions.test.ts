@@ -218,7 +218,7 @@ describe('rescue', () => {
 });
 
 describe('a boat with more than one in it', () => {
-  it('takes who is in the same harbour, ashore or afloat, and nobody else', () => {
+  it('takes who is in the same harbor, ashore or afloat, and nobody else', () => {
     const state = generateGalaxy(21, 'empire');
     const leader = state.characters.find((c) => c.faction === 'empire')!;
     const here = leader.locationSystemId;

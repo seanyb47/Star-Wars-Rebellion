@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import terms from '../data/terms.json';
 import {
+  beastAt,
   boardError,
   fleetCapacity,
   fleetDamaged,
@@ -19,7 +20,7 @@ import {
   type GameState,
   FORT_GUNS,
 } from '../sim';
-import { CharacterPortrait, FacilityIcon, ShipThumb } from './art';
+import { CharacterPortrait, CreaturePainting, FacilityIcon, ShipThumb } from './art';
 import { ControlBadge } from './components';
 
 /**
@@ -264,10 +265,14 @@ export function ShipsHere({
   const inbound = state.fleets.filter(
     (f) => f.faction === state.player && f.voyage?.targetSystemId === systemId,
   );
-  // The fixed defences sit in the harbour with the hulls: a fort is a warship
+  // The fixed defences sit in the harbor with the hulls: a fort is a warship
   // that cannot weigh anchor, and it belongs on this tab rather than under
   // Buildings with the mills, because this is where it fights.
   const island = state.systems.find((s) => s.id === systemId);
+  // And whatever is in the water. It is not a fleet and it is nobody's, but a
+  // card among the ships is exactly what it is to the player: a thing lying in
+  // this harbor with guns, which has to be got past.
+  const beast = island && island.beastSeen?.[state.player] ? beastAt(island) : undefined;
   const forts = island ? island.facilities.filter((x) => x.type === 'fort' && !x.building).length : 0;
   const booms = island ? island.facilities.filter((x) => x.type === 'boom' && !x.building).length : 0;
   const defences = (forts > 0 || booms > 0) && (
@@ -291,9 +296,44 @@ export function ShipsHere({
     </div>
   );
 
+  const monster = beast && beast.guns > 0 && island && (
+    <div className="card fleet fleet--beast">
+      <div className="row row--between" style={{ alignItems: 'flex-start' }}>
+        <div>
+          <div style={{ fontWeight: 600 }}>{beast.name}</div>
+          <div className="tiny muted" style={{ marginTop: 2 }}>
+            {island.beastSlain ? 'Dead in the water' : 'In the water, and nobody\u2019s'}
+          </div>
+        </div>
+        <span className="badge badge--none">Neutral</span>
+      </div>
+      <div className="fleet__ships" style={{ alignItems: 'center' }}>
+        <CreaturePainting slug={beast.slug} height={72} className="fleet__beast-art" />
+      </div>
+      <dl className="fleet__facts">
+        <div>
+          <dt>Guns</dt>
+          <dd>{island.beastSlain ? <span className="muted">Silent</span> : beast.guns}</dd>
+        </div>
+        <div>
+          <dt>Hurt</dt>
+          <dd>
+            {island.beastDamage ?? 0} <span className="muted">of {beast.hull}</span>
+          </dd>
+        </div>
+      </dl>
+      <p className="tiny" style={{ margin: 0, color: island.beastSlain ? 'var(--muted)' : 'var(--bad)' }}>
+        {island.beastSlain
+          ? 'Killed. The water here is only water now.'
+          : 'It fires on anything lying here, whoever it belongs to, and no fort on the island can be brought to bear on it. It does not mend what you take off it \u2014 break off and come back and it is still carrying it.'}
+      </p>
+    </div>
+  );
+
   if (here.length === 0 && inbound.length === 0) {
     return (
       <div className="stack">
+        {monster}
         {defences}
         <div className="card muted small">
           Nothing is moored here. Lay down a hull at a {terms.facilities.shipyard.toLowerCase()} and
@@ -306,6 +346,7 @@ export function ShipsHere({
 
   return (
     <div className="stack">
+      {monster}
       {defences}
       {here.map((fleet) => (
         <FleetCard

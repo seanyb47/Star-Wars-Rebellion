@@ -35,7 +35,7 @@ describe('the three bands', () => {
   });
 });
 
-describe('what a leaky harbour costs', () => {
+describe('what a leaky harbor costs', () => {
   it('counts the enemy’s smuggled gold as income, so the banner adds up', () => {
     const state = generateGalaxy(101, 'empire');
     const theirs = state.systems.find(
@@ -67,7 +67,7 @@ describe('what a leaky harbour costs', () => {
     }
     expect(leaked).toBeGreaterThan(0);
     expect(state.events.some((e) => /has talked/.test(e.text))).toBe(true);
-    // A harbour that talks talks about its neighbours: anything of theirs in
+    // A harbor that talks talks about its neighbours: anything of theirs in
     // the same chain goes on the charts with it, however firm it is itself.
     if (neighbour) expect(neighbour.explored.empire).toBe(true);
 

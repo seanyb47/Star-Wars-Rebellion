@@ -20,7 +20,7 @@
       "faction": "empire",
       "role": "small",
       "name": "Kestrel",
-      "blurb": "A sloop-of-war. The fastest thing the Crown puts to sea and the first to sink. Good for closing a harbour cheaply."
+      "blurb": "A sloop-of-war. The fastest thing the Crown puts to sea and the first to sink. Good for closing a harbor cheaply."
     },
     {
       "id": "fluyt",
@@ -64,7 +64,7 @@
       "unique": true,
       "hull": 16,
       "name": "Free Harbor",
-      "blurb": "Commodore-Elect Adaira Hale's ship, and the Confederacy's floating parliament. Corwin Calloway's old coral-grown three-decker, named for what he meant her to be: any deck of his was a free harbour to anyone the Crown wanted. The Moot sits on her quarterdeck. Wherever she lies at anchor the island comes round to the Confederacy a point a day, and she is home to anyone coming back from a parley.",
+      "blurb": "Commodore-Elect Adaira Hale's ship, and the Confederacy's floating parliament. Corwin Calloway's old coral-grown three-decker, named for what he meant her to be: any deck of his was a free harbor to anyone the Crown wanted. The Moot sits on her quarterdeck. Wherever she lies at anchor the island comes round to the Confederacy a point a day, and she is home to anyone coming back from a parley.",
       "power": "moot"
     },
     {
@@ -77,7 +77,7 @@
       "pace": 0.5,
       "carries": 1,
       "name": "Swallowtail",
-      "blurb": "Captain Silas Reyne's coral-grown sloop, which should not be as fast as she is. Faster than anything afloat, and the last thing in a harbour the enemy's guns can find: while another Confederate hull floats beside her, she is not hit.",
+      "blurb": "Captain Silas Reyne's coral-grown sloop, which should not be as fast as she is. Faster than anything afloat, and the last thing in a harbor the enemy's guns can find: while another Confederate hull floats beside her, she is not hit.",
       "power": "runner"
     },
     {
@@ -88,7 +88,7 @@
       "hull": 14,
       "guns": 10,
       "name": "Ironback",
-      "blurb": "The Crown dreadnought Admiral Dorian Jessup took with him when he left the Imperium's service. The heaviest guns on the water, and every Confederate fleet lying in her harbour fights under his command.",
+      "blurb": "The Crown dreadnought Admiral Dorian Jessup took with him when he left the Imperium's service. The heaviest guns on the water, and every Confederate fleet lying in her harbor fights under his command.",
       "power": "line"
     }
   ]

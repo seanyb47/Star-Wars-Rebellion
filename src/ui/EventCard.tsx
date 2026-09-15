@@ -170,7 +170,7 @@ export function EventCards({
 
 /**
  * Rebellion's battle summary: each side's crest, what it brought, what it
- * lost, and the harbour's guns if they fired. Laid out rather than told, so
+ * lost, and the harbor's guns if they fired. Laid out rather than told, so
  * the sentence above can stay a sentence.
  */
 function BattleTally({ report }: { report: NonNullable<GameEvent['battle']> }) {
@@ -205,7 +205,7 @@ function BattleTally({ report }: { report: NonNullable<GameEvent['battle']> }) {
       })}
       {report.shore > 0 && holder && (
         <div className="tally__foot tiny muted">
-          The harbour's own guns fired for the {factionData[holder].shortName}: {report.shore}.
+          The harbor's own guns fired for the {factionData[holder].shortName}: {report.shore}.
         </div>
       )}
     </div>

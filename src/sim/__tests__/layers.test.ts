@@ -80,7 +80,7 @@ describe('chart layers', () => {
     expect(layerMark(state, where, 'idleCrew', 'empire').count ?? 0).toBe(others);
   });
 
-  it('counts hulls in harbour, not hulls at sea', () => {
+  it('counts hulls in harbor, not hulls at sea', () => {
     const { state, mine } = setup();
     addShip(state, mine, 'empire', 'kestrel');
     const fleet = addShip(state, mine, 'empire', 'kestrel');

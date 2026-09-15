@@ -1,6 +1,6 @@
 # The opening
 
-(Seven Reaches, 63 islands, chosen by where the painting has its best harbours and islands rather than a quota per chain: Sovereign 15, Whalers' 9, Wreckers' 8, Rime 6, Cinder 8, Salt 9, Coral 8. Rime is the northern chain and three bergs of the ice; Whalers' is the long chain down the west; Coral is the spiral atoll in the south-east, which gained three islands when it went frontier — the painting had more land in that ring than five names were using.)
+(Seven Reaches, 63 islands, chosen by where the painting has its best harbors and islands rather than a quota per chain: Sovereign 15, Whalers' 9, Wreckers' 8, Rime 6, Cinder 8, Salt 9, Coral 8. Rime is the northern chain and three bergs of the ice; Whalers' is the long chain down the west; Coral is the spiral atoll in the south-east, which gained three islands when it went frontier — the painting had more land in that ring than five names were using.)
 
 Sean's rules, 14 September 2026, implemented in `src/sim/galaxy.ts` and
 tested in `src/sim/__tests__/galaxy.test.ts` and `defences.test.ts`. Every

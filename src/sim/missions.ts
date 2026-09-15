@@ -124,7 +124,7 @@ export function isSabotageTarget(
  *
  * Every other mission needs the island charted first — you cannot parley with
  * a rumour — so this is the one that can be sent into the dark, and it is how
- * the Crown is supposed to find a harbour that moves when it is found.
+ * the Crown is supposed to find a harbor that moves when it is found.
  */
 export function isSurveyTarget(system: System, faction: PlayableFaction): boolean {
   return !system.explored[faction];
@@ -149,7 +149,7 @@ export function abductOn(
   if (!system.explored[faction]) return undefined;
   if (system.control === otherFaction(faction)) return undefined;
   // Only somebody actually on the quay: an officer aboard a ship in the
-  // harbour is not there to be taken, and a Lord never is.
+  // harbor is not there to be taken, and a Lord never is.
   const aboard = new Set(state.fleets.flatMap((f) => f.officerIds));
   return state.characters.find(
     (c) =>
@@ -350,7 +350,7 @@ export function foilChance(
   const base = system.control === enemy ? INCITE_FOIL_CHANCE : FOIL_CHANCE;
   const risk = base + (best / 100) * FOIL_PER_WATCHER;
   // Craft cuts the risk but never to nothing: a careful officer is still a
-  // stranger asking questions in someone else's harbour.
+  // stranger asking questions in someone else's harbor.
   const craft = agent ? 1 - (agent.espionage / 100) * 0.6 : 1;
   return Math.max(0, Math.min(0.85, risk * craft));
 }
@@ -869,7 +869,7 @@ function recruitOutcome(
  * The island the officer stood on always goes down — a fortnight ashore is a
  * fortnight ashore — and their Espionage decides how much of the rest of the
  * chain they worked out from it. Nearest first, because that is what somebody
- * asking questions in a harbour would learn: who your neighbours are before
+ * asking questions in a harbor would learn: who your neighbours are before
  * who lives four days' sail away.
  */
 /**
@@ -1136,7 +1136,7 @@ function parleyOutcome(
 /**
  * Stirring up a revolt: you do not win the island, you cost the enemy their
  * grip on it. Drive their standing under the uprising threshold and the island
- * rises on its own — which stops their works, their drilling and their harbour
+ * rises on its own — which stops their works, their drilling and their harbor
  * dead, and leaves it ripe for a landing.
  */
 function inciteOutcome(

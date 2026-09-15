@@ -478,7 +478,7 @@ const AI_STRIKE_LORD_DAY = 150;
  * without a Lord aboard is kept for it. It stages at the island of the
  * Confederacy's with the most companies to spare, takes them aboard until it
  * carries more than the capital's garrison and boom together, and then sails
- * — but not into a harbour where the Crown's guns outweigh its own. Returns
+ * — but not into a harbor where the Crown's guns outweigh its own. Returns
  * the strike fleet's id so the general routine leaves it alone.
  */
 function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
@@ -498,7 +498,7 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
     .reduce((n, f) => n + fleetGuns(f), 0);
   const here = getSystem(state, fleet.systemId);
 
-  // Everything of ours lying in this harbour folds into the strike, and while
+  // Everything of ours lying in this harbor folds into the strike, and while
   // it is short of guns or of berths the rest are called in from wherever they
   // are. Guns are not the only shortage that matters: a squadron that cannot
   // carry more companies than the capital has ashore will never sail, however
@@ -528,7 +528,7 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
 
   // Off the capital already: go ashore if it can carry the island. If it
   // cannot, it does not lie there hoping — there are no companies to be had
-  // in the enemy's harbour, so it falls through and goes to fetch some.
+  // in the enemy's harbor, so it falls through and goes to fetch some.
   if (here.id === capital.id) {
     if (
       fleet.troops > capital.garrison + boomDefence(capital) &&
@@ -538,7 +538,7 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
       return fleet.id;
     }
   } else if (fleet.troops >= need && fleetCapacity(fleet) >= need && !outgunned) {
-    // Enough aboard and the harbour is not a death trap: go.
+    // Enough aboard and the harbor is not a death trap: go.
     if (sailError(state, fleet.id, capital.id, 'alliance') === null) {
       sailFleet(state, fleet.id, capital.id, 'alliance');
     }

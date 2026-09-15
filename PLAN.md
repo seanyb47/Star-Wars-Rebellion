@@ -1169,3 +1169,101 @@ since Freeport started flying Confederate colours at Sean's word; the four
 seeds it checked had all happened to roll one home island, so it passed on
 luck. Adding a die roll to worldgen shifted the stream and exposed it. Bounds
 and comment corrected.
+
+**Four from Sean, 15 September: the dead band answered with a cause rather
+than another guess, one log, the American spelling, and something in the
+water worth bringing a squadron for.**
+
+**"Why can't we just slide down the utility panel to the bottom of the phone
+screen?"** It is the right question, and the answer is that the panel has
+always been on the bottom of the app — `.app` is a flex column with the tab
+bar last, so the bar sits on the app's own floor. The app was the thing in
+the wrong place, and two separate measurements put it there.
+
+*Height*, which I had already fixed: `position: fixed; inset: 0` measures the
+layout viewport, which an iPhone can make most of a hundred points shorter
+than the glass. `visualViewport.height` is a measurement rather than a unit's
+opinion, and the app is sized from it.
+
+*Position*, which I had not. Height alone is not enough. A fixed element is
+anchored to the top of the **layout** viewport whatever its height, and the
+visual viewport can be offset from it — so the app comes out the right height
+in the wrong place, and what you see is a band of nothing along the bottom
+edge. `visualViewport.offsetTop` is that difference, and `.app` is now moved
+by it.
+
+*And the bottom inset was being paid for twice.* The home indicator's strip is
+real, but in a browser tab it is not ours: Safari's own toolbar is sitting in
+it, and `visualViewport.height` already stops above that toolbar. Padding the
+tab bar by `env(safe-area-inset-bottom)` as well buys the same strip a second
+time, and the second one is drawn as tab-bar wood with nothing on it — which
+is exactly the textured band in Sean's screenshot. `--safe-bottom` is now
+zero in a browser and the real inset only in standalone, where there is no
+toolbar and the strip genuinely is ours.
+
+Both of those are invisible to me: every browser I can measure on has
+`offsetTop` 0 and no insets, which is why four rounds of this went by on
+inference. So `?diag` now prints a **cause** line naming which of the two is
+live on the phone it is running on, or saying neither. One screenshot settles
+the next round instead of another guess.
+
+**"Cut log from locations. Only need 1 log."** Gone. The island panel is four
+tabs now — Harbor, Crew, Garrison, Buildings — and the Log screen in the tab
+bar is the log.
+
+**"Change harbour spelling to harbor please."** Done, everywhere: 105
+occurrences across the source, and the bible, the opening and the art docs
+with it. It matches what was already American — the *Free Harbor* and the
+`free-harbor` archetype. PLAN and ASSETS keep the old spelling on purpose:
+they are dated records, and the entry above that explains why the British one
+was kept should stay legible rather than quietly become a lie.
+
+**"Treat the sea monsters as like a neutral faction ship to challenge."** So
+it is one. A creature carries guns and hulls now, it is nobody's, and it
+fires on every fleet lying in its harbor whoever it belongs to — and
+everything there fires back. It does not mend: break off and come back a
+month later and it is still carrying what you gave it, which makes a second
+attempt a plan rather than a restart. Kill it and the island's water is only
+water.
+
+In the panel it is a card among the ships at anchor, red-edged and badged
+Neutral, with its painting, its guns and how much it has taken. That is what
+it is to the player: a thing lying in this harbor that has to be got past.
+The turtles and the cats keep no guns and stay where they were, as the quiet
+block at the foot of the tab.
+
+**Measured rather than asserted**, because "a real fight" is a claim:
+
+| | opening squadron, 5 hulls / 17 guns | one sloop |
+|---|---|---|
+| The Kraken (10 guns, 8 hulls) | killed day 3, five times in five, 3–4 hulls left | eaten day 1, five times in five |
+| Sea Dragon (6 / 5) | killed day 2, 4–5 hulls left | eaten day 1 |
+| The Derelict (4 / 3) | killed day 1, nothing lost | eaten day 2 |
+
+A hull takes a hit for about every two guns firing at it and a creature for
+every six, so a lone sloop's two guns round to nothing and it cannot mark a
+kraken at all. The Derelict costing a squadron nothing is right for her: she
+is eerie, not deadly, and every captain who has met her wrote her off and
+turned for home.
+
+**And an action against one is always logged**, even when nothing sinks. Two
+fleets trading shot without a loss has always been a quiet day the log leaves
+out; a creature is not, because it can chew a squadron for a week without
+taking a hull down, and a player watching damage climb with nothing in the
+log has no way to find out why.
+
+**Freeport never gets a dangerous one.** The Confederacy chose that island to
+meet on and is moored in it on the morning of day one; losing hulls to a
+kraken in your own birthplace before you have given an order is a coin toss,
+not an opening. A harmless one can stay — a free harbor full of cats is
+exactly right.
+
+**A balance scare that was my own instrument.** A sixteen-game idle run came
+back 16–0 to the Confederacy at a median of 215 days against a recorded
+baseline of 8–8 at ~510, and with zero monster fights in it, so it was not the
+monsters. It was the harness: `runAI` plays only the side the player is *not*,
+so a one-sided idle run measures nothing but "the AI beats a statue". Sitting
+the player on each side in turn — which is what the original measurement must
+have done — gives **8–8, no stalls, median 589 days** with the creatures in.
+Checked against the previous commit before believing it, which showed the same
+16–0, proving the fault was in the measurement and not in today's work.

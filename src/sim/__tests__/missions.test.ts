@@ -99,7 +99,7 @@ describe('mission eligibility', () => {
      * that was right until Espionage got a mission of its own. The rule is now
      * more precise rather than gone: you cannot parley with, incite, sabotage
      * or recruit on a rumour — but you can go and look at one, and for the
-     * Crown, hunting a harbour that moves when it is found, that is the point.
+     * Crown, hunting a harbor that moves when it is found, that is the point.
      */
     const { state, diplomat } = setup();
     const enemy = state.systems.find((s) => s.control === 'alliance')!;
@@ -213,7 +213,7 @@ describe('resolution', () => {
       // in one cycle, and nobody is hunting you on your own ground.
       getSystem(trial, sameSector.id).support = { empire: 5, alliance: 5 };
       startMission(trial, agent.id, sameSector.id);
-      // Somebody of theirs turns up to watch the harbour once the parley is
+      // Somebody of theirs turns up to watch the harbor once the parley is
       // under way — after, or the errand would be to abduct them — so a foil
       // is a live chance rather than a one-in-sixteen on an unwatched island.
       const spy = trial.characters.find((c) => c.faction === 'alliance')!;

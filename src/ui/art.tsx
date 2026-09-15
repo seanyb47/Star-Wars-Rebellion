@@ -1321,7 +1321,7 @@ export function NarratorPortrait({
 /**
  * The whole painting, for a card rather than a medallion.
  *
- * The portraits are three-quarter figures against a harbour, and that is worth
+ * The portraits are three-quarter figures against a harbor, and that is worth
  * seeing at card size. The medallion crops to the head because a circle 44px
  * across cannot hold a figure; this does the opposite job with the same file.
  *

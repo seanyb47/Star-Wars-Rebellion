@@ -68,18 +68,17 @@ function errandName(type: MissionType): string {
  * clickable icons on the planet — ships, military, civilian, missions — folded
  * into the fewest tabs that keep like with like.
  *
- * Harbour opens first and is the ships lying at the island, plus the fixed
+ * Harbor opens first and is the ships lying at the island, plus the fixed
  * defences: a fort is a warship that cannot move, so it belongs beside the
  * ships rather than in with the mines. Crew and Garrison are split because
  * one is people you order about and the other is companies that hold ground.
  * Everything built sits in Buildings, earners and yards alike.
  */
 const TABS: Array<{ id: IslandTab; label: string }> = [
-  { id: 'harbour', label: 'Harbour' },
+  { id: 'harbor', label: 'Harbor' },
   { id: 'crew', label: 'Crew' },
   { id: 'garrison', label: terms.garrison },
   { id: 'buildings', label: 'Buildings' },
-  { id: 'log', label: 'Log' },
 ];
 
 /**
@@ -100,7 +99,7 @@ function LoyaltyLine({ system }: { system: System }) {
     <p className="tiny muted" style={{ margin: '8px 0 0' }}>
       <b>{LOYALTY_BAND_LABEL[band]}.</b>{' '}
       {share === 0
-        ? 'Nothing leaves this harbour but what you load.'
+        ? 'Nothing leaves this harbor but what you load.'
         : `${Math.round(share * 100)}% of what it ships goes out the back to the ${
             factionData[enemy].shortName
           }${lost > 0 ? `, ${lost.toFixed(1)} ${terms.gold.toLowerCase()} a day` : ''}.`}
@@ -221,7 +220,7 @@ function FacilityCard({
 export function SystemSheet({
   state,
   system,
-  initialTab = 'harbour',
+  initialTab = 'harbor',
   onClose,
   onBuild,
   onCancel,
@@ -294,7 +293,6 @@ export function SystemSheet({
       c.mission?.targetSystemId === system.id &&
       c.mission.phase === 'travelling',
   );
-  const log = state.events.filter((e) => e.systemId === system.id).slice(-40).reverse();
   const slots = system.slots;
   const producers = system.facilities.filter(
     (f) => f.owner === state.player && !f.founding && buildMenu(f).length > 0,
@@ -339,7 +337,7 @@ export function SystemSheet({
 
            The painting and nothing else. It is shorter than it was, and the
            line of lore that used to sit under it has gone back into the
-           Harbour tab: everything up here is paid for on all five tabs and
+           Harbor tab: everything up here is paid for on all five tabs and
            out of the height the tab itself has to work in, so only the thing
            that is actually about the place on every one of them earns a
            place. The picture does. Two lines of prose about seawalls does
@@ -376,11 +374,11 @@ export function SystemSheet({
         </div>
       }
     >
-      {tab === 'harbour' && (
+      {tab === 'harbor' && (
         <>
           {system.note && <p className="portrait__note serif">{system.note}</p>}
 
-          {/* The harbour is the ships in it. Allegiance and room used to sit
+          {/* The harbor is the ships in it. Allegiance and room used to sit
               above them, and both are on the chain view before you ever open
               this panel — so the first thing under the painting is now the
               thing you came to look at. Allegiance moved to the Garrison tab,
@@ -399,7 +397,7 @@ export function SystemSheet({
 
           {system.blockaded && (
             <p className="tiny" style={{ color: 'var(--bad)', margin: '8px 0 0' }}>
-              Enemy sail is lying off this island. Nothing is getting out of the harbour, so it
+              Enemy sail is lying off this island. Nothing is getting out of the harbor, so it
               earns you nothing today — and still costs you its upkeep. Drive them off and the
               trade resumes.
             </p>
@@ -413,6 +411,11 @@ export function SystemSheet({
                tab and never in the way: it changes nothing you can act on. */
             const beast = beastOf(system, state.player);
             if (!beast) return null;
+            // Anything with guns is a card at the top of this tab among the
+            // ships, because that is what it is to you: a thing lying in the
+            // harbor you have to get past. This block is what is left —
+            // the turtles and the cats, which are scenery and stay scenery.
+            if (beast.guns > 0) return null;
             return (
               <div className="waters">
                 <div className="section-title">These waters</div>
@@ -675,21 +678,6 @@ export function SystemSheet({
               />
             ))}
           </SlotBoard>
-        </>
-      )}
-
-      {tab === 'log' && (
-        <>
-          {log.length === 0 ? (
-            <div className="card muted small">Nothing has happened here yet.</div>
-          ) : (
-            log.map((event) => (
-              <div key={event.id} className="event">
-                <span className="event__day">Day {event.day}</span>
-                <span className="event__text">{event.text}</span>
-              </div>
-            ))
-          )}
         </>
       )}
     </Sheet>

@@ -51,15 +51,28 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
  * The fixed defences, and what they are worth.
  *
  * A fort fires like a medium hull and a bit — enough that two of them turn a
- * sloop raid away, not enough that a harbour never needs a fleet. A boom is
+ * sloop raid away, not enough that a harbor never needs a fleet. A boom is
  * counted as companies for a landing (a chain has to be cut under fire, which
  * costs the attacker exactly what a company would) and as a floor for a
  * blockade: under BOOM_BLOCKADE_GUNS of enemy fire the port stays open, so a
- * single sloop lying off a boomed harbour is a nuisance rather than a siege.
+ * single sloop lying off a boomed harbor is a nuisance rather than a siege.
  */
 export const FORT_GUNS = 5;
 export const BOOM_DEFENCE = 2;
 export const BOOM_BLOCKADE_GUNS = 6;
+
+/**
+ * How much shot a creature soaks.
+ *
+ * A ship takes a hit for roughly every two guns firing at it (see applyFire);
+ * a creature takes one for every six. It is not a hull and it does not stand
+ * there being shot at: it is under the water most of the time and the guns
+ * cannot be depressed far enough for most of the rest. The effect is that a
+ * sloop or two cannot clear one and a squadron can, in a few days, while
+ * being chewed on — which is the shape the thing wants. A creature does not
+ * heal, so what a first attempt takes off it stays off.
+ */
+export const BEAST_ARMOUR = 6;
 
 /**
  * Garrisons at setup, the two numbers Rebellion is tuned against.
@@ -98,7 +111,7 @@ export interface ShipRoleSpec extends BuildSpec {
 
 /**
  * Size is the trade-off, and it is a real one in both directions. A sloop
- * reaches a threatened harbour in two days where a first-rate takes four, and
+ * reaches a threatened harbor in two days where a first-rate takes four, and
  * then dies to one broadside. A transport carries more than anything and
  * cannot fire a shot.
  */
@@ -155,8 +168,8 @@ export const PIRATE_LORDS: PirateLord[] = [
 /** What each power does, in the player's words. */
 export const LORD_POWER_TEXT: Record<LordPower, string> = {
   moot: 'The Moot sails with her. Wherever she lies at anchor the island comes round to the Confederacy a point a day, and she is home to anyone coming back from a parley.',
-  runner: 'Faster than anything afloat, and the last thing in a harbour the enemy can hit: while another Confederate hull floats beside her, the guns find that one instead.',
-  line: 'The heaviest guns on the water, and every Confederate fleet lying in her harbour fights under the Admiral\'s command.',
+  runner: 'Faster than anything afloat, and the last thing in a harbor the enemy can hit: while another Confederate hull floats beside her, the guns find that one instead.',
+  line: 'The heaviest guns on the water, and every Confederate fleet lying in her harbor fights under the Admiral\'s command.',
 };
 /** Allegiance a day the Moot brings an island round by. */
 export const MOOT_SUPPORT_PER_DAY = 1;
@@ -283,7 +296,7 @@ export const MISSION_PARTY_MAX = 4;
 export const FOIL_CHANCE = 0.1;
 export const FOIL_INJURY_DAYS = 20;
 /** Stirring up a revolt on an island the enemy holds. Far more dangerous than
- *  talking to people who have not chosen a side: their garrison, their harbour,
+ *  talking to people who have not chosen a side: their garrison, their harbor,
  *  their crew watching the strangers ask questions. */
 export const INCITE_FOIL_CHANCE = 0.3;
 /** How much an enemy officer standing on the island adds to the risk, scaled by
@@ -315,7 +328,7 @@ export const SABOTAGE_BASE = 0.34;
 export const ABDUCT_BASE = 0.42;
 /**
  * Breaking one of yours out of the enemy's seat. Harder than lifting someone
- * off a quay — the whole harbour is watching the cells — and read off
+ * off a quay — the whole harbor is watching the cells — and read off
  * Espionage, since it is craft and not argument.
  */
 export const RESCUE_BASE = 0.3;
@@ -397,7 +410,7 @@ export const AI_RECRUIT_BONUS = 120;
  * Allegiance used to be a number that moved a multiplier and nothing else.
  * It is now the thing the chart is drawn by and the thing that decides how
  * much of an island's trade you actually see: an island that does not love
- * you keeps working, but its harbour leaks — goods go out the back to the
+ * you keeps working, but its harbor leaks — goods go out the back to the
  * other side, and so does word of what you have there.
  *
  * Firm at ninety and up, steady from sixty, thin below it, and an island in
@@ -488,7 +501,7 @@ export const SMUGGLED_SHARE: Record<LoyaltyBand, number> = {
 };
 
 /**
- * The other half of a leaky harbour: word gets out. Each day, this is the
+ * The other half of a leaky harbor: word gets out. Each day, this is the
  * chance that an island of yours the enemy has never charted turns up on
  * their charts anyway, because somebody talked — and what they learn is not
  * only that it is there but what stands on it and how many companies hold
@@ -522,7 +535,7 @@ export const GARRISON_FOR_BAND: Record<LoyaltyBand, number> = {
  * What each company ashore takes off the smugglers: a twentieth of what they
  * were running. Troops help at the margin and no further — twenty companies
  * would close the back door and nobody will ever keep twenty on one island,
- * so a sour harbour always leaks something. Sean's call, 15 September, over
+ * so a sour harbor always leaks something. Sean's call, 15 September, over
  * a tenth: a garrison should not be an answer to disloyalty, only a hand on
  * it while you fix the real thing.
  */

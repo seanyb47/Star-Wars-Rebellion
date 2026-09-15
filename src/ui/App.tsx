@@ -77,7 +77,7 @@ export function App() {
   const [state, setState] = useState<GameState>(() => saved ?? newGame());
   const [tab, setTab] = useState<Tab>('galaxy');
   const [openSystemId, setOpenSystemId] = useState<string | null>(null);
-  const [openSystemTab, setOpenSystemTab] = useState<IslandTab>('harbour');
+  const [openSystemTab, setOpenSystemTab] = useState<IslandTab>('harbor');
   const [openReachId, setOpenReachId] = useState<string | null>(null);
   const [openListId, setOpenListId] = useState<string | null>(null);
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
@@ -313,7 +313,7 @@ export function App() {
    *
    * Which tab it opens on is the filter's to say: with Idle yards on, a lit
    * island is a yard standing about, so the island opens on its Buildings.
-   * With no filter it opens on the Harbour, as it always did, and the tabs
+   * With no filter it opens on the Harbor, as it always did, and the tabs
    * swipe from wherever it landed.
    */
   const openIslandTab = (systemId: string) => {
@@ -361,7 +361,7 @@ export function App() {
   const jumpToSystem = (systemId: string) => {
     setTab('galaxy');
     setOpenSystemId(systemId);
-    setOpenSystemTab('harbour');
+    setOpenSystemTab('harbor');
   };
 
   const startNewGame = (player: PlayableFaction) => {
@@ -519,7 +519,7 @@ export function App() {
             else setToldOf((seen) => [...seen, ...dispatches.map((e) => e.id)]);
             setTab('galaxy');
             setOpenSystemId(systemId);
-            setOpenSystemTab('harbour');
+            setOpenSystemTab('harbor');
           }}
         />
       )}

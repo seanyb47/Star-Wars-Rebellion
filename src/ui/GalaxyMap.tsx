@@ -176,7 +176,7 @@ const RHUMB_ANGLES = Array.from({ length: 16 }, (_, i) => (i * 360) / 16);
 export function controlColor(system: System, viewer: PlayableFaction): string {
   // Unexplored first, before anything about whose it is: an island you have
   // not been to is grey whoever holds it. Checking control first painted the
-  // Confederacy's hidden harbour red on the Crown's chart for one build,
+  // Confederacy's hidden harbor red on the Crown's chart for one build,
   // which is the one thing this chart must never do.
   if (!system.explored[viewer]) return OPEN_GREY;
   if (system.control === 'empire' || system.control === 'alliance') {
@@ -779,7 +779,7 @@ export function GalaxyMap({
 
       {/* What is standing idle, always on screen: a yard building nothing is
           gold you are not spending, and nothing else says so. */}
-      {/* A shut harbour, under every layer: it costs you a day's takings
+      {/* A shut harbor, under every layer: it costs you a day's takings
           whatever you happen to be looking at. */}
       {!pickingFor && !sailing && !choosing && <ProducerLegend state={state} onOpenIsland={onOpenIsland} />}
 

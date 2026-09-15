@@ -172,7 +172,7 @@ describe('sailing', () => {
 });
 
 describe('battle', () => {
-  it('resolves when two sides share a harbour, and costs hulls', () => {
+  it('resolves when two sides share a harbor, and costs hulls', () => {
     const { state, home } = setup();
     put(state, home, 'empire', ['sovereign', 'kestrel']);
     put(state, home, 'alliance', ['tempest', 'swift']);
@@ -183,12 +183,12 @@ describe('battle', () => {
       advanceFleets(state, rng);
       rounds++;
     }
-    // Somebody was sunk: the harbour does not hold both sides forever.
+    // Somebody was sunk: the harbor does not hold both sides forever.
     expect(rounds).toBeLessThan(50);
     const sides = new Set(fleetsAt(state, home.id).map((f) => f.faction));
     expect(sides.size).toBeLessThanOrEqual(1);
     // And the action carries its tally for the card: what each side brought
-    // and lost, and the harbour's guns.
+    // and lost, and the harbor's guns.
     const action = state.events.find((e) => e.kind === 'battle' && e.battle);
     expect(action).toBeDefined();
     expect(action!.battle!.sides.empire.hulls).toBe(2);
@@ -310,13 +310,13 @@ describe('assault', () => {
     expect(assaultError(state, fleet.id, 'empire')).toBe('The island is already yours.');
   });
 
-  it('will not land while enemy guns hold the harbour', () => {
+  it('will not land while enemy guns hold the harbor', () => {
     const { state } = setup();
     const target = state.systems.find((s) => s.control === 'alliance' && s.populated)!;
     const fleet = put(state, target, 'empire', ['fluyt']);
     fleet.troops = 2;
     put(state, target, 'alliance', ['tempest']);
-    expect(assaultError(state, fleet.id, 'empire')).toBe('Enemy ships hold the harbour.');
+    expect(assaultError(state, fleet.id, 'empire')).toBe('Enemy ships hold the harbor.');
   });
 
   it('takes the island when the landing force outnumbers the garrison', () => {
@@ -740,7 +740,7 @@ describe('the Pirate Lords and their ships', () => {
     const target = state.systems.find(
       (s) => s.control === 'neutral' && s.populated && s.explored.alliance,
     )!;
-    // Her ship is in harbour, so she may go.
+    // Her ship is in harbor, so she may go.
     expect(missionError(state, hale.id, target.id)).toBeNull();
 
     // At sea she may not: an errand starts on a quay.
@@ -847,7 +847,7 @@ describe('the Pirate Lords and their ships', () => {
     const state = generateGalaxy(7, 'alliance');
     const fleet = lordFleet(state, PIRATE_LORDS[1])!; // the Swallowtail
     const here = getSystem(state, fleet.systemId);
-    // Alone in the harbour against the Crown's line.
+    // Alone in the harbor against the Crown's line.
     state.fleets = state.fleets.filter((f) => f.faction !== 'alliance' || f.id === fleet.id);
     for (let i = 0; i < 6; i++) addShip(state, here, 'empire', 'sovereign');
     let next = state;

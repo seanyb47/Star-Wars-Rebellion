@@ -91,6 +91,10 @@ export interface System {
    * boats go ashore, and nothing else sets it.
    */
   beastSeen?: { empire: boolean; alliance: boolean };
+  /** Hits it has taken. At its `hull` it is dead and stops fighting. */
+  beastDamage?: number;
+  /** Killed, and by whom. A dead creature stays on the island's record. */
+  beastSlain?: Faction;
 }
 
 export type FacilityType =
@@ -99,9 +103,9 @@ export type FacilityType =
   | 'construction_yard'
   | 'training_facility'
   | 'shipyard'
-  /** A fixed gun in the harbour: a warship that cannot weigh anchor. */
+  /** A fixed gun in the harbor: a warship that cannot weigh anchor. */
   | 'fort'
-  /** A chain across the harbour mouth: landings and blockades both find it. */
+  /** A chain across the harbor mouth: landings and blockades both find it. */
   | 'boom';
 
 /**
@@ -302,7 +306,7 @@ export type EventKind =
 /** What each side brought to an action at sea, and what it cost them. */
 export interface BattleReport {
   sides: Record<PlayableFaction, { hulls: number; lost: number; guns: number }>;
-  /** The harbour's own guns, and whose harbour it is. */
+  /** The harbor's own guns, and whose harbor it is. */
   shore: number;
   holder: Faction;
 }
@@ -312,7 +316,7 @@ export interface LandingReport {
   attacker: PlayableFaction;
   landed: number;
   defenders: number;
-  /** Chain across the harbour mouth, counted among the defenders. */
+  /** Chain across the harbor mouth, counted among the defenders. */
   boom: number;
   lost: number;
   defendersLost: number;

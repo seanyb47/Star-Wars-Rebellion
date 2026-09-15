@@ -142,7 +142,7 @@ describe('income', () => {
     for (let seed = 1; seed <= 100; seed++) collectIncome(state, createRng(seed));
     expect(state.factions.alliance.gold).toBe(0);
 
-    // Shut the harbour on a thin island: nothing leaves it either way.
+    // Shut the harbor on a thin island: nothing leaves it either way.
     island.support.empire = 20;
     island.blockaded = true;
     state.factions.empire.gold = 0;

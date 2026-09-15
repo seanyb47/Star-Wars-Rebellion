@@ -59,7 +59,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'One island',
     body: () =>
-      'Inside a chain, tap an island for its panel: Harbour for the ships lying there, Crew for your officers there, Garrison for companies ashore, Buildings for what stands and what you can order, Log for what has happened.',
+      'Inside a chain, tap an island for its panel: Harbor for the ships lying there, Crew for your officers there, Garrison for companies ashore, Buildings for what stands and what you can order, Log for what has happened.',
   },
   {
     title: 'Allegiance',
@@ -79,12 +79,12 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'Building',
     body: () =>
-      'A Construction Yard builds everything. A Training Facility raises companies. A Shipyard lays down hulls. A Fort is guns on the harbour wall; a Boom is a chain across its mouth. Camps take ground, everything else takes water, and every island has only so much of each.',
+      'A Construction Yard builds everything. A Training Facility raises companies. A Shipyard lays down hulls. A Fort is guns on the harbor wall; a Boom is a chain across its mouth. Camps take ground, everything else takes water, and every island has only so much of each.',
   },
   {
     title: 'Your fleet',
     body: (side) =>
-      `A fleet already lies at ${factionData[side].hqLabel}. It can sail to another island, lie off an enemy harbour and shut its trade, or put companies ashore to take it. Big ships hit hard and sail slow; sloops arrive first and sink first.`,
+      `A fleet already lies at ${factionData[side].hqLabel}. It can sail to another island, lie off an enemy harbor and shut its trade, or put companies ashore to take it. Big ships hit hard and sail slow; sloops arrive first and sink first.`,
   },
   {
     title: 'The filters',

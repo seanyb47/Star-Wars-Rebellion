@@ -8,7 +8,7 @@ import { statusBadge } from './CharacterSheet';
 /**
  * Where somebody is. There are two answers and no others: on a fleet, or on
  * an island. A fleet lying at an island is still a fleet, so the line names
- * the ship and then where she is — it does not invent a harbour to stand in.
+ * the ship and then where she is — it does not invent a harbor to stand in.
  */
 function aboardLine(state: GameState, character: Character): string | null {
   const ship = state.fleets.find((f) => f.officerIds.includes(character.id));

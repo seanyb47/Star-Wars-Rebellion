@@ -43,8 +43,8 @@
     "construction_yard": "Builds everything else on this island. Costs gold to keep.",
     "training_facility": "Drills companies of marines and militia. Costs gold to keep.",
     "shipyard": "Lays down hulls. Nothing to build here until the fleets arrive.",
-    "fort": "A battery on the harbour wall. Fires on any enemy hull lying off the island, whether or not you have a fleet there.",
-    "boom": "A chain across the harbour mouth. A landing has to cut it first, and a lone raider cannot close the port."
+    "fort": "A battery on the harbor wall. Fires on any enemy hull lying off the island, whether or not you have a fleet there.",
+    "boom": "A chain across the harbor mouth. A landing has to cut it first, and a lone raider cannot close the port."
   },
   "space": "Space"
 }

@@ -7,15 +7,25 @@ import { StyleGallery } from './ui/StyleGallery';
 import './ui/styles.css';
 
 /**
- * How tall the glass actually is.
+ * Where the glass is, and how tall it is.
  *
- * `position: fixed; inset: 0` measures the layout viewport, and an iPhone can
- * make that most of a hundred points shorter than the screen — the console
- * floated that far up with a slab of nothing under it. `100dvh` is the right
- * unit and the stylesheet asks for it, but a unit is still the browser's
- * opinion. `visualViewport` is a measurement, so it wins where it exists: it
- * reports the visible area whether or not the browser is currently showing
- * its own furniture, and it tells us when that changes.
+ * Sean's question is the right one — why can we not simply put the console on
+ * the bottom of the screen? We can, and it is: `.app` is a flex column with
+ * the tab bar last, so the bar sits on the app's own floor and always has.
+ * The app was the thing in the wrong place.
+ *
+ * Two separate faults did that, and both are measurements rather than layout.
+ *
+ * **Height.** `position: fixed; inset: 0` measures the *layout* viewport, and
+ * an iPhone can make that most of a hundred points shorter than the screen.
+ * `100dvh` is the right unit and the stylesheet asks for it, but a unit is an
+ * opinion; `visualViewport.height` is a measurement, so it wins.
+ *
+ * **Position.** The height alone is not enough. A fixed element is still
+ * anchored to the top of the *layout* viewport, and the visual viewport can
+ * be offset from it — so the app comes out the right height in the wrong
+ * place, which reads on the screen as a band of nothing along the bottom
+ * edge. `offsetTop` is the difference, and the app is moved by it.
  *
  * No text inputs anywhere in the game, so the keyboard never shrinks this, and
  * the viewport is locked against pinch-zoom, so nothing else moves it either.
@@ -23,7 +33,9 @@ import './ui/styles.css';
 function measureGlass(): void {
   const vv = window.visualViewport;
   if (!vv) return;
-  document.documentElement.style.setProperty('--app-h', `${Math.round(vv.height)}px`);
+  const root = document.documentElement.style;
+  root.setProperty('--app-h', `${Math.round(vv.height)}px`);
+  root.setProperty('--app-top', `${Math.round(vv.offsetTop)}px`);
 }
 measureGlass();
 window.visualViewport?.addEventListener('resize', measureGlass);
@@ -52,16 +64,35 @@ if (new URLSearchParams(window.location.search).has('diag')) {
     const top = Math.round(probe.getBoundingClientRect().height);
     const bottom = Math.round(probe.getBoundingClientRect().width);
     probe.remove();
+    // What the stylesheet actually resolved --safe-bottom to, which is what
+    // pads the tab bar — as against the raw env() above, which is only what
+    // the phone offered.
+    const paid = getComputedStyle(document.documentElement)
+      .getPropertyValue('--safe-bottom')
+      .trim();
     const bar = document.querySelector('.tabbar')?.getBoundingClientRect();
     const app = document.querySelector('.app')?.getBoundingClientRect();
     const px = (v?: number) => (v === undefined ? '–' : Math.round(v));
     box.textContent = [
       `inner ${window.innerHeight}  visual ${Math.round(window.visualViewport?.height ?? 0)}  client ${document.documentElement.clientHeight}`,
-      `inset top ${top}  bottom ${bottom}  dpr ${window.devicePixelRatio}`,
+      `inset top ${top}  bottom ${bottom}  paid ${paid || '0px'}  dpr ${window.devicePixelRatio}`,
       `app ${px(app?.top)}→${px(app?.bottom)} (${px(app?.height)})  tabbar ${px(bar?.top)}→${px(bar?.bottom)} (${px(bar?.height)})`,
-      `standalone ${window.matchMedia('(display-mode: standalone)').matches}  gap below tabbar ${px(
+      `standalone ${window.matchMedia('(display-mode: standalone)').matches}  offsetTop ${Math.round(
+        window.visualViewport?.offsetTop ?? -1,
+      )}  gap below tabbar ${px(
         (window.visualViewport?.height ?? window.innerHeight) - (bar?.bottom ?? 0),
       )}`,
+      // The gap is the answer, and these two are the only things that make
+      // one. A non-zero offsetTop means the app is hung off the wrong
+      // viewport; a non-zero safe-bottom in a browser means the tab bar is
+      // padding itself for a strip Safari's toolbar already owns.
+      `cause: ${
+        Math.round(window.visualViewport?.offsetTop ?? 0) !== 0
+          ? 'viewport offset'
+          : parseFloat(paid) > 0 && !window.matchMedia('(display-mode: standalone)').matches
+            ? 'bottom inset paid twice'
+            : 'neither — the gap, if any, is something else'
+      }`,
     ].join('\n');
   };
   document.body.appendChild(box);

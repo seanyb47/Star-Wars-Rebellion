@@ -33,7 +33,7 @@ export function advanceDay(state: GameState): GameState {
   const rng = createRng(next.rngSeed);
   next.day += 1;
 
-  // Fleets move and fight before anything is counted, so a harbour shut this
+  // Fleets move and fight before anything is counted, so a harbor shut this
   // morning pays nothing this evening.
   advanceFleets(next, rng);
   // Whoever came back from an errand overnight is on their own deck again,

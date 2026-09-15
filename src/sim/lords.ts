@@ -119,7 +119,7 @@ export function lordFleets(state: GameState): Fleet[] {
  * A fleet at anchor at this island carrying this power — and carrying the
  * Lord who works it. An empty deck is a fine hull and nothing more: the Moot
  * does not sit without the Commodore, and the Admiral cannot command a
- * harbour he is not in.
+ * harbor he is not in.
  */
 export function powerAt(state: GameState, systemId: string, power: LordPower): Fleet | undefined {
   return state.fleets.find(
@@ -182,7 +182,7 @@ export function captureLord(state: GameState, fleet: Fleet, ship: Ship): void {
 
 /**
  * A Lord comes home — exchanged or broken out — and their ship with them,
- * cut out of the Crown's harbour the same night. The ship is the Lord; one
+ * cut out of the Crown's harbor the same night. The ship is the Lord; one
  * without the other would be a person with nothing to do.
  */
 export function restoreLord(state: GameState, character: Character): void {
@@ -211,7 +211,7 @@ export function restoreLord(state: GameState, character: Character): void {
   state.fleets.push(fleet);
   pushEvent(state, {
     kind: 'order',
-    text: `The ${fleet.name} is cut out of the Crown's harbour and comes in to ${home.name} with ${lord.name} aboard.`,
+    text: `The ${fleet.name} is cut out of the Crown's harbor and comes in to ${home.name} with ${lord.name} aboard.`,
     systemId: home.id,
     characterId: character.id,
   });

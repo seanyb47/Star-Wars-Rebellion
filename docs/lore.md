@@ -41,7 +41,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 
 A Lord is a ship when idle and a person on an errand. Left alone they are aboard, and what the ship does is what the Lord does for the cause. Sent ashore — to parley, to spy, to sign somebody on — they are an officer like any other: they can be found out, hurt, and carried off to Highwater in irons, and their ship lies where they left it, unable to sail, her power asleep, until they are back on her deck. That is the Confederacy's whole dilemma and it is meant to hurt: the three best people they have are also three of their best hulls, and early on there is nothing else to send.
 
-A Lord's ship does not sink. When her hull gives she strikes her colours, is taken as a prize, and the Lord goes in irons to Highwater. Exchanged or broken out, the Lord comes home with the ship, cut out of the Crown's harbour the same night. Calloway, meanwhile, came out of the Black Tide as Admiral Corvus Blackwater and hunts his own old ship for the Crown.
+A Lord's ship does not sink. When her hull gives she strikes her colours, is taken as a prize, and the Lord goes in irons to Highwater. Exchanged or broken out, the Lord comes home with the ship, cut out of the Crown's harbor the same night. Calloway, meanwhile, came out of the Black Tide as Admiral Corvus Blackwater and hunts his own old ship for the Crown.
 
 **How the war ends.** One way each. The Confederacy wins the day it holds Highwater. The Crown wins the day all three Lords are in irons at once.
 
@@ -58,17 +58,17 @@ A Lord's ship does not sink. When her hull gives she strikes her colours, is tak
 
 #### The three Pirate Lords
 
-**Commodore-Elect Adaira Hale** — the ***Free Harbor*** — Corwin Calloway's old coral-grown three-decker, named for what he meant her to be: any deck of his was a free harbour to anyone the Crown wanted. Sailors who fled the licensing raids found a berth aboard her, then a flag, then a cause. Everyone saw her burn at the Broken Chain; the Reef-folk sang the coral closed over the char and brought her out of the smoke.
+**Commodore-Elect Adaira Hale** — the ***Free Harbor*** — Corwin Calloway's old coral-grown three-decker, named for what he meant her to be: any deck of his was a free harbor to anyone the Crown wanted. Sailors who fled the licensing raids found a berth aboard her, then a flag, then a cause. Everyone saw her burn at the Broken Chain; the Reef-folk sang the coral closed over the char and brought her out of the smoke.
 
 The Moot sails with her. Wherever she lies at anchor the island comes round to the Confederacy a point a day, and she is home to anyone coming back from a parley. Heaviest hull afloat.
 
 **Captain Silas Reyne** — the ***Swallowtail*** — a coral-grown sloop that should not be as fast as she is.
 
-Faster than anything on the water. The last thing in a harbour the enemy can hit: while another Confederate hull floats beside her, the shot finds that one.
+Faster than anything on the water. The last thing in a harbor the enemy can hit: while another Confederate hull floats beside her, the shot finds that one.
 
 **Admiral Dorian Jessup** — the ***Ironback*** — the Crown dreadnought he took with him when he left the Imperium's service.
 
-The heaviest guns on the water, and every Confederate fleet lying in her harbour fights under the Admiral's command.
+The heaviest guns on the water, and every Confederate fleet lying in her harbor fights under the Admiral's command.
 
 ## 3. The Peoples
 
@@ -78,7 +78,7 @@ The heaviest guns on the water, and every Confederate fleet lying in her harbour
 - **Urskin** (Northreach (Far Sea)). Huge, shaggy, tusked sea-bear folk. Harpooners and whalers. Loyal to death, slow to anger, terrifying past it. Torvik is Urskin.
 - **The Rumor Guild** (human)** (Bothaway (Amber Sea)). A guild, not a people. Ink-stained, sharp, sells to both sides.
 - **The Hushed** (The Drowned Reach (Bone Sea)). Pale, eel-thin, silent folk from half-drowned islands. Bound to the Crown by an old bargain. Nobody hears them coming.
-- **The Fatmouths** (Fatmouth & Blackreef). Bloated harbour-kings who own the wharves, the warehouses and most of the debts. Nobody has seen Jubal's legs; there is a rumor he doesn't have any.
+- **The Fatmouths** (Fatmouth & Blackreef). Bloated harbor-kings who own the wharves, the warehouses and most of the debts. Nobody has seen Jubal's legs; there is a rumor he doesn't have any.
 - **Tidewrought** (Imperium yards). Brass-and-coral automata built by Lemmick, animated by a bound sliver of the Deep. Walk the seabed. See poorly. Never tire.
 - **Bog-folk** (Sea of Storms swamps). Wrinkled, patient, amphibious guerrillas
 - **Outlander** (Beyond the Black Tide). Thorne came from *past* the Tide, where no chart goes. Blue-grey skin, red eyes. Nobody knows what's out there. He won't say.
@@ -117,7 +117,7 @@ _Every named character has one admirable trait and one ugly one. No side owns ei
 
 **Lord Regent Halvard Corvane** “the Old Tide” — Human. Tidemaster, Leader, Recruiter.
 
-Has not left the citadel of Highwater in eleven years. Can still the whole harbour by standing at a window. Ended the Corsair Wars, and keeps a ledger of every hanging and every child taken for licensing without once thinking the number too high.
+Has not left the citadel of Highwater in eleven years. Can still the whole harbor by standing at a window. Ended the Corsair Wars, and keeps a ledger of every hanging and every child taken for licensing without once thinking the number too high.
 
 **Admiral Corvus Blackwater** “the Drowned Admiral” — Human (once). Tidemaster, Leader, Spec Ops, Diplomat.
 
@@ -252,7 +252,7 @@ _There are no fighters in these waters. A small craft is just a small ship, so e
 
 - **Sovereign** (large). A first-rate of the line, built straight and warded with cultivated coral. Nothing afloat hits harder or takes more killing. Slow to arrive anywhere.
 - **Razorback** (medium). A heavy frigate. Cheap for what it carries, quick enough to be useful, and outmatched by anything of the line.
-- **Kestrel** (small). A sloop-of-war. The fastest thing the Crown puts to sea and the first to sink. Good for closing a harbour cheaply.
+- **Kestrel** (small). A sloop-of-war. The fastest thing the Crown puts to sea and the first to sink. Good for closing a harbor cheaply.
 - **Fluyt** (transport). An unarmed merchantman pressed into service. Carries more companies than anything else and cannot defend itself at all.
 
 ### The Free Confederacy
@@ -264,11 +264,11 @@ _There are no fighters in these waters. A small craft is just a small ship, so e
 
 #### The Pirate Lords' ships
 
-**The *Free Harbor*.** Commodore-Elect Adaira Hale's ship, and the Confederacy's floating parliament. Corwin Calloway's old coral-grown three-decker, named for what he meant her to be: any deck of his was a free harbour to anyone the Crown wanted. The Moot sits on her quarterdeck. Wherever she lies at anchor the island comes round to the Confederacy a point a day, and she is home to anyone coming back from a parley.
+**The *Free Harbor*.** Commodore-Elect Adaira Hale's ship, and the Confederacy's floating parliament. Corwin Calloway's old coral-grown three-decker, named for what he meant her to be: any deck of his was a free harbor to anyone the Crown wanted. The Moot sits on her quarterdeck. Wherever she lies at anchor the island comes round to the Confederacy a point a day, and she is home to anyone coming back from a parley.
 
-**The *Swallowtail*.** Captain Silas Reyne's coral-grown sloop, which should not be as fast as she is. Faster than anything afloat, and the last thing in a harbour the enemy's guns can find: while another Confederate hull floats beside her, she is not hit.
+**The *Swallowtail*.** Captain Silas Reyne's coral-grown sloop, which should not be as fast as she is. Faster than anything afloat, and the last thing in a harbor the enemy's guns can find: while another Confederate hull floats beside her, she is not hit.
 
-**The *Ironback*.** The Crown dreadnought Admiral Dorian Jessup took with him when he left the Imperium's service. The heaviest guns on the water, and every Confederate fleet lying in her harbour fights under his command.
+**The *Ironback*.** The Crown dreadnought Admiral Dorian Jessup took with him when he left the Imperium's service. The heaviest guns on the water, and every Confederate fleet lying in her harbor fights under his command.
 
 
 ## 7. The Seas, the Reaches and the Islands
@@ -384,22 +384,22 @@ Frontier: uncharted at the start, and where the Pirate Lords signed the articles
 - **Umgulla**. Gambling and racing. Everyone owes someone here.
 - **Preston's Reach**. Signal towers. Word travels fast from here.
 - **The Shoals**. The Shoal-folk: webbed, night-eyed, and the best watchers in the world.
-- **Passh Bay**. Amber and turtle-shell. Three harbours and no customs house.
+- **Passh Bay**. Amber and turtle-shell. Three harbors and no customs house.
 - **Denby Cay**. Sugar and rum. Old money, and none of it decided.
 
 ## 8. What Lives in the Water
 
 _Nothing lives in water the war has charted. All of this is out in the three unexplored Reaches, and a side learns of it only when its own boats go ashore on the island it is off._
 
-**The Kraken.** _Deep water here, and something in it that takes whole hulls._ Nobody has brought back a body, which is the only fact about it everyone agrees on. What comes back instead is timber: a strake, a hatch cover, once most of a quarterdeck, all of it scored with parallel grooves a hand apart. The Admiralty rates the loss of any hull in the drowned reaches as weather. The crews who sail them do not.
+**The Kraken.** _Deep water here, and something in it that takes whole hulls._ Nobody has brought back a body, which is the only fact about it everyone agrees on. What comes back instead is timber: a strake, a hatch cover, once most of a quarterdeck, all of it scored with parallel grooves a hand apart. The Admiralty rates the loss of any hull in the drowned reaches as weather. The crews who sail them do not. **10 guns, 8 hulls of killing.** It fires on anything lying in its water, whoever it belongs to, and everything there fires back.
 
-**Sea Dragon.** _A young dragon keeps the rocks off this coast. It is patient._ Only the young are ever seen, which has kept the argument going for two centuries: either the old ones go somewhere nobody sails, or there are no old ones and the young are all there is. They take seals, and boats that look like seals from below. A grown one has never been measured, and every figure ever given for the length of one was given by a man who did not stay to check.
+**Sea Dragon.** _A young dragon keeps the rocks off this coast. It is patient._ Only the young are ever seen, which has kept the argument going for two centuries: either the old ones go somewhere nobody sails, or there are no old ones and the young are all there is. They take seals, and boats that look like seals from below. A grown one has never been measured, and every figure ever given for the length of one was given by a man who did not stay to check. **6 guns, 5 hulls of killing.** It fires on anything lying in its water, whoever it belongs to, and everything there fires back.
 
-**The Derelict.** _A hull works these tides with nobody at the wheel._ She is under sail, she holds a course, and she has answered no hail in living memory. Boarding parties have gone across four times that are written down. Three found her empty, dry and in good order, with the log written up to a date nobody can read. The fourth did not come back, and the ship that sent them wrote her off and turned for home, which is what every captain since has done.
+**The Derelict.** _A hull works these tides with nobody at the wheel._ She is under sail, she holds a course, and she has answered no hail in living memory. Boarding parties have gone across four times that are written down. Three found her empty, dry and in good order, with the log written up to a date nobody can read. The fourth did not come back, and the ship that sent them wrote her off and turned for home, which is what every captain since has done. **4 guns, 3 hulls of killing.** It fires on anything lying in its water, whoever it belongs to, and everything there fires back.
 
-**Reef Turtle.** _The old turtles come up through this reef to breathe._ They are the one thing in these waters that has never hurt anybody, which is why every port on a reef has a law about them and enforces it harder than most laws about people. They come back to the shoal they hatched on to lay, sixty years later, having crossed the whole world twice in between. Navigators used to follow them and it is not a bad way to find land.
+**Reef Turtle.** _The old turtles come up through this reef to breathe._ They are the one thing in these waters that has never hurt anybody, which is why every port on a reef has a law about them and enforces it harder than most laws about people. They come back to the shoal they hatched on to lay, sixty years later, having crossed the whole world twice in between. Navigators used to follow them and it is not a bad way to find land. **Harmless.** It has never hurt anybody and it is not going to start.
 
-**Ship's Cat.** _Every hull that leaves this harbour leaves with a cat aboard._ Not superstition, or not only: a hold with a cat in it loses less grain and fewer cables to rats, and that is the whole of the reason it started. What it has become is something else. A cat that walks off a ship the night before she sails will empty the crew list by morning, and no owner in either fleet has ever found it cheaper to argue about it than to wait a day.
+**Ship's Cat.** _Every hull that leaves this harbor leaves with a cat aboard._ Not superstition, or not only: a hold with a cat in it loses less grain and fewer cables to rats, and that is the whole of the reason it started. What it has become is something else. A cat that walks off a ship the night before she sails will empty the crew list by morning, and no owner in either fleet has ever found it cheaper to argue about it than to wait a day. **Harmless.** It has never hurt anybody and it is not going to start.
 
 ## 8A. Who Holds the Ground
 

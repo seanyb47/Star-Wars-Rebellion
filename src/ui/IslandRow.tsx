@@ -6,13 +6,13 @@ import { ChartMark } from './ChartMark';
 import { WorthMark } from './worth';
 import { ControlBadge, RoomBar } from './components';
 
-export type IslandTab = 'harbour' | 'crew' | 'garrison' | 'buildings' | 'log';
+export type IslandTab = 'harbor' | 'crew' | 'garrison' | 'buildings';
 
 /**
  * The tab an island should open on, given what the chart is filtering by.
  *
  * A filter is a question — where are my yards standing idle? — and tapping a
- * lit island is asking to see the answer. Opening on the Harbour meant one
+ * lit island is asking to see the answer. Opening on the Harbor meant one
  * more tap to get to the tab the question was about, every time. So the
  * filter picks the tab, and from there the tabs swipe as they always did:
  * the filter chooses where you land, not where you stay.
@@ -30,11 +30,11 @@ export function tabForLayer(layer: ChartLayer | undefined): IslandTab {
       return 'crew';
     case 'garrisons':
       return 'garrison';
-    // Fleets and the bare chart belong to the Harbour, where the ships are.
+    // Fleets and the bare chart belong to the Harbor, where the ships are.
     // Loyalty lands there too: it is the island's first face, and the tab it
     // actually lives on is Garrison, one swipe away.
     default:
-      return 'harbour';
+      return 'harbor';
   }
 }
 

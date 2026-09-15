@@ -367,7 +367,7 @@ shares that painting with the others like it.
 
 `islands/port-city.webp`
 
-> A fortified stone harbour town, white walls and pale towers stacked up a hillside, tall ships at anchor, busy quays under a blue sky. Imperial order at its best. Seen from a low approach as if from a boat, landscape composition, strong silhouette against sky. No borders or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical.
+> A fortified stone harbor town, white walls and pale towers stacked up a hillside, tall ships at anchor, busy quays under a blue sky. Imperial order at its best. Seen from a low approach as if from a boat, landscape composition, strong silhouette against sky. No borders or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical.
 
 ### Free Harbor
 
@@ -554,7 +554,7 @@ tint, which is a mistake this project has already made once and measured.
 
 `scenes/flip.webp`
 
-> An island changing hands: a new flag going up over a harbour, a crowd on the quay watching it rise. Wide cinematic composition, figures small and in silhouette, muted sky. No borders or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical.
+> An island changing hands: a new flag going up over a harbor, a crowd on the quay watching it rise. Wide cinematic composition, figures small and in silhouette, muted sky. No borders or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical.
 
 ### mutiny
 

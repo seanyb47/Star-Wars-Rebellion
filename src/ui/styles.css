@@ -29,16 +29,24 @@
   --tap: 44px;
   /* The status bar's strip, and the home indicator's. A phone's own chrome
      cannot be hidden by a web app, so the game's chrome keeps clear of it:
-     every bar that touches an edge pads itself by these. */
-  /*
-   * Bounded, because an inset is a strip of glass and not an opinion. No
-   * iPhone reserves more than about 59 points at the top or 34 at the bottom;
-   * anything past that is the browser telling us something we should not
-   * believe, and believing it cost the console a hundred points of dead wood
-   * under the tab bar. `min()` keeps the padding honest whatever comes back.
-   */
+     every bar that touches an edge pads itself by these.
+
+     Bounded, because an inset is a strip of glass and not an opinion: no
+     iPhone reserves more than about 59 points at the top. Anything past that
+     is the browser telling us something we should not believe. */
   --safe-top: min(env(safe-area-inset-top, 0px), 60px);
-  --safe-bottom: min(env(safe-area-inset-bottom, 0px), 34px);
+  /*
+   * Zero in a browser, on purpose.
+   *
+   * The home indicator's strip is real, but in a browser tab it is not ours:
+   * Safari's own toolbar is already sitting in it, and `visualViewport.height`
+   * — which is what the app is sized from — already stops above that toolbar.
+   * Padding the tab bar by the inset as well pays for the same strip twice,
+   * and the second payment is drawn as tab-bar wood with nothing on it. That
+   * is the dead band. In standalone there is no toolbar, the strip really is
+   * ours, and the inset goes back on below.
+   */
+  --safe-bottom: 0px;
   color-scheme: dark;
 }
 
@@ -47,7 +55,13 @@
    anyway, and then the title sits under the time — so in standalone the top
    inset never falls below the short status bar's own height. */
 @media (display-mode: standalone) {
-  :root { --safe-top: clamp(20px, env(safe-area-inset-top, 0px), 60px); }
+  :root {
+    --safe-top: clamp(20px, env(safe-area-inset-top, 0px), 60px);
+    /* Installed, the strip under the tab bar is the home indicator's and
+       nobody else's, so keep clear of it. Bounded because an inset is a piece
+       of glass and not an opinion: no iPhone reserves more than 34 points. */
+    --safe-bottom: min(env(safe-area-inset-bottom, 0px), 34px);
+  }
 }
 
 * {
@@ -126,8 +140,13 @@ button {
   inset: 0;
   height: 100dvh;
   /* And, where the browser will tell us rather than leaving us to a unit,
-     the measured height of the glass. Set from `main.tsx`. */
+     the measured height of the glass — and where that glass starts. A fixed
+     element hangs off the top of the *layout* viewport, which the visual one
+     can be offset from; without the offset the app comes out the right height
+     in the wrong place, and what you see is a band of nothing along the
+     bottom edge. Both are set from `main.tsx`. */
   height: var(--app-h, 100dvh);
+  top: var(--app-top, 0px);
   overflow: hidden;
 }
 
@@ -668,7 +687,7 @@ button {
 /* The island's painting between the sheet's header and its tabs, so the place
    the four tabs are about is on screen whichever one is open. It does not
    scroll with the body and it takes no side padding: the painting is meant to
-   run edge to edge the way it did at the top of the Harbour tab. */
+   run edge to edge the way it did at the top of the Harbor tab. */
 .isle-head { flex: none; }
 .isle-head .portrait__note { margin: 6px 14px 8px; }
 
@@ -878,6 +897,12 @@ button {
 .fleet__facts dd { margin: 0; font-size: 12px; font-weight: 600; }
 .fleet__orders { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
 .fleet__orders .btn { width: 100%; }
+/* A creature lying in the harbor is carded like a fleet, because that is what
+   it is to the player: a thing with guns that has to be got past. Marked out
+   by its edge rather than a different shape, so it reads as one more thing at
+   anchor and not as a panel of its own. */
+.fleet--beast { border-color: color-mix(in srgb, var(--bad) 45%, var(--border)); }
+.fleet--beast .fleet__beast-art { width: 100%; }
 
 /* ---------- Slot boards ----------
    The original gives personnel, regiments and construction their own framed

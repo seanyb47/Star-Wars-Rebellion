@@ -201,7 +201,7 @@ export function leakInformation(state: GameState, rng: Rng): void {
     const enemy = otherFaction(holder);
     const chance = LEAK_CHANCE[loyaltyBand(system.support[holder], system.uprising)];
     if (chance <= 0) continue;
-    // A harbour that talks talks about its neighbours too, so an island the
+    // A harbor that talks talks about its neighbours too, so an island the
     // enemy already has on their charts is still worth watching: what it
     // gives away next is the rest of the chain. Hiding a Reach means keeping
     // all of it content, not most of it.

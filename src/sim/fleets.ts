@@ -12,8 +12,9 @@ import {
   OFFICER_EDGE,
   SCOUT_PER_ISLAND,
   shipSpec,
+  BEAST_ARMOUR,
 } from './constants';
-import { sightBeast } from './creatures';
+import { beastAlive, beastAt, beastGuns, sightBeast, woundBeast } from './creatures';
 import { getSystem, nextId, otherFaction, pushEvent, setSupport } from './helpers';
 import { captureLord, fleetHeldAshore, isLord, isLordShip, shipPower } from './lords';
 import { travelDays } from './missions';
@@ -23,6 +24,7 @@ import type {
   Fleet,
   GameState,
   PlayableFaction,
+  Faction,
   Ship,
   ShipClassId,
   System,
@@ -304,7 +306,7 @@ export function assaultError(
   const system = getSystem(state, fleet.systemId);
   if (system.control === fleet.faction) return 'The island is already yours.';
   if (fleetsAt(state, system.id).some((f) => f.faction !== fleet.faction && fleetGuns(f) > 0)) {
-    return 'Enemy ships hold the harbour.';
+    return 'Enemy ships hold the harbor.';
   }
   return null;
 }
@@ -399,22 +401,27 @@ function scoutFrom(state: GameState, fleet: Fleet, arrived: System): void {
 }
 
 /**
- * Wherever two sides lie in the same harbour, they fight — one day's action
+ * Wherever two sides lie in the same harbor, they fight — one day's action
  * per day, not one battle to the death, so a player can still withdraw.
  *
  * Deterministic: every roll comes from the seeded RNG carried in the state.
  */
 export function resolveBattles(state: GameState, rng: Rng): void {
-  const harbours = new Set(state.fleets.filter((f) => !isAtSea(f)).map((f) => f.systemId));
-  for (const systemId of [...harbours].sort()) {
+  const harbors = new Set(state.fleets.filter((f) => !isAtSea(f)).map((f) => f.systemId));
+  for (const systemId of [...harbors].sort()) {
     const system = getSystem(state, systemId);
     const here = fleetsAt(state, systemId);
     const empire = here.filter((f) => f.faction === 'empire');
     const alliance = here.filter((f) => f.faction === 'alliance');
     // A fort is a warship that cannot weigh anchor, so an enemy fleet lying
-    // off a fortified harbour is in action whether or not a fleet meets it.
+    // off a fortified harbor is in action whether or not a fleet meets it.
     const shore = fortGuns(system);
+    // And whatever is in the water. It is nobody's, it does not care whose
+    // colours are flying, and anybody lying in its harbor is in action
+    // whether or not the other side ever turns up.
+    const monster = beastAlive(system) && here.length > 0;
     const contested =
+      monster ||
       (empire.length > 0 && alliance.length > 0) ||
       (shore > 0 && here.some((f) => f.faction === otherFaction(system.control as PlayableFaction)));
     if (!contested) continue;
@@ -422,7 +429,7 @@ export function resolveBattles(state: GameState, rng: Rng): void {
   }
 }
 
-/** The harbour's own guns, for whoever holds it. */
+/** The harbor's own guns, for whoever holds it. */
 export function fortGuns(system: System): number {
   if (system.control !== 'empire' && system.control !== 'alliance') return 0;
   return (
@@ -431,7 +438,7 @@ export function fortGuns(system: System): number {
   );
 }
 
-/** Companies' worth of chain across the harbour mouth. */
+/** Companies' worth of chain across the harbor mouth. */
 export function boomDefence(system: System): number {
   if (system.control !== 'empire' && system.control !== 'alliance') return 0;
   return (
@@ -440,7 +447,7 @@ export function boomDefence(system: System): number {
   );
 }
 
-/** One day's exchange of fire between the two sides in a harbour. */
+/** One day's exchange of fire between the two sides in a harbor. */
 function fightRound(
   state: GameState,
   system: System,
@@ -448,18 +455,20 @@ function fightRound(
   alliance: Fleet[],
   rng: Rng,
 ): void {
+  const hurt = (fleets: Fleet[]) => fleets.reduce((n, f) => n + f.ships.reduce((m, s) => m + s.damage, 0), 0);
   const before = {
     empire: empire.reduce((n, f) => n + f.ships.length, 0),
     alliance: alliance.reduce((n, f) => n + f.ships.length, 0),
+    hurt: hurt(empire) + hurt(alliance),
   };
   // Leadership tells here: a well-handled squadron gets more out of the same
   // guns. This is the first thing in the game that reads the rating at all.
-  // The harbour's forts fire for whoever holds it, on top of any fleet.
+  // The harbor's forts fire for whoever holds it, on top of any fleet.
   const shore = fortGuns(system);
   const gunsEmpire =
     empire.reduce((n, f) => n + fleetGuns(f) * officerEdge(state, f, 'leadership'), 0) +
     (system.control === 'empire' ? shore : 0);
-  // The Ironback's power: every Confederate fleet in her harbour fights with
+  // The Ironback's power: every Confederate fleet in her harbor fights with
   // the Admiral's edge, not only her own.
   const line = alliance.find((f) => f.ships.some((sh) => shipPower(sh.classId) === 'line' && sh.damage < hullOf(sh)));
   const lineEdge = line ? officerEdge(state, line, 'leadership') : 1;
@@ -470,8 +479,35 @@ function fightRound(
     ) +
     (system.control === 'alliance' ? shore : 0);
 
+  // A third party, on nobody's side. It fires into both fleets and both
+  // fleets fire into it — and being in the water rather than on the island,
+  // no fort helps against it and it does not care which flag it is shooting
+  // at. If the two sides have found each other over the top of it, all three
+  // are in the same action.
+  const beast = beastAt(system);
+  const monsterGuns = beastGuns(system);
+  if (monsterGuns > 0) {
+    applyFire(monsterGuns, empire, rng);
+    applyFire(monsterGuns, alliance, rng);
+  }
+
   applyFire(gunsAlliance, empire, rng);
   applyFire(gunsEmpire, alliance, rng);
+
+  // What the hulls put back into it. Forts are on the island and cannot
+  // depress far enough to be any use, so only ships count.
+  let killed = false;
+  if (monsterGuns > 0) {
+    const fromEmpire = empire.reduce((n, f) => n + fleetGuns(f), 0);
+    const fromAlliance = alliance.reduce((n, f) => n + fleetGuns(f), 0);
+    // Whoever is doing more of the shooting gets the credit for the kill.
+    const by: Faction = fromEmpire === 0 && fromAlliance === 0
+      ? 'none'
+      : fromEmpire >= fromAlliance
+        ? 'empire'
+        : 'alliance';
+    killed = woundBeast(system, Math.round((fromEmpire + fromAlliance) / BEAST_ARMOUR), by);
+  }
 
   for (const fleet of [...empire, ...alliance]) sinkAndDrown(state, fleet);
 
@@ -481,12 +517,43 @@ function fightRound(
   };
   const lostEmpire = before.empire - after.empire;
   const lostAlliance = before.alliance - after.alliance;
-  if (lostEmpire === 0 && lostAlliance === 0) return;
+
+  if (killed && beast) {
+    pushEvent(state, {
+      kind: 'battle',
+      text: `${beast.name} is killed off ${system.name}. The water there is only water now.`,
+      systemId: system.id,
+    });
+  }
+  if (lostEmpire === 0 && lostAlliance === 0) {
+    // Two fleets trading shot without sinking anything is a quiet day and the
+    // log has always left it out. A creature is not: it can chew a squadron
+    // for a week without taking a hull down, and a player watching damage
+    // climb with nothing in the log has no way to find out why. So an action
+    // against one is reported whether or not anything went under.
+    const damage = hurt(empire) + hurt(alliance) - before.hurt;
+    if (monsterGuns > 0 && beast && damage > 0) {
+      pushEvent(state, {
+        kind: 'battle',
+        text: `${beast.name} is at the hulls off ${system.name}. ${damage} ${
+          damage === 1 ? 'hit' : 'hits'
+        } taken and nothing sunk${
+          system.beastDamage ? `; it has ${system.beastDamage} of ${beast.hull} in it` : ''
+        }.`,
+        systemId: system.id,
+      });
+    }
+    return;
+  }
 
   const tally = (n: number) => `${n} ${n === 1 ? 'hull' : 'hulls'}`;
+  // Whose action it was. With a creature in the water it is worth saying so,
+  // because "the Imperium loses two hulls" at an island with nobody else at
+  // it otherwise reads as a mystery.
+  const against = monsterGuns > 0 && beast ? ` against ${beast.name}` : '';
   pushEvent(state, {
     kind: 'battle',
-    text: `Action off ${system.name}. The Imperium loses ${tally(lostEmpire)}, the Confederacy ${tally(lostAlliance)}.`,
+    text: `Action off ${system.name}${against}. The Imperium loses ${tally(lostEmpire)}, the Confederacy ${tally(lostAlliance)}.`,
     systemId: system.id,
     battle: {
       sides: {
@@ -509,7 +576,7 @@ function applyFire(guns: number, targets: Fleet[], rng: Rng): void {
     const live = hulls.filter((s) => s.damage < hullOf(s));
     if (live.length === 0) return;
     // The Swallowtail's power: while another hull of her side floats in the
-    // harbour, the shot finds that one.
+    // harbor, the shot finds that one.
     const cover = live.filter((s) => shipPower(s.classId) !== 'runner');
     const pool = cover.length > 0 ? cover : live;
     pool[rng.int(pool.length)].damage += 1;
@@ -627,7 +694,7 @@ export function updateBlockades(state: GameState): void {
     pushEvent(state, {
       kind: shut ? 'loss' : 'order',
       text: shut
-        ? `Enemy sail off ${system.name}. Nothing is getting out of that harbour.`
+        ? `Enemy sail off ${system.name}. Nothing is getting out of that harbor.`
         : `The blockade of ${system.name} is lifted.`,
       systemId: system.id,
     });

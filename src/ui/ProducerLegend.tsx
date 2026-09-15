@@ -1,7 +1,7 @@
 import { type GameState } from '../sim';
 
 /**
- * A shut harbour, and nothing else.
+ * A shut harbor, and nothing else.
  *
  * This used to also count idle yards, drill grounds and slipways, after the
  * original's "Idle Construction Yards" nag. The idle chart layers now say

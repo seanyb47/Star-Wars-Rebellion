@@ -214,7 +214,7 @@ export function EventScene({
 
       {kind === 'flip' && (
         <g>
-          {/* A flag going up over a harbour, and the crowd that watched it. */}
+          {/* A flag going up over a harbor, and the crowd that watched it. */}
           <path d={`M 0 ${sea} h 320 v 40 h -320 Z`} fill={QUAY} />
           <path d={`M 160 ${sea} V 24`} stroke="#154150" strokeWidth="3" strokeLinecap="round" />
           <path d="M 162 26 l 44 9 l -44 9 Z" fill={tint} />

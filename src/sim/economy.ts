@@ -13,7 +13,7 @@ import type { GameState, PlayableFaction, System } from './types';
 /**
  * An island contributes only while it is held, quiet, and open. A blockade
  * does not take the island from you — it simply stops anything leaving the
- * harbour, so the island still costs you its upkeep and pays you nothing.
+ * harbor, so the island still costs you its upkeep and pays you nothing.
  */
 export function isProductive(system: System, faction: PlayableFaction): boolean {
   return system.control === faction && !system.uprising && !system.blockaded;
@@ -24,7 +24,7 @@ export function isProductive(system: System, faction: PlayableFaction): boolean 
  * decides where it goes.
  *
  * Held and open: a blockade stops the trade dead, but a revolt does not — the
- * works keep working, the harbour keeps loading, and none of it reaches you.
+ * works keep working, the harbor keeps loading, and none of it reaches you.
  */
 export function islandTrade(system: System, faction: PlayableFaction): number {
   if (system.control !== faction || system.blockaded) return 0;
@@ -40,7 +40,7 @@ export function islandTrade(system: System, faction: PlayableFaction): number {
  *
  * Allegiance sets the rate and companies ashore work it down: every one of
  * them takes a tenth off what the smugglers were running, so ten close the
- * harbour's back door however little the island thinks of you.
+ * harbor's back door however little the island thinks of you.
  */
 export function smuggledShare(system: System, faction: PlayableFaction): number {
   if (system.control !== faction) return 0;

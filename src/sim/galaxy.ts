@@ -13,7 +13,7 @@ import {
   START_GARRISON_SPARE,
 } from './constants';
 import { shipClass } from './constants';
-import { creatureFor } from './creatures';
+import { creature, creatureFor } from './creatures';
 
 import type {
   Character,
@@ -226,7 +226,7 @@ function makeFacility(id: string, type: FacilityType, owner: PlayableFaction): F
 /**
  * How much of the chart around each island's mark is painted land, 0 to 1,
  * measured by scripts/chart_positions.py. Room follows the look of the chart:
- * a rock in open water has nowhere to build, a harbour with the great island
+ * a rock in open water has nowhere to build, a harbor with the great island
  * at its back has room for a city.
  */
 const LAND_ON_THE_CHART = new Map<string, number>(
@@ -441,7 +441,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     'Where the articles were signed: three Lords, one table, and no Crown within three hundred miles.';
   hold(allianceHq, 'alliance', 100);
   // A seat's garrison, the same as Highwater's: firm islands ask for none at
-  // all, so both of these are the spare company that keeps the harbour plus
+  // all, so both of these are the spare company that keeps the harbor plus
   // the one a seat is worth. It is not dealt any of the opening's camps,
   // mills or yards, though — the articles were signed on it a week ago, not
   // settled on.
@@ -495,8 +495,16 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   // Freeport is renamed and re-painted above, and the creature was picked off
   // the name and the painting this island had before all that — so ask again
   // now the island is what it is going to be, or a kraken ends up hanging
-  // about a free harbour. Whether it has one at all does not change.
+  // about a free harbor. Whether it has one at all does not change.
   if (allianceHq.beast) allianceHq.beast = creatureFor(allianceHq)?.slug;
+  // And nothing dangerous: they chose this island to meet on and they are
+  // moored in it on the morning of day one. A side losing hulls to a kraken
+  // in its own birthplace before it has given an order is not an opening, it
+  // is a coin toss. A harmless one can stay — a free harbor full of cats is
+  // exactly right.
+  if (allianceHq.beast && (creature(allianceHq.beast)?.guns ?? 0) > 0) {
+    allianceHq.beast = undefined;
+  }
   // They signed the articles standing on it, so whatever is in its water is
   // not news to them. It is still news to the Crown.
   if (allianceHq.beastSeen) allianceHq.beastSeen.alliance = true;

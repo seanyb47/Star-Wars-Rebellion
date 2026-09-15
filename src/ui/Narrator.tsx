@@ -177,7 +177,7 @@ function buildAnswers(state: GameState): Answer[] {
           )}% of its trade goes out the back to them. Under that it is thin — ${Math.round(
             SMUGGLED_SHARE.thin * 100,
           )}%, and it starts telling them what we have here and in the rest of the chain. An island in ${terms.mutiny.toLowerCase()} pays us nothing and pays them half. These are the islands costing us most, Imperator.`
-        : `Nobody's half in love with both of us — every island's hundred points are split between us and the Crown, so a point we take is a point off them. Firm at ${SUPPORT_FIRM} and the harbour's honest. Steady at ${SUPPORT_STEADY} and ${Math.round(
+        : `Nobody's half in love with both of us — every island's hundred points are split between us and the Crown, so a point we take is a point off them. Firm at ${SUPPORT_FIRM} and the harbor's honest. Steady at ${SUPPORT_STEADY} and ${Math.round(
             SMUGGLED_SHARE.steady * 100,
           )} in every hundred slips out the back. Thin, and it's ${Math.round(
             SMUGGLED_SHARE.thin * 100,

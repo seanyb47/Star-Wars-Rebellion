@@ -13,7 +13,7 @@ function speedDots(speed: Speed): string {
   return index < 0 ? '॥' : '▸'.repeat(index + 1);
 }
 
-/** The painting behind each side's banner: the Crown's seat, the rebels' harbour. */
+/** The painting behind each side's banner: the Crown's seat, the rebels' harbor. */
 const BANNER: Record<'empire' | 'alliance', string> = {
   empire: 'port-city',
   alliance: 'free-harbor',

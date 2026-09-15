@@ -190,14 +190,22 @@ w("_Nothing lives in water the war has charted. All of this is out in the three 
 CREATURE = re.compile(
     r"""name:\s*(?:'([^']+)'|"([^"]+)"),\s*"""
     r"""sighting:\s*'((?:[^'\\]|\\.)*)',"""
-    r"""(?:.*?)\blore:\s*'((?:[^'\\]|\\.)*)'""",
+    r"""(?:.*?)\blore:\s*'((?:[^'\\]|\\.)*)'"""
+    r"""(?:.*?)\bguns:\s*(\d+),\s*hull:\s*(\d+)""",
     re.S,
 )
 for m in CREATURE.finditer(creatures_ts):
     name = m.group(1) or m.group(2)
     sighting = m.group(3).replace("\\'", "'")
     lore = m.group(4).replace("\\'", "'")
-    w(f"**{name}.** _{sighting}_ {lore}\n")
+    guns, hull = int(m.group(5)), int(m.group(6))
+    fight = (
+        f" **{guns} guns, {hull} hulls of killing.** It fires on anything lying in its water, "
+        "whoever it belongs to, and everything there fires back."
+        if guns > 0
+        else " **Harmless.** It has never hurt anybody and it is not going to start."
+    )
+    w(f"**{name}.** _{sighting}_ {lore}{fight}\n")
 
 # ---------------- Companies ----------------
 w("## 8A. Who Holds the Ground\n")

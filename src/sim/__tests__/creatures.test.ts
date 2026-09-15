@@ -1,8 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { CREATURES, beastOf, creatureFor, sightBeast } from '../creatures';
+import {
+  CREATURES,
+  beastAlive,
+  beastAt,
+  beastGuns,
+  beastOf,
+  creatureFor,
+  sightBeast,
+  woundBeast,
+} from '../creatures';
 import { generateGalaxy } from '../galaxy';
 import { advanceDay } from '../advanceDay';
-import { sailFleet } from '../fleets';
+import { createRng } from '../rng';
+import { addShip, resolveBattles, sailFleet } from '../fleets';
 import type { IslandArchetype, System } from '../types';
 
 const ARCHETYPES: IslandArchetype[] = [
@@ -94,5 +104,88 @@ describe('what is in the water', () => {
     expect(
       world.events.some((e) => e.systemId === target.id && e.text.includes(target.name)),
     ).toBe(true);
+  });
+});
+
+describe('a creature in the harbor', () => {
+  /** A world, an island with something dangerous in its water, and a fleet. */
+  function standoff(seed = 501) {
+    const state = generateGalaxy(seed, 'empire');
+    const target = state.systems.find((s) => beastAlive(s))!;
+    const fleet = state.fleets.find((f) => f.faction === 'empire')!;
+    fleet.systemId = target.id;
+    fleet.voyage = undefined;
+    target.explored.empire = true;
+    sightBeast(target, 'empire');
+    return { state, target, fleet };
+  }
+
+  it('leaves the harmless ones harmless', () => {
+    for (const beast of CREATURES.filter((c) => c.guns === 0)) {
+      expect(beast.hull).toBe(0);
+      expect(beastAlive({ beast: beast.slug })).toBe(false);
+      expect(beastGuns({ beast: beast.slug })).toBe(0);
+    }
+    // And the dangerous ones can actually be killed rather than being an
+    // unpassable wall: every one has hulls to take off it.
+    for (const beast of CREATURES.filter((c) => c.guns > 0)) {
+      expect(beast.hull).toBeGreaterThan(0);
+    }
+  });
+
+  it('fires on a fleet lying there with nobody else in sight', () => {
+    const { state, target, fleet } = standoff();
+    const before = fleet.ships.reduce((n, s) => n + s.damage, 0);
+    resolveBattles(state, createRng(7));
+    const after = state.fleets
+      .filter((f) => f.id === fleet.id)
+      .reduce((n, f) => n + f.ships.reduce((m, s) => m + s.damage, 0), 0);
+    expect(after).toBeGreaterThan(before);
+    expect(state.events.some((e) => e.kind === 'battle' && e.systemId === target.id)).toBe(true);
+  });
+
+  it('takes what is given it, keeps it, and dies of enough', () => {
+    const { state, target } = standoff();
+    const beast = beastAt(target)!;
+    // One round's worth at a time, so the wound has to accumulate to kill.
+    expect(woundBeast(target, 1, 'empire')).toBe(false);
+    expect(target.beastDamage).toBe(1);
+    expect(beastAlive(target)).toBe(true);
+    expect(woundBeast(target, beast.hull - 2, 'empire')).toBe(false);
+    expect(woundBeast(target, 1, 'empire')).toBe(true);
+    expect(target.beastSlain).toBe('empire');
+    expect(beastAlive(target)).toBe(false);
+    expect(beastGuns(target)).toBe(0);
+    // Dead is dead: it does not come back and cannot be killed twice.
+    expect(woundBeast(target, 5, 'alliance')).toBe(false);
+    expect(target.beastSlain).toBe('empire');
+    expect(state.systems.find((s) => s.id === target.id)!.beastSlain).toBe('empire');
+  });
+
+  it('stops firing once a squadron has killed it', () => {
+    const { state, target } = standoff();
+    // Enough guns in the harbor to finish it inside a handful of days.
+    for (let i = 0; i < 6; i++) addShip(state, target, 'empire', 'sovereign');
+    const rng = createRng(3);
+    for (let i = 0; i < 12 && beastAlive(target); i++) resolveBattles(state, rng);
+    expect(beastAlive(target)).toBe(false);
+    expect(target.beastSlain).toBe('empire');
+    // And now the harbor is quiet: no further damage from an empty fight.
+    const quiet = state.fleets
+      .filter((f) => f.systemId === target.id)
+      .reduce((n, f) => n + f.ships.reduce((m, s) => m + s.damage, 0), 0);
+    resolveBattles(state, rng);
+    const after = state.fleets
+      .filter((f) => f.systemId === target.id)
+      .reduce((n, f) => n + f.ships.reduce((m, s) => m + s.damage, 0), 0);
+    expect(after).toBe(quiet);
+  });
+
+  it('never puts a dangerous one in the water the Confederacy wakes up in', () => {
+    for (let seed = 1; seed <= 40; seed++) {
+      const state = generateGalaxy(seed, 'empire');
+      const freeport = state.systems.find((s) => s.name === 'Freeport')!;
+      expect(beastAlive(freeport)).toBe(false);
+    }
   });
 });

@@ -75,7 +75,7 @@ describe('the opening, against Rebellion', () => {
 });
 
 describe('forts', () => {
-  it('fire on an enemy fleet lying off the harbour even with no fleet of their own', () => {
+  it('fire on an enemy fleet lying off the harbor even with no fleet of their own', () => {
     const state = world();
     state.fleets.length = 0;
     const port = mineWithWater(state);
@@ -86,7 +86,7 @@ describe('forts', () => {
     const rng = createRng(3);
     const before = raider.ships[0].damage;
     resolveBattles(state, rng);
-    // Ten guns against one sloop: it is hit, on day one, by a harbour with no navy.
+    // Ten guns against one sloop: it is hit, on day one, by a harbor with no navy.
     const hurt = raider.ships.length === 0 || raider.ships[0].damage > before;
     expect(hurt).toBe(true);
   });
