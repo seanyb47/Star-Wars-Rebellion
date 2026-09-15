@@ -214,3 +214,33 @@ describe('available land', () => {
     expect(CHART_LAYERS.find((l) => l.id === 'room')!.label).toBe('Available land');
   });
 });
+
+describe('which layers count and which grade', () => {
+  it('puts a number on every idle layer and on Production', () => {
+    for (const layer of ['idleCrew', 'idleYards', 'idleDrills', 'idleSlips', 'worth'] as const) {
+      expect(showsNumber(layer), layer).toBe(true);
+    }
+  });
+
+  it('grades the rest by dot size instead', () => {
+    for (const layer of ['allegiance', 'none', 'garrisons', 'room', 'fleets', 'missions'] as const) {
+      expect(showsNumber(layer), layer).toBe(false);
+    }
+  });
+
+  it('gives the idle layers a count to draw, one per thing waiting for an order', () => {
+    const state = generateGalaxy(61, 'empire');
+    const yard = state.systems.find(
+      (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'construction_yard'),
+    )!;
+    yard.uprising = false;
+    const mark = layerMark(state, yard, 'idleYards', 'empire');
+    expect(mark.lit).toBe(true);
+    expect(mark.count).toBe(
+      yard.facilities.filter((f) => f.type === 'construction_yard' && !f.building).length,
+    );
+    expect(mark.count).toBeGreaterThan(0);
+    // A number, not a size: the two never appear on the same mark.
+    expect(mark.size).toBeUndefined();
+  });
+});

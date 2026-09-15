@@ -732,3 +732,11 @@ combination that makes iOS report a real inset on a full-bleed view, so the
 status bar now sits on the banner's own painting. A web app cannot hide the
 status bar — only a native app can — so keeping clear of it is the whole of
 the fix.
+
+**Every idle layer counts.** Idle crew already drew its number as the mark;
+idle yards, idle training and idle shipyards drew a star and left you to open
+the island to find out whether it was one yard standing about or three. They
+carry the numeral now, on the same pulsing halo, because where the answer is
+"go and give something an order" the useful part is how many orders there are
+to give. Garrisons and Available land keep their three dot sizes: their
+question is how hard and how roomy, not how many.

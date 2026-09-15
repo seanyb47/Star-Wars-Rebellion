@@ -110,12 +110,23 @@ export function worthTier(system: System): WorthTier {
  * drawn as the mark itself — the numeral on the island — instead of a mark
  * with a number beside it, which said the same thing twice.
  *
- * Garrisons used to be one of these and is not any more: how hard an island
- * is held is a question the three dot sizes answer at a glance, where a
- * numeral had to be read one island at a time.
+ * Every idle layer is one of these, at Sean's word: an island with three
+ * yards standing about and an island with one are not the same island, and
+ * where the answer is "go and give something an order" the useful part is how
+ * many orders there are to give.
+ *
+ * Garrisons and Available land are not, because their question is how hard or
+ * how roomy rather than how many, and three dot sizes answer that at a glance
+ * where a numeral has to be read one island at a time.
  */
 export function showsNumber(layer: ChartLayer): boolean {
-  return layer === 'worth' || layer === 'idleCrew';
+  return (
+    layer === 'worth' ||
+    layer === 'idleCrew' ||
+    layer === 'idleYards' ||
+    layer === 'idleDrills' ||
+    layer === 'idleSlips'
+  );
 }
 
 /**

@@ -593,9 +593,11 @@ export function GalaxyMap({
                 // unreadable to say something a star says on its own.
                 const lit = filtering && mark.lit;
                 const tint = controlColor(system, viewer);
-                // Garrisons, Production and Idle crew: the number is the mark. A star
-                // with "4" beside it said the same thing twice; the count on
-                // its own, in the island's colour, is the whole answer.
+                // Production and every idle layer: the number is the mark. A
+                // star with "4" beside it said the same thing twice; the count
+                // on its own, in the island's colour, is the whole answer —
+                // and on the idle layers it is the number of things there
+                // waiting for an order.
                 const numeral = lit && showsNumber(layer) && mark.count !== undefined ? mark.count : null;
                 // Open ground has to be seen on dark water: a light fill and a
                 // dark outline, dashed where you have not been. The slate at
