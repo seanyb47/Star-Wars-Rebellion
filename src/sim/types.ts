@@ -111,6 +111,15 @@ export interface System {
    * a roster read off it — so what is remembered is which kind comes first.
    */
   garrisonOrder?: string[];
+  /**
+   * The officer holding this island, if one has been posted to it.
+   *
+   * A posting rather than an errand: they arrive, they stay, and they are not
+   * available for anything else until relieved. What it buys is order — an
+   * island with a commander on it does not rise, and a stranger asking
+   * questions in its harbor is far likelier to be found out.
+   */
+  commanderId?: string;
 }
 
 export type FacilityType =
@@ -270,6 +279,8 @@ export type MissionType =
 export interface Mission {
   type: MissionType;
   targetSystemId: string;
+  /** For a Command posting to a squadron rather than to the island itself. */
+  targetFleetId?: string;
   phase: 'travelling' | 'working';
   daysRemaining: number;
   /**

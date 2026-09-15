@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import terms from '../data/terms.json';
 import {
   beastAt,
-  boardError,
   fleetCapacity,
   fleetDamaged,
   fleetGuns,
@@ -110,8 +108,7 @@ export function FleetCard({
   onSail,
   onEmbark,
   onAssault,
-  onBoard,
-  onAshore,
+  onOpenCharacter,
   onOpenShip,
   onOrderShips,
   onOrderOfficers,
@@ -122,8 +119,7 @@ export function FleetCard({
   onSail: (fleetId: string) => void;
   onEmbark: (fleetId: string, companies: number) => void;
   onAssault: (fleetId: string) => void;
-  onBoard: (fleetId: string, characterId: string) => void;
-  onAshore: (fleetId: string, characterId: string) => void;
+  onOpenCharacter?: (characterId: string) => void;
   onOpenShip?: (fleetId: string, shipId: string) => void;
   onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
   onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
@@ -139,15 +135,10 @@ export function FleetCard({
   const waitingFor = fleetHeldAshore(state, fleet);
 
   // One row per class, so eight sloops are a line rather than eight lines.
-  const [signing, setSigning] = useState(false);
   const officers = officersOf(state, fleet);
   // What the best spy aboard would open at the next landfall.
   const scouting = Math.round(
     officers.reduce((n, c) => Math.max(n, c.espionage), 0) / SCOUT_PER_ISLAND,
-  );
-  // Crew standing on this island who could be signed on.
-  const ashoreHere = state.characters.filter(
-    (c) => boardError(state, fleet.id, c.id, state.player) === null,
   );
 
   const [prefs] = usePrefs();
@@ -212,10 +203,15 @@ export function FleetCard({
         ))}
       </div>
 
-      {/* Who is serving with her. The original names every command slot even
-          when it is empty, and an empty slot that says so is worth more than
-          one that stays quiet. */}
-      {(officers.length > 0 || (canOrder && ashoreHere.length > 0)) && (
+      {/* Who is serving with her.
+          Signing somebody on from the quay used to happen here — a chip that
+          put them on the deck the instant it was tapped, provided they were
+          already standing on the same island. That is gone at Sean's word.
+          Taking a deck is an errand now, ordered from the officer and paid for
+          with the voyage, so an officer arrives on a quarterdeck the same way
+          they arrive anywhere else in this game. What is left is who is
+          aboard; tap one to open them, and relieve them from there. */}
+      {officers.length > 0 && (
         <div className="fleet__officers">
           {officers.map((officer, i) => (
             <span key={officer.id} className="fleet__officer-wrap">
@@ -231,8 +227,8 @@ export function FleetCard({
               )}
               <button
                 className="fleet__officer"
-                onClick={() => onAshore(fleet.id, officer.id)}
-                aria-label={`Put ${officer.name} ashore`}
+                onClick={() => onOpenCharacter?.(officer.id)}
+                aria-label={`${officer.name}, in command`}
               >
                 <CharacterPortrait
                   name={officer.name}
@@ -254,35 +250,6 @@ export function FleetCard({
               )}
             </span>
           ))}
-          {/* The crew ashore are a list of everyone standing there, which on a
-              home island is most of your people. Behind one chip until asked. */}
-          {canOrder && ashoreHere.length > 0 && !signing && (
-            <button
-              className="fleet__officer fleet__officer--empty"
-              onClick={() => setSigning(true)}
-            >
-              <span className="fleet__officer-plus">+</span>
-              <span className="fleet__officer-name">
-                Sign on ({ashoreHere.length})
-              </span>
-            </button>
-          )}
-          {canOrder &&
-            signing &&
-            ashoreHere.map((candidate) => (
-              <button
-                key={candidate.id}
-                className="fleet__officer fleet__officer--empty"
-                onClick={() => {
-                  onBoard(fleet.id, candidate.id);
-                  setSigning(false);
-                }}
-                aria-label={`Sign ${candidate.name} on`}
-              >
-                <span className="fleet__officer-plus">+</span>
-                <span className="fleet__officer-name">{candidate.name}</span>
-              </button>
-            ))}
         </div>
       )}
 
@@ -373,8 +340,7 @@ export function ShipsHere({
   onSail,
   onEmbark,
   onAssault,
-  onBoard,
-  onAshore,
+  onOpenCharacter,
   onOpenShip,
   onOrderShips,
   onOrderOfficers,
@@ -384,8 +350,7 @@ export function ShipsHere({
   onSail: (fleetId: string) => void;
   onEmbark: (fleetId: string, companies: number) => void;
   onAssault: (fleetId: string) => void;
-  onBoard: (fleetId: string, characterId: string) => void;
-  onAshore: (fleetId: string, characterId: string) => void;
+  onOpenCharacter?: (characterId: string) => void;
   onOpenShip?: (fleetId: string, shipId: string) => void;
   onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
   onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
@@ -495,8 +460,7 @@ export function ShipsHere({
           onSail={onSail}
           onEmbark={onEmbark}
           onAssault={onAssault}
-          onBoard={onBoard}
-          onAshore={onAshore}
+          onOpenCharacter={onOpenCharacter}
           onOpenShip={onOpenShip}
           onOrderShips={onOrderShips}
           onOrderOfficers={onOrderOfficers}

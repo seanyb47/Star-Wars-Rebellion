@@ -77,12 +77,14 @@ export function CharacterSheet({
   onClose,
   onSendOnMission,
   onLocate,
+  onRelieve,
 }: {
   state: GameState;
   character: Character;
   onClose: () => void;
   onSendOnMission: () => void;
   onLocate: () => void;
+  onRelieve?: (characterId: string) => void;
 }) {
   const location = state.systems.find((s) => s.id === character.locationSystemId);
   const ship = state.fleets.find((f) => f.officerIds.includes(character.id));
@@ -96,6 +98,10 @@ export function CharacterSheet({
     ? state.characters.find((c) => c.id === character.escorting)
     : undefined;
   const atSea = Boolean(ship?.voyage);
+  // A post held: a deck, or an island. Taking one is an errand that costs a
+  // voyage; giving one up is instant, because they are already standing there.
+  const holding = state.systems.find((s) => s.commanderId === character.id);
+  const posted = Boolean(holding) || Boolean(ship && !lord);
 
   return (
     <Sheet
@@ -116,13 +122,24 @@ export function CharacterSheet({
            it as an equal, which it is not — finding somebody is a way of
            looking, not an order — so it is a quiet link on the line that says
            where they are, and this row is the order. */
-        <button
-          className="btn btn--flex btn--primary"
-          disabled={character.status !== 'available' || (lord && atSea)}
-          onClick={onSendOnMission}
-        >
-          {lord && atSea ? 'At sea' : 'Send on mission'}
-        </button>
+        <>
+          <button
+            className="btn btn--flex btn--primary"
+            disabled={character.status !== 'available' || (lord && atSea)}
+            onClick={onSendOnMission}
+          >
+            {lord && atSea ? 'At sea' : 'Send on mission'}
+          </button>
+          {posted && onRelieve && (
+            <button
+              className="btn btn--flex"
+              disabled={atSea}
+              onClick={() => onRelieve(character.id)}
+            >
+              {atSea ? 'At sea' : 'Relieve'}
+            </button>
+          )}
+        </>
       }
     >
       {/* The painting, full width and full height, and the lore under it.
@@ -155,6 +172,24 @@ export function CharacterSheet({
         </div>
         {statusBadge(character)}
       </div>
+
+      {posted && (
+        <p className="tiny" style={{ color: 'var(--good)', marginTop: 10 }}>
+          {holding ? (
+            <>
+              <b>In command of {holding.name}.</b> It will not rise while they hold it, and anyone
+              working against it is far likelier to be caught. They are not available for anything
+              else until relieved.
+            </>
+          ) : (
+            <>
+              <b>In command of the {ship?.name}.</b> Her fighting, her landings and what she charts
+              at each landfall are all the better for it. They are not available for anything else
+              until relieved.
+            </>
+          )}
+        </p>
+      )}
 
       {lord && (
         <p className="tiny" style={{ color: 'var(--brass)', marginTop: 10 }}>

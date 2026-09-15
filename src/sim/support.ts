@@ -117,7 +117,15 @@ export function resolveControlAndUnrest(state: GameState): void {
           systemId: system.id,
         });
       }
-    } else if (support < UPRISING_SUPPORT && system.garrison < requiredGarrison(support)) {
+    } else if (
+      support < UPRISING_SUPPORT &&
+      system.garrison < requiredGarrison(support) &&
+      // An island with an officer posted to it does not rise. That is the
+      // whole of what a posting buys ashore, and it is worth an officer: the
+      // alternative is companies, which cost gold every day and can be landed
+      // on by somebody else.
+      !system.commanderId
+    ) {
       system.uprising = true;
       pushEvent(state, {
         kind: 'mutiny',

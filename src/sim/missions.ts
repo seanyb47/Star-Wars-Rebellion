@@ -2,6 +2,7 @@ import {
   FOIL_CHANCE,
   FOIL_INJURY_DAYS,
   FOIL_PER_WATCHER,
+  COMMANDER_WATCH,
   INCITE_FOIL_CHANCE,
   INCITE_SUCCESS_SCALE,
   INCITE_SUPPORT_LOSS,
@@ -202,8 +203,45 @@ export function isRescueTarget(
   return captiveOn(state, system, faction) !== undefined;
 }
 
+/**
+ * Somewhere of yours to post an officer.
+ *
+ * This used to be "an island of yours that is in revolt", and Command was a
+ * one-shot errand that went and put the revolt down. It is a posting now, at
+ * Sean's word — you set a crew member to command a location or a fleet, and
+ * they hold it until relieved — so any island of yours will take one, quiet or
+ * not. Putting down a revolt is what a commander does on arrival rather than
+ * the only reason to send one.
+ */
 export function isCommandTarget(system: System, faction: PlayableFaction): boolean {
-  return system.explored[faction] && system.control === faction && system.uprising;
+  return system.explored[faction] && system.control === faction;
+}
+
+/** The officer holding an island, if anyone is. */
+export function commanderOf(state: GameState, system: Pick<System, 'commanderId'>) {
+  return system.commanderId
+    ? state.characters.find((c) => c.id === system.commanderId)
+    : undefined;
+}
+
+/** Squadrons lying at an island that an officer could be posted to command. */
+export function fleetsToCommand(state: GameState, systemId: string, faction: PlayableFaction) {
+  return state.fleets.filter((f) => f.faction === faction && !f.voyage && f.systemId === systemId);
+}
+
+/**
+ * Give up a post: off the deck, or out of the governor's chair.
+ *
+ * Instant, because they are already standing there — the cost of a posting is
+ * the officer being tied up while it lasts, not the paperwork of ending it.
+ */
+export function relieve(state: GameState, characterId: string): void {
+  for (const fleet of state.fleets) {
+    fleet.officerIds = fleet.officerIds.filter((id) => id !== characterId);
+  }
+  for (const system of state.systems) {
+    if (system.commanderId === characterId) system.commanderId = undefined;
+  }
 }
 
 /**
@@ -251,8 +289,11 @@ export function missionTypeFor(
   // be done to the island under them: the island will be there next month and
   // they will not.
   if (isAbductTarget(state, system, faction)) return 'abduct';
-  // Your own island in revolt has no other answer, and parley refuses it.
-  if (isCommandTarget(system, faction)) return 'command';
+  // Your own island in revolt has no other answer, and parley refuses it. Any
+  // island of yours will take a commander now, but a posting is a deliberate
+  // thing — it spends an officer indefinitely — so it is offered everywhere
+  // and defaulted to only where it is plainly the answer.
+  if (system.uprising && isCommandTarget(system, faction)) return 'command';
   // Above parley, and only where parley had nothing left to win.
   if (isResearchTarget(system, faction)) return 'research';
   if (isDiplomacyTarget(system, faction)) return 'diplomacy';
@@ -348,7 +389,16 @@ export function foilChance(
   );
   const best = watchers.reduce((n, c) => Math.max(n, c.espionage), 0);
   const base = system.control === enemy ? INCITE_FOIL_CHANCE : FOIL_CHANCE;
-  const risk = base + (best / 100) * FOIL_PER_WATCHER;
+  // A posted commander is the other half of what leadership is for. Espionage
+  // is the officer who happens to be standing there and notices you; command
+  // is the one whose whole job is that nothing happens on this island without
+  // them hearing of it. It was the gap in the faction profile — the Crown's
+  // leadership edge bought it nothing defensively — and this is where it pays.
+  const held = commanderOf(state, system);
+  const watch = held && held.faction === enemy && held.status !== 'injured'
+    ? (held.leadership / 100) * COMMANDER_WATCH
+    : 0;
+  const risk = base + (best / 100) * FOIL_PER_WATCHER + watch;
   // Craft cuts the risk but never to nothing: a careful officer is still a
   // stranger asking questions in someone else's harbor.
   const craft = agent ? 1 - (agent.espionage / 100) * 0.6 : 1;
@@ -490,6 +540,8 @@ export function startMission(
   targetSystemId: string,
   chosen?: MissionType,
   companionIds: string[] = [],
+  /** Which squadron a Command posting is for, when it is not the island. */
+  targetFleetId?: string,
 ): void {
   const error = missionError(state, characterId, targetSystemId, chosen);
   if (error) throw new Error(error);
@@ -517,11 +569,19 @@ export function startMission(
     phase: days > 0 ? 'travelling' : 'working',
     daysRemaining: days > 0 ? days : MISSION_WORK_DAYS,
     party: party.length > 0 ? party : undefined,
+    targetFleetId: type === 'command' ? targetFleetId : undefined,
   };
   for (const id of party) {
     const mate = getCharacter(state, id);
     mate.status = 'on_mission';
     mate.escorting = character.id;
+  }
+  // Already standing there. Every other errand still needs its fortnight of
+  // work, but a posting is taken the moment you are in the room — and without
+  // this it would fall through to the wrong outcome a fortnight later.
+  if (type === 'command' && days === 0) {
+    takePost(state, character, target, targetFleetId);
+    return;
   }
   const errand =
     type === 'incite'
@@ -533,7 +593,7 @@ export function startMission(
           : type === 'abduct'
             ? `to take ${abductOn(state, target, character.faction as PlayableFaction)!.name} off the quay`
             : type === 'command'
-              ? 'to take command and put it back in order'
+              ? 'to take command there'
               : type === 'research'
                 ? 'to put its yards to work on the craft'
                 : type === 'recruit'
@@ -691,6 +751,14 @@ export function advanceMissions(state: GameState, rng: Rng): void {
         });
         continue;
       }
+      // A posting is not an errand: they arrive and they are in post. No
+      // fortnight of work and no roll — taking command of your own island or
+      // your own squadron is not a thing you can fail at. What it costs is the
+      // officer, who is now tied up until relieved.
+      if (mission.type === 'command') {
+        takePost(state, character, landed, mission.targetFleetId);
+        continue;
+      }
       mission.phase = 'working';
       mission.daysRemaining = MISSION_WORK_DAYS;
       pushEvent(state, {
@@ -766,8 +834,6 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
       rescueOutcome(state, character, system, success);
     } else if (mission.type === 'survey') {
       surveyOutcome(state, character, system);
-    } else if (mission.type === 'command') {
-      commandOutcome(state, character, system, success);
     } else if (mission.type === 'research') {
       researchOutcome(state, character, system, success);
     } else {
@@ -969,25 +1035,60 @@ function rescueOutcome(
  * every other mission, where a failure is a wasted cycle: you are on your own
  * ground and the ground is listening.
  */
-function commandOutcome(
+/**
+ * An officer takes up a post and stays in it.
+ *
+ * Either the deck of a squadron lying here — which is what signing on used to
+ * be, except that it now costs a voyage rather than being a tap on an island
+ * you happen to be standing on — or the island itself.
+ *
+ * Arriving is worth something on its own: an island that was out comes back in
+ * hand, and the officer's leadership tells on its allegiance. After that the
+ * post is the point, not the arrival.
+ */
+export function takePost(
   state: GameState,
   officer: Character,
   system: System,
-  success: boolean,
+  fleetId?: string,
 ): void {
   const faction = officer.faction as PlayableFaction;
-  const gain = success ? COMMAND_SUPPORT_GAIN + officer.leadership / 9 : COMMAND_SUPPORT_GAIN / 2;
-  applySupportChange(state, system, faction, gain);
-  if (success) {
+  officer.mission = undefined;
+  officer.status = 'available';
+  officer.locationSystemId = system.id;
+  relieve(state, officer.id);
+
+  const fleet = fleetId ? state.fleets.find((f) => f.id === fleetId) : undefined;
+  if (fleet && fleet.faction === faction && !fleet.voyage && fleet.systemId === system.id) {
+    fleet.officerIds.push(officer.id);
+    pushEvent(state, {
+      kind: 'order',
+      text: `${officer.name} has the ${fleet.name}.`,
+      systemId: system.id,
+      characterId: officer.id,
+    });
+    return;
+  }
+
+  // The island. Whoever was holding it before is relieved by the arrival.
+  const before = system.commanderId;
+  if (before && before !== officer.id) {
+    const old = state.characters.find((c) => c.id === before);
+    if (old) old.locationSystemId = system.id;
+  }
+  system.commanderId = officer.id;
+  applySupportChange(state, system, faction, COMMAND_SUPPORT_GAIN + officer.leadership / 9);
+  const wasOut = system.uprising;
+  if (wasOut) {
     system.uprising = false;
     resolveControlAndUnrest(state);
     recomputeLedger(state);
   }
   pushEvent(state, {
-    kind: success ? 'order' : 'mission',
-    text: success
-      ? `${officer.name} has put ${system.name} back in order.`
-      : `${officer.name} holds the square at ${system.name}; the island is still out.`,
+    kind: 'order',
+    text: wasOut
+      ? `${officer.name} takes command of ${system.name} and puts it back in order.`
+      : `${officer.name} takes command of ${system.name}.`,
     systemId: system.id,
     characterId: officer.id,
   });

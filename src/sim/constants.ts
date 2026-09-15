@@ -117,6 +117,17 @@ export const BEAST_ARMOUR = 6;
  * somewhere to go. Cornered, it stands and fights, which is the one case where
  * a wounded creature is more dangerous than a fresh one.
  */
+/**
+ * What a commander posted to an island adds to the chance of catching someone
+ * working against it.
+ *
+ * At the top of the range this is a quarter on top of the base risk, which
+ * makes posting a good leader on a frontier holding a real answer to being
+ * agitated and sabotaged — and gives the Crown's leadership advantage
+ * something to buy, which it did not have before.
+ */
+export const COMMANDER_WATCH = 0.25;
+
 export const BEAST_WAKE_DAY = 200;
 export const BEAST_WAKE_CHANCE = 0.01;
 export const BEAST_MOVE_CHANCE = 0.13;

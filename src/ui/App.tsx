@@ -12,14 +12,13 @@ import {
   orderBuild,
   resolvePendingMission,
   saveGame,
-  orderAshore,
+  orderRelieve,
   reorderCrew,
   reorderFacilities,
   reorderGarrison,
   reorderOfficers,
   reorderShips,
   orderAssault,
-  orderBoard,
   orderEmbark,
   orderSail,
   sailError,
@@ -284,8 +283,10 @@ export function App() {
     systemId: string,
     type?: MissionType,
     companionIds: string[] = [],
+    /** Which squadron a Command posting is for, when it is not the island. */
+    fleetId?: string,
   ) => {
-    const result = sendDiplomat(state, characterId, systemId, type, companionIds);
+    const result = sendDiplomat(state, characterId, systemId, type, companionIds, fleetId);
     if (result.error) {
       flash(result.error);
       return;
@@ -381,14 +382,9 @@ export function App() {
     setState(result.state);
   };
 
-  const handleBoard = (fleetId: string, characterId: string) => {
-    const result = orderBoard(state, fleetId, characterId);
-    if (result.error) return flash(result.error);
-    setState(result.state);
-  };
-
-  const handleAshore = (fleetId: string, characterId: string) => {
-    const result = orderAshore(state, fleetId, characterId);
+  /** Give up a post: off a deck, or out of an island's chair. */
+  const handleRelieve = (characterId: string) => {
+    const result = orderRelieve(state, characterId);
     if (result.error) return flash(result.error);
     setState(result.state);
   };
@@ -633,8 +629,6 @@ export function App() {
           onSail={handleSail}
           onEmbark={handleEmbark}
           onAssault={handleAssault}
-          onBoard={handleBoard}
-          onAshore={handleAshore}
           onOpenShip={(fleetId, shipId) => setOpenShip({ fleetId, shipId })}
           onOrderShips={handleOrderShips}
           onOrderOfficers={handleOrderOfficers}
@@ -700,6 +694,7 @@ export function App() {
           state={state}
           character={openCharacter}
           onClose={() => setOpenCharacterId(null)}
+          onRelieve={handleRelieve}
           onSendOnMission={() => {
             setOpenCharacterId(null);
             setOpenSystemId(null);
@@ -788,8 +783,14 @@ export function App() {
           state={state}
           characterId={missionChoice.characterId}
           systemId={missionChoice.systemId}
-          onChoose={(type, companionIds) =>
-            sendOfficer(missionChoice.characterId, missionChoice.systemId, type, companionIds)
+          onChoose={(type, companionIds, fleetId) =>
+            sendOfficer(
+              missionChoice.characterId,
+              missionChoice.systemId,
+              type,
+              companionIds,
+              fleetId,
+            )
           }
           onClose={() => setMissionChoice(null)}
         />

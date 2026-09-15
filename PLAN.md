@@ -1436,3 +1436,51 @@ would be padding for its own sake. It is the tabbed panel that is furniture.
 
 The cost is honest and visible: a sparse tab has room to spare at the bottom.
 That is the trade Sean asked for — a still panel over a snug one.
+
+**Command is a posting, and Sign on is gone — 15 September.** Sean: "Instead
+of the 'sign on' thing. Cut that. Just make a mission 'Command'. You can set a
+crew unit to command a location or a fleet."
+
+Signing on was the odd one out in the whole game. Every other thing an officer
+does is an errand — you order it, they sail, it takes days — and this one was
+a chip in the harbor panel that put somebody on a deck the instant you tapped
+it, provided they were already standing on that exact island. It was free, it
+was instant, and it only worked where the geography already agreed.
+
+Now there is one verb. **Command** targets an island of yours or a squadron of
+yours lying at one, the officer sails there like anything else, and on arrival
+they are *in post* — no fortnight of work and no success roll, because taking
+command of your own island is not a thing you can fail at. What it costs is
+the officer: they are tied up until relieved. Relieving is instant and free,
+because they are already standing there.
+
+**Command was already a mission type**, but a narrow one: "an island of yours
+that is in revolt", a one-shot that went and put the revolt down. That is
+subsumed. Any island of yours will take a commander now; putting down a revolt
+is what one does on arrival rather than the only reason to send one. It is
+offered everywhere and *defaulted* to only on an island actually in revolt — a
+posting spends an officer indefinitely and should be asked for, not assumed.
+
+**What a posting ashore buys** is the thing that was missing from the faction
+profile. Measured two rounds ago and reported as unimplemented: the Crown's
+leadership edge bought it nothing defensively, because `foilChance` read
+espionage only. A posted commander now adds up to a quarter to the chance of
+catching anyone working against that island, and **an island with a commander
+on it does not rise**. That is worth an officer: the alternative is companies,
+which cost gold every day and can be landed on.
+
+Balance unchanged: 8–8 over sixteen games with the AI in each seat, no stalls,
+median 493 days.
+
+**One honest gap.** The AI does not post commanders — measured zero across
+sixteen finished games. Its mission picker only reaches for Command where the
+old default did, on an island in revolt, and its revolts are usually settled
+by garrisons first. So this is a player-side tool until `aiMission` learns to
+value a posting. Worth doing, and worth doing knowing what it costs the AI in
+tied-up officers.
+
+**Two test bugs of mine, both the same shape as this morning's**: I advanced
+the state a command had *returned from* rather than the one it returned, and I
+asserted an island's allegiance could only go up over twenty days when drift
+takes it down. Commands are pure and allegiance is not monotonic; both were my
+instruments, not the code.

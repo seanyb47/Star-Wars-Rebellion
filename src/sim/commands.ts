@@ -4,13 +4,14 @@
  * can never crash the game.
  */
 import { cancelBuild, foundWorks, queueBuild } from './build';
-import { assault, board, embark, goAshore, sailFleet } from './fleets';
+import { assault, embark, sailFleet } from './fleets';
+import { isLord } from './lords';
 import { createRng } from './rng';
 import { generateGalaxy } from './galaxy';
 import { cloneState } from './helpers';
 import { moveBlock } from './order';
 import { garrisonRoster } from './troops';
-import { continueMission, endMission, startMission } from './missions';
+import { continueMission, endMission, relieve, startMission } from './missions';
 import { resolveControlAndUnrest } from './support';
 import type { BuildItem, GameState, MissionType, PlayableFaction, Speed } from './types';
 
@@ -166,20 +167,24 @@ export function orderEmbark(
  * reproducible as any other day.
  */
 /** Sign a crew member on to a fleet lying off the island they are standing on. */
-export function orderBoard(
-  state: GameState,
-  fleetId: string,
-  characterId: string,
-): CommandResult {
-  return run(state, (draft) => board(draft, fleetId, characterId, draft.player));
-}
-
-export function orderAshore(
-  state: GameState,
-  fleetId: string,
-  characterId: string,
-): CommandResult {
-  return run(state, (draft) => goAshore(draft, fleetId, characterId));
+/**
+ * Give up a post.
+ *
+ * The other half of Command, and the only instant one: taking a post costs a
+ * voyage, leaving it costs nothing, because they are already standing there.
+ * A Pirate Lord cannot be relieved of their own deck — that is not a posting,
+ * it is who they are.
+ */
+export function orderRelieve(state: GameState, characterId: string): CommandResult {
+  return run(state, (draft) => {
+    const who = draft.characters.find((c) => c.id === characterId);
+    if (!who) throw new Error('No such crew.');
+    if (who.faction !== draft.player) throw new Error('Not one of yours.');
+    if (isLord(who)) throw new Error(`${who.name} does not leave their own ship.`);
+    const fleet = draft.fleets.find((f) => f.officerIds.includes(characterId));
+    if (fleet && fleet.voyage) throw new Error('The fleet is at sea.');
+    relieve(draft, characterId);
+  });
 }
 
 export function orderAssault(state: GameState, fleetId: string): CommandResult {
@@ -196,9 +201,11 @@ export function sendDiplomat(
   targetSystemId: string,
   type?: MissionType,
   companionIds: string[] = [],
+  /** Which squadron a Command posting is for, when it is not the island. */
+  fleetId?: string,
 ): CommandResult {
   return run(state, (draft) =>
-    startMission(draft, characterId, targetSystemId, type, companionIds),
+    startMission(draft, characterId, targetSystemId, type, companionIds, fleetId),
   );
 }
 

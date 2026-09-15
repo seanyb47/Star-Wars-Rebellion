@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import {
   bestOf,
   companionsFor,
+  fleetsToCommand,
   MISSION_LABEL,
   MISSION_PARTY_MAX,
   abductOn,
@@ -45,13 +46,16 @@ export function MissionChoiceSheet({
   state: GameState;
   characterId: string;
   systemId: string;
-  onChoose: (type: MissionType, companionIds: string[]) => void;
+  onChoose: (type: MissionType, companionIds: string[], fleetId?: string) => void;
   onClose: () => void;
 }) {
   const character = state.characters.find((c) => c.id === characterId)!;
   const island = state.systems.find((s) => s.id === systemId)!;
   const faction = character.faction as 'empire' | 'alliance';
   const offered = missionsOffered(state, island, faction);
+  // Squadrons of yours lying here, each of them a post an officer can be sent
+  // to take, listed under Command alongside the island itself.
+  const squadrons = fleetsToCommand(state, systemId, faction);
   const sail = travelDays(state, character.locationSystemId, systemId);
   const recruit = recruitOn(state, island, faction);
   const captive = abductOn(state, island, faction);
@@ -115,18 +119,53 @@ export function MissionChoiceSheet({
                   ? `Break ${held.name} out of the cells and get them home.`
                   : WHAT[type];
           return (
-            <button key={type} className="card card--tap choice" onClick={() => onChoose(type, taking)}>
-              <span className="choice__icon">
-                <CategoryIcon kind="missions" size={22} />
-              </span>
-              <span className="choice__body">
-                <span className="row row--between">
-                  <b className="choice__name">{MISSION_LABEL[type]}</b>
-                  {odds !== null && <span className="tiny muted">{odds}% to land it</span>}
+            <Fragment key={type}>
+              <button className="card card--tap choice" onClick={() => onChoose(type, taking)}>
+                <span className="choice__icon">
+                  <CategoryIcon kind="missions" size={22} />
                 </span>
-                <span className="tiny muted choice__what">{what}</span>
-              </span>
-            </button>
+                <span className="choice__body">
+                  <span className="row row--between">
+                    <b className="choice__name">
+                      {type === 'command' ? 'Command the island' : MISSION_LABEL[type]}
+                    </b>
+                    {odds !== null && type !== 'command' && (
+                      <span className="tiny muted">{odds}% to land it</span>
+                    )}
+                  </span>
+                  <span className="tiny muted choice__what">{what}</span>
+                </span>
+              </button>
+              {/* A posting can be to a deck instead of to the island, so every
+                  squadron of yours lying here is its own line. Taking one is
+                  the same errand — the voyage out, then the post — which is
+                  why they sit under Command rather than being an order you
+                  give from the harbor the way signing on used to be. */}
+              {type === 'command' &&
+                squadrons.map((fleet) => (
+                  <button
+                    key={fleet.id}
+                    className="card card--tap choice"
+                    onClick={() => onChoose('command', taking, fleet.id)}
+                  >
+                    <span className="choice__icon">
+                      <CategoryIcon kind="missions" size={22} />
+                    </span>
+                    <span className="choice__body">
+                      <span className="row row--between">
+                        <b className="choice__name">Command the {fleet.name}</b>
+                        <span className="tiny muted">
+                          {fleet.ships.length} {fleet.ships.length === 1 ? 'hull' : 'hulls'}
+                        </span>
+                      </span>
+                      <span className="tiny muted choice__what">
+                        Take her quarterdeck. Her fighting, her landings and what she charts at
+                        each landfall are all the better for it.
+                      </span>
+                    </span>
+                  </button>
+                ))}
+            </Fragment>
           );
         })}
       </div>
