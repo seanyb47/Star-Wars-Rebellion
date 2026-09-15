@@ -1589,11 +1589,17 @@ button.tcard:hover { border-color: var(--brass); }
 
 /* The battle summary on a dispatch card: two sides, side by side. */
 /* ---------- The battle sheet ---------- */
+/* Head and foot pinned, the middle scrolls: the assessment and the two buttons
+   stay on the screen however many hulls are in the water. */
+.dispatch--battle { display: flex; flex-direction: column; max-height: 86%; }
+.dispatch--battle .dispatch__head,
+.dispatch--battle .dispatch__foot { flex: none; }
+.battle__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
 /* Rebellion's assessment line: two words, big enough to be the first thing
-   read, coloured by how bad it is. Everything else on the sheet is detail
-   under this. */
+   read, coloured by how bad it is. Everything under it is the detail. */
 .odds {
-  margin: 10px 14px 2px;
+  margin: 9px 14px 4px;
   font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
   font-size: 19px; font-weight: 700; letter-spacing: 0.02em;
   text-align: center; text-transform: uppercase;
@@ -1603,24 +1609,51 @@ button.tcard:hover { border-color: var(--brass); }
 .odds--even { color: #e8dcc0; }
 .odds--unfavorable { color: #efa46a; }
 .odds--desperate { color: #f0705c; }
-/* A losing sheet should feel like one. Only the bottom two pulse, and slowly:
-   an assessment that flashes at you every round is a slot machine. */
+/* A losing sheet should feel like one. Only the bottom band pulses, and
+   slowly: an assessment that flashes every round is a slot machine. */
 .odds--desperate { animation: odds-pulse 1.6s ease-in-out infinite; }
 @keyframes odds-pulse { 50% { opacity: 0.55; } }
 @media (prefers-reduced-motion: reduce) { .odds--desperate { animation: none; } }
 
-.battle__cond { margin: 4px 0 3px; height: 4px; background: #0d2f3a; }
-.tally__side--empire .battle__cond .bar__fill { background: var(--empire); }
-.tally__side--alliance .battle__cond .bar__fill { background: var(--alliance); }
-.battle__line { margin: 6px 14px 0; }
-.battle__verdict { margin-top: 8px; }
-.battle__beast {
-  margin: 8px 14px 0; padding: 8px 10px; font-size: 12px;
-  border: 1px solid #5a4a2a; border-radius: 9px; background: rgba(90, 74, 42, 0.16);
-  color: #e8dcc0;
+/* One side's board. Stacked rather than columned: a roster read across two
+   narrow columns on a phone is a roster nobody reads. */
+.battle__side {
+  margin: 8px 14px; padding: 8px 10px; border-radius: 10px;
+  background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border);
 }
-/* The action is not a screen you closed; it is one you finished. No close
-   button, so the foot's two buttons share the width evenly. */
+.battle__side--empire { border-color: rgba(79, 196, 106, 0.4); }
+.battle__side--alliance { border-color: rgba(216, 72, 63, 0.45); }
+.battle__side--beast { border-color: #5a4a2a; background: rgba(90, 74, 42, 0.16); }
+.battle__side-head { display: flex; align-items: center; gap: 7px; }
+.battle__side-name {
+  font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text);
+}
+.battle__side-sum { margin-left: auto; font-size: 12px; color: var(--muted); }
+.battle__side-sum b { color: var(--text); }
+.battle__cond { margin: 6px 0 2px; height: 4px; background: #0d2f3a; }
+.battle__side--empire .battle__cond .bar__fill { background: var(--empire); }
+.battle__side--alliance .battle__cond .bar__fill { background: var(--alliance); }
+
+.battle__roster { margin-top: 4px; }
+.battle__hull {
+  display: flex; align-items: center; gap: 8px;
+  padding: 3px 0; font-size: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.battle__hull:first-child { border-top: none; }
+.battle__hull-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.battle__hull-stats { flex: none; font-variant-numeric: tabular-nums; }
+.battle__hurt { color: var(--bad); }
+
+/* The lines under a roster — who is handling it, what is aboard, what the wall
+   is worth. Wrapped rather than stacked: most sides have one or two. */
+.battle__notes { display: flex; flex-wrap: wrap; gap: 3px 12px; margin-top: 5px; }
+.battle__note { color: var(--muted); }
+.battle__note b { color: var(--text); }
+.battle__loss, .battle__loss b { color: var(--bad); }
+.battle__line { margin: 6px 14px 0; }
+.battle__verdict { margin-top: 4px; }
+
 .dispatch--battle .dispatch__foot { gap: 8px; }
 /* The two choices share the width evenly; the single button that dismisses a
    finished action does not, or it shoulders the date off the edge. */

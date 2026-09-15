@@ -1082,12 +1082,30 @@ export function battleOdds(mine: number, theirs: number): BattleOdds {
   return 'desperate';
 }
 
+/** A class of hull present, and how many of them, for the roster. */
+export interface BattleHulls {
+  classId: ShipClassId;
+  count: number;
+  /** Guns and hull for all of them together, so the row adds up. */
+  guns: number;
+  left: number;
+  whole: number;
+}
+
 export interface BattleSide {
   hulls: number;
   guns: number;
   /** Hull points left, and out of how many, across everything present. */
   left: number;
   whole: number;
+  /** What those hulls actually are, heaviest first. */
+  roster: BattleHulls[];
+  /** Officers with the fleets here, best first by leadership. */
+  officers: Character[];
+  /** Companies embarked, which go down with the hulls carrying them. */
+  troops: number;
+  /** What the best officer here is worth to the guns, as a multiplier. */
+  edge: number;
 }
 
 export interface BattleView {
@@ -1108,13 +1126,46 @@ export interface BattleView {
   settled?: BattleOutcome;
 }
 
-function sideOf(fleets: Fleet[]): BattleSide {
+/**
+ * One side of the action, in enough detail to decide with.
+ *
+ * Totals are what the assessment is made of; the roster is what the player
+ * actually reasons about. "Two hulls, sixty guns" and "two ships of the line"
+ * are the same fact, and only one of them tells you that breaking off is the
+ * sensible thing to do.
+ */
+function sideOf(state: GameState, fleets: Fleet[]): BattleSide {
   const ships = fleets.flatMap((f) => f.ships);
+  const byClass = new Map<ShipClassId, BattleHulls>();
+  for (const ship of ships) {
+    const spec = shipSpec(ship.classId);
+    const row = byClass.get(ship.classId) ?? {
+      classId: ship.classId,
+      count: 0,
+      guns: 0,
+      left: 0,
+      whole: 0,
+    };
+    row.count += 1;
+    row.guns += spec.guns;
+    row.left += Math.max(0, spec.hull - ship.damage);
+    row.whole += spec.hull;
+    byClass.set(ship.classId, row);
+  }
+  const officers = fleets
+    .flatMap((f) => officersOf(state, f))
+    .sort((a, b) => b.leadership - a.leadership);
   return {
     hulls: ships.length,
     guns: fleets.reduce((n, f) => n + fleetGuns(f), 0),
     left: ships.reduce((n, sh) => n + Math.max(0, hullOf(sh) - sh.damage), 0),
     whole: ships.reduce((n, sh) => n + hullOf(sh), 0),
+    // Heaviest first: the thing that decides the action goes at the top of the
+    // list, not wherever it happens to have been built.
+    roster: [...byClass.values()].sort((a, b) => b.guns / b.count - a.guns / a.count),
+    officers,
+    troops: fleets.reduce((n, f) => n + f.troops, 0),
+    edge: bestEdge(state, fleets, 'leadership'),
   };
 }
 
@@ -1138,8 +1189,8 @@ export function battleView(state: GameState): BattleView | undefined {
   const beast = beastAt(system);
   const alive = beastAlive(system);
 
-  const mine = sideOf(mineFleets);
-  const theirs = sideOf(theirFleets);
+  const mine = sideOf(state, mineFleets);
+  const theirs = sideOf(state, theirFleets);
   // Guns bearing on each side, for the assessment only: the wall fires for
   // whoever holds the island, and the creature fires on everybody, so it
   // counts against both.
