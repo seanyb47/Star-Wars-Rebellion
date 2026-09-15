@@ -175,7 +175,33 @@ function startGarrison(support: number, capital: boolean): number {
   const needed = requiredGarrison(support) + START_GARRISON_SPARE + (capital ? 1 : 0);
   return Math.min(START_GARRISON_MAX, Math.max(1, needed));
 }
-const START_CHARACTERS = 7;
+/**
+ * Who is in the war on day one.
+ *
+ * Sean's numbers, 15 September: four for the Crown, five for the Confederacy —
+ * its three Lords and two others. It had been the whole roster, seven a side,
+ * which made the opening cast the same cast every game and left nothing for
+ * recruiting to be *for*.
+ *
+ * The three Lords are not optional and never drawn: they are the Confederacy's
+ * losing condition and three of its hulls at once, so a war missing one is a
+ * different game rather than a varied one. Everyone else on both sides is
+ * drawn, which is where the variety goes now that the principals' ratings are
+ * fixed — you always know exactly what Hale is worth, and not whether you have
+ * her.
+ */
+export const START_CHARACTERS: Record<PlayableFaction, number> = { empire: 4, alliance: 5 };
+
+function openingCast(faction: PlayableFaction, rng: Rng) {
+  const roster = characterRoster[faction];
+  const bound = roster.filter((e) => PIRATE_LORDS.some((l) => l.name === e.name));
+  const rest = roster.filter((e) => !bound.includes(e));
+  const drawn = rng.shuffle(rest).slice(0, Math.max(0, START_CHARACTERS[faction] - bound.length));
+  const taken = new Set([...bound, ...drawn].map((e) => e.name));
+  // Back into the bible's order afterwards, so the crew list reads as a roster
+  // and not as the order they happened to come out of the bag.
+  return roster.filter((e) => taken.has(e.name));
+}
 /** Enough to lay down a camp or two before the first income arrives. */
 const START_GOLD = 150;
 
@@ -527,7 +553,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     // Each rating is rolled inside that character's band, so Hale is always a
     // formidable negotiator and Torvik is always the one you send aboard,
     // while no two games give quite the same numbers.
-    for (const [index, entry] of characterRoster[faction].slice(0, START_CHARACTERS).entries()) {
+    for (const [index, entry] of openingCast(faction, rng).entries()) {
       const roll = (base: number) => rollRating(rng, base, entry.major);
       characters.push({
         id: makeId('chr'),

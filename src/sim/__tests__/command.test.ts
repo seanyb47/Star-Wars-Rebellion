@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { advanceDay } from '../advanceDay';
 import {
+  canCommand,
   commanderOf,
   fleetsToCommand,
   foilChance,
@@ -17,12 +18,17 @@ import { UPRISING_SUPPORT } from '../constants';
 
 function world(seed = 501) {
   const state = generateGalaxy(seed, 'empire');
-  const home = state.systems.find(
-    (s) => s.control === 'empire' && state.characters.some((c) => c.locationSystemId === s.id),
-  )!;
+  // Somebody who can actually take a posting, standing on an island of ours.
+  // The opening cast is a draw of four now, so neither "the first officer" nor
+  // "the first island with anyone on it" is safe to assume.
   const officer = state.characters.find(
-    (c) => c.faction === 'empire' && c.locationSystemId === home.id && c.status === 'available',
+    (c) =>
+      c.faction === 'empire' &&
+      c.status === 'available' &&
+      canCommand(c) &&
+      state.systems.find((s) => s.id === c.locationSystemId)?.control === 'empire',
   )!;
+  const home = state.systems.find((s) => s.id === officer.locationSystemId)!;
   return { state, home, officer };
 }
 

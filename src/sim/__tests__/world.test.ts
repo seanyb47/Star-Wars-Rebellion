@@ -166,13 +166,19 @@ describe('the generated world matches the bible', () => {
     expect(plain.note).toBeUndefined();
   });
 
-  it('fields the bible characters, each within a swing of their base', () => {
+  it('fields a draw from the bible, each at exactly their base', () => {
     for (const faction of ['empire', 'alliance'] as const) {
-      const roster = characterRoster[faction].slice(0, 7);
+      const roster = characterRoster[faction];
       const inGame = state.characters.filter((c) => c.faction === faction);
-      expect(inGame.map((c) => c.name)).toEqual(roster.map((e) => e.name));
-      for (const [index, character] of inGame.entries()) {
-        const base = roster[index].ratings;
+      // A draw now, not the whole roster: everyone in the game is from the
+      // bible, in the bible's order, and there are fewer of them than it holds.
+      expect(inGame.length).toBeLessThan(roster.length);
+      const names = roster.map((e) => e.name);
+      expect(inGame.map((c) => c.name)).toEqual(
+        names.filter((n) => inGame.some((c) => c.name === n)),
+      );
+      for (const character of inGame) {
+        const base = roster.find((e) => e.name === character.name)!.ratings;
         for (const ability of ['diplomacy', 'espionage', 'combat', 'leadership'] as const) {
           const from = base[ability];
           expect(character[ability]).toBeGreaterThanOrEqual(
@@ -227,16 +233,26 @@ describe('the generated world matches the bible', () => {
         expect(character.people).toBe(entry.people);
       }
     }
-    // Torvik is the one non-human major, and his portrait depends on knowing it.
-    const torvik = state.characters.find((c) => c.name.includes('Torvik'))!;
+    // Torvik is the one non-human major, and his portrait depends on knowing
+    // it. He can be drawn out of a given war now, so this asks the bible when
+    // he is not in this one — the portrait reads the same field either way.
+    const torvik =
+      state.characters.find((c) => c.name.includes('Torvik')) ??
+      characterRoster.alliance.find((e) => e.name.includes('Torvik'))!;
     expect(torvik.people).toBe('Urskin');
   });
 
   it('makes Hale a better negotiator than Torvik, every game', () => {
+    // Hale is a Lord and so is never drawn out; Torvik is, so when he is not
+    // in the war the comparison is against what the bible says he would be.
+    const torvikBase = characterRoster.alliance.find((e) => e.name.includes('Torvik'))!.ratings;
     for (let seed = 1; seed <= 25; seed++) {
       const trial = generateGalaxy(seed);
       const hale = trial.characters.find((c) => c.name.includes('Hale'))!;
-      const torvik = trial.characters.find((c) => c.name.includes('Torvik'))!;
+      const torvik = trial.characters.find((c) => c.name.includes('Torvik')) ?? {
+        diplomacy: torvikBase.diplomacy,
+        combat: torvikBase.combat,
+      };
       expect(hale.diplomacy).toBeGreaterThan(torvik.diplomacy);
       expect(torvik.combat).toBeGreaterThan(hale.combat);
     }
@@ -403,7 +419,8 @@ describe('the roster', () => {
     // The character sheet has a lore panel, and a panel with nothing in it is
     // worse than no panel: for a while the twelve unaligned had one each.
     const state = generateGalaxy(501, 'empire');
-    expect(state.characters.length).toBeGreaterThan(20);
+    // Four a side, five for the Confederacy, and the unaligned in play.
+    expect(state.characters.length).toBeGreaterThan(12);
     for (const person of state.characters) {
       expect(person.name.length).toBeGreaterThan(2);
       expect(person.people, person.name).toBeTruthy();

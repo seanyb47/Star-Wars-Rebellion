@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { generateGalaxy } from '../galaxy';
+import { generateGalaxy, START_CHARACTERS } from '../galaxy';
 import { MISSION_WORK_DAYS, RECRUITS_IN_PLAY } from '../constants';
 import {
   advanceMissions,
@@ -436,8 +436,12 @@ describe('recruitment', () => {
     const state = generateGalaxy(6);
     for (const faction of ['empire', 'alliance'] as const) {
       const roster = state.characters.filter((c) => c.faction === faction);
-      expect(roster).toHaveLength(7);
+      expect(roster).toHaveLength(START_CHARACTERS[faction]);
+      // The point of the test: nobody unaligned has quietly been counted as
+      // one of the side's own.
+      for (const who of roster) expect(who.appearsOnDay).toBeUndefined();
     }
+    expect(state.characters.some((c) => c.faction === 'neutral')).toBe(true);
   });
 
   it('is what an island offers when somebody is standing on it', () => {

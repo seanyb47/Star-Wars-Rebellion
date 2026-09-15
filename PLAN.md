@@ -1871,3 +1871,35 @@ being harder to infiltrate for it. Not friction: a free lunch, which is worse.
 Now the posting ends because they have gone. There is nothing to undo first,
 which is exactly the property Sean was after: you move the person, and the rank
 does not argue with you.
+
+## Four a side, five for the Confederacy — 15 September, night
+
+Sean: cut the starting crew to four for the Crown and five for the Confederacy,
+its three Lords and two others.
+
+It had been the whole roster, seven a side, which made the opening cast the
+same cast every game and left recruiting with nothing to be *for*. The two
+changes of the night work together: the principals' ratings are fixed now, so
+the variety cannot come from *what* Hale is worth — it comes from *whether you
+have her*, and from the strangers, whose ratings swing twenty either way.
+
+The three Lords are never drawn out. They are the Confederacy's losing
+condition and three of its hulls at once, so a war missing one is a different
+game rather than a varied one. Measured over sixty worlds: all three present in
+100%, everyone else between 42% and 75%, and neither side ever short of an
+officer who can hold a place — the Crown's four all can, the Confederacy's
+three Lords all can.
+
+Balance 8–8 across sixteen games, median 649 days.
+
+**One consequence worth a decision.** The Lord Regent turns up in 45% of wars.
+He is the Crown's head of state and the best leader in the game, and a Crown
+without him is a strange Crown — the Confederacy has three characters it cannot
+lose and the Crown has none. Pinning Corvane the way the Lords are pinned would
+make it one fixed and three drawn. Not done: Sean asked for four, and which
+four is his call.
+
+Five tests moved rather than deleted. They had assumed a seven-strong roster or
+the presence of a particular person — "the first officer of the Crown is the
+Regent", "Torvik's people is Urskin" — and each now asks the bible where the
+war no longer answers.

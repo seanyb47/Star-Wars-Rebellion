@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import reachData from '../../data/reaches.json';
-import { generateGalaxy } from '../galaxy';
+import { generateGalaxy, START_CHARACTERS } from '../galaxy';
 import { isLord, isLordShip } from '../lords';
 
 /** The Reaches the war has not charted: Rime and Salt, and Coral since Sean
@@ -79,12 +79,12 @@ describe('generateGalaxy', () => {
     expect(meeting.explored.empire).toBe(false);
   });
 
-  it('spreads seven officers a side about, with the Lords aboard at Freeport', () => {
+  it('opens with four a side and five, the three Lords among them', () => {
     const state = generateGalaxy(13);
     const freeport = state.systems.find((s) => s.name === 'Freeport')!;
     for (const faction of ['empire', 'alliance'] as const) {
       const crew = state.characters.filter((c) => c.faction === faction);
-      expect(crew).toHaveLength(7);
+      expect(crew).toHaveLength(START_CHARACTERS[faction]);
       for (const character of crew) expect(character.status).toBe('available');
       // Nobody opens in one heap any more: the side's people are on at least
       // two islands, so the first move of every game is not the same move.
@@ -95,9 +95,10 @@ describe('generateGalaxy', () => {
         expect(island.control === faction || island.id === freeport.id).toBe(true);
       }
     }
-    // The Regent has not left the citadel in eleven years.
-    const regent = state.characters.find((c) => c.faction === 'empire')!;
-    expect(regent.locationSystemId).toBe(state.factions.empire.hqSystemId);
+    // Whoever the draw put first is at the seat: the opening scatters from
+    // the capital outwards, so the head of the list never leaves it.
+    const first = state.characters.find((c) => c.faction === 'empire')!;
+    expect(first.locationSystemId).toBe(state.factions.empire.hqSystemId);
 
     // A Lord is their ship: aboard at Freeport on day one, and the only
     // Confederate aboard anything. Everyone else stands on the quay.
