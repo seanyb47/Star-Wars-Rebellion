@@ -953,3 +953,14 @@ is not a Confederate specialty unless the rule is made one.
 
 Recruitment does already favour the Brethren, through diplomacy rather than
 through a count of recruiters — roles in the data are display only.
+
+
+**The original's personnel, read and set beside ours — 15 September.** Sean's
+Rebellion stat sheet is in Drive; the analysis is `docs/rebellion-personnel.md`.
+Nothing was applied. The headline: the original rates the same four abilities
+and rolls each from a range, which is our base-and-swing rule arrived at
+independently — but its **icons are fixed and its nobodies vary**, which is the
+exact reverse of ours, and only **two characters in sixty** ever pass a hundred
+against our 194 rolls in 80 worlds. Its Empire is frightening through materiel
+rather than officers, which is the same thing Sean wants of the Crown and the
+same thing our day-one gun count does not deliver.
