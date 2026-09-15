@@ -4,12 +4,13 @@ import reachData from '../data/reaches.json';
 import chartData from '../data/chart.json';
 import { createRng, type Rng } from './rng';
 import {
-  RECRUITS_AT_START,
+  PIRATE_LORDS,
   RECRUIT_LAST_DAY,
+  RECRUITS_AT_START,
   RECRUITS_IN_PLAY,
+  rollRating,
   START_GARRISON_MAX,
   START_GARRISON_SPARE,
-  PIRATE_LORDS,
 } from './constants';
 import { shipClass } from './constants';
 
@@ -490,7 +491,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     // formidable negotiator and Torvik is always the one you send aboard,
     // while no two games give quite the same numbers.
     for (const [index, entry] of characterRoster[faction].slice(0, START_CHARACTERS).entries()) {
-      const roll = (band: number[]) => rng.range(band[0], band[1]);
+      const roll = (base: number) => rollRating(rng, base, entry.major);
       characters.push({
         id: makeId('chr'),
         name: entry.name,
@@ -539,7 +540,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     .shuffle(characterRoster.recruits)
     .slice(0, inPlay)
     .entries()) {
-    const roll = (band: number[]) => rng.range(band[0], band[1]);
+    const roll = (base: number) => rollRating(rng, base, entry.major);
     // A couple are ashore on day one so the errand is discoverable; the rest
     // are spread over the war, evenly with a little jitter so they do not
     // arrive on a drumbeat.

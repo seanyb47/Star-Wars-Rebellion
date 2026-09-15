@@ -881,3 +881,23 @@ from 481, which is what more room to build should do.
 clock running past zero into negative days and never resolving. It does that for
 every officer on the player's own side: a finished mission raises a decision —
 stay at it or come home — and waits for an answer. The test now answers it.
+
+**A base per ability, and a swing per game — 15 September.** Sean's rule.
+Characters carried a min-max band per ability; they carry a single base figure
+now, set by their lore and by what the game needs of them, and a game rolls
+each ability within a swing of it: twenty either way for a major character, ten
+for a minor one. `major: true` marks the fourteen named principals in
+`characters.json`; the unaligned are minor. The bases came from the midpoints of
+the old bands, so nobody's character changed — only how far they are allowed to
+wander from it.
+
+The roll is **not** capped at a hundred, which is the point of the rule: a base
+of 92 can come out at 112, and an officer having the game of their life should
+be allowed to be better than anyone has a right to be. The floor is 1. The
+rating bar cannot draw past full, so past a hundred it fills and turns brass,
+and the figure beside it says how far past.
+
+Measured over 80 worlds: ratings run 12 to 112, 194 scores came out over a
+hundred, a major's widest span for one ability is 40 and a minor's is 20, and
+nobody ever lands further from their base than their swing allows. One rule,
+`rollRating`, in the constants ladder with the rest.

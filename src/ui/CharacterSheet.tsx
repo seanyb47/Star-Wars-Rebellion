@@ -54,8 +54,15 @@ export function Ratings({ character }: { character: Character }) {
       {entries.map(([label, value]) => (
         <div className="rating" key={label}>
           <span className="rating__label">{label}</span>
+          {/* A rating can pass a hundred: the swing off a high base is allowed
+              to carry somebody above what anyone has a right to be. The track
+              cannot show it, so it fills and turns brass instead, and the
+              figure beside it says how far past. */}
           <span className="rating__track">
-            <span className="rating__fill" style={{ width: `${value}%` }} />
+            <span
+              className={`rating__fill${value > 100 ? ' rating__fill--over' : ''}`}
+              style={{ width: `${Math.min(100, value)}%` }}
+            />
           </span>
           <span className="rating__value">{value}</span>
         </div>

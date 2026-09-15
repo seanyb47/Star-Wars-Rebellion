@@ -479,6 +479,8 @@ button {
 .rating__track {
   flex: 1; height: 5px; border-radius: 3px; background: #0d2f3a; overflow: hidden;
 }
+/* Past a hundred. The bar has nowhere left to go, so it says so in brass. */
+.rating__fill--over { background: var(--brass); box-shadow: 0 0 6px rgba(201, 162, 39, 0.55); }
 .rating__fill { display: block; height: 100%; background: var(--brass); border-radius: 3px; }
 .rating__value {
   flex: none; width: 24px; text-align: right;

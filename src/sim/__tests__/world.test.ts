@@ -3,7 +3,14 @@ import factionData from '../../data/factions.json';
 import characterRoster from '../../data/characters.json';
 import reachData from '../../data/reaches.json';
 import terms from '../../data/terms.json';
-import { FACILITY_LABEL, GARRISON_SMUGGLING_CUT, GOLD_PER_DAY, YARD_BUILDS } from '../constants';
+import {
+  FACILITY_LABEL,
+  GARRISON_SMUGGLING_CUT,
+  GOLD_PER_DAY,
+  RATING_SWING_MAJOR,
+  RATING_SWING_MINOR,
+  YARD_BUILDS,
+} from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { startMission } from '../missions';
 import { reachesOfSea, seasOf, summariseReach, summariseSea } from '../reach';
@@ -51,19 +58,34 @@ describe('the world bible data', () => {
     expect(capitals[0].name).toBe(factionData.empire.capitalIslandName);
   });
 
-  it('rosters seven named characters a side with sane rating bands', () => {
+  it('rosters seven named characters a side, each with a base per ability', () => {
     for (const faction of ['empire', 'alliance'] as const) {
       const roster = characterRoster[faction];
       expect(roster.length).toBeGreaterThanOrEqual(7);
       for (const entry of roster) {
         expect(entry.name.length).toBeGreaterThan(0);
         expect(entry.bio.length).toBeGreaterThan(0);
-        for (const band of Object.values(entry.ratings)) {
-          expect(band).toHaveLength(2);
-          expect(band[0]).toBeLessThan(band[1]);
-          expect(band[0]).toBeGreaterThanOrEqual(0);
-          expect(band[1]).toBeLessThanOrEqual(100);
+        // A named principal is a major character and swings twenty.
+        expect(entry.major).toBe(true);
+        const abilities = Object.keys(entry.ratings).sort();
+        expect(abilities).toEqual(['combat', 'diplomacy', 'espionage', 'leadership']);
+        for (const base of Object.values(entry.ratings)) {
+          expect(Number.isInteger(base)).toBe(true);
+          // Bases stay inside nought to a hundred; only a roll may pass it.
+          expect(base).toBeGreaterThan(0);
+          expect(base).toBeLessThanOrEqual(100);
         }
+      }
+    }
+  });
+
+  it('marks the unaligned minor, and rates them the same way', () => {
+    for (const entry of characterRoster.recruits) {
+      expect(entry.major).toBe(false);
+      for (const base of Object.values(entry.ratings)) {
+        expect(Number.isInteger(base)).toBe(true);
+        expect(base).toBeGreaterThan(0);
+        expect(base).toBeLessThanOrEqual(100);
       }
     }
   });
@@ -113,19 +135,45 @@ describe('the generated world matches the bible', () => {
     expect(plain.note).toBeUndefined();
   });
 
-  it('fields the bible characters, rated inside their bands', () => {
+  it('fields the bible characters, each within a swing of their base', () => {
     for (const faction of ['empire', 'alliance'] as const) {
       const roster = characterRoster[faction].slice(0, 7);
       const inGame = state.characters.filter((c) => c.faction === faction);
       expect(inGame.map((c) => c.name)).toEqual(roster.map((e) => e.name));
       for (const [index, character] of inGame.entries()) {
-        const bands = roster[index].ratings;
-        expect(character.diplomacy).toBeGreaterThanOrEqual(bands.diplomacy[0]);
-        expect(character.diplomacy).toBeLessThanOrEqual(bands.diplomacy[1]);
-        expect(character.combat).toBeGreaterThanOrEqual(bands.combat[0]);
-        expect(character.combat).toBeLessThanOrEqual(bands.combat[1]);
+        const base = roster[index].ratings;
+        for (const ability of ['diplomacy', 'espionage', 'combat', 'leadership'] as const) {
+          const from = base[ability];
+          expect(character[ability]).toBeGreaterThanOrEqual(
+            Math.max(1, from - RATING_SWING_MAJOR),
+          );
+          expect(character[ability]).toBeLessThanOrEqual(from + RATING_SWING_MAJOR);
+        }
       }
     }
+  });
+
+  it('gives a major character a wider swing than a minor one, and lets it pass a hundred', () => {
+    // Over enough worlds the same person is recognisably themselves and never
+    // twice the same: this is the spread the rule promises, measured.
+    const spread = (name: string, major: boolean) => {
+      const seen: number[] = [];
+      for (let seed = 1; seed <= 60; seed++) {
+        const who = generateGalaxy(seed).characters.find((c) => c.name === name);
+        if (who) seen.push(who.diplomacy);
+      }
+      const roster = [...characterRoster.empire, ...characterRoster.alliance, ...characterRoster.recruits];
+      const base = roster.find((e) => e.name === name)!.ratings.diplomacy;
+      const swing = major ? RATING_SWING_MAJOR : RATING_SWING_MINOR;
+      expect(seen.length).toBeGreaterThan(10);
+      expect(Math.min(...seen)).toBeGreaterThanOrEqual(Math.max(1, base - swing));
+      expect(Math.max(...seen)).toBeLessThanOrEqual(base + swing);
+      return Math.max(...seen) - Math.min(...seen);
+    };
+    // Hale's diplomacy is 92, so a major's swing carries her over a hundred.
+    const hale = characterRoster.alliance.find((e) => e.name.includes('Hale'))!;
+    expect(hale.ratings.diplomacy + RATING_SWING_MAJOR).toBeGreaterThan(100);
+    expect(spread('Commodore-Elect Adaira Hale', true)).toBeGreaterThan(RATING_SWING_MINOR);
   });
 
   it('carries each character\'s people through, which their portrait reads', () => {

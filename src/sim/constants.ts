@@ -1,4 +1,5 @@
 import shipData from '../data/ships.json';
+import type { Rng } from './rng';
 import terms from '../data/terms.json';
 import type {
   BuildItem,
@@ -433,6 +434,28 @@ export function roomBand(free: number): MarkSize {
   if (free >= ROOM_AMPLE) return 'large';
   if (free >= ROOM_FAIR) return 'medium';
   return 'small';
+}
+
+/**
+ * How far a character's ratings wander from their base, game to game.
+ *
+ * Sean's rule, 15 September. Every character has a base figure per ability,
+ * set by their lore and by what the game needs of them; a game rolls each one
+ * within a swing of it. A major character — the fourteen named principals —
+ * swings twenty either way, a minor one ten, so the people the war is about
+ * vary more than the people it picks up along the way.
+ *
+ * The top of the swing is deliberately not capped at a hundred. A base of 92
+ * can come out at 112, and an officer having the game of their life should be
+ * allowed to be better than anyone has any right to be. The floor is 1: nobody
+ * is negative at anything.
+ */
+export const RATING_SWING_MAJOR = 20;
+export const RATING_SWING_MINOR = 10;
+
+export function rollRating(rng: Rng, base: number, major: boolean): number {
+  const swing = major ? RATING_SWING_MAJOR : RATING_SWING_MINOR;
+  return Math.max(1, base + rng.range(-swing, swing));
 }
 
 export type LoyaltyBand = 'uprising' | 'thin' | 'steady' | 'firm';
