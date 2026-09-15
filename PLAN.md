@@ -720,3 +720,15 @@ islands. Three names from the bible's Coral list joined it, **The Shoals**,
 eight on the painting's own land; the world is 63 islands now. Sixteen idle
 games of sixteen still end, median 446 days, and day one is unchanged at 65
 against 56 for the Crown and 60 against 49 for the Confederacy.
+
+**The phone's clock was sitting on the Crown's name.** Two different things
+were both called `banner` — the header with the crest and the creed, and the
+one-line verdict shown when the war ends — and the verdict's rule came later
+in the stylesheet, so it was quietly taking the header's padding with it,
+including the safe-area inset that keeps the chrome out from under the status
+bar. The verdict is `.verdict` now; two different things may not share a name.
+The page is also `black-translucent` rather than `black`, which is the
+combination that makes iOS report a real inset on a full-bleed view, so the
+status bar now sits on the banner's own painting. A web app cannot hide the
+status bar — only a native app can — so keeping clear of it is the whole of
+the fix.

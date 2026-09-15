@@ -27,9 +27,20 @@
   --bad: #e2504a;
   /* Minimum comfortable touch target (iOS HIG 44pt, Android 48dp). */
   --tap: 44px;
+  /* The status bar's strip, and the home indicator's. A phone's own chrome
+     cannot be hidden by a web app, so the game's chrome keeps clear of it:
+     every bar that touches an edge pads itself by these. */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   color-scheme: dark;
+}
+
+/* Installed to the home screen the page runs edge to edge, under the clock
+   and the battery. Some iPhones report the inset for that strip as zero
+   anyway, and then the title sits under the time — so in standalone the top
+   inset never falls below the short status bar's own height. */
+@media (display-mode: standalone) {
+  :root { --safe-top: max(env(safe-area-inset-top, 0px), 20px); }
 }
 
 * {
@@ -472,12 +483,17 @@ button {
 .event--unread .event__text { color: var(--text); }
 
 
-.banner {
+/* How the war ended, said once across the top of the chart. It was called
+   `banner` too, and being later in the file it was quietly taking the header
+   banner's padding away with it — including the inset that keeps the Crown's
+   name out from under the phone's clock. Two different things may not share
+   a name. */
+.verdict {
   border-radius: 10px; padding: 10px 12px; font-size: 13px;
   border: 1px solid currentColor;
 }
-.banner--win { color: var(--good); }
-.banner--lose { color: var(--bad); }
+.verdict--win { color: var(--good); }
+.verdict--lose { color: var(--bad); }
 
 /* ---------- Start screen ---------- */
 .start {

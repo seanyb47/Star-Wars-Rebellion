@@ -422,7 +422,7 @@ export function App() {
 
       {state.winner && (
         <div className="pad" style={{ paddingBottom: 0 }}>
-          <div className={`banner banner--${state.winner === state.player ? 'win' : 'lose'}`}>
+          <div className={`verdict verdict--${state.winner === state.player ? 'win' : 'lose'}`}>
             {state.winner === state.player
               ? 'The Seven Seas are yours. Victory.'
               : `The ${factionData[state.winner].name} holds the Seven Seas. Defeat.`}
