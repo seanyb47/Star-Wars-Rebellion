@@ -77,47 +77,20 @@
 
 html, body, #root { height: 100%; }
 /*
- * The page wears the console's own wood, and this is a backstop rather than a
- * fix.
+ * The canvas, which is the only thing that can paint below the app.
  *
- * The app is sized to overshoot the glass now, so nothing of the page should
- * ever be visible. But five rounds of this said the same thing and were wrong,
- * and the thing that made it ugly was never the gap's existence — it was that
- * the gap was a flat dark slab under a textured console, which reads as the
- * app having stopped early. Wood under wood reads as the console being a
- * little taller, which is nothing at all. If a sliver survives on some phone
- * neither of us has, it will not look broken.
+ * There was a fixed, wood-textured backstop here. It could never have
+ * worked: a fixed element is laid out against the *layout viewport*, which
+ * is the short measurement that leaves the strip over in the first place,
+ * so the backstop stopped exactly where the app stopped. Only the canvas
+ * paints under a short page, and the canvas takes its colour from the body.
+ *
+ * These two are `--chrome-2` — the colour the tab bar's gradient ends on —
+ * so the seam between the bottom of the console and the strip below it is
+ * the same colour on both sides. `data-side` is set on the body to match
+ * the app, so the Crown gets its green-black and the Brethren their
+ * rust-black.
  */
-/*
- * The page behind the app wears the console's wood, on a real element.
- *
- * It was on `body` itself, and on a phone it came back as a flat slab with no
- * grain in it at all — measured, standard deviation zero across the width. A
- * body background is propagated to the browser's canvas rather than painted
- * as an ordinary box, and the tiling and blending do not survive the trip.
- * A fixed element behind everything is painted like anything else, so the
- * grain is actually there.
- *
- * This is a backstop and not the fix. The app should reach the bottom of the
- * glass; when it does, none of this is ever seen. What it buys is that a
- * sliver on some phone neither of us has looks like the console going on
- * rather than the app having stopped.
- */
-body::before {
-  content: '';
-  position: fixed;
-  inset: -2px;
-  z-index: -1;
-  pointer-events: none;
-  background-color: #1a3428;
-  background-image: url('../art/chrome/wood.webp'), linear-gradient(180deg, #1a3428, #0f2119);
-  background-blend-mode: soft-light, normal;
-}
-body[data-side='alliance']::before {
-  background-color: #3d1d16;
-  background-image: url('../art/chrome/wood.webp'), linear-gradient(180deg, #3d1d16, #24100c);
-}
-/* And the canvas colour under that, for the instant before it paints. */
 body { background: #0f2119; }
 body[data-side='alliance'] { background: #24100c; }
 
@@ -128,17 +101,7 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
-/*
- * The document canvas, which is not the same thing as the app.
- *
- * On an iPhone the page can be laid out shorter than the glass — the strip
- * the home indicator sits over is reserved, and nothing inside the page can
- * paint there. What fills it is the canvas, and the canvas takes its colour
- * from here. Left as the sea-dark it read as a band of nothing under the
- * console; in the console's own dark it reads as the bottom of the console.
- * `data-side` is set on the body to match the app, so the Crown gets its
- * green-black and the Brethren their rust-black.
- */
+/* The rest of the body: type, and never a scrollbar. */
 body {
   margin: 0;
   overflow: hidden;
@@ -184,9 +147,11 @@ button {
      `max()` rather than an override, because the two disagree in both
      directions on real phones and only one direction of error shows — too
      tall hides under `overflow: hidden`, too short is a band of dead page
-     under the console. `--app-h` is the largest number the browser will give
-     us for the glass (see measureGlass), and 100dvh covers the case where it
-     has not been set yet or is smaller than the unit already knew. */
+     under the console. `--app-h` is the largest of the viewport heights the
+     browser reports (see measureGlass), and 100dvh covers the case where it
+     has not been set yet or is smaller than the unit already knew. Neither
+     can exceed the viewport being laid out, so the console can never be
+     pushed off the bottom of the screen. */
   height: max(100dvh, var(--app-h, 0px));
   overflow: hidden;
 }
@@ -354,6 +319,23 @@ button {
   display: grid; grid-template-columns: repeat(4, 1fr) 84px;
   border-top: 1px solid var(--metal-lo); box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.5);
   padding-bottom: var(--safe-bottom);
+  /* An icon, a label under it, and the padding that separates them. Stated
+     rather than left to the content, because the whole point of the bar is
+     that the labels are legible, and a grid row will give up its height to a
+     short parent without saying so — which is how they came to be clipped. */
+  min-height: calc(62px + var(--safe-bottom));
+  align-content: center;
+  /* The bottom of the bar fades out of its own grain into flat `--chrome-2`
+     — the colour the canvas under a short app is painted. The wood is still
+     wood where you look at it, and the last few pixels are exactly what
+     continues below the app, so a strip left over at the bottom of the glass
+     has no edge to notice. Three layers: the fade, the grain, the base. */
+  background-image:
+    linear-gradient(180deg, transparent calc(100% - 26px), var(--chrome-2) calc(100% - 8px)),
+    url('../art/chrome/wood.webp'),
+    linear-gradient(180deg, var(--chrome) 0%, var(--chrome-2) 72%, var(--chrome-2) 100%);
+  background-size: auto, 256px 256px, auto;
+  background-blend-mode: normal, soft-light, normal;
 }
 .tab {
   min-height: var(--tap);

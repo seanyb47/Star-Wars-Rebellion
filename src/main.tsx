@@ -30,27 +30,6 @@ import './ui/styles.css';
  * No text inputs anywhere in the game, so the keyboard never shrinks this, and
  * the viewport is locked against pinch-zoom, so nothing else moves it either.
  */
-/**
- * Does the page reach the bottom of the glass?
- *
- * Measured rather than assumed: a hidden probe padded by the bottom safe-area
- * inset. The inset is the height of the strip the home indicator sits in, and
- * a page only has one when there is no browser furniture between it and the
- * edge of the screen. Zero means something else owns the bottom — a toolbar —
- * and the app must not try to grow into it.
- */
-function ownsTheGlass(): boolean {
-  if (!document.body) return false;
-  const probe = document.createElement('div');
-  probe.style.cssText =
-    'position:fixed;left:0;bottom:0;width:0;height:env(safe-area-inset-bottom,0px);' +
-    'visibility:hidden;pointer-events:none';
-  document.body.appendChild(probe);
-  const inset = probe.getBoundingClientRect().height;
-  probe.remove();
-  return inset > 0;
-}
-
 function measureGlass(): void {
   const vv = window.visualViewport;
   const root = document.documentElement.style;
@@ -58,19 +37,14 @@ function measureGlass(): void {
   /*
    * Take the largest credible number, not the most authoritative one.
    *
-   * This is the sixth pass at the band under the console, and the first with
-   * a measurement of it: Sean's screenshot has 164 device pixels of perfectly
-   * flat page colour below the last row of console wood — 55 points on a
-   * 393pt phone. Flat, not textured, so it is the page showing under a short
-   * app rather than the tab bar padding itself.
-   *
-   * Every earlier pass picked one source and trusted it. `visualViewport` is
-   * a measurement rather than a unit's opinion, which is true, and on that
-   * phone it is also 55 points short of the glass. So the rule is not "which
-   * number is right" — it is that the two failures are not symmetric. An app
-   * taller than the glass hides the overflow and looks perfect. An app
-   * shorter than it shows a dead band. So: overshoot on purpose, and take the
-   * biggest of everything the browser will tell us.
+   * Every one of these is the browser's answer to "how tall is the viewport",
+   * and on a phone they disagree. `visualViewport` is a measurement rather
+   * than a unit's opinion, which is why it is here; `innerHeight` and
+   * `clientHeight` are here because on some phones it is the one that is
+   * short. The two failure modes are not symmetric — an app a few points too
+   * tall hides the overflow under `overflow: hidden`, an app a few points too
+   * short shows a band of dead page under the console — so of the numbers the
+   * browser is laying out against, take the biggest.
    */
   const candidates = [
     window.innerHeight,
@@ -79,46 +53,26 @@ function measureGlass(): void {
   ];
 
   /*
-   * And the screen itself — where the page actually owns the bottom of it.
+   * And nothing else. No fourth number, on purpose.
    *
-   * This is the bit the last pass got wrong, and it is worth writing down
-   * because the reasoning was sound and the gate was not. I only trusted
-   * `screen.height` when the page was installed to the home screen, on the
-   * grounds that standalone is the case with no browser chrome to account
-   * for. True, but not the only one: Safari lets you hide the toolbar in an
-   * ordinary tab, and then the page is *also* flush to the glass while
-   * `display-mode: standalone` is false, `navigator.standalone` is false, and
-   * `innerHeight` is still sized as though the toolbar were there. That is
-   * Sean's phone — the little chevron in the top corner of his screenshot is
-   * the tab to bring the toolbar back — so the branch never ran and the band
-   * stayed exactly where it was.
+   * There was a `screen.height` branch here that grew the app to the physical
+   * screen whenever the page looked like it owned the bottom of the glass. The
+   * reasoning was sound and the effect was not: on Sean's phone the gate never
+   * fired, and on any phone where it fired wrongly the app would stand taller
+   * than the glass and the bottom of the console — the tab labels — would be
+   * off the screen entirely. Given the choice he made the call: a strip of
+   * console-dark under the bar is tolerable, losing the labels is not.
    *
-   * The right signal is not how the page was launched. It is whether the page
-   * reaches the bottom of the glass, and the browser will say so directly:
-   * with `viewport-fit=cover`, `env(safe-area-inset-bottom)` is non-zero only
-   * when the page extends into the home indicator's strip. Browser toolbar in
-   * the way and it is zero; toolbar hidden or installed and it is not. So the
-   * inset is the gate, and it is right in both cases the standalone check got
-   * wrong.
-   *
-   * Bounded, because `screen.height` reports the portrait dimension in
-   * landscape on some versions, and because growing the app by half a screen
-   * on a browser neither of us has seen would push the console off the bottom
-   * — the one outcome worse than a gap.
+   * So every candidate above is a number the browser gives for the viewport it
+   * is actually laying out, and the largest of them can never be taller than
+   * the glass. The app cannot cut itself off. What is left over at the bottom
+   * is the canvas, and the canvas is painted the colour the tab bar ends on
+   * (see styles.css) so that it reads as the console going on rather than as
+   * the app having stopped.
    */
-  if (ownsTheGlass() && screen.height > window.innerHeight) {
-    candidates.push(Math.min(screen.height, window.innerHeight + 140));
-  }
-
   root.setProperty('--app-h', `${Math.max(...candidates)}px`);
 }
 measureGlass();
-// Again once the document is ready: the first call runs before <body> exists,
-// and the probe that asks whether the page owns the glass needs somewhere to
-// be attached.
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', measureGlass, { once: true });
-}
 window.visualViewport?.addEventListener('resize', measureGlass);
 
 /**
