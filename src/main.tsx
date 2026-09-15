@@ -30,6 +30,27 @@ import './ui/styles.css';
  * No text inputs anywhere in the game, so the keyboard never shrinks this, and
  * the viewport is locked against pinch-zoom, so nothing else moves it either.
  */
+/**
+ * Does the page reach the bottom of the glass?
+ *
+ * Measured rather than assumed: a hidden probe padded by the bottom safe-area
+ * inset. The inset is the height of the strip the home indicator sits in, and
+ * a page only has one when there is no browser furniture between it and the
+ * edge of the screen. Zero means something else owns the bottom — a toolbar —
+ * and the app must not try to grow into it.
+ */
+function ownsTheGlass(): boolean {
+  if (!document.body) return false;
+  const probe = document.createElement('div');
+  probe.style.cssText =
+    'position:fixed;left:0;bottom:0;width:0;height:env(safe-area-inset-bottom,0px);' +
+    'visibility:hidden;pointer-events:none';
+  document.body.appendChild(probe);
+  const inset = probe.getBoundingClientRect().height;
+  probe.remove();
+  return inset > 0;
+}
+
 function measureGlass(): void {
   const vv = window.visualViewport;
   const root = document.documentElement.style;
@@ -58,25 +79,46 @@ function measureGlass(): void {
   ];
 
   /*
-   * And the screen itself, where there is no browser chrome to account for.
+   * And the screen itself — where the page actually owns the bottom of it.
    *
-   * Installed to the home screen there is no toolbar and no address bar, so
-   * the glass and the viewport should be the same thing; when they are not,
-   * the difference is exactly the fault. Bounded, because `screen.height` can
-   * report the portrait dimension in landscape, and because growing the app
-   * by half a screen on some browser we have never seen would push the
-   * console off the bottom — which is the one outcome worse than a gap.
+   * This is the bit the last pass got wrong, and it is worth writing down
+   * because the reasoning was sound and the gate was not. I only trusted
+   * `screen.height` when the page was installed to the home screen, on the
+   * grounds that standalone is the case with no browser chrome to account
+   * for. True, but not the only one: Safari lets you hide the toolbar in an
+   * ordinary tab, and then the page is *also* flush to the glass while
+   * `display-mode: standalone` is false, `navigator.standalone` is false, and
+   * `innerHeight` is still sized as though the toolbar were there. That is
+   * Sean's phone — the little chevron in the top corner of his screenshot is
+   * the tab to bring the toolbar back — so the branch never ran and the band
+   * stayed exactly where it was.
+   *
+   * The right signal is not how the page was launched. It is whether the page
+   * reaches the bottom of the glass, and the browser will say so directly:
+   * with `viewport-fit=cover`, `env(safe-area-inset-bottom)` is non-zero only
+   * when the page extends into the home indicator's strip. Browser toolbar in
+   * the way and it is zero; toolbar hidden or installed and it is not. So the
+   * inset is the gate, and it is right in both cases the standalone check got
+   * wrong.
+   *
+   * Bounded, because `screen.height` reports the portrait dimension in
+   * landscape on some versions, and because growing the app by half a screen
+   * on a browser neither of us has seen would push the console off the bottom
+   * — the one outcome worse than a gap.
    */
-  const standalone =
-    window.matchMedia('(display-mode: standalone)').matches ||
-    (navigator as { standalone?: boolean }).standalone === true;
-  if (standalone && screen.height > window.innerHeight) {
+  if (ownsTheGlass() && screen.height > window.innerHeight) {
     candidates.push(Math.min(screen.height, window.innerHeight + 140));
   }
 
   root.setProperty('--app-h', `${Math.max(...candidates)}px`);
 }
 measureGlass();
+// Again once the document is ready: the first call runs before <body> exists,
+// and the probe that asks whether the page owns the glass needs somewhere to
+// be attached.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', measureGlass, { once: true });
+}
 window.visualViewport?.addEventListener('resize', measureGlass);
 
 /**

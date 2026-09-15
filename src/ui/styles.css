@@ -88,19 +88,38 @@ html, body, #root { height: 100%; }
  * little taller, which is nothing at all. If a sliver survives on some phone
  * neither of us has, it will not look broken.
  */
-body {
-  background-color: #14322a;
-  background-image: url('../art/chrome/wood.webp'),
-    linear-gradient(180deg, #1a3428, #0f2119);
+/*
+ * The page behind the app wears the console's wood, on a real element.
+ *
+ * It was on `body` itself, and on a phone it came back as a flat slab with no
+ * grain in it at all — measured, standard deviation zero across the width. A
+ * body background is propagated to the browser's canvas rather than painted
+ * as an ordinary box, and the tiling and blending do not survive the trip.
+ * A fixed element behind everything is painted like anything else, so the
+ * grain is actually there.
+ *
+ * This is a backstop and not the fix. The app should reach the bottom of the
+ * glass; when it does, none of this is ever seen. What it buys is that a
+ * sliver on some phone neither of us has looks like the console going on
+ * rather than the app having stopped.
+ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -2px;
+  z-index: -1;
+  pointer-events: none;
+  background-color: #1a3428;
+  background-image: url('../art/chrome/wood.webp'), linear-gradient(180deg, #1a3428, #0f2119);
   background-blend-mode: soft-light, normal;
-  background-size: 300px auto, auto;
-  background-repeat: repeat, no-repeat;
 }
-body[data-side='alliance'] {
+body[data-side='alliance']::before {
   background-color: #3d1d16;
-  background-image: url('../art/chrome/wood.webp'),
-    linear-gradient(180deg, #3d1d16, #24100c);
+  background-image: url('../art/chrome/wood.webp'), linear-gradient(180deg, #3d1d16, #24100c);
 }
+/* And the canvas colour under that, for the instant before it paints. */
+body { background: #0f2119; }
+body[data-side='alliance'] { background: #24100c; }
 
 html {
   /* Stops Android Chrome's pull-to-refresh, which would otherwise reload the
@@ -123,8 +142,6 @@ html {
 body {
   margin: 0;
   overflow: hidden;
-  /* Background is set above, with the wood: a flat colour here would win on
-     order and put the dark slab back. */
   color: var(--text);
   font: 14px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overscroll-behavior: none;

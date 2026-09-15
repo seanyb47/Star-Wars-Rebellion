@@ -1542,3 +1542,49 @@ each seat, no stalls, median 568 days.
 report, the assessment, and FIGHT AGAIN or FLEE. Flee is a working order on
 the fleet card in the meantime, so the rules are playable before the ceremony
 around them exists.
+
+**The band, seventh pass — the gate was wrong, not the reasoning — 15
+September.** Sean: "Bottom still is fucked up. Explain the issue plainly. Why
+can't the utility bar be on the bottom of my iPhone screen? Why is it always
+higher."
+
+**What the screenshots actually say.** Measured, not looked at. Both his
+screenshots have the same 164 device pixels — 55 points — of perfectly flat
+colour below the last row of console wood, standard deviation zero across the
+width. And between the two, **that slab changed colour exactly when I changed
+the page's colour** and nothing else. That settles what it is: it is the page
+showing under an app that stops 55 points short of the glass. Not the tab
+bar's padding, not the home indicator, not a viewport offset.
+
+**Why the last fix did not fix it, which is the interesting part.** I had the
+right remedy — grow the app to `screen.height`, because in a context with no
+browser furniture the glass and the viewport should be the same thing — and I
+gated it on `display-mode: standalone`. That gate is wrong. Safari lets you
+hide the toolbar in an ordinary tab, and in that state the page is *also*
+flush to the glass while standalone is false, `navigator.standalone` is false,
+and `innerHeight` is still sized as though the toolbar were there. That is his
+phone: the small chevron in the corner of his screenshot is the tab that
+brings the toolbar back. So the branch never ran.
+
+**The right signal is not how the page was launched.** It is whether the page
+reaches the bottom of the glass, and the browser will say so directly: with
+`viewport-fit=cover`, `env(safe-area-inset-bottom)` is non-zero *only* when
+the page extends into the home indicator's strip. A toolbar in the way and it
+is zero. So the inset is the gate now, and it is right in both of the cases
+the standalone check got wrong.
+
+**And the backstop finally works.** The wood was on `body`, and came back off
+his phone as a flat slab with no grain in it at all — measured, deviation
+zero. A body background is propagated to the browser's canvas rather than
+painted as an ordinary box, and the tiling and blending do not survive the
+trip. It is a fixed element behind everything now, painted like any other box,
+so the grain is actually there.
+
+**What I could not verify, and am saying so rather than implying otherwise.**
+Chromium has no safe-area insets, so the new gate cannot be exercised here. I
+tried to fake them three ways and broke the harness each time — the same
+instrument failure as this morning's balance runs and this afternoon's wake
+counts, caught before reporting. So this ships as reasoned-and-unverified,
+which is a weaker claim than everything else in this file, and `?diag` now
+prints every figure side by side so one screenshot from the phone ends the
+guessing.
