@@ -15,9 +15,9 @@
       "major": true,
       "ratings": {
         "diplomacy": 78,
-        "espionage": 68,
-        "combat": 58,
-        "leadership": 92
+        "espionage": 62,
+        "combat": 52,
+        "leadership": 96
       }
     },
     {
@@ -34,10 +34,10 @@
       "bio": "Burned and drowned at the Broken Chain, pulled from the Black Tide by the Regent's surgeons and rebuilt with brass lungs and a black leather mask. Keeps every promise, even to enemies. Executes captains for failure and feels nothing.",
       "major": true,
       "ratings": {
-        "diplomacy": 62,
-        "espionage": 82,
+        "diplomacy": 60,
+        "espionage": 80,
         "combat": 92,
-        "leadership": 90
+        "leadership": 92
       }
     },
     {
@@ -52,10 +52,10 @@
       "bio": "Careful and competent; survives Blackwater's flagship by never being the one blamed. Good at parley because he listens.",
       "major": true,
       "ratings": {
-        "diplomacy": 72,
-        "espionage": 48,
+        "diplomacy": 74,
+        "espionage": 46,
         "combat": 52,
-        "leadership": 68
+        "leadership": 72
       }
     },
     {
@@ -70,10 +70,10 @@
       "bio": "Oversees the Leviathan's completion at Greenholm. Charming at dinner; has stopped sleeping.",
       "major": true,
       "ratings": {
-        "diplomacy": 78,
-        "espionage": 52,
+        "diplomacy": 76,
+        "espionage": 46,
         "combat": 38,
-        "leadership": 62
+        "leadership": 68
       }
     },
     {
@@ -88,10 +88,10 @@
       "bio": "Boarding-action specialist. Honest to a fault, which will get him killed.",
       "major": true,
       "ratings": {
-        "diplomacy": 42,
-        "espionage": 68,
-        "combat": 78,
-        "leadership": 62
+        "diplomacy": 40,
+        "espionage": 62,
+        "combat": 80,
+        "leadership": 74
       }
     },
     {
@@ -106,10 +106,10 @@
       "bio": "Aristocrat, vain, better at raids than fleets. Blackwater despises him.",
       "major": true,
       "ratings": {
-        "diplomacy": 48,
-        "espionage": 62,
+        "diplomacy": 44,
+        "espionage": 56,
         "combat": 72,
-        "leadership": 58
+        "leadership": 62
       }
     },
     {
@@ -124,10 +124,10 @@
       "bio": "Marine drillmaster. Invented the Imperium's landing doctrine and the Drowned Guard's cold-baptism.",
       "major": true,
       "ratings": {
-        "diplomacy": 38,
-        "espionage": 52,
+        "diplomacy": 34,
+        "espionage": 44,
         "combat": 82,
-        "leadership": 72
+        "leadership": 88
       }
     }
   ],
@@ -145,7 +145,7 @@
       "major": true,
       "ratings": {
         "diplomacy": 92,
-        "espionage": 52,
+        "espionage": 58,
         "combat": 32,
         "leadership": 84
       }
@@ -164,10 +164,10 @@
       "bio": "Fisher's boy from the Far Sea. The fish come to his boat and old sailors cross themselves when he walks past. Raw, brave, and going to be either the greatest Tidecaller in a generation or dead by twenty-two.",
       "major": true,
       "ratings": {
-        "diplomacy": 62,
-        "espionage": 68,
-        "combat": 72,
-        "leadership": 62
+        "diplomacy": 64,
+        "espionage": 76,
+        "combat": 70,
+        "leadership": 56
       }
     },
     {
@@ -183,10 +183,10 @@
       "bio": "Heir of the island of Carrow, which the Black Tide took while an Imperium fleet held position a day's sail away. The Confederacy's best negotiator: tireless, sharp, running on grief.",
       "major": true,
       "ratings": {
-        "diplomacy": 86,
-        "espionage": 62,
-        "combat": 48,
-        "leadership": 76
+        "diplomacy": 88,
+        "espionage": 70,
+        "combat": 46,
+        "leadership": 66
       }
     },
     {
@@ -219,10 +219,10 @@
       "bio": "Reyne's first mate: a tusked, shaggy mountain who can throw a harpoon through a hull. Loyal past all reason, and surprisingly good at parley when Reyne shuts up.",
       "major": true,
       "ratings": {
-        "diplomacy": 45,
-        "espionage": 62,
+        "diplomacy": 46,
+        "espionage": 66,
         "combat": 90,
-        "leadership": 52
+        "leadership": 50
       }
     },
     {
@@ -239,7 +239,7 @@
       "major": true,
       "ratings": {
         "diplomacy": 82,
-        "espionage": 48,
+        "espionage": 52,
         "combat": 86,
         "leadership": 86
       }
@@ -256,10 +256,10 @@
       "bio": "Young cutter-captain and self-taught shipwright, learning to grow coral hulls from the Reef-folk.",
       "major": true,
       "ratings": {
-        "diplomacy": 48,
-        "espionage": 58,
-        "combat": 68,
-        "leadership": 62
+        "diplomacy": 50,
+        "espionage": 62,
+        "combat": 64,
+        "leadership": 56
       }
     }
   ],

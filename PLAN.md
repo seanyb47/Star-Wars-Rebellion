@@ -901,3 +901,55 @@ Measured over 80 worlds: ratings run 12 to 112, 194 scores came out over a
 hundred, a major's widest span for one ability is 40 and a minor's is 20, and
 nobody ever lands further from their base than their swing allows. One rule,
 `rollRating`, in the constants ladder with the rest.
+
+## Each side has a shape — 15 September
+
+Sean's rule: the Imperium has a lot more leadership; the Confederacy more
+diplomacy and espionage; combat balanced; and individuals free to specialise
+against their own side's grain.
+
+Roster averages before: leadership **72.0 against 71.6** and espionage
+**61.7 against 62.6** — the two axes meant to separate the sides were the two
+that were level. After:
+
+| | diplomacy | espionage | combat | leadership |
+|---|---|---|---|---|
+| Crown | 58.0 | 56.6 | 66.9 | **78.9** |
+| Brethren | **69.1** | **67.4** | 67.7 | 68.1 |
+| gap | +11.1 | +10.9 | +0.9 | −10.7 |
+
+The against-type specialists are the point, not a rounding error: **Blackwater**
+is the second-best spy in the world on the side that is worst at it, and
+**Jessup** and **Hale** out-lead all but three of the Admiralty. Both are
+pinned by a test, along with the four gaps.
+
+What it buys on day one, measured: the Brethren's best parley lands 94% against
+the Crown's 84%, incite 71% against 63%, sabotage 68% against 58%. The Crown's
+best restores order at 95% against 90%. Sixteen idle games of sixteen still end,
+eight wins each way, median 505 days.
+
+### Three things Sean described that the rules do not do yet
+
+Measured rather than assumed, and left alone rather than quietly changed.
+
+**The Crown does not have the early military advantage.** It has 17 guns and 5
+hulls on day one; the Brethren have **33 guns and 9 hulls**. Twenty-one of those
+33 are the three Lords' ships. Without them the Brethren have 12 against the
+Crown's 17, which is the intended shape — the Lords' hulls invert it on their
+own. The Crown does lead on companies ashore, 21 against 17.5, which is not
+"huge". The fix, if the intent stands, is a heavier Crown opening in
+`START_FLEET` rather than anything touching the Lords' flare.
+
+**A leader posted on an island does not suppress anything.** `foilChance` reads
+only the watcher's **espionage**, so under the new profile the Crown's officers
+get *worse* at catching saboteurs, not better. Sean's "put leaders on islands to
+lead, suppressing uprisings and espionage and sabotage attempts" wants leadership
+in that formula — one line, but a rules change with a blast radius on both sides,
+so it is his call.
+
+**Smuggling is symmetric.** Each side already collects what the other's disloyal
+islands leak: 8.2 a day to the Crown against 7.8 to the Brethren on day one. It
+is not a Confederate specialty unless the rule is made one.
+
+Recruitment does already favour the Brethren, through diplomacy rather than
+through a count of recruiters — roles in the data are display only.

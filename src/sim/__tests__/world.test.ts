@@ -79,6 +79,37 @@ describe('the world bible data', () => {
     }
   });
 
+  it('gives each side the shape its war depends on', () => {
+    // Sean's rule, 15 September: the Crown commands, the Brethren talk and
+    // creep, and neither out-fights the other on average. These are roster
+    // averages and nothing else — every officer is their own person, and the
+    // two exceptions below are the point rather than a rounding error.
+    const mean = (side: 'empire' | 'alliance', ability: string) => {
+      const r = characterRoster[side];
+      return r.reduce((n, e) => n + (e.ratings as Record<string, number>)[ability], 0) / r.length;
+    };
+    const gap = (ability: string) => mean('alliance', ability) - mean('empire', ability);
+    expect(gap('leadership')).toBeLessThan(-8);
+    expect(gap('diplomacy')).toBeGreaterThan(8);
+    expect(gap('espionage')).toBeGreaterThan(8);
+    expect(Math.abs(gap('combat'))).toBeLessThan(3);
+  });
+
+  it('keeps somebody on each side who is good at what their side is not', () => {
+    // A faction average is a tendency, not a rule about people. The Crown's
+    // best spy beats every Confederate but one; two of the Brethren out-lead
+    // most of the Admiralty.
+    const best = (side: 'empire' | 'alliance', ability: string) =>
+      Math.max(...characterRoster[side].map((e) => (e.ratings as Record<string, number>)[ability]));
+    expect(best('empire', 'espionage')).toBeGreaterThan(70);
+    expect(best('alliance', 'leadership')).toBeGreaterThan(80);
+    // And the Crown's best spy is better than all but one of theirs.
+    const theirs = characterRoster.alliance
+      .map((e) => (e.ratings as Record<string, number>).espionage)
+      .sort((a, b) => b - a);
+    expect(best('empire', 'espionage')).toBeGreaterThan(theirs[1]);
+  });
+
   it('marks the unaligned minor, and rates them the same way', () => {
     for (const entry of characterRoster.recruits) {
       expect(entry.major).toBe(false);
