@@ -10,6 +10,7 @@ import {
   RECRUITS_IN_PLAY,
   rollRating,
   CAPITAL_WALLS,
+  HOME_PORT_WALLS,
   CAPITAL_GARRISON,
   START_GARRISON_MAX,
   START_GARRISON_SPARE,
@@ -536,10 +537,24 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   const seat = capital;
   seat.slots = Math.max(seat.slots, seat.facilities.length + CAPITAL_WALLS + 1);
   for (let i = 0; i < CAPITAL_WALLS; i++) {
-    seat.facilities.push(makeFacility(makeId('fac'), 'fort', 'empire'));
+    seat.facilities.push({ ...makeFacility(makeId('fac'), 'fort', 'empire'), ancient: true });
   }
   // And a garrison worth landing against once they are down.
   seat.garrison = Math.max(seat.garrison, CAPITAL_GARRISON);
+
+  // The great island's other Crown port gets a battery of its own, so the
+  // Home Fleet is not the only thing standing between the Reach and whoever
+  // sails into it. A fleet that has to stay moored to hold the ground it is
+  // moored on is not a fleet, it is a second garrison.
+  for (const port of systems) {
+    if (port.id === seat.id) continue;
+    if (port.sectorId !== seat.sectorId) continue;
+    if (port.control !== 'empire' || port.archetype !== 'port-city') continue;
+    port.slots = Math.max(port.slots, port.facilities.length + HOME_PORT_WALLS + 1);
+    for (let i = 0; i < HOME_PORT_WALLS; i++) {
+      port.facilities.push({ ...makeFacility(makeId('fac'), 'fort', 'empire'), ancient: true });
+    }
+  }
 
   // The Confederacy knows the island it met on and nothing else out here;
   // the frontier Reaches are otherwise a blank to both sides.

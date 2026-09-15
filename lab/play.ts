@@ -6,7 +6,7 @@ import { advanceDay } from '../src/sim/advanceDay';
 import { generateGalaxy } from '../src/sim/galaxy';
 import { continueMission, endMission } from '../src/sim/missions';
 import { orderFightRound, orderBreakOff, orderCloseBattle } from '../src/sim/commands';
-import { battleView } from '../src/sim/fleets';
+import { battleView, fleetBombard } from '../src/sim/fleets';
 import { lords, powerOf } from '../src/sim/lords';
 import { audit, type Violation } from './audit';
 import { pilot, type PilotTally } from './pilot';
@@ -28,6 +28,8 @@ export interface Run {
   goldBrokeDays: Record<PlayableFaction, number>;
   islandsEnd: Record<PlayableFaction, number>;
   hullsPeak: Record<PlayableFaction, number>;
+  /** For a war that never ended: what the board looked like when time ran out. */
+  stall?: string;
   /** Wall-clock ms for the whole game, and the worst single day. */
   ms: number;
   worstDayMs: number;
@@ -180,6 +182,17 @@ export function playGame(
   }
 
   const islands = (side: PlayableFaction) => state.systems.filter((s) => s.control === side).length;
+  let stall: string | undefined;
+  if (!state.winner) {
+    const hw = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
+    const walls = hw.facilities.filter((f) => f.type === 'fort' && !f.building).length;
+    const caught = state.characters.filter((c) => c.status === 'captured' && c.faction === 'alliance').length;
+    const weight = Math.max(0, ...state.fleets.filter((f) => f.faction === 'alliance').map(fleetBombard));
+    stall =
+      islands('empire') <= 10 ? `Confederacy holds ${islands('alliance')}, cannot finish Highwater (${walls} walls, best bombard ${weight})`
+      : islands('alliance') <= 5 ? `Crown holds ${islands('empire')}, has ${caught}/3 Lords`
+      : `even: C${islands('empire')}/F${islands('alliance')}, ${caught}/3 Lords, ${walls} walls`;
+  }
   void KINDS; void other;
   for (const [k, n] of Object.entries(orders)) counts[`order-${k}`] = n;
   return {
@@ -194,6 +207,7 @@ export function playGame(
     goldBrokeDays,
     islandsEnd: { empire: islands('empire'), alliance: islands('alliance') },
     hullsPeak,
+    stall,
     ms: Date.now() - started,
     worstDayMs,
   };

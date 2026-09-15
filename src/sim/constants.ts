@@ -118,8 +118,26 @@ export const FORT_STRENGTH = 60;
  * in it, so moving that squadron — the most natural first move in the game —
  * handed the war away in seven weeks.
  */
-export const CAPITAL_WALLS = 1;
+export const CAPITAL_WALLS = 2;
 export const CAPITAL_GARRISON = 6;
+/**
+ * And a battery on the great island's other Crown port.
+ *
+ * Sean, 15 September: *"Highwater should probably start with 2 defensive
+ * structures, and maybe even the other port on the big island should have 1.
+ * This makes the game so that Imperium can use their fleet rather than keeping
+ * it docked to protect the island."*
+ *
+ * Which is the point of a wall, and the thing an earlier tuning pass missed by
+ * reading a win rate instead: two walls was tried and scored 9–3 to the Crown
+ * with eight wars in twenty never ending, so it was cut to one. That reading
+ * was contaminated. At the time the opponent could not mount a siege at all —
+ * it built nothing but transports, banked six figures it would not spend, and
+ * the one squadron meant for Highwater had no idea how to open fire. With
+ * those three fixed it can bring a siege train and use it, so the walls can be
+ * what they are for.
+ */
+export const HOME_PORT_WALLS = 1;
 export const BOOM_DEFENCE = 2;
 export const BOOM_BLOCKADE_GUNS = 25;
 

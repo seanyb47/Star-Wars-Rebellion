@@ -37,6 +37,12 @@ const confWins = runs.filter((r) => r.winner === 'alliance').map((r) => r.days).
 console.log(`  Crown wins: median ${med(crownWins)} (${crownWins.length})   Confederacy wins: median ${med(confWins)} (${confWins.length})`);
 console.log(`perf: total ${(runs.reduce((n,r)=>n+r.ms,0)/1000).toFixed(1)}s, worst single day ${Math.max(...runs.map(r=>r.worstDayMs))}ms`);
 
+const stalled = runs.filter((r) => r.stall);
+if (stalled.length) {
+  console.log(`\n--- WARS THAT NEVER ENDED (${stalled.length}) ---`);
+  for (const r of stalled) console.log(`  ${r.seed} (${r.player}): ${r.stall}`);
+}
+
 const violations = [...allKeys].filter((k) => k.startsWith('violation-')).sort();
 console.log(`\n--- INVARIANTS ---`);
 if (violations.length === 0) console.log('clean across every day of every game');

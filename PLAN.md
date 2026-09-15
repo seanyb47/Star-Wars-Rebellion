@@ -2366,3 +2366,56 @@ it knew how to do was land, and landing was shut.
 
 Invariants clean across every day of all hundred and fifty. Research, which
 measured exactly zero a few hours ago, now runs 17 a game in every game.
+
+## Two walls at Highwater, and one on the great island's other port — 15 September, night
+
+Sean:
+
+> Highwater should probably start with 2 defensive structures. And maybe even
+> the other port on the big island should have 1. This makes the game so that
+> Imperium can use their fleet rather than keeping it docked to protect the
+> island.
+
+Which is the point of a wall, and the thing an earlier tuning pass missed by
+optimising a win rate instead of asking what the rule was for. Two walls *was*
+tried a few hours ago and scored 9–3 to the Crown with eight wars in twenty
+never ending, so it was cut to one — and that reading was contaminated. At the
+time the opponent could not mount a siege at all: it built nothing but
+transports, banked six figures it would not spend, and the one squadron meant
+for Highwater had no idea how to open fire. With those three fixed, the walls
+can be what they are for.
+
+**The starting walls are not on anybody's books.** Three new batteries at two
+upkeep apiece took the Crown from five a day clear to a shilling in the red on
+day one. The bible has always said Highwater's seawalls are older than the
+Crown that shelters behind them, which makes them part of the city rather than
+a work somebody is paying to keep — and charging the Crown a standing tax for
+the one thing that lets its fleet leave harbor would undo the reason they are
+there. A wall you *build* costs what a wall costs.
+
+### Measured, 110 games
+
+| | one wall | two walls + the second port |
+|---|---|---|
+| idle, 60 games | 28 — 30, 2 unfinished | **28 — 28**, 4 unfinished |
+| piloted, 50 games | 22 — 27, 1 unfinished | 20 — 21, 9 unfinished |
+
+Two walls moved a slight Confederate tilt to dead even, which is the better
+balance as well as the better rule.
+
+And the thing Sean actually asked for, over twenty wars and thirteen thousand
+days: **the Crown's navy is away from Highwater on 61% of days.** The capital
+stays walled on 99% of them and is held on all but the day it falls — and it
+still falls in eight wars in twenty, so a fortress is not a wall the war breaks
+against. The fleet can go and do its job.
+
+### What is left
+
+Nine of fifty piloted wars ran past three thousand days, and every one of them
+is an *even* war — C19/F24, C24/F21 — rather than one side unable to finish a
+war it had won, which is what the stalls were this afternoon. Two are the one
+structural thing left to decide: the Crown can hold forty islands of sixty-three
+and still have none of the three Lords in irons, because they are exchanged
+after sixty days faster than it can gather all three. That is the Mothma-and-Luke
+condition working as designed, and whether it should ever time out is Sean's
+call rather than a bug.

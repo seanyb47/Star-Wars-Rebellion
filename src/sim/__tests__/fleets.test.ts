@@ -517,6 +517,10 @@ describe('officers', () => {
     // removed, so counting damage reads zero exactly when you hurt them most.
     const hullLeft = (withOfficer: boolean) => {
       const { state, home } = setup(21);
+      // Highwater's own batteries fire for whoever holds it, and forty guns a
+      // round drown out what an officer aboard is worth. The question here is
+      // the officer, so the action is fought where there is no wall.
+      home.facilities = home.facilities.filter((f) => f.type !== 'fort');
       const mine = put(state, home, 'empire', ['sovereign', 'sovereign', 'sovereign']);
       put(state, home, 'alliance', ['reef', 'reef', 'reef']);
       if (withOfficer) {

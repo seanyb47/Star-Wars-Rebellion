@@ -237,6 +237,17 @@ export interface Facility {
   damage?: number;
   building?: BuildOrder;
   /**
+   * Older than the Imperium, and not on anybody's books.
+   *
+   * The seawalls the world opens with. The bible has always said Highwater's
+   * are older than the Crown that shelters behind them, which makes them part
+   * of the city rather than a work somebody is paying to keep — and the point
+   * of them is that the Crown's fleet can leave harbor, so charging it a
+   * standing tax for the privilege would undo the reason they exist. A wall
+   * you *build* costs what a wall costs.
+   */
+  ancient?: true;
+  /**
    * A works being laid down on an island that had none. It stands in its slot
    * from the day it is ordered, with its own build order counting down; when
    * that finishes it is simply done, rather than producing a second works.

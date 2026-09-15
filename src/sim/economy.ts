@@ -66,7 +66,10 @@ export function totalUpkeep(state: GameState, faction: PlayableFaction): number 
   for (const system of state.systems) {
     if (system.control !== faction) continue;
     for (const facility of system.facilities) {
-      if (facility.owner === faction) upkeep += UPKEEP_PER_DAY[facility.type];
+      // The walls the world opened with are the city's, not the Crown's.
+      if (facility.owner === faction && !facility.ancient) {
+        upkeep += UPKEEP_PER_DAY[facility.type];
+      }
     }
     upkeep += system.garrison * UPKEEP_PER_DAY.troop;
   }
@@ -153,6 +156,8 @@ function chargeableThings(state: GameState, faction: PlayableFaction) {
     if (system.control !== faction) continue;
     system.facilities.forEach((facility, index) => {
       if (facility.owner !== faction) return;
+      // Nothing that is not on the books can fall off them for want of pay.
+      if (facility.ancient) return;
       if (UPKEEP_PER_DAY[facility.type] <= 0) return;
       candidates.push({ system, facilityIndex: index });
     });
