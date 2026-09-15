@@ -12,12 +12,23 @@ import {
   orderFoundWorks,
   orderSail,
   orderAssault,
+  orderBombard,
   sendDiplomat,
   resolvePendingMission,
   type CommandResult,
 } from '../src/sim/commands';
 import { buildMenu, canQueueBuild } from '../src/sim/build';
-import { fleetsOf, isAtSea, fleetCapacity, sailError, assaultError } from '../src/sim/fleets';
+import {
+  fleetsOf,
+  isAtSea,
+  fleetCapacity,
+  sailError,
+  assaultError,
+  bombardError,
+  fleetBombard,
+  fortsOf,
+} from '../src/sim/fleets';
+import { FORT_STRENGTH } from '../src/sim/constants';
 import {
   canStartMission,
   isMissionTarget,
@@ -110,28 +121,61 @@ export function pilot(state: GameState, tally: PilotTally): GameState {
     }
   }
 
-  // 4. The fleet. Land companies where they will carry an island; otherwise
-  // sail for the nearest island worth taking.
+  // 4. The fleet.
+  //
+  // Companies come aboard by themselves when a squadron sails from ground of
+  // ours (see `loadSpareCompanies`), so the order is: pick somewhere worth
+  // going and go. It does not need troops before it chooses.
   for (const fleet of fleetsOf(state, me)) {
     if (isAtSea(fleet)) continue;
+    // Already working the walls: leave it to it. A siege is a race against
+    // what they patch overnight, so wandering off wastes every day of it.
+    if (fleet.bombarding) { note('fleet:besieging'); continue; }
     const here = state.systems.find((s) => s.id === fleet.systemId)!;
-    if (here.control !== me && fleet.troops > here.garrison && assaultError(state, fleet.id, me) === null) {
-      state = take(orderAssault(state, fleet.id), 'fleet:land');
-      continue;
-    }
-    if (fleet.troops === 0 || fleetCapacity(fleet) === 0) {
-      // Go home and load: companies come aboard on their own at an island of ours.
-      const home = state.systems.find((s) => s.control === me && s.garrison > 1 && s.id !== fleet.systemId);
-      if (home && sailError(state, fleet.id, home.id, me) === null && here.control !== me) {
-        state = take(orderSail(state, fleet.id, home.id), 'fleet:sail-home');
+
+    if (here.control !== me) {
+      // On their ground. Land if the walls are down and we outnumber them;
+      // otherwise open fire on the walls; otherwise there is nothing to do
+      // here and it should go and fetch companies.
+      if (fleet.troops > here.garrison && assaultError(state, fleet.id, me) === null) {
+        state = take(orderAssault(state, fleet.id), 'fleet:land');
+        continue;
       }
-      continue;
+      if (fortsOf(here).length > 0 && bombardError(state, fleet.id, me) === null) {
+        state = take(orderBombard(state, fleet.id), 'fleet:bombard');
+        continue;
+      }
     }
+
+    // Somewhere worth going: the nearest island of theirs this squadron could
+    // actually carry, counting what it will pick up on the way out.
+    const willCarry = fleet.troops + Math.min(fleetCapacity(fleet) - fleet.troops,
+      here.control === me ? Math.max(0, here.garrison - 1) : 0);
+    // Nearest soft target, unless this squadron is heavy enough to open a
+    // walled one — in which case that is what a squadron of the line is
+    // *for*, and the nearest undefended fishing village is not.
+    const wallBreaker = fleetBombard(fleet) >= FORT_STRENGTH / 3;
     const prize = state.systems
-      .filter((s) => s.populated && s.control !== me && s.explored[me] && s.garrison < fleet.troops)
-      .sort((a, b) => travelDays(state, fleet.systemId, a.id) - travelDays(state, fleet.systemId, b.id))[0];
+      .filter((s) => s.populated && s.control !== me && s.explored[me] && s.id !== fleet.systemId)
+      .filter((s) => s.garrison < willCarry || fortsOf(s).length > 0)
+      .sort((a, b) => {
+        const worth = (s: System) =>
+          travelDays(state, fleet.systemId, s.id) - (wallBreaker && fortsOf(s).length > 0 ? 40 : 0);
+        return worth(a) - worth(b);
+      })[0];
     if (prize && sailError(state, fleet.id, prize.id, me) === null) {
       state = take(orderSail(state, fleet.id, prize.id), 'fleet:sail-attack');
+      continue;
+    }
+    // Nothing reachable worth taking, and nothing aboard: go where the
+    // companies are, so the next sailing leaves with a landing party.
+    if (fleet.troops === 0 && (here.control !== me || here.garrison <= 1)) {
+      const fuller = [...state.systems]
+        .filter((s) => s.control === me && s.id !== fleet.systemId && s.garrison > 2)
+        .sort((a, b) => b.garrison - a.garrison)[0];
+      if (fuller && sailError(state, fleet.id, fuller.id, me) === null) {
+        state = take(orderSail(state, fleet.id, fuller.id), 'fleet:sail-home');
+      }
     }
   }
 

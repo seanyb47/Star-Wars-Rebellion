@@ -3,7 +3,14 @@ import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
 import { addShip, boomDefence, fortGuns, isBlockaded, resolveBattles, resolveLanding } from '../fleets';
 import { requiredGarrison } from '../helpers';
-import { BOOM_BLOCKADE_GUNS, BOOM_DEFENCE, FORT_GUNS, START_GARRISON_MAX, START_GARRISON_SPARE } from '../constants';
+import {
+  BOOM_BLOCKADE_GUNS,
+  BOOM_DEFENCE,
+  CAPITAL_GARRISON,
+  FORT_GUNS,
+  START_GARRISON_MAX,
+  START_GARRISON_SPARE,
+} from '../constants';
 import type { GameState, System } from '../types';
 
 function world(seed = 501): GameState {
@@ -45,6 +52,12 @@ describe('the opening, against Rebellion', () => {
     for (const f of ['empire', 'alliance'] as const) {
       for (const s of state.systems.filter((x) => x.control === f)) {
         const capital = s.id === state.factions[f].hqSystemId;
+        // The Crown's seat is its own rule: it opens walled and manned,
+        // because losing it loses the war and a siege is the point of it.
+        if (s.id === state.factions.empire.hqSystemId) {
+          expect(s.garrison, s.name).toBe(CAPITAL_GARRISON);
+          continue;
+        }
         const want = Math.min(START_GARRISON_MAX, Math.max(1, requiredGarrison(s.support[f]) + START_GARRISON_SPARE + (capital ? 1 : 0)));
         expect(s.garrison, s.name).toBe(want);
         // And it is enough: nothing you hold is under the line on day one.

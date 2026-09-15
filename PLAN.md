@@ -2201,3 +2201,123 @@ Three hundred games, invariants clean across every day of every one.
 
 Balance between the two AIs is even. The rest is in the report to Sean: what
 never happens, and why the Crown's capital is worth talking about.
+
+## The land gets a say: bombardment, sieges and repair — 15 September, night
+
+Sean's design, settled over a long conversation and then built. The shape of it
+is one rule:
+
+> **A seawall shuts the landing, and only weight of shot opens it.**
+
+That makes bombardment *necessary* rather than merely strong, which is the fix
+to the thing he disliked about Rebellion: *"the optimal play is to bombard until
+they have zero troops remaining and then go take the place, so garrisons fighting
+garrisons almost never happens."* Here the guns are the only door, and the door
+does not open far enough to walk through — past the walls you still have to land
+against their companies.
+
+### The four phases, and why each is the price of the next
+
+1. **Their fleet.** Forts are irrelevant; you meet in open water.
+2. **The blockade.** Already built — an enemy squadron in the harbor zeroes the
+   island's income.
+3. **The walls.** A day at a time, as standing orders rather than a button
+   pressed every morning. The battery fires back the whole time, and its gunnery
+   falls with its condition, so the first day of a siege is the expensive one.
+4. **The landing.** Troops against troops, which is `resolveLanding` as it was.
+
+A defending squadron, however poor, is therefore worth keeping in the harbor:
+while it floats, nothing is being bombarded.
+
+### Past the walls, and what it costs
+
+One target list and no picker — Sean cut deliberate civilian targeting and he is
+right, both because he has never once found it worth doing in twenty years of
+Rebellion and because a target menu on a phone is a menu in the middle of a
+decision. Shot goes at the walls while any stand. Only when none do can it reach
+the garrison, and shot that goes looking for companies in a town finds the town:
+the island's regard falls hard, every other island in the same Reach hears of
+it, and each further day costs more than the last, to a ceiling.
+
+So the decision at the door is simply *have I brought enough companies*. If yes,
+land — free. If no, break them with the guns and pay for it across the Reach.
+Which is exactly the case Sean described: *"maybe they have just a ton of troops
+and you're going to go, screw it, I'm going to bombard like crazy."*
+
+### Weight of shot, and why a fleet needs both kinds of ship
+
+`bombard` is a second gunnery number on every hull, on a much steeper curve than
+`guns`: 1 / 5 / 14 / 0 against 8 / 17 / 30 / 0. A first-rate is under twice a
+frigate in a fleet action and fourteen times a sloop against stone. Heaving shot
+onto a battery is a different job from hitting something that moves.
+
+The counter to a sloop swarm is arithmetic rather than a rule. Six sloops make
+six a day against a wall that patches over one, need a fortnight, and spend it
+under twenty guns. They do not survive it.
+
+### Control, and who holds an island
+
+Sean: *"a garrison establishes control whatever the island thinks of you, and
+loyalty decides it only when there is no garrison."* Most of that was already
+true — a held island never flipped on opinion alone. The gap was an island held
+by nobody at all, which stayed yours because a map said so. Now a populated
+island of yours with no companies ashore declares for whoever its people prefer.
+
+### What mends overnight
+
+Nothing at sea: a squadron carries what was done to it until it stops fighting.
+At anchor a hull comes back a hundredth of itself a day, twice that at an island
+of yours with a working yard. Forts patch at twice the base rate and do it under
+blockade — men with shovels work under fire and shipwrights do not — which is
+also what makes abandoning a half-finished siege worthless, because the wall
+comes back while nobody is working it.
+
+Damage is fractional now, because one per cent of a nine-hull sloop is nine
+hundredths of a point. Rounded wherever it is shown and never in the arithmetic.
+
+**A wall beaten to nothing is rubble, and rubble does not mend.** This was the
+one real bug in the first build: a fort at full damage was patched a stone
+overnight, which put it back under its own strength and therefore back on the
+list of walls standing. Measured: every siege in eight games ground the walls to
+two per cent and stuck there for ever, bombarding and rebuilding in the same
+breath, and not one siege ever finished.
+
+### Highwater opens behind its own seawalls
+
+The world bible always said the seawalls were older than the Imperium; the map
+never agreed. Measured before this: the Crown's capital opened with two companies
+and no wall in all forty worlds generated, never built one in twelve wars, and
+sat under three companies on three quarters of all days. A played Crown that
+moved its Home Fleet — the most natural first move in the game — lost on day
+forty-eight to one squadron with three companies aboard.
+
+It opens with a wall and six companies now. Two walls was tried first and was
+too much: the Crown went 9–3 with eight wars in twenty never finishing at all.
+
+### Taking the island
+
+Enough companies go ashore to hold it quiet and the rest stay aboard, so a
+squadron that takes an island can go on to the next one instead of ending its
+campaign there. A landing that only just carried the place has not brought
+enough to sit on it, and the island says so at once.
+
+### Measured
+
+Three hundred-odd games, invariants clean every day of every one.
+
+| | before the siege rules | after |
+|---|---|---|
+| Crown — Confederacy (idle) | 14 — 14 | **19 — 20** (of 40) |
+| with a player at the wheel | 14 — 13 | **12 — 12** |
+| median war | 348 days | **710** |
+| Confederacy's fastest win | 48 days | **324** |
+| sieges | — | 7.7 days a war, in half of all wars |
+| towns shelled | — | 10.3 island-days a war, in half of all wars |
+
+The Confederate rush is gone: it cannot take Highwater in seven weeks any more
+because it has to bring a siege train and spend days under the guns. Both sides'
+wars now run to a similar length, which they never did before — the war has a
+middle.
+
+357 tests, including fifteen on the siege alone and one that drives a whole
+siege end to end through the orders a player actually gives.

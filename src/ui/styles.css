@@ -628,6 +628,15 @@ button {
 .event--unread .event__text { color: var(--text); }
 
 
+/* An order you cannot give yet, and why. A line rather than a dead button:
+   a greyed-out "Land 6 against 2" with no reason attached is a puzzle. */
+.fleet__blocked {
+  padding: 8px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 9px;
+  line-height: 1.35;
+}
+
 /* ---------- The running report ----------
    What has just gone into the log, over the top of whatever the player is
    looking at. Pinned under the utility bar rather than laid out in the flow:

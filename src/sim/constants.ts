@@ -85,6 +85,41 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
 // Scaled with the hulls: a fort still fires like a frigate and a bit, and a
 // boom still holds a port open under anything short of half a squadron.
 export const FORT_GUNS = 20;
+
+/**
+ * What a seawall is made of, and why an island with one cannot simply be
+ * landed on.
+ *
+ * Sean, 15 September: *"a single fortress on the island prevents the fleet
+ * from doing an assault. The fleet cannot assault until the fortress has been
+ * destroyed, and the fortress can only be destroyed by bombardment."*
+ *
+ * That one rule is the whole siege. It makes bombardment **necessary** rather
+ * than merely strong — the failure mode he named in Rebellion, where a good
+ * player bombards to nothing and walks in, needs bombardment to be *optional*
+ * and better. Here it is the only door, and it does not open far enough to
+ * walk through: past the walls you still have to land against their companies.
+ *
+ * Sixty is tuned against the hulls. A proper siege train — two first-rates and
+ * a pair of frigates, 38 a day — is through in two days. A swarm of sloops at
+ * one apiece nets five a day against the wall's repairs and needs a fortnight
+ * under twenty guns, which it does not survive. That is the answer to "why
+ * build ships of the line", and it is arithmetic rather than a rule.
+ */
+export const FORT_STRENGTH = 60;
+
+/**
+ * What the Crown's seat opens with.
+ *
+ * Two walls and a real garrison. Measured before the siege rules: Highwater
+ * opened with two companies and no fort in all forty worlds generated, never
+ * built one in twelve wars, and was under three companies on three quarters
+ * of all days. Its only defence was whatever squadron happened to be moored
+ * in it, so moving that squadron — the most natural first move in the game —
+ * handed the war away in seven weeks.
+ */
+export const CAPITAL_WALLS = 1;
+export const CAPITAL_GARRISON = 6;
 export const BOOM_DEFENCE = 2;
 export const BOOM_BLOCKADE_GUNS = 25;
 
@@ -231,6 +266,8 @@ export interface ShipRoleSpec extends BuildSpec {
   guns: number;
   /** What she takes before she goes down. */
   hull: number;
+  /** What she throws at a seawall. A different job from hitting a ship. */
+  bombard: number;
   carries: number;
   /** Passage time against a frigate's. Under 1 is faster. */
   pace: number;
@@ -275,10 +312,18 @@ export const SHIP_ROLES: Record<ShipRole, Omit<ShipRoleSpec, 'label'>> = {
   // Hull is about one and a half times firepower, and three quarters of the
   // shots tell, so two evenly matched squadrons take roughly half of each
   // other off per round and the second or third round settles it.
-  small: { costGold: 45, days: 8, upkeep: 2, guns: 8, hull: 9, carries: 0, pace: 0.7, speed: 9 },
-  medium: { costGold: 85, days: 14, upkeep: 3, guns: 17, hull: 18, carries: 1, pace: 1, speed: 6 },
-  large: { costGold: 150, days: 22, upkeep: 5, guns: 30, hull: 32, carries: 2, pace: 1.35, speed: 3 },
-  transport: { costGold: 55, days: 10, upkeep: 2, guns: 0, hull: 14, carries: 3, pace: 1, speed: 5 },
+  //
+  // `bombard` is what the hull throws at stone rather than at another ship,
+  // and it is deliberately on a much steeper curve than `guns`: a first-rate
+  // is under twice a frigate in a fleet action and fourteen times a sloop
+  // against a wall. Sean's reasoning, and it is right — heaving a shot up onto
+  // a battery is a different job from hitting something that moves, and a
+  // sloop is simply not carrying the weight to do it. A transport does not
+  // bombard at all.
+  small: { costGold: 45, days: 8, upkeep: 2, guns: 8, hull: 9, carries: 0, pace: 0.7, speed: 9, bombard: 1 },
+  medium: { costGold: 85, days: 14, upkeep: 3, guns: 17, hull: 18, carries: 1, pace: 1, speed: 6, bombard: 5 },
+  large: { costGold: 150, days: 22, upkeep: 5, guns: 30, hull: 32, carries: 2, pace: 1.35, speed: 3, bombard: 14 },
+  transport: { costGold: 55, days: 10, upkeep: 2, guns: 0, hull: 14, carries: 3, pace: 1, speed: 5, bombard: 0 },
 };
 
 /** What to call a size in front of the player. */
@@ -622,6 +667,65 @@ export const AI_RECRUIT_BONUS = 120;
  * so `craft` measured exactly zero at the end of every game on both sides.
  */
 export const AI_RESEARCH_BONUS = 55;
+/**
+ * How long the opponent is prepared to sit under a battery.
+ *
+ * It will not open a siege it cannot finish inside this many days, which is
+ * the rule that stops it doing what it did on its first outing: sending one
+ * first-rate against a hundred and twenty of wall under forty guns, seven
+ * times in eight games, and losing her every time without taking a stone off.
+ * Short of the weight, it calls the rest of the navy in first.
+ */
+export const AI_SIEGE_DAYS = 6;
+
+/**
+ * Bombardment past the walls, and what it costs.
+ *
+ * Once no fort stands, the guns can reach the garrison — but companies are not
+ * a battery, they are men spread through a town, and shot that goes looking
+ * for them finds the town. `BOMBARD_PER_COMPANY` is how much weight of shot it
+ * takes to break one company, set high on purpose: a good siege train needs
+ * most of a day per company, so landing against them is nearly always the
+ * better answer and the decision at the door is simply *have I brought enough
+ * troops*.
+ *
+ * When you decide you have not, this is the bill. Sean: *"if it hits civilian
+ * infrastructure, then loyalty is going to be destroyed throughout that Reach.
+ * If it's once, it's fine, but it'll stack."* So the island's own regard falls
+ * hard and every other island in the same Reach hears about it — and each
+ * further day of it costs more than the last, because a town shelled for a
+ * fortnight is a different story from a town shelled once.
+ */
+export const BOMBARD_PER_COMPANY = 26;
+export const CIVILIAN_LOYALTY_HIT = 5;
+export const CIVILIAN_REACH_HIT = 1.5;
+/** What each day of shelling adds to the next day's price. */
+export const CIVILIAN_STACK = 0.5;
+/** And a ceiling, so a long siege does not reach absurd numbers. */
+export const CIVILIAN_STACK_MAX = 4;
+
+/**
+ * What mends, and how fast.
+ *
+ * Sean, 15 September: *"ships and forts recover strength slowly day by day.
+ * Let's say 1% per day. Let's make forts recover twice as fast. And ships on
+ * an island with shipyards recover twice as fast also."*
+ *
+ * A percentage of the whole, so a first-rate and a sloop both take about a
+ * hundred days to come back from nearly gone — which against a median war of
+ * some three hundred and fifty days is a third of it, and half that with a
+ * yard to hand. A campaign rhythm rather than a heal button.
+ *
+ * Nothing mends at sea. That rule was already on the ship's own sheet and it
+ * is worth keeping: a squadron carries what was done to it until it stops
+ * fighting, so where you put a mauled fleet is a decision. A yard under
+ * blockade is a yard that cannot work, but the walls still get patched — men
+ * with shovels do their job under fire and shipwrights do not, which is also
+ * what makes abandoning a half-finished siege worthless.
+ */
+export const REPAIR_PER_DAY = 0.01;
+export const REPAIR_AT_A_YARD = 0.02;
+export const FORT_REPAIR_PER_DAY = 0.02;
 
 /**
  * Loyalty, in three bands, and what each one costs you.

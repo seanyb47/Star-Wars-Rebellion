@@ -3,7 +3,7 @@ import factionData from '../data/factions.json';
 import { runAI } from './ai';
 import { advanceBuilds } from './build';
 import { stirBeasts } from './creatures';
-import { advanceFleets, clearWrecks, updateBlockades } from './fleets';
+import { advanceFleets, advanceSieges, clearWrecks, repairOvernight, updateBlockades } from './fleets';
 import { allLordsTaken, holdTheMoot, syncHome } from './lords';
 import { collectIncome, payUpkeep, recomputeLedger } from './economy';
 import { cloneState, pushEvent } from './helpers';
@@ -37,6 +37,9 @@ export function advanceDay(state: GameState): GameState {
   // Fleets move and fight before anything is counted, so a harbor shut this
   // morning pays nothing this evening.
   advanceFleets(next, rng);
+  // The siege, after the day's fighting and before anything is counted: a wall
+  // beaten down this morning is a wall that is not firing this evening.
+  advanceSieges(next, rng);
   holdTheMoot(next);
   updateBlockades(next);
   collectIncome(next, rng);
@@ -60,6 +63,9 @@ export function advanceDay(state: GameState): GameState {
   // Last, because a creature in open water sinks hulls after the fighting is
   // over, and a squadron it emptied must not go on sailing.
   clearWrecks(next);
+  // And what the night puts right. After everything that could hurt a hull or
+  // a wall, so a day's repair is never undone by the same day's shooting.
+  repairOvernight(next);
   reportLoyaltySlips(next, bands);
   leakInformation(next, rng);
   payUpkeep(next, rng);

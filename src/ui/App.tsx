@@ -20,6 +20,8 @@ import {
   reorderOfficers,
   reorderShips,
   orderAssault,
+  orderBombard,
+  orderCeaseFire,
   orderBreakOff,
   orderCloseBattle,
   orderDetach,
@@ -399,6 +401,19 @@ export function App() {
   };
 
   /** Break off a fight: take the parting volley, run for the nearest holding. */
+  /** Open fire on the island, and keep firing until told otherwise. */
+  const handleBombard = (fleetId: string) => {
+    const result = orderBombard(state, fleetId);
+    if (result.error) return flash(result.error);
+    setState(result.state);
+    flash('The guns open.');
+  };
+  const handleCeaseFire = (fleetId: string) => {
+    const result = orderCeaseFire(state, fleetId);
+    if (result.error) return flash(result.error);
+    setState(result.state);
+  };
+
   const handleFlee = (fleetId: string) => {
     const result = orderFlee(state, fleetId);
     if (result.error) return flash(result.error);
@@ -713,6 +728,8 @@ export function App() {
           onFound={handleFound}
           onSail={handleSail}
           onAssault={handleAssault}
+          onBombard={handleBombard}
+          onCeaseFire={handleCeaseFire}
           onFlee={handleFlee}
           onOpenShip={(fleetId, shipId) => setOpenShip({ fleetId, shipId })}
           onOrderShips={handleOrderShips}

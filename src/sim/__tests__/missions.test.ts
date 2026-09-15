@@ -348,7 +348,11 @@ describe('incitement', () => {
 
   it('sets an island alight once the governor drops under the threshold', () => {
     const { state, agent, island } = withEnemyIsland(34);
-    island.garrison = 0;
+    // One company, not none. An island its holder has left completely empty
+    // does not riot now — it changes hands outright, because loyalty decides
+    // where nobody is standing. Incitement is about the other case: a place
+    // held too thinly for what its people think of it.
+    island.garrison = 1;
     const sailAndWork = cycleDays(state, agent.id, island.id) + 12;
     startMission(state, agent.id, island.id);
     // Work it until it rises, answering its own continue decisions.

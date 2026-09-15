@@ -86,15 +86,16 @@ export function ShipSheet({
       </div>
       <div className="stack">
         {sisters.map((sister, i) => {
-          const left = spec.hull - sister.damage;
+          const left = Math.round(spec.hull - sister.damage);
+          const hurt = Math.round(sister.damage);
           return (
             <div key={sister.id} className="card row row--between small">
               <span>
                 {cls.name}
                 {sisters.length > 1 ? ` ${i + 1}` : ''}
               </span>
-              <span className={sister.damage > 0 ? 'shiprow__hurt' : 'muted'}>
-                {sister.damage === 0 ? 'Sound' : `${left} of ${spec.hull} hull`}
+              <span className={hurt > 0 ? 'shiprow__hurt' : 'muted'}>
+                {hurt === 0 ? 'Sound' : `${left} of ${spec.hull} hull`}
               </span>
             </div>
           );
@@ -102,8 +103,9 @@ export function ShipSheet({
       </div>
 
       <p className="tiny muted" style={{ marginTop: 10 }}>
-        A hull that takes its whole number of hits goes down. Damage does not mend at sea; it is
-        the squadron's problem until you stop fighting with her.
+        A hull that takes its whole number of hits goes down. Nothing mends at sea — a squadron
+        carries what was done to it until it stops fighting. At anchor she comes back a hundredth
+        of herself a day, twice that at an island of yours with a yard on it that is not shut in.
       </p>
     </Sheet>
   );

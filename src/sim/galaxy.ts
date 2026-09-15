@@ -9,6 +9,8 @@ import {
   RECRUITS_AT_START,
   RECRUITS_IN_PLAY,
   rollRating,
+  CAPITAL_WALLS,
+  CAPITAL_GARRISON,
   START_GARRISON_MAX,
   START_GARRISON_SPARE,
 } from './constants';
@@ -518,6 +520,26 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   };
   seedHoldings('empire', empireSystems);
   seedHoldings('alliance', allianceSystems);
+
+  /**
+   * The seawalls of Highwater, which are older than the Imperium.
+   *
+   * The world bible says so and the map did not: measured over forty worlds
+   * the Crown's capital opened with two companies and no wall in every single
+   * one, and a played Crown that moved its Home Fleet lost the war on day
+   * forty-eight to one squadron with three companies aboard.
+   *
+   * With the siege rules it is the one island that must open fortified. A
+   * capital whose fall ends the war is a siege, not a gift — you beat the
+   * walls down over days under their guns, and only then do the boats go in.
+   */
+  const seat = capital;
+  seat.slots = Math.max(seat.slots, seat.facilities.length + CAPITAL_WALLS + 1);
+  for (let i = 0; i < CAPITAL_WALLS; i++) {
+    seat.facilities.push(makeFacility(makeId('fac'), 'fort', 'empire'));
+  }
+  // And a garrison worth landing against once they are down.
+  seat.garrison = Math.max(seat.garrison, CAPITAL_GARRISON);
 
   // The Confederacy knows the island it met on and nothing else out here;
   // the frontier Reaches are otherwise a blank to both sides.

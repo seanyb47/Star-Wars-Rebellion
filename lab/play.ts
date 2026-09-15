@@ -6,6 +6,7 @@ import { advanceDay } from '../src/sim/advanceDay';
 import { generateGalaxy } from '../src/sim/galaxy';
 import { continueMission, endMission } from '../src/sim/missions';
 import { orderFightRound, orderBreakOff, orderCloseBattle } from '../src/sim/commands';
+import { battleView } from '../src/sim/fleets';
 import { lords, powerOf } from '../src/sim/lords';
 import { audit, type Violation } from './audit';
 import { pilot, type PilotTally } from './pilot';
@@ -78,6 +79,16 @@ export function playGame(
         state = orderCloseBattle(state).state;
         break;
       }
+      // Break off when it looks bad, the way the sheet asks you to. Fighting
+      // every action to the last hull is not a policy a player has, and a
+      // harness that does it never exercises the retreat at all — measured,
+      // `battle-you-fled` was zero across three hundred games.
+      const view = battleView(state);
+      const bad = view && (view.odds === 'desperate' || view.odds === 'unfavorable');
+      if (bad && view!.fleeable.length > 0 && view!.rounds >= 1) {
+        const off = orderBreakOff(state);
+        if (!off.error) { state = off.state; bump('chose-to-break-off'); continue; }
+      }
       const next = orderFightRound(state);
       state = next.state;
     }
@@ -111,12 +122,15 @@ export function playGame(
       if (/mutiny|rises|risen/i.test(e.text)) bump('text-rising');
       if (/sabotage|wrecked|burns the/i.test(e.text)) bump('text-sabotage');
       if (/creature|kraken|leviathan|serpent|beast/i.test(e.text)) bump('text-creature');
-      if (/breaks .* out|broken out|freed|rescue/i.test(e.text)) bump('text-rescue');
+      if (/out of the cells|in the cells at/i.test(e.text)) bump('text-rescue');
       if (/exchang/i.test(e.text)) bump('text-exchange');
       if (/survey|charted/i.test(e.text)) bump('text-survey');
       if (/research|craft|shipwright/i.test(e.text)) bump('text-research');
       if (/recruit|signs on|signed on/i.test(e.text)) bump('text-recruit');
       if (/blockad/i.test(e.text)) bump('text-blockade');
+      if (/works the walls|beaten to rubble|seawall at/i.test(e.text)) bump('text-bombard');
+      if (/shells .* itself|works over/i.test(e.text)) bump('text-shelling');
+      if (/carried by storm/i.test(e.text)) bump('text-storm');
     }
 
     for (const side of ['empire', 'alliance'] as const) {
@@ -140,6 +154,12 @@ export function playGame(
     }
     for (const sys of state.systems) if (sys.beastSlain) bump('beast-slain-days');
     for (const f of state.fleets) if (f.voyage) bump('fleet-at-sea-days');
+    for (const f of state.fleets) if (f.bombarding) bump('siege-days');
+    for (const sys of state.systems) {
+      const walls = sys.facilities.filter((x) => x.type === 'fort' && !x.building).length;
+      if (walls > 0) bump('walled-island-days');
+      if (sys.shelled) bump('town-shelled-islands');
+    }
     for (const sys of state.systems) if (sys.blockaded) bump('blockade-days');
     // The dead war: one side holding no ground at all, and the clock running on.
     const isles = { empire: 0, alliance: 0 };

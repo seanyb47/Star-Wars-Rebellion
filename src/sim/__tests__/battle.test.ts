@@ -53,7 +53,10 @@ function put(state: GameState, system: System, faction: PlayableFaction, classes
 
 describe('an action the player is in', () => {
   it('fights the first broadside, then hands the player the rest', () => {
-    const { state, home } = world();
+    // Away from Highwater: the capital opens walled now, and forty guns on
+    // the wall settle a two-a-side action in the first round.
+    const { state } = world();
+    const home = plainIsle(state);
     put(state, home, 'empire', ['sovereign', 'sovereign']);
     put(state, home, 'alliance', ['tempest', 'tempest']);
     resolveBattles(state, createRng(3));
@@ -330,9 +333,14 @@ describe('companies load and unload themselves', () => {
     sailFleet(state, second.id, theirs.id, 'alliance');
     const aboard = second.troops;
     expect(aboard).toBeGreaterThan(0);
+    const heldBefore = theirs.garrison;
     for (let d = 0; d < 80 && second.voyage; d++) advanceFleets(state, rng);
     const still = state.fleets.find((f) => f.id === second.id);
-    if (still) expect(still.troops).toBe(aboard);
+    // Still aboard, and none of them walked ashore on their own — the exact
+    // count is the crossing's business, since a hull lost on the way takes
+    // whatever it was carrying with it.
+    if (still && still.ships.length > 0) expect(still.troops).toBeGreaterThan(0);
+    expect(theirs.garrison).toBe(heldBefore);
   });
 });
 

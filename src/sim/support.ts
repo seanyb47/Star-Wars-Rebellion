@@ -80,6 +80,28 @@ export function resolveControlAndUnrest(state: GameState): void {
       continue;
     }
 
+    // Nobody standing on it, and the people have decided.
+    //
+    // Sean's rule, 15 September: a garrison establishes control whatever the
+    // island thinks of you, and loyalty decides it only when there is no
+    // garrison. An island held by a faction never flipped on opinion alone,
+    // which is right while somebody is holding it — and wrong when nobody is.
+    // A harbor you have left empty is not yours because a map says so.
+    if (
+      isPlayable(system.control) &&
+      system.garrison < 1 &&
+      system.support[otherFaction(system.control)] >= FLIP_SUPPORT_MIN
+    ) {
+      const taker = otherFaction(system.control);
+      system.control = taker;
+      system.uprising = false;
+      pushEvent(state, {
+        kind: 'flip',
+        text: `${system.name} has declared for the ${factionName(taker)}. There was nobody ashore to argue.`,
+        systemId: system.id,
+      });
+    }
+
     for (const faction of ['empire', 'alliance'] as const) {
       if (canFlip(system, faction)) {
         system.control = faction;

@@ -8,6 +8,9 @@ import {
   AI_LORD_BOUNTY,
   AI_RECRUIT_BONUS,
   AI_RESEARCH_BONUS,
+  FORT_STRENGTH,
+  FORT_REPAIR_PER_DAY,
+  AI_SIEGE_DAYS,
   AI_SHIP_RESERVE,
   AI_TROOP_POOL,
   HELD_SUPPORT_LEVEL,
@@ -23,6 +26,9 @@ import { buildMenu, canQueueBuild, foundWorks, foundWorksError, queueBuild } fro
 import {
   assault,
   assaultError,
+  bombardError,
+  fleetBombard,
+  fortsOf,
   board,
   boardError,
   boomDefence,
@@ -428,6 +434,11 @@ function aiFleet(state: GameState, ai: PlayableFaction, rng: Rng): void {
     if (isAtSea(fleet)) continue;
     if (fleet.id === strike) continue;
     aiSignOn(state, fleet, ai);
+    // The walls before the boats. A squadron lying off a fortified island
+    // with the harbor to itself opens fire and keeps firing; there is nothing
+    // else it can usefully do there, and sailing away wastes every day of it
+    // because the walls are patched while nobody is working them.
+    if (aiBeginSiege(state, fleet, ai)) continue;
     if (aiLandTroops(state, fleet, ai, rng)) continue;
     aiLoadAndSail(state, fleet, ai);
   }
@@ -528,6 +539,41 @@ function aiLandTroops(state: GameState, fleet: Fleet, ai: PlayableFaction, rng: 
   return true;
 }
 
+/**
+ * Standing orders to work the walls, where that is the thing to do.
+ *
+ * Returns true when the squadron is committed to a siege and should be left
+ * to it. A siege is a race — the wall is patched at two per cent a day — so
+ * the one thing it must not do is wander off and come back.
+ */
+function aiBeginSiege(state: GameState, fleet: Fleet, ai: PlayableFaction): boolean {
+  if (fleet.bombarding) return true;
+  if (bombardError(state, fleet.id, ai) !== null) return false;
+  const here = getSystem(state, fleet.systemId);
+  // Only against walls. Shelling a town to break its companies is a thing a
+  // player may decide is worth the Reach turning against them; the opponent
+  // does not do it, because it cannot weigh that and would only ever wreck
+  // its own standing everywhere it went.
+  if (fortsOf(here).length === 0) return false;
+  if (fleetBombard(fleet) < siegeWeightFor(here)) return false;
+  fleet.bombarding = true;
+  return true;
+}
+
+/**
+ * The weight of shot it takes to be worth opening fire at all.
+ *
+ * Enough to be through the walls inside `AI_SIEGE_DAYS`, on top of what they
+ * patch every night. Under that the guns are a gift: the wall comes back as
+ * fast as it goes down and the battery shoots at you the whole time.
+ */
+function siegeWeightFor(system: System): number {
+  const walls = fortsOf(system);
+  if (walls.length === 0) return 0;
+  const standing = walls.reduce((n, f) => n + (FORT_STRENGTH - (f.damage ?? 0)), 0);
+  return standing / AI_SIEGE_DAYS + FORT_STRENGTH * FORT_REPAIR_PER_DAY * walls.length;
+}
+
 /** Take companies aboard where there are spare, then go and make a nuisance. */
 function aiLoadAndSail(state: GameState, fleet: Fleet, ai: PlayableFaction): void {
   const here = getSystem(state, fleet.systemId);
@@ -605,6 +651,10 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
   const wall = (crownGuns + fortGuns(capital)) * 1.25;
   const outgunned = fleetGuns(fleet) < wall;
   const needLift = fleetCapacity(fleet) < need;
+  // And the third shortage, which is the one that used to send a lone
+  // first-rate to die under Highwater's batteries: weight of shot for the
+  // walls. Guns and berths are no use against stone.
+  const needWeight = fleetBombard(fleet) < siegeWeightFor(capital);
   for (const other of fleetsOf(state, 'alliance')) {
     if (other.id === fleet.id || isAtSea(other)) continue;
     if (other.systemId === fleet.systemId) {
@@ -615,7 +665,9 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
       other.troops = 0;
       other.officerIds = [];
     } else if (
-      ((outgunned && fleetGuns(other) > 0) || (needLift && fleetCapacity(other) > 0)) &&
+      ((outgunned && fleetGuns(other) > 0) ||
+        (needLift && fleetCapacity(other) > 0) ||
+        (needWeight && fleetBombard(other) > 0)) &&
       sailError(state, other.id, fleet.systemId, 'alliance') === null
     ) {
       sailFleet(state, other.id, fleet.systemId, 'alliance');

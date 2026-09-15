@@ -102,6 +102,14 @@ export interface System {
    * it. Set by the rumour that wakes it, or by taking enough hurt to run.
    */
   beastRoaming?: boolean;
+  /**
+   * Days this island's own town has been shelled.
+   *
+   * Only counts shot that went past the walls looking for the garrison, which
+   * is the only kind that touches the people. Never cleared: a town remembers,
+   * and each further day of it costs the bombarding side more than the last.
+   */
+  shelled?: number;
   /** Hurt, tried to break off, and found the whole Sea shut to it. Carried so
    *  the log says so once rather than every day it goes on being true. */
   cornered?: boolean;
@@ -169,7 +177,14 @@ export type BuildItem = FacilityType | 'troop' | ShipClassId;
 export interface Ship {
   id: string;
   classId: ShipClassId;
-  /** Damage taken. At or past the class's hull the ship is lost. */
+  /**
+   * Damage taken. At or past the class's hull the ship is lost.
+   *
+   * Fractional, because a hull mends by a percentage of itself each day and a
+   * sloop's one per cent is nine hundredths of a point. Rounded wherever it is
+   * shown; never rounded in the arithmetic, or a sloop would mend nothing for
+   * eleven days and then a whole point at once.
+   */
   damage: number;
 }
 
@@ -196,12 +211,30 @@ export interface Fleet {
   officerIds: string[];
   /** Set only while at sea. */
   voyage?: { targetSystemId: string; daysRemaining: number };
+  /**
+   * Standing orders to bombard the island she lies off.
+   *
+   * A day's bombardment is a day, not a round, so this is a state the squadron
+   * is in rather than a button pressed every morning — the same shape as a
+   * voyage. It ends when the walls fall, when the player says so, or when
+   * anything happens that makes it impossible.
+   */
+  bombarding?: true;
 }
 
 export interface Facility {
   id: string;
   type: FacilityType;
   owner: Faction;
+  /**
+   * What has been knocked off a fort, for works that can be shot at.
+   *
+   * Only forts carry it. A fort used to be twenty guns that simply could not
+   * be damaged — it either stood or had never been built — which was fine
+   * while nothing could shoot at the land. Now the wall has a condition, its
+   * gunnery falls with it, and at its full strength in damage it is rubble.
+   */
+  damage?: number;
   building?: BuildOrder;
   /**
    * A works being laid down on an island that had none. It stands in its slot

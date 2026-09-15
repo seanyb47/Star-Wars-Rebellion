@@ -7,6 +7,12 @@ import {
   fleetGuns,
   fleetStatus,
   fleetsToJoin,
+  fleetBombard,
+  fortsOf,
+  fortGuns,
+  wallCondition,
+  bombardError,
+  assaultError,
   fleeError,
   refugeFor,
   officerEdge,
@@ -18,7 +24,6 @@ import {
   type GameState,
   type PlayableFaction,
   type Ship,
-  FORT_GUNS,
 } from '../sim';
 import { CharacterPortrait, CreaturePainting, FacilityIcon, ShipThumb } from './art';
 import { usePrefs } from './prefs';
@@ -58,7 +63,9 @@ function ShipRow({
 }) {
   const cls = shipClass(ships[0].classId as Parameters<typeof shipClass>[0]);
   const spec = shipSpec(ships[0].classId as Parameters<typeof shipSpec>[0]);
-  const hurt = ships.reduce((n, s) => n + s.damage, 0);
+  // Rounded here and nowhere else: a hull mends by a per cent of itself a day,
+  // so damage is fractional in the arithmetic and whole on the screen.
+  const hurt = Math.round(ships.reduce((n, s) => n + s.damage, 0));
   const whole = spec.hull * ships.length;
   if (pick) {
     return (
@@ -136,6 +143,8 @@ export function FleetCard({
   fleet,
   onSail,
   onAssault,
+  onBombard,
+  onCeaseFire,
   onFlee,
   onOpenCharacter,
   onOpenShip,
@@ -148,6 +157,8 @@ export function FleetCard({
   fleet: Fleet;
   onSail: (fleetId: string) => void;
   onAssault: (fleetId: string) => void;
+  onBombard?: (fleetId: string) => void;
+  onCeaseFire?: (fleetId: string) => void;
   onFlee?: (fleetId: string) => void;
   onOpenCharacter?: (characterId: string) => void;
   onOpenShip?: (fleetId: string, shipId: string) => void;
@@ -161,6 +172,12 @@ export function FleetCard({
   const damaged = fleetDamaged(fleet);
   const atSea = fleet.voyage !== undefined;
   const holdsIsland = system?.control === fleet.faction;
+  // The siege. Bombardment is a day at a time, so it is a state the squadron
+  // is in rather than a button pressed every morning — the walls first, and
+  // the boats only once they are down.
+  const cannotBombard = canOrder && !atSea ? bombardError(state, fleet.id, state.player) : 'x';
+  const walls = system ? fortsOf(system).length : 0;
+  const landBlocked = canOrder && !atSea ? assaultError(state, fleet.id, state.player) : null;
   // Something to break off from, and somewhere to break off to.
   const canFlee = canOrder && !atSea && fleeError(state, fleet.id, state.player) === null;
   const refuge = canFlee ? refugeFor(state, fleet) : undefined;
@@ -410,10 +427,30 @@ export function FleetCard({
               Break off — run for {refuge?.name ?? 'safety'}
             </button>
           )}
-          {!holdsIsland && fleet.troops > 0 && (
-            <button className="btn btn--primary" onClick={() => onAssault(fleet.id)}>
-              Land {fleet.troops} against {system?.garrison ?? 0} ashore
+          {/* Open fire, or call the guns off. The order says what it is for:
+              while a wall stands it is the wall, and past that it is the town,
+              which is a different decision and priced like one. */}
+          {fleet.bombarding ? (
+            <button className="btn" onClick={() => onCeaseFire?.(fleet.id)}>
+              Cease fire
             </button>
+          ) : (
+            cannotBombard === null && (
+              <button className="btn" onClick={() => onBombard?.(fleet.id)}>
+                {walls > 0
+                  ? `Bombard the walls — ${fleetBombard(fleet)} a day`
+                  : `Shell the town — ${fleetBombard(fleet)} a day`}
+              </button>
+            )
+          )}
+          {!holdsIsland && fleet.troops > 0 && (
+            landBlocked && /seawall/i.test(landBlocked) ? (
+              <div className="tiny muted fleet__blocked">{landBlocked}</div>
+            ) : (
+              <button className="btn btn--primary" onClick={() => onAssault(fleet.id)}>
+                Land {fleet.troops} against {system?.garrison ?? 0} ashore
+              </button>
+            )
           )}
         </div>
       )}
@@ -427,6 +464,8 @@ export function ShipsHere({
   systemId,
   onSail,
   onAssault,
+  onBombard,
+  onCeaseFire,
   onFlee,
   onOpenCharacter,
   onOpenShip,
@@ -438,6 +477,8 @@ export function ShipsHere({
   systemId: string;
   onSail: (fleetId: string) => void;
   onAssault: (fleetId: string) => void;
+  onBombard?: (fleetId: string) => void;
+  onCeaseFire?: (fleetId: string) => void;
   onFlee?: (fleetId: string) => void;
   onOpenCharacter?: (characterId: string) => void;
   onOpenShip?: (fleetId: string, shipId: string) => void;
@@ -457,15 +498,24 @@ export function ShipsHere({
   // card among the ships is exactly what it is to the player: a thing lying in
   // this harbor with guns, which has to be got past.
   const beast = island && island.beastSeen?.[state.player] ? beastAt(island) : undefined;
-  const forts = island ? island.facilities.filter((x) => x.type === 'fort' && !x.building).length : 0;
+  const forts = island ? fortsOf(island).length : 0;
   const booms = island ? island.facilities.filter((x) => x.type === 'boom' && !x.building).length : 0;
   const defences = (forts > 0 || booms > 0) && (
     <div className="card row" style={{ gap: 14, alignItems: 'center' }}>
-      {forts > 0 && (
+      {forts > 0 && island && (
         <span className="row" style={{ gap: 6 }}>
           <FacilityIcon type="fort" size={22} />
           <span className="small">
-            {forts} {forts === 1 ? 'fort' : 'forts'} · {forts * FORT_GUNS} guns on the wall
+            {forts} {forts === 1 ? 'fort' : 'forts'} · {Math.round(fortGuns(island))} guns on the
+            wall
+            {/* A battery that has been worked over fires like what it now is,
+                so the condition is the number that decides the next day. */}
+            {wallCondition(island) < 0.999 && (
+              <span className="shiprow__hurt">
+                {' '}
+                · {Math.round(wallCondition(island) * 100)}% standing
+              </span>
+            )}
           </span>
         </span>
       )}
@@ -549,6 +599,8 @@ export function ShipsHere({
           fleet={fleet}
           onSail={onSail}
           onAssault={onAssault}
+          onBombard={onBombard}
+          onCeaseFire={onCeaseFire}
           onFlee={onFlee}
           onOpenCharacter={onOpenCharacter}
           onOpenShip={onOpenShip}

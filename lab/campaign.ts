@@ -61,6 +61,9 @@ console.log('');
 for (const k of ['player-battle-rounds','battle-won','battle-lost','battle-they-fled','battle-you-fled','battle-beast-slain','battle-runaway','player-decisions','answered-home','answered-carry-on'])
   show(k, k);
 console.log('');
+for (const k of ['siege-days','walled-island-days','town-shelled-islands','text-bombard','text-shelling','text-storm'])
+  show(k, k);
+console.log('');
 for (const k of ['confederacy-landless-days','crown-landless-days','no-safe-ground-days'])
   show(k, k);
 console.log('');

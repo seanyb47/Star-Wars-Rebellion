@@ -80,9 +80,15 @@ describe('breaking off', () => {
 
   it('refuses when there is nothing to run from, or nowhere to run to', () => {
     const { state, fleet } = standoff();
-    // Nothing to run from: clear the enemy out.
+    // Nothing to run from: a squadron of ours alone in one of our own
+    // harbors. Not the capital — it opens walled now, and its own battery is
+    // something to break off from the moment somebody else is in the water.
     const alone = generateGalaxy(501, 'empire');
+    const quiet = alone.systems.find(
+      (s) => s.control === 'empire' && s.id !== alone.factions.empire.hqSystemId,
+    )!;
     const mine = alone.fleets.find((f) => f.faction === 'empire')!;
+    mine.systemId = quiet.id;
     expect(fleeError(alone, mine.id, 'empire')).toBe('Nothing to break off from.');
     // Nowhere to run to: nothing else is ours.
     for (const s of state.systems) if (s.control === 'empire') s.control = 'none';

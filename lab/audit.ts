@@ -49,7 +49,8 @@ export function audit(s: GameState): Violation[] {
       if (who.locationSystemId !== sys.id) bad('commander-elsewhere', `${who.name} posted to ${sys.name}, standing elsewhere`);
       if (who.status === 'captured') bad('captive-in-command', `${who.name} holds ${sys.name}`);
     }
-    if (!sys.populated && sys.garrison > 0) bad('garrison-on-empty', `${sys.name} ${sys.garrison}`);
+    // An island nobody lives on is held by the company standing on it and
+    // nothing else, so companies there are the rule rather than a fault.
     if (sys.uprising && (sys.control === 'none' || sys.control === 'neutral')) bad('uprising-unheld', `${sys.name} ${sys.control}`);
     for (const fac of sys.facilities) {
       if (fac.building && (!num(fac.building.daysRemaining) || fac.building.daysRemaining < 0))

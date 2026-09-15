@@ -5,6 +5,7 @@
  */
 import { cancelBuild, foundWorks, queueBuild } from './build';
 import {
+  bombardError,
   assault,
   breakOffBattle,
   closeBattle,
@@ -221,6 +222,30 @@ export function orderBreakOff(state: GameState): CommandResult {
     const rng = createRng(draft.rngSeed);
     breakOffBattle(draft, rng);
     draft.rngSeed = rng.seed;
+  });
+}
+
+/**
+ * Open fire on the island, and keep firing.
+ *
+ * A day's bombardment is a day, so this is standing orders rather than a
+ * button pressed every morning: the squadron works the walls until they are
+ * down, until you call it off, or until something makes it impossible.
+ */
+export function orderBombard(state: GameState, fleetId: string): CommandResult {
+  return run(state, (draft) => {
+    const error = bombardError(draft, fleetId, draft.player);
+    if (error) throw new Error(error);
+    draft.fleets.find((f) => f.id === fleetId)!.bombarding = true;
+  });
+}
+
+/** Call the guns off. */
+export function orderCeaseFire(state: GameState, fleetId: string): CommandResult {
+  return run(state, (draft) => {
+    const fleet = draft.fleets.find((f) => f.id === fleetId);
+    if (!fleet) throw new Error('No such fleet.');
+    fleet.bombarding = undefined;
   });
 }
 
