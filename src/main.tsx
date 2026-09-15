@@ -27,6 +27,47 @@ function measureGlass(): void {
 }
 measureGlass();
 window.visualViewport?.addEventListener('resize', measureGlass);
+
+/**
+ * `?diag` prints what the phone is actually telling us, on the phone.
+ *
+ * Four rounds of the dead band under the console went by on inference, because
+ * every measurement I can take is on a browser that does not have the problem.
+ * This is three lines of numbers a screenshot can carry back: how tall each
+ * viewport thinks it is, what the insets come back as, and where the console
+ * ends up. It costs nothing when the parameter is absent.
+ */
+if (new URLSearchParams(window.location.search).has('diag')) {
+  const box = document.createElement('pre');
+  box.style.cssText =
+    'position:fixed;left:6px;right:6px;bottom:6px;z-index:99999;margin:0;padding:8px;' +
+    'font:11px/1.35 ui-monospace,Menlo,monospace;white-space:pre-wrap;color:#e4eef1;' +
+    'background:rgba(3,10,16,.92);border:1px solid #4ec98a;border-radius:8px';
+  const read = () => {
+    const probe = document.createElement('div');
+    probe.style.cssText =
+      'position:fixed;top:0;left:0;height:env(safe-area-inset-top,0px);' +
+      'width:env(safe-area-inset-bottom,0px);visibility:hidden';
+    document.body.appendChild(probe);
+    const top = Math.round(probe.getBoundingClientRect().height);
+    const bottom = Math.round(probe.getBoundingClientRect().width);
+    probe.remove();
+    const bar = document.querySelector('.tabbar')?.getBoundingClientRect();
+    const app = document.querySelector('.app')?.getBoundingClientRect();
+    const px = (v?: number) => (v === undefined ? '–' : Math.round(v));
+    box.textContent = [
+      `inner ${window.innerHeight}  visual ${Math.round(window.visualViewport?.height ?? 0)}  client ${document.documentElement.clientHeight}`,
+      `inset top ${top}  bottom ${bottom}  dpr ${window.devicePixelRatio}`,
+      `app ${px(app?.top)}→${px(app?.bottom)} (${px(app?.height)})  tabbar ${px(bar?.top)}→${px(bar?.bottom)} (${px(bar?.height)})`,
+      `standalone ${window.matchMedia('(display-mode: standalone)').matches}  gap below tabbar ${px(
+        (window.visualViewport?.height ?? window.innerHeight) - (bar?.bottom ?? 0),
+      )}`,
+    ].join('\n');
+  };
+  document.body.appendChild(box);
+  setInterval(read, 500);
+  read();
+}
 window.addEventListener('orientationchange', () => setTimeout(measureGlass, 120));
 
 // `?art` opens the contact sheet instead of the game: every drawing in one

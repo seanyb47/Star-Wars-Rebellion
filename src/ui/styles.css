@@ -30,8 +30,15 @@
   /* The status bar's strip, and the home indicator's. A phone's own chrome
      cannot be hidden by a web app, so the game's chrome keeps clear of it:
      every bar that touches an edge pads itself by these. */
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /*
+   * Bounded, because an inset is a strip of glass and not an opinion. No
+   * iPhone reserves more than about 59 points at the top or 34 at the bottom;
+   * anything past that is the browser telling us something we should not
+   * believe, and believing it cost the console a hundred points of dead wood
+   * under the tab bar. `min()` keeps the padding honest whatever comes back.
+   */
+  --safe-top: min(env(safe-area-inset-top, 0px), 60px);
+  --safe-bottom: min(env(safe-area-inset-bottom, 0px), 34px);
   color-scheme: dark;
 }
 
@@ -40,7 +47,7 @@
    anyway, and then the title sits under the time — so in standalone the top
    inset never falls below the short status bar's own height. */
 @media (display-mode: standalone) {
-  :root { --safe-top: max(env(safe-area-inset-top, 0px), 20px); }
+  :root { --safe-top: clamp(20px, env(safe-area-inset-top, 0px), 60px); }
 }
 
 * {

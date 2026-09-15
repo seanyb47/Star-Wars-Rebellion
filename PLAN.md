@@ -1044,3 +1044,23 @@ the word for troops on the island as against troops on a ship — which is
 exactly the two-place model. And an island still *has* a harbour the way it has
 a coast: the harbour's guns fire, a boom closes the harbour mouth, a blockade
 shuts it. What is gone is the harbour as somewhere a person can be.
+
+**The band is padding, not a gap — 15 September.** Sampling the fourth
+screenshot settled what the third could not: the strip under the console is
+now **textured wood**, where before it was flat `#24100c`. Flat was the page
+showing through; textured is the tab bar's own background. So the app *is*
+reaching the bottom of the glass — `--app-h` did its job — and what is left is
+`.tabbar`'s `padding-bottom: var(--safe-bottom)` coming out at something like
+**106 points**.
+
+No iPhone reserves that. An inset is a strip of glass, not an opinion, so both
+are bounded now: `min(env(...), 34px)` at the bottom and `min(..., 60px)` at
+the top. Whatever the browser reports, the padding cannot run away with the
+console again.
+
+**And `?diag`, so the next round is not another guess.** Four passes at this
+went by on inference, because every measurement available to me is on a browser
+that does not have the fault. `?diag` prints four lines on the phone itself:
+what each viewport reports, what the insets actually resolve to, where `.app`
+and `.tabbar` land, and the gap below the tab bar. A screenshot of that settles
+it in one round. Absent the parameter it costs nothing.
