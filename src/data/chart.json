@@ -427,9 +427,9 @@
    "reach": "Coral Reach",
    "sea": "The Amber Sea",
    "x": 848.0,
-   "y": 1012.3,
-   "r": 136.5,
-   "ry": 126.9,
+   "y": 987.3,
+   "r": 160.0,
+   "ry": 151.9,
    "islands": [
     {
      "name": "Coralhome",
@@ -457,15 +457,33 @@
     },
     {
      "name": "Preston's Reach",
+     "x": 859.8,
+     "y": 936.1,
+     "land": 0.094
+    },
+    {
+     "name": "The Shoals",
      "x": 898.3,
      "y": 1139.2,
      "land": 0.069
+    },
+    {
+     "name": "Passh Bay",
+     "x": 783.1,
+     "y": 1023.6,
+     "land": 0.168
+    },
+    {
+     "name": "Denby Cay",
+     "x": 900.9,
+     "y": 877.0,
+     "land": 0.184
     }
    ],
-   "luma": 71.0,
+   "luma": 66.0,
    "label": {
     "x": 912.0,
-    "y": 1040.3
+    "y": 1039.3
    }
   }
  ]

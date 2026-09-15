@@ -40,7 +40,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 | Original | New | Mechanic translation |
 |---|---|---|
 | Galaxy | **The Seven Seas** | Whole map |
-| Sector | **Reach** (an archipelago inside a Sea) | Same grouping as sectors. Seven Seas fixed; *number of Reaches per Sea* scales with map size. **On the small map there is one Reach per Sea, so a Sea and its archipelago are the same thing** (7 Reaches, 60 islands). Medium and large add second and third Reaches inside a Sea (→ ~150 / 200 islands). |
+| Sector | **Reach** (an archipelago inside a Sea) | Same grouping as sectors. Seven Seas fixed; *number of Reaches per Sea* scales with map size. **On the small map there is one Reach per Sea, so a Sea and its archipelago are the same thing** (7 Reaches, 63 islands). Medium and large add second and third Reaches inside a Sea (→ ~150 / 200 islands). |
 | Core sectors | **The Inner Seas** (3) | Rich, charted, Imperium-leaning |
 | Outer Rim sectors | **The Outer Seas** (4) | Uncharted, strange, must be explored |
 | System / planet | **Island** | One node |
@@ -572,7 +572,7 @@ written.
 ### The Amber Sea (Inner Sea)
 *Tropical / Caribbean: plantations, sugar, reefs, hurricanes, old money with divided loyalties.*
 
-**Coral Reach** (orig. Sluis sector — `small` map; **9 islands charted** — the spiral atoll in the south-east, which is where a reef belongs)
+**Coral Reach** (orig. Sluis sector — `small` map; **8 islands charted**, and uncharted at the start — the spiral atoll in the south-east, which is where a reef belongs)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -1171,6 +1171,7 @@ not a bark, and it goes in the text.
 
 ## 15. CHANGELOG
 
+- **2026-09-15 v6.7** — **Coral Reach goes dark.** The atoll was the one charted, settled, nobody's Reach, and nobody had a reason to sail to it. It is now the third frontier Reach — uncharted by both sides, a quarter of it settled behind the fog, and a third place the articles might have been signed, so Freeport can fall in Coral as readily as in Salt or Rime. Three of the bible's Coral islands join the chart with it: **The Shoals**, **Passh Bay** and **Denby Cay**. Sixty-three islands. No other rules changed.
 - **2026-09-15 v6.6** — **Freeport.** The island where the articles were signed now has a name and a place on the chart: one uncharted island in Salt or Rime Reach is renamed Freeport each game and keeps the painting's position, outline and room (`chartName` holds what the painting calls it). It is nobody's. The opening also spreads out — the Regent alone at Highwater and the Admiralty about the Crown's holdings; the three Lords aboard their ships at Freeport with one or two Confederates ashore beside them and the rest on the islands that have declared. A Lord is now the only Confederate aboard anything on day one. Room is drawn against one thirteen-berth track everywhere, so a bar's length is an island's room rather than how full it is, and **Available land** joins the chart filters.
 - **2026-09-15 v6.5** — Companies take a **twentieth** off the smugglers apiece, not a tenth: a hand on disloyalty rather than a cure. A leaking island now gives away what stands on it, how many hold it, and any island of yours in the same chain the enemy had not charted.
 - **2026-09-15 v6.4** — **One pool of room.** Ground and Water are withdrawn as separate slot types, for the reason Sweetwater was withdrawn before them: two numbers per island to answer one question. An island has room to build, every building takes one berth of it whatever the building is, and companies and hulls take none. Saves bump to v4.

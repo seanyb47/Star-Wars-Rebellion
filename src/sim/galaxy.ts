@@ -93,9 +93,13 @@ const MIN_SYSTEM_SEPARATION = 38;
  * other two ports and one more island there, and the Confederacy with one or
  * two. Three contested Reaches open with two islands a side and the rest
  * settled and nobody's — garrisoned, so taking them is a landing, not a
- * stroll. One Reach is charted and open. Three frontier Reaches start
+ * stroll. Three frontier Reaches — Rime, Salt and now Coral — start
  * unexplored by everyone, a quarter of their islands settled behind the fog,
- * and the Confederacy's base is one island in one of them, with its fleet.
+ * and Freeport, where the Lords signed the articles, is one island in one of
+ * the three. Coral joined them at Sean's word: the spiral atoll is far enough
+ * south that the war has not charted it, which makes it a third place the
+ * Confederacy might have been founded rather than the one open Reach nobody
+ * had a reason to sail to.
  */
 const START_CONTESTED_PER_SIDE = 2;
 const START_HOME_CONFEDERACY: [number, number] = [1, 2];

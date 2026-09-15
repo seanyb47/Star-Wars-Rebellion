@@ -27,7 +27,7 @@ assets rather than bundled.
 
 | | |
 |---|---|
-| **Phase 1 — the war** | Built. 60 islands, seven Reaches — one for each Sea — economy, support, control, unrest, building, the day clock. |
+| **Phase 1 — the war** | Built. 63 islands, seven Reaches — one for each Sea — economy, support, control, unrest, building, the day clock. |
 | **Phase 2 — fleets** | Built. Hulls in four sizes, troop capacity, movement, auto-resolved combat, assault, blockade. Fighters cut from the design, not deferred. |
 | **Phase 3 — missions** | Built, and one past the plan: Parley, Incite Uprising, Recruitment, Sabotage, Survey, Abduction, Command, Research, and Rescue. |
 | **Phase 4 — polish** | Not started. |
@@ -690,3 +690,33 @@ or more free is a large dot, two to four medium, one small. An island in revolt
 takes no orders and stays dark, and so does room on somebody else's island,
 because the question the filter answers is where you can put something down
 today.
+
+
+## The Reach screen swipes, filters pick the tab, and Coral goes dark — 15 September
+
+**A drag across a Reach changes the filter.** The chain view had the chips but
+not the gesture, so the one screen you spend the most time on was the one
+screen where a thumb had to aim. It is the same `useLayerSwipe` the full chart
+uses, hung on the Reach panel's body.
+
+**A filter picks the tab an island opens on.** A filter is a question — where
+are my yards standing idle? — and tapping a lit island is asking to see the
+answer, which was one more tap away every time. Now Idle yards, Idle training,
+Idle shipyards, Available land and Production open on Buildings; Idle crew and
+Missions on Crew; Garrisons on Garrison; Loyalty, Fleets and the bare chart on
+the Harbour, where the allegiance bar and the hulls at anchor already are. The
+tabs swipe from wherever it landed, so the filter chooses where you arrive and
+nothing else. One function, `tabForLayer`.
+
+**Coral Reach is frontier, and three islands wider.** The atoll was the one
+charted, settled, nobody's Reach — a corner of the map with no reason to sail
+to it. It is now the third uncharted Reach, which makes it a third place the
+Lords might have signed the articles: Freeport can fall in Coral as readily as
+in Salt or Rime. It is fogged and a quarter settled like the other two, which
+does mean Coralhome and the great dockyards at Sluysvaan are bare rock in most
+games — the same bargain Rime and Salt already make with their own named
+islands. Three names from the bible's Coral list joined it, **The Shoals**,
+**Passh Bay** and **Denby Cay**, and `scripts/chart_positions.py` placed all
+eight on the painting's own land; the world is 63 islands now. Sixteen idle
+games of sixteen still end, median 446 days, and day one is unchanged at 65
+against 56 for the Crown and 60 against 49 for the Confederacy.

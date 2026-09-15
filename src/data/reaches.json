@@ -273,9 +273,21 @@
         {
           "name": "Preston's Reach",
           "note": "Signal towers. Word travels fast from here."
+        },
+        {
+          "name": "The Shoals",
+          "note": "The Shoal-folk: webbed, night-eyed, and the best watchers in the world."
+        },
+        {
+          "name": "Passh Bay",
+          "note": "Amber and turtle-shell. Three harbours and no customs house."
+        },
+        {
+          "name": "Denby Cay",
+          "note": "Sugar and rum. Old money, and none of it decided."
         }
       ],
-      "role": "open"
+      "role": "frontier"
     }
   ]
 }

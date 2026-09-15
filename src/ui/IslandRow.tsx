@@ -1,5 +1,5 @@
 import terms from '../data/terms.json';
-import type { GameState, IslandSummary, System } from '../sim';
+import type { ChartLayer, GameState, IslandSummary, System } from '../sim';
 import { allegianceColour, allegianceSegments } from './allegiance';
 import { CategoryIcon } from './art';
 import { ChartMark } from './ChartMark';
@@ -7,6 +7,35 @@ import { WorthMark } from './worth';
 import { ControlBadge, RoomBar } from './components';
 
 export type IslandTab = 'harbour' | 'crew' | 'garrison' | 'buildings' | 'log';
+
+/**
+ * The tab an island should open on, given what the chart is filtering by.
+ *
+ * A filter is a question — where are my yards standing idle? — and tapping a
+ * lit island is asking to see the answer. Opening on the Harbour meant one
+ * more tap to get to the tab the question was about, every time. So the
+ * filter picks the tab, and from there the tabs swipe as they always did:
+ * the filter chooses where you land, not where you stay.
+ */
+export function tabForLayer(layer: ChartLayer | undefined): IslandTab {
+  switch (layer) {
+    case 'idleYards':
+    case 'idleDrills':
+    case 'idleSlips':
+    case 'room':
+    case 'worth':
+      return 'buildings';
+    case 'idleCrew':
+    case 'missions':
+      return 'crew';
+    case 'garrisons':
+      return 'garrison';
+    // Loyalty, fleets and the bare chart all belong to the Harbour, which is
+    // where the allegiance bar and the hulls at anchor already live.
+    default:
+      return 'harbour';
+  }
+}
 
 const CATEGORIES: Array<{ kind: 'missions' | 'military' | 'facilities'; label: string }> = [
   { kind: 'missions', label: 'Crew' },

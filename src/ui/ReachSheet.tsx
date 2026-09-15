@@ -7,7 +7,7 @@ import {
   type Sector,
 } from '../sim';
 import { ChainMap } from './ChainMap';
-import { LayerStrip } from './LayerStrip';
+import { LayerStrip, useLayerSwipe } from './LayerStrip';
 import type { IslandTab } from './IslandRow';
 import { Sheet } from './components';
 
@@ -56,6 +56,11 @@ export function ReachSheet({
 }) {
   const summary = summariseReach(state, sector.id, state.player);
   const byId = new Map(state.systems.map((s) => [s.id, s] as const));
+  // The same drag as on the full chart. A Reach shows the filter you came in
+  // with, so it has to let you change it the way you changed it out there:
+  // the chips are for aiming at one, the drag is for walking along them.
+  const swipe = useLayerSwipe(layer ?? 'allegiance', onLayerChange ?? (() => {}));
+  const dragging = Boolean(layer && onLayerChange && !pickingFor && !sailing && !choosing);
 
   return (
     <Sheet
@@ -77,6 +82,8 @@ export function ReachSheet({
         </span>
       }
       onClose={onClose}
+      onTouchStart={dragging ? swipe.onTouchStart : undefined}
+      onTouchEnd={dragging ? swipe.onTouchEnd : undefined}
     >
       {/*
         The chain opened out as a chart rather than a list of rows: the islands

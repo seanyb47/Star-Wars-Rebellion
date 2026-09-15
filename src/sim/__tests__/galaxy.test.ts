@@ -4,14 +4,21 @@ import { FLIP_SUPPORT_MIN } from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { isLord, isLordShip } from '../lords';
 
+/** The Reaches the war has not charted: Rime and Salt, and Coral since Sean
+ *  moved the atoll out past the charts to make it a third place the
+ *  Confederacy might have been founded. */
+const FRONTIER = ['Rime Reach', 'Salt Reach', 'Coral Reach'];
+
 describe('generateGalaxy', () => {
-  it('builds seven Reaches of five to fifteen islands, sixty in all', () => {
+  it('builds seven Reaches of five to fifteen islands, sixty-three in all', () => {
     const state = generateGalaxy(42);
     // Seven: the Far Sea's ice and its whaling chain are one Reach, Rime.
     expect(state.sectors).toHaveLength(7);
-    // 15 + 9 + 8 inner, 6 + 8 + 9 + 5 outer: the sixty best sites the
-    // painting offers, however they fall across the chains.
-    expect(state.systems).toHaveLength(60);
+    // 15 + 9 + 8 inner, 6 + 8 + 9 + 8 outer: the sixty-three best sites the
+    // painting offers, however they fall across the chains. Coral gained
+    // three when it went frontier — the atoll had more painted land in it
+    // than five islands were using.
+    expect(state.systems).toHaveLength(63);
     for (const sector of state.sectors) {
       expect(sector.systemIds.length).toBeGreaterThanOrEqual(5);
       expect(sector.systemIds.length).toBeLessThanOrEqual(15);
@@ -22,7 +29,8 @@ describe('generateGalaxy', () => {
     const state = generateGalaxy(42);
     // Sovereign 15 + Whalers' 9 + Wreckers' 8.
     expect(state.systems.filter((s) => s.isCore)).toHaveLength(32);
-    expect(state.systems.filter((s) => !s.isCore)).toHaveLength(28);
+    // Rime 6 + Cinder 8 + Salt 9 + Coral 8.
+    expect(state.systems.filter((s) => !s.isCore)).toHaveLength(31);
   });
 
   it('is deterministic for a seed and different across seeds', () => {
@@ -38,8 +46,8 @@ describe('generateGalaxy', () => {
 
   it('gives every system a unique id and name', () => {
     const state = generateGalaxy(3);
-    expect(new Set(state.systems.map((s) => s.id)).size).toBe(60);
-    expect(new Set(state.systems.map((s) => s.name)).size).toBe(60);
+    expect(new Set(state.systems.map((s) => s.id)).size).toBe(63);
+    expect(new Set(state.systems.map((s) => s.name)).size).toBe(63);
   });
 
   it('makes core systems populated and explored by both sides', () => {
@@ -107,7 +115,7 @@ describe('generateGalaxy', () => {
       seen.add(freeport.chartName!);
       // Out past the charts, and nobody's: the Brethren govern nothing.
       const reach = state.sectors.find((r) => r.id === freeport.sectorId)!;
-      expect(['Salt Reach', 'Rime Reach']).toContain(reach.name);
+      expect(FRONTIER).toContain(reach.name);
       expect(freeport.control).toBe('neutral');
       expect(freeport.explored.empire).toBe(false);
       expect(freeport.explored.alliance).toBe(true);
@@ -163,14 +171,14 @@ describe('generateGalaxy', () => {
     }
   });
 
-  it('starts the two frontier Reaches unexplored, a quarter of them settled behind the fog', () => {
+  it('starts the three frontier Reaches unexplored, a quarter of them settled behind the fog', () => {
     let settled = 0;
     let total = 0;
     for (const seed of [31, 32, 33, 34, 35, 36, 37, 38]) {
       const state = generateGalaxy(seed);
       const base = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
       for (const sector of state.sectors) {
-        if (!['Rime Reach', 'Salt Reach'].includes(sector.name)) continue;
+        if (!FRONTIER.includes(sector.name)) continue;
         for (const id of sector.systemIds) {
           const system = state.systems.find((s) => s.id === id)!;
           expect(system.explored.empire, `${system.name} seed ${seed}`).toBe(false);
@@ -197,7 +205,7 @@ describe('generateGalaxy', () => {
       const state = generateGalaxy(seed);
       const base = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
       const baseReach = state.sectors.find((s) => s.id === base.sectorId)!;
-      expect(['Rime Reach', 'Salt Reach']).toContain(baseReach.name);
+      expect(FRONTIER).toContain(baseReach.name);
       const confed = state.fleets.filter((f) => f.faction === 'alliance');
       expect(confed).toHaveLength(4);
       for (const f of confed) expect(f.systemId).toBe(base.id);

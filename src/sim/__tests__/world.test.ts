@@ -36,9 +36,9 @@ describe('the world bible data', () => {
     }
   });
 
-  it('names 60 distinct islands', () => {
-    expect(allIslands).toHaveLength(60);
-    expect(new Set(allIslands.map((i) => i.name)).size).toBe(60);
+  it('names 63 distinct islands', () => {
+    expect(allIslands).toHaveLength(63);
+    expect(new Set(allIslands.map((i) => i.name)).size).toBe(63);
   });
 
   it('covers all seven Seas', () => {

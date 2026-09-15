@@ -374,13 +374,16 @@ Frontier: uncharted at the start, and where the Pirate Lords signed the articles
 
 _Inner Sea. Tropical / Caribbean: plantations, sugar, reefs, hurricanes, old money with divided loyalties._
 
-Open: charted, settled, and nobody's.
+Frontier: uncharted at the start, and where the Pirate Lords signed the articles. One island of these two Reaches is renamed **Freeport** every game and keeps its own position, outline and room — the place the Confederacy was founded, held by nobody.
 
 - **Coralhome**. The Reef-folk. Their ships are sung into shape over years.
 - **Bothaway**. Home of the Rumor Guild, who sell to both sides.
 - **Sluysvaan**. The great civilian dockyards.
 - **Umgulla**. Gambling and racing. Everyone owes someone here.
 - **Preston's Reach**. Signal towers. Word travels fast from here.
+- **The Shoals**. The Shoal-folk: webbed, night-eyed, and the best watchers in the world.
+- **Passh Bay**. Amber and turtle-shell. Three harbours and no customs house.
+- **Denby Cay**. Sugar and rum. Old money, and none of it decided.
 
 ## 8. What Lives in the Water
 

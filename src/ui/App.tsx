@@ -41,7 +41,7 @@ import { moodForEvent } from './narrator/mood';
 import { useAdvisorVoice } from './narrator/useAdvisorVoice';
 import { ReachSheet } from './ReachSheet';
 import { ReachListSheet } from './ReachListSheet';
-import type { IslandTab } from './IslandRow';
+import { tabForLayer, type IslandTab } from './IslandRow';
 import { SystemSheet } from './SystemSheet';
 import { StartScreen } from './StartScreen';
 import { Tutorial, alreadyTaught } from './Tutorial';
@@ -276,14 +276,17 @@ export function App() {
       return;
     }
     setOpenSystemId(systemId);
-    setOpenSystemTab('harbour');
+    setOpenSystemTab(tabForLayer(layer));
   };
 
   /**
    * From the chain chart or a Reach's island list: open one of its islands — or, if a
-   * crew member is waiting for a destination, send them there instead. The
-   * counts on an island are indicators now, so there is no per-tab entry to
-   * carry: an island always opens on its Harbour.
+   * crew member is waiting for a destination, send them there instead.
+   *
+   * Which tab it opens on is the filter's to say: with Idle yards on, a lit
+   * island is a yard standing about, so the island opens on its Buildings.
+   * With no filter it opens on the Harbour, as it always did, and the tabs
+   * swipe from wherever it landed.
    */
   const openIslandTab = (systemId: string) => {
     setOpenReachId(null);
@@ -293,7 +296,7 @@ export function App() {
       return;
     }
     setOpenSystemId(systemId);
-    setOpenSystemTab('harbour');
+    setOpenSystemTab(tabForLayer(layer));
   };
 
   const handleSail = (fleetId: string) => {

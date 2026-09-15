@@ -1,16 +1,16 @@
 # The opening
 
-(Seven Reaches, 60 islands, chosen by where the painting has its best harbours and islands rather than a quota per chain: Sovereign 15, Whalers' 9, Wreckers' 8, Rime 6, Cinder 8, Salt 9, Coral 5. Rime is the northern chain and three bergs of the ice; Whalers' is the long chain down the west.)
+(Seven Reaches, 63 islands, chosen by where the painting has its best harbours and islands rather than a quota per chain: Sovereign 15, Whalers' 9, Wreckers' 8, Rime 6, Cinder 8, Salt 9, Coral 8. Rime is the northern chain and three bergs of the ice; Whalers' is the long chain down the west; Coral is the spiral atoll in the south-east, which gained three islands when it went frontier — the painting had more land in that ring than five names were using.)
 
 Sean's rules, 14 September 2026, implemented in `src/sim/galaxy.ts` and
 tested in `src/sim/__tests__/galaxy.test.ts` and `defences.test.ts`. Every
 Reach carries a `role` in `src/data/reaches.json`; the three port cities of
 the great island carry `port: true`.
 
-**Frontier — Salt Reach and Rime Reach.** Always start
+**Frontier — Salt, Rime and Coral Reaches.** Always start
 unexplored, for everyone. Each island has a 25% chance of being settled and
 held by neutral forces, behind the fog. The Confederacy has no base: its three
-Pirate Lords signed the articles on one random island in one of these two
+Pirate Lords signed the articles on one random island in one of these three
 Reaches, and that island is called **Freeport** for the rest of the game. It
 is a different island every game — the name is laid over whichever the dice
 pick, and that island keeps the position, the outline and the room the
@@ -55,8 +55,6 @@ companies' wages and went broke with nothing built.
 
 **Contested — Wreckers' Reach, Whalers' Reach, Cinder Reach.** Each side
 opens with two islands; the rest are settled, nobody's, and garrisoned.
-
-**Open — Coral Reach.** Charted, settled, nobody's.
 
 **Neutral forces.** A settled island that is nobody's opens with a garrison
 (one to three companies near the war, two to four on the frontier). A landing
