@@ -1484,3 +1484,61 @@ the state a command had *returned from* rather than the one it returned, and I
 asserted an island's allegiance could only go up over twenty days when drift
 takes it down. Commands are pure and allegiance is not monotonic; both were my
 instruments, not the code.
+
+**The combat engine, rebuilt — 15 September.** Sean's four calls on the naval
+combat spec: modal battle, one to three rounds, targeting by simulation, flee
+to the nearest friendly isle, and monsters with abilities of their own rather
+than different numbers.
+
+**Ships shoot now.** The old round added both sides' guns, halved the total
+and dealt that many one-point hits at random hulls. That could not express a
+damage roll — a seventh of one point is nothing — and it could not express a
+target choice either, because there were no attackers, only a number. Every
+hull takes its own shot: **75% to tell, damage the gun's worth give or take a
+seventh**, simultaneously resolved so a hull that goes down still fired.
+
+**The scale moved to make room.** 2/3, 4/5, 7/9 and 0/4 became 8/9, 17/18,
+30/32 and 0/14. The ratios between the four are unchanged, so the war balances
+where it balanced; what changed is that a damage roll now has somewhere to
+land. Forts, booms, the Lords' three ships and every creature moved with them.
+
+**One to three rounds, measured.** Against the opening fleets over forty
+battles: **decided by round 2 at the median, 40 of 40 inside three rounds**.
+An even match decides in one. Annihilation takes a round or two longer, but
+only because a beaten side with a transport left gets chased — which will stop
+happening the moment the loser can flee.
+
+**Targeting, and the honest version of "run sims".** Sean is right about what
+the answer looks like, but a Monte Carlo inside a round inside a day that
+ticks a hundred times a second is not affordable, and it would eat the seeded
+RNG stream besides. So the engine uses the closed form the sim converges on —
+threat removed per point of damage spent removing it — and a test
+**brute-forces the question the sim would answer and checks the closed form
+agrees: 295 of 300 random boards.** Verified rather than claimed. Jitter is
+kept deliberately, so fire spreads between hulls of equal worth and a battle
+reads as a battle rather than a list being worked down.
+
+**Flee** always works, always runs for the nearest island you hold, and costs
+only what can reach a fleet already under way: long guns, a fort you have to
+sail past, and a creature, which is in the water with you. Nothing in the game
+carries long guns yet — deliberately, because that is the arc — so early
+disengagement is free, and the day the first long-gunned hull launches is the
+day breaking off starts to cost. How many parting shots a hull eats is its
+**speed**: measured over sixty retreats under a Kraken, the first-rate took
+1618 damage and the sloop 260.
+
+**A creature is not a ship with different numbers.** The **Kraken** does not
+fire: it gets hold of a hull, and a quarter of its strikes take one whole,
+sound or not, which no amount of hull protects you from. It strikes twice a
+round and is hard to hit at all. The **Sea Dragon** catches more than one hull
+at a time. The **Derelict** is nearly impossible to hit back. And every
+creature can reach a fleet that is running, so you cannot simply swim away
+from one — which is also what keeps the cornered-creature drama intact.
+
+**War balance unmoved after all of it:** 8–8 over sixteen games with the AI in
+each seat, no stalls, median 568 days.
+
+**Still to come:** the modal battle itself — the clock stopping, the round
+report, the assessment, and FIGHT AGAIN or FLEE. Flee is a working order on
+the fleet card in the meantime, so the rules are playable before the ceremony
+around them exists.

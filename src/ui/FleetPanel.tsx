@@ -6,6 +6,8 @@ import {
   fleetGuns,
   fleetStatus,
   fleetHeldAshore,
+  fleeError,
+  refugeFor,
   isLordShip,
   officerEdge,
   officersOf,
@@ -108,6 +110,7 @@ export function FleetCard({
   onSail,
   onEmbark,
   onAssault,
+  onFlee,
   onOpenCharacter,
   onOpenShip,
   onOrderShips,
@@ -119,6 +122,7 @@ export function FleetCard({
   onSail: (fleetId: string) => void;
   onEmbark: (fleetId: string, companies: number) => void;
   onAssault: (fleetId: string) => void;
+  onFlee?: (fleetId: string) => void;
   onOpenCharacter?: (characterId: string) => void;
   onOpenShip?: (fleetId: string, shipId: string) => void;
   onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
@@ -133,6 +137,9 @@ export function FleetCard({
   const holdsIsland = system?.control === fleet.faction;
   /** A Lord of this fleet who is off on an errand, and so pinning the hull. */
   const waitingFor = fleetHeldAshore(state, fleet);
+  // Something to break off from, and somewhere to break off to.
+  const canFlee = canOrder && !atSea && fleeError(state, fleet.id, state.player) === null;
+  const refuge = canFlee ? refugeFor(state, fleet) : undefined;
 
   // One row per class, so eight sloops are a line rather than eight lines.
   const officers = officersOf(state, fleet);
@@ -322,6 +329,14 @@ export function FleetCard({
               </button>
             </div>
           )}
+          {/* Breaking off, where there is something to break off from. It
+              always works; what it costs is the run, and how much depends on
+              whether anything here can reach a fleet already going. */}
+          {canFlee && (
+            <button className="btn" onClick={() => onFlee?.(fleet.id)}>
+              Break off — run for {refuge?.name ?? 'safety'}
+            </button>
+          )}
           {!holdsIsland && fleet.troops > 0 && (
             <button className="btn btn--primary" onClick={() => onAssault(fleet.id)}>
               Land {fleet.troops} against {system?.garrison ?? 0} ashore
@@ -340,6 +355,7 @@ export function ShipsHere({
   onSail,
   onEmbark,
   onAssault,
+  onFlee,
   onOpenCharacter,
   onOpenShip,
   onOrderShips,
@@ -350,6 +366,7 @@ export function ShipsHere({
   onSail: (fleetId: string) => void;
   onEmbark: (fleetId: string, companies: number) => void;
   onAssault: (fleetId: string) => void;
+  onFlee?: (fleetId: string) => void;
   onOpenCharacter?: (characterId: string) => void;
   onOpenShip?: (fleetId: string, shipId: string) => void;
   onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
@@ -460,6 +477,7 @@ export function ShipsHere({
           onSail={onSail}
           onEmbark={onEmbark}
           onAssault={onAssault}
+          onFlee={onFlee}
           onOpenCharacter={onOpenCharacter}
           onOpenShip={onOpenShip}
           onOrderShips={onOrderShips}

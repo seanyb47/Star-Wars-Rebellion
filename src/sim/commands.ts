@@ -4,7 +4,7 @@
  * can never crash the game.
  */
 import { cancelBuild, foundWorks, queueBuild } from './build';
-import { assault, embark, sailFleet } from './fleets';
+import { assault, embark, fleeBattle, sailFleet } from './fleets';
 import { isLord } from './lords';
 import { createRng } from './rng';
 import { generateGalaxy } from './galaxy';
@@ -185,6 +185,11 @@ export function orderRelieve(state: GameState, characterId: string): CommandResu
     if (fleet && fleet.voyage) throw new Error('The fleet is at sea.');
     relieve(draft, characterId);
   });
+}
+
+/** Break off a fight: take the parting volley, run for the nearest holding. */
+export function orderFlee(state: GameState, fleetId: string): CommandResult {
+  return run(state, (draft) => fleeBattle(draft, fleetId, createRng(draft.rngSeed), draft.player));
 }
 
 export function orderAssault(state: GameState, fleetId: string): CommandResult {

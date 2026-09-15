@@ -1,0 +1,105 @@
+import { describe, expect, it } from 'vitest';
+import { generateGalaxy } from '../galaxy';
+import { addShip, fleeBattle, fleeError, refugeFor } from '../fleets';
+import { orderFlee } from '../commands';
+import { createRng } from '../rng';
+import type { GameState, ShipClassId } from '../types';
+
+/** Two sides in one harbor, with the Crown's squadron ready to break off. */
+function standoff(theirs: ShipClassId[] = ['tempest'], mine: ShipClassId[] = ['kestrel', 'sovereign']) {
+  const state = generateGalaxy(501, 'empire');
+  const isle = state.systems.find((s) => s.control === 'none' && !s.beast)!;
+  state.fleets.length = 0;
+  for (const c of mine) addShip(state, isle, 'empire', c);
+  for (const c of theirs) addShip(state, isle, 'alliance', c);
+  const fleet = state.fleets.find((f) => f.faction === 'empire')!;
+  return { state, isle, fleet };
+}
+
+const hurt = (state: GameState, id: string) =>
+  state.fleets.find((f) => f.id === id)?.ships.reduce((n, s) => n + s.damage, 0) ?? 0;
+
+describe('breaking off', () => {
+  it('always works, and runs for the nearest island you hold', () => {
+    const { state, isle, fleet } = standoff();
+    const refuge = refugeFor(state, fleet)!;
+    expect(refuge.control).toBe('empire');
+    // Nearest, not merely any: nothing of ours is closer.
+    for (const s of state.systems.filter((x) => x.control === 'empire' && x.id !== refuge.id)) {
+      expect(Math.hypot(s.x - isle.x, s.y - isle.y)).toBeGreaterThanOrEqual(
+        Math.hypot(refuge.x - isle.x, refuge.y - isle.y) - 1e-9,
+      );
+    }
+    fleeBattle(state, fleet.id, createRng(3), 'empire');
+    expect(fleet.voyage?.targetSystemId).toBe(refuge.id);
+    expect(fleet.voyage!.daysRemaining).toBeGreaterThan(0);
+  });
+
+  it('costs nothing at all when nothing present can reach', () => {
+    // No long guns anywhere in the game yet, and no fort on a neutral island:
+    // early disengagement is free, which is exactly the arc the spec wants.
+    const { state, fleet } = standoff();
+    fleeBattle(state, fleet.id, createRng(5), 'empire');
+    expect(hurt(state, fleet.id)).toBe(0);
+  });
+
+  it('costs the slow hulls when something can', () => {
+    const { state, isle, fleet } = standoff();
+    // A creature is always able to reach a fleet under way — it is in the
+    // water with you, and not being able to swim away from the Kraken is the
+    // whole point of it.
+    isle.beast = 'the-kraken';
+    isle.beastSeen = { empire: true, alliance: false };
+    isle.beastDamage = 0;
+    isle.beastSlain = undefined;
+    fleeBattle(state, fleet.id, createRng(9), 'empire');
+    expect(hurt(state, fleet.id)).toBeGreaterThan(0);
+  });
+
+  it('hurts a first-rate far more than a sloop on the way out', () => {
+    // Speed is what a hull's escape is made of: 3 for a ship of the line
+    // against 9 for a sloop, which is two or three parting shots against none
+    // or one.
+    let slow = 0;
+    let quick = 0;
+    for (let seed = 1; seed <= 60; seed++) {
+      const { state, isle, fleet } = standoff(['tempest'], ['sovereign', 'kestrel']);
+      isle.beast = 'the-kraken';
+      isle.beastSeen = { empire: true, alliance: false };
+      isle.beastDamage = 0;
+      isle.beastSlain = undefined;
+      const big = fleet.ships.find((s) => s.classId === 'sovereign')!;
+      const small = fleet.ships.find((s) => s.classId === 'kestrel')!;
+      fleeBattle(state, fleet.id, createRng(seed), 'empire');
+      slow += big.damage;
+      quick += small.damage;
+    }
+    console.log(`over 60 retreats: first-rate took ${slow}, sloop took ${quick}`);
+    expect(slow).toBeGreaterThan(quick);
+  });
+
+  it('refuses when there is nothing to run from, or nowhere to run to', () => {
+    const { state, fleet } = standoff();
+    // Nothing to run from: clear the enemy out.
+    const alone = generateGalaxy(501, 'empire');
+    const mine = alone.fleets.find((f) => f.faction === 'empire')!;
+    expect(fleeError(alone, mine.id, 'empire')).toBe('Nothing to break off from.');
+    // Nowhere to run to: nothing else is ours.
+    for (const s of state.systems) if (s.control === 'empire') s.control = 'none';
+    expect(fleeError(state, fleet.id, 'empire')).toBe('Nowhere to run to.');
+    expect(orderFlee(state, fleet.id).error).toBe('Nowhere to run to.');
+  });
+
+  it('will not leave a Lord standing on the beach', () => {
+    const state = generateGalaxy(501, 'alliance');
+    const lordShip = state.fleets.find((f) => f.faction === 'alliance' && f.ships.length === 1)!;
+    const isle = state.systems.find((s) => s.id === lordShip.systemId)!;
+    addShip(state, isle, 'empire', 'sovereign');
+    const lord = state.characters.find((c) => c.name.includes('Hale'))!;
+    lord.locationSystemId = isle.id;
+    lord.mission = { type: 'diplomacy', targetSystemId: isle.id, phase: 'working', daysRemaining: 3 };
+    lord.status = 'on_mission';
+    const err = fleeError(state, lordShip.id, 'alliance');
+    if (err) expect(err).toMatch(/ashore|break off/);
+  });
+});

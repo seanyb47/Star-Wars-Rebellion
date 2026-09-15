@@ -1,4 +1,7 @@
+import type { Combatant } from './round';
 import {
+  BEAST_HIT_CHANCE,
+  DAMAGE_SWING,
   BEAST_FLEE_CHANCE,
   BEAST_FLEE_HURT,
   BEAST_MOVE_CHANCE,
@@ -62,6 +65,27 @@ export interface Creature {
    */
   guns: number;
   hull: number;
+  /**
+   * How hard it is to hit. A thing mostly under the water is not a ship.
+   * Defaults to BEAST_HIT_CHANCE.
+   */
+  evade?: number;
+  /** Strikes it makes in a round. Most make one. */
+  shots?: number;
+  /**
+   * The chance a strike **takes** a hull rather than damaging it.
+   *
+   * Sean's: "maybe a kraken can grab a ship". It does not shoot — nothing in
+   * the water shoots — and modelling it as a very large gun made it a ship of
+   * the line with tentacles. What it does is get hold of something, and what
+   * that costs you is the whole hull, sound or not. Rare enough to be a story
+   * rather than a tax.
+   */
+  seize?: number;
+  /** Extra hulls a single strike catches, for a thing that breathes fire. */
+  splash?: number;
+  /** One line for the log when the special thing happens. */
+  strike?: string;
 }
 
 export const CREATURES: Creature[] = [
@@ -74,8 +98,12 @@ export const CREATURES: Creature[] = [
     lore:
       'Nobody has brought back a body, which is the only fact about it everyone agrees on. What comes back instead is timber: a strake, a hatch cover, once most of a quarterdeck, all of it scored with parallel grooves a hand apart. The Admiralty rates the loss of any hull in the drowned reaches as weather. The crews who sail them do not.',
     waters: ['drowned-isle', 'storm-isle'],
-    guns: 10,
-    hull: 8,
+    guns: 26,
+    hull: 90,
+    evade: 0.5,
+    shots: 2,
+    seize: 0.25,
+    strike: 'takes hold of',
   },
   {
     slug: 'young-sea-dragon',
@@ -86,8 +114,11 @@ export const CREATURES: Creature[] = [
     lore:
       'Only the young are ever seen, which has kept the argument going for two centuries: either the old ones go somewhere nobody sails, or there are no old ones and the young are all there is. They take seals, and boats that look like seals from below. A grown one has never been measured, and every figure ever given for the length of one was given by a man who did not stay to check.',
     waters: ['rock-isle', 'ice-isle'],
-    guns: 6,
-    hull: 5,
+    guns: 16,
+    hull: 50,
+    evade: 0.6,
+    splash: 1,
+    strike: 'rakes',
   },
   {
     slug: 'ghost-ship',
@@ -98,8 +129,10 @@ export const CREATURES: Creature[] = [
     lore:
       'She is under sail, she holds a course, and she has answered no hail in living memory. Boarding parties have gone across four times that are written down. Three found her empty, dry and in good order, with the log written up to a date nobody can read. The fourth did not come back, and the ship that sent them wrote her off and turned for home, which is what every captain since has done.',
     waters: ['drowned-isle', 'tide-isle', 'ice-isle'],
-    guns: 4,
-    hull: 3,
+    guns: 11,
+    hull: 28,
+    evade: 0.35,
+    strike: 'fires into',
   },
   {
     slug: 'sea-turtle',
@@ -419,4 +452,68 @@ export function stirBeasts(state: GameState, rng: Rng): void {
     if (!anchored && takeAtSea(state, system, rng)) continue;
     prowl(state, system, rng);
   }
+}
+
+// --- In the round ----------------------------------------------------------
+
+/**
+ * The creature as something the battle round can shoot at.
+ *
+ * It keeps its damage on the island rather than on an object of its own, so
+ * this is a view onto `system.beastDamage` that the round can treat exactly
+ * like a hull. Undefined where there is nothing alive in the water.
+ */
+export function beastCombatant(system: System): Combatant | undefined {
+  const beast = beastAt(system);
+  if (!beast || !beastAlive(system)) return undefined;
+  return {
+    guns: beast.guns,
+    left: beast.hull - (system.beastDamage ?? 0),
+    whole: beast.hull,
+    hitChance: beast.evade ?? BEAST_HIT_CHANCE,
+    hurt: (amount) => {
+      system.beastDamage = Math.min(beast.hull, (system.beastDamage ?? 0) + amount);
+      return system.beastDamage >= beast.hull;
+    },
+  };
+}
+
+/** How many times it comes at somebody in a round. */
+export function monsterShots(system: System): number {
+  return beastAt(system)?.shots ?? 1;
+}
+
+/**
+ * What a creature does instead of firing a broadside.
+ *
+ * This is the whole reason a creature is not simply a ship with different
+ * numbers. The Kraken gets hold of a hull and takes it down whole, sound or
+ * not, which is a thing no fleet can do and no amount of hull protects you
+ * from. The Sea Dragon catches more than one at a time. The Derelict does the
+ * ordinary thing, and is nearly impossible to hit back.
+ */
+export function monsterStrike(
+  state: GameState,
+  system: System,
+  target: Combatant,
+  rng: Rng,
+): void {
+  const beast = beastAt(system);
+  if (!beast) return;
+  if (!rng.chance(target.hitChance)) return;
+
+  if (beast.seize && rng.chance(beast.seize)) {
+    // Taken. Not damaged — taken. Whatever it had left goes with it.
+    target.hurt(target.left);
+    if (system.explored[state.player]) {
+      pushEvent(state, {
+        kind: 'loss',
+        text: `${beast.name} ${beast.strike ?? 'takes'} a hull off ${system.name} and it is gone under.`,
+        systemId: system.id,
+      });
+    }
+    return;
+  }
+  const swing = 1 + (rng.next() * 2 - 1) * DAMAGE_SWING;
+  target.hurt(Math.max(1, Math.round(beast.guns * swing)));
 }

@@ -79,22 +79,70 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
  * blockade: under BOOM_BLOCKADE_GUNS of enemy fire the port stays open, so a
  * single sloop lying off a boomed harbor is a nuisance rather than a siege.
  */
-export const FORT_GUNS = 5;
+// Scaled with the hulls: a fort still fires like a frigate and a bit, and a
+// boom still holds a port open under anything short of half a squadron.
+export const FORT_GUNS = 20;
 export const BOOM_DEFENCE = 2;
-export const BOOM_BLOCKADE_GUNS = 6;
+export const BOOM_BLOCKADE_GUNS = 25;
 
 /**
- * How much shot a creature soaks.
+ * One round of shooting, as the spec sets it out.
  *
- * A ship takes a hit for roughly every two guns firing at it (see applyFire);
- * a creature takes one for every six. It is not a hull and it does not stand
- * there being shot at: it is under the water most of the time and the guns
- * cannot be depressed far enough for most of the rest. The effect is that a
- * sloop or two cannot clear one and a squadron can, in a few days, while
- * being chewed on — which is the shape the thing wants. A creature does not
- * heal, so what a first attempt takes off it stays off.
+ * Three quarters of shots tell, and a hit does what the gun does give or take
+ * a seventh. The variance is deliberately narrow: it is there so a round is
+ * never quite what you expected, not so a weaker fleet can win by luck. The
+ * spec's own words — "I expected to win but took more damage than expected",
+ * never "the game decided my better fleet lost".
  */
-export const BEAST_ARMOUR = 6;
+export const HIT_CHANCE = 0.75;
+/**
+ * How much a target's score wobbles when the guns are choosing whom to shoot.
+ *
+ * Enough that fire spreads naturally between hulls of similar worth and a
+ * battle does not read as a machine working down a list; not so much that the
+ * obvious target survives while the guns shoot at a transport.
+ */
+export const TARGET_JITTER = 0.25;
+export const DAMAGE_SWING = 0.15;
+
+/**
+ * What a hull's long guns are worth firing into a fleet that is already
+ * running: half what they are worth in a stand-up fight. A ship can be
+ * frightening in line and still poor at catching somebody.
+ */
+export const LONG_GUN_SHARE = 0.5;
+
+/**
+ * How many parting shots a retreating hull eats, by its speed.
+ *
+ * The spec's table, at the three speeds hulls actually have. A sloop is out of
+ * range almost at once; a first-rate wears the whole broadside twice over.
+ * Indexed by speed, so a hull between bands reads off the nearest entry.
+ */
+export const RETREAT_SHOTS: Record<number, [number, number]> = {
+  10: [0, 0],
+  9: [0, 1],
+  8: [1, 1],
+  7: [1, 1],
+  6: [1, 2],
+  5: [2, 2],
+  4: [2, 2],
+  3: [2, 3],
+  2: [3, 3],
+  1: [3, 4],
+};
+
+/**
+ * A creature is not a hull and does not fight like one.
+ *
+ * It used to be a pool of guns against a divisor, because the whole battle was
+ * a pool of guns. Now that every ship rolls its own shot, a creature takes
+ * real damage against a real hull like everything else — the difference is in
+ * what it *does*, which is its own business and lives in creatures.ts. What is
+ * here is only the one number the round needs: how likely it is to be hit at
+ * all. A thing mostly under the water is harder to hit than a ship.
+ */
+export const BEAST_HIT_CHANCE = 0.55;
 
 /**
  * When a creature stops staying put, and how it behaves once it has.
@@ -162,11 +210,34 @@ export const TROOP_BUILD: BuildSpec = { costGold: 25, days: 5, label: terms.troo
  */
 export interface ShipRoleSpec extends BuildSpec {
   upkeep: number;
+  /** What she throws in a round. Damage is this, give or take a seventh. */
   guns: number;
+  /** What she takes before she goes down. */
   hull: number;
   carries: number;
   /** Passage time against a frigate's. Under 1 is faster. */
   pace: number;
+  /**
+   * How hard she is to catch when her fleet breaks off, 1 to 10.
+   *
+   * Three bands rather than the ten the spec allowed for, because there are
+   * only four kinds of hull and a ten-point scale for four values is a scale
+   * pretending to be a measurement. It reads as a number because the retreat
+   * table is a number, and it is not the same thing as pace: pace is how long
+   * a crossing takes and speed is how fast she is out of gun-range, which a
+   * sloop is good at and a first-rate is not.
+   */
+  speed: number;
+  /**
+   * Guns that reach. A hull without them cannot touch a fleet that is already
+   * running; a hull with them fires at half weight into one that is.
+   *
+   * Nothing has them yet, which is the point — early retreat is nearly free,
+   * and the day the first long-gunned hull is launched is the day breaking off
+   * starts to cost. Set per class, so the arc is a design decision rather than
+   * a property of being large.
+   */
+  longGuns?: boolean;
 }
 
 /**
@@ -176,10 +247,21 @@ export interface ShipRoleSpec extends BuildSpec {
  * cannot fire a shot.
  */
 export const SHIP_ROLES: Record<ShipRole, Omit<ShipRoleSpec, 'label'>> = {
-  small: { costGold: 45, days: 8, upkeep: 2, guns: 2, hull: 3, carries: 0, pace: 0.7 },
-  medium: { costGold: 85, days: 14, upkeep: 3, guns: 4, hull: 5, carries: 1, pace: 1 },
-  large: { costGold: 150, days: 22, upkeep: 5, guns: 7, hull: 9, carries: 2, pace: 1.35 },
-  transport: { costGold: 55, days: 10, upkeep: 2, guns: 0, hull: 4, carries: 3, pace: 1 },
+  // Firepower and hull are on a scale with room in them now. They were 2/3,
+  // 4/5, 7/9 and 0/4, where every hit took exactly one point off — a scale on
+  // which "give or take a seventh" rounds to nothing and a first-rate is only
+  // three times a sloop because there is nowhere finer to put it. The ratios
+  // between the four are unchanged, so the war balances where it balanced;
+  // what changed is that there is now somewhere to put a damage roll.
+  //
+  // Tuned so a fleet action is over in one to three rounds, at Sean's word.
+  // Hull is about one and a half times firepower, and three quarters of the
+  // shots tell, so two evenly matched squadrons take roughly half of each
+  // other off per round and the second or third round settles it.
+  small: { costGold: 45, days: 8, upkeep: 2, guns: 8, hull: 9, carries: 0, pace: 0.7, speed: 9 },
+  medium: { costGold: 85, days: 14, upkeep: 3, guns: 17, hull: 18, carries: 1, pace: 1, speed: 6 },
+  large: { costGold: 150, days: 22, upkeep: 5, guns: 30, hull: 32, carries: 2, pace: 1.35, speed: 3 },
+  transport: { costGold: 55, days: 10, upkeep: 2, guns: 0, hull: 14, carries: 3, pace: 1, speed: 5 },
 };
 
 /** What to call a size in front of the player. */

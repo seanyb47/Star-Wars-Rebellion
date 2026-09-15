@@ -12,6 +12,7 @@ import {
   orderBuild,
   resolvePendingMission,
   saveGame,
+  orderFlee,
   orderRelieve,
   reorderCrew,
   reorderFacilities,
@@ -382,6 +383,13 @@ export function App() {
     setState(result.state);
   };
 
+  /** Break off a fight: take the parting volley, run for the nearest holding. */
+  const handleFlee = (fleetId: string) => {
+    const result = orderFlee(state, fleetId);
+    if (result.error) return flash(result.error);
+    setState(result.state);
+  };
+
   /** Give up a post: off a deck, or out of an island's chair. */
   const handleRelieve = (characterId: string) => {
     const result = orderRelieve(state, characterId);
@@ -629,6 +637,7 @@ export function App() {
           onSail={handleSail}
           onEmbark={handleEmbark}
           onAssault={handleAssault}
+          onFlee={handleFlee}
           onOpenShip={(fleetId, shipId) => setOpenShip({ fleetId, shipId })}
           onOrderShips={handleOrderShips}
           onOrderOfficers={handleOrderOfficers}
