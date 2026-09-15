@@ -17,6 +17,7 @@ import {
   goAshore,
   isBlockaded,
   resolveLanding,
+  sailDays,
   sailError,
   sailFleet,
   updateBlockades,
@@ -802,3 +803,42 @@ describe('the Pirate Lords and their ships', () => {
 function sailErrorFor(state: GameState, characterId: string, systemId: string): string | null {
   return missionError(state, characterId, systemId);
 }
+
+describe('what the confirm sheet promises', () => {
+  it('quotes the days the voyage actually takes, pace and all', () => {
+    const state = generateGalaxy(31, 'empire');
+    const here = state.systems.find((s) => s.control === 'empire')!;
+    const near = state.systems.find((s) => s.sectorId === here.sectorId && s.id !== here.id)!;
+    const far = state.systems.find((s) => s.sectorId !== here.sectorId)!;
+
+    const fleet = addShip(state, here, 'empire', 'kestrel');
+    for (const to of [near, far]) {
+      const quoted = sailDays(state, fleet.id, to.id);
+      sailFleet(state, fleet.id, to.id, 'empire');
+      // The sheet's number and the voyage's number are the same number.
+      expect(fleet.voyage!.daysRemaining).toBe(quoted);
+      expect(quoted).toBeGreaterThan(0);
+      fleet.voyage = undefined;
+    }
+
+    // A slow hull in company slows the squadron, and the quote follows it.
+    const alone = sailDays(state, fleet.id, far.id);
+    // A new hull joins the fleet already lying there.
+    const joined = addShip(state, here, 'empire', 'sovereign');
+    expect(joined.id).toBe(fleet.id);
+    const together = sailDays(state, fleet.id, far.id);
+    expect(together).toBeGreaterThan(alone);
+    sailFleet(state, fleet.id, far.id, 'empire');
+    expect(fleet.voyage!.daysRemaining).toBe(together);
+  });
+
+  it('never quotes a crossing it would refuse to make', () => {
+    const state = generateGalaxy(31, 'empire');
+    const here = state.systems.find((s) => s.control === 'empire')!;
+    const fleet = addShip(state, here, 'empire', 'kestrel');
+    // Staying put is not a voyage, and the sheet is never opened for one.
+    expect(sailError(state, fleet.id, here.id, 'empire')).not.toBeNull();
+    // Nor is somebody else's fleet yours to send.
+    expect(sailError(state, fleet.id, here.id, 'alliance')).not.toBeNull();
+  });
+});

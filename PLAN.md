@@ -769,3 +769,28 @@ because the Crown wins by taking the three Lords and by nothing else. Sixteen
 idle games of sixteen end, median 481 days, eight wins each way; the
 Confederacy's day-one upkeep goes 49 to 51 for the two companies and its
 income is unchanged.
+
+**Nothing sails without saying how long — 15 September.** Sean's rule: moving
+island to island gets a confirm screen with the days on it. Time is the
+currency this game actually spends, and a voyage used to be ordered the
+instant you touched an island — the only way to learn it was a fourteen-day
+crossing was to watch the days go by with the squadron out of reach.
+
+Picking a destination now proposes the voyage rather than ordering it.
+`SailConfirmSheet` says what is sailing, from where to where, how many days,
+how many hulls, companies and crew are in it, and what is waiting at the other
+end. Where a slow hull is holding the squadron back it names her — "the
+Sovereign sets this pace; sail her separately and the rest arrive sooner" —
+because that is a fact the player can act on. `sailDays` is exported from
+`fleets.ts` and used by both the sheet and `sailFleet`, so the quoted figure
+and the voyage cannot drift apart; a test pins them together.
+
+Officers go the same way. The mission sheet already said "3 days' sail, then
+15 days' work", but only when the island offered more than one errand; with
+one it committed on the tap. It opens every time now, so no island-to-island
+move happens without the days in front of it. An island with nothing to do on
+it says so instead of opening an empty sheet.
+
+"Stay in harbour" abandons the order outright rather than leaving the chart
+waiting for another destination — it was a cancel that had not cancelled, and
+the next island you touched was taken for a second attempt.

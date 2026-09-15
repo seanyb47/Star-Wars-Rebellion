@@ -16,6 +16,7 @@ import {
   orderBoard,
   orderEmbark,
   orderSail,
+  sailError,
   missionTypeFor,
   missionsOffered,
   type ChartLayer,
@@ -32,6 +33,7 @@ import { Almanac } from './Almanac';
 import { CharacterSheet } from './CharacterSheet';
 import { BuildMenuSheet, BuildOrderSheet, firstItem, type BuildDraft } from './BuildSheet';
 import { MissionChoiceSheet } from './MissionChoiceSheet';
+import { SailConfirmSheet } from './SailConfirmSheet';
 import { CharactersScreen } from './CharactersScreen';
 import { FeedScreen } from './FeedScreen';
 import { GalaxyMap } from './GalaxyMap';
@@ -98,6 +100,8 @@ export function App() {
   const [layer, setLayer] = useState<ChartLayer>('allegiance');
   /** A fleet waiting to be told where to sail. Every island is a valid answer. */
   const [sailingFleetId, setSailingFleetId] = useState<string | null>(null);
+  /** A voyage the player has picked a destination for but not yet ordered. */
+  const [sailPlan, setSailPlan] = useState<{ fleetId: string; systemId: string } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   /** The opening lesson, offered once ever and only on a game you started. */
   const [teaching, setTeaching] = useState(false);
@@ -138,6 +142,7 @@ export function App() {
     openListId !== null ||
     menuOpen ||
     missionChoice !== null ||
+    sailPlan !== null ||
     buildMenuOpen ||
     orderOpen ||
     cards.length > 0 ||
@@ -251,28 +256,36 @@ export function App() {
       return;
     }
     if (sailingFleetId) {
-      const result = orderSail(state, sailingFleetId, systemId);
-      setSailingFleetId(null);
-      if (result.error) {
-        flash(result.error);
+      // Picking the island proposes the voyage; it does not order it. A
+      // crossing costs days the player cannot get back and cannot recall a
+      // fleet from, so the number goes in front of the decision.
+      const stop = sailError(state, sailingFleetId, systemId, state.player);
+      if (stop) {
+        setSailingFleetId(null);
+        flash(stop);
         return;
       }
-      setState(result.state);
-      flash('Weighing anchor.');
+      setOpenReachId(null);
+      setOpenListId(null);
+      setSailPlan({ fleetId: sailingFleetId, systemId });
       return;
     }
     if (pickingFor) {
+      // Every errand goes through the same sheet, even where the island
+      // offers only one: it is the screen that says how far the sail is and
+      // how long the work takes, and an officer sent by accident is a
+      // fortnight gone. An island with nothing to do on it never gets that
+      // far — sending is what would have failed, so say so and keep the
+      // officer in hand.
       const island = state.systems.find((s) => s.id === systemId)!;
       const officer = state.characters.find((c) => c.id === pickingFor)!;
-      const offered = missionsOffered(state, island, officer.faction as PlayableFaction);
-      if (offered.length > 1) {
-        // More than one thing to do there: the original's mission menu.
-        setOpenReachId(null);
-        setOpenListId(null);
-        setMissionChoice({ characterId: pickingFor, systemId });
+      if (missionsOffered(state, island, officer.faction as PlayableFaction).length === 0) {
+        flash(`Nothing for ${officer.name} to do on ${island.name}.`);
         return;
       }
-      sendOfficer(pickingFor, systemId);
+      setOpenReachId(null);
+      setOpenListId(null);
+      setMissionChoice({ characterId: pickingFor, systemId });
       return;
     }
     setOpenSystemId(systemId);
@@ -626,6 +639,34 @@ export function App() {
             setOrderOpen(false);
           }}
           onClose={() => setOrderOpen(false)}
+        />
+      )}
+
+      {sailPlan && (
+        <SailConfirmSheet
+          state={state}
+          fleetId={sailPlan.fleetId}
+          targetSystemId={sailPlan.systemId}
+          onClose={() => {
+            // "Stay in harbour" means what it says: the order is off and the
+            // chart stops waiting for a destination. Leaving the fleet in
+            // hand read as a cancel that had not cancelled — the next island
+            // you touched was taken for a second attempt at the voyage
+            // instead of opening.
+            setSailPlan(null);
+            setSailingFleetId(null);
+          }}
+          onConfirm={() => {
+            const result = orderSail(state, sailPlan.fleetId, sailPlan.systemId);
+            setSailPlan(null);
+            setSailingFleetId(null);
+            if (result.error) {
+              flash(result.error);
+              return;
+            }
+            setState(result.state);
+            flash('Weighing anchor.');
+          }}
         />
       )}
 

@@ -162,6 +162,27 @@ export function sailError(
   return null;
 }
 
+/**
+ * How long this fleet would take to get there, in days.
+ *
+ * Exported because the player is asked to confirm a voyage before it is
+ * ordered, and the figure on that sheet has to be the figure the voyage
+ * actually takes — not a second calculation that agrees with this one until
+ * somebody edits one of them. `sailFleet` uses it too.
+ *
+ * A fleet is as quick as its slowest hull, so a ship of the line in with the
+ * sloops slows the whole squadron: that is `fleetPace`, and it is why the
+ * same crossing can cost different fleets different days.
+ */
+export function sailDays(state: GameState, fleetId: string, targetSystemId: string): number {
+  const fleet = findFleet(state, fleetId);
+  if (!fleet) return 0;
+  return Math.max(
+    1,
+    Math.round(travelDays(state, fleet.systemId, targetSystemId) * fleetPace(fleet)),
+  );
+}
+
 export function sailFleet(
   state: GameState,
   fleetId: string,
@@ -172,10 +193,7 @@ export function sailFleet(
   if (error) throw new Error(error);
   const fleet = findFleet(state, fleetId)!;
   const target = getSystem(state, targetSystemId);
-  const days = Math.max(
-    1,
-    Math.round(travelDays(state, fleet.systemId, targetSystemId) * fleetPace(fleet)),
-  );
+  const days = sailDays(state, fleetId, targetSystemId);
   fleet.voyage = { targetSystemId, daysRemaining: days };
   pushEvent(state, {
     kind: 'order',
