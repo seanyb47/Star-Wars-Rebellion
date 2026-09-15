@@ -13,7 +13,7 @@ import {
   SCOUT_PER_ISLAND,
   shipSpec,
 } from './constants';
-import { getSystem, nextId, otherFaction, pushEvent } from './helpers';
+import { getSystem, nextId, otherFaction, pushEvent, setSupport } from './helpers';
 import { captureLord, isLord, isLordShip, shipPower } from './lords';
 import { travelDays } from './missions';
 import type { Rng } from './rng';
@@ -556,13 +556,13 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   const holding = fleet.troops;
   fleet.troops = 0;
   system.garrison = holding;
-  const taken = otherFaction(fleet.faction);
   system.control = fleet.faction;
   system.uprising = false;
   system.explored[fleet.faction] = true;
-  // An island taken at gunpoint does not love you for it.
-  system.support[fleet.faction] = Math.max(system.support[fleet.faction], 35);
-  system.support[taken] = Math.min(system.support[taken], 55);
+  // An island taken at gunpoint does not love you for it: enough regard to
+  // hold it above a revolt, and no more. The rest of the island's feeling is
+  // the other side's, which is what taking a place by storm buys you.
+  setSupport(system, fleet.faction, Math.max(system.support[fleet.faction], 35));
 
   pushEvent(state, {
     kind: 'flip',

@@ -3,7 +3,6 @@ import {
   FOIL_INJURY_DAYS,
   FOIL_PER_WATCHER,
   INCITE_FOIL_CHANCE,
-  INCITE_SPILLOVER,
   INCITE_SUCCESS_SCALE,
   INCITE_SUPPORT_LOSS,
   FACILITY_LABEL,
@@ -20,7 +19,6 @@ import {
   RESEARCH_PROGRESS,
   SABOTAGE_PRIORITY,
   SURVEY_PER_ISLAND,
-  MISSION_SUPPORT_LOSS,
   MISSION_WORK_DAYS,
   TRAVEL_DAYS_CROSS_SECTOR,
   TRAVEL_DAYS_IN_SECTOR,
@@ -1000,9 +998,10 @@ function parleyOutcome(
     });
     return;
   }
+  // One change, because allegiance is one balance: what you win is what they
+  // lose, and saying it twice would carry the island twice as fast.
   const gain = parleyGain(character);
   applySupportChange(state, system, faction, gain);
-  applySupportChange(state, system, otherFaction(faction), -MISSION_SUPPORT_LOSS);
   pushEvent(state, {
     kind: 'mission',
     text: `${character.name} sways ${system.name}: allegiance up ${gain.toFixed(1)} points.`,
@@ -1035,11 +1034,10 @@ function inciteOutcome(
     });
     return;
   }
+  // Everything you take off the governor is yours, whether the island means
+  // it that way or not: there is no third place for an angry island to go.
   const loss = inciteLoss(character);
   applySupportChange(state, system, holder, -loss);
-  // Some of what you take off them you do not get: a stirred-up island is angry
-  // at its governor, not fond of you.
-  applySupportChange(state, system, faction, loss * INCITE_SPILLOVER);
   pushEvent(state, {
     kind: 'mission',
     text: `${character.name} stirs up ${system.name}: the governor's hold falls ${loss.toFixed(1)} points.`,

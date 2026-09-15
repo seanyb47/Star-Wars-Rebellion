@@ -26,11 +26,11 @@ export function allegianceSegments(system: System): AllegianceSegment[] {
 /**
  * The same rule for any pair of shares — a single island, or an average.
  *
- * The two sides' support are independent numbers, each 0–100, and nothing in
- * the simulation stops both being high at once: an island can be 70 Crown and
- * 60 rebel, with plenty of sympathy for each. So when they sum past 100 the
- * bar shows the *balance* between them, scaled to fit, and there is no
- * undecided share to draw. Under 100, the remainder really is undecided.
+ * The two sides' regard for an island adds up to a hundred: there is no
+ * undecided share, because there is no undecided middle to win over. The bar
+ * is the balance between them and nothing else. Averages handed in from
+ * elsewhere may not total a hundred exactly, so they are scaled to fit rather
+ * than leaving a gap that would read as somebody's.
  */
 export function segmentsFor(
   empireSupport: number,
@@ -40,18 +40,16 @@ export function segmentsFor(
   let empire = clamp(empireSupport);
   let alliance = clamp(allianceSupport);
   const total = empire + alliance;
-  if (total > 100) {
+  if (total > 0 && total !== 100) {
     empire = (empire / total) * 100;
     alliance = (alliance / total) * 100;
   }
-  const undecided = Math.max(0, 100 - empire - alliance);
 
   // A stable order behind the sort, so equal shares never swap between renders.
-  const order: Array<AllegianceSegment['faction']> = ['empire', 'alliance', 'neutral'];
+  const order: Array<AllegianceSegment['faction']> = ['empire', 'alliance'];
   return [
     { faction: 'empire' as const, pct: empire },
     { faction: 'alliance' as const, pct: alliance },
-    { faction: 'neutral' as const, pct: undecided },
   ]
     .filter((segment) => segment.pct > 0)
     .sort((a, b) => b.pct - a.pct || order.indexOf(a.faction) - order.indexOf(b.faction));

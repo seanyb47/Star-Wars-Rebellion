@@ -501,3 +501,56 @@ renders it, so the one-line explanation of each filter is written and never
 shown. The chart's rules live in the Almanac instead, under *Reading the
 chart*. Worth either surfacing the hints under the layer strip or deleting
 them.
+
+
+## Two sides, one hundred points — 15 September
+
+Sean's rule: every island has loyalty to two factions and nothing else. The
+two shares add up to a hundred on every inhabited island, so there is no
+undecided middle: a point one side wins is a point the other loses. An empty
+rock has no opinion and keeps none.
+
+`setSupport` and `shiftSupport` in `helpers.ts` are now the only places in the
+game that write either number, and everything that moved allegiance goes
+through them — parley, incitement, command, a landing, the Moot's point a day,
+settling an island, drift and spillover.
+
+**What had to change to keep the arithmetic honest.**
+
+- **Drift** used to pull each side's number separately, the holder's toward
+  sixty-five and the other's toward nothing, which cannot both be true of one
+  balance. It now moves the balance: toward sixty-five for a holder, toward
+  even for an island nobody holds.
+- **A parley** added its gain to you *and* took four off them. That is the
+  same sentence twice now, so the second half is gone.
+- **An incitement** took its loss off the governor and gave you a third of it,
+  on the grounds that an angry island is not a friendly one. There is no third
+  place for an angry island to go any more, so all of it lands on you. The
+  number the uprising check reads is unchanged.
+- **The flip bar** was sixty points with a twenty-five point lead — two ways of
+  saying the same thing once allegiance is a balance, and low enough that one
+  landed parley would carry an island that started level. It is a flat eighty
+  now: a plain supermajority, three or four parleys' work from even against a
+  drift that is always pulling back to the middle. `FLIP_SUPPORT_MARGIN`,
+  `MISSION_SUPPORT_LOSS` and `INCITE_SPILLOVER` are gone with it.
+- **A landing** set the attacker to at least thirty-five and capped the
+  defender at fifty-five; the first of those now implies the second.
+- **Unaligned islands** used to open at something like fifteen Crown and ten
+  Confederacy — mostly undecided. They now open as a lean: forty to sixty near
+  the war, forty-five to fifty-five out on the open sea, and never far enough
+  to come over on their own.
+
+**The bar in the interface** has two segments and no neutral remainder, on the
+island panel, the chain view and the island list alike.
+
+**Measured.** Sixteen idle games of sixteen end, median 494 days, range 204 to
+794, and every inhabited island in all sixteen finishes summing to a hundred.
+Expansion by parley is unhurt: the Confederate opponent still goes from eight
+islands to eighteen or twenty-one inside a year.
+
+**One test changed its subject.** The navy test measured the Confederate
+opponent building its way to a fleet; on most seeds that side now takes
+Highwater inside eight months and wins with the hulls it started with, never
+needing a yard. It measures the Crown instead, which has to hunt three ships
+across the Reaches and therefore fights a war long enough to build for: two
+yards to eight, five hulls to thirty-seven.

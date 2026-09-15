@@ -64,6 +64,13 @@ island opens with something to pay its way.
 Crown wins the day all three Lords are in irons at once: a Lord never leaves
 their ship, so that means finding the ships and taking them.
 
+**Loyalty is a balance.** Every inhabited island's regard for the two sides
+adds up to a hundred: there is no undecided middle, so a point won is a point
+taken. Unaligned islands open as a lean rather than a blank — forty to sixty
+Crown in the home and contested Reaches, forty-five to fifty-five further out
+— and come over at a flat eighty, which is three or four parleys' work from
+level.
+
 **Loyalty.** Three bands, and they cost money. Firm at ninety and up: the
 island ships everything to you. Steady from sixty: a seventh of its trade goes
 out the back to the other side. Thin below sixty: a quarter. In revolt: half,

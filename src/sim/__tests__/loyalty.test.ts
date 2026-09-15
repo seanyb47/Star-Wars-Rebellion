@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { advanceDay } from '../advanceDay';
 import { HELD_SUPPORT_LEVEL, SUPPORT_FIRM, SUPPORT_STEADY, loyaltyBand } from '../constants';
 import { islandTrade, smuggledShare, totalIncome } from '../economy';
 import { generateGalaxy } from '../galaxy';
-import { getSystem } from '../helpers';
-import { leakInformation, loyaltyBands, reportLoyaltySlips } from '../support';
+import { setSupport } from '../helpers';
+import { driftSupport, leakInformation, loyaltyBands, reportLoyaltySlips } from '../support';
 import { createRng } from '../rng';
 
 describe('the three bands', () => {
@@ -24,14 +23,15 @@ describe('the three bands', () => {
     // the resting state of every island in the game.
     expect(HELD_SUPPORT_LEVEL).toBeGreaterThanOrEqual(SUPPORT_STEADY);
     expect(HELD_SUPPORT_LEVEL).toBeLessThan(SUPPORT_FIRM);
-    let state = generateGalaxy(5, 'empire');
+    // Drift alone, with nobody arguing the other way: an island left to
+    // itself climbs out of the thin band and stops inside steady.
+    const state = generateGalaxy(5, 'empire');
     const island = state.systems.find((s) => s.control === 'empire')!;
-    island.support.empire = 40;
-    for (let d = 0; d < 400; d++) state = advanceDay(state);
-    const after = getSystem(state, island.id);
-    if (after.control === 'empire') {
-      expect(loyaltyBand(after.support.empire, after.uprising)).not.toBe('thin');
-    }
+    setSupport(island, 'empire', 40);
+    for (let d = 0; d < 400; d++) driftSupport(state);
+    expect(island.support.empire).toBeCloseTo(HELD_SUPPORT_LEVEL);
+    expect(island.support.alliance).toBeCloseTo(100 - HELD_SUPPORT_LEVEL);
+    expect(loyaltyBand(island.support.empire, island.uprising)).toBe('steady');
   });
 });
 

@@ -422,13 +422,19 @@ describe('the opponent builds toward its navy', () => {
     // opponent ran its treasury dry and its yards fell down; it no longer
     // does, but the question is the same: did it build more yards than it
     // started with, and put hulls in the water from them.
-    let state = generateGalaxy(1, 'empire');
+    //
+    // The Crown is the opponent here because the Crown has to fight a long
+    // war: it wins by hunting three ships across the Reaches, which takes
+    // years. The Confederate opponent is not measured for this because on
+    // most seeds it takes Highwater inside eight months and wins the war
+    // with the hulls it started with — a navy it never needed to build.
+    let state = generateGalaxy(1, 'alliance');
     const yardsOf = (s: typeof state) =>
       s.systems.flatMap((x) =>
-        x.facilities.filter((f) => f.owner === 'alliance' && f.type === 'shipyard' && !f.building),
+        x.facilities.filter((f) => f.owner === 'empire' && f.type === 'shipyard' && !f.building),
       ).length;
     const hullsOf = (s: typeof state) =>
-      s.fleets.filter((f) => f.faction === 'alliance').reduce((n, f) => n + f.ships.length, 0);
+      s.fleets.filter((f) => f.faction === 'empire').reduce((n, f) => n + f.ships.length, 0);
     const startYards = yardsOf(state);
     const startHulls = hullsOf(state);
     let peakYards = startYards;
@@ -438,9 +444,7 @@ describe('the opponent builds toward its navy', () => {
       peakYards = Math.max(peakYards, yardsOf(state));
       peakHulls = Math.max(peakHulls, hullsOf(state));
     }
-    // Both sides now open with two shipyards, so a third is a choice, not a
-    // need; what matters is that the water fills.
-    expect(peakYards).toBeGreaterThanOrEqual(startYards);
+    expect(peakYards).toBeGreaterThan(startYards);
     expect(peakHulls).toBeGreaterThan(startHulls);
   });
 

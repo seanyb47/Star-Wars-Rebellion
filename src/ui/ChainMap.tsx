@@ -590,8 +590,8 @@ export function ChainMap({
                     for being a smear under ten names; it is back because the
                     counts that crowded it are gone and it is the one thing,
                     with free ground, the chain view is now for. Every charted
-                    island carries it, settled or not: an unsettled one is all
-                    undecided, which is the truth of it. */}
+                    settled island carries it; the two shares always add up to
+                    a hundred, so the bar is the balance and nothing else. */}
                 {(() => {
                   const y = spot.y + (paintedGround ? 37 : 99);
                   let x = spot.x - 55;

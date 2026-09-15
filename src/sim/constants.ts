@@ -239,8 +239,17 @@ export function earns(item: BuildItem): boolean {
 }
 
 /** Support / control thresholds (spec 4.3). */
-export const FLIP_SUPPORT_MIN = 60;
-export const FLIP_SUPPORT_MARGIN = 25;
+/**
+ * What it takes to win an unaligned island over without landing a company.
+ *
+ * Allegiance is a two-way balance now, so the old pair of conditions — sixty
+ * points and a twenty-five point lead — were the same sentence twice, and at
+ * sixty a single landed parley would have carried an island that started
+ * even. Changing a flag wants a plain supermajority: four islanders in five,
+ * which is three or four parleys' work from level, against a drift that is
+ * always pulling the island back to the middle.
+ */
+export const FLIP_SUPPORT_MIN = 80;
 export const UPRISING_SUPPORT = 30;
 export const UPRISING_END_SUPPORT = 40;
 export const SPILLOVER_FRACTION = 0.2;
@@ -266,7 +275,6 @@ export const TRAVEL_DAYS_CROSS_SECTOR = 10;
 export const MISSION_WORK_DAYS = 15;
 export const FOIL_CHANCE = 0.1;
 export const FOIL_INJURY_DAYS = 20;
-export const MISSION_SUPPORT_LOSS = 4;
 /** Stirring up a revolt on an island the enemy holds. Far more dangerous than
  *  talking to people who have not chosen a side: their garrison, their harbour,
  *  their crew watching the strangers ask questions. */
@@ -354,9 +362,6 @@ export const SABOTAGE_PRIORITY = [
   'refinery',
   'mine',
 ] as const;
-/** The share of a governor's lost grip that comes to you. Stirring an island up
- *  makes it angry at its rulers, not fond of the strangers who stirred it. */
-export const INCITE_SPILLOVER = 0.35;
 /** How much the opponent discounts an incitement against courting an unaligned
  *  island, so it does not spend every officer harrying islands it cannot keep. */
 export const INCITE_PRIORITY_PENALTY = 30;

@@ -150,20 +150,22 @@ describe('resolution', () => {
   it('raises your support and lowers theirs on a success', () => {
     const { state, diplomat, sameSector } = setup();
     diplomat.diplomacy = 100; // success chance 0.9
-    sameSector.support = { empire: 20, alliance: 30 };
+    sameSector.support = { empire: 20, alliance: 80 };
     startMission(state, diplomat.id, sameSector.id);
 
     // Seed 2 draws a success on the resolving day.
     runDays(state, 18, 2);
     const after = getSystem(state, sameSector.id);
+    // One balance: what you win is exactly what they lose.
     expect(after.support.empire).toBeCloseTo(38); // 20 + 8 + 100/10
-    expect(after.support.alliance).toBeCloseTo(26);
+    expect(after.support.alliance).toBeCloseTo(62);
+    expect(after.support.empire + after.support.alliance).toBeCloseTo(100);
   });
 
   it('flips a neutral world once the mission pushes support over the line', () => {
     const { state, diplomat, sameSector } = setup();
     diplomat.diplomacy = 100;
-    sameSector.support = { empire: 52, alliance: 10 };
+    sameSector.support = { empire: 65, alliance: 35 };
     startMission(state, diplomat.id, sameSector.id);
     runDays(state, 18, 2);
     expect(getSystem(state, sameSector.id).control).toBe('empire');
@@ -264,11 +266,11 @@ describe('incitement', () => {
     )!;
     island.explored.empire = true;
     island.uprising = false;
-    island.support = { empire: 5, alliance: allianceSupport };
+    island.support = { empire: 100 - allianceSupport, alliance: allianceSupport };
     return { state, agent, island };
   }
 
-  it('is harder than a parley and takes support off the holder, not onto you', () => {
+  it('is harder than a parley, and every point it takes off the holder is yours', () => {
     const { state, agent, island } = withEnemyIsland(70);
     expect(successChance(agent, 'incite')).toBeLessThan(successChance(agent, 'diplomacy'));
 
@@ -290,12 +292,12 @@ describe('incitement', () => {
       const after = getSystem(trial, island.id);
       if (after.support.alliance < before.alliance) {
         landed = true;
-        // Their grip falls by the officer's measure, and only part of it comes
-        // to you — an angry island is not a friendly one.
+        // Their grip falls by the officer's measure, and there is no third
+        // place for an angry island to go, so all of it lands on you.
         const lost = before.alliance - after.support.alliance;
         expect(lost).toBeGreaterThanOrEqual(inciteLoss(who) - 0.001);
-        expect(after.support.empire - before.empire).toBeLessThan(lost);
-        expect(after.support.empire - before.empire).toBeGreaterThan(0);
+        expect(after.support.empire - before.empire).toBeCloseTo(lost);
+        expect(after.support.empire + after.support.alliance).toBeCloseTo(100);
       }
     }
     expect(landed).toBe(true);

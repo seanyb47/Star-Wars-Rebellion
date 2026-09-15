@@ -84,15 +84,34 @@ export function pushEvent(state: GameState, event: Omit<GameEvent, 'id' | 'day'>
  *
  * Returns the actual delta applied to the target system after clamping.
  */
+/**
+ * Allegiance is a balance, not two opinions.
+ *
+ * Every island's regard for the two sides adds up to a hundred: there is no
+ * undecided middle to win over first, so a point one side gains is a point
+ * the other loses. Setting one number therefore sets both, and this is the
+ * only place in the game that writes either of them.
+ */
+export function setSupport(system: System, faction: PlayableFaction, value: number): void {
+  const mine = clampSupport(value);
+  system.support[faction] = mine;
+  system.support[otherFaction(faction)] = 100 - mine;
+}
+
+/** Move the balance by a signed amount, and report what actually moved. */
+export function shiftSupport(system: System, faction: PlayableFaction, delta: number): number {
+  const before = system.support[faction];
+  setSupport(system, faction, before + delta);
+  return system.support[faction] - before;
+}
+
 export function applySupportChange(
   state: GameState,
   system: System,
   faction: PlayableFaction,
   delta: number,
 ): number {
-  const before = system.support[faction];
-  system.support[faction] = clampSupport(before + delta);
-  const applied = system.support[faction] - before;
+  const applied = shiftSupport(system, faction, delta);
 
   const spill = delta * SPILLOVER_FRACTION;
   if (spill === 0) return applied;
@@ -101,7 +120,7 @@ export function applySupportChange(
     if (other.id === system.id) continue;
     if (other.sectorId !== system.sectorId) continue;
     if (!other.populated) continue;
-    other.support[faction] = clampSupport(other.support[faction] + spill);
+    shiftSupport(other, faction, spill);
   }
   return applied;
 }

@@ -5,7 +5,7 @@ import { advanceBuilds } from './build';
 import { advanceFleets, updateBlockades } from './fleets';
 import { allLordsTaken, powerAt, syncHome } from './lords';
 import { collectIncome, payUpkeep, recomputeLedger } from './economy';
-import { cloneState, pushEvent } from './helpers';
+import { cloneState, pushEvent, shiftSupport } from './helpers';
 import { advanceMissions } from './missions';
 import { createRng } from './rng';
 import {
@@ -67,7 +67,7 @@ export function advanceDay(state: GameState): GameState {
 function holdTheMoot(state: GameState): void {
   for (const system of state.systems) {
     if (system.control === 'empire' || !powerAt(state, system.id, 'moot')) continue;
-    system.support.alliance = Math.min(100, system.support.alliance + MOOT_SUPPORT_PER_DAY);
+    shiftSupport(system, 'alliance', MOOT_SUPPORT_PER_DAY);
   }
 }
 

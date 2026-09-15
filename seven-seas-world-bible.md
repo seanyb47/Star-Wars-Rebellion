@@ -54,7 +54,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 | Laser cannons | **Swivels & carronades** | Anti-small-craft |
 | Ion cannon | **Chain-shot / stilling shot** | Disabling fire |
 | Detection rating | **Watch rating** | Same |
-| Popular support | **Allegiance** | Same |
+| Popular support | **Allegiance** | A two-way balance: an island's regard for the two factions always totals 100, so there is no undecided share to win over first |
 | Raw materials | **Stores** (timber, iron, hemp, tar, reef-coral) | Mines produce |
 | Refined materials | **Fittings** | Refineries produce |
 | Maintenance capacity | **Upkeep** (crew & victuals) | Same |
@@ -1171,6 +1171,7 @@ not a bark, and it goes in the text.
 
 ## 15. CHANGELOG
 
+- **2026-09-15 v6.2** — **Allegiance is a balance.** Every inhabited island's loyalty to the two factions adds up to a hundred; there is no undecided share. A point one side wins is a point the other loses, so a parley no longer takes a separate bite out of the enemy and an incitement hands the inciter everything it strips from the governor. An unaligned island comes over at a flat eighty — a supermajority — rather than sixty with a lead.
 - **2026-09-14 v6.1** — **Loyalty is worth money.** Allegiance now reads in three bands — firm at 90, steady at 60, thin below — and the chart draws them as one dot at three sizes (the star stays exclusive to Highwater and the Lords' ships). Each band sets the share of an island's trade that smugglers run to the other faction: nothing, a seventh, a quarter, and half in a revolt, where the holder gets nothing at all. It is a transfer, so a sour Reach of yours pays for their fleet. A thin island also leaks word of itself onto the enemy's charts. A governed island now settles at 65 rather than 55, so steady is the resting state.
 - **2026-09-14 v6.0** — **No base. Three Pirate Lords.** Sean's call: the Confederacy has no seat at all. It has three Lords — Hale, Reyne, Jessup — each bound to a ship with a power of its own (§2 Faction B, §6B). They start together at a random uncharted Outer island where the Confederacy was formed; the Crown hears only that a meeting took place and that islands are declaring. One way to win each: the Confederacy takes Highwater; the Crown takes all three Lords, which means finding and taking their ships. The 60% attrition rule is gone. The star on the chart now marks exactly two things — Highwater and wherever a Lord's ship lies — and nothing else.
 - **2026-09-14 v5.9** — Sixty islands, not a hundred. The chart's sixty best sites — the biggest landmasses' harbours and the clearest islands, ranked by the painting itself, with no quota per chain — and the names that carry a note or a character keep their places. Sovereign 15, Whalers' 9, Wreckers' 8, Rime 6 (three on the chain, three bergs), Cinder 8, Salt 9, Coral 5. Everything dropped goes back on the shelf for the larger maps.

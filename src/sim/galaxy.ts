@@ -25,7 +25,7 @@ import type {
   ShipClassId,
 } from './types';
 import { recomputeLedger } from './economy';
-import { requiredGarrison } from './helpers';
+import { requiredGarrison, setSupport } from './helpers';
 
 /**
  * What each Sea's islands look like.
@@ -305,10 +305,14 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         // be courted. The home and contested Reaches are closer to the war and
         // more polarised than the settlements out on the open sea and beyond.
         system.control = 'neutral';
-        system.support =
-          role === 'home' || role === 'contested'
-            ? { empire: rng.range(15, 45), alliance: rng.range(10, 40) }
-            : { empire: rng.range(0, 20), alliance: rng.range(0, 20) };
+        // Which way it leans, and how far. Near the war an island has heard
+        // the arguments and has opinions; out on the open sea and beyond it
+        // is barely off level. Never far enough to come over on its own.
+        setSupport(
+          system,
+          'empire',
+          role === 'home' || role === 'contested' ? rng.range(40, 60) : rng.range(45, 55),
+        );
         // Settled and nobody's means somebody is holding it. A landing has to
         // beat these companies; a parley has to win them over.
         const [lo, hi] = NEUTRAL_GARRISON[role];
@@ -327,25 +331,20 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   const contestedSectors = sectors.filter((sec) => roleOf(reachOf(sec)) === 'contested');
   const frontierSectors = sectors.filter((sec) => roleOf(reachOf(sec)) === 'frontier');
 
-  const hold = (
-    system: System,
-    owner: PlayableFaction,
-    support: { empire: number; alliance: number },
-  ) => {
+  // Allegiance is a balance: an island's regard for its holder is the only
+  // number an opening needs to state, and the other side has the rest.
+  const hold = (system: System, owner: PlayableFaction, support: number) => {
     system.control = owner;
     system.populated = true;
-    system.support = support;
+    setSupport(system, owner, support);
   };
-  const loyal = (owner: PlayableFaction) =>
-    owner === 'empire'
-      ? { empire: rng.range(65, 85), alliance: rng.range(5, 15) }
-      : { empire: rng.range(5, 15), alliance: rng.range(65, 85) };
+  const loyal = () => rng.range(65, 85);
 
   // --- The Crown's seat: Highwater, the port city the world bible marks. ---
   const capital =
     systems.find((system) => system.name === factionData.empire.capitalIslandName) ??
     byId.get(homeSector.systemIds[0])!;
-  hold(capital, 'empire', { empire: 100, alliance: 0 });
+  hold(capital, 'empire', 100);
 
   // --- Home Reach: the seat, one of the other two ports, one more island. ---
   const empireSystems: System[] = [capital];
@@ -357,13 +356,13 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   );
   const otherPorts = homeIslands.filter((s) => flaggedPorts.has(s.name));
   const secondPort = rng.pick(otherPorts.length > 0 ? otherPorts : homeIslands);
-  hold(secondPort, 'empire', loyal('empire'));
+  hold(secondPort, 'empire', loyal());
   empireSystems.push(secondPort);
   const third = rng.pick(homeIslands.filter((s) => s.id !== secondPort.id));
   // Held, not loved: allegiance in the thirties and forties, above the
   // uprising line and under the garrison's boot. The island the Confederacy
   // will come for first, which is the point.
-  hold(third, 'empire', { empire: rng.range(32, 45), alliance: rng.range(25, 40) });
+  hold(third, 'empire', rng.range(32, 45));
   empireSystems.push(third);
 
   // The Confederacy has a foothold in the Crown's own Reach: one island, or
@@ -375,7 +374,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     homeIslands.filter((s) => s.control === 'neutral' && !flaggedPorts.has(s.name)),
   );
   for (const system of homeLeft.slice(0, rng.range(...START_HOME_CONFEDERACY))) {
-    hold(system, 'alliance', loyal('alliance'));
+    hold(system, 'alliance', loyal());
     allianceSystems.push(system);
   }
 
@@ -384,7 +383,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     const picks = rng.shuffle(islandsOf(sector)).slice(0, START_CONTESTED_PER_SIDE * 2);
     for (const [index, system] of picks.entries()) {
       const owner: PlayableFaction = index < START_CONTESTED_PER_SIDE ? 'empire' : 'alliance';
-      hold(system, owner, loyal(owner));
+      hold(system, owner, loyal());
       (owner === 'empire' ? empireSystems : allianceSystems).push(system);
     }
   }

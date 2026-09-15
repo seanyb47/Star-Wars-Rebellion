@@ -9,27 +9,28 @@ function neutralCoreSystem(state: GameState) {
 }
 
 describe('control flips', () => {
-  it('flips a neutral world at 60 support with a 25 point margin', () => {
+  it('flips a neutral world at a supermajority', () => {
     const state = generateGalaxy(55);
     const system = neutralCoreSystem(state);
-    system.support = { empire: 60, alliance: 35 };
+    system.support = { empire: 80, alliance: 20 };
     expect(canFlip(system, 'empire')).toBe(true);
     resolveControlAndUnrest(state);
     expect(getSystem(state, system.id).control).toBe('empire');
   });
 
-  it('does not flip below 60 support', () => {
+  it('does not flip a point below the bar', () => {
     const state = generateGalaxy(55);
     const system = neutralCoreSystem(state);
-    system.support = { empire: 59, alliance: 10 };
+    system.support = { empire: 79, alliance: 21 };
     resolveControlAndUnrest(state);
     expect(getSystem(state, system.id).control).toBe('neutral');
   });
 
-  it('does not flip without a 25 point margin', () => {
+  it('wants a supermajority, not merely a lead', () => {
+    // Seven islanders in ten is a comfortable lead and still not a flag.
     const state = generateGalaxy(55);
     const system = neutralCoreSystem(state);
-    system.support = { empire: 70, alliance: 50 };
+    system.support = { empire: 70, alliance: 30 };
     resolveControlAndUnrest(state);
     expect(getSystem(state, system.id).control).toBe('neutral');
   });
@@ -37,7 +38,7 @@ describe('control flips', () => {
   it('emits an event when a world declares for a side', () => {
     const state = generateGalaxy(55);
     const system = neutralCoreSystem(state);
-    system.support = { empire: 5, alliance: 80 };
+    system.support = { empire: 15, alliance: 85 };
     const before = state.events.length;
     resolveControlAndUnrest(state);
     expect(state.events.length).toBeGreaterThan(before);

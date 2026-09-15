@@ -7,9 +7,8 @@ const island = (control: System['control'], empire: number, alliance: number) =>
 
 describe('allegiance bar', () => {
   it('orders by size, largest first', () => {
-    // 20 / 70 leaves 10 undecided, so blue comes last here.
-    expect(segmentsFor(20, 70).map((s) => s.faction)).toEqual(['alliance', 'empire', 'neutral']);
-    expect(segmentsFor(70, 20).map((s) => s.faction)).toEqual(['empire', 'alliance', 'neutral']);
+    expect(segmentsFor(30, 70).map((s) => s.faction)).toEqual(['alliance', 'empire']);
+    expect(segmentsFor(70, 30).map((s) => s.faction)).toEqual(['empire', 'alliance']);
   });
 
   it('ignores who holds the island', () => {
@@ -23,9 +22,10 @@ describe('allegiance bar', () => {
     expect(held[0].faction).toBe('alliance');
   });
 
-  it('sorts the undecided share in with the rest', () => {
+  it('has no undecided share to sort: the two always fill the bar', () => {
     // Nobody has made their mind up here, so blue leads.
-    expect(segmentsFor(20, 10).map((s) => s.faction)).toEqual(['neutral', 'empire', 'alliance']);
+    expect(segmentsFor(20, 10).map((s) => s.faction)).toEqual(['empire', 'alliance']);
+    expect(segmentsFor(20, 10).reduce((n, x) => n + x.pct, 0)).toBeCloseTo(100);
   });
 
   it('drops a share of nothing rather than drawing a sliver', () => {

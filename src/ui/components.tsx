@@ -60,12 +60,12 @@ export function ControlBadge({ faction }: { faction: Faction }) {
 
 /**
  * The island's allegiance as one bar: whoever holds it first from the left,
- * the other side next, and the undecided remainder in neutral blue. The
+ * the other side next. The two always add up to a hundred, so there is no
+ * undecided remainder to draw. The
  * figures underneath name the shares so the bar never has to be guessed at.
  */
 export function SupportBars({ system }: { system: System }) {
   const segments = allegianceSegments(system);
-  const undecided = Math.max(0, 100 - system.support.empire - system.support.alliance);
   return (
     <div>
       <div className="bar bar--tall">
@@ -86,12 +86,6 @@ export function SupportBars({ system }: { system: System }) {
               {Math.round(segment.pct)}
             </span>
           ))}
-        {undecided > 0 && (
-          <span>
-            <i style={{ background: allegianceColour('neutral') }} />
-            Undecided {Math.round(undecided)}
-          </span>
-        )}
       </div>
     </div>
   );

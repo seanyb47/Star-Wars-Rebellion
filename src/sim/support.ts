@@ -1,5 +1,4 @@
 import {
-  FLIP_SUPPORT_MARGIN,
   FLIP_SUPPORT_MIN,
   HELD_SUPPORT_LEVEL,
   LEAK_CHANCE,
@@ -10,7 +9,7 @@ import {
   loyaltyBand,
   type LoyaltyBand,
 } from './constants';
-import { isPlayable, otherFaction, pushEvent, requiredGarrison } from './helpers';
+import { isPlayable, otherFaction, pushEvent, requiredGarrison, setSupport } from './helpers';
 import type { Rng } from './rng';
 import factionData from '../data/factions.json';
 import type { GameState, PlayableFaction, System } from './types';
@@ -35,26 +34,30 @@ function factionName(faction: PlayableFaction): string {
 export function driftSupport(state: GameState): void {
   for (const system of state.systems) {
     if (!system.populated) continue;
-    for (const faction of ['empire', 'alliance'] as const) {
-      // Governing is its own argument, so a holder's standing settles at a
-      // workable level rather than bleeding to nothing. Everyone else's fades.
-      const toward = system.control === faction ? HELD_SUPPORT_LEVEL : 0;
-      const gap = toward - system.support[faction];
-      if (Math.abs(gap) <= SUPPORT_DRIFT) {
-        system.support[faction] = toward;
-        continue;
-      }
-      system.support[faction] += Math.sign(gap) * SUPPORT_DRIFT;
-    }
+    // One balance, not two opinions: drift moves where the island sits
+    // between the two sides. Governing is its own argument, so a holder's
+    // standing settles a little above sixty rather than bleeding away; an
+    // island nobody holds settles level, with the argument still open.
+    const holder = isPlayable(system.control) ? system.control : 'empire';
+    const toward = isPlayable(system.control) ? HELD_SUPPORT_LEVEL : 50;
+    const gap = toward - system.support[holder];
+    setSupport(
+      system,
+      holder,
+      Math.abs(gap) <= SUPPORT_DRIFT ? toward : system.support[holder] + Math.sign(gap) * SUPPORT_DRIFT,
+    );
   }
 }
 
-/** Does this faction meet the bar to win an unaligned island over (spec 4.3)? */
+/**
+ * Does this faction meet the bar to win an unaligned island over (spec 4.3)?
+ *
+ * One number, because allegiance is a balance: a lead over the other side is
+ * arithmetic on the same figure, not a second test.
+ */
 export function canFlip(system: System, faction: PlayableFaction): boolean {
   if (system.control !== 'neutral') return false;
-  const mine = system.support[faction];
-  const theirs = system.support[otherFaction(faction)];
-  return mine >= FLIP_SUPPORT_MIN && mine - theirs >= FLIP_SUPPORT_MARGIN;
+  return system.support[faction] >= FLIP_SUPPORT_MIN;
 }
 
 /**

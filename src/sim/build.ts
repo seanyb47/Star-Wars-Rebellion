@@ -17,8 +17,8 @@ import {
   freeRawSlots,
   isPlayable,
   nextId,
-  otherFaction,
   pushEvent,
+  setSupport,
 } from './helpers';
 import type { BuildItem, Facility, GameState, PlayableFaction, System } from './types';
 
@@ -395,8 +395,7 @@ function completeBuild(
   // Finishing anything on an empty island settles it (spec 4.3).
   if (!system.populated) {
     system.populated = true;
-    system.support[owner] = 100;
-    system.support[otherFaction(owner)] = 0;
+    setSupport(system, owner, 100);
     system.control = owner;
     pushEvent(state, {
       kind: 'flip',
