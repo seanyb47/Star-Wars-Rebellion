@@ -2105,3 +2105,99 @@ Three on screen at once, five seconds each. The cap applies to what is waiting
 as well as what is up: a card read at leisure could have a hundred quiet days
 behind it, and the answer to that is the three most recent, not a hundred lines
 to sit through.
+
+## Playing it three hundred times — 15 September, night
+
+Sean: *"I want you to take a few hours and run tons of gameplay tests. Play full
+games. Tell me what you get."*
+
+So: a harness in `lab/` that plays whole wars headless, audits the state every
+day against everything that must be true of it, counts what every rule actually
+did, and prints a list of anything that never happened at all. Then about three
+hundred games through it, both seats, with and without a scripted player at the
+wheel.
+
+The invariant auditor found six real bugs on its first run. All six are fixed.
+
+### The bugs
+
+**One officer crewing thirty-seven squadrons.** `boardError` asked whether
+somebody was already aboard *this* fleet — the same mistake as asking whether a
+chair is empty rather than whether the person is sitting somewhere. The
+opponent's signing-on pass runs once per fleet, so its best captain ended up
+serving with every hull it owned and his Leadership was counted in all of them.
+Now serving with one squadron refuses the next.
+
+**A navy of confetti.** A new hull joins the fleet already at the island —
+unless that fleet is at sea when the yard finishes, and then it is a squadron of
+one. Nothing put them back together. Measured over one war the Crown finished
+with forty-four hulls in thirty-seven squadrons, most of them a single sloop:
+nothing that could fight anything or carry a landing. `aiConsolidate` is now the
+opponent's habit. Deliberately not a rule of the world — splitting a squadron is
+an order the player gives on purpose, and a world that merged them back every
+morning would be undoing it.
+
+**Ghost fleets still sailing.** A creature takes a fleet in open water after the
+day's fighting is over. A squadron it emptied went on sailing to a destination
+it could not reach, voyage counting down, nothing left to arrive — and visible
+to the player as a fleet inbound. One per war. `clearWrecks` is now one rule
+called at the end of the fighting, at the end of the day, and at the end of any
+round the player fights by hand.
+
+**A posting three Reaches from its holder.** Three different ways to leave an
+island without giving up command of it: boarding a ship, being carried off a
+quay, and — closed earlier — taking an errand. A Lord abducted off Freeport
+still "held" Freeport from inside Highwater's cells for four hundred days, and
+the island went on being harder to infiltrate for it.
+
+**Home on enemy ground.** The Confederacy's home was chosen first thing in the
+morning; islands fall in the evening. `restoreLord` reads it to decide where an
+exchanged Lord is put ashore — which could be a harbor the Crown had taken that
+afternoon, handing them straight back. Home is worked out at the point of use
+now, and re-derived at the end of the day rather than the start.
+
+**A crash.** `aiPostLords` — written earlier the same night — asked for a
+Command posting on a neutral island. Command is only ever offered on ground you
+hold, so `startMission` threw, which in a running game is a white screen rather
+than a bad decision. It checks what the island actually offers now.
+
+### The one that would have cost a game
+
+The Crown's capital can be emptied by its own Home Fleet weighing anchor.
+
+Companies load themselves when a fleet sails (Sean cut the control for it, so
+nobody chooses this), and how many an island can spare was read off
+`requiredGarrison`. That ladder answers *how many companies stop this island
+rising*, and a firmly loyal island correctly answers **none**. It was being
+asked a different question: *how many may sail away*.
+
+Highwater at ninety-seven per cent loyal therefore let its whole garrison go.
+Measured: the capital sat at a garrison of nought for twenty-three days with
+nothing in the log about it, one Confederate squadron with four companies aboard
+walked in on day thirty-five, and the war was over on day thirty-six.
+
+Two floors now. A seat whose fall ends the war is never stripped at all, and the
+last company never leaves any island you hold — an empty harbor is taken by
+whoever turns up with one company, however much its people like you.
+
+### Research was dead, and now is not
+
+`craft` measured exactly **zero** at the end of every game, on both sides. The
+opponent's candidate islands are neutral ones, enemy ones, and its own in
+trouble; research lives on its own islands doing *well*, which is none of those,
+so the whole mechanic was unreachable for it. It now scores its own yards at 55
+— under an island, over inciting — and researches in about three wars in five.
+
+### What the numbers say now
+
+Three hundred games, invariants clean across every day of every one.
+
+| | player idle | with a pilot |
+|---|---|---|
+| Crown — Confederacy | 29 — 30 (1 unfinished) | 23 — 30 (7 unfinished) |
+| median length | 348 days | 252 days |
+| Crown wins | median 955 days | median 1,149 |
+| Confederacy wins | median 264 days | median 48 |
+
+Balance between the two AIs is even. The rest is in the report to Sean: what
+never happens, and why the Crown's capital is worth talking about.

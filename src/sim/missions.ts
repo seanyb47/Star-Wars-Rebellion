@@ -1102,6 +1102,13 @@ function abductOutcome(
   mark.status = 'captured';
   mark.injuredDays = CAPTIVE_DAYS;
   mark.mission = undefined;
+  // Whatever they were holding, they are not holding it now. Without this an
+  // island went on counting a commander who was in a cell three Reaches away
+  // — and went on being harder to infiltrate for it, which is the same free
+  // lunch the errand rule and the boarding rule already closed. Measured: a
+  // Lord taken off Freeport's quay still "held" Freeport for four hundred
+  // days, from inside Highwater.
+  relieve(state, mark.id);
   mark.locationSystemId = state.factions[faction].hqSystemId;
   const held = getSystem(state, mark.locationSystemId);
   pushEvent(state, {

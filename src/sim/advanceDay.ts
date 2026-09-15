@@ -3,7 +3,7 @@ import factionData from '../data/factions.json';
 import { runAI } from './ai';
 import { advanceBuilds } from './build';
 import { stirBeasts } from './creatures';
-import { advanceFleets, updateBlockades } from './fleets';
+import { advanceFleets, clearWrecks, updateBlockades } from './fleets';
 import { allLordsTaken, holdTheMoot, syncHome } from './lords';
 import { collectIncome, payUpkeep, recomputeLedger } from './economy';
 import { cloneState, pushEvent } from './helpers';
@@ -37,7 +37,6 @@ export function advanceDay(state: GameState): GameState {
   // Fleets move and fight before anything is counted, so a harbor shut this
   // morning pays nothing this evening.
   advanceFleets(next, rng);
-  syncHome(next);
   holdTheMoot(next);
   updateBlockades(next);
   collectIncome(next, rng);
@@ -58,11 +57,19 @@ export function advanceDay(state: GameState): GameState {
   // What is in the water takes its turn after the fighting, so a creature
   // that has just been hurt can decide to break off from it.
   stirBeasts(next, rng);
+  // Last, because a creature in open water sinks hulls after the fighting is
+  // over, and a squadron it emptied must not go on sailing.
+  clearWrecks(next);
   reportLoyaltySlips(next, bands);
   leakInformation(next, rng);
   payUpkeep(next, rng);
   recomputeLedger(next);
   runAI(next, rng);
+  // Last, so the day ends with home somewhere the Confederacy actually holds.
+  // It used to be worked out first thing, and then an island could fall in the
+  // evening — to drift, to a rising, or to the opponent's own landing after
+  // the ledger was cut — leaving home sitting on Crown ground until morning.
+  syncHome(next);
   checkVictory(next);
 
   next.rngSeed = rng.seed;
@@ -76,8 +83,9 @@ export function advanceDay(state: GameState): GameState {
  * Two ways the war ends, one each, and nothing else.
  *
  * The Confederacy wins the day it holds Highwater. The Crown wins the day all
- * three Pirate Lords are in irons at once — it has to find their ships out
- * in the Reaches and take them, which is the hunt the whole design points at.
+ * three Pirate Lords are in irons at once — it has to find the three of them
+ * out in the Reaches and carry them off a quay, which is the hunt the whole
+ * design points at.
  */
 export function checkVictory(state: GameState): void {
   const capital = state.systems.find((s) => s.id === state.factions.empire.hqSystemId);

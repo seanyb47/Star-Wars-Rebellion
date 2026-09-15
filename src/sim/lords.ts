@@ -123,7 +123,11 @@ export function holdTheMoot(state: GameState): void {
  */
 export function restoreLord(state: GameState, character: Character): void {
   if (!isLord(character)) return;
-  const home = getSystem(state, state.factions.alliance.hqSystemId);
+  // Worked out here rather than read off the faction's `hqSystemId`, which is
+  // a day-old answer: an island can fall in the evening, after home was last
+  // chosen, and putting an exchanged Lord ashore on ground the Crown took that
+  // afternoon hands them straight back.
+  const home = getSystem(state, confederateHome(state));
   character.locationSystemId = home.id;
   pushEvent(state, {
     kind: 'order',
@@ -140,11 +144,41 @@ export function restoreLord(state: GameState, character: Character): void {
  * loves it best — which is what the old rule fell back to once every Lord's
  * ship was gone, and is now simply the rule. Never an island the Crown holds.
  */
+/**
+ * Where the Confederacy's people go home to, as of right now.
+ *
+ * The island of theirs that loves them best; failing that — they hold nothing
+ * — the friendliest water the Crown does not hold. Never an island the Crown
+ * holds, which is the whole point of the second clause.
+ */
+export function confederateHome(state: GameState): string {
+  const held = state.systems
+    .filter((s) => s.control === 'alliance' && !s.uprising)
+    .sort((a, b) => b.support.alliance - a.support.alliance);
+  if (held[0]) return held[0].id;
+  const friendly = state.systems
+    .filter((s) => s.populated && s.control !== 'empire')
+    .sort((a, b) => b.support.alliance - a.support.alliance);
+  return friendly[0]?.id ?? state.factions.alliance.hqSystemId;
+}
+
 export function syncHome(state: GameState): void {
   const held = state.systems
     .filter((s) => s.control === 'alliance' && !s.uprising)
     .sort((a, b) => b.support.alliance - a.support.alliance);
-  if (held[0]) state.factions.alliance.hqSystemId = held[0].id;
+  if (held[0]) {
+    state.factions.alliance.hqSystemId = held[0].id;
+    return;
+  }
+  // Holding nothing at all. The old rule simply kept whatever it had, which
+  // over a losing war meant home stayed on an island that had since gone to
+  // the Crown — and a Lord exchanged out of irons was put ashore *inside*
+  // their harbor, to be taken again the same week. With no ground of their
+  // own, home is the friendliest water the Crown does not hold.
+  const friendly = state.systems
+    .filter((s) => s.populated && s.control !== 'empire')
+    .sort((a, b) => b.support.alliance - a.support.alliance);
+  if (friendly[0]) state.factions.alliance.hqSystemId = friendly[0].id;
 }
 
 /** Days a Lord spends in the Crown's cells before an exchange. */

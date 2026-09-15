@@ -611,6 +611,17 @@ export const RECRUIT_QUALITY_DIVISOR = 200;
 /** What the opponent adds for signing someone on, against courting an island.
  *  People are scarce and permanent; an island can be worked again next month. */
 export const AI_RECRUIT_BONUS = 120;
+/**
+ * What the opponent thinks a fortnight in its own yards is worth.
+ *
+ * Deliberately under an island — craft is a slow compounding thing and a
+ * neutral island is a whole island — but well over inciting, so it is what a
+ * spare officer does when there is nothing urgent. Before this the opponent
+ * could not research at all (its candidate islands were only ever neutral,
+ * enemy, or its own in trouble, and a yard on loyal ground is none of those),
+ * so `craft` measured exactly zero at the end of every game on both sides.
+ */
+export const AI_RESEARCH_BONUS = 55;
 
 /**
  * Loyalty, in three bands, and what each one costs you.

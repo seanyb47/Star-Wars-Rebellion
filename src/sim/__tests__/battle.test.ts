@@ -38,6 +38,13 @@ function world(seed = 7): { state: GameState; home: System } {
   return { state, home: getSystem(state, state.factions.empire.hqSystemId) };
 }
 
+/** An island that is not a seat, for rules about ordinary ground. */
+function plainIsle(state: GameState): System {
+  return state.systems.find(
+    (s) => s.populated && s.id !== state.factions.empire.hqSystemId && s.id !== state.factions.alliance.hqSystemId,
+  )!;
+}
+
 function put(state: GameState, system: System, faction: PlayableFaction, classes: ShipClassId[]) {
   let fleet = addShip(state, system, faction, classes[0]);
   for (const id of classes.slice(1)) fleet = addShip(state, system, faction, id);
@@ -215,26 +222,68 @@ describe('the assessment', () => {
 
 describe('companies load and unload themselves', () => {
   it('takes what the island can spare when a fleet sails, and no more', () => {
-    const { state, home } = world();
+    const { state } = world();
     state.player = 'alliance';
-    home.control = 'alliance';
-    home.support = { empire: 20, alliance: 80 };
-    home.garrison = 6;
-    const fleet = put(state, home, 'alliance', ['brig', 'brig']);
-    const spare = sparedCompanies(home);
+    const isle = plainIsle(state);
+    isle.control = 'alliance';
+    isle.explored.alliance = true;
+    isle.support = { empire: 20, alliance: 80 };
+    isle.garrison = 6;
+    const fleet = put(state, isle, 'alliance', ['brig', 'brig']);
+    const spare = sparedCompanies(isle, state);
     expect(spare).toBeGreaterThan(0);
-    expect(spare).toBeLessThan(home.garrison);
+    expect(spare).toBeLessThan(isle.garrison);
 
-    const to = state.systems.find((s) => s.id !== home.id && s.explored.alliance)!;
+    const to = state.systems.find((s) => s.id !== isle.id && s.explored.alliance)!;
     sailFleet(state, fleet.id, to.id, 'alliance');
     // Aboard, but never so many that the island drops under what holds it
     // quiet — an island that rises behind the fleet that emptied it is worse
     // than the landing was worth.
     expect(fleet.troops).toBe(Math.min(fleetCapacity(fleet), spare));
-    expect(home.garrison).toBeGreaterThanOrEqual(
-      requiredGarrison(home.support.alliance, home.uprising),
+    expect(isle.garrison).toBeGreaterThanOrEqual(
+      requiredGarrison(isle.support.alliance, isle.uprising),
     );
-    expect(home.garrison + fleet.troops).toBe(6);
+    expect(isle.garrison + fleet.troops).toBe(6);
+  });
+
+  it('never leaves an island of yours with nobody standing on it', () => {
+    // The ladder says a firmly loyal island needs no companies to stay quiet,
+    // which is true and was being read as "every company may sail away". An
+    // empty harbor is taken by whoever turns up with one company, however much
+    // its people like you.
+    const { state } = world();
+    state.player = 'alliance';
+    const isle = plainIsle(state);
+    isle.control = 'alliance';
+    isle.explored.alliance = true;
+    isle.support = { empire: 3, alliance: 97 };
+    isle.garrison = 4;
+    expect(requiredGarrison(isle.support.alliance, isle.uprising)).toBe(0);
+    expect(sparedCompanies(isle, state)).toBe(3);
+
+    const fleet = put(state, isle, 'alliance', ['brig', 'brig']);
+    const to = state.systems.find((s) => s.id !== isle.id && s.explored.alliance)!;
+    sailFleet(state, fleet.id, to.id, 'alliance');
+    expect(isle.garrison).toBe(1);
+  });
+
+  it('never takes a company off the seat whose fall ends the war', () => {
+    // Measured before this rule existed: the Crown's capital at ninety-seven
+    // per cent loyal was emptied by its own Home Fleet weighing anchor, sat at
+    // a garrison of nought for twenty-three days with nothing said about it in
+    // the log, and one enemy squadron with four companies aboard ended the war
+    // on day thirty-six. Nobody chose it — the loading is automatic.
+    const { state } = world();
+    const capital = getSystem(state, state.factions.empire.hqSystemId);
+    capital.garrison = 8;
+    capital.support = { empire: 97, alliance: 3 };
+    expect(sparedCompanies(capital, state)).toBe(0);
+
+    const fleet = put(state, capital, 'empire', ['fluyt', 'fluyt']);
+    const to = state.systems.find((s) => s.id !== capital.id && s.explored.empire)!;
+    sailFleet(state, fleet.id, to.id, 'empire');
+    expect(fleet.troops).toBe(0);
+    expect(capital.garrison).toBe(8);
   });
 
   it('never strips the last company off an island nobody lives on', () => {
@@ -245,16 +294,18 @@ describe('companies load and unload themselves', () => {
     rock.explored.alliance = true;
     rock.garrison = 1;
     const fleet = put(state, rock, 'alliance', ['brig']);
-    expect(sparedCompanies(rock)).toBe(0);
+    expect(sparedCompanies(rock, state)).toBe(0);
     sailFleet(state, fleet.id, home.id, 'alliance');
     expect(fleet.troops).toBe(0);
     expect(rock.garrison).toBe(1);
   });
 
   it('puts them ashore on arriving at an island of yours, and not on theirs', () => {
-    const { state, home } = world();
+    const { state } = world();
     state.player = 'alliance';
+    const home = plainIsle(state);
     home.control = 'alliance';
+    home.explored.alliance = true;
     home.garrison = 8;
     const mine = state.systems.find(
       (s) => s.id !== home.id && s.control === 'alliance' && s.populated,

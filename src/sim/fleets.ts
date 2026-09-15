@@ -35,7 +35,7 @@ import {
   requiredGarrison,
   setSupport,
 } from './helpers';
-import { isLord, lordPowerAt } from './lords';
+import { lordPowerAt } from './lords';
 import { travelDays } from './missions';
 import type { Rng } from './rng';
 import type {
@@ -150,7 +150,9 @@ export function addShip(
   }
   const fleet: Fleet = {
     id: nextId(state, 'flt'),
-    name: `Fleet ${state.fleets.filter((f) => f.faction === faction).length + 1}`,
+    // Counting the fleets you have gives the same name twice once one is
+    // sunk. `nextFleetName` takes the lowest number nobody is using.
+    name: nextFleetName(state, faction),
     faction,
     systemId: system.id,
     ships: [ship],
@@ -262,7 +264,7 @@ export function detachShips(
 }
 
 /** The next free "Fleet N" for a side, so numbers are not reused. */
-function nextFleetName(state: GameState, faction: PlayableFaction): string {
+export function nextFleetName(state: GameState, faction: PlayableFaction): string {
   const taken = new Set(state.fleets.filter((f) => f.faction === faction).map((f) => f.name));
   for (let n = 1; n < 200; n++) {
     const name = `Fleet ${n}`;
@@ -327,15 +329,36 @@ export function sailDays(state: GameState, fleetId: string, targetSystemId: stri
  *
  * What it needs to stay quiet is not spare: strip a garrison below its
  * requirement and the island rises behind the fleet that did it, which is a
- * worse outcome than the landing was worth. An island nobody lives on is held
- * by the company standing on it and nothing else, so its last one never moves
- * either.
+ * worse outcome than the landing was worth.
+ *
+ * But order is not the only thing a garrison is for, and reading this off
+ * `requiredGarrison` alone was a real hole. That ladder answers "how many
+ * companies stop this island rising", and a firmly loyal island answers
+ * *none* — correctly. It was being asked a different question: "how many can
+ * sail away". Measured, that emptied the Crown's capital.
+ *
+ * Highwater at ninety-seven per cent loyal needs nobody standing over it, so
+ * the fleet leaving took every company it had; the island sat at a garrison of
+ * nought for twenty-three days with nothing in the log about it; one
+ * Confederate squadron with four companies aboard walked in on day
+ * thirty-five, and the war was over on day thirty-six. Nobody chose any of
+ * that — the loading is automatic, because Sean cut the control for it, so it
+ * has to be the safe thing rather than the greedy one.
+ *
+ * Two floors on top of the ladder, then:
+ *
+ * - **A seat is never stripped.** Losing Highwater loses the Crown the war,
+ *   so no automatic anything takes its companies off it.
+ * - **The last company never leaves an island you hold.** An empty harbor is
+ *   taken by whoever shows up with one company, however loyal its people are.
  */
-export function sparedCompanies(system: System): number {
+export function sparedCompanies(system: System, state?: GameState): number {
   if (system.control !== 'empire' && system.control !== 'alliance') return 0;
+  // A capital whose fall ends the war keeps everything it has.
+  if (state && system.id === state.factions.empire.hqSystemId) return 0;
   const keep = Math.max(
     requiredGarrison(system.support[system.control], system.uprising),
-    system.populated ? 0 : 1,
+    1,
   );
   return Math.max(0, system.garrison - keep);
 }
@@ -359,7 +382,7 @@ function loadSpareCompanies(state: GameState, fleet: Fleet): void {
   const system = getSystem(state, fleet.systemId);
   if (system.control !== fleet.faction) return;
   const room = fleetCapacity(fleet) - fleet.troops;
-  const take = Math.min(room, sparedCompanies(system));
+  const take = Math.min(room, sparedCompanies(system, state));
   if (take <= 0) return;
   system.garrison -= take;
   fleet.troops += take;
@@ -450,7 +473,15 @@ export function boardError(
   if (character.status !== 'available') return `${character.name} is ${character.status}.`;
   if (character.locationSystemId !== fleet.systemId) return 'Not on this island.';
   if (fleet.officerIds.includes(characterId)) return 'Already aboard.';
-  if (isLord(character)) return `${character.name} does not leave their own ship.`;
+  // Serving with one squadron, never two.
+  //
+  // This checked only *this* fleet's roster, which is the same mistake as
+  // asking whether a chair is empty instead of whether the person is sitting
+  // somewhere. Measured over a full war: the opponent's officer-signing pass
+  // runs once per fleet, so one captain ended up crewing thirty-seven
+  // squadrons at once and his Leadership was counted in every one of them.
+  const serving = state.fleets.find((f) => f.officerIds.includes(characterId));
+  if (serving) return `${character.name} is already with the ${serving.name}.`;
   return null;
 }
 
@@ -463,14 +494,22 @@ export function board(
 ): void {
   const error = boardError(state, fleetId, characterId, actor);
   if (error) throw new Error(error);
+  // Taking a deck ends a posting, for the same reason taking an errand does:
+  // you have gone. Without this the island went on counting a commander who
+  // had sailed away with a squadron — measured over a war, a Lord posted to
+  // Avermere was standing in Highwater's harbor while Avermere still had the
+  // benefit of her, which is the free lunch the errand rule already closed.
+  for (const system of state.systems) {
+    if (system.commanderId === characterId) system.commanderId = undefined;
+  }
   findFleet(state, fleetId)!.officerIds.push(characterId);
 }
 
 export function goAshore(state: GameState, fleetId: string, characterId: string): void {
   const fleet = findFleet(state, fleetId);
   if (!fleet || isAtSea(fleet)) throw new Error('The fleet is at sea.');
-  const who = state.characters.find((c) => c.id === characterId);
-  if (who && isLord(who)) throw new Error(`${who.name} does not leave their own ship.`);
+  // A Lord used to be refused here, because a Lord was a hull and a hull does
+  // not walk down its own gangway. They are people, and they come ashore.
   fleet.officerIds = fleet.officerIds.filter((id) => id !== characterId);
   const character = state.characters.find((c) => c.id === characterId);
   if (character) character.locationSystemId = fleet.systemId;
@@ -538,10 +577,39 @@ export function advanceFleets(state: GameState, rng: Rng): void {
   }
 
   resolveBattles(state, rng);
-  // A fleet reduced to nothing is not a fleet. Anyone serving with her is put
-  // ashore where she lay rather than quietly ceasing to exist.
-  for (const fleet of state.fleets.filter((f) => f.ships.length === 0)) {
+  clearWrecks(state);
+}
+
+/**
+ * A fleet reduced to nothing is not a fleet.
+ *
+ * Anyone serving with her is put ashore where she lay, the companies that had
+ * no hull left to sit in are drowned, and she goes off the board. Whoever is
+ * aboard is dealt with first: quietly deleting a fleet with people on it
+ * strands them nowhere, which is what used to happen.
+ *
+ * Called at the end of the fighting **and** again at the end of the day. The
+ * fighting is not the only thing that sinks hulls — a creature takes a fleet
+ * in open water long after `advanceFleets` has finished, and a squadron it
+ * emptied went on sailing to a destination it could not reach, with a voyage
+ * counting down and nothing left to arrive. Measured: one such ghost per war,
+ * still under way a fortnight later, and visible to the player as a fleet
+ * inbound to an island.
+ */
+export function clearWrecks(state: GameState): void {
+  const gone = state.fleets.filter((f) => f.ships.length === 0);
+  if (gone.length === 0) return;
+  for (const fleet of gone) {
     for (const officer of officersOf(state, fleet)) officer.locationSystemId = fleet.systemId;
+    fleet.officerIds = [];
+    if (fleet.troops > 0) {
+      pushEvent(state, {
+        kind: 'loss',
+        text: `${fleet.troops} ${fleet.troops === 1 ? 'company goes' : 'companies go'} down with the last of ${fleet.name}.`,
+        systemId: fleet.systemId,
+      });
+      fleet.troops = 0;
+    }
   }
   state.fleets = state.fleets.filter((f) => f.ships.length > 0);
 }
@@ -684,6 +752,10 @@ export function fightBattleRound(state: GameState, rng: Rng): void {
   pending.last = tally;
   pending.theyFled = enemyBreaksOff(state, system, rng);
   pending.settled = outcomeOf(state, system, pending);
+  // The player fights an action round by round, outside the day's own pass,
+  // so a squadron sunk here would sit on the board with no hulls until the
+  // clock next turned. The wrecks go at the end of the round that made them.
+  clearWrecks(state);
 }
 
 /**
@@ -1406,6 +1478,7 @@ export function breakOffBattle(state: GameState, rng: Rng): void {
   if (!fightingAt(state, system.id).some((f) => f.faction === state.player)) {
     pending.settled = 'you-fled';
   }
+  clearWrecks(state);
 }
 
 /** Dismiss a settled action. The clock starts again when this clears. */

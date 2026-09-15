@@ -7,6 +7,7 @@ import {
   AI_ABDUCT_BONUS,
   AI_LORD_BOUNTY,
   AI_RECRUIT_BONUS,
+  AI_RESEARCH_BONUS,
   AI_SHIP_RESERVE,
   AI_TROOP_POOL,
   HELD_SUPPORT_LEVEL,
@@ -49,6 +50,8 @@ import {
   isMissionTarget,
   abductOn,
   isRecruitTarget,
+  isResearchTarget,
+  missionsOffered,
   quality,
   recruitOn,
   startMission,
@@ -271,12 +274,17 @@ function aiPostLords(state: GameState, ai: PlayableFaction): void {
     const power = powerOf(lord);
     if (power === 'runner') continue;
 
+    // Ground it actually holds. A posting is "an island of yours" — Command
+    // is not on offer anywhere else — and asking for it on a neutral island
+    // threw out of `startMission`, which in a real game is a crash rather than
+    // a bad decision. Checked against what the island itself offers, so this
+    // cannot drift away from the rule again.
     const seats = state.systems.filter(
       (s) =>
         s.populated &&
-        s.explored[ai] &&
-        s.control !== otherFaction(ai) &&
-        canStartMission(state, lord.id, s.id),
+        s.control === ai &&
+        canStartMission(state, lord.id, s.id) &&
+        missionsOffered(state, s, ai, lord).includes('command'),
     );
     const score = (s: System) =>
       power === 'moot'
@@ -334,6 +342,11 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
         s.control === enemy ||
         failing(s) ||
         isRecruitTarget(state, s, ai) ||
+        // A yard of its own on loyal ground. The list was neutral islands,
+        // enemy islands, and its own in trouble — and research lives on its
+        // own islands doing *well*, so it fell through every clause and the
+        // whole mechanic never fired.
+        isResearchTarget(s, ai) ||
         // Its own ground too, when one of theirs is standing on it: an enemy
         // officer in your own harbor is the easiest prize in the game and the
         // opponent used to walk straight past it.
@@ -364,6 +377,8 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     }
     const recruit = recruitOn(state, s, ai);
     if (recruit) return close + AI_RECRUIT_BONUS + quality(recruit);
+    // Its own yards, when there is nothing louder to do with the officer.
+    if (isResearchTarget(s, ai)) return close + AI_RESEARCH_BONUS;
     // One of its own in the enemy's cells: worth more than any island.
     const held = captiveOn(state, s, ai);
     if (held) return close + AI_RECRUIT_BONUS + quality(held);
@@ -403,6 +418,7 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
  * private rules, so anything it can do, you can do.
  */
 function aiFleet(state: GameState, ai: PlayableFaction, rng: Rng): void {
+  aiConsolidate(state, ai);
   aiLayDownHull(state, ai);
   // The Confederacy's one way to win is Highwater. One fleet is always the
   // one meant for it, and it does nothing else.
@@ -417,6 +433,47 @@ function aiFleet(state: GameState, ai: PlayableFaction, rng: Rng): void {
   }
 }
 
+
+/**
+ * Squadrons of its own lying in the same harbor become one squadron.
+ *
+ * A new hull joins whatever fleet of yours is already at the island — unless
+ * that fleet happens to be at sea when the yard finishes, and then it is a
+ * squadron of one. Nothing ever put them back together, and for the opponent,
+ * which builds all war and sails constantly, they never stopped accumulating:
+ * measured over one war the Crown finished with forty-four hulls in
+ * thirty-seven squadrons, most of them a single sloop. Confetti, not a navy —
+ * no squadron of it could fight anything or carry a landing.
+ *
+ * Deliberately the opponent's habit and not a rule of the world. Splitting a
+ * squadron is an order the player gives on purpose, and a world that merged
+ * them back every morning would be undoing that order.
+ */
+function aiConsolidate(state: GameState, ai: PlayableFaction): void {
+  const byIsland = new Map<string, Fleet[]>();
+  for (const fleet of fleetsOf(state, ai)) {
+    if (isAtSea(fleet)) continue;
+    byIsland.set(fleet.systemId, [...(byIsland.get(fleet.systemId) ?? []), fleet]);
+  }
+  for (const [, here] of byIsland) {
+    if (here.length < 2) continue;
+    // Into the strongest, so the squadron that keeps its name is the one the
+    // rest of the AI's reasoning is already about.
+    const [keep, ...rest] = [...here].sort((a, b) => b.ships.length - a.ships.length);
+    for (const other of rest) {
+      keep.ships.push(...other.ships);
+      keep.troops += other.troops;
+      for (const id of other.officerIds) if (!keep.officerIds.includes(id)) keep.officerIds.push(id);
+      other.ships = [];
+      other.troops = 0;
+      other.officerIds = [];
+    }
+    // Companies never fit better than the hulls allow; anything over the side
+    // was never really aboard.
+    keep.troops = Math.min(keep.troops, fleetCapacity(keep));
+  }
+  state.fleets = state.fleets.filter((f) => f.ships.length > 0);
+}
 
 /** One hull at a time, and never at the expense of the economy. */
 function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
@@ -480,7 +537,7 @@ function aiLoadAndSail(state: GameState, fleet: Fleet, ai: PlayableFaction): voi
     // whatever the island can spare above what it needs to stay quiet. It had
     // its own figure here — everything over two — which was a private rule,
     // and the opponent is not allowed those.
-    const take = Math.min(room, sparedCompanies(here));
+    const take = Math.min(room, sparedCompanies(here, state));
     if (take > 0 && embarkError(state, fleet.id, take, ai) === null) {
       embark(state, fleet.id, take, ai);
     }
@@ -586,7 +643,7 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
   }
 
   // Otherwise fill up: take what is spare here, then go where more is spare.
-  const spareOn = (s: System) => sparedCompanies(s);
+  const spareOn = (s: System) => sparedCompanies(s, state);
   const room = fleetCapacity(fleet) - fleet.troops;
   if (here.control === 'alliance' && room > 0 && spareOn(here) > 0) {
     const take = Math.min(room, spareOn(here));
@@ -635,10 +692,14 @@ function aiScout(state: GameState, fleet: Fleet, idle: boolean): boolean {
  */
 function aiSignOn(state: GameState, fleet: Fleet, ai: PlayableFaction): void {
   if (fleet.officerIds.length > 0) return;
+  // Not somebody already holding an island. Taking a deck ends a posting, so
+  // signing on the best officer available would pick whichever Lord it had
+  // just seated and undo its own appointment every few days.
+  const posted = new Set(state.systems.map((s) => s.commanderId).filter(Boolean) as string[]);
   const worth = (c: { leadership: number; combat: number; espionage: number }) =>
     c.leadership + c.combat + c.espionage;
   const best = state.characters
-    .filter((c) => boardError(state, fleet.id, c.id, ai) === null)
+    .filter((c) => !posted.has(c.id) && boardError(state, fleet.id, c.id, ai) === null)
     .sort((a, b) => worth(b) - worth(a))[0];
   if (best) board(state, fleet.id, best.id, ai);
 }
