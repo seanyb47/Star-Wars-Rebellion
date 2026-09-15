@@ -44,7 +44,7 @@ import {
 } from './art';
 import { ChartMark } from './ChartMark';
 import { useSideSwipe } from './LayerStrip';
-import { ControlBadge, Sheet, Slot, SlotBoard, Stat, SupportBars } from './components';
+import { ControlBadge, RoomBar, Sheet, Slot, SlotBoard, Stat, SupportBars } from './components';
 import { Harbour } from './FleetPanel';
 import { WorthMark } from './worth';
 import { controlColour } from './ChainMap';
@@ -79,31 +79,6 @@ const TABS: Array<{ id: IslandTab; label: string }> = [
   { id: 'buildings', label: 'Buildings' },
   { id: 'log', label: 'Log' },
 ];
-
-/**
- * Room to build, drawn the same length on every island.
- *
- * One pip per slot, filled where something stands. The bar itself is always
- * the width of the card, whether the island has three berths or thirteen, so
- * the eye compares how *full* two islands are and not how big the picture of
- * them is. The same bar, and the same rule, as the one in the chain view.
- */
-function RoomBar({ system }: { system: System }) {
-  const slots = system.slots;
-  if (slots === 0) return null;
-  const built = system.facilities.length;
-  return (
-    <div
-      className="roombar"
-      aria-label={`${built} of ${slots} built`}
-      title={`${built} of ${slots} built`}
-    >
-      {Array.from({ length: slots }, (_, i) => (
-        <span key={i} className={i < built ? 'is-built' : ''} />
-      ))}
-    </div>
-  );
-}
 
 /**
  * What this island's allegiance is costing whoever holds it, today.
@@ -290,7 +265,7 @@ export function SystemSheet({
         onClose={onClose}
       >
         <div className="isle-banner isle-banner--chart" style={{ height: 118 }}>
-          <ChartMark name={system.name} width={362} height={118} className="isle-banner__chart" />
+          <ChartMark name={system.chartName ?? system.name} width={362} height={118} className="isle-banner__chart" />
           <span className="isle-banner__fade" />
         </div>
         <p className="muted small" style={{ textAlign: 'center' }}>

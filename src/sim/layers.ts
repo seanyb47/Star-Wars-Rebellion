@@ -1,6 +1,14 @@
-import { GARRISON_FAIR, GARRISON_STRONG, garrisonBand, type MarkSize } from './constants';
+import {
+  GARRISON_FAIR,
+  GARRISON_STRONG,
+  ROOM_AMPLE,
+  garrisonBand,
+  roomBand,
+  type MarkSize,
+} from './constants';
 import { buildMenu } from './build';
 import { islandIncome } from './economy';
+import { freeSlots } from './helpers';
 import { fleetsAt, isAtSea } from './fleets';
 import terms from '../data/terms.json';
 import type { FacilityType, GameState, PlayableFaction, System } from './types';
@@ -26,6 +34,7 @@ export type ChartLayer =
   | 'idleYards'
   | 'idleDrills'
   | 'idleSlips'
+  | 'room'
   | 'fleets'
   | 'garrisons'
   | 'missions'
@@ -53,6 +62,7 @@ export const CHART_LAYERS: LayerSpec[] = [
   { id: 'idleYards', label: 'Idle yards', hint: `A ${terms.facilities.construction_yard.toLowerCase()} of yours standing with no order on it.` },
   { id: 'idleDrills', label: 'Idle training', hint: `A ${terms.facilities.training_facility.toLowerCase()} of yours drilling nobody.` },
   { id: 'idleSlips', label: 'Idle shipyards', hint: `A ${terms.facilities.shipyard.toLowerCase()} of yours with nothing on the stocks.` },
+  { id: 'room', label: 'Available land', hint: `Islands of yours with berths still open, sized by how many: big is ${ROOM_AMPLE} or more, small is one.` },
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
   { id: 'garrisons', label: 'Garrisons', hint: `Islands of yours holding companies ashore, sized by how many: big is ${GARRISON_STRONG} or more, small is under ${GARRISON_FAIR}.` },
   { id: 'missions', label: 'Missions', hint: 'Islands your officers are working on, or sailing for.' },
@@ -196,6 +206,15 @@ export function layerMark(
           !c.mission,
       ).length;
       return n > 0 ? { lit: true, count: n } : DARK;
+    }
+    case 'room': {
+      // Where there is still ground to build on, and it is yours to build
+      // on: an island in revolt takes no orders, and room on somebody else's
+      // island is not room you have. The count is free berths, not total —
+      // the question the layer answers is what you can put down today.
+      if (system.control !== faction || system.uprising) return DARK;
+      const free = freeSlots(system);
+      return free > 0 ? { lit: true, count: free, size: roomBand(free) } : DARK;
     }
     case 'fleets': {
       const hulls = fleetsAt(state, system.id)

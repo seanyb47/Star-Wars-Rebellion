@@ -49,6 +49,12 @@ export interface System {
   archetype: IslandArchetype;
   /** A line of colour from the world bible, shown on the island sheet. */
   note?: string;
+  /**
+   * What the painting calls this place, when the game has renamed it. Freeport
+   * takes over a different island every game and keeps that island's position,
+   * outline and room; this is how the chart still finds it.
+   */
+  chartName?: string;
   sectorId: string;
   x: number;
   y: number;

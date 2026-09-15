@@ -649,3 +649,44 @@ who takes a frontier island and neglects it. To make it bite the opponent, the
 game would need charts that go stale — an island the enemy has not visited in
 a long time falling off them — which is a real design decision and not one to
 sneak in.
+
+
+## Freeport, a bar that measures, and a filter for open ground — 15 September
+
+**Freeport is an island, not a ship.** The Lords signed the articles somewhere,
+and that somewhere is now a place on the chart: one island out in Salt or Rime
+Reach takes the name every game, keeping the position, the outline and the room
+the painting gave it. `chartName` on the island holds what the painting calls
+it, so the chart can still find its coast, its mark and its cameo while the
+game and every screen call it Freeport. It is nobody's — populated, ungarrisoned,
+the Brethren well liked there at sixty-five to seventy-eight, which is short of
+the bar that would run up their colours. The Crown cannot see it. A different
+island every game.
+
+**The opening spreads out.** Everyone used to start in one heap, which made the
+first move of every game the same move. Now the Regent stays in the citadel at
+Highwater and the rest of the Admiralty is posted about the Crown's holdings;
+the three Lords are aboard their three ships at Freeport, one or two other
+Confederates are ashore on the quay there, and the rest are out on the islands
+that have already declared. A Lord is still their ship and nothing else — aboard
+on day one, never ashore, taken with the hull — and a Lord is now the *only*
+Confederate aboard anything at the start. The officers who used to be swept onto
+the *Free Harbor* stand on ground and can sail with anybody.
+
+**The room bar measures rather than fills.** It used to stretch to the width of
+whatever it was in and divide that by the island's berths, so a three-berth rock
+and the great island drew the same bar and only the pips changed size. Now there
+is one track — thirteen columns, the largest room in the game, the great island's
+twelve plus a port's extra berth — and an island draws a pip in as many columns
+as it has. Twelve berths fills it, six reaches halfway, three stops a quarter
+along, and the columns past the end are simply not there. White where something
+stands, grey where the ground is open, nothing where the island has no berth at
+all. One component, `RoomBar`, on the island panel, in the Reach list and on the
+chain view's islands, so the three read alike.
+
+**Available land is a filter.** The tenth chart layer: islands of yours with
+berths still open, in the same three dot sizes as loyalty and garrisons — five
+or more free is a large dot, two to four medium, one small. An island in revolt
+takes no orders and stays dark, and so does room on somebody else's island,
+because the question the filter answers is where you can put something down
+today.

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import reachData from '../../data/reaches.json';
+import { FLIP_SUPPORT_MIN } from '../constants';
 import { generateGalaxy } from '../galaxy';
+import { isLord, isLordShip } from '../lords';
 
 describe('generateGalaxy', () => {
   it('builds seven Reaches of five to fifteen islands, sixty in all', () => {
@@ -62,18 +65,61 @@ describe('generateGalaxy', () => {
     expect(meeting.explored.empire).toBe(false);
   });
 
-  it('starts each side with seven characters at home: the Crown\'s ashore, the Confederacy\'s aboard', () => {
+  it('spreads seven officers a side about, with the Lords aboard at Freeport', () => {
     const state = generateGalaxy(13);
+    const freeport = state.systems.find((s) => s.name === 'Freeport')!;
     for (const faction of ['empire', 'alliance'] as const) {
       const crew = state.characters.filter((c) => c.faction === faction);
       expect(crew).toHaveLength(7);
-      for (const character of crew) {
-        expect(character.locationSystemId).toBe(state.factions[faction].hqSystemId);
-        expect(character.status).toBe('available');
-        const aboard = state.fleets.some((f) => f.officerIds.includes(character.id));
-        expect(aboard).toBe(faction === 'alliance');
+      for (const character of crew) expect(character.status).toBe('available');
+      // Nobody opens in one heap any more: the side's people are on at least
+      // two islands, so the first move of every game is not the same move.
+      const where = new Set(crew.map((c) => c.locationSystemId));
+      expect(where.size).toBeGreaterThan(1);
+      for (const id of where) {
+        const island = state.systems.find((s) => s.id === id)!;
+        expect(island.control === faction || island.id === freeport.id).toBe(true);
       }
     }
+    // The Regent has not left the citadel in eleven years.
+    const regent = state.characters.find((c) => c.faction === 'empire')!;
+    expect(regent.locationSystemId).toBe(state.factions.empire.hqSystemId);
+
+    // A Lord is their ship: aboard at Freeport on day one, and the only
+    // Confederate aboard anything. Everyone else stands on the quay.
+    for (const character of state.characters.filter((c) => c.faction === 'alliance')) {
+      const aboard = state.fleets.some((f) => f.officerIds.includes(character.id));
+      expect(aboard).toBe(isLord(character));
+      if (aboard) expect(character.locationSystemId).toBe(freeport.id);
+    }
+  });
+
+  it('signs the articles on a real island, renamed for the game', () => {
+    const bible = new Set(reachData.reaches.flatMap((r) => r.islands.map((i) => i.name)));
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 12; seed++) {
+      const state = generateGalaxy(seed);
+      const ports = state.systems.filter((s) => s.name === 'Freeport');
+      expect(ports).toHaveLength(1);
+      const freeport = ports[0];
+      // It took an island's place, and keeps that island's painted position.
+      expect(bible.has(freeport.chartName!)).toBe(true);
+      seen.add(freeport.chartName!);
+      // Out past the charts, and nobody's: the Brethren govern nothing.
+      const reach = state.sectors.find((r) => r.id === freeport.sectorId)!;
+      expect(['Salt Reach', 'Rime Reach']).toContain(reach.name);
+      expect(freeport.control).toBe('neutral');
+      expect(freeport.explored.empire).toBe(false);
+      expect(freeport.explored.alliance).toBe(true);
+      // Well liked, but short of the bar that would run up their colours.
+      expect(freeport.support.alliance).toBeGreaterThanOrEqual(65);
+      expect(freeport.support.alliance).toBeLessThan(FLIP_SUPPORT_MIN);
+      // The three ships lie there on day one.
+      const lying = state.fleets.filter((f) => f.systemId === freeport.id && f.ships.some(isLordShip));
+      expect(lying).toHaveLength(3);
+    }
+    // A different island every game, not the same one dressed up.
+    expect(seen.size).toBeGreaterThan(1);
   });
 
   it('starts each side with a working economy and a yard for hulls', () => {

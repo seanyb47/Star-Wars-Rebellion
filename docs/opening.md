@@ -10,11 +10,17 @@ the great island carry `port: true`.
 **Frontier — Salt Reach and Rime Reach.** Always start
 unexplored, for everyone. Each island has a 25% chance of being settled and
 held by neutral forces, behind the fog. The Confederacy has no base: its three
-Pirate Lords met on one random island in one of these two Reaches and their
-ships — the *Free Harbor*, the *Swallowtail*, the *Ironback* — lie there on
-day one with the Home Fleet and the rest of the Confederacy's people aboard the
-*Free Harbor*. The island is nobody's. The Confederacy knows that island and
-nothing else out here.
+Pirate Lords signed the articles on one random island in one of these two
+Reaches, and that island is called **Freeport** for the rest of the game. It
+is a different island every game — the name is laid over whichever the dice
+pick, and that island keeps the position, the outline and the room the
+painting gave it, held in `chartName` so the chart can still find its coast.
+Freeport is nobody's: settled, ungarrisoned, and fond of the Brethren at
+sixty-five to seventy-eight, which is short of the eighty that would run up
+their colours. The three ships — the *Free Harbor*, the *Swallowtail*, the
+*Ironback* — and the Home Fleet lie there on day one. The Confederacy knows
+Freeport and nothing else out here; the Crown knows only that a meeting took
+place.
 
 **Home — Sovereign Reach.** Highwater is a port city and always the Crown's
 seat, with the Home Fleet there. The great island has three ports: Highwater,
@@ -24,7 +30,7 @@ thirties and forties, held by the garrison). The Confederacy opens with one
 or two islands in the Reach, never on the great island itself. The rest are
 settled and nobody's.
 
-**Room.** What an island can hold follows the chart, not the dice. The chart
+**Room, and how it is drawn.** What an island can hold follows the chart, not the dice. The chart
 script measures how much painted land lies within forty units of each mark
 (`land` in `src/data/chart.json`, lagoons and peaks counted as land) and the
 game turns that into room: 3 slots on a bare rock, 6 or 7 on an ordinary
@@ -33,6 +39,14 @@ flagged port. It is one pool: every building takes one berth whatever it is,
 and companies and hulls take none. The same island has the same room in every
 game. A starting island keeps the chart's room; the opening only ever widens it
 by the one spare berth that lets it build on day one.
+
+Everywhere room is drawn — the island panel, the Reach list, the chain view —
+it is drawn against one track of thirteen, the largest room in the game, so
+the bar's *length* is the island's room and its colour is what is spent:
+twelve berths fills the track, six reaches halfway, three stops a quarter
+along, and the berths an island does not have are not drawn at all. **Available
+land** is a chart filter too: islands of yours with room still open, a large
+dot at five free or more, medium at two to four, small at one.
 
 **Won over.** When an island runs up a side's colours, the companies that held
 it stand down to one under the new flag. It used to hand over the whole
@@ -59,6 +73,14 @@ yards, two training facilities, two shipyards — dealt at random across
 the side's starting islands, so a seed may double them up on one island
 and leave another with none. Earners still go round in order so every
 island opens with something to pay its way.
+
+**Where the people are.** Nobody opens in a heap. The Regent has not left the
+citadel in eleven years and stands at Highwater; the rest of the Admiralty is
+posted about the Crown's other holdings. The three Lords are aboard their own
+ships at Freeport — a Lord never goes ashore and never changes hull, so a Lord
+is the only Confederate aboard anything on day one — with one or two other
+Confederates on the quay beside them, and the rest out on the islands that
+have already declared.
 
 **How the war ends.** The Confederacy wins the day it holds Highwater. The
 Crown wins the day all three Lords are in irons at once: a Lord never leaves

@@ -218,6 +218,13 @@ const LAND_ON_THE_CHART = new Map<string, number>(
 export const ROOM_MAX = 12;
 /** The least: a rock with a jetty. */
 export const ROOM_MIN = 3;
+/**
+ * The length every room bar is drawn against, so that a bar is a quantity
+ * and not a ratio: twelve berths fills it, six fills half of it, and three
+ * fills a quarter. Thirteen because the three port cities on the great
+ * island get the flagged port's extra berth on top of the chart's twelve.
+ */
+export const ROOM_TRACK = ROOM_MAX + 1;
 
 /**
  * An island's room, from the land around its mark. Square-rooted so a
@@ -385,13 +392,25 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     }
   }
 
-  // --- The meeting place: one island in one frontier Reach, nobody's. ---
+  // --- Freeport: where the articles were signed. ---
   //
-  // The Confederacy has no base. Its three Lords met somewhere the Crown has
-  // not charted and their ships are lying there on day one; the island itself
-  // is whatever it was — settled or bare, and not theirs.
+  // Not a base and not a capital — the Confederacy has neither. It is the
+  // island the three Lords met on, and it is a different island every game:
+  // one out in the unexplored Reaches takes the name, keeping the position,
+  // the outline and the room the painting gave it. The Brethren are well
+  // liked there and govern nothing.
   const baseSector = rng.pick(frontierSectors);
   const allianceHq = rng.pick(islandsOf(baseSector));
+  allianceHq.chartName = allianceHq.name;
+  allianceHq.name = 'Freeport';
+  allianceHq.archetype = 'free-harbor';
+  allianceHq.note =
+    'Where the articles were signed: three Lords, one table, and no Crown within three hundred miles.';
+  allianceHq.populated = true;
+  allianceHq.control = 'neutral';
+  allianceHq.garrison = 0;
+  // A lean, not a flag: short of the bar that would run up their colours.
+  setSupport(allianceHq, 'alliance', rng.range(65, 78));
 
   const seedHoldings = (owner: PlayableFaction, owned: System[]) => {
     for (const [index, system] of owned.entries()) {
@@ -431,13 +450,21 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   // the frontier Reaches are otherwise a blank to both sides.
   allianceHq.explored.alliance = true;
 
-  // --- Characters: the world bible's seven majors per side, all at HQ. ---
+  // --- Characters: the world bible's seven majors per side, spread about. ---
+  //
+  // They used to start in one heap on one island, which made the first move of
+  // every game the same move: open the seat, pick a name, send them. Scattered
+  // over the side's own holdings, who is near what becomes a question, and the
+  // crew screen is a map rather than a list.
   const characters: Character[] = [];
-  const makeCharacters = (faction: PlayableFaction, hqId: string) => {
+  const makeCharacters = (
+    faction: PlayableFaction,
+    where: (name: string, index: number) => string,
+  ) => {
     // Each rating is rolled inside that character's band, so Hale is always a
     // formidable negotiator and Torvik is always the one you send aboard,
     // while no two games give quite the same numbers.
-    for (const entry of characterRoster[faction].slice(0, START_CHARACTERS)) {
+    for (const [index, entry] of characterRoster[faction].slice(0, START_CHARACTERS).entries()) {
       const roll = (band: number[]) => rng.range(band[0], band[1]);
       characters.push({
         id: makeId('chr'),
@@ -451,13 +478,27 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         espionage: roll(entry.ratings.espionage),
         combat: roll(entry.ratings.combat),
         leadership: roll(entry.ratings.leadership),
-        locationSystemId: hqId,
+        locationSystemId: where(entry.name, index),
         status: 'available',
       });
     }
   };
-  makeCharacters('empire', capital.id);
-  makeCharacters('alliance', allianceHq.id);
+  // The Regent has not left the citadel in eleven years; the rest of the
+  // Admiralty is posted about the Crown's holdings.
+  makeCharacters('empire', (_name, index) => (index === 0 ? capital.id : rng.pick(empireSystems).id));
+  // The three Lords are aboard their ships at Freeport, and one or two of the
+  // others are there with them. The rest are out on the islands that have
+  // already declared.
+  const atFreeport = rng.range(1, 2);
+  let ashore = 0;
+  makeCharacters('alliance', (name) => {
+    // A Lord is aboard their own ship and the ship is at Freeport.
+    if (PIRATE_LORDS.some((l) => l.name === name)) return allianceHq.id;
+    ashore += 1;
+    return ashore <= atFreeport || allianceSystems.length === 0
+      ? allianceHq.id
+      : rng.pick(allianceSystems).id;
+  });
 
   // --- The unaligned: people the war has not claimed yet. ---
   // Scattered over settled islands that are not anybody's seat, so signing
@@ -538,18 +579,15 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       officerIds: [],
     });
   }
-  // The three Pirate Lords, each aboard their own ship, lying at the meeting
-  // place. The rest of the Confederacy's people are aboard the Free Harbor
-  // with the Commodore, which is where the Moot sits.
+  // The three Pirate Lords, each aboard their own ship, lying at Freeport.
+  // A Lord never goes ashore and never changes ship: the Lord and the hull
+  // are one piece, and taking the hull is the only way to take the Lord. The
+  // Confederacy's other officers stand on the quay at Freeport or out on the
+  // islands that have declared, and are free to sail with anybody.
   const lordShips: string[] = [];
-  for (const [index, lord] of PIRATE_LORDS.entries()) {
+  for (const lord of PIRATE_LORDS) {
     const who = characters.find((c) => c.name === lord.name);
     const aboard = who ? [who.id] : [];
-    if (index === 0) {
-      for (const c of characters) {
-        if (c.faction === 'alliance' && !PIRATE_LORDS.some((l) => l.name === c.name)) aboard.push(c.id);
-      }
-    }
     const name = shipClass(lord.ship).name;
     lordShips.push(name);
     state.fleets.push({

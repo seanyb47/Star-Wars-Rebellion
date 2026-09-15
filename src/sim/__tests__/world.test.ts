@@ -74,17 +74,21 @@ describe('the generated world matches the bible', () => {
 
   it('draws every island name from the bible, and uses all of them', () => {
     const fromBible = new Set(reachData.reaches.flatMap((r) => r.islands.map((i) => i.name)));
-    const generated = new Set(state.systems.map((s) => s.name));
+    // One island a game answers to Freeport instead — the name the articles
+    // were signed under. `chartName` is the island the painting knows.
+    const generated = new Set(state.systems.map((s) => s.chartName ?? s.name));
     expect(generated).toEqual(fromBible);
+    expect(state.systems.filter((s) => s.chartName)).toHaveLength(1);
   });
 
   it('keeps every island inside its own Reach', () => {
     for (const reach of reachData.reaches) {
       const sector = state.sectors.find((s) => s.name === reach.name)!;
       expect(sector).toBeDefined();
-      const names = sector.systemIds.map(
-        (id) => state.systems.find((s) => s.id === id)!.name,
-      );
+      const names = sector.systemIds.map((id) => {
+        const island = state.systems.find((s) => s.id === id)!;
+        return island.chartName ?? island.name;
+      });
       expect(new Set(names)).toEqual(new Set(reach.islands.map((i) => i.name)));
     }
   });
@@ -227,7 +231,12 @@ describe('the Reach summary', () => {
     const atHome = summariseReach(state, hq.sectorId, 'empire').perIsland.find(
       (i) => i.systemId === hq.id,
     )!;
-    expect(atHome.missions).toBe(7);
+    // The Regent, and whoever else the deal left in the citadel's Reach.
+    const home = state.characters.filter(
+      (c) => c.faction === 'empire' && c.locationSystemId === hq.id,
+    ).length;
+    expect(atHome.missions).toBe(home);
+    expect(home).toBeGreaterThan(0);
 
     const target = state.systems.find(
       (s) => s.sectorId === hq.sectorId && s.control === 'neutral',

@@ -4,6 +4,7 @@ import {
   layerMark,
   missionTypeFor,
   recruitOn,
+  ROOM_TRACK,
   type GameState,
   type ChartLayer,
   type PlayableFaction,
@@ -75,6 +76,10 @@ function scrimFor(reach: string | undefined): number {
 const PAINTED = new Map(
   CHART.reaches.flatMap((r) => r.islands.map((i) => [`${r.reach}/${i.name}`, i] as const)),
 );
+/** One berth's width in the room bar. The track is 110 wide and holds the
+ *  game's largest island, so the pip never changes size and the bar's length
+ *  is the island's room: six berths reaches half way across. */
+const PIP_STEP = 110 / ROOM_TRACK;
 /** Water to leave around a chain when cropping the painting to it. */
 const CROP_PAD = 46;
 /** Past this much displacement an island has been pushed off its own painted
@@ -239,7 +244,7 @@ export function ChainMap({
   // position with a made-up one.
   const painted = useMemo(() => {
     if (!ground || !reachName) return null;
-    const found = systems.map((sy) => PAINTED.get(`${reachName}/${sy.name}`));
+    const found = systems.map((sy) => PAINTED.get(`${reachName}/${sy.chartName ?? sy.name}`));
     return found.every(Boolean) ? (found as Array<{ x: number; y: number }>) : null;
   }, [ground, reachName, systems]);
 
@@ -557,11 +562,15 @@ export function ChainMap({
 
             {explored && (
               <g pointerEvents="none">
-                {/* Room to build: one pip per slot, white where something
-                    stands, light grey where the ground is free. Kept clear of
-                    the faction colours so it cannot be misread as loyalty. An
-                    island with no room at all gets one unbroken dark bar:
-                    still a bar, so every charted island reads the same. */}
+                {/* Room to build, against the same thirteen-berth track the
+                    island's panel uses: the pip is always the same size, so
+                    the bar's length is how much ground the island has and not
+                    how full it is. White where something stands, light grey
+                    where the ground is free, nothing where the island has no
+                    berth at all. Kept clear of the faction colours so it
+                    cannot be misread as loyalty. A rock with nothing to build
+                    on gets one unbroken dark bar: still a bar, so every
+                    charted island reads the same. */}
                 {slots === 0 && (
                   <rect
                     x={spot.x - 55}
@@ -573,12 +582,12 @@ export function ChainMap({
                   />
                 )}
                 {slots > 0 &&
-                  Array.from({ length: slots }, (_, i) => (
+                  Array.from({ length: Math.min(slots, ROOM_TRACK) }, (_, i) => (
                     <rect
                       key={i}
-                      x={spot.x - 55 + i * (110 / slots)}
+                      x={spot.x - 55 + i * PIP_STEP}
                       y={spot.y + (paintedGround ? 26 : 88)}
-                      width={110 / slots - 2.5}
+                      width={PIP_STEP - 2.5}
                       height={7}
                       rx={2}
                       fill={i < built ? '#f4f7f8' : '#8fa0a8'}

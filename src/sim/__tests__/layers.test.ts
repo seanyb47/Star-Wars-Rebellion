@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { CHART_LAYERS, islandWorth, layerMark, layerTally, showsNumber, worthTier } from '../layers';
-import { GARRISON_FAIR, GARRISON_STRONG } from '../constants';
+import { GARRISON_FAIR, GARRISON_STRONG, ROOM_AMPLE, ROOM_FAIR } from '../constants';
 import { islandIncome } from '../economy';
 import { getSystem } from '../helpers';
 import { addShip } from '../fleets';
@@ -167,5 +167,50 @@ describe('garrisons answer in three sizes', () => {
 
   it('says it with the dot and not with a numeral as well', () => {
     expect(showsNumber('garrisons')).toBe(false);
+  });
+});
+
+describe('available land', () => {
+  it('lights an island of yours with berths still open, and grades how many', () => {
+    const state = generateGalaxy(7, 'empire');
+    const island = state.systems.find((s) => s.control === 'empire')!;
+    island.uprising = false;
+
+    const free = () => layerMark(state, island, 'room', 'empire');
+    // One berth open: something, but not much.
+    island.slots = island.facilities.length + 1;
+    expect(free()).toEqual({ lit: true, count: 1, size: 'small' });
+    island.slots = island.facilities.length + ROOM_FAIR;
+    expect(free().size).toBe('medium');
+    island.slots = island.facilities.length + ROOM_AMPLE;
+    expect(free().size).toBe('large');
+
+    // Built out: no room, so nothing to say.
+    island.slots = island.facilities.length;
+    expect(free().lit).toBe(false);
+  });
+
+  it('says nothing about ground that is not yours to build on', () => {
+    const state = generateGalaxy(7, 'empire');
+    const island = state.systems.find((s) => s.control === 'empire')!;
+    island.slots = island.facilities.length + 4;
+
+    // An island in revolt takes no orders, whatever room it has.
+    island.uprising = true;
+    expect(layerMark(state, island, 'room', 'empire').lit).toBe(false);
+    island.uprising = false;
+
+    // Nor is room on somebody else's island room you have.
+    expect(layerMark(state, island, 'room', 'alliance').lit).toBe(false);
+
+    // Nor room on an island you have never charted.
+    island.explored.empire = false;
+    expect(layerMark(state, island, 'room', 'empire').lit).toBe(false);
+  });
+
+  it('answers in sizes, not numerals: the chart keeps its one dot', () => {
+    expect(showsNumber('room')).toBe(false);
+    expect(CHART_LAYERS.map((l) => l.id)).toContain('room');
+    expect(CHART_LAYERS.find((l) => l.id === 'room')!.label).toBe('Available land');
   });
 });

@@ -568,7 +568,7 @@ export function GalaxyMap({
                 // Where the painting put this island. Falling back to the old
                 // seeded scatter keeps a Reach the position script has not
                 // seen from piling all ten islands on one point.
-                const at = ISLAND_PLACES.get(`${sector.name}/${system.name}`);
+                const at = ISLAND_PLACES.get(`${sector.name}/${system.chartName ?? system.name}`);
                 const ax = at ? at.x : spot.x + system.x * 0.72;
                 const ay = at ? at.y : spot.y + system.y * 0.72;
                 const explored = system.explored[viewer];

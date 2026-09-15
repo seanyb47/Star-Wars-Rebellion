@@ -1,7 +1,7 @@
 import { Children, type ReactNode } from 'react';
 import factionData from '../data/factions.json';
 import { allegianceColour, allegianceSegments } from './allegiance';
-import type { Faction, System } from '../sim';
+import { ROOM_TRACK, type Faction, type System } from '../sim';
 
 export function Sheet(props: {
   title: string;
@@ -185,5 +185,39 @@ export function Stat({ label, value }: { label: string; value: ReactNode }) {
       <div className="tiny muted">{label}</div>
       <div style={{ fontWeight: 600 }}>{value}</div>
     </div>
+  );
+}
+
+/**
+ * How much room an island has, and how much of it is spent — drawn against
+ * one track the same length everywhere, so the bar is a quantity rather than
+ * a ratio. Twelve berths fills the track; six reaches halfway; three stops a
+ * quarter along. White for a berth with something on it, grey for open
+ * ground, and nothing at all past the end of what the island has: an island
+ * with no room left and an island with no room to begin with do not look
+ * alike. The berths the island has never been given are simply not drawn.
+ */
+export function RoomBar({
+  system,
+  className,
+}: {
+  system: System;
+  /** Somewhere to hang a size: the list row's bar is a fifth the width. */
+  className?: string;
+}) {
+  const slots = Math.min(system.slots, ROOM_TRACK);
+  const built = Math.min(system.facilities.length, slots);
+  const label = `${built} of ${slots} berths built`;
+  return (
+    <span
+      className={`roombar${className ? ` ${className}` : ''}`}
+      style={{ gridTemplateColumns: `repeat(${ROOM_TRACK}, 1fr)` }}
+      aria-label={label}
+      title={label}
+    >
+      {Array.from({ length: slots }, (_, i) => (
+        <span key={i} className={i < built ? 'is-built' : ''} />
+      ))}
+    </span>
   );
 }

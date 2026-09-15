@@ -4,7 +4,7 @@ import { allegianceColour, allegianceSegments } from './allegiance';
 import { CategoryIcon } from './art';
 import { ChartMark } from './ChartMark';
 import { WorthMark } from './worth';
-import { ControlBadge } from './components';
+import { ControlBadge, RoomBar } from './components';
 
 export type IslandTab = 'harbour' | 'crew' | 'garrison' | 'buildings' | 'log';
 
@@ -48,7 +48,7 @@ export function IslandRow({
         {/* The island as it sits on the chart, ringed by whose it is: a list
             that reads like the map rather than a row of drawn cameos. */}
         <ChartMark
-          name={system.name}
+          name={system.chartName ?? system.name}
           width={34}
           height={34}
           className="isle__chart"
@@ -80,16 +80,7 @@ export function IslandRow({
                 and a row of pips under it was a smear, so they live here now,
                 where the island is a row you can read.
               */}
-              {slots > 0 && (
-                <span
-                  className="isle__slots"
-                  aria-label={`${system.facilities.length} of ${slots} built`}
-                >
-                  {Array.from({ length: slots }, (_, i) => (
-                    <span key={i} className={i < system.facilities.length ? 'is-built' : ''} />
-                  ))}
-                </span>
-              )}
+              {slots > 0 && <RoomBar system={system} className="roombar--row" />}
             </>
           )}
           {!explored && (

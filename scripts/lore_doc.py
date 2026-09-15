@@ -171,7 +171,7 @@ for reach in reaches['reaches']:
         w(f"_{sea_kind.get(sea, '')} Sea. {sea_lines[sea]}_\n")
     role = {'home': "The Crown's home waters; Highwater is here.",
             'contested': 'Contested: both sides hold islands here from the first day.',
-            'frontier': "Frontier: uncharted at the start, and where the Pirate Lords met.",
+            'frontier': "Frontier: uncharted at the start, and where the Pirate Lords signed the articles. One island of these two Reaches is renamed **Freeport** every game and keeps its own position, outline and room — the place the Confederacy was founded, held by nobody.",
             'open': 'Open: charted, settled, and nobody\'s.'}.get(reach.get('role', ''), '')
     if role:
         w(role + "\n")

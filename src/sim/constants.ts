@@ -421,6 +421,20 @@ export function garrisonBand(companies: number): MarkSize {
   return 'small';
 }
 
+/**
+ * Open ground, in the same three bands. Two or three free berths is a place
+ * with a plan left in it; five or more is somewhere a side can build a whole
+ * new industry without asking anybody's leave.
+ */
+export const ROOM_FAIR = 2;
+export const ROOM_AMPLE = 5;
+
+export function roomBand(free: number): MarkSize {
+  if (free >= ROOM_AMPLE) return 'large';
+  if (free >= ROOM_FAIR) return 'medium';
+  return 'small';
+}
+
 export type LoyaltyBand = 'uprising' | 'thin' | 'steady' | 'firm';
 
 export function loyaltyBand(support: number, uprising = false): LoyaltyBand {

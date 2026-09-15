@@ -646,15 +646,6 @@ button {
   background: #0d2f3a; margin-top: 4px; max-width: 120px;
 }
 .isle__bar > span { display: block; height: 100%; }
-/* One pip per slot: pale stone where something stands, an empty socket where
-   nothing does. Kept clear of the faction colours so it cannot be misread as
-   allegiance. */
-.isle__slots { display: flex; gap: 2px; margin-top: 4px; max-width: 120px; }
-.isle__slots > span {
-  flex: 1; height: 3px; border-radius: 1.5px; background: #1c3b48;
-}
-.isle__slots > span.is-built { background: #93a7b1; }
-
 .isle__cats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--border); }
 .isle__cat {
   min-height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -1406,8 +1397,16 @@ button.tcard:hover { border-color: var(--brass); }
   font-style: italic;
 }
 
-/* Room to build on the island panel: always the width of the card, one pip
-   per berth, so two islands are compared by how full they are. */
-.roombar { display: flex; gap: 2px; width: 100%; margin-top: 8px; }
-.roombar > span { flex: 1; height: 7px; border-radius: 2px; background: #8fa0a8; }
+/* Room to build: one pip per berth, pale stone where something stands, a
+   darker socket where the ground is free. Kept clear of the faction colours
+   so it cannot be misread as allegiance.
+   One track, the same length everywhere: thirteen columns, and an island
+   draws a pip in as many of them as it has berths. Six berths reaches
+   halfway; the columns past the end stay empty, so how much ground an
+   island has is the length of its bar. */
+.roombar { display: grid; gap: 2px; width: 100%; margin-top: 8px; }
+.roombar > span { height: 7px; border-radius: 2px; background: #8fa0a8; }
 .roombar > span.is-built { background: #f4f7f8; }
+.roombar--row { margin-top: 4px; max-width: 130px; }
+.roombar--row > span { height: 5px; background: #55707d; }
+.roombar--row > span.is-built { background: #93a7b1; }
