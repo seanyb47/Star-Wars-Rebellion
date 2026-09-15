@@ -546,6 +546,7 @@ export function App() {
           sailing={sailingFleetId !== null}
           choosing={choosingSite}
           layer={layer}
+          onLayerChange={setLayer}
           onOpenList={(sectorId) => {
             // The chain as a list, in place of the chain as a map — not on top
             // of it.

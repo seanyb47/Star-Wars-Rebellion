@@ -12,6 +12,7 @@ import {
   UPRISING_SUPPORT,
   FLIP_SUPPORT_MIN,
   GARRISON_FAIR,
+  GARRISON_FOR_BAND,
   GARRISON_STRONG,
   PIRATE_LORDS,
   SMUGGLED_SHARE,
@@ -243,6 +244,13 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
         {Math.round(SMUGGLED_SHARE.uprising * 100)}%. Every coin the smugglers take is a coin the
         other side banks, so a Reach you have let go sour is paying for their fleet. A thin island
         talks, too: sooner or later it turns up on their charts.
+        <br />
+        <br />
+        <b>Companies ashore answer both.</b> A firm island needs none; a steady one asks for{' '}
+        {GARRISON_FOR_BAND.steady}; a thin one for {GARRISON_FOR_BAND.thin}, and under that it will
+        rise; {GARRISON_FOR_BAND.uprising} will face down a {terms.mutiny.toLowerCase()} whatever
+        the island still thinks of you. Every company also takes a tenth off what the smugglers
+        move, so ten of them shut the back door however sour the island has gone.
       </div>
 
       <div className="section-title">How the war is won</div>

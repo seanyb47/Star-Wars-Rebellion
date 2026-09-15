@@ -69,7 +69,7 @@ describe('uprisings', () => {
     const state = generateGalaxy(56);
     const system = state.systems.find((s) => s.control === 'empire')!;
     system.support.empire = 20;
-    system.garrison = 3;
+    system.garrison = 4;
     resolveControlAndUnrest(state);
     expect(getSystem(state, system.id).uprising).toBe(false);
   });
@@ -125,5 +125,22 @@ describe('control tally', () => {
     expect(tally.empire).toBe(
       state.systems.filter((s) => s.populated && s.control === 'empire').length,
     );
+  });
+});
+
+describe('companies ashore', () => {
+  it('faces down a revolt at six, whatever the island still thinks of you', () => {
+    const state = generateGalaxy(56);
+    const system = state.systems.find((s) => s.control === 'empire')!;
+    system.support.empire = 10;
+    system.uprising = true;
+    system.garrison = 5;
+    resolveControlAndUnrest(state);
+    expect(getSystem(state, system.id).uprising).toBe(true);
+
+    system.garrison = 6;
+    resolveControlAndUnrest(state);
+    expect(getSystem(state, system.id).uprising).toBe(false);
+    expect(state.events.at(-1)!.text).toContain('quiet again');
   });
 });

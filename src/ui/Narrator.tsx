@@ -7,6 +7,11 @@ import {
   freeEnergySlots,
   freeRawSlots,
   requiredGarrison,
+  smuggledOff,
+  GARRISON_FOR_BAND,
+  SMUGGLED_SHARE,
+  SUPPORT_FIRM,
+  SUPPORT_STEADY,
   type GameState,
   type System,
 } from '../sim';
@@ -69,8 +74,16 @@ function buildAnswers(state: GameState): Answer[] {
   );
   const idle = state.characters.filter((c) => c.faction === you && c.status === 'available');
   const restless = held.filter(
-    (s) => s.uprising || (s.populated && s.garrison < requiredGarrison(s.support[you])),
+    (s) => s.uprising || (s.populated && s.garrison < requiredGarrison(s.support[you], s.uprising)),
   );
+  // What allegiance is costing today, worst first, and what is undermanned.
+  const leaky = [...held]
+    .filter((s) => s.populated && smuggledOff(s, you) > 0)
+    .sort((a, b) => smuggledOff(b, you) - smuggledOff(a, you))
+    .slice(0, 5);
+  const short = held
+    .filter((s) => s.populated && s.garrison < requiredGarrison(s.support[you], s.uprising))
+    .slice(0, 5);
   const targets = state.systems
     .filter((s) => s.control === 'neutral' && s.populated && s.explored[you])
     .sort((a, b) => b.support[you] - a.support[you])
@@ -152,6 +165,35 @@ function buildAnswers(state: GameState): Answer[] {
             net >= 0 ? `${net.toFixed(1)} a day coming in` : `${Math.abs(net).toFixed(1)} a day going out`
           }. ${tally[you]} islands to their ${theirs}, General.`,
       mood: net < 0 ? 'grave' : tally[you] >= theirs ? 'encouraged' : 'neutral',
+    },
+    {
+      // The rules, in the advisor's mouth. Smuggling takes its cut quietly
+      // every day and a player who never finds out why the gold is short is
+      // playing a different game from the one being simulated.
+      id: 'loyalty',
+      question: 'How does allegiance work?',
+      reply: voice
+        ? `Every island's regard for us and for them adds up to a hundred: what you win, they lose. At ${SUPPORT_FIRM} and over an island is firm and ships us everything. From ${SUPPORT_STEADY} it is steady and ${Math.round(
+            SMUGGLED_SHARE.steady * 100,
+          )}% of its trade goes out the back to them. Under that it is thin — ${Math.round(
+            SMUGGLED_SHARE.thin * 100,
+          )}%, and it starts telling them things. An island in ${terms.mutiny.toLowerCase()} pays us nothing and pays them half. These are the islands costing us most, Imperator.`
+        : `Nobody's half in love with both of us — every island's hundred points are split between us and the Crown, so a point we take is a point off them. Firm at ${SUPPORT_FIRM} and the harbour's honest. Steady at ${SUPPORT_STEADY} and ${Math.round(
+            SMUGGLED_SHARE.steady * 100,
+          )} in every hundred slips out the back. Thin, and it's ${Math.round(
+            SMUGGLED_SHARE.thin * 100,
+          )}% away plus a loose tongue. In ${terms.mutiny.toLowerCase()}? They get half and we get nothing. These are the leaky ones, General.`,
+      mood: leaky.length > 2 ? 'grave' : leaky.length > 0 ? 'neutral' : 'encouraged',
+      islands: leaky,
+    },
+    {
+      id: 'garrisons',
+      question: `What are ${terms.garrison.toLowerCase()}s for?`,
+      reply: voice
+        ? `Order, and the customs books. A firm island needs nobody; a steady one wants ${GARRISON_FOR_BAND.steady}; a thin one wants ${GARRISON_FOR_BAND.thin} or it will rise; ${GARRISON_FOR_BAND.uprising} companies will face down a ${terms.mutiny.toLowerCase()} whatever the island thinks of us. And every company ashore takes a tenth off what the smugglers move, so ten of them shut the back door altogether. These are short of what they are asking for.`
+        : `Keeping the peace and watching the wharf. Firm island, nobody. Steady, ${GARRISON_FOR_BAND.steady}. Thin, ${GARRISON_FOR_BAND.thin} or it goes up. ${GARRISON_FOR_BAND.uprising} will sit on a ${terms.mutiny.toLowerCase()} till it stops shouting. Every company takes a tenth off the smugglers too — ten and nothing leaves that shouldn't. These are undermanned, General.`,
+      mood: short.length > 2 ? 'grave' : short.length > 0 ? 'neutral' : 'encouraged',
+      islands: short,
     },
   ];
 }

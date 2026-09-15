@@ -554,3 +554,40 @@ Highwater inside eight months and wins with the hulls it started with, never
 needing a yard. It measures the Crown instead, which has to hunt three ships
 across the Reaches and therefore fights a war long enough to build for: two
 yards to eight, five hulls to thirty-seven.
+
+
+## Garrisons, and the rules where a player can find them — 15 September
+
+**A garrison is what loyalty asks for.** `requiredGarrison` read a sliding
+formula off the support number; it reads the band now, which is Sean's ladder:
+none when an island is firmly yours, one when it is steady, four when it is
+thin, six in open revolt. Six ashore also *ends* a revolt whatever the island
+still thinks of you, which is the first thing companies have ever done about a
+mutiny besides fail to prevent one. Starting garrisons stayed where they were
+tuned by dropping the spare from two to one: a loyal island still opens with
+two companies, a sullen one with five.
+
+**And troops work the smugglers down.** Every company ashore takes a tenth off
+what the smugglers were running, so ten close the back door however sour the
+island has gone. It is a mitigation and not a business — a company costs more
+to keep than it saves on most islands — but it gives a rich island that has
+turned thin something to do besides wait for a diplomat.
+
+**Measured.** Day one is unchanged: income 65 against 56 upkeep for the Crown,
+60 against 47 for the Confederacy, 21 and 14 companies ashore. Sixteen idle
+games of sixteen end, median 472 days. Revolts now actually happen — five to
+fourteen a game on the long side, where before the requirement was low enough
+that almost nothing rose.
+
+**The rules are in the game now.** Both advisors answer two new questions —
+*How does allegiance work?* and *What are garrisons for?* — in their own
+voices, each ending with the list of islands it is talking about: the five
+leaking most, and the five under their requirement. The Almanac's loyalty card
+carries the same ladder.
+
+**Two interface fixes.** The filter follows you into a Reach: the chain view
+now carries the chart's layer strip inline, so zooming in keeps the filter and
+you can still change it there. And the island panel has a room-to-build bar
+that is the width of the card on every island, with a line under it saying what
+Ground and Water actually hold — ground takes camps and nothing else, water is
+the harbour and shoreline where everything else stands.

@@ -69,7 +69,7 @@ export const BOOM_BLOCKADE_GUNS = 6;
  * a seat is defended whatever its people think.
  */
 export const START_GARRISON_MAX = 6;
-export const START_GARRISON_SPARE = 2;
+export const START_GARRISON_SPARE = 1;
 
 /** Training-facility menu (spec 4.4). */
 export const TROOP_BUILD: BuildSpec = { costGold: 25, days: 5, label: terms.troop };
@@ -456,6 +456,27 @@ export const LEAK_CHANCE: Record<LoyaltyBand, number> = {
   steady: 0,
   firm: 0,
 };
+
+/**
+ * Companies an island asks for, by band. Sean's ladder, 15 September: an
+ * island that is firmly yours needs nobody standing over it, a steady one
+ * needs a token, a thin one needs a real garrison, and one in open revolt
+ * needs six before order comes back.
+ */
+export const GARRISON_FOR_BAND: Record<LoyaltyBand, number> = {
+  firm: 0,
+  steady: 1,
+  thin: 4,
+  uprising: 6,
+};
+
+/**
+ * What each company ashore takes off the smugglers: a tenth of what they
+ * were running, so ten companies close the back door altogether. Troops are
+ * not a business — a company costs more to keep than it saves on most
+ * islands — but on a rich island that has gone sour they pay for themselves.
+ */
+export const GARRISON_SMUGGLING_CUT = 0.1;
 
 export const LOYALTY_BAND_LABEL: Record<LoyaltyBand, string> = {
   uprising: 'In revolt',

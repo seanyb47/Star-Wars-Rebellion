@@ -71,6 +71,12 @@ Crown in the home and contested Reaches, forty-five to fifty-five further out
 — and come over at a flat eighty, which is three or four parleys' work from
 level.
 
+**Garrisons.** What an island asks for follows its band: none when firm, one
+when steady, four when thin, six in revolt — and six ashore will end a revolt
+on its own. Every company also takes a tenth off the smugglers' share. Starting
+garrisons are the requirement plus one, capped at six, so a loyal island opens
+with two companies and a sullen one with five.
+
 **Loyalty.** Three bands, and they cost money. Firm at ninety and up: the
 island ships everything to you. Steady from sixty: a seventh of its trade goes
 out the back to the other side. Thin below sixty: a quarter. In revolt: half,

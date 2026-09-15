@@ -104,11 +104,16 @@ export function resolveControlAndUnrest(state: GameState): void {
 
     const support = system.support[system.control];
     if (system.uprising) {
-      if (support >= UPRISING_END_SUPPORT) {
+      // Won back, or faced down: six companies ashore end a revolt whatever
+      // the island still thinks of you.
+      const enough = system.garrison >= requiredGarrison(support, true);
+      if (support >= UPRISING_END_SUPPORT || enough) {
         system.uprising = false;
         pushEvent(state, {
           kind: 'order',
-      text: `The mutiny on ${system.name} has been put down.`,
+          text: enough && support < UPRISING_END_SUPPORT
+            ? `${system.name} is quiet again: ${system.garrison} companies in the square, and nobody arguing with them.`
+            : `The mutiny on ${system.name} has been put down.`,
           systemId: system.id,
         });
       }

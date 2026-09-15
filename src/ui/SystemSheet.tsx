@@ -81,6 +81,31 @@ const TABS: Array<{ id: IslandTab; label: string }> = [
 ];
 
 /**
+ * Room to build, drawn the same length on every island.
+ *
+ * One pip per slot, filled where something stands. The bar itself is always
+ * the width of the card, whether the island has three berths or thirteen, so
+ * the eye compares how *full* two islands are and not how big the picture of
+ * them is. The same bar, and the same rule, as the one in the chain view.
+ */
+function RoomBar({ system }: { system: System }) {
+  const slots = system.rawSlots + system.energySlots;
+  if (slots === 0) return null;
+  const built = system.facilities.length;
+  return (
+    <div
+      className="roombar"
+      aria-label={`${built} of ${slots} built`}
+      title={`${built} of ${slots} built`}
+    >
+      {Array.from({ length: slots }, (_, i) => (
+        <span key={i} className={i < built ? 'is-built' : ''} />
+      ))}
+    </div>
+  );
+}
+
+/**
  * What this island's allegiance is costing whoever holds it, today.
  *
  * The smugglers' cut is taken every day and announced on no day, so this is
@@ -273,7 +298,7 @@ export function SystemSheet({
 
   const holder =
     system.control === 'empire' || system.control === 'alliance' ? system.control : null;
-  const needed = requiredGarrison(holder ? system.support[holder] : 50);
+  const needed = requiredGarrison(holder ? system.support[holder] : 50, system.uprising);
   const crew = state.characters.filter(
     (c) => c.faction === state.player && c.locationSystemId === system.id,
   );
@@ -375,6 +400,15 @@ export function SystemSheet({
             />
             <Stat label="Built" value={system.facilities.length} />
           </div>
+          <RoomBar system={system} />
+          <p className="tiny muted" style={{ margin: '6px 0 0' }}>
+            {terms.ground} is room ashore, and only a {terms.facilities.mine.toLowerCase()} can take
+            it. {terms.water} is the harbour and the shoreline: everything else stands there — the{' '}
+            {terms.facilities.refinery.toLowerCase()}, the {terms.facilities.construction_yard.toLowerCase()},
+            the {terms.facilities.training_facility.toLowerCase()}, the{' '}
+            {terms.facilities.shipyard.toLowerCase()}, and the walls and chains that defend it. What
+            an island has of each is fixed: the chart drew it that way, and no island grows.
+          </p>
 
           {system.blockaded && (
             <p className="tiny" style={{ color: 'var(--bad)', margin: '8px 0 0' }}>

@@ -1,5 +1,6 @@
 import {
   FACILITY_LABEL,
+  GARRISON_SMUGGLING_CUT,
   GOLD_PER_DAY,
   SMUGGLED_SHARE,
   UPKEEP_PER_DAY,
@@ -34,10 +35,18 @@ export function islandTrade(system: System, faction: PlayableFaction): number {
   return rate * supportMultiplier(system.support[faction]);
 }
 
-/** The share of this island's trade that goes out the back to the enemy. */
+/**
+ * The share of this island's trade that goes out the back to the enemy.
+ *
+ * Allegiance sets the rate and companies ashore work it down: every one of
+ * them takes a tenth off what the smugglers were running, so ten close the
+ * harbour's back door however little the island thinks of you.
+ */
 export function smuggledShare(system: System, faction: PlayableFaction): number {
   if (system.control !== faction) return 0;
-  return SMUGGLED_SHARE[loyaltyBand(system.support[faction], system.uprising)];
+  const rate = SMUGGLED_SHARE[loyaltyBand(system.support[faction], system.uprising)];
+  const watched = Math.max(0, 1 - GARRISON_SMUGGLING_CUT * system.garrison);
+  return rate * watched;
 }
 
 /** What the smugglers actually hand the other side, in gold a day. */

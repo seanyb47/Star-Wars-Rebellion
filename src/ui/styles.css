@@ -1000,6 +1000,15 @@ button {
   background-image: url('../art/chrome/wood.webp'), linear-gradient(180deg, color-mix(in srgb, var(--chrome) 84%, transparent), color-mix(in srgb, var(--chrome-2) 92%, transparent));
   box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.35);
 }
+/* The same strip inside a sheet: the filter follows you into a Reach and can
+   still be changed there, so zooming in never means losing what you were
+   looking at. */
+.layers--inline {
+  position: static; border-top: 0; padding: 0 0 4px;
+  background: none;
+}
+.layers--inline .layers__strip { padding: 0 0 4px; }
+
 .layers__strip {
   display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
   padding: 0 10px 6px; pointer-events: auto;
@@ -1396,3 +1405,9 @@ button.tcard:hover { border-color: var(--brass); }
   color: var(--muted);
   font-style: italic;
 }
+
+/* Room to build on the island panel: always the width of the card, one pip
+   per berth, so two islands are compared by how full they are. */
+.roombar { display: flex; gap: 2px; width: 100%; margin-top: 8px; }
+.roombar > span { flex: 1; height: 7px; border-radius: 2px; background: #8fa0a8; }
+.roombar > span.is-built { background: #f4f7f8; }

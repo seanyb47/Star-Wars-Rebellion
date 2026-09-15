@@ -7,6 +7,7 @@ import {
   type Sector,
 } from '../sim';
 import { ChainMap } from './ChainMap';
+import { LayerStrip } from './LayerStrip';
 import type { IslandTab } from './IslandRow';
 import { Sheet } from './components';
 
@@ -37,6 +38,7 @@ export function ReachSheet({
   sailing,
   choosing,
   layer,
+  onLayerChange,
 }: {
   state: GameState;
   sector: Sector;
@@ -48,6 +50,7 @@ export function ReachSheet({
   choosing?: boolean;
   /** Whatever the chart is filtering by, so the same islands stay lit in here. */
   layer?: ChartLayer;
+  onLayerChange?: (layer: ChartLayer) => void;
   /** The "N islands" line opens the Reach as a list, one row per island. */
   onOpenList?: (sectorId: string) => void;
 }) {
@@ -81,6 +84,11 @@ export function ReachSheet({
         it leans. Tap one to open it. No heading above it — it is the whole
         panel.
       */}
+      {/* The filter you had on the chart, still on, and still yours to change
+          without going back out to it. */}
+      {layer && onLayerChange && !pickingFor && !sailing && !choosing && (
+        <LayerStrip state={state} layer={layer} onChange={onLayerChange} viewer={state.player} inline />
+      )}
       <ChainMap
         state={state}
         systems={summary.perIsland.map((entry) => byId.get(entry.systemId)!)}

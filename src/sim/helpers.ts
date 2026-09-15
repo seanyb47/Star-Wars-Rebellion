@@ -1,4 +1,4 @@
-import { SPILLOVER_FRACTION } from './constants';
+import { GARRISON_FOR_BAND, SPILLOVER_FRACTION, loyaltyBand } from './constants';
 import type {
   Faction,
   FacilityType,
@@ -125,9 +125,13 @@ export function applySupportChange(
   return applied;
 }
 
-/** Garrison needed to hold a restless island down (spec 4.3). */
-export function requiredGarrison(support: number): number {
-  return Math.max(0, Math.ceil((50 - support) / 10));
+/**
+ * Companies needed to hold an island down: nothing on one that is firmly
+ * yours, a token on a steady one, four where allegiance is thin and six to
+ * face down a revolt (spec 4.3, and Sean's ladder of 15 September).
+ */
+export function requiredGarrison(support: number, uprising = false): number {
+  return GARRISON_FOR_BAND[loyaltyBand(support, uprising)];
 }
 
 /** Mine output scales with how loyal the populace is (spec 4.2.1). */

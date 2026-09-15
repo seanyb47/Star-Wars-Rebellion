@@ -22,11 +22,14 @@ export function LayerStrip({
   layer,
   onChange,
   viewer,
+  inline = false,
 }: {
   state: GameState;
   layer: ChartLayer;
   onChange: (layer: ChartLayer) => void;
   viewer: PlayableFaction;
+  /** Sitting in a sheet rather than floating on the foot of the chart. */
+  inline?: boolean;
 }) {
   const strip = useRef<HTMLDivElement>(null);
 
@@ -37,7 +40,7 @@ export function LayerStrip({
   }, [layer]);
 
   return (
-    <div className="layers">
+    <div className={`layers${inline ? ' layers--inline' : ''}`}>
       <div className="layers__strip" ref={strip} role="tablist" aria-label="Chart layer">
         {CHART_LAYERS.map((l) => {
           const n = l.id === 'allegiance' || l.id === 'none' ? null : layerTally(state, l.id, viewer);
