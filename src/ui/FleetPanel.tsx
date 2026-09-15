@@ -431,7 +431,13 @@ export function ShipsHere({
         <div>
           <div style={{ fontWeight: 600 }}>{beast.name}</div>
           <div className="tiny muted" style={{ marginTop: 2 }}>
-            {island.beastSlain ? 'Dead in the water' : 'In the water, and nobody\u2019s'}
+            {island.beastSlain
+              ? 'Dead in the water'
+              : island.cornered
+                ? 'Hurt, cornered, and fighting'
+                : island.beastRoaming
+                  ? 'Hunting these waters — it does not stay put'
+                  : 'In the water, and nobody\u2019s'}
           </div>
         </div>
         <span className="badge badge--none">Neutral</span>
@@ -450,7 +456,11 @@ export function ShipsHere({
       <p className="tiny" style={{ margin: 0, color: island.beastSlain ? 'var(--muted)' : 'var(--bad)' }}>
         {island.beastSlain
           ? 'Killed. The water here is only water now.'
-          : 'It fires on anything lying here, whoever it belongs to, and no fort on the island can be brought to bear on it. It does not mend what you take off it \u2014 break off and come back and it is still carrying it.'}
+          : island.cornered
+            ? 'It has been hurt and there is nowhere in this Sea left for it to go. It will not run again.'
+            : island.beastRoaming
+              ? 'Word of it is out and it has stopped staying put: it moves about this Sea, goes where ships are, and takes them at sea when it finds none at anchor. Hurt it enough and it breaks off \u2014 unless every island here is shut to it.'
+              : 'It fires on anything lying here, whoever it belongs to, and no fort on the island can be brought to bear on it. It does not mend what you take off it \u2014 break off and come back and it is still carrying it.'}
       </p>
     </div>
   );

@@ -8,12 +8,14 @@ import {
   creatureFor,
   sightBeast,
   woundBeast,
+  stirBeasts,
 } from '../creatures';
 import { generateGalaxy } from '../galaxy';
 import { advanceDay } from '../advanceDay';
 import { createRng } from '../rng';
 import { addShip, resolveBattles, sailFleet } from '../fleets';
-import type { IslandArchetype, System } from '../types';
+import { BEAST_FLEE_HURT, BEAST_WAKE_DAY } from '../constants';
+import type { GameState, IslandArchetype, System } from '../types';
 
 const ARCHETYPES: IslandArchetype[] = [
   'jungle-isle', 'rock-isle', 'port-city', 'free-harbor', 'mining-isle',
@@ -187,5 +189,110 @@ describe('a creature in the harbor', () => {
       const freeport = state.systems.find((s) => s.name === 'Freeport')!;
       expect(beastAlive(freeport)).toBe(false);
     }
+  });
+});
+
+describe('once the rumours start', () => {
+  /** A world wound forward to the day creatures may wake, with one island's
+   *  creature picked out and everything else in its Sea left empty. */
+  function waking(seed = 501) {
+    const state = generateGalaxy(seed, 'empire');
+    state.day = BEAST_WAKE_DAY + 1;
+    const home = state.systems.find((s) => beastAlive(s))!;
+    const sea = state.sectors.find((sec) => sec.id === home.sectorId)!.sea;
+    const inSea = state.systems.filter(
+      (s) => state.sectors.find((sec) => sec.id === s.sectorId)?.sea === sea,
+    );
+    // One creature in the whole world, so which one every assertion is about
+    // is never in doubt — another Sea's waking first would answer for it.
+    for (const s of state.systems) if (s.id !== home.id) s.beast = undefined;
+    for (const s of state.systems) s.explored.empire = true;
+    return { state, home, inSea: inSea.filter((s) => s.id !== home.id) };
+  }
+  const beastNow = (state: GameState) => state.systems.find((s) => s.beast);
+
+  it('leaves everything where it is before the day rumours can start', () => {
+    const { state, home } = waking();
+    state.day = BEAST_WAKE_DAY - 1;
+    for (let i = 0; i < 200; i++) stirBeasts(state, createRng(i));
+    expect(home.beastRoaming).toBeUndefined();
+    expect(beastNow(state)!.id).toBe(home.id);
+  });
+
+  it('wakes, says so in both logs, and then starts moving', () => {
+    const { state, home } = waking();
+    for (let i = 0; i < 400 && !home.beastRoaming; i++) stirBeasts(state, createRng(i));
+    expect(home.beastRoaming).toBe(true);
+    const rumour = state.events.find((e) => /^Rumours of/.test(e.text))!;
+    expect(rumour).toBeDefined();
+    // The Sea is named, because that is what a rumour is about.
+    expect(rumour.text).toContain(state.sectors.find((s) => s.id === home.sectorId)!.sea);
+
+    for (let i = 0; i < 400 && beastNow(state)!.id === home.id; i++) {
+      stirBeasts(state, createRng(1000 + i));
+    }
+    expect(beastNow(state)!.id).not.toBe(home.id);
+    // What it is and what it has taken travel with it.
+    expect(beastNow(state)!.beast).toBe(home.beast ?? beastNow(state)!.beast);
+    expect(beastNow(state)!.beastRoaming).toBe(true);
+  });
+
+  it('hunts toward ships when it is whole', () => {
+    const { state, home, inSea } = waking();
+    home.beastRoaming = true;
+    const bait = inSea[inSea.length - 1];
+    addShip(state, bait, 'empire', 'kestrel');
+    for (let i = 0; i < 400 && beastNow(state)!.id === home.id; i++) {
+      stirBeasts(state, createRng(2000 + i));
+    }
+    expect(beastNow(state)!.id).toBe(bait.id);
+  });
+
+  it('runs away from ships when it is hurt, not toward them', () => {
+    const { state, home, inSea } = waking();
+    home.beastRoaming = true;
+    home.beastDamage = Math.ceil(beastAt(home)!.hull * BEAST_FLEE_HURT);
+    // Ships everywhere but one island: running has exactly one answer.
+    const refuge = inSea[0];
+    for (const s of inSea) if (s.id !== refuge.id) addShip(state, s, 'empire', 'kestrel');
+    for (let i = 0; i < 600 && beastNow(state)!.id === home.id; i++) {
+      stirBeasts(state, createRng(3000 + i));
+    }
+    expect(beastNow(state)!.id).toBe(refuge.id);
+    // It is still carrying what was done to it. A creature does not mend.
+    expect(beastNow(state)!.beastDamage).toBe(home.beastDamage ?? beastNow(state)!.beastDamage);
+  });
+
+  it('stands and fights when the whole Sea is shut to it', () => {
+    const { state, home, inSea } = waking();
+    home.beastRoaming = true;
+    home.beastDamage = beastAt(home)!.hull - 1;
+    // Every other island in the Sea has ships in it: nowhere to run.
+    for (const s of inSea) addShip(state, s, 'empire', 'kestrel');
+    for (let i = 0; i < 600 && !home.cornered; i++) stirBeasts(state, createRng(4000 + i));
+    expect(home.cornered).toBe(true);
+    expect(beastNow(state)!.id).toBe(home.id);
+    expect(beastAlive(home)).toBe(true);
+    expect(state.events.some((e) => /turns and fights/.test(e.text))).toBe(true);
+  });
+
+  it('takes a fleet in open water when there is nothing at anchor to take', () => {
+    const { state, home, inSea } = waking();
+    home.beastRoaming = true;
+    // A squadron bound for this Sea, and not a hull at anchor anywhere in it.
+    const target = inSea[0];
+    const far = state.systems.find(
+      (s) => !inSea.includes(s) && s.id !== home.id && s.id !== target.id,
+    )!;
+    addShip(state, far, 'empire', 'sovereign');
+    addShip(state, far, 'empire', 'razorback');
+    const fleet = state.fleets.find((f) => f.systemId === far.id)!;
+    fleet.voyage = { targetSystemId: target.id, daysRemaining: 20 };
+    const sound = () => fleet.ships.reduce((n, s) => n + s.damage, 0);
+    for (let i = 0; i < 600 && sound() === 0; i++) stirBeasts(state, createRng(5000 + i));
+    expect(sound()).toBeGreaterThan(0);
+    expect(state.events.some((e) => /open water/.test(e.text))).toBe(true);
+    // And it did not leave its island to do it — it was already in the water.
+    expect(beastNow(state)!.id).toBe(home.id);
   });
 });

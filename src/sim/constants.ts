@@ -97,6 +97,33 @@ export const BOOM_BLOCKADE_GUNS = 6;
 export const BEAST_ARMOUR = 6;
 
 /**
+ * When a creature stops staying put, and how it behaves once it has.
+ *
+ * Sean: "later in the game a log pops up saying rumours of [monster] are
+ * spreading in the [sea name], and maybe we can have a monster attack either a
+ * fleet in transit or a harbor. But should happen a little ways into game when
+ * things are more established."
+ *
+ * So nothing moves for the first two hundred days. The opening is about the
+ * war; a creature in that stretch is a hazard of sailing somewhere nobody has
+ * been, which is what it should be. After that each one has a slow chance of
+ * waking per day — slow enough that a world's few creatures wake at different
+ * times over the long middle of a game rather than all at once — and a woken
+ * one moves about its own Sea every week or so, preferring water somebody's
+ * ships are in, because it is hunting now rather than lying about.
+ *
+ * And it can run. Past half its hull in damage it may break off and go
+ * somewhere else in the Sea, exactly as a fleet would — but only if there is
+ * somewhere to go. Cornered, it stands and fights, which is the one case where
+ * a wounded creature is more dangerous than a fresh one.
+ */
+export const BEAST_WAKE_DAY = 200;
+export const BEAST_WAKE_CHANCE = 0.01;
+export const BEAST_MOVE_CHANCE = 0.13;
+export const BEAST_FLEE_HURT = 0.5;
+export const BEAST_FLEE_CHANCE = 0.35;
+
+/**
  * Garrisons at setup, the two numbers Rebellion is tuned against.
  *
  * Every held island opens with the garrison its allegiance needs plus two, so

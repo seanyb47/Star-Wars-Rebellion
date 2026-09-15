@@ -1,4 +1,14 @@
-import type { Faction, IslandArchetype, PlayableFaction, System } from './types';
+import {
+  BEAST_FLEE_CHANCE,
+  BEAST_FLEE_HURT,
+  BEAST_MOVE_CHANCE,
+  BEAST_WAKE_CHANCE,
+  BEAST_WAKE_DAY,
+  shipSpec,
+} from './constants';
+import { pushEvent } from './helpers';
+import type { Rng } from './rng';
+import type { Faction, GameState, IslandArchetype, PlayableFaction, System } from './types';
 
 /**
  * What lives out there.
@@ -205,4 +215,208 @@ export function sightBeast(
   const beast = creature(system.beast);
   if (!beast) return undefined;
   return beast.found.replace('{island}', system.name);
+}
+
+// --- Once the rumours start ------------------------------------------------
+
+/**
+ * Everything about a creature that moves.
+ *
+ * For the first two hundred days none of them do: a creature is a fact about
+ * one island's water, and meeting one is the price of going somewhere nobody
+ * has been. That is the right shape for an opening — the war is the subject
+ * and the sea is the setting.
+ *
+ * After that the sea gets a vote. A creature wakes, word of it goes round the
+ * whole Sea whether or not anyone has seen it, and from then on it hunts: it
+ * moves about its own Sea every week or so, it prefers water somebody's ships
+ * are lying in, and it will take a fleet at sea when there is nothing at
+ * anchor to take. It can also run, the way a fleet can, once it has been hurt
+ * enough — and if there is nowhere in the Sea left to run to, it stays and
+ * fights, which is the one case where a half-killed creature is worse than a
+ * fresh one.
+ *
+ * A creature is carried on the island it is in rather than as a thing with a
+ * position of its own, so moving one is moving the fields: what it is, what it
+ * has taken, and who has seen it all travel together. Nothing else has to know
+ * a creature can move at all — the harbor panel, the battle round and the
+ * almanac go on reading the island in front of them.
+ */
+
+/** The Sea an island is in, by way of its chain. */
+function seaOf(state: GameState, system: System): string | undefined {
+  return state.sectors.find((sec) => sec.id === system.sectorId)?.sea;
+}
+
+/** Islands of the same Sea a creature could move to, nearest ones first. */
+function elsewhereInSea(state: GameState, from: System): System[] {
+  const sea = seaOf(state, from);
+  if (!sea) return [];
+  const sectors = new Set(state.sectors.filter((sec) => sec.sea === sea).map((sec) => sec.id));
+  return state.systems.filter(
+    (s) => s.id !== from.id && sectors.has(s.sectorId) && !s.beast,
+  );
+}
+
+/** Carry a creature, and everything true about it, to another island. */
+function carry(from: System, to: System): void {
+  to.beast = from.beast;
+  to.beastDamage = from.beastDamage;
+  to.beastRoaming = true;
+  // Who has seen it follows it. Having met the Kraken once, you know the
+  // Kraken when it turns up somewhere else; the side that never has still
+  // does not, and gets the same nasty surprise it would have got at home.
+  to.beastSeen = { ...(from.beastSeen ?? { empire: false, alliance: false }) };
+  from.beast = undefined;
+  from.beastDamage = undefined;
+  from.beastRoaming = undefined;
+  from.beastSeen = { empire: false, alliance: false };
+}
+
+/**
+ * Move a creature somewhere else in its Sea.
+ *
+ * Which way it leans is the whole difference between the two reasons it moves.
+ * A healthy one is **hunting**: water with ships at anchor first, anything else
+ * only if there is none. A hurt one is **running**, and running toward a
+ * squadron is not running — so it will only go where there are no ships, and
+ * when every other island in the Sea has ships or another creature in it there
+ * is nowhere to go and it stays and fights. That is what makes "cornered" a
+ * real state rather than a figure of speech: it happens when a side has spread
+ * its hulls through the Sea, which is a thing a player can actually do on
+ * purpose.
+ */
+function prowl(state: GameState, from: System, rng: Rng, fleeing = false): boolean {
+  const options = elsewhereInSea(state, from);
+  if (options.length === 0) return false;
+  const shipsAt = (s: System) => state.fleets.some((f) => !f.voyage && f.systemId === s.id);
+  const quiet = options.filter((s) => !shipsAt(s));
+  if (fleeing) {
+    if (quiet.length === 0) return false;
+    const away = rng.pick(quiet);
+    const beast = beastAt(from)!;
+    carry(from, away);
+    if (away.explored[state.player]) {
+      pushEvent(state, {
+        kind: 'battle',
+        text: `${beast.name} breaks off and goes into the water off ${away.name}.`,
+        systemId: away.id,
+      });
+    }
+    return true;
+  }
+  const hunting = options.filter(shipsAt);
+  const to = rng.pick(hunting.length > 0 ? hunting : options);
+  const beast = beastAt(from)!;
+  carry(from, to);
+  // Reported where it could be seen from. An island nobody has charted swallows
+  // its own news, which is the same rule the rest of the game keeps.
+  if (to.explored[state.player]) {
+    pushEvent(state, {
+      kind: 'battle',
+      text: `${beast.name} is in the water off ${to.name}.`,
+      systemId: to.id,
+    });
+  }
+  return true;
+}
+
+/**
+ * A fleet caught in open water, when there is nothing at anchor to go for.
+ *
+ * A voyage has no route in this game, only a destination and a count of days,
+ * so "in transit" can only mean bound somewhere in this Sea. That is enough:
+ * it is the fleet nobody could reinforce, taken where no fort can fire and no
+ * squadron can join, which is what makes it worth fearing.
+ */
+function takeAtSea(state: GameState, from: System, rng: Rng): boolean {
+  const sea = seaOf(state, from);
+  if (!sea) return false;
+  const sectors = new Set(state.sectors.filter((sec) => sec.sea === sea).map((sec) => sec.id));
+  const passing = state.fleets.filter((f) => {
+    if (!f.voyage) return false;
+    const to = state.systems.find((s) => s.id === f.voyage!.targetSystemId);
+    return to !== undefined && sectors.has(to.sectorId) && f.ships.length > 0;
+  });
+  if (passing.length === 0) return false;
+  const fleet = rng.pick(passing);
+  const beast = beastAt(from)!;
+  // Half the guns tell, as everywhere else shot is counted in this game.
+  let hits = Math.max(1, Math.round(beast.guns / 2));
+  while (hits > 0) {
+    const live = fleet.ships.filter((s) => s.damage < shipSpec(s.classId).hull);
+    if (live.length === 0) break;
+    live[rng.int(live.length)].damage += 1;
+    hits -= 1;
+  }
+  const lost = fleet.ships.filter((s) => s.damage >= shipSpec(s.classId).hull).length;
+  fleet.ships = fleet.ships.filter((s) => s.damage < shipSpec(s.classId).hull);
+  if (fleet.faction === state.player) {
+    pushEvent(state, {
+      kind: 'battle',
+      text:
+        `${beast.name} takes ${fleet.name} in open water` +
+        (lost > 0 ? `. ${lost} ${lost === 1 ? 'hull is' : 'hulls are'} gone.` : ', and she is mauled getting clear.'),
+      systemId: fleet.systemId,
+    });
+  }
+  return true;
+}
+
+/**
+ * The day's turn for everything in the water. Called once a day, after the
+ * fighting, so a creature that has just been hurt can decide to run from it.
+ */
+export function stirBeasts(state: GameState, rng: Rng): void {
+  if (state.day < BEAST_WAKE_DAY) return;
+  for (const system of state.systems) {
+    if (!beastAlive(system)) continue;
+
+    // Not woken yet. Rumours are public — that is what a rumour is — so this
+    // one line goes in both sides' logs whether or not anybody has been there.
+    if (!system.beastRoaming) {
+      if (!rng.chance(BEAST_WAKE_CHANCE)) continue;
+      system.beastRoaming = true;
+      const beast = beastAt(system)!;
+      pushEvent(state, {
+        kind: 'battle',
+        text: `Rumours of ${beast.name} are spreading in ${seaOf(state, system) ?? 'the Reaches'}.`,
+        systemId: system.id,
+      });
+      continue;
+    }
+
+    // Hurt enough to break off, and somewhere to break off to. Checked before
+    // the ordinary prowl so a wounded creature leaves rather than wandering.
+    const beast = beastAt(system)!;
+    const hurt = (system.beastDamage ?? 0) / beast.hull;
+    if (hurt >= BEAST_FLEE_HURT && rng.chance(BEAST_FLEE_CHANCE)) {
+      if (prowl(state, system, rng, true)) continue;
+      // Cornered: every other island in its Sea has ships in it or something
+      // else in the water. It stays where it is and goes on fighting, which
+      // the battle round will see to tomorrow — and the side that did the
+      // cornering is told, because it is the good news of the week.
+      if (!system.cornered && system.explored[state.player]) {
+        pushEvent(state, {
+          kind: 'battle',
+          text: `${beast.name} is hurt and has nowhere in ${
+            seaOf(state, system) ?? 'these waters'
+          } left to go. It turns and fights off ${system.name}.`,
+          systemId: system.id,
+        });
+      }
+      system.cornered = true;
+      continue;
+    }
+    system.cornered = undefined;
+
+    if (!rng.chance(BEAST_MOVE_CHANCE)) continue;
+    // Hunting. Somewhere in the Sea with ships at anchor first; failing that,
+    // a fleet caught out in open water; failing that, anywhere at all.
+    const anchored = elsewhereInSea(state, system).some((s) =>
+      state.fleets.some((f) => !f.voyage && f.systemId === s.id),
+    );
+    if (!anchored && takeAtSea(state, system, rng)) continue;
+    prowl(state, system, rng);
+  }
 }

@@ -1303,3 +1303,66 @@ at Slow. At the old speeds that was two seconds a day; at the new ones it is
 seventy-five, and the first minute of a new game would be spent watching a
 date that has not moved. It starts at **Medium** now. Still inside Sean's
 table, and a tap either way from there.
+
+**Monsters start small, then start moving — 15 September.** Sean: "Monsters
+should start small. Maybe like 25% of unexplored have a monster. But later in
+the game a log pops up saying rumours of [monster] are spreading in the [sea
+name], and maybe we can have a monster attack either a fleet in transit or a
+harbor… And a monster might run away just like a fleet can. Run to another
+location within the sea. But it always stays and fights if there is nowhere
+else to go."
+
+**A quarter, not a third** — 5.6 creatures in a world rather than 8.4. They
+are not meant to be a feature of the frontier; they are meant to be the thing
+you did not expect out there, and what they do later is worth more than there
+being lots of them.
+
+**Two hundred days of nothing.** The opening is about the war, and a creature
+in that stretch is a hazard of going somewhere nobody has been, which is what
+it should be. After that each has a slow chance of waking per day. Measured
+over twelve worlds: **2.1 rumours a game**, the first on day 200 and the
+median on day 260 — a phase of the middle game rather than a thing that
+happens once or constantly. The rumour is public and names the Sea, because
+that is what a rumour is.
+
+**A woken one hunts.** It moves about its own Sea roughly weekly, and where it
+goes is the whole difference between its two reasons for moving:
+
+- **Whole, it hunts**: water with ships at anchor first, anywhere else only if
+  there is none. Coming into a harbor puts it in the battle round, which
+  already knew what to do with a creature, so arriving somewhere with ships
+  *is* the attack — nothing new had to be written for it.
+- **Hurt past half its hull, it runs**: and running toward a squadron is not
+  running, so it will only go where there are no ships.
+
+**Which is what makes "nowhere else to go" real.** A creature is cornered when
+every other island in its Sea has ships in it or something else in the water —
+so cornering one is a thing a player can do on purpose by spreading hulls
+through a Sea, and a cornered creature stands and fights and does not run
+again. It is rare in an ordinary game, so it is tested directly rather than
+hoped for: a world is built with ships on every island but the one, and the
+creature turns and fights.
+
+**A fleet in transit** is taken when there is nothing at anchor in the Sea to
+go for. A voyage in this game has a destination and a count of days but no
+route, so "in transit" can only mean bound somewhere in this Sea — which is
+enough, because it is the fleet nobody can reinforce, caught where no fort can
+fire and no squadron can join.
+
+**How a creature moves at all:** it is carried on the island it is in rather
+than being a thing with a position of its own, so moving one moves the fields
+— what it is, what it has taken, and which side has seen it, all travelling
+together. Nothing else had to learn that a creature can move: the harbor
+panel, the battle round and the almanac go on reading the island in front of
+them.
+
+**Balance unmoved:** 8–8 over sixteen games with the AI in each seat, no
+stalls, median 493 days.
+
+**Two of my own instruments were wrong before the code was**, both in the same
+way — counting a thing by a key that is not unique. Wakes were counted by
+creature slug, which collapses two Krakens into one; movement was counted off
+a log line that is only written where the player has charted the island. Both
+said the feature was barely firing. Counted off the rumour log, which is
+always public, and off the set of islands holding creatures, it fires exactly
+as intended.

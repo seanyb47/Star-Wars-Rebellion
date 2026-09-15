@@ -2,6 +2,7 @@ import { MOOT_SUPPORT_PER_DAY, PIRATE_LORDS } from './constants';
 import factionData from '../data/factions.json';
 import { runAI } from './ai';
 import { advanceBuilds } from './build';
+import { stirBeasts } from './creatures';
 import { advanceFleets, updateBlockades } from './fleets';
 import { allLordsTaken, powerAt, reseatLords, syncHome } from './lords';
 import { collectIncome, payUpkeep, recomputeLedger } from './economy';
@@ -57,6 +58,9 @@ export function advanceDay(state: GameState): GameState {
   // can be the thing that loses an island this morning.
   driftSupport(next);
   resolveControlAndUnrest(next);
+  // What is in the water takes its turn after the fighting, so a creature
+  // that has just been hurt can decide to break off from it.
+  stirBeasts(next, rng);
   reportLoyaltySlips(next, bands);
   leakInformation(next, rng);
   payUpkeep(next, rng);

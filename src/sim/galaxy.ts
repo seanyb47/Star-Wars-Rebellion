@@ -111,10 +111,14 @@ const FRONTIER_SETTLED_CHANCE = 0.25;
  *
  * Only those Reaches, and only some of them. A creature everywhere is a
  * creature nowhere, and one you can read about before you have sailed anywhere
- * is scenery — the whole value of the thing is that the boats find it. Roughly
- * one frontier island in three, of those whose waters hold anything at all.
+ * is scenery — the whole value of the thing is that the boats find it.
+ *
+ * A quarter, at Sean's word: "monsters should start small". They are not meant
+ * to be a feature of the frontier, they are meant to be the thing you did not
+ * expect out there — and later in the war they stop staying put, which is
+ * worth more than there being lots of them to begin with (see stirBeasts).
  */
-const FRONTIER_BEAST_CHANCE = 0.35;
+const FRONTIER_BEAST_CHANCE = 0.25;
 /** The least room an island a side opens holding is allowed to have. Above it
  *  the roll runs to ROOM_MAX, so a starting island is 8 to 12 berths whatever
  *  the painting made of its coastline. */

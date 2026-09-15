@@ -96,6 +96,16 @@ export interface System {
   /** Killed, and by whom. A dead creature stays on the island's record. */
   beastSlain?: Faction;
   /**
+   * It has stopped staying put. A creature begins the war in one island's
+   * water and is a hazard of going there; once the rumours start it hunts
+   * instead, moving about its own Sea, and can be met where nobody expected
+   * it. Set by the rumour that wakes it, or by taking enough hurt to run.
+   */
+  beastRoaming?: boolean;
+  /** Hurt, tried to break off, and found the whole Sea shut to it. Carried so
+   *  the log says so once rather than every day it goes on being true. */
+  cornered?: boolean;
+  /**
    * The order the player has put the garrison's kinds in, if they have. A
    * company has no identity of its own to move — the garrison is a count and
    * a roster read off it — so what is remembered is which kind comes first.
