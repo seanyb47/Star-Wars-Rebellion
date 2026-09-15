@@ -1197,9 +1197,19 @@ button {
 .layers--foot {
   /* In a sheet's footer rather than floating over the chart, and keeping the
      wood and the rule above it so it reads as the same strip in the same
-     place — the chart's filters do not move house when you zoom into a Reach. */
+     place — the chart's filters do not move house when you zoom into a Reach.
+
+     The strip takes the sheet's safe-area padding off it and pays it itself.
+     A sheet pads its own bottom so no content sits under the home indicator,
+     which is right for content and wrong for chrome: this strip *is* the
+     bottom of the screen, so the padding left thirty-four points of sheet
+     showing under it — a band of panel below the filters, which read as the
+     map coming through the console. Now the wood runs to the edge and the
+     chips keep their clearance. Only visible installed to the home screen,
+     which is the only place `--safe-bottom` is not zero. */
   position: static;
-  padding: 6px 0 2px;
+  padding: 6px 0 calc(2px + var(--safe-bottom));
+  margin-bottom: calc(-1 * var(--safe-bottom));
 }
 
 .layers__strip {
