@@ -435,13 +435,24 @@ button {
 .btn:disabled { opacity: 0.42; }
 
 .buildgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+/* One thing you can order built, as a button in the grid: the icon, what it
+   is called, and what it costs. Written out once. It used to be three rules
+   in three places in this file — one of them left over from a row layout with
+   a head, an action and a reason that no longer exists — each quietly taking
+   properties off the last. That is the same way the phone's clock ended up on
+   the Crown's name, so it is worth saying plainly: a class is defined in one
+   place, or it is a bug waiting. */
 .build {
-  min-height: var(--tap); border: 1px solid var(--border); border-radius: 9px; padding: 8px 9px;
-  background: var(--bg-sunken); text-align: left;
+  min-height: var(--tap); border: 1px solid var(--border); border-radius: 9px;
+  padding: 10px 12px; background: var(--bg-sunken);
+  display: flex; align-items: center; gap: 10px; text-align: left;
 }
-.build__name { font-size: 12px; font-weight: 600; }
-.build__meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.build__icon { flex: none; color: var(--brass); opacity: 0.85; display: grid; place-items: center; }
+.build__text { min-width: 0; }
+.build__name { display: block; font-size: 14px; font-weight: 600; }
+.build__meta { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
 .build:disabled { opacity: 0.42; }
+.build:disabled .build__icon { opacity: 0.4; }
 
 .ratings { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
 .rating { display: flex; align-items: center; gap: 8px; }
@@ -625,13 +636,6 @@ button {
   display: grid; place-items: center;
   color: var(--brass); opacity: 0.9;
 }
-
-.build { display: flex; align-items: center; gap: 8px; text-align: left; }
-.build__icon { flex: none; color: var(--brass); opacity: 0.85; display: grid; place-items: center; }
-.build__text { min-width: 0; }
-.build__name { display: block; font-size: 12px; font-weight: 600; }
-.build__meta { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
-.build:disabled .build__icon { opacity: 0.4; }
 
 .companies {
   display: flex; align-items: flex-end; gap: 4px; flex-wrap: wrap;
@@ -1336,14 +1340,6 @@ button.tcard:hover { border-color: var(--brass); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip--on { color: var(--brass); border-color: var(--brass); }
 .chips .chip { display: inline-flex; align-items: center; gap: 6px; }
-.build { padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
-.build__head {
-  flex: 1; min-width: 0; text-align: left; background: none; border: none; padding: 0;
-  display: flex; flex-direction: column; gap: 2px; color: var(--text);
-}
-.build__name { font-weight: 600; font-size: 14px; }
-.build__act { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex: none; }
-.build__why { max-width: 160px; text-align: right; }
 .btn--sm { min-height: 36px; padding: 0 12px; font-size: 13px; }
 
 /* The build flow: the three-button menu and the order sheet. */

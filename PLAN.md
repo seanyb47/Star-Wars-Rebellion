@@ -242,8 +242,10 @@ the position script re-runs against a new painting in one command.
 - **Ships differ by mast count**, which is one pixel at chart size. They need to
   differ by hull.
 - **Building icons do not share a baseline**, so a row of them sits unevenly.
-- **`README.md`'s "Not built yet"** still says fleets are outstanding. They are
-  not.
+- ~~**`README.md`'s "Not built yet"** still says fleets are outstanding.~~
+  **Gone** — checked 15 September: it already says they are built, and names
+  what actually remains (command ranks, Tidecraft tiers, the Leviathan, a
+  smarter opponent). The note outlived the thing it was about.
 - ~~Two chains crowd on the chart.~~ **Gone** — Sugar, Mirage and Whalers' were
   the three Reaches cut, so the crowding went with them.
 
@@ -740,3 +742,14 @@ carry the numeral now, on the same pulsing halo, because where the answer is
 "go and give something an order" the useful part is how many orders there are
 to give. Garrisons and Available land keep their three dot sizes: their
 question is how hard and how roomy, not how many.
+
+
+**One class, one place.** `.build` was defined three times in the stylesheet,
+in three different parts of the file, each quietly taking properties off the
+last — and one of the three was written for a row layout with a head, an
+action and a reason that has no markup left anywhere. Only one component ever
+used any of it. They are one rule now, carrying the values that were actually
+winning, so the grid renders pixel for pixel what it rendered before; the dead
+selectors are gone. This is the same fault that put the phone's clock on the
+Crown's name, found by looking for the rest of its kind rather than waiting
+for the next one to show up on a screenshot.
