@@ -13,6 +13,7 @@ import {
   START_GARRISON_SPARE,
 } from './constants';
 import { shipClass } from './constants';
+import { creatureFor } from './creatures';
 
 import type {
   Character,
@@ -105,6 +106,15 @@ const MIN_SYSTEM_SEPARATION = 38;
 const START_CONTESTED_PER_SIDE = 2;
 const START_HOME_CONFEDERACY: [number, number] = [1, 2];
 const FRONTIER_SETTLED_CHANCE = 0.25;
+/**
+ * How many islands of the unexplored Reaches have something in the water.
+ *
+ * Only those Reaches, and only some of them. A creature everywhere is a
+ * creature nowhere, and one you can read about before you have sailed anywhere
+ * is scenery — the whole value of the thing is that the boats find it. Roughly
+ * one frontier island in three, of those whose waters hold anything at all.
+ */
+const FRONTIER_BEAST_CHANCE = 0.35;
 /** The least room an island a side opens holding is allowed to have. Above it
  *  the roll runs to ROOM_MAX, so a starting island is 8 to 12 berths whatever
  *  the painting made of its coastline. */
@@ -314,7 +324,14 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         garrison: 0,
         uprising: false,
         blockaded: false,
+        beastSeen: { empire: false, alliance: false },
       };
+      // Something in the water, and only out where nobody has been. The roll
+      // is taken for every frontier island so the RNG stream does not depend
+      // on what the archetype happened to be.
+      if (role === 'frontier' && rng.chance(FRONTIER_BEAST_CHANCE)) {
+        system.beast = creatureFor(system)?.slug;
+      }
       if (populated) {
         // Any inhabited island that has not picked a side is neutral, and can
         // be courted. The home and contested Reaches are closer to the war and
@@ -475,6 +492,14 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   // The Confederacy knows the island it met on and nothing else out here;
   // the frontier Reaches are otherwise a blank to both sides.
   allianceHq.explored.alliance = true;
+  // Freeport is renamed and re-painted above, and the creature was picked off
+  // the name and the painting this island had before all that — so ask again
+  // now the island is what it is going to be, or a kraken ends up hanging
+  // about a free harbour. Whether it has one at all does not change.
+  if (allianceHq.beast) allianceHq.beast = creatureFor(allianceHq)?.slug;
+  // They signed the articles standing on it, so whatever is in its water is
+  // not news to them. It is still news to the Crown.
+  if (allianceHq.beastSeen) allianceHq.beastSeen.alliance = true;
 
   // --- Characters: the world bible's seven majors per side, spread about. ---
   //

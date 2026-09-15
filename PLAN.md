@@ -1086,3 +1086,86 @@ both read off that one number. The "nobody lives here" line went with them.
 Spelling kept British — Harbour, as everywhere else in the game bar the *Free
 Harbor*, which is a ship's name. One word to change if Sean wants the American
 one.
+
+**Three from Sean, 15 September: the monster goes out to the dark, the
+painting comes up, and a garrison stops being ten identical pikes.**
+
+**"If there is a sea monster, it needs to be in an unexplored area and it's
+discovered when your fleet arrives."** It was decoration and he is right that
+it should not have been. A creature was derived on the fly from any island's
+name and archetype, which meant every charted island in the game had one, the
+Crown's own capital included, readable on day one from a panel you open with a
+thumb. That is a line of text about a place you have already been.
+
+Now nothing lives in charted water. Worldgen rolls a creature for islands of
+the three unexplored Reaches only — Rime, Salt and Coral — about one in three
+of those whose waters hold anything, which comes out at three to fifteen in a
+world and never all of them. It is written on the island and never changes.
+It stays invisible until somebody of yours has actually stood there: a fleet
+coming to anchor, or a boat rowing an officer in on an errand. Charting an
+island from a masthead two islands away does not do it, which is the whole
+point — `scoutFrom` can open half a chain and reveals none of this.
+
+Each creature gained a `found` line, so the day it happens goes in the log in
+its own words: the boats come back from somewhere short a boat, with the
+grooves in what is left parallel and a hand apart. The Almanac's bestiary is
+now a log rather than a bestiary — it lists what your own crews have seen and
+names the islands they saw it at, and opens empty.
+
+Freeport keeps its own: the Confederacy signed the articles standing on it, so
+whatever is off it is not news to them. It is still news to the Crown. And
+because Freeport is renamed and re-painted after the roll, its creature is
+asked for again afterwards, or a kraken ends up haunting a free harbour.
+
+**"Move the port image up so it's on every tab."** `Sheet` gained a banner slot
+between the header and the tab strip, and the island's painting moved into it.
+Four tabs are all about one place and the place used to go off screen the
+moment you looked at its garrison.
+
+The painting and nothing else. The line of lore under it went back into the
+Harbour tab: everything in that slot is paid for on all five tabs, out of the
+height each tab has to work in, so only what is about the place on every one of
+them earns the space. A picture does. Two lines about seawalls does not.
+
+**"Garrisons need images… model garrisons after SW Rebellion units but follow
+lore and races of our world. Names, stats, and prompts."** Ten company types,
+`src/data/troops.json`, names and the watch column out of the bible's §7, which
+took them off Rebellion's ground units; attack and hold are new, set against
+what the bible already claims — best offense, best defense, best starting
+troop — so the numbers and the prose cannot contradict each other. A test holds
+those three superlatives true.
+
+What decides where a company turns up is the sort of thing it is, and that is
+the part worth having:
+
+- **Line** and **sailors** everywhere the side has anything — Crown Regulars,
+  Island Militia, a Ship's Company each. Sailors only where a shipyard stands,
+  because that is where they came off a hull.
+- **Native** units are a people rather than a purchase. Reefwalkers in the
+  ports, Reef Guard on the reefs and in the drowned water, Urskin Berserkers on
+  the ice and the bare rock. The Reef Guard do not garrison a reef island, they
+  *are* the reef island.
+- **Made** — Tidewrought and the Drowned Guard, the two things the Crown
+  manufactures rather than musters. Behind research, so nowhere yet, which is
+  correct: they are the Crown's answer to a war it is not winning.
+
+A garrison is now a roster the length of the count the rest of the game already
+runs on, seeded from the island so it never reshuffles when a company is lost.
+Nine drawn figures for the ten types, all cut on the same 14×26 grid so a mixed
+garrison reads as a rank: what changes is what is in the hands and what is on
+the head, because nothing finer survives thirty pixels. A painting dropped into
+`src/art/troops` beats the drawing, as everywhere else. `docs/troops.md` has
+the ten prompts in the art-batch house style.
+
+**One thing deliberately not done.** The three numbers are shown and not yet
+read. A landing is still settled on how many companies are ashore, exactly as
+it was. Wiring them means typed companies in a ship's hold as well as on an
+island — a real job, and one that moves the balance, so it is worth doing on
+purpose rather than as a side effect of adding art.
+
+**And one stale test found on the way.** `defences.test.ts` asserted the
+Confederacy opens with seven or eight islands. It has opened with eight or nine
+since Freeport started flying Confederate colours at Sean's word; the four
+seeds it checked had all happened to roll one home island, so it passed on
+luck. Adding a die roll to worldgen shifted the stream and exposed it. Bounds
+and comment corrected.

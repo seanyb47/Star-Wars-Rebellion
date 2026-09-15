@@ -16,6 +16,15 @@ export function Sheet(props: {
   actionsFlush?: boolean;
   /** Optional tab strip, pinned under the header while the body scrolls. */
   tabs?: ReactNode;
+  /**
+   * A picture of the subject, between the header and the tabs.
+   *
+   * It used to be the first thing inside the first tab, which meant the
+   * island you were looking at went off screen the moment you looked at its
+   * garrison or its yards — four tabs about a place, with the place on one of
+   * them. Up here it does not scroll away and it does not belong to a tab.
+   */
+  banner?: ReactNode;
   /** Raise this sheet above one already open, rather than behind it. */
   stacked?: boolean;
   /** A sideways drag across the body, where the sheet has tabs to move along. */
@@ -46,6 +55,7 @@ export function Sheet(props: {
           </div>
           {props.subtitle && <div className="sheet__sub">{props.subtitle}</div>}
         </div>
+        {props.banner}
         {props.tabs}
         <div
           className="sheet__body"

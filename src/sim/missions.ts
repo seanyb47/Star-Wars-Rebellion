@@ -33,6 +33,7 @@ import {
   otherFaction,
   pushEvent,
 } from './helpers';
+import { sightBeast } from './creatures';
 import { recomputeLedger } from './economy';
 import { resolveControlAndUnrest } from './support';
 import { lordFleet, lordOfName, restoreLord } from './lords';
@@ -668,6 +669,14 @@ export function advanceMissions(state: GameState, rng: Rng): void {
     if (mission.phase === 'travelling') {
       character.locationSystemId = mission.targetSystemId;
       const landed = getSystem(state, mission.targetSystemId);
+      // Setting foot on the place is what reveals what lives off it, and a
+      // boat's crew rowing an officer in counts as much as a squadron coming
+      // to anchor. Fires before the errand is reconsidered below: they saw it
+      // on the way in whether or not there is still work to do.
+      const sighted = sightBeast(landed, character.faction as PlayableFaction);
+      if (sighted) {
+        pushEvent(state, { kind: 'mission', text: sighted, systemId: landed.id });
+      }
       // A passage can take ten days, and an island can change hands inside
       // them. Check on landfall rather than letting them spend a whole cycle
       // ashore working at something that is no longer there.

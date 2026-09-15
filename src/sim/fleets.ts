@@ -13,6 +13,7 @@ import {
   SCOUT_PER_ISLAND,
   shipSpec,
 } from './constants';
+import { sightBeast } from './creatures';
 import { getSystem, nextId, otherFaction, pushEvent, setSupport } from './helpers';
 import { captureLord, fleetHeldAshore, isLord, isLordShip, shipPower } from './lords';
 import { travelDays } from './missions';
@@ -339,6 +340,13 @@ export function advanceFleets(state: GameState, rng: Rng): void {
       text: `${fleet.name} has come to anchor off ${system.name}.`,
       systemId: system.id,
     });
+    // What is in the water is found by going, not by charting. scoutFrom can
+    // open half a chain from the masthead and reveals none of this; only the
+    // island the boats actually reach gives up what lives off it.
+    const sighted = sightBeast(system, fleet.faction);
+    if (sighted) {
+      pushEvent(state, { kind: 'mission', text: sighted, systemId: system.id });
+    }
   }
 
   resolveBattles(state, rng);

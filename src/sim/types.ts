@@ -79,6 +79,18 @@ export interface System {
    * thing is the sort of ambiguity that goes wrong quietly later.
    */
   blockaded: boolean;
+  /**
+   * What is in the water here, as a creature slug — set only on islands of the
+   * unexplored Reaches, and on most of those not at all. Written at worldgen
+   * and never changed, so the answer is the same all game.
+   */
+  beast?: string;
+  /**
+   * Which side has actually seen it. Charting an island is not seeing it: this
+   * turns true when that side's hull comes to anchor off the island and the
+   * boats go ashore, and nothing else sets it.
+   */
+  beastSeen?: { empire: boolean; alliance: boolean };
 }
 
 export type FacilityType =

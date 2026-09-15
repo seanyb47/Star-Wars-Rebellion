@@ -7,7 +7,7 @@
  * layouts changing.
  */
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { narratorIdFor, tabUrl } from './narrator/assets';
 import { NARRATOR_MOODS, type NarratorMood } from './narrator/mood';
 
@@ -444,8 +444,181 @@ function CompanyFigure({ dim }: { dim?: boolean }) {
   );
 }
 
-/** One company, at slot size: a pikeman under his colours. */
-export function CompanyIcon({ size = 30 }: { size?: number }) {
+/**
+ * One company, at slot size.
+ *
+ * Nine figures for the ten types, all cut on the same 14x26 grid so a garrison
+ * of mixed companies reads as a rank rather than a row of unrelated drawings.
+ * What changes between them is the silhouette a player can pick out at 30px:
+ * what is in the hands, and what is on the head. Anything finer than that is
+ * invisible at the size this is actually used, so it is not drawn.
+ *
+ * These are the fallback. A painting dropped into `src/art/troops` wins, the
+ * way it does everywhere else — see painted.ts.
+ */
+const TROOP_FIGURE: Record<string, ReactNode> = {
+  // Pike and pennant: the line company of either side, and the shape everything
+  // else is a departure from.
+  line: (
+    <>
+      <path d="M11 2 V24" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M11 2 l-1.6 3.2 h3.2 Z" fill="currentColor" />
+      <circle cx="5" cy="8" r="3" fill="currentColor" />
+      <path d="M1.5 8 H8.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M5 11.5 Q1 13 1.5 24 H8.5 Q9 13 5 11.5 Z" fill="currentColor" />
+    </>
+  ),
+  // Sailors ashore: a cutlass and a knotted head-cloth, no hat and no pike.
+  sailors: (
+    <>
+      <path
+        d="M10.5 6 Q13 11 10.5 16"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <path d="M10 16 v2.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="5" cy="8" r="3" fill="currentColor" />
+      <path d="M2 6.6 Q5 4.6 8 6.6" stroke="currentColor" strokeWidth="1.3" fill="none" />
+      <path d="M1.5 9 H10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M5 11.5 Q1 13 1.5 24 H8.5 Q9 13 5 11.5 Z" fill="currentColor" />
+    </>
+  ),
+  // Marines: shouldered musket and the tall shako that is the whole point of
+  // being able to see them from the quay.
+  elite: (
+    <>
+      <path d="M10.5 3.5 V20" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M9.4 3.5 h2.2 v1.6 h-2.2 Z" fill="currentColor" />
+      <rect x="2.4" y="2.6" width="5.2" height="4.2" rx="0.6" fill="currentColor" />
+      <path d="M2 7 H8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="5" cy="9.2" r="2.6" fill="currentColor" />
+      <path d="M1.5 10 H9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M5 12.4 Q1 13.8 1.5 24 H8.5 Q9 13.8 5 12.4 Z" fill="currentColor" />
+    </>
+  ),
+  // Made, not mustered: square head, riveted plate, nothing in its hands
+  // because its hands are the weapon. No eyes worth drawing.
+  made: (
+    <>
+      <rect x="2.6" y="4.4" width="6" height="5" rx="0.8" fill="currentColor" />
+      <rect x="4" y="6.2" width="3.2" height="1" fill="var(--bg-raised)" />
+      <path d="M1.4 10.6 H9.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <rect x="2" y="11.6" width="7.2" height="12.4" rx="1.2" fill="currentColor" />
+      <path d="M11 9 V21" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="3.7" cy="14.4" r="0.7" fill="var(--bg-raised)" />
+      <circle cx="7.4" cy="14.4" r="0.7" fill="var(--bg-raised)" />
+      <circle cx="5.6" cy="18.6" r="0.7" fill="var(--bg-raised)" />
+    </>
+  ),
+  // Cold-baptised: the pike again, but a closed helm with a brow bar and
+  // shoulders that have been under something heavy.
+  drowned: (
+    <>
+      <path d="M11 2 V24" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M11 2 l-1.6 3.2 h3.2 Z" fill="currentColor" />
+      <path d="M2.2 9.4 Q2.2 4.6 5 4.6 Q7.8 4.6 7.8 9.4 Z" fill="currentColor" />
+      <rect x="2" y="7.2" width="6" height="1.2" fill="var(--bg-raised)" />
+      <path d="M1 10.4 Q5 9 9 10.4" stroke="currentColor" strokeWidth="2" fill="none" />
+      <path d="M5 11.8 Q0.6 13.4 1.2 24 H8.8 Q9.4 13.4 5 11.8 Z" fill="currentColor" />
+    </>
+  ),
+  // The island's own, with whatever was in the shed: a boarding axe and a
+  // bare head.
+  militia: (
+    <>
+      <path d="M10 6 V21" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M10 5.4 q3 0.4 2.2 3.4 l-2.2 -0.6 Z" fill="currentColor" />
+      <circle cx="5" cy="8" r="3" fill="currentColor" />
+      <path d="M1.5 9.4 H9.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M5 11.5 Q1.4 13 1.8 24 H8.2 Q8.6 13 5 11.5 Z" fill="currentColor" />
+    </>
+  ),
+  // Shoal-folk: small, and raised up looking at something nobody else has
+  // noticed yet.
+  watch: (
+    <>
+      <path d="M6 9.5 L12 6.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M11.2 5.4 l1.6 0.8 l-0.8 1.6 Z" fill="currentColor" />
+      <circle cx="4.6" cy="10.4" r="2.6" fill="currentColor" />
+      <circle cx="3.7" cy="9.9" r="0.75" fill="var(--bg-raised)" />
+      <circle cx="5.6" cy="9.9" r="0.75" fill="var(--bg-raised)" />
+      <path d="M1.6 12.6 H7.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M4.6 13.6 Q1.8 14.8 2.2 24 H7 Q7.4 14.8 4.6 13.6 Z" fill="currentColor" />
+    </>
+  ),
+  // Reef-folk: almost all shield. The figure is behind it, which is the
+  // correct amount of it to be able to see.
+  shieldwall: (
+    <>
+      <path d="M3.4 8.6 Q3.4 3.4 6 2.6 Q8.6 3.4 8.6 8.6 Z" fill="currentColor" />
+      <circle cx="6" cy="7.2" r="2.2" fill="currentColor" />
+      <path
+        d="M1.2 9.6 H10.8 Q11.6 17 6 24.2 Q0.4 17 1.2 9.6 Z"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="0.6"
+      />
+      <path d="M6 10.4 V22.4" stroke="var(--bg-raised)" strokeWidth="0.9" />
+      <path d="M2.4 13.4 H9.6" stroke="var(--bg-raised)" strokeWidth="0.9" />
+    </>
+  ),
+  // Urskin: twice the shoulders, tusks, and a harpoon rather than a pike —
+  // the barb is what tells them apart at this size.
+  harpoon: (
+    <>
+      <path d="M11 3 V24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M11 2 l-1.8 3.4 h3.6 Z" fill="currentColor" />
+      <path d="M9.4 6 l1.6 1.4 l1.6 -1.4" stroke="currentColor" strokeWidth="1.1" fill="none" />
+      <circle cx="4.8" cy="7.6" r="3.2" fill="currentColor" />
+      <path d="M3 9.6 l-0.5 2" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+      <path d="M6.6 9.6 l0.5 2" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+      <path d="M4.8 11.4 Q-0.2 13.2 0.6 24 H9 Q9.8 13.2 4.8 11.4 Z" fill="currentColor" />
+    </>
+  ),
+};
+
+/** Which figure a company type wears. */
+function figureFor(id?: string): ReactNode {
+  switch (id) {
+    case 'crown-ships-company':
+    case 'brethren-ships-company':
+      return TROOP_FIGURE.sailors;
+    case 'crown-marines':
+      return TROOP_FIGURE.elite;
+    case 'tidewrought':
+      return TROOP_FIGURE.made;
+    case 'drowned-guard':
+      return TROOP_FIGURE.drowned;
+    case 'island-militia':
+      return TROOP_FIGURE.militia;
+    case 'reefwalkers':
+      return TROOP_FIGURE.watch;
+    case 'reef-guard':
+      return TROOP_FIGURE.shieldwall;
+    case 'urskin-berserkers':
+      return TROOP_FIGURE.harpoon;
+    default:
+      return TROOP_FIGURE.line;
+  }
+}
+
+/** One company, at slot size: the figure for its type, painted where painted. */
+export function CompanyIcon({ size = 30, type }: { size?: number; type?: string }) {
+  const painting = type ? paintedTroop(type) : undefined;
+  if (painting) {
+    return (
+      <img
+        src={painting}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        height={size}
+        style={{ height: size, width: 'auto', display: 'block', objectFit: 'contain' }}
+      />
+    );
+  }
   return (
     <svg
       viewBox="0 0 14 26"
@@ -454,11 +627,7 @@ export function CompanyIcon({ size = 30 }: { size?: number }) {
       aria-hidden="true"
       style={{ display: 'block' }}
     >
-      <path d="M11 2 V24" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M11 2 l-1.6 3.2 h3.2 Z" fill="currentColor" />
-      <circle cx="5" cy="8" r="3" fill="currentColor" />
-      <path d="M1.5 8 H8.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="M5 11.5 Q1 13 1.5 24 H8.5 Q9 13 5 11.5 Z" fill="currentColor" />
+      {figureFor(type)}
     </svg>
   );
 }
@@ -506,6 +675,7 @@ import {
   paintedPortrait,
   paintedShip,
   paintedCrest,
+  paintedTroop,
 } from './painted';
 import { useInView } from './useInView';
 

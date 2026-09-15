@@ -183,12 +183,40 @@ for reach in reaches['reaches']:
 
 # ---------------- Creatures ----------------
 w("## 8. What Lives in the Water\n")
-for m in re.finditer(r"name: '([^']+)',\s*sighting:\s*'([^']*)',\s*lore:\s*'((?:[^'\\]|\\.)*)'", creatures_ts):
-    name, sighting, lore = m.group(1), m.group(2), m.group(3).replace("\\'", "'")
+w("_Nothing lives in water the war has charted. All of this is out in the three unexplored Reaches, and a side learns of it only when its own boats go ashore on the island it is off._\n")
+# Name may be single- or double-quoted in the source (Ship's Cat). The fields
+# between sighting and lore are allowed to vary, so this does not have to be
+# edited every time creatures.ts gains one.
+CREATURE = re.compile(
+    r"""name:\s*(?:'([^']+)'|"([^"]+)"),\s*"""
+    r"""sighting:\s*'((?:[^'\\]|\\.)*)',"""
+    r"""(?:.*?)\blore:\s*'((?:[^'\\]|\\.)*)'""",
+    re.S,
+)
+for m in CREATURE.finditer(creatures_ts):
+    name = m.group(1) or m.group(2)
+    sighting = m.group(3).replace("\\'", "'")
+    lore = m.group(4).replace("\\'", "'")
     w(f"**{name}.** _{sighting}_ {lore}\n")
-for m in re.finditer(r'name: "([^"]+)",\s*sighting:\s*\'([^\']*)\',\s*lore:\s*\'((?:[^\'\\]|\\.)*)\'', creatures_ts):
-    name, sighting, lore = m.group(1), m.group(2), m.group(3).replace("\\'", "'")
-    w(f"**{name}.** _{sighting}_ {lore}\n")
+
+# ---------------- Companies ----------------
+w("## 8A. Who Holds the Ground\n")
+w("_Garrison companies. Three numbers each: what it is worth landing, what it is worth holding, and how much it sees. See `docs/troops.md` for the art prompts._\n")
+troops = json.loads((ROOT / 'src/data/troops.json').read_text())
+for side, label in (('empire', 'Crown Imperium'), ('alliance', 'Free Confederacy')):
+    w(f"### {label}\n")
+    w("| Company | Who | Attack | Hold | Watch | |")
+    w("|---|---|---|---|---|---|")
+    for t in troops['types']:
+        if t['faction'] != side:
+            continue
+        gate = 'needs research' if t.get('research') else ''
+        w(f"| **{t['name']}** | {t['people']} | {t['offense']} | {t['defense']} | {t['watch']} | {gate} |")
+    w("")
+    for t in troops['types']:
+        if t['faction'] != side:
+            continue
+        w(f"**{t['name']}.** {t['blurb']}\n")
 
 # ---------------- Advisors ----------------
 w("## 9. The Voices at Your Elbow\n")

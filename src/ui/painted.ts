@@ -68,6 +68,13 @@ const BUILDINGS = import.meta.glob('../art/buildings/*.{webp,png,jpg}', {
   import: 'default',
 }) as Record<string, string>;
 
+/** One painting per garrison company type: the Marines, the Reef Guard. */
+const TROOPS = import.meta.glob('../art/troops/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
 const CREATURES = import.meta.glob('../art/creatures/*.{webp,png,jpg}', {
   eager: true,
   query: '?url',
@@ -114,6 +121,7 @@ const FACE_URLS = bySlug(FACES);
 const ISLE_URLS = bySlug(ISLES);
 const CREATURE_URLS = bySlug(CREATURES);
 const BUILDING_URLS = bySlug(BUILDINGS);
+const TROOP_URLS = bySlug(TROOPS);
 const CREST_URLS = bySlug(CRESTS);
 
 export function paintedPortrait(name: string): string | undefined {
@@ -162,6 +170,11 @@ export function paintedBuilding(type: string): string | undefined {
   return BUILDING_URLS[slugify(type.replace(/_/g, ' '))];
 }
 
+/** A company type's painting, by its id (`crown-marines`, `reef-guard`). */
+export function paintedTroop(id: string): string | undefined {
+  return TROOP_URLS[slugify(id)];
+}
+
 export function paintedCreature(name: string): string | undefined {
   return CREATURE_URLS[slugify(name)];
 }
@@ -177,5 +190,6 @@ export function paintedCounts() {
     chart: Object.keys(CHART_URLS).length,
     faces: Object.keys(FACE_URLS).length,
     creatures: Object.keys(CREATURE_URLS).length,
+    troops: Object.keys(TROOP_URLS).length,
   };
 }

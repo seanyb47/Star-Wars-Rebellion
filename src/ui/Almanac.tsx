@@ -23,10 +23,12 @@ import {
   type FacilityType,
   type GameState,
   CREATURES,
+  troopsOf,
 } from '../sim';
 import {
   CategoryIcon,
   CharacterPortrait,
+  CompanyIcon,
   CompanyRow,
   CreaturePainting,
   FacilityIcon,
@@ -131,6 +133,43 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
         </p>
       </div>
 
+      {/* Who those companies are. One line each, three numbers each, the way
+          the original does a regiment: what it is worth landing, what it is
+          worth holding, and how much it sees. */}
+      <p className="tiny muted" style={{ margin: '10px 0 6px' }}>
+        A company is one of these. Which you get is the island: the line
+        companies are everywhere, sailors come ashore where hulls are built, and
+        the rest are a people rather than a purchase — they are on their own
+        islands and nowhere else.
+      </p>
+      <div className="stack">
+        {troopsOf(state.player).map((type) => (
+          <div key={type.id} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
+            <span className="facility__icon">
+              <CompanyIcon size={32} type={type.id} />
+            </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="row row--between">
+                <b className="small">{type.name}</b>
+                <span className="tiny muted">
+                  {type.offense} / {type.defense} / {type.watch}
+                </span>
+              </div>
+              <div className="tiny muted" style={{ marginTop: 1 }}>
+                {type.people}
+                {type.research && ' · not yet built'}
+              </div>
+              <div className="tiny muted" style={{ marginTop: 4 }}>{type.blurb}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="tiny muted" style={{ marginTop: 6 }}>
+        Attack / hold / watch. A landing is still settled on how many companies
+        are ashore, not on these — they say who is standing there, and what they
+        will be worth when a landing counts them properly.
+      </p>
+
       <div className="section-title">Your crew</div>
       <div className="stack">
         {roster.slice(0, 7).map((entry) => (
@@ -200,22 +239,39 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
       </dl>
 
       <div className="section-title">What is in the water</div>
-      <div className="card small muted" style={{ marginBottom: 14 }}>
-        None of this can be fought, built or counted. It is here because an island panel that
-        mentions the thing in its waters ought to be able to tell you what it is.
-      </div>
-      <div className="bestiary">
-        {CREATURES.map((beast) => (
-          <div key={beast.slug} className="bestiary__entry">
-            <CreaturePainting slug={beast.slug} height={120} />
-            <h4 className="bestiary__name">{beast.name}</h4>
-            <p className="bestiary__where">
-              {beast.waters.map((w) => w.replace(/-isle$/, '').replace(/-/g, ' ')).join(' · ')}
-            </p>
-            <p className="bestiary__lore">{beast.lore}</p>
-          </div>
-        ))}
-      </div>
+      {(() => {
+        /* Only what your own boats have found. Nothing lives in charted water;
+           the three dark Reaches hold all of it, and until somebody of yours
+           has stood on an island none of this page exists. A bestiary you can
+           read on day one is a bestiary, and this is meant to be a log. */
+        const seen = CREATURES.filter((beast) =>
+          state.systems.some((s) => s.beast === beast.slug && s.beastSeen?.[state.player]),
+        );
+        return (
+          <>
+            <div className="card small muted" style={{ marginBottom: 14 }}>
+              {seen.length === 0
+                ? 'Nothing yet. Nothing lives in water the war has charted — what there is is out in the Reaches nobody has sailed, and it goes in here when your own boats come back from an island having seen it.'
+                : 'None of this can be fought, built or counted. It is here because an island panel that mentions the thing in its waters ought to be able to tell you what it is. Only what your own crews have seen.'}
+            </div>
+            <div className="bestiary">
+              {seen.map((beast) => (
+                <div key={beast.slug} className="bestiary__entry">
+                  <CreaturePainting slug={beast.slug} height={120} />
+                  <h4 className="bestiary__name">{beast.name}</h4>
+                  <p className="bestiary__where">
+                    {state.systems
+                      .filter((s) => s.beast === beast.slug && s.beastSeen?.[state.player])
+                      .map((s) => s.name)
+                      .join(' · ')}
+                  </p>
+                  <p className="bestiary__lore">{beast.lore}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        );
+      })()}
 
       <div className="section-title">Reading the chart</div>
       <div className="card small">

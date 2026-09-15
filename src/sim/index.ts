@@ -16,3 +16,4 @@ export * from './commands';
 export * from './persist';
 export * from './layers';
 export * from './creatures';
+export * from './troops';

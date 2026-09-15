@@ -33,7 +33,14 @@ export function loadGame(storage: Storage | undefined = globalThis.localStorage)
       ...f,
       officerIds: Array.isArray(f.officerIds) ? f.officerIds : [],
     }));
-    const systems = parsed.systems.map((s) => ({ ...s, blockaded: !!s.blockaded }));
+    const systems = parsed.systems.map((s) => ({
+      ...s,
+      blockaded: !!s.blockaded,
+      // Creatures moved out to the frontier after this save version. A game
+      // from before it has nothing in any water, which is a duller world than
+      // the one it was saved from but not a broken one.
+      beastSeen: s.beastSeen ?? { empire: false, alliance: false },
+    }));
     // Craft arrived the same way fleets did. A save from before it is a side
     // that has researched nothing, which is true.
     const factions = {

@@ -389,6 +389,8 @@ Frontier: uncharted at the start, and where the Pirate Lords signed the articles
 
 ## 8. What Lives in the Water
 
+_Nothing lives in water the war has charted. All of this is out in the three unexplored Reaches, and a side learns of it only when its own boats go ashore on the island it is off._
+
 **The Kraken.** _Deep water here, and something in it that takes whole hulls._ Nobody has brought back a body, which is the only fact about it everyone agrees on. What comes back instead is timber: a strake, a hatch cover, once most of a quarterdeck, all of it scored with parallel grooves a hand apart. The Admiralty rates the loss of any hull in the drowned reaches as weather. The crews who sail them do not.
 
 **Sea Dragon.** _A young dragon keeps the rocks off this coast. It is patient._ Only the young are ever seen, which has kept the argument going for two centuries: either the old ones go somewhere nobody sails, or there are no old ones and the young are all there is. They take seals, and boats that look like seals from below. A grown one has never been measured, and every figure ever given for the length of one was given by a man who did not stay to check.
@@ -398,6 +400,50 @@ Frontier: uncharted at the start, and where the Pirate Lords signed the articles
 **Reef Turtle.** _The old turtles come up through this reef to breathe._ They are the one thing in these waters that has never hurt anybody, which is why every port on a reef has a law about them and enforces it harder than most laws about people. They come back to the shoal they hatched on to lay, sixty years later, having crossed the whole world twice in between. Navigators used to follow them and it is not a bad way to find land.
 
 **Ship's Cat.** _Every hull that leaves this harbour leaves with a cat aboard._ Not superstition, or not only: a hold with a cat in it loses less grain and fewer cables to rats, and that is the whole of the reason it started. What it has become is something else. A cat that walks off a ship the night before she sails will empty the crew list by morning, and no owner in either fleet has ever found it cheaper to argue about it than to wait a day.
+
+## 8A. Who Holds the Ground
+
+_Garrison companies. Three numbers each: what it is worth landing, what it is worth holding, and how much it sees. See `docs/troops.md` for the art prompts._
+
+### Crown Imperium
+
+| Company | Who | Attack | Hold | Watch | |
+|---|---|---|---|---|---|
+| **Crown Regulars** | Human | 20 | 20 | 15 |  |
+| **Ship's Company** | Human | 15 | 15 | 20 |  |
+| **Crown Marines** | Human | 30 | 30 | 25 |  |
+| **Tidewrought** | Brass and coral | 40 | 35 | 5 | needs research |
+| **The Drowned Guard** | Human (once) | 45 | 40 | 30 | needs research |
+
+**Crown Regulars.** Line infantry of the Admiralty's own regiments. Nothing about them is remarkable and there are a great many of them, which between the two has decided most of the wars the Crown has won.
+
+**Ship's Company.** Sailors put ashore with cutlasses and told to hold something. Worse at it than soldiers and better at noticing a boat that should not be there, which is the trade you are making.
+
+**Crown Marines.** The white-coats. Drilled to go over a gunwale or up a beach and to keep going, and posted where the Crown means to be seen keeping order. The best thing either side can land on day one.
+
+**Tidewrought.** Automata of brass and cultivated coral that walk in over the seabed and come out of the surf already advancing. They hit like a falling spar and they see nothing at all; a company of them will march past a saboteur standing still.
+
+**The Drowned Guard.** Marines who have been cold-baptised: held under the Deep until they stop struggling, and brought back. Black plate, no fear, and something missing behind the eyes. The worst thing the Crown can put on a beach, and the Admiralty does not discuss how they are made.
+
+### Free Confederacy
+
+| Company | Who | Attack | Hold | Watch | |
+|---|---|---|---|---|---|
+| **Island Militia** | Whoever lives there | 15 | 20 | 10 |  |
+| **Ship's Company** | Mixed | 15 | 15 | 15 |  |
+| **Reefwalkers** | Shoal-folk | 20 | 20 | 35 |  |
+| **Reef Guard** | Reef-folk | 20 | 45 | 20 |  |
+| **Urskin Berserkers** | Urskin | 50 | 20 | 20 |  |
+
+**Island Militia.** The island's own, with whatever was in the shed. They will not take anything off anybody, and on their own ground they are a great deal harder to shift than their drill suggests.
+
+**Ship's Company.** A crew put ashore. Every one of them has been on the other end of a landing and none of them has been drilled for this one.
+
+**Reefwalkers.** Shoal-folk scouts, small and webbed and night-eyed, who can hear a hull creak a mile out. The best watch in the world: nothing lands on an island they are on without the island knowing first.
+
+**Reef Guard.** Reef-folk in coral plate grown to the wearer over years. They do not charge and they do not rout. Taking an island they are standing on costs more than the island is worth, which is the entire point of them.
+
+**Urskin Berserkers.** Torvik's people, tusked and shaggy and eight feet of them, coming up a beach with the harpoons they use on things bigger than boats. Nothing in the game hits harder going forward. Ask them to stand still and hold a wall and you have wasted them.
 
 ## 9. The Voices at Your Elbow
 

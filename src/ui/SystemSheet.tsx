@@ -29,7 +29,9 @@ import {
   type Facility,
   type GameState,
   type System,
-  creatureFor,
+  beastOf,
+  garrisonRoster,
+  troopType,
   MISSION_LABEL,
   type PlayableFaction,
 } from '../sim';
@@ -248,6 +250,8 @@ export function SystemSheet({
   onOpenReach?: (sectorId: string) => void;
 }) {
   const [tab, setTab] = useState<IslandTab>(initialTab);
+  /** A company the player has tapped to read about, on the Garrison tab. */
+  const [companyId, setCompany] = useState<string | undefined>();
   // Five tabs and a thumb: sliding between them beats aiming at them.
   const swipe = useSideSwipe((step) => {
     const at = TABS.findIndex((entry) => entry.id === tab);
@@ -295,6 +299,10 @@ export function SystemSheet({
   const producers = system.facilities.filter(
     (f) => f.owner === state.player && !f.founding && buildMenu(f).length > 0,
   );
+  // Who is actually ashore, company by company. Same length as the garrison
+  // count the rest of the game runs on; this only says what they are.
+  const roster = garrisonRoster(system);
+  const company = companyId ? troopType(companyId) : undefined;
 
   return (
     <Sheet
@@ -324,6 +332,31 @@ export function SystemSheet({
       }
       onClose={onClose}
       {...swipe}
+      banner={
+        /* The island itself, above the tabs rather than inside the first one.
+           Four tabs are all about this place; it should not go off screen the
+           moment you look at its garrison.
+
+           The painting and nothing else. It is shorter than it was, and the
+           line of lore that used to sit under it has gone back into the
+           Harbour tab: everything up here is paid for on all five tabs and
+           out of the height the tab itself has to work in, so only the thing
+           that is actually about the place on every one of them earns a
+           place. The picture does. Two lines of prose about seawalls does
+           not. */
+        <div className="isle-head">
+          <IslandBanner
+            archetype={system.archetype}
+            seed={system.name}
+            faction={system.control}
+            settled={system.populated}
+            facilities={system.facilities.length}
+            facilityTypes={system.facilities.map((f) => f.type)}
+            mutiny={system.uprising}
+            height={104}
+          />
+        </div>
+      }
       tabs={
         <div className="tabs" role="tablist">
           {TABS.map((entry) => (
@@ -345,17 +378,6 @@ export function SystemSheet({
     >
       {tab === 'harbour' && (
         <>
-          <IslandBanner
-            archetype={system.archetype}
-            seed={system.name}
-            faction={system.control}
-            settled={system.populated}
-            facilities={system.facilities.length}
-            facilityTypes={system.facilities.map((f) => f.type)}
-            mutiny={system.uprising}
-            height={132}
-          />
-
           {system.note && <p className="portrait__note serif">{system.note}</p>}
 
           {/* The harbour is the ships in it. Allegiance and room used to sit
@@ -384,10 +406,12 @@ export function SystemSheet({
           )}
 
           {(() => {
-            /* What is in the water off this island. Last on the tab and never
-               in the way: it changes nothing you can act on, and an island
-               whose waters are unremarkable simply does not have the block. */
-            const beast = creatureFor(system);
+            /* What is in the water off this island, if your own boats have
+               been in it. Nothing charted holds anything; out in the three
+               dark Reaches some islands do, and the block only appears once
+               somebody of yours has made landfall and seen it. Last on the
+               tab and never in the way: it changes nothing you can act on. */
+            const beast = beastOf(system, state.player);
             if (!beast) return null;
             return (
               <div className="waters">
@@ -517,19 +541,53 @@ export function SystemSheet({
             )}
           </div>
           {/* Empty slots here are the shortfall: companies the island wants
-              and has not got. That is worth drawing. */}
+              and has not got. That is worth drawing.
+
+              Every company now says what it is. A garrison used to be ten
+              identical pike figures, which answered "how many" and nothing
+              else — and who is standing there is the more interesting half:
+              the Reef Guard are the reef island, and an Urskin company on the
+              ice is who lives on the ice. */}
           <SlotBoard
             ghosts={Math.max(0, needed - system.garrison)}
             empty={`No companies are ashore on ${system.name}.`}
           >
-            {Array.from({ length: system.garrison }, (_, i) => (
+            {roster.map((type, i) => (
               <Slot
                 key={i}
-                icon={<CompanyIcon size={30} />}
-                name={terms.troop}
+                icon={<CompanyIcon size={30} type={type.id} />}
+                name={type.name}
+                note={`${type.offense}/${type.defense}/${type.watch}`}
+                onClick={() => setCompany(type.id)}
+                label={`${type.name} — ${type.people}`}
               />
             ))}
           </SlotBoard>
+          {roster.length > 0 && (
+            <p className="tiny muted" style={{ marginTop: 6 }}>
+              Attack / hold / watch. Tap a company to read what it is.
+            </p>
+          )}
+          {company && (
+            <div className="card row" style={{ gap: 10, alignItems: 'flex-start', marginTop: 8 }}>
+              <span className="facility__icon">
+                <CompanyIcon size={34} type={company.id} />
+              </span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="row row--between">
+                  <b className="small">{company.name}</b>
+                  <button className="linkish tiny" onClick={() => setCompany(undefined)}>
+                    Close
+                  </button>
+                </div>
+                <div className="tiny muted" style={{ marginTop: 1 }}>
+                  {company.people} · attack {company.offense} · hold {company.defense} · watch{' '}
+                  {company.watch}
+                </div>
+                <div className="tiny muted" style={{ marginTop: 4 }}>{company.blurb}</div>
+              </div>
+            </div>
+          )}
           <p className="tiny muted" style={{ marginTop: 8 }}>
             {needed > 0
               ? `Allegiance here is low enough that ${needed} ${needed === 1 ? 'company holds' : 'companies hold'} the island quiet. Fewer and it rises.`
