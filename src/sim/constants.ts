@@ -677,6 +677,20 @@ export const AI_RESEARCH_BONUS = 55;
  * Short of the weight, it calls the rest of the navy in first.
  */
 export const AI_SIEGE_DAYS = 6;
+/**
+ * How long a treasury is expected to cover a deficit.
+ *
+ * The opponent's build rules weigh every order against its daily surplus, so
+ * that a war of conquest does not bankrupt it — which is right, and was being
+ * asked to do a job it could not: it took no account of savings at all. A side
+ * sitting on six figures with a thin ledger built nothing, and a war it had
+ * otherwise already won never ended.
+ *
+ * Four hundred days is most of a war. At six hundred gold this adds one and a
+ * half a day and changes nothing; at a hundred thousand it adds two hundred and
+ * fifty, and a side that rich should be spending like it.
+ */
+export const AI_RUNWAY_DAYS = 400;
 
 /**
  * Bombardment past the walls, and what it costs.

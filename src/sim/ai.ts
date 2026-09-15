@@ -11,6 +11,7 @@ import {
   FORT_STRENGTH,
   FORT_REPAIR_PER_DAY,
   AI_SIEGE_DAYS,
+  AI_RUNWAY_DAYS,
   AI_SHIP_RESERVE,
   AI_TROOP_POOL,
   HELD_SUPPORT_LEVEL,
@@ -103,7 +104,20 @@ function surplus(state: GameState, ai: PlayableFaction): number {
       }
     }
   }
-  return f.income - f.upkeep - pending;
+  // And what is in the bank, spread over a long campaign.
+  //
+  // This read the daily ledger alone, which is right about bankruptcy and
+  // blind about savings: a faction can hold a hundred and seventy thousand
+  // gold, a thin daily surplus, and therefore build nothing at all. Measured
+  // over sixty wars, that is exactly what happened — the Confederacy took
+  // forty-one islands of sixty-three, banked 172,000, and then could not
+  // afford the two first-rates it needed to open Highwater's seawall, so the
+  // war ran to three thousand days and stopped without ending.
+  //
+  // Upkeep is paid out of the treasury and nothing breaks until it is empty
+  // (see `payUpkeep`), so a deficit a big bank can carry for a year is not a
+  // deficit worth refusing an order over.
+  return f.income - f.upkeep - pending + f.gold / AI_RUNWAY_DAYS;
 }
 /** Kept clear over and above whatever the next order will cost to run. */
 const AI_SURPLUS_MARGIN = 3;
@@ -498,7 +512,25 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
   // Two clear of what the capital holds, so a landing is possible at all after
   // the losses on the way in.
   const shortOfLift = ai === 'alliance' && carryAll < capital.garrison + boomDefence(capital) + 3;
-  const wantTransport = transports.length * 3 < afloat.length + 1 || shortOfLift;
+  /**
+   * Weight of shot before berths.
+   *
+   * The lift test chases the capital's garrison, and the Crown grows that
+   * garrison all war — so the Confederacy could sit permanently "short of
+   * lift" and build nothing but transports for three thousand days. Measured:
+   * forty-one islands of sixty-three, a hundred and sixty-five thousand gold,
+   * eleven hulls, and a bombard total of **zero**, because every one of them
+   * was a brig. It could not have opened a seawall if it had tried.
+   *
+   * Berths are no use without something to put them ashore behind, so this
+   * comes first: while it cannot break the walls of the one island it has to
+   * take, what it builds is a ship of the line.
+   */
+  const noSiegeTrain =
+    ai === 'alliance' &&
+    fortsOf(capital).length > 0 &&
+    Math.max(0, ...fleetsOf(state, ai).map(fleetBombard)) < siegeWeightFor(capital);
+  const wantTransport = !noSiegeTrain && (transports.length * 3 < afloat.length + 1 || shortOfLift);
   // Fighting hulls as big as it can afford; a transport when it is short of one.
   const spare = surplus(state, ai);
   const carried = (id: ShipClassId) => spare - UPKEEP_PER_DAY[id] >= AI_SURPLUS_MARGIN;
@@ -679,6 +711,13 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
   // cannot, it does not lie there hoping — there are no companies to be had
   // in the enemy's harbor, so it falls through and goes to fetch some.
   if (here.id === capital.id) {
+    // The walls first. The strike fleet is the one squadron this loop skips —
+    // `aiFleet` hands it to this function whole — so the siege has to be
+    // opened here or nowhere. It was nowhere: measured, a fourteen-hull
+    // squadron with fifty-six weight of shot and thirty-eight companies sat
+    // off Highwater for two thousand days while one seawall stood, because
+    // the only thing it knew how to do was land and landing was shut.
+    if (aiBeginSiege(state, fleet, 'alliance')) return fleet.id;
     if (
       fleet.troops > capital.garrison + boomDefence(capital) &&
       assaultError(state, fleet.id, 'alliance') === null

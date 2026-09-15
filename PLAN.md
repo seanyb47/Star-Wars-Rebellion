@@ -2321,3 +2321,48 @@ middle.
 
 357 tests, including fifteen on the siege alone and one that drives a whole
 siege end to end through the orders a player actually gives.
+
+## Three reasons a won war would not end — 15 September, night
+
+A hundred and fifty fresh games under the siege rules. Balance was even —
+Crown 60, Confederacy 60 — and **thirty of them never finished at all**, up
+from one in forty before the walls went up. Every one of the stalls was the
+same shape: one side had already won and could not close it out.
+
+**A treasury is not a ledger.** The opponent weighed every order against its
+daily surplus so a war of conquest could not bankrupt it, which is right, and
+took no account of savings at all. So a side could hold a hundred and
+seventy-two thousand gold, a thin daily surplus, and build *nothing*. Measured
+in one stalled war: the Confederacy held forty-one islands of sixty-three, the
+Crown had no navy left at all, and the war ran three thousand days because the
+Confederacy could not afford the two first-rates it needed to open one seawall.
+Upkeep is paid out of the bank and nothing breaks until the bank is empty, so a
+deficit a treasury can carry for a year is not worth refusing an order over: the
+surplus now counts the bank spread over four hundred days.
+
+**Berths are no use with nothing to put ashore behind.** The lift test chases
+the capital's garrison, and the Crown grows that garrison all war — so the
+Confederacy could sit permanently "short of lift" and build nothing but
+transports. Measured: eleven hulls, a hundred and sixty-five thousand gold, and
+a bombard total of **zero**, because every hull was a brig. While it cannot
+break the walls of the one island it has to take, what it builds now is a ship
+of the line.
+
+**And the strike fleet could not besiege.** The squadron meant for Highwater is
+the one `aiFleet` skips — it is handed whole to `aiStrikeCapital` — so the siege
+had to be opened there or nowhere, and it was nowhere. Measured: a fourteen-hull
+squadron with fifty-six weight of shot and thirty-eight companies aboard lay off
+Highwater for two thousand days while one seawall stood, because the only thing
+it knew how to do was land, and landing was shut.
+
+### After
+
+| | before | after |
+|---|---|---|
+| idle, 60 games | 28 — 24, **8 unfinished** | 28 — 30, **2 unfinished** |
+| piloted, 50 games | 19 — 19, **12 unfinished** | 22 — 27, **1 unfinished** |
+| median war | 804 days | 541 |
+| gold banked at the end | 172,000 in a stalled war | 24,000 |
+
+Invariants clean across every day of all hundred and fifty. Research, which
+measured exactly zero a few hours ago, now runs 17 a game in every game.
