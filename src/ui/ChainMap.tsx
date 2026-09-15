@@ -545,11 +545,37 @@ export function ChainMap({
                   const x = spot.x - ((moored.length - 1) * step) / 2 - w / 2 + i * step;
                   return (
                     <g key={side} transform={`translate(${x} ${spot.y - 74}) scale(${SAIL_SCALE})`}>
+                      {/* Outlined in two tones, because one tone only ever
+                          works against half the chart. The sail sits over a
+                          painting: dark water on one island and sunlit rock on
+                          the next, and a dark keyline that reads beautifully
+                          on the second disappears into the first. So a pale
+                          halo goes outside a dark keyline, and one of the two
+                          is always the one doing the work.
+
+                          Three passes rather than `paint-order`, which can
+                          only give a shape one stroke. */}
+                      <path
+                        d={SHIP}
+                        fill="none"
+                        stroke="rgba(233,244,248,0.75)"
+                        strokeWidth={5.4}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d={SHIP}
+                        fill="none"
+                        stroke="#04121a"
+                        strokeWidth={3}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                       <path
                         d={SHIP}
                         fill={`var(--${side})`}
-                        stroke="#041219"
-                        strokeWidth={1.4}
+                        stroke="#04121a"
+                        strokeWidth={1}
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         style={{ paintOrder: 'stroke fill' }}
