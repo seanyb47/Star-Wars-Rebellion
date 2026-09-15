@@ -184,27 +184,40 @@ describe('the generated world matches the bible', () => {
     }
   });
 
-  it('gives a major character a wider swing than a minor one, and lets it pass a hundred', () => {
-    // Over enough worlds the same person is recognisably themselves and never
-    // twice the same: this is the spread the rule promises, measured.
-    const spread = (name: string, major: boolean) => {
+  it('gives the principals no swing at all, and the strangers a wide one', () => {
+    // Inverted at Sean's word: the thing you can look up is the thing you can
+    // rely on. Measured over sixty worlds rather than asserted.
+    const spread = (name: string) => {
       const seen: number[] = [];
       for (let seed = 1; seed <= 60; seed++) {
         const who = generateGalaxy(seed).characters.find((c) => c.name === name);
         if (who) seen.push(who.diplomacy);
       }
-      const roster = [...characterRoster.empire, ...characterRoster.alliance, ...characterRoster.recruits];
-      const base = roster.find((e) => e.name === name)!.ratings.diplomacy;
-      const swing = major ? RATING_SWING_MAJOR : RATING_SWING_MINOR;
       expect(seen.length).toBeGreaterThan(10);
-      expect(Math.min(...seen)).toBeGreaterThanOrEqual(Math.max(1, base - swing));
-      expect(Math.max(...seen)).toBeLessThanOrEqual(base + swing);
-      return Math.max(...seen) - Math.min(...seen);
+      return { lo: Math.min(...seen), hi: Math.max(...seen) };
     };
-    // Hale's diplomacy is 92, so a major's swing carries her over a hundred.
-    const hale = characterRoster.alliance.find((e) => e.name.includes('Hale'))!;
-    expect(hale.ratings.diplomacy + RATING_SWING_MAJOR).toBeGreaterThan(100);
-    expect(spread('Commodore-Elect Adaira Hale', true)).toBeGreaterThan(RATING_SWING_MINOR);
+    const roster = [
+      ...characterRoster.empire,
+      ...characterRoster.alliance,
+      ...characterRoster.recruits,
+    ];
+    const baseOf = (name: string) => roster.find((e) => e.name === name)!.ratings.diplomacy;
+
+    // A principal is exactly who the bible says, in every game.
+    const hale = spread('Commodore-Elect Adaira Hale');
+    expect(hale.lo).toBe(baseOf('Commodore-Elect Adaira Hale'));
+    expect(hale.hi).toBe(baseOf('Commodore-Elect Adaira Hale'));
+    expect(RATING_SWING_MAJOR).toBe(0);
+
+    // A stranger is an unknown quantity, and now genuinely is one — wide
+    // enough that signing somebody on is a real gamble.
+    const widow = spread('The Widow Ashgrave');
+    const base = baseOf('The Widow Ashgrave');
+    expect(widow.hi - widow.lo).toBeGreaterThan(RATING_SWING_MINOR);
+    expect(widow.lo).toBeGreaterThanOrEqual(Math.max(1, base - RATING_SWING_MINOR));
+    expect(widow.hi).toBeLessThanOrEqual(base + RATING_SWING_MINOR);
+    // And the top is uncapped, which now belongs to the strangers.
+    expect(base + RATING_SWING_MINOR).toBeGreaterThan(100);
   });
 
   it('carries each character\'s people through, which their portrait reads', () => {

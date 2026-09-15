@@ -1840,3 +1840,34 @@ median 580 days.
 It is soft-gated by diplomacy and nothing else. Gating it on the Recruiter role
 would leave the Crown with one recruiter out of seven against the Confederacy's
 four, which is too large a swing to make without his say-so.
+
+## Fixed principals, wandering strangers — 15 September, night
+
+Sean's answer to the variance question: **knowing the cast should be knowledge
+worth having.** So it inverts. The fourteen named principals are exactly who
+the bible says in every game; the twelve unaligned swing twenty either way.
+
+It had been the other way about, which meant the thing you could look up was
+the thing you could not rely on. Hale is the best diplomat in the Seven Seas
+now, not in some games; Corvane always out-leads everyone. Learning who is who
+is learning something that stays learned, which is what makes a cast a cast
+rather than a roll.
+
+The variance moves to where it is interesting. A stranger on a quay is an
+unknown quantity by definition and now genuinely is one — measured over forty
+worlds, the Widow's best rating runs 71 to 110 and Sable's 73 to 111, against
+a flat 92 for Hale and 96 for Corvane. The uncapped top belongs to the
+strangers now, which is the better story: the harpooner you signed on in Coral
+Reach turns out to be the find of the war. Balance 8–8, median 527 days.
+
+**And a bug found by the other half of what Sean said.** His reason for making
+command a mission rather than a rank: *"when I want to move people it's always
+annoying that generals or admirals are always in the way."* So I checked
+whether a posted officer is in the way here, and found the opposite problem — a
+posting survived its holder walking down the quay and sailing off on another
+errand. The island went on counting a commander three Reaches away, and went on
+being harder to infiltrate for it. Not friction: a free lunch, which is worse.
+
+Now the posting ends because they have gone. There is nothing to undo first,
+which is exactly the property Sean was after: you move the person, and the rank
+does not argue with you.

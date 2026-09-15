@@ -609,7 +609,20 @@ export function startMission(
 
   // Whoever was serving aboard a fleet here goes over the side for the boat:
   // an officer away at a parley is not also commanding a squadron.
+  //
+  // Nor an island. A posting used to survive its holder walking down the quay
+  // and sailing off on another errand — the island went on counting a
+  // commander who was three Reaches away, and went on being harder to
+  // infiltrate for it. Sean raised the general shape of this: in Rebellion a
+  // ranked officer is *in the way* when you want to move people. Here the
+  // answer is that you simply send them, and the posting ends because they
+  // have gone. There is nothing to undo first.
   const aboard = new Set([character.id, ...party]);
+  for (const id of aboard) {
+    for (const system of state.systems) {
+      if (system.commanderId === id) system.commanderId = undefined;
+    }
+  }
   for (const fleet of state.fleets) {
     fleet.officerIds = fleet.officerIds.filter((id) => !aboard.has(id));
   }

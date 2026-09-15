@@ -637,22 +637,34 @@ export function roomBand(free: number): MarkSize {
 /**
  * How far a character's ratings wander from their base, game to game.
  *
- * Sean's rule, 15 September. Every character has a base figure per ability,
- * set by their lore and by what the game needs of them; a game rolls each one
- * within a swing of it. A major character — the fourteen named principals —
- * swings twenty either way, a minor one ten, so the people the war is about
- * vary more than the people it picks up along the way.
+ * Inverted at Sean's word, 15 September, night: **the principals are fixed and
+ * the strangers vary.** It had been the other way about — the fourteen named
+ * swinging twenty either way and the twelve unaligned ten — which meant the
+ * thing you could look up was the thing you could not rely on.
  *
- * The top of the swing is deliberately not capped at a hundred. A base of 92
- * can come out at 112, and an officer having the game of their life should be
- * allowed to be better than anyone has any right to be. The floor is 1: nobody
- * is negative at anything.
+ * The question was whether knowing the cast should be knowledge worth having,
+ * and it should. Hale is the best diplomat in the Seven Seas in every game now,
+ * not in some of them; Corvane always out-leads everyone; Sable is always the
+ * one you send to listen at a door. Learning who is who is learning something
+ * that stays learned, which is what makes a cast a cast rather than a roll.
+ *
+ * The variance moves to where it is interesting instead. A stranger standing on
+ * a quay is an unknown quantity by definition, and now genuinely is one: twenty
+ * either way, so the harpooner you sign on in Coral Reach might be a journeyman
+ * or the find of the war, and there is no way to know before you spend the
+ * fortnight fetching them.
+ *
+ * The top is deliberately uncapped, which now belongs to the strangers: the
+ * Widow's ninety can come out at a hundred and ten, and somebody having the
+ * game of their life should be allowed to be better than anyone has any right
+ * to be. The floor is 1 — nobody is negative at anything.
  */
-export const RATING_SWING_MAJOR = 20;
-export const RATING_SWING_MINOR = 10;
+export const RATING_SWING_MAJOR = 0;
+export const RATING_SWING_MINOR = 20;
 
 export function rollRating(rng: Rng, base: number, major: boolean): number {
   const swing = major ? RATING_SWING_MAJOR : RATING_SWING_MINOR;
+  if (swing === 0) return Math.max(1, base);
   return Math.max(1, base + rng.range(-swing, swing));
 }
 

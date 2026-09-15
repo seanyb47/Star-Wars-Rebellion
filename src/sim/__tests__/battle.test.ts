@@ -428,3 +428,29 @@ describe('only certain officers can hold a place', () => {
     expect(able).toBeLessThan(strangers.length);
   });
 });
+
+describe('a posting is not a rank', () => {
+  it('ends the moment its holder sails on another errand', () => {
+    // Sean's reason for making command a mission rather than a rank: in
+    // Rebellion a ranked officer is in the way when you want to move people.
+    // Here you move them, and the posting ends because they have gone.
+    const state = generateGalaxy(301, 'empire');
+    const who = state.characters.find((c) => c.faction === 'empire' && canCommand(c))!;
+    const isle = state.systems.find(
+      (s) => s.control === 'empire' && s.id !== who.locationSystemId,
+    )!;
+    isle.uprising = true;
+    startMission(state, who.id, isle.id, 'command');
+    const rng = createRng(2);
+    for (let d = 0; d < 80 && !isle.commanderId; d++) advanceMissions(state, rng);
+    expect(isle.commanderId).toBe(who.id);
+
+    const elsewhere = state.systems.find(
+      (s) => s.control === 'neutral' && s.populated && s.explored.empire,
+    )!;
+    startMission(state, who.id, elsewhere.id);
+    // The island does not go on counting a commander three Reaches away.
+    expect(isle.commanderId).toBeUndefined();
+    expect(getCharacter(state, who.id).mission).toBeDefined();
+  });
+});
