@@ -482,4 +482,13 @@ export interface GameState {
   rngSeed: number;
   /** Monotonic counter behind every generated id, so "newest" is well defined. */
   nextId: number;
+  /**
+   * How well the opponent plays, and which of its articles are switched off.
+   *
+   * Absent is the whole book — every save written before difficulties existed
+   * keeps the opponent it had. `src/sim/doctrine.ts` reads it; `lab/doctrine.ts`
+   * sets `without` to one article at a time to measure what that article is
+   * worth.
+   */
+  doctrine?: { tier: 'plain' | 'sharp' | 'ruthless'; without?: string[] };
 }

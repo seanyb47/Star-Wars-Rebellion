@@ -10,6 +10,7 @@ export * from './build';
 export * from './fleets';
 export * from './lords';
 export * from './missions';
+export * from './doctrine';
 export * from './ai';
 export * from './advanceDay';
 export * from './commands';

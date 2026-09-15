@@ -8,6 +8,10 @@ import {
   AI_LORD_BOUNTY,
   AI_RECRUIT_BONUS,
   AI_RESEARCH_BONUS,
+  AI_SURVEY_BONUS,
+  AI_SURVEY_HUNGER,
+  AI_PLOT_WORTH,
+  AI_COMFORTABLE,
   FORT_STRENGTH,
   FORT_REPAIR_PER_DAY,
   AI_SIEGE_DAYS,
@@ -24,6 +28,7 @@ import {
   shipsFor,
 } from './constants';
 import { buildMenu, canQueueBuild, foundWorks, foundWorksError, queueBuild } from './build';
+import { follows } from './doctrine';
 import {
   assault,
   assaultError,
@@ -58,7 +63,9 @@ import {
   abductOn,
   isRecruitTarget,
   isResearchTarget,
+  isSurveyTarget,
   missionsOffered,
+  missionTypeFor,
   quality,
   recruitOn,
   startMission,
@@ -70,6 +77,7 @@ import type {
   Character,
   FacilityType,
   Fleet,
+  MissionType,
   ShipClassId,
   GameState,
   PlayableFaction,
@@ -117,7 +125,10 @@ function surplus(state: GameState, ai: PlayableFaction): number {
   // Upkeep is paid out of the treasury and nothing breaks until it is empty
   // (see `payUpkeep`), so a deficit a big bank can carry for a year is not a
   // deficit worth refusing an order over.
-  return f.income - f.upkeep - pending + f.gold / AI_RUNWAY_DAYS;
+  // Doctrine: `spend-the-bank`. A plain opponent reads the daily ledger and
+  // nothing else, and so sits on its savings.
+  const bank = follows(state, 'spend-the-bank') ? f.gold / AI_RUNWAY_DAYS : 0;
+  return f.income - f.upkeep - pending + bank;
 }
 /** Kept clear over and above whatever the next order will cost to run. */
 const AI_SURPLUS_MARGIN = 3;
@@ -145,8 +156,9 @@ export function runAI(state: GameState, rng: Rng): void {
   }
   if (state.day % AI_MISSION_INTERVAL === 0) {
     // Postings before errands, so a Lord it wants in a chair is in the chair
-    // before the errand pass can send them somewhere else.
-    aiPostLords(state, ai);
+    // before the errand pass can send them somewhere else. Doctrine:
+    // `seat-your-principals` — a plain opponent leaves its people on the quay.
+    if (follows(state, 'seat-your-principals')) aiPostLords(state, ai);
     aiMission(state, ai);
   }
   if (state.day % AI_FLEET_INTERVAL === 0) aiFleet(state, ai, rng);
@@ -355,6 +367,22 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
   // the opponent would let a Reach rot and wonder where the gold went.
   const failing = (s: System) =>
     s.control === ai && (s.uprising || loyaltyBand(s.support[ai]) === 'thin');
+  /**
+   * Somebody of theirs standing here worth going for.
+   *
+   * Doctrine: `hunt-the-principals` — but never a Lord. The article is ruthless
+   * because lifting an ordinary officer off a quay is a good habit rather than
+   * an obvious one; taking the three Lords is the *only* way the Crown wins the
+   * war. Gating both behind the same article made a plain or sharp Crown
+   * literally unable to win: measured, it took none of sixteen wars and nine
+   * of them ran three thousand days and stopped. A gentler opponent is one that
+   * passes up cheap prizes, not one with its victory condition removed.
+   */
+  const liftable = (s: System) => {
+    const mark = abductOn(state, s, ai);
+    if (!mark) return undefined;
+    return isLord(mark) || follows(state, 'hunt-the-principals') ? mark : undefined;
+  };
   const open = state.systems.filter(
     (s) =>
       isMissionTarget(state, s, ai) &&
@@ -366,11 +394,15 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
         // enemy islands, and its own in trouble — and research lives on its
         // own islands doing *well*, so it fell through every clause and the
         // whole mechanic never fired.
-        isResearchTarget(s, ai) ||
+        (follows(state, 'research-your-own-yards') && isResearchTarget(s, ai)) ||
+        // And the outer Reaches. An island nobody lives on is `none`, which
+        // matched no clause here at all, so the whole frontier — a third of
+        // the world, and the only free land in it — was invisible.
+        isSurveyTarget(s, ai) ||
         // Its own ground too, when one of theirs is standing on it: an enemy
         // officer in your own harbor is the easiest prize in the game and the
         // opponent used to walk straight past it.
-        abductOn(state, s, ai) !== undefined),
+        liftable(s) !== undefined),
   );
   if (open.length === 0) return;
 
@@ -391,12 +423,23 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     // sixteen measured games it never once tried it — while somebody was
     // liftable somewhere on 95% of days. With the Lords made personnel, that
     // was the Crown's whole route to victory going unused.
-    const mark = abductOn(state, s, ai);
+    const mark = liftable(s);
     if (mark) {
       return close + AI_ABDUCT_BONUS + quality(mark) + (isLord(mark) ? AI_LORD_BOUNTY : 0);
     }
     const recruit = recruitOn(state, s, ai);
     if (recruit) return close + AI_RECRUIT_BONUS + quality(recruit);
+    // Somewhere nobody has been. Worth more the tighter the ledger: a side
+    // with money to spare would rather court an island than chart one, and a
+    // side feeling its upkeep should be out looking for ground.
+    if (isSurveyTarget(s, ai)) {
+      // Doctrine: `expand-when-the-bill-grows`. Without it the frontier is
+      // worth the same whether the ledger is comfortable or drowning.
+      const hunger = follows(state, 'expand-when-the-bill-grows')
+        ? Math.max(0, AI_COMFORTABLE - surplus(state, ai)) * AI_SURVEY_HUNGER
+        : 0;
+      return close + AI_SURVEY_BONUS + hunger;
+    }
     // Its own yards, when there is nothing louder to do with the officer.
     if (isResearchTarget(s, ai)) return close + AI_RESEARCH_BONUS;
     // One of its own in the enemy's cells: worth more than any island.
@@ -416,15 +459,44 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
       .map((c) => c.mission!.targetSystemId),
   );
 
+  /**
+   * Doctrine: `hunt-the-principals`, the other half of it.
+   *
+   * An errand takes its kind from the island unless the order names one, and
+   * an island with one of theirs standing on it answers "abduct" before it
+   * answers anything else. So withholding the article from the scoring above
+   * only stopped the opponent *seeking* marks — measured, it still lifted
+   * seven people a war by turning up somewhere else and finding somebody
+   * there. An opponent that does not know to hunt people asks the island for
+   * its next-best errand instead, and passes over an island that has nothing
+   * else to offer.
+   *
+   * Undefined means "let the island decide", which is what it always did.
+   */
+  const errandAt = (officer: Character, s: System): MissionType | null | undefined => {
+    if (liftable(s)) return undefined;
+    if (missionTypeFor(state, s, ai) !== 'abduct') return undefined;
+    return (
+      missionsOffered(state, s, ai, officer).find(
+        (t) => t !== 'abduct' && t !== 'command',
+      ) ?? null
+    );
+  };
+
   // The best officer takes the best island, and so on down, so the opponent's
   // strongest diplomat is not left courting a backwater.
   for (const officer of idle.slice(0, AI_MISSION_PARTIES)) {
-    const target = open
+    const ranked = open
       .filter((s) => !taken.has(s.id) && canStartMission(state, officer.id, s.id))
-      .sort((a, b) => worth(officer, b) - worth(officer, a))[0];
-    if (!target) continue;
-    taken.add(target.id);
-    startMission(state, officer.id, target.id);
+      .sort((a, b) => worth(officer, b) - worth(officer, a));
+    for (const target of ranked) {
+      const kind = errandAt(officer, target);
+      // Nothing it is willing to do here; try the next island down.
+      if (kind === null) continue;
+      taken.add(target.id);
+      startMission(state, officer.id, target.id, kind);
+      break;
+    }
   }
 }
 
@@ -454,6 +526,7 @@ function aiFleet(state: GameState, ai: PlayableFaction, rng: Rng): void {
     // because the walls are patched while nobody is working them.
     if (aiBeginSiege(state, fleet, ai)) continue;
     if (aiLandTroops(state, fleet, ai, rng)) continue;
+    if (aiSettle(state, fleet, ai, rng)) continue;
     aiLoadAndSail(state, fleet, ai);
   }
 }
@@ -527,6 +600,7 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
    * take, what it builds is a ship of the line.
    */
   const noSiegeTrain =
+    follows(state, 'weight-before-berths') &&
     ai === 'alliance' &&
     fortsOf(capital).length > 0 &&
     Math.max(0, ...fleetsOf(state, ai).map(fleetBombard)) < siegeWeightFor(capital);
@@ -534,11 +608,27 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
   // Fighting hulls as big as it can afford; a transport when it is short of one.
   const spare = surplus(state, ai);
   const carried = (id: ShipClassId) => spare - UPKEEP_PER_DAY[id] >= AI_SURPLUS_MARGIN;
+  // Doctrine: `balanced-fleet`. Frigates take sloops, sloops take ships of the
+  // line, ships of the line take frigates, so a fleet of one kind has a hole in
+  // it the other side can aim at — and it fills a kind it has none of before it
+  // buys another of what it already has. Deliberately only that: forcing the
+  // three kinds to equal numbers caps its ships of the line at a third of the
+  // fleet, and measured that cost it a fifth of its weight of shot against
+  // Highwater's walls and three hundred days on the war. A plain opponent skips
+  // the test and buys the heaviest thing it can pay for.
+  const roleOf = (id: ShipClassId) => classes.find((c) => c.id === id)?.role;
+  const missing = (c: (typeof classes)[number]) =>
+    follows(state, 'balanced-fleet') && !afloat.some((s) => roleOf(s.classId) === c.role)
+      ? 1000
+      : 0;
   const affordable = classes
     .filter((c) => c.role !== 'transport')
     .filter((c) => carried(c.id))
     .filter((c) => shipSpec(c.id).costGold + AI_SHIP_RESERVE <= state.factions[ai].gold)
-    .sort((a, b) => shipSpec(b.id).costGold - shipSpec(a.id).costGold);
+    .sort(
+      (a, b) =>
+        missing(b) + shipSpec(b.id).costGold - (missing(a) + shipSpec(a.id).costGold),
+    );
   const pick = wantTransport
     ? classes.find((c) => c.role === 'transport')
     : (affordable[0] ?? classes.find((c) => c.role === 'small'));
@@ -558,6 +648,50 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
       laid += 1;
     }
   }
+}
+
+/**
+ * Free ground, and going to get it.
+ *
+ * An island nobody lives on is taken by putting one company on the beach —
+ * there is nothing there to fight — and it comes with four to ten plots to
+ * build on. That is the cheapest capital in the game and the opponent had no
+ * idea it existed: the frontier is a third of the world and every island in it
+ * ended every war exactly as it began.
+ *
+ * Scored against what the island offers and what the ledger needs. A side with
+ * money to spare expands because land is land; a side feeling its upkeep
+ * expands because it has to, and will cross half the world to do it.
+ */
+function aiSettle(state: GameState, fleet: Fleet, ai: PlayableFaction, rng: Rng): boolean {
+  const here = getSystem(state, fleet.systemId);
+  // What it would be carrying by the time it got there. Companies come aboard
+  // by themselves when a squadron sails from ground of ours, so asking whether
+  // it has one *now* is asking the wrong question — a squadron sitting at home
+  // with an empty hold is exactly the one that should be going.
+  const willCarry =
+    fleet.troops +
+    (here.control === ai
+      ? Math.min(fleetCapacity(fleet) - fleet.troops, sparedCompanies(here, state))
+      : 0);
+  if (willCarry < 1) return false;
+  // Standing on it already: put somebody ashore and it is ours.
+  if (!here.populated && here.control === 'none' && here.explored[ai] && fleet.troops >= 1) {
+    if (assaultError(state, fleet.id, ai) === null) {
+      assault(state, fleet.id, rng, ai);
+      return true;
+    }
+  }
+  const hunger = Math.max(0, AI_COMFORTABLE - surplus(state, ai));
+  const worth = (s: System) => s.slots * AI_PLOT_WORTH + hunger * AI_PLOT_WORTH
+    - travelDays(state, fleet.systemId, s.id) * 2;
+  const prize = state.systems
+    .filter((s) => !s.populated && s.control === 'none' && s.explored[ai] && s.id !== fleet.systemId)
+    .filter((s) => sailError(state, fleet.id, s.id, ai) === null)
+    .sort((a, b) => worth(b) - worth(a))[0];
+  if (!prize || worth(prize) <= 0) return false;
+  sailFleet(state, fleet.id, prize.id, ai);
+  return true;
 }
 
 /** Companies aboard and an island in reach that cannot hold: land them. */
@@ -587,7 +721,13 @@ function aiBeginSiege(state: GameState, fleet: Fleet, ai: PlayableFaction): bool
   // does not do it, because it cannot weigh that and would only ever wreck
   // its own standing everywhere it went.
   if (fortsOf(here).length === 0) return false;
-  if (fleetBombard(fleet) < siegeWeightFor(here)) return false;
+  // Doctrine: `commit-to-the-siege`. A siege is a race against two per cent a
+  // day of patching, so a squadron that cannot be through the wall in a few
+  // days should not open fire at all. Without the article it dabbles, which is
+  // what a lone first-rate under forty guns of battery looks like.
+  if (follows(state, 'commit-to-the-siege') && fleetBombard(fleet) < siegeWeightFor(here)) {
+    return false;
+  }
   fleet.bombarding = true;
   return true;
 }

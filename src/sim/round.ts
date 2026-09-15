@@ -1,5 +1,6 @@
 import { DAMAGE_SWING, TARGET_JITTER } from './constants';
 import type { Rng } from './rng';
+import type { ShipRole } from './types';
 
 /**
  * One round of a fleet action.
@@ -25,8 +26,12 @@ export interface Combatant {
   left: number;
   /** What it had to start with, for the report's percentages. */
   whole: number;
-  /** How likely a shot at it is to tell. A creature is harder to hit. */
+  /** How likely a shot at it is to tell. A creature is harder to hit, and so
+   *  is anything small and quick. */
   hitChance: number;
+  /** What kind of hull it is, for a shooter working out whether it can train
+   *  its guns round fast enough. Absent for a fort or a creature. */
+  role?: ShipRole;
   /** Apply damage. Returns true if this killed it. */
   hurt: (amount: number) => boolean;
 }
@@ -53,10 +58,12 @@ export function pickTarget(targets: Combatant[], rng: Rng): Combatant | undefine
   let best: Combatant | undefined;
   let bestScore = -Infinity;
   for (const target of live) {
-    // Threat removed per point of damage it takes to remove it. A transport
-    // has no guns, so it scores off the floor and is shot last — which is
-    // correct and is also what makes a transport worth escorting.
-    const worth = (target.guns + 1) / target.left;
+    // Threat removed per *shot* spent removing it. Shots, not points: a hull
+    // that is hard to hit costs more shots for the same damage, so once hulls
+    // stopped being equally easy to hit this had to count the misses too.
+    // A transport has no guns, so it scores off the floor and is shot last —
+    // which is correct and is also what makes a transport worth escorting.
+    const worth = ((target.guns + 1) / target.left) * target.hitChance;
     const score = worth * (1 + (rng.next() - 0.5) * TARGET_JITTER);
     if (score > bestScore) {
       bestScore = score;

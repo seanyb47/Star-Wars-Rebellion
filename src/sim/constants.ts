@@ -151,6 +151,93 @@ export const BOOM_BLOCKADE_GUNS = 25;
  * never "the game decided my better fleet lost".
  */
 export const HIT_CHANCE = 0.75;
+
+/**
+ * How hard each kind of hull is to hit, and how badly heavy guns fare against
+ * a small one.
+ *
+ * Sean, 15 September: *"small ships can chip away at the hull of a big ship
+ * really quickly and the big ships can't get them, because the big ships are
+ * designed for big blasts at defensive structures on land. So when you're
+ * building a fleet you want a balanced fleet, otherwise you leave yourself
+ * extremely vulnerable to different scenarios."* And, on the worry that this
+ * would tangle with the siege rules: *"sea combat has nothing to do with
+ * fortress defenses. One is ship vs ship, another is ship vs island."* He is
+ * right, and they stay separate — `bombard` is untouched by any of this.
+ *
+ * Three numbers do the whole triangle. A sloop is a hard mark for anybody and
+ * a first-rate is a barn door, which on its own means both sides put more shot
+ * into the big hull. The second rule is the one that makes it a triangle: a
+ * heavy battery laid for pounding stone does not train round fast enough to
+ * catch something small and quick.
+ *
+ * What it comes to, per round: a sloop lands nine shots in ten on a
+ * first-rate, and a first-rate lands three in ten on a sloop. One to one the
+ * first-rate still wins comfortably, which it should. Four sloops — thirty
+ * guns and thirty-six hull, for thirty gold more — take her apart, which is
+ * the vulnerability a fleet of nothing but ships of the line is supposed to
+ * have. And four sloops throw four at a seawall that patches over one, so the
+ * swarm is still no answer to a fortress.
+ */
+export const HULL_EASE: Record<ShipRole, number> = {
+  small: 0.8,
+  medium: 1,
+  large: 1.15,
+  transport: 1.1,
+};
+/**
+ * What a shooter manages against a small, quick target.
+ *
+ * A heavy battery laid for pounding stone cannot train round fast enough; a
+ * frigate is built for exactly this work and is better at it than anything.
+ * That last number is what makes the thing a triangle rather than a ladder:
+ * without it sloops simply beat everything by the purse and there was no
+ * reason to own a frigate at all.
+ *
+ *     frigates take sloops · sloops take ships of the line ·
+ *     ships of the line take frigates
+ *
+ * And over all three, the seawall: no weight of sloops opens a fortified
+ * harbor, so the fleet that can do everything has some of each.
+ */
+export const GUNNERY_ON_SMALL: Record<ShipRole, number> = {
+  small: 1,
+  medium: 1.55,
+  large: 0.75,
+  transport: 1,
+};
+
+/**
+ * How many targets a hull can engage in a round.
+ *
+ * A ship of the line has gun decks and a sloop has a gun. Without this the
+ * round gave every hull one shot whatever it was, so a first-rate put its
+ * whole thirty into one nine-hull sloop and threw two thirds of it into the
+ * sea — and a swarm won on hull count alone before accuracy was considered at
+ * all. Measured with one shot each: a first-rate lost 0–149 to three sloops
+ * that cost less than she did, which is not a triangle, it is an answer.
+ *
+ * Total weight of fire is unchanged; it is divided among the shots. What
+ * changes is that a heavy ship stops wasting most of a broadside on something
+ * small, which is the other half of why a balanced fleet beats a swarm.
+ */
+export const GUN_DECKS: Record<ShipRole, number> = {
+  small: 1,
+  medium: 2,
+  large: 3,
+  transport: 1,
+};
+
+/** Hit chance against a hull of this kind, before anybody's officer. */
+export function hitChanceOn(role: ShipRole): number {
+  return HIT_CHANCE * HULL_EASE[role];
+}
+
+/** What a shooter of this kind manages against a target of that kind. */
+export function aimAt(shooter: ShipRole | 'shore', target: ShipRole): number {
+  if (target !== 'small' || shooter === 'shore') return 1;
+  return GUNNERY_ON_SMALL[shooter];
+}
 /**
  * How much a target's score wobbles when the guns are choosing whom to shoot.
  *
@@ -188,6 +275,26 @@ export const LONG_GUN_SHARE = 0.5;
  * follow a rule, and the rule is legible enough that you can bait it.
  */
 export const BREAK_OFF_ODDS = 2;
+
+/**
+ * When they have you cut off and there is no running.
+ *
+ * Sean, 15 September: *"over time fleeing will be more and more useless if we
+ * get the timing correct. As R&D unlocks late-game ships with better stats
+ * fleeing becomes harder. A strong superior fleet can stop retreat."*
+ *
+ * Breaking off has always worked and only ever cost you the run, which is the
+ * right rule against an even enemy and the wrong one against an overwhelming
+ * fleet — a squadron four times your weight does not watch you leave, it has
+ * the weather gauge and the legs to close. So above this multiple of your own
+ * guns, and only while they have something quick enough to run you down, the
+ * order is refused and the action is fought to its end.
+ *
+ * Four rather than two, so it is a rout and not a bad day: it should be the
+ * consequence of having sailed into something far too big, and not a thing
+ * that happens in an ordinary action you are losing.
+ */
+export const PURSUIT_ODDS = 4;
 
 export const RETREAT_SHOTS: Record<number, [number, number]> = {
   10: [0, 0],
@@ -393,6 +500,18 @@ export interface PirateLord {
  * hull of these classes is ever put on the water. What a Lord brings is the
  * power, and where it applies is in `lords.ts`.
  */
+/**
+ * The Crown's own fixed principal.
+ *
+ * Sean, 15 September: *"have him start all games."* The Confederacy has three
+ * characters it cannot lose and the Crown had none — the Regent, its head of
+ * state and the best leader in the game, turned up in forty-five per cent of
+ * wars, so a Crown without him was a different faction rather than a varied
+ * one. Now the opening is one fixed and three drawn on that side, and three
+ * fixed and two drawn on the other.
+ */
+export const CROWN_PRINCIPAL = 'Lord Regent Halvard Corvane';
+
 export const PIRATE_LORDS: PirateLord[] = [
   { name: 'Commodore-Elect Adaira Hale', ship: 'harbor', power: 'moot' },
   { name: 'Captain Silas Reyne', ship: 'swallowtail', power: 'runner' },
@@ -709,6 +828,41 @@ export const AI_SIEGE_DAYS = 6;
  * fifty, and a side that rich should be spending like it.
  */
 export const AI_RUNWAY_DAYS = 400;
+
+/**
+ * What the outer Reaches are worth, and why anybody goes there.
+ *
+ * Sean, 15 September: *"the unexplored islands should be explored most games.
+ * They have available land and eventually players need to expand to get more
+ * gold to maintain bigger fleets. As maintenance costs grow the unexplored
+ * areas offer opportunities to add capital. If sims ignore them, that's a
+ * mistake in tuning — all you have to do is move one ship carrying one
+ * garrison to the location and land it, and now you have a free location you
+ * didn't have to attack."*
+ *
+ * He is right on every count, and the arithmetic backs it: twenty of
+ * sixty-three islands start empty, they carry four to ten plots apiece against
+ * a settled island's six to thirteen, and one filled with earners clears
+ * something over six gold a day against an opening surplus of five. A colony
+ * nearly doubles what a side is making, and costs one company and a crossing.
+ *
+ * It measured zero. Every empty island is `control: 'none'` and the opponent's
+ * candidate list had no clause for that — the same shape of hole that made
+ * research unreachable — so it never surveyed one, never found one, and never
+ * settled one. Twenty-three islands started dark and all twenty-three ended
+ * dark, in every war.
+ *
+ * `AI_SURVEY_BONUS` is what a fortnight's exploring is worth, and it rises as
+ * the ledger thins: a side with money to spare would rather court an island
+ * than chart one, and a side feeling its upkeep should go looking for ground.
+ */
+export const AI_SURVEY_BONUS = 30;
+export const AI_SURVEY_HUNGER = 6;
+/** What each plot of empty land is worth to a squadron looking for somewhere. */
+export const AI_PLOT_WORTH = 9;
+/** Above this surplus the opponent is comfortable and expands for its own sake;
+ *  below it, a colony is the answer to the bill. */
+export const AI_COMFORTABLE = 12;
 
 /**
  * Bombardment past the walls, and what it costs.

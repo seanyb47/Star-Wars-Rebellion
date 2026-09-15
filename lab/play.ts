@@ -10,7 +10,9 @@ import { battleView, fleetBombard } from '../src/sim/fleets';
 import { lords, powerOf } from '../src/sim/lords';
 import { audit, type Violation } from './audit';
 import { pilot, type PilotTally } from './pilot';
-import type { GameState, PlayableFaction } from '../src/sim/types';
+import { shipClass } from '../src/sim/constants';
+import type { Tier } from '../src/sim/doctrine';
+import type { GameState, PlayableFaction, ShipRole } from '../src/sim/types';
 
 export type Answer = 'carry-on' | 'come-home' | 'mixed';
 
@@ -33,6 +35,16 @@ export interface Run {
   /** Wall-clock ms for the whole game, and the worst single day. */
   ms: number;
   worstDayMs: number;
+  /** The side the opponent played, and how much of the book it played by. */
+  ai: PlayableFaction;
+  /** Islands the opponent never charted, of the twenty-odd that start dark. */
+  darkEnd: number;
+  /** Islands it holds at the end that began with nobody living on them. */
+  coloniesEnd: number;
+  /** Its fleet at the end, by kind of hull. */
+  hullMixEnd: Record<ShipRole, number>;
+  /** The heaviest broadside it could put against a wall at the end. */
+  bombardEnd: number;
 }
 
 const KINDS = [
@@ -42,12 +54,21 @@ const KINDS = [
 export function playGame(
   seed: number,
   player: PlayableFaction,
-  opts: { maxDays?: number; answer?: Answer; auditEvery?: number; play?: boolean } = {},
+  opts: {
+    maxDays?: number;
+    answer?: Answer;
+    auditEvery?: number;
+    play?: boolean;
+    /** How much of the book the opponent plays by. Absent is all of it. */
+    doctrine?: { tier: Tier; without?: string[] };
+  } = {},
 ): Run {
   const maxDays = opts.maxDays ?? 3000;
   const answer = opts.answer ?? 'carry-on';
   const auditEvery = opts.auditEvery ?? 1;
   let state = generateGalaxy(seed, player);
+  if (opts.doctrine) state.doctrine = opts.doctrine;
+  const startedDark = new Set(state.systems.filter((s) => !s.populated).map((s) => s.id));
   const violations: Violation[] = [];
   const seenRule = new Set<string>();
   const counts: Record<string, number> = Object.create(null);
@@ -120,6 +141,9 @@ export function playGame(
       seenEvents.add(e.id);
       bump(`event-${e.kind}`);
       if (/taken .* off the quay|carried off|in irons/i.test(e.text)) bump('text-abduction');
+      // Only the errand that worked: the line above also catches the briefing
+      // that sets one off and the log line that ends the war.
+      if (/ off the quay at /i.test(e.text)) bump('text-lifted');
       if (/strikes her colours|struck/i.test(e.text)) bump('text-strike');
       if (/mutiny|rises|risen/i.test(e.text)) bump('text-rising');
       if (/sabotage|wrecked|burns the/i.test(e.text)) bump('text-sabotage');
@@ -182,6 +206,11 @@ export function playGame(
   }
 
   const islands = (side: PlayableFaction) => state.systems.filter((s) => s.control === side).length;
+  const hullMixEnd: Record<ShipRole, number> = { small: 0, medium: 0, large: 0, transport: 0 };
+  for (const f of state.fleets) {
+    if (f.faction !== other) continue;
+    for (const sh of f.ships) hullMixEnd[shipClass(sh.classId).role] += 1;
+  }
   let stall: string | undefined;
   if (!state.winner) {
     const hw = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
@@ -193,7 +222,7 @@ export function playGame(
       : islands('alliance') <= 5 ? `Crown holds ${islands('empire')}, has ${caught}/3 Lords`
       : `even: C${islands('empire')}/F${islands('alliance')}, ${caught}/3 Lords, ${walls} walls`;
   }
-  void KINDS; void other;
+  void KINDS;
   for (const [k, n] of Object.entries(orders)) counts[`order-${k}`] = n;
   return {
     seed,
@@ -210,5 +239,13 @@ export function playGame(
     stall,
     ms: Date.now() - started,
     worstDayMs,
+    ai: other,
+    darkEnd: state.systems.filter((s) => startedDark.has(s.id) && !s.explored[other]).length,
+    coloniesEnd: state.systems.filter((s) => startedDark.has(s.id) && s.control === other).length,
+    hullMixEnd,
+    bombardEnd: Math.max(
+      0,
+      ...state.fleets.filter((f) => f.faction === other).map(fleetBombard),
+    ),
   };
 }

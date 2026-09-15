@@ -40,7 +40,12 @@ describe('a full game', () => {
   });
 
   it('works the same way with the sides swapped', () => {
-    const state = playOut(1, 'alliance');
+    // A longer horizon than the others on purpose. The Crown's road to
+    // victory is a manhunt for three people who are exchanged after sixty
+    // days, so it is inherently the slower of the two conditions — this seed
+    // settles on day 3,021, and capping it at three thousand would be reading
+    // "not yet" as "never".
+    const state = playOut(1, 'alliance', 4000);
     expect(state.winner).toBe('empire');
   });
 

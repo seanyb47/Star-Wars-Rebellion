@@ -12,6 +12,7 @@ import {
   orderFoundWorks,
   orderSail,
   orderAssault,
+  orderDetach,
   orderBombard,
   sendDiplomat,
   resolvePendingMission,
@@ -19,6 +20,7 @@ import {
 } from '../src/sim/commands';
 import { buildMenu, canQueueBuild } from '../src/sim/build';
 import {
+  detachError,
   fleetsOf,
   isAtSea,
   fleetCapacity,
@@ -121,6 +123,31 @@ export function pilot(state: GameState, tally: PilotTally): GameState {
     }
   }
 
+  // 3b. Squadrons of ours in the same harbor become one squadron.
+  //
+  // Not a flourish: without it the pilot's navy is confetti. A finished hull
+  // joins whatever fleet is at the island, and a fleet that was at sea that
+  // morning does not get it — so over a long war the player's fleet list fills
+  // with single sloops. Measured before this: in twelve hundred days a piloted
+  // Confederacy put a squadron off enemy ground four times, never one with
+  // more than fourteen weight of shot, and so never opened a wall or took
+  // Highwater in fifteen wars. It is the same thing the opponent does in
+  // `aiConsolidate`, and a player does it by hand without thinking about it.
+  const harbors = new Map<string, typeof state.fleets>();
+  for (const f of fleetsOf(state, me)) {
+    if (isAtSea(f)) continue;
+    harbors.set(f.systemId, [...(harbors.get(f.systemId) ?? []), f]);
+  }
+  for (const [, here] of harbors) {
+    if (here.length < 2) continue;
+    const [keep, ...rest] = [...here].sort((a, b) => b.ships.length - a.ships.length);
+    for (const other of rest) {
+      const hulls = other.ships.map((sh) => sh.id);
+      if (detachError(state, other.id, hulls, keep.id, me) !== null) continue;
+      state = take(orderDetach(state, other.id, hulls, keep.id), 'fleet:consolidate');
+    }
+  }
+
   // 4. The fleet.
   //
   // Companies come aboard by themselves when a squadron sails from ground of
@@ -163,6 +190,17 @@ export function pilot(state: GameState, tally: PilotTally): GameState {
           travelDays(state, fleet.systemId, s.id) - (wallBreaker && fortsOf(s).length > 0 ? 40 : 0);
         return worth(a) - worth(b);
       })[0];
+    // But not one hull at a time.
+    //
+    // A squadron of one is a squadron that meets their fleet and sinks, and
+    // the pilot was sailing every finished hull at the enemy the day it
+    // launched: measured over twelve hundred days, a piloted Confederacy built
+    // forty-six first-rates, had none of them afloat at the end, put a
+    // squadron off enemy ground four times in the whole war and never once
+    // opened a wall. It waits until it has a squadron — which is what the
+    // consolidation above is for, and what any player does without being told.
+    const gathered = fleet.ships.length >= 2 || (prize !== undefined && prize.garrison === 0);
+    if (prize && !gathered) { note('fleet:gathering'); continue; }
     if (prize && sailError(state, fleet.id, prize.id, me) === null) {
       state = take(orderSail(state, fleet.id, prize.id), 'fleet:sail-attack');
       continue;

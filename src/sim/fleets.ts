@@ -7,6 +7,7 @@
  */
 import {
   BREAK_OFF_ODDS,
+  PURSUIT_ODDS,
   BOOM_BLOCKADE_GUNS,
   BOOM_DEFENCE,
   FORT_GUNS,
@@ -22,7 +23,11 @@ import {
   OFFICER_EDGE,
   SCOUT_PER_ISLAND,
   shipSpec,
+  GUN_DECKS,
   HIT_CHANCE,
+  hitChanceOn,
+  aimAt,
+  shipClass,
   LONG_GUN_SHARE,
   RETREAT_SHOTS,
 } from './constants';
@@ -945,7 +950,8 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
           guns: spec.guns,
           left: spec.hull - ship.damage,
           whole: spec.hull,
-          hitChance: HIT_CHANCE,
+          role: shipClass(ship.classId).role,
+          hitChance: hitChanceOn(shipClass(ship.classId).role),
           hurt: (amount: number) => {
             ship.damage += amount;
             return ship.damage >= spec.hull;
@@ -1117,7 +1123,8 @@ function hullsOf(fleets: Fleet[]): Combatant[] {
         guns: spec.guns,
         left: spec.hull - ship.damage,
         whole: spec.hull,
-        hitChance: HIT_CHANCE,
+        role: shipClass(ship.classId).role,
+        hitChance: hitChanceOn(shipClass(ship.classId).role),
         hurt: (amount) => {
           ship.damage += amount;
           return ship.damage >= spec.hull;
@@ -1143,6 +1150,26 @@ function wallOf(system: System, side: PlayableFaction): Combatant[] {
       hurt: () => false,
     },
   ];
+}
+
+/**
+ * One hull's shots for the round, each carrying its share of her weight.
+ *
+ * A first-rate lays three decks on three different marks rather than emptying
+ * herself into one sloop; a sloop has the one gun. The shots share the hull's
+ * condition, so a ship sunk halfway through a round stops firing the rest.
+ */
+function decksOf(gun: Combatant): Combatant[] {
+  const decks = gun.role ? GUN_DECKS[gun.role] : 1;
+  if (decks <= 1) return [gun];
+  const each = gun.guns / decks;
+  return Array.from({ length: decks }, () => ({
+    ...gun,
+    // Her weight, shared out. Read live off the hull, so a ship sunk halfway
+    // through a round does not go on firing the decks she has left.
+    get guns() { return gun.left > 0 ? each : 0; },
+    get left() { return gun.left; },
+  }));
 }
 
 /** Total damage standing on every hull in these fleets. */
@@ -1278,10 +1305,14 @@ function fightRound(
   // from being decided by who is listed first.
   const volleys: Array<{ from: Combatant; at: Combatant[]; edge: number }> = [];
   for (const gun of empireGuns) {
-    volleys.push({ from: gun, at: monster ? [...allianceGuns, monster] : allianceGuns, edge: empireEdge });
+    for (const shot of decksOf(gun)) {
+      volleys.push({ from: shot, at: monster ? [...allianceGuns, monster] : allianceGuns, edge: empireEdge });
+    }
   }
   for (const gun of allianceGuns) {
-    volleys.push({ from: gun, at: monster ? [...empireGuns, monster] : empireGuns, edge: allianceEdge });
+    for (const shot of decksOf(gun)) {
+      volleys.push({ from: shot, at: monster ? [...empireGuns, monster] : empireGuns, edge: allianceEdge });
+    }
   }
   if (monster) {
     // It is nobody's, so it fires on everything and picks its own way — a
@@ -1296,7 +1327,14 @@ function fightRound(
     const target = pickTarget(volley.at, rng);
     if (!target) continue;
     if (monster && volley.from === monster) monsterStrike(state, system, target, rng);
-    else fireOnce(volley.from, target, rng, volley.edge);
+    else {
+      // What this shooter manages against that target. A heavy battery laid
+      // for pounding stone does not train round fast enough to catch a sloop,
+      // which is the rule that makes a fleet of nothing but ships of the line
+      // a fleet with a hole in it.
+      const aim = target.role ? aimAt(volley.from.role ?? 'shore', target.role) : 1;
+      fireOnce(volley.from, target, rng, volley.edge * aim);
+    }
   }
 
   const killed = monster !== undefined && monster.left <= 0 && !system.beastSlain;
@@ -1480,6 +1518,16 @@ export function fleeError(state: GameState, fleetId: string, actor: PlayableFact
   );
   if (!enemies && !beastAlive(system) && fortGuns(system) === 0) return 'Nothing to break off from.';
   if (!refugeFor(state, fleet)) return 'Nowhere to run to.';
+  // Cut off. A squadron four times your weight, with something fast enough to
+  // stay with you, does not stand and watch you go.
+  const hunters = fleetsAt(state, system.id).filter((f) => f.faction !== fleet.faction);
+  const theirGuns = hunters.reduce((n, f) => n + fleetGuns(f), 0);
+  const mine = fleetGuns(fleet);
+  const fastest = Math.max(0, ...fleet.ships.map((sh) => shipSpec(sh.classId).speed));
+  const chaser = hunters.some((f) => f.ships.some((sh) => shipSpec(sh.classId).speed >= fastest));
+  if (mine > 0 && theirGuns >= mine * PURSUIT_ODDS && chaser) {
+    return 'They have the weather gauge and the legs. There is no getting clear of this.';
+  }
   return null;
 }
 
@@ -1532,7 +1580,8 @@ export function fleeBattle(
         guns: spec.guns,
         left: spec.hull - ship.damage,
         whole: spec.hull,
-        hitChance: HIT_CHANCE,
+        role: shipClass(ship.classId).role,
+        hitChance: hitChanceOn(shipClass(ship.classId).role),
         hurt: (amount) => {
           ship.damage += amount;
           return ship.damage >= spec.hull;

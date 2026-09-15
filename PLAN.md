@@ -2419,3 +2419,151 @@ and still have none of the three Lords in irons, because they are exchanged
 after sixty days faster than it can gather all three. That is the Mothma-and-Luke
 condition working as designed, and whether it should ever time out is Sean's
 call rather than a bug.
+
+## Six things off Sean's list — 15 September, late
+
+> 1. The outer rim unexplored islands should be explored most games… Since all
+> you have to do is move one ship carrying one garrison to the location and move
+> the garrison into the island and boom. Now you have a free location you didn't
+> have to attack.
+> 2. Over time fleeing will be more and more useless if we get timing correct…
+> A strong superior fleet can stop retreat.
+> 3. Build it… Sea combat has nothing to do with fortress defenses. One is ship
+> vs ship another is ship vs island.
+> 4. Have him start all games.
+> 5. Housekeeping: sure do this.
+> 6. I need you to make a file on optimal game play for the AI. Teaches strategy
+> learned over time and updates as it learns. And AIs can read this for future
+> games. This will also help with when we establish difficulties. More advanced
+> AIs can use more advanced tactics.
+
+### 1. The frontier is free capital, and the opponent could not see it
+
+An island nobody lives on has `control: 'none'`, and every list the opponent
+built of places worth going asked for `neutral`, `enemy`, or `mine and in
+trouble`. A third of the world matched none of them. Measured before: **23
+islands started dark and all 23 ended dark, in every war.**
+
+Surveying is now a target, scored against the ledger — comfortable it charts
+because land is land, squeezed it will cross half the world — and `aiSettle`
+sails a squadron at the best empty island and puts a company on the beach,
+counting what it will pick up on the way out rather than what it happens to be
+carrying now. **22.5 islands dark → 4.1; 5.0 colonies and twenty-five plots of
+new ground a war.**
+
+### 2. A superior fleet stops a retreat
+
+`PURSUIT_ODDS = 4`: breaking off is refused when their guns are four times yours
+*and* they have a hull at least as fast as your fastest. Both halves matter — a
+heavy squadron of the line cannot catch sloops, and that is the sloops' whole
+job.
+
+### 3. The triangle
+
+Frigates take sloops, sloops take ships of the line, ships of the line take
+frigates. Three knobs, all in `constants.ts`: `HULL_EASE` (a big target is
+easier to hit), `GUNNERY_ON_SMALL` (a frigate's guns are handy against a small
+hull, a first-rate's are not), and `GUN_DECKS` — which was the fix that made it
+work at all. Every hull used to fire **one shot a round** whatever it carried,
+so a first-rate spent thirty damage killing a nine-hull sloop and any swarm beat
+anything. A first-rate now fires three broadsides of ten.
+
+Measured by the purse, even gold a side: **two frigates beat four sloops 89-42,
+four sloops beat a first-rate 134-5, two first-rates beat three frigates 76-38**,
+and a balanced 1-large-2-medium loses narrowly to seven sloops at 62-72. Sean is
+right that this is a separate system from the walls; nothing here touches a
+fort, and a wall is still the only thing that makes a ship of the line necessary.
+
+### 4. The Lord Regent
+
+`CROWN_PRINCIPAL` is bound in `openingCast` beside the three Lords. Present in
+60 of 60 worlds.
+
+### 5. Housekeeping
+
+`deploy.yml` triggers on `claude/**` as well as `main`.
+
+### 6. The doctrine file
+
+`src/data/doctrine.json` is sixteen named articles, each with a tier, a rule,
+a reason, and the measurement that earned it. `src/sim/doctrine.ts` is the only
+thing between that file and the opponent, and `ai.ts` now asks
+`follows(state, 'hunt-the-principals')` rather than simply doing it. Eight
+articles are switchable that way, which buys three things at once:
+
+- the tactics are prose somebody can argue with, in one place;
+- a difficulty is one word — `state.doctrine.tier` — and absent means the whole
+  book, so every save written before this keeps the opponent it had;
+- **every article can be measured**, because the harness can withhold exactly
+  one and play the same wars twice.
+
+`lab/doctrine.ts` does that and writes what it finds back into the file as
+`measured`, which is the "updates as it learns" half. It also checks the file
+against the code: a `follows()` call with no article behind it, or an article
+nothing asks about, is reported. Sixteen wars an arm, ten arms:
+
+| withheld | what changed |
+|---|---|
+| seat-your-principals | 813 island-days with a principal in a chair → **0** |
+| research-your-own-yards | 25.7 mentions of craft a war → **0** |
+| expand-when-the-bill-grows | 5.0 colonies a war → 3.3 |
+| balanced-fleet | ends 3.5/3.0/13.3/12.0 by kind → 1.5/1.6/13.9/11.3 |
+| commit-to-the-siege | 48 days a war with the guns on the walls → 26 |
+| spend-the-bank | **nothing measurable** — 16,615 gold and 33.8 hulls against 17,909 and 37.8 |
+
+That last row is the point of writing the numbers down: `spend-the-bank` earned
+its place when the opponent was banking 172,000 gold in a war it would not
+finish, and with the other stalls fixed it no longer pays. It stays, measured
+and honest, rather than being quietly believed.
+
+**The tier sweep found a design bug immediately.** Hunting people is a ruthless
+article and taking the three Lords is the Crown's *only* victory condition, so a
+plain or sharp Crown was literally unable to win: **none of sixteen wars, nine of
+them running three thousand days and stopping.** A gentler opponent is one that
+passes up cheap prizes, not one with its win condition removed — so a Lord is
+always worth hunting and the article now governs ordinary officers. Plain: Crown
+8 / Confederacy 7. Withholding the article also turned out to do nothing at all
+at first, because an errand takes its kind from the island and an island with
+somebody standing on it answers "abduct" before anything else; the opponent was
+still lifting seven people a war by turning up somewhere else and finding them
+there. It now asks the island for its next-best errand instead.
+
+### Two bugs the campaigns found
+
+**Home could sit on enemy ground for a day.** `syncHome` runs last thing at
+night, which is right for everything the world does on its own and wrong for an
+order given at noon: a player taking the island the Confederacy called home left
+home on Crown ground until morning, and a Lord exchanged in between was landed
+inside the enemy's harbor. `orderAssault` now re-syncs. Two day-hits in thirty
+games before, clean after.
+
+**The scripted pilot was feeding the navy in one hull at a time.** Over twelve
+hundred days a piloted Confederacy built forty-six first-rates, had **none**
+afloat at the end, put a squadron off enemy ground four times in the whole war
+and never once opened a wall. It now merges squadrons lying in the same harbor
+(the thing the opponent does in `aiConsolidate`, and a player does without
+thinking) and will not sail a single hull at an island somebody is holding.
+
+### Where it stands, 60 fresh wars
+
+| | idle player, 30 | pilot at the wheel, 30 |
+|---|---|---|
+| | Crown 15 — Confederacy 12, 3 unfinished | Crown 19 — Confederacy 10, 1 unfinished |
+| median war | 708 days | 980 |
+| invariants | clean every day | clean every day |
+
+367 tests, 26 files, green.
+
+### What is honestly still wrong
+
+**The pilot cannot play the Confederacy.** Split by seat it wins 5 of 15 as the
+Crown and 1 of 15 as the Confederacy. That is not the game being lopsided — the
+idle arm is 15–12 — it is that the Crown's route to victory is an errand chain
+the pilot runs well, and the Confederacy's is a naval campaign against two
+seawalls that it never assembles. Until the pilot can mount a siege, the piloted
+arm measures the Crown seat and should be read that way.
+
+**And the three unfinished idle wars are all the same war**: the Confederacy
+holding fifty islands and standing off Highwater with fourteen weight of shot.
+The siege train is the hardest thing in the game to put together, which is
+probably correct for a capital with two seawalls, but it is the thing to watch.

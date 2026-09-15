@@ -52,8 +52,16 @@ describe('breaking off', () => {
     isle.beastSeen = { empire: true, alliance: false };
     isle.beastDamage = 0;
     isle.beastSlain = undefined;
+    const hulls = fleet.ships.length;
     fleeBattle(state, fleet.id, createRng(9), 'empire');
-    expect(hurt(state, fleet.id)).toBeGreaterThan(0);
+    // What it cost, counting both halves: damage carried away, and hulls that
+    // did not get away at all. A first-rate is a big mark and a bad swimmer,
+    // so a retreat under a creature's guns can take the whole squadron — and
+    // reading damage alone scores that as nothing, because there is nobody
+    // left to be carrying it.
+    const left = state.fleets.find((f) => f.id === fleet.id);
+    const cost = hurt(state, fleet.id) + (hulls - (left?.ships.length ?? 0));
+    expect(cost).toBeGreaterThan(0);
   });
 
   it('hurts a first-rate far more than a sloop on the way out', () => {

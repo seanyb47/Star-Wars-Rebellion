@@ -21,6 +21,7 @@ import { moveBlock } from './order';
 import { garrisonRoster } from './troops';
 import { continueMission, endMission, relieve, startMission } from './missions';
 import { resolveControlAndUnrest } from './support';
+import { syncHome } from './lords';
 import type { BuildItem, GameState, MissionType, PlayableFaction, Speed } from './types';
 
 export interface CommandResult {
@@ -254,6 +255,14 @@ export function orderAssault(state: GameState, fleetId: string): CommandResult {
     const rng = createRng(draft.rngSeed);
     assault(draft, fleetId, rng, draft.player);
     draft.rngSeed = rng.seed;
+    // A landing changes who holds an island, and where the Confederacy calls
+    // home is worked out from that. The day's own pass does it last thing at
+    // night, which is right for everything the world does on its own and wrong
+    // for an order given at noon: measured, a player taking the island the
+    // Confederacy was calling home left home sitting on Crown ground until the
+    // following morning, and a Lord exchanged in between was landed inside the
+    // enemy's harbor.
+    syncHome(draft);
   });
 }
 

@@ -10,6 +10,7 @@ import {
   RECRUITS_IN_PLAY,
   rollRating,
   CAPITAL_WALLS,
+  CROWN_PRINCIPAL,
   HOME_PORT_WALLS,
   CAPITAL_GARRISON,
   START_GARRISON_MAX,
@@ -197,7 +198,12 @@ export const START_CHARACTERS: Record<PlayableFaction, number> = { empire: 4, al
 
 function openingCast(faction: PlayableFaction, rng: Rng) {
   const roster = characterRoster[faction];
-  const bound = roster.filter((e) => PIRATE_LORDS.some((l) => l.name === e.name));
+  // Who is in every war on this side: the three Lords for the Confederacy, the
+  // Regent for the Crown. Knowing your cast is knowledge worth having, and it
+  // only is if the cast is actually there.
+  const bound = roster.filter(
+    (e) => PIRATE_LORDS.some((l) => l.name === e.name) || e.name === CROWN_PRINCIPAL,
+  );
   const rest = roster.filter((e) => !bound.includes(e));
   const drawn = rng.shuffle(rest).slice(0, Math.max(0, START_CHARACTERS[faction] - bound.length));
   const taken = new Set([...bound, ...drawn].map((e) => e.name));
