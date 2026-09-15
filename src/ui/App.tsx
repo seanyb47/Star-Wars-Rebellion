@@ -151,43 +151,44 @@ export function App() {
   }, [state.events]);
   const reading = readingId ? state.events.find((e) => e.id === readingId) : undefined;
   const cards = reading ? [reading] : dispatches;
-  // Spec 2: any modal or panel holds the clock; closing it resumes.
-  const panelOpen =
-    openSystemId !== null ||
-    openCharacterId !== null ||
-    openReachId !== null ||
-    openListId !== null ||
-    menuOpen ||
-    missionChoice !== null ||
-    sailPlan !== null ||
-    buildMenuOpen ||
-    orderOpen ||
-    cards.length > 0 ||
-    narratorOpen ||
-    almanacOpen ||
-    decision !== null;
+  /*
+   * What holds the clock, and what no longer does.
+   *
+   * Every panel used to: the island sheet, a crew member, a Reach, the build
+   * menu, the almanac, the menu. Which is most of what a player does, so the
+   * war ran only while you were looking at the chart and doing nothing. Sean's
+   * rule is the better one — a sub-screen is somewhere you went to look at
+   * something, and the world does not stop while you look.
+   *
+   * What still stops it is the things that stopped *you*: a dispatch the game
+   * raised over whatever you were doing, and a decision it is waiting on an
+   * answer for. Neither is a screen you opened. Combat joins them when the
+   * modal battle lands, which is the one case Sean named.
+   *
+   * Nothing downstream needs guarding for this. Every panel reads the same
+   * live state and redraws as the days pass, and the two flows that compute a
+   * figure before you confirm — a voyage's length, a mission's passage — work
+   * it out again at the moment you say yes, not when the sheet opened.
+   */
+  const clockHeld = cards.length > 0 || decision !== null;
 
   // ---- The clock -------------------------------------------------------
   //
-  // A day is a hundred and fifty seconds at the slow end now, and that turns
-  // a detail that never mattered into the whole behaviour of the clock.
-  //
   // This used to be a `setInterval` of one day's length, torn down and rebuilt
-  // whenever the game paused — and it pauses every time a panel opens, which
-  // is most of what a player does. At four seconds a day the lost progress was
-  // invisible. At a hundred and fifty, opening an island two minutes into a
-  // day and closing it would cost those two minutes, every time, and a player
-  // who taps about would find the date never moved.
+  // whenever the game stopped. That throws away whatever the day had behind
+  // it, which at four seconds a day was invisible and at thirty is not: being
+  // held for a dispatch twenty seconds into a day would cost those twenty
+  // seconds, every time.
   //
   // So the clock counts real elapsed time into a running total instead, and
-  // the total survives the pause. Whatever the day had behind it when you
-  // opened the panel is still there when you close it.
-  const running = started && !panelOpen && !state.winner && state.speed !== 'paused';
+  // the total survives the stop. Whatever the day had behind it when the
+  // dispatch went up is still there when you dismiss it.
+  const running = started && !clockHeld && !state.winner && state.speed !== 'paused';
   /** Milliseconds of this game day already served. Kept across pauses. */
   const servedRef = useRef(0);
   useEffect(() => {
     // How far through the day we are, published as a custom property rather
-    // than as React state: this moves five times a second, and re-rendering
+    // than as React state: this moves ten times a second, and re-rendering
     // the chart at that rate to turn a ring a few degrees would be absurd.
     const show = (fraction: number) =>
       document.documentElement.style.setProperty('--day-progress', fraction.toFixed(3));
@@ -521,7 +522,7 @@ export function App() {
       )}
       <TopBar
         state={state}
-        autoPaused={panelOpen}
+        autoPaused={clockHeld}
         soundOn={sound.on}
         onToggleSound={sound.toggle}
         onSetSpeed={(speed: Speed) => setState(setSpeed(state, speed))}
