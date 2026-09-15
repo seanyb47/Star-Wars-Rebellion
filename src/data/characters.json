@@ -139,7 +139,8 @@
       "people": "Human",
       "roles": [
         "Diplomat",
-        "Recruiter"
+        "Recruiter",
+        "Leader"
       ],
       "bio": "Former Imperium magistrate who resigned over the licensing raids, and has held a pack of pirates together for six years by force of argument. Incorruptible; has looked away from what some of her captains do because she needs their hulls.",
       "major": true,
@@ -276,7 +277,11 @@
         "espionage": 52,
         "combat": 48,
         "leadership": 90
-      }
+      },
+      "roles": [
+        "Leader",
+        "Ship Design"
+      ]
     },
     {
       "name": "Pellam Voss",
@@ -289,7 +294,11 @@
         "espionage": 42,
         "combat": 86,
         "leadership": 62
-      }
+      },
+      "roles": [
+        "General",
+        "Drill Research"
+      ]
     },
     {
       "name": "Sable",
@@ -302,7 +311,10 @@
         "espionage": 92,
         "combat": 62,
         "leadership": 38
-      }
+      },
+      "roles": [
+        "Spec Ops"
+      ]
     },
     {
       "name": "Hesper Lyn",
@@ -315,7 +327,11 @@
         "espionage": 82,
         "combat": 28,
         "leadership": 52
-      }
+      },
+      "roles": [
+        "Recruiter",
+        "Diplomat"
+      ]
     },
     {
       "name": "Brannoc Tull",
@@ -328,7 +344,10 @@
         "espionage": 42,
         "combat": 92,
         "leadership": 52
-      }
+      },
+      "roles": [
+        "Spec Ops"
+      ]
     },
     {
       "name": "Wren Tally",
@@ -341,7 +360,10 @@
         "espionage": 86,
         "combat": 42,
         "leadership": 48
-      }
+      },
+      "roles": [
+        "Spec Ops"
+      ]
     },
     {
       "name": "Doctor Ambrose Kell",
@@ -354,7 +376,10 @@
         "espionage": 58,
         "combat": 22,
         "leadership": 62
-      }
+      },
+      "roles": [
+        "Diplomat"
+      ]
     },
     {
       "name": "Captain Isolde Marrow",
@@ -367,7 +392,11 @@
         "espionage": 58,
         "combat": 72,
         "leadership": 82
-      }
+      },
+      "roles": [
+        "Leader",
+        "Diplomat"
+      ]
     },
     {
       "name": "The Widow Ashgrave",
@@ -380,7 +409,11 @@
         "espionage": 68,
         "combat": 22,
         "leadership": 58
-      }
+      },
+      "roles": [
+        "Diplomat",
+        "Recruiter"
+      ]
     },
     {
       "name": "Tobias Renn",
@@ -393,7 +426,11 @@
         "espionage": 68,
         "combat": 82,
         "leadership": 68
-      }
+      },
+      "roles": [
+        "General",
+        "Spec Ops"
+      ]
     },
     {
       "name": "Silvaine Crow",
@@ -406,7 +443,11 @@
         "espionage": 86,
         "combat": 38,
         "leadership": 76
-      }
+      },
+      "roles": [
+        "Spec Ops",
+        "Recruiter"
+      ]
     },
     {
       "name": "Jory Halloran",
@@ -419,7 +460,10 @@
         "espionage": 52,
         "combat": 52,
         "leadership": 52
-      }
+      },
+      "roles": [
+        "Leader"
+      ]
     }
   ]
 }

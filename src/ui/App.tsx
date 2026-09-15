@@ -158,25 +158,27 @@ export function App() {
   /*
    * What holds the clock, and what no longer does.
    *
-   * Every panel used to: the island sheet, a crew member, a Reach, the build
-   * menu, the almanac, the menu. Which is most of what a player does, so the
-   * war ran only while you were looking at the chart and doing nothing. Sean's
-   * rule is the better one — a sub-screen is somewhere you went to look at
-   * something, and the world does not stop while you look.
+   * Two passes to get here. Every panel used to hold it — island sheet, crew,
+   * Reach, build menu, almanac, the menu itself — which is most of what a
+   * player does, so the war ran only while you stared at the chart touching
+   * nothing. Sean cut that: a sub-screen is somewhere you went to look at
+   * something, and the world does not stop for that.
    *
-   * What still stops it is the things that stopped *you*: an action your ships
-   * are in, a dispatch the game raised over whatever you were doing, and a
-   * decision it is waiting on an answer for. None of the three is a screen you
-   * opened. The action is the case Sean named, and it is first because it is
-   * the one where a day passing while you think would decide the fight for
-   * you.
+   * I then kept the hold for two more things, a dispatch raised over whatever
+   * you were doing and a decision waiting on an answer, on the grounds that
+   * both had stopped *you*. Sean's answer: *"combat is only clock pause.
+   * Unless player pauses."* So they go too, and the rule is now one line
+   * instead of a judgement call — the clock stops when your ships are in
+   * action, and otherwise when you say so.
    *
-   * Nothing downstream needs guarding for this. Every panel reads the same
-   * live state and redraws as the days pass, and the two flows that compute a
-   * figure before you confirm — a voyage's length, a mission's passage — work
-   * it out again at the moment you say yes, not when the sheet opened.
+   * What that changes downstream, and why neither needed guarding. A dispatch
+   * no longer freezes the world while it is up, so more news can arrive behind
+   * it; the card stack already pages through a list and says "3 of 7". And an
+   * unanswered continue-or-return no longer freezes it either — the officer
+   * stands on the island doing nothing until you answer, which costs you their
+   * time, which is the honest price of not deciding.
    */
-  const clockHeld = state.battle !== undefined || cards.length > 0 || decision !== null;
+  const clockHeld = state.battle !== undefined;
 
   // ---- The clock -------------------------------------------------------
   //
@@ -344,7 +346,7 @@ export function App() {
       // officer in hand.
       const island = state.systems.find((s) => s.id === systemId)!;
       const officer = state.characters.find((c) => c.id === pickingFor)!;
-      if (missionsOffered(state, island, officer.faction as PlayableFaction).length === 0) {
+      if (missionsOffered(state, island, officer.faction as PlayableFaction, officer).length === 0) {
         flash(`Nothing for ${officer.name} to do on ${island.name}.`);
         return;
       }

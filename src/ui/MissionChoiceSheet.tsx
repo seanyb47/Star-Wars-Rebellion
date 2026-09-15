@@ -52,7 +52,7 @@ export function MissionChoiceSheet({
   const character = state.characters.find((c) => c.id === characterId)!;
   const island = state.systems.find((s) => s.id === systemId)!;
   const faction = character.faction as 'empire' | 'alliance';
-  const offered = missionsOffered(state, island, faction);
+  const offered = missionsOffered(state, island, faction, character);
   // Squadrons of yours lying here, each of them a post an officer can be sent
   // to take, listed under Command alongside the island itself.
   const squadrons = fleetsToCommand(state, systemId, faction);

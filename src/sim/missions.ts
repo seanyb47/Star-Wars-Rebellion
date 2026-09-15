@@ -242,6 +242,25 @@ export function isCommandTarget(system: System, faction: PlayableFaction): boole
   return system.explored[faction] && system.control === faction;
 }
 
+/**
+ * Who can be posted to hold a place.
+ *
+ * Sean, on whether command ranks should gate anything: *"Naw. But only certain
+ * units can command."* So it is not a rank system — nobody is promoted, and no
+ * other order is gated — it is one question asked of one errand, the way the
+ * world bible already answers it: a character's `roles` say what they are for,
+ * and holding an island is what a Leader or a General is for.
+ *
+ * `roles` had been display only since it was written. This is the first rule
+ * that reads it, which is also why the twelve unaligned were given roles at
+ * the same time: without them, nobody you signed on could ever hold anything.
+ */
+export const COMMAND_ROLES = ['Leader', 'General'] as const;
+
+export function canCommand(character: Character): boolean {
+  return (character.roles ?? []).some((r) => COMMAND_ROLES.includes(r as 'Leader' | 'General'));
+}
+
 /** The officer holding an island, if anyone is. */
 export function commanderOf(state: GameState, system: Pick<System, 'commanderId'>) {
   return system.commanderId
@@ -352,12 +371,16 @@ export function missionsOffered(
   state: GameState,
   system: System,
   faction: PlayableFaction,
+  /** Whose list this is. Omitted where the question is about the island alone
+   *  — the chart's pick rings, the opponent's survey of what is worth doing —
+   *  and given wherever an actual officer is about to be sent. */
+  officer?: Character,
 ): MissionType[] {
   const out: MissionType[] = [];
   if (isRecruitTarget(state, system, faction)) out.push('recruit');
   if (isRescueTarget(state, system, faction)) out.push('rescue');
   if (isAbductTarget(state, system, faction)) out.push('abduct');
-  if (isCommandTarget(system, faction)) out.push('command');
+  if (isCommandTarget(system, faction) && (!officer || canCommand(officer))) out.push('command');
   if (isResearchTarget(system, faction)) out.push('research');
   if (isDiplomacyTarget(system, faction)) out.push('diplomacy');
   if (isInciteTarget(system, faction)) out.push('incite');
@@ -541,7 +564,10 @@ export function missionError(
   const system = state.systems.find((s) => s.id === targetSystemId);
   if (!system) return 'No such island.';
   if (!isMissionTarget(state, system, character.faction)) return 'Nothing to be done there.';
-  if (type && !missionsOffered(state, system, character.faction).includes(type)) {
+  if (type === 'command' && !canCommand(character)) {
+    return `${character.name} is not one to hold a place. Send a Leader or a General.`;
+  }
+  if (type && !missionsOffered(state, system, character.faction, character).includes(type)) {
     return `${MISSION_LABEL[type]} is not on offer there.`;
   }
   return null;
@@ -705,7 +731,43 @@ export function parleyGain(character: Character): number {
 
 /** Tick travel, work, and injury timers; resolve anything that finishes. */
 export function advanceMissions(state: GameState, rng: Rng): void {
+  /*
+   * Drop answers nobody can give any more.
+   *
+   * An officer waiting on orders can be lifted off the island by their
+   * abductors while they wait. The question goes with them: there is nothing
+   * to continue and nobody to continue it. Without this the decision outlives
+   * the errand, and — because a pending decision pauses its officer — it would
+   * pause a prisoner's captivity along with it and leave them in the cells for
+   * the rest of the war.
+   */
+  state.pendingDecisions = state.pendingDecisions.filter((d) => {
+    const who = state.characters.find((c) => c.id === d.characterId);
+    return who !== undefined && who.status === 'on_mission' && who.mission !== undefined;
+  });
+
   for (const character of state.characters) {
+    /*
+     * An officer who has reported and is waiting on orders does nothing.
+     *
+     * This was hidden until the clock stopped waiting for a decision. The hold
+     * froze the world the instant one was raised, so the next cycle never came
+     * round; with the clock running, the same errand resolved again every
+     * fifteen days and pushed another decision for the same officer. Measured
+     * at 209 of them for one character over two hundred days.
+     *
+     * The fix is the fiction: they have made their report and they are
+     * standing there waiting for an answer. Their errand is paused until they
+     * get one, and not answering costs you their time — which is the honest
+     * price of not deciding, and exactly what the frozen clock was concealing.
+     */
+    if (
+      character.status === 'on_mission' &&
+      state.pendingDecisions.some((d) => d.characterId === character.id)
+    ) {
+      continue;
+    }
+
     /**
      * Prisoners come home.
      *
@@ -885,7 +947,10 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
   // Ask the player what to do next; the AI answers its own straight away —
   // it works an island until it has what it came for, then frees the character up.
   if (faction === state.player) {
-    state.pendingDecisions.push({ characterId: character.id, systemId: system.id, success });
+    // Never twice for the same officer: one report, one answer.
+    if (!state.pendingDecisions.some((d) => d.characterId === character.id)) {
+      state.pendingDecisions.push({ characterId: character.id, systemId: system.id, success });
+    }
   } else if (done(state, system, faction, mission.type)) {
     endMission(state, character.id);
   } else {

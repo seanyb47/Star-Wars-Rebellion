@@ -1790,3 +1790,53 @@ prose meant to be read rather than scanned.
 **The compass is south-west.** It sat south-east, which is the cartographer's
 habit and the wrong corner here: the south-east is where Coral Reach comes
 down, and where the eye is already going when it follows a chain south.
+
+## Combat alone stops the clock, and roles start meaning something — 15 September, night
+
+**One rule for the clock, not a judgement call.** Sean: *"combat is only clock
+pause. Unless player pauses."* So the dispatch cards and the pending-decision
+hold both go. `clockHeld` is one term now: `state.battle !== undefined`.
+
+That uncovered a bug the hold had been concealing, which is the argument for
+simple rules. An errand that reports and is never answered used to freeze the
+world the instant it raised its question, so the next cycle never came round.
+With the clock running it resolved again every fifteen days and pushed another
+decision for the same officer — **measured at 209 of them for one character
+over two hundred days.** The fix is the fiction: an officer who has made their
+report is standing there waiting for an answer, so their errand is paused until
+they get one, and not answering costs you their time. Which is the honest price
+of not deciding, and exactly what the frozen clock was hiding.
+
+Fixing that introduced a second one worth recording, because it is the same
+shape. A waiting officer can be lifted off the island by their abductors while
+they wait — and a pending decision pauses its officer, so it would have paused
+a prisoner's captivity along with it and left them in the cells for the rest of
+the war. Stale decisions are pruned at the top of every day now.
+
+**`roles` is a rule.** Sean, on whether command ranks should gate anything:
+*"Naw. But only certain units can command."* So not a rank system — nobody is
+promoted and no other order is gated — but one question asked of one errand,
+answered by the thing the world bible already wrote down. Holding an island is
+what a Leader or a General is for.
+
+`roles` had been display only since it was written; this is the first rule that
+reads it. Two things had to be fixed for it to work at all. The twelve unaligned
+had no roles, so nobody you signed on could ever have held anything — they have
+them now, and five of the twelve can command, so recruiting can get you a
+governor without every stranger being one. And the generator was dropping the
+field on the way in for exactly those twelve, which would have made the rule
+silently unsatisfiable.
+
+One data correction while in there: Commodore-Elect Hale had no Leader role. She
+is elected to lead; the list said otherwise.
+
+Where it leaves the two sides: the Crown 7 of 7, the Confederacy 4 of 7. That
+asymmetry is the lore doing its job — the Crown is an institution with
+governors, the Confederacy a moot of captains — and it gives each side a reason
+its islands stay quiet or rise. Balance unchanged at 8–8 across sixteen games,
+median 580 days.
+
+**Still open: recruiting is not gated**, though Sean's phrasing assumed it was.
+It is soft-gated by diplomacy and nothing else. Gating it on the Recruiter role
+would leave the Crown with one recruiter out of seven against the Confederacy's
+four, which is too large a swing to make without his say-so.

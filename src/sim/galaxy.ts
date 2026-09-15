@@ -592,6 +592,11 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       // game gives a whole panel to.
       blurb: entry.bio,
       epithet: entry.epithet,
+      // Carried over like the named cast's, because `roles` is a rule now and
+      // not a caption: a stranger you sign on can only be posted to hold an
+      // island if they are a Leader or a General, and the field was being
+      // dropped on the way in.
+      roles: 'roles' in entry ? (entry.roles as string[]) : undefined,
       faction: 'neutral',
       diplomacy: roll(entry.ratings.diplomacy),
       espionage: roll(entry.ratings.espionage),

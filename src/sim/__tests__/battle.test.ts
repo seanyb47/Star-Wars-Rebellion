@@ -18,7 +18,14 @@ import {
   resolveBattles,
 } from '../fleets';
 import { generateGalaxy } from '../galaxy';
-import { getSystem, requiredGarrison } from '../helpers';
+import { getCharacter, getSystem, requiredGarrison } from '../helpers';
+import {
+  advanceMissions,
+  canCommand,
+  missionError,
+  missionsOffered,
+  startMission,
+} from '../missions';
 import { createRng } from '../rng';
 import { isNotable } from '../../ui/EventCard';
 import type { GameState, PlayableFaction, ShipClassId, System } from '../types';
@@ -348,5 +355,76 @@ describe('splitting and joining squadrons', () => {
     // And not while either of them is under way.
     here.voyage = { targetSystemId: far.id, daysRemaining: 3 };
     expect(detachError(state, here.id, [here.ships[0].id], undefined, 'alliance')).toMatch(/at sea/);
+  });
+});
+
+describe('the clock stops for combat and for nothing else', () => {
+  it('leaves an unanswered report as one question, not one a fortnight', () => {
+    // The hold on pending decisions is gone, so an errand that reports and is
+    // never answered now runs against a moving clock. It used to raise a fresh
+    // decision every cycle; measured at 209 for one officer before this.
+    const state = generateGalaxy(301, 'empire');
+    const who = state.characters.find((c) => c.faction === 'empire')!;
+    const target = state.systems.find(
+      (s) => s.control === 'neutral' && s.populated && s.explored.empire,
+    )!;
+    startMission(state, who.id, target.id);
+    const rng = createRng(4);
+    let most = 0;
+    for (let day = 0; day < 200; day++) {
+      advanceMissions(state, rng);
+      most = Math.max(most, state.pendingDecisions.filter((d) => d.characterId === who.id).length);
+    }
+    expect(most).toBeLessThanOrEqual(1);
+  });
+
+  it('never leaves a question standing for somebody who cannot answer it', () => {
+    const state = generateGalaxy(301, 'empire');
+    const who = state.characters.find((c) => c.faction === 'empire')!;
+    state.pendingDecisions.push({ characterId: who.id, systemId: who.locationSystemId, success: true });
+    // Carried off while waiting: the question goes with them, or it would
+    // pause the captivity it is attached to.
+    who.status = 'captured';
+    who.injuredDays = 30;
+    who.mission = undefined;
+    const rng = createRng(1);
+    advanceMissions(state, rng);
+    expect(state.pendingDecisions).toHaveLength(0);
+    expect(getCharacter(state, who.id).injuredDays).toBe(29);
+  });
+});
+
+describe('only certain officers can hold a place', () => {
+  it('offers Command to a Leader and refuses it to anyone else', () => {
+    const state = generateGalaxy(301, 'empire');
+    const island = state.systems.find((s) => s.control === 'empire')!;
+    const leader = state.characters.find(
+      (c) => c.faction === 'empire' && canCommand(c),
+    )!;
+    const other = state.characters.find(
+      (c) => c.faction === 'empire' && !canCommand(c),
+    );
+    expect(leader).toBeDefined();
+    expect(missionsOffered(state, island, 'empire', leader)).toContain('command');
+    if (other) {
+      expect(missionsOffered(state, island, 'empire', other)).not.toContain('command');
+      expect(missionError(state, other.id, island.id, 'command')).toMatch(/Leader or a General/);
+    }
+    // Asked about the island alone, it is still a place that can take one.
+    expect(missionsOffered(state, island, 'empire')).toContain('command');
+  });
+
+  it('gives both sides someone, and leaves some of the unaligned out', () => {
+    const state = generateGalaxy(301, 'empire');
+    for (const side of ['empire', 'alliance'] as const) {
+      const able = state.characters.filter((c) => c.faction === side && canCommand(c));
+      expect(able.length).toBeGreaterThan(0);
+    }
+    // Signing somebody on can get you a commander, but not every stranger is
+    // one — otherwise the rule would not be a rule.
+    const strangers = state.characters.filter((c) => c.faction === 'neutral');
+    const able = strangers.filter(canCommand).length;
+    expect(able).toBeGreaterThan(0);
+    expect(able).toBeLessThan(strangers.length);
   });
 });
