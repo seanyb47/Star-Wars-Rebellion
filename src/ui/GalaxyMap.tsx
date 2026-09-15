@@ -515,8 +515,12 @@ export function GalaxyMap({
         </g>
         )}
 
-        {/* A compass rose in the one corner with nothing but water. */}
-        <g className="map__compass" transform="translate(895 1400)" pointerEvents="none">
+        {/* A compass rose in a corner with nothing but water.
+            South-west at Sean's word. It sat south-east, which is the
+            cartographer's habit and the wrong corner here: the south-east is
+            where Coral Reach comes down and where the eye is already going
+            when it follows the chain south. */}
+        <g className="map__compass" transform="translate(112 1398)" pointerEvents="none">
           <svg x={-66} y={-66} width={132} height={132} viewBox="-60 -60 120 120" overflow="visible">
             <circle r="50" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.4" />
             <circle r="39" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />

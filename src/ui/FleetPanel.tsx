@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import terms from '../data/terms.json';
 import {
   beastAt,
@@ -5,6 +6,7 @@ import {
   fleetDamaged,
   fleetGuns,
   fleetStatus,
+  fleetsToJoin,
   fleetHeldAshore,
   fleeError,
   refugeFor,
@@ -42,11 +44,16 @@ function ShipRow({
   grouped,
   onOpen,
   order,
+  pick,
 }: {
   ships: Ship[];
   faction: PlayableFaction;
   grouped: boolean;
   onOpen: () => void;
+  /** Present only while splitting: the row becomes a choice rather than a
+   *  door. A grouped row is all of its hulls at once, which is what grouping
+   *  means everywhere else in this list. */
+  pick?: { on: boolean; toggle: () => void };
   /** Only present in reorder mode; an end that has nowhere to go is
    *  absent rather than disabled, so a list never shows a dead arrow. */
   order?: { up?: () => void; down?: () => void };
@@ -55,6 +62,29 @@ function ShipRow({
   const spec = shipSpec(ships[0].classId as Parameters<typeof shipSpec>[0]);
   const hurt = ships.reduce((n, s) => n + s.damage, 0);
   const whole = spec.hull * ships.length;
+  if (pick) {
+    return (
+      <button
+        className={`shiprow shiprow--pick${pick.on ? ' shiprow--picked' : ''}`}
+        onClick={pick.toggle}
+        aria-pressed={pick.on}
+      >
+        <span className="shiprow__box" aria-hidden="true">
+          {pick.on ? '☑' : '☐'}
+        </span>
+        <ShipThumb faction={faction} role={cls.role} size={34} />
+        <span className="shiprow__name">
+          {grouped && ships.length > 1 && <b className="shiprow__n">{ships.length}×</b>}
+          {cls.name}
+        </span>
+        <span className="shiprow__stats">
+          {whole - hurt}/{whole}
+          <span className="muted"> hull</span>
+        </span>
+      </button>
+    );
+  }
+
   return (
     <div className="shiprow">
       {order && (
@@ -114,6 +144,7 @@ export function FleetCard({
   onOpenShip,
   onOrderShips,
   onOrderOfficers,
+  onDetach,
   canOrder,
 }: {
   state: GameState;
@@ -125,6 +156,7 @@ export function FleetCard({
   onOpenShip?: (fleetId: string, shipId: string) => void;
   onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
   onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
+  onDetach?: (fleetId: string, shipIds: string[], into?: string) => void;
   canOrder: boolean;
 }) {
   const system = state.systems.find((s) => s.id === fleet.systemId);
@@ -146,6 +178,18 @@ export function FleetCard({
   );
 
   const [prefs] = usePrefs();
+  /**
+   * Splitting, as a mode this card is in rather than a preference.
+   *
+   * Sean: *"how do I split fleets? I need a way to create a fleet from a unit
+   * and move ships between fleets."* Reordering and grouping are settings — how
+   * you like your lists — so they live in `prefs`. This is an order you are
+   * halfway through giving, so it lives here and goes away when the card does.
+   */
+  const [picking, setPicking] = useState<string[] | null>(null);
+  const joinable = canOrder && !atSea ? fleetsToJoin(state, fleet) : [];
+  const canSplit = canOrder && !atSea && fleet.ships.length > 1;
+
   /**
    * The list, as rows.
    *
@@ -205,6 +249,21 @@ export function FleetCard({
             faction={fleet.faction}
             grouped={prefs.group}
             onOpen={() => onOpenShip?.(fleet.id, row.ships[0].id)}
+            pick={
+              picking
+                ? {
+                    on: row.ships.every((sh) => picking.includes(sh.id)),
+                    toggle: () =>
+                      setPicking((was) => {
+                        const ids = row.ships.map((sh) => sh.id);
+                        const all = ids.every((id) => (was ?? []).includes(id));
+                        return all
+                          ? (was ?? []).filter((id) => !ids.includes(id))
+                          : [...(was ?? []), ...ids.filter((id) => !(was ?? []).includes(id))];
+                      }),
+                  }
+                : undefined
+            }
             order={
               prefs.reorder && canOrder && rows.length > 1
                 ? {
@@ -219,6 +278,53 @@ export function FleetCard({
           />
         ))}
       </div>
+
+      {/* Splitting. A mode rather than a preference — you are halfway through
+          giving an order, not saying how you like your lists — so it lives on
+          the card and goes away with it. Tap the hulls you want, then say
+          where they go: a squadron of their own, or one already lying here. */}
+      {canSplit && !picking && (
+        <button className="fleet__split-open" onClick={() => setPicking([])}>
+          Split or join
+        </button>
+      )}
+      {picking && (
+        <div className="fleet__split">
+          <div className="tiny muted">
+            {picking.length === 0
+              ? 'Choose the hulls to move.'
+              : `${picking.length} of ${fleet.ships.length} chosen.`}
+          </div>
+          <div className="fleet__split-acts">
+            <button className="btn" onClick={() => setPicking(null)}>
+              Cancel
+            </button>
+            {joinable.map((other) => (
+              <button
+                key={other.id}
+                className="btn"
+                disabled={picking.length === 0}
+                onClick={() => {
+                  onDetach?.(fleet.id, picking, other.id);
+                  setPicking(null);
+                }}
+              >
+                Join {other.name}
+              </button>
+            ))}
+            <button
+              className="btn btn--primary"
+              disabled={picking.length === 0 || picking.length === fleet.ships.length}
+              onClick={() => {
+                onDetach?.(fleet.id, picking);
+                setPicking(null);
+              }}
+            >
+              New squadron
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Who is serving with her.
           Signing somebody on from the quay used to happen here — a chip that
@@ -334,6 +440,7 @@ export function ShipsHere({
   onOpenShip,
   onOrderShips,
   onOrderOfficers,
+  onDetach,
 }: {
   state: GameState;
   systemId: string;
@@ -344,6 +451,7 @@ export function ShipsHere({
   onOpenShip?: (fleetId: string, shipId: string) => void;
   onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
   onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
+  onDetach?: (fleetId: string, shipIds: string[], into?: string) => void;
 }) {
   const here = state.fleets.filter((f) => f.systemId === systemId && !f.voyage);
   const inbound = state.fleets.filter(
@@ -454,6 +562,7 @@ export function ShipsHere({
           onOpenShip={onOpenShip}
           onOrderShips={onOrderShips}
           onOrderOfficers={onOrderOfficers}
+          onDetach={onDetach}
           canOrder={fleet.faction === state.player}
         />
       ))}

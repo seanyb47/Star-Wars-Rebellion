@@ -75,7 +75,14 @@ export function ShipSheet({
         <Stat label="Upkeep" value={cls.unique ? 'Nothing' : `${spec.upkeep} a day`} />
       </div>
 
-      <p className="charsheet__lore serif">{cls.blurb}</p>
+      {/* Under its own heading, as on the island's Lore tab. A ship sheet is
+          one screen and does not need tabs, but the lore should announce
+          itself the same way wherever it is: a heading, then prose that is
+          meant to be read rather than scanned. */}
+      <div className="section-title">Lore</div>
+      <p className="charsheet__lore serif" style={{ marginTop: 0 }}>
+        {cls.blurb}
+      </p>
 
       {lord && (
         <p className="tiny" style={{ color: 'var(--brass)' }}>

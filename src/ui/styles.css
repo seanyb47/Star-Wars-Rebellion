@@ -1669,6 +1669,35 @@ button.tcard:hover { border-color: var(--brass); }
    draws a pip in as many of them as it has berths. Six berths reaches
    halfway; the columns past the end stay empty, so how much ground an
    island has is the length of its bar. */
+/* The Lore tab's prose. Wider leading than the interface uses, because this
+   is the one page in the game meant to be read rather than scanned. */
+/* Splitting a squadron: a mode the card enters, so it announces itself with a
+   plain full-width control rather than an icon somebody has to learn. */
+.fleet__split-open {
+  display: block; width: 100%; margin-top: 8px; padding: 7px;
+  font-size: 12px; color: var(--muted);
+  border: 1px dashed var(--border); border-radius: 9px; background: none;
+}
+.fleet__split-open:active { background: rgba(255, 255, 255, 0.04); }
+.fleet__split {
+  margin-top: 8px; padding: 8px; border-radius: 10px;
+  border: 1px solid var(--metal-lo); background: rgba(0, 0, 0, 0.22);
+}
+.fleet__split-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+.fleet__split-acts .btn { flex: 1 1 auto; min-width: 104px; font-size: 12px; }
+/* A row that is a choice rather than a door: no chevron, a box instead. */
+.shiprow--pick {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 5px 4px; text-align: left; border-radius: 8px;
+  border: 1px solid transparent;
+}
+.shiprow--picked { border-color: var(--metal); background: rgba(0, 0, 0, 0.25); }
+.shiprow__box { flex: none; width: 18px; font-size: 15px; color: var(--metal-hi); }
+
+.lore__body {
+  margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--text);
+}
+
 .roombar {
   display: grid; gap: 2px; width: 100%; margin-top: 8px;
   align-items: center;

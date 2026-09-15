@@ -22,6 +22,7 @@ import {
   orderAssault,
   orderBreakOff,
   orderCloseBattle,
+  orderDetach,
   orderFightRound,
   orderSail,
   sailError,
@@ -383,6 +384,14 @@ export function App() {
     setSailingFleetId(fleetId);
   };
 
+  /** Take hulls out of a squadron: into one lying here, or into a new one. */
+  const handleDetach = (fleetId: string, shipIds: string[], into?: string) => {
+    const result = orderDetach(state, fleetId, shipIds, into);
+    if (result.error) return flash(result.error);
+    setState(result.state);
+    flash(into ? 'Hulls change squadron.' : 'A new squadron.');
+  };
+
   /** Break off a fight: take the parting volley, run for the nearest holding. */
   const handleFlee = (fleetId: string) => {
     const result = orderFlee(state, fleetId);
@@ -654,6 +663,7 @@ export function App() {
           onFlee={handleFlee}
           onOpenShip={(fleetId, shipId) => setOpenShip({ fleetId, shipId })}
           onOrderShips={handleOrderShips}
+          onDetach={handleDetach}
           onOrderOfficers={handleOrderOfficers}
           onOrderFacilities={handleOrderFacilities}
           onOrderGarrison={handleOrderGarrison}

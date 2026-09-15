@@ -8,6 +8,7 @@ import {
   assault,
   breakOffBattle,
   closeBattle,
+  detachShips,
   fightBattleRound,
   fleeBattle,
   sailFleet,
@@ -185,6 +186,21 @@ export function orderRelieve(state: GameState, characterId: string): CommandResu
 /** Break off a fight: take the parting volley, run for the nearest holding. */
 export function orderFlee(state: GameState, fleetId: string): CommandResult {
   return run(state, (draft) => fleeBattle(draft, fleetId, createRng(draft.rngSeed), draft.player));
+}
+
+/**
+ * Take hulls out of one squadron and into another — an existing one lying in
+ * the same water, or a new one when `into` is left out.
+ */
+export function orderDetach(
+  state: GameState,
+  fleetId: string,
+  shipIds: string[],
+  into?: string,
+): CommandResult {
+  return run(state, (draft) => {
+    detachShips(draft, fleetId, shipIds, into, draft.player);
+  });
 }
 
 /** One more broadside in the action the battle sheet is showing. */

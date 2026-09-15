@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import terms from '../data/terms.json';
+import loreData from '../data/lore.json';
 import factionData from '../data/factions.json';
 import {
   recruitOn,
@@ -28,7 +29,9 @@ import {
   type BuildItem,
   type Facility,
   type GameState,
+  type Sector,
   type System,
+  creature,
   beastOf,
   byRemembered,
   garrisonRoster,
@@ -82,6 +85,9 @@ const TABS: Array<{ id: IslandTab; label: string }> = [
   { id: 'crew', label: 'Crew' },
   { id: 'garrison', label: terms.garrison },
   { id: 'buildings', label: 'Buildings' },
+  // Far right, and last on purpose: it is the tab you go to when you want to
+  // know what the place is, not when you are doing anything to it.
+  { id: 'lore', label: 'Lore' },
 ];
 
 /**
@@ -236,6 +242,7 @@ export function SystemSheet({
   onOpenShip,
   onOrderShips,
   onOrderOfficers,
+  onDetach,
   onOrderFacilities,
   onOrderGarrison,
   onOrderCrew,
@@ -253,6 +260,7 @@ export function SystemSheet({
   onOpenShip?: (fleetId: string, shipId: string) => void;
   onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
   onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
+  onDetach?: (fleetId: string, shipIds: string[], into?: string) => void;
   onOrderFacilities?: (systemId: string, facilityIds: string[], dir: -1 | 1) => void;
   onOrderGarrison?: (systemId: string, typeIds: string[], dir: -1 | 1) => void;
   onOrderCrew?: (characterIds: string[], dir: -1 | 1) => void;
@@ -418,8 +426,6 @@ export function SystemSheet({
     >
       {tab === 'harbor' && (
         <>
-          {system.note && <p className="portrait__note serif">{system.note}</p>}
-
           {/* The harbor is the ships in it. Allegiance and room used to sit
               above them, and both are on the chain view before you ever open
               this panel — so the first thing under the painting is now the
@@ -437,6 +443,7 @@ export function SystemSheet({
             onOpenShip={onOpenShip}
             onOrderShips={onOrderShips}
             onOrderOfficers={onOrderOfficers}
+            onDetach={onDetach}
           />
 
           {system.blockaded && (
@@ -691,6 +698,8 @@ export function SystemSheet({
         </>
       )}
 
+      {tab === 'lore' && <IslandLore state={state} system={system} sector={sector} />}
+
       {tab === 'crew' && (
         <>
           {/* Somebody the war has not claimed. First, because it is the one
@@ -785,5 +794,68 @@ export function SystemSheet({
         </>
       )}
     </Sheet>
+  );
+}
+
+
+/**
+ * What this place is, as against what it is doing for you.
+ *
+ * Sean's: a full Lore tab on the far right rather than one italic line at the
+ * top of the Harbor tab, where it was the first thing in the way of the thing
+ * you opened the panel for.
+ *
+ * Every island has something true to say here, not only the eleven the world
+ * bible names. Three sources, widest to narrowest: the Sea it lies in, the
+ * kind of place it is, and then its own line where it has one. The creature
+ * comes last and only once your own boats have seen it — a bestiary you can
+ * read on day one is a bestiary, and this is meant to be a log.
+ */
+function IslandLore({
+  state,
+  system,
+  sector,
+}: {
+  state: GameState;
+  system: System;
+  sector: Sector;
+}) {
+  const sea = (loreData.seas as Record<string, string>)[sector.sea];
+  const kind = (loreData.archetypes as Record<string, string>)[system.archetype];
+  const beast = system.beast ? creature(system.beast) : undefined;
+  const seen = beast && system.beastSeen?.[state.player];
+  return (
+    <>
+      {system.chartName && system.chartName !== system.name && (
+        <p className="tiny muted" style={{ margin: '0 0 10px' }}>
+          The charts still call this island {system.chartName}.
+        </p>
+      )}
+
+      {system.note && <p className="portrait__note serif">{system.note}</p>}
+
+      <div className="section-title">{sector.sea}</div>
+      <p className="lore__body">{sea ?? `${sector.name} lies in ${sector.sea}.`}</p>
+      <p className="tiny muted" style={{ margin: '4px 0 0' }}>
+        {sector.name} · {sector.systemIds.length} {terms.islands.toLowerCase()}
+      </p>
+
+      <div className="section-title">The island</div>
+      <p className="lore__body">{kind}</p>
+
+      {seen && beast && (
+        <>
+          <div className="section-title">In the water</div>
+          <p className="lore__body">
+            <b>{beast.name}</b>. {beast.lore}
+          </p>
+          {system.beastSlain && (
+            <p className="tiny muted" style={{ margin: '4px 0 0' }}>
+              Killed, and the water off {system.name} is only water now.
+            </p>
+          )}
+        </>
+      )}
+    </>
   );
 }

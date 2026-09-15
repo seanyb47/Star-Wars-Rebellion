@@ -162,6 +162,123 @@ export function addShip(
   return fleet;
 }
 
+/**
+ * Splitting a squadron, and joining two.
+ *
+ * Sean: *"how do I split fleets? I need a way to create a fleet from a unit and
+ * move ships between fleets."* There was no way, and it is the one order the
+ * fleet layer was missing: a squadron that can only ever be sailed whole is a
+ * squadron you cannot use to do two things at once, which is most of what a
+ * navy is for.
+ *
+ * `into` names an existing fleet to join, or is left out for a new one. Both
+ * are the same operation from the sim's point of view — hulls leave one fleet
+ * and arrive in another lying in the same water — which is why they are one
+ * function and not two that drift apart.
+ *
+ * Companies are the only thing that needs care, and less than it looks: both
+ * fleets are at the same island, so moving hulls between them cannot change
+ * the total room aboard. Only the distribution changes, and the rule is that
+ * each fleet keeps what it can and the rest goes across. Nothing is ever lost.
+ */
+export function detachError(
+  state: GameState,
+  fleetId: string,
+  shipIds: string[],
+  into: string | undefined,
+  actor: PlayableFaction,
+): string | null {
+  const fleet = findFleet(state, fleetId);
+  if (!fleet) return 'No such fleet.';
+  if (fleet.faction !== actor) return 'That fleet is not yours.';
+  if (isAtSea(fleet)) return 'The fleet is at sea. Hulls change squadron at anchor.';
+  if (shipIds.length === 0) return 'Nothing chosen.';
+  if (shipIds.some((id) => !fleet.ships.some((sh) => sh.id === id))) {
+    return 'Those hulls are not in that fleet.';
+  }
+  if (into === undefined) {
+    // Moving everything into a fleet that does not exist yet is a rename, not
+    // a split, and it would leave the officers aboard a fleet with no hulls.
+    if (shipIds.length === fleet.ships.length) return 'That is the whole squadron.';
+    return null;
+  }
+  const target = findFleet(state, into);
+  if (!target) return 'No such fleet.';
+  if (target.id === fleet.id) return 'They are already in that squadron.';
+  if (target.faction !== actor) return 'That fleet is not yours.';
+  if (isAtSea(target)) return 'That squadron is at sea.';
+  if (target.systemId !== fleet.systemId) return 'That squadron is at another island.';
+  return null;
+}
+
+export function detachShips(
+  state: GameState,
+  fleetId: string,
+  shipIds: string[],
+  into: string | undefined,
+  actor: PlayableFaction,
+): Fleet {
+  const error = detachError(state, fleetId, shipIds, into, actor);
+  if (error) throw new Error(error);
+  const fleet = findFleet(state, fleetId)!;
+  const moving = fleet.ships.filter((sh) => shipIds.includes(sh.id));
+  fleet.ships = fleet.ships.filter((sh) => !shipIds.includes(sh.id));
+
+  let target = into ? findFleet(state, into)! : undefined;
+  if (!target) {
+    target = {
+      id: nextId(state, 'flt'),
+      name: nextFleetName(state, actor),
+      faction: actor,
+      systemId: fleet.systemId,
+      ships: [],
+      troops: 0,
+      officerIds: [],
+    };
+    state.fleets.push(target);
+  }
+  target.ships.push(...moving);
+
+  // Companies settle where there is room for them, source first — the fleet
+  // you split *from* is the one still doing whatever it was doing.
+  const carried = fleet.troops + target.troops;
+  fleet.troops = Math.min(carried, fleetCapacity(fleet));
+  target.troops = carried - fleet.troops;
+
+  // A fleet with no hulls left is not a fleet. Whoever was serving with it
+  // goes across with the hulls rather than quietly ceasing to exist.
+  if (fleet.ships.length === 0) {
+    target.officerIds.push(...fleet.officerIds);
+    state.fleets = state.fleets.filter((f) => f.id !== fleet.id);
+  }
+  pushEvent(state, {
+    kind: 'order',
+    text: `${moving.length} ${moving.length === 1 ? 'hull' : 'hulls'} ${
+      into ? `join ${target.name}` : `make up ${target.name}`
+    } at ${getSystem(state, target.systemId).name}.`,
+    systemId: target.systemId,
+    quiet: true,
+  });
+  return target;
+}
+
+/** The next free "Fleet N" for a side, so numbers are not reused. */
+function nextFleetName(state: GameState, faction: PlayableFaction): string {
+  const taken = new Set(state.fleets.filter((f) => f.faction === faction).map((f) => f.name));
+  for (let n = 1; n < 200; n++) {
+    const name = `Fleet ${n}`;
+    if (!taken.has(name)) return name;
+  }
+  return `Fleet ${state.fleets.length + 1}`;
+}
+
+/** Other squadrons of yours lying at the same island, for a hull to join. */
+export function fleetsToJoin(state: GameState, fleet: Fleet): Fleet[] {
+  return state.fleets.filter(
+    (f) => f.id !== fleet.id && f.faction === fleet.faction && !isAtSea(f) && f.systemId === fleet.systemId,
+  );
+}
+
 // --- Orders ----------------------------------------------------------------
 
 /**

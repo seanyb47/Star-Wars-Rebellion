@@ -5,6 +5,8 @@ import {
   advanceFleets,
   battleOdds,
   board,
+  detachError,
+  detachShips,
   fleetCapacity,
   sailFleet,
   sparedCompanies,
@@ -271,5 +273,80 @@ describe('companies load and unload themselves', () => {
     for (let d = 0; d < 80 && second.voyage; d++) advanceFleets(state, rng);
     const still = state.fleets.find((f) => f.id === second.id);
     if (still) expect(still.troops).toBe(aboard);
+  });
+});
+
+describe('splitting and joining squadrons', () => {
+  it('makes a new squadron out of the hulls you pick, and leaves the rest', () => {
+    const { state, home } = world();
+    state.player = 'alliance';
+    const fleet = put(state, home, 'alliance', ['tempest', 'swift', 'swift', 'brig']);
+    const take = fleet.ships.slice(1, 3).map((sh) => sh.id);
+    const made = detachShips(state, fleet.id, take, undefined, 'alliance');
+
+    expect(made.id).not.toBe(fleet.id);
+    expect(made.systemId).toBe(fleet.systemId);
+    expect(made.ships.map((sh) => sh.id).sort()).toEqual([...take].sort());
+    expect(fleet.ships).toHaveLength(2);
+    // Both are real fleets at the island, and the hulls are in exactly one each.
+    const all = fleetsAt(state, home.id).flatMap((f) => f.ships.map((sh) => sh.id));
+    expect(new Set(all).size).toBe(4);
+  });
+
+  it('refuses to make a squadron out of the whole squadron', () => {
+    const { state, home } = world();
+    state.player = 'alliance';
+    const fleet = put(state, home, 'alliance', ['tempest', 'swift']);
+    const every = fleet.ships.map((sh) => sh.id);
+    expect(detachError(state, fleet.id, every, undefined, 'alliance')).toMatch(/whole squadron/);
+  });
+
+  it('joins another squadron lying in the same water, and folds an empty one in', () => {
+    const { state, home } = world();
+    state.player = 'alliance';
+    const first = put(state, home, 'alliance', ['tempest', 'swift']);
+    const second = detachShips(state, first.id, [first.ships[1].id], undefined, 'alliance');
+    // Now send everything left in the first across: it empties, so it goes.
+    const crew = state.characters.find(
+      (c) => c.faction === 'alliance' && !/Hale|Reyne|Jessup/.test(c.name),
+    )!;
+    crew.locationSystemId = home.id;
+    board(state, first.id, crew.id, 'alliance');
+    detachShips(state, first.id, first.ships.map((sh) => sh.id), second.id, 'alliance');
+
+    expect(state.fleets.find((f) => f.id === first.id)).toBeUndefined();
+    const merged = state.fleets.find((f) => f.id === second.id)!;
+    expect(merged.ships).toHaveLength(2);
+    // Whoever was serving with the fleet that went goes across with the hulls.
+    expect(merged.officerIds).toContain(crew.id);
+  });
+
+  it('never loses a company, because the room aboard cannot change', () => {
+    const { state, home } = world();
+    state.player = 'alliance';
+    home.control = 'alliance';
+    const fleet = put(state, home, 'alliance', ['brig', 'brig', 'tempest']);
+    fleet.troops = fleetCapacity(fleet);
+    const carried = fleet.troops;
+    // Take the transports out, which is where nearly all the room was.
+    const holds = fleet.ships.filter((sh) => sh.classId === 'brig').map((sh) => sh.id);
+    const made = detachShips(state, fleet.id, holds, undefined, 'alliance');
+    expect(fleet.troops + made.troops).toBe(carried);
+    expect(fleet.troops).toBeLessThanOrEqual(fleetCapacity(fleet));
+    expect(made.troops).toBeLessThanOrEqual(fleetCapacity(made));
+  });
+
+  it('will not move hulls to a squadron at another island, or one at sea', () => {
+    const { state, home } = world();
+    state.player = 'alliance';
+    const here = put(state, home, 'alliance', ['tempest', 'swift']);
+    const far = state.systems.find((s) => s.id !== home.id)!;
+    const there = put(state, far, 'alliance', ['tempest']);
+    expect(detachError(state, here.id, [here.ships[0].id], there.id, 'alliance')).toMatch(
+      /another island/,
+    );
+    // And not while either of them is under way.
+    here.voyage = { targetSystemId: far.id, daysRemaining: 3 };
+    expect(detachError(state, here.id, [here.ships[0].id], undefined, 'alliance')).toMatch(/at sea/);
   });
 });

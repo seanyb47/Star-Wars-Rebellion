@@ -1742,3 +1742,51 @@ Balance after: 8–8 across sixteen games with the seat alternating, no stalls,
 median 580 days against 642 before. Wars run a little shorter, which is the
 expected consequence of companies actually reaching the front instead of
 sitting on an island because nobody tapped a plus sign eleven times.
+
+## Splitting a squadron, a Lore tab, and the compass goes west — 15 September, night
+
+**Fleets split.** Sean: *"how do I split fleets? I need a way to create a fleet
+from a unit and move ships between fleets."* There was no way, and it was the
+one order the fleet layer was missing — a squadron that can only be sailed
+whole cannot do two things at once, which is most of what a navy is for.
+
+One function does both halves, because they are the same operation: hulls leave
+one fleet and arrive in another lying in the same water, and `into` either
+names an existing squadron or is left out for a new one. Two functions would
+have drifted apart.
+
+Companies needed less care than they looked like needing. Both fleets are at
+the same island, so moving hulls between them cannot change the total room
+aboard — only the distribution — so each fleet keeps what it can and the rest
+goes across, and nothing can be lost. A source fleet emptied into another is
+dissolved, and whoever was serving with it goes across with the hulls rather
+than quietly ceasing to exist. Making a "new" squadron out of the whole
+squadron is refused: that is a rename, not a split.
+
+In the UI it is a mode the card enters rather than a preference. Grouping and
+reordering are settings — how you like your lists — so they live in `prefs`;
+this is an order you are halfway through giving, so it lives on the card and
+goes away with it. Tap the hulls, then say where they go. The panel sits under
+the rows, not over them: you choose, then you decide what to do with what you
+chose.
+
+**A Lore tab, far right.** The italic line at the top of the Harbor tab was the
+first thing in the way of the thing you opened the panel for. It is a tab of
+its own now, last on purpose — it is where you go to know what a place is, not
+when you are doing something to it.
+
+The point of doing it properly is that every island has something to say, not
+only the eleven the bible names. Three sources, widest to narrowest: the Sea it
+lies in, the kind of island it is, then its own line where it has one. The ten
+archetype descriptions are new (`src/data/lore.json`) and written so no
+sentence in them refers to the war — they are about the place. The creature
+comes last and only once your own boats have seen it, on the same rule the
+Almanac's bestiary follows.
+
+Ships get the same treatment without the tab: a sheet that is one screen does
+not need one, but the lore announces itself the same way — a heading, then
+prose meant to be read rather than scanned.
+
+**The compass is south-west.** It sat south-east, which is the cartographer's
+habit and the wrong corner here: the south-east is where Coral Reach comes
+down, and where the eye is already going when it follows a chain south.
