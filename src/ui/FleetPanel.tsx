@@ -9,19 +9,94 @@ import {
   fleetStatus,
   fleetHeldAshore,
   isLordShip,
-  lordOfShip,
-  LORD_POWER_TEXT,
-  shipClass as shipClassOf,
   officerEdge,
   officersOf,
   SCOUT_PER_ISLAND,
   shipClass,
+  shipSpec,
   type Fleet,
   type GameState,
+  type PlayableFaction,
+  type Ship,
   FORT_GUNS,
 } from '../sim';
 import { CharacterPortrait, CreaturePainting, FacilityIcon, ShipThumb } from './art';
-import { ControlBadge } from './components';
+import { usePrefs } from './prefs';
+import { ControlBadge, ListOpts } from './components';
+
+/**
+ * One row of a ship list: a class, however many of them there are.
+ *
+ * Sean: "Ships in the harbor should be more simple. Just show their basic
+ * stats and a small icon of any crew aboard. Don't need a huge scroll. Should
+ * be almost like the garrison page, just a list of everything there. If I want
+ * lore or advanced stats I can click on the ship."
+ *
+ * So the row carries what you steer by — how many, how much hull is left, how
+ * many guns — and nothing you would only read once. The blurb, the pace, what
+ * a Lord's ship does, all of it is behind the row.
+ */
+function ShipRow({
+  ships,
+  faction,
+  grouped,
+  onOpen,
+  order,
+}: {
+  ships: Ship[];
+  faction: PlayableFaction;
+  grouped: boolean;
+  onOpen: () => void;
+  /** Only present in reorder mode; an end that has nowhere to go is
+   *  absent rather than disabled, so a list never shows a dead arrow. */
+  order?: { up?: () => void; down?: () => void };
+}) {
+  const cls = shipClass(ships[0].classId as Parameters<typeof shipClass>[0]);
+  const spec = shipSpec(ships[0].classId as Parameters<typeof shipSpec>[0]);
+  const hurt = ships.reduce((n, s) => n + s.damage, 0);
+  const whole = spec.hull * ships.length;
+  return (
+    <div className="shiprow">
+      {order && (
+        <span className="shiprow__order">
+          <button
+            className="orderbtn"
+            onClick={order.up}
+            disabled={!order.up}
+            aria-label={`Move ${cls.name} up`}
+          >
+            ▲
+          </button>
+          <button
+            className="orderbtn"
+            onClick={order.down}
+            disabled={!order.down}
+            aria-label={`Move ${cls.name} down`}
+          >
+            ▼
+          </button>
+        </span>
+      )}
+      <button className="shiprow__tap" onClick={onOpen} aria-label={`${cls.name} — details`}>
+        <ShipThumb faction={faction} role={cls.role} size={34} />
+        <span className="shiprow__name">
+          {grouped && ships.length > 1 && <b className="shiprow__n">{ships.length}×</b>}
+          {cls.name}
+          {isLordShip(ships[0]) && <span className="tiny shiprow__lord"> · a Lord's ship</span>}
+        </span>
+        <span className="shiprow__stats">
+          <span className={hurt > 0 ? 'shiprow__hurt' : undefined}>
+            {whole - hurt}/{whole}
+          </span>
+          <span className="muted"> hull · </span>
+          {spec.guns * ships.length}
+          <span className="muted"> guns</span>
+        </span>
+        <span className="shiprow__chev" aria-hidden="true">›</span>
+      </button>
+    </div>
+  );
+}
 
 /**
  * One fleet, laid out the way the original lays out a fleet: a plain table of
@@ -37,6 +112,9 @@ export function FleetCard({
   onAssault,
   onBoard,
   onAshore,
+  onOpenShip,
+  onOrderShips,
+  onOrderOfficers,
   canOrder,
 }: {
   state: GameState;
@@ -46,6 +124,9 @@ export function FleetCard({
   onAssault: (fleetId: string) => void;
   onBoard: (fleetId: string, characterId: string) => void;
   onAshore: (fleetId: string, characterId: string) => void;
+  onOpenShip?: (fleetId: string, shipId: string) => void;
+  onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
+  onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
   canOrder: boolean;
 }) {
   const system = state.systems.find((s) => s.id === fleet.systemId);
@@ -69,9 +150,29 @@ export function FleetCard({
     (c) => boardError(state, fleet.id, c.id, state.player) === null,
   );
 
-  const byClass = new Map<string, number>();
-  for (const ship of fleet.ships) {
-    byClass.set(ship.classId, (byClass.get(ship.classId) ?? 0) + 1);
+  const [prefs] = usePrefs();
+  /**
+   * The list, as rows.
+   *
+   * Grouped, a row is a class and every hull of it; ungrouped, a row is one
+   * hull. Grouping reads off the array in place rather than sorting it, so a
+   * squadron the player has put in an order keeps that order: the first
+   * Kestrel's position is the Kestrel row's position.
+   */
+  const rows: Array<{ key: string; ships: Ship[] }> = [];
+  if (prefs.group) {
+    const at = new Map<string, number>();
+    for (const ship of fleet.ships) {
+      const seen = at.get(ship.classId);
+      if (seen === undefined) {
+        at.set(ship.classId, rows.length);
+        rows.push({ key: ship.classId, ships: [ship] });
+      } else {
+        rows[seen].ships.push(ship);
+      }
+    }
+  } else {
+    for (const ship of fleet.ships) rows.push({ key: ship.id, ships: [ship] });
   }
 
   return (
@@ -86,28 +187,29 @@ export function FleetCard({
         {fleet.faction !== state.player && <ControlBadge faction={fleet.faction} />}
       </div>
 
-      {fleet.ships.filter(isLordShip).map((ship) => {
-        const lord = lordOfShip(ship.classId)!;
-        const power = shipClassOf(ship.classId).power;
-        return (
-          <p key={ship.id} className="tiny fleet__seat">
-            <b>{lord.name}'s ship.</b> {power ? LORD_POWER_TEXT[power] : ''} Take her and you take
-            the Lord.
-          </p>
-        );
-      })}
-
-      <div className="fleet__ships">
-        {[...byClass.entries()].map(([classId, count]) => {
-          const cls = shipClass(classId as Parameters<typeof shipClass>[0]);
-          return (
-            <span key={classId} className="fleet__class">
-              <ShipThumb faction={fleet.faction} role={cls.role} size={46} />
-              <span className="fleet__class-n">{count}</span>
-              <span className="tiny muted">{cls.name}</span>
-            </span>
-          );
-        })}
+      {/* The hulls, as a list. One line each, or one line per class with a
+          count when grouping is on. */}
+      <div className="shiplist">
+        {rows.map((row, i) => (
+          <ShipRow
+            key={row.key}
+            ships={row.ships}
+            faction={fleet.faction}
+            grouped={prefs.group}
+            onOpen={() => onOpenShip?.(fleet.id, row.ships[0].id)}
+            order={
+              prefs.reorder && canOrder && rows.length > 1
+                ? {
+                    up: i === 0 ? undefined : () => onOrderShips?.(fleet.id, row.ships.map((sh) => sh.id), -1),
+                    down:
+                      i === rows.length - 1
+                        ? undefined
+                        : () => onOrderShips?.(fleet.id, row.ships.map((sh) => sh.id), 1),
+                  }
+                : undefined
+            }
+          />
+        ))}
       </div>
 
       {/* Who is serving with her. The original names every command slot even
@@ -115,21 +217,42 @@ export function FleetCard({
           one that stays quiet. */}
       {(officers.length > 0 || (canOrder && ashoreHere.length > 0)) && (
         <div className="fleet__officers">
-          {officers.map((officer) => (
-            <button
-              key={officer.id}
-              className="fleet__officer"
-              onClick={() => onAshore(fleet.id, officer.id)}
-              aria-label={`Put ${officer.name} ashore`}
-            >
-              <CharacterPortrait
-                name={officer.name}
-                faction={officer.faction}
-                people={officer.people}
-                size={26}
-              />
-              <span className="fleet__officer-name">{officer.name}</span>
-            </button>
+          {officers.map((officer, i) => (
+            <span key={officer.id} className="fleet__officer-wrap">
+              {prefs.reorder && canOrder && officers.length > 1 && (
+                <button
+                  className="orderbtn orderbtn--inline"
+                  disabled={i === 0}
+                  onClick={() => onOrderOfficers?.(fleet.id, [officer.id], -1)}
+                  aria-label={`Move ${officer.name} earlier`}
+                >
+                  ‹
+                </button>
+              )}
+              <button
+                className="fleet__officer"
+                onClick={() => onAshore(fleet.id, officer.id)}
+                aria-label={`Put ${officer.name} ashore`}
+              >
+                <CharacterPortrait
+                  name={officer.name}
+                  faction={officer.faction}
+                  people={officer.people}
+                  size={26}
+                />
+                <span className="fleet__officer-name">{officer.name}</span>
+              </button>
+              {prefs.reorder && canOrder && officers.length > 1 && (
+                <button
+                  className="orderbtn orderbtn--inline"
+                  disabled={i === officers.length - 1}
+                  onClick={() => onOrderOfficers?.(fleet.id, [officer.id], 1)}
+                  aria-label={`Move ${officer.name} later`}
+                >
+                  ›
+                </button>
+              )}
+            </span>
           ))}
           {/* The crew ashore are a list of everyone standing there, which on a
               home island is most of your people. Behind one chip until asked. */}
@@ -163,46 +286,27 @@ export function FleetCard({
         </div>
       )}
 
-      <dl className="fleet__facts">
-        <div>
-          <dt>Hulls</dt>
-          <dd>{fleet.ships.length}</dd>
-        </div>
-        <div>
-          <dt>Guns</dt>
-          <dd>{fleetGuns(fleet)}</dd>
-        </div>
-        <div>
-          <dt>Damaged</dt>
-          <dd>{damaged}</dd>
-        </div>
-        <div>
-          <dt>Charts</dt>
-          <dd>
-            {scouting === 0 ? (
-              <span className="muted">Nothing</span>
-            ) : (
-              `+${scouting} ${scouting === 1 ? 'isle' : 'isles'}`
-            )}
-          </dd>
-        </div>
-        <div>
-          <dt>Command</dt>
-          <dd>
-            {officers.length === 0 ? (
-              <span className="muted">Nobody</span>
-            ) : (
-              `+${Math.round((officerEdge(state, fleet, 'leadership') - 1) * 100)}%`
-            )}
-          </dd>
-        </div>
-        <div>
-          <dt>Companies</dt>
-          <dd>
-            {fleet.troops} <span className="muted">of {capacity}</span>
-          </dd>
-        </div>
-      </dl>
+      {/* The whole squadron in one line. This was a six-cell table of facts
+          spelled out, which is right for a thing you study and wrong for a
+          thing you glance at on the way to giving an order — and the per-hull
+          half of it is now in the rows above. What is left is what belongs to
+          the squadron rather than to any hull in it. */}
+      <div className="fleet__line tiny">
+        <span>
+          <b>{fleet.ships.length}</b> {fleet.ships.length === 1 ? 'hull' : 'hulls'}
+        </span>
+        <span>
+          <b>{fleetGuns(fleet)}</b> guns
+        </span>
+        {damaged > 0 && <span className="fleet__line-bad">{damaged} damaged</span>}
+        <span>
+          <b>{fleet.troops}</b>/{capacity} companies
+        </span>
+        {scouting > 0 && <span>+{scouting} charted a landfall</span>}
+        {officers.length > 0 && (
+          <span>+{Math.round((officerEdge(state, fleet, 'leadership') - 1) * 100)}% command</span>
+        )}
+      </div>
 
       {canOrder && !atSea && (
         <div className="fleet__orders">
@@ -214,23 +318,42 @@ export function FleetCard({
             disabled={waitingFor !== undefined}
             onClick={() => onSail(fleet.id)}
           >
-            {waitingFor ? `Waiting for ${waitingFor.name.split(' ').slice(-1)[0]}` : 'Weigh anchor'}
+            {waitingFor ? `Waiting for ${waitingFor.name.split(' ').slice(-1)[0]}` : 'Set sail'}
           </button>
-          {holdsIsland && (
-            <>
+          {/* Loading companies is not a spare button, it is the whole of how
+              an island changes hands: a fleet with an empty hold can blockade
+              a harbor and can never take it. What was wrong was the shape —
+              two buttons that each moved one company, so putting five aboard
+              was five taps at one end and five at the other, and the pair of
+              them sat there on every fleet whether or not there was anybody
+              ashore to load. One row: how many are aboard, out of what the
+              hulls will carry, with the two ends of it either side. */}
+          {holdsIsland && (ashore > 0 || fleet.troops > 0) && (
+            <div className="stepper">
               <button
-                className="btn"
+                className="stepper__btn"
+                disabled={fleet.troops === 0}
+                onClick={() => onEmbark(fleet.id, -1)}
+                aria-label={`Put a ${terms.troop.toLowerCase()} ashore`}
+              >
+                −
+              </button>
+              <span className="stepper__read">
+                <b>{fleet.troops}</b>
+                <span className="muted"> of {capacity} aboard</span>
+                <span className="tiny muted stepper__spare">
+                  {ashore} ashore on {system?.name ?? 'the island'}
+                </span>
+              </span>
+              <button
+                className="stepper__btn"
                 disabled={ashore === 0 || fleet.troops >= capacity}
                 onClick={() => onEmbark(fleet.id, 1)}
+                aria-label={`Take a ${terms.troop.toLowerCase()} aboard`}
               >
-                Take a {terms.troop.toLowerCase()} aboard
+                +
               </button>
-              {fleet.troops > 0 && (
-                <button className="btn" onClick={() => onEmbark(fleet.id, -1)}>
-                  Put one ashore
-                </button>
-              )}
-            </>
+            </div>
           )}
           {!holdsIsland && fleet.troops > 0 && (
             <button className="btn btn--primary" onClick={() => onAssault(fleet.id)}>
@@ -252,6 +375,9 @@ export function ShipsHere({
   onAssault,
   onBoard,
   onAshore,
+  onOpenShip,
+  onOrderShips,
+  onOrderOfficers,
 }: {
   state: GameState;
   systemId: string;
@@ -260,6 +386,9 @@ export function ShipsHere({
   onAssault: (fleetId: string) => void;
   onBoard: (fleetId: string, characterId: string) => void;
   onAshore: (fleetId: string, characterId: string) => void;
+  onOpenShip?: (fleetId: string, shipId: string) => void;
+  onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
+  onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
 }) {
   const here = state.fleets.filter((f) => f.systemId === systemId && !f.voyage);
   const inbound = state.fleets.filter(
@@ -307,21 +436,17 @@ export function ShipsHere({
         </div>
         <span className="badge badge--none">Neutral</span>
       </div>
-      <div className="fleet__ships" style={{ alignItems: 'center' }}>
+      <div style={{ marginTop: 8 }}>
         <CreaturePainting slug={beast.slug} height={72} className="fleet__beast-art" />
       </div>
-      <dl className="fleet__facts">
-        <div>
-          <dt>Guns</dt>
-          <dd>{island.beastSlain ? <span className="muted">Silent</span> : beast.guns}</dd>
-        </div>
-        <div>
-          <dt>Hurt</dt>
-          <dd>
-            {island.beastDamage ?? 0} <span className="muted">of {beast.hull}</span>
-          </dd>
-        </div>
-      </dl>
+      <div className="fleet__line tiny">
+        <span>
+          <b>{island.beastSlain ? '—' : beast.guns}</b> guns
+        </span>
+        <span>
+          <b>{island.beastDamage ?? 0}</b>/{beast.hull} hurt
+        </span>
+      </div>
       <p className="tiny" style={{ margin: 0, color: island.beastSlain ? 'var(--muted)' : 'var(--bad)' }}>
         {island.beastSlain
           ? 'Killed. The water here is only water now.'
@@ -346,6 +471,10 @@ export function ShipsHere({
 
   return (
     <div className="stack">
+      {/* How the player likes to read a list, not what is in it. Kept on the
+          device rather than in the save, because it is a habit rather than a
+          fact about this war, and it should hold across every game. */}
+      {here.length > 0 && <ListOpts />}
       {monster}
       {defences}
       {here.map((fleet) => (
@@ -358,6 +487,9 @@ export function ShipsHere({
           onAssault={onAssault}
           onBoard={onBoard}
           onAshore={onAshore}
+          onOpenShip={onOpenShip}
+          onOrderShips={onOrderShips}
+          onOrderOfficers={onOrderOfficers}
           canOrder={fleet.faction === state.player}
         />
       ))}

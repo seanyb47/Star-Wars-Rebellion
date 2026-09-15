@@ -13,6 +13,11 @@ import {
   resolvePendingMission,
   saveGame,
   orderAshore,
+  reorderCrew,
+  reorderFacilities,
+  reorderGarrison,
+  reorderOfficers,
+  reorderShips,
   orderAssault,
   orderBoard,
   orderEmbark,
@@ -45,6 +50,7 @@ import { useAdvisorVoice } from './narrator/useAdvisorVoice';
 import { ReachSheet } from './ReachSheet';
 import { ReachListSheet } from './ReachListSheet';
 import { tabForLayer, type IslandTab } from './IslandRow';
+import { ShipSheet } from './ShipSheet';
 import { SystemSheet } from './SystemSheet';
 import { StartScreen } from './StartScreen';
 import { Tutorial, alreadyTaught } from './Tutorial';
@@ -387,6 +393,41 @@ export function App() {
     setState(result.state);
   };
 
+  /** Which hull's sheet is open, if any. */
+  const [openShip, setOpenShip] = useState<{ fleetId: string; shipId: string } | null>(null);
+
+  /**
+   * Putting a list in the order the player wants it.
+   *
+   * All four move the game's own array, so the order saves with the game
+   * rather than being a view's opinion of it.
+   */
+  const handleOrderShips = (fleetId: string, shipIds: string[], dir: -1 | 1) => {
+    const result = reorderShips(state, fleetId, shipIds, dir);
+    if (result.error) return flash(result.error);
+    setState(result.state);
+  };
+  const handleOrderOfficers = (fleetId: string, characterIds: string[], dir: -1 | 1) => {
+    const result = reorderOfficers(state, fleetId, characterIds, dir);
+    if (result.error) return flash(result.error);
+    setState(result.state);
+  };
+  const handleOrderFacilities = (systemId: string, facilityIds: string[], dir: -1 | 1) => {
+    const result = reorderFacilities(state, systemId, facilityIds, dir);
+    if (result.error) return flash(result.error);
+    setState(result.state);
+  };
+  const handleOrderGarrison = (systemId: string, typeIds: string[], dir: -1 | 1) => {
+    const result = reorderGarrison(state, systemId, typeIds, dir);
+    if (result.error) return flash(result.error);
+    setState(result.state);
+  };
+  const handleOrderCrew = (characterIds: string[], dir: -1 | 1) => {
+    const result = reorderCrew(state, characterIds, dir);
+    if (result.error) return flash(result.error);
+    setState(result.state);
+  };
+
   const handleAssault = (fleetId: string) => {
     const result = orderAssault(state, fleetId);
     if (result.error) return flash(result.error);
@@ -594,6 +635,12 @@ export function App() {
           onAssault={handleAssault}
           onBoard={handleBoard}
           onAshore={handleAshore}
+          onOpenShip={(fleetId, shipId) => setOpenShip({ fleetId, shipId })}
+          onOrderShips={handleOrderShips}
+          onOrderOfficers={handleOrderOfficers}
+          onOrderFacilities={handleOrderFacilities}
+          onOrderGarrison={handleOrderGarrison}
+          onOrderCrew={handleOrderCrew}
           onOpenCharacter={setOpenCharacterId}
           onOpenReach={(sectorId) => {
             setOpenSystemId(null);
@@ -601,6 +648,22 @@ export function App() {
           }}
         />
       )}
+
+      {/* A hull's own sheet, over the island's: tapped from the list in the
+          harbor, and stacked so it sits on top of the panel it came from
+          rather than behind it. */}
+      {openShip && (() => {
+        const fleet = state.fleets.find((f) => f.id === openShip.fleetId);
+        if (!fleet) return null;
+        return (
+          <ShipSheet
+            state={state}
+            fleet={fleet}
+            shipId={openShip.shipId}
+            onClose={() => setOpenShip(null)}
+          />
+        );
+      })()}
 
       {openReach && (
         <ReachSheet
@@ -798,7 +861,7 @@ function MissionDecisionSheet({
       actions={
         <>
           <button className="btn btn--flex" onClick={() => choose('return')}>
-            Weigh anchor
+            Set sail
           </button>
           <button className="btn btn--flex btn--primary" onClick={() => choose('continue')}>
             Stay 15 more days

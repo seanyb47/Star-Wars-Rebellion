@@ -17,3 +17,4 @@ export * from './persist';
 export * from './layers';
 export * from './creatures';
 export * from './troops';
+export * from './order';

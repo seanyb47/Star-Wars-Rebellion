@@ -906,20 +906,82 @@ button {
 .key--ships { clip-path: polygon(45% 0, 55% 0, 55% 55%, 100% 55%, 85% 100%, 15% 100%, 0 55%, 45% 55%); }
 
 /* ---------- Fleets ---------- */
-.fleet__ships {
-  display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 10px;
+/* The harbor is a list. A row is a class of hull with how many there are, how
+   much of it is still floating and what it fires — the three things you steer
+   by — and everything else is behind the row. It was a grid of thumbnails over
+   a six-cell table of facts, which is right for a thing you study and wrong
+   for a thing you glance at on the way to giving an order. */
+.shiplist { display: flex; flex-direction: column; margin-top: 8px; }
+.shiprow { display: flex; align-items: stretch; gap: 4px; }
+.shiprow + .shiprow { border-top: 1px solid var(--border); }
+.shiprow__tap {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 9px;
+  padding: 7px 2px; min-height: 46px; text-align: left; color: var(--text);
 }
-.fleet__class { display: inline-flex; align-items: center; gap: 5px; color: var(--text); }
-.fleet__class-n { font-weight: 600; font-size: 13px; }
-/* The original states a fleet as a table of facts with the words spelled out;
-   so does this, two to a row on a phone. */
-.fleet__facts {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px;
-  margin: 10px 0 0;
+.shiprow__name { flex: 1; min-width: 0; font-size: 13px; line-height: 1.2; }
+.shiprow__n { margin-right: 4px; font-variant-numeric: tabular-nums; }
+.shiprow__lord { color: var(--brass); }
+.shiprow__stats {
+  flex: none; font-size: 12px; font-variant-numeric: tabular-nums; text-align: right;
 }
-.fleet__facts > div { display: flex; justify-content: space-between; gap: 8px; }
-.fleet__facts dt { color: var(--muted); font-size: 11px; }
-.fleet__facts dd { margin: 0; font-size: 12px; font-weight: 600; }
+.shiprow__hurt { color: var(--bad); }
+.shiprow__chev { flex: none; color: var(--muted); font-size: 17px; line-height: 1; }
+.shiprow__order { flex: none; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+/* One line for the squadron, under its hulls: what belongs to the fleet
+   rather than to any hull in it. */
+.fleet__line {
+  display: flex; flex-wrap: wrap; gap: 3px 12px; margin-top: 8px;
+  padding-top: 8px; border-top: 1px solid var(--border); color: var(--muted);
+}
+.fleet__line b { color: var(--text); font-variant-numeric: tabular-nums; }
+.fleet__line-bad { color: var(--bad); }
+/* Up and down rather than a drag: a drag on a phone is a fight with the
+   scroll underneath it, and two arrows are a thumb's width each. */
+.orderbtn {
+  width: 30px; height: 21px; display: grid; place-items: center;
+  border: 1px solid var(--border); border-radius: 5px;
+  font-size: 9px; line-height: 1; color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+}
+.orderbtn:disabled { opacity: 0.25; }
+.orderbtn--inline { width: 22px; height: 26px; font-size: 13px; }
+/* How the list is read, as two checkboxes over it. */
+.listopts { display: flex; gap: 6px; flex-wrap: wrap; }
+.listopt {
+  padding: 5px 9px; min-height: 30px; border-radius: 999px;
+  border: 1px solid var(--border); color: var(--muted);
+  background: rgba(255, 255, 255, 0.03);
+}
+.listopt--on { color: var(--text); border-color: var(--brass); }
+.shipsheet__art { display: grid; place-items: center; padding: 6px 0 2px; }
+/* A tile with its two arrows under it. Beside would halve the tile — a board
+   is a grid and a tile is about as wide as two arrows. */
+.slot-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 3px; }
+.slot-wrap__order { display: flex; gap: 3px; }
+.slot-wrap__order .orderbtn { flex: 1; width: auto; }
+/* One quantity with its two ends, for anything counted a unit at a time:
+   companies into a hold, so far. The reading in the middle is the control —
+   the buttons are just the ends of it — which is why the number is the only
+   thing at full weight. */
+.stepper {
+  display: flex; align-items: stretch; gap: 8px;
+  border: 1px solid var(--border); border-radius: 9px; padding: 4px;
+  background: rgba(0, 0, 0, 0.18);
+}
+.stepper__btn {
+  flex: none; width: 44px; min-height: var(--tap);
+  border: 1px solid var(--border); border-radius: 7px;
+  font-size: 20px; line-height: 1; color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+.stepper__btn:disabled { opacity: 0.35; }
+.stepper__read {
+  flex: 1; min-width: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+  font-size: 13px; line-height: 1.25;
+}
+.stepper__read b { font-size: 17px; font-variant-numeric: tabular-nums; }
+.stepper__spare { display: block; }
 .fleet__orders { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
 .fleet__orders .btn { width: 100%; }
 /* A creature lying in the harbor is carded like a fleet, because that is what

@@ -1,6 +1,7 @@
 import { Children, type ReactNode } from 'react';
 import factionData from '../data/factions.json';
 import { allegianceColour, allegianceSegments } from './allegiance';
+import { usePrefs } from './prefs';
 import { ROOM_TRACK, type Faction, type System } from '../sim';
 
 export function Sheet(props: {
@@ -71,6 +72,37 @@ export function Sheet(props: {
         )}
       </div>
     </>
+  );
+}
+
+/**
+ * The two checkboxes over any list of things the player owns: fold alike ones
+ * into a count, and show the arrows that put them in order.
+ *
+ * One control, used by the harbor, the garrison, the crew and the buildings,
+ * because they are one preference — somebody who wants their hulls grouped
+ * wants their companies grouped too, and having to say so four times would be
+ * four places to forget.
+ */
+export function ListOpts() {
+  const [prefs, setPrefs] = usePrefs();
+  return (
+    <div className="listopts tiny">
+      <button
+        className={`listopt${prefs.group ? ' listopt--on' : ''}`}
+        onClick={() => setPrefs({ group: !prefs.group })}
+        aria-pressed={prefs.group}
+      >
+        {prefs.group ? '☑' : '☐'} Group alike
+      </button>
+      <button
+        className={`listopt${prefs.reorder ? ' listopt--on' : ''}`}
+        onClick={() => setPrefs({ reorder: !prefs.reorder })}
+        aria-pressed={prefs.reorder}
+      >
+        {prefs.reorder ? '☑' : '☐'} Reorder
+      </button>
+    </div>
   );
 }
 
@@ -169,6 +201,7 @@ export function Slot({
   tone,
   onClick,
   label,
+  order,
 }: {
   icon: ReactNode;
   name: string;
@@ -177,6 +210,8 @@ export function Slot({
   tone?: 'warn' | 'dim';
   onClick?: () => void;
   label?: string;
+  /** Present only in reorder mode. An end with nowhere to go is absent. */
+  order?: { up?: () => void; down?: () => void };
 }) {
   const className = `slot${tone ? ` slot--${tone}` : ''}${onClick ? ' slot--tap' : ''}`;
   const body = (
@@ -186,12 +221,29 @@ export function Slot({
       {note && <span className="slot__note">{note}</span>}
     </>
   );
-  return onClick ? (
+  const tile = onClick ? (
     <button className={className} onClick={onClick} aria-label={label ?? name}>
       {body}
     </button>
   ) : (
     <span className={className}>{body}</span>
+  );
+  if (!order) return tile;
+  // On a board the arrows go under the tile rather than beside it: a tile is
+  // about as wide as two arrows and the board is a grid, so putting them
+  // alongside would halve the tile.
+  return (
+    <span className="slot-wrap">
+      {tile}
+      <span className="slot-wrap__order">
+        <button className="orderbtn" disabled={!order.up} onClick={order.up} aria-label={`Move ${name} earlier`}>
+          ◀
+        </button>
+        <button className="orderbtn" disabled={!order.down} onClick={order.down} aria-label={`Move ${name} later`}>
+          ▶
+        </button>
+      </span>
+    </span>
   );
 }
 

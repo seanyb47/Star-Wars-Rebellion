@@ -313,6 +313,24 @@ export function GalaxyMap({
   const stipple = useMemo(() => seaStipple(state.rngSeed), [state.rngSeed]);
 
   /**
+   * Where the officer waiting for a destination is standing.
+   *
+   * Sean: "sometimes I go to send someone on mission and I'm like, shit,
+   * where was he?" — and the chart was no help, because picking a target used
+   * to look like reading the chart: every island at its allegiance size, the
+   * capital a star, rings round every chain that would take the errand. Lots
+   * of marks, none of them the one being asked about.
+   *
+   * So while a destination is being picked the chart says one thing. Every
+   * island drops to a small dot in the colour of whoever holds it — the
+   * allegiance and nothing else, capital included — and the only thing that
+   * moves on the whole chart is the island the officer is on.
+   */
+  const pickerAt = pickingFor
+    ? state.characters.find((c) => c.id === pickingFor.characterId)?.locationSystemId
+    : undefined;
+
+  /**
    * Everything the chart needs to draw a chain, worked out once per render.
    *
    * Sorted by Sea first so the two chains of a Sea come out side by side: the
@@ -523,7 +541,12 @@ export function GalaxyMap({
 
         {chains.map(({ sector, systems, summary, targets, spot, chainR, label }) => {
           // Sailing can go anywhere; a parley can only go where it is welcome.
-          const live = sailing || choosing || !pickingFor || targets > 0;
+          // A chain that cannot take the errand steps back. The chain the
+          // officer is standing in never does, whatever it can offer: it is
+          // the answer to "where is he", and dimming it to a third would bury
+          // the one mark on the chart that is pulsing.
+          const holdsPicker = pickerAt !== undefined && systems.some((s) => s.id === pickerAt);
+          const live = sailing || choosing || !pickingFor || targets > 0 || holdsPicker;
           // Under a layer, a chain holding no answer drops back so the ones
           // that do carry the eye. It stays tappable — a filter is a way of
           // looking, not a lock on where you can go.
@@ -618,23 +641,27 @@ export function GalaxyMap({
                  * An island you have never charted keeps its loyalty to
                  * itself, so it is small.
                  */
-                const radius = filtering
-                  ? lit
-                    ? DOT[mark.size ?? 'large']
-                    : DOT_SMALL
-                  : !explored
-                    ? DOT_SMALL
-                    : DOT[LOYALTY_DOT[loyaltyBand(chartLoyalty(system, viewer), system.uprising)]];
+                const radius = pickingFor
+                  ? DOT_SMALL
+                  : filtering
+                    ? lit
+                      ? DOT[mark.size ?? 'large']
+                      : DOT_SMALL
+                    : !explored
+                      ? DOT_SMALL
+                      : DOT[LOYALTY_DOT[loyaltyBand(chartLoyalty(system, viewer), system.uprising)]];
+                // The one island the player is actually looking for.
+                const here = pickerAt === system.id;
                 if (bare) return null;
                 return (
                   <g key={system.id} pointerEvents="none">
-                    {idle && (
+                    {(idle || here) && (
                       <circle
                         className="map__idle-halo"
                         cx={ax}
                         cy={ay}
                         r={IDLE_HALO_RADIUS}
-                        fill={tint}
+                        fill={here ? 'var(--metal-hi)' : tint}
                       />
                     )}
                     {lit && numeral === null && mark.size === undefined && mark.count !== undefined && mark.count > 1 && (
@@ -695,7 +722,7 @@ export function GalaxyMap({
                           // filter's: the shape alone says seat of the war. It
                           // used to wear a ring as well, which was saying it
                           // twice.
-                          if (isHq) {
+                          if (isHq && !pickingFor) {
                             return (
                               <path
                                 d={burstPath(HQ_STAR_RADIUS)}
@@ -798,7 +825,16 @@ export function GalaxyMap({
           </button>
         ) : pickingFor ? (
           <button className="chip chip--pick" onClick={onCancelPick}>
-            Open a chain and pick an island · cancel
+            {/* Name the officer and where they are standing. The pulse on the
+                chart says which island; this says it in words, for the case
+                where the island is behind your thumb. */}
+            {(() => {
+              const who = state.characters.find((c) => c.id === pickingFor.characterId);
+              const at = state.systems.find((sy) => sy.id === pickerAt);
+              return who && at
+                ? `${who.name.split(' ').slice(-1)[0]} is on ${at.name} · pick an island · cancel`
+                : 'Open a chain and pick an island · cancel';
+            })()}
           </button>
         ) : null}
       </div>

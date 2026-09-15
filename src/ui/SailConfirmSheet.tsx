@@ -81,7 +81,7 @@ export function SailConfirmSheet({
             Don't sail
           </button>
           <button className="btn btn--primary" onClick={onConfirm}>
-            Weigh anchor — {days} {days === 1 ? 'day' : 'days'}
+            Set sail — {days} {days === 1 ? 'day' : 'days'}
           </button>
         </>
       }

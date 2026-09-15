@@ -95,6 +95,12 @@ export interface System {
   beastDamage?: number;
   /** Killed, and by whom. A dead creature stays on the island's record. */
   beastSlain?: Faction;
+  /**
+   * The order the player has put the garrison's kinds in, if they have. A
+   * company has no identity of its own to move — the garrison is a count and
+   * a roster read off it — so what is remembered is which kind comes first.
+   */
+  garrisonOrder?: string[];
 }
 
 export type FacilityType =

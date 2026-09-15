@@ -30,7 +30,9 @@ import {
   type GameState,
   type System,
   beastOf,
+  byRemembered,
   garrisonRoster,
+  garrisonSummary,
   troopType,
   MISSION_LABEL,
   type PlayableFaction,
@@ -46,7 +48,8 @@ import {
 } from './art';
 import { ChartMark } from './ChartMark';
 import { useSideSwipe } from './LayerStrip';
-import { ControlBadge, RoomBar, Sheet, Slot, SlotBoard, SupportBars } from './components';
+import { ControlBadge, ListOpts, RoomBar, Sheet, Slot, SlotBoard, SupportBars } from './components';
+import { usePrefs } from './prefs';
 import { ShipsHere } from './FleetPanel';
 import { WorthMark } from './worth';
 import { controlColour } from './ChainMap';
@@ -232,6 +235,12 @@ export function SystemSheet({
   onAssault,
   onBoard,
   onAshore,
+  onOpenShip,
+  onOrderShips,
+  onOrderOfficers,
+  onOrderFacilities,
+  onOrderGarrison,
+  onOrderCrew,
 }: {
   state: GameState;
   system: System;
@@ -245,12 +254,19 @@ export function SystemSheet({
   onAssault: (fleetId: string) => void;
   onBoard: (fleetId: string, characterId: string) => void;
   onAshore: (fleetId: string, characterId: string) => void;
+  onOpenShip?: (fleetId: string, shipId: string) => void;
+  onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
+  onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
+  onOrderFacilities?: (systemId: string, facilityIds: string[], dir: -1 | 1) => void;
+  onOrderGarrison?: (systemId: string, typeIds: string[], dir: -1 | 1) => void;
+  onOrderCrew?: (characterIds: string[], dir: -1 | 1) => void;
   onOpenCharacter?: (characterId: string) => void;
   onOpenReach?: (sectorId: string) => void;
 }) {
   const [tab, setTab] = useState<IslandTab>(initialTab);
   /** A company the player has tapped to read about, on the Garrison tab. */
   const [companyId, setCompany] = useState<string | undefined>();
+  const [prefs] = usePrefs();
   // Five tabs and a thumb: sliding between them beats aiming at them.
   const swipe = useSideSwipe((step) => {
     const at = TABS.findIndex((entry) => entry.id === tab);
@@ -300,6 +316,29 @@ export function SystemSheet({
   // Who is actually ashore, company by company. Same length as the garrison
   // count the rest of the game runs on; this only says what they are.
   const roster = garrisonRoster(system);
+  // Folded into kinds, in the order the player put them, for the grouped view.
+  const garrison = byRemembered(garrisonSummary(system), (e) => e.type.id, system.garrisonOrder);
+  /**
+   * What stands here, as rows. Grouped, two mines of the same owner are one
+   * line with a count; a building still going up is never folded in with a
+   * finished one, because "2x Mine, 14d" would be a lie about both of them.
+   */
+  const works = (() => {
+    const out: Array<Facility & { count: number; ids: string[] }> = [];
+    for (const facility of system.facilities) {
+      const fold =
+        prefs.group &&
+        !facility.building &&
+        out.find((f) => f.type === facility.type && f.owner === facility.owner && !f.building);
+      if (fold) {
+        fold.count += 1;
+        fold.ids.push(facility.id);
+      } else {
+        out.push({ ...facility, count: 1, ids: [facility.id] });
+      }
+    }
+    return out;
+  })();
   const company = companyId ? troopType(companyId) : undefined;
 
   return (
@@ -393,6 +432,9 @@ export function SystemSheet({
             onAssault={onAssault}
             onBoard={onBoard}
             onAshore={onAshore}
+            onOpenShip={onOpenShip}
+            onOrderShips={onOrderShips}
+            onOrderOfficers={onOrderOfficers}
           />
 
           {system.blockaded && (
@@ -440,16 +482,35 @@ export function SystemSheet({
             {system.facilities.length} of {slots} berths taken
             {freeSlots(system) > 0 ? `, ${freeSlots(system)} free` : ', and no room left'}.
           </p>
+          {system.facilities.length > 1 && <ListOpts />}
           <SlotBoard
             empty={`Nothing stands on ${system.name}${slots > 0 ? ' yet' : ', and there is nowhere to put anything'}.`}
           >
-            {system.facilities.map((facility) => (
+            {works.map((facility, i) => (
               <Slot
                 key={facility.id}
                 icon={<FacilityIcon type={facility.type} size={30} />}
-                name={FACILITY_LABEL[facility.type]}
+                name={
+                  facility.count > 1
+                    ? `${facility.count}× ${FACILITY_LABEL[facility.type]}`
+                    : FACILITY_LABEL[facility.type]
+                }
                 note={facility.building ? `${facility.building.daysRemaining}d` : undefined}
                 tone={facility.owner !== state.player ? 'dim' : undefined}
+                order={
+                  prefs.reorder && works.length > 1 && onOrderFacilities
+                    ? {
+                        up:
+                          i === 0
+                            ? undefined
+                            : () => onOrderFacilities(system.id, facility.ids, -1),
+                        down:
+                          i === works.length - 1
+                            ? undefined
+                            : () => onOrderFacilities(system.id, facility.ids, 1),
+                      }
+                    : undefined
+                }
               />
             ))}
           </SlotBoard>
@@ -551,20 +612,48 @@ export function SystemSheet({
               else — and who is standing there is the more interesting half:
               the Reef Guard are the reef island, and an Urskin company on the
               ice is who lives on the ice. */}
+          <ListOpts />
+          {/* Grouped, a kind of company is one tile with a count; ungrouped,
+              every company is its own. The kinds can be put in an order —
+              a company has no identity of its own to move, so what is
+              remembered is which kind comes first. */}
           <SlotBoard
             ghosts={Math.max(0, needed - system.garrison)}
             empty={`No companies are ashore on ${system.name}.`}
           >
-            {roster.map((type, i) => (
-              <Slot
-                key={i}
-                icon={<CompanyIcon size={30} type={type.id} />}
-                name={type.name}
-                note={`${type.offense}/${type.defense}/${type.watch}`}
-                onClick={() => setCompany(type.id)}
-                label={`${type.name} — ${type.people}`}
-              />
-            ))}
+            {(prefs.group
+              ? garrison.map((e) => ({ ...e, key: e.type.id }))
+              : roster.map((type, i) => ({ type, count: 1, key: `${type.id}-${i}` }))
+            ).map(
+              (entry, i, all) => (
+                <Slot
+                  key={entry.key}
+                  icon={<CompanyIcon size={30} type={entry.type.id} />}
+                  name={
+                    prefs.group && entry.count > 1
+                      ? `${entry.count}× ${entry.type.name}`
+                      : entry.type.name
+                  }
+                  note={`${entry.type.offense}/${entry.type.defense}/${entry.type.watch}`}
+                  onClick={() => setCompany(entry.type.id)}
+                  label={`${entry.type.name} — ${entry.type.people}`}
+                  order={
+                    prefs.reorder && prefs.group && all.length > 1 && onOrderGarrison
+                      ? {
+                          up:
+                            i === 0
+                              ? undefined
+                              : () => onOrderGarrison(system.id, [entry.type.id], -1),
+                          down:
+                            i === all.length - 1
+                              ? undefined
+                              : () => onOrderGarrison(system.id, [entry.type.id], 1),
+                        }
+                      : undefined
+                  }
+                />
+              ),
+            )}
           </SlotBoard>
           {roster.length > 0 && (
             <p className="tiny muted" style={{ marginTop: 6 }}>
@@ -632,8 +721,9 @@ export function SystemSheet({
           )}
 
           <div className="section-title">Ashore here</div>
+          {crew.length > 1 && <ListOpts />}
           <SlotBoard empty={`Nobody of yours is on ${system.name}.`}>
-            {crew.map((character) => (
+            {crew.map((character, i) => (
               <Slot
                 key={character.id}
                 icon={
@@ -655,6 +745,17 @@ export function SystemSheet({
                 }
                 tone={character.status === 'injured' ? 'warn' : undefined}
                 onClick={() => onOpenCharacter?.(character.id)}
+                order={
+                  prefs.reorder && crew.length > 1 && onOrderCrew
+                    ? {
+                        up: i === 0 ? undefined : () => onOrderCrew([character.id], -1),
+                        down:
+                          i === crew.length - 1
+                            ? undefined
+                            : () => onOrderCrew([character.id], 1),
+                      }
+                    : undefined
+                }
               />
             ))}
           </SlotBoard>

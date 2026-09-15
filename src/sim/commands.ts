@@ -8,6 +8,8 @@ import { assault, board, embark, goAshore, sailFleet } from './fleets';
 import { createRng } from './rng';
 import { generateGalaxy } from './galaxy';
 import { cloneState } from './helpers';
+import { moveBlock } from './order';
+import { garrisonRoster } from './troops';
 import { continueMission, endMission, startMission } from './missions';
 import { resolveControlAndUnrest } from './support';
 import type { BuildItem, GameState, MissionType, PlayableFaction, Speed } from './types';
@@ -54,6 +56,87 @@ export function orderFoundWorks(state: GameState, systemId: string): CommandResu
 
 export function cancelOrder(state: GameState, facilityId: string): CommandResult {
   return run(state, (draft) => cancelBuild(draft, facilityId));
+}
+
+/**
+ * Put things in the order the player wants them.
+ *
+ * Every one of these moves the game's own array rather than a view's index,
+ * so the order saves with the game and cannot drift from what is there. One
+ * step per call, up or down; `ids` is a block, because a grouped row is
+ * several hulls on one line.
+ */
+export function reorderShips(
+  state: GameState,
+  fleetId: string,
+  shipIds: string[],
+  dir: -1 | 1,
+): CommandResult {
+  return run(state, (draft) => {
+    const fleet = draft.fleets.find((f) => f.id === fleetId);
+    if (!fleet) throw new Error('No such fleet.');
+    const set = new Set(shipIds);
+    fleet.ships = moveBlock(fleet.ships, (ship) => set.has(ship.id), dir);
+  });
+}
+
+export function reorderOfficers(
+  state: GameState,
+  fleetId: string,
+  characterIds: string[],
+  dir: -1 | 1,
+): CommandResult {
+  return run(state, (draft) => {
+    const fleet = draft.fleets.find((f) => f.id === fleetId);
+    if (!fleet) throw new Error('No such fleet.');
+    const set = new Set(characterIds);
+    fleet.officerIds = moveBlock(fleet.officerIds, (id) => set.has(id), dir);
+  });
+}
+
+export function reorderFacilities(
+  state: GameState,
+  systemId: string,
+  facilityIds: string[],
+  dir: -1 | 1,
+): CommandResult {
+  return run(state, (draft) => {
+    const system = draft.systems.find((s) => s.id === systemId);
+    if (!system) throw new Error('No such island.');
+    const set = new Set(facilityIds);
+    system.facilities = moveBlock(system.facilities, (f) => set.has(f.id), dir);
+  });
+}
+
+/**
+ * Crew are ordered in the roster itself, which is what every list of people
+ * filters, so moving somebody moves them on the island panel and the crew
+ * screen alike — one order, everywhere they are listed.
+ */
+export function reorderCrew(state: GameState, characterIds: string[], dir: -1 | 1): CommandResult {
+  return run(state, (draft) => {
+    const set = new Set(characterIds);
+    draft.characters = moveBlock(draft.characters, (c) => set.has(c.id), dir);
+  });
+}
+
+/**
+ * A garrison has no per-company identity to move — it is a count, and a roster
+ * derived from it — so what is remembered here is the order of the kinds.
+ */
+export function reorderGarrison(
+  state: GameState,
+  systemId: string,
+  typeIds: string[],
+  dir: -1 | 1,
+): CommandResult {
+  return run(state, (draft) => {
+    const system = draft.systems.find((s) => s.id === systemId);
+    if (!system) throw new Error('No such island.');
+    const current = system.garrisonOrder ?? [...new Set(garrisonRoster(system).map((t) => t.id))];
+    const set = new Set(typeIds);
+    system.garrisonOrder = moveBlock(current, (id) => set.has(id), dir);
+  });
 }
 
 /** Order a fleet to weigh anchor for another island. */
