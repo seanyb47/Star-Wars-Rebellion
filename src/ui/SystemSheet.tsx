@@ -99,7 +99,7 @@ function LoyaltyLine({ system }: { system: System }) {
   const lost = smuggledOff(system, holder);
   const quiet = LEAK_CHANCE[band] === 0 || system.explored[enemy];
   return (
-    <p className="tiny muted" style={{ margin: '8px 0 0' }}>
+    <p className="tiny muted" style={{ margin: 0 }}>
       <b>{LOYALTY_BAND_LABEL[band]}.</b>{' '}
       {share === 0
         ? 'Nothing leaves this harbor but what you load.'
@@ -390,6 +390,13 @@ export function SystemSheet({
             mutiny={system.uprising}
             height={104}
           />
+          {/* Allegiance, up here with the painting rather than inside the
+              Garrison tab. It is the number the rest of the island is read
+              off — what it earns you, how many companies hold it quiet, how
+              much goes out the back — so asking for it meant a tab change
+              from wherever you happened to be. Slim, because everything above
+              the tabs is paid for out of every tab's height. */}
+          {system.populated && <SupportBars system={system} slim />}
         </div>
       }
       tabs={
@@ -581,8 +588,9 @@ export function SystemSheet({
               companies it asks for and how much of its trade goes out the back
               are both read off this number. */}
           {system.populated ? (
+            /* The bar itself is above the tabs now; what stays here is the
+               reading of it, which is garrison and trade business. */
             <div style={{ marginBottom: 10 }}>
-              <SupportBars system={system} />
               <LoyaltyLine system={system} />
             </div>
           ) : (

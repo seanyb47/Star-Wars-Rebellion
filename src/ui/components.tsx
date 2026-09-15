@@ -122,12 +122,16 @@ export function ControlBadge({ faction }: { faction: Faction }) {
  * the other side next. The two always add up to a hundred, so there is no
  * undecided remainder to draw. The
  * figures underneath name the shares so the bar never has to be guessed at.
+ *
+ * `slim` is the one that rides above the tabs on the island sheet: the same
+ * bar and the same figures, thinner and smaller, because up there it is paid
+ * for out of every tab's height rather than the garrison's alone.
  */
-export function SupportBars({ system }: { system: System }) {
+export function SupportBars({ system, slim }: { system: System; slim?: boolean }) {
   const segments = allegianceSegments(system);
   return (
-    <div>
-      <div className="bar bar--tall">
+    <div className={slim ? 'supportbars supportbars--slim' : 'supportbars'}>
+      <div className={`bar bar--tall${slim ? ' bar--slim' : ''}`}>
         {segments.map((segment) => (
           <div
             key={segment.faction}
@@ -135,7 +139,7 @@ export function SupportBars({ system }: { system: System }) {
           />
         ))}
       </div>
-      <div className="bar-key">
+      <div className={`bar-key${slim ? ' bar-key--slim' : ''}`}>
         {segments
           .filter((segment) => segment.faction !== 'neutral')
           .map((segment) => (

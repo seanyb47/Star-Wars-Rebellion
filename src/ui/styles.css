@@ -536,6 +536,15 @@ button {
 }
 .bar-key span { display: inline-flex; align-items: center; gap: 5px; }
 .bar-key i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+/* The slim allegiance strip, above the island sheet's tabs. Same bar, less of
+   it: this one is paid for on all five tabs, so it costs what it must and no
+   more. One line, never wrapping — two shares always fit. */
+.bar--slim { height: 6px; border-radius: 3px; }
+.bar-key--slim {
+  flex-wrap: nowrap; gap: 12px; margin-top: 4px; font-size: 10px;
+  letter-spacing: 0.01em;
+}
+.bar-key--slim i { width: 7px; height: 7px; }
 
 .btn {
   min-height: var(--tap); padding: 9px 12px; border-radius: 9px; border: 1px solid var(--border);
@@ -756,6 +765,9 @@ button {
    run edge to edge the way it did at the top of the Harbor tab. */
 .isle-head { flex: none; }
 .isle-head .portrait__note { margin: 6px 14px 8px; }
+/* The allegiance strip sits under the painting and over the tabs, inset to
+   the sheet's own gutter. */
+.isle-head .supportbars--slim { margin: 8px 14px 6px; }
 
 /* ---------- Units, buildings and people ---------- */
 /* The painted band beside a building's name: its own box, so it never sits
