@@ -12,6 +12,7 @@ import {
   FORT_GUNS,
   OFFICER_EDGE,
   SCOUT_PER_ISLAND,
+  shipClass,
   shipSpec,
   HIT_CHANCE,
   LONG_GUN_SHARE,
@@ -35,7 +36,7 @@ import {
   requiredGarrison,
   setSupport,
 } from './helpers';
-import { captureLord, fleetHeldAshore, isLord, isLordShip, shipPower } from './lords';
+import { captureLord, fleetHeldAshore, isLord, isLordShip, lordOfShip, shipPower } from './lords';
 import { travelDays } from './missions';
 import type { Rng } from './rng';
 import type {
@@ -226,9 +227,15 @@ export function detachShips(
 
   let target = into ? findFleet(state, into)! : undefined;
   if (!target) {
+    // A squadron that is one Lord's ship and nothing else is called by her
+    // name, not Fleet 4 — the same as on day one and the same as when a Lord
+    // is got back out of the Crown's harbor. Splitting her out of a squadron
+    // is the third way to arrive at that fleet and it should not be the odd
+    // one out.
+    const alone = moving.length === 1 && lordOfShip(moving[0].classId);
     target = {
       id: nextId(state, 'flt'),
-      name: nextFleetName(state, actor),
+      name: alone ? shipClass(moving[0].classId).name : nextFleetName(state, actor),
       faction: actor,
       systemId: fleet.systemId,
       ships: [],

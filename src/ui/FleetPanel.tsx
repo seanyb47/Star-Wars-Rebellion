@@ -76,6 +76,10 @@ function ShipRow({
         <span className="shiprow__name">
           {grouped && ships.length > 1 && <b className="shiprow__n">{ships.length}×</b>}
           {cls.name}
+          {/* The one fact that decides what you are choosing: a Lord's ship
+              takes her Lord with it, pins whatever squadron it is in whenever
+              she is ashore, and is a third of the war if it is taken. */}
+          {isLordShip(ships[0]) && <span className="tiny shiprow__lord"> · a Lord's ship</span>}
         </span>
         <span className="shiprow__stats">
           {whole - hurt}/{whole}

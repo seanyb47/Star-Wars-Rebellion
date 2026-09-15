@@ -14,10 +14,13 @@ import {
   breakOffBattle,
   fightBattleRound,
   fleetsAt,
+  sailError,
   isAtSea,
   resolveBattles,
 } from '../fleets';
 import { generateGalaxy } from '../galaxy';
+import { PIRATE_LORDS, shipClass } from '../constants';
+import { fleetHeldAshore, isLordShip, lordFleet, powerAt } from '../lords';
 import { getCharacter, getSystem, requiredGarrison } from '../helpers';
 import {
   advanceMissions,
@@ -452,5 +455,43 @@ describe('a posting is not a rank', () => {
     // The island does not go on counting a commander three Reaches away.
     expect(isle.commanderId).toBeUndefined();
     expect(getCharacter(state, who.id).mission).toBeDefined();
+  });
+});
+
+describe("a Lord's ship in an ordinary squadron", () => {
+  it('can join one, and pins the whole squadron whenever she is ashore', () => {
+    const state = generateGalaxy(7, 'alliance');
+    const hale = PIRATE_LORDS[0];
+    const hers = lordFleet(state, hale)!;
+    const home = getSystem(state, hers.systemId);
+    let mine = hers;
+    for (const c of ['tempest', 'swift'] as const) mine = addShip(state, home, 'alliance', c);
+    expect(mine.id).not.toBe(hers.id);
+
+    // She can be put in with them.
+    expect(detachError(state, hers.id, [hers.ships[0].id], mine.id, 'alliance')).toBeNull();
+    detachShips(state, hers.id, [hers.ships[0].id], mine.id, 'alliance');
+    const merged = lordFleet(state, hale)!;
+    expect(merged.id).toBe(mine.id);
+    // Her power does not care which squadron she is in, only where she lies.
+    expect(powerAt(state, home.id, 'moot')).toBeDefined();
+
+    // Send her ashore: the whole squadron waits, not just her hull.
+    const target = state.systems.find(
+      (s) => s.control === 'neutral' && s.populated && s.explored.alliance,
+    )!;
+    startMission(state, state.characters.find((c) => c.name === hale.name)!.id, target.id);
+    expect(fleetHeldAshore(state, merged)?.name).toBe(hale.name);
+    expect(sailError(state, merged.id, target.id, 'alliance')).toMatch(/ashore/);
+    expect(powerAt(state, home.id, 'moot')).toBeUndefined();
+
+    // And the way out: split her hull back off, and the rest sails.
+    const hull = merged.ships.find(isLordShip)!;
+    expect(detachError(state, merged.id, [hull.id], undefined, 'alliance')).toBeNull();
+    const parked = detachShips(state, merged.id, [hull.id], undefined, 'alliance');
+    // Called by her name, as on day one and as when a Lord is got back.
+    expect(parked.name).toBe(shipClass(hull.classId).name);
+    expect(fleetHeldAshore(state, merged)).toBeUndefined();
+    expect(sailError(state, merged.id, target.id, 'alliance')).toBeNull();
   });
 });
