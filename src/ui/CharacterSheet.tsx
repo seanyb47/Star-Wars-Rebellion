@@ -1,8 +1,6 @@
 import terms from '../data/terms.json';
 import {
   MISSION_WORK_DAYS,
-  TRAVEL_DAYS_CROSS_SECTOR,
-  TRAVEL_DAYS_IN_SECTOR,
   inciteLoss,
   parleyGain,
   recruitChance,
@@ -248,9 +246,10 @@ export function CharacterSheet({
         </div>
         <div className="row row--between">
           <span className="muted">Passage</span>
-          <b>
-            {TRAVEL_DAYS_IN_SECTOR}d inside the {terms.reach} · {TRAVEL_DAYS_CROSS_SECTOR}d beyond
-          </b>
+          {/* No single number to print any more: passage is the distance,
+              so the sheet gives the shape of it and the target picker gives
+              the figure for the island actually chosen. */}
+          <b>By the distance · a toll for open sea</b>
         </div>
         <div className="row row--between">
           <span className="muted">Time on the island</span>

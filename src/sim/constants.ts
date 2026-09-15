@@ -14,23 +14,24 @@ import type {
 /**
  * Real time a game day takes, in milliseconds. One day is one tick (spec 2).
  *
- * Sean's reference, 15 September: 150 / 75 / 30 / 15 seconds a day. That is
- * about thirty-seven times slower than the game had been running, and it is
- * the original's pace rather than a strategy game's demo loop — Rebellion is
- * played over evenings, not minutes. A war here runs a few hundred days, so
- * Fast is a couple of hours, Medium about five, and Very Slow is a thing you
- * leave going and come back to.
+ * Sean's reference, revised the same day he set it: 30 / 15 / 5 / 2 seconds a
+ * day. The first table was Rebellion's own pace and it was right about the
+ * shape and wrong about the size — a war here runs a few hundred days, and at
+ * thirty seconds a day Medium was a five-hour sitting. This is five times
+ * quicker at every setting: Fast puts a five-hundred-day war inside twenty
+ * minutes, Medium inside three quarters of an hour, and Very Slow is still
+ * something you leave running.
  *
- * What that changes about the clock is in `App.tsx`: at four seconds a day
- * nobody noticed that opening a panel threw away the progress toward the next
- * one, and at a hundred and fifty they would notice nothing else.
+ * Travel was lengthened in the same breath and the two are the same decision.
+ * Days are cheaper now, so a crossing can cost more of them without costing
+ * the player an evening — which is what makes distance mean anything.
  */
 export const SPEED_MS: Record<Speed, number> = {
   paused: Number.POSITIVE_INFINITY,
-  very_slow: 150_000,
-  slow: 75_000,
-  medium: 30_000,
-  fast: 15_000,
+  very_slow: 30_000,
+  slow: 15_000,
+  medium: 5_000,
+  fast: 2_000,
 };
 
 /**
@@ -38,9 +39,11 @@ export const SPEED_MS: Record<Speed, number> = {
  *
  * Not how often a day passes — that is SPEED_MS. This is the resolution the
  * day's progress is measured and drawn at, fine enough that the ring around
- * the day badge moves smoothly and coarse enough to cost nothing.
+ * the day badge moves smoothly and coarse enough to cost nothing. Halved when
+ * the speeds were: at two seconds a day, two hundred milliseconds moved the
+ * ring a tenth of a turn at a time and you could see the steps.
  */
-export const CLOCK_TICK_MS = 200;
+export const CLOCK_TICK_MS = 100;
 
 export const SPEED_ORDER: Speed[] = ['paused', 'very_slow', 'slow', 'medium', 'fast'];
 
@@ -425,9 +428,29 @@ export const SUPPORT_DRIFT = 0.25;
  */
 export const HELD_SUPPORT_LEVEL = 65;
 
-/** Diplomacy mission (spec 4.5). */
-export const TRAVEL_DAYS_IN_SECTOR = 3;
-export const TRAVEL_DAYS_CROSS_SECTOR = 10;
+/*
+ * How long it takes to get anywhere.
+ *
+ * It used to be two numbers — three days inside a Reach, ten to leave it — and
+ * that made the chart a diagram rather than a map. Every island in a Reach was
+ * equally close, and the far side of the world was only three days further
+ * than the next Sea over. Distance is measured now, in the galaxy's own 1200
+ * units, so a long haul reads as a long haul.
+ *
+ * `TRAVEL_LEAGUE` is how far a ship makes in a day, `TRAVEL_CAST_OFF` the days
+ * that go on any passage at all however short, and `TRAVEL_OPEN_SEA` the toll
+ * for leaving your own Sea: the water between the Reaches is open ocean, and
+ * crossing it is worse than the same distance among known islands.
+ *
+ * What that works out to: a hop between neighbours in a Reach is 3 or 4 days,
+ * the length of a Reach 7 or 8, the next Sea over about a fortnight, and the
+ * far corner of the world a month. A fleet is slower or quicker than that by
+ * its pace (see `fleetPace`), so a ship of the line crossing the world is
+ * closer to six weeks and a sloop closer to three.
+ */
+export const TRAVEL_LEAGUE = 36;
+export const TRAVEL_CAST_OFF = 2;
+export const TRAVEL_OPEN_SEA = 4;
 export const MISSION_WORK_DAYS = 15;
 /**
  * How many can go on one errand, the officer leading it included. Sean's rule,

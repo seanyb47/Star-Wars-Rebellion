@@ -593,6 +593,22 @@ export function ChainMap({
                       fill={i < built ? '#f4f7f8' : '#8fa0a8'}
                     />
                   ))}
+                {/* And the figure, as on the island's row and its panel: free
+                    berths, set just past the last pip so it is plainly that
+                    bar's number and not the loyalty bar's underneath. Dimmed
+                    at nought — "no room" is worth reading differently from
+                    "room for two". */}
+                {slots > 0 && (
+                  <text
+                    className={`chainmap__berths${
+                      slots - built === 0 ? ' chainmap__berths--none' : ''
+                    }`}
+                    x={spot.x - 51 + Math.min(slots, ROOM_TRACK) * PIP_STEP}
+                    y={spot.y + (paintedGround ? 33 : 95)}
+                  >
+                    {slots - built}
+                  </text>
+                )}
                 {/* Loyalty: the same bar as the island's panel and its row in
                     the list, largest share first. It came off this view once
                     for being a smear under ten names; it is back because the

@@ -266,6 +266,9 @@ export function Stat({ label, value }: { label: string; value: ReactNode }) {
  * ground, and nothing at all past the end of what the island has: an island
  * with no room left and an island with no room to begin with do not look
  * alike. The berths the island has never been given are simply not drawn.
+ *
+ * The count of free berths is printed at the end of it, which is the number
+ * the player is after when they look at this at all.
  */
 export function RoomBar({
   system,
@@ -277,7 +280,8 @@ export function RoomBar({
 }) {
   const slots = Math.min(system.slots, ROOM_TRACK);
   const built = Math.min(system.facilities.length, slots);
-  const label = `${built} of ${slots} berths built`;
+  const free = slots - built;
+  const label = `${free} of ${slots} berths free`;
   return (
     <span
       className={`roombar${className ? ` ${className}` : ''}`}
@@ -288,6 +292,18 @@ export function RoomBar({
       {Array.from({ length: slots }, (_, i) => (
         <span key={i} className={i < built ? 'is-built' : ''} />
       ))}
+      {/* The figure sits in the track's spare column — the thirteenth, which
+          no island can ever fill, since twelve berths is the most there is.
+          That puts it immediately after the last pip on every island rather
+          than off at a fixed right edge, where on a small island it read as
+          belonging to the loyalty bar underneath. */}
+      <b
+        className={`roomnum${free === 0 ? ' roomnum--none' : ''}`}
+        style={{ gridColumn: `${slots + 1} / -1` }}
+      >
+        {free}
+      </b>
     </span>
   );
 }
+

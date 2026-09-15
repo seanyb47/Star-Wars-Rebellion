@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
-import { RECRUITS_IN_PLAY } from '../constants';
+import { MISSION_WORK_DAYS, RECRUITS_IN_PLAY } from '../constants';
 import {
   advanceMissions,
   continueMission,
@@ -49,10 +49,22 @@ function setup(seed = 301) {
   return { state, diplomat, home, sameSector, crossSector };
 }
 
-/** Run enough days for travel plus a full working cycle. */
 function runDays(state: GameState, days: number, seed: number) {
   const rng = createRng(seed);
   for (let day = 0; day < days; day++) advanceMissions(state, rng);
+}
+
+/**
+ * Days enough to sail there and work one full cycle.
+ *
+ * Travel used to be three days inside a Reach and these tests said 18 — three
+ * and fifteen — in a dozen places. It is a distance now, so the figure is
+ * different for every pair of islands and there is no literal to write. Call
+ * this before the officer leaves: it reads their current island.
+ */
+function cycleDays(state: GameState, characterId: string, toSystemId: string): number {
+  const from = getCharacter(state, characterId).locationSystemId;
+  return travelDays(state, from, toSystemId) + MISSION_WORK_DAYS;
 }
 
 describe('mission eligibility', () => {
@@ -119,18 +131,41 @@ describe('mission eligibility', () => {
 });
 
 describe('travel', () => {
-  it('takes 3 days inside a sector and 10 across sectors', () => {
+  it('is the distance, and leaving your own Sea costs more than the distance', () => {
     const { state, home, sameSector, crossSector } = setup();
-    expect(travelDays(state, home.id, sameSector.id)).toBe(3);
-    expect(travelDays(state, home.id, crossSector.id)).toBe(10);
+    const near = travelDays(state, home.id, sameSector.id);
+    const far = travelDays(state, home.id, crossSector.id);
+    expect(near).toBeGreaterThan(0);
+    expect(far).toBeGreaterThan(near);
+    expect(travelDays(state, home.id, home.id)).toBe(0);
+    // Symmetric, and no pair of islands is a teleport.
+    expect(travelDays(state, sameSector.id, home.id)).toBe(near);
+    for (const a of state.systems) {
+      for (const b of state.systems) {
+        if (a.id !== b.id) expect(travelDays(state, a.id, b.id)).toBeGreaterThanOrEqual(1);
+      }
+    }
+    // Two islands the same distance apart are not the same passage if one of
+    // them is across open water: the crossing carries a toll of its own.
+    const place = (s: System) => {
+      const sec = state.sectors.find((x) => x.id === s.sectorId)!;
+      return { x: sec.x + s.x, y: sec.y + s.y };
+    };
+    const gap = (a: System, b: System) => {
+      const p = place(a);
+      const q = place(b);
+      return Math.hypot(p.x - q.x, p.y - q.y);
+    };
+    expect(far - near).toBeGreaterThan((gap(home, crossSector) - gap(home, sameSector)) / 36);
   });
 
   it('moves the character on arrival and starts the 15-day work phase', () => {
     const { state, diplomat, sameSector } = setup();
+    const passage = travelDays(state, diplomat.locationSystemId, sameSector.id);
     startMission(state, diplomat.id, sameSector.id);
     expect(diplomat.mission!.phase).toBe('travelling');
 
-    runDays(state, 3, 1);
+    runDays(state, passage, 1);
     const arrived = getCharacter(state, diplomat.id);
     expect(arrived.locationSystemId).toBe(sameSector.id);
     expect(arrived.mission!.phase).toBe('working');
@@ -151,10 +186,11 @@ describe('resolution', () => {
     const { state, diplomat, sameSector } = setup();
     diplomat.diplomacy = 100; // success chance 0.9
     sameSector.support = { empire: 20, alliance: 80 };
+    const cycle = cycleDays(state, diplomat.id, sameSector.id);
     startMission(state, diplomat.id, sameSector.id);
 
     // Seed 2 draws a success on the resolving day.
-    runDays(state, 18, 2);
+    runDays(state, cycle, 2);
     const after = getSystem(state, sameSector.id);
     // One balance: what you win is exactly what they lose.
     expect(after.support.empire).toBeCloseTo(38); // 20 + 8 + 100/10
@@ -166,23 +202,26 @@ describe('resolution', () => {
     const { state, diplomat, sameSector } = setup();
     diplomat.diplomacy = 100;
     sameSector.support = { empire: 65, alliance: 35 };
+    const cycle = cycleDays(state, diplomat.id, sameSector.id);
     startMission(state, diplomat.id, sameSector.id);
-    runDays(state, 18, 2);
+    runDays(state, cycle, 2);
     expect(getSystem(state, sameSector.id).control).toBe('empire');
   });
 
   it('queues a continue-or-return decision for the player', () => {
     const { state, diplomat, sameSector } = setup();
+    const cycle = cycleDays(state, diplomat.id, sameSector.id);
     startMission(state, diplomat.id, sameSector.id);
-    runDays(state, 18, 2);
+    runDays(state, cycle, 2);
     expect(state.pendingDecisions).toHaveLength(1);
     expect(state.pendingDecisions[0].characterId).toBe(diplomat.id);
   });
 
   it('starts another 15-day cycle on continue', () => {
     const { state, diplomat, sameSector } = setup();
+    const cycle = cycleDays(state, diplomat.id, sameSector.id);
     startMission(state, diplomat.id, sameSector.id);
-    runDays(state, 18, 2);
+    runDays(state, cycle, 2);
     continueMission(state, diplomat.id);
     expect(state.pendingDecisions).toHaveLength(0);
     expect(getCharacter(state, diplomat.id).mission!.daysRemaining).toBe(15);
@@ -190,8 +229,9 @@ describe('resolution', () => {
 
   it('frees the character on return', () => {
     const { state, diplomat, sameSector } = setup();
+    const cycle = cycleDays(state, diplomat.id, sameSector.id);
     startMission(state, diplomat.id, sameSector.id);
-    runDays(state, 18, 2);
+    runDays(state, cycle, 2);
     endMission(state, diplomat.id);
     const done = getCharacter(state, diplomat.id);
     expect(done.status).toBe('available');
@@ -212,6 +252,7 @@ describe('resolution', () => {
       // Far from coming over: a parley this good on a warm island flips it
       // in one cycle, and nobody is hunting you on your own ground.
       getSystem(trial, sameSector.id).support = { empire: 5, alliance: 5 };
+      const cycle = cycleDays(trial, agent.id, sameSector.id);
       startMission(trial, agent.id, sameSector.id);
       // Somebody of theirs turns up to watch the harbor once the parley is
       // under way — after, or the errand would be to abduct them — so a foil
@@ -219,7 +260,7 @@ describe('resolution', () => {
       const spy = trial.characters.find((c) => c.faction === 'alliance')!;
       spy.locationSystemId = sameSector.id;
       spy.espionage = 100;
-      runDays(trial, 18, seed);
+      runDays(trial, cycle, seed);
       const after = getCharacter(trial, agent.id);
       if (after.status === 'injured') {
         foiled = true;
@@ -244,9 +285,10 @@ describe('resolution', () => {
     const own = state.systems.find(
       (s) => s.control === 'empire' && s.id !== diplomat.locationSystemId,
     )!;
+    const cycle = cycleDays(state, diplomat.id, own.id) + 2;
     startMission(state, diplomat.id, own.id);
     for (let seed = 1; seed <= 30; seed++) {
-      runDays(state, 20, seed);
+      runDays(state, cycle, seed);
       expect(getCharacter(state, diplomat.id).status).not.toBe('injured');
       state.pendingDecisions = [];
       continueMission(state, diplomat.id);
@@ -287,8 +329,9 @@ describe('incitement', () => {
       const where = trial.systems.find((s) => s.id === island.id)!;
       where.explored.empire = true;
       where.support = { ...before };
+      const cycle = cycleDays(trial, who.id, where.id) + 8;
       startMission(trial, who.id, where.id);
-      runDays(trial, 26, seed);
+      runDays(trial, cycle, seed);
       const after = getSystem(trial, island.id);
       if (after.support.alliance < before.alliance) {
         landed = true;
@@ -306,11 +349,12 @@ describe('incitement', () => {
   it('sets an island alight once the governor drops under the threshold', () => {
     const { state, agent, island } = withEnemyIsland(34);
     island.garrison = 0;
+    const sailAndWork = cycleDays(state, agent.id, island.id) + 12;
     startMission(state, agent.id, island.id);
     // Work it until it rises, answering its own continue decisions.
     let rose = false;
     for (let cycle = 0; cycle < 8 && !rose; cycle++) {
-      runDays(state, 30, 7 + cycle);
+      runDays(state, sailAndWork, 7 + cycle);
       rose = getSystem(state, island.id).uprising;
       if (!rose && state.pendingDecisions.length > 0) {
         state.pendingDecisions = [];
@@ -433,9 +477,10 @@ describe('recruitment', () => {
     for (let seed = 1; seed <= 40 && !signed; seed++) {
       const { state, officer, recruit, island } = withRecruit();
       const before = state.characters.filter((c) => c.faction === 'empire').length;
+      const cycle = cycleDays(state, officer.id, island.id) + 12;
       startMission(state, officer.id, island.id);
       expect(getCharacter(state, officer.id).mission!.type).toBe('recruit');
-      runDays(state, 30, seed);
+      runDays(state, cycle, seed);
 
       const after = getCharacter(state, recruit.id);
       if (after.faction !== 'empire') continue;

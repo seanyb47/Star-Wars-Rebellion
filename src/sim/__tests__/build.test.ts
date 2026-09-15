@@ -11,6 +11,7 @@ import {
   queueBuild,
 } from '../build';
 import { getSystem } from '../helpers';
+import { travelDays } from '../missions';
 import type { GameState } from '../types';
 
 function yardOf(state: GameState, faction: 'empire' | 'alliance') {
@@ -209,7 +210,8 @@ describe('orders sent to another island', () => {
     const there = elsewhere(state, 'empire', system.id);
     state.factions.empire.gold = 500;
     queueBuild(state, facility.id, 'mine', there.id);
-    const sail = system.sectorId === there.sectorId ? 3 : 10;
+    // Passage is a distance now, so ask for the figure rather than knowing it.
+    const sail = travelDays(state, system.id, there.id);
     expect(facility.building).toEqual({ item: 'mine', daysRemaining: 8 + sail, costGold: 40, destinationId: there.id });
     const minesBefore = there.facilities.filter((f) => f.type === 'mine').length;
     const hereBefore = system.facilities.length;
@@ -275,7 +277,9 @@ describe('orders sent to another island', () => {
     expect(plan.error).toBeNull();
     expect(plan.facilityId).not.toBeNull();
     expect(plan.days).toBe(8);
-    expect([0, 3, 10]).toContain(plan.travel);
+    expect(plan.travel).toBe(
+      plan.fromSystemId === null ? 0 : travelDays(state, plan.fromSystemId, there.id),
+    );
     // Made on the spot when the island has its own works.
     if (there.facilities.some((f) => f.type === 'construction_yard' && f.owner === 'empire')) {
       expect(plan.travel).toBe(0);

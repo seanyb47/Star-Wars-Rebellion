@@ -22,8 +22,9 @@ import {
   SURVEY_PER_ISLAND,
   MISSION_PARTY_MAX,
   MISSION_WORK_DAYS,
-  TRAVEL_DAYS_CROSS_SECTOR,
-  TRAVEL_DAYS_IN_SECTOR,
+  TRAVEL_CAST_OFF,
+  TRAVEL_LEAGUE,
+  TRAVEL_OPEN_SEA,
   RESCUE_BASE,
 } from './constants';
 import {
@@ -41,12 +42,36 @@ import { lordFleet, lordOfName, restoreLord } from './lords';
 import type { Rng } from './rng';
 import type { Character, GameState, MissionType, PlayableFaction, System } from './types';
 
-/** 3 days inside a sector, 10 across (spec 4.5). */
+/**
+ * How many days' sail from one island to another.
+ *
+ * Measured, not banded. An island's own x and y are relative to its Reach —
+ * that is how the chart draws a cluster — so a distance between two islands is
+ * only meaningful once each is placed in the world: Reach centre plus island
+ * offset. Getting that wrong is a quiet bug rather than a loud one, since two
+ * islands in different Reaches would still come out a plausible distance
+ * apart, just the wrong one.
+ *
+ * Then: a fixed cost to cast off at all, a day for every league of open water,
+ * and a toll on top for leaving your own Sea. Never less than one day, because
+ * a voyage that takes no time is a teleport.
+ */
 export function travelDays(state: GameState, fromSystemId: string, toSystemId: string): number {
   if (fromSystemId === toSystemId) return 0;
   const from = getSystem(state, fromSystemId);
   const to = getSystem(state, toSystemId);
-  return from.sectorId === to.sectorId ? TRAVEL_DAYS_IN_SECTOR : TRAVEL_DAYS_CROSS_SECTOR;
+  const a = worldPlace(state, from);
+  const b = worldPlace(state, to);
+  const leagues = Math.hypot(a.x - b.x, a.y - b.y) / TRAVEL_LEAGUE;
+  const crossing = from.sectorId === to.sectorId ? 0 : TRAVEL_OPEN_SEA;
+  return Math.max(1, Math.round(TRAVEL_CAST_OFF + leagues + crossing));
+}
+
+/** An island's place in the world: its Reach's centre, plus its own offset. */
+function worldPlace(state: GameState, system: System): { x: number; y: number } {
+  const sector = state.sectors.find((s) => s.id === system.sectorId);
+  if (!sector) return { x: system.x, y: system.y };
+  return { x: sector.x + system.x, y: sector.y + system.y };
 }
 
 /** Eligible target: settled, quiet, and not the enemy's (spec 4.5). */
