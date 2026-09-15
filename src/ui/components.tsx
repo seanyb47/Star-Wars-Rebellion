@@ -12,6 +12,8 @@ export function Sheet(props: {
   onClose: () => void;
   children: ReactNode;
   actions?: ReactNode;
+  /** The footer is one full-width control, so drop the row padding and rule. */
+  actionsFlush?: boolean;
   /** Optional tab strip, pinned under the header while the body scrolls. */
   tabs?: ReactNode;
   /** Raise this sheet above one already open, rather than behind it. */
@@ -52,7 +54,11 @@ export function Sheet(props: {
         >
           {props.children}
         </div>
-        {props.actions && <div className="sheet__actions">{props.actions}</div>}
+        {props.actions && (
+          <div className={`sheet__actions${props.actionsFlush ? ' sheet__actions--flush' : ''}`}>
+            {props.actions}
+          </div>
+        )}
       </div>
     </>
   );

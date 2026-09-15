@@ -84,6 +84,23 @@ export function ReachSheet({
       onClose={onClose}
       onTouchStart={dragging ? swipe.onTouchStart : undefined}
       onTouchEnd={dragging ? swipe.onTouchEnd : undefined}
+      /* The filter you had on the chart, still on and still yours to change,
+         pinned to the foot of the panel where it sits on the chart itself.
+         It was above the islands, which put the one control you are least
+         likely to want between you and the thing you opened the Reach to
+         look at — and a thumb's reach from where it had just been. */
+      actionsFlush
+      actions={
+        dragging && layer && onLayerChange ? (
+          <LayerStrip
+            state={state}
+            layer={layer}
+            onChange={onLayerChange}
+            viewer={state.player}
+            foot
+          />
+        ) : undefined
+      }
     >
       {/*
         The chain opened out as a chart rather than a list of rows: the islands
@@ -91,11 +108,6 @@ export function ReachSheet({
         it leans. Tap one to open it. No heading above it — it is the whole
         panel.
       */}
-      {/* The filter you had on the chart, still on, and still yours to change
-          without going back out to it. */}
-      {layer && onLayerChange && !pickingFor && !sailing && !choosing && (
-        <LayerStrip state={state} layer={layer} onChange={onLayerChange} viewer={state.player} inline />
-      )}
       <ChainMap
         state={state}
         systems={summary.perIsland.map((entry) => byId.get(entry.systemId)!)}

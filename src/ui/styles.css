@@ -377,6 +377,10 @@ button {
   overscroll-behavior: contain;
 }
 .sheet__actions { display: flex; gap: 8px; padding: 10px 14px calc(10px + var(--safe-bottom)); border-top: 1px solid var(--border); }
+/* A footer that is one full-width control rather than a row of buttons: it
+   brings its own edge and its own padding, and the sheet's safe-area padding
+   already sits under it. */
+.sheet__actions--flush { display: block; padding: 0; border-top: 0; }
 
 @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
@@ -1029,11 +1033,13 @@ button {
 /* The same strip inside a sheet: the filter follows you into a Reach and can
    still be changed there, so zooming in never means losing what you were
    looking at. */
-.layers--inline {
-  position: static; border-top: 0; padding: 0 0 4px;
-  background: none;
+.layers--foot {
+  /* In a sheet's footer rather than floating over the chart, and keeping the
+     wood and the rule above it so it reads as the same strip in the same
+     place — the chart's filters do not move house when you zoom into a Reach. */
+  position: static;
+  padding: 6px 0 2px;
 }
-.layers--inline .layers__strip { padding: 0 0 4px; }
 
 .layers__strip {
   display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;

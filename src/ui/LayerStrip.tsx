@@ -22,14 +22,16 @@ export function LayerStrip({
   layer,
   onChange,
   viewer,
-  inline = false,
+  foot = false,
 }: {
   state: GameState;
   layer: ChartLayer;
   onChange: (layer: ChartLayer) => void;
   viewer: PlayableFaction;
-  /** Sitting in a sheet rather than floating on the foot of the chart. */
-  inline?: boolean;
+  /** Pinned to the foot of a sheet rather than floating on the chart. Same
+   *  wood, same chips, same place on the screen — a Reach is still the chart,
+   *  so its filters are not a different control in a different corner. */
+  foot?: boolean;
 }) {
   const strip = useRef<HTMLDivElement>(null);
 
@@ -40,7 +42,7 @@ export function LayerStrip({
   }, [layer]);
 
   return (
-    <div className={`layers${inline ? ' layers--inline' : ''}`}>
+    <div className={`layers${foot ? ' layers--foot' : ''}`}>
       <div className="layers__strip" ref={strip} role="tablist" aria-label="Chart layer">
         {CHART_LAYERS.map((l) => {
           const n = l.id === 'allegiance' || l.id === 'none' ? null : layerTally(state, l.id, viewer);

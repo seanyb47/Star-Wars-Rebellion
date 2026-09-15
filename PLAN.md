@@ -817,3 +817,18 @@ it: the two together cover it whichever way the viewport resolves.
 Worth remembering: the effect went in above every early return. Put below one,
 it rendered more hooks on some passes than others and React threw #310 on the
 title screen.
+
+**The Reach panel's filters move to its foot — 15 September.** They sat above
+the islands, which put the control you are least likely to want between you
+and the thing you opened the Reach to look at, and a thumb's travel from where
+that same control had just been on the chart. They are pinned to the foot of
+the panel now, in the sheet's footer, with the chart strip's own wood and the
+rule above it — the same control, the same look, the bottom of the screen.
+`layers--inline`, which stripped the wood off and sat it in the body, is gone;
+`layers--foot` keeps it. Swiping the map and tapping the chips both still work.
+
+One honest caveat: the panel's strip sits 64px lower than the chart's, because
+the panel covers the tab bar and the chart's strip floats above it. Making the
+two land on the identical pixel would mean leaving a band of empty panel below
+the strip, which is the dead space at the bottom of the screen we had just
+finished getting rid of.
