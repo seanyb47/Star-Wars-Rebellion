@@ -445,11 +445,29 @@ button {
 .sheet {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 21;
   max-height: 82%; display: flex; flex-direction: column;
+  /* A sheet with no tabs is one thing and sizes to it: a ship's sheet has as
+     much in it as that ship has, and stretching it to fill the screen would
+     be padding for its own sake. */
   background: var(--bg-raised); border-top: 1px solid var(--border);
   border-radius: 16px 16px 0 0;
   padding-bottom: var(--safe-bottom);
   animation: slide-up 180ms cubic-bezier(0.2, 0.8, 0.3, 1);
 }
+/*
+ * A sheet with tabs is one height, whatever tab is showing.
+ *
+ * Four tabs about one island, each sizing itself to its own contents, meant
+ * the whole panel jumped up and down the screen as you swiped across it —
+ * Harbor tall, Buildings short, and the tab strip you were aiming at
+ * somewhere different every time. The panel is furniture; what is in it
+ * changes. So the height is fixed and the body scrolls inside it, and the
+ * tabs, the island's name and its painting stay exactly where your thumb
+ * last found them.
+ *
+ * The cost is honest: a sparse tab has room to spare at the bottom. That is
+ * the trade — a still panel over a snug one.
+ */
+.sheet--tabbed { height: 82%; }
 .sheet__grip { width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 8px auto 4px; }
 .map__rhumb { stroke: #0f3a47; }
 .sheet__head { padding: 4px 14px 10px; border-bottom: 1px solid var(--metal-lo); }

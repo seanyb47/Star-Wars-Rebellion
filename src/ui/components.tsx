@@ -39,7 +39,9 @@ export function Sheet(props: {
         onClick={props.onClose}
       />
       <div
-        className={`sheet${props.stacked ? ' sheet--stacked' : ''}`}
+        className={`sheet${props.stacked ? ' sheet--stacked' : ''}${
+          props.tabs ? ' sheet--tabbed' : ''
+        }`}
         role="dialog"
         aria-label={props.title}
       >

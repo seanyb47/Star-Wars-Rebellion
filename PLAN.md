@@ -1414,3 +1414,25 @@ sliver survives on some phone neither of us has, it will not look broken.
 
 `?diag` now prints every number the browser offers for the height of the glass
 side by side, and the gap below the console measured against two of them.
+
+**One height for a panel with tabs — 15 September.** Sean, four screenshots
+of the same island: "Make all these same size panels. Not getting taller and
+shorter depending on content."
+
+`.sheet` was `max-height: 82%`, so it grew to whatever was in it — Harbor
+filled the cap, Buildings on an island you do not hold came in at half that.
+The panel is anchored to the bottom of the screen, so a shorter panel moves
+its *top*: the island's name, its painting and the tab strip all jumped to a
+different place on every swipe, and the tab you were aiming at was never twice
+in the same spot.
+
+A sheet with tabs is now a fixed `height: 82%` and the body scrolls inside it.
+Measured across all four tabs: top 172, height 784, tab strip at 369 — the
+same three numbers every time.
+
+A sheet **without** tabs still sizes to its contents, and should: a ship's
+sheet has as much in it as that ship has, and stretching it to fill the screen
+would be padding for its own sake. It is the tabbed panel that is furniture.
+
+The cost is honest and visible: a sparse tab has room to spare at the bottom.
+That is the trade Sean asked for — a still panel over a snug one.
