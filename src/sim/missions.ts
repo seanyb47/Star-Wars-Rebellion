@@ -34,7 +34,7 @@ import {
 } from './helpers';
 import { recomputeLedger } from './economy';
 import { resolveControlAndUnrest } from './support';
-import { isLord, restoreLord } from './lords';
+import { lordFleet, lordOfName, restoreLord } from './lords';
 import type { Rng } from './rng';
 import type { Character, GameState, MissionType, PlayableFaction, System } from './types';
 
@@ -362,8 +362,18 @@ export function missionError(
   const character = state.characters.find((c) => c.id === characterId);
   if (!character) return 'No such character.';
   if (!isPlayable(character.faction)) return 'That character has no faction.';
-  if (isLord(character)) return `${character.name} is a Pirate Lord and does not leave their ship.`;
   if (character.status !== 'available') return 'They are not free to sail.';
+  // A Lord may go ashore, but they leave from their own deck and their ship
+  // has to be in a harbour to leave it from. Everything that makes this cost
+  // something — the hull pinned at anchor, the power asleep, the Lord
+  // takeable — follows from their being off the ship, not from a special rule
+  // about errands.
+  const lord = lordOfName(character.name);
+  if (lord) {
+    const ship = lordFleet(state, lord);
+    if (!ship) return `${character.name} has no ship to leave from.`;
+    if (ship.voyage) return `The ${ship.name} is at sea. ${character.name} goes ashore from a harbour.`;
+  }
   const system = state.systems.find((s) => s.id === targetSystemId);
   if (!system) return 'No such island.';
   if (!isMissionTarget(state, system, character.faction)) return 'Nothing to be done there.';

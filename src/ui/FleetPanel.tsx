@@ -6,6 +6,7 @@ import {
   fleetDamaged,
   fleetGuns,
   fleetStatus,
+  fleetHeldAshore,
   isLordShip,
   lordOfShip,
   LORD_POWER_TEXT,
@@ -52,6 +53,8 @@ export function FleetCard({
   const atSea = fleet.voyage !== undefined;
   const ashore = system?.garrison ?? 0;
   const holdsIsland = system?.control === fleet.faction;
+  /** A Lord of this fleet who is off on an errand, and so pinning the hull. */
+  const waitingFor = fleetHeldAshore(state, fleet);
 
   // One row per class, so eight sloops are a line rather than eight lines.
   const [signing, setSigning] = useState(false);
@@ -202,8 +205,15 @@ export function FleetCard({
 
       {canOrder && !atSea && (
         <div className="fleet__orders">
-          <button className="btn" onClick={() => onSail(fleet.id)}>
-            Weigh anchor
+          {/* A Lord's ship does not sail without her Lord, and the button says
+              so here rather than letting you pick a destination and be told
+              no at the end of it. */}
+          <button
+            className="btn"
+            disabled={waitingFor !== undefined}
+            onClick={() => onSail(fleet.id)}
+          >
+            {waitingFor ? `Waiting for ${waitingFor.name.split(' ').slice(-1)[0]}` : 'Weigh anchor'}
           </button>
           {holdsIsland && (
             <>

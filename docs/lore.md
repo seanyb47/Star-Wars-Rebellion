@@ -37,7 +37,9 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 
 *The Free Confederacy of the Seven Seas* — "the Brethren" to friends, "the Confederacy of Thieves" to the Admiralty. A compact of pirate captains, smugglers, exiled nobles, Reef-folk clans, Urskin whaling fleets, and witch-islands that answer to nobody. Governed by an elected **Commodore** and a shouting-match council called the **Moot**. It has no capital and no base. It has **three Pirate Lords**, each bound to a ship, and wherever the *Free Harbor* lies at anchor the Moot is sitting. It has one place, **Freeport** — the island the articles were signed on, a different island every game. It flies Confederate colours and owes the Crown nothing, but it is a birthplace rather than a capital: nothing is lost by losing it.
 
-**The three Pirate Lords.** The Confederacy was formed at a meeting on an island past the Crown's charts, and the three captains who called it are the Confederacy: take all three and there is nobody left to lead it. Each never leaves their ship; the ship is the Lord, and what the ship does is what the Lord does for the cause.
+**The three Pirate Lords.** The Confederacy was formed at a meeting on an island past the Crown's charts, and the three captains who called it are the Confederacy: take all three and there is nobody left to lead it.
+
+A Lord is a ship when idle and a person on an errand. Left alone they are aboard, and what the ship does is what the Lord does for the cause. Sent ashore — to parley, to spy, to sign somebody on — they are an officer like any other: they can be found out, hurt, and carried off to Highwater in irons, and their ship lies where they left it, unable to sail, her power asleep, until they are back on her deck. That is the Confederacy's whole dilemma and it is meant to hurt: the three best people they have are also three of their best hulls, and early on there is nothing else to send.
 
 A Lord's ship does not sink. When her hull gives she strikes her colours, is taken as a prize, and the Lord goes in irons to Highwater. Exchanged or broken out, the Lord comes home with the ship, cut out of the Crown's harbour the same night. Calloway, meanwhile, came out of the Black Tide as Admiral Corvus Blackwater and hunts his own old ship for the Crown.
 
@@ -191,7 +193,7 @@ Smuggler captain of the Swallowtail, a coral-grown sloop that has no business be
 
 Reyne's first mate: a tusked, shaggy mountain who can throw a harpoon through a hull. Loyal past all reason, and surprisingly good at parley when Reyne shuts up.
 
-**Admiral Dorian Jessup** “the Grandfather” — Human. Diplomat, General.
+**Admiral Dorian Jessup** “the Grandfather” — Human. General, Diplomat, Leader.
 
 Elderly ex-Imperium admiral; the Confederacy's grandfather figure and its steadiest voice at a parley table.
 

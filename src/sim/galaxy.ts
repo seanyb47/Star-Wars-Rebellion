@@ -104,6 +104,10 @@ const MIN_SYSTEM_SEPARATION = 38;
 const START_CONTESTED_PER_SIDE = 2;
 const START_HOME_CONFEDERACY: [number, number] = [1, 2];
 const FRONTIER_SETTLED_CHANCE = 0.25;
+/** The least room an island a side opens holding is allowed to have. Above it
+ *  the roll runs to ROOM_MAX, so a starting island is 8 to 12 berths whatever
+ *  the painting made of its coastline. */
+const START_ROOM_MIN = 8;
 /** Companies a settled island that is nobody's opens with, by how far out it is. */
 const NEUTRAL_GARRISON: Record<ReachRole, [number, number]> = {
   home: [1, 3],
@@ -220,8 +224,10 @@ const LAND_ON_THE_CHART = new Map<string, number>(
 
 /** The most an island can hold. */
 export const ROOM_MAX = 12;
-/** The least: a rock with a jetty. */
-export const ROOM_MIN = 3;
+/** The least: a rock with a jetty and room to put something on it. Sean
+ *  raised this from three on 15 September — a three-berth island was a place
+ *  you built one thing on and never opened again. */
+export const ROOM_MIN = 4;
 /**
  * The length every room bar is drawn against, so that a bar is a quantity
  * and not a ratio: twelve berths fills it, six fills half of it, and three
@@ -232,7 +238,7 @@ export const ROOM_TRACK = ROOM_MAX + 1;
 
 /**
  * An island's room, from the land around its mark. Square-rooted so a
- * quarter-land coast is not a quarter of a city: 3 on a bare rock, 6 or 7
+ * quarter-land coast is not a quarter of a city: 4 on a bare rock, 6 or 7
  * on an ordinary island, 12 where the great island fills the frame.
  */
 export function roomFor(name: string): number {
@@ -422,6 +428,8 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   // mills or yards, though — the articles were signed on it a week ago, not
   // settled on.
   allianceHq.garrison = startGarrison(100, true);
+  // A seat gets a seat's room, like every other island a side opens holding.
+  allianceHq.slots = Math.max(allianceHq.slots, rng.range(START_ROOM_MIN, ROOM_MAX));
 
   const seedHoldings = (owner: PlayableFaction, owned: System[]) => {
     for (const [index, system] of owned.entries()) {
@@ -430,6 +438,12 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       // an island by the one spare slot that lets it build on day one.
       system.garrison = startGarrison(system.support[owner], owner === 'empire' && index === 0);
       system.explored[owner] = true;
+      // Sean's rule, 15 September: an island you open the war holding has
+      // room to make something of. The chart still decides every other
+      // island, and it still decides this one where it was already more
+      // generous — a port city does not shrink to twelve because the dice
+      // said so.
+      system.slots = Math.max(system.slots, rng.range(START_ROOM_MIN, ROOM_MAX));
     }
     const plan: FacilityType[] = [
       ...Array<FacilityType>(START_EARNERS[owner].mines).fill('mine'),

@@ -221,8 +221,8 @@
       "bio": "Former Imperium magistrate who resigned over the licensing raids, and has held a pack of pirates together for six years by force of argument. Incorruptible; has looked away from what some of her captains do because she needs their hulls.",
       "ratings": {
         "diplomacy": [
-          85,
-          95
+          88,
+          96
         ],
         "espionage": [
           45,
@@ -233,8 +233,8 @@
           40
         ],
         "leadership": [
-          75,
-          88
+          78,
+          90
         ]
       }
     },
@@ -316,16 +316,16 @@
           70
         ],
         "espionage": [
-          75,
-          88
+          82,
+          93
         ],
         "combat": [
-          70,
-          85
+          80,
+          92
         ],
         "leadership": [
-          60,
-          75
+          72,
+          86
         ]
       }
     },
@@ -363,8 +363,9 @@
       "epithet": "the Grandfather",
       "people": "Human",
       "roles": [
+        "General",
         "Diplomat",
-        "General"
+        "Leader"
       ],
       "bio": "Elderly ex-Imperium admiral; the Confederacy's grandfather figure and its steadiest voice at a parley table.",
       "ratings": {
@@ -377,12 +378,12 @@
           55
         ],
         "combat": [
-          45,
-          60
+          80,
+          92
         ],
         "leadership": [
-          75,
-          88
+          80,
+          92
         ]
       }
     },

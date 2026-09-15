@@ -14,7 +14,7 @@ import {
   shipSpec,
 } from './constants';
 import { getSystem, nextId, otherFaction, pushEvent, setSupport } from './helpers';
-import { captureLord, isLord, isLordShip, shipPower } from './lords';
+import { captureLord, fleetHeldAshore, isLord, isLordShip, shipPower } from './lords';
 import { travelDays } from './missions';
 import type { Rng } from './rng';
 import type {
@@ -159,6 +159,11 @@ export function sailError(
   if (fleet.systemId === targetSystemId) return 'Already there.';
   if (!state.systems.some((s) => s.id === targetSystemId)) return 'No such island.';
   if (fleet.ships.length === 0) return 'Nothing left to sail.';
+  // A Lord's ship does not sail without her Lord. This is the other half of
+  // the cost of sending one ashore: not just a person at risk, a hull out of
+  // the war until they are back aboard.
+  const ashore = fleetHeldAshore(state, fleet);
+  if (ashore) return `${ashore.name} is ashore. Their ship waits for them.`;
   return null;
 }
 

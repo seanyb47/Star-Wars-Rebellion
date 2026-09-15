@@ -3,7 +3,7 @@ import factionData from '../data/factions.json';
 import { runAI } from './ai';
 import { advanceBuilds } from './build';
 import { advanceFleets, updateBlockades } from './fleets';
-import { allLordsTaken, powerAt, syncHome } from './lords';
+import { allLordsTaken, powerAt, reseatLords, syncHome } from './lords';
 import { collectIncome, payUpkeep, recomputeLedger } from './economy';
 import { cloneState, pushEvent, shiftSupport } from './helpers';
 import { advanceMissions } from './missions';
@@ -36,6 +36,9 @@ export function advanceDay(state: GameState): GameState {
   // Fleets move and fight before anything is counted, so a harbour shut this
   // morning pays nothing this evening.
   advanceFleets(next, rng);
+  // Whoever came back from an errand overnight is on their own deck again,
+  // and whoever left it is off. One pass, before anything reads a fleet.
+  reseatLords(next);
   syncHome(next);
   holdTheMoot(next);
   updateBlockades(next);

@@ -33,7 +33,7 @@ thirties and forties, held by the garrison). The Confederacy opens with one
 or two islands in the Reach, never on the great island itself. The rest are
 settled and nobody's.
 
-**Room, and how it is drawn.** What an island can hold follows the chart, not the dice. The chart
+**Room, and how it is drawn.** What an island can hold mostly follows the chart, not the dice. The chart
 script measures how much painted land lies within forty units of each mark
 (`land` in `src/data/chart.json`, lagoons and peaks counted as land) and the
 game turns that into room: 3 slots on a bare rock, 6 or 7 on an ordinary
@@ -42,6 +42,14 @@ flagged port. It is one pool: every building takes one berth whatever it is,
 and companies and hulls take none. The same island has the same room in every
 game. A starting island keeps the chart's room; the opening only ever widens it
 by the one spare berth that lets it build on day one.
+
+Two figures override the painting, both Sean's, 15 September. The least any
+island can hold is **four** berths — three was a place you built one thing on
+and never opened again. And every island a side **opens the war holding** has
+**eight to twelve**, rolled, over whatever the chart gave it: a starting island
+is one you should be able to make something of. Nothing else moves; the chart
+still decides the other fifty-odd islands, and it still wins where it was more
+generous, so the great island's ports keep their thirteen.
 
 Everywhere room is drawn — the island panel, the Reach list, the chain view —
 it is drawn against one track of thirteen, the largest room in the game, so
@@ -84,8 +92,13 @@ Confederates on the quay beside them, and the rest out on the islands that
 have already declared.
 
 **How the war ends.** The Confederacy wins the day it holds Highwater. The
-Crown wins the day all three Lords are in irons at once: a Lord never leaves
-their ship, so that means finding the ships and taking them.
+Crown wins the day all three Lords are in irons at once — which now has two
+roads to it, because a Lord is a ship when idle and a person on an errand.
+Left aboard they are taken only with their hull. Sent ashore to parley, spy or
+sign somebody on, they are an officer like any other and can be carried off a
+quay. While one is away their ship cannot sail and its power sleeps, so every
+errand is a squadron out of the war and a third of the losing condition
+standing on somebody else's beach.
 
 **Loyalty is a balance.** Every inhabited island's regard for the two sides
 adds up to a hundred: there is no undecided middle, so a point won is a point

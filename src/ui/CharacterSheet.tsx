@@ -79,7 +79,12 @@ export function CharacterSheet({
 }) {
   const location = state.systems.find((s) => s.id === character.locationSystemId);
   const ship = state.fleets.find((f) => f.officerIds.includes(character.id));
-  const bound = isLord(character);
+  // A Lord is their ship when idle and a person on an errand. Sending one
+  // ashore is allowed now, and costs: the hull waits at anchor and its power
+  // sleeps until they are back aboard. The button says so, because the cost
+  // is the whole point of the choice.
+  const lord = isLord(character);
+  const atSea = Boolean(ship?.voyage);
 
   return (
     <Sheet
@@ -100,10 +105,10 @@ export function CharacterSheet({
           </button>
           <button
             className="btn btn--flex btn--primary"
-            disabled={character.status !== 'available' || bound}
+            disabled={character.status !== 'available' || (lord && atSea)}
             onClick={onSendOnMission}
           >
-            {bound ? 'Bound to their ship' : 'Send ashore'}
+            {lord && atSea ? 'At sea' : 'Send ashore'}
           </button>
         </>
       }
@@ -133,6 +138,16 @@ export function CharacterSheet({
         </div>
         {statusBadge(character)}
       </div>
+
+      {lord && (
+        <p className="tiny" style={{ color: 'var(--brass)', marginTop: 10 }}>
+          A Pirate Lord is their ship when idle and a person on an errand. Send{' '}
+          {character.name.split(' ').slice(-1)[0]} ashore and the {ship?.name ?? 'their ship'} lies
+          at anchor until they are back aboard — she cannot sail and her power sleeps — and
+          ashore they can be found out, hurt, or carried off to Highwater in irons. The Crown
+          needs all three of them at once.
+        </p>
+      )}
 
       {character.roles && character.roles.length > 0 && (
         <div className="charsheet__roles">

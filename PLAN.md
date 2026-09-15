@@ -832,3 +832,52 @@ the panel covers the tab bar and the chart's strip floats above it. Making the
 two land on the identical pixel would mean leaving a band of empty panel below
 the strip, which is the dead space at the bottom of the screen we had just
 finished getting rid of.
+
+## Land, and the Lords go ashore — 15 September
+
+**Room redistributed.** The least an island can hold is four berths, not three:
+three was a place you built one thing on and never opened again. And every
+island a side opens the war holding rolls eight to twelve over whatever the
+chart gave it, so a starting island is one you can make something of. The chart
+still decides the other fifty-odd, and still wins where it was more generous —
+the great island's ports keep their thirteen. Measured across 24 worlds: all
+islands 4–13, held islands 8–13, none below.
+
+**A Lord is a ship when idle and a person on an errand.** Sean's rule, and the
+best one in the game so far. The three Lords can now be sent to parley, to spy,
+to sign somebody on. Ashore they are officers like any other — found out, hurt,
+or carried off to Highwater in irons — and their ship lies where they left it,
+unable to sail, her power asleep, until they are back aboard. A hull that
+strikes with nobody on her quarterdeck is a prize and not a capture: you cannot
+put irons on a deck.
+
+That is the Confederacy's dilemma and it is meant to hurt. The three best people
+they have are also three of their best hulls, and early on there is nothing else
+to send. Every errand is a squadron out of the war and a third of the losing
+condition standing on somebody else's beach.
+
+The plumbing worth knowing: `lordAboard` is the one question everything asks —
+sailing, powers, capture — rather than each place assuming. `reseatLords` runs
+once a day and puts every Lord back on their own deck or takes them off it,
+because hooking six mission-ending paths would have meant remembering five.
+`fleetHeldAshore` names the Lord pinning a hull, and the fleet panel's button
+reads *Waiting for Hale* rather than letting you pick a destination and be told
+no at the end of it.
+
+**Ratings, to the brief.** Hale a master diplomat (88–96) and recruiter; Reyne
+amazing at combat (80–92) and espionage (82–93) and a recruiter; Jessup amazing
+at combat (80–92). All three good leaders, 72 and up.
+
+**The opponent keeps its Lords aboard.** The AI was never taught to send them
+ashore and still is not: it plays the safe half of the dilemma. A human choosing
+to risk a Lord is the interesting decision; an AI throwing away a third of its
+own losing condition is just a bug with extra steps. Worth revisiting once the
+rest of the opponent is smarter.
+
+Sixteen idle games of sixteen end, eight wins each way, median 517 days — up
+from 481, which is what more room to build should do.
+
+**Not a bug, for the record.** Tracing a Lord's first errand showed the mission
+clock running past zero into negative days and never resolving. It does that for
+every officer on the player's own side: a finished mission raises a decision —
+stay at it or come home — and waits for an answer. The test now answers it.
