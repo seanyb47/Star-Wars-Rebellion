@@ -44,7 +44,7 @@ import {
 } from './art';
 import { ChartMark } from './ChartMark';
 import { useSideSwipe } from './LayerStrip';
-import { ControlBadge, RoomBar, Sheet, Slot, SlotBoard, Stat, SupportBars } from './components';
+import { ControlBadge, RoomBar, Sheet, Slot, SlotBoard, SupportBars } from './components';
 import { ShipsHere } from './FleetPanel';
 import { WorthMark } from './worth';
 import { controlColour } from './ChainMap';
@@ -66,14 +66,14 @@ function errandName(type: MissionType): string {
  * clickable icons on the planet — ships, military, civilian, missions — folded
  * into the fewest tabs that keep like with like.
  *
- * The island's own tab opens first and carries what floats there, plus the fixed
+ * Harbour opens first and is the ships lying at the island, plus the fixed
  * defences: a fort is a warship that cannot move, so it belongs beside the
  * ships rather than in with the mines. Crew and Garrison are split because
  * one is people you order about and the other is companies that hold ground.
  * Everything built sits in Buildings, earners and yards alike.
  */
 const TABS: Array<{ id: IslandTab; label: string }> = [
-  { id: 'island', label: 'Island' },
+  { id: 'harbour', label: 'Harbour' },
   { id: 'crew', label: 'Crew' },
   { id: 'garrison', label: terms.garrison },
   { id: 'buildings', label: 'Buildings' },
@@ -219,7 +219,7 @@ function FacilityCard({
 export function SystemSheet({
   state,
   system,
-  initialTab = 'island',
+  initialTab = 'harbour',
   onClose,
   onBuild,
   onCancel,
@@ -343,7 +343,7 @@ export function SystemSheet({
         </div>
       }
     >
-      {tab === 'island' && (
+      {tab === 'harbour' && (
         <>
           <IslandBanner
             archetype={system.archetype}
@@ -358,29 +358,22 @@ export function SystemSheet({
 
           {system.note && <p className="portrait__note serif">{system.note}</p>}
 
-          {system.populated ? (
-            <>
-              <SupportBars system={system} />
-              <LoyaltyLine system={system} />
-            </>
-          ) : (
-            <p className="muted small" style={{ margin: 0 }}>
-              Nobody lives here. Held only while a company remains ashore; finish any building and
-              the island settles under your flag.
-            </p>
-          )}
-
-          <div className="section-title">Room to build</div>
-          <div className="card row" style={{ gap: 18 }}>
-            <Stat label="Built" value={`${system.facilities.length} / ${system.slots}`} />
-            <Stat label="Free" value={freeSlots(system)} />
-          </div>
-          <RoomBar system={system} />
-          <p className="tiny muted" style={{ margin: '6px 0 0' }}>
-            Every camp, mill, yard and wall takes one berth, whatever it is, and what an island has
-            is fixed: the chart drew it that way and no island grows. Companies and hulls take none
-            — one drills, the other floats.
-          </p>
+          {/* The harbour is the ships in it. Allegiance and room used to sit
+              above them, and both are on the chain view before you ever open
+              this panel — so the first thing under the painting is now the
+              thing you came to look at. Allegiance moved to the Garrison tab,
+              where holding an island is the subject; room leads the Buildings
+              tab already. */}
+          <div className="section-title">At anchor</div>
+          <ShipsHere
+            state={state}
+            systemId={system.id}
+            onSail={onSail}
+            onEmbark={onEmbark}
+            onAssault={onAssault}
+            onBoard={onBoard}
+            onAshore={onAshore}
+          />
 
           {system.blockaded && (
             <p className="tiny" style={{ color: 'var(--bad)', margin: '8px 0 0' }}>
@@ -405,17 +398,6 @@ export function SystemSheet({
               </div>
             );
           })()}
-
-          <div className="section-title">At anchor</div>
-          <ShipsHere
-            state={state}
-            systemId={system.id}
-            onSail={onSail}
-            onEmbark={onEmbark}
-            onAssault={onAssault}
-            onBoard={onBoard}
-            onAshore={onAshore}
-          />
         </>
       )}
 
@@ -509,6 +491,20 @@ export function SystemSheet({
 
       {tab === 'garrison' && (
         <>
+          {/* What the island thinks of its holder, where it belongs: how many
+              companies it asks for and how much of its trade goes out the back
+              are both read off this number. */}
+          {system.populated ? (
+            <div style={{ marginBottom: 10 }}>
+              <SupportBars system={system} />
+              <LoyaltyLine system={system} />
+            </div>
+          ) : (
+            <p className="muted small" style={{ margin: '0 0 10px' }}>
+              Nobody lives here. Held only while a company remains ashore; finish any building and
+              the island settles under your flag.
+            </p>
+          )}
           <div className="row row--between" style={{ marginBottom: 8 }}>
             <span className="tiny muted">
               {system.garrison} ashore

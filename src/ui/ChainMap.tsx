@@ -346,7 +346,7 @@ export function ChainMap({
         const loose = work === 'recruit' ? recruitOn(state, system, viewer) : null;
         // Whose hulls lie off it. One sail per side present, in that side's
         // colour — the fleet's owner, not the island's — and no count: the
-        // count is on the island's own tab, and a sail beside the name is the
+        // count is on the Harbour tab, and a sail beside the name is the
         // whole message — there is a fleet here, and it is theirs or yours.
         const moored = (['empire', 'alliance'] as const).filter((side) =>
           state.fleets.some((f) => f.systemId === system.id && !f.voyage && f.faction === side),

@@ -1064,3 +1064,25 @@ that does not have the fault. `?diag` prints four lines on the phone itself:
 what each viewport reports, what the insets actually resolve to, where `.app`
 and `.tabbar` land, and the gap below the tab bar. A screenshot of that settles
 it in one round. Absent the parameter it costs nothing.
+
+**The Harbour is the ships in it — 15 September.** Two corrections at once.
+
+First, mine: "there is no harbour vs ashore" was about *where a person can
+be*, and I over-read it into renaming the island panel's first tab to Island.
+Sean wants it called Harbour, which it is again.
+
+Second, what the tab is for. It opened with the allegiance bar, the smuggling
+line and a Room-to-build block, and the ships were at the very bottom under the
+sea monster. Every one of those first three is on the chain view before you
+ever open the panel — the loyalty bar under each island, the room pips beside
+it. So the tab now goes painting, **At anchor**, blockade, these waters. The
+ships are the first thing under the name, because the harbour is the ships.
+
+Nothing was thrown away. Room already leads the Buildings tab. Allegiance and
+the smuggling line moved to **Garrison**, which is where they belong: how many
+companies an island asks for and how much of its trade goes out the back are
+both read off that one number. The "nobody lives here" line went with them.
+
+Spelling kept British — Harbour, as everywhere else in the game bar the *Free
+Harbor*, which is a ship's name. One word to change if Sean wants the American
+one.
