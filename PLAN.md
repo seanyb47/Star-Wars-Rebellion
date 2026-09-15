@@ -964,3 +964,22 @@ exact reverse of ours, and only **two characters in sixty** ever pass a hundred
 against our 194 rolls in 80 worlds. Its Empire is frightening through materiel
 rather than officers, which is the same thing Sean wants of the Crown and the
 same thing our day-one gun count does not deliver.
+
+**The dead band, properly this time — 15 September.** Painting the canvas in
+the console's dark stopped the strip being a foreign colour but did nothing
+about its size, and Sean's next screenshot showed why: it is **98 points tall**,
+not a home indicator's 34. Sampled at `#22100c`, which is `--chrome-2`, the
+exact colour the tab bar's own gradient ends on — so it read as the console
+going flat and carrying on for a third of an inch.
+
+Ninety-eight points is not an inset, it is the app not reaching the bottom of
+the glass. `position: fixed; inset: 0` measures the **layout** viewport, and iOS
+can make that much shorter than the screen. So `.app` asks for `100dvh` — the
+dynamic viewport, which is the unit for exactly this — and then overrides that
+with `--app-h`, set from `visualViewport.height` in `main.tsx` and updated on
+resize and rotation. A unit is the browser's opinion; `visualViewport` is a
+measurement.
+
+Proved rather than hoped: with `--app-h` forced 98pt taller than `inset: 0`
+gives, the app and the tab bar both follow it to the new bottom. Unchanged at
+the normal height, so nothing moves where nothing was wrong.

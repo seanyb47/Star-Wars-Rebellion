@@ -104,11 +104,23 @@ button {
   /* The app paints its own floor rather than letting the canvas show through,
      so moving the canvas to the console's dark changes nothing in here. */
   background: var(--bg);
-  /* Pinned to the screen's edges rather than sized from a viewport unit: on
-     an iPhone in standalone mode the units and the screen have disagreed, and
-     the difference showed as a dead band under the console. */
+  /*
+   * Pinned to the screen, and then told how tall the screen actually is.
+   *
+   * `inset: 0` on a fixed element measures the *layout* viewport, and on an
+   * iPhone that can be most of a hundred points shorter than the glass — the
+   * console ended up floating that far above the bottom with the page showing
+   * under it. `100dvh` is the dynamic viewport: the whole of it, including the
+   * strip the layout viewport leaves out. With top, bottom and height all set
+   * the height wins, so this reads as `inset: 0` on anything too old to know
+   * the unit, and as the real screen everywhere else.
+   */
   position: fixed;
   inset: 0;
+  height: 100dvh;
+  /* And, where the browser will tell us rather than leaving us to a unit,
+     the measured height of the glass. Set from `main.tsx`. */
+  height: var(--app-h, 100dvh);
   overflow: hidden;
 }
 
