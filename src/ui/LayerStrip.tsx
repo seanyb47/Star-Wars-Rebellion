@@ -72,10 +72,27 @@ export function LayerStrip({
 export function useLayerSwipe(
   layer: ChartLayer,
   onChange: (layer: ChartLayer) => void,
-): {
+): SwipeHandlers {
+  return useSideSwipe((step) => {
+    const at = CHART_LAYERS.findIndex((l) => l.id === layer);
+    const next = at + step;
+    if (next < 0 || next >= CHART_LAYERS.length) return;
+    onChange(CHART_LAYERS[next].id);
+  });
+}
+
+export interface SwipeHandlers {
   onTouchStart: (e: React.TouchEvent) => void;
   onTouchEnd: (e: React.TouchEvent) => void;
-} {
+}
+
+/**
+ * A sideways drag, anywhere it would otherwise do nothing: +1 for a drag to
+ * the left, -1 for one to the right. Used by the chart for its layers and by
+ * an island's panel for its tabs, which are both rows of things a thumb wants
+ * to move along rather than aim at.
+ */
+export function useSideSwipe(onStep: (step: 1 | -1) => void): SwipeHandlers {
   const from = useRef<{ x: number; y: number } | null>(null);
 
   return {
@@ -93,10 +110,7 @@ export function useLayerSwipe(
       // Far enough to be meant, and more sideways than up: a thumb travelling
       // down the page is scrolling, not switching views.
       if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
-      const at = CHART_LAYERS.findIndex((l) => l.id === layer);
-      const next = at + (dx < 0 ? 1 : -1);
-      if (next < 0 || next >= CHART_LAYERS.length) return;
-      onChange(CHART_LAYERS[next].id);
+      onStep(dx < 0 ? 1 : -1);
     },
   };
 }

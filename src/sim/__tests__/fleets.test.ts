@@ -111,7 +111,7 @@ describe('building a hull', () => {
     home.facilities.push({ id: 'yard-test', type: 'shipyard', owner: 'empire' });
     state.factions.empire.gold = 500;
     // Fill every water slot; a hull should still be orderable.
-    home.energySlots = home.facilities.filter((f) => f.type !== 'mine').length;
+    home.slots = home.facilities.length;
     expect(() => queueBuild(state, 'yard-test', 'kestrel')).not.toThrow();
   });
 

@@ -94,7 +94,7 @@ export function WorthMark({
   colour = 'currentColor',
   className,
 }: {
-  system: Pick<System, 'rawSlots' | 'energySlots'>;
+  system: Pick<System, 'slots'>;
   size?: number;
   colour?: string;
   className?: string;

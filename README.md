@@ -230,7 +230,8 @@ your flag the moment you finish building anything there.
 **Building.** Works build camps (40/8d), mills (60/10d), works (120/20d), drill
 grounds (80/15d) and slipways (150/25d). Drill grounds raise companies (25/5d).
 Gold is spent when the order is placed, and a building runs one order at a
-time. A camp needs free **Ground**; everything else needs free **Water**.
+time. Every building takes one free berth on the island, whatever it is;
+companies and hulls take none.
 
 **Parley.** Passage is 3 days inside a Reach, 10 beyond. The parley then runs
 for 15 days and resolves at `0.4 + diplomacy/200`. Success adds

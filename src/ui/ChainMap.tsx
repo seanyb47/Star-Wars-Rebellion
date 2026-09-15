@@ -178,6 +178,9 @@ function nameWidth(name: string): number {
 
 /** A sail, in a 20-unit box: hulls lying off the island. */
 const SHIP = 'M2 14 h16 l-2 5 h-12 Z M10 13 V3 M10 4 l5 8 h-5';
+/** Big enough to be the first thing seen in a Reach, small enough to clear
+ *  the island above it. */
+const SAIL_SCALE = 2.4;
 
 /** Who is flying a flag over it. The name takes this colour. */
 export function controlColour(system: System, viewer: 'empire' | 'alliance'): string {
@@ -318,7 +321,7 @@ export function ChainMap({
         // One colour, and it is who holds the island. Lean is on the panel.
         const tint = controlColour(system, viewer);
         const flag = tint;
-        const slots = system.rawSlots + system.energySlots;
+        const slots = system.slots;
         const built = system.facilities.length;
 
         // The chains dim when they hold nothing to sail to; the islands inside
@@ -525,36 +528,32 @@ export function ChainMap({
               {system.name}
             </text>
 
-            {/* A sail right of the name for each side with hulls here, in
-                that side's colour. Shifted along when a filter's count is
-                already sitting there. */}
-            {explored &&
-              moored.map((side, i) => (
-                <g
-                  key={side}
-                  transform={`translate(${
-                    spot.x +
-                    nameWidth(system.name) / 2 +
-                    8 +
-                    i * 34 +
-                    (lit && !(layer && showsNumber(layer)) && litCount !== undefined && litCount > 1 ? 30 : 0)
-                  } ${spot.y - 15}) scale(1.5)`}
-                  pointerEvents="none"
-                >
-                  {/* Solid in the owner's colour — the fleet's side, which is
-                      not always the island's — with a dark edge so it holds
-                      against the painting. As an outline it read as grey. */}
-                  <path
-                    d={SHIP}
-                    fill={`var(--${side})`}
-                    stroke="#041219"
-                    strokeWidth={1.4}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    style={{ paintOrder: 'stroke fill' }}
-                  />
-                </g>
-              ))}
+            {/* A sail over the name for each side with hulls lying here, in
+                that side's colour. Above rather than beside, and big: where
+                the fleets are is the first thing worth seeing in a Reach, and
+                at the chart's own scale a fleet is only a large dot. */}
+            {explored && moored.length > 0 && (
+              <g pointerEvents="none">
+                {moored.map((side, i) => {
+                  const w = 20 * SAIL_SCALE;
+                  const step = w + 10;
+                  const x = spot.x - ((moored.length - 1) * step) / 2 - w / 2 + i * step;
+                  return (
+                    <g key={side} transform={`translate(${x} ${spot.y - 74}) scale(${SAIL_SCALE})`}>
+                      <path
+                        d={SHIP}
+                        fill={`var(--${side})`}
+                        stroke="#041219"
+                        strokeWidth={1.4}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ paintOrder: 'stroke fill' }}
+                      />
+                    </g>
+                  );
+                })}
+              </g>
+            )}
 
             {explored && (
               <g pointerEvents="none">

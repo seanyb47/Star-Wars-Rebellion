@@ -7,8 +7,7 @@ import {
   shipsFor,
   isShipClass,
   requiredGarrison,
-  freeEnergySlots,
-  freeRawSlots,
+  freeSlots,
   reservedSlots,
   type BuildItem,
   type FacilityType,
@@ -194,7 +193,7 @@ export function BuildOrderSheet({
               {islands.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
-                  {kind === 'facilities' ? ` · ${roomLine(state, s, item)}` : kind === 'troops' ? ` · ${s.garrison} ashore` : ''}
+                  {kind === 'facilities' ? ` · ${roomLine(state, s)}` : kind === 'troops' ? ` · ${s.garrison} ashore` : ''}
                 </option>
               ))}
             </optgroup>
@@ -236,11 +235,9 @@ export function BuildOrderSheet({
   );
 }
 
-function roomLine(state: GameState, system: System, item: BuildItem): string {
-  const held = reservedSlots(state, system.id);
-  return item === 'mine'
-    ? `${Math.max(0, freeRawSlots(system) - held.ground)} ${terms.ground.toLowerCase()} free`
-    : `${Math.max(0, freeEnergySlots(system) - held.water)} ${terms.water.toLowerCase()} free`;
+function roomLine(state: GameState, system: System): string {
+  const free = Math.max(0, freeSlots(system) - reservedSlots(state, system.id));
+  return `${free} free`;
 }
 
 /** The thing itself: its painting, what it costs to keep, what it is for. */

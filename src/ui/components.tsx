@@ -16,6 +16,9 @@ export function Sheet(props: {
   tabs?: ReactNode;
   /** Raise this sheet above one already open, rather than behind it. */
   stacked?: boolean;
+  /** A sideways drag across the body, where the sheet has tabs to move along. */
+  onTouchStart?: (e: React.TouchEvent) => void;
+  onTouchEnd?: (e: React.TouchEvent) => void;
 }) {
   return (
     <>
@@ -42,7 +45,13 @@ export function Sheet(props: {
           {props.subtitle && <div className="sheet__sub">{props.subtitle}</div>}
         </div>
         {props.tabs}
-        <div className="sheet__body">{props.children}</div>
+        <div
+          className="sheet__body"
+          onTouchStart={props.onTouchStart}
+          onTouchEnd={props.onTouchEnd}
+        >
+          {props.children}
+        </div>
         {props.actions && <div className="sheet__actions">{props.actions}</div>}
       </div>
     </>

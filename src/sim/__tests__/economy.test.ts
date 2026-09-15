@@ -196,7 +196,7 @@ describe('going broke', () => {
   it('breaks things down gradually rather than all at once', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
-    island.energySlots = 12;
+    island.slots = 12;
     island.facilities = Array.from({ length: 6 }, (_, i) => ({
       id: `f${i}`,
       type: 'construction_yard' as const,
@@ -212,8 +212,7 @@ describe('going broke', () => {
   it('walks the ledger back to equilibrium and then stops', () => {
     const state = generateGalaxy(102);
     const island = isolate(state, 'empire');
-    island.rawSlots = 12;
-    island.energySlots = 12;
+    island.slots = 24;
     island.support.empire = 100;
     island.facilities = [
       { id: 'm1', type: 'mine', owner: 'empire' },

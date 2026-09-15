@@ -4,8 +4,7 @@ import terms from '../data/terms.json';
 import {
   buildMenu,
   controlTally,
-  freeEnergySlots,
-  freeRawSlots,
+  freeSlots,
   requiredGarrison,
   smuggledOff,
   GARRISON_FOR_BAND,
@@ -70,7 +69,7 @@ function buildAnswers(state: GameState): Answer[] {
     (s) =>
       !s.uprising &&
       s.facilities.some((f) => f.owner === you && buildMenu(f).length > 0) &&
-      (freeRawSlots(s) > 0 || freeEnergySlots(s) > 0),
+      freeSlots(s) > 0,
   );
   const idle = state.characters.filter((c) => c.faction === you && c.status === 'available');
   const restless = held.filter(

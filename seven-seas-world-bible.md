@@ -58,7 +58,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 | Raw materials | **Stores** (timber, iron, hemp, tar, reef-coral) | Mines produce |
 | Refined materials | **Fittings** | Refineries produce |
 | Maintenance capacity | **Upkeep** (crew & victuals) | Same |
-| Energy | **Sweetwater** (fresh water that hasn't been soured) | Every facility needs one unit |
+| Energy | ~~Sweetwater~~ — withdrawn | An island has one pool of **room to build**: every building takes one berth of it, companies and hulls take none |
 | Natural disaster (resources destroyed) | **Black Tide landfall** | Same event. ⚙ Later: show the black stain on the map. |
 | New resources appear | **The Tide recedes** — ambergris and living coral left behind | Same event |
 | Advisor droid (C-3PO / IMP-22) | **Mr. Pennywhistle**, a one-eyed talking sea-parrot the Confederacy can't get rid of / **Admiral Sabine Marlow**, Second Chair of the Admiralty — the Imperator's M | UI narrator |
@@ -1171,6 +1171,7 @@ not a bark, and it goes in the text.
 
 ## 15. CHANGELOG
 
+- **2026-09-15 v6.4** — **One pool of room.** Ground and Water are withdrawn as separate slot types, for the reason Sweetwater was withdrawn before them: two numbers per island to answer one question. An island has room to build, every building takes one berth of it whatever the building is, and companies and hulls take none. Saves bump to v4.
 - **2026-09-15 v6.3** — **Garrisons answer to allegiance.** What an island asks for is set by its band — none when firm, one steady, four thin, six in revolt — and six companies ashore will face down a revolt whatever the island thinks. Every company also takes a tenth off the smugglers' share, so ten shut the back door. Both advisors will now explain allegiance and garrisons on request, and name the islands it is costing.
 - **2026-09-15 v6.2** — **Allegiance is a balance.** Every inhabited island's loyalty to the two factions adds up to a hundred; there is no undecided share. A point one side wins is a point the other loses, so a parley no longer takes a separate bite out of the enemy and an incitement hands the inciter everything it strips from the governor. An unaligned island comes over at a flat eighty — a supermajority — rather than sixty with a lead.
 - **2026-09-14 v6.1** — **Loyalty is worth money.** Allegiance now reads in three bands — firm at 90, steady at 60, thin below — and the chart draws them as one dot at three sizes (the star stays exclusive to Highwater and the Lords' ships). Each band sets the share of an island's trade that smugglers run to the other faction: nothing, a seventh, a quarter, and half in a revolt, where the holder gets nothing at all. It is a transfer, so a sour Reach of yours pays for their fleet. A thin island also leaks word of itself onto the enemy's charts. A governed island now settles at 65 rather than 55, so steady is the resting state.

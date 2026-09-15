@@ -80,8 +80,8 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
     >
       <div className="section-title">Buildings</div>
       <p className="tiny muted" style={{ marginTop: 0 }}>
-        A building either earns {terms.gold.toLowerCase()} or costs it. A camp needs free{' '}
-        {terms.ground.toLowerCase()}; everything else needs free {terms.water.toLowerCase()}.
+        A building either earns {terms.gold.toLowerCase()} or costs it, and every one of them
+        takes one free berth on the island, whatever it is.
         Buildings are raised by a {FACILITY_LABEL.construction_yard} — the island's own, or the nearest of
         yours, whose builders sail over and add the passage to the clock. Companies and hulls are
         sent the same way: drilled or laid down where you have the ground for it, and delivered
@@ -182,8 +182,7 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
             [terms.gold, 'The only currency. Buildings earn it, buildings cost it, and everything is bought with it.'],
             [terms.upkeep, 'What everything you own costs to keep, per day. If you cannot pay, something breaks.'],
             [terms.allegiance, `How much of an island's population is on your side, out of 100. It sets what the island earns you and whether it stays quiet.`],
-            [terms.ground, 'How many camps an island has room for.'],
-            [terms.water, 'Fresh water. Every building except a camp needs some.'],
+            [terms.space, 'Berths to build on. Every building takes one; companies and hulls take none.'],
             [terms.island, 'One place on the chart. Seventy-one of them.'],
             [terms.reach, 'A chain of seven to ten islands. Allegiance won on one spills 20% onto the rest.'],
             [terms.mutiny, `An island whose allegiance falls under ${UPRISING_SUPPORT} rises unless enough companies hold it. It earns nothing and builds nothing until allegiance climbs back to ${UPRISING_END_SUPPORT}.`],

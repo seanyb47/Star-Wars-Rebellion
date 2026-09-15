@@ -50,20 +50,16 @@ describe('queueing builds', () => {
     expect(buildError(state, facility.id, 'refinery')).toBe('Already building.');
   });
 
-  it('refuses a mine with no free raw slot', () => {
+  it('refuses anything that needs a berth when the island is full', () => {
     const state = generateGalaxy(201);
     const { system, facility } = yardOf(state, 'empire');
     state.factions.empire.gold = 500;
-    system.rawSlots = system.facilities.filter((f) => f.type === 'mine').length;
-    expect(buildError(state, facility.id, 'mine')).toMatch(/^No free ground on /);
-  });
-
-  it('refuses a facility with no free energy slot', () => {
-    const state = generateGalaxy(201);
-    const { system, facility } = yardOf(state, 'empire');
-    state.factions.empire.gold = 500;
-    system.energySlots = system.facilities.filter((f) => f.type !== 'mine').length;
-    expect(buildError(state, facility.id, 'refinery')).toMatch(/^No free water on /);
+    system.slots = system.facilities.length;
+    // One pool, so it is the same answer whatever the building is.
+    expect(buildError(state, facility.id, 'mine')).toMatch(/^No room left on /);
+    expect(buildError(state, facility.id, 'refinery')).toMatch(/^No room left on /);
+    // Companies take no room at all.
+    expect(buildError(state, facility.id, 'troop')).not.toMatch(/No room/);
   });
 
   it('refuses to build on a world in revolt', () => {
@@ -124,8 +120,7 @@ describe('completing builds', () => {
     const empty = state.systems.find((s) => !s.populated)!;
     empty.control = 'empire';
     empty.garrison = 1;
-    empty.energySlots = 4;
-    empty.rawSlots = 4;
+    empty.slots = 8;
     empty.facilities = [{ id: 'fac-test', type: 'construction_yard', owner: 'empire' }];
     state.factions.empire.gold = 500;
     queueBuild(state, 'fac-test', 'mine');
@@ -154,7 +149,7 @@ describe('laying down a works', () => {
     for (const system of state.systems) {
       if (system.control !== faction) continue;
       system.facilities = system.facilities.filter((f) => f.type !== 'construction_yard');
-      if (system.energySlots - system.facilities.filter((f) => f.type !== 'mine').length >= 1) {
+      if (system.slots - system.facilities.length >= 1) {
         return system;
       }
     }
@@ -204,7 +199,7 @@ describe('laying down a works', () => {
 describe('orders sent to another island', () => {
   function elsewhere(state: GameState, faction: 'empire' | 'alliance', notId: string) {
     return state.systems.find(
-      (s) => s.control === faction && s.id !== notId && !s.uprising && s.rawSlots - s.facilities.filter((f) => f.type === 'mine').length > 0,
+      (s) => s.control === faction && s.id !== notId && !s.uprising && s.slots - s.facilities.length > 0,
     )!;
   }
 
@@ -239,14 +234,14 @@ describe('orders sent to another island', () => {
     const state = generateGalaxy(201);
     const { system, facility } = yardOf(state, 'empire');
     const there = elsewhere(state, 'empire', system.id);
-    there.rawSlots = there.facilities.filter((f) => f.type === 'mine').length + 1;
+    there.slots = there.facilities.length + 1;
     state.factions.empire.gold = 500;
     queueBuild(state, facility.id, 'mine', there.id);
     const other = state.systems
       .flatMap((s) => s.facilities.map((f) => ({ s, f })))
       .find(({ s, f }) => s.control === 'empire' && f.type === 'construction_yard' && f.owner === 'empire' && !f.building);
     if (!other) return;
-    expect(buildError(state, other.f.id, 'mine', there.id)).toMatch(/No free ground/);
+    expect(buildError(state, other.f.id, 'mine', there.id)).toMatch(/No room left/);
   });
 
   it('turns back to where it was made if the island is lost on the way', () => {

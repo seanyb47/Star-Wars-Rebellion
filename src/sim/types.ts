@@ -57,8 +57,13 @@ export interface System {
   isCore: boolean;
   control: Faction;
   support: { empire: number; alliance: number };
-  rawSlots: number;
-  energySlots: number;
+  /**
+   * Room to build, and the whole of it. There used to be two pools — ground
+   * for camps, water for everything else — which asked the player to hold two
+   * numbers per island to answer one question: can I put this here. One
+   * number answers it.
+   */
+  slots: number;
   facilities: Facility[];
   garrison: number;
   uprising: boolean;

@@ -22,8 +22,7 @@ import {
   effectiveSpec,
   isShipClass,
   shipClass,
-  freeEnergySlots,
-  freeRawSlots,
+  freeSlots,
   requiredGarrison,
   supportMultiplier,
   type BuildItem,
@@ -44,6 +43,7 @@ import {
   ShipIcon,
 } from './art';
 import { ChartMark } from './ChartMark';
+import { useSideSwipe } from './LayerStrip';
 import { ControlBadge, Sheet, Slot, SlotBoard, Stat, SupportBars } from './components';
 import { Harbour } from './FleetPanel';
 import { WorthMark } from './worth';
@@ -89,7 +89,7 @@ const TABS: Array<{ id: IslandTab; label: string }> = [
  * them is. The same bar, and the same rule, as the one in the chain view.
  */
 function RoomBar({ system }: { system: System }) {
-  const slots = system.rawSlots + system.energySlots;
+  const slots = system.slots;
   if (slots === 0) return null;
   const built = system.facilities.length;
   return (
@@ -273,6 +273,12 @@ export function SystemSheet({
   onOpenReach?: (sectorId: string) => void;
 }) {
   const [tab, setTab] = useState<IslandTab>(initialTab);
+  // Five tabs and a thumb: sliding between them beats aiming at them.
+  const swipe = useSideSwipe((step) => {
+    const at = TABS.findIndex((entry) => entry.id === tab);
+    const next = Math.min(TABS.length - 1, Math.max(0, at + step));
+    if (next !== at) setTab(TABS[next].id);
+  });
   const sector = state.sectors.find((s) => s.id === system.sectorId)!;
   const explored = system.explored[state.player];
 
@@ -310,7 +316,7 @@ export function SystemSheet({
       c.mission.phase === 'travelling',
   );
   const log = state.events.filter((e) => e.systemId === system.id).slice(-40).reverse();
-  const slots = system.rawSlots + system.energySlots;
+  const slots = system.slots;
   const producers = system.facilities.filter(
     (f) => f.owner === state.player && !f.founding && buildMenu(f).length > 0,
   );
@@ -342,6 +348,7 @@ export function SystemSheet({
         </span>
       }
       onClose={onClose}
+      {...swipe}
       tabs={
         <div className="tabs" role="tablist">
           {TABS.map((entry) => (
@@ -388,26 +395,16 @@ export function SystemSheet({
             </p>
           )}
 
-          <div className="section-title">Capacity</div>
+          <div className="section-title">Room to build</div>
           <div className="card row" style={{ gap: 18 }}>
-            <Stat
-              label={terms.ground}
-              value={`${system.rawSlots - freeRawSlots(system)} / ${system.rawSlots}`}
-            />
-            <Stat
-              label={terms.water}
-              value={`${system.energySlots - freeEnergySlots(system)} / ${system.energySlots}`}
-            />
-            <Stat label="Built" value={system.facilities.length} />
+            <Stat label="Built" value={`${system.facilities.length} / ${system.slots}`} />
+            <Stat label="Free" value={freeSlots(system)} />
           </div>
           <RoomBar system={system} />
           <p className="tiny muted" style={{ margin: '6px 0 0' }}>
-            {terms.ground} is room ashore, and only a {terms.facilities.mine.toLowerCase()} can take
-            it. {terms.water} is the harbour and the shoreline: everything else stands there — the{' '}
-            {terms.facilities.refinery.toLowerCase()}, the {terms.facilities.construction_yard.toLowerCase()},
-            the {terms.facilities.training_facility.toLowerCase()}, the{' '}
-            {terms.facilities.shipyard.toLowerCase()}, and the walls and chains that defend it. What
-            an island has of each is fixed: the chart drew it that way, and no island grows.
+            Every camp, mill, yard and wall takes one berth, whatever it is, and what an island has
+            is fixed: the chart drew it that way and no island grows. Companies and hulls take none
+            — one drills, the other floats.
           </p>
 
           {system.blockaded && (

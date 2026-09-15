@@ -10,7 +10,7 @@ function world(seed = 501): GameState {
   return generateGalaxy(seed, 'empire');
 }
 function mineWithWater(state: GameState): System {
-  return state.systems.find((s) => s.control === 'empire' && s.energySlots - s.facilities.filter((f) => f.type !== 'mine').length > 0)!;
+  return state.systems.find((s) => s.control === 'empire' && s.slots - s.facilities.length > 0)!;
 }
 function build(system: System, type: 'fort' | 'boom', owner: 'empire' | 'alliance' = 'empire') {
   system.facilities.push({ id: `fac-${type}-${system.facilities.length}`, type, owner });
@@ -65,7 +65,7 @@ describe('the opening, against Rebellion', () => {
         const fleet = state.fleets.find((x) => x.faction === f)!;
         expect(fleet.ships.length).toBeGreaterThanOrEqual(5);
         for (const s of state.systems.filter((x) => x.control === f)) {
-          const free = s.rawSlots + s.energySlots - s.facilities.length;
+          const free = s.slots - s.facilities.length;
           expect(free, `${s.name}`).toBeGreaterThan(0);
         }
       }

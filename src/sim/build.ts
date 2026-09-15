@@ -13,8 +13,7 @@ import {
 import { craftGrade, travelDays } from './missions';
 import { addShip } from './fleets';
 import {
-  freeEnergySlots,
-  freeRawSlots,
+  freeSlots,
   isPlayable,
   nextId,
   pushEvent,
@@ -70,11 +69,9 @@ export function effectiveSpec(
 }
 
 /** Whether an order for this item takes a slot on the island it lands on. */
-function takesGround(item: BuildItem): boolean {
-  return item === 'mine';
-}
-function takesWater(item: BuildItem): boolean {
-  return item !== 'mine' && item !== 'troop' && !isShipClass(item);
+/** Whether this order needs a berth on the island it lands on. */
+function takesRoom(item: BuildItem): boolean {
+  return item !== 'troop' && !isShipClass(item);
 }
 
 /**
@@ -82,20 +79,18 @@ function takesWater(item: BuildItem): boolean {
  * any works, this island's own included. Without this two works could both
  * send builders to the last free berth and one crew would arrive to nothing.
  */
-export function reservedSlots(state: GameState, systemId: string): { ground: number; water: number } {
-  let ground = 0;
-  let water = 0;
+export function reservedSlots(state: GameState, systemId: string): number {
+  let held = 0;
   for (const system of state.systems) {
     for (const facility of system.facilities) {
       const order = facility.building;
       if (!order || facility.founding) continue;
       const landsOn = order.destinationId ?? system.id;
       if (landsOn !== systemId) continue;
-      if (takesGround(order.item)) ground += 1;
-      if (takesWater(order.item)) water += 1;
+      if (takesRoom(order.item)) held += 1;
     }
   }
-  return { ground, water };
+  return held;
 }
 
 /**
@@ -131,11 +126,8 @@ export function buildError(
   if (landing.uprising) return `${landing.name} is in mutiny.`;
   // Companies and hulls take no ground: one drills, the other floats.
   const held = reservedSlots(state, landing.id);
-  if (takesGround(item) && freeRawSlots(landing) - held.ground < 1) {
-    return `No free ${terms.ground.toLowerCase()} on ${landing.name}.`;
-  }
-  if (takesWater(item) && freeEnergySlots(landing) - held.water < 1) {
-    return `No free ${terms.water.toLowerCase()} on ${landing.name}.`;
+  if (takesRoom(item) && freeSlots(landing) - held < 1) {
+    return `No room left on ${landing.name}.`;
   }
   return null;
 }
@@ -286,7 +278,7 @@ export function foundWorksError(
   if (system.facilities.some((f) => f.owner === owner && f.type === 'construction_yard')) {
     return `There is already a ${terms.facilities.construction_yard.toLowerCase()} here.`;
   }
-  if (freeEnergySlots(system) < 1) return `No free ${terms.water.toLowerCase()}.`;
+  if (freeSlots(system) < 1) return 'No room left on this island.';
   const cost = YARD_BUILDS.construction_yard.costGold;
   if (state.factions[owner].gold < cost) return `Needs ${cost} gold.`;
   return null;
@@ -332,8 +324,7 @@ export function advanceBuilds(state: GameState): void {
         landing = system;
       }
       // Builders sent to an island with no room left wait on the quay.
-      if (landing.id !== system.id && takesGround(order.item) && freeRawSlots(landing) < 1) continue;
-      if (landing.id !== system.id && takesWater(order.item) && freeEnergySlots(landing) < 1) continue;
+      if (landing.id !== system.id && takesRoom(order.item) && freeSlots(landing) < 1) continue;
 
       facility.building = undefined;
       if (facility.founding) {

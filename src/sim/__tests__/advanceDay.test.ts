@@ -50,7 +50,7 @@ describe('advanceDay', () => {
       expect(system.support.empire).toBeGreaterThanOrEqual(0);
       expect(system.support.empire).toBeLessThanOrEqual(100);
       expect(system.facilities.filter((f) => f.type === 'mine').length).toBeLessThanOrEqual(
-        system.rawSlots,
+        system.slots,
       );
     }
   });

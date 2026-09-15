@@ -35,7 +35,7 @@ export function IslandRow({
 }) {
   const you = state.player;
   const explored = system.explored[you];
-  const slots = system.rawSlots + system.energySlots;
+  const slots = system.slots;
   const counts: Record<string, number> = {
     missions: entry.missions,
     military: entry.military,

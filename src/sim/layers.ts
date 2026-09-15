@@ -68,7 +68,7 @@ export const CHART_LAYERS: LayerSpec[] = [
  * chart draws every island the same.
  */
 export function islandWorth(system: System): number {
-  return system.rawSlots + system.energySlots;
+  return system.slots;
 }
 
 /**

@@ -591,3 +591,27 @@ you can still change it there. And the island panel has a room-to-build bar
 that is the width of the card on every island, with a line under it saying what
 Ground and Water actually hold — ground takes camps and nothing else, water is
 the harbour and shoreline where everything else stands.
+
+
+## One pool of room, a sail over the name, and swipeable tabs — 15 September
+
+**Ground and Water are gone.** Sean: *the ground and water makes no sense to
+me, just make it available space*. He is right, and the bible had already made
+this mistake once — Sweetwater was withdrawn in v2.6 for being a second number
+that answered the same question. An island now has `slots`, one pool;
+`freeSlots` is what is left; every building takes one berth whatever it is, and
+companies and hulls take none. `rawSlots`, `energySlots`, `freeRawSlots`,
+`freeEnergySlots`, `usedRawSlots`, `usedEnergySlots` and the ground/water half
+of `reservedSlots` are all gone with them, and the island panel reads *Built
+5 / 13, Free 8* with a line under it saying what takes a berth. Saves bump to
+v4. Day one is unchanged and sixteen idle games of sixteen still end, median
+506 days.
+
+**The sail moved over the name.** In a Reach a fleet at anchor was a small
+glyph to the right of the island's name; it is now a large one centred above
+it, which is what you look at a Reach to find.
+
+**The island's tabs swipe.** Harbour, Crew, Garrison, Buildings and Log were
+five small targets; a sideways drag across the panel now moves between them.
+The chart's layer swipe and this one are the same hook, `useSideSwipe`, which
+is what the layer version always was under its own name.

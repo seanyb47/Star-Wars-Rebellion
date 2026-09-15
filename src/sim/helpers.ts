@@ -49,25 +49,13 @@ export function countFacilities(system: System, type: FacilityType, owner: Facti
   return system.facilities.filter((f) => f.type === type && f.owner === owner).length;
 }
 
-/** Slots taken by mines. Mines occupy raw slots; everything else occupies energy slots. */
-export function usedRawSlots(system: System): number {
-  return system.facilities.filter((f) => f.type === 'mine').length;
-}
-
-export function usedEnergySlots(system: System): number {
-  return system.facilities.filter((f) => f.type !== 'mine').length;
-}
-
-export function freeRawSlots(system: System): number {
-  return system.rawSlots - usedRawSlots(system);
-}
-
-export function freeEnergySlots(system: System): number {
-  return system.energySlots - usedEnergySlots(system);
-}
-
+/**
+ * Room left to build on. Everything standing takes one berth, whatever it is,
+ * and an order still on its way has already taken its own (it stands from the
+ * day it is ordered).
+ */
 export function freeSlots(system: System): number {
-  return freeRawSlots(system) + freeEnergySlots(system);
+  return system.slots - system.facilities.length;
 }
 
 export function factionSystems(state: GameState, faction: Faction): System[] {

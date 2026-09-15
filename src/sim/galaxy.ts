@@ -214,7 +214,7 @@ const LAND_ON_THE_CHART = new Map<string, number>(
   chartData.reaches.flatMap((r) => r.islands.map((i) => [i.name, i.land] as const)),
 );
 
-/** The most an island can hold, ground and water together. */
+/** The most an island can hold. */
 export const ROOM_MAX = 12;
 /** The least: a rock with a jetty. */
 export const ROOM_MIN = 3;
@@ -224,11 +224,9 @@ export const ROOM_MIN = 3;
  * quarter-land coast is not a quarter of a city: 3 on a bare rock, 6 or 7
  * on an ordinary island, 12 where the great island fills the frame.
  */
-export function roomFor(name: string): { ground: number; water: number } {
+export function roomFor(name: string): number {
   const land = LAND_ON_THE_CHART.get(name) ?? 0.2;
-  const total = Math.max(ROOM_MIN, Math.min(ROOM_MAX, Math.round(1 + 11 * Math.sqrt(land))));
-  const ground = Math.round(total * 0.45);
-  return { ground, water: total - ground };
+  return Math.max(ROOM_MIN, Math.min(ROOM_MAX, Math.round(1 + 11 * Math.sqrt(land))));
 }
 
 export function generateGalaxy(seed: number, player: PlayableFaction = 'empire'): GameState {
@@ -292,9 +290,8 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         control: 'none',
         support: { empire: 0, alliance: 0 },
         // Room follows the painting, not the dice: the same island has the
-        // same ground in every game. A port keeps one more berth on the water.
-        rawSlots: roomFor(island.name).ground,
-        energySlots: roomFor(island.name).water + (port ? 1 : 0),
+        // same room in every game. A port keeps one berth more.
+        slots: roomFor(island.name) + (port ? 1 : 0),
         facilities: [],
         garrison: 0,
         uprising: false,
@@ -396,9 +393,6 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   const baseSector = rng.pick(frontierSectors);
   const allianceHq = rng.pick(islandsOf(baseSector));
 
-  const countOf = (system: System, mines: boolean) =>
-    system.facilities.filter((f) => (f.type === 'mine') === mines).length;
-
   const seedHoldings = (owner: PlayableFaction, owned: System[]) => {
     for (const [index, system] of owned.entries()) {
       // Room is the painting's to give, not the opening's: a starting island
@@ -420,16 +414,14 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     for (const [index, type] of plan.entries()) {
       const maker = type === 'construction_yard' || type === 'training_facility' || type === 'shipyard';
       const system = maker ? rng.pick(owned) : owned[index % owned.length];
-      if (type === 'mine') system.rawSlots = Math.max(system.rawSlots, countOf(system, true) + 1);
-      else system.energySlots = Math.max(system.energySlots, countOf(system, false) + 1);
+      system.slots = Math.max(system.slots, system.facilities.length + 1);
       system.facilities.push(makeFacility(makeId('fac'), type, owner));
     }
-    // One spare slot of each kind on every starting island. An opening with
-    // no free ground is a worse opening than a thin surplus, because the
-    // answer to a thin surplus is to build.
+    // One spare berth on every starting island. An opening with no room left
+    // is a worse opening than a thin surplus, because the answer to a thin
+    // surplus is to build.
     for (const system of owned) {
-      system.rawSlots = Math.max(system.rawSlots, countOf(system, true) + 1);
-      system.energySlots = Math.max(system.energySlots, countOf(system, false) + 1);
+      system.slots = Math.max(system.slots, system.facilities.length + 1);
     }
   };
   seedHoldings('empire', empireSystems);

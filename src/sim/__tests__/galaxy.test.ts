@@ -113,8 +113,7 @@ describe('generateGalaxy', () => {
     for (const system of state.systems) {
       const mines = system.facilities.filter((f) => f.type === 'mine').length;
       const others = system.facilities.length - mines;
-      expect(mines).toBeLessThanOrEqual(system.rawSlots);
-      expect(others).toBeLessThanOrEqual(system.energySlots);
+      expect(mines + others).toBeLessThanOrEqual(system.slots);
     }
   });
 

@@ -107,15 +107,14 @@ describe('chart layers', () => {
     const nobodys = state.systems.find((s) => s.explored.empire && s.control === 'neutral')!;
     expect(layerMark(state, nobodys, 'worth', 'empire').lit).toBe(false);
     // Capacity is still measured, for the panels' worth mark.
-    expect(islandWorth(earner)).toBe(earner.rawSlots + earner.energySlots);
+    expect(islandWorth(earner)).toBe(earner.slots);
   });
 
   it('grades worth into three, and puts the boundaries where it says', () => {
     const { state } = setup();
     const island = state.systems[0];
-    const grade = (raw: number) => {
-      island.rawSlots = raw;
-      island.energySlots = 0;
+    const grade = (slots: number) => {
+      island.slots = slots;
       return worthTier(island);
     };
     expect(grade(0)).toBe('none');

@@ -36,8 +36,7 @@ import {
 } from './fleets';
 import { isLord, isLordShip, lordFleets } from './lords';
 import {
-  freeEnergySlots,
-  freeRawSlots,
+  freeSlots,
   getSystem,
   otherFaction,
   requiredGarrison,
@@ -205,8 +204,8 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
   if (gold < YARD_BUILDS.construction_yard.costGold || !canCarry('construction_yard')) return false;
   const open = held
     .filter((s) => foundWorksError(state, s.id, ai) === null)
-    .sort((a, b) => freeRawSlots(b) + freeEnergySlots(b) - (freeRawSlots(a) + freeEnergySlots(a)));
-  if (open.length > 0 && freeRawSlots(open[0]) + freeEnergySlots(open[0]) >= 3) {
+    .sort((a, b) => freeSlots(b) - freeSlots(a));
+  if (open.length > 0 && freeSlots(open[0]) >= 3) {
     foundWorks(state, open[0].id, ai);
     return true;
   }
@@ -222,7 +221,7 @@ function bestSpotFor(
   let best: { facilityId: string; slots: number } | undefined;
   for (const system of state.systems) {
     if (system.control !== ai || system.uprising) continue;
-    const slots = item === 'mine' ? freeRawSlots(system) : freeEnergySlots(system);
+    const slots = freeSlots(system);
     if (slots < 1) continue;
     for (const facility of system.facilities) {
       if (facility.owner !== ai || facility.building) continue;
