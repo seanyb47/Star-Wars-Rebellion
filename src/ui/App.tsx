@@ -568,6 +568,34 @@ export function App() {
     ? state.characters.find((c) => c.id === pickingFor) ?? null
     : null;
 
+  /**
+   * The island the officer is already standing on, offered as a one-tap
+   * answer.
+   *
+   * Sean: *"Many missions will be on same place so it makes it faster."* He
+   * is right about the shape of it — yard work, a posting and signing someone
+   * on are all errands for where you already are, and each one cost a tap
+   * into the chain, a tap on the island, and the chain sheet in the way.
+   *
+   * Offered only when there is genuinely something to do there, because the
+   * alternative is a button whose whole job is to tell you it was the wrong
+   * button. Nothing for the build flow: its destination is already set and
+   * Back keeps it, so "here" would be a second word for the same thing. And
+   * nothing for a fleet, which cannot sail to the harbor it is lying in.
+   */
+  const pickHere = (() => {
+    if (!pickingCharacter) return null;
+    const at = state.systems.find((sy) => sy.id === pickingCharacter.locationSystemId);
+    if (!at) return null;
+    const offered = missionsOffered(
+      state,
+      at,
+      pickingCharacter.faction as PlayableFaction,
+      pickingCharacter,
+    );
+    return offered.length > 0 ? { systemId: at.id, name: at.name } : null;
+  })();
+
   if (!started) {
     return (
       <div className="app">
@@ -650,6 +678,8 @@ export function App() {
             onLayerChange={setLayer}
             sailing={sailingFleetId !== null}
             choosing={choosingSite}
+            pickHere={pickHere}
+            onPickHere={handleSelectSystem}
             onCancelPick={() => {
               setPickingFor(null);
               setSailingFleetId(null);

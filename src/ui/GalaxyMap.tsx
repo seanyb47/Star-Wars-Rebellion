@@ -133,6 +133,18 @@ export interface GalaxyMapProps {
   /** A build order is choosing the island of yours it will land on. */
   choosing?: boolean;
   onCancelPick?: () => void;
+  /**
+   * The island whoever is picking already stands on, when going there is a
+   * real answer. Sean: *"I should be able to select island name to send there.
+   * So click Freeport if he is on Freeport instead of having to go into
+   * islands screens. Many missions will be on same place so it makes it
+   * faster."* Yard work, a posting and signing somebody on are all errands for
+   * where you already are, and every one of them cost two taps into a chain
+   * and back out. Null when there is nothing to do there, or when the mode has
+   * no "here" — a fleet cannot sail to the harbor it is lying in.
+   */
+  pickHere?: { systemId: string; name: string } | null;
+  onPickHere?: (systemId: string) => void;
   /** Tapping a chain opens it. The island is then chosen from the list. */
   onSelectReach?: (sectorId: string) => void;
   /** From the idle-producer strip: jump straight to an island with a free yard. */
@@ -275,6 +287,8 @@ export function GalaxyMap({
   sailing,
   choosing,
   onCancelPick,
+  pickHere,
+  onPickHere,
   onSelectReach,
   onOpenIsland,
   layer = 'allegiance',
@@ -820,29 +834,49 @@ export function GalaxyMap({
         <LayerStrip state={state} layer={layer} onChange={onLayerChange} viewer={viewer} />
       )}
 
+      {/*
+        The picking bar.
+        
+        It used to be one chip that read "Hale is on Freeport · pick an island
+        · cancel" — a sentence with two verbs buried in it, both of them the
+        same 11px grey as the rest, and only one of them actually doing
+        anything. Sean asked for the two answers to be answers: *"make those
+        options 'At [current location]' and 'Cancel' more prominent."* So the
+        sentence says what is happening and the buttons are buttons, at a tap
+        target you can hit without looking.
+      */}
       <div className="map__hud">
-        {sailing ? (
-          <button className="chip chip--pick" onClick={onCancelPick}>
-            Open a chain and pick where to sail · cancel
-          </button>
-        ) : choosing ? (
-          <button className="chip chip--pick" onClick={onCancelPick}>
-            Open a chain and pick an island of yours to build on · back
-          </button>
-        ) : pickingFor ? (
-          <button className="chip chip--pick" onClick={onCancelPick}>
+        {(sailing || choosing || pickingFor) && (
+          <div className="pickbar">
             {/* Name the officer and where they are standing. The pulse on the
                 chart says which island; this says it in words, for the case
                 where the island is behind your thumb. */}
-            {(() => {
-              const who = state.characters.find((c) => c.id === pickingFor.characterId);
-              const at = state.systems.find((sy) => sy.id === pickerAt);
-              return who && at
-                ? `${who.name.split(' ').slice(-1)[0]} is on ${at.name} · pick an island · cancel`
-                : 'Open a chain and pick an island · cancel';
-            })()}
-          </button>
-        ) : null}
+            <div className="pickbar__say">
+              {(() => {
+                if (sailing) return 'Open a chain and pick where to sail.';
+                if (choosing) return 'Open a chain and pick an island of yours to build on.';
+                const who = state.characters.find((c) => c.id === pickingFor!.characterId);
+                const at = state.systems.find((sy) => sy.id === pickerAt);
+                return who && at
+                  ? `${who.name.split(' ').slice(-1)[0]} is on ${at.name}. Open a chain and pick an island — or send them where they stand.`
+                  : 'Open a chain and pick an island.';
+              })()}
+            </div>
+            <div className="pickbar__acts">
+              {pickHere && (
+                <button
+                  className="btn btn--primary pickbar__btn"
+                  onClick={() => onPickHere?.(pickHere.systemId)}
+                >
+                  At {pickHere.name}
+                </button>
+              )}
+              <button className="btn pickbar__btn" onClick={onCancelPick}>
+                {choosing ? 'Back' : 'Cancel'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
