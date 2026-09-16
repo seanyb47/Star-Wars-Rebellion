@@ -175,7 +175,19 @@ describe('commands', () => {
     expect(state.pendingDecisions).toHaveLength(0);
     expect(state.characters.find((c) => c.id === diplomat.id)!.mission?.type).toBe('diplomacy');
 
-    // Cycle after cycle, unasked.
+    /*
+     * Cycle after cycle, unasked.
+     *
+     * The island is put back under the ceiling first, and deliberately. This
+     * used to rely on a parley on your own ground never getting there by
+     * itself — opinion drifts back toward `HELD_SUPPORT_LEVEL` every day, so
+     * it settles into a tug of war in the sixties — which held until the
+     * opening changed underneath it and the draw handed this seed the Lord
+     * Regent, who argues at fifteen points a fortnight and reached a hundred
+     * in three. The talks ending there is the rule working, and it is the
+     * *next* assertion's job. This one is about them not asking.
+     */
+    for (const s of state.systems) if (s.id === target.id) setSupport(s, 'empire', 60);
     state = tick(state, MISSION_WORK_DAYS * 2);
     expect(state.pendingDecisions).toHaveLength(0);
     expect(state.characters.find((c) => c.id === diplomat.id)!.mission?.type).toBe('diplomacy');

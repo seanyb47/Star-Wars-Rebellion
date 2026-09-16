@@ -21,9 +21,27 @@ still not a base in the sense that matters — losing it loses nothing, because
 the Crown wins by taking the three Lords and by nothing else — and it is dealt
 none of the opening's camps, mills or yards, because the articles were signed
 on it a week ago rather than settled on. The three ships — the *Open Deck*, the *Swallowtail*, the
-*Ironback* — and the Home Fleet lie there on day one. The Confederacy knows
+*Ironback* — and the Confederacy's whole navy lie there on day one. The Confederacy knows
 Freeport and nothing else out here; the Crown knows only that a meeting took
 place.
+
+**The navy on day one.** The Crown opens with two squadrons and the
+Confederacy with one, which is Sean's shape of 18 September: *"Imperium should
+start with a powerful fleet on Highwater and a medium fleet on another inner
+reach. Confederacy fleet is its Freeport only and it's medium sized. Should
+rival the medium fleet from imperium."* The Home Fleet lies at Highwater — a
+ship of the line, three heavy frigates, a scout and a transport, eighty-nine
+guns. The Windward Squadron lies at a Crown holding out in a contested Reach,
+drawn afresh every war: two heavy frigates, a scout and a transport,
+forty-two guns. The Confederacy's own Home Fleet lies at Freeport and nowhere
+else: four sloops, a bulk cruiser and a transport, forty-nine guns.
+
+So the two mediums are a fair fight and the Crown's first squadron is not one.
+The asymmetry that matters is not the weight of shot, it is that the Crown has
+to be in two seas at once and the Confederacy does not — sending the Home Fleet
+out to hunt costs something now, because the Windward is the only other thing
+on the water. Paying for two squadrons is why the Crown's opening mills went up
+at the same time; see `START_EARNERS`.
 
 **Home — Sovereign Reach.** Highwater is a port city and always the Crown's
 seat, with the Home Fleet there. The great island has three ports: Highwater,

@@ -112,10 +112,20 @@ describe('what is in the water', () => {
 
 describe('a creature in the harbor', () => {
   /** A world, an island with something dangerous in its water, and a fleet. */
-  function standoff(seed = 501) {
+  /**
+   * `which` picks the Crown squadron to anchor over the creature.
+   *
+   * It had no such choice until 18 September, because the Crown had one
+   * squadron. Since it opens with two — a powerful Home Fleet and a medium one
+   * forward — the answer to "does the creature get a shot in" depends entirely
+   * on which one turns up: eighty-nine guns kill a Sea Dragon in the first
+   * round without it touching anybody, which is right and which is not what
+   * the firing test is about.
+   */
+  function standoff(seed = 501, which = 0) {
     const state = generateGalaxy(seed, 'empire');
     const target = state.systems.find((s) => beastAlive(s))!;
-    const fleet = state.fleets.find((f) => f.faction === 'empire')!;
+    const fleet = state.fleets.filter((f) => f.faction === 'empire')[which];
     fleet.systemId = target.id;
     fleet.voyage = undefined;
     target.explored.empire = true;
@@ -137,7 +147,10 @@ describe('a creature in the harbor', () => {
   });
 
   it('fires on a fleet lying there with nobody else in sight', () => {
-    const { state, target, fleet } = standoff();
+    // The forward squadron, not the Home Fleet: a ship of the line and three
+    // heavy frigates settle a Sea Dragon before it has fired, and a creature
+    // that never gets a shot off cannot be tested for getting a shot off.
+    const { state, target, fleet } = standoff(501, 1);
     // Hull still floating, not damage dealt: a hull beaten to nothing is
     // removed from the fleet, so counting damage reads zero exactly when the
     // beast did its worst. This bit the test the day the hulls stopped all

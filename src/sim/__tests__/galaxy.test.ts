@@ -156,7 +156,10 @@ describe('generateGalaxy', () => {
       // dice did, and the veins can only run over — a side whose ground was
       // already working four of them is not made to give two back.
       expect(count('mine')).toBeGreaterThanOrEqual(2);
-      expect(count('refinery')).toBe(faction === 'empire' ? 18 : 17);
+      // The Crown's count went up on 18 September and only because its navy
+      // did: a second squadron is thirteen gold a day more in upkeep against
+      // an opening ledger that had five in it. See START_EARNERS.
+      expect(count('refinery')).toBe(faction === 'empire' ? 23 : 17);
       // And nothing on a held island belongs to nobody.
       expect(
         state.systems

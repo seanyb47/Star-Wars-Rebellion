@@ -724,18 +724,60 @@ describe('espionage charts the map', () => {
 
 
 describe('the opening position', () => {
+  /**
+   * Sean's opening, 18 September: *"Imperium should start with a powerful fleet
+   * on Highwater and a medium fleet on another inner reach. Confederacy fleet
+   * is its Freeport only and it's medium sized. Should rival the medium fleet
+   * from imperium."*
+   *
+   * The asymmetry that matters is not the weight of shot, it is the number of
+   * places each side has to be at once.
+   */
   it('puts a fleet on the water for both sides on day one', () => {
     const state = generateGalaxy(7, 'empire');
     for (const faction of ['empire', 'alliance'] as const) {
       const fleets = state.fleets.filter((f) => f.faction === faction);
-      expect(fleets).toHaveLength(1);
+      // Two for the Crown, one for the Confederacy.
+      expect(fleets).toHaveLength(faction === 'empire' ? 2 : 1);
+      // Every side's first squadron lies at its seat.
       expect(fleets[0].systemId).toBe(state.factions[faction].hqSystemId);
-      expect(fleets[0].ships.length).toBeGreaterThanOrEqual(4);
-      // Companies aboard, so the first landing does not wait on a transport
-      // being loaded before it can be thought about.
-      expect(fleets[0].troops).toBeGreaterThan(0);
-      expect(fleets[0].troops).toBeLessThanOrEqual(fleetCapacity(fleets[0]));
+      for (const fleet of fleets) {
+        expect(fleet.ships.length).toBeGreaterThanOrEqual(4);
+        // Companies aboard, so the first landing does not wait on a transport
+        // being loaded before it can be thought about.
+        expect(fleet.troops).toBeGreaterThan(0);
+        expect(fleet.troops).toBeLessThanOrEqual(fleetCapacity(fleet));
+      }
     }
+  });
+
+  it('berths the Crown\'s second squadron out of its own Reach', () => {
+    for (const seed of [7, 19, 41]) {
+      const state = generateGalaxy(seed, 'empire');
+      const [home, forward] = state.fleets.filter((f) => f.faction === 'empire');
+      const seat = state.systems.find((s) => s.id === home.systemId)!;
+      const station = state.systems.find((s) => s.id === forward.systemId)!;
+      expect(station.id).not.toBe(seat.id);
+      expect(station.sectorId).not.toBe(seat.sectorId);
+      expect(station.control).toBe('empire');
+    }
+  });
+
+  /**
+   * The two mediums are meant to be a fair fight and the Home Fleet is not.
+   * Weight of shot, so the numbers say what the fleets are rather than how
+   * many hulls happen to be in them.
+   */
+  it('matches the Confederacy against the Crown\'s second squadron, not its first', () => {
+    const state = generateGalaxy(7, 'empire');
+    const guns = (f: (typeof state.fleets)[number]) =>
+      f.ships.reduce((n, sh) => n + SHIP_ROLES[shipClass(sh.classId).role].guns, 0);
+    const [home, forward] = state.fleets.filter((f) => f.faction === 'empire');
+    const rebels = state.fleets.find((f) => f.faction === 'alliance')!;
+    expect(guns(home)).toBeGreaterThan(guns(rebels) * 1.5);
+    // Within a quarter of each other either way: a rival, not a mirror.
+    expect(guns(rebels)).toBeGreaterThan(guns(forward) * 0.75);
+    expect(guns(rebels)).toBeLessThan(guns(forward) * 1.25);
   });
 
   it('gives each side a yard that can lay down a hull', () => {

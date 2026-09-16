@@ -152,6 +152,27 @@ const NEUTRAL_GARRISON: Record<ReachRole, [number, number]> = {
  * Earners per side. Nine islands a side now, each with a garrison to feed, so
  * more than the old six-and-four opening carried. Measured across seeds to
  * leave both sides a clear surplus on day one and free ground everywhere.
+ *
+ * The Crown's went up on 18 September, and only because its navy did. Two
+ * squadrons instead of one is thirteen gold a day more in upkeep, and the
+ * Crown's opening ledger had about five in it — so Sean's *"powerful fleet on
+ * Highwater and a medium fleet on another inner reach"*, dropped in on its own,
+ * opened the war at minus eight a day against a hundred and fifty in the bank.
+ * Broke in nineteen days, before the player had done anything wrong.
+ *
+ * A vein and five more mills puts it back where it was and no further:
+ * measured over three seeds, plus three to plus eight a day against the plus
+ * five it averaged before the second squadron existed. The fleet is the
+ * change; this is what the fleet costs.
+ *
+ * It is not the balance dial, which is worth knowing before anybody reaches
+ * for it. Three mills either way — a whole point of surplus a day — moved
+ * forty measured wars by one: Crown 23-14 at twenty-four mills, Crown 23-13 at
+ * twenty-three. What moved the war was the second squadron.
+ *
+ * The gap to the Confederacy's twenty-odd a day is not new and is not this
+ * change's to close. The Crown pays for Highwater's ancient walls and a seat's
+ * garrison, which is real and which the Confederacy has no equivalent of.
  */
 /**
  * The earners a side opens the war with.
@@ -178,7 +199,7 @@ const NEUTRAL_GARRISON: Record<ReachRole, [number, number]> = {
  * left a side four mills short of its upkeep opens it insolvent.
  */
 const START_EARNERS: Record<PlayableFaction, { mines: number; refineries: number }> = {
-  empire: { mines: 2, refineries: 18 },
+  empire: { mines: 3, refineries: 23 },
   alliance: { mines: 2, refineries: 17 },
 };
 const START_YARDS = 2;
@@ -186,26 +207,71 @@ const START_TRAINING = 2;
 /** A yard for hulls, so a slipway is not the first thing you have to build. */
 const START_SHIPYARDS = 2;
 /**
- * The fleet each side already has on the water.
+ * The squadrons each side already has on the water, and where they lie.
  *
  * The board used to open with none at all, which meant the whole naval half of
  * the game was twenty-two days away — the time to build a slipway and then a
  * hull — and the first three weeks were a menu. Rebellion hands you a navy on
  * turn one and lets you find out what it is for.
  *
- * Asymmetric on purpose, the way the two sides are: the Crown has the ship of
- * the line and the weight, the Confederacy has hulls that outrun it. Neither
- * has enough to win with, which is what makes the slipway worth building.
+ * Sean's shape, 18 September: *"Imperium should start with a powerful fleet on
+ * Highwater and a medium fleet on another inner reach. Confederacy fleet is its
+ * Freeport only and it's medium sized. Should rival the medium fleet from
+ * imperium."*
+ *
+ * Which is Rebellion's opening properly, and not only in weight. The Empire
+ * begins with a navy in two places and a coastline to answer for; the Rebels
+ * begin with one squadron in one harbor and nothing at all anywhere else. The
+ * asymmetry is not that the Crown's hulls are better — it is that the Crown has
+ * to be in two seas at once and the Confederacy does not. Sending the Home
+ * Fleet out to hunt is a decision with a cost now, because the second squadron
+ * is the only other thing on the water.
+ *
+ * The two mediums are deliberately matched and deliberately different: the
+ * Crown's is two heavy frigates and a scout, the Confederacy's is a pack of
+ * sloops around one bulk cruiser. Near enough the same weight of shot, and a
+ * quite different thing to fight.
  */
-const START_FLEET: Record<PlayableFaction, ShipClassId[]> = {
-  // Rebellion's Imperial opening, hull for hull: one ship of the line, two
-  // heavy frigates, a light cruiser and a transport.
-  empire: ['sovereign', 'razorback', 'razorback', 'kestrel', 'fluyt'],
-  // And the Rebel one: a pack of corvettes, a single bulk cruiser, a transport.
-  alliance: ['swift', 'swift', 'swift', 'swift', 'tempest', 'brig'],
+interface StartSquadron {
+  name: string;
+  ships: ShipClassId[];
+  /** Companies aboard, ready to take somewhere. */
+  troops: number;
+  /** Where she lies: the side's seat, or a holding out in a contested Reach. */
+  berth: 'seat' | 'forward';
+}
+const START_FLEETS: Record<PlayableFaction, StartSquadron[]> = {
+  empire: [
+    // Powerful, and at Highwater: a ship of the line, three heavy frigates, a
+    // scout and a transport. Eighty-nine guns.
+    {
+      name: 'Home Fleet',
+      ships: ['sovereign', 'razorback', 'razorback', 'razorback', 'kestrel', 'fluyt'],
+      troops: 2,
+      berth: 'seat',
+    },
+    // And a medium one forward, in a Reach the Crown does not own outright.
+    // Forty-two guns, no ship of the line: enough to take an island off
+    // somebody and not enough to fight the Confederacy's whole navy.
+    {
+      name: 'Windward Squadron',
+      ships: ['razorback', 'razorback', 'kestrel', 'fluyt'],
+      troops: 2,
+      berth: 'forward',
+    },
+  ],
+  alliance: [
+    // Freeport, and nowhere else. Forty-nine guns against the Windward's
+    // forty-two — the Confederacy's whole navy rivals the Crown's second
+    // squadron, and would not last a morning against its first.
+    {
+      name: 'Home Fleet',
+      ships: ['swift', 'swift', 'swift', 'swift', 'tempest', 'brig'],
+      troops: 2,
+      berth: 'seat',
+    },
+  ],
 };
-/** Companies aboard the transport, ready to take somewhere. */
-const START_TROOPS_ABOARD = 2;
 
 /**
  * The garrison an island opens with: what its allegiance needs, plus a
@@ -874,19 +940,38 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   //
   // Built here rather than through addShip because that lives in fleets.ts and
   // would import back into this file; the shape is small enough to write out.
-  for (const [faction, classes] of Object.entries(START_FLEET) as Array<
-    [PlayableFaction, ShipClassId[]]
+  //
+  // A forward berth is a holding of that side's out in a contested Reach — not
+  // the seat, and not the seat's own Reach. Drawn rather than fixed, so the
+  // Crown's second squadron is somewhere different every war and the
+  // Confederacy has to find it; it falls back to the seat on the impossible
+  // world where the side holds nothing outside its own water.
+  const berthFor = (faction: PlayableFaction, kind: StartSquadron['berth']) => {
+    const seat = faction === 'empire' ? capital : allianceHq;
+    if (kind === 'seat') return seat;
+    const forward = (faction === 'empire' ? empireSystems : allianceSystems).filter(
+      (sys) => sys.sectorId !== seat.sectorId && sys.control === faction,
+    );
+    return forward.length > 0 ? rng.pick(forward) : seat;
+  };
+  for (const [faction, squadrons] of Object.entries(START_FLEETS) as Array<
+    [PlayableFaction, StartSquadron[]]
   >) {
-    const home = faction === 'empire' ? capital : allianceHq;
-    state.fleets.push({
-      id: `flt-${++state.nextId}`,
-      name: 'Home Fleet',
-      faction,
-      systemId: home.id,
-      ships: classes.map((classId) => ({ id: `shp-${++state.nextId}`, classId, damage: 0 })),
-      troops: START_TROOPS_ABOARD,
-      officerIds: [],
-    });
+    for (const squadron of squadrons) {
+      state.fleets.push({
+        id: `flt-${++state.nextId}`,
+        name: squadron.name,
+        faction,
+        systemId: berthFor(faction, squadron.berth).id,
+        ships: squadron.ships.map((classId) => ({
+          id: `shp-${++state.nextId}`,
+          classId,
+          damage: 0,
+        })),
+        troops: squadron.troops,
+        officerIds: [],
+      });
+    }
   }
   // No Lord's ship goes on the water. The three of them are people standing
   // at Freeport with the rest of the Brethren, and their ships live in their

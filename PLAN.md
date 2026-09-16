@@ -3167,3 +3167,63 @@ wars, neither side incited or sabotaged once — abduction outranks both on ever
 enemy island, and with the Lords as personnel it always will. That was true
 before this change too (same probe on the old code: also zero). It is the next
 thing worth looking at.
+
+---
+
+## The opening navy: two squadrons for the Crown, one for the Brethren
+
+*Sean, 18 September: "Imperium should start with a powerful fleet on Highwater
+and a medium fleet on another inner reach. Confederacy fleet is its Freeport
+only and it's medium sized. Should rival the medium fleet from imperium."*
+
+Built as asked. The Crown opens with the **Home Fleet** at Highwater — a ship
+of the line, three heavy frigates, a scout and a transport, eighty-nine guns —
+and the **Windward Squadron** at a Crown holding out in a contested Reach,
+drawn afresh every war: two heavy frigates, a scout and a transport, forty-two
+guns. The Confederacy's own Home Fleet lies at Freeport and nowhere else: four
+sloops, a bulk cruiser and a transport, forty-nine guns. The two mediums are a
+fair fight; the Home Fleet is not one. What the shape actually buys is that the
+Crown has to be in two seas at once and the Confederacy does not.
+
+**What it cost to keep the Crown solvent.** A second squadron is thirteen gold
+a day more in upkeep, against an opening ledger with about five a day in it and
+a hundred and fifty in the bank. Dropped in on its own, Sean's opening put the
+Crown at minus eight a day — broke on day nineteen, before the player had done
+anything wrong. A vein and five more mills puts it back where it was and no
+further: plus three to plus eight a day against the plus five it averaged
+before.
+
+**That is not the balance dial and it is worth saying so.** Three mills either
+way — a whole point of surplus a day — moved forty measured wars by exactly
+one: Crown 23-14 at twenty-four mills, Crown 23-13 at twenty-three. What moved
+the war was the second squadron.
+
+**Measured, matched seeds, eighty wars both sides played:**
+
+|                    | seeds 9000-9039 | seeds 9040-9079 | total |
+|--------------------|-----------------|-----------------|-------|
+| one squadron each  | Crown 19 — 18   | Crown 17 — 21   | **36 — 39** (48%) |
+| Sean's opening     | Crown 23 — 13   | Crown 24 — 15   | **47 — 28** (63%) |
+
+**So the opening shape is worth about fifteen points to the Crown**, and the
+war it produces is a shorter one: the median fell from around nine hundred days
+to around seven hundred and seventy, the Crown finishes with twice the
+Confederacy's islands rather than a third more, and the Lords in irons at the
+end went from 1.4 of three to 1.8. A second squadron means the Home Fleet can
+go hunting without leaving the Crown's own water open, which is exactly the
+thing the old opening would not let it do — and hunting Lords is how the Crown
+wins.
+
+That is the honest number and the shape is Sean's call, so it ships as asked
+rather than being quietly trimmed back. Two dials if he wants it nearer even,
+neither of which touches what he specified:
+
+- **The Windward's weight.** It is at forty-two guns to rival the Confederacy's
+  forty-nine. Dropping a frigate takes it to twenty-five — still a squadron,
+  no longer a rival, and the Confederacy's one fleet becomes the best medium
+  on the water.
+- **The Confederacy's side of the ledger.** It opens on twenty-odd gold a day
+  to the Crown's five, which is a standing advantage it has never spent well;
+  the machine sits on three to five thousand gold at the end of every war. That
+  is an opponent problem rather than an opening problem, and fixing it would
+  give the Confederacy back more than a hull would.
