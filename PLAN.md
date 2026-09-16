@@ -3020,3 +3020,73 @@ loses **21-0** with three unfinished. Every player-idle campaign all day read
 12-12 and hid it completely, because an idle side loses differently from a
 played one. That is the deepest balance problem in the game and it is where the
 tuning starts.
+
+## The overnight tuning run — 16/17 September
+
+Sean: *"Run gameplay sims and tune all dimensions of game. Fix bugs. Run game
+after game. All night."* This is what that found, in the order it found it.
+
+**Crown 0 — Confederacy 24 was one line of code, not a balance problem.** An
+officer who finishes a spell ashore is asked what to do next, and the question
+goes to the player when it is the player's side. Observe mode has no player, so
+every Crown officer who landed anywhere was handed a question nobody answered
+and stood on that quay for the rest of the war. An officer on ground that is not
+theirs can be lifted off it by anyone who turns up, and forty were, against four
+of the Confederacy's. Ninety per cent of the corps ended in irons. Half a day
+went into measuring roster sizes, abduction odds, gaol locations and doctrine
+gates before the trace showed four Crown officers landing on day 10 and never
+reporting again. The same hand-off hid a second one: an action at sea arrives as
+a battle sheet, which stops the clock until somebody answers it.
+
+*The lesson worth keeping: when a measurement is extreme — 0 of 24, 91% — look
+for a broken mechanism before tuning a number. Balance problems are gradients.*
+
+**Then the tuning proper, each change measured over 24 to 40 wars on at least
+two seed blocks:**
+
+- *Hunting is a detail, not the corps.* Three Lords stand on Confederate ground
+  and never leave the target list, so the Crown put a third of its officers on
+  them and one twenty-fifth on the yards. Two hunters at a time; rescue is not
+  counted against the cap.
+- *The island first, then the hand.* The errand pass took the best diplomat and
+  let them pick — so the officer least suited to a raid was the one sent on it,
+  with both the snatch and the getting out again priced off espionage. The
+  island is picked first now and the hand second, on the rating the errand is
+  settled by.
+- *The first officer at the yards outranks anything on the chart.* Craft is the
+  only thing that pays for the whole rest of the war and it loses every ranking
+  it is in. The Crown finished every block at craft 1.0-1.5 against 2.1-2.9.
+- *One slipway per four islands, one drill ground per six.* Both were flat caps
+  — three and two for a whole faction — which are not budgets but ceilings on
+  the navy and the army. Sides finished with thirteen thousand gold in the vault
+  and nothing to spend it on.
+- *A squadron with an empty hold musters before it sails.* It loaded what the
+  island under it could spare and then sailed at the enemy whether or not it had
+  loaded anything.
+- *Nowhere left to stand.* Seed 11021, day 2,301: the Crown held all sixty-three
+  islands and the Confederacy still had two Lords at large, walking from one
+  Crown island to the next stirring up revolts while a fourth officer cut the
+  third out of the cells as fast as the Crown could put him back. A side holding
+  no island has nowhere to put anybody; everyone still at large is taken where
+  they stand. This is Sean's *"capturing all islands means you captured all
+  lords"* finally being true.
+- *A siege is news to the island being besieged.* The bombardment lines only
+  fired for your own guns, so a player whose capital was being battered down was
+  told nothing until the last battery fell.
+
+**Rejected, with the measurement, so nobody tries them twice:** two boats after
+the same mark (14-19 becomes 7-23); always walling the seat of government first
+(costs the Crown five wins in forty, turning them into stalemates — the beaten
+walls at every Confederate victory are the siege's work, not a failure to
+build); a squadron that answers a siege on its own island (8-16 becomes 3-21 —
+a navy that answers every siege never takes anything).
+
+**Where it stands.** One hundred and twelve wars over five seed blocks, both
+sides played: **Crown 50 — Confederacy 56, six unfinished.** Every rule the
+audit checks held on every day of every war. With a scripted player at the wheel
+and the harness's own coin fixed — `mixed` had been answering "come home" to 270
+reports of 282, because the draw overflowed a double — twelve wars run Crown 4 —
+Confederacy 5.
+
+Verified in the browser: observe mode runs a war at a steady half-day a second
+with no modal ever blocking the clock and nothing in the console.
