@@ -946,7 +946,16 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
   const system = getSystem(state, fleet.systemId);
   let weight = fleetBombard(fleet);
   if (weight <= 0) return;
-  const mine = fleet.faction === state.player;
+  /**
+   * Whose news this is.
+   *
+   * It used to be "my fleet is doing it", which meant a player watching their
+   * own capital being battered down was told nothing at all until the last
+   * battery fell — the one thing in the game most worth knowing, and the log
+   * was silent on it. A siege is news to both sides: the guns firing and the
+   * walls being fired at.
+   */
+  const mine = fleet.faction === state.player || system.control === state.player;
 
   // The wall answers first, at what it still has.
   const wall = Math.round(fortGuns(system));
@@ -1003,12 +1012,17 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
       text: fortsOf(system).length === 0
         ? `The last of the seawall at ${system.name} is down. The landing is open.`
         : `A battery at ${system.name} is beaten to rubble.`,
+      // Losing a wall of your own is a loss; taking one down is an action.
+      ...(system.control === state.player ? { kind: 'loss' as const } : {}),
       systemId: system.id,
     });
   } else if (standing.length > 0 && mine) {
     pushEvent(state, {
       kind: 'battle',
-      text: `${fleet.name} works the walls of ${system.name}. ${Math.round(wallCondition(system) * 100)}% of them still stand.`,
+      text:
+        fleet.faction === state.player
+          ? `${fleet.name} works the walls of ${system.name}. ${Math.round(wallCondition(system) * 100)}% of them still stand.`
+          : `${fleet.name} lies off ${system.name} and works the walls. ${Math.round(wallCondition(system) * 100)}% of them still stand.`,
       systemId: system.id,
     });
   }
@@ -1037,9 +1051,9 @@ function shellTheTown(state: GameState, system: System, fleet: Fleet, weight: nu
     }
   }
 
-  if (fleet.faction === state.player) {
+  if (fleet.faction === state.player || system.control === state.player) {
     pushEvent(state, {
-      kind: 'battle',
+      kind: system.control === state.player ? 'loss' : 'battle',
       text: system.populated
         ? `${fleet.name} shells ${system.name} itself. ${
             broken > 0
