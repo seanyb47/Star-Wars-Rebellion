@@ -449,6 +449,15 @@ export function Almanac({
                 size={84}
               />
               <div style={{ flex: 1, minWidth: 0 }}>
+                {/* The same quiet rank the crew screen wears, for the same
+                    reason: three of the names on this page are the
+                    Confederacy's victory condition and nothing distinguished
+                    them from a purser. */}
+                {PIRATE_LORDS.some((l) => l.name === entry.name) && (
+                  <div className="crewcard__rank" style={{ padding: 0, marginBottom: 2 }}>
+                    Pirate Lord
+                  </div>
+                )}
                 <b className="small">{entry.name}</b>
                 <div className="tiny muted" style={{ marginTop: 1 }}>
                   {entry.people} · {entry.roles.join(', ')}

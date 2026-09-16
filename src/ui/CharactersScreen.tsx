@@ -1,5 +1,5 @@
 import terms from '../data/terms.json';
-import { MISSION_LABEL } from '../sim';
+import { MISSION_LABEL, isLord } from '../sim';
 import type { Character, GameState } from '../sim';
 import { CharacterPainting } from './art';
 import { statusBadge } from './CharacterSheet';
@@ -63,16 +63,28 @@ export function CharactersScreen({
   onOpen: (characterId: string) => void;
 }) {
   const crew = state.characters.filter((c) => c.faction === state.player);
+  const inIrons = crew.some((c) => c.status === 'captured');
 
   return (
+    <>
     <div className="pad crewgrid">
       {crew.map((character) => {
         const location = state.systems.find((s) => s.id === character.locationSystemId);
         const idle = character.status === 'available';
+        /**
+         * Three of these cards are a third of the war each.
+         *
+         * Sean: *"the pirate lords need a more bold frame. And subtle Pirate
+         * Lord."* On a grid of identical cards they read as ordinary officers,
+         * and they are the only people on the screen whose capture ends it —
+         * so the frame is heavier and the rank is said, quietly, where a rank
+         * belongs: above the name, in the brass the chrome already uses.
+         */
+        const lord = isLord(character);
         return (
           <button
             key={character.id}
-            className={`crewcard${idle ? '' : ' crewcard--busy'}`}
+            className={`crewcard${idle ? '' : ' crewcard--busy'}${lord ? ' crewcard--lord' : ''}`}
             onClick={() => onOpen(character.id)}
           >
             <span className="crewcard__art">
@@ -87,6 +99,7 @@ export function CharactersScreen({
                   actually scan this screen for is who is already busy. */}
               {!idle && <span className="crewcard__badge">{statusBadge(character)}</span>}
             </span>
+            {lord && <span className="crewcard__rank">Pirate Lord</span>}
             <span className="crewcard__name">{character.name}</span>
             <span className="crewcard__where">
               {missionLine(state, character) ??
@@ -103,5 +116,26 @@ export function CharactersScreen({
         );
       })}
     </div>
+    {/*
+      Sean, looking at this screen: *"I don't think we have the recruit
+      mission do we? How do we get more free?"* We do, and it is the only way
+      a crew ever grows — but nothing on the screen that shows you your crew
+      said so, and the chart had no filter for looking. Two sentences at the
+      foot of the roster, which is where the question gets asked.
+    */}
+    <p className="pad tiny muted" style={{ paddingTop: 0, lineHeight: 1.45 }}>
+      A crew grows one way: officers who have not picked a side come ashore
+      across the Reaches through the war, and one of yours sent to sign them on
+      makes them yours for good. The chart&rsquo;s <b>To sign on</b> filter shows
+      where they are standing — and the other side is looking too.
+      {inIrons && (
+        <>
+          {' '}
+          Anyone of yours in irons stays there until you send somebody to break
+          them out; nobody comes home on their own.
+        </>
+      )}
+    </p>
+    </>
   );
 }

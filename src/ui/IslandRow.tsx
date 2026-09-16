@@ -27,6 +27,9 @@ export function tabForLayer(layer: ChartLayer | undefined): IslandTab {
       return 'buildings';
     case 'idleCrew':
     case 'missions':
+    // The unaligned officer is standing on the quay, which is the Crew tab's
+    // question: who is here.
+    case 'unaligned':
       return 'crew';
     case 'garrisons':
       return 'garrison';

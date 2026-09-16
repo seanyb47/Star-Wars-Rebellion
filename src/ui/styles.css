@@ -1516,6 +1516,26 @@ button.tcard:hover { border-color: var(--brass); }
 }
 .crewcard:active { border-color: var(--metal); }
 .crewcard--busy { opacity: 0.62; }
+/* A Pirate Lord among your crew.
+   Three of these cards are a third of the war each, and on a grid of
+   identical portraits they read as ordinary officers. A brass frame with a
+   hairline inside it, which is the same metal the chrome uses, and a rank
+   line small enough to be read second. Deliberately not a badge: a badge over
+   the art is what "busy" already means here. */
+.crewcard--lord {
+  border-width: 2px;
+  border-color: var(--brass);
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 162, 39, 0.3),
+    0 1px 12px rgba(201, 162, 39, 0.14);
+}
+.crewcard--lord:active { border-color: var(--metal-hi, var(--brass)); }
+.crewcard__rank {
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--brass); opacity: 0.8; padding: 8px 9px 0;
+}
+/* The rank takes the name's top padding, so the two read as one block. */
+.crewcard__rank + .crewcard__name { padding-top: 2px; }
 .crewcard__art { position: relative; display: block; line-height: 0; }
 /* The painting is the card; .painting already covers and crops for us. */
 .crewcard__art .painting { border-radius: 0; }
