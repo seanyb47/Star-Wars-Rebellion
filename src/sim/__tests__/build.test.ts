@@ -10,30 +10,48 @@ import {
   planBuild,
   queueBuild,
 } from '../build';
-import { getSystem } from '../helpers';
+import { getSystem, returnDeposit } from '../helpers';
 import { travelDays } from '../missions';
-import type { GameState } from '../types';
+import type { GameState, System } from '../types';
 
+/**
+ * A yard of theirs, with a forest standing on its island.
+ *
+ * Earners need ground under them now, and most of these tests are about the
+ * build layer rather than about the ground, so the fixture guarantees one
+ * rather than every test seeding its own.
+ */
 function yardOf(state: GameState, faction: 'empire' | 'alliance') {
   for (const system of state.systems) {
     if (system.control !== faction) continue;
     const facility = system.facilities.find(
       (f) => f.type === 'construction_yard' && f.owner === faction,
     );
-    if (facility) return { system, facility };
+    if (facility) {
+      timber(state, system);
+      return { system, facility };
+    }
   }
   throw new Error('no yard');
+}
+
+/** Two stands of timber and a vein, so an earner has somewhere to go. */
+function timber(state: GameState, system: System) {
+  returnDeposit(state, system, 'forest');
+  returnDeposit(state, system, 'forest');
+  returnDeposit(state, system, 'gold');
+  system.slots = Math.max(system.slots, system.facilities.length + (system.deposits?.length ?? 0) + 1);
 }
 
 describe('queueing builds', () => {
   it('deducts refined at order time and sets the build clock', () => {
     const state = generateGalaxy(201);
     const { facility } = yardOf(state, 'empire');
-    state.factions.empire.gold = 100;
+    state.factions.empire.gold = 200;
     queueBuild(state, facility.id, 'mine');
-    expect(state.factions.empire.gold).toBe(60);
+    expect(state.factions.empire.gold).toBe(70);
     expect(facility.building).toEqual({
-      item: 'mine', work: 8, workLeft: 8, travel: 0, travelLeft: 0, costGold: 40,
+      item: 'mine', work: 10, workLeft: 10, travel: 0, travelLeft: 0, costGold: 130,
     });
   });
 
@@ -41,7 +59,7 @@ describe('queueing builds', () => {
     const state = generateGalaxy(201);
     const { facility } = yardOf(state, 'empire');
     state.factions.empire.gold = 10;
-    expect(buildError(state, facility.id, 'mine')).toMatch(/Needs 40 gold/);
+    expect(buildError(state, facility.id, 'mine')).toMatch(/Needs 130 gold/);
     expect(() => queueBuild(state, facility.id, 'mine')).toThrow();
   });
 
@@ -57,12 +75,17 @@ describe('queueing builds', () => {
     const state = generateGalaxy(201);
     const { system, facility } = yardOf(state, 'empire');
     state.factions.empire.gold = 500;
+    system.deposits = [];
     system.slots = system.facilities.length;
     // One pool, so it is the same answer whatever the building is.
-    expect(buildError(state, facility.id, 'mine')).toMatch(/^No room left on /);
-    expect(buildError(state, facility.id, 'refinery')).toMatch(/^No room left on /);
+    expect(buildError(state, facility.id, 'shipyard')).toMatch(/^No room left on /);
+    expect(buildError(state, facility.id, 'fort')).toMatch(/^No room left on /);
     // Companies take no room at all.
     expect(buildError(state, facility.id, 'troop')).not.toMatch(/No room/);
+    // And an earner takes the deposit's own berth, so a full island can still
+    // work ground it has: no plot needed, only a forest.
+    returnDeposit(state, system, 'forest');
+    expect(buildError(state, facility.id, 'refinery')).toBeNull();
   });
 
   it('refuses to build on a world in revolt', () => {
@@ -95,7 +118,7 @@ describe('completing builds', () => {
     const before = system.facilities.length;
     queueBuild(state, facility.id, 'mine');
 
-    for (let day = 0; day < 7; day++) advanceBuilds(state);
+    for (let day = 0; day < 9; day++) advanceBuilds(state);
     expect(getSystem(state, system.id).facilities).toHaveLength(before);
 
     advanceBuilds(state);
@@ -125,9 +148,10 @@ describe('completing builds', () => {
     empty.garrison = 1;
     empty.slots = 8;
     empty.facilities = [{ id: 'fac-test', type: 'construction_yard', owner: 'empire' }];
+    empty.deposits = [{ id: 'dep-test', type: 'gold' }];
     state.factions.empire.gold = 500;
     queueBuild(state, 'fac-test', 'mine');
-    for (let day = 0; day < 8; day++) advanceBuilds(state);
+    for (let day = 0; day < 10; day++) advanceBuilds(state);
 
     const settled = getSystem(state, empty.id);
     expect(settled.populated).toBe(true);
@@ -142,7 +166,7 @@ describe('completing builds', () => {
     queueBuild(state, facility.id, 'mine');
     system.uprising = true;
     for (let day = 0; day < 20; day++) advanceBuilds(state);
-    expect(findFacility(state, facility.id)!.facility.building!.workLeft).toBe(8);
+    expect(findFacility(state, facility.id)!.facility.building!.workLeft).toBe(10);
   });
 });
 
@@ -201,9 +225,14 @@ describe('laying down a works', () => {
 
 describe('orders sent to another island', () => {
   function elsewhere(state: GameState, faction: 'empire' | 'alliance', notId: string) {
-    return state.systems.find(
+    const found = state.systems.find(
       (s) => s.control === faction && s.id !== notId && !s.uprising && s.slots - s.facilities.length > 0,
     )!;
+    // Builders sent across the water still need something to work when they
+    // land. A vein, because these tests order a mine.
+    returnDeposit(state, found, 'gold');
+    found.slots = Math.max(found.slots, found.facilities.length + (found.deposits?.length ?? 0) + 1);
+    return found;
   }
 
   it('adds the passage to the clock and lands the thing where it was sent', () => {
@@ -215,12 +244,12 @@ describe('orders sent to another island', () => {
     // Passage is a distance now, so ask for the figure rather than knowing it.
     const sail = travelDays(state, system.id, there.id);
     expect(facility.building).toEqual({
-      item: 'mine', work: 8, workLeft: 8, travel: sail, travelLeft: sail,
-      costGold: 40, destinationId: there.id,
+      item: 'mine', work: 10, workLeft: 10, travel: sail, travelLeft: sail,
+      costGold: 130, destinationId: there.id,
     });
     const minesBefore = there.facilities.filter((f) => f.type === 'mine').length;
     const hereBefore = system.facilities.length;
-    for (let d = 0; d < 8 + sail; d++) advanceBuilds(state);
+    for (let d = 0; d < 10 + sail; d++) advanceBuilds(state);
     expect(facility.building).toBeUndefined();
     expect(there.facilities.filter((f) => f.type === 'mine').length).toBe(minesBefore + 1);
     expect(system.facilities.length).toBe(hereBefore);
@@ -241,14 +270,30 @@ describe('orders sent to another island', () => {
     const state = generateGalaxy(201);
     const { system, facility } = yardOf(state, 'empire');
     const there = elsewhere(state, 'empire', system.id);
+    there.deposits = [];
     there.slots = there.facilities.length + 1;
     state.factions.empire.gold = 500;
+    queueBuild(state, facility.id, 'shipyard', there.id);
+    const other = state.systems
+      .flatMap((s) => s.facilities.map((f) => ({ s, f })))
+      .find(({ s, f }) => s.control === 'empire' && f.type === 'construction_yard' && f.owner === 'empire' && !f.building);
+    if (!other) return;
+    expect(buildError(state, other.f.id, 'shipyard', there.id)).toMatch(/No room left/);
+  });
+
+  it('counts an earner already at sea against the ground it is sailing for', () => {
+    const state = generateGalaxy(201);
+    const { system, facility } = yardOf(state, 'empire');
+    const there = elsewhere(state, 'empire', system.id);
+    // One vein, and an order already bound for it.
+    there.deposits = [{ id: 'dep-one', type: 'gold' }];
+    state.factions.empire.gold = 900;
     queueBuild(state, facility.id, 'mine', there.id);
     const other = state.systems
       .flatMap((s) => s.facilities.map((f) => ({ s, f })))
       .find(({ s, f }) => s.control === 'empire' && f.type === 'construction_yard' && f.owner === 'empire' && !f.building);
     if (!other) return;
-    expect(buildError(state, other.f.id, 'mine', there.id)).toMatch(/No room left/);
+    expect(buildError(state, other.f.id, 'mine', there.id)).toMatch(/spoken for/);
   });
 
   it('turns back to where it was made if the island is lost on the way', () => {
@@ -281,7 +326,7 @@ describe('orders sent to another island', () => {
     const plan = planBuild(state, 'empire', 'mine', there.id);
     expect(plan.error).toBeNull();
     expect(plan.facilityId).not.toBeNull();
-    expect(plan.days).toBe(8);
+    expect(plan.days).toBe(10);
     expect(plan.travel).toBe(
       plan.fromSystemId === null ? 0 : travelDays(state, plan.fromSystemId, there.id),
     );
@@ -290,7 +335,7 @@ describe('orders sent to another island', () => {
       expect(plan.travel).toBe(0);
     }
     state.factions.empire.gold = 0;
-    expect(planBuild(state, 'empire', 'mine', there.id).error).toMatch(/Needs 40 gold/);
+    expect(planBuild(state, 'empire', 'mine', there.id).error).toMatch(/Needs 130 gold/);
     void facility;
   });
 });

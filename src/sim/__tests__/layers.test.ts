@@ -177,6 +177,10 @@ describe('available land', () => {
     const state = generateGalaxy(7, 'empire');
     const island = state.systems.find((s) => s.control === 'empire')!;
     island.uprising = false;
+    // Room is berths with nothing on them, and a deposit is something. This
+    // test is about the grading, so the ground is cleared and the berth count
+    // is set outright.
+    island.deposits = [];
 
     const free = () => layerMark(state, island, 'room', 'empire');
     // One berth open: something, but not much.

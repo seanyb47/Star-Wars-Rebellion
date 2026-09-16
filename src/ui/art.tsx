@@ -605,6 +605,55 @@ function figureFor(id?: string): ReactNode {
 }
 
 /** One company, at slot size: the figure for its type, painted where painted. */
+/**
+ * What is in an island's ground, drawn.
+ *
+ * Two glyphs, because there are two kinds and they have to be told apart at
+ * the size a slot board draws them: a stand of timber, and a seam in rock.
+ * Deliberately unbuilt-looking — a deposit is ground nobody has worked yet,
+ * and it must not read as a building the island already has.
+ */
+export function ResourceIcon({ type, size = 30 }: { type: 'forest' | 'gold'; size?: number }) {
+  if (type === 'forest') {
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        width={size}
+        height={size}
+        aria-hidden="true"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {/* Three conifers on a line of ground. */}
+        <path d="M7 16l2.6-4.4L7 11.6 9.6 7.2 12 11.6l-2.4.2L12 16z" />
+        <path d="M14.5 16l2-3.4-2-.2 2-3.4 2 3.4-2 .2 2 3.4z" />
+        <path d="M3.5 19.5h17" />
+        <path d="M9.6 16v3.5M16.5 16v3.5" />
+      </svg>
+    );
+  }
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {/* A seam running through cut rock, with the metal showing. */}
+      <path d="M3.5 18.5l4-11h9l4 11z" />
+      <path d="M7.2 13.2l3.4 1.4 2.6-2.2 4 1.6" stroke="var(--metal)" strokeWidth="2.1" />
+    </svg>
+  );
+}
+
 export function CompanyIcon({ size = 30, type }: { size?: number; type?: string }) {
   const painting = type ? paintedTroop(type) : undefined;
   if (painting) {

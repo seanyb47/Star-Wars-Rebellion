@@ -7,6 +7,8 @@ import {
   YARD_BUILDS,
   buildSpec,
   FACILITY_LABEL,
+  RESOURCE_LABEL,
+  needsResource,
   CRAFT_COST_STEP,
   CRAFT_DAYS_STEP,
   UPKEEP_PER_DAY,
@@ -14,6 +16,7 @@ import {
 import { craftGrade, travelDays } from './missions';
 import { addShip } from './fleets';
 import {
+  depositsLeft,
   freeSlots,
   isPlayable,
   nextId,
@@ -27,6 +30,7 @@ import type {
   Faction,
   GameState,
   PlayableFaction,
+  ResourceType,
   System,
 } from './types';
 
@@ -150,6 +154,10 @@ function takesRoom(item: BuildItem): boolean {
  * Slots on an island already spoken for by orders still on their way — from
  * any works, this island's own included. Without this two works could both
  * send builders to the last free berth and one crew would arrive to nothing.
+ *
+ * An order for a mill or a mine takes no berth of its own: it lands on the
+ * deposit and takes that one. What it does spoken-for is the deposit, and
+ * `reservedDeposits` counts those.
  */
 export function reservedSlots(state: GameState, systemId: string): number {
   let held = 0;
@@ -159,10 +167,46 @@ export function reservedSlots(state: GameState, systemId: string): number {
       if (!order || facility.founding) continue;
       const landsOn = order.destinationId ?? system.id;
       if (landsOn !== systemId) continue;
-      if (takesRoom(order.item)) held += 1;
+      if (takesRoom(order.item) && !needsResource(order.item)) held += 1;
     }
   }
   return held;
+}
+
+/**
+ * Deposits of one kind already promised to an order in progress.
+ *
+ * The same problem as berths and the same answer: two yards on two islands
+ * could each send builders for the last forest, and the second crew would
+ * arrive to a mill already standing on it.
+ */
+export function reservedDeposits(
+  state: GameState,
+  systemId: string,
+  type: ResourceType,
+): number {
+  let held = 0;
+  for (const system of state.systems) {
+    for (const facility of system.facilities) {
+      const order = facility.building;
+      if (!order || facility.founding) continue;
+      if ((order.destinationId ?? system.id) !== systemId) continue;
+      if (needsResource(order.item) === type) held += 1;
+    }
+  }
+  return held;
+}
+
+/**
+ * Deposits of a kind an island can still take an order against: what is in the
+ * ground, less what is already promised.
+ */
+export function openDeposits(
+  state: GameState,
+  system: System,
+  type: ResourceType,
+): number {
+  return depositsLeft(system, type) - reservedDeposits(state, system.id, type);
 }
 
 /**
@@ -204,6 +248,21 @@ export function buildError(
   if (!landing) return 'No such island.';
   if (landing.control !== facility.owner) return `You do not hold ${landing.name}.`;
   if (landing.uprising) return `${landing.name} is in mutiny.`;
+
+  // The ground first. Sean's rule, 16 September: a mill goes on a forest and a
+  // mine on a vein, or it goes nowhere — "it doesn't make sense that you can
+  // just put gold mines anywhere and print money." The works takes the
+  // deposit's own berth, so it needs no free plot beside it.
+  const wants = needsResource(item);
+  if (wants) {
+    if (openDeposits(state, landing, wants) < 1) {
+      return depositsLeft(landing, wants) > 0
+        ? `Every ${RESOURCE_LABEL[wants].toLowerCase()} on ${landing.name} is spoken for.`
+        : `No ${RESOURCE_LABEL[wants].toLowerCase()} on ${landing.name}.`;
+    }
+    return null;
+  }
+
   // Companies and hulls take no ground: one drills, the other floats.
   const held = reservedSlots(state, landing.id);
   if (takesRoom(item) && freeSlots(landing) - held < 1) {
@@ -434,8 +493,22 @@ export function advanceBuilds(state: GameState): void {
         });
         landing = system;
       }
-      // Builders sent to an island with no room left wait on the quay.
-      if (landing.id !== system.id && takesRoom(order.item) && freeSlots(landing) < 1) continue;
+      // Room is checked again on the day the thing is finished, not only on
+      // the day it was ordered, and for an order made here as much as one
+      // sailed in. Measured: an island of six berths finished with seven
+      // buildings on it, because it changed hands with a yard of the old
+      // holder's already at work — the new holder's yard filled the last plot
+      // and the old order landed on top of it. Anything that finds no room
+      // waits on the quay; the order can be cancelled if it never comes.
+      const wants = needsResource(order.item);
+      if (wants) {
+        // An earner stands on its deposit, so it needs ground rather than a
+        // plot — and the ground can be gone if the island changed hands and
+        // somebody else worked it while these builders were at sea.
+        if (depositsLeft(landing, wants) < 1) continue;
+      } else if (takesRoom(order.item) && freeSlots(landing) < 1) {
+        continue;
+      }
 
       facility.building = undefined;
       if (facility.founding) {
@@ -485,6 +558,15 @@ function completeBuild(
     return;
   }
 
+  // The works takes the deposit's ground: the forest becomes the mill, the
+  // vein becomes the mine, and the island's total built does not go up.
+  const wants = needsResource(item);
+  if (wants) {
+    const held = [...(system.deposits ?? [])];
+    const at = held.findIndex((d) => d.type === wants);
+    if (at >= 0) held.splice(at, 1);
+    system.deposits = held;
+  }
   system.facilities.push({ id: nextId(state, 'fac'), type: item, owner });
   pushEvent(state, {
     kind: 'order',

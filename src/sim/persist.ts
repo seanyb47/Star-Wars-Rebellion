@@ -10,10 +10,12 @@ import type { GameState } from './types';
  * — so a v5 save has an unwalled capital and a war that cannot be fought the
  * way this one is; v7 made a build order a job in works-days with the passage
  * kept separate, so a v6 save's orders count down a number that no longer
- * exists and every yard on it would sit at work forever.
+ * exists and every yard on it would sit at work forever; v8 put raw resources
+ * in the ground and made the two earners need them, so a v7 save is a world of
+ * barren islands on which no mill or mine could ever be raised again.
  * An older save cannot be read and is not offered.
  */
-export const SAVE_KEY = 'seven-seas.save.v7';
+export const SAVE_KEY = 'seven-seas.save.v8';
 
 /** Saving is just `JSON.stringify` — the whole game is one plain object. */
 export function saveGame(state: GameState, storage: Storage | undefined = globalThis.localStorage): void {

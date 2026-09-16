@@ -1881,3 +1881,7 @@ button.tcard:hover { border-color: var(--brass); }
 }
 .slot--art .slot__name { padding: 5px 4px 0; }
 .slot--art .slot__note { padding: 0 4px; }
+
+/* A berth with something in the ground: not built, not free. */
+.roombar > span.is-ground { background: #4f7a52; }
+.roombar--row > span.is-ground { background: #3d5f40; }

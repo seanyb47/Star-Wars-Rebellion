@@ -260,9 +260,12 @@ describe('the generated world matches the bible', () => {
 });
 
 describe('terminology', () => {
-  it('labels the earners from the bible and the makers as Rebellion did', () => {
-    expect(FACILITY_LABEL.mine).toBe('Camp');
-    expect(FACILITY_LABEL.refinery).toBe('Mill');
+  it('labels the earners for the ground they need and the makers as Rebellion did', () => {
+    // Renamed 16 September with the resource rule: an earner is named for what
+    // it works, because what it works is now the whole question of where it
+    // can go.
+    expect(FACILITY_LABEL.mine).toBe('Gold Mine');
+    expect(FACILITY_LABEL.refinery).toBe('Lumber Mill');
     // Sean's call, 14 September: the makers keep the original's plain names.
     expect(FACILITY_LABEL.construction_yard).toBe('Construction Yard');
     expect(FACILITY_LABEL.training_facility).toBe('Training Facility');

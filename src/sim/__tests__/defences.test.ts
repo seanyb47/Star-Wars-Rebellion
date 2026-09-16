@@ -92,6 +92,8 @@ describe('forts', () => {
     const state = world();
     state.fleets.length = 0;
     const port = mineWithWater(state);
+    // Exactly two walls, whatever the island opened with.
+    port.facilities = port.facilities.filter((f) => f.type !== 'fort');
     build(port, 'fort');
     build(port, 'fort');
     expect(fortGuns(port)).toBe(2 * FORT_GUNS);
@@ -107,6 +109,7 @@ describe('forts', () => {
   it('count only for whoever holds the island, and only once finished', () => {
     const state = world();
     const port = mineWithWater(state);
+    port.facilities = port.facilities.filter((f) => f.type !== 'fort');
     build(port, 'fort');
     port.facilities.at(-1)!.building = {
       item: 'fort', work: 3, workLeft: 3, travel: 0, travelLeft: 0, costGold: 100,

@@ -2736,3 +2736,89 @@ Checked the same class of bug elsewhere while in there. Every remaining glyph is
 a glyph on purpose: the 22px build buttons, the build menu's category icons, the
 16px marks on event cards, and the contact sheet, which exists to review the
 glyphs. Ships and portraits are painted wherever there is room for a painting.
+
+## What is in the ground — 16 September
+
+> All islands should have raw resources on them. Forests, gold. I think these
+> should be randomly assigned to each island and Lumber Mills and Gold Mines can
+> only be deployed on them. They replace the raw resource. Because it doesn't
+> make sense that you can just put gold mines anywhere and print money.
+
+Sean's rulings on the two questions that decide the shape of it: **forests
+common, gold rare**, and **the frontier rolls at the same odds as anywhere** —
+an empty island is not leftovers.
+
+### The rule
+
+Every island rolls its ground once, at worldgen, and it never changes. Forests
+three to six, gold on about one island in four and then only one or two veins.
+A light nudge by what the island looks like, so a jungle island has trees and an
+ice floe does not — still a roll, taken within the island's character.
+
+**A deposit stands in a berth**, and the works that works it takes *that* berth.
+So a mill on a forest costs no room, an island's total built never exceeds its
+plots, and a full island can still cut its own timber. What it cannot do is
+invent ground it does not have. One plot is always kept clear, which is exactly
+enough: a yard in it can then work every deposit on the island.
+
+The two earners are named for their ground now — **Gold Mine** and **Lumber
+Mill** — and a vein is worth three mills a day at twice the price. A deposit
+comes back when whatever was working it comes down: burn a mill and the trees
+are still standing, so a long war does not grind the world to bare rock.
+
+### Four measurements, and what each one changed
+
+The whole job was arithmetic against the old economy. Baseline first, then four
+passes:
+
+| | day 1 | day 200 | day 600 | day 1200 |
+|---|---|---|---|---|
+| **before the rule** | 63 | 105 | 216 | 290 |
+| first cut | 126 | 131 | 160 | 153 |
+| ground opened up | 71 | 114 | 139 | 125 |
+| builders sent | 71 | 155 | **354** | 381 |
+| **shipped** | 61 | 115 | 242 | 319 |
+
+1. **The opening was twice as rich.** Fifteen starting mines at a gold mine's
+   yield is 126 a day on day one against the old 63 — a side that opens rich
+   never has to make any of the decisions the economy is about. Two veins apiece
+   now, and timber for the rest.
+2. **The ground ran out by day 200.** Two clear berths was one too many: the cap
+   was biting on 37% of islands and the opponent had worked everything it had
+   before the war was properly started. One clear berth, and forests three to
+   six.
+3. **Then the opponent sat on eleven thousand gold with two forests an island
+   still standing** — and that was the real find. `bestSpotFor` only ever looked
+   for a works on the island it was building *for*, which is fine when any berth
+   will do and useless when the value is in the ground: most islands it had
+   taken had no yard of their own, and it never thought to ship anybody.
+   `planBuild` already picks the quickest works in the faction and counts the
+   passage. Income went 139 → 354 on that one change.
+4. Yields trimmed to land the curve back on the old one.
+
+### A bug the campaigns caught
+
+**An island of six berths finished a war with seven buildings on it.** Room was
+checked when an order was placed and, for orders sent overseas, when it landed —
+but never for an order made at home. Avermere changed hands with a Crown yard
+already at work; the new holder's yard filled the last plot, and the old order
+landed on top of it. Checked at completion now, wherever it was ordered from.
+
+### Where it stands
+
+| 60 wars | idle, 30 | pilot at the wheel, 30 |
+|---|---|---|
+| before the rule | Crown 14 — Confederacy 11, 5 unfinished | 19 — 10, 1 unfinished |
+| after | **Crown 14 — Confederacy 15, 1 unfinished** | 11 — 12, 7 unfinished |
+| invariants | clean every day | clean every day |
+
+388 tests. Saves go to **v8**: a v7 save has no ground in it, and every island
+on it would be barren forever.
+
+The idle arm is the best it has been — dead even, one unfinished war in thirty.
+The piloted arm is more balanced and much more stalled, and the stalls are all
+the *same known thing* rather than anything resources did: six of the seven are
+a side holding thirty or forty islands with two of the three Lords in irons and
+no way to hold all three at once inside the sixty-day exchange window. Wars are
+longer now, so that window closes more often. **That is the open question from
+two days ago and it is now the main reason a war does not end** — worth a ruling.

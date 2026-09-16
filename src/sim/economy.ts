@@ -4,9 +4,10 @@ import {
   GOLD_PER_DAY,
   SMUGGLED_SHARE,
   UPKEEP_PER_DAY,
+  WORKS_ON,
   loyaltyBand,
 } from './constants';
-import { otherFaction, pushEvent, supportMultiplier } from './helpers';
+import { otherFaction, pushEvent, returnDeposit, supportMultiplier } from './helpers';
 import type { Rng } from './rng';
 import type { GameState, PlayableFaction, System } from './types';
 
@@ -182,6 +183,11 @@ function breakSomethingDown(state: GameState, faction: PlayableFaction, rng: Rng
   }
 
   const [broken] = picked.system.facilities.splice(picked.facilityIndex, 1);
+  // The mill falls down; the trees it was cutting are still standing. A deposit
+  // comes back when what was working it goes, or a long war would quietly grind
+  // the world down to ground that can never earn again.
+  const back = WORKS_ON[broken.type];
+  if (back) returnDeposit(state, picked.system, back);
   pushEvent(state, {
     kind: 'loss',
       text: `For want of maintenance, the ${FACILITY_LABEL[broken.type].toLowerCase()} on ${picked.system.name} has fallen apart.`,

@@ -168,6 +168,33 @@ export function Almanac({
         ))}
       </div>
 
+      {/* The rule that decides where half of these can go at all. */}
+      <div className="section-title">What is in the ground</div>
+      <div className="card small">
+        <b>Every island has something in it, and that is what its earners are.</b>{' '}
+        <b>Forests</b> are common — most islands carry two to five stands of timber. A{' '}
+        <b>gold vein</b> is rare: about one island in four has any, and then only one or two.
+        What an island holds is rolled when the world is made and never changes.
+        <br />
+        <br />
+        <b>A {FACILITY_LABEL.refinery} can only be raised on a forest, and a{' '}
+        {FACILITY_LABEL.mine} only on a vein.</b> The works takes the deposit's own plot — the
+        forest becomes the mill — so working ground you have costs no room, and a full island can
+        still cut its own trees. What it cannot do is invent ground it does not have.
+        <br />
+        <br />
+        <b>A vein is worth {Math.round(GOLD_PER_DAY.mine / GOLD_PER_DAY.refinery)} mills a day</b>,
+        and costs about twice as much to sink. An island with gold on it is a thing worth sailing
+        a war across, which is the whole point of the rule: nobody can put a mine wherever they
+        like and print money.
+        <br />
+        <br />
+        <b>Burn a mill and the trees are still standing.</b> A deposit comes back when whatever was
+        working it comes down, so a long war does not quietly grind the world to bare rock.
+        Builders can be sent across the world to work ground on an island that has no yard of its
+        own.
+      </div>
+
       <div className="section-title">How a thing gets built</div>
       <div className="card small">
         <b>One job of a kind at a time, per island.</b> A {FACILITY_LABEL.construction_yard.toLowerCase()}{' '}

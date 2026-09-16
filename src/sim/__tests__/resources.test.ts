@@ -1,0 +1,177 @@
+import { describe, expect, it } from 'vitest';
+import { generateGalaxy } from '../galaxy';
+import { advanceBuilds, buildError, openDeposits, planBuild, queueBuild } from '../build';
+import { depositsLeft, freeSlots, getSystem, returnDeposit } from '../helpers';
+import { advanceMissions, startMission } from '../missions';
+import { createRng } from '../rng';
+import { CLEAR_BERTHS, GOLD_PER_DAY, YARD_BUILDS } from '../constants';
+import type { GameState, System } from '../types';
+
+/**
+ * Sean's rule, 16 September:
+ *
+ * > All islands should have raw resources on them — forests, gold. These
+ * > should be randomly assigned to each island, and Lumber Mills and Gold
+ * > Mines can only be deployed on them. They replace the raw resource.
+ * > Because it doesn't make sense that you can just put gold mines anywhere
+ * > and print money.
+ */
+
+/** An island of ours with a yard on it, and known ground. */
+function staged(seed: number, ground: Array<'forest' | 'gold'>) {
+  const state = generateGalaxy(seed, 'empire');
+  const island = state.systems.find(
+    (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'construction_yard'),
+  )!;
+  island.deposits = ground.map((type, i) => ({ id: `dep-${i}`, type }));
+  island.slots = Math.max(island.slots, island.facilities.length + ground.length + 2);
+  state.factions.empire.gold = 5000;
+  const yard = island.facilities.find((f) => f.type === 'construction_yard')!;
+  return { state, island, yard };
+}
+
+describe('what is in the ground', () => {
+  it('gives every island something, and leaves every island somewhere to build', () => {
+    for (let seed = 1; seed <= 12; seed++) {
+      const state = generateGalaxy(seed, 'empire');
+      for (const s of state.systems) {
+        expect(s.deposits, s.name).toBeDefined();
+        // Never so much ground that the island cannot raise the works that
+        // would work it.
+        expect(freeSlots(s), s.name).toBeGreaterThanOrEqual(0);
+        expect(s.slots - (s.deposits?.length ?? 0), s.name).toBeGreaterThanOrEqual(CLEAR_BERTHS);
+      }
+    }
+  });
+
+  it('makes timber common and gold scarce', () => {
+    let isles = 0;
+    let forests = 0;
+    let withGold = 0;
+    for (let seed = 1; seed <= 12; seed++) {
+      for (const s of generateGalaxy(seed, 'empire').systems) {
+        isles += 1;
+        forests += depositsLeft(s, 'forest');
+        if (depositsLeft(s, 'gold') > 0) withGold += 1;
+      }
+    }
+    expect(forests / isles).toBeGreaterThan(2);
+    // About one island in four, and nothing like every island.
+    expect(withGold / isles).toBeGreaterThan(0.12);
+    expect(withGold / isles).toBeLessThan(0.45);
+  });
+
+  it('prices a vein well above a stand of timber', () => {
+    expect(GOLD_PER_DAY.mine).toBeGreaterThan(GOLD_PER_DAY.refinery * 2);
+    expect(YARD_BUILDS.mine.costGold).toBeGreaterThan(YARD_BUILDS.refinery.costGold);
+  });
+});
+
+describe('an earner needs ground under it', () => {
+  it('refuses a mill where there is no forest, and a mine where there is no vein', () => {
+    const { state, yard } = staged(801, ['forest']);
+    expect(buildError(state, yard.id, 'refinery')).toBeNull();
+    expect(buildError(state, yard.id, 'mine')).toMatch(/No gold vein/);
+  });
+
+  it('refuses a second order against the same single deposit', () => {
+    const { state, island, yard } = staged(802, ['gold']);
+    expect(buildError(state, yard.id, 'mine')).toBeNull();
+    queueBuild(state, yard.id, 'mine');
+    expect(openDeposits(state, island, 'gold')).toBe(0);
+    const other = state.systems
+      .flatMap((s) => s.facilities)
+      .find((f) => f.type === 'construction_yard' && f.owner === 'empire' && !f.building);
+    if (other) expect(buildError(state, other.id, 'mine', island.id)).toMatch(/spoken for/);
+  });
+
+  it('takes the deposit when the works finishes, and no berth beside it', () => {
+    const { state, island, yard } = staged(803, ['forest', 'forest']);
+    const room = freeSlots(island);
+    const built = island.facilities.length;
+    queueBuild(state, yard.id, 'refinery');
+    for (let d = 0; d < YARD_BUILDS.refinery.days + 1; d++) advanceBuilds(state);
+    const after = getSystem(state, island.id);
+    expect(after.facilities).toHaveLength(built + 1);
+    expect(depositsLeft(after, 'forest')).toBe(1);
+    // The mill stands where the forest stood: the island is no fuller.
+    expect(freeSlots(after)).toBe(room);
+  });
+
+  it('gives the ground back when somebody burns the works', () => {
+    // Somebody else's island in revolt, with one mill on it and nothing else
+    // worth burning: the shape sabotage is for.
+    const state = generateGalaxy(804, 'empire');
+    const island = state.systems.find((s) => s.control === 'alliance' && s.populated)!;
+    island.uprising = true;
+    island.facilities = [{ id: 'f-mill', type: 'refinery', owner: 'alliance' }];
+    island.deposits = [];
+    island.explored.empire = true;
+    const agent = state.characters.find((c) => c.faction === 'empire' && c.status === 'available')!;
+    agent.espionage = 100;
+    agent.locationSystemId = island.id;
+
+    // Seeds until one lands: the point is what is left behind, not the odds.
+    let burnt = false;
+    for (let seed = 1; seed <= 80 && !burnt; seed++) {
+      const copy: GameState = JSON.parse(JSON.stringify(state));
+      const isle = getSystem(copy, island.id);
+      startMission(copy, agent.id, island.id, 'sabotage');
+      const rng = createRng(seed);
+      for (let d = 0; d < 80 && isle.facilities.length > 0; d++) advanceMissions(copy, rng);
+      if (isle.facilities.length === 0) {
+        burnt = true;
+        // The mill burned; the forest it was cutting is standing again.
+        expect(depositsLeft(isle, 'forest')).toBe(1);
+      }
+    }
+    expect(burnt).toBe(true);
+  });
+
+  it('lets a yard send builders to ground on another island', () => {
+    const { state, island, yard } = staged(805, []);
+    const there = state.systems.find(
+      (s) => s.control === 'empire' && s.id !== island.id && !s.uprising,
+    )!;
+    there.deposits = [{ id: 'dep-far', type: 'gold' }];
+    there.slots = Math.max(there.slots, there.facilities.length + 2);
+    expect(buildError(state, yard.id, 'mine')).toMatch(/No gold vein/);
+    expect(buildError(state, yard.id, 'mine', there.id)).toBeNull();
+
+    const plan = planBuild(state, 'empire', 'mine', there.id);
+    expect(plan.error).toBeNull();
+    queueBuild(state, plan.facilityId!, 'mine', there.id);
+    const total = YARD_BUILDS.mine.days + 40;
+    for (let d = 0; d < total; d++) advanceBuilds(state);
+    expect(getSystem(state, there.id).facilities.some((f) => f.type === 'mine')).toBe(true);
+    expect(depositsLeft(getSystem(state, there.id), 'gold')).toBe(0);
+  });
+
+  it('a full island can still work ground it has', () => {
+    const { state, island, yard } = staged(806, ['forest']);
+    // Not one open plot, and one forest standing.
+    island.slots = island.facilities.length + 1;
+    expect(freeSlots(island)).toBe(0);
+    expect(buildError(state, yard.id, 'shipyard')).toMatch(/No room left/);
+    expect(buildError(state, yard.id, 'refinery')).toBeNull();
+  });
+});
+
+describe('the opponent reads the ground', () => {
+  it('works nearly all of it, and does not sit on a purse instead', () => {
+    // A long war, then look at what is left standing on the ground it holds.
+    let state: GameState = generateGalaxy(807, 'empire');
+    for (let d = 0; d < 500 && !state.winner; d++) state = advanceDayFor(state);
+    const theirs = state.systems.filter((s) => s.control === 'alliance');
+    const standing = theirs.reduce((n, s: System) => n + depositsLeft(s, 'forest'), 0);
+    const worked = theirs.reduce(
+      (n, s) => n + s.facilities.filter((f) => f.type === 'refinery' || f.type === 'mine').length,
+      0,
+    );
+    expect(worked).toBeGreaterThan(standing);
+  });
+});
+
+// Imported late so the describe blocks above read as the rule they are about.
+import { advanceDay as advanceDayFor } from '../advanceDay';
+void returnDeposit;

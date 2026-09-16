@@ -26,6 +26,7 @@ import {
   TRAVEL_LEAGUE,
   TRAVEL_OPEN_SEA,
   RESCUE_BASE,
+  WORKS_ON,
 } from './constants';
 import {
   applySupportChange,
@@ -34,6 +35,7 @@ import {
   isPlayable,
   otherFaction,
   pushEvent,
+  returnDeposit,
 } from './helpers';
 import { sightBeast } from './creatures';
 import { recomputeLedger } from './economy';
@@ -1325,6 +1327,9 @@ function sabotageOutcome(
     system.facilities[0];
   if (!target) return;
   system.facilities = system.facilities.filter((f) => f.id !== target.id);
+  // Burning a mill does not burn the forest behind it.
+  const back = WORKS_ON[target.type];
+  if (back) returnDeposit(state, system, back);
   pushEvent(state, {
     kind: 'loss',
     text: `${character.name} burns the ${FACILITY_LABEL[target.type].toLowerCase()} on ${system.name}.`,

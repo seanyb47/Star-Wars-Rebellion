@@ -145,13 +145,12 @@ describe('generateGalaxy', () => {
         .flatMap((s) => s.facilities)
         .filter((f) => f.owner === faction);
       const count = (type: string) => owned.filter((f) => f.type === type).length;
-      // More earners than before, to carry the heavier opening fleets, and
-      // more for the Crown, which has six islands to put them on and two of
-      // those earning at a sullen rate. Measured to leave free ground on
-      // every island either way.
-      const earners = faction === 'empire' ? 15 : 14;
-      expect(count('mine')).toBe(earners);
-      expect(count('refinery')).toBe(earners);
+      // Timber, and two veins apiece. A gold mine earns three times a mill
+      // and can only stand on gold, so a side that opened with fifteen of
+      // them opened rich enough never to have to decide anything — measured,
+      // twice the income of the old opening on day one.
+      expect(count('mine')).toBe(2);
+      expect(count('refinery')).toBe(faction === 'empire' ? 18 : 17);
       // Two of each maker, dealt at random across the side's islands.
       expect(count('construction_yard')).toBe(2);
       expect(count('training_facility')).toBe(2);

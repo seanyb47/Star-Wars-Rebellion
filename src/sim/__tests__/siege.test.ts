@@ -157,6 +157,9 @@ describe('what mends overnight', () => {
   it('mends nothing at sea, a little at anchor, and twice that at a yard', () => {
     const state = world();
     const mine = state.systems.find((s) => s.control === 'alliance' && s.populated)!;
+    // No yard here to begin with: the test is about the difference a yard
+    // makes, so it must not start with one whichever island the dice picked.
+    mine.facilities = mine.facilities.filter((f) => f.type !== 'shipyard');
     const hurt = (f: { ships: { damage: number }[] }) => f.ships[0].damage;
 
     const atSea = put(state, mine, 'alliance', ['reef']);

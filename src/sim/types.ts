@@ -71,6 +71,15 @@ export interface System {
    */
   slots: number;
   facilities: Facility[];
+  /**
+   * What is in the ground here and not yet worked. Each one stands in a berth
+   * until something is built on it, and comes back if that something is ever
+   * knocked down — the mill burns, the trees are still there.
+   *
+   * Optional only so a save written before resources existed still loads; the
+   * world always writes it.
+   */
+  deposits?: Deposit[];
   garrison: number;
   uprising: boolean;
   /**
@@ -128,6 +137,33 @@ export interface System {
    * questions in its harbor is far likelier to be found out.
    */
   commanderId?: string;
+}
+
+/**
+ * What an island has in the ground, before anybody works it.
+ *
+ * Sean's rule, 16 September: *"All islands should have raw resources on them.
+ * Forests, gold. These should be randomly assigned to each island and Lumber
+ * Mills and Gold Mines can only be deployed on them. They replace the raw
+ * resource. Because it doesn't make sense that you can just put gold mines
+ * anywhere and print money."*
+ *
+ * Forests are common and gold is rare, which is the whole shape of it: timber
+ * is what an ordinary island is worth, and a vein of gold is a thing worth
+ * sailing a war across.
+ */
+export type ResourceType = 'forest' | 'gold';
+
+/**
+ * One deposit, standing in a berth of its own.
+ *
+ * It takes room the way a building does, and the building that works it takes
+ * the deposit's own berth rather than another — so raising a mill on a forest
+ * costs no room at all, and an island's total built never exceeds its plots.
+ */
+export interface Deposit {
+  id: string;
+  type: ResourceType;
 }
 
 export type FacilityType =

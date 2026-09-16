@@ -28,8 +28,8 @@
     "build": "Build"
   },
   "facilities": {
-    "mine": "Camp",
-    "refinery": "Mill",
+    "mine": "Gold Mine",
+    "refinery": "Lumber Mill",
     "construction_yard": "Construction Yard",
     "training_facility": "Training Facility",
     "shipyard": "Shipyard",
@@ -38,8 +38,8 @@
   },
   "troop": "Company",
   "facilityBlurbs": {
-    "mine": "Cuts timber and ore out of the ground, and sells it.",
-    "refinery": "Works timber and ore into something worth more. Your best earner.",
+    "mine": "Sinks a shaft on a vein of gold. Nothing else in the Seven Seas earns like it, and few islands have the ground for one.",
+    "refinery": "Cuts and works the standing timber. Wants a forest under it, and most islands have a few.",
     "construction_yard": "Builds everything else on this island. Every yard here works the same job together.",
     "training_facility": "Drills companies of marines and militia.",
     "shipyard": "Lays down hulls. Nothing to build here until the fleets arrive.",

@@ -644,7 +644,10 @@ describe('espionage charts the map', () => {
      * open may be nobody's to win over. This used to be pinned to one seed and
      * broke the day the map changed shape, which was the test being brittle
      * rather than the game being wrong. Across arrangements it holds four
-     * times in five, and that is the honest claim.
+     * times in five, and that is the honest claim — measured over sixty of
+     * them, because twelve is few enough that the rate wanders into the
+     * sixties on an unlucky draw and the test fails for being under-sampled
+     * rather than for anything being wrong.
      */
     const run = (seed: number) => {
       const { state, home } = setup(seed);
@@ -672,8 +675,8 @@ describe('espionage charts the map', () => {
       };
     };
 
-    const runs = Array.from({ length: 12 }, (_, i) => run(i + 1)).filter(Boolean);
-    expect(runs.length).toBeGreaterThan(8);
+    const runs = Array.from({ length: 60 }, (_, i) => run(i + 1)).filter(Boolean);
+    expect(runs.length).toBeGreaterThan(40);
     // Landfall always charts something.
     for (const r of runs) expect(r!.charted).toBeGreaterThan(0);
     // And usually that is somewhere new worth sending an envoy.

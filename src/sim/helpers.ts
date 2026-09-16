@@ -1,7 +1,9 @@
 import { GARRISON_FOR_BAND, SPILLOVER_FRACTION, loyaltyBand } from './constants';
 import type {
+  Deposit,
   Faction,
   FacilityType,
+  ResourceType,
   GameEvent,
   GameState,
   PlayableFaction,
@@ -54,8 +56,38 @@ export function countFacilities(system: System, type: FacilityType, owner: Facti
  * and an order still on its way has already taken its own (it stands from the
  * day it is ordered).
  */
+/**
+ * Berths with nothing on them: no building, and nothing in the ground either.
+ *
+ * A deposit stands in a berth until something is built on it. That is what
+ * makes a forested island a different place from a bare one — the trees are
+ * taking the room, and the only thing that can have that room is the mill that
+ * cuts them.
+ */
 export function freeSlots(system: System): number {
-  return system.slots - system.facilities.length;
+  return system.slots - system.facilities.length - depositsOf(system).length;
+}
+
+/** What is in this island's ground, unworked. Always an array. */
+export function depositsOf(system: System): Deposit[] {
+  return system.deposits ?? [];
+}
+
+/** How many of one kind of deposit are standing unworked here. */
+export function depositsLeft(system: System, type: ResourceType): number {
+  return depositsOf(system).filter((d) => d.type === type).length;
+}
+
+/**
+ * Put a deposit back in the ground.
+ *
+ * Called when the works standing on one comes down — to bombardment, to a
+ * landing, or to nobody paying for it. The forest was there before the mill and
+ * it is there after: a long war should not quietly grind the world down to bare
+ * rock that can never earn again.
+ */
+export function returnDeposit(state: GameState, system: System, type: ResourceType): void {
+  system.deposits = [...depositsOf(system), { id: nextId(state, 'dep'), type }];
 }
 
 export function factionSystems(state: GameState, faction: Faction): System[] {

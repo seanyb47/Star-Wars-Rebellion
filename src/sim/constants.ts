@@ -4,7 +4,9 @@ import terms from '../data/terms.json';
 import type {
   BuildItem,
   FacilityType,
+  IslandArchetype,
   LordPower,
+  ResourceType,
   PlayableFaction,
   ShipClassId,
   ShipRole,
@@ -63,8 +65,17 @@ export interface BuildSpec {
 
 /** Construction-yard menu (spec 4.4). */
 export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
-  mine: { costGold: 40, days: 8, label: terms.facilities.mine },
-  refinery: { costGold: 60, days: 10, label: terms.facilities.refinery },
+  // A gold mine is a prize now rather than a default: it can only go on a vein,
+  // and there are few veins. Priced and timed to match — a third the islands
+  // will never see one, and the ones that do are worth a war.
+  // Quick, both of them, and deliberately so. An island's works can only hold
+  // one job at a time now, so a forested island with four stands of timber is
+  // four jobs in a queue — at ten days each that is half a year before the
+  // island is worth what it is worth, and measured, the opponent ended wars
+  // sitting on thirteen thousand gold with two forests an island still
+  // standing. Felling trees is not building a slipway.
+  mine: { costGold: 130, days: 10, label: terms.facilities.mine },
+  refinery: { costGold: 65, days: 5, label: terms.facilities.refinery },
   construction_yard: { costGold: 120, days: 20, label: terms.facilities.construction_yard },
   training_facility: { costGold: 80, days: 15, label: terms.facilities.training_facility },
   shipyard: { costGold: 150, days: 25, label: terms.facilities.shipyard },
@@ -579,7 +590,9 @@ const NO_SHIP_INCOME = Object.fromEntries(
 ) as Record<ShipClassId, number>;
 
 export const GOLD_PER_DAY: Record<BuildItem, number> = {
-  mine: 2,
+  // Gold against timber. A vein pays better than two mills and there are
+  // nothing like two mills' worth of veins in the world.
+  mine: 9,
   refinery: 3,
   construction_yard: 0,
   training_facility: 0,
@@ -1130,6 +1143,74 @@ export const YARD_BUILDABLE: FacilityType[] = [
   'fort',
   'boom',
 ];
+
+/**
+ * What the ground holds, and how much of it.
+ *
+ * Sean's ruling, 16 September: forests common, gold rare. Every island rolls
+ * two to five forests; one island in four has gold at all, and where it does
+ * there are one or two veins. The roll is the island's own and never changes:
+ * what is under an island is a fact about the island, not about the war.
+ *
+ * A light nudge by what the island looks like, because a jungle island with no
+ * trees and an ice floe with five would make the paintings liars — it is still
+ * a roll, taken within the island's character.
+ */
+export const FOREST_MIN = 3;
+export const FOREST_MAX = 6;
+export const GOLD_ISLAND_CHANCE = 0.25;
+export const GOLD_VEINS_MIN = 1;
+export const GOLD_VEINS_MAX = 2;
+/**
+ * Berths kept clear of deposits whatever the roll.
+ *
+ * One is enough, and two was one too many. A mill takes the forest's own berth,
+ * so an island needs exactly one open plot to bootstrap itself: put a
+ * construction yard in it, and that yard can then work every forest on the
+ * island without ever needing another. Measured at two, the cap was biting on
+ * 37% of islands and the whole world ran out of ground by day 200.
+ */
+export const CLEAR_BERTHS = 1;
+
+/** How many more or fewer trees an island of this sort carries. */
+export const FOREST_BY_LOOK: Partial<Record<IslandArchetype, number>> = {
+  'jungle-isle': 1,
+  'storm-isle': 1,
+  'ice-isle': -1,
+  'tide-isle': -2,
+  'drowned-isle': -1,
+};
+
+/** And where a vein is likelier than one island in four, or less likely. */
+export const GOLD_BY_LOOK: Partial<Record<IslandArchetype, number>> = {
+  'mining-isle': 0.45,
+  'rock-isle': 0.1,
+  'ice-isle': -0.05,
+  'drowned-isle': -0.1,
+  'free-harbor': -0.1,
+  'port-city': -0.1,
+};
+
+export const RESOURCE_LABEL: Record<ResourceType, string> = {
+  forest: 'Forest',
+  gold: 'Gold vein',
+};
+
+export const RESOURCE_BLURB: Record<ResourceType, string> = {
+  forest:
+    'Standing timber. A Lumber Mill can be raised on it and nowhere else, and the mill takes its ground.',
+  gold: 'A vein in the rock. A Gold Mine can be raised on it and nowhere else. Few islands have one.',
+};
+
+/** Which works a deposit can carry, and which deposit a works needs. */
+export const WORKS_ON: Partial<Record<FacilityType, ResourceType>> = {
+  refinery: 'forest',
+  mine: 'gold',
+};
+
+export function needsResource(item: BuildItem): ResourceType | undefined {
+  return typeof item === 'string' ? WORKS_ON[item as FacilityType] : undefined;
+}
 
 /** Display names come from the world bible via `data/terms.json`. */
 export const FACILITY_LABEL: Record<FacilityType, string> = terms.facilities;

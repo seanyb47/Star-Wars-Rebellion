@@ -298,8 +298,15 @@ export function RoomBar({
 }) {
   const slots = Math.min(system.slots, ROOM_TRACK);
   const built = Math.min(system.facilities.length, slots);
-  const free = slots - built;
-  const label = `${free} of ${slots} berths free`;
+  // Ground standing in a berth is not a free berth. A third shade for it, so
+  // a forested island reads as busy rather than empty — the bar used to show
+  // five open plots on an island where four of them were trees.
+  const ground = Math.min((system.deposits ?? []).length, slots - built);
+  const free = slots - built - ground;
+  const label =
+    ground > 0
+      ? `${free} of ${slots} berths open, ${ground} with something in the ground`
+      : `${free} of ${slots} berths free`;
   return (
     <span
       className={`roombar${className ? ` ${className}` : ''}`}
@@ -308,7 +315,10 @@ export function RoomBar({
       title={label}
     >
       {Array.from({ length: slots }, (_, i) => (
-        <span key={i} className={i < built ? 'is-built' : ''} />
+        <span
+          key={i}
+          className={i < built ? 'is-built' : i < built + ground ? 'is-ground' : ''}
+        />
       ))}
       {/* The figure sits in the track's spare column — the thirteenth, which
           no island can ever fill, since twelve berths is the most there is.

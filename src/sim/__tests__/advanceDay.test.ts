@@ -129,15 +129,20 @@ describe('commands', () => {
 
   it('applies a legal order to a fresh copy', () => {
     const state = newGame(410);
-    const yard = state.systems
-      .flatMap((s) => s.facilities)
-      .find((f) => f.type === 'construction_yard' && f.owner === 'empire')!;
-    const result = orderBuild(state, yard.id, 'mine');
+    const host = state.systems.find((s) =>
+      s.facilities.some((f) => f.type === 'construction_yard' && f.owner === 'empire'),
+    )!;
+    const yard = host.facilities.find(
+      (f) => f.type === 'construction_yard' && f.owner === 'empire',
+    )!;
+    // A forest to raise it on: an earner needs ground under it now.
+    host.deposits = [{ id: 'dep-order', type: 'forest' }];
+    const result = orderBuild(state, yard.id, 'refinery');
     expect(result.error).toBeUndefined();
     expect(result.state).not.toBe(state);
     // The order is paid for out of the treasury, and only on the new state.
     expect(state.factions.empire.gold).toBe(START_GOLD);
-    expect(result.state.factions.empire.gold).toBe(START_GOLD - YARD_BUILDS.mine.costGold);
+    expect(result.state.factions.empire.gold).toBe(START_GOLD - YARD_BUILDS.refinery.costGold);
   });
 
   it('runs a diplomacy mission end to end through the command layer', () => {

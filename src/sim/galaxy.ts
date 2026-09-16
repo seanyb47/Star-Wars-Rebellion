@@ -15,6 +15,15 @@ import {
   CAPITAL_GARRISON,
   START_GARRISON_MAX,
   START_GARRISON_SPARE,
+  FOREST_MIN,
+  FOREST_MAX,
+  FOREST_BY_LOOK,
+  GOLD_ISLAND_CHANCE,
+  GOLD_VEINS_MIN,
+  GOLD_VEINS_MAX,
+  GOLD_BY_LOOK,
+  CLEAR_BERTHS,
+  WORKS_ON,
 } from './constants';
 import { shipClass } from './constants';
 import { creature, creatureFor } from './creatures';
@@ -29,6 +38,7 @@ import type {
   System,
   IslandArchetype,
   ShipClassId,
+  Deposit,
 } from './types';
 import { recomputeLedger } from './economy';
 import { requiredGarrison, setSupport } from './helpers';
@@ -139,9 +149,18 @@ const NEUTRAL_GARRISON: Record<ReachRole, [number, number]> = {
  * more than the old six-and-four opening carried. Measured across seeds to
  * leave both sides a clear surplus on day one and free ground everywhere.
  */
+/**
+ * The earners a side opens the war with.
+ *
+ * Almost all timber, and two veins apiece. A gold mine is worth four mills a
+ * day now, so dealing out fifteen of them made the opening flush — 126 gold a
+ * day against the old 63 — and a side that begins rich never has to make any
+ * of the decisions the rest of the economy is about. Two is a prize to defend
+ * and not a living.
+ */
 const START_EARNERS: Record<PlayableFaction, { mines: number; refineries: number }> = {
-  empire: { mines: 15, refineries: 15 },
-  alliance: { mines: 14, refineries: 14 },
+  empire: { mines: 2, refineries: 18 },
+  alliance: { mines: 2, refineries: 17 },
 };
 const START_YARDS = 2;
 const START_TRAINING = 2;
@@ -291,6 +310,42 @@ export const ROOM_TRACK = ROOM_MAX + 1;
  * quarter-land coast is not a quarter of a city: 4 on a bare rock, 6 or 7
  * on an ordinary island, 12 where the great island fills the frame.
  */
+/**
+ * What is in an island's ground, rolled once and never again.
+ *
+ * Forests two to five, nudged by what the island looks like; gold on one
+ * island in four, nudged the same way, and one or two veins where there is
+ * any. Capped so `CLEAR_BERTHS` plots always stay open — an island that rolled
+ * itself solid could never raise the works that would cut its own trees.
+ *
+ * Taken for every island, settled or empty, at the same odds. Sean's call, 16
+ * September: the frontier is not leftovers, and a colony is worth what the
+ * dice say it is worth.
+ */
+function groundOf(
+  rng: Rng,
+  archetype: IslandArchetype,
+  slots: number,
+  makeId: (prefix: string) => string,
+): Deposit[] {
+  const out: Deposit[] = [];
+  const trees = Math.max(
+    0,
+    rng.range(FOREST_MIN, FOREST_MAX) + (FOREST_BY_LOOK[archetype] ?? 0),
+  );
+  for (let i = 0; i < trees; i++) out.push({ id: makeId('dep'), type: 'forest' });
+  if (rng.chance(Math.max(0, GOLD_ISLAND_CHANCE + (GOLD_BY_LOOK[archetype] ?? 0)))) {
+    const veins = rng.range(GOLD_VEINS_MIN, GOLD_VEINS_MAX);
+    for (let i = 0; i < veins; i++) out.push({ id: makeId('dep'), type: 'gold' });
+  }
+  // Gold first if anything has to go: a vein is the rarer thing and the one
+  // worth keeping when an island is too small to hold all of what it rolled.
+  const room = Math.max(0, slots - CLEAR_BERTHS);
+  if (out.length <= room) return out;
+  const gold = out.filter((d) => d.type === 'gold').slice(0, room);
+  return [...gold, ...out.filter((d) => d.type === 'forest')].slice(0, room);
+}
+
 export function roomFor(name: string): number {
   const land = LAND_ON_THE_CHART.get(name) ?? 0.2;
   return Math.max(ROOM_MIN, Math.min(ROOM_MAX, Math.round(1 + 11 * Math.sqrt(land))));
@@ -360,11 +415,15 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         // same room in every game. A port keeps one berth more.
         slots: roomFor(island.name) + (port ? 1 : 0),
         facilities: [],
+        deposits: [],
         garrison: 0,
         uprising: false,
         blockaded: false,
         beastSeen: { empire: false, alliance: false },
       };
+      // What is under it. Before anything is placed, because the starting
+      // works are put *on* deposits rather than beside them.
+      system.deposits = groundOf(rng, system.archetype, system.slots, makeId);
       // Something in the water, and only out where nobody has been. The roll
       // is taken for every frontier island so the RNG stream does not depend
       // on what the archetype happened to be.
@@ -514,15 +573,39 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     // fine. Earners still go round the table.
     for (const [index, type] of plan.entries()) {
       const maker = type === 'construction_yard' || type === 'training_facility' || type === 'shipyard';
-      const system = maker ? rng.pick(owned) : owned[index % owned.length];
-      system.slots = Math.max(system.slots, system.facilities.length + 1);
+      // An earner goes where the ground will carry it. A mill wants a forest
+      // and a mine wants a vein, and the island that has one takes the works
+      // — going round the table only among the islands that can hold it.
+      const want = WORKS_ON[type];
+      const able = want ? owned.filter((s) => (s.deposits ?? []).some((d) => d.type === want)) : owned;
+      const system = maker
+        ? rng.pick(owned)
+        : able.length > 0
+          ? able[index % able.length]
+          : owned[index % owned.length];
+      // The works stands on the deposit and takes its berth, so the island
+      // needs no extra room for it. Where the side rolled no ground of that
+      // kind at all, the war still opens with what it is meant to open with
+      // and the island is given the deposit to stand it on.
+      if (want) {
+        const held = system.deposits ?? [];
+        const at = held.findIndex((d) => d.type === want);
+        if (at >= 0) held.splice(at, 1);
+        else system.slots = Math.max(system.slots, system.facilities.length + (system.deposits?.length ?? 0) + 1);
+        system.deposits = held;
+      } else {
+        system.slots = Math.max(system.slots, system.facilities.length + (system.deposits?.length ?? 0) + 1);
+      }
       system.facilities.push(makeFacility(makeId('fac'), type, owner));
     }
     // One spare berth on every starting island. An opening with no room left
     // is a worse opening than a thin surplus, because the answer to a thin
     // surplus is to build.
     for (const system of owned) {
-      system.slots = Math.max(system.slots, system.facilities.length + 1);
+      system.slots = Math.max(
+        system.slots,
+        system.facilities.length + (system.deposits?.length ?? 0) + 1,
+      );
     }
   };
   seedHoldings('empire', empireSystems);
@@ -541,7 +624,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
    * walls down over days under their guns, and only then do the boats go in.
    */
   const seat = capital;
-  seat.slots = Math.max(seat.slots, seat.facilities.length + CAPITAL_WALLS + 1);
+  seat.slots = Math.max(seat.slots, seat.facilities.length + (seat.deposits?.length ?? 0) + CAPITAL_WALLS + 1);
   for (let i = 0; i < CAPITAL_WALLS; i++) {
     seat.facilities.push({ ...makeFacility(makeId('fac'), 'fort', 'empire'), ancient: true });
   }
@@ -556,7 +639,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     if (port.id === seat.id) continue;
     if (port.sectorId !== seat.sectorId) continue;
     if (port.control !== 'empire' || port.archetype !== 'port-city') continue;
-    port.slots = Math.max(port.slots, port.facilities.length + HOME_PORT_WALLS + 1);
+    port.slots = Math.max(port.slots, port.facilities.length + (port.deposits?.length ?? 0) + HOME_PORT_WALLS + 1);
     for (let i = 0; i < HOME_PORT_WALLS; i++) {
       port.facilities.push({ ...makeFacility(makeId('fac'), 'fort', 'empire'), ancient: true });
     }

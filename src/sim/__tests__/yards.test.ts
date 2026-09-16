@@ -36,6 +36,13 @@ function stage(seed: number, yards: number): { state: GameState; island: System;
   for (let i = 0; i < yards; i++) {
     island.facilities.push({ id: `yard-${i}`, type: 'construction_yard', owner: 'empire' });
   }
+  // Earners need a deposit under them now, and these tests order them to
+  // exercise the yard rule rather than the resource rule.
+  island.deposits = [
+    ...Array.from({ length: 4 }, (_, i) => ({ id: `stage-f${i}`, type: 'forest' as const })),
+    { id: 'stage-g', type: 'gold' as const },
+  ];
+  island.slots = Math.max(island.slots, island.facilities.length + island.deposits.length + 3);
   state.factions.empire.gold = 5000;
   return { state, island, yard: island.facilities.find((f) => f.type === 'construction_yard')! };
 }
@@ -113,10 +120,12 @@ describe('the work and the passage are different questions', () => {
   it('builds first, then sails, and says how long each takes', () => {
     const { state, island, yard } = stage(705, 2);
     const there = elsewhere(state, island.id);
+    // The island the builders sail to needs a plot for what they are raising.
+    there.slots = Math.max(there.slots, there.facilities.length + (there.deposits?.length ?? 0) + 1);
     const sail = travelDays(state, island.id, there.id);
-    queueBuild(state, yard.id, 'mine', there.id);
+    queueBuild(state, yard.id, 'shipyard', there.id);
 
-    const work = Math.ceil(YARD_BUILDS.mine.days / 2);
+    const work = Math.ceil(YARD_BUILDS.shipyard.days / 2);
     expect(daysToFinish(island, yard)).toBe(work);
     expect(daysToDeliver(island, yard)).toBe(work + sail);
 

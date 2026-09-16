@@ -93,7 +93,10 @@ describe('breaking off', () => {
     // something to break off from the moment somebody else is in the water.
     const alone = generateGalaxy(501, 'empire');
     const quiet = alone.systems.find(
-      (s) => s.control === 'empire' && s.id !== alone.factions.empire.hqSystemId,
+      (s) =>
+        s.control === 'empire' &&
+        s.id !== alone.factions.empire.hqSystemId &&
+        !s.facilities.some((f) => f.type === 'fort'),
     )!;
     const mine = alone.fleets.find((f) => f.faction === 'empire')!;
     mine.systemId = quiet.id;

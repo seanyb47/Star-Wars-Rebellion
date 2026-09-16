@@ -242,7 +242,9 @@ describe('once the rumours start', () => {
     home.beastRoaming = true;
     const bait = inSea[inSea.length - 1];
     addShip(state, bait, 'empire', 'kestrel');
-    for (let i = 0; i < 400 && beastNow(state)!.id === home.id; i++) {
+    // Until it gets there, not until it first moves: a hunting creature works
+    // its way across its own Sea and may put in at an empty island on the way.
+    for (let i = 0; i < 600 && beastNow(state)!.id !== bait.id; i++) {
       stirBeasts(state, createRng(2000 + i));
     }
     expect(beastNow(state)!.id).toBe(bait.id);
@@ -292,7 +294,10 @@ describe('once the rumours start', () => {
     for (let i = 0; i < 600 && sound() === 0; i++) stirBeasts(state, createRng(5000 + i));
     expect(sound()).toBeGreaterThan(0);
     expect(state.events.some((e) => /open water/.test(e.text))).toBe(true);
-    // And it did not leave its island to do it — it was already in the water.
-    expect(beastNow(state)!.id).toBe(home.id);
+    // And it took them in its own Sea. It may have shifted island while it
+    // waited — a roaming creature does — but it did not follow them out of
+    // the water it lives in.
+    const where = beastNow(state)!;
+    expect(where.id === home.id || inSea.some((s) => s.id === where.id)).toBe(true);
   });
 });

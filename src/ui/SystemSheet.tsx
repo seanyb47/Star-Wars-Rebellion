@@ -15,6 +15,8 @@ import {
   smuggledOff,
   UPKEEP_PER_DAY,
   buildError,
+  depositsLeft,
+  RESOURCE_LABEL,
   crewOn,
   daysToFinish,
   daysToDeliver,
@@ -51,6 +53,7 @@ import {
   FacilityIcon,
   FacilityThumb,
   facilityPainting,
+  ResourceIcon,
   IslandBanner,
   ShipIcon,
 } from './art';
@@ -446,6 +449,11 @@ export function SystemSheet({
   })();
   // Who is actually ashore, company by company. Same length as the garrison
   // count the rest of the game runs on; this only says what they are.
+  // The ground, folded by kind. Two rows at most, and usually one.
+  const ground = (['forest', 'gold'] as const)
+    .map((type) => ({ type, count: depositsLeft(system, type) }))
+    .filter((entry) => entry.count > 0);
+  const inTheGround = ground.reduce((n, entry) => n + entry.count, 0);
   const roster = garrisonRoster(system);
   // Folded into kinds, in the order the player put them, for the grouped view.
   const garrison = byRemembered(garrisonSummary(system), (e) => e.type.id, system.garrisonOrder);
@@ -631,13 +639,32 @@ export function SystemSheet({
               longer the more room an island had. */}
           <RoomBar system={system} />
           <p className="tiny muted" style={{ margin: '6px 0 10px' }}>
-            {system.facilities.length} of {slots} berths taken
-            {freeSlots(system) > 0 ? `, ${freeSlots(system)} free` : ', and no room left'}.
+            {system.facilities.length} of {slots} berths built
+            {inTheGround > 0 ? `, ${inTheGround} standing in the ground` : ''}
+            {freeSlots(system) > 0 ? `, ${freeSlots(system)} open` : ', and no plot open'}.
           </p>
           {system.facilities.length > 1 && <ListOpts />}
           <SlotBoard
             empty={`Nothing stands on ${system.name}${slots > 0 ? ' yet' : ', and there is nowhere to put anything'}.`}
           >
+            {/* What is in the ground, before what has been built on it. A
+                deposit holds a berth until something works it, so it belongs
+                on the same board as the buildings and not in a list of its
+                own — the question the board answers is what this island's
+                plots are doing. */}
+            {ground.map((entry) => (
+              <Slot
+                key={entry.type}
+                icon={<ResourceIcon type={entry.type} size={30} />}
+                name={
+                  entry.count > 1
+                    ? `${entry.count}× ${RESOURCE_LABEL[entry.type]}`
+                    : RESOURCE_LABEL[entry.type]
+                }
+                note="unworked"
+                tone="dim"
+              />
+            ))}
             {works.map((facility, i) => (
               <Slot
                 key={facility.id}

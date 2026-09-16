@@ -23,11 +23,20 @@ import {
   loyaltyBand,
   TROOP_BUILD,
   UPKEEP_PER_DAY,
+  needsResource,
   YARD_BUILDS,
   shipSpec,
   shipsFor,
 } from './constants';
-import { buildMenu, canQueueBuild, foundWorks, foundWorksError, queueBuild } from './build';
+import {
+  buildMenu,
+  canQueueBuild,
+  foundWorks,
+  foundWorksError,
+  openDeposits,
+  planBuild,
+  queueBuild,
+} from './build';
 import { follows } from './doctrine';
 import {
   assault,
@@ -231,13 +240,33 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
     }
   }
 
-  // 3. Otherwise grow the economy, keeping the two earners level as before.
-  const item = countOf('mine') <= countOf('refinery') ? 'mine' : 'refinery';
-  if (gold < YARD_BUILDS[item].costGold) return false;
-  const spot = bestSpotFor(state, ai, item);
-  if (spot) {
-    queueBuild(state, spot, item);
-    return true;
+  // 3. Otherwise grow the economy — but the ground decides now, not the
+  //    ledger. An earner can only go on a deposit, so the question is no
+  //    longer "which of the two am I short of" but "where is there ground
+  //    still standing", and gold outearns timber well over two to one, so a
+  //    vein is taken the moment one is open.
+  //
+  //    Builders are *sent* now. `bestSpotFor` only ever finds a works on the
+  //    island it is building for, which was fine when any berth would do and
+  //    is useless when the value is in the ground: measured, the opponent
+  //    finished wars sitting on eleven thousand gold with two forests an
+  //    island still standing, because most of the islands it had taken had no
+  //    yard of their own and it never thought to ship anybody. `planBuild`
+  //    already picks the quickest works in the whole faction and counts the
+  //    passage, which is exactly the question.
+  const earners: FacilityType[] = ['mine', 'refinery'];
+  for (const item of earners) {
+    if (gold < YARD_BUILDS[item].costGold) continue;
+    const want = needsResource(item)!;
+    const ground = held
+      .filter((s) => openDeposits(state, s, want) > 0)
+      .sort((a, b) => openDeposits(state, b, want) - openDeposits(state, a, want));
+    for (const island of ground) {
+      const plan = planBuild(state, ai, item, island.id);
+      if (plan.error !== null || !plan.facilityId) continue;
+      queueBuild(state, plan.facilityId, item, island.id);
+      return true;
+    }
   }
 
   // 4. No works with ground left beside it: lay one down on the held island
@@ -249,29 +278,45 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
   const open = held
     .filter((s) => foundWorksError(state, s.id, ai) === null)
     .sort((a, b) => freeSlots(b) - freeSlots(a));
-  if (open.length > 0 && freeSlots(open[0]) >= 3) {
+  // One open berth is enough: a yard in it can work every deposit on the
+  // island afterwards, because a mill stands on the forest's own ground. The
+  // old threshold of three berths meant a forested island — which is to say
+  // most of the good ones — never got a yard at all.
+  if (open.length > 0 && freeSlots(open[0]) >= 1) {
     foundWorks(state, open[0].id, ai);
     return true;
   }
   return false;
 }
 
-/** The held island with the most room to grow that can take this order. */
+/**
+ * The held island best placed to take this order, and a works on it to give it.
+ *
+ * "Best placed" used to mean the most empty berths, which is the right
+ * question for a yard or a wall and the wrong one for an earner: a mill goes on
+ * a forest, and an island with eight bare plots and no trees can never take
+ * one. So a works that needs ground is ranked by how much of that ground is
+ * standing, and everything else by room, as before.
+ *
+ * `canQueueBuild` is still the gate either way, so this can only ever pick
+ * something the rules already allow.
+ */
 function bestSpotFor(
   state: GameState,
   ai: PlayableFaction,
   item: FacilityType,
 ): string | undefined {
-  let best: { facilityId: string; slots: number } | undefined;
+  const wants = needsResource(item);
+  let best: { facilityId: string; worth: number } | undefined;
   for (const system of state.systems) {
     if (system.control !== ai || system.uprising) continue;
-    const slots = freeSlots(system);
-    if (slots < 1) continue;
+    const worth = wants ? openDeposits(state, system, wants) : freeSlots(system);
+    if (worth < 1) continue;
     for (const facility of system.facilities) {
       if (facility.owner !== ai || facility.building) continue;
       if (!buildMenu(facility).includes(item)) continue;
       if (!canQueueBuild(state, facility.id, item)) continue;
-      if (!best || slots > best.slots) best = { facilityId: facility.id, slots };
+      if (!best || worth > best.worth) best = { facilityId: facility.id, worth };
     }
   }
   return best?.facilityId;
