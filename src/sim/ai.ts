@@ -3,6 +3,7 @@ import {
   AI_FLEET_INTERVAL,
   AI_MISSION_INTERVAL,
   AI_MISSION_PARTIES,
+  AI_FIRST_YARD_BONUS,
   AI_HUNTERS,
   AI_RESCUE_PARTIES,
   AI_NEAR_BONUS,
@@ -610,6 +611,9 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
    * anything. A person outranks either, because people are scarce and permanent
    * and an island can be worked again next month.
    */
+  const atTheYards = state.characters.some(
+    (c) => c.faction === ai && c.mission?.type === 'research',
+  );
   const worth = (officer: Character, s: System) => {
     const home = state.systems.find((x) => x.id === officer.locationSystemId)?.sectorId;
     const close = s.sectorId === home ? AI_NEAR_BONUS : 0;
@@ -647,8 +651,11 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
         : 0;
       return close + AI_SURVEY_BONUS + hunger;
     }
-    // Its own yards, when there is nothing louder to do with the officer.
-    if (isResearchTarget(s, ai)) return close + AI_RESEARCH_BONUS;
+    // Its own yards. The first hand there outranks everything on the chart;
+    // every hand after that is worth what yard work has always been worth.
+    if (isResearchTarget(s, ai)) {
+      return close + AI_RESEARCH_BONUS + (atTheYards ? 0 : AI_FIRST_YARD_BONUS);
+    }
     // Its own, and slipping: worth more the further it has slipped, and an
     // island in open revolt outranks any island it might merely win over.
     if (s.control === ai) return close + (s.uprising ? 110 : (HELD_SUPPORT_LEVEL - s.support[ai]) * 1.5);

@@ -1223,6 +1223,26 @@ export const AI_MISSION_PATIENCE = 4;
  * that has to do the winning. Hunting is a standing detail, not the corps.
  */
 export const AI_HUNTERS = 2;
+/**
+ * What the first officer at the yards is worth, over and above an ordinary
+ * spell of yard work.
+ *
+ * Craft is the compounding thing in this game — it is what the better hulls
+ * are unlocked by — and it is the only errand that pays a side for the whole
+ * rest of the war. It also loses every ranking it is in: a mark on a quay or
+ * an island about to come over is worth more today, so a side with a war on
+ * never gets round to it. Measured across four seed blocks the Crown ended
+ * every one of them at craft 1.0 to 1.5 against the Confederacy's 2.1 to
+ * 2.7 — fighting the second half of every war in worse ships — because its
+ * officers were all out hunting Lords, which is the errand its victory
+ * condition demands.
+ *
+ * So the *first* hand at the yards is priced above anything else on the
+ * chart, and the second is priced as it always was. One shipwright is not a
+ * research programme; nobody at all is a fleet that stops improving on day
+ * one.
+ */
+export const AI_FIRST_YARD_BONUS = 300;
 /** What the opponent adds for an island in the Reach an officer already sits
  *  in, so it is not forever sailing ten days the long way round. */
 export const AI_NEAR_BONUS = 25;
