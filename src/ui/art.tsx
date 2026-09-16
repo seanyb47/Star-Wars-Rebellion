@@ -654,6 +654,39 @@ export function ResourceIcon({ type, size = 30 }: { type: 'forest' | 'gold'; siz
   );
 }
 
+/** The painting of what is in the ground, if one has arrived. */
+export function resourcePainting(type: 'forest' | 'gold'): string | undefined {
+  return paintedIsland(`resource-${type}`);
+}
+
+/**
+ * A stand of timber or a seam of gold, painted.
+ *
+ * The same wide band the works get, and for the same reason: a deposit and the
+ * mill that replaces it sit in the same row on the same board, so they have to
+ * be the same shape. Falls back to the drawn glyph while a painting is missing.
+ */
+export function ResourceThumb({
+  type,
+  width = 96,
+  fill,
+}: {
+  type: 'forest' | 'gold';
+  width?: number;
+  fill?: boolean;
+}) {
+  const painting = resourcePainting(type);
+  if (!painting) return <ResourceIcon type={type} size={30} />;
+  return (
+    <span
+      className="facthumb"
+      style={fill ? { width: '100%', aspectRatio: '96 / 40' } : { width, height: Math.round(width * 0.42) }}
+    >
+      <img src={painting} alt="" loading="lazy" />
+    </span>
+  );
+}
+
 export function CompanyIcon({ size = 30, type }: { size?: number; type?: string }) {
   const painting = type ? paintedTroop(type) : undefined;
   if (painting) {

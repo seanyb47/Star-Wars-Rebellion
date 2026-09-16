@@ -31,6 +31,8 @@ import {
   LONG_GUN_SHARE,
   shipsFor,
   shipSpec,
+  RESOURCE_LABEL,
+  RESOURCE_BLURB,
   FORT_STRENGTH,
   FORT_REPAIR_PER_DAY,
   REPAIR_PER_DAY,
@@ -47,6 +49,7 @@ import {
   CategoryIcon,
   CharacterPortrait,
   FacilityThumb,
+  ResourceThumb,
   CompanyIcon,
   ShipThumb,
   CompanyRow,
@@ -170,6 +173,19 @@ export function Almanac({
 
       {/* The rule that decides where half of these can go at all. */}
       <div className="section-title">What is in the ground</div>
+      <div className="stack" style={{ marginBottom: 10 }}>
+        {(['forest', 'gold'] as const).map((type) => (
+          <div key={type} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
+            <span className="facility__thumb">
+              <ResourceThumb type={type} width={84} />
+            </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <b>{RESOURCE_LABEL[type]}</b>
+              <div className="tiny muted" style={{ marginTop: 3 }}>{RESOURCE_BLURB[type]}</div>
+            </div>
+          </div>
+        ))}
+      </div>
       <div className="card small">
         <b>Every island has something in it, and that is what its earners are.</b>{' '}
         <b>Forests</b> are common — most islands carry two to five stands of timber. A{' '}

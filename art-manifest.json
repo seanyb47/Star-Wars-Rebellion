@@ -1473,6 +1473,68 @@
         "sha1": "40c42cd195ab2d44"
       }
     },
+    "islands/resource-forest": {
+      "folder": "islands",
+      "slug": "resource-forest",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Standing timber",
+      "source": "unrecorded",
+      "crop": {
+        "x": 0,
+        "y": 420,
+        "w": 1448,
+        "h": 385
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/islands/resource-forest.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 869924,
+        "sha1": "e9365b7b5476fd5b"
+      },
+      "shipped": {
+        "file": "src/art/islands/resource-forest.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 58034,
+        "sha1": "4864f61aebe59311"
+      }
+    },
+    "islands/resource-gold": {
+      "folder": "islands",
+      "slug": "resource-gold",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "A vein of gold in the rock",
+      "source": "unrecorded",
+      "crop": {
+        "x": 0,
+        "y": 250,
+        "w": 1448,
+        "h": 385
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/islands/resource-gold.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 707030,
+        "sha1": "88bc633004331e3a"
+      },
+      "shipped": {
+        "file": "src/art/islands/resource-gold.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 57636,
+        "sha1": "a357e98abc983aa1"
+      }
+    },
     "islands/rock-isle": {
       "folder": "islands",
       "slug": "rock-isle",

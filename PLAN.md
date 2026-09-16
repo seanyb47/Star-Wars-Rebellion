@@ -2899,3 +2899,16 @@ of the three Lords in irons. That is not the economy: the idle arm finishes
 twenty-nine of thirty on the same rules. **It is the sixty-day exchange window**,
 now the single largest thing standing between this game and a war that ends,
 and the one open question waiting on a ruling.
+
+### The ground, painted — 16 September
+
+Sean delivered the two resource paintings. Installed as `islands/resource-gold`
+and `islands/resource-forest`, in the same 768×204 banner every facility uses —
+a deposit and the mill that replaces it sit in the same row on the same board,
+so they have to be the same shape. Both came 4:3, cropped to a deliberate
+horizontal band rather than the centre: the gold at y=250 to catch the seam
+running across the face, the timber at y=420 for trunks over understory.
+
+They show on the island's Buildings tab as their own tiles, dimmed and marked
+*unworked*, and in the encyclopedia beside the rule. The drawn glyphs stay as
+the fallback.

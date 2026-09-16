@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**94 of 99 painted.** 3077KB shipped, 7.9MB of masters kept back.
+**96 of 101 painted.** 3190KB shipped, 9.4MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -92,7 +92,7 @@ three-quarter view, whole vessel. 8 of 8.
 
 ## islands — 768×204
 
-low approach, as if from a boat; a banner on the island panel. 20 of 25.
+low approach, as if from a boat; a banner on the island panel. 22 of 27.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
@@ -113,6 +113,8 @@ low approach, as if from a boat; a banner on the island panel. 20 of 25.
 | Mining Isle | `mining-isle` | 1 | 39KB | 763×189, 74KB | 712×189 @ 25,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Port City | `port-city` | 1 | 40KB | 763×208, 81KB | 763×203 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Reef Isle | `reef-isle` | 1 | 40KB | 765×189, 75KB | 712×189 @ 26,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Standing timber | `resource-forest` | 1 | 56KB | 1448×1086, 849KB | 1448×385 @ 0,420 | 2026-09-16 | unrecorded |
+| A vein of gold in the rock | `resource-gold` | 1 | 56KB | 1448×1086, 690KB | 1448×385 @ 0,250 | 2026-09-16 | unrecorded |
 | Rock Isle | `rock-isle` | 1 | 32KB | 765×200, 66KB | 753×200 @ 6,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Storm Isle | `storm-isle` | 1 | 34KB | 763×200, 71KB | 753×200 @ 5,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Tide Isle | `tide-isle` | 1 | 33KB | 765×227, 74KB | 765×203 @ 0,12, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |

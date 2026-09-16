@@ -55,6 +55,8 @@ import {
   FacilityThumb,
   facilityPainting,
   ResourceIcon,
+  ResourceThumb,
+  resourcePainting,
   IslandBanner,
   ShipIcon,
 } from './art';
@@ -660,6 +662,11 @@ export function SystemSheet({
               <Slot
                 key={entry.type}
                 icon={<ResourceIcon type={entry.type} size={30} />}
+                art={
+                  resourcePainting(entry.type) ? (
+                    <ResourceThumb type={entry.type} fill />
+                  ) : undefined
+                }
                 name={
                   entry.count > 1
                     ? `${entry.count}× ${RESOURCE_LABEL[entry.type]}`
