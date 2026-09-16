@@ -256,7 +256,28 @@ def apply_tone(im: "Image.Image", tone: dict | None) -> "Image.Image":
     g = tone["gamma"]
     # 8-bit LUT: exact, fast, and no numpy dependency for the common path.
     lut = [min(255, round(255 * ((i / 255) ** g))) for i in range(256)]
+    # Colour only. Gamma on an alpha channel is not a tone, it is a hole
+    # closing up — which is exactly what it would do to a frame.
+    if im.mode == "RGBA":
+        alpha = im.getchannel("A")
+        out = im.convert("RGB").point(lut * 3)
+        out.putalpha(alpha)
+        return out
     return im.point(lut * len(im.getbands()))
+
+
+
+def flatten_or_keep(im):
+    """RGB for a painting, RGBA for anything that arrived with transparency.
+
+    Every painting in the game is a rectangle of paint and wants no alpha, so
+    RGB is the right default and stays it. A frame is the exception and the
+    reason this exists: a 9-slice frame has to have a hole in the middle, or
+    it draws its own dark mat over whatever it is framing.
+    """
+    if im.mode in ("RGBA", "LA") or (im.mode == "P" and "transparency" in im.info):
+        return im.convert("RGBA")
+    return im.convert("RGB")
 
 
 def render(
@@ -265,7 +286,7 @@ def render(
     """Cut the shipped file out of the master. The only place this happens."""
     tw, th, _ = FOLDERS[folder]
     with Image.open(master_path) as im:
-        im = im.convert("RGB")
+        im = flatten_or_keep(im)
         if crop:
             im = im.crop((crop["x"], crop["y"], crop["x"] + crop["w"], crop["y"] + crop["h"]))
         im = im.resize((tw, th), Image.LANCZOS)
@@ -360,7 +381,7 @@ def cmd_add(args) -> None:
 
     with Image.open(args.file) as im:
         mw, mh = im.size
-        src = im.convert("RGB")
+        src = flatten_or_keep(im)
         master_path = os.path.join(MASTERS, folder, f"{slug}.webp")
         if entry:
             retire(entry)

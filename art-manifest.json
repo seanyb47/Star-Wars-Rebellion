@@ -996,12 +996,12 @@
     "frames/alliance": {
       "folder": "frames",
       "slug": "alliance",
-      "version": 2,
+      "version": 3,
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "Alliance",
       "source": "Sean's frame sheet, 17 Sep 2026",
-      "notes": "Rebuilt symmetric from the one corner the sheet gave us whole: the first cut ran flush to two canvas edges and border-image took clipped ornaments off them.",
+      "notes": "Squared from the one corner the sheet gave us whole, and its field punched out to alpha: a 9-slice frame with a solid middle paints a mat over whatever it frames.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -1009,15 +1009,15 @@
         "file": "art-masters/frames/alliance.webp",
         "w": 192,
         "h": 192,
-        "bytes": 7220,
-        "sha1": "62e8d47e6ff75706"
+        "bytes": 8452,
+        "sha1": "3d45fcf828a7d30d"
       },
       "shipped": {
         "file": "src/art/frames/alliance.webp",
         "w": 192,
         "h": 192,
-        "bytes": 3098,
-        "sha1": "4b961a8ce6bba5ef"
+        "bytes": 5188,
+        "sha1": "13cb2142d5cc0214"
       },
       "history": [
         {
@@ -1027,18 +1027,26 @@
           "crop": null,
           "tone": null,
           "source": "Sean's frame sheet, 17 Sep 2026"
+        },
+        {
+          "version": 2,
+          "retired": "2026-09-16",
+          "master": "art-masters/_retired/frames/alliance.v2.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean's frame sheet, 17 Sep 2026"
         }
       ]
     },
     "frames/empire": {
       "folder": "frames",
       "slug": "empire",
-      "version": 2,
+      "version": 3,
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "Empire",
       "source": "Sean's frame sheet, 17 Sep 2026",
-      "notes": "Rebuilt symmetric from the one corner the sheet gave us whole: the first cut ran flush to two canvas edges and border-image took clipped ornaments off them.",
+      "notes": "Squared from the one corner the sheet gave us whole, and its field punched out to alpha: a 9-slice frame with a solid middle paints a mat over whatever it frames.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -1046,15 +1054,15 @@
         "file": "art-masters/frames/empire.webp",
         "w": 192,
         "h": 192,
-        "bytes": 5808,
-        "sha1": "21b1d10ae50e13c0"
+        "bytes": 6052,
+        "sha1": "dbe1374d6c38cadf"
       },
       "shipped": {
         "file": "src/art/frames/empire.webp",
         "w": 192,
         "h": 192,
-        "bytes": 2466,
-        "sha1": "9d06ccc2c9c51a2f"
+        "bytes": 3642,
+        "sha1": "047b5dac6db8c071"
       },
       "history": [
         {
@@ -1064,18 +1072,26 @@
           "crop": null,
           "tone": null,
           "source": "Sean's frame sheet, 17 Sep 2026"
+        },
+        {
+          "version": 2,
+          "retired": "2026-09-16",
+          "master": "art-masters/_retired/frames/empire.v2.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean's frame sheet, 17 Sep 2026"
         }
       ]
     },
     "frames/neutral": {
       "folder": "frames",
       "slug": "neutral",
-      "version": 2,
+      "version": 3,
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "Neutral",
       "source": "Sean's frame sheet, 17 Sep 2026",
-      "notes": "Rebuilt symmetric from the one corner the sheet gave us whole: the first cut ran flush to two canvas edges and border-image took clipped ornaments off them.",
+      "notes": "Squared from the one corner the sheet gave us whole, and its field punched out to alpha: a 9-slice frame with a solid middle paints a mat over whatever it frames.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -1083,21 +1099,29 @@
         "file": "art-masters/frames/neutral.webp",
         "w": 192,
         "h": 192,
-        "bytes": 9942,
-        "sha1": "3c0408937006e5d6"
+        "bytes": 13518,
+        "sha1": "c06a2a8b24f7b4ee"
       },
       "shipped": {
         "file": "src/art/frames/neutral.webp",
         "w": 192,
         "h": 192,
-        "bytes": 4438,
-        "sha1": "28bb0f5cc996f5cb"
+        "bytes": 9218,
+        "sha1": "28b3915f301f6046"
       },
       "history": [
         {
           "version": 1,
           "retired": "2026-09-16",
           "master": "art-masters/_retired/frames/neutral.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean's frame sheet, 17 Sep 2026"
+        },
+        {
+          "version": 2,
+          "retired": "2026-09-16",
+          "master": "art-masters/_retired/frames/neutral.v2.webp",
           "crop": null,
           "tone": null,
           "source": "Sean's frame sheet, 17 Sep 2026"

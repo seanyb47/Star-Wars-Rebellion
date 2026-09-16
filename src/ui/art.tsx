@@ -1425,26 +1425,29 @@ export function NarratorPortrait({
  * is a deliberate illustration rather than a stand-in.
  */
 /**
- * The border-image for a side, as an inline style.
+ * Which frame this painting hangs in, handed to the stylesheet as a variable.
  *
- * Inline rather than a class per side because the url comes out of the
- * bundler's glob and only it knows the hashed name. `border-image-slice` is
- * in source pixels — the frames ship 192 square and their border band and
- * corner ornament fit inside 46 of that — and `border-image-width` is in CSS
- * pixels, so the same source draws a 14px frame round a portrait and the same
- * 14px round a banner three times as wide.
+ * Only the url is inline, because only the bundler's glob knows the hashed
+ * name; everything about how a frame is drawn lives in `.painting--framed` in
+ * the stylesheet, where it can be read in one place.
+ *
+ * It used to be the whole border: `border: 15px solid` on the painting itself,
+ * with the border-image in it. That put the picture in the *content* box, a
+ * full fifteen pixels in from the frame on every side — and since a frame's
+ * own artwork is a thin band with a dark field behind it, and the slice takes
+ * all forty source pixels of that, thirteen of those fifteen were the frame's
+ * dark field painted as a mat. Measured on the Crown's frame: two pixels of
+ * gold, thirteen of mat, and a portrait sitting in a hole.
+ *
+ * So the frame is an overlay now (see the stylesheet), the picture fills the
+ * whole box, and the frame is laid over its edges the way a frame lies on a
+ * painting. The other half of the fix is in the art: the frames carry alpha,
+ * so the field inside the band is a hole rather than a mat.
  */
 function frameStyle(side: string): CSSProperties {
   const frame = paintedFrame(side);
   if (!frame) return {};
-  return {
-    borderStyle: 'solid',
-    borderWidth: 15,
-    borderImageSource: `url(${frame})`,
-    borderImageSlice: 40,
-    borderImageWidth: '15px',
-    borderImageRepeat: 'stretch',
-  };
+  return { ['--frame']: `url(${frame})` } as CSSProperties;
 }
 
 export function CharacterPainting({

@@ -1455,8 +1455,24 @@ button.tcard:hover { border-color: var(--brass); }
    element's own border box and takes no layout room the box did not have. The
    radius goes — a bitmap frame has square corners and rounding them clips the
    corner ornament off. */
-.painting--framed { border-radius: 0 !important; overflow: visible; }
+/* A frame is laid *over* the painting, not wrapped around a hole in it.
+   The overlay takes the outer 15px of the box as its border, so the picture
+   fills the whole box and the frame sits on its edges. `--frame` is the only
+   part the component supplies: the bundler hashes the filename, so nothing
+   else can know it. */
+.painting--framed { border-radius: 0 !important; overflow: hidden; position: relative; }
 .painting--framed > img { border-radius: 0; }
+.painting--framed::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 15px solid transparent;
+  border-image-source: var(--frame);
+  border-image-slice: 40;
+  border-image-width: 15px;
+  border-image-repeat: stretch;
+  pointer-events: none;
+}
 .painting { position: relative; overflow: hidden; background: var(--water-deep); }
 .painting img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; display: block; }
 .painting__cameo { display: flex; align-items: center; justify-content: center; height: 100%; }
