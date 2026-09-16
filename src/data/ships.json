@@ -205,10 +205,10 @@
       "upkeep": 3,
       "guns": 14,
       "hull": 11,
-      "carries": 1,
+      "carries": 2,
       "pace": 0.75,
       "bombard": 2,
-      "blurb": "A corvette carrying nearly twice the iron her size has any business with, and a hold full of people who mean to be on your deck. Built around the boarding action and no use at all in a line."
+      "blurb": "A corvette carrying nearly twice the iron her size has any business with, and a hold full of people who mean to be on your deck. Built around the boarding action: she lands more companies than a frigate does and is no use at all in a line."
     },
     {
       "id": "reefwalker",
@@ -224,7 +224,8 @@
       "pace": 0.55,
       "speed": 12,
       "bombard": 0,
-      "blurb": "A Shoal-folk cutter: tiny, quiet, and drawing so little water she works reefs a sloop would open herself on. She sees everything and survives nothing."
+      "blurb": "A Shoal-folk cutter: tiny, quiet, and drawing so little water she works reefs a sloop would open herself on. She sees everything and survives nothing.",
+      "carries": 1
     },
     {
       "id": "marauder",

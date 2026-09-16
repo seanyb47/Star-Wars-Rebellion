@@ -299,6 +299,56 @@ export function fleetsToCommand(state: GameState, systemId: string, faction: Pla
  * Instant, because they are already standing there — the cost of a posting is
  * the officer being tied up while it lasts, not the paperwork of ending it.
  */
+/**
+ * Somebody goes into the cells.
+ *
+ * One place, because there are two ways in now: lifted off a quay by an
+ * abduction, or caught on an island when it is stormed. Sean, 16 September:
+ * *"when you assault an island you should capture any personnel on the island,
+ * including those on missions"* — which also means that taking every island
+ * takes every Lord, and the Crown's victory condition stops being a manhunt
+ * you can never quite close.
+ *
+ * No counter: captivity ends when somebody comes for them and not before.
+ * Whatever they were holding they are not holding now — without `relieve` an
+ * island went on counting a commander who was in a cell three Reaches away,
+ * and went on being harder to infiltrate for it.
+ */
+export function takePrisoner(
+  state: GameState,
+  mark: Character,
+  captor: PlayableFaction,
+): void {
+  mark.status = 'captured';
+  mark.injuredDays = undefined;
+  mark.mission = undefined;
+  relieve(state, mark.id);
+  mark.locationSystemId = state.factions[captor].hqSystemId;
+}
+
+/**
+ * Everyone of theirs standing on this island when the boats come in.
+ *
+ * Not the ones at sea: an officer who sailed yesterday still carries this
+ * island as their location until they arrive somewhere, and they are plainly
+ * not on the beach. Everyone else is — including officers in the middle of an
+ * errand here, who are exactly the people worth catching.
+ */
+export function caughtOnLanding(
+  state: GameState,
+  system: System,
+  taker: PlayableFaction,
+): Character[] {
+  return state.characters.filter(
+    (c) =>
+      c.faction !== taker &&
+      c.faction !== 'neutral' &&
+      c.locationSystemId === system.id &&
+      c.status !== 'captured' &&
+      !(c.status === 'on_mission' && c.mission?.phase === 'travelling'),
+  );
+}
+
 export function relieve(state: GameState, characterId: string): void {
   for (const fleet of state.fleets) {
     fleet.officerIds = fleet.officerIds.filter((id) => id !== characterId);
@@ -1094,20 +1144,7 @@ function abductOutcome(
     });
     return;
   }
-  mark.status = 'captured';
-  // No counter. Captivity used to run on `injuredDays` down from sixty; now it
-  // ends only when somebody comes for them, and leaving a number ticking on a
-  // prisoner would put a countdown on every panel that reads one.
-  mark.injuredDays = undefined;
-  mark.mission = undefined;
-  // Whatever they were holding, they are not holding it now. Without this an
-  // island went on counting a commander who was in a cell three Reaches away
-  // — and went on being harder to infiltrate for it, which is the same free
-  // lunch the errand rule and the boarding rule already closed. Measured: a
-  // Lord taken off Freeport's quay still "held" Freeport for four hundred
-  // days, from inside Highwater.
-  relieve(state, mark.id);
-  mark.locationSystemId = state.factions[faction].hqSystemId;
+  takePrisoner(state, mark, faction);
   const held = getSystem(state, mark.locationSystemId);
   pushEvent(state, {
     kind: 'loss',

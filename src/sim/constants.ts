@@ -490,6 +490,14 @@ export const SHIP_ROLES: Record<ShipRole, Omit<ShipRoleSpec, 'label'>> = {
   // shots tell, so two evenly matched squadrons take roughly half of each
   // other off per round and the second or third round settles it.
   //
+  // Every hull carries somebody. Sean, 16 September: "each ship needs garrison
+  // capacity." A sloop used to carry nobody at all, which made a landing a
+  // thing only a transport or a ship of the line could contribute to, and left
+  // a squadron of scouts unable to put one person on an empty beach. One
+  // company is not a landing force; it is enough to take ground nobody is
+  // holding, and enough that no hull in the game is useless at the thing the
+  // war is decided by.
+  //
   // `bombard` is what the hull throws at stone rather than at another ship,
   // and it is deliberately on a much steeper curve than `guns`: a first-rate
   // is under twice a frigate in a fleet action and fourteen times a sloop
@@ -497,7 +505,7 @@ export const SHIP_ROLES: Record<ShipRole, Omit<ShipRoleSpec, 'label'>> = {
   // a battery is a different job from hitting something that moves, and a
   // sloop is simply not carrying the weight to do it. A transport does not
   // bombard at all.
-  small: { costGold: 45, days: 8, upkeep: 2, guns: 8, hull: 9, carries: 0, pace: 0.7, speed: 9, bombard: 1 },
+  small: { costGold: 45, days: 8, upkeep: 2, guns: 8, hull: 9, carries: 1, pace: 0.7, speed: 9, bombard: 1 },
   medium: { costGold: 85, days: 14, upkeep: 3, guns: 17, hull: 18, carries: 1, pace: 1, speed: 6, bombard: 5 },
   large: { costGold: 150, days: 22, upkeep: 5, guns: 30, hull: 32, carries: 2, pace: 1.35, speed: 3, bombard: 14 },
   transport: { costGold: 55, days: 10, upkeep: 2, guns: 0, hull: 14, carries: 3, pace: 1, speed: 5, bombard: 0 },

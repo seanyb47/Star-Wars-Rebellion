@@ -49,8 +49,8 @@ import {
   requiredGarrison,
   setSupport,
 } from './helpers';
-import { lordPowerAt } from './lords';
-import { travelDays } from './missions';
+import { lordPowerAt, restoreLord } from './lords';
+import { caughtOnLanding, takePrisoner, travelDays } from './missions';
 import type { Rng } from './rng';
 import type {
   BattleOutcome,
@@ -1433,6 +1433,55 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   // And everything standing on it. What was being built when the boats came
   // in is lost with the old holder.
   handOver(system, fleet.faction);
+
+  /**
+   * And everyone standing on it.
+   *
+   * Sean's rule, 16 September. An officer caught on an island the moment it is
+   * stormed goes into the cells with the garrison — including one in the
+   * middle of an errand there, which is most of the point: the people worth
+   * catching are the ones doing something. Officers at sea are not caught,
+   * because they are at sea.
+   *
+   * The consequence is the interesting part, and it is the one Sean drew:
+   * taking every island takes every Lord. The Crown's victory condition used
+   * to be a manhunt it could never quite close — hold all three at once, while
+   * the Brethren come for each one in turn — and a Crown that had conquered
+   * sixty-three islands of sixty-four still had no way to end the war. Now the
+   * conquest *is* the manhunt's last move.
+   */
+  for (const caught of caughtOnLanding(state, system, fleet.faction)) {
+    takePrisoner(state, caught, fleet.faction);
+    pushEvent(state, {
+      kind: 'loss',
+      text: `${caught.name} was taken on ${system.name} when it fell, and is in irons at ${
+        getSystem(state, caught.locationSystemId).name
+      }.`,
+      systemId: system.id,
+      characterId: caught.id,
+    });
+  }
+  /**
+   * And your own, out of the cells.
+   *
+   * An island holding your people is a rescue you can do with a fleet instead
+   * of an officer. Storming the gaol is the oldest rescue there is and it
+   * would be strange for the one thing a landing could not free to be a
+   * prisoner sitting in the building you just took.
+   */
+  for (const freed of state.characters) {
+    if (freed.faction !== fleet.faction || freed.status !== 'captured') continue;
+    if (freed.locationSystemId !== system.id) continue;
+    freed.status = 'available';
+    freed.injuredDays = undefined;
+    pushEvent(state, {
+      kind: 'mission',
+      text: `${freed.name} is out of the cells at ${system.name}, freed by the landing.`,
+      systemId: system.id,
+      characterId: freed.id,
+    });
+    restoreLord(state, freed);
+  }
   system.explored[fleet.faction] = true;
   // A landing that only just carried the place has not brought enough to sit
   // on it, and the island says so at once rather than a fortnight later.

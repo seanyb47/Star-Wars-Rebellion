@@ -76,8 +76,12 @@ describe('observing', () => {
 
   it('runs a whole war through without breaking anything', () => {
     const end = run(setObserving(generateGalaxy(77, 'alliance'), true), 900);
-    // Both sides still exist, still hold ground, and the day count moved.
-    expect(end.day).toBeGreaterThan(200);
+    // The war either finished or is still going; either is fine. What is not
+    // fine is a broken world, which is what the rest of this checks. (This
+    // used to assert the war lasted two hundred days, which stopped being true
+    // the day a landing started taking prisoners — a faster war is not a
+    // failure and the test should never have been measuring one.)
+    expect(end.day).toBeGreaterThan(0);
     for (const faction of ['empire', 'alliance'] as const) {
       const held = end.systems.filter((s) => s.control === faction);
       if (!end.winner) expect(held.length).toBeGreaterThan(0);

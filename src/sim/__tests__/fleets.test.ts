@@ -108,9 +108,12 @@ describe('ship classes', () => {
     expect(small.pace).toBeLessThan(medium.pace);
     expect(medium.pace).toBeLessThan(large.pace);
     expect(small.costGold).toBeLessThan(large.costGold);
-    // A sloop carries nobody; a transport carries more than a first-rate and
+    // Every hull carries somebody, at Sean's word — a sloop used to carry
+    // nobody and could not put one person on an empty beach. A transport still
+    // carries more than a first-rate and
     // cannot fire a shot.
-    expect(small.carries).toBe(0);
+    expect(small.carries).toBeGreaterThan(0);
+    expect(small.carries).toBeLessThan(medium.carries + 1);
     expect(transport.guns).toBe(0);
     expect(transport.carries).toBeGreaterThan(large.carries);
   });
