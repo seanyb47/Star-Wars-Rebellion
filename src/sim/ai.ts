@@ -173,9 +173,24 @@ const AI_RICH = 600;
  * player's own side is what observe mode does: the same brain, run twice, and
  * a war neither of us is playing.
  */
-export function runAI(state: GameState, rng: Rng, side?: PlayableFaction): void {
+export function runAI(
+  state: GameState,
+  rng: Rng,
+  side?: PlayableFaction,
+  /**
+   * Act today whatever the cadence says.
+   *
+   * The opponent works to a rhythm — orders every fifth day, errands every
+   * tenth, fleets every twelfth — and on every other day `runAI` is a no-op.
+   * That is right inside a running war and wrong at the one moment a human
+   * hands their side over to watch: they may have done it on day 43, and the
+   * next thing scheduled to happen was seven days away. `setObserving` passes
+   * this so the handover itself is a move. Nothing else does.
+   */
+  now = false,
+): void {
   const ai = side ?? otherFaction(state.player);
-  if (state.day % AI_BUILD_INTERVAL === 0) {
+  if (now || state.day % AI_BUILD_INTERVAL === 0) {
     // More than one order a tick. One every five days could not keep up
     // with a war that hands the opponent an island a week, each with a
     // garrison to feed: the earners it needed sat unordered behind the
@@ -186,14 +201,14 @@ export function runAI(state: GameState, rng: Rng, side?: PlayableFaction): void 
       if (!aiBuild(state, ai)) break;
     }
   }
-  if (state.day % AI_MISSION_INTERVAL === 0) {
+  if (now || state.day % AI_MISSION_INTERVAL === 0) {
     // Postings before errands, so a Lord it wants in a chair is in the chair
     // before the errand pass can send them somewhere else. Doctrine:
     // `seat-your-principals` — a plain opponent leaves its people on the quay.
     if (follows(state, 'seat-your-principals')) aiPostLords(state, ai);
     aiMission(state, ai);
   }
-  if (state.day % AI_FLEET_INTERVAL === 0) aiFleet(state, ai, rng);
+  if (now || state.day % AI_FLEET_INTERVAL === 0) aiFleet(state, ai, rng);
 }
 
 /**

@@ -25,11 +25,42 @@ describe('observing', () => {
     expect(state.observing).toBeUndefined();
     const watching = setObserving(state, true);
     expect(watching.observing).toBe(true);
-    // Off again removes the key rather than writing false, so an ordinary
-    // save is byte-for-byte what it always was.
+    // Off again removes the key rather than writing false, so an ordinary save
+    // carries no trace of having been watched. It used to be asserted as a
+    // byte-for-byte round trip, which stopped being true when the handover
+    // started moving the world — see the test below.
     const back = setObserving(watching, false);
     expect('observing' in back).toBe(false);
-    expect(JSON.stringify(back)).toBe(JSON.stringify(state));
+    expect(JSON.stringify(back)).not.toContain('observing');
+  });
+
+  /**
+   * Sean, 18 September: *"when I do observe mode. Nothing is happening. Idle
+   * personnel and facilities stay idle."*
+   *
+   * The sim was fine and the clock was running; the opponent simply works to a
+   * cadence — errands every tenth day, fleets every twelfth — so handing over
+   * on the wrong day bought fifty seconds of medium-speed staring at chips that
+   * did not move. Playing, the gap is invisible because your own orders fill
+   * it. Watching, it is the whole first impression.
+   */
+  it('makes the handover itself a move, whatever day it falls on', () => {
+    let state = generateGalaxy(733, 'empire');
+    // Somewhere that is not a multiple of any of the opponent's intervals, and
+    // with both sides' officers standing about: the worst case for a watcher.
+    while (state.day % 5 === 0 || state.day % 10 === 0 || state.day % 12 === 0) {
+      state = advanceDay(state);
+    }
+    const idle = (s: typeof state, f: 'empire' | 'alliance') =>
+      s.characters.filter((c) => c.faction === f && c.status === 'available' && !c.mission).length;
+    const before = { player: idle(state, 'empire'), other: idle(state, 'alliance') };
+    expect(before.player).toBeGreaterThan(0);
+
+    const watching = setObserving(state, true);
+    const after = { player: idle(watching, 'empire'), other: idle(watching, 'alliance') };
+    // Both sides, because watching means neither of them is yours any more.
+    expect(after.player).toBeLessThan(before.player);
+    expect(after.other).toBeLessThanOrEqual(before.other);
   });
 
   it('refuses every order, and says why', () => {

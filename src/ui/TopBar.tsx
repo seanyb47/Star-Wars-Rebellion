@@ -190,8 +190,8 @@ export function TopBar({
           className={`iconbtn${observing ? ' iconbtn--watching' : ''}`}
           onClick={onToggleObserving}
           aria-pressed={observing}
-          aria-label={observing ? 'Take your side back' : 'Watch the opponent play both sides'}
-          title={observing ? 'Take your side back' : 'Observe: let the opponent play both sides'}
+          aria-label={observing ? 'Take your side back' : 'Watch the machine play both sides'}
+          title={observing ? 'Take your side back' : 'Observe: hand your side over and watch'}
         >
           <EyeIcon open={observing} />
         </button>

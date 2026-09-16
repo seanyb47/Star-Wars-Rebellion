@@ -624,7 +624,9 @@ export function App() {
       {/* Watching. Said plainly across the top, because every order is refused
           while it is on and a silent lock is a bug report. */}
       {state.observing && (
-        <div className="watchbar">Observing — both sides played by the opponent</div>
+        <div className="watchbar">
+          Observing — the machine has both sides. Your orders are locked; the clock is still yours.
+        </div>
       )}
       {/* Waits for the war-begins dispatch to be read: two cards at once is
           nobody's idea of a clean start. */}

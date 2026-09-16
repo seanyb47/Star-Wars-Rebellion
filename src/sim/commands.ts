@@ -15,6 +15,7 @@ import {
   sailFleet,
 } from './fleets';
 import { createRng } from './rng';
+import { runAI } from './ai';
 import { generateGalaxy } from './galaxy';
 import { cloneState } from './helpers';
 import { moveBlock } from './order';
@@ -32,7 +33,7 @@ export interface CommandResult {
 function run(state: GameState, fn: (draft: GameState) => void): CommandResult {
   // Watching, not playing. Every order in the game comes through here, so this
   // is the whole of the lock — and the clock, which does not, stays yours.
-  if (state.observing) return { state, error: 'Observing. Your side is being played by the opponent.' };
+  if (state.observing) return { state, error: 'Observing. The machine has your side; take it back to give orders.' };
   const draft = cloneState(state);
   try {
     fn(draft);
@@ -54,8 +55,30 @@ export function newGame(seed = Date.now() >>> 0, player: PlayableFaction = 'empi
 export function setObserving(state: GameState, observing: boolean): GameState {
   if (Boolean(state.observing) === observing) return state;
   const next = cloneState(state);
-  if (observing) next.observing = true;
-  else delete next.observing;
+  if (!observing) {
+    delete next.observing;
+    return next;
+  }
+  next.observing = true;
+  /**
+   * And something happens straight away, which it did not before.
+   *
+   * Sean, 18 September: *"when I do observe mode. Nothing is happening. Idle
+   * personnel and facilities stay idle."* He was right and the sim was fine —
+   * the opponent works to a cadence. Errands are given out every tenth day and
+   * fleets sail every twelfth, so a watcher who switched over on, say, day 43
+   * had fifty seconds of medium-speed staring before a single officer moved,
+   * and the idle chips he was watching sat still the whole time. Playing, you
+   * never notice: your own orders fill the gap.
+   *
+   * So the handover runs one pass for each side on the spot rather than
+   * waiting for the cadence to come round. It costs nothing anywhere else —
+   * this is the only place it is called, and it is called when a human has just
+   * said they would rather watch than play.
+   */
+  const rng = createRng(next.rngSeed);
+  runAI(next, rng, undefined, true);
+  runAI(next, rng, next.player, true);
   return next;
 }
 
