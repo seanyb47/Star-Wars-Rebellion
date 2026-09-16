@@ -370,6 +370,14 @@ Every island in the game gets its own painting instead of sharing one of ten by 
 
 ## 2. The two works with no painting — Fort and Boom, both sides (Drive: `7 Seas / Art / buildings`)
 
+> **Superseded, 16 September.** These four asked for 3:2 landscape, and the five
+> facility paintings already in the game are wide banner strips — a fort
+> delivered to this prompt would not sit in the same row as a shipyard. Use the
+> versions in [`art-units.md`](art-units.md), which have the right shape and the
+> whole set beside them. Kept here because the scene descriptions below are good
+> and were carried over.
+
+
 ### Fort — Crown Imperium
 
 `fort-empire.png`

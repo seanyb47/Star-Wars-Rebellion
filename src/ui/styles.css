@@ -1858,3 +1858,14 @@ button.tcard:hover { border-color: var(--brass); }
 .statgrid i { font-style: normal; font-size: 9px; letter-spacing: 0.03em; color: var(--muted); text-align: center; }
 .statgrid b { font-size: 13px; color: var(--chrome-text); }
 @media (max-width: 380px) { .statgrid { grid-template-columns: repeat(2, 1fr); } }
+
+/* --- A figure in gold ---------------------------------------------------- */
+/* "Upkeep: 3◉/day" as one unbreakable run. The coin sits on the baseline with
+   the digits rather than beside them, so the whole thing reads as a quantity. */
+.goldfig { display: inline-flex; align-items: baseline; gap: 1px; white-space: nowrap; }
+.goldfig__label { color: var(--muted); margin-right: 2px; }
+.goldfig b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.goldfig .coin { align-self: center; flex: none; }
+.goldfig__per { color: var(--muted); margin-left: -2px; }
+.goldfig--earn b { color: var(--good, #7fc99a); }
+.goldfig--cost b { color: var(--metal-hi); }

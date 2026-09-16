@@ -311,3 +311,61 @@ export function RoomBar({
   );
 }
 
+
+/**
+ * The gold mark, on a line of text.
+ *
+ * Sean, 16 September: *"Instead of 'costs x gold a day' say 'Upkeep: 3g/day'.
+ * And let's use gold symbol."* So a coin rather than the word — the word was
+ * costing four characters every time a panel wanted to say a number, and
+ * "Costs 3 gold a day" sitting under every building was three lines of prose
+ * doing the work of one figure.
+ *
+ * Drawn rather than a glyph, because no font has a coin in it that matches the
+ * brass on the console. Two rings and nothing else: the 'S' on the big coin in
+ * the banner turns to mud under 12px, and this is read at 10.
+ */
+export function Coin({ size = 11 }: { size?: number }) {
+  return (
+    <svg
+      className="coin"
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <circle cx="12" cy="12" r="9.5" fill="var(--metal)" />
+      <circle cx="12" cy="12" r="6" fill="none" stroke="var(--metal-lo)" strokeWidth="2" opacity="0.75" />
+    </svg>
+  );
+}
+
+/**
+ * A sum of gold, as a figure: `3`, a coin, and what it is per.
+ *
+ * `label` is the word in front of it — "Upkeep", "Earns" — and the whole thing
+ * is one span so it never breaks across a line halfway through a number.
+ */
+export function GoldFig({
+  n,
+  per = 'day',
+  label,
+  tone,
+}: {
+  n: number | string;
+  /** What the figure is per. Absent for a flat price. */
+  per?: 'day' | null;
+  label?: string;
+  /** Green for money coming in, red for money going out. */
+  tone?: 'earn' | 'cost';
+}) {
+  return (
+    <span className={`goldfig${tone ? ` goldfig--${tone}` : ''}`}>
+      {label ? <span className="goldfig__label">{label}:</span> : null}
+      <b>{n}</b>
+      <Coin />
+      {per ? <span className="goldfig__per">/{per}</span> : null}
+    </span>
+  );
+}

@@ -2,7 +2,7 @@ import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import { summariseReach, type GameState, type Sector } from '../sim';
 import { IslandRow } from './IslandRow';
-import { Sheet, Stat } from './components';
+import { GoldFig, Sheet, Stat } from './components';
 
 /**
  * A Reach's islands as a list you can read.
@@ -55,8 +55,8 @@ export function ReachListSheet({
 
       <div className="section-title">What it earns you</div>
       <div className="card row" style={{ gap: 16 }}>
-        <Stat label={`${terms.gold} a day`} value={summary.goldPerDay.toFixed(1)} />
-        <Stat label={`${terms.upkeep} a day`} value={summary.upkeepPerDay} />
+        <Stat label={terms.gold} value={<GoldFig n={summary.goldPerDay.toFixed(1)} tone="earn" />} />
+        <Stat label={terms.upkeep} value={<GoldFig n={summary.upkeepPerDay} tone="cost" />} />
         <Stat
           label="Net"
           value={

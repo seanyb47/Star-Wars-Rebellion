@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import terms from '../data/terms.json';
 import loreData from '../data/lore.json';
 import factionData from '../data/factions.json';
@@ -55,7 +55,16 @@ import {
 } from './art';
 import { ChartMark } from './ChartMark';
 import { useSideSwipe } from './LayerStrip';
-import { ControlBadge, ListOpts, RoomBar, Sheet, Slot, SlotBoard, SupportBars } from './components';
+import {
+  ControlBadge,
+  GoldFig,
+  ListOpts,
+  RoomBar,
+  Sheet,
+  Slot,
+  SlotBoard,
+  SupportBars,
+} from './components';
 import { usePrefs } from './prefs';
 import { ShipsHere } from './FleetPanel';
 import { WorthMark } from './worth';
@@ -111,18 +120,28 @@ function LoyaltyLine({ system }: { system: System }) {
   return (
     <p className="tiny muted" style={{ margin: 0 }}>
       <b>{LOYALTY_BAND_LABEL[band]}.</b>{' '}
-      {share === 0
-        ? 'Nothing leaves this harbor but what you load.'
-        : `${Math.round(share * 100)}% of what it ships goes out the back to the ${
-            factionData[enemy].shortName
-          }${lost > 0 ? `, ${lost.toFixed(1)} ${terms.gold.toLowerCase()} a day` : ''}.`}
+      {share === 0 ? (
+        'Nothing leaves this harbor but what you load.'
+      ) : (
+        <>
+          {Math.round(share * 100)}% of what it ships goes out the back to the{' '}
+          {factionData[enemy].shortName}
+          {lost > 0 ? (
+            <>
+              {' — '}
+              <GoldFig n={lost.toFixed(1)} tone="cost" />
+            </>
+          ) : null}
+          .
+        </>
+      )}
       {!quiet && ' Word of what you keep here gets out, too.'}
     </p>
   );
 }
 
 /** One line explaining what a facility actually does for you right now. */
-function facilityOutput(system: System, facility: Facility): string | null {
+function facilityOutput(system: System, facility: Facility): ReactNode {
   const owner = facility.owner;
   if (owner !== 'empire' && owner !== 'alliance') return null;
   if (system.uprising) return `Idle — the island is in ${terms.mutiny.toLowerCase()}.`;
@@ -130,12 +149,21 @@ function facilityOutput(system: System, facility: Facility): string | null {
   const earning = GOLD_PER_DAY[facility.type];
   if (earning > 0) {
     const yieldNow = earning * supportMultiplier(system.support[owner]);
-    return `Earns ${yieldNow.toFixed(1)} ${terms.gold.toLowerCase()} a day at this ${terms.allegiance.toLowerCase()}`;
+    return (
+      <>
+        <GoldFig label="Earns" n={yieldNow.toFixed(1)} tone="earn" /> at this{' '}
+        {terms.allegiance.toLowerCase()}
+      </>
+    );
   }
   const cost = UPKEEP_PER_DAY[facility.type];
-  return cost > 0
-    ? `${FACILITY_BLURB[facility.type]} Costs ${cost} ${terms.gold.toLowerCase()} a day.`
-    : FACILITY_BLURB[facility.type];
+  return cost > 0 ? (
+    <>
+      {FACILITY_BLURB[facility.type]} <GoldFig label={terms.upkeep} n={cost} tone="cost" />
+    </>
+  ) : (
+    FACILITY_BLURB[facility.type]
+  );
 }
 
 /**
@@ -297,7 +325,11 @@ function WorksCard({
                 <span className="build__text">
                   <span className="build__name">{spec.label}</span>
                   <span className="build__meta">
-                    {error ?? `${spec.costGold} ${terms.gold.toLowerCase()} · ${days}d`}
+                    {error ?? (
+                      <>
+                        <GoldFig n={spec.costGold} per={null} /> · {days}d
+                      </>
+                    )}
                   </span>
                 </span>
               </button>

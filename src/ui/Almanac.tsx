@@ -52,7 +52,7 @@ import {
   CreaturePainting,
   FacilityIcon,
 } from './art';
-import { Sheet } from './components';
+import { GoldFig, Sheet } from './components';
 
 /**
  * Everything in the game, in one place, read out of the same constants the
@@ -72,20 +72,8 @@ const BUILD_ORDER: FacilityType[] = [
 function GoldLine({ type }: { type: FacilityType }) {
   const earns = GOLD_PER_DAY[type];
   const costs = UPKEEP_PER_DAY[type];
-  if (earns > 0) {
-    return (
-      <span className="almanac__earn">
-        Earns {earns} {terms.gold.toLowerCase()} a day
-      </span>
-    );
-  }
-  if (costs > 0) {
-    return (
-      <span className="almanac__cost">
-        Costs {costs} {terms.gold.toLowerCase()} a day
-      </span>
-    );
-  }
+  if (earns > 0) return <GoldFig label="Earns" n={earns} tone="earn" />;
+  if (costs > 0) return <GoldFig label={terms.upkeep} n={costs} tone="cost" />;
   return <span className="muted">No running cost</span>;
 }
 
@@ -163,7 +151,7 @@ export function Almanac({
               <div className="row row--between">
                 <b>{FACILITY_LABEL[type]}</b>
                 <span className="tiny muted">
-                  {YARD_BUILDS[type].costGold} {terms.gold.toLowerCase()} · {YARD_BUILDS[type].days}d
+                  <GoldFig n={YARD_BUILDS[type].costGold} per={null} /> · {YARD_BUILDS[type].days}d
                 </span>
               </div>
               <div className="tiny" style={{ marginTop: 2 }}>
@@ -242,11 +230,11 @@ export function Almanac({
         <div className="row row--between">
           <b>{TROOP_BUILD.label}</b>
           <span className="tiny muted">
-            {TROOP_BUILD.costGold} {terms.gold.toLowerCase()} · {TROOP_BUILD.days}d
+            <GoldFig n={TROOP_BUILD.costGold} per={null} /> · {TROOP_BUILD.days}d
           </span>
         </div>
-        <div className="tiny almanac__cost" style={{ marginTop: 2 }}>
-          Costs {UPKEEP_PER_DAY.troop} {terms.gold.toLowerCase()} a day
+        <div className="tiny" style={{ marginTop: 2 }}>
+          <GoldFig label={terms.upkeep} n={UPKEEP_PER_DAY.troop} tone="cost" />
         </div>
         <div style={{ margin: '8px 0' }}>
           <CompanyRow present={3} />
@@ -554,11 +542,11 @@ export function Almanac({
                   <div className="row row--between">
                     <b>{cls.name}</b>
                     <span className="tiny muted">
-                      {spec.costGold} {terms.gold.toLowerCase()} · {spec.days}d
+                      <GoldFig n={spec.costGold} per={null} /> · {spec.days}d
                     </span>
                   </div>
-                  <div className="tiny almanac__cost" style={{ marginTop: 2 }}>
-                    Costs {spec.upkeep} {terms.gold.toLowerCase()} a day
+                  <div className="tiny" style={{ marginTop: 2 }}>
+                    <GoldFig label={terms.upkeep} n={spec.upkeep} tone="cost" />
                   </div>
                   <div className="tiny muted" style={{ marginTop: 4 }}>{cls.blurb}</div>
                 </div>

@@ -55,94 +55,9 @@ researched anything, and gating that made every Confederate island in the
 opening look identical. The two made units keep their research gate, which is
 the half of the rule that was doing work. Sean's call if he wants it back.
 
-## Delivery
+## The prompts
 
-One image per unit, one file per image, **PNG, 4:5 (1024×1280 or larger)**,
-named exactly as the file name under each heading. Save to Google Drive
-`7 Seas / Art / troops`, then `npm run art:add -- <file> troops`. A unit without
-a file keeps its drawn figure, so these can arrive one at a time.
-
-Style line, for reference: cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
----
-
-### Crown Regulars — Crown Imperium
-
-attack / hold / watch: **20 / 20 / 15**
-
-`crown-regulars.png`
-
-> A line infantryman of the Crown's own regiments. Sea-green coat with cream facings and pipeclayed crossbelts, black tricorn, musket shouldered, a rolled blanket and a cartridge box. Nothing about him is remarkable and there are a great many of him. Weary, competent, entirely ordinary. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream, tarnished gold braid, high collars, everything regulation and everything matching. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Ship's Company (Crown) — Crown Imperium
-
-attack / hold / watch: **15 / 15 / 20**
-
-`crown-ships-company.png`
-
-> A sailor of a Crown ship put ashore to hold something. Striped slops and a short blue jacket, tarred hat or knotted head-cloth, cutlass in hand and a boarding pistol in his belt, no pack and no drill. He is looking sideways at something off the beach rather than standing to attention. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream, tarnished gold braid, high collars, everything regulation and everything matching. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Crown Marines — Crown Imperium
-
-attack / hold / watch: **30 / 30 / 25**
-
-`crown-marines.png`
-
-> The white-coats: the Imperium's marines, and the best thing on any beach on day one. Immaculate white coat faced deep sea-green, tall black shako with a brass plate, crossbelts pipeclayed dead white, musket and fixed bayonet held ready. Very straight, very still, visibly better at this than anybody around him. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream, tarnished gold braid, high collars, everything regulation and everything matching. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Tidewrought — Crown Imperium
-
-attack / hold / watch: **40 / 35 / 5**
-
-`tidewrought.png`
-
-> An automaton of brass and cultivated coral that walks in over the seabed and comes out of the surf still advancing. Man-shaped but wrong: too square, riveted brass plate crusted with live coral and barnacle, seawater running out of the joints, a blank slotted faceplate with no eyes behind it. Heavy arms, no weapon — the arms are the weapon. Understated and industrial, never a robot and never magical. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream, tarnished gold braid, high collars, everything regulation and everything matching. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### The Drowned Guard — Crown Imperium
-
-attack / hold / watch: **45 / 40 / 30**
-
-`drowned-guard.png`
-
-> A marine who has been cold-baptised: held under the Deep until he stopped struggling, and brought back. Black lacquered plate over a sodden sea-green coat, a closed helm with a narrow brow slit, boarding pike held upright, water still coming off him. Nothing supernatural on show — the wrongness is that he is too still and stands slightly wrong, and whatever is behind the slit is not looking at you. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream, tarnished gold braid, high collars, everything regulation and everything matching. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Island Militia — Free Confederacy
-
-attack / hold / watch: **15 / 20 / 10**
-
-`island-militia.png`
-
-> An islander defending her own island with whatever was in the shed. Homespun and a canvas apron over it, bare head, a boarding axe and an old fowling piece slung, a red rag tied round one arm because that is the whole of the uniform. Not a soldier, standing where she means to go on standing. Free Confederacy — freedom, opportunity, no masters: weathered red sashes, mismatched salvaged finery, worn leather, nothing regulation and no two alike. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Ship's Company (Confederacy) — Free Confederacy
-
-attack / hold / watch: **15 / 15 / 15**
-
-`brethren-ships-company.png`
-
-> A pirate crew put ashore. Red sash, salvaged finery over slops, gold in one ear, cutlass and a brace of pistols on a shoulder belt, a bottle in the other hand. Every one of them has been on the other end of a landing and none of them has been drilled for this one. Free Confederacy — freedom, opportunity, no masters: weathered red sashes, mismatched salvaged finery, worn leather, nothing regulation and no two alike. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Reefwalkers — Free Confederacy
-
-attack / hold / watch: **20 / 20 / 35**
-
-`reefwalkers.png`
-
-> A Shoal-folk scout: small, slight, webbed hands and huge dark night-eyes, a wide flat nose, quick. Light oiled leathers in reef colours, bare feet, a long glass raised to one eye and a short bow across the back. Half the height of the others in the set. He has heard something the rest of the island has not. Free Confederacy — freedom, opportunity, no masters: weathered red sashes, mismatched salvaged finery, worn leather, nothing regulation and no two alike. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Reef Guard — Free Confederacy
-
-attack / hold / watch: **20 / 45 / 20**
-
-`reef-guard.png`
-
-> A Reef-folk warrior in coral plate grown to the wearer over years: amphibious, gill-slits at the throat, luminous eyes, skin shifting colour. The armour is living coral, pale and ridged and organic rather than forged, with a great rounded coral shield that covers most of the body. Braced, planted, immovable. Almost all shield from the front — that is the silhouette. Free Confederacy — freedom, opportunity, no masters: weathered red sashes, mismatched salvaged finery, worn leather, nothing regulation and no two alike. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
-### Urskin Berserkers — Free Confederacy
-
-attack / hold / watch: **50 / 20 / 20**
-
-`urskin-berserkers.png`
-
-> An Urskin harpooner coming up a beach: a huge shaggy tusked sea-bear person, heavy-browed, whaler-built, half again the mass of a man and twice the shoulders. Sealskin and harness, scrimshaw at the belt, a long barbed whaling harpoon held overhand. Mid-stride and committed. Nothing in the world hits harder going forward. Free Confederacy — freedom, opportunity, no masters: weathered red sashes, mismatched salvaged finery, worn leather, nothing regulation and no two alike. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
-
+They live in [`art-units.md`](art-units.md), alongside the facility prompts, so
+there is one sheet to hand to a generator and one place a wording change has to
+land. This page is the design — what the numbers mean, who turns up where, and
+what is wired in — and that page is the art order.

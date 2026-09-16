@@ -1,0 +1,244 @@
+# Art prompts — every works and every company
+
+*Sean, 16 September: “Give me art prompts for all facilities and garrisons.”*
+
+One sheet for both, so there is a single place to look and nothing to keep in
+sync with anything else. **Twenty-four prompts**: seven works painted twice, once
+for each side, and ten companies.
+
+**What already exists.** Five of the seven works are painted for both sides and
+in the game: Camp, Mill, Construction Yard, Training Facility and Shipyard. They
+are here because a set of prompts with holes in it is not a set — regenerate
+them only if a delivery looks off against the rest. **Fort and Boom have never
+been painted**, and their earlier prompts (in `art-batch-2.md`) asked for the
+wrong shape: 3:2 landscape, where the installed five are wide banner strips. Use
+these instead. The ten companies are painted in `troops.md` prose but only some
+have arrived.
+
+---
+
+## Delivery
+
+**Facilities.** One image per works per side, PNG, **wide banner, 15:4
+(1536×410 or larger)**. Name exactly as the file name under each heading. Drive:
+`7 Seas / Art / buildings`. Install with `npm run art:add -- <file> islands`
+— they live with the island paintings because the game reads them through the
+same loader.
+
+**Companies.** One image per unit, PNG, **4:5 (1024×1280 or larger)**, named
+exactly as the file name. Drive: `7 Seas / Art / troops`, then
+`npm run art:add -- <file> troops`.
+
+Anything without a file keeps its drawn glyph, so these can arrive one at a
+time and in any order.
+
+**Style line**, repeated inside every prompt on purpose — paste the whole
+prompt:
+
+> cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+---
+
+## 1. The works — 7 × 2 sides
+
+The two sides are the point of doing each works twice. A Crown yard is cut
+stone, squared off, paid for and kept up; a Confederate one is the same job done
+out of salvage by people who are not waiting for permission. That contrast is
+the clearest single statement of what the two factions are, and it is doing it
+at 96 pixels wide, so it has to be in the *materials and the order of things*
+rather than in any detail.
+
+### Camp
+
+*An extraction camp that cuts timber and ore out of the ground and sells it.*
+
+**Crown Imperium** — `facility-mine-empire.png`
+
+> A Crown extraction camp: a cut stone quarry face with a timber gantry crane over it, ore carts on iron rails running down to a stone quay, sawn logs stacked in squared piles under numbered boards, an overseer with a tally book, gangs working in step. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream paint, tarnished gold, cut white stone, everything squared off, regulation and matching, kept up at expense; the flag of the Tide flying. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+**Free Confederacy** — `facility-mine-alliance.png`
+
+> A Confederate extraction camp: a raw cut in the hillside worked by hand, ore hauled in barrows along plank runs to a jetty of lashed spars, timber dragged out by oxen, a lean-to of sailcloth over the tools, everyone doing three jobs at once. Free Confederacy — freedom, opportunity, no masters: weathered red, salvaged ship's timbers and mismatched fittings, tar and rope and patched canvas, nothing regulation and no two things alike, improvised and working; a red sash knotted somewhere as a colour. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Mill
+
+*A works that turns timber and ore into something worth more — the best earner on any island.*
+
+**Crown Imperium** — `facility-refinery-empire.png`
+
+> A Crown mill: a long white stone building with a great waterwheel on its flank, a chimney with clean smoke, sawn planks and pig iron stacked on a paved yard, barrels rolled to a jetty under a clerk's eye. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream paint, tarnished gold, cut white stone, everything squared off, regulation and matching, kept up at expense; the flag of the Tide flying. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+**Free Confederacy** — `facility-refinery-alliance.png`
+
+> A Confederate mill: a mill built into the hull of a beached merchantman, its wheel turned by the tide race, a crooked chimney, planks and ingots stacked wherever there is room, rum barrels and salvaged rigging, smoke blowing sideways. Free Confederacy — freedom, opportunity, no masters: weathered red, salvaged ship's timbers and mismatched fittings, tar and rope and patched canvas, nothing regulation and no two things alike, improvised and working; a red sash knotted somewhere as a colour. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Construction Yard
+
+*The works that raises every other building — the island's own, or sent across the world.*
+
+**Crown Imperium** — `facility-construction-yard-empire.png`
+
+> A Crown construction yard: a walled compound of cut stone and scaffolding, a treadwheel crane, dressed blocks laid out in rows with chalk marks on them, a drawing office with shutters open, engineers with rods and a plan table, a boat loading builders and their gear for another island. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream paint, tarnished gold, cut white stone, everything squared off, regulation and matching, kept up at expense; the flag of the Tide flying. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+**Free Confederacy** — `facility-construction-yard-alliance.png`
+
+> A Confederate construction yard: an open yard of trestles and sheer legs under a sailcloth awning, block and tackle rigged from a standing mast, salvaged stone and ship's timber sorted into heaps, a shipwright chalking a plan straight onto a plank, a longboat loading tools and crew. Free Confederacy — freedom, opportunity, no masters: weathered red, salvaged ship's timbers and mismatched fittings, tar and rope and patched canvas, nothing regulation and no two things alike, improvised and working; a red sash knotted somewhere as a colour. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Training Facility
+
+*The ground where companies of marines and militia are drilled.*
+
+**Crown Imperium** — `facility-training-facility-empire.png`
+
+> A Crown training facility: a walled parade ground of raked gravel above the harbor, ranks at drill with muskets shouldered in perfect line, a drummer, an officer pacing the front, a stone barrack block and an armoury with a sentry on the door. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream paint, tarnished gold, cut white stone, everything squared off, regulation and matching, kept up at expense; the flag of the Tide flying. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+**Free Confederacy** — `facility-training-facility-alliance.png`
+
+> A Confederate training facility: a trampled shore-side yard with a palisade of ship's timber, a mixed company learning cutlass work in loose pairs, straw dummies and boarding nets rigged from a spar, muskets of four patterns in a rack, someone shouting and being half-listened to. Free Confederacy — freedom, opportunity, no masters: weathered red, salvaged ship's timbers and mismatched fittings, tar and rope and patched canvas, nothing regulation and no two things alike, improvised and working; a red sash knotted somewhere as a colour. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Shipyard
+
+*The slipway where hulls are laid down and sent to their station.*
+
+**Crown Imperium** — `facility-shipyard-empire.png`
+
+> A Crown shipyard: a covered slip of dressed stone with a man-of-war's hull on the stocks, ribs bare and planking going on, a mast crane, tar coppers and coils of new cordage laid out in order, shipwrights on staging, the Tide's flag over the gate. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream paint, tarnished gold, cut white stone, everything squared off, regulation and matching, kept up at expense; the flag of the Tide flying. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+**Free Confederacy** — `facility-shipyard-alliance.png`
+
+> A Confederate shipyard: a hidden cove slipway roofed with sailcloth and palm, a hull on the stocks built of salvage with three colours of timber in her planking, spars lashed into a crane, a fire under a tar pot, shipwrights of four peoples working at once. Free Confederacy — freedom, opportunity, no masters: weathered red, salvaged ship's timbers and mismatched fittings, tar and rope and patched canvas, nothing regulation and no two things alike, improvised and working; a red sash knotted somewhere as a colour. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Fort
+
+*A battery on the harbor wall: it fires in every action in its water, and no landing can be made while it stands.*
+
+**Crown Imperium** — `facility-fort-empire.png`
+
+> A Crown fort: a white stone bastion on the harbor wall, embrasures in a neat row, heavy brass guns run out over the water, shot piled in pyramids, a powder magazine with a sentry, gunners in sea-green and cream at drill, the harbor mouth beyond. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream paint, tarnished gold, cut white stone, everything squared off, regulation and matching, kept up at expense; the flag of the Tide flying. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+**Free Confederacy** — `facility-fort-alliance.png`
+
+> A Confederate fort: an earthwork battery faced with gabions and ships' timbers, guns of four different patterns on improvised carriages, powder kegs under sailcloth, a lookout in a crow's nest lashed to a spar, a mixed crew at the pieces, the harbor mouth beyond. Free Confederacy — freedom, opportunity, no masters: weathered red, salvaged ship's timbers and mismatched fittings, tar and rope and patched canvas, nothing regulation and no two things alike, improvised and working; a red sash knotted somewhere as a colour. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Boom
+
+*A chain across the harbor mouth: a landing has to cut it first, and it is found by a blockade as well as by boats.*
+
+**Crown Imperium** — `facility-boom-empire.png`
+
+> A Crown boom: a massive iron chain slung between two white stone towers across the harbor mouth, a capstan house with the links coming up dripping, a guard boat at the gap, orderly and immovable. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream paint, tarnished gold, cut white stone, everything squared off, regulation and matching, kept up at expense; the flag of the Tide flying. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+**Free Confederacy** — `facility-boom-alliance.png`
+
+> A Confederate boom: a chain of salvaged anchor cable floated on lashed barrels and two sunken hulks between timber towers, a lantern on each, a crew hauling on a windlass, improvised and entirely effective. Free Confederacy — freedom, opportunity, no masters: weathered red, salvaged ship's timbers and mismatched fittings, tar and rope and patched canvas, nothing regulation and no two things alike, improvised and working; a red sash knotted somewhere as a colour. A wide banner strip, far wider than tall — the works filling the frame edge to edge, seen level from the water a short way off, figures at work for scale. The game shows this as a narrow band beside a name, so everything that matters must sit in the middle third of the height and read at a glance: no sky to speak of, no empty foreground, no single tall element. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+---
+
+## 2. The companies — 10
+
+Three numbers each, and the numbers are the brief: a 50-attack Urskin and a
+15-attack militiaman should not be able to be mistaken for one another in
+silhouette at thirty pixels.
+
+| | attack | hold | watch |
+|---|---|---|---|
+| Crown Regulars (Crown) | 20 | 20 | 15 |
+| Ship's Company (Crown) | 15 | 15 | 20 |
+| Crown Marines (Crown) | 30 | 30 | 25 |
+| Tidewrought (Crown) | 40 | 35 | 5 |
+| The Drowned Guard (Crown) | 45 | 40 | 30 |
+| Island Militia (Confederacy) | 15 | 20 | 10 |
+| Ship's Company (Confederacy) | 15 | 15 | 15 |
+| Reefwalkers (Confederacy) | 20 | 20 | 35 |
+| Reef Guard (Confederacy) | 20 | 45 | 20 |
+| Urskin Berserkers (Confederacy) | 50 | 20 | 20 |
+
+### Crown Regulars — Crown Imperium
+
+attack / hold / watch: **20 / 20 / 15**
+
+`crown-regulars.png`
+
+> A line infantryman of the Crown's own regiments. Sea-green coat with cream facings and pipeclayed crossbelts, black tricorn, musket shouldered, a rolled blanket and a cartridge box. Nothing about him is remarkable and there are a great many of him. Weary, competent, entirely ordinary. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream, tarnished gold braid, high collars, everything regulation and everything matching. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Ship's Company — Crown Imperium
+
+attack / hold / watch: **15 / 15 / 20**
+
+`crown-ships-company.png`
+
+> A sailor of a Crown ship put ashore to hold something. Striped slops and a short blue jacket, tarred hat or knotted head-cloth, cutlass in hand and a boarding pistol in his belt, no pack and no drill. He is looking sideways at something off the beach rather than standing to attention. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream, tarnished gold braid, high collars, everything regulation and everything matching. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Crown Marines — Crown Imperium
+
+attack / hold / watch: **30 / 30 / 25**
+
+`crown-marines.png`
+
+> The white-coats: the Imperium's marines, and the best thing on any beach on day one. Immaculate white coat faced deep sea-green, tall black shako with a brass plate, crossbelts pipeclayed dead white, musket and fixed bayonet held ready. Very straight, very still, visibly better at this than anybody around him. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream, tarnished gold braid, high collars, everything regulation and everything matching. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Tidewrought — Crown Imperium
+
+attack / hold / watch: **40 / 35 / 5**  ·  *not yet buildable — research*
+
+`tidewrought.png`
+
+> An automaton of brass and cultivated coral, man-shaped and a head taller than a man. Salt-stained brass plate over a coral-grown frame, barnacles and weed still on its legs from walking in over the seabed, no face to speak of — a blank brass mask with a single slit — and a long boarding axe held in both hands. Water running off it. It sees nothing at all. Uncanny and heavy, never comic, never a robot. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream, tarnished gold braid, high collars, everything regulation and everything matching. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### The Drowned Guard — Crown Imperium
+
+attack / hold / watch: **45 / 40 / 30**  ·  *not yet buildable — research*
+
+`drowned-guard.png`
+
+> A marine who has been cold-baptised: held under the Deep until he stopped struggling, and brought back. Black lacquered plate over a sea-green coat gone almost black, a closed helmet with a grille, kelp and salt crusted in the joints, a straight sword point-down in both hands. Absolutely still. Something missing behind the eye-slit. Understated wrongness and never a monster. Crown Imperium — order, stability, a brighter tomorrow: deep sea-green and cream, tarnished gold braid, high collars, everything regulation and everything matching. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Island Militia — Free Confederacy
+
+attack / hold / watch: **15 / 20 / 10**
+
+`island-militia.png`
+
+> Whoever lives on the island, holding it. Working clothes — canvas trousers, a patched shirt, a straw hat or a knotted scarf — a red sash at the waist as the only uniform thing about them, a fowling piece or a boarding pike, and a powder horn on a cord. Not a soldier and standing their ground anyway. Free Confederacy — freedom, opportunity, no masters: weathered red sashes, mismatched salvaged finery, worn leather, nothing regulation and no two alike. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Ship's Company — Free Confederacy
+
+attack / hold / watch: **15 / 15 / 15**
+
+`brethren-ships-company.png`
+
+> A sailor of the Brethren put ashore to hold something. Salvaged finery over slops — a stolen officer's coat with the braid cut off, mismatched boots — a red sash, cutlass and pistol, a gold ring and a hard look. Loose, capable, entirely unimpressed. Free Confederacy — freedom, opportunity, no masters: weathered red sashes, mismatched salvaged finery, worn leather, nothing regulation and no two alike. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Reefwalkers — Free Confederacy
+
+attack / hold / watch: **20 / 20 / 35**
+
+`reefwalkers.png`
+
+> A Shoal-folk scout of the Free Confederacy: webbed hands and night-eyes, smooth dark skin patterned like a reef fish, the best watcher in the world. Light wrapped cloth and a net bag, a long fishing spear held low, barefoot, head turned and listening. Alien in build and entirely a person — never a fish-monster. Free Confederacy — freedom, opportunity, no masters: weathered red sashes, mismatched salvaged finery, worn leather, nothing regulation and no two alike. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Reef Guard — Free Confederacy
+
+attack / hold / watch: **20 / 45 / 20**
+
+`reef-guard.png`
+
+> A Reef-folk defender of the Free Confederacy: broad and slow-moving, skin like living coral gone hard, grown armour across chest and shoulders in pale pink and bone. A great shield of grown coral held ready and a heavy club. Planted, immovable, patient. Grown rather than made — never plate armour, never a golem. Free Confederacy — freedom, opportunity, no masters: weathered red sashes, mismatched salvaged finery, worn leather, nothing regulation and no two alike. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+### Urskin Berserkers — Free Confederacy
+
+attack / hold / watch: **50 / 20 / 20**
+
+`urskin-berserkers.png`
+
+> An Urskin harpooner of the far ice: enormous, shaggy, bear-like in build and unmistakably a person. Whale-hide and furs over scarred skin, bone ornaments, a whaling harpoon in one hand and a boarding axe in the other, breath steaming. Coming forward. The worst thing on any beach and visibly delighted about it. Free Confederacy — freedom, opportunity, no masters: weathered red sashes, mismatched salvaged finery, worn leather, nothing regulation and no two alike. One figure, standing, full length, facing the viewer three-quarters on, centred with room above the head and below the feet. Plain flat neutral ground with nothing at all behind the figure — no landscape, no other figures, no props on the floor — so the figure can be cut out. The whole reason for the pose is the outline: this is drawn at thirty pixels high in a slot on a panel, so the shape of the weapon and the shape of the head have to be recognisable with everything else gone. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical
+
+---
+
+## What each one is standing in for
+
+The facility strip is read beside a name on a panel and the company figure is
+read at thirty pixels in a slot, so both are silhouette problems before they are
+painting problems. If a delivery is beautiful and unreadable at that size it is
+the wrong picture, and the fix is almost always to throw away the background and
+make one shape bigger.

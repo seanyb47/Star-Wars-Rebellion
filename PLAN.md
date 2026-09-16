@@ -2654,3 +2654,51 @@ Balance-neutral, which is what it should be: the rule changes the granularity of
 building, not the rate. The two extra unfinished idle wars are the same siege-train
 problem already on the board — the Confederacy holding fifty islands and standing
 off Highwater with fourteen weight of shot.
+
+## Prompts for every works and every company, and a gold mark — 16 September
+
+> Give me art prompts for all facilities and garrisons. Instead of "costs x gold
+> a day" say "Upkeep: 3g/day". And let's use gold symbol.
+
+### One sheet for the art
+
+`docs/art-units.md` — twenty-four prompts: seven works painted twice, once per
+side, and ten companies. Written against the same style line and the same
+delivery rules as the island batch, so the whole set matches.
+
+Two things the sheet fixes as well as gathering:
+
+- **Fort and Boom have never been painted**, and the prompts that existed for
+  them asked for the wrong shape — 3:2 landscape, where the five installed
+  facility paintings are wide banner strips at 768×204. A fort delivered to the
+  old prompt would not sit in the same row as a shipyard. The old section is
+  marked superseded rather than deleted; its scene descriptions were good and
+  are carried over.
+- **The company prompts lived in `troops.md` and now live here**, with that page
+  pointing at this one. Two copies of a prompt is two things to keep in step,
+  and the design page should be about the design.
+
+The two-sides-per-works split is the point of doing each one twice: a Crown yard
+is cut stone, squared off and kept up at expense; a Confederate one is the same
+job done out of salvage by people not waiting for permission. That has to live
+in the *materials and the order of things*, because it is being read at 96
+pixels wide.
+
+### The gold mark
+
+`Coin` and `GoldFig` in `components.tsx`. "Costs 3 gold a day" was eight words
+doing the work of one figure, and it sat under every building on every panel.
+It is `Upkeep: 3◉/day` now, green for money coming in and brass for money going
+out, as one unbreakable inline run so a figure never wraps halfway through.
+
+The coin is drawn rather than a glyph — no font has one that matches the brass
+on the console — and it is two rings and nothing else, because the 'S' on the
+big coin in the banner turns to mud under 12px and this is read at 10.
+
+Applied everywhere a sum appears: the encyclopedia's buildings, companies and
+hulls; the island sheet's works cards and its smuggling line; the build flow's
+price, upkeep and confirm button; the ship sheet; the Reach summary. Two
+facility blurbs lost their "Costs gold to keep." — the figure beside them says
+it, and the sentence was saying it twice.
+
+377 tests green.

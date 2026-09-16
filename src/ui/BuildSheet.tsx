@@ -15,7 +15,7 @@ import {
   type System,
 } from '../sim';
 import { CompanyIcon, FacilityIcon, ShipIcon } from './art';
-import { Sheet, Stat } from './components';
+import { GoldFig, Sheet, Stat } from './components';
 import { paintedBuilding, paintedIsland, paintedShip } from './painted';
 
 /**
@@ -148,7 +148,7 @@ export function BuildOrderSheet({
             disabled={!plan || plan.error !== null || !plan.facilityId}
             onClick={() => plan?.facilityId && destination && onBuild(plan.facilityId, item, destination.id)}
           >
-            Build · {plan?.costGold ?? 0} {terms.gold.toLowerCase()}
+            Build · <GoldFig n={plan?.costGold ?? 0} per={null} />
           </button>
         </>
       }
@@ -229,7 +229,7 @@ export function BuildOrderSheet({
         </div>
       )}
       <p className="tiny muted" style={{ marginTop: 10 }}>
-        {gold} {terms.gold.toLowerCase()} in hand.
+        <GoldFig n={gold} per={null} /> in hand.
       </p>
     </Sheet>
   );
@@ -244,12 +244,17 @@ function roomLine(state: GameState, system: System): string {
 function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
   const you = state.player;
   const plan = planBuild(state, you, item, state.factions[you].hqSystemId);
+  // What it costs to run, or earns, once it is standing. Sean's format, 16
+  // September: a label, a figure, the coin, and what it is per — not a
+  // sentence. "Costs 3 gold a day to keep" was eight words for one number.
   const upkeepLine =
-    plan.upkeep > 0
-      ? `Costs ${plan.upkeep} ${terms.gold.toLowerCase()} a day to keep`
-      : item === 'mine' || item === 'refinery'
-        ? `Earns ${item === 'mine' ? 2 : 3} ${terms.gold.toLowerCase()} a day`
-        : 'Nothing to keep';
+    plan.upkeep > 0 ? (
+      <GoldFig label={terms.upkeep} n={plan.upkeep} tone="cost" />
+    ) : item === 'mine' || item === 'refinery' ? (
+      <GoldFig label="Earns" n={item === 'mine' ? 2 : 3} tone="earn" />
+    ) : (
+      <span className="muted">Nothing to keep</span>
+    );
 
   if (isShipClass(item)) {
     const cls = shipClass(item);
@@ -263,7 +268,7 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
         <div className="unit__body">
           <div className="unit__name">{cls.name}</div>
           <div className="tiny muted">
-            {plan.costGold} {terms.gold.toLowerCase()} · {plan.days} days · {upkeepLine.toLowerCase()}
+            <GoldFig n={plan.costGold} per={null} /> · {plan.days} days · {upkeepLine}
           </div>
           <div className="unit__stats">
             <Stat label="Guns" value={spec.guns} />
@@ -288,7 +293,7 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
         <div className="unit__body">
           <div className="unit__name">{buildLabel('troop')}</div>
           <div className="tiny muted">
-            {plan.costGold} {terms.gold.toLowerCase()} · {plan.days} days · {upkeepLine.toLowerCase()}
+            <GoldFig n={plan.costGold} per={null} /> · {plan.days} days · {upkeepLine}
           </div>
           <p className="tiny muted" style={{ margin: '6px 0 0' }}>
             Marines and militia. A company holds an island quiet when its allegiance falls, is the
@@ -309,7 +314,7 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
       <div className="unit__body">
         <div className="unit__name">{buildLabel(type)}</div>
         <div className="tiny muted">
-          {plan.costGold} {terms.gold.toLowerCase()} · {plan.days} days · {upkeepLine.toLowerCase()}
+          <GoldFig n={plan.costGold} per={null} /> · {plan.days} days · {upkeepLine}
         </div>
         <p className="tiny muted" style={{ margin: '6px 0 0' }}>
           {terms.facilityBlurbs[type]}

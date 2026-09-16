@@ -1,3 +1,4 @@
+import terms from '../data/terms.json';
 import {
   shipClass,
   shipSpec,
@@ -6,7 +7,7 @@ import {
   type Ship,
 } from '../sim';
 import { ShipThumb } from './art';
-import { Sheet, Stat } from './components';
+import { GoldFig, Sheet, Stat } from './components';
 
 /**
  * One class of hull, in full.
@@ -67,7 +68,7 @@ export function ShipSheet({
           label="Pace"
           value={spec.pace < 1 ? 'Fast' : spec.pace > 1 ? 'Slow' : 'Steady'}
         />
-        <Stat label="Upkeep" value={`${spec.upkeep} a day`} />
+        <Stat label={terms.upkeep} value={<GoldFig n={spec.upkeep} tone="cost" />} />
       </div>
 
       {/* Under its own heading, as on the island's Lore tab. A ship sheet is
