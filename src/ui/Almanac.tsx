@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import terms from '../data/terms.json';
 import characterRoster from '../data/characters.json';
+import reachData from '../data/reaches.json';
 import {
   FACILITY_LABEL,
   GOLD_PER_DAY,
@@ -29,6 +31,17 @@ import {
   LONG_GUN_SHARE,
   shipsFor,
   shipSpec,
+  FORT_STRENGTH,
+  FORT_REPAIR_PER_DAY,
+  REPAIR_PER_DAY,
+  REPAIR_AT_A_YARD,
+  BOOM_DEFENCE,
+  GUN_DECKS,
+  HULL_EASE,
+  GUNNERY_ON_SMALL,
+  BOMBARD_PER_COMPANY,
+  CIVILIAN_LOYALTY_HIT,
+  SUPPORT_FIRM as FIRM,
 } from '../sim';
 import {
   CategoryIcon,
@@ -76,24 +89,69 @@ function GoldLine({ type }: { type: FacilityType }) {
   return <span className="muted">No running cost</span>;
 }
 
-export function Almanac({ state, onClose }: { state: GameState; onClose: () => void }) {
+/**
+ * Six tabs, because Sean asked for one: *"an encyclopedia that has info and
+ * stats on all units... personnel, garrisons, buildings (including defensive
+ * structures), ships, islands. So a player can pause the game if they want and
+ * research."* One scroll with everything on it was a manual; this is a
+ * reference, and the tab is the question you came in with.
+ */
+const PAGES = [
+  { id: 'people', label: 'Crew' },
+  { id: 'companies', label: 'Companies' },
+  { id: 'works', label: 'Buildings' },
+  { id: 'ships', label: 'Ships' },
+  { id: 'islands', label: 'Islands' },
+  { id: 'rules', label: 'Rules' },
+] as const;
+
+type Page = (typeof PAGES)[number]['id'];
+
+export function Almanac({
+  state,
+  onClose,
+  page: opening = 'people',
+}: {
+  state: GameState;
+  onClose: () => void;
+  /** Which page to open on, when something else sent the player here. */
+  page?: Page;
+}) {
   const roster = characterRoster[state.player];
+  const [page, setPage] = useState<Page>(opening);
 
   return (
     <Sheet
-      title="Almanac"
-      subtitle="Everything in the game, and what the words mean"
+      title="Encyclopedia"
+      subtitle="Every unit in the game, with the numbers the rules actually use"
       onClose={onClose}
       stacked
+      tabs={
+        <div className="tabs" role="tablist">
+          {PAGES.map((entry) => (
+            <button
+              key={entry.id}
+              role="tab"
+              aria-selected={page === entry.id}
+              className={`tabs__tab${page === entry.id ? ' tabs__tab--on' : ''}`}
+              onClick={() => setPage(entry.id)}
+            >
+              {entry.label}
+            </button>
+          ))}
+        </div>
+      }
     >
+      {page === 'works' && (
+        <>
       <div className="section-title">Buildings</div>
       <p className="tiny muted" style={{ marginTop: 0 }}>
         A building either earns {terms.gold.toLowerCase()} or costs it, and every one of them
         takes one free berth on the island, whatever it is.
-        Buildings are raised by a {FACILITY_LABEL.construction_yard} — the island's own, or the nearest of
-        yours, whose builders sail over and add the passage to the clock. Companies and hulls are
-        sent the same way: drilled or laid down where you have the ground for it, and delivered
-        where you asked.
+        Buildings are raised by a {FACILITY_LABEL.construction_yard} — the island's own, or
+        whichever of yours would have it there soonest, whose builders sail over and add the
+        passage after the work. Companies and hulls are sent the same way: drilled or laid down
+        where you have the ground for it, and delivered where you asked.
       </p>
       <div className="stack">
         {BUILD_ORDER.map((type) => (
@@ -119,6 +177,66 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
         ))}
       </div>
 
+      <div className="section-title">How a thing gets built</div>
+      <div className="card small">
+        <b>One job of a kind at a time, per island.</b> A {FACILITY_LABEL.construction_yard.toLowerCase()}{' '}
+        raises structures, a {FACILITY_LABEL.shipyard.toLowerCase()} lays down hulls, a{' '}
+        {FACILITY_LABEL.training_facility.toLowerCase()} drills companies — so an island with all
+        three can have three things on the go at once, and never a fourth.
+        <br />
+        <br />
+        <b>More of a kind is speed, not volume.</b> Every works of that kind on the island puts its
+        hands on the same job. Three yards finish a sixty-day building in twenty days; a fourth
+        finished halfway through shortens what is left from that morning on, and a yard lost to a
+        landing slows what it was working on the same way. The figure on the button is what{' '}
+        <i>this</i> island will take, not the sticker price.
+        <br />
+        <br />
+        <b>It does not have to be built where it is wanted.</b> Any order can name another island
+        of yours: the work takes exactly as long, and then the thing is at sea for the length of
+        the passage before it arrives. Builders sail to raise a seawall on an island that could
+        never have built one; a hull comes off the stocks and joins the squadron lying wherever you
+        sent it. The panel keeps the two apart — days to build, and days to deploy.
+        <br />
+        <br />
+        <b>Gold goes at the order, and does not come back.</b> Cancelling stops the work and keeps
+        nothing. An island in {terms.mutiny.toLowerCase()} builds nothing at all, and the clock
+        simply stops until it is quiet.
+      </div>
+
+      {/* Sean's list asks for defensive structures by name, and they are the
+          two that are not about money at all. */}
+      <div className="section-title">Standing defences</div>
+      <div className="card small">
+        <b>A {FACILITY_LABEL.fort.toLowerCase()} is {FORT_GUNS} guns that cannot weigh anchor.</b>{' '}
+        It fires in every action fought in its water, on the side of whoever holds the island. It
+        also does something no fleet can: while one stands, <i>no landing is possible</i>. An
+        enemy who wants the island has to beat the wall down with shot first, which is the only
+        thing that can touch it.
+        <br />
+        <br />
+        <b>It has a condition, and its gunnery falls with it.</b> {FORT_STRENGTH} of strength; a
+        wall at half is half a battery. Beaten to nothing it is rubble, and rubble does not come
+        back — the island has to build a new one. Left alone it mends{' '}
+        {Math.round(FORT_REPAIR_PER_DAY * 100)}% of itself a day, twice what a hull manages, which
+        is why a siege that stops for a week has lost the week.
+        <br />
+        <br />
+        <b>A {FACILITY_LABEL.boom.toLowerCase()} is a chain across the harbor mouth.</b> Worth{' '}
+        {BOOM_DEFENCE} companies to the defence of a landing, and it is found by a blockade as
+        well as by boats.
+        <br />
+        <br />
+        <b>Hulls mend too, slowly.</b> {Math.round(REPAIR_PER_DAY * 100)}% of a hull a day at
+        anchor, {Math.round(REPAIR_AT_A_YARD * 100)}% at an island of yours with a{' '}
+        {FACILITY_LABEL.shipyard.toLowerCase()} on it that is not shut in. Nothing mends at sea.
+      </div>
+
+        </>
+      )}
+
+      {page === 'companies' && (
+        <>
       <div className="section-title">Companies</div>
       <div className="card">
         <div className="row row--between">
@@ -176,25 +294,153 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
         will be worth when a landing counts them properly.
       </p>
 
+      <div className="section-title">What companies ashore do</div>
+      <div className="card small">
+        <b>They hold the island.</b> One company is enough to hold any island against its own
+        opinion; an empty harbor is taken by whoever turns up with one. That is the first thing a
+        garrison is for and the reason a capital never sends its last one away.
+        <br />
+        <br />
+        <b>They keep it quiet.</b> An island firmly yours — {FIRM} and up — needs{' '}
+        {GARRISON_FOR_BAND.firm === 0 ? 'none' : GARRISON_FOR_BAND.firm}. A steady one asks for{' '}
+        {GARRISON_FOR_BAND.steady}, a thin one for {GARRISON_FOR_BAND.thin}, and under that it
+        rises; {GARRISON_FOR_BAND.uprising} will face down a {terms.mutiny.toLowerCase()} whatever
+        the island thinks of you.
+        <br />
+        <br />
+        <b>They watch the back door.</b> Every company takes a twentieth off what the smugglers are
+        running. A hand on the problem, never an answer to it — twenty companies would close a
+        harbor and nobody will ever keep twenty on one island.
+        <br />
+        <br />
+        <b>They are the landing party.</b> Aboard a fleet they cost the same {UPKEEP_PER_DAY.troop}{' '}
+        a day and go down with the hull carrying them, which is what makes a loaded transport worth
+        escorting and worth sinking. A landing needs more companies than are holding the island,
+        and no landing at all is possible while a seawall stands.
+      </div>
+
+        </>
+      )}
+
+      {page === 'people' && (
+        <>
+      <div className="section-title">What an officer is for</div>
+      <div className="card small">
+        <b>Four numbers, and each one is a different errand.</b>{' '}
+        <b>Diplomacy</b> wins islands over and stirs them up. <b>Espionage</b> is the quiet work —
+        sabotage, and carrying somebody off a quay. <b>Combat</b> tells in a landing and keeps them
+        alive when an errand goes wrong. <b>Leadership</b> is worth a hit chance to every gun in
+        the squadron they sail with, and holds an island quiet when they are posted to it.
+        <br />
+        <br />
+        <b>A posting is not an errand.</b> Put an officer in command of an island and they stay:
+        the island does not rise while they stand on it, and a stranger asking questions in its
+        harbor is far likelier to be found out. They are not available for anything else until
+        relieved, and leaving ends the posting.
+        <br />
+        <br />
+        <b>They can be taken.</b> Anyone of yours standing on an island the enemy can reach can be
+        carried off, and held. Captives come back in an exchange after {CAPTIVE_DAYS} days — which
+        is what makes the Crown's victory a window rather than a list, since it needs all three
+        Lords in irons at the same moment.
+      </div>
+
       <div className="section-title">Your crew</div>
       <div className="stack">
-        {roster.slice(0, 7).map((entry) => (
-          <div key={entry.id} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
-            <CharacterPortrait
-              name={entry.name}
-              faction={state.player}
-              people={entry.people}
-              size={40}
-            />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <b className="small">{entry.name}</b>
-              <div className="tiny muted" style={{ marginTop: 1 }}>
-                {entry.people} · {entry.roles.join(', ')}
-              </div>
-              <div className="tiny muted" style={{ marginTop: 4 }}>
-                {entry.bio}
+        {roster.map((entry) => (
+          <div key={entry.id} className="card">
+            <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
+              <CharacterPortrait
+                name={entry.name}
+                faction={state.player}
+                people={entry.people}
+                size={44}
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <b className="small">{entry.name}</b>
+                <div className="tiny muted" style={{ marginTop: 1 }}>
+                  {entry.people} · {entry.roles.join(', ')}
+                </div>
+                <div className="tiny muted" style={{ marginTop: 4 }}>
+                  {entry.bio}
+                </div>
               </div>
             </div>
+            <div className="statgrid">
+              <span><i>Diplomacy</i><b>{entry.ratings.diplomacy}</b></span>
+              <span><i>Espionage</i><b>{entry.ratings.espionage}</b></span>
+              <span><i>Combat</i><b>{entry.ratings.combat}</b></span>
+              <span><i>Leadership</i><b>{entry.ratings.leadership}</b></span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+        </>
+      )}
+
+      {page === 'islands' && (
+        <>
+      <div className="section-title">What an island is</div>
+      <div className="card small">
+        <b>Seventy-one of them, and every one is the same four questions.</b> Who holds it. What it
+        thinks of you, out of a hundred — and the two sides' shares always add to a hundred, so a
+        point you win is a point they lose. How much room it has to build on. And how many
+        companies are standing on it.
+        <br />
+        <br />
+        <b>Room is one pool.</b> Between four and twelve berths; every building takes one, and
+        companies and hulls take none. A starting island opens with eight to twelve. What is built
+        is what the island is worth: two earners and a yard is a going concern, and an island with
+        one berth left is a decision.
+        <br />
+        <br />
+        <b>Control is the garrison first.</b> One company ashore holds an island whatever it thinks
+        of you. Allegiance only decides who holds it when nobody is standing there — an island of
+        yours with an empty harbor and the enemy at {FLIP_SUPPORT_MIN} regard declares for them,
+        and nobody argues.
+      </div>
+
+      <div className="section-title">Settled, empty, and dark</div>
+      <div className="card small">
+        <b>A settled island</b> has people on it who have an opinion. It earns, it can rise, and it
+        is taken by landing more companies than are holding it — or by talking it round, if nobody
+        has chosen a side.
+        <br />
+        <br />
+        <b>An empty island</b> has nobody on it and belongs to nobody. There is nothing there to
+        fight: put one company on the beach and it is yours. Finish anything on it and it is
+        settled, loyal to you outright, and worth its four to ten berths — which makes the frontier
+        the cheapest capital in the game.
+        <br />
+        <br />
+        <b>A dark island</b> is one your charts do not have. You cannot send anyone to it, or sail
+        at it, until somebody has surveyed it. Three of the seven Reaches start dark, and what is
+        in their water starts dark with them.
+      </div>
+
+      <div className="section-title">The seven Reaches</div>
+      <p className="tiny muted" style={{ marginTop: 0 }}>
+        A chain of islands in one Sea. Allegiance won on one spills a fifth onto the rest of its
+        chain, so a Reach is the unit a war is actually fought in.
+      </p>
+      <div className="stack">
+        {reachData.reaches.map((reach) => (
+          <div key={reach.name} className="card row row--between small">
+            <span>
+              <b>{reach.name}</b>
+              <span className="tiny muted"> · {reach.sea}</span>
+            </span>
+            <span className="tiny muted">
+              {reach.islands.length} {terms.islands.toLowerCase()} ·{' '}
+              {reach.role === 'home'
+                ? "the Crown's"
+                : reach.role === 'contested'
+                  ? 'two a side'
+                  : reach.role === 'frontier'
+                    ? 'uncharted'
+                    : 'nobody\u2019s'}
+            </span>
           </div>
         ))}
       </div>
@@ -220,6 +466,11 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
         ))}
       </div>
 
+        </>
+      )}
+
+      {page === 'rules' && (
+        <>
       <div className="section-title">The words</div>
       <dl className="glossary">
         {(
@@ -282,6 +533,87 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
       {/* An action is the one place the game takes the wheel off the player
           for a moment, so the rules behind it had better be somewhere they can
           be read at leisure rather than at the moment of deciding. */}
+        </>
+      )}
+
+      {page === 'ships' && (
+        <>
+      {/* The whole class, every number the rules read. Sean asked for stats on
+          all units and this was the one category with none: the hulls were
+          four lines under the battle rules and the cost, the upkeep, the lift
+          and the weight against a wall were nowhere at all. */}
+      <div className="section-title">The four hulls</div>
+      <div className="stack">
+        {shipsFor(state.player).map((cls) => {
+          const spec = shipSpec(cls.id);
+          return (
+            <div key={cls.id} className="card">
+              <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
+                <ShipThumb faction={state.player} role={cls.role} size={52} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="row row--between">
+                    <b>{cls.name}</b>
+                    <span className="tiny muted">
+                      {spec.costGold} {terms.gold.toLowerCase()} · {spec.days}d
+                    </span>
+                  </div>
+                  <div className="tiny almanac__cost" style={{ marginTop: 2 }}>
+                    Costs {spec.upkeep} {terms.gold.toLowerCase()} a day
+                  </div>
+                  <div className="tiny muted" style={{ marginTop: 4 }}>{cls.blurb}</div>
+                </div>
+              </div>
+              <div className="statgrid">
+                <span><i>Guns</i><b>{spec.guns || '—'}</b></span>
+                <span><i>Hull</i><b>{spec.hull}</b></span>
+                <span><i>Against a wall</i><b>{spec.bombard || '—'}</b></span>
+                <span><i>Carries</i><b>{spec.carries || '—'}</b></span>
+                <span>
+                  <i>Pace</i>
+                  <b>{spec.pace < 1 ? 'Fast' : spec.pace > 1 ? 'Slow' : 'Steady'}</b>
+                </span>
+                <span><i>Getting clear</i><b>{spec.speed}/10</b></span>
+                <span><i>Broadsides</i><b>{GUN_DECKS[cls.role]}</b></span>
+                <span>
+                  <i>Long guns</i>
+                  <b>{spec.longGuns ? 'Yes' : 'No'}</b>
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="section-title">Which hull beats which</div>
+      <div className="card small">
+        <b>It goes round, not up.</b> Frigates take sloops, sloops take ships of the line, ships of
+        the line take frigates. A fleet of one kind has a hole in it the other side can aim at, and
+        no weight of sloops opens a fortified harbor.
+        <br />
+        <br />
+        <b>Three things make it turn.</b> A bigger hull is an easier target — a first-rate is hit{' '}
+        {Math.round(HULL_EASE.large * 100)}% as often as the dice say against a sloop's{' '}
+        {Math.round(HULL_EASE.small * 100)}%. A frigate's guns are handy against something small
+        and quick ({GUNNERY_ON_SMALL.medium.toFixed(2)}× on a sloop) where a first-rate's are not
+        ({GUNNERY_ON_SMALL.large.toFixed(2)}×). And weight is spread over decks: a ship of the line
+        fires {GUN_DECKS.large} broadsides of a third her weight rather than one great shot, so she
+        is not wasting thirty damage on a nine-hull sloop.
+        <br />
+        <br />
+        <b>Measured by the purse</b>, even gold a side: two frigates beat four sloops, four sloops
+        beat a first-rate, two first-rates beat three frigates.
+      </div>
+
+      <div className="section-title">Shot against the land</div>
+      <div className="card small">
+        A hull's weight against a wall is a different number from her guns, and a transport has
+        none of it. Shot goes at the walls while any stand; only when none do can it reach the
+        garrison, and it takes {BOMBARD_PER_COMPANY} of weight to break one company. Shot that goes
+        looking for companies in a town finds the town: the island's regard falls{' '}
+        {CIVILIAN_LOYALTY_HIT} a day, every island in the Reach hears of it, and each further day
+        costs more than the last.
+      </div>
+
       <div className="section-title">An action at sea</div>
       <div className="card small">
         <b>Where it happens.</b> Wherever your hulls and theirs lie in the same
@@ -363,6 +695,11 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
         })}
       </div>
 
+        </>
+      )}
+
+      {page === 'islands' && (
+        <>
       <div className="section-title">Reading the chart</div>
       <div className="card small">
         <b>One mark, three sizes.</b> Every island is a dot in the colour of whoever holds it, and
@@ -399,6 +736,11 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
         smugglers move — a hand on the problem, not an answer to it.
       </div>
 
+        </>
+      )}
+
+      {page === 'rules' && (
+        <>
       <div className="section-title">How the war is won</div>
       <div className="card small">
         <b>One way each.</b> The Confederacy wins the day it holds Highwater. The Crown wins the
@@ -411,6 +753,11 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
       {/* The three powers as rules, because they are rules. They used to live
           on three ship sheets, where a Crown player never saw them and a
           Confederate player only saw them by tapping a hull. */}
+        </>
+      )}
+
+      {page === 'people' && (
+        <>
       <div className="section-title">What the three Lords do</div>
       <div className="card small">
         Each of the three brings one thing nobody else in the war can. Two of them are paid for
@@ -425,6 +772,11 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
         ))}
       </div>
 
+        </>
+      )}
+
+      {page === 'rules' && (
+        <>
       <div className="section-title">Not built yet</div>
       <div className="card small muted">
         Tidecraft, the Leviathan, and a research tree with things in it are designed but not in the
@@ -433,6 +785,9 @@ export function Almanac({ state, onClose }: { state: GameState; onClose: () => v
         {' '}{terms.sabotage.toLowerCase()}, abduction, command of an island in revolt, and the yards.
         You never pick one; the island decides.
       </div>
+        </>
+      )}
+
     </Sheet>
   );
 }

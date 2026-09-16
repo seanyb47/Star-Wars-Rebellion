@@ -6,6 +6,7 @@ import {
   YARD_BUILDABLE,
   YARD_BUILDS,
   buildSpec,
+  FACILITY_LABEL,
   CRAFT_COST_STEP,
   CRAFT_DAYS_STEP,
   UPKEEP_PER_DAY,
@@ -19,7 +20,15 @@ import {
   pushEvent,
   setSupport,
 } from './helpers';
-import type { BuildItem, Facility, GameState, PlayableFaction, System } from './types';
+import type {
+  BuildItem,
+  Facility,
+  FacilityType,
+  Faction,
+  GameState,
+  PlayableFaction,
+  System,
+} from './types';
 
 export function findFacility(
   state: GameState,
@@ -30,6 +39,69 @@ export function findFacility(
     if (facility) return { system, facility };
   }
   return undefined;
+}
+
+/**
+ * How many works of this kind are standing on the island and able to work.
+ *
+ * Sean's rule, 16 September: *"if you have multiples on the same island they
+ * work together and increase the speed proportionally. If something were to
+ * take 60 days to build at a construction yard then three of them would
+ * complete the task in 20 days... and that will also change in the middle of
+ * the task."* So this is asked every morning rather than once when the order
+ * is placed, and a yard finished today shortens a job that started a month ago.
+ *
+ * A works still being laid down does not count — it is not there yet. Never
+ * less than one, because the order to lay down the island's first works has no
+ * works behind it by definition.
+ */
+export function crewOn(system: System, type: FacilityType, owner: Faction): number {
+  const hands = system.facilities.filter(
+    (f) => f.type === type && f.owner === owner && !f.founding,
+  ).length;
+  return Math.max(1, hands);
+}
+
+/** Which kind of works does this job: the one whose menu offers it. */
+export function makerFor(item: BuildItem): FacilityType {
+  if (item === 'troop') return 'training_facility';
+  if (isShipClass(item)) return 'shipyard';
+  return 'construction_yard';
+}
+
+/**
+ * Days until the thing is finished, not counting the passage — and days until
+ * it is where it is going, counting it.
+ *
+ * Both are worked out from today's crew, so they move when a yard is finished
+ * or lost rather than being a promise made on the day of the order.
+ */
+export function daysToFinish(system: System, facility: Facility): number {
+  const order = facility.building;
+  if (!order) return 0;
+  if (order.workLeft <= 0) return 0;
+  return Math.ceil(order.workLeft / crewOn(system, facility.type, facility.owner));
+}
+
+export function daysToDeliver(system: System, facility: Facility): number {
+  const order = facility.building;
+  if (!order) return 0;
+  return daysToFinish(system, facility) + order.travelLeft;
+}
+
+/**
+ * The works on this island already at this kind of work, if any.
+ *
+ * One job of a kind at a time, per island: an island with a yard, a slipway
+ * and a drill ground can have three things on the go and no more. The order
+ * sits on one works of the kind and the rest of them work on it.
+ */
+export function busyAt(
+  system: System,
+  type: FacilityType,
+  owner: Faction,
+): Facility | undefined {
+  return system.facilities.find((f) => f.type === type && f.owner === owner && f.building);
 }
 
 /** What a given facility is allowed to queue (spec 4.4). */
@@ -111,7 +183,15 @@ export function buildError(
   const { system, facility } = found;
   if (!isPlayable(facility.owner)) return 'That facility is not yours.';
   if (!buildMenu(facility).includes(item)) return 'This building cannot make that.';
-  if (facility.building) return 'Already building.';
+  // One job of a kind at a time, per island — not per works. The rest of the
+  // island's yards of that kind are not idle hands to give another job to;
+  // they are already on this one, which is why it goes faster.
+  const busy = busyAt(system, facility.type, facility.owner);
+  if (busy) {
+    return busy.founding
+      ? `The ${FACILITY_LABEL[facility.type].toLowerCase()} is still being laid down.`
+      : `${FACILITY_LABEL[facility.type]} busy: ${buildLabel(busy.building!.item)}.`;
+  }
   if (system.control !== facility.owner) return 'You do not hold this island.';
   if (system.uprising) return 'The island is in mutiny.';
 
@@ -160,22 +240,29 @@ export function queueBuild(
   const spec = effectiveSpec(state, facility.owner as PlayableFaction, item);
   state.factions[facility.owner as PlayableFaction].gold -= spec.costGold;
   const away = destinationId && destinationId !== system.id ? destinationId : undefined;
+  const passage = away ? travelDays(state, system.id, away) : 0;
   facility.building = {
     item,
-    daysRemaining: spec.days + (away ? travelDays(state, system.id, away) : 0),
+    work: spec.days,
+    workLeft: spec.days,
+    travel: passage,
+    travelLeft: passage,
     costGold: spec.costGold,
     ...(away ? { destinationId: away } : {}),
   };
 }
 
 /**
- * The order as the player will see it before placing it: which building of
- * theirs would make the thing for this island, how long the whole errand
- * takes with the passage, and why not if not.
+ * The order as the player will see it before placing it: which island's works
+ * would make the thing, how long the work takes there, how long the passage
+ * after it, and why not if not.
  *
- * The nearest free maker wins — the island's own first, then one in the same
- * Reach, then anywhere. A maker that could take the order but for gold still
- * reports, so the reason shown is the gold and not "nothing can build it".
+ * The *quickest* island wins rather than the nearest, which is new and is the
+ * whole point of yards working together: four slipways a fortnight away will
+ * have a first-rate in the water before one slipway next door, and before this
+ * the order went to the one next door every time. A maker that could take the
+ * order but for gold still reports, so the reason shown is the gold and not
+ * "nothing can build it".
  */
 export interface BuildPlan {
   facilityId: string | null;
@@ -198,23 +285,32 @@ export function planBuild(
 ): BuildPlan {
   const spec = effectiveSpec(state, faction, item);
   const upkeep = UPKEEP_PER_DAY[item];
-  const makers = producerFacilities(state, faction).filter(
-    ({ facility }) => !facility.founding && buildMenu(facility).includes(item),
-  );
+  const type = makerFor(item);
+  // One works of each kind speaks for its island: the rest of them are the
+  // crew, not separate offers. Taking the first keeps the order somewhere
+  // stable, and `crewOn` counts the others.
+  const seen = new Set<string>();
+  const makers = producerFacilities(state, faction).filter(({ system, facility }) => {
+    if (facility.founding || !buildMenu(facility).includes(item)) return false;
+    if (seen.has(system.id)) return false;
+    seen.add(system.id);
+    return true;
+  });
   const wanted = makers
     .map(({ system, facility }) => ({
       system,
       facility,
+      days: Math.ceil(spec.days / crewOn(system, type, faction)),
       travel: travelDays(state, system.id, destinationId),
       error: buildError(state, facility.id, item, destinationId),
     }))
-    .sort((a, b) => a.travel - b.travel);
+    .sort((a, b) => a.days + a.travel - (b.days + b.travel));
   const free = wanted.find((m) => m.error === null);
   if (free) {
     return {
       facilityId: free.facility.id,
       fromSystemId: free.system.id,
-      days: spec.days,
+      days: free.days,
       travel: free.travel,
       costGold: spec.costGold,
       upkeep,
@@ -222,24 +318,19 @@ export function planBuild(
     };
   }
   const nearest = wanted[0];
-  const maker =
-    item === 'troop'
-      ? terms.facilities.training_facility
-      : isShipClass(item)
-        ? terms.facilities.shipyard
-        : terms.facilities.construction_yard;
+  const maker = terms.facilities[type];
   return {
     facilityId: null,
     fromSystemId: nearest?.system.id ?? null,
-    days: spec.days,
+    days: nearest?.days ?? spec.days,
     travel: nearest?.travel ?? 0,
     costGold: spec.costGold,
     upkeep,
     error:
       makers.length === 0
         ? `No ${maker.toLowerCase()} of yours can make that yet.`
-        : nearest.error === 'Already building.'
-          ? `Every ${maker.toLowerCase()} of yours is busy.`
+        : wanted.every((m) => m.error?.startsWith(FACILITY_LABEL[type]) || m.error?.endsWith('laid down.'))
+          ? `Every ${maker.toLowerCase()} of yours is at work.`
           : nearest.error,
   };
 }
@@ -295,7 +386,14 @@ export function foundWorks(state: GameState, systemId: string, owner: PlayableFa
     type: 'construction_yard',
     owner,
     founding: true,
-    building: { item: 'construction_yard', daysRemaining: spec.days, costGold: spec.costGold },
+    building: {
+      item: 'construction_yard',
+      work: spec.days,
+      workLeft: spec.days,
+      travel: 0,
+      travelLeft: 0,
+      costGold: spec.costGold,
+    },
   });
 }
 
@@ -307,8 +405,21 @@ export function advanceBuilds(state: GameState): void {
       const order = facility.building;
       if (!order) continue;
       if (system.uprising) continue; // Nothing works on an island in mutiny.
-      order.daysRemaining -= 1;
-      if (order.daysRemaining > 0) continue;
+
+      // The work first, at whatever pace the island's works of this kind can
+      // manage today; then, when it is built, the passage. Kept in that order
+      // so a hull bound across the world is finished on the day the yard says
+      // and at sea from the morning after.
+      if (order.workLeft > 0) {
+        order.workLeft = Math.max(0, order.workLeft - crewOn(system, facility.type, facility.owner));
+        if (order.workLeft > 0) continue;
+        // Finished today. Anything with a crossing ahead of it sets out
+        // tomorrow; anything made here is done now.
+        if (order.travelLeft > 0) continue;
+      } else if (order.travelLeft > 0) {
+        order.travelLeft -= 1;
+        if (order.travelLeft > 0) continue;
+      }
 
       // Where it lands. An island lost while the order was at sea sends the
       // thing back to where it was made.
@@ -397,7 +508,11 @@ function completeBuild(
   system.explored[owner] = true;
 }
 
-/** Convenience for the UI: every yard/training facility a faction can order from. */
+/**
+ * Every works a faction could order from, island by island. More than one of a
+ * kind on the same island all appear: the caller decides whether it wants the
+ * island's offer (the first) or all the hands on it.
+ */
 export function producerFacilities(state: GameState, faction: PlayableFaction) {
   const out: Array<{ system: System; facility: Facility }> = [];
   for (const system of state.systems) {

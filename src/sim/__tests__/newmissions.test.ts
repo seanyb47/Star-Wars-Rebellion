@@ -180,7 +180,7 @@ describe('research', () => {
     const spec = effectiveSpec(state, 'empire', hull);
     queueBuild(state, slipway.id, hull);
     expect(state.factions.empire.gold).toBe(purse - spec.costGold);
-    expect(slipway.building!.daysRemaining).toBe(spec.days);
+    expect(slipway.building!.workLeft).toBe(spec.days);
   });
 });
 

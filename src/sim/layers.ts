@@ -59,9 +59,9 @@ export const CHART_LAYERS: LayerSpec[] = [
   { id: 'none', label: 'None', hint: 'The chart alone: no marks, just the sea and the Reaches.' },
   { id: 'allegiance', label: 'Loyalty', hint: 'Every island, coloured by whose it is and sized by how firmly they hold it: big is firm, small is thin and leaking trade to the other side.' },
   { id: 'idleCrew', label: 'Idle crew', hint: 'Islands where one of your officers is ashore with nothing to do.' },
-  { id: 'idleYards', label: 'Idle yards', hint: `A ${terms.facilities.construction_yard.toLowerCase()} of yours standing with no order on it.` },
-  { id: 'idleDrills', label: 'Idle training', hint: `A ${terms.facilities.training_facility.toLowerCase()} of yours drilling nobody.` },
-  { id: 'idleSlips', label: 'Idle shipyards', hint: `A ${terms.facilities.shipyard.toLowerCase()} of yours with nothing on the stocks.` },
+  { id: 'idleYards', label: 'Idle yards', hint: `Islands where your ${terms.facilities.construction_yard.toLowerCase()}s have no order on them, numbered by how many are standing — three means a job here takes a third the days.` },
+  { id: 'idleDrills', label: 'Idle training', hint: `Islands where your ${terms.facilities.training_facility.toLowerCase()}s are drilling nobody, numbered by how many would fall on the next company.` },
+  { id: 'idleSlips', label: 'Idle shipyards', hint: `Islands where your ${terms.facilities.shipyard.toLowerCase()}s have nothing on the stocks, numbered by how many would work the next hull together.` },
   { id: 'room', label: 'Available land', hint: `Islands of yours with berths still open, sized by how many: big is ${ROOM_AMPLE} or more, small is one.` },
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
   { id: 'garrisons', label: 'Garrisons', hint: `Islands of yours holding companies ashore, sized by how many: big is ${GARRISON_STRONG} or more, small is under ${GARRISON_FAIR}.` },
@@ -163,9 +163,17 @@ export interface LayerMark {
 const DARK: LayerMark = { lit: false };
 
 /**
- * Whether a facility of yours is standing idle: yours, finished, on an island
- * you hold that is not in revolt, and with something it could be building.
- * A yard with nothing left to build is not idle, it is done.
+ * Hands of yours standing idle at this kind of work, on this island.
+ *
+ * Not a count of empty buildings. One job of a kind at a time per island, so
+ * the moment any works of that kind takes an order they are all on it and the
+ * island is busy — and the number, when it is free, is how many of them would
+ * fall on a new order, which is how much faster it would go here. Three is an
+ * island where a job takes a third the days.
+ *
+ * Yours, finished, on an island you hold that is not in revolt, and with
+ * something it could be building: a yard with nothing left to build is not
+ * idle, it is done.
  */
 export function idleFacilities(
   system: System,
@@ -173,9 +181,11 @@ export function idleFacilities(
   type: FacilityType,
 ): number {
   if (system.control !== faction || system.uprising) return 0;
-  return system.facilities.filter(
-    (f) => f.owner === faction && f.type === type && !f.building && buildMenu(f).length > 0,
-  ).length;
+  const ofKind = system.facilities.filter(
+    (f) => f.owner === faction && f.type === type && buildMenu(f).length > 0,
+  );
+  if (ofKind.some((f) => f.building)) return 0;
+  return ofKind.filter((f) => !f.founding).length;
 }
 
 /**

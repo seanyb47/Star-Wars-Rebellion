@@ -581,6 +581,7 @@ export function App() {
         soundOn={sound.on}
         onToggleSound={sound.toggle}
         onSetSpeed={(speed: Speed) => setState(setSpeed(state, speed))}
+        onOpenAlmanac={() => setAlmanacOpen(true)}
         onOpenMenu={() => setMenuOpen(true)}
       />
 

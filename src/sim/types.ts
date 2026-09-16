@@ -257,13 +257,32 @@ export interface Facility {
 
 export interface BuildOrder {
   item: BuildItem;
-  daysRemaining: number;
+  /**
+   * The job, in works-days: what one works of its kind would take alone.
+   *
+   * Not days left. Every works of that kind standing on the island takes a day
+   * off it each day, so three yards finish a sixty-day job in twenty, and a
+   * fourth finished halfway through shortens what is left from that morning on.
+   * Days to go is `ceil(workLeft / how many are working)`, which is a question
+   * about today rather than a number written down when the order was placed.
+   */
+  work: number;
+  workLeft: number;
+  /**
+   * The passage after the work, when the thing is bound somewhere else. Kept
+   * apart from the work because they are different questions: how long until
+   * it is finished, and how long until it is *there*. It used to be one number
+   * with the crossing folded in, which made a hull built in a day and sailed
+   * for thirty look the same as one built in thirty and delivered on the spot.
+   */
+  travel: number;
+  travelLeft: number;
   costGold: number;
   /**
    * Where the thing lands when it is done, when that is not the island it is
    * made on: a company drilled here and shipped there, a hull that sails to
-   * its station, builders sent to raise a camp on an island with no works.
-   * The passage is counted into the days.
+   * join a squadron on station, builders sent across the world to raise a
+   * seawall on an island that could never have built one itself.
    */
   destinationId?: string;
 }

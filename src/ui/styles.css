@@ -1814,3 +1814,47 @@ button.tcard:hover { border-color: var(--brass); }
   font-variant-numeric: tabular-nums; dominant-baseline: middle;
 }
 .chainmap__berths--none { fill: #6d8490; font-weight: 500; }
+
+/* --- What a works is making, and how far along -------------------------- */
+/* One bar from ordered to arrived. The notch is where the building stops and
+   the sailing starts, so a hull nearly finished with a fortnight's passage
+   ahead of it does not read as nearly delivered. */
+.works__order {
+  margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
+}
+.works__crew { color: var(--metal); }
+.workbar {
+  position: relative; height: 6px; border-radius: 3px; overflow: hidden;
+  background: #0d2f3a; margin: 6px 0 5px;
+}
+.workbar > span {
+  display: block; height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--metal-lo), var(--metal-hi));
+  transition: width 240ms ease-out;
+}
+.workbar__mark {
+  position: absolute; top: -1px; bottom: -1px; width: 1px;
+  background: var(--chrome-text); opacity: 0.55;
+}
+.workbar--halted > span { background: #55707d; }
+.works__clock { color: var(--muted); }
+.works__clock b { color: var(--chrome-text); font-weight: 600; }
+.works__dot { margin: 0 5px; opacity: 0.5; }
+.works__to { font-style: italic; }
+.works__halted { color: var(--bad, #d8533f); }
+
+/* --- A unit's numbers, in the encyclopedia ------------------------------ */
+/* Four to eight little figures under a card. A grid rather than a row so a
+   phone wraps them into even columns instead of scrolling sideways. */
+.statgrid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  margin-top: 8px; background: var(--border);
+  border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+}
+.statgrid > span {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 5px 2px; background: var(--card, #10333f);
+}
+.statgrid i { font-style: normal; font-size: 9px; letter-spacing: 0.03em; color: var(--muted); text-align: center; }
+.statgrid b { font-size: 13px; color: var(--chrome-text); }
+@media (max-width: 380px) { .statgrid { grid-template-columns: repeat(2, 1fr); } }

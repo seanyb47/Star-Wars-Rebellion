@@ -32,7 +32,9 @@ describe('queueing builds', () => {
     state.factions.empire.gold = 100;
     queueBuild(state, facility.id, 'mine');
     expect(state.factions.empire.gold).toBe(60);
-    expect(facility.building).toEqual({ item: 'mine', daysRemaining: 8, costGold: 40 });
+    expect(facility.building).toEqual({
+      item: 'mine', work: 8, workLeft: 8, travel: 0, travelLeft: 0, costGold: 40,
+    });
   });
 
   it('refuses an order the treasury cannot cover', () => {
@@ -43,12 +45,12 @@ describe('queueing builds', () => {
     expect(() => queueBuild(state, facility.id, 'mine')).toThrow();
   });
 
-  it('refuses a second order on a busy facility', () => {
+  it('refuses a second order on works already at that kind of work', () => {
     const state = generateGalaxy(201);
     const { facility } = yardOf(state, 'empire');
     state.factions.empire.gold = 500;
     queueBuild(state, facility.id, 'mine');
-    expect(buildError(state, facility.id, 'refinery')).toBe('Already building.');
+    expect(buildError(state, facility.id, 'refinery')).toMatch(/busy: /);
   });
 
   it('refuses anything that needs a berth when the island is full', () => {
@@ -140,7 +142,7 @@ describe('completing builds', () => {
     queueBuild(state, facility.id, 'mine');
     system.uprising = true;
     for (let day = 0; day < 20; day++) advanceBuilds(state);
-    expect(findFacility(state, facility.id)!.facility.building!.daysRemaining).toBe(8);
+    expect(findFacility(state, facility.id)!.facility.building!.workLeft).toBe(8);
   });
 });
 
@@ -166,7 +168,7 @@ describe('laying down a works', () => {
     expect(state.factions.empire.gold).toBe(80);
     const works = island.facilities.find((f) => f.type === 'construction_yard')!;
     expect(works.founding).toBe(true);
-    expect(works.building?.daysRemaining).toBe(20);
+    expect(works.building?.workLeft).toBe(20);
     for (let d = 0; d < 20; d++) advanceBuilds(state);
     expect(works.building).toBeUndefined();
     expect(works.founding).toBeUndefined();
@@ -212,7 +214,10 @@ describe('orders sent to another island', () => {
     queueBuild(state, facility.id, 'mine', there.id);
     // Passage is a distance now, so ask for the figure rather than knowing it.
     const sail = travelDays(state, system.id, there.id);
-    expect(facility.building).toEqual({ item: 'mine', daysRemaining: 8 + sail, costGold: 40, destinationId: there.id });
+    expect(facility.building).toEqual({
+      item: 'mine', work: 8, workLeft: 8, travel: sail, travelLeft: sail,
+      costGold: 40, destinationId: there.id,
+    });
     const minesBefore = there.facilities.filter((f) => f.type === 'mine').length;
     const hereBefore = system.facilities.length;
     for (let d = 0; d < 8 + sail; d++) advanceBuilds(state);

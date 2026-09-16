@@ -8,10 +8,12 @@ import type { GameState } from './types';
  * carrying three hulls of classes that no longer have numbers; v6 gave the
  * land a say — walls with a condition, bombardment, and hull damage that mends
  * — so a v5 save has an unwalled capital and a war that cannot be fought the
- * way this one is.
+ * way this one is; v7 made a build order a job in works-days with the passage
+ * kept separate, so a v6 save's orders count down a number that no longer
+ * exists and every yard on it would sit at work forever.
  * An older save cannot be read and is not offered.
  */
-export const SAVE_KEY = 'seven-seas.save.v6';
+export const SAVE_KEY = 'seven-seas.save.v7';
 
 /** Saving is just `JSON.stringify` — the whole game is one plain object. */
 export function saveGame(state: GameState, storage: Storage | undefined = globalThis.localStorage): void {

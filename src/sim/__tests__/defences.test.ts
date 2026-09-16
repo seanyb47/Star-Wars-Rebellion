@@ -108,7 +108,9 @@ describe('forts', () => {
     const state = world();
     const port = mineWithWater(state);
     build(port, 'fort');
-    port.facilities.at(-1)!.building = { item: 'fort', daysRemaining: 3, costGold: 100 };
+    port.facilities.at(-1)!.building = {
+      item: 'fort', work: 3, workLeft: 3, travel: 0, travelLeft: 0, costGold: 100,
+    };
     expect(fortGuns(port)).toBe(0);
     port.facilities.at(-1)!.building = undefined;
     expect(fortGuns(port)).toBe(FORT_GUNS);

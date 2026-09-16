@@ -2567,3 +2567,90 @@ arm measures the Crown seat and should be read that way.
 holding fifty islands and standing off Highwater with fourteen weight of shot.
 The siege train is the hardest thing in the game to put together, which is
 probably correct for a capital with two seawalls, but it is the thing to watch.
+
+## Yards that work together, and an encyclopedia — 16 September
+
+Sean, on the economy and the build panel:
+
+> The construction yard situation is odd… Only one thing can be produced by a
+> construction yard, a shipyard or a troop training facility at a time. If you
+> have multiples on the same island they work together and increase the speed
+> proportionally — if something were to take 60 days at a construction yard then
+> three of them would complete the task in 20 days. And that will also change in
+> the middle of the task… on any given island it is possible to have three things
+> being built maximum. And needs a progress bar… how many days to completion (not
+> including travel time) and how many days to deploy (including travel time) and
+> where it's scheduled to deploy to.
+
+### A job is works-days now, not days
+
+The order used to carry `daysRemaining`, one number with the crossing folded
+into it, decremented once a day by the one building that held it. Three things
+were wrong with that and all three were Sean's point:
+
+1. **Three yards were three separate builders.** An island with three could
+   raise three buildings at once, each at one-yard pace. Now the island raises
+   one, at three-yard pace — the same total throughput, a completely different
+   decision.
+2. **The clock was written down at the order.** A `work`/`workLeft` pair in
+   works-days is divided by *today's* crew, so a yard finished this morning
+   shortens a job begun last month, and a yard lost to a landing slows one. Days
+   to go is a question, not a promise. Sean's own example is a test:
+   `a yard finished mid-task shortens what is left from that morning`.
+3. **Build and passage were one number.** They are separate fields now, and the
+   panel says both: **2d to build · 9d to deploy · bound for Highwater**.
+
+One works of a kind holds the order and the rest are its crew, which keeps the
+data where it was and makes `crewOn` the only new concept. `planBuild` now picks
+the **quickest** island rather than the nearest — four slipways a fortnight away
+have a first-rate in the water before one slipway next door, and the old rule
+sent the order next door every time.
+
+The bar runs from ordered to arrived with a notch where the building stops and
+the sailing starts, because a hull three days off the stocks with a fortnight's
+passage ahead of it is not nearly delivered.
+
+**Knock-on:** the *Idle yards* filter counted empty buildings. One job to an
+island means the moment any yard takes an order they are all on it, so it
+answers per island now — and the numeral became more useful rather than less:
+three means a job here takes a third the days.
+
+Saves go to **v7**. A v6 order counts down a field that no longer exists, so its
+yards would sit at work forever.
+
+### The encyclopedia
+
+> Add to the utility panel an encyclopedia that has info and stats on all
+> units… personnel, garrisons, buildings (including defensive structures),
+> ships, islands. So a player can pause the game if they want and research.
+
+The Almanac had most of the prose and was reachable only through the gear menu —
+where you go to quit, not to look something up mid-war. It is six tabs now, with
+a book on the utility rail beside the clock:
+
+| | what was missing |
+|---|---|
+| **Crew** | what the four ratings actually do; the full roster with its numbers, not seven names and a bio |
+| **Companies** | what a garrison is *for*, in four parts: holding, quieting, watching the back door, and being the landing party |
+| **Buildings** | how a thing gets built at all — the new yard rule — and standing defences, which had no page anywhere |
+| **Ships** | **everything.** The hulls were four lines under the battle rules; cost, upkeep, lift, broadsides and weight against a wall were nowhere |
+| **Islands** | what an island is, settled vs empty vs dark, and the seven Reaches |
+| **Rules** | the glossary, the sea action, the bestiary, how the war is won |
+
+Every figure is read out of the same constants the simulation runs on, so the
+page cannot quietly go out of date.
+
+### Measured
+
+Ten new tests pin the yard rule, Sean's mid-task example among them. 377 green.
+
+| 60 fresh wars | idle, 30 | pilot at the wheel, 30 |
+|---|---|---|
+| before | Crown 15 — Confederacy 12, 3 unfinished | 19 — 10, 1 unfinished |
+| after | Crown 14 — Confederacy 11, 5 unfinished | 19 — 10, 1 unfinished |
+| invariants | clean every day | clean every day |
+
+Balance-neutral, which is what it should be: the rule changes the granularity of
+building, not the rate. The two extra unfinished idle wars are the same siege-train
+problem already on the board — the Confederacy holding fifty islands and standing
+off Highwater with fourteen weight of shot.

@@ -15,6 +15,9 @@ import {
   smuggledOff,
   UPKEEP_PER_DAY,
   buildError,
+  crewOn,
+  daysToFinish,
+  daysToDeliver,
   buildLabel,
   buildMenu,
   foundWorksError,
@@ -28,6 +31,7 @@ import {
   supportMultiplier,
   type BuildItem,
   type Facility,
+  type FacilityType,
   type GameState,
   type Sector,
   type System,
@@ -134,55 +138,131 @@ function facilityOutput(system: System, facility: Facility): string | null {
     : FACILITY_BLURB[facility.type];
 }
 
-function FacilityCard({
+/**
+ * One island's works of a kind: the yards, the slipways or the drill grounds.
+ *
+ * A card per kind rather than per building, because that is now the unit the
+ * rules work in. Sean's ruling, 16 September: *"only one thing can be produced
+ * by a construction yard, a shipyard or a troop training facility at a time. If
+ * you have multiples on the same island they work together and increase the
+ * speed proportionally."* So three slipways are not three offers to build a
+ * hull — they are one offer, three times as fast, and the card says so.
+ */
+function WorksCard({
   state,
   system,
-  facility,
+  type,
+  facilities,
   onBuild,
   onCancel,
 }: {
   state: GameState;
   system: System;
-  facility: Facility;
+  type: FacilityType;
+  facilities: Facility[];
   onBuild: (facilityId: string, item: BuildItem) => void;
   onCancel: (facilityId: string) => void;
 }) {
-  const menu = buildMenu(facility);
-  const mine = facility.owner === state.player;
-  const order = facility.building;
-  const output = facilityOutput(system, facility);
+  // The one holding the order speaks for the island; failing that, the first.
+  const holder = facilities.find((f) => f.building) ?? facilities[0];
+  const menu = buildMenu(holder);
+  const mine = holder.owner === state.player;
+  const order = holder.building;
+  const hands = crewOn(system, type, holder.owner);
+  const output = facilityOutput(system, holder);
+  const bound =
+    order?.destinationId && order.destinationId !== system.id
+      ? state.systems.find((s) => s.id === order.destinationId)
+      : undefined;
+  const build = daysToFinish(system, holder);
+  const deploy = daysToDeliver(system, holder);
+  // Where the bar is: the work first, then the passage, as one journey from
+  // ordered to arrived. A hull three days from the stocks with a fortnight's
+  // sailing ahead of it is not nearly finished, and a bar that said so by
+  // work alone would be lying about when it turns up.
+  const whole = order ? order.work + order.travel : 1;
+  const done = order ? order.work - order.workLeft + (order.travel - order.travelLeft) : 0;
 
   return (
     <div className="card">
       <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
         <span className="facility__thumb">
-          <FacilityThumb type={facility.type} owner={facility.owner} width={96} />
+          <FacilityThumb type={type} owner={holder.owner} width={96} />
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="row row--between">
-            <div style={{ fontWeight: 600 }}>{FACILITY_LABEL[facility.type]}</div>
-            {facility.owner !== state.player && <ControlBadge faction={facility.owner} />}
+            <div style={{ fontWeight: 600 }}>
+              {facilities.length > 1 ? `${facilities.length}× ` : ''}
+              {FACILITY_LABEL[type]}
+            </div>
+            {holder.owner !== state.player && <ControlBadge faction={holder.owner} />}
           </div>
           {output && (
             <div className="tiny muted" style={{ marginTop: 2 }}>
               {output}
             </div>
           )}
+          {hands > 1 && (
+            <div className="tiny works__crew" style={{ marginTop: 2 }}>
+              {hands} of them, working together — {hands}× the pace on one job at a time.
+            </div>
+          )}
         </div>
       </div>
 
       {order && (
-        <div className="row row--between small muted" style={{ marginTop: 6 }}>
-          <span>
-            Building {buildLabel(order.item)} —{' '}
-            {order.daysRemaining}d left
-            {system.uprising ? ' (halted)' : ''}
-          </span>
-          {mine && (
-            <button className="tiny btn--danger" onClick={() => onCancel(facility.id)}>
-              Cancel
-            </button>
-          )}
+        <div className="works__order">
+          <div className="row row--between small">
+            <b>{buildLabel(order.item)}</b>
+            {mine && (
+              <button className="tiny btn--danger" onClick={() => onCancel(holder.id)}>
+                Cancel
+              </button>
+            )}
+          </div>
+
+          <div
+            className={`workbar${system.uprising ? ' workbar--halted' : ''}`}
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={whole}
+            aria-valuenow={done}
+            aria-label={`${buildLabel(order.item)}, ${deploy} days from delivery`}
+          >
+            <span style={{ width: `${Math.min(100, Math.max(2, (done / whole) * 100))}%` }} />
+            {order.travel > 0 && (
+              <i className="workbar__mark" style={{ left: `${(order.work / whole) * 100}%` }} />
+            )}
+          </div>
+
+          {/* The two numbers Sean asked for, kept apart: when it is finished,
+              and when it is *there*. Identical when it is being made where it
+              is wanted, and then only one of them is worth the line. */}
+          <div className="tiny works__clock">
+            {system.uprising ? (
+              <span className="works__halted">
+                Halted — the island is in {terms.mutiny.toLowerCase()}.
+              </span>
+            ) : order.workLeft > 0 ? (
+              <span>
+                <b>{build}d</b> to build
+              </span>
+            ) : (
+              <span>
+                <b>Built</b>, at sea
+              </span>
+            )}
+            {bound && (
+              <>
+                <span className="works__dot">·</span>
+                <span>
+                  <b>{deploy}d</b> to deploy
+                </span>
+                <span className="works__dot">·</span>
+                <span className="works__to">bound for {bound.name}</span>
+              </>
+            )}
+          </div>
         </div>
       )}
 
@@ -191,15 +271,18 @@ function FacilityCard({
           {menu.map((item) => {
             // What it costs this side today, not the sticker price: research
             // takes gold and days off a hull, and a button that keeps quoting
-            // the old figure makes the whole errand invisible.
-            const spec = { ...buildSpec(item), ...effectiveSpec(state, facility.owner as PlayableFaction, item) };
-            const error = buildError(state, facility.id, item);
+            // the old figure makes the whole errand invisible. And what it
+            // takes *here*, which is the sticker days over however many of
+            // these are standing on the island.
+            const spec = { ...buildSpec(item), ...effectiveSpec(state, holder.owner as PlayableFaction, item) };
+            const days = Math.ceil(spec.days / hands);
+            const error = buildError(state, holder.id, item);
             return (
               <button
                 key={item}
                 className="build"
                 disabled={error !== null}
-                onClick={() => onBuild(facility.id, item)}
+                onClick={() => onBuild(holder.id, item)}
                 title={error ?? undefined}
               >
                 <span className="build__icon">
@@ -214,7 +297,7 @@ function FacilityCard({
                 <span className="build__text">
                   <span className="build__name">{spec.label}</span>
                   <span className="build__meta">
-                    {error ?? `${spec.costGold} ${terms.gold.toLowerCase()} · ${spec.days}d`}
+                    {error ?? `${spec.costGold} ${terms.gold.toLowerCase()} · ${days}d`}
                   </span>
                 </span>
               </button>
@@ -318,9 +401,16 @@ export function SystemSheet({
       c.mission.phase === 'travelling',
   );
   const slots = system.slots;
-  const producers = system.facilities.filter(
-    (f) => f.owner === state.player && !f.founding && buildMenu(f).length > 0,
-  );
+  // The island's makers, folded by kind: one card per kind, because one kind
+  // does one job at a time however many of them stand here.
+  const producers = (() => {
+    const byKind = new Map<FacilityType, Facility[]>();
+    for (const f of system.facilities) {
+      if (f.owner !== state.player || f.founding || buildMenu(f).length === 0) continue;
+      byKind.set(f.type, [...(byKind.get(f.type) ?? []), f]);
+    }
+    return [...byKind].map(([type, facilities]) => ({ type, facilities }));
+  })();
   // Who is actually ashore, company by company. Same length as the garrison
   // count the rest of the game runs on; this only says what they are.
   const roster = garrisonRoster(system);
@@ -328,21 +418,35 @@ export function SystemSheet({
   const garrison = byRemembered(garrisonSummary(system), (e) => e.type.id, system.garrisonOrder);
   /**
    * What stands here, as rows. Grouped, two mines of the same owner are one
-   * line with a count; a building still going up is never folded in with a
-   * finished one, because "2x Mine, 14d" would be a lie about both of them.
+   * line with a count.
+   *
+   * A works that is *making* something used to be kept out of its own group,
+   * on the reasoning that "2× Mill, 14d" is a lie about both of them. It is
+   * not a lie about yards any more: all three of an island's yards are on the
+   * same job, so splitting the one carrying the order out of the row read as
+   * two separate sets of buildings. So: a works being *laid down* still stands
+   * alone, because it is genuinely not the same thing as a finished one; a
+   * finished works with an order on it folds in with its fellows, and the row
+   * carries the days.
    */
   const works = (() => {
-    const out: Array<Facility & { count: number; ids: string[] }> = [];
+    const out: Array<Facility & { count: number; ids: string[]; days?: number }> = [];
     for (const facility of system.facilities) {
       const fold =
         prefs.group &&
-        !facility.building &&
-        out.find((f) => f.type === facility.type && f.owner === facility.owner && !f.building);
+        !facility.founding &&
+        out.find((f) => f.type === facility.type && f.owner === facility.owner && !f.founding);
       if (fold) {
         fold.count += 1;
         fold.ids.push(facility.id);
+        if (facility.building) fold.days = daysToDeliver(system, facility);
       } else {
-        out.push({ ...facility, count: 1, ids: [facility.id] });
+        out.push({
+          ...facility,
+          count: 1,
+          ids: [facility.id],
+          ...(facility.building ? { days: daysToDeliver(system, facility) } : {}),
+        });
       }
     }
     return out;
@@ -510,7 +614,7 @@ export function SystemSheet({
                     ? `${facility.count}× ${FACILITY_LABEL[facility.type]}`
                     : FACILITY_LABEL[facility.type]
                 }
-                note={facility.building ? `${facility.building.daysRemaining}d` : undefined}
+                note={facility.days !== undefined ? `${facility.days}d` : undefined}
                 tone={facility.owner !== state.player ? 'dim' : undefined}
                 order={
                   prefs.reorder && works.length > 1 && onOrderFacilities
@@ -532,12 +636,13 @@ export function SystemSheet({
 
           {producers.length > 0 && <div className="section-title">Order something built</div>}
           <div className="stack">
-            {producers.map((facility) => (
-              <FacilityCard
-                key={facility.id}
+            {producers.map((works) => (
+              <WorksCard
+                key={works.type}
                 state={state}
                 system={system}
-                facility={facility}
+                type={works.type}
+                facilities={works.facilities}
                 onBuild={onBuild}
                 onCancel={onCancel}
               />
@@ -555,7 +660,7 @@ export function SystemSheet({
                     <div className="row" style={{ gap: 8, alignItems: 'center' }}>
                       <p className="muted tiny" style={{ margin: 0, flex: 1 }}>
                         A {terms.facilities.construction_yard.toLowerCase()} is being laid down —{' '}
-                        {founding.building?.daysRemaining} days to go.
+                        {daysToDeliver(system, founding)} days to go.
                       </p>
                       <button className="tiny btn--danger" onClick={() => onCancel(founding.id)}>
                         Cancel

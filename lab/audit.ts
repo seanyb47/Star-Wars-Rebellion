@@ -53,8 +53,15 @@ export function audit(s: GameState): Violation[] {
     // nothing else, so companies there are the rule rather than a fault.
     if (sys.uprising && (sys.control === 'none' || sys.control === 'neutral')) bad('uprising-unheld', `${sys.name} ${sys.control}`);
     for (const fac of sys.facilities) {
-      if (fac.building && (!num(fac.building.daysRemaining) || fac.building.daysRemaining < 0))
-        bad('build-days-bad', `${sys.name} ${fac.building.item} ${fac.building.daysRemaining}`);
+      if (
+        fac.building &&
+        (!num(fac.building.workLeft) ||
+          fac.building.workLeft < 0 ||
+          !num(fac.building.travelLeft) ||
+          fac.building.travelLeft < 0 ||
+          fac.building.workLeft > fac.building.work)
+      )
+        bad('build-days-bad', `${sys.name} ${fac.building.item} ${fac.building.workLeft}/${fac.building.work} +${fac.building.travelLeft}`);
     }
     if (sys.beastDamage !== undefined && (!num(sys.beastDamage) || sys.beastDamage < 0))
       bad('beast-damage-bad', `${sys.name} ${sys.beastDamage}`);

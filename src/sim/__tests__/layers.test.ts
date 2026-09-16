@@ -55,10 +55,12 @@ describe('chart layers', () => {
     const before = layerMark(state, mine, 'idleYards', 'empire').count ?? 0;
     expect(before).toBeGreaterThan(0);
 
-    // Busy is not idle.
-    yard.building = { item: 'mine', daysRemaining: 4, costGold: 40 };
-    expect(layerMark(state, mine, 'idleYards', 'empire').count ?? 0).toBe(before - 1);
+    // Busy is not idle — and one job puts every yard on the island to work,
+    // so an island with an order on it has no idle hands at all.
+    yard.building = { item: 'mine', work: 4, workLeft: 4, travel: 0, travelLeft: 0, costGold: 40 };
+    expect(layerMark(state, mine, 'idleYards', 'empire').lit).toBe(false);
     yard.building = undefined;
+    expect(layerMark(state, mine, 'idleYards', 'empire').count ?? 0).toBe(before);
 
     // Nor is an island in revolt: nothing is being worked there at all.
     mine.uprising = true;

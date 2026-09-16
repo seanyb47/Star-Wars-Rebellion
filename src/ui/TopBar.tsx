@@ -48,6 +48,24 @@ function GearIcon() {
   );
 }
 
+/**
+ * The encyclopedia, on the rail beside the clock.
+ *
+ * Sean: *"add to the utility panel an encyclopedia that has info and stats on
+ * all units... so a player can pause the game if they want and research."* It
+ * was reachable only through the menu, which is where you go to quit, not to
+ * look something up mid-war.
+ */
+function BookIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 5.2c2.6-1 5.3-1 8 0v13.4c-2.7-1-5.4-1-8 0z" />
+      <path d="M20 5.2c-2.6-1-5.3-1-8 0v13.4c2.7-1 5.4-1 8 0z" />
+      <path d="M12 5.2v13.4" />
+    </svg>
+  );
+}
+
 function SoundIcon({ on }: { on: boolean }) {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -63,6 +81,7 @@ export function TopBar({
   soundOn,
   onToggleSound,
   onSetSpeed,
+  onOpenAlmanac,
   onOpenMenu,
 }: {
   state: GameState;
@@ -70,6 +89,7 @@ export function TopBar({
   soundOn: boolean;
   onToggleSound: () => void;
   onSetSpeed: (speed: Speed) => void;
+  onOpenAlmanac: () => void;
   onOpenMenu: () => void;
 }) {
   const longPress = useRef<{ timer: number; fired: boolean }>({ timer: 0, fired: false });
@@ -157,6 +177,9 @@ export function TopBar({
         >
           <span className="speed__dots">{speedDots(state.speed)}</span>
           <span>{autoPaused && state.speed !== 'paused' ? 'Held' : SPEED_LABEL[state.speed]}</span>
+        </button>
+        <button className="iconbtn" onClick={onOpenAlmanac} aria-label="Encyclopedia">
+          <BookIcon />
         </button>
         <button
           className={`iconbtn${soundOn ? ' iconbtn--on' : ''}`}
