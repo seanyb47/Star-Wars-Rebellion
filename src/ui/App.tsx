@@ -37,6 +37,7 @@ import {
   type GameState,
   type PlayableFaction,
   type Speed,
+  orderClearForest,
   orderFoundWorks,
   type MissionType,
 } from '../sim';
@@ -286,6 +287,23 @@ export function App() {
 
   const handleCancel = (facilityId: string) => {
     setState(cancelOrder(state, facilityId).state);
+  };
+
+  /**
+   * Fell a forest. The one thing in the game that cannot be undone, so it
+   * asks first — a tapped-by-accident stand of timber is income gone for the
+   * rest of the war.
+   */
+  const handleClear = (systemId: string) => {
+    const island = state.systems.find((s) => s.id === systemId);
+    const ok = window.confirm(
+      `Fell the timber on ${island?.name ?? 'this island'}?\n\n` +
+        'It opens the plot for anything you like. The forest is destroyed and does not grow back.',
+    );
+    if (!ok) return;
+    const result = orderClearForest(state, systemId);
+    if (result.error) flash(result.error);
+    setState(result.state);
   };
 
   const handleFound = (systemId: string) => {
@@ -727,6 +745,7 @@ export function App() {
           onBuild={handleBuild}
           onCancel={handleCancel}
           onFound={handleFound}
+          onClear={handleClear}
           onSail={handleSail}
           onAssault={handleAssault}
           onBombard={handleBombard}

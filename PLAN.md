@@ -2822,3 +2822,80 @@ a side holding thirty or forty islands with two of the three Lords in irons and
 no way to hold all three at once inside the sixty-day exchange window. Wars are
 longer now, so that window closes more often. **That is the open question from
 two days ago and it is now the main reason a war does not end** — worth a ruling.
+
+## Settled ground, felling timber, and nothing running out — 16 September
+
+> The difference between settled and unsettled will be settled islands will
+> have resources already converted. Some, not necessarily all.
+>
+> Oh also forests can be cleared to make room for other facilities, not just
+> mills. But if cleared it's destroyed.
+>
+> Resources never run out in the game.
+
+### Settled islands open part-worked
+
+A settled island now opens with thirty to seventy per cent of its ground
+already turned into mills and mines — rolled per island, always at least one,
+never all of it. Measured: a neutral island averages **2.0 worked and 2.1 still
+raw**, and not one of them opens bare. An empty island averages **3.9 raw
+deposits and nothing worked at all**.
+
+That is a good difference. An empty island is cheap ground with all its worth
+in front of you; a settled one is a going concern you take for what is standing
+on it.
+
+### Which forced a change nobody had noticed was missing
+
+**Facilities never changed hands with the island.** Take an island and its
+mills stayed the enemy's — earning nobody anything, on ground already spent.
+Nothing in the game did this and it went unnoticed while an island's worth was
+*berths*: you took the place and built your own works on what was left.
+
+With resources it is fatal. A captured island's mills stand on forests that
+have already been cut, so the works earn nothing, the ground is gone, and the
+island is barren for ever. So an island hands over everything standing on it —
+which is what the defences have always done, since a seawall fires for whoever
+holds the island and never for whoever paid for it. Anything still *being*
+built is lost with the old holder; the builders scatter when the boats come in.
+
+### Felling timber
+
+The one order in the game that takes something out of the world for good. A
+forest can be cleared to open its plot for anything — not only a mill — and
+nothing grows it back. Gold cannot be cleared: it is in the rock, so an island
+with a vein and no room is a problem rather than a decision.
+
+Destructive and not undoable, so the panel asks first, and the opponent will
+only fell where there are more than two stands standing.
+
+### Resources never run out
+
+Already true and now pinned by a test: a worked deposit earns the same on day
+two thousand as on day one, and a deposit comes back when whatever was working
+it comes down. The only thing that removes ground permanently is clearing it on
+purpose.
+
+### Measured
+
+Economy still on the old curve: **62 / 92 / 232 / 252** against the old
+63 / 105 / 216 / 290 at days 1, 200, 600 and 1200. 396 tests.
+
+| 30 wars | idle | pilot at the wheel |
+|---|---|---|
+| | Crown 14 — Confederacy 15, **1 unfinished** | 14 — 5, 11 unfinished |
+| invariants | clean every day | clean every day |
+
+**The piloted arm needs saying plainly.** The pilot's economy collapsed under
+the resource rule — it ordered everything from a works standing on the island it
+was building for, so over thirty wars it raised **four gold mines and eleven
+mills in total** and spent the whole treasury on hulls. Exactly the blindness
+the opponent had. Fixed the same way, with `planBuild`: 108 mines and 1,007
+mills.
+
+And with both economies working, the piloted arm stalls *more*, not less —
+eleven wars in thirty. Every one of them is an **even** war with nought to two
+of the three Lords in irons. That is not the economy: the idle arm finishes
+twenty-nine of thirty on the same rules. **It is the sixty-day exchange window**,
+now the single largest thing standing between this game and a war that ends,
+and the one open question waiting on a ruling.

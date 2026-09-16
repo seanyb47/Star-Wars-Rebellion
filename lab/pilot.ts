@@ -18,7 +18,8 @@ import {
   resolvePendingMission,
   type CommandResult,
 } from '../src/sim/commands';
-import { buildMenu, canQueueBuild } from '../src/sim/build';
+import { buildMenu, canQueueBuild, openDeposits, planBuild } from '../src/sim/build';
+import { needsResource } from '../src/sim/constants';
 import {
   detachError,
   fleetsOf,
@@ -101,13 +102,39 @@ export function pilot(state: GameState, tally: PilotTally): GameState {
     );
     if (bare) state = take(orderFoundWorks(state, bare.id), 'build:found');
   }
+  // Work the ground first, and send builders to it.
+  //
+  // The pilot ordered everything from a works standing on the island it was
+  // building for, which was fine when any berth would do. With earners needing
+  // a deposit under them it collapsed: measured over thirty wars it raised
+  // four gold mines and eleven mills in total, fell through to the fallback,
+  // and spent the entire treasury on hulls. The opponent had exactly the same
+  // blindness and `planBuild` is the answer to it — it picks the quickest
+  // works in the whole faction and counts the passage.
+  if (state.factions[me].gold > 250) {
+    const ground = state.systems
+      .filter((s) => s.control === me && !s.uprising)
+      .flatMap((s) =>
+        (['mine', 'refinery'] as const)
+          .filter((item) => openDeposits(state, s, needsResource(item)!) > 0)
+          .map((item) => ({ system: s, item })),
+      )
+      .sort((a, b) => (a.item === 'mine' ? -1 : 0) - (b.item === 'mine' ? -1 : 0));
+    for (const { system, item } of ground) {
+      const plan = planBuild(state, me, item, system.id);
+      if (plan.error !== null || !plan.facilityId) continue;
+      state = take(orderBuild(state, plan.facilityId, item, system.id), `build:${item}`);
+      break;
+    }
+  }
   if (state.factions[me].gold > 250) {
     outer: for (const sys of state.systems) {
       if (sys.control !== me || sys.uprising) continue;
       for (const fac of sys.facilities) {
         if (fac.owner !== me || fac.building) continue;
-        // Earners first, then companies, then hulls: an economy, then a war.
-        const want = ['refinery', 'mine', 'troop', 'shipyard', 'training_facility', 'fort'] as const;
+        // Earners are handled above, where the ground is. Here: companies,
+        // then somewhere to build, then walls.
+        const want = ['troop', 'shipyard', 'training_facility', 'fort'] as const;
         for (const item of want) {
           if (!buildMenu(fac).includes(item)) continue;
           if (!canQueueBuild(state, fac.id, item)) continue;

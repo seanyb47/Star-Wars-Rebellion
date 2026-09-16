@@ -394,6 +394,50 @@ export function planBuild(
   };
 }
 
+/**
+ * Fell a forest and leave the ground bare.
+ *
+ * Sean, 16 September: *"Forests can be cleared to make room for other
+ * facilities, not just mills. But if cleared it's destroyed."* So this is the
+ * one thing in the game that takes something out of the world and does not put
+ * it back — a deposit returns when the works on it comes down, and a cleared
+ * forest does not return at all.
+ *
+ * Only timber. A vein of gold is in the rock and cannot be tidied away, which
+ * is also why an island with gold on it and no room is a genuine problem
+ * rather than a decision.
+ */
+export function clearError(
+  state: GameState,
+  systemId: string,
+  actor: PlayableFaction,
+): string | null {
+  const system = state.systems.find((s) => s.id === systemId);
+  if (!system) return 'No such island.';
+  if (system.control !== actor) return 'You do not hold this island.';
+  if (system.uprising) return 'The island is in mutiny.';
+  if (depositsLeft(system, 'forest') < 1) return 'There is no forest here to clear.';
+  // Not one somebody is already sailing to cut into a mill.
+  if (openDeposits(state, system, 'forest') < 1) {
+    return 'Every forest here is already spoken for by an order.';
+  }
+  return null;
+}
+
+export function clearForest(state: GameState, systemId: string, actor: PlayableFaction): void {
+  const error = clearError(state, systemId, actor);
+  if (error) throw new Error(error);
+  const system = state.systems.find((s) => s.id === systemId)!;
+  const held = [...(system.deposits ?? [])];
+  held.splice(held.findIndex((d) => d.type === 'forest'), 1);
+  system.deposits = held;
+  pushEvent(state, {
+    kind: 'order',
+    text: `The timber on ${system.name} has been felled and the ground cleared. There is a plot open where the forest stood.`,
+    systemId: system.id,
+  });
+}
+
 /** Cancel an order. The gold already laid out is not refunded. */
 export function cancelBuild(state: GameState, facilityId: string): void {
   const found = findFacility(state, facilityId);

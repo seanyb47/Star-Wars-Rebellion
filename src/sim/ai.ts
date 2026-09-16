@@ -24,6 +24,7 @@ import {
   TROOP_BUILD,
   UPKEEP_PER_DAY,
   needsResource,
+  AI_KEEP_TIMBER,
   YARD_BUILDS,
   shipSpec,
   shipsFor,
@@ -31,6 +32,8 @@ import {
 import {
   buildMenu,
   canQueueBuild,
+  clearError,
+  clearForest,
   foundWorks,
   foundWorksError,
   openDeposits,
@@ -61,6 +64,7 @@ import {
 } from './fleets';
 import { isLord, lords, powerOf } from './lords';
 import {
+  depositsLeft,
   freeSlots,
   getSystem,
   otherFaction,
@@ -236,6 +240,18 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
     const spot = bestSpotFor(state, ai, item);
     if (spot) {
       queueBuild(state, spot, item);
+      return true;
+    }
+    // Nowhere with an open plot, and it wants this thing. Timber can be felled
+    // for it — that is what the rule is for — but only where there are trees to
+    // spare: clearing destroys the stand for the rest of the war, and a drill
+    // ground is not worth the last forest on an island.
+    const boxedIn = held
+      .filter((s) => freeSlots(s) < 1 && depositsLeft(s, 'forest') >= AI_KEEP_TIMBER + 1)
+      .filter((s) => clearError(state, s.id, ai) === null)
+      .sort((a, b) => depositsLeft(b, 'forest') - depositsLeft(a, 'forest'))[0];
+    if (boxedIn) {
+      clearForest(state, boxedIn.id, ai);
       return true;
     }
   }

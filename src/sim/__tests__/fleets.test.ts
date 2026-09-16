@@ -31,7 +31,7 @@ import {
   syncHome,
 } from '../lords';
 import { PIRATE_LORDS } from '../constants';
-import { isDiplomacyTarget, startMission } from '../missions';
+import { isDiplomacyTarget, startMission, travelDays } from '../missions';
 import { getSystem } from '../helpers';
 import { createRng } from '../rng';
 import type { GameState, PlayableFaction, ShipClassId, System } from '../types';
@@ -817,8 +817,19 @@ describe('what the confirm sheet promises', () => {
     const state = generateGalaxy(31, 'empire');
     const here = state.systems.find((s) => s.control === 'empire')!;
     const near = state.systems.find((s) => s.sectorId === here.sectorId && s.id !== here.id)!;
-    const far = state.systems.find((s) => s.sectorId !== here.sectorId)!;
+    // The farthest island there is, not merely the first one in another Reach.
+    // Pace multiplies the crossing and the result is rounded to whole days, so
+    // on a short hop a sloop and a first-rate quote the same number and the
+    // last assertion here has nothing to see.
+    const far = [...state.systems]
+      .filter((s) => s.id !== here.id)
+      .sort((a, b) => travelDays(state, here.id, b.id) - travelDays(state, here.id, a.id))[0];
 
+    // Nothing else in the water: a new hull joins whatever squadron is already
+    // lying at the island, and the Home Fleet has a first-rate in it — so the
+    // sloop this test means to sail alone was quietly sailing in company, and
+    // the slow hull added at the end changed nothing.
+    state.fleets.length = 0;
     const fleet = addShip(state, here, 'empire', 'kestrel');
     for (const to of [near, far]) {
       const quoted = sailDays(state, fleet.id, to.id);

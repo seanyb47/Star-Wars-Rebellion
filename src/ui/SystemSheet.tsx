@@ -15,6 +15,7 @@ import {
   smuggledOff,
   UPKEEP_PER_DAY,
   buildError,
+  clearError,
   depositsLeft,
   RESOURCE_LABEL,
   crewOn,
@@ -353,6 +354,7 @@ export function SystemSheet({
   onBuild,
   onCancel,
   onFound,
+  onClear,
   onOpenCharacter,
   onOpenReach,
   onSail,
@@ -375,6 +377,8 @@ export function SystemSheet({
   onBuild: (facilityId: string, item: BuildItem) => void;
   onCancel: (facilityId: string) => void;
   onFound: (systemId: string) => void;
+  /** Fell a forest to open its plot. Destroys it. */
+  onClear: (systemId: string) => void;
   onSail: (fleetId: string) => void;
   onAssault: (fleetId: string) => void;
   onBombard?: (fleetId: string) => void;
@@ -701,6 +705,29 @@ export function SystemSheet({
               />
             ))}
           </SlotBoard>
+
+          {/* Sean's rule: a forest can be cleared for anything, not only a
+              mill — and clearing destroys it. Offered under the board rather
+              than on the tile, because it is a decision about the island and
+              not about one stand of trees, and because a destructive button
+              on a small tile is a button somebody taps by accident. */}
+          {system.control === state.player && depositsLeft(system, 'forest') > 0 && (
+            <div className="row row--between clearline">
+              <p className="tiny muted" style={{ margin: 0, flex: 1 }}>
+                {freeSlots(system) === 0
+                  ? 'No plot open. Timber can be felled to make room for anything — it does not grow back.'
+                  : 'Timber can be felled to make room for anything other than a mill. It does not grow back.'}
+              </p>
+              <button
+                className="tiny btn--danger"
+                disabled={clearError(state, system.id, state.player) !== null}
+                title={clearError(state, system.id, state.player) ?? undefined}
+                onClick={() => onClear(system.id)}
+              >
+                Fell timber
+              </button>
+            </div>
+          )}
 
           {producers.length > 0 && <div className="section-title">Order something built</div>}
           <div className="stack">

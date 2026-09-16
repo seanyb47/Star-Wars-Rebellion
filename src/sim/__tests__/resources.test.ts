@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
-import { advanceBuilds, buildError, openDeposits, planBuild, queueBuild } from '../build';
-import { depositsLeft, freeSlots, getSystem, returnDeposit } from '../helpers';
+import {
+  advanceBuilds,
+  buildError,
+  clearError,
+  clearForest,
+  openDeposits,
+  planBuild,
+  queueBuild,
+} from '../build';
+import { islandIncome } from '../economy';
+import { depositsLeft, freeSlots, getSystem, handOver, returnDeposit } from '../helpers';
 import { advanceMissions, startMission } from '../missions';
 import { createRng } from '../rng';
 import { CLEAR_BERTHS, GOLD_PER_DAY, YARD_BUILDS } from '../constants';
@@ -45,20 +54,56 @@ describe('what is in the ground', () => {
   });
 
   it('makes timber common and gold scarce', () => {
+    // Counting the ground an island was *given*, worked or not: a settled
+    // island opens with some of it already turned into mills, so raw deposits
+    // alone would undercount what the roll actually handed out.
     let isles = 0;
-    let forests = 0;
+    let timber = 0;
     let withGold = 0;
     for (let seed = 1; seed <= 12; seed++) {
       for (const s of generateGalaxy(seed, 'empire').systems) {
         isles += 1;
-        forests += depositsLeft(s, 'forest');
-        if (depositsLeft(s, 'gold') > 0) withGold += 1;
+        timber += depositsLeft(s, 'forest') + s.facilities.filter((f) => f.type === 'refinery').length;
+        const veins =
+          depositsLeft(s, 'gold') + s.facilities.filter((f) => f.type === 'mine').length;
+        if (veins > 0) withGold += 1;
       }
     }
-    expect(forests / isles).toBeGreaterThan(2);
+    expect(timber / isles).toBeGreaterThan(2);
     // About one island in four, and nothing like every island.
     expect(withGold / isles).toBeGreaterThan(0.12);
     expect(withGold / isles).toBeLessThan(0.45);
+  });
+
+  it('opens a settled island part-worked and an empty one untouched', () => {
+    let settledWorked = 0;
+    let settledRaw = 0;
+    let settledBare = 0;
+    let settled = 0;
+    let emptyWorked = 0;
+    for (let seed = 1; seed <= 8; seed++) {
+      for (const s of generateGalaxy(seed, 'empire').systems) {
+        const worked = s.facilities.filter(
+          (f) => f.type === 'mine' || f.type === 'refinery',
+        ).length;
+        if (!s.populated) {
+          emptyWorked += worked;
+          continue;
+        }
+        if (s.control !== 'neutral') continue;
+        settled += 1;
+        settledWorked += worked;
+        settledRaw += (s.deposits ?? []).length;
+        if (worked === 0) settledBare += 1;
+      }
+    }
+    // Some of it, not all of it: every settled island is working, and every
+    // one of them has something left for a new holder to do.
+    expect(settledWorked / settled).toBeGreaterThan(1);
+    expect(settledRaw / settled).toBeGreaterThan(1);
+    expect(settledBare).toBe(0);
+    // And nobody has touched the frontier.
+    expect(emptyWorked).toBe(0);
   });
 
   it('prices a vein well above a stand of timber', () => {
@@ -154,6 +199,87 @@ describe('an earner needs ground under it', () => {
     expect(freeSlots(island)).toBe(0);
     expect(buildError(state, yard.id, 'shipyard')).toMatch(/No room left/);
     expect(buildError(state, yard.id, 'refinery')).toBeNull();
+  });
+});
+
+describe('felling timber', () => {
+  it('opens the plot, and the forest does not come back', () => {
+    const { state, island } = staged(810, ['forest', 'forest', 'gold']);
+    island.slots = island.facilities.length + 3;
+    expect(freeSlots(island)).toBe(0);
+
+    expect(clearError(state, island.id, 'empire')).toBeNull();
+    clearForest(state, island.id, 'empire');
+    expect(depositsLeft(island, 'forest')).toBe(1);
+    expect(freeSlots(island)).toBe(1);
+    // Gone for good: nothing puts a cleared stand back.
+    for (let d = 0; d < 400; d++) advanceBuilds(state);
+    expect(depositsLeft(island, 'forest')).toBe(1);
+  });
+
+  it('makes room for something that is not a mill', () => {
+    const { state, island, yard } = staged(811, ['forest', 'forest']);
+    island.slots = island.facilities.length + 2;
+    expect(buildError(state, yard.id, 'shipyard')).toMatch(/No room left/);
+    clearForest(state, island.id, 'empire');
+    expect(buildError(state, yard.id, 'shipyard')).toBeNull();
+  });
+
+  it('will not fell a vein, or a forest an order is already sailing for', () => {
+    const { state, island, yard } = staged(812, ['gold']);
+    expect(clearError(state, island.id, 'empire')).toMatch(/no forest/i);
+
+    const one = staged(813, ['forest']);
+    queueBuild(one.state, one.yard.id, 'refinery');
+    expect(clearError(one.state, one.island.id, 'empire')).toMatch(/spoken for/);
+    void yard;
+  });
+
+  it('is refused on ground that is not yours, or in revolt', () => {
+    const { state, island } = staged(814, ['forest']);
+    island.uprising = true;
+    expect(clearError(state, island.id, 'empire')).toMatch(/mutiny/);
+    island.uprising = false;
+    island.control = 'alliance';
+    expect(clearError(state, island.id, 'empire')).toMatch(/do not hold/);
+  });
+});
+
+describe('an island changes hands with what is on it', () => {
+  it('hands the works to whoever takes the island', () => {
+    const { island } = staged(815, ['forest']);
+    const mill = { id: 'f-mill', type: 'refinery' as const, owner: 'empire' as const };
+    island.facilities.push(mill);
+    handOver(island, 'alliance');
+    expect(island.facilities.every((f) => f.owner === 'alliance')).toBe(true);
+  });
+
+  it('but not what was still being built', () => {
+    const { state, island, yard } = staged(816, ['forest']);
+    queueBuild(state, yard.id, 'refinery');
+    const built = island.facilities.length;
+    handOver(island, 'alliance');
+    // The yard stands and changes hands; its order does not.
+    expect(island.facilities).toHaveLength(built);
+    expect(island.facilities.every((f) => f.building === undefined)).toBe(true);
+    // And the forest it was going to cut is still there for the new holder.
+    expect(depositsLeft(island, 'forest')).toBe(1);
+  });
+});
+
+describe('resources never run out', () => {
+  it('a worked deposit keeps earning for ever', () => {
+    const { state, island, yard } = staged(817, ['forest']);
+    queueBuild(state, yard.id, 'refinery');
+    for (let d = 0; d < YARD_BUILDS.refinery.days + 1; d++) advanceBuilds(state);
+    const live = getSystem(state, island.id);
+    const mill = live.facilities.find((f) => f.type === 'refinery')!;
+    const early = islandIncome(live, 'empire');
+    expect(early).toBeGreaterThan(0);
+    // Two thousand days later it is the same mill earning the same money.
+    for (let d = 0; d < 2000; d++) advanceBuilds(state);
+    expect(live.facilities.some((f) => f.id === mill.id)).toBe(true);
+    expect(islandIncome(live, 'empire')).toBeCloseTo(early, 5);
   });
 });
 

@@ -1191,6 +1191,33 @@ export const GOLD_BY_LOOK: Partial<Record<IslandArchetype, number>> = {
   'port-city': -0.1,
 };
 
+/**
+ * How much of a settled island's ground is already worked when the war opens.
+ *
+ * Sean, 16 September: *"The difference between settled and unsettled will be
+ * settled islands will have resources already converted. Some, not necessarily
+ * all."* Which is the whole difference between the two kinds of island, and a
+ * good one: an empty island is cheap ground with all of its worth still in
+ * front of you, and a settled island is a going concern you take for what is
+ * already standing on it.
+ *
+ * A share of the deposits, rolled per island, so no two settled islands are
+ * the same and none of them is finished. Never all of it — there is always
+ * something left for a new holder to do.
+ */
+/**
+ * Forests the opponent will not fell, however badly it wants the plot.
+ *
+ * Clearing is the one order that takes something out of the world for good, so
+ * it is kept for islands with timber to spare. Two: an island down to its last
+ * couple of stands keeps them, and an island covered in trees can afford to
+ * lose one for a drill ground.
+ */
+export const AI_KEEP_TIMBER = 2;
+
+export const SETTLED_WORKED_MIN = 0.3;
+export const SETTLED_WORKED_MAX = 0.7;
+
 export const RESOURCE_LABEL: Record<ResourceType, string> = {
   forest: 'Forest',
   gold: 'Gold vein',

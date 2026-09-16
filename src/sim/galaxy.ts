@@ -23,6 +23,8 @@ import {
   GOLD_VEINS_MAX,
   GOLD_BY_LOOK,
   CLEAR_BERTHS,
+  SETTLED_WORKED_MIN,
+  SETTLED_WORKED_MAX,
   WORKS_ON,
 } from './constants';
 import { shipClass } from './constants';
@@ -32,6 +34,7 @@ import type {
   Character,
   Facility,
   FacilityType,
+  Faction,
   GameState,
   PlayableFaction,
   Sector,
@@ -262,7 +265,12 @@ function scatterSystems(rng: Rng, count: number): Array<{ x: number; y: number }
   return points;
 }
 
-function makeFacility(id: string, type: FacilityType, owner: PlayableFaction): Facility {
+/**
+ * `owner` is a `Faction` rather than a side, because an unaligned island's own
+ * works belong to the unaligned island. They change hands with it the day
+ * somebody wins it over.
+ */
+function makeFacility(id: string, type: FacilityType, owner: Faction): Facility {
   return { id, type, owner };
 }
 
@@ -344,6 +352,35 @@ function groundOf(
   if (out.length <= room) return out;
   const gold = out.filter((d) => d.type === 'gold').slice(0, room);
   return [...gold, ...out.filter((d) => d.type === 'forest')].slice(0, room);
+}
+
+/**
+ * A settled island's ground, part of it already worked.
+ *
+ * The two sides' own islands are dealt their opening works by `seedHoldings`
+ * and are skipped here; this is for everywhere else that has people on it —
+ * the unaligned islands, which used to open as bare ground with a population
+ * on it and nothing else. Courting one now brings in a working island rather
+ * than an empty one, which is what a settled island ought to be worth.
+ */
+function workTheGround(
+  system: System,
+  rng: Rng,
+  makeId: (prefix: string) => string,
+): void {
+  const ground = system.deposits ?? [];
+  if (ground.length === 0) return;
+  const share = SETTLED_WORKED_MIN + rng.next() * (SETTLED_WORKED_MAX - SETTLED_WORKED_MIN);
+  // At least one, never all: a settled island is working and unfinished.
+  const take = Math.min(ground.length - 1, Math.max(1, Math.round(ground.length * share)));
+  if (take < 1) return;
+  const worked = ground.slice(0, take);
+  system.deposits = ground.slice(take);
+  for (const deposit of worked) {
+    system.facilities.push(
+      makeFacility(makeId('fac'), deposit.type === 'gold' ? 'mine' : 'refinery', system.control),
+    );
+  }
 }
 
 export function roomFor(name: string): number {
@@ -447,6 +484,14 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         // beat these companies; a parley has to win them over.
         const [lo, hi] = NEUTRAL_GARRISON[role];
         system.garrison = rng.range(lo, hi);
+        // And part of its ground already worked, which is what makes it a
+        // settled island rather than a populated rock. The two sides' own
+        // holdings are dealt theirs below and are not touched here.
+        workTheGround(system, rng, makeId);
+        system.slots = Math.max(
+          system.slots,
+          system.facilities.length + (system.deposits?.length ?? 0),
+        );
       }
       sector.systemIds.push(system.id);
       systems.push(system);

@@ -190,9 +190,30 @@ export function Almanac({
         <br />
         <br />
         <b>Burn a mill and the trees are still standing.</b> A deposit comes back when whatever was
-        working it comes down, so a long war does not quietly grind the world to bare rock.
-        Builders can be sent across the world to work ground on an island that has no yard of its
-        own.
+        working it comes down, and a worked one never runs dry — resources do not deplete in this
+        game. Builders can be sent across the world to work ground on an island that has no yard of
+        its own.
+        <br />
+        <br />
+        <b>Timber can be felled for anything, and felling destroys it.</b> A forest in the way of a
+        slipway can be cleared to open its plot — it is the one order in the game that takes
+        something out of the world for good, and nothing grows it back. A vein cannot be cleared:
+        it is in the rock, and an island with gold and no room is a problem rather than a decision.
+      </div>
+
+      <div className="section-title">Settled ground and empty ground</div>
+      <div className="card small">
+        <b>A settled island opens with some of its ground already worked.</b> Some of it, never all
+        — every island that has people on it is a going concern with mills already standing and
+        something still left to do. That is what you are winning when you court an unaligned island
+        or storm a held one: the works come with the island, and only what was half-built when the
+        boats came in is lost.
+        <br />
+        <br />
+        <b>An empty island has not been touched.</b> Every deposit on it is raw, and all of its
+        worth is still in front of whoever settles it — which is the trade the frontier offers: no
+        income on the day you land, and more of it later than a settled island of the same size has
+        left to give.
       </div>
 
       <div className="section-title">How a thing gets built</div>

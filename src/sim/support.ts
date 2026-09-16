@@ -9,7 +9,14 @@ import {
   loyaltyBand,
   type LoyaltyBand,
 } from './constants';
-import { isPlayable, otherFaction, pushEvent, requiredGarrison, setSupport } from './helpers';
+import {
+  handOver,
+  isPlayable,
+  otherFaction,
+  pushEvent,
+  requiredGarrison,
+  setSupport,
+} from './helpers';
 import type { Rng } from './rng';
 import factionData from '../data/factions.json';
 import type { GameState, PlayableFaction, System } from './types';
@@ -94,6 +101,7 @@ export function resolveControlAndUnrest(state: GameState): void {
     ) {
       const taker = otherFaction(system.control);
       system.control = taker;
+      handOver(system, taker);
       system.uprising = false;
       pushEvent(state, {
         kind: 'flip',
@@ -105,6 +113,9 @@ export function resolveControlAndUnrest(state: GameState): void {
     for (const faction of ['empire', 'alliance'] as const) {
       if (canFlip(system, faction)) {
         system.control = faction;
+        // Its works come with it. An island won over does not burn its own
+        // mills on the way across.
+        handOver(system, faction);
         // The companies that held it for somebody else go home; one stays
         // under the new colours. An island won over is a prize, not a
         // garrison bill — and a treasury that inherits forty militia it

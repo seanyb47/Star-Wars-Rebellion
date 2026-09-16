@@ -1885,3 +1885,6 @@ button.tcard:hover { border-color: var(--brass); }
 /* A berth with something in the ground: not built, not free. */
 .roombar > span.is-ground { background: #4f7a52; }
 .roombar--row > span.is-ground { background: #3d5f40; }
+
+/* The one destructive order on the island panel, kept off the tiles. */
+.clearline { gap: 10px; align-items: center; margin: 10px 0 2px; }

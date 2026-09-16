@@ -12,6 +12,7 @@ import {
   isAbductTarget,
   isCommandTarget,
   isMissionTarget,
+  isRecruitTarget,
   isResearchTarget,
   isRescueTarget,
   missionTypeFor,
@@ -45,6 +46,22 @@ function runMission(state: GameState, days = MISSION_WORK_DAYS + 2) {
   for (let i = 0; i < days; i++) advanceMissions(state, rng);
 }
 
+/**
+ * An island of ours with nothing else on offer.
+ *
+ * `missionTypeFor` answers recruit before anything else, so a test about what
+ * an island offers has to pick one where somebody worth signing on is not
+ * already standing on the quay — otherwise it is testing the roll of the world
+ * rather than the rule.
+ */
+function plainIsland(state: GameState) {
+  return (
+    state.systems.find(
+      (s) => s.control === 'empire' && s.populated && !isRecruitTarget(state, s, 'empire'),
+    ) ?? state.systems.find((s) => s.control === 'empire' && s.populated)!
+  );
+}
+
 describe('abduction', () => {
   it('offers no lift on an island the enemy holds — unless a Lord is standing on it', () => {
     const state = world();
@@ -71,7 +88,7 @@ describe('abduction', () => {
 
   it('takes an enemy officer caught off their own ground, and gives them back later', () => {
     const state = world();
-    const mine = state.systems.find((s) => s.control === 'empire' && s.populated)!;
+    const mine = plainIsland(state);
     // Not a Lord: they never leave their ships and cannot be lifted off a quay.
     const them = state.characters.find((c) => c.faction === 'alliance' && !isLord(c))!;
     const me = state.characters.find((c) => c.faction === 'empire')!;
@@ -104,7 +121,7 @@ describe('abduction', () => {
 describe('command over an island', () => {
   it('is the answer to your own island in revolt, which nothing else was', () => {
     const state = world();
-    const mine = state.systems.find((s) => s.control === 'empire' && s.populated)!;
+    const mine = plainIsland(state);
     mine.uprising = true;
     // Parley refuses a risen island, incitement wants the enemy's, and
     // sabotage wants their works: before this there was no errand at all here.
@@ -114,7 +131,7 @@ describe('command over an island', () => {
 
   it('puts the revolt down, and moves the bar even on a bad cycle', () => {
     const state = world();
-    const mine = state.systems.find((s) => s.control === 'empire' && s.populated)!;
+    const mine = plainIsland(state);
     const me = state.characters.find((c) => c.faction === 'empire')!;
     mine.uprising = true;
     mine.support.empire = 30;

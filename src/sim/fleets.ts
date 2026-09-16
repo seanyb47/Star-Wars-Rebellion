@@ -43,6 +43,7 @@ import {
 import { fireOnce, pickTarget, type Combatant } from './round';
 import {
   getSystem,
+  handOver,
   nextId,
   otherFaction,
   pushEvent,
@@ -1437,6 +1438,9 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   fleet.troops = survivors - holding;
   system.garrison = holding;
   system.control = fleet.faction;
+  // And everything standing on it. What was being built when the boats came
+  // in is lost with the old holder.
+  handOver(system, fleet.faction);
   system.explored[fleet.faction] = true;
   // A landing that only just carried the place has not brought enough to sit
   // on it, and the island says so at once rather than a fortnight later.

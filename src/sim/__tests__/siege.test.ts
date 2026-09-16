@@ -281,7 +281,13 @@ describe('a siege, end to end, through the orders a player gives', () => {
     const isleId = walled(state).id;
     const at = (s: GameState) => s.systems.find((x) => x.id === isleId)!;
     at(state).garrison = 3;
-    const fleet = put(state, at(state), 'alliance', ['reef', 'reef', 'brig']);
+    // Weight enough to be through the wall and still be afloat after. Two of
+    // the line and a transport was cutting it fine, and once the world's
+    // islands were rolled differently the squadron started dying on the third
+    // day with the wall at thirteen per cent — which is the doctrine's own
+    // point about not dabbling, and a bad fixture for a test about the
+    // sequence of orders.
+    const fleet = put(state, at(state), 'alliance', ['reef', 'reef', 'reef', 'brig']);
     fleet.troops = 6;
     const fleetId = fleet.id;
 

@@ -68,6 +68,32 @@ export function freeSlots(system: System): number {
   return system.slots - system.facilities.length - depositsOf(system).length;
 }
 
+/**
+ * The island changes hands, and so does everything standing on it.
+ *
+ * Nothing did this before, and it went unnoticed while an island's worth was
+ * berths you could build on: you took the place, built your own works on what
+ * was left, and the old holder's mills sat there earning nobody anything.
+ *
+ * With resources in the ground it is not survivable. A captured island's mills
+ * stand on forests that have already been cut — so the works earn nothing, the
+ * ground they stand on is spent, and the island is barren for ever. Taking a
+ * developed island has to mean taking what is on it, which is also what the
+ * defences have always done: a seawall fires for whoever holds the island,
+ * never for whoever paid for it.
+ *
+ * Anything still being built is lost. The builders scatter when the boats come
+ * in, and inheriting a stranger's half-finished slipway is stranger than
+ * losing it. A works that exists only as an order — a yard being laid down on
+ * bare ground — goes with it.
+ */
+export function handOver(system: System, to: Faction): void {
+  system.facilities = system.facilities
+    .filter((facility) => !facility.founding)
+    .map((facility) => (facility.building ? { ...facility, building: undefined } : facility))
+    .map((facility) => ({ ...facility, owner: to }));
+}
+
 /** What is in this island's ground, unworked. Always an array. */
 export function depositsOf(system: System): Deposit[] {
   return system.deposits ?? [];

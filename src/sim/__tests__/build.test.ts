@@ -3,6 +3,7 @@ import { generateGalaxy } from '../galaxy';
 import {
   advanceBuilds,
   buildError,
+  daysToFinish,
   cancelBuild,
   findFacility,
   foundWorks,
@@ -118,7 +119,11 @@ describe('completing builds', () => {
     const before = system.facilities.length;
     queueBuild(state, facility.id, 'mine');
 
-    for (let day = 0; day < 9; day++) advanceBuilds(state);
+    // Ask the island how long, rather than assuming: more than one yard here
+    // and they work the job together.
+    const days = daysToFinish(system, facility);
+    expect(days).toBeGreaterThan(0);
+    for (let day = 0; day < days - 1; day++) advanceBuilds(state);
     expect(getSystem(state, system.id).facilities).toHaveLength(before);
 
     advanceBuilds(state);
@@ -304,7 +309,9 @@ describe('orders sent to another island', () => {
     queueBuild(state, facility.id, 'mine', there.id);
     const hereBefore = system.facilities.length;
     there.control = 'alliance';
-    for (let d = 0; d < 20; d++) advanceBuilds(state);
+    // Long enough for the work at this island's pace and the passage after it.
+    const days = daysToFinish(system, facility) + facility.building!.travel + 2;
+    for (let d = 0; d < days; d++) advanceBuilds(state);
     expect(facility.building).toBeUndefined();
     expect(system.facilities.length).toBe(hereBefore + 1);
     expect(state.events.some((e) => /turns back/.test(e.text))).toBe(true);

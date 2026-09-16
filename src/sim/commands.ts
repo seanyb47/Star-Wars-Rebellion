@@ -3,7 +3,7 @@
  * new state, and never throws: failures come back as `error` so a mistimed tap
  * can never crash the game.
  */
-import { cancelBuild, foundWorks, queueBuild } from './build';
+import { cancelBuild, clearForest, foundWorks, queueBuild } from './build';
 import {
   bombardError,
   assault,
@@ -60,6 +60,15 @@ export function orderBuild(
 }
 
 /** Lay down a works on a held island with none; see foundWorks. */
+/**
+ * Fell a forest to make room for something that is not a mill.
+ *
+ * Destructive and not undoable, so the UI asks before it calls this.
+ */
+export function orderClearForest(state: GameState, systemId: string): CommandResult {
+  return run(state, (draft) => clearForest(draft, systemId, draft.player));
+}
+
 export function orderFoundWorks(state: GameState, systemId: string): CommandResult {
   return run(state, (draft) => foundWorks(draft, systemId, draft.player));
 }
