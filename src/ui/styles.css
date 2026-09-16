@@ -1751,6 +1751,11 @@ button.tcard:hover { border-color: var(--brass); }
 /* The mission menu: one card an errand. */
 .choice { display: flex; gap: 10px; align-items: flex-start; text-align: left; width: 100%; }
 .choice__icon { flex: none; width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; color: var(--metal); background: rgba(0, 0, 0, 0.3); border: 1px solid var(--metal-lo); }
+/* With a painting in it the tile is the painting: bigger, and no inner
+   padding, because a 34px box around a 22px glyph is a frame and a 44px box
+   around a painting is the picture. */
+.choice__icon--art { width: 46px; height: 46px; padding: 0; overflow: hidden; background: none; }
+.choice__icon--art img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .choice__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .choice__name { font-size: 14px; }
 .choice__what { white-space: normal; line-height: 1.35; }

@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**114 of 127 painted.** 3812KB shipped, 10.6MB of masters kept back.
+**123 of 136 painted.** 3960KB shipped, 11.0MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -160,6 +160,22 @@ one building on its island, three-quarter view; the build order card. 2 of 2.
 | Fortress — Crown Imperium | `fort-empire` | 2 (+1 retired) | 58KB | 1448×1086, 688KB | whole frame | 2026-09-16 | Sean, 16 September |
 | Heavy Fortress — Crown Imperium | `heavy-fort-empire` | 1 | 62KB | 1448×1086, 734KB | whole frame | 2026-09-16 | Sean, 16 September |
 
+## missions — 256×256
+
+the object an errand is, close and lit; the errand sheet's tile. 9 of 9.
+
+| subject | slug | v | shipped | master | crop | added | source |
+|---|---|---|---|---|---|---|---|
+| Abduct | `abduct` | 1 | 13KB | 286×309, 38KB | 286×286 @ 0,11 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
+| Espionage | `espionage` | 1 | 14KB | 326×333, 44KB | 326×326 @ 0,3 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
+| Explore | `explore` | 1 | 19KB | 336×333, 58KB | 333×333 @ 1,0 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
+| Incite | `incite` | 1 | 13KB | 288×309, 37KB | 288×288 @ 0,10 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
+| Parley | `parley` | 1 | 20KB | 278×309, 50KB | 278×278 @ 0,15 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
+| Recruit | `recruit` | 1 | 14KB | 333×333, 41KB | whole frame | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
+| Rescue | `rescue` | 1 | 17KB | 284×309, 44KB | 284×284 @ 0,12 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
+| Research | `research` | 1 | 20KB | 328×333, 58KB | 328×328 @ 0,2 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
+| Sabotage | `sabotage` | 1 | 15KB | 284×309, 41KB | 284×284 @ 0,12 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
+
 ## scenes — 1024×432
 
 full-bleed dispatch banner, quiet sky. 7 of 7.
@@ -240,6 +256,15 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **islands/rock-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/storm-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/tide-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **missions/abduct** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **missions/espionage** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **missions/explore** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **missions/incite** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **missions/parley** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **missions/recruit** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **missions/rescue** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **missions/research** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **missions/sabotage** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **portraits/admiral-corvus-blackwater** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **portraits/admiral-dorian-jessup** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **portraits/admiral-kendrick-ozmond** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.

@@ -19,6 +19,29 @@ import {
 } from '../sim';
 import { Sheet } from './components';
 import { CategoryIcon } from './art';
+import { paintedMission } from './painted';
+
+/**
+ * The painting of the errand, where a generic envelope used to be.
+ *
+ * Sean's contact sheet, 17 September: nine paintings of the object an errand
+ * *is* — a glass at a dark harbour, a sealed letter passed across a table, a
+ * lit fuse in a powder keg. The sheet drew the same envelope beside all nine
+ * choices, which told a player nothing about the one they were about to spend
+ * an officer on. Falls back to the envelope for anything with no painting yet.
+ */
+function MissionTile({ type }: { type: string }) {
+  const painting = paintedMission(type);
+  return (
+    <span className={`choice__icon${painting ? ' choice__icon--art' : ''}`}>
+      {painting ? (
+        <img src={painting} alt="" loading="lazy" />
+      ) : (
+        <CategoryIcon kind="missions" size={22} />
+      )}
+    </span>
+  );
+}
 
 /**
  * The original's mission menu. Drop a character on a planet and it asked
@@ -139,9 +162,7 @@ export function MissionChoiceSheet({
           return (
             <Fragment key={type}>
               <button className="card card--tap choice" onClick={() => onChoose(type, taking)}>
-                <span className="choice__icon">
-                  <CategoryIcon kind="missions" size={22} />
-                </span>
+                <MissionTile type={type} />
                 <span className="choice__body">
                   <span className="row row--between">
                     <b className="choice__name">
@@ -169,9 +190,7 @@ export function MissionChoiceSheet({
                     className="card card--tap choice"
                     onClick={() => onChoose('command', taking, fleet.id)}
                   >
-                    <span className="choice__icon">
-                      <CategoryIcon kind="missions" size={22} />
-                    </span>
+                    <MissionTile type="command" />
                     <span className="choice__body">
                       <span className="row row--between">
                         <b className="choice__name">Command the {fleet.name}</b>

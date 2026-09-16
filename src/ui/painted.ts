@@ -68,6 +68,19 @@ const BUILDINGS = import.meta.glob('../art/buildings/*.{webp,png,jpg}', {
   import: 'default',
 }) as Record<string, string>;
 
+/**
+ * One painting per errand: the glass, the sealed letter, the lit fuse.
+ *
+ * Sean's own contact sheet, 17 September. The errand sheet drew the same
+ * generic envelope beside all nine choices, which told a player nothing about
+ * which of them they were about to send somebody on.
+ */
+const MISSIONS = import.meta.glob('../art/missions/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
 /** One painting per garrison company type: the Marines, the Reef Guard. */
 const TROOPS = import.meta.glob('../art/troops/*.{webp,png,jpg}', {
   eager: true,
@@ -121,6 +134,7 @@ const FACE_URLS = bySlug(FACES);
 const ISLE_URLS = bySlug(ISLES);
 const CREATURE_URLS = bySlug(CREATURES);
 const BUILDING_URLS = bySlug(BUILDINGS);
+const MISSION_URLS = bySlug(MISSIONS);
 const TROOP_URLS = bySlug(TROOPS);
 const CREST_URLS = bySlug(CRESTS);
 
@@ -168,6 +182,17 @@ export function paintedCrest(faction: 'empire' | 'alliance'): string | undefined
 /** A building's painting, by its type name (`training-facility`, `fort`). */
 export function paintedBuilding(type: string): string | undefined {
   return BUILDING_URLS[slugify(type.replace(/_/g, ' '))];
+}
+
+/**
+ * An errand's painting, by its type. `diplomacy` and `survey` are the two
+ * whose file is named for what the game calls them rather than for the type:
+ * Sean, 17 September — *"our game will call Reconnaissance = explore and
+ * diplomacy = parley"* — so the paintings are `parley` and `explore`.
+ */
+const MISSION_ART: Record<string, string> = { diplomacy: 'parley', survey: 'explore' };
+export function paintedMission(type: string): string | undefined {
+  return MISSION_URLS[slugify(MISSION_ART[type] ?? type)];
 }
 
 /** A company type's painting, by its id (`crown-marines`, `reef-guard`). */

@@ -1695,6 +1695,289 @@
         "sha1": "626613c4159d4419"
       }
     },
+    "missions/abduct": {
+      "folder": "missions",
+      "slug": "abduct",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Abduct",
+      "source": "Sean's mission contact sheet, 17 Sep 2026",
+      "notes": "Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 11,
+        "w": 286,
+        "h": 286
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/missions/abduct.webp",
+        "w": 286,
+        "h": 309,
+        "bytes": 39560,
+        "sha1": "552b133693ea4a70"
+      },
+      "shipped": {
+        "file": "src/art/missions/abduct.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 13518,
+        "sha1": "1539966b71429d83"
+      }
+    },
+    "missions/espionage": {
+      "folder": "missions",
+      "slug": "espionage",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Espionage",
+      "source": "Sean's mission contact sheet, 17 Sep 2026",
+      "notes": "Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 3,
+        "w": 326,
+        "h": 326
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/missions/espionage.webp",
+        "w": 326,
+        "h": 333,
+        "bytes": 46074,
+        "sha1": "1916766ba21255b5"
+      },
+      "shipped": {
+        "file": "src/art/missions/espionage.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 14360,
+        "sha1": "3368114e867800bf"
+      }
+    },
+    "missions/explore": {
+      "folder": "missions",
+      "slug": "explore",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Explore",
+      "source": "Sean's mission contact sheet, 17 Sep 2026",
+      "notes": "Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 1,
+        "y": 0,
+        "w": 333,
+        "h": 333
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/missions/explore.webp",
+        "w": 336,
+        "h": 333,
+        "bytes": 59392,
+        "sha1": "04dea69966b68b5b"
+      },
+      "shipped": {
+        "file": "src/art/missions/explore.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 19870,
+        "sha1": "c06dc9cc5f14d827"
+      }
+    },
+    "missions/incite": {
+      "folder": "missions",
+      "slug": "incite",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Incite",
+      "source": "Sean's mission contact sheet, 17 Sep 2026",
+      "notes": "Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 10,
+        "w": 288,
+        "h": 288
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/missions/incite.webp",
+        "w": 288,
+        "h": 309,
+        "bytes": 37968,
+        "sha1": "51e13b735e4c6dd7"
+      },
+      "shipped": {
+        "file": "src/art/missions/incite.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 13542,
+        "sha1": "4d2757d95209e735"
+      }
+    },
+    "missions/parley": {
+      "folder": "missions",
+      "slug": "parley",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Parley",
+      "source": "Sean's mission contact sheet, 17 Sep 2026",
+      "notes": "Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 15,
+        "w": 278,
+        "h": 278
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/missions/parley.webp",
+        "w": 278,
+        "h": 309,
+        "bytes": 52044,
+        "sha1": "e0a1c1ea815c18d3"
+      },
+      "shipped": {
+        "file": "src/art/missions/parley.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 20966,
+        "sha1": "1a3d10887e29341c"
+      }
+    },
+    "missions/recruit": {
+      "folder": "missions",
+      "slug": "recruit",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Recruit",
+      "source": "Sean's mission contact sheet, 17 Sep 2026",
+      "notes": "Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/missions/recruit.webp",
+        "w": 333,
+        "h": 333,
+        "bytes": 42316,
+        "sha1": "5e3785d3ed34c497"
+      },
+      "shipped": {
+        "file": "src/art/missions/recruit.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 14490,
+        "sha1": "7019d4de9aeed48d"
+      }
+    },
+    "missions/rescue": {
+      "folder": "missions",
+      "slug": "rescue",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Rescue",
+      "source": "Sean's mission contact sheet, 17 Sep 2026",
+      "notes": "Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 12,
+        "w": 284,
+        "h": 284
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/missions/rescue.webp",
+        "w": 284,
+        "h": 309,
+        "bytes": 45694,
+        "sha1": "e91b340d29aa676f"
+      },
+      "shipped": {
+        "file": "src/art/missions/rescue.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 18052,
+        "sha1": "52681a923d4873d3"
+      }
+    },
+    "missions/research": {
+      "folder": "missions",
+      "slug": "research",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Research",
+      "source": "Sean's mission contact sheet, 17 Sep 2026",
+      "notes": "Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 2,
+        "w": 328,
+        "h": 328
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/missions/research.webp",
+        "w": 328,
+        "h": 333,
+        "bytes": 59816,
+        "sha1": "a2bf972f4d84ba75"
+      },
+      "shipped": {
+        "file": "src/art/missions/research.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 20702,
+        "sha1": "ff0c730a78ae882a"
+      }
+    },
+    "missions/sabotage": {
+      "folder": "missions",
+      "slug": "sabotage",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Sabotage",
+      "source": "Sean's mission contact sheet, 17 Sep 2026",
+      "notes": "Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "crop": {
+        "x": 0,
+        "y": 12,
+        "w": 284,
+        "h": 284
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/missions/sabotage.webp",
+        "w": 284,
+        "h": 309,
+        "bytes": 42348,
+        "sha1": "847aae8b5e7cd3a8"
+      },
+      "shipped": {
+        "file": "src/art/missions/sabotage.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 15832,
+        "sha1": "06e709e76ca887b9"
+      }
+    },
     "portraits/admiral-corvus-blackwater": {
       "folder": "portraits",
       "slug": "admiral-corvus-blackwater",

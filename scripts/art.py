@@ -76,6 +76,11 @@ FOLDERS: dict[str, tuple[int, int, str]] = {
     "isles": (768, 204, "one island's own painting, by name; wins over its type's"),
     "creatures": (768, 352, "the natural world, and where the 20% fantasy is allowed out"),
     "buildings": (512, 384, "one building on its island, three-quarter view; the build order card"),
+    # Sean's own contact sheet, 17 September: one square painting per errand,
+    # the object that errand *is* — a glass, a sealed letter, a lit fuse. They
+    # sit on the errand sheet where a generic envelope icon used to, so square
+    # and small is the whole brief.
+    "missions": (256, 256, "the object an errand is, close and lit; the errand sheet's tile"),
     "scenes": (1024, 432, "full-bleed dispatch banner, quiet sky"),
     # The one painting the interface draws on top of, so it ships at the chart's
     # own proportion and is judged by whether a mark reads against it.

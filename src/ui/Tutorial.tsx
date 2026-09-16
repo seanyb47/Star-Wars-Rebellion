@@ -100,7 +100,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
     title: 'A first move',
     body: (side) =>
       side === 'empire'
-        ? 'Two of your islands are sullen and held by garrison alone. Send a diplomat to one of them before the Confederacy sends theirs. Then start the hunt: the three Lords are ashore on islands in the outer Reaches you have not charted, and they move. Survey the frontier, and watch for the star.'
+        ? 'Two of your islands are sullen and held by garrison alone. Send a diplomat to one of them before the Confederacy sends theirs. Then start the hunt: the three Lords are ashore on islands in the outer Reaches you have not charted, and they move. Explore the frontier, and watch for the star.'
         : 'Your three Lords are at the meeting place beyond the Crown\'s charts, with the rest of your people. Each brings one thing nobody else can — read their sheets. Two of the three want a posting to work, so put them in command of an island where it will do something, and send your best diplomat to a neutral island in your own chain. Put Wyatt Ansell on the Shipyard. And keep the Lords apart: the Crown needs all three at once.',
   },
 ];

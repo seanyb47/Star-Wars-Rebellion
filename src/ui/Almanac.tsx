@@ -516,7 +516,7 @@ export function Almanac({
         <br />
         <br />
         <b>A dark island</b> is one your charts do not have. You cannot send anyone to it, or sail
-        at it, until somebody has surveyed it. Three of the seven Reaches start dark, and what is
+        at it, until somebody has explored it. Three of the seven Reaches start dark, and what is
         in their water starts dark with them.
       </div>
 

@@ -912,7 +912,11 @@ export const MISSION_LABEL: Record<MissionType, string> = {
   diplomacy: 'Parley',
   incite: 'Stirring up trouble',
   sabotage: 'Sabotage',
-  survey: 'Survey',
+  // Sean, 17 September: *"our game will call Reconnaissance = explore."* The
+  // type stays `survey` — it is in saved games — and what a player reads is
+  // Explore, here and in `terms.json`, which is the one place the rest of the
+  // interface takes its word from.
+  survey: 'Explore',
   abduct: 'Abduction',
   command: 'In command',
   research: 'In the yards',
