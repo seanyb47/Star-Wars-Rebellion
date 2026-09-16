@@ -95,6 +95,37 @@ describe('observing', () => {
     }
     void countFacilities;
   });
+
+  /**
+   * The bug that cost the Crown twenty-four wars in a row.
+   *
+   * An officer who finishes a spell ashore is asked what to do next, and the
+   * question goes to the player when it is the player's side. In observe mode
+   * there is no player, so every Crown officer who landed anywhere was handed
+   * a question nobody answered and stood on that quay until somebody lifted
+   * them off it. Two thirds of the corps ended in irons and the recruiting,
+   * the research and the war went with it.
+   */
+  it('answers its own officers instead of leaving them on the quay', () => {
+    const end = run(setObserving(generateGalaxy(77, 'empire'), true), 400);
+    expect(end.pendingDecisions).toHaveLength(0);
+    const mine = end.characters.filter((c) => c.faction === 'empire');
+    // Nobody stuck ashore for months on the same errand: the opponent's own
+    // patience is four spells, and this side is played the same way.
+    for (const officer of mine) {
+      expect(officer.mission?.cycles ?? 0, officer.name).toBeLessThanOrEqual(5);
+    }
+    // And the corps is still a corps.
+    const irons = mine.filter((c) => c.status === 'captured').length;
+    expect(irons).toBeLessThan(mine.length);
+  });
+
+  it('fights its own battles instead of stopping the clock on a sheet', () => {
+    const end = run(setObserving(generateGalaxy(77, 'empire'), true), 400);
+    // A battle sheet is a question for the player. Watching, there is nobody
+    // to ask, so actions are fought in full and never handed over.
+    expect(end.battle).toBeUndefined();
+  });
 });
 
 describe('a prisoner is held until somebody comes', () => {

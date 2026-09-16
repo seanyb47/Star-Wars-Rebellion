@@ -1192,6 +1192,25 @@ export const AI_MISSION_INTERVAL = 10;
 /** How many officers the opponent will have ashore at once. One is not a
  *  faction playing the game; all of them at once is a diplomatic blitz. */
 export const AI_MISSION_PARTIES = 2;
+/**
+ * How many errands the opponent will break off to go and get its own people.
+ *
+ * A prisoner stays a prisoner until somebody comes, and the errand pass only
+ * ever looks at officers standing idle — so a side whose whole corps is ashore
+ * somewhere can never mount a rescue at all. Measured over six wars the Crown
+ * had two thirds of its officers in cells by day two hundred and never once
+ * tried: the corps never recovered, and the recruiting, the research and the
+ * war went with it. Two, because rescuing is worth interrupting talks for and
+ * is not worth emptying the board for.
+ */
+export const AI_RESCUE_PARTIES = 2;
+/**
+ * How many spells ashore the opponent will give an errand that is getting
+ * nowhere. Four is two months of work — long enough that a hard island is
+ * still worth trying, short enough that nobody stands on a foreign quay for
+ * a year waiting to be carried off.
+ */
+export const AI_MISSION_PATIENCE = 4;
 /** What the opponent adds for an island in the Reach an officer already sits
  *  in, so it is not forever sailing ten days the long way round. */
 export const AI_NEAR_BONUS = 25;

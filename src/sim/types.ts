@@ -424,6 +424,12 @@ export interface Mission {
   phase: 'travelling' | 'working';
   daysRemaining: number;
   /**
+   * How many spells ashore this errand has already run. The player decides
+   * for themselves whether a fortnight that got nowhere is worth another; the
+   * opponent needs a number, and this is it.
+   */
+  cycles?: number;
+  /**
    * Who else went. Only the officer leading an errand carries the Mission;
    * the rest of the boat carry `escorting` pointing back at them, so the
    * day's tick resolves one errand however many people are on it.

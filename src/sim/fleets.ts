@@ -747,7 +747,12 @@ export function resolveBattles(state: GameState, rng: Rng): void {
     const system = getSystem(state, systemId);
     if (!contestedAt(state, system)) continue;
     const here = fightingAt(state, systemId);
-    const hand = here.some((f) => f.faction === state.player) && !state.battle;
+    // Nobody to hand it to when the player is only watching: observe mode
+    // plays their side for them, and a battle sheet nobody answers stops the
+    // clock for good. Fought in full either way; what changes is whether it
+    // arrives as a question.
+    const hand =
+      !state.observing && here.some((f) => f.faction === state.player) && !state.battle;
     // Quiet in the dispatch sense only. It still goes in the log; what it does
     // not do is arrive as a card over the top of the battle sheet.
     const tally = fightRound(state, system, here, rng, hand);

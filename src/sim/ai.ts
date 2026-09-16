@@ -3,6 +3,7 @@ import {
   AI_FLEET_INTERVAL,
   AI_MISSION_INTERVAL,
   AI_MISSION_PARTIES,
+  AI_RESCUE_PARTIES,
   AI_NEAR_BONUS,
   AI_ABDUCT_BONUS,
   AI_LORD_BOUNTY,
@@ -74,6 +75,7 @@ import {
 } from './helpers';
 import {
   canStartMission,
+  endMission,
   isMissionTarget,
   abductOn,
   isRecruitTarget,
@@ -442,6 +444,52 @@ function aiPostLords(state: GameState, ai: PlayableFaction): void {
 }
 
 /**
+ * Break off talks and go and get your own people.
+ *
+ * Nobody comes back on their own — a prisoner is held until somebody sails for
+ * them — and the errand pass only ever looks at officers standing idle. A side
+ * with its whole corps ashore somewhere therefore has no way to mount a rescue
+ * at all, and the hole that leaves is not a small one: measured over six wars
+ * with both sides played, the Crown had two thirds of its officers in cells by
+ * day two hundred, never once tried to free any of them, and lost every war.
+ * The spiral has no floor without this — fewer officers is fewer recruits is
+ * no research is worse hulls is lost ground — and a rescue is the floor.
+ *
+ * Not every errand stops. A posting is a job and an officer at sea is
+ * committed; talking, charting, courting and yard work are interruptible, and
+ * they come off in that order, worst first. Freeing them is all this does: the
+ * ranking below is what actually sends them, on the same scale as everything
+ * else, so a rescue still has to be worth more than what is left ashore.
+ */
+function recallForRescue(state: GameState, ai: PlayableFaction, posted: Set<string>): void {
+  const cells = state.systems.filter((s) => isRescueTarget(state, s, ai)).length;
+  if (cells === 0) return;
+  const free = state.characters.filter(
+    (c) => c.faction === ai && c.status === 'available' && !posted.has(c.id),
+  ).length;
+  let want = Math.min(cells, AI_RESCUE_PARTIES) - free;
+  if (want <= 0) return;
+  // Worst first: charting is the cheapest thing to drop, signing somebody on
+  // the dearest — a new officer is the same scarce thing the rescue is for.
+  const order: MissionType[] = ['survey', 'research', 'sabotage', 'incite', 'diplomacy', 'recruit'];
+  const ashore = state.characters
+    .filter(
+      (c) =>
+        c.faction === ai &&
+        c.status === 'on_mission' &&
+        c.mission !== undefined &&
+        c.mission.phase === 'working' &&
+        order.includes(c.mission.type),
+    )
+    .sort((a, b) => order.indexOf(a.mission!.type) - order.indexOf(b.mission!.type));
+  for (const officer of ashore) {
+    if (want <= 0) return;
+    endMission(state, officer.id);
+    want--;
+  }
+}
+
+/**
  * The opponent's officers.
  *
  * It keeps more than one of them at sea — a faction with five officers and one
@@ -461,6 +509,7 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
   // pass would otherwise walk every commander it appointed straight back out
   // of the room (`startMission` ends a posting when its holder leaves).
   const posted = new Set(state.systems.map((s) => s.commanderId).filter(Boolean) as string[]);
+  recallForRescue(state, ai, posted);
   const idle = state.characters
     .filter((c) => c.faction === ai && c.status === 'available' && !posted.has(c.id))
     .sort((a, b) => b.diplomacy - a.diplomacy);

@@ -1,4 +1,5 @@
 import {
+  AI_MISSION_PATIENCE,
   FOIL_CHANCE,
   FOIL_INJURY_DAYS,
   FOIL_PER_WATCHER,
@@ -41,7 +42,14 @@ import { recomputeLedger } from './economy';
 import { resolveControlAndUnrest } from './support';
 import { isLord, passageShare, restoreLord } from './lords';
 import type { Rng } from './rng';
-import type { Character, GameState, MissionType, PlayableFaction, System } from './types';
+import type {
+  Character,
+  GameState,
+  Mission,
+  MissionType,
+  PlayableFaction,
+  System,
+} from './types';
 
 /**
  * How many days' sail from one island to another.
@@ -1022,18 +1030,54 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
     return;
   }
 
-  // Ask the player what to do next; the AI answers its own straight away —
-  // it works an island until it has what it came for, then frees the character up.
-  if (faction === state.player) {
+  /**
+   * Ask the player what to do next; the AI answers its own straight away —
+   * it works an island until it has what it came for, then frees the
+   * character up.
+   *
+   * Unless nobody is asking. In observe mode the player's side is played by
+   * the machine, and this line did not know it: every Crown officer who
+   * finished a spell ashore was handed to a player who was not there, and
+   * stood on that quay for the rest of the war. An officer standing on
+   * foreign ground can be lifted off it by anyone who turns up, so the
+   * Confederacy simply farmed them — measured over eight wars, forty Crown
+   * officers carried off against four of theirs, a corps ninety per cent in
+   * irons, and not one war won in twenty-four. It read as a balance problem
+   * for a day. It was this line.
+   */
+  if (faction === state.player && !state.observing) {
     // Never twice for the same officer: one report, one answer.
     if (!state.pendingDecisions.some((d) => d.characterId === character.id)) {
       state.pendingDecisions.push({ characterId: character.id, systemId: system.id, success });
     }
-  } else if (done(state, system, faction, mission.type)) {
+  } else if (done(state, system, faction, mission.type) || outOfPatience(mission)) {
     endMission(state, character.id);
   } else {
     continueMission(state, character.id);
   }
+}
+
+/**
+ * When the opponent gives up on an errand that is going nowhere.
+ *
+ * Talking only counts as finished when the island comes over, and yard work
+ * never finishes at all, so an opponent's officer used to land somewhere and
+ * stay there for the rest of the war. That is not patience, it is a hole: an
+ * officer standing on ground that is not theirs can be lifted off the quay by
+ * anybody who turns up, and standing there for six hundred days means being
+ * lifted. Measured over eight wars with both sides played, forty Crown
+ * officers were carried off against four of the Brethren's, the Crown's
+ * corps ended ninety per cent in irons, and it lost every war — not to a
+ * fleet, to a farm.
+ *
+ * So an errand has a patience, and only the opponent's does: the player is
+ * asked after every spell ashore and can sit somewhere for a year if they
+ * judge it worth it. Yard work is exempt because it is done on your own
+ * island, where nobody is hunting you and the work genuinely never runs out.
+ */
+function outOfPatience(mission: Mission): boolean {
+  if (mission.type === 'research' || mission.type === 'command') return false;
+  return (mission.cycles ?? 1) >= AI_MISSION_PATIENCE;
 }
 
 /** Whether the island has given the mission what it came for. */
@@ -1452,6 +1496,7 @@ export function continueMission(state: GameState, characterId: string): void {
   }
   mission.phase = 'working';
   mission.daysRemaining = MISSION_WORK_DAYS;
+  mission.cycles = (mission.cycles ?? 1) + 1;
   character.status = 'on_mission';
 }
 
