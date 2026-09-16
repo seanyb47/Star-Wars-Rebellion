@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { byRemembered, moveBlock } from '../order';
 import { generateGalaxy } from '../galaxy';
-import { reorderCrew, reorderFacilities, reorderShips } from '../commands';
+import { reorderCrew, reorderShips } from '../commands';
 
 const ids = (xs: Array<{ id: string }>) => xs.map((x) => x.id);
 
@@ -65,22 +65,14 @@ describe('the commands that use it', () => {
     expect(ids(state.fleets.find((f) => f.id === fleet.id)!.ships)).toEqual(before);
   });
 
-  it('reorders buildings and crew, and says so when the thing is not there', () => {
+  it('reorders crew, and says so when the thing is not there', () => {
     const state = generateGalaxy(501, 'empire');
-    const island = state.systems.find((s) => s.facilities.length > 2)!;
-    const was = ids(island.facilities);
-    const moved = reorderFacilities(state, island.id, [was[0]], 1);
-    expect(ids(moved.state.systems.find((s) => s.id === island.id)!.facilities)).toEqual([
-      was[1], was[0], ...was.slice(2),
-    ]);
-
     const crew = state.characters.filter((c) => c.faction === 'empire');
     const shifted = reorderCrew(state, [crew[1].id], -1);
     expect(shifted.error).toBeUndefined();
     const order = shifted.state.characters.map((c) => c.id);
     expect(order.indexOf(crew[1].id)).toBeLessThan(order.indexOf(crew[0].id));
 
-    expect(reorderFacilities(state, 'nowhere', ['x'], 1).error).toBe('No such island.');
     expect(reorderShips(state, 'nofleet', ['x'], 1).error).toBe('No such fleet.');
   });
 });

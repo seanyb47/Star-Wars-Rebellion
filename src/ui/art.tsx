@@ -1551,8 +1551,11 @@ export function ShipThumb({
 }) {
   const painting = paintedShip(`${faction}-${role}`);
   if (!painting) return <ShipIcon role={role} size={size * 0.6} />;
+  // 4:3, at Sean's word, and the same shape the paintings are delivered in —
+  // the box used to be 1:0.82 against a 3:4 painting and threw away 39% of
+  // every hull, the topmasts and the waterline both.
   return (
-    <span className="shipthumb" style={{ width: size, height: Math.round(size * 0.82) }}>
+    <span className="shipthumb" style={{ width: size, height: Math.round(size * 0.75) }}>
       <img src={painting} alt="" loading="lazy" />
     </span>
   );

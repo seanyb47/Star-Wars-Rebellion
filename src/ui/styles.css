@@ -1048,14 +1048,25 @@ button {
 .shiprow { display: flex; align-items: stretch; gap: 4px; }
 .shiprow + .shiprow { border-top: 1px solid var(--border); }
 .shiprow__tap {
-  flex: 1; min-width: 0; display: flex; align-items: center; gap: 9px;
-  padding: 7px 2px; min-height: 46px; text-align: left; color: var(--text);
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px;
+  padding: 7px 2px; min-height: 68px; text-align: left; color: var(--text);
 }
-.shiprow__name { flex: 1; min-width: 0; font-size: 13px; line-height: 1.2; }
+/* The class, in the encyclopedia. A quiet mark at the end of the row rather
+   than a word, because the row is already a hull, a name and two numbers. */
+.shiprow__ask {
+  flex: none; align-self: center;
+  width: 24px; height: 24px; padding: 0; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 12px; font-weight: 700; line-height: 1;
+  color: var(--metal-hi); background: transparent; border: 1px solid var(--border);
+}
+.shiprow__ask:active { background: var(--metal); color: var(--bg); }
+.shiprow__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.shiprow__name { min-width: 0; font-size: 14px; line-height: 1.2; }
 .shiprow__n { margin-right: 4px; font-variant-numeric: tabular-nums; }
 .shiprow__lord { color: var(--brass); }
 .shiprow__stats {
-  flex: none; font-size: 12px; font-variant-numeric: tabular-nums; text-align: right;
+  font-size: 12px; font-variant-numeric: tabular-nums; color: var(--muted);
 }
 .shiprow__hurt { color: var(--bad); }
 .shiprow__chev { flex: none; color: var(--muted); font-size: 17px; line-height: 1; }
@@ -1098,15 +1109,22 @@ button {
    board and lets the contents fill it. A list that collapses to one line when
    empty tells you nothing about what could be there; a board does. */
 .board {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+  /* Two across, not three. Sean: *"All the unit images in the game are too
+     small... larger images and less text."* At three columns a tile on a phone
+     is about 100px wide and a painting in it is a stamp; at two it is half the
+     panel and you can see what the thing is. */
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
   padding: 8px; min-height: 132px; align-content: start;
   background: var(--bg-sunken);
   border: 1px solid var(--border); border-radius: 10px;
   /* Three rows, then scroll. Cut just past the third row so a sliver of the
      fourth shows: a board that ends flush looks finished when it is not. */
-  max-height: 312px; overflow-y: auto;
+  max-height: 430px; overflow-y: auto;
   -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
 }
+/* On anything wider than a phone the tiles would go the size of playing cards,
+   so a wide board takes a third column back rather than growing the picture. */
+@media (min-width: 560px) { .board { grid-template-columns: repeat(3, 1fr); } }
 .board--bare {
   display: flex; align-items: center; justify-content: center; text-align: center;
   padding: 18px 14px; min-height: 96px;
@@ -1115,8 +1133,8 @@ button {
   border: 1px dashed var(--border); border-radius: 10px;
 }
 .slot {
-  min-height: 86px; padding: 8px 4px 6px;
-  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px;
+  min-height: 124px; padding: 10px 5px 8px; width: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 5px;
   background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px;
   text-align: center; overflow: hidden;
 }
@@ -1130,12 +1148,27 @@ button {
 }
 .slot--warn { border-color: var(--bad); }
 .slot--dim { opacity: 0.55; }
-.slot__icon { display: flex; align-items: center; justify-content: center; height: 34px; }
+.slot__icon { display: flex; align-items: center; justify-content: center; height: 68px; }
 .slot__name {
-  font-size: 10.5px; line-height: 1.2; color: var(--text);
+  font-size: 11px; line-height: 1.2; color: var(--text);
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-.slot__note { font-size: 9.5px; color: var(--muted); line-height: 1.15; }
+.slot__note { font-size: 10px; color: var(--muted); line-height: 1.15; }
+
+/* A tile that already does something, with the encyclopedia on a corner mark.
+   Small, quiet, and away from the middle of the picture, which is where the
+   thumb lands for the tile's own job. */
+.slot-lookup { position: relative; display: flex; }
+.slot-lookup__mark {
+  position: absolute; top: 4px; right: 4px; z-index: 1;
+  width: 21px; height: 21px; padding: 0; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 700; line-height: 1;
+  color: var(--metal-hi); background: rgba(9, 30, 39, 0.78);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(3px);
+}
+.slot-lookup__mark:active { background: var(--metal); color: var(--bg); }
 
 /* ---------- Idle producers ----------
    The original nags you in red when a construction yard is sitting empty.
@@ -1384,7 +1417,7 @@ button.tcard:hover { border-color: var(--brass); }
   display: inline-block; overflow: hidden; border-radius: 5px; flex: none;
   border: 1px solid var(--border); background: var(--water-deep); line-height: 0;
 }
-.shipthumb img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 48%; }
+.shipthumb img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
 /* Works on an island. Wide, because the paintings are. */
 .facthumb {
   display: inline-block; overflow: hidden; border-radius: 5px; flex: none;
@@ -1630,12 +1663,24 @@ button.tcard:hover { border-color: var(--brass); }
   background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size: 6px 6px; background-repeat: no-repeat;
 }
 .field__static { min-height: var(--tap); display: flex; align-items: center; padding: 8px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg-sunken); font-weight: 600; }
-.unit { margin-top: 10px; padding: 10px; display: flex; gap: 12px; align-items: flex-start; }
-.unit__art { flex: none; width: 96px; height: 96px; border-radius: 10px; overflow: hidden; background: var(--bg-sunken); display: grid; place-items: center; color: var(--brass); border: 1px solid var(--border); }
+/* The picture leads and the words follow, rather than a 96px stamp with three
+   paragraphs beside it. This is the card you are looking at when you decide to
+   spend four hundred gold on a thing, and what the thing looks like is most of
+   what you are deciding about. */
+.unit { margin-top: 10px; padding: 10px; display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+.unit__art {
+  width: 100%; aspect-ratio: 1 / 1; border-radius: 10px; overflow: hidden;
+  background: var(--bg-sunken); display: grid; place-items: center;
+  color: var(--brass); border: 1px solid var(--border);
+}
 .unit__art img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.unit__art--tall { height: 116px; }
-.unit__art--wide { width: 128px; height: 74px; }
-.unit__body { min-width: 0; flex: 1; }
+/* A hull is painted 4:3 and a works is painted as a wide banner, so each keeps
+   its own shape rather than being cropped into a shared box. */
+.unit__art--tall { aspect-ratio: 4 / 3; }
+.unit__art--wide { aspect-ratio: 768 / 204; }
+/* Nothing painted yet: a glyph in a box that is not the size of a poster. */
+.unit__art:not(.unit__art--tall):not(.unit__art--wide) { width: 110px; height: 110px; aspect-ratio: auto; }
+.unit__body { min-width: 0; }
 .unit__name { font-weight: 700; font-size: 15px; }
 .unit__stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
 
@@ -1888,3 +1933,10 @@ button.tcard:hover { border-color: var(--brass); }
 
 /* The one destructive order on the island panel, kept off the tiles. */
 .clearline { gap: 10px; align-items: center; margin: 10px 0 2px; }
+
+/* Where a tapped unit landed you in the encyclopedia: a brief brass edge, so
+   the eye finds the entry on a page of a dozen similar cards. */
+.is-landed { box-shadow: 0 0 0 2px var(--metal); border-radius: 10px; }
+
+/* A company's figure in the encyclopedia, at a size you can actually read. */
+.company__thumb { flex: none; width: 76px; display: grid; place-items: center; }

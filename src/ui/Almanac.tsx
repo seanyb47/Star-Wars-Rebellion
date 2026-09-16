@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import terms from '../data/terms.json';
 import characterRoster from '../data/characters.json';
 import reachData from '../data/reaches.json';
@@ -56,6 +56,16 @@ import {
   CreaturePainting,
 } from './art';
 import { GoldFig, Sheet } from './components';
+import { useSideSwipe } from './LayerStrip';
+
+/** The same rule `painted.ts` uses, so an id and an anchor are the same word. */
+export function slugOf(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/["'’.]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
 
 /**
  * Everything in the game, in one place, read out of the same constants the
@@ -102,14 +112,42 @@ export function Almanac({
   state,
   onClose,
   page: opening = 'people',
+  entry,
 }: {
   state: GameState;
   onClose: () => void;
   /** Which page to open on, when something else sent the player here. */
   page?: Page;
+  /**
+   * A particular thing to land on, by slug — `crown-marines`, `shipyard`,
+   * `forest`, a hull's class id, an officer's name. Tapping a unit anywhere in
+   * the game opens this page at that unit rather than at the top of a long
+   * one, which is the whole point of making the pictures tappable.
+   */
+  entry?: string;
 }) {
   const roster = characterRoster[state.player];
   const [page, setPage] = useState<Page>(opening);
+  // A sideways drag moves along the tabs, the same gesture the chart and the
+  // island panel already use for their rows.
+  const swipe = useSideSwipe((step) => {
+    const at = PAGES.findIndex((p) => p.id === page);
+    const next = at + step;
+    if (next < 0 || next >= PAGES.length) return;
+    setPage(PAGES[next].id);
+  });
+
+  // Land on the thing that sent us here. Done after paint, because the page
+  // it lives on may only have just been rendered.
+  useEffect(() => {
+    if (!entry) return;
+    const found = document.getElementById(`enc-${slugOf(entry)}`);
+    if (!found) return;
+    found.scrollIntoView({ block: 'center' });
+    found.classList.add('is-landed');
+    const off = window.setTimeout(() => found.classList.remove('is-landed'), 1600);
+    return () => window.clearTimeout(off);
+  }, [entry, page]);
 
   return (
     <Sheet
@@ -117,6 +155,8 @@ export function Almanac({
       subtitle="Every unit in the game, with the numbers the rules actually use"
       onClose={onClose}
       stacked
+      onTouchStart={swipe.onTouchStart}
+      onTouchEnd={swipe.onTouchEnd}
       tabs={
         <div className="tabs" role="tablist">
           {PAGES.map((entry) => (
@@ -146,7 +186,7 @@ export function Almanac({
       </p>
       <div className="stack">
         {BUILD_ORDER.map((type) => (
-          <div key={type} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
+          <div key={type} id={`enc-${slugOf(type)}`} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
             {/* The painting, not the glyph. Every works but the two defences
                 has one, and an encyclopedia of what things are is the last
                 place that should be showing a line drawing instead. */}
@@ -175,7 +215,7 @@ export function Almanac({
       <div className="section-title">What is in the ground</div>
       <div className="stack" style={{ marginBottom: 10 }}>
         {(['forest', 'gold'] as const).map((type) => (
-          <div key={type} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
+          <div key={type} id={`enc-${type}`} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
             <span className="facility__thumb">
               <ResourceThumb type={type} width={84} />
             </span>
@@ -323,9 +363,9 @@ export function Almanac({
       </p>
       <div className="stack">
         {troopsOf(state.player).map((type) => (
-          <div key={type.id} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
-            <span className="facility__icon">
-              <CompanyIcon size={32} type={type.id} />
+          <div key={type.id} id={`enc-${type.id}`} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
+            <span className="company__thumb">
+              <CompanyIcon size={76} type={type.id} />
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="row row--between">
@@ -403,13 +443,13 @@ export function Almanac({
       <div className="section-title">Your crew</div>
       <div className="stack">
         {roster.map((entry) => (
-          <div key={entry.id} className="card">
-            <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
+          <div key={entry.id} id={`enc-${slugOf(entry.name)}`} className="card">
+            <div className="row" style={{ gap: 12, alignItems: 'flex-start' }}>
               <CharacterPortrait
                 name={entry.name}
                 faction={state.player}
                 people={entry.people}
-                size={44}
+                size={84}
               />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <b className="small">{entry.name}</b>
@@ -602,9 +642,9 @@ export function Almanac({
         {shipsFor(state.player).map((cls) => {
           const spec = shipSpec(cls.id);
           return (
-            <div key={cls.id} className="card">
+            <div key={cls.id} id={`enc-${cls.id}`} className="card">
               <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
-                <ShipThumb faction={state.player} role={cls.role} size={52} />
+                <ShipThumb faction={state.player} role={cls.role} size={140} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="row row--between">
                     <b>{cls.name}</b>

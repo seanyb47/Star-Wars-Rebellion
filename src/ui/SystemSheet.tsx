@@ -15,6 +15,7 @@ import {
   smuggledOff,
   UPKEEP_PER_DAY,
   buildError,
+  buildingRank,
   clearError,
   depositsLeft,
   RESOURCE_LABEL,
@@ -43,7 +44,6 @@ import {
   byRemembered,
   garrisonRoster,
   garrisonSummary,
-  troopType,
   MISSION_LABEL,
   type PlayableFaction,
 } from '../sim';
@@ -62,6 +62,7 @@ import {
 } from './art';
 import { ChartMark } from './ChartMark';
 import { useSideSwipe } from './LayerStrip';
+import { useLookUp } from './lookup';
 import {
   ControlBadge,
   GoldFig,
@@ -368,7 +369,6 @@ export function SystemSheet({
   onOrderShips,
   onOrderOfficers,
   onDetach,
-  onOrderFacilities,
   onOrderGarrison,
   onOrderCrew,
 }: {
@@ -390,16 +390,14 @@ export function SystemSheet({
   onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
   onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
   onDetach?: (fleetId: string, shipIds: string[], into?: string) => void;
-  onOrderFacilities?: (systemId: string, facilityIds: string[], dir: -1 | 1) => void;
   onOrderGarrison?: (systemId: string, typeIds: string[], dir: -1 | 1) => void;
   onOrderCrew?: (characterIds: string[], dir: -1 | 1) => void;
   onOpenCharacter?: (characterId: string) => void;
   onOpenReach?: (sectorId: string) => void;
 }) {
   const [tab, setTab] = useState<IslandTab>(initialTab);
-  /** A company the player has tapped to read about, on the Garrison tab. */
-  const [companyId, setCompany] = useState<string | undefined>();
   const [prefs] = usePrefs();
+  const lookUp = useLookUp();
   // Five tabs and a thumb: sliding between them beats aiming at them.
   const swipe = useSideSwipe((step) => {
     const at = TABS.findIndex((entry) => entry.id === tab);
@@ -479,8 +477,11 @@ export function SystemSheet({
   const works = (() => {
     const out: Array<Facility & { count: number; ids: string[]; days?: number }> = [];
     for (const facility of system.facilities) {
+      // Always folded, never by choice. Sean, 16 September: buildings do not
+      // need reordering and should always be grouped — the two toggles were a
+      // decision the player had to make once per island about something with
+      // one right answer.
       const fold =
-        prefs.group &&
         !facility.founding &&
         out.find((f) => f.type === facility.type && f.owner === facility.owner && !f.founding);
       if (fold) {
@@ -496,9 +497,11 @@ export function SystemSheet({
         });
       }
     }
+    // And in the one order every island uses: makers, then the defences, then
+    // the earners. `BUILDING_ORDER` is the whole of it.
+    out.sort((a, b) => buildingRank(a.type) - buildingRank(b.type));
     return out;
   })();
-  const company = companyId ? troopType(companyId) : undefined;
 
   return (
     <Sheet
@@ -649,7 +652,7 @@ export function SystemSheet({
             {inTheGround > 0 ? `, ${inTheGround} standing in the ground` : ''}
             {freeSlots(system) > 0 ? `, ${freeSlots(system)} open` : ', and no plot open'}.
           </p>
-          {system.facilities.length > 1 && <ListOpts />}
+
           <SlotBoard
             empty={`Nothing stands on ${system.name}${slots > 0 ? ' yet' : ', and there is nowhere to put anything'}.`}
           >
@@ -661,7 +664,7 @@ export function SystemSheet({
             {ground.map((entry) => (
               <Slot
                 key={entry.type}
-                icon={<ResourceIcon type={entry.type} size={30} />}
+                icon={<ResourceIcon type={entry.type} size={64} />}
                 art={
                   resourcePainting(entry.type) ? (
                     <ResourceThumb type={entry.type} fill />
@@ -674,12 +677,13 @@ export function SystemSheet({
                 }
                 note="unworked"
                 tone="dim"
+                onLookUp={() => lookUp?.('works', entry.type)}
               />
             ))}
-            {works.map((facility, i) => (
+            {works.map((facility) => (
               <Slot
                 key={facility.id}
-                icon={<FacilityIcon type={facility.type} size={30} />}
+                icon={<FacilityIcon type={facility.type} size={64} />}
                 // The board is where a player actually looks to see what
                 // stands on an island, and it was drawing line glyphs at works
                 // that have had paintings since the first art batch.
@@ -695,20 +699,7 @@ export function SystemSheet({
                 }
                 note={facility.days !== undefined ? `${facility.days}d` : undefined}
                 tone={facility.owner !== state.player ? 'dim' : undefined}
-                order={
-                  prefs.reorder && works.length > 1 && onOrderFacilities
-                    ? {
-                        up:
-                          i === 0
-                            ? undefined
-                            : () => onOrderFacilities(system.id, facility.ids, -1),
-                        down:
-                          i === works.length - 1
-                            ? undefined
-                            : () => onOrderFacilities(system.id, facility.ids, 1),
-                      }
-                    : undefined
-                }
+                onLookUp={() => lookUp?.('works', facility.type)}
               />
             ))}
           </SlotBoard>
@@ -851,14 +842,17 @@ export function SystemSheet({
               (entry, i, all) => (
                 <Slot
                   key={entry.key}
-                  icon={<CompanyIcon size={30} type={entry.type.id} />}
+                  icon={<CompanyIcon size={64} type={entry.type.id} />}
                   name={
                     prefs.group && entry.count > 1
                       ? `${entry.count}× ${entry.type.name}`
                       : entry.type.name
                   }
-                  note={`${entry.type.offense}/${entry.type.defense}/${entry.type.watch}`}
-                  onClick={() => setCompany(entry.type.id)}
+                  // What a company is now lives in the encyclopedia, which
+                  // holds the same numbers with the room to say what they
+                  // mean — so the tile is a picture and a name, and tapping it
+                  // goes there rather than unfolding a card under the board.
+                  onLookUp={() => lookUp?.('companies', entry.type.id)}
                   label={`${entry.type.name} — ${entry.type.people}`}
                   order={
                     prefs.reorder && prefs.group && all.length > 1 && onOrderGarrison
@@ -880,28 +874,8 @@ export function SystemSheet({
           </SlotBoard>
           {roster.length > 0 && (
             <p className="tiny muted" style={{ marginTop: 6 }}>
-              Attack / hold / watch. Tap a company to read what it is.
+              Tap a company to read what it is.
             </p>
-          )}
-          {company && (
-            <div className="card row" style={{ gap: 10, alignItems: 'flex-start', marginTop: 8 }}>
-              <span className="facility__icon">
-                <CompanyIcon size={34} type={company.id} />
-              </span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="row row--between">
-                  <b className="small">{company.name}</b>
-                  <button className="linkish tiny" onClick={() => setCompany(undefined)}>
-                    Close
-                  </button>
-                </div>
-                <div className="tiny muted" style={{ marginTop: 1 }}>
-                  {company.people} · attack {company.offense} · hold {company.defense} · watch{' '}
-                  {company.watch}
-                </div>
-                <div className="tiny muted" style={{ marginTop: 4 }}>{company.blurb}</div>
-              </div>
-            </div>
           )}
           <p className="tiny muted" style={{ marginTop: 8 }}>
             {needed > 0
@@ -956,7 +930,7 @@ export function SystemSheet({
                     name={character.name}
                     faction={character.faction}
                     people={character.people}
-                    size={32}
+                    size={66}
                     dim={character.status !== 'available'}
                   />
                 }
@@ -995,7 +969,7 @@ export function SystemSheet({
                     name={character.name}
                     faction={character.faction}
                     people={character.people}
-                    size={32}
+                    size={66}
                   />
                 }
                 name={character.name}

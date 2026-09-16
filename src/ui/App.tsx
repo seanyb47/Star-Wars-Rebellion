@@ -15,7 +15,6 @@ import {
   orderFlee,
   orderRelieve,
   reorderCrew,
-  reorderFacilities,
   reorderGarrison,
   reorderOfficers,
   reorderShips,
@@ -42,6 +41,7 @@ import {
   type MissionType,
 } from '../sim';
 import { Almanac } from './Almanac';
+import { LookUpProvider, type EncPage } from './lookup';
 import { CharacterSheet } from './CharacterSheet';
 import { BuildMenuSheet, BuildOrderSheet, firstItem, type BuildDraft } from './BuildSheet';
 import { MissionChoiceSheet } from './MissionChoiceSheet';
@@ -99,7 +99,12 @@ export function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [narratorOpen, setNarratorOpen] = useState(false);
   const voice = useAdvisorVoice();
-  const [almanacOpen, setAlmanacOpen] = useState(false);
+  // The encyclopedia, and where in it. `at` is set when a unit somewhere in
+  // the game was tapped to get here, so the page opens on that entry rather
+  // than at the top of a page of thirty.
+  const [almanac, setAlmanac] = useState<{ page: EncPage; at?: string } | null>(null);
+  const almanacOpen = almanac !== null;
+  const lookUp = useCallback((page: EncPage, at?: string) => setAlmanac({ page, at }), []);
   const [pickingFor, setPickingFor] = useState<string | null>(null);
   // An island that offers an officer more than one errand asks which.
   const [missionChoice, setMissionChoice] = useState<{ characterId: string; systemId: string } | null>(null);
@@ -490,11 +495,6 @@ export function App() {
     if (result.error) return flash(result.error);
     setState(result.state);
   };
-  const handleOrderFacilities = (systemId: string, facilityIds: string[], dir: -1 | 1) => {
-    const result = reorderFacilities(state, systemId, facilityIds, dir);
-    if (result.error) return flash(result.error);
-    setState(result.state);
-  };
   const handleOrderGarrison = (systemId: string, typeIds: string[], dir: -1 | 1) => {
     const result = reorderGarrison(state, systemId, typeIds, dir);
     if (result.error) return flash(result.error);
@@ -587,6 +587,7 @@ export function App() {
   }
 
   return (
+    <LookUpProvider value={lookUp}>
     <div className="app" data-side={state.player}>
       {/* Waits for the war-begins dispatch to be read: two cards at once is
           nobody's idea of a clean start. */}
@@ -599,7 +600,7 @@ export function App() {
         soundOn={sound.on}
         onToggleSound={sound.toggle}
         onSetSpeed={(speed: Speed) => setState(setSpeed(state, speed))}
-        onOpenAlmanac={() => setAlmanacOpen(true)}
+        onOpenAlmanac={() => lookUp('people')}
         onOpenMenu={() => setMenuOpen(true)}
       />
 
@@ -755,7 +756,6 @@ export function App() {
           onOrderShips={handleOrderShips}
           onDetach={handleDetach}
           onOrderOfficers={handleOrderOfficers}
-          onOrderFacilities={handleOrderFacilities}
           onOrderGarrison={handleOrderGarrison}
           onOrderCrew={handleOrderCrew}
           onOpenCharacter={setOpenCharacterId}
@@ -935,12 +935,19 @@ export function App() {
           }}
           onOpenAlmanac={() => {
             setNarratorOpen(false);
-            setAlmanacOpen(true);
+            lookUp('people');
           }}
         />
       )}
 
-      {almanacOpen && <Almanac state={state} onClose={() => setAlmanacOpen(false)} />}
+      {almanac && (
+        <Almanac
+          state={state}
+          page={almanac.page}
+          entry={almanac.at}
+          onClose={() => setAlmanac(null)}
+        />
+      )}
 
       {menuOpen && (
         <MenuSheet
@@ -949,7 +956,7 @@ export function App() {
           onReturnToTitle={returnToTitle}
           onOpenAlmanac={() => {
             setMenuOpen(false);
-            setAlmanacOpen(true);
+            lookUp('people');
           }}
           onHowToPlay={() => {
             setMenuOpen(false);
@@ -958,6 +965,7 @@ export function App() {
         />
       )}
     </div>
+    </LookUpProvider>
   );
 }
 

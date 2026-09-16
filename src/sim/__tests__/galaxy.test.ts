@@ -145,12 +145,25 @@ describe('generateGalaxy', () => {
         .flatMap((s) => s.facilities)
         .filter((f) => f.owner === faction);
       const count = (type: string) => owned.filter((f) => f.type === type).length;
-      // Timber, and two veins apiece. A gold mine earns three times a mill
+      // Timber, and a vein or two apiece. A gold mine earns three times a mill
       // and can only stand on gold, so a side that opened with fifteen of
       // them opened rich enough never to have to decide anything — measured,
       // twice the income of the old opening on day one.
-      expect(count('mine')).toBe(2);
+      //
+      // A target, not a hand-out: most of these came with the islands, which
+      // are settled islands and work some of their own ground, and the deal
+      // only makes up the difference. So the mill count is exact whatever the
+      // dice did, and the veins can only run over — a side whose ground was
+      // already working four of them is not made to give two back.
+      expect(count('mine')).toBeGreaterThanOrEqual(2);
       expect(count('refinery')).toBe(faction === 'empire' ? 18 : 17);
+      // And nothing on a held island belongs to nobody.
+      expect(
+        state.systems
+          .filter((s) => s.control === faction)
+          .flatMap((s) => s.facilities)
+          .filter((f) => f.owner !== faction),
+      ).toHaveLength(0);
       // Two of each maker, dealt at random across the side's islands.
       expect(count('construction_yard')).toBe(2);
       expect(count('training_facility')).toBe(2);

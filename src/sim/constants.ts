@@ -1239,6 +1239,35 @@ export function needsResource(item: BuildItem): ResourceType | undefined {
   return typeof item === 'string' ? WORKS_ON[item as FacilityType] : undefined;
 }
 
+/**
+ * The order buildings are shown in, everywhere they are listed.
+ *
+ * Sean's ruling, 16 September: *"Buildings do not need to be reordered, and
+ * they should always be grouped similar. Only fleets need to be able to be
+ * reordered. Buildings will follow a specific order: shipyards, training
+ * facilities, construction yards, other, raw."*
+ *
+ * Makers first and biggest-commitment first, then the defences, then the
+ * earners, and the unworked ground last of all — it is the only thing on the
+ * board that is not a building. One order everywhere means an island's panel
+ * reads the same way as every other island's, which is the whole reason to
+ * take the choice away.
+ */
+export const BUILDING_ORDER: FacilityType[] = [
+  'shipyard',
+  'training_facility',
+  'construction_yard',
+  'fort',
+  'boom',
+  'refinery',
+  'mine',
+];
+
+export function buildingRank(type: FacilityType): number {
+  const at = BUILDING_ORDER.indexOf(type);
+  return at === -1 ? BUILDING_ORDER.length : at;
+}
+
 /** Display names come from the world bible via `data/terms.json`. */
 export const FACILITY_LABEL: Record<FacilityType, string> = terms.facilities;
 

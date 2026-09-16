@@ -2672,15 +2672,15 @@
       "slug": "alliance-large",
       "version": 1,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-16",
       "title": "Reef-class \u2014 Free Confederacy large",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
         "x": 0,
-        "y": 6,
+        "y": 117,
         "w": 379,
-        "h": 505
+        "h": 284
       },
       "tone": null,
       "upscaled": true,
@@ -2693,10 +2693,10 @@
       },
       "shipped": {
         "file": "src/art/ships/alliance-large.webp",
-        "w": 384,
-        "h": 512,
-        "bytes": 50656,
-        "sha1": "d1388ff21c267890"
+        "w": 640,
+        "h": 480,
+        "bytes": 53384,
+        "sha1": "65bb66e56a4cefc0"
       }
     },
     "ships/alliance-medium": {
@@ -2704,15 +2704,15 @@
       "slug": "alliance-medium",
       "version": 1,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-16",
       "title": "Tempest \u2014 Free Confederacy medium",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
         "x": 0,
-        "y": 8,
+        "y": 118,
         "w": 376,
-        "h": 501
+        "h": 282
       },
       "tone": null,
       "upscaled": true,
@@ -2725,10 +2725,10 @@
       },
       "shipped": {
         "file": "src/art/ships/alliance-medium.webp",
-        "w": 384,
-        "h": 512,
-        "bytes": 47628,
-        "sha1": "4aa5f1f9b6000f7a"
+        "w": 640,
+        "h": 480,
+        "bytes": 52858,
+        "sha1": "d3a43bc6fc9130b5"
       }
     },
     "ships/alliance-small": {
@@ -2736,15 +2736,15 @@
       "slug": "alliance-small",
       "version": 1,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-16",
       "title": "Swift \u2014 Free Confederacy small",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
         "x": 0,
-        "y": 8,
+        "y": 118,
         "w": 376,
-        "h": 501
+        "h": 282
       },
       "tone": null,
       "upscaled": true,
@@ -2757,10 +2757,10 @@
       },
       "shipped": {
         "file": "src/art/ships/alliance-small.webp",
-        "w": 384,
-        "h": 512,
-        "bytes": 41250,
-        "sha1": "d2e32757e371c9a4"
+        "w": 640,
+        "h": 480,
+        "bytes": 43052,
+        "sha1": "e66c7d1cc483f46b"
       }
     },
     "ships/alliance-transport": {
@@ -2768,15 +2768,15 @@
       "slug": "alliance-transport",
       "version": 1,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-16",
       "title": "Brig \u2014 Free Confederacy transport",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
         "x": 0,
-        "y": 5,
+        "y": 116,
         "w": 381,
-        "h": 508
+        "h": 286
       },
       "tone": null,
       "upscaled": true,
@@ -2789,10 +2789,10 @@
       },
       "shipped": {
         "file": "src/art/ships/alliance-transport.webp",
-        "w": 384,
-        "h": 512,
-        "bytes": 41132,
-        "sha1": "83a3d0546356a255"
+        "w": 640,
+        "h": 480,
+        "bytes": 46474,
+        "sha1": "71d2917c005b2202"
       }
     },
     "ships/empire-large": {
@@ -2800,15 +2800,15 @@
       "slug": "empire-large",
       "version": 1,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-16",
       "title": "Sovereign \u2014 Crown Imperium large",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
         "x": 0,
-        "y": 0,
+        "y": 111,
         "w": 379,
-        "h": 505
+        "h": 284
       },
       "tone": null,
       "upscaled": true,
@@ -2821,10 +2821,10 @@
       },
       "shipped": {
         "file": "src/art/ships/empire-large.webp",
-        "w": 384,
-        "h": 512,
-        "bytes": 49920,
-        "sha1": "2b851fd6e6896b5c"
+        "w": 640,
+        "h": 480,
+        "bytes": 52630,
+        "sha1": "4a218a9e91d0a9f1"
       }
     },
     "ships/empire-medium": {
@@ -2832,15 +2832,15 @@
       "slug": "empire-medium",
       "version": 1,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-16",
       "title": "Razorback \u2014 Crown Imperium medium",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
         "x": 0,
-        "y": 2,
+        "y": 112,
         "w": 376,
-        "h": 501
+        "h": 282
       },
       "tone": null,
       "upscaled": true,
@@ -2853,10 +2853,10 @@
       },
       "shipped": {
         "file": "src/art/ships/empire-medium.webp",
-        "w": 384,
-        "h": 512,
-        "bytes": 43610,
-        "sha1": "5aafbc5245624ece"
+        "w": 640,
+        "h": 480,
+        "bytes": 47840,
+        "sha1": "8cad20d75975a76b"
       }
     },
     "ships/empire-small": {
@@ -2864,15 +2864,15 @@
       "slug": "empire-small",
       "version": 1,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-16",
       "title": "Kestrel \u2014 Crown Imperium small",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
         "x": 0,
-        "y": 2,
+        "y": 112,
         "w": 376,
-        "h": 501
+        "h": 282
       },
       "tone": null,
       "upscaled": true,
@@ -2885,10 +2885,10 @@
       },
       "shipped": {
         "file": "src/art/ships/empire-small.webp",
-        "w": 384,
-        "h": 512,
-        "bytes": 36696,
-        "sha1": "945616c309f15c45"
+        "w": 640,
+        "h": 480,
+        "bytes": 36774,
+        "sha1": "1cd5c7725702fb3e"
       }
     },
     "ships/empire-transport": {
@@ -2896,15 +2896,15 @@
       "slug": "empire-transport",
       "version": 1,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-16",
       "title": "Fluyt \u2014 Crown Imperium transport",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
         "x": 0,
-        "y": 0,
-        "w": 380,
-        "h": 506
+        "y": 110,
+        "w": 381,
+        "h": 286
       },
       "tone": null,
       "upscaled": true,
@@ -2917,10 +2917,10 @@
       },
       "shipped": {
         "file": "src/art/ships/empire-transport.webp",
-        "w": 384,
-        "h": 512,
-        "bytes": 39730,
-        "sha1": "cb3d96f0182f3b07"
+        "w": 640,
+        "h": 480,
+        "bytes": 40736,
+        "sha1": "07f03ddcd6d4bae0"
       }
     }
   }

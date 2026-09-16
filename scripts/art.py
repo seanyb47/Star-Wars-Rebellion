@@ -66,7 +66,12 @@ DOC = os.path.join(ROOT, "ASSETS.md")
 FOLDERS: dict[str, tuple[int, int, str]] = {
     "portraits": (480, 436, "three-quarter figure against its harbour; the card art"),
     "faces": (256, 256, "the head, cropped square out of the portrait; the medallion"),
-    "ships": (384, 512, "three-quarter view, whole vessel"),
+    # Sean, 16 September: "Ship images are small on the fleet screen. Let's
+    # make ships bigger. And 4:3 not 3:4." The old portrait shape was being
+    # drawn into landscape boxes everywhere and losing 39% of the painting to
+    # the crop — the topmasts and the waterline, which are the two things that
+    # make a ship read as a ship.
+    "ships": (640, 480, "three-quarter view, whole vessel, masts and waterline both in frame"),
     "islands": (768, 204, "low approach, as if from a boat; a banner on the island panel"),
     "isles": (768, 204, "one island's own painting, by name; wins over its type's"),
     "creatures": (768, 352, "the natural world, and where the 20% fantasy is allowed out"),
@@ -373,7 +378,13 @@ def cmd_recrop(args) -> None:
     render(master_path, folder, crop, ship_path, tone)
     entry["crop"] = crop
     entry["tone"] = tone
-    entry["upscaled"] = upscaled or None
+    # Worked out again rather than carried over: a recrop takes a smaller box
+    # out of the master, and a folder's shipping size can change under it —
+    # both of which can turn a master that was big enough into one that is not.
+    # This read an undefined name and threw, so `recrop` has never once run.
+    box_w = crop["w"] if crop else entry["master"]["w"]
+    box_h = crop["h"] if crop else entry["master"]["h"]
+    entry["upscaled"] = (box_w < tw or box_h < th) or None
     entry["shipped"] = stamp(ship_path)
     entry["updated"] = today()
     save(data)

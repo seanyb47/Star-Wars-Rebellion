@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**96 of 101 painted.** 3190KB shipped, 9.4MB of masters kept back.
+**96 of 101 painted.** 3213KB shipped, 9.4MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -75,20 +75,20 @@ the head, cropped square out of the portrait; the medallion. 26 of 26.
 | Wren Tally | `wren-tally` | 1 | 8KB | 124×124, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Wyatt Ansell | `wyatt-ansell` | 1 | 8KB | 124×124, 8KB | whole frame, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 
-## ships — 384×512
+## ships — 640×480
 
-three-quarter view, whole vessel. 8 of 8.
+three-quarter view, whole vessel, masts and waterline both in frame. 8 of 8.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
-| Reef-class — Free Confederacy large | `alliance-large` | 1 | 49KB | 379×518, 102KB | 379×505 @ 0,6, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Tempest — Free Confederacy medium | `alliance-medium` | 1 | 46KB | 376×518, 96KB | 376×501 @ 0,8, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Swift — Free Confederacy small | `alliance-small` | 1 | 40KB | 376×518, 87KB | 376×501 @ 0,8, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Brig — Free Confederacy transport | `alliance-transport` | 1 | 40KB | 381×518, 88KB | 381×508 @ 0,5, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Sovereign — Crown Imperium large | `empire-large` | 1 | 48KB | 379×506, 95KB | 379×505 @ 0,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Razorback — Crown Imperium medium | `empire-medium` | 1 | 42KB | 376×506, 85KB | 376×501 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Kestrel — Crown Imperium small | `empire-small` | 1 | 35KB | 376×506, 76KB | 376×501 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Fluyt — Crown Imperium transport | `empire-transport` | 1 | 38KB | 381×506, 81KB | 380×506 @ 0,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Reef-class — Free Confederacy large | `alliance-large` | 1 | 52KB | 379×518, 102KB | 379×284 @ 0,117, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Tempest — Free Confederacy medium | `alliance-medium` | 1 | 51KB | 376×518, 96KB | 376×282 @ 0,118, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Swift — Free Confederacy small | `alliance-small` | 1 | 42KB | 376×518, 87KB | 376×282 @ 0,118, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Brig — Free Confederacy transport | `alliance-transport` | 1 | 45KB | 381×518, 88KB | 381×286 @ 0,116, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Sovereign — Crown Imperium large | `empire-large` | 1 | 51KB | 379×506, 95KB | 379×284 @ 0,111, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Razorback — Crown Imperium medium | `empire-medium` | 1 | 46KB | 376×506, 85KB | 376×282 @ 0,112, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Kestrel — Crown Imperium small | `empire-small` | 1 | 35KB | 376×506, 76KB | 376×282 @ 0,112, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Fluyt — Crown Imperium transport | `empire-transport` | 1 | 39KB | 381×506, 81KB | 381×286 @ 0,110, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 
 ## islands — 768×204
 

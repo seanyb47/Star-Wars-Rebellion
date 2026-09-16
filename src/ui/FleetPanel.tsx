@@ -26,6 +26,7 @@ import {
   type Ship,
 } from '../sim';
 import { CharacterPortrait, CreaturePainting, FacilityIcon, ShipThumb } from './art';
+import { useLookUp } from './lookup';
 import { usePrefs } from './prefs';
 import { ControlBadge, ListOpts } from './components';
 
@@ -63,6 +64,7 @@ function ShipRow({
 }) {
   const cls = shipClass(ships[0].classId as Parameters<typeof shipClass>[0]);
   const spec = shipSpec(ships[0].classId as Parameters<typeof shipSpec>[0]);
+  const lookUp = useLookUp();
   // Rounded here and nowhere else: a hull mends by a per cent of itself a day,
   // so damage is fractional in the arithmetic and whole on the screen.
   const hurt = Math.round(ships.reduce((n, s) => n + s.damage, 0));
@@ -77,14 +79,16 @@ function ShipRow({
         <span className="shiprow__box" aria-hidden="true">
           {pick.on ? '☑' : '☐'}
         </span>
-        <ShipThumb faction={faction} role={cls.role} size={34} />
-        <span className="shiprow__name">
-          {grouped && ships.length > 1 && <b className="shiprow__n">{ships.length}×</b>}
-          {cls.name}
-        </span>
-        <span className="shiprow__stats">
-          {whole - hurt}/{whole}
-          <span className="muted"> hull</span>
+        <ShipThumb faction={faction} role={cls.role} size={112} />
+        <span className="shiprow__text">
+          <span className="shiprow__name">
+            {grouped && ships.length > 1 && <b className="shiprow__n">{ships.length}×</b>}
+            {cls.name}
+          </span>
+          <span className="shiprow__stats">
+            {whole - hurt}/{whole}
+            <span className="muted"> hull</span>
+          </span>
         </span>
       </button>
     );
@@ -113,21 +117,38 @@ function ShipRow({
         </span>
       )}
       <button className="shiprow__tap" onClick={onOpen} aria-label={`${cls.name} — details`}>
-        <ShipThumb faction={faction} role={cls.role} size={34} />
-        <span className="shiprow__name">
-          {grouped && ships.length > 1 && <b className="shiprow__n">{ships.length}×</b>}
-          {cls.name}
-        </span>
-        <span className="shiprow__stats">
-          <span className={hurt > 0 ? 'shiprow__hurt' : undefined}>
-            {whole - hurt}/{whole}
+        <ShipThumb faction={faction} role={cls.role} size={112} />
+        {/* Name over figures rather than beside them. With the painting at the
+            size Sean asked for there is no longer a row's width to put a name,
+            a hull count and a gun count side by side in. */}
+        <span className="shiprow__text">
+          <span className="shiprow__name">
+            {grouped && ships.length > 1 && <b className="shiprow__n">{ships.length}×</b>}
+            {cls.name}
           </span>
-          <span className="muted"> hull · </span>
-          {spec.guns * ships.length}
-          <span className="muted"> guns</span>
+          <span className="shiprow__stats">
+            <span className={hurt > 0 ? 'shiprow__hurt' : undefined}>
+              {whole - hurt}/{whole}
+            </span>
+            <span className="muted"> hull · </span>
+            {spec.guns * ships.length}
+            <span className="muted"> guns</span>
+          </span>
         </span>
         <span className="shiprow__chev" aria-hidden="true">›</span>
       </button>
+      {/* Her condition is behind the row; what the class *is* is in the
+          encyclopedia, at a size you can look at. Two questions, two taps. */}
+      {lookUp && (
+        <button
+          className="shiprow__ask"
+          onClick={() => lookUp('ships', cls.id)}
+          aria-label={`What is a ${cls.name}?`}
+          title={`What is a ${cls.name}?`}
+        >
+          ?
+        </button>
+      )}
     </div>
   );
 }
@@ -369,7 +390,7 @@ export function FleetCard({
                   name={officer.name}
                   faction={officer.faction}
                   people={officer.people}
-                  size={26}
+                  size={44}
                 />
                 <span className="fleet__officer-name">{officer.name}</span>
               </button>

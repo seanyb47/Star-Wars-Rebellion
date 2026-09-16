@@ -207,6 +207,7 @@ export function Slot({
   note,
   tone,
   onClick,
+  onLookUp,
   label,
   order,
 }: {
@@ -227,12 +228,25 @@ export function Slot({
   /** 'warn' for something that needs attention, 'dim' for something idle. */
   tone?: 'warn' | 'dim';
   onClick?: () => void;
+  /**
+   * Look this unit up in the encyclopedia.
+   *
+   * Where the tile has no other job, the whole tile does it. Where it already
+   * does something — a crew tile opens the officer's orders, a hull opens her
+   * condition — the picture keeps that job and a small corner mark carries the
+   * lookup, because the two are different questions: one is "what do I do with
+   * this", the other is "what is this".
+   */
+  onLookUp?: () => void;
   label?: string;
   /** Present only in reorder mode. An end with nowhere to go is absent. */
   order?: { up?: () => void; down?: () => void };
 }) {
+  // With nothing else to do, the tile itself is the lookup.
+  const tap = onClick ?? onLookUp;
+  const corner = onClick && onLookUp ? onLookUp : undefined;
   const className = `slot${art ? ' slot--art' : ''}${tone ? ` slot--${tone}` : ''}${
-    onClick ? ' slot--tap' : ''
+    tap ? ' slot--tap' : ''
   }`;
   const body = (
     <>
@@ -241,12 +255,27 @@ export function Slot({
       {note && <span className="slot__note">{note}</span>}
     </>
   );
-  const tile = onClick ? (
-    <button className={className} onClick={onClick} aria-label={label ?? name}>
+  const inner = tap ? (
+    <button className={className} onClick={tap} aria-label={label ?? name}>
       {body}
     </button>
   ) : (
     <span className={className}>{body}</span>
+  );
+  const tile = corner ? (
+    <span className="slot-lookup">
+      {inner}
+      <button
+        className="slot-lookup__mark"
+        onClick={corner}
+        aria-label={`What is ${name}?`}
+        title={`What is ${name}?`}
+      >
+        ?
+      </button>
+    </span>
+  ) : (
+    inner
   );
   if (!order) return tile;
   // On a board the arrows go under the tile rather than beside it: a tile is

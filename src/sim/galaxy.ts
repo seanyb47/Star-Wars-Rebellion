@@ -44,7 +44,7 @@ import type {
   Deposit,
 } from './types';
 import { recomputeLedger } from './economy';
-import { requiredGarrison, setSupport } from './helpers';
+import { handOver, requiredGarrison, setSupport } from './helpers';
 
 /**
  * What each Sea's islands look like.
@@ -160,6 +160,21 @@ const NEUTRAL_GARRISON: Record<ReachRole, [number, number]> = {
  * day against the old 63 — and a side that begins rich never has to make any
  * of the decisions the rest of the economy is about. Two is a prize to defend
  * and not a living.
+ */
+/**
+ * How many earners each side *ends up with*, not how many it is handed.
+ *
+ * A side's opening islands are settled islands, so a third to two thirds of
+ * their ground is already a mill or a mine before anybody deals anything —
+ * and until 16 September those works flew nobody's colours and earned nobody
+ * anything, so this list made up the whole opening income by itself. Now that
+ * a dealt island comes with its works, dealing the same number on top of them
+ * opened both sides twice as rich as they were tuned to be.
+ *
+ * So the deal fills a gap instead: whatever the ground is already working is
+ * counted, and the difference is dealt. The opening is then the same size in
+ * every world — which is what it has to be, because a world where the dice
+ * left a side four mills short of its upkeep opens it insolvent.
  */
 const START_EARNERS: Record<PlayableFaction, { mines: number; refineries: number }> = {
   empire: { mines: 2, refineries: 18 },
@@ -512,6 +527,15 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     system.control = owner;
     system.populated = true;
     setSupport(system, owner, support);
+    // And what already stands here comes with it.
+    //
+    // A settled island has some of its ground worked before anybody deals it
+    // to a side, and those works were being left flying nobody's colours — so
+    // both capitals opened with three mills that earned their holder nothing
+    // and sat on the board as a second, greyed-out group of the same building.
+    // Taking an island in play has always meant taking what is on it; the
+    // opening has to mean the same thing.
+    handOver(system, owner);
   };
   const loyal = () => rng.range(65, 85);
 
@@ -606,9 +630,14 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       // said so.
       system.slots = Math.max(system.slots, rng.range(START_ROOM_MIN, ROOM_MAX));
     }
+    // What the side's ground is already working, which counts against the
+    // target rather than adding to it.
+    const already = (type: FacilityType) =>
+      owned.reduce((n, s) => n + s.facilities.filter((f) => f.type === type).length, 0);
+    const short = (type: FacilityType, want: number) => Math.max(0, want - already(type));
     const plan: FacilityType[] = [
-      ...Array<FacilityType>(START_EARNERS[owner].mines).fill('mine'),
-      ...Array<FacilityType>(START_EARNERS[owner].refineries).fill('refinery'),
+      ...Array<FacilityType>(short('mine', START_EARNERS[owner].mines)).fill('mine'),
+      ...Array<FacilityType>(short('refinery', START_EARNERS[owner].refineries)).fill('refinery'),
       ...Array<FacilityType>(START_YARDS).fill('construction_yard'),
       ...Array<FacilityType>(START_TRAINING).fill('training_facility'),
       ...Array<FacilityType>(START_SHIPYARDS).fill('shipyard'),

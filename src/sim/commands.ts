@@ -113,20 +113,6 @@ export function reorderOfficers(
   });
 }
 
-export function reorderFacilities(
-  state: GameState,
-  systemId: string,
-  facilityIds: string[],
-  dir: -1 | 1,
-): CommandResult {
-  return run(state, (draft) => {
-    const system = draft.systems.find((s) => s.id === systemId);
-    if (!system) throw new Error('No such island.');
-    const set = new Set(facilityIds);
-    system.facilities = moveBlock(system.facilities, (f) => set.has(f.id), dir);
-  });
-}
-
 /**
  * Crew are ordered in the roster itself, which is what every list of people
  * filters, so moving somebody moves them on the island panel and the crew
