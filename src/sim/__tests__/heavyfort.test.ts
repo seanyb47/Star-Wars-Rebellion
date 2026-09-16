@@ -75,7 +75,7 @@ describe('the Heavy Fortress, as a second tier', () => {
   it('answers the three wall questions for both kinds and nothing else', () => {
     expect(isWall('fort')).toBe(true);
     expect(isWall('heavy_fort')).toBe(true);
-    for (const type of ['mine', 'refinery', 'shipyard', 'boom'] as FacilityType[]) {
+    for (const type of ['mine', 'refinery', 'shipyard', 'construction_yard'] as FacilityType[]) {
       expect(isWall(type), type).toBe(false);
     }
     expect(wallGuns('fort')).toBe(FORT_GUNS);
@@ -172,7 +172,6 @@ describe('the Heavy Fortress, as a second tier', () => {
     const at = (t: FacilityType) => BUILDING_ORDER.indexOf(t);
     expect(at('heavy_fort')).toBeGreaterThanOrEqual(0);
     expect(at('heavy_fort')).toBeLessThan(at('fort'));
-    expect(at('fort')).toBeLessThan(at('boom'));
   });
 
   it('stops a landing the same way, and is rubble when it is beaten', () => {

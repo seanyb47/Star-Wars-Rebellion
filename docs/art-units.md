@@ -3,7 +3,7 @@
 *Sean, 16 September: “Give me art prompts for all facilities and garrisons.”*
 
 One sheet for both, so there is a single place to look and nothing to keep in
-sync with anything else. **Twenty-six prompts**: eight works painted twice, once
+sync with anything else. **Twenty-four prompts**: seven works painted twice, once
 for each side, and ten companies.
 
 **What already exists.** Five of the seven works are painted for both sides and
@@ -16,8 +16,8 @@ garrison board is still a drawn glyph.
 **The Crown's Fortress and Heavy Fortress arrived on 16 September** and are
 both in the game — the first works painted as standalone pictures rather than
 sliced out of a contact sheet. The Fortress was delivered twice; the second take
-is the one installed. Still missing: **both walls for the Confederacy, and the
-Boom for both sides.**
+is the one installed. Still missing: **both walls for the Confederacy.** (The Boom was cut from
+the game on 16 September and its two prompts with it.)
 
 **Eight prompts here, not seven.** The Heavy Fortress is a works in its own
 right now — 45 guns and 150 of wall against a Fortress's 20 and 60, on the same
@@ -29,7 +29,7 @@ and ships' timbers rather than cut stone, and more of it.
 
 ## Delivery
 
-**Facilities.** One image per works per side — **eight works, sixteen images** —  PNG, **4:3 landscape (2048×1536
+**Facilities.** One image per works per side — **seven works, fourteen images** —  PNG, **4:3 landscape (2048×1536
 or larger)**, the works filling most of the frame. Name exactly as the file name
 under each heading. Drive: `7 Seas / Art / buildings`. Install with
 `npm run art:add -- <file> buildings/<works>-<side>` — for example
@@ -153,18 +153,6 @@ It has to read against the Fortress at a glance and at thumbnail size: **the sam
 **Free Confederacy** — `heavy-fort-alliance.png`
 
 > A Confederate heavy fortress: a great tiered battery of earthwork, gabions and ships' timbers, eight and more guns of half a dozen different patterns run out over the water on two improvised levels, powder under sailcloth, a lookout in a crow's nest lashed to a spar, hulks sunk as a breakwater below it, the whole thing built up out of what the sea gave them and plainly twice the works of their lesser battery. Free Confederacy — freedom, opportunity, independence, brotherhood, a bolder tomorrow: crimson and rust red, black, salvaged ship's timbers and mismatched brass fittings, tar and rope and patched or dyed canvas, whalebone, nothing regulation and no two things alike, improvised and working; a red sash knotted somewhere as a colour; free-spirited, never villainous. 4:3 landscape, the works filling most of the frame, seen from the water a short way off and a little below, figures at work for scale, sky and water around it so the silhouette can breathe. The game crops this to a 16:10 band, so the building itself belongs in the middle of the height with nothing that matters in the top or bottom eighth, and it has to read at thirty pixels high: one clear subject, strong outline, no clutter along the edges. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, approximately 70% historical swashbuckling adventure, 20% nautical fantasy and mysticism, 10% whimsy; never photorealistic, steampunk, grimdark, chibi, childish, generic high fantasy, futuristic or excessively cartoonish
-
-### Boom
-
-*A chain across the harbor mouth: a landing has to cut it first, and it is found by a blockade as well as by boats.*
-
-**Crown Imperium** — `boom-empire.png`
-
-> A Crown boom: a massive iron chain slung between two white stone towers across the harbor mouth, a capstan house with the links coming up dripping, a guard boat at the gap, orderly and immovable. Crown Imperium — order, stability, trade, civilization, a brighter tomorrow: deep Imperial green and warm ivory, antique gold and brass, black iron, refined wood, cut grey stone, everything squared off, regulation and matching, kept up at expense; civilized and impressive, never sinister; no coral anywhere. 4:3 landscape, the works filling most of the frame, seen from the water a short way off and a little below, figures at work for scale, sky and water around it so the silhouette can breathe. The game crops this to a 16:10 band, so the building itself belongs in the middle of the height with nothing that matters in the top or bottom eighth, and it has to read at thirty pixels high: one clear subject, strong outline, no clutter along the edges. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, approximately 70% historical swashbuckling adventure, 20% nautical fantasy and mysticism, 10% whimsy; never photorealistic, steampunk, grimdark, chibi, childish, generic high fantasy, futuristic or excessively cartoonish
-
-**Free Confederacy** — `boom-alliance.png`
-
-> A Confederate boom: a chain of salvaged anchor cable floated on lashed barrels and two sunken hulks between timber towers, a lantern on each, a crew hauling on a windlass, improvised and entirely effective. Free Confederacy — freedom, opportunity, independence, brotherhood, a bolder tomorrow: crimson and rust red, black, salvaged ship's timbers and mismatched brass fittings, tar and rope and patched or dyed canvas, whalebone, nothing regulation and no two things alike, improvised and working; a red sash knotted somewhere as a colour; free-spirited, never villainous. 4:3 landscape, the works filling most of the frame, seen from the water a short way off and a little below, figures at work for scale, sky and water around it so the silhouette can breathe. The game crops this to a 16:10 band, so the building itself belongs in the middle of the height with nothing that matters in the top or bottom eighth, and it has to read at thirty pixels high: one clear subject, strong outline, no clutter along the edges. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, approximately 70% historical swashbuckling adventure, 20% nautical fantasy and mysticism, 10% whimsy; never photorealistic, steampunk, grimdark, chibi, childish, generic high fantasy, futuristic or excessively cartoonish
 
 ---
 

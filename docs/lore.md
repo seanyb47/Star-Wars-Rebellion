@@ -373,8 +373,9 @@ side's shipwright tradition, because the tradition is in the timber.
 
 ### The walls: Fortress and Heavy Fortress
 
-A fort is a warship that cannot weigh anchor, which is why it belongs here
-rather than with the mills. It fires on any enemy hull lying off the island
+There is one kind of fixed defence and two sizes of it. A fort is a warship
+that cannot weigh anchor, which is why it belongs here rather than with the
+mills. It fires on any enemy hull lying off the island
 whether or not you have a fleet there, and while one still stands **no landing
 can be made at all** — the only door into a defended island is bombardment, and
 the only thing that opens it is weight of shot.
@@ -408,6 +409,14 @@ hundred days longer, which is what a defensive option is supposed to do.
 This is the same shape as the Crown's **II** ships and is not called one, because
 a Heavy Fortress is a thing you build rather than a generation the Admiralty
 moved on to. The Confederacy builds both as readily; a wall is a wall.
+
+**There used to be a third.** A **Boom** — a chain across the harbor mouth —
+cost a landing what two companies would and held a port open under anything
+short of half a squadron. Sean cut it on 16 September, and the measurement said
+he was right: across twelve full wars, **zero booms stood on zero islands**. The
+opponent had no rule that ever wanted one and a player had no reason to buy one
+with a Fortress beside it that stops a landing outright. A port is now shut by
+any enemy gun in the water at all.
 
 
 ## 7. The Seas, the Reaches and the Islands

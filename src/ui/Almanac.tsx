@@ -37,7 +37,6 @@ import {
   FORT_REPAIR_PER_DAY,
   REPAIR_PER_DAY,
   REPAIR_AT_A_YARD,
-  BOOM_DEFENCE,
   GUN_DECKS,
   HULL_EASE,
   GUNNERY_ON_SMALL,
@@ -319,11 +318,6 @@ export function Almanac({
         back — the island has to build a new one. Left alone it mends{' '}
         {Math.round(FORT_REPAIR_PER_DAY * 100)}% of itself a day, twice what a hull manages, which
         is why a siege that stops for a week has lost the week.
-        <br />
-        <br />
-        <b>A {FACILITY_LABEL.boom.toLowerCase()} is a chain across the harbor mouth.</b> Worth{' '}
-        {BOOM_DEFENCE} companies to the defence of a landing, and it is found by a blockade as
-        well as by boats.
         <br />
         <br />
         <b>Hulls mend too, slowly.</b> {Math.round(REPAIR_PER_DAY * 100)}% of a hull a day at

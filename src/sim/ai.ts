@@ -50,7 +50,6 @@ import {
   fortsOf,
   board,
   boardError,
-  boomDefence,
   embark,
   embarkError,
   sparedCompanies,
@@ -697,7 +696,7 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
   const carryAll = fleetsOf(state, ai).reduce((n, f) => n + fleetCapacity(f), 0);
   // Two clear of what the capital holds, so a landing is possible at all after
   // the losses on the way in.
-  const shortOfLift = ai === 'alliance' && carryAll < capital.garrison + boomDefence(capital) + 3;
+  const shortOfLift = ai === 'alliance' && carryAll < capital.garrison + 3;
   /**
    * Weight of shot before berths.
    *
@@ -908,7 +907,7 @@ function aiLoadAndSail(state: GameState, fleet: Fleet, ai: PlayableFaction): voi
  * The Confederate opponent's whole war ends there, so its strongest fleet
  * without a Lord aboard is kept for it. It stages at the island of the
  * Confederacy's with the most companies to spare, takes them aboard until it
- * carries more than the capital's garrison and boom together, and then sails
+ * carries more than the capital's garrison, and then sails
  * — but not into a harbor where the Crown's guns outweigh its own. Returns
  * the strike fleet's id so the general routine leaves it alone.
  */
@@ -922,7 +921,7 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
   const fleet = [...candidates].sort((a, b) => fleetGuns(b) - fleetGuns(a))[0];
   if (isAtSea(fleet)) return fleet.id;
 
-  const need = capital.garrison + boomDefence(capital) + 1;
+  const need = capital.garrison + 1;
   const crownGuns = fleetsAt(state, capital.id)
     .filter((f) => f.faction === 'empire')
     .reduce((n, f) => n + fleetGuns(f), 0);
@@ -973,7 +972,7 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
     // the only thing it knew how to do was land and landing was shut.
     if (aiBeginSiege(state, fleet, 'alliance')) return fleet.id;
     if (
-      fleet.troops > capital.garrison + boomDefence(capital) &&
+      fleet.troops > capital.garrison &&
       assaultError(state, fleet.id, 'alliance') === null
     ) {
       assault(state, fleet.id, rng, 'alliance');

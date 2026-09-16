@@ -520,8 +520,7 @@ export function ShipsHere({
   // this harbor with guns, which has to be got past.
   const beast = island && island.beastSeen?.[state.player] ? beastAt(island) : undefined;
   const forts = island ? fortsOf(island).length : 0;
-  const booms = island ? island.facilities.filter((x) => x.type === 'boom' && !x.building).length : 0;
-  const defences = (forts > 0 || booms > 0) && (
+  const defences = forts > 0 && (
     <div className="card row" style={{ gap: 14, alignItems: 'center' }}>
       {forts > 0 && island && (
         <span className="row" style={{ gap: 6 }}>
@@ -537,14 +536,6 @@ export function ShipsHere({
                 · {Math.round(wallCondition(island) * 100)}% standing
               </span>
             )}
-          </span>
-        </span>
-      )}
-      {booms > 0 && (
-        <span className="row" style={{ gap: 6 }}>
-          <FacilityIcon type="boom" size={22} />
-          <span className="small">
-            {booms} {booms === 1 ? 'boom' : 'booms'} across the mouth
           </span>
         </span>
       )}
@@ -598,7 +589,7 @@ export function ShipsHere({
         {defences}
         <div className="card muted small">
           Nothing is moored here. Lay down a hull at a {terms.facilities.shipyard.toLowerCase()} and
-          it will come to anchor where it was built. Any fort or boom guarding the island will sit
+          it will come to anchor where it was built. Any fortress guarding the island will sit
           here too, since a fixed gun is a warship that cannot weigh anchor.
         </div>
       </div>

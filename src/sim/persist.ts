@@ -14,6 +14,10 @@ import type { GameState } from './types';
  * in the ground and made the two earners need them, so a v7 save is a world of
  * barren islands on which no mill or mine could ever be raised again.
  * An older save cannot be read and is not offered.
+ *
+ * The Boom's removal is deliberately *not* a version bump. It takes something
+ * away rather than changing the shape of anything, so a v8 save still loads
+ * and simply comes back without its chains — see `loadGame`.
  */
 export const SAVE_KEY = 'seven-seas.save.v8';
 
@@ -49,6 +53,12 @@ export function loadGame(storage: Storage | undefined = globalThis.localStorage)
       // from before it has nothing in any water, which is a duller world than
       // the one it was saved from but not a broken one.
       beastSeen: s.beastSeen ?? { empire: false, alliance: false },
+      // The Boom was cut on 16 September, and a v8 save from that morning can
+      // still have chains across its harbors. They come out on load rather
+      // than costing somebody a war in progress: a facility of a type nothing
+      // in the game knows about any more has no name, no picture and no rule,
+      // and would sit on an island's board as a blank tile for ever.
+      facilities: s.facilities.filter((f) => (f.type as string) !== 'boom'),
     }));
     // Craft arrived the same way fleets did. A save from before it is a side
     // that has researched nothing, which is true.

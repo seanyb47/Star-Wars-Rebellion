@@ -189,8 +189,7 @@ export type FacilityType =
    * and thrifty, you build two Fortresses.
    */
   | 'heavy_fort'
-  /** A chain across the harbor mouth: landings and blockades both find it. */
-  | 'boom';
+;
 
 /**
  * A hull's size, which is the whole of naval tactics here. There are no
@@ -484,7 +483,6 @@ export interface LandingReport {
   landed: number;
   defenders: number;
   /** Chain across the harbor mouth, counted among the defenders. */
-  boom: number;
   lost: number;
   defendersLost: number;
   taken: boolean;

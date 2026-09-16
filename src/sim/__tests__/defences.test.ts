@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
-import { addShip, boomDefence, fortGuns, isBlockaded, resolveBattles, resolveLanding } from '../fleets';
+import { addShip, fortGuns, isBlockaded, resolveBattles } from '../fleets';
 import { requiredGarrison } from '../helpers';
 import {
-  BOOM_BLOCKADE_GUNS,
-  BOOM_DEFENCE,
   CAPITAL_GARRISON,
   FORT_GUNS,
   START_GARRISON_MAX,
@@ -19,7 +17,7 @@ function world(seed = 501): GameState {
 function mineWithWater(state: GameState): System {
   return state.systems.find((s) => s.control === 'empire' && s.slots - s.facilities.length > 0)!;
 }
-function build(system: System, type: 'fort' | 'boom', owner: 'empire' | 'alliance' = 'empire') {
+function build(system: System, type: 'fort' | 'heavy_fort', owner: 'empire' | 'alliance' = 'empire') {
   system.facilities.push({ id: `fac-${type}-${system.facilities.length}`, type, owner });
 }
 
@@ -123,34 +121,15 @@ describe('forts', () => {
   });
 });
 
-describe('booms', () => {
-  it('cost a landing what companies would, and are not spent from the garrison', () => {
+describe('a port with nothing in the water but the enemy', () => {
+  it('is shut by any enemy gun at all, now the chain is gone', () => {
     const state = world();
     state.fleets.length = 0;
     const port = mineWithWater(state);
-    port.garrison = 2;
-    build(port, 'boom');
-    expect(boomDefence(port)).toBe(BOOM_DEFENCE);
-    const landing = addShip(state, port, 'alliance', 'brig');
-    landing.troops = 3; // beats 2 companies alone; not 2 + the chain
-    const rng = createRng(5);
-    resolveLanding(state, landing, rng);
-    expect(port.control).toBe('empire');
-    // The chain took the first two, the garrison lost at most one.
-    expect(port.garrison).toBeGreaterThanOrEqual(1);
-  });
-
-  it('keep the port open under a lone raider, and closed under a real squadron', () => {
-    const state = world();
-    state.fleets.length = 0;
-    const port = mineWithWater(state);
-    build(port, 'boom');
-    const raider = addShip(state, port, 'alliance', 'swift'); // 2 guns
     expect(isBlockaded(state, port)).toBe(false);
-    // Bring the enemy up to the floor and it closes.
-    let guns = 2;
-    while (guns < BOOM_BLOCKADE_GUNS) { addShip(state, port, 'alliance', 'swift'); guns += 2; }
+    // One sloop. There used to be a floor here, held up by a boom across the
+    // harbor mouth; Sean cut the boom on 16 September and the floor with it.
+    addShip(state, port, 'alliance', 'swift');
     expect(isBlockaded(state, port)).toBe(true);
-    void raider;
   });
 });

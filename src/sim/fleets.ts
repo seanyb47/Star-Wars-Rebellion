@@ -8,8 +8,6 @@
 import {
   BREAK_OFF_ODDS,
   PURSUIT_ODDS,
-  BOOM_BLOCKADE_GUNS,
-  BOOM_DEFENCE,
   isWall,
   wallGuns,
   wallStrength,
@@ -1104,14 +1102,6 @@ export function repairOvernight(state: GameState): void {
   }
 }
 
-/** Companies' worth of chain across the harbor mouth. */
-export function boomDefence(system: System): number {
-  if (system.control !== 'empire' && system.control !== 'alliance') return 0;
-  return (
-    system.facilities.filter((f) => f.type === 'boom' && f.owner === system.control && !f.building)
-      .length * BOOM_DEFENCE
-  );
-}
 
 /** One day's exchange of fire between the two sides in a harbor. */
 /**
@@ -1393,11 +1383,7 @@ function sinkAndDrown(state: GameState, fleet: Fleet): void {
  */
 export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   const system = getSystem(state, fleet.systemId);
-  // A boom is cut under fire before anybody is ashore, and it costs the
-  // landing what a company would. The chain does not die with the garrison:
-  // it is spent from the attacker only.
-  const chain = boomDefence(system);
-  const defenders = system.garrison + chain;
+  const defenders = system.garrison;
   // Combat tells here, for the same reason: companies led ashore by somebody
   // who knows the business go further than the same companies alone.
   const attackers = fleet.troops * officerEdge(state, fleet, 'combat');
@@ -1409,12 +1395,11 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   const landed = fleet.troops;
   const garrisonBefore = system.garrison;
   fleet.troops = Math.max(0, fleet.troops - spent);
-  system.garrison = Math.max(0, system.garrison - Math.max(0, spent - chain));
+  system.garrison = Math.max(0, system.garrison - spent);
   const report = {
     attacker: fleet.faction,
     landed,
     defenders: garrisonBefore,
-    boom: chain,
     lost: landed - fleet.troops,
     defendersLost: garrisonBefore - system.garrison,
     taken: attackerWins,
@@ -1477,9 +1462,9 @@ export function isBlockaded(state: GameState, system: System): boolean {
   const hostile = fleetsAt(state, system.id)
     .filter((f) => f.faction === enemy)
     .reduce((n, f) => n + fleetGuns(f), 0);
-  // Under the boom's floor a raider is a nuisance, not a siege.
-  const floor = boomDefence(system) > 0 ? BOOM_BLOCKADE_GUNS : 1;
-  return hostile >= floor;
+  // Any enemy gun in the water shuts the port. There used to be a floor here,
+  // held up by the chain across the harbor mouth; the chain is gone.
+  return hostile >= 1;
 }
 
 /** Stamp today's blockades onto the islands, so the economy can read them. */

@@ -85,21 +85,22 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
   // plot. Slightly worse per gun than building two Fortresses, and the only
   // thing you can do with a single berth on an island that has no more.
   heavy_fort: { costGold: 250, days: 32, label: terms.facilities.heavy_fort },
-  boom: { costGold: 70, days: 12, label: terms.facilities.boom },
 };
 
 /**
  * The fixed defences, and what they are worth.
  *
  * A fort fires like a medium hull and a bit — enough that two of them turn a
- * sloop raid away, not enough that a harbor never needs a fleet. A boom is
- * counted as companies for a landing (a chain has to be cut under fire, which
- * costs the attacker exactly what a company would) and as a floor for a
- * blockade: under BOOM_BLOCKADE_GUNS of enemy fire the port stays open, so a
- * single sloop lying off a boomed harbor is a nuisance rather than a siege.
+ * sloop raid away, not enough that a harbor never needs a fleet.
+ *
+ * There was a second defence, a Boom — a chain across the harbor mouth that
+ * cost a landing what two companies would and held the port open under light
+ * blockade. It is gone, at Sean's word on 16 September. Measured over twelve
+ * full wars before it was cut: zero standing, on zero islands. The opponent
+ * had no rule that ever wanted one and a player had no reason to buy one, with
+ * a Fortress beside it that stops a landing outright.
  */
-// Scaled with the hulls: a fort still fires like a frigate and a bit, and a
-// boom still holds a port open under anything short of half a squadron.
+// Scaled with the hulls: a fort still fires like a frigate and a bit.
 export const FORT_GUNS = 20;
 /**
  * And the Heavy Fortress, which is a berth's worth of decision.
@@ -191,8 +192,6 @@ export const CAPITAL_GARRISON = 6;
  * what they are for.
  */
 export const HOME_PORT_WALLS = 1;
-export const BOOM_DEFENCE = 2;
-export const BOOM_BLOCKADE_GUNS = 25;
 
 /**
  * One round of shooting, as the spec sets it out.
@@ -677,7 +676,6 @@ export const GOLD_PER_DAY: Record<BuildItem, number> = {
   shipyard: 0,
   fort: 0,
   heavy_fort: 0,
-  boom: 0,
   troop: 0,
   ...NO_SHIP_INCOME,
 };
@@ -694,7 +692,6 @@ export const UPKEEP_PER_DAY: Record<BuildItem, number> = {
   shipyard: 4,
   fort: 2,
   heavy_fort: 5,
-  boom: 1,
   troop: 1,
   ...SHIP_UPKEEP,
 };
@@ -1222,7 +1219,6 @@ export const YARD_BUILDABLE: FacilityType[] = [
   'shipyard',
   'fort',
   'heavy_fort',
-  'boom',
 ];
 
 /**
@@ -1340,7 +1336,6 @@ export const BUILDING_ORDER: FacilityType[] = [
   'construction_yard',
   'heavy_fort',
   'fort',
-  'boom',
   'refinery',
   'mine',
 ];

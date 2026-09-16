@@ -245,7 +245,6 @@ function LandingTally({ report }: { report: NonNullable<GameEvent['landing']> })
             <CompanyIcon size={16} />
             <span>
               <b>{report.defenders}</b> {report.defenders === 1 ? 'company' : 'companies'}
-              {report.boom > 0 ? ` · a boom worth ${report.boom}` : ''}
             </span>
           </div>
           <div className={`tally__row${report.defendersLost > 0 ? ' tally__row--loss' : ''}`}>

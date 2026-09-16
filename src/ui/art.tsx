@@ -356,8 +356,7 @@ export function FacilityIcon({
     | 'training_facility'
     | 'shipyard'
     | 'fort'
-    | 'heavy_fort'
-    | 'boom';
+    | 'heavy_fort';
   size?: number;
 }) {
   const common = {
@@ -433,14 +432,6 @@ export function FacilityIcon({
           <path d="M2 28 H30" />
           <path d="M6 25 L13 21" strokeWidth="2.2" />
           <path d="M18 19 L28 14" strokeWidth="2.4" />
-        </g>
-      )}
-      {type === 'boom' && (
-        <g {...common}>
-          {/* A chain slung between two posts across the water. */}
-          <path d="M5 8 V28 M27 8 V28" />
-          <path d="M5 13 Q16 24 27 13" strokeDasharray="3 2.4" strokeWidth="2.2" />
-          <path d="M3 28 Q10 25 16 28 T29 28" strokeWidth="1.3" />
         </g>
       )}
     </svg>
