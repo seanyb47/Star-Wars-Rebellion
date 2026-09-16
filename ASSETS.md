@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**126 of 139 painted.** 3969KB shipped, 11.0MB of masters kept back.
+**127 of 140 painted.** 3992KB shipped, 11.6MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -162,11 +162,12 @@ one building on its island, three-quarter view; the build order card. 2 of 2.
 
 ## missions — 256×256
 
-the object an errand is, close and lit; the errand sheet's tile. 9 of 9.
+the object an errand is, close and lit; the errand sheet's tile. 10 of 10.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
 | Abduct | `abduct` | 1 | 13KB | 286×309, 38KB | 286×286 @ 0,11 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
+| Command | `command` | 1 | 23KB | 1254×1254, 535KB | whole frame | 2026-09-16 | Sean's mission art, 17 Sep 2026 |
 | Espionage | `espionage` | 1 | 14KB | 326×333, 44KB | 326×326 @ 0,3 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
 | Explore | `explore` | 1 | 19KB | 336×333, 58KB | 333×333 @ 1,0 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
 | Incite | `incite` | 1 | 13KB | 288×309, 37KB | 288×288 @ 0,10 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
@@ -270,6 +271,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **islands/storm-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/tide-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **missions/abduct** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **missions/command** — Delivered on its own at 1254 square rather than cut from the contact sheet, so this is the sharpest of the errand tiles.
 - **missions/espionage** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **missions/explore** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **missions/incite** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.

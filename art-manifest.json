@@ -1808,6 +1808,33 @@
         "sha1": "1539966b71429d83"
       }
     },
+    "missions/command": {
+      "folder": "missions",
+      "slug": "command",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Command",
+      "source": "Sean's mission art, 17 Sep 2026",
+      "notes": "Delivered on its own at 1254 square rather than cut from the contact sheet, so this is the sharpest of the errand tiles.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/missions/command.webp",
+        "w": 1254,
+        "h": 1254,
+        "bytes": 548696,
+        "sha1": "4135dd983d6b1210"
+      },
+      "shipped": {
+        "file": "src/art/missions/command.webp",
+        "w": 256,
+        "h": 256,
+        "bytes": 23888,
+        "sha1": "0a52b41305e668b5"
+      }
+    },
     "missions/espionage": {
       "folder": "missions",
       "slug": "espionage",
