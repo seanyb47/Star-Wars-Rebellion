@@ -570,7 +570,7 @@ These exist in the game but were cut from contact sheets at a fraction of the si
 
 `empire-large.png`
 
-> Sovereign, a Crown Imperium large vessel. A first-rate ship of the line, warded with cultivated coral along the waterline. Massive, deep-hulled, three gundecks, immaculate and slow. Nothing afloat hits harder. Three-quarter view, full vessel in frame, strong readable silhouette against sky. Bright day, blue water, clean line ahead. No borders or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical.
+> Sovereign, a Crown Imperium large vessel. A first-rate ship of the line, sheathed in milled copper along the waterline, green with verdigris where the sea has had at it. Massive, deep-hulled, three gundecks, immaculate and slow. Nothing afloat hits harder. Three-quarter view, full vessel in frame, strong readable silhouette against sky. Bright day, blue water, clean line ahead. No borders or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical.
 
 #### Razorback — Crown Imperium medium
 

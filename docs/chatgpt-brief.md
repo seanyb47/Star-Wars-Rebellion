@@ -34,7 +34,7 @@ watermark, no logo.
 
 ## Character 1 — Secretary Crane
 
-A tall, narrow man held perfectly straight, as if hung from a hook rather than standing. A long face the grey of wet slate, no colour in the lips, and eyes so pale they are almost the colour of the whites — set wide, lashless, and never once closing. Iron-grey hair combed flat to the skull with something that has dried hard. He wears the Admiralty's black: a high-collared coat buttoned to the throat, a white stock beneath it starched to a blade, one brass button at the collar bearing the Crown's fouled anchor, and a thin brass chain running from the collar to a pocket ledger he is never seen to open. The signature detail: along the seam of one collar-wing a fine white coral has grown, the warding kind the Crown grows over its hulls, spreading across the black cloth like frost — the only thing on him that is visibly alive, and it is not him. He should make the viewer sit up straighter and feel that whatever they are about to say has already been written down.
+A tall, narrow man held perfectly straight, as if hung from a hook rather than standing. A long face the grey of wet slate, no colour in the lips, and eyes so pale they are almost the colour of the whites — set wide, lashless, and never once closing. Iron-grey hair combed flat to the skull with something that has dried hard. He wears the Admiralty's black: a high-collared coat buttoned to the throat, a white stock beneath it starched to a blade, one brass button at the collar bearing the Crown's fouled anchor, and a thin brass chain running from the collar to a pocket ledger he is never seen to open. The signature detail: along the seam of one collar-wing a fine green-white verdigris has bloomed, the kind that comes up on a coppered hull, spreading across the black cloth like frost — the only thing on him that is visibly growing, and it is not him. He should make the viewer sit up straighter and feel that whatever they are about to say has already been written down.
 
 ## Character 2 — Mr Pennywhistle
 
@@ -70,7 +70,7 @@ A big, battered sea-parrot, salt-stiff and heavier than a parrot has any right t
 - **Check against the anchor** before presenting each new image: is the
   brushwork the same weight, the palette the same, the light from the same
   side? If it drifted, say so and fix it before I see it.
-- **The signature details must survive every variant**: Crane's white coral
+- **The signature details must survive every variant**: Crane's collar verdigris
   along the collar-wing and the brass chain to the ledger; Pennywhistle's
   leather patch with the bone button and the three links of snapped chain on
   his leg.

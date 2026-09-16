@@ -10,6 +10,8 @@ An archipelago world with no continents. Seven Seas, each its own archipelago wi
 
 Beneath and between the Seven Seas moves something older than either faction: **the Black Tide** — a living, spreading water, thick as oil and black as a shut eye, that dissolves timber, sours fresh water, and drinks islands whole. Where it makes landfall, an island's forests rot and its springs turn brackish. When it recedes it sometimes leaves behind pearl-black ambergris and coral that grows into anything you carve it toward — the most valuable substance in the world, and the reason people keep going where they shouldn't.
 
+**Coral is the Confederacy's, and nobody else's.** Living coral only takes shape for somebody who can sing it into shape, which is a Reef-folk art and has never been anything else. The Admiralty has spent a century trying to cultivate it in the Highwater yards and has a century of dead grey rock to show for it, so the Crown sheathes its hulls in milled copper instead and calls the other way superstition. It is the cleanest line between the two: **the Crown builds and bolts on; the Confederacy grows.** Nothing of the Crown's is coral — not a hull, not a wall, not a company.
+
 Nobody knows what it is. Nobody controls it. Both factions claim to be the only thing standing between the islands and it.
 
 - **The Imperium's story:** only seawalls, discipline, and licensed Tidemasters hold the Tide back. Every island that "goes free" is an island that stops maintaining its walls. Liberty is how the Tide gets in.
@@ -31,7 +33,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 
 **Truth:** Both. Officers run from principled to overzealous, and the good ones spend their careers arguing with the rest.
 
-**Aesthetic:** black iron, grey stone, white sailcloth, brass. Ships are built, then *grown over* with cultivated coral for warding. Names are virtues and titles. Everything is straight lines until you look closely.
+**Aesthetic:** black iron, grey stone, white sailcloth, brass and copper. Ships are built, then *sheathed* — milled copper plate bolted on below the waterline against worm and weed, bright as a new coin the day she launches and green as a drowned church a year later. Names are virtues and titles. Everything is straight lines until you look closely.
 
 ### The Free Confederacy
 
@@ -54,7 +56,7 @@ A Lord's ship does not sink. When her hull gives she strikes her colours, is tak
 
 **Truth:** Both. Hale spends as much of her time managing her own worst captains as fighting the Crown.
 
-**Aesthetic:** patched, painted, mismatched. Coral-grown hulls, whalebone masts, sails dyed with squid ink. Tamed sea-beasts in the small-craft squadrons. Names are jokes, threats, and dead lovers.
+**Aesthetic:** patched, painted, mismatched. Coral-grown hulls — theirs alone, and the one thing the Crown has never managed to copy — whalebone masts, sails dyed with squid ink. Tamed sea-beasts in the small-craft squadrons. Names are jokes, threats, and dead lovers.
 
 #### The three Pirate Lords
 
@@ -79,7 +81,7 @@ What he learned aboard her he teaches to whatever squadron is lying where he is.
 - **The Rumor Guild** (human)** (Bothaway (Amber Sea)). A guild, not a people. Ink-stained, sharp, sells to both sides.
 - **The Hushed** (The Drowned Reach (Bone Sea)). Pale, eel-thin, silent folk from half-drowned islands. Bound to the Crown by an old bargain. Nobody hears them coming.
 - **The Fatmouths** (Fatmouth & Blackreef). Bloated harbor-kings who own the wharves, the warehouses and most of the debts. Nobody has seen Jubal's legs; there is a rumor he doesn't have any.
-- **Tidewrought** (Imperium yards). Brass-and-coral automata built by Lemmick, animated by a bound sliver of the Deep. Walk the seabed. See poorly. Never tire.
+- **Tidewrought** (Imperium yards). Brass-and-iron automata built by Lemmick, animated by a bound sliver of the Deep. Walk the seabed. See poorly. Never tire.
 - **Bog-folk** (Sea of Storms swamps). Wrinkled, patient, amphibious guerrillas
 - **Outlander** (Beyond the Black Tide). Thorne came from *past* the Tide, where no chart goes. Blue-grey skin, red eyes. Nobody knows what's out there. He won't say.
 
@@ -166,7 +168,7 @@ Marine drillmaster. Invented the Imperium's landing doctrine and the Drowned Gua
 - **Grand Admiral Cassian Thorne** — Outlander; WILDCARD-RESEARCH, LEADER (admiral). Came from beyond the Black Tide. Studies an enemy's figureheads and shanties to predict how they'll fight. Coldest mind in the Imperium; the Regent doesn't fully trust him and shouldn't.
 - **Captain Villiers** — Human; LEADER (admiral/general). Reliable second-tier commander.
 - **Tobias Zeck** — Human; SPEC OPS. Gutter-born marine; saboteur and knife man.
-- **Bastian Ferro** — Human?; SPEC OPS (combat/espionage). Masked bounty hunter in a coat of riveted iron plate and coral. Has never been seen to eat. Works for coin, not flag.
+- **Bastian Ferro** — Human?; SPEC OPS (combat/espionage). Masked bounty hunter in a coat of riveted iron plate and verdigrised copper. Has never been seen to eat. Works for coin, not flag.
 - **Lyra Vesper, "the Regent's Hand"** — Human; DEEP, SPEC OPS. Corvane's personal blade, taken at six for licensing and raised in the citadel. A Tidecaller who can walk across a still harbor without a boat. Has a conscience she keeps locked in a chest.
 
 ### The Free Confederacy
@@ -250,7 +252,7 @@ _There are no fighters in these waters. A small craft is just a small ship, so e
 
 ### The Crown Imperium
 
-- **Sovereign** (large). A first-rate of the line, built straight and warded with cultivated coral. Nothing afloat hits harder or takes more killing. Slow to arrive anywhere.
+- **Sovereign** (large). A first-rate of the line, built straight and coppered to the waterline. Nothing afloat hits harder or takes more killing. Slow to arrive anywhere.
 - **Razorback** (medium). A heavy frigate. Cheap for what it carries, quick enough to be useful, and outmatched by anything of the line.
 - **Kestrel** (small). A sloop-of-war. The fastest thing the Crown puts to sea and the first to sink. Good for closing a harbor cheaply.
 - **Fluyt** (transport). An unarmed merchantman pressed into service. Carries more companies than anything else and cannot defend itself at all.
@@ -412,7 +414,7 @@ _Garrison companies. Three numbers each: what it is worth landing, what it is wo
 | **Crown Regulars** | Human | 20 | 20 | 15 |  |
 | **Ship's Company** | Human | 15 | 15 | 20 |  |
 | **Crown Marines** | Human | 30 | 30 | 25 |  |
-| **Tidewrought** | Brass and coral | 40 | 35 | 5 | needs research |
+| **Tidewrought** | Brass and iron | 40 | 35 | 5 | needs research |
 | **The Drowned Guard** | Human (once) | 45 | 40 | 30 | needs research |
 
 **Crown Regulars.** Line infantry of the Admiralty's own regiments. Nothing about them is remarkable and there are a great many of them, which between the two has decided most of the wars the Crown has won.
@@ -421,7 +423,7 @@ _Garrison companies. Three numbers each: what it is worth landing, what it is wo
 
 **Crown Marines.** The white-coats. Drilled to go over a gunwale or up a beach and to keep going, and posted where the Crown means to be seen keeping order. The best thing either side can land on day one.
 
-**Tidewrought.** Automata of brass and cultivated coral that walk in over the seabed and come out of the surf already advancing. They hit like a falling spar and they see nothing at all; a company of them will march past a saboteur standing still.
+**Tidewrought.** Automata of brass and black iron that walk in over the seabed and come out of the surf already advancing. They hit like a falling spar and they see nothing at all; a company of them will march past a saboteur standing still.
 
 **The Drowned Guard.** Marines who have been cold-baptised: held under the Deep until they stop struggling, and brought back. Black plate, no fear, and something missing behind the eyes. The worst thing the Crown can put on a beach, and the Admiralty does not discuss how they are made.
 

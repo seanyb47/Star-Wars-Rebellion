@@ -40,12 +40,12 @@
       "faction": "empire",
       "name": "Tidewrought",
       "role": "made",
-      "people": "Brass and coral",
+      "people": "Brass and iron",
       "research": true,
       "offense": 40,
       "defense": 35,
       "watch": 5,
-      "blurb": "Automata of brass and cultivated coral that walk in over the seabed and come out of the surf already advancing. They hit like a falling spar and they see nothing at all; a company of them will march past a saboteur standing still."
+      "blurb": "Automata of brass and black iron that walk in over the seabed and come out of the surf already advancing. They hit like a falling spar and they see nothing at all; a company of them will march past a saboteur standing still."
     },
     {
       "id": "drowned-guard",
