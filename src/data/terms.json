@@ -33,7 +33,8 @@
     "construction_yard": "Construction Yard",
     "training_facility": "Training Facility",
     "shipyard": "Shipyard",
-    "fort": "Fort",
+    "fort": "Fortress",
+    "heavy_fort": "Heavy Fortress",
     "boom": "Boom"
   },
   "troop": "Company",
@@ -43,7 +44,8 @@
     "construction_yard": "Builds everything else on this island. Every yard here works the same job together.",
     "training_facility": "Drills companies of marines and militia.",
     "shipyard": "Lays down hulls. Nothing to build here until the fleets arrive.",
-    "fort": "A battery on the harbor wall. Fires on any enemy hull lying off the island, whether or not you have a fleet there.",
+    "fort": "A battery on the harbor wall. Fires on any enemy hull lying off the island, whether or not you have a fleet there, and no landing can be made while one still stands.",
+    "heavy_fort": "The same wall built twice over: more than twice the guns and two and a half times the stone, on the one plot a Fortress would have taken. Costs more per gun than two Fortresses would, and is the only answer on an island with no room left.",
     "boom": "A chain across the harbor mouth. A landing has to cut it first, and a lone raider cannot close the port."
   },
   "space": "Space"

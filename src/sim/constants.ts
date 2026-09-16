@@ -80,6 +80,11 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
   training_facility: { costGold: 80, days: 15, label: terms.facilities.training_facility },
   shipyard: { costGold: 150, days: 25, label: terms.facilities.shipyard },
   fort: { costGold: 100, days: 18, label: terms.facilities.fort },
+  // Two and a half Fortresses' worth of stone and a bit over twice the guns,
+  // for two and a half times the gold and not quite twice the time — on one
+  // plot. Slightly worse per gun than building two Fortresses, and the only
+  // thing you can do with a single berth on an island that has no more.
+  heavy_fort: { costGold: 250, days: 32, label: terms.facilities.heavy_fort },
   boom: { costGold: 70, days: 12, label: terms.facilities.boom },
 };
 
@@ -96,6 +101,43 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
 // Scaled with the hulls: a fort still fires like a frigate and a bit, and a
 // boom still holds a port open under anything short of half a squadron.
 export const FORT_GUNS = 20;
+/**
+ * And the Heavy Fortress, which is a berth's worth of decision.
+ *
+ * 45 guns against a Fortress's 20 and 150 of wall against 60, on the same one
+ * plot — but 250 gold and 5 a day against 100 and 2. Per gun it is very
+ * slightly the worse buy and per day of upkeep the worse buy again; per *berth*
+ * it is more than twice the harbor. That is the whole trade, and it lands on
+ * the game's real scarcity: an island has a fixed number of plots and the
+ * mills and the yards want them too.
+ *
+ * Against the siege arithmetic the Fortress was tuned to — a proper train of
+ * two first-rates and two frigates, 38 a day, through a Fortress in two days —
+ * this takes four and a half, while firing back like two first-rates rather
+ * than like a frigate. A harbor with one in it is a harbor you bring the fleet
+ * to rather than a squadron.
+ */
+export const HEAVY_FORT_GUNS = 45;
+export const HEAVY_FORT_STRENGTH = 150;
+
+/**
+ * The three questions every siege rule asks of a works, answered in one place.
+ *
+ * Two tiers of wall means the rest of the game must stop asking `type ===
+ * 'fort'` and asking these instead — the guns it fires, the stone it is made
+ * of, and whether it is a wall at all. Everything downstream (the blockade,
+ * the bombardment, the nightly patch, what stops a landing, what the opponent
+ * thinks a siege will cost) then works for both without knowing there are two.
+ */
+export function isWall(type: FacilityType): boolean {
+  return type === 'fort' || type === 'heavy_fort';
+}
+export function wallGuns(type: FacilityType): number {
+  return type === 'heavy_fort' ? HEAVY_FORT_GUNS : FORT_GUNS;
+}
+export function wallStrength(type: FacilityType): number {
+  return type === 'heavy_fort' ? HEAVY_FORT_STRENGTH : FORT_STRENGTH;
+}
 
 /**
  * What a seawall is made of, and why an island with one cannot simply be
@@ -598,6 +640,7 @@ export const GOLD_PER_DAY: Record<BuildItem, number> = {
   training_facility: 0,
   shipyard: 0,
   fort: 0,
+  heavy_fort: 0,
   boom: 0,
   troop: 0,
   ...NO_SHIP_INCOME,
@@ -614,6 +657,7 @@ export const UPKEEP_PER_DAY: Record<BuildItem, number> = {
   training_facility: 2,
   shipyard: 4,
   fort: 2,
+  heavy_fort: 5,
   boom: 1,
   troop: 1,
   ...SHIP_UPKEEP,
@@ -1141,6 +1185,7 @@ export const YARD_BUILDABLE: FacilityType[] = [
   'training_facility',
   'shipyard',
   'fort',
+  'heavy_fort',
   'boom',
 ];
 
@@ -1257,6 +1302,7 @@ export const BUILDING_ORDER: FacilityType[] = [
   'shipyard',
   'training_facility',
   'construction_yard',
+  'heavy_fort',
   'fort',
   'boom',
   'refinery',

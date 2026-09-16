@@ -333,6 +333,44 @@ A prize keeps the structural DNA of whoever built her and takes on the visible m
 
 A proposed hull is not a lie, but it is not scripture either: it may be promoted by being written into this document, and until then nothing should claim the lore names it.
 
+### The walls: Fortress and Heavy Fortress
+
+A fort is a warship that cannot weigh anchor, which is why it belongs here
+rather than with the mills. It fires on any enemy hull lying off the island
+whether or not you have a fleet there, and while one still stands **no landing
+can be made at all** — the only door into a defended island is bombardment, and
+the only thing that opens it is weight of shot.
+
+Sean's ruling, 16 September, handing over two paintings: *"One is a Fortress
+the other is an Advanced Fortress... Let's call them Fortress and Heavy
+Fortress. The one with bigger fort and more guns is heavy fortress."* A second
+tier, built from scratch, rather than an improvement made to a wall already
+standing.
+
+| | Gold | Days | Guns | Wall | Upkeep | Plots |
+|---|---|---|---|---|---|---|
+| **Fortress** | 100 | 18 | 20 | 60 | 2/day | 1 |
+| **Heavy Fortress** | 250 | 32 | 45 | 150 | 5/day | 1 |
+
+**What makes it a decision.** Per gun and per day of upkeep the Heavy Fortress
+is very slightly the *worse* buy — two Fortresses are forty guns for two
+hundred gold where this is forty-five for two hundred and fifty. Per **plot**
+it is more than twice the harbor. And a plot is the thing an island only has so
+many of, with the mills and the yards wanting them too. So: land-rich and
+thrifty, build two Fortresses; land-poor or defending something you cannot lose,
+build the heavy one. The Crown builds them on Highwater as a matter of course.
+
+**What it does to a siege.** A proper train — two first-rates and two frigates,
+thirty-eight a day — is through a Fortress in two days and through a Heavy
+Fortress in four and a half, taking forty-five guns a day rather than twenty
+the whole while. Measured over twenty-four wars the tier leaves the balance
+exactly where it was, eleven wins each, and makes the median war about a
+hundred days longer, which is what a defensive option is supposed to do.
+
+This is the same shape as the Crown's **II** ships and is not called one, because
+a Heavy Fortress is a thing you build rather than a generation the Admiralty
+moved on to. The Confederacy builds both as readily; a wall is a wall.
+
 
 ## 7. The Seas, the Reaches and the Islands
 

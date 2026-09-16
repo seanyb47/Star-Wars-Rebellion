@@ -44,6 +44,10 @@ import {
   BOMBARD_PER_COMPANY,
   CIVILIAN_LOYALTY_HIT,
   SUPPORT_FIRM as FIRM,
+  isWall,
+  wallGuns,
+  wallStrength,
+  YARD_BUILDABLE,
 } from '../sim';
 import {
   CategoryIcon,
@@ -72,15 +76,8 @@ export function slugOf(name: string): string {
  * simulation runs on — so it cannot quietly go out of date the way a
  * hand-written manual would.
  */
-const BUILD_ORDER: FacilityType[] = [
-  'mine',
-  'refinery',
-  'construction_yard',
-  'training_facility',
-  'shipyard',
-  'fort',
-  'boom',
-];
+/** Everything a yard can lay down, in the sim's own order. Not a copy of it. */
+const BUILD_ORDER: FacilityType[] = YARD_BUILDABLE;
 
 function GoldLine({ type }: { type: FacilityType }) {
   const earns = GOLD_PER_DAY[type];
@@ -202,6 +199,12 @@ export function Almanac({
               </div>
               <div className="tiny" style={{ marginTop: 2 }}>
                 <GoldLine type={type} />
+                {isWall(type) && (
+                  <span className="muted">
+                    {' · '}
+                    {wallGuns(type)} guns · {wallStrength(type)} wall
+                  </span>
+                )}
               </div>
               <div className="tiny muted" style={{ marginTop: 2 }}>
                 {terms.facilityBlurbs[type]}

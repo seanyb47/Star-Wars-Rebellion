@@ -3,7 +3,7 @@
 *Sean, 16 September: “Give me art prompts for all facilities and garrisons.”*
 
 One sheet for both, so there is a single place to look and nothing to keep in
-sync with anything else. **Twenty-four prompts**: seven works painted twice, once
+sync with anything else. **Twenty-six prompts**: eight works painted twice, once
 for each side, and ten companies.
 
 **What already exists.** Five of the seven works are painted for both sides and
@@ -13,15 +13,23 @@ them only if a delivery looks off against the rest. The ten companies are
 written up in `troops.md` prose, but not one has arrived: every company on a
 garrison board is still a drawn glyph.
 
-**The Crown's Fort arrived on 16 September** and is in the game — the first
-works painted as a standalone picture rather than sliced out of a contact sheet.
-Still missing: **the Confederate Fort, and the Boom for both sides.**
+**The Crown's Fortress and Heavy Fortress arrived on 16 September** and are
+both in the game — the first works painted as standalone pictures rather than
+sliced out of a contact sheet. The Fortress was delivered twice; the second take
+is the one installed. Still missing: **both walls for the Confederacy, and the
+Boom for both sides.**
+
+**Eight prompts here, not seven.** The Heavy Fortress is a works in its own
+right now — 45 guns and 150 of wall against a Fortress's 20 and 60, on the same
+single plot — so it needs its own painting per side, and the Confederate one
+has to read as the same building the Confederacy would have built: earthwork
+and ships' timbers rather than cut stone, and more of it.
 
 ---
 
 ## Delivery
 
-**Facilities.** One image per works per side, PNG, **4:3 landscape (2048×1536
+**Facilities.** One image per works per side — **eight works, sixteen images** —  PNG, **4:3 landscape (2048×1536
 or larger)**, the works filling most of the frame. Name exactly as the file name
 under each heading. Drive: `7 Seas / Art / buildings`. Install with
 `npm run art:add -- <file> buildings/<works>-<side>` — for example
@@ -120,9 +128,9 @@ rather than in any detail.
 
 > A Confederate shipyard: a hidden cove slipway roofed with sailcloth and palm, a hull on the stocks built of salvage with three colours of timber in her planking, spars lashed into a crane, a fire under a tar pot, shipwrights of four peoples working at once. Free Confederacy — freedom, opportunity, independence, brotherhood, a bolder tomorrow: crimson and rust red, black, salvaged ship's timbers and mismatched brass fittings, tar and rope and patched or dyed canvas, whalebone, nothing regulation and no two things alike, improvised and working; a red sash knotted somewhere as a colour; free-spirited, never villainous. 4:3 landscape, the works filling most of the frame, seen from the water a short way off and a little below, figures at work for scale, sky and water around it so the silhouette can breathe. The game crops this to a 16:10 band, so the building itself belongs in the middle of the height with nothing that matters in the top or bottom eighth, and it has to read at thirty pixels high: one clear subject, strong outline, no clutter along the edges. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, approximately 70% historical swashbuckling adventure, 20% nautical fantasy and mysticism, 10% whimsy; never photorealistic, steampunk, grimdark, chibi, childish, generic high fantasy, futuristic or excessively cartoonish
 
-### Fort
+### Fortress
 
-*A battery on the harbor wall: it fires in every action in its water, and no landing can be made while it stands.*
+*A battery on the harbor wall: it fires in every action in its water, and no landing can be made while it stands. 100 gold, 18 days, 20 guns, 60 of wall, one plot.*
 
 **Crown Imperium** — `fort-empire.png` — **delivered 16 September and in the game.** Kept here for the set; do not regenerate.
 
@@ -131,6 +139,20 @@ rather than in any detail.
 **Free Confederacy** — `fort-alliance.png`
 
 > A Confederate fort: an earthwork battery faced with gabions and ships' timbers, guns of four different patterns on improvised carriages, powder kegs under sailcloth, a lookout in a crow's nest lashed to a spar, a mixed crew at the pieces, the harbor mouth beyond. Free Confederacy — freedom, opportunity, independence, brotherhood, a bolder tomorrow: crimson and rust red, black, salvaged ship's timbers and mismatched brass fittings, tar and rope and patched or dyed canvas, whalebone, nothing regulation and no two things alike, improvised and working; a red sash knotted somewhere as a colour; free-spirited, never villainous. 4:3 landscape, the works filling most of the frame, seen from the water a short way off and a little below, figures at work for scale, sky and water around it so the silhouette can breathe. The game crops this to a 16:10 band, so the building itself belongs in the middle of the height with nothing that matters in the top or bottom eighth, and it has to read at thirty pixels high: one clear subject, strong outline, no clutter along the edges. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, approximately 70% historical swashbuckling adventure, 20% nautical fantasy and mysticism, 10% whimsy; never photorealistic, steampunk, grimdark, chibi, childish, generic high fantasy, futuristic or excessively cartoonish
+
+### Heavy Fortress
+
+*The same wall built twice over, on the one plot: more than twice the guns and two and a half times the stone. 250 gold, 32 days, 45 guns, 150 of wall, one plot.*
+
+It has to read against the Fortress at a glance and at thumbnail size: **the same building with more of everything.** Not a different architecture, not a fantasy keep — more gundecks, more bastions stepped down to the water, heavier pieces, deeper walls. A player glancing at an island should be able to tell which of the two is standing there without reading the name.
+
+**Crown Imperium** — `heavy-fort-empire.png` — **delivered 16 September and in the game.** Kept here for the set; do not regenerate.
+
+> A Crown heavy fortress: a great stone sea-battery in tiers, eight and more heavy guns run out over the water on two levels of bastion, shot piled in pyramids and powder barrels behind the pieces, sentry turrets at the angles, a walled keep rising behind, the whole works stepped down to the rocks and the surf. Visibly the same fortress as the lesser one and half again as much of it. Crown Imperium — order, stability, trade, civilization, a brighter tomorrow: deep Imperial green and warm ivory, antique gold and brass, black iron, refined wood, cut grey stone, everything squared off, regulation and matching, kept up at expense; civilized and impressive, never sinister; no coral anywhere. 4:3 landscape, the works filling most of the frame, seen from the water a short way off and a little below, figures at work for scale, sky and water around it so the silhouette can breathe. The game crops this to a 16:10 band, so the building itself belongs in the middle of the height with nothing that matters in the top or bottom eighth, and it has to read at thirty pixels high: one clear subject, strong outline, no clutter along the edges. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, approximately 70% historical swashbuckling adventure, 20% nautical fantasy and mysticism, 10% whimsy; never photorealistic, steampunk, grimdark, chibi, childish, generic high fantasy, futuristic or excessively cartoonish
+
+**Free Confederacy** — `heavy-fort-alliance.png`
+
+> A Confederate heavy fortress: a great tiered battery of earthwork, gabions and ships' timbers, eight and more guns of half a dozen different patterns run out over the water on two improvised levels, powder under sailcloth, a lookout in a crow's nest lashed to a spar, hulks sunk as a breakwater below it, the whole thing built up out of what the sea gave them and plainly twice the works of their lesser battery. Free Confederacy — freedom, opportunity, independence, brotherhood, a bolder tomorrow: crimson and rust red, black, salvaged ship's timbers and mismatched brass fittings, tar and rope and patched or dyed canvas, whalebone, nothing regulation and no two things alike, improvised and working; a red sash knotted somewhere as a colour; free-spirited, never villainous. 4:3 landscape, the works filling most of the frame, seen from the water a short way off and a little below, figures at work for scale, sky and water around it so the silhouette can breathe. The game crops this to a 16:10 band, so the building itself belongs in the middle of the height with nothing that matters in the top or bottom eighth, and it has to read at thirty pixels high: one clear subject, strong outline, no clutter along the edges. No borders, frames, text or watermarks. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, approximately 70% historical swashbuckling adventure, 20% nautical fantasy and mysticism, 10% whimsy; never photorealistic, steampunk, grimdark, chibi, childish, generic high fantasy, futuristic or excessively cartoonish
 
 ### Boom
 

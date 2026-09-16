@@ -3,12 +3,12 @@
     "buildings/fort-empire": {
       "folder": "buildings",
       "slug": "fort-empire",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
       "updated": "2026-09-16",
-      "title": "Fort \u2014 Crown Imperium",
+      "title": "Fortress \u2014 Crown Imperium",
       "source": "Sean, 16 September",
-      "notes": "The first works painted as a standalone 4:3 rather than sliced out of a contact sheet. Cut grey stone, a line of cannon on the seawall, sentry turrets, the keep behind and a Crown town up the hill \u2014 the Art Direction Guide's Crown to the letter.",
+      "notes": "Second take, and the better one: warmer light, the whole bastion line in frame, the guns reading at tile size. Replaces the first fort of the same day, which is retired.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -16,15 +16,52 @@
         "file": "art-masters/buildings/fort-empire.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 724882,
-        "sha1": "35c52f3e3f861b3e"
+        "bytes": 704612,
+        "sha1": "bed1319087ef102b"
       },
       "shipped": {
         "file": "src/art/buildings/fort-empire.webp",
         "w": 512,
         "h": 384,
-        "bytes": 59988,
-        "sha1": "fff18f2241f23aa7"
+        "bytes": 59626,
+        "sha1": "b485307d6705ec63"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-16",
+          "master": "art-masters/_retired/buildings/fort-empire.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean, 16 September"
+        }
+      ]
+    },
+    "buildings/heavy-fort-empire": {
+      "folder": "buildings",
+      "slug": "heavy-fort-empire",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Heavy Fortress \u2014 Crown Imperium",
+      "source": "Sean, 16 September",
+      "notes": "The battery close-up: eight heavy guns run out, shot pyramids and powder barrels behind them, bastions stepped down to the water. Reads as the same fortress with more of everything, which is exactly what the tier is.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/buildings/heavy-fort-empire.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 752432,
+        "sha1": "fe093bad53c60114"
+      },
+      "shipped": {
+        "file": "src/art/buildings/heavy-fort-empire.webp",
+        "w": 512,
+        "h": 384,
+        "bytes": 64026,
+        "sha1": "1dc7110d74e4b0c5"
       }
     },
     "chart/seas": {

@@ -10,8 +10,9 @@ import {
   PURSUIT_ODDS,
   BOOM_BLOCKADE_GUNS,
   BOOM_DEFENCE,
-  FORT_GUNS,
-  FORT_STRENGTH,
+  isWall,
+  wallGuns,
+  wallStrength,
   FORT_REPAIR_PER_DAY,
   BOMBARD_PER_COMPANY,
   CIVILIAN_LOYALTY_HIT,
@@ -842,21 +843,24 @@ export function fortsOf(system: System): Facility[] {
   if (system.control !== 'empire' && system.control !== 'alliance') return [];
   return system.facilities.filter(
     (f) =>
-      f.type === 'fort' &&
+      isWall(f.type) &&
       f.owner === system.control &&
       !f.building &&
-      (f.damage ?? 0) < FORT_STRENGTH,
+      (f.damage ?? 0) < wallStrength(f.type),
   );
 }
 
 /** What is left of the walls, as a share of what they were. */
 export function wallCondition(system: System): number {
   const forts = system.facilities.filter(
-    (f) => f.type === 'fort' && f.owner === system.control && !f.building,
+    (f) => isWall(f.type) && f.owner === system.control && !f.building,
   );
   if (forts.length === 0) return 0;
-  const whole = forts.length * FORT_STRENGTH;
-  const left = forts.reduce((n, f) => n + Math.max(0, FORT_STRENGTH - (f.damage ?? 0)), 0);
+  // By weight of stone, not by count: a Heavy Fortress at half is more wall
+  // left than a Fortress untouched, and the figure the panel prints has to
+  // mean the same thing on every island.
+  const whole = forts.reduce((n, f) => n + wallStrength(f.type), 0);
+  const left = forts.reduce((n, f) => n + Math.max(0, wallStrength(f.type) - (f.damage ?? 0)), 0);
   return left / whole;
 }
 
@@ -871,11 +875,12 @@ export function wallCondition(system: System): number {
 export function fortGuns(system: System): number {
   if (system.control !== 'empire' && system.control !== 'alliance') return 0;
   const forts = system.facilities.filter(
-    (f) => f.type === 'fort' && f.owner === system.control && !f.building,
+    (f) => isWall(f.type) && f.owner === system.control && !f.building,
   );
   return forts.reduce((n, f) => {
-    const left = Math.max(0, FORT_STRENGTH - (f.damage ?? 0)) / FORT_STRENGTH;
-    return n + FORT_GUNS * left;
+    const whole = wallStrength(f.type);
+    const left = Math.max(0, whole - (f.damage ?? 0)) / whole;
+    return n + wallGuns(f.type) * left;
   }, 0);
 }
 
@@ -971,11 +976,11 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
   const rubble: string[] = [];
   for (const fort of standing) {
     if (weight <= 0) break;
-    const left = FORT_STRENGTH - (fort.damage ?? 0);
+    const left = wallStrength(fort.type) - (fort.damage ?? 0);
     const put = Math.min(weight, left);
     fort.damage = (fort.damage ?? 0) + put;
     weight -= put;
-    if (fort.damage >= FORT_STRENGTH) rubble.push(fort.id);
+    if (fort.damage >= wallStrength(fort.type)) rubble.push(fort.id);
   }
   // A wall beaten to nothing is rubble, and rubble does not mend.
   //
@@ -1090,8 +1095,10 @@ export function repairOvernight(state: GameState): void {
   }
   for (const system of state.systems) {
     for (const fort of system.facilities) {
-      if (fort.type !== 'fort' || fort.building || !fort.damage) continue;
-      fort.damage = Math.max(0, fort.damage - FORT_STRENGTH * FORT_REPAIR_PER_DAY);
+      if (!isWall(fort.type) || fort.building || !fort.damage) continue;
+      // A share of its own stone, so a Heavy Fortress patches faster in
+      // absolute terms and at the same rate as a share of itself.
+      fort.damage = Math.max(0, fort.damage - wallStrength(fort.type) * FORT_REPAIR_PER_DAY);
       if (fort.damage === 0) delete fort.damage;
     }
   }

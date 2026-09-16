@@ -9,6 +9,7 @@ import {
   requiredGarrison,
   freeSlots,
   reservedSlots,
+  YARD_BUILDABLE,
   type BuildItem,
   type FacilityType,
   type GameState,
@@ -36,15 +37,17 @@ export interface BuildDraft {
   destinationId: string | null;
 }
 
-export const FACILITY_ORDER: FacilityType[] = [
-  'mine',
-  'refinery',
-  'construction_yard',
-  'training_facility',
-  'shipyard',
-  'fort',
-  'boom',
-];
+/**
+ * What the build menu offers, which is exactly what a yard is allowed to lay
+ * down — the sim's own list, not a copy of it.
+ *
+ * It was a copy until 16 September, and adding the Heavy Fortress proved why
+ * that was a mistake: the works went into the sim, into the island board's
+ * order and into the encyclopedia, and the one list nobody remembered was the
+ * menu you actually build things from. So the building existed, the AI built
+ * them, they stood on islands and fired — and the player could not order one.
+ */
+export const FACILITY_ORDER: FacilityType[] = YARD_BUILDABLE;
 
 export const KIND_LABEL: Record<BuildKind, string> = {
   facilities: 'Build Facilities',

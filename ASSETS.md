@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**97 of 102 painted.** 3272KB shipped, 10.0MB of masters kept back.
+**98 of 103 painted.** 3334KB shipped, 10.7MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -135,11 +135,12 @@ the natural world, and where the 20% fantasy is allowed out. 5 of 5.
 
 ## buildings — 512×384
 
-one building on its island, three-quarter view; the build order card. 1 of 1.
+one building on its island, three-quarter view; the build order card. 2 of 2.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
-| Fort — Crown Imperium | `fort-empire` | 1 | 58KB | 1448×1086, 707KB | whole frame | 2026-09-16 | Sean, 16 September |
+| Fortress — Crown Imperium | `fort-empire` | 2 (+1 retired) | 58KB | 1448×1086, 688KB | whole frame | 2026-09-16 | Sean, 16 September |
+| Heavy Fortress — Crown Imperium | `heavy-fort-empire` | 1 | 62KB | 1448×1086, 734KB | whole frame | 2026-09-16 | Sean, 16 September |
 
 ## scenes — 1024×432
 
@@ -166,7 +167,8 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 
 ## Notes
 
-- **buildings/fort-empire** — The first works painted as a standalone 4:3 rather than sliced out of a contact sheet. Cut grey stone, a line of cannon on the seawall, sentry turrets, the keep behind and a Crown town up the hill — the Art Direction Guide's Crown to the letter.
+- **buildings/fort-empire** — Second take, and the better one: warmer light, the whole bastion line in frame, the guns reading at tile size. Replaces the first fort of the same day, which is retired.
+- **buildings/heavy-fort-empire** — The battery close-up: eight heavy guns run out, shot pyramids and powder barrels behind them, bastions stepped down to the water. Reads as the same fortress with more of everything, which is exactly what the tier is.
 - **chart/seas** — Delivered at luma 56 — as bright as the reference maps and about twice what the interface needs; a Confederacy mark on it measured 2.7:1 against a 3:1 floor. Darkened at ingest with gamma 1.6 rather than repainted: composition was right, only value was wrong, and the master keeps the bright original.
 - **chart/title** — The second chart painting. Darker and more evenly lit than chart/seas — sea luma 43 against 57, and a bottom edge at 43 rather than 73 — but it holds fewer separable chains (9 against 10 at a 20px dilation, 5 against 9 by area), and the chart needs ten. So it takes the title screen, where nothing has to be tapped and the dominant centre island is an asset rather than a crowding problem.
 - **creatures/ghost-ship** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.

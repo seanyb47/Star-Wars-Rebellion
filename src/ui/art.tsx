@@ -349,7 +349,15 @@ export function FacilityIcon({
   type,
   size = 30,
 }: {
-  type: 'mine' | 'refinery' | 'construction_yard' | 'training_facility' | 'shipyard' | 'fort' | 'boom';
+  type:
+    | 'mine'
+    | 'refinery'
+    | 'construction_yard'
+    | 'training_facility'
+    | 'shipyard'
+    | 'fort'
+    | 'heavy_fort'
+    | 'boom';
   size?: number;
 }) {
   const common = {
@@ -413,6 +421,18 @@ export function FacilityIcon({
           <path d="M4 28 H28" />
           <path d="M11 22 L23 16" strokeWidth="2.4" />
           <circle cx="11" cy="22" r="2.2" strokeWidth="1.4" />
+        </g>
+      )}
+      {type === 'heavy_fort' && (
+        <g {...common}>
+          {/* The same wall, doubled: a lower bastion stepped out in front of
+              an upper one, and two guns instead of one. Meant to read at the
+              size of a thumbnail as "that one, but more of it". */}
+          <path d="M3 28 V19 H6 V16 H10 V19 H14 V28" />
+          <path d="M14 28 V11 H18 V8 H22 V11 H26 V8 H30 V11 H30 V28" />
+          <path d="M2 28 H30" />
+          <path d="M6 25 L13 21" strokeWidth="2.2" />
+          <path d="M18 19 L28 14" strokeWidth="2.4" />
         </g>
       )}
       {type === 'boom' && (

@@ -12,7 +12,7 @@ import {
   AI_SURVEY_HUNGER,
   AI_PLOT_WORTH,
   AI_COMFORTABLE,
-  FORT_STRENGTH,
+  wallStrength,
   FORT_REPAIR_PER_DAY,
   AI_SIEGE_DAYS,
   AI_RUNWAY_DAYS,
@@ -233,9 +233,22 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
   else if (countOf('shipyard') < 3 && gold > AI_RICH * 2) wanted.push('shipyard');
   // Rich, it also fortifies: a battery on each held port that has none, so a
   // treasury with nothing to buy turns into something a raider has to reckon with.
-  if (gold > AI_RICH * 2 && countOf('fort') < Math.ceil(held.length / 3)) wanted.push('fort');
+  const walls = countOf('fort') + countOf('heavy_fort');
+  if (gold > AI_RICH * 2 && walls < Math.ceil(held.length / 3)) wanted.push('fort');
 
-  for (const item of wanted) {
+  for (const rawItem of wanted) {
+    // Which wall, decided by *where* rather than by what it can afford.
+    //
+    // Both tiers take the same one berth, so "is there room" was never the
+    // question and the first version of this rule — build heavy when the
+    // islands are built out — measured at zero Heavy Fortresses in twelve
+    // wars, because with twenty-odd islands there is always a roomy one.
+    //
+    // The real question is what the berth is worth on that island, and a
+    // human answers it the same way every time: the seat of your government
+    // and a place with two plots left get the expensive wall, a backwater
+    // gets the cheap one. So the spot is chosen first and the wall second.
+    const item = rawItem === 'fort' ? wallFor(state, ai, gold) : rawItem;
     if (thin || gold < YARD_BUILDS[item].costGold || !canCarry(item)) continue;
     const spot = bestSpotFor(state, ai, item);
     if (spot) {
@@ -317,6 +330,31 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
  * `canQueueBuild` is still the gate either way, so this can only ever pick
  * something the rules already allow.
  */
+/**
+ * Which wall to raise, given where the next one is going.
+ *
+ * `bestSpotFor` has already decided the island; this only decides what stands
+ * on the plot, and it answers the way a player does. The seat of the war is
+ * worth the expensive wall whatever it costs — losing it loses everything. An
+ * island down to its last plot or two is worth it as well, because the berth
+ * will not come again and a Fortress there is a plot spent on twenty guns
+ * when it could have been spent on forty-five. Anywhere else, the cheap wall
+ * is the better buy and there is room to build a second one beside it.
+ *
+ * Gated on a real surplus, because a Heavy Fortress is two and a half
+ * Fortresses of gold and the opponent should not be fortifying a backwater
+ * with money its fleet needs.
+ */
+function wallFor(state: GameState, ai: PlayableFaction, gold: number): FacilityType {
+  if (gold < YARD_BUILDS.heavy_fort.costGold + AI_RICH) return 'fort';
+  const spot = bestSpotFor(state, ai, 'fort');
+  if (!spot) return 'fort';
+  const island = state.systems.find((s) => s.facilities.some((f) => f.id === spot));
+  if (!island) return 'fort';
+  const seat = island.id === state.factions[ai].hqSystemId;
+  return seat || freeSlots(island) <= 2 ? 'heavy_fort' : 'fort';
+}
+
 function bestSpotFor(
   state: GameState,
   ai: PlayableFaction,
@@ -803,8 +841,9 @@ function aiBeginSiege(state: GameState, fleet: Fleet, ai: PlayableFaction): bool
 function siegeWeightFor(system: System): number {
   const walls = fortsOf(system);
   if (walls.length === 0) return 0;
-  const standing = walls.reduce((n, f) => n + (FORT_STRENGTH - (f.damage ?? 0)), 0);
-  return standing / AI_SIEGE_DAYS + FORT_STRENGTH * FORT_REPAIR_PER_DAY * walls.length;
+  const standing = walls.reduce((n, f) => n + (wallStrength(f.type) - (f.damage ?? 0)), 0);
+  const patch = walls.reduce((n, f) => n + wallStrength(f.type) * FORT_REPAIR_PER_DAY, 0);
+  return standing / AI_SIEGE_DAYS + patch;
 }
 
 /** Take companies aboard where there are spare, then go and make a nuisance. */

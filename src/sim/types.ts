@@ -174,6 +174,21 @@ export type FacilityType =
   | 'shipyard'
   /** A fixed gun in the harbor: a warship that cannot weigh anchor. */
   | 'fort'
+  /**
+   * The same wall built twice over, on one plot.
+   *
+   * Sean, 16 September, handing over two paintings: *"One is a Fortress the
+   * other is an Advanced Fortress... Let's call them Fortress and Heavy
+   * Fortress. The one with bigger fort and more guns is heavy fortress."*
+   *
+   * A second tier rather than an upgrade in place, which was his call. What
+   * makes it a decision and not simply the better building is the berth: it
+   * gives more than twice a Fortress's guns and two and a half times its
+   * stone on the one plot, and charges slightly more per gun and per day of
+   * upkeep for the privilege. Land-poor and rich, you build this. Land-rich
+   * and thrifty, you build two Fortresses.
+   */
+  | 'heavy_fort'
   /** A chain across the harbor mouth: landings and blockades both find it. */
   | 'boom';
 
