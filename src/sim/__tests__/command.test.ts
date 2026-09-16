@@ -59,7 +59,10 @@ describe('a posting, not an errand', () => {
     home.uprising = false;
     setSupport(home, 'empire', 100);
     expect(missionTypeFor(state, home, 'empire')).toBeNull();
-    expect(missionsOffered(state, home, 'empire')).toEqual(['command']);
+    // And a report on your own capital, always: the memo's counter-intelligence
+    // trick is that an island of yours is exactly where you cannot see what
+    // the other side has quietly got working on it.
+    expect(missionsOffered(state, home, 'empire')).toEqual(['command', 'espionage']);
     expect(missionError(state, officer.id, home.id, 'command')).toBeNull();
   });
 

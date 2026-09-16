@@ -422,6 +422,7 @@ export type MissionType =
   | 'recruit'
   | 'sabotage'
   | 'survey'
+  | 'espionage'
   | 'abduct'
   | 'command'
   | 'research'
@@ -568,6 +569,57 @@ export interface PendingBattle {
 
 export type BattleOutcome = 'won' | 'lost' | 'they-fled' | 'you-fled' | 'beast-slain';
 
+/**
+ * What one officer learned about one island, on one day.
+ *
+ * Sean's memo on how Rebellion does this: *"a successful mission can reveal
+ * enemy characters, ground troops, facilities, fleets, ships in orbit, enemy
+ * missions currently being conducted, units travelling toward the system."*
+ * That is a report, not a subscription. It is written once, it is stamped with
+ * the day, and it never updates itself — a fortnight later it is a fortnight
+ * old and the sheet says so.
+ *
+ * The island is carried whole rather than picked apart into fields, so every
+ * reading the sheet already does on a live island — the garrison roster, the
+ * required garrison, what the works earn, how much room is left — runs
+ * unchanged on a remembered one. It costs a kilobyte in the save and buys back
+ * a screen that does not need a second implementation of itself.
+ */
+export interface Intel {
+  /** The day it was written. */
+  day: number;
+  /** Who wrote it. */
+  byId: string;
+  byName: string;
+  /**
+   * Read out of somebody else's dispatches rather than seen.
+   *
+   * The memo's bonus island: *"a successful espionage mission against an enemy
+   * system can give you intelligence on another enemy system as well."* Worth
+   * marking, because a second-hand report is a report about a place nobody of
+   * yours has been.
+   */
+  secondHand?: true;
+  /** The island as it stood, whole, so the sheet can read it the usual way. */
+  island: System;
+  /** Their people standing on it, by id — the sheet looks up the rest. */
+  officerIds: string[];
+  /** Their errands under way here. The counter-intelligence half of the memo. */
+  errands: Array<{ type: MissionType; byId: string; byName: string; daysRemaining: number }>;
+  /** What lay in the harbor, and what was at sea for it and how far out. */
+  harbor: Array<{
+    id: string;
+    name: string;
+    faction: PlayableFaction;
+    ships: number;
+    troops: number;
+    /** Days out, if it was sailing here rather than lying at anchor. */
+    inbound?: number;
+  }>;
+  /** What the island was watching with, totalled. */
+  watch: number;
+}
+
 export interface GameState {
   day: number;
   speed: Speed;
@@ -591,6 +643,16 @@ export interface GameState {
   battle?: PendingBattle;
   /** Set once a victory condition trips; the clock stops afterwards. */
   winner?: PlayableFaction;
+  /**
+   * Every espionage report either side is holding, newest per island.
+   *
+   * Keyed by the side that owns the report and then by island, because only
+   * the latest one matters: a report is a photograph of a place and nobody
+   * wants last month's as well. Optional so a save written before espionage
+   * existed loads as a side that has never sent a spy anywhere, which is what
+   * it is.
+   */
+  intel?: { empire: Record<string, Intel>; alliance: Record<string, Intel> };
   rngSeed: number;
   /** Monotonic counter behind every generated id, so "newest" is well defined. */
   nextId: number;

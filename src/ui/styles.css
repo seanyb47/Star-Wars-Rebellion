@@ -2018,3 +2018,19 @@ button.tcard:hover { border-color: var(--brass); }
 
 /* A hull the shipwrights have not reached yet, in the encyclopedia. */
 .enc-craft { color: var(--metal-hi); letter-spacing: 0.02em; }
+
+/* A report's age, above the tabs on the island sheet.
+   Brass and boxed rather than another grey note: everything under this line is
+   what somebody wrote down on a day that has passed, and the commonest way to
+   lose an officer is to act on a month-old count without noticing it is one. */
+.report-age {
+  margin: 0 0 10px;
+  padding: 6px 9px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--brass) 34%, transparent);
+  background: color-mix(in srgb, var(--brass) 8%, transparent);
+  color: var(--muted);
+}
+.report-age b {
+  color: var(--brass);
+}

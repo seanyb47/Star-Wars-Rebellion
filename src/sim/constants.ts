@@ -972,6 +972,45 @@ export const COMMAND_SUPPORT_GAIN = 11;
  * is deliberately dull — cheaper and quicker hulls, not new ones — because a
  * research track that unlocks things needs things to unlock.
  */
+/**
+ * Coming back with a report.
+ *
+ * The highest floor of any errand, and it should be: the officer has already
+ * beaten the island's watch to be standing there at all, and what is left is
+ * counting companies and reading a harbor. A poor spy lands around 0.7 and a
+ * good one is nearly certain, which is the memo's point — *"one good spy is
+ * usually sufficient"*. What makes espionage expensive is the door, not the
+ * job, and the door is `foilChance`.
+ */
+export const ESPIONAGE_BASE = 0.6;
+/** How much of the spy's own Espionage is added to that floor. */
+export const ESPIONAGE_DIVISOR = 280;
+/**
+ * The Espionage a spy needs before their report carries a second island.
+ *
+ * Sean's memo: *"a successful espionage mission against an enemy system can
+ * give you intelligence on another enemy system as well... the bonus
+ * information has specific restrictions."* Ours are that the spy has to be
+ * good enough to be reading somebody's dispatches rather than counting guns,
+ * and that the island it names is never the enemy's capital — the same shape
+ * as the original's rule that the free planet is never an Outer Rim one,
+ * and for the same reason: the one address that decides the war should never
+ * arrive as a bonus.
+ */
+export const ESPIONAGE_SECOND_ISLAND = 55;
+
+/**
+ * What an island you have not looked at is assumed to be watching with.
+ *
+ * Roughly a middling enemy holding: a few companies, a people mostly with
+ * their holder, nobody in the chair. Deliberately not the worst case — a side
+ * that assumes every dark island is a fortress never goes anywhere near one,
+ * and the whole point of a guess is that it can be wrong in both directions.
+ * Finding a capital behind it is how an officer ends up in irons; finding a
+ * sullen frontier island behind it is a raid somebody nearly did not make.
+ */
+export const ASSUMED_WATCH = 70;
+
 export const RESEARCH_BASE = 0.45;
 /** Allegiance an island must already have before its yards can spare the time. */
 export const RESEARCH_MIN_SUPPORT = 75;

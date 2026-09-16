@@ -69,7 +69,15 @@ export function IslandRow({
   const you = state.player;
   const explored = system.explored[you];
   const slots = system.slots;
-  const counts: Record<string, number> = {
+  /**
+   * The three counts, where this side has them.
+   *
+   * Companies and works are undefined on an island held against you that
+   * nobody of yours has looked at — the row draws a dash, the same dash an
+   * uncharted island draws, because "we cannot see" is one answer and not two.
+   * Your own errands are always countable: they are yours.
+   */
+  const counts: Record<string, number | undefined> = {
     missions: entry.missions,
     military: entry.military,
     facilities: entry.facilities,
@@ -134,10 +142,12 @@ export function IslandRow({
           <span
             key={cat.kind}
             // Empty counts recede so the ones worth looking at stand out.
-            className={`isle__cat${explored && counts[cat.kind] > 0 ? ' isle__cat--has' : ''}`}
+            className={`isle__cat${explored && (counts[cat.kind] ?? 0) > 0 ? ' isle__cat--has' : ''}`}
           >
             <CategoryIcon kind={cat.kind} size={20} />
-            <span className="isle__count">{explored ? counts[cat.kind] : '–'}</span>
+            <span className="isle__count">
+              {explored ? (counts[cat.kind] ?? '–') : '–'}
+            </span>
             {/* Spelled out. A crossed cutlass and pike at 20px is just an X,
                 and an icon that has to be explained is not doing its job. */}
             <span className="isle__cat-label">{cat.label}</span>

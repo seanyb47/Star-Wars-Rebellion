@@ -18,6 +18,7 @@ import {
   missionError,
   missionOdds,
   missionTypeFor,
+  missionsOffered,
   startMission,
   successChance,
   travelDays,
@@ -100,8 +101,20 @@ describe('mission eligibility', () => {
     expect(isInciteTarget(empty, 'empire')).toBe(false);
     expect(isMissionTarget(state, empty, 'empire')).toBe(false);
 
+    /**
+     * An island in revolt has nothing anybody can *do* to it — no parley, no
+     * incitement, no posting on ground that is not yours — but it still has
+     * something to look at, so the default errand is nothing while the offered
+     * list is a report. That gap is the point of the pair: `missionTypeFor`
+     * answers what an officer sent here would end up doing, and espionage is
+     * never that answer, because a report is a thing you decide you want.
+     */
     sameSector.uprising = true;
-    expect(missionError(state, diplomat.id, sameSector.id)).toBe('Nothing to be done there.');
+    expect(missionTypeFor(state, sameSector, 'empire')).toBeNull();
+    expect(missionsOffered(state, sameSector, 'empire')).toEqual(['espionage']);
+    expect(missionError(state, diplomat.id, sameSector.id, 'diplomacy')).toBe(
+      'Parley is not on offer there.',
+    );
   });
 
   it('lets the island decide the mission: parley yours, stir up theirs', () => {

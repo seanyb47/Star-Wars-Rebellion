@@ -5,6 +5,9 @@ import factionData from '../data/factions.json';
 import {
   otherFaction,
   recruitOn,
+  reportOn,
+  sightOf,
+  type Sight,
   watchOn,
   type MissionType,
   FACILITY_BLURB,
@@ -40,6 +43,7 @@ import {
   type BuildItem,
   type Facility,
   type FacilityType,
+  type Intel,
   type GameState,
   type Sector,
   type System,
@@ -354,9 +358,238 @@ function WorksCard({
   );
 }
 
-export function SystemSheet({
+/**
+ * Theirs, standing on this island, and what they have under way here.
+ *
+ * The half of the memo the game had no way to show. *"You can conduct
+ * espionage on your own planets... if the Empire has sent agents to one of
+ * your planets, an espionage mission can potentially identify those enemy
+ * missions. You can then send abduction or sabotage against the actual mission
+ * team."* Both of those errands already worked on anybody ashore — a
+ * Confederate agent quietly inciting one of your islands has always been
+ * standing there, abductable, for a fortnight. Nothing ever said so.
+ *
+ * Live where you can see for yourself, remembered where you were told, and on
+ * your own ground it takes a report like anywhere else: an island of yours is
+ * exactly the place you cannot see what somebody else has got working on it.
+ */
+function TheirsAshore({
   state,
   system,
+  report,
+  sight,
+}: {
+  state: GameState;
+  system: System;
+  report?: Intel;
+  sight: Sight;
+}) {
+  const theirs = otherFaction(state.player);
+  // On your own island there is no `sight` gate to pass — it is always 'eyes',
+  // because it is yours — so what shows there is the report or nothing. On
+  // theirs, a squadron in the water or somebody ashore counts as looking.
+  const mine = system.control === state.player;
+  const aboard = new Set(state.fleets.flatMap((f) => f.officerIds));
+  const live =
+    !mine && sight === 'eyes'
+      ? state.characters.filter(
+          (c) =>
+            c.faction === theirs &&
+            c.locationSystemId === system.id &&
+            c.status !== 'captured' &&
+            !aboard.has(c.id) &&
+            !(c.mission && c.mission.phase === 'travelling'),
+        )
+      : undefined;
+
+  const people = live ?? report?.officerIds.map((id) => state.characters.find((c) => c.id === id));
+  const errands = live
+    ? state.characters
+        .filter((c) => c.faction === theirs && c.mission?.targetSystemId === system.id && !c.escorting)
+        .map((c) => ({ type: c.mission!.type, byName: c.name, daysRemaining: c.mission!.daysRemaining }))
+    : report?.errands;
+
+  const named = (people ?? []).filter((c): c is NonNullable<typeof c> => Boolean(c));
+  if (named.length === 0 && (errands ?? []).length === 0) return null;
+
+  return (
+    <>
+      <div className="section-title">Theirs</div>
+      {named.length > 0 && (
+        <SlotBoard empty="">
+          {named.map((character) => (
+            <Slot
+              key={character.id}
+              icon={
+                <CharacterPortrait
+                  name={character.name}
+                  faction={character.faction}
+                  people={character.people}
+                  size={66}
+                />
+              }
+              name={character.name}
+              note={character.mission ? errandName(character.mission.type) : 'ashore'}
+            />
+          ))}
+        </SlotBoard>
+      )}
+      {(errands ?? []).length > 0 && (
+        <p className="tiny muted" style={{ margin: '6px 0 10px' }}>
+          <b>Against this island{live ? '' : `, as of day ${report!.day}`}:</b>{' '}
+          {(errands ?? [])
+            .map((e) => `${e.byName}, ${errandName(e.type)}, ${e.daysRemaining}d`)
+            .join(' · ')}
+          .{' '}
+          {mine &&
+            'Anybody of theirs already ashore can be carried off — send someone on an abduction.'}
+        </p>
+      )}
+    </>
+  );
+}
+
+/**
+ * How old what you are looking at is.
+ *
+ * Sits above the tabs on every one of them, because the staleness is a
+ * property of the whole screen and not of the garrison tab: every number below
+ * this line is what somebody wrote down on a particular day, and the island has
+ * had every day since to change. Rebellion's espionage worked the same way —
+ * *"a successful mission can reveal enemy characters, ground troops,
+ * facilities, fleets"* — a report, once, not a subscription.
+ */
+function ReportAge({ state, report }: { state: GameState; report: Intel }) {
+  const age = state.day - report.day;
+  return (
+    <p className="report-age tiny">
+      <b>{report.secondHand ? "From somebody's dispatches" : `${report.byName}'s report`}</b>
+      {' · '}
+      {age === 0 ? 'filed today' : age === 1 ? 'filed yesterday' : `${age} days old`}
+      {age >= 45 && ' — old enough to be wrong'}
+      {report.secondHand && '. Nobody of yours has actually been ashore here.'}
+    </p>
+  );
+}
+
+/**
+ * What lay in the water, when somebody last looked.
+ *
+ * Not `ShipsHere`, which reads the live fleets and offers to sail them — none
+ * of these are yours and none of them are necessarily still there. Counts and
+ * names, and for anything that was at sea for the island, how far out it was on
+ * the day of the report. That last part is the memo's early warning: *"units
+ * currently travelling toward the system"*, which is the whole reason to spy on
+ * your own ground as well as theirs.
+ */
+function RememberedHarbor({ report, player }: { report: Intel; player: PlayableFaction }) {
+  if (report.harbor.length === 0) {
+    return (
+      <p className="muted small" style={{ margin: 0 }}>
+        Nothing in the water, the day it was counted.
+      </p>
+    );
+  }
+  return (
+    <div className="stack">
+      {report.harbor.map((f) => (
+        <div key={f.id} className="card small row" style={{ gap: 10, alignItems: 'center' }}>
+          <ShipIcon size={24} role="medium" />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <b>{f.name}</b>
+            <div className="tiny muted">
+              {f.faction === player ? 'Yours' : factionData[f.faction].shortName} ·{' '}
+              {f.ships} sail
+              {f.troops > 0 && ` · ${f.troops} aboard`}
+            </div>
+          </div>
+          {f.inbound !== undefined && (
+            <span className="badge badge--warn">{f.inbound}d out</span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * An island held against you that nobody of yours has looked at.
+ *
+ * What anyone can see from a deck passing: whose flag flies over it, and the
+ * shape of the place, because you have been here before — that is what charted
+ * means. What is behind the flag is somebody's business to go and find out.
+ *
+ * This is the screen espionage was built to be the answer to. Before it, every
+ * charted island told you its companies, its commander, its works and its watch
+ * for ever and for nothing, and the Espionage rating on a crew card was a
+ * number that opened doors and never asked a question of its own.
+ */
+function NoReport({
+  live,
+  sector,
+  state,
+  onClose,
+}: {
+  live: System;
+  sector: Sector;
+  state: GameState;
+  onClose: () => void;
+}) {
+  const holder = live.control === 'empire' || live.control === 'alliance' ? live.control : null;
+  return (
+    <Sheet
+      title={live.name}
+      subtitle={`${sector.name} · ${holder ? factionData[holder].shortName : 'unaligned'}`}
+      onClose={onClose}
+      banner={
+        <IslandBanner
+          archetype={live.archetype}
+          seed={live.chartName ?? live.name}
+          faction={live.control}
+          settled={live.populated}
+          facilities={0}
+        />
+      }
+    >
+      <p className="muted small" style={{ textAlign: 'center', margin: '4px 0 0' }}>
+        No report. {holder ? factionData[holder].shortName : 'Somebody'} holds it and nobody of
+        yours has been ashore to count what is on it — not its companies, not who has the chair,
+        not what stands in its yards, and not what a quiet errand against it would have to get
+        past.
+      </p>
+      <p className="muted small" style={{ textAlign: 'center', margin: '10px 0 0' }}>
+        Send someone on {MISSION_LABEL.espionage}, or put a squadron in its water and look for
+        yourself.
+      </p>
+      {(() => {
+        // Anybody of yours already on their way there, on any errand. Worth
+        // saying, because the commonest reason to open this panel twice is
+        // having forgotten you sent somebody.
+        const coming = state.characters.filter(
+          (c) =>
+            c.faction === state.player &&
+            c.mission?.targetSystemId === live.id &&
+            c.mission.phase === 'travelling',
+        );
+        if (coming.length === 0) return null;
+        return (
+          <p className="tiny muted" style={{ textAlign: 'center', margin: '10px 0 0' }}>
+            {coming
+              .map(
+                (c) =>
+                  `${c.name}, ${errandName(c.mission!.type)}, ${c.mission!.daysRemaining}d out`,
+              )
+              .join(' · ')}
+          </p>
+        );
+      })()}
+    </Sheet>
+  );
+}
+
+export function SystemSheet({
+  state,
+  system: live,
   initialTab = 'harbor',
   onClose,
   onBuild,
@@ -409,18 +642,18 @@ export function SystemSheet({
     const next = Math.min(TABS.length - 1, Math.max(0, at + step));
     if (next !== at) setTab(TABS[next].id);
   });
-  const sector = state.sectors.find((s) => s.id === system.sectorId)!;
-  const explored = system.explored[state.player];
+  const sector = state.sectors.find((s) => s.id === live.sectorId)!;
+  const explored = live.explored[state.player];
 
   if (!explored) {
     return (
       <Sheet
-        title={system.name}
+        title={live.name}
         subtitle={`${sector.name} · ${terms.uncharted}`}
         onClose={onClose}
       >
         <div className="isle-banner isle-banner--chart" style={{ height: 118 }}>
-          <ChartMark name={system.chartName ?? system.name} width={362} height={118} className="isle-banner__chart" />
+          <ChartMark name={live.chartName ?? live.name} width={362} height={118} className="isle-banner__chart" />
           <span className="isle-banner__fade" />
         </div>
         <p className="muted small" style={{ textAlign: 'center' }}>
@@ -431,6 +664,40 @@ export function SystemSheet({
       </Sheet>
     );
   }
+
+  /**
+   * What this island is allowed to tell you, and the island it tells you about.
+   *
+   * On your own ground and on nobody's, the two are the same object and this
+   * whole block is a no-op — which is most of the chart, most of the time. On
+   * ground the enemy holds, an island you cannot see for yourself is either the
+   * one your last spy described, stamped with the day they described it, or a
+   * name and a flag and nothing else.
+   *
+   * Everything below reads `system`, so a remembered island runs through the
+   * same readings a live one does: its garrison roster off a remembered count,
+   * its shortfall off a remembered loyalty, its room off remembered works. That
+   * was the whole reason to carry the island whole in the report rather than
+   * summarise it into fields — one screen, not two.
+   */
+  const sight = sightOf(state, live, state.player);
+  /**
+   * The report and the remembered view are two different things, and conflating
+   * them cost the memo's best trick.
+   *
+   * `filed` is simply whether a report exists. `report` is whether the screen
+   * should be *reading* it, which is only where there is nothing better — an
+   * island of your own is always 'eyes', so its numbers are live and its report
+   * is worth exactly one thing: what the other side has got working on it.
+   * Asking one question for both meant a report on your own ground was written,
+   * stored, and never shown to anybody.
+   */
+  const filed = reportOn(state, live, state.player);
+  const report = sight === 'report' ? filed : undefined;
+  if (sight === 'none') {
+    return <NoReport live={live} sector={sector} state={state} onClose={onClose} />;
+  }
+  const system = report ? report.island : live;
 
   const holder =
     system.control === 'empire' || system.control === 'alliance' ? system.control : null;
@@ -587,6 +854,8 @@ export function SystemSheet({
         </div>
       }
     >
+      {report && <ReportAge state={state} report={report} />}
+
       {tab === 'harbor' && (
         <>
           {/* The harbor is the ships in it. Allegiance and room used to sit
@@ -596,6 +865,9 @@ export function SystemSheet({
               where holding an island is the subject; room leads the Buildings
               tab already. */}
           <div className="section-title">At anchor</div>
+          {report ? (
+            <RememberedHarbor report={report} player={state.player} />
+          ) : (
           <ShipsHere
             state={state}
             systemId={system.id}
@@ -610,6 +882,7 @@ export function SystemSheet({
             onOrderOfficers={onOrderOfficers}
             onDetach={onDetach}
           />
+          )}
 
           {system.blockaded && (
             <p className="tiny" style={{ color: 'var(--bad)', margin: '8px 0 0' }}>
@@ -836,6 +1109,22 @@ export function SystemSheet({
              * watchers for you.
              */
             const seen = watchOn(state, system, mine ? otherFaction(state.player) : state.player);
+            /*
+             * On a remembered island the number is the one the spy came back
+             * with, not one worked out now. `watchOn` would read the live
+             * characters standing on the island today and the remembered
+             * companies from the report, which is a number that was never true
+             * on any day. The report's own total was true on one.
+             */
+            if (report) {
+              return (
+                <p className="tiny muted" style={{ margin: '0 0 8px' }}>
+                  <b>The watch was {report.watch}.</b> Companies, officers ashore, whoever had
+                  the chair, and how the island felt about them — as of the report. Get past it
+                  with Espionage, or bring it down first by stirring the island up.
+                </p>
+              );
+            }
             if (seen.total === 0) return null;
             const parts = [
               seen.garrison > 0 && `${seen.garrison} from the companies`,
@@ -964,6 +1253,8 @@ export function SystemSheet({
               </p>
             </>
           )}
+
+          <TheirsAshore state={state} system={system} report={filed} sight={sight} />
 
           <div className="section-title">Ashore here</div>
           {crew.length > 1 && <ListOpts />}

@@ -1,8 +1,29 @@
 # Fog of war
 
 *Sean's memo of 16 September, on how Rebellion does it and how ours should.
-Design reference: nothing here is built yet. Recorded so the decisions survive
-the conversation they were made in.*
+Recorded so the decisions survive the conversation they were made in.*
+
+> **Built, 18 September, on the back of Sean's espionage memo.** Most of the
+> "how ours should work" list below is now the game, for islands held by the
+> other side. What exists: the **Espionage** errand, covert, settled on
+> Espionage at both stages; an `Intel` record per side per island, dated, that
+> carries the island whole; three states of sight (`sightOf` — `eyes`,
+> `report`, `none`) exactly as the memo's *recently observed / discovered /
+> unknown*; presence revealing, so a hull in the water or a person ashore is a
+> live picture; stale reports shown as though true with only the date to say
+> otherwise; ghost fleets, because the remembered harbor is what lay there on
+> the day; and the memo's bonus second island, restricted so it can never name
+> the island a Lord is standing on. The opponent plays under the same fog, by
+> the doctrine article `look-before-you-land`, and guesses `ASSUMED_WATCH`
+> where it has not looked.
+>
+> **Not built, deliberately.** Neutral ground stays open once charted — that is
+> where parley happens and darkening the unaligned world is a second, larger
+> change. Allegiance on an enemy island *does* go stale, which answers the first
+> open question below. The chart layers still answer off the live world; a
+> layer that has to say "half these dots are guesses" is the next real question,
+> and it is still open. Detection ratings on hulls are still not a thing; the
+> watch is the officer-side half of that idea and it earns its place.
 
 ## What Rebellion actually does
 

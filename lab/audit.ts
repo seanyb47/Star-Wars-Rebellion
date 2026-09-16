@@ -170,6 +170,22 @@ export function audit(s: GameState): Violation[] {
   }
   if (s.pendingDecisions.length > 12) bad('decision-pileup', `${s.pendingDecisions.length} waiting`);
 
+  /**
+   * Espionage reports. Three ways one can go wrong and all three are quiet:
+   * a report about an island that no longer exists, one dated after today —
+   * which would read as "filed tomorrow" and is how a clock bug announces
+   * itself — and one filed under a different island than the one it describes,
+   * which would show the player somebody else's garrison.
+   */
+  for (const side of ['empire', 'alliance'] as const) {
+    for (const [id, report] of Object.entries(s.intel?.[side] ?? {})) {
+      if (!systemIds.has(id)) bad('report-orphan', `${side}: ${id}`);
+      if (report.island.id !== id) bad('report-mislabelled', `${side}: ${id} holds ${report.island.id}`);
+      if (report.day > s.day) bad('report-from-the-future', `${side}: ${id} day ${report.day}`);
+      if (!charIds.has(report.byId)) bad('report-by-nobody', `${side}: ${id}`);
+    }
+  }
+
   if (s.events.length > 600) bad('log-unbounded', `${s.events.length} entries`);
   for (const e of s.events.slice(-30)) {
     if (!e.text || e.text.trim() === '') bad('empty-event', e.id);

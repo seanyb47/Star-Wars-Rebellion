@@ -1,5 +1,6 @@
 import { UPKEEP_PER_DAY } from './constants';
 import { islandIncome } from './economy';
+import { knownIsland } from './missions';
 import type { GameState, PlayableFaction, System } from './types';
 
 /**
@@ -13,10 +14,11 @@ export interface IslandSummary {
   systemId: string;
   /** Your characters standing on it, plus any of yours sailing to it. */
   missions: number;
-  /** Companies ashore, whoever holds the island. */
-  military: number;
-  /** Buildings standing on it. */
-  facilities: number;
+  /** Companies ashore, whoever holds the island — undefined where this side
+   *  has no way of knowing, which is an enemy island with no report on it. */
+  military?: number;
+  /** Buildings standing on it, or undefined for the same reason. */
+  facilities?: number;
   /** Buildings of yours part-way through an order. */
   building: number;
 }
@@ -89,13 +91,19 @@ export function summariseReach(
     allegiance: { empire: mean('empire'), alliance: mean('alliance') },
     garrison,
     mutinies: systems.filter((s) => s.uprising).length,
-    perIsland: systems.map((system) => ({
+    perIsland: systems.map((system) => {
+      // What this side can actually count on it. An island held against you
+      // that nobody has looked at is dashes, not numbers — the same rule the
+      // island sheet runs on, read from the same place.
+      const known = knownIsland(state, system, faction);
+      return {
       systemId: system.id,
       missions: missionCount(state, system, faction),
-      military: system.garrison,
-      facilities: system.facilities.length,
+      military: known?.garrison,
+      facilities: known?.facilities.length,
       building: system.facilities.filter((f) => f.owner === faction && f.building).length,
-    })),
+      };
+    }),
   };
 }
 

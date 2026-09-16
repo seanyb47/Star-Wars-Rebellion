@@ -93,7 +93,9 @@ import {
   startMission,
   captiveOn,
   travelDays,
-  watchOn,
+  knownWatch,
+  sightOf,
+  isEspionageTarget,
 } from './missions';
 import type { Rng } from './rng';
 import type {
@@ -634,8 +636,25 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
    * not worth raiding, an island whose loyalty has been stirred down is, and
    * incitement is the thing that moves one into the other.
    */
-  const caution = (s: System, type: MissionType | null | undefined) =>
-    type && isCovert(type) ? watchOn(state, s, ai).total * AI_WATCH_CAUTION : 0;
+  /**
+   * And it prices that off what it *knows*, not off what is true.
+   *
+   * Doctrine: `look-before-you-land`. Until espionage existed there was no
+   * difference between the two — every charted island told both sides its
+   * watch, live and for nothing — and this line read it straight off the
+   * world. An opponent that knows the strength of every island in the
+   * archipelago to the digit, always, is not playing the same game the player
+   * is, and once the player could be made to spy for that number it was the
+   * only line in the file that still had it free.
+   *
+   * So: its own report where it has one, its own eyes where it has a hull in
+   * the water or somebody ashore, and an assumption where it has neither —
+   * which is what the errand below is for.
+   */
+  const caution = (s: System, type: MissionType | null | undefined) => {
+    if (!type || !isCovert(type)) return 0;
+    return knownWatch(state, s, ai) * AI_WATCH_CAUTION;
+  };
 
   const atTheYards = state.characters.some(
     (c) => c.faction === ai && c.mission?.type === 'research',
@@ -744,6 +763,25 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
    * Undefined means "let the island decide", which is what it always did.
    */
   const errandAt = (officer: Character, s: System): MissionType | null | undefined => {
+    /**
+     * Doctrine: `look-before-you-land`. Somewhere held against it that it
+     * cannot see and is about to do something quiet on: look first.
+     *
+     * This is the whole of Sean's chain — *"espionage to discover defenses,
+     * then sabotage, then incite uprising, then diplomacy"* — arrived at by
+     * the opponent rather than written into it. It spends a fortnight and an
+     * officer to turn a guess into a number, and the pass after this one
+     * prices the raid off the number. An island it has already looked at is
+     * skipped, so this costs one trip per island and not one a month.
+     */
+    if (
+      follows(state, 'look-before-you-land') &&
+      sightOf(state, s, ai) === 'none' &&
+      isEspionageTarget(s, ai) &&
+      isCovert(missionTypeFor(state, s, ai) ?? 'diplomacy')
+    ) {
+      return 'espionage';
+    }
     if (liftable(s)) return undefined;
     // Nothing the island answers on its own. Command is on offer on any
     // ground of ours and is never a default — a posting spends an officer for

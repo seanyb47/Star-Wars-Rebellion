@@ -3090,3 +3090,80 @@ Confederacy 5.
 
 Verified in the browser: observe mode runs a war at a steady half-day a second
 with no modal ever blocking the clock and nothing in the console.
+
+---
+
+## Espionage, and the darkness it is the answer to
+
+*Sean, 18 September, asking what the gap was and then sending the memo that
+closed it: "espionage is primarily an intelligence mission... a successful
+mission can reveal enemy characters, ground troops, facilities, fleets, ships in
+orbit, enemy missions currently being conducted, units currently travelling
+toward the system."*
+
+The gap was not the unused painting on the errand sheet. It was that knowledge
+in this game was one bit. `system.explored[faction]` went from nothing to
+everything — companies, commander, works, harbor, and since the watch went in,
+the exact number every covert errand has to beat — live, free, and for ever.
+There was no way to *want* a report, so the Espionage rating on a crew card was
+a number that opened doors and never asked a question of its own.
+
+**What it is now.** A tenth errand, `espionage`, on the covert list, so it rolls
+the watch at the door like everything else and is settled on Espionage once
+inside — the one errand where Sean's cheat sheet answers "Espionage" to both
+questions. On success it files an `Intel`: the island carried whole, stamped
+with the day, plus their people ashore, their errands aimed at it, what lay in
+the harbor and what was at sea for it. A report is a photograph and never a
+feed; it does not update and the sheet says how old it is.
+
+**What it made dark.** `sightOf` answers three ways, and only on ground the
+enemy holds: `eyes` where you hold it or have a hull in its water or somebody
+ashore, `report` where you were told, `none` where neither. At `none` the island
+sheet is a name, a flag and a line saying to go and look; the Reach list draws
+dashes where it used to count companies. Neutral ground stays open once charted
+— that is where parley happens, and darkening the unaligned world is a second
+and much larger change wearing this one's clothes.
+
+**The counter-intelligence half**, which is the memo's best trick and cost a bug
+to find: *"you can conduct espionage on your own planets... if the Empire has
+sent agents to one of your planets, an espionage mission can potentially
+identify those enemy missions."* Abduction and sabotage have always worked on
+anybody standing ashore — a Confederate agent inciting one of your islands has
+been standing there, liftable, for a fortnight. Nothing ever said so. The first
+cut filed that report and never showed it, because your own island is always
+`eyes` and the sheet asked one question where there were two: *is there a
+report* and *should the screen be reading it*.
+
+**The bonus island**, with the memo's restriction and the memo's reason: never
+their seat and never an island with a Lord on it. The original would not hand
+you the hidden Rebel Base as a side effect of a lucky roll somewhere else. A
+bonus may tell you where the guns are; it may not tell you where the war is.
+
+**The opponent plays under the same fog.** Doctrine article
+`look-before-you-land`: it prices covert work off `knownWatch` — its own
+reports, its own eyes, or `ASSUMED_WATCH` where it has neither — and sends a spy
+to a dark island before it sends anybody to work on one. Sean's chain arrives on
+its own: look, then soften, then raid. Measured across four wars, ten espionage
+errands sent and seventeen reports still held at the end, which is the right
+size — a report costs a fortnight of an officer's life.
+
+**Measured, matched seeds, eighty wars both sides played:**
+
+|            | seeds 9000-9039 | seeds 9040-9079 | total |
+|------------|-----------------|-----------------|-------|
+| before     | Crown 19 — 19   | Crown 19 — 20   | **38 — 39** |
+| with fog   | Crown 19 — 18   | Crown 17 — 21   | **36 — 39** |
+
+Two wars in eighty, inside the noise. The machine plays as well half-blind as it
+did omniscient, which is the result worth having: the fog costs the opponent
+nothing and takes away a thing it should never have had.
+
+Four new invariants in the auditor, because all three ways a report can go wrong
+are quiet: one about an island that no longer exists, one dated after today, one
+filed under a different island than it describes, one written by nobody.
+
+**Noticed while measuring, not caused by this.** Across four machine-played
+wars, neither side incited or sabotaged once — abduction outranks both on every
+enemy island, and with the Lords as personnel it always will. That was true
+before this change too (same probe on the old code: also zero). It is the next
+thing worth looking at.

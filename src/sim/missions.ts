@@ -35,6 +35,10 @@ import {
   TRAVEL_LEAGUE,
   TRAVEL_OPEN_SEA,
   RESCUE_BASE,
+  ESPIONAGE_BASE,
+  ESPIONAGE_DIVISOR,
+  ESPIONAGE_SECOND_ISLAND,
+  ASSUMED_WATCH,
   WORKS_ON,
 } from './constants';
 import {
@@ -55,6 +59,7 @@ import type { Rng } from './rng';
 import type {
   Character,
   GameState,
+  Intel,
   Mission,
   MissionType,
   PlayableFaction,
@@ -185,6 +190,32 @@ export function isSabotageTarget(
  */
 export function isSurveyTarget(system: System, faction: PlayableFaction): boolean {
   return !system.explored[faction];
+}
+
+/**
+ * Somewhere worth counting the guns on.
+ *
+ * The other half of the pair, and for a long time the missing one. Explore
+ * answers *is there an island here* and never asks again; this asks *what is
+ * on it today*, and the answer goes stale the moment it is written. Sean's
+ * memo draws the line: reconnaissance charts the place, espionage reports its
+ * contents — "enemy characters, ground troops, facilities, fleets, ships in
+ * orbit, enemy missions currently being conducted".
+ *
+ * Offered on any island already charted, theirs or neutral or your own. Your
+ * own is not a mistake and is the memo's best trick: *"you can conduct
+ * espionage on your own planets... it can reveal enemy covert activity."* An
+ * island of yours with a Confederate officer quietly at work on it looks
+ * exactly like an island of yours, until somebody goes and looks.
+ */
+export function isEspionageTarget(system: System, faction: PlayableFaction): boolean {
+  // Somewhere with something to count. A bare rock nobody holds and nobody
+  // lives on has no companies, no works and no harbor talk, so a fortnight
+  // spent on it would produce a report saying what the chart already says.
+  return (
+    system.explored[faction] &&
+    (system.populated || system.control === 'empire' || system.control === 'alliance')
+  );
 }
 
 /**
@@ -438,6 +469,12 @@ export function missionTypeFor(
   // thing — it spends an officer indefinitely — so it is offered everywhere
   // and defaulted to only where it is plainly the answer.
   if (system.uprising && isCommandTarget(system, faction)) return 'command';
+  // Espionage is deliberately not in this list at all, though it is offered
+  // on nearly every island. Same reasoning as a posting and then some: a
+  // report is a thing you decide you need, and defaulting to it would send
+  // officers off to count the guns on their own capital every time an island
+  // of theirs ran out of work. The opponent is sent spying by a rule of its
+  // own in `ai.ts`, which can weigh whether it actually wants to know.
   // Above parley, and only where parley had nothing left to win.
   if (isResearchTarget(system, faction)) return 'research';
   if (isDiplomacyTarget(system, faction)) return 'diplomacy';
@@ -499,6 +536,7 @@ export function missionsOffered(
   if (isDiplomacyTarget(system, faction)) out.push('diplomacy');
   if (isInciteTarget(system, faction)) out.push('incite');
   if (isSabotageTarget(system, faction)) out.push('sabotage');
+  if (isEspionageTarget(system, faction)) out.push('espionage');
   if (isSurveyTarget(system, faction)) out.push('survey');
   return out;
 }
@@ -522,6 +560,7 @@ export function stillWorthDoing(
   if (type === 'incite') return isInciteTarget(system, faction);
   if (type === 'sabotage') return isSabotageTarget(system, faction);
   if (type === 'survey') return isSurveyTarget(system, faction);
+  if (type === 'espionage') return isEspionageTarget(system, faction);
   if (type === 'abduct') return isAbductTarget(state, system, faction);
   if (type === 'rescue') return isRescueTarget(state, system, faction);
   if (type === 'command') return isCommandTarget(system, faction);
@@ -591,7 +630,7 @@ export function watchOn(state: GameState, system: System, against: PlayableFacti
 }
 
 /** The errands that are done out of sight, and are therefore worth hiding. */
-export const COVERT: MissionType[] = ['incite', 'sabotage', 'abduct', 'rescue', 'survey'];
+export const COVERT: MissionType[] = ['incite', 'sabotage', 'abduct', 'rescue', 'survey', 'espionage'];
 
 export function isCovert(type: MissionType): boolean {
   return COVERT.includes(type);
@@ -792,6 +831,32 @@ export function canStartMission(
 }
 
 /**
+ * Why they sailed, in the log's words, one line per errand.
+ *
+ * Was a nine-deep nested ternary until espionage would have made it ten. A
+ * table reads the same and does not have to be re-indented every time the game
+ * learns to do something new.
+ */
+const ERRAND_PURPOSE: Record<
+  MissionType,
+  (state: GameState, target: System, faction: PlayableFaction) => string
+> = {
+  incite: () => 'to stir up trouble',
+  sabotage: () => 'to see what can be broken',
+  survey: () => 'to put it on the chart',
+  espionage: () => 'to see what is on it',
+  abduct: (state, target, faction) =>
+    `to take ${abductOn(state, target, faction)!.name} off the quay`,
+  command: () => 'to take command there',
+  research: () => 'to put its yards to work on the craft',
+  recruit: (state, target, faction) =>
+    `to put it to ${recruitOn(state, target, faction)!.name}`,
+  rescue: (state, target, faction) =>
+    `to break ${captiveOn(state, target, faction)!.name} out`,
+  diplomacy: () => 'to parley',
+};
+
+/**
  * Send a character ashore. The island decides what they do unless the player
  * chose from what it offered. Mutates `state`.
  */
@@ -874,24 +939,7 @@ export function startMission(
     takePost(state, character, target, targetFleetId);
     return;
   }
-  const errand =
-    type === 'incite'
-      ? 'to stir up trouble'
-      : type === 'sabotage'
-        ? 'to see what can be broken'
-        : type === 'survey'
-          ? 'to put it on the chart'
-          : type === 'abduct'
-            ? `to take ${abductOn(state, target, character.faction as PlayableFaction)!.name} off the quay`
-            : type === 'command'
-              ? 'to take command there'
-              : type === 'research'
-                ? 'to put its yards to work on the craft'
-                : type === 'recruit'
-                  ? `to put it to ${recruitOn(state, target, character.faction as PlayableFaction)!.name}`
-                  : type === 'rescue'
-                    ? `to break ${captiveOn(state, target, character.faction as PlayableFaction)!.name} out`
-                    : 'to parley';
+  const errand = ERRAND_PURPOSE[type](state, target, character.faction as PlayableFaction);
   pushEvent(state, {
     kind: 'mission',
     text: `${character.name} sails for ${target.name} ${errand}.`,
@@ -917,6 +965,7 @@ export const MISSION_LABEL: Record<MissionType, string> = {
   // Explore, here and in `terms.json`, which is the one place the rest of the
   // interface takes its word from.
   survey: 'Explore',
+  espionage: 'Espionage',
   abduct: 'Abduction',
   command: 'In command',
   research: 'In the yards',
@@ -954,6 +1003,11 @@ export function successChance(character: Character, type: MissionType = 'diploma
   // nothing to do but stand on a deck.
   if (type === 'command') return COMMAND_BASE + character.leadership / 240;
   if (type === 'research') return RESEARCH_BASE + character.espionage / 300;
+  // The one errand Espionage settles at both stages, which is the memo's whole
+  // answer to "what stat determines espionage success": Espionage, and
+  // Espionage again. Getting in is the hard half; once in, a good spy counts
+  // what is there.
+  if (type === 'espionage') return ESPIONAGE_BASE + character.espionage / ESPIONAGE_DIVISOR;
   // Abduction is set against the person, not the place, and is handled where
   // the target is known. This is the floor.
   if (type === 'abduct') return ABDUCT_BASE + character.combat / 300;
@@ -1290,6 +1344,8 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
       rescueOutcome(state, character, system, success);
     } else if (mission.type === 'survey') {
       surveyOutcome(state, character, system);
+    } else if (mission.type === 'espionage') {
+      espionageOutcome(state, character, system, success);
     } else if (mission.type === 'research') {
       researchOutcome(state, character, system, success);
     } else {
@@ -1683,6 +1739,299 @@ function surveyOutcome(
     systemId: system.id,
     characterId: character.id,
   });
+}
+
+/**
+ * Write down everything one officer could learn standing on an island.
+ *
+ * The report is a photograph and never a feed: what the island was, that day,
+ * with the day on it. The island itself is copied whole rather than summarised,
+ * so the sheet reads a remembered island with the same functions it reads a
+ * live one — a garrison roster off a remembered `garrison` count, a required
+ * garrison off a remembered loyalty, room left off remembered facilities.
+ */
+export function writeReport(
+  state: GameState,
+  faction: PlayableFaction,
+  system: System,
+  by: Character,
+  secondHand?: true,
+): Intel {
+  const theirs = otherFaction(faction);
+  const aboard = new Set(state.fleets.flatMap((f) => f.officerIds));
+
+  // Their people standing on it — not ones aboard a hull lying off it, which
+  // are counted with the hull, and not ones still at sea for it, which the
+  // errands below are the record of.
+  const ashore = state.characters.filter(
+    (c) =>
+      c.faction === theirs &&
+      c.locationSystemId === system.id &&
+      c.status !== 'captured' &&
+      !aboard.has(c.id) &&
+      !(c.mission && c.mission.phase === 'travelling'),
+  );
+
+  /**
+   * Their errands aimed at this island, wherever the officer running one
+   * happens to be today.
+   *
+   * The memo's counter-intelligence half, and the reason to spy on your own
+   * ground: *"if the Empire has sent agents to one of your planets, an
+   * espionage mission can potentially identify those enemy missions. You can
+   * then send abduction or sabotage against the actual mission team."* Both of
+   * those already work on anybody standing ashore — what was missing was ever
+   * knowing they were there.
+   *
+   * A party's companions are not listed separately. They carry no mission of
+   * their own, and a report that named the same raid four times would read as
+   * four raids.
+   */
+  const errands = state.characters
+    .filter((c) => c.faction === theirs && c.mission?.targetSystemId === system.id && !c.escorting)
+    .map((c) => ({
+      type: c.mission!.type,
+      byId: c.id,
+      byName: c.name,
+      daysRemaining: c.mission!.daysRemaining,
+    }));
+
+  // What is in the water. Anything lying here, and anything at sea for here —
+  // the memo's "units currently travelling toward the system", which is what
+  // makes a report on your own island an early warning rather than a stocktake.
+  const harbor = state.fleets
+    .filter(
+      (f) =>
+        (!f.voyage && f.systemId === system.id) || f.voyage?.targetSystemId === system.id,
+    )
+    .map((f) => ({
+      id: f.id,
+      name: f.name,
+      faction: f.faction,
+      ships: f.ships.length,
+      troops: f.troops,
+      inbound: f.voyage ? f.voyage.daysRemaining : undefined,
+    }));
+
+  return {
+    day: state.day,
+    byId: by.id,
+    byName: by.name,
+    secondHand,
+    island: JSON.parse(JSON.stringify(system)) as System,
+    officerIds: ashore.map((c) => c.id),
+    errands,
+    harbor,
+    watch: watchOn(state, system, faction).total,
+  };
+}
+
+/** File a report, replacing whatever that side held on that island before. */
+export function fileReport(state: GameState, faction: PlayableFaction, report: Intel): void {
+  if (!state.intel) state.intel = { empire: {}, alliance: {} };
+  state.intel[faction][report.island.id] = report;
+}
+
+/** The report that side is holding on an island, if any. */
+export function reportOn(
+  state: GameState,
+  system: System | string,
+  faction: PlayableFaction,
+): Intel | undefined {
+  const id = typeof system === 'string' ? system : system.id;
+  return state.intel?.[faction]?.[id];
+}
+
+/**
+ * How well this side can see an island today, and on what.
+ *
+ * The rule espionage exists to be the answer to. Until now an island answered
+ * one question — charted or not — and a charted island told you everything
+ * about itself for ever, live, free: its companies, its commander, its works,
+ * its harbor and, since the watch, the exact number a covert errand would have
+ * to beat. There was no way to want a report.
+ *
+ * Three answers now, and only on ground the enemy holds:
+ *
+ *   'eyes'   — you hold it, or you have a hull lying at it, or one of your
+ *              people is standing on it. What you can see for yourself is
+ *              live, and always has been. This is also why an assault tells
+ *              you what you are assaulting: the squadron is there.
+ *   'report' — you have been told. The island as your last spy left it, with
+ *              the day on it, and it does not update.
+ *   'none'   — a name on the chart and whose flag flies over it, which is what
+ *              anyone can see from a passing deck.
+ *
+ * Neutral ground stays open once charted, deliberately. That is where parley
+ * happens and where most of the game's early decisions are made, and putting
+ * the whole unaligned world behind reports would be a second, much larger
+ * change wearing this one's clothes. The decision worth making dark is the one
+ * about an island somebody is defending.
+ */
+export type Sight = 'eyes' | 'report' | 'none';
+
+export function sightOf(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+): Sight {
+  if (!system.explored[faction]) return 'none';
+  // Yours, or nobody's, or the unaligned's: open.
+  if (system.control !== otherFaction(faction)) return 'eyes';
+  // A hull lying at it, not one at sea for it — a squadron three days out
+  // cannot count companies.
+  if (state.fleets.some((f) => f.faction === faction && !f.voyage && f.systemId === system.id)) {
+    return 'eyes';
+  }
+  // Somebody of yours ashore, on an errand or in their cells. A prisoner sees
+  // the harbor from a window, which is a better argument for going to get them
+  // than it sounds.
+  if (
+    state.characters.some(
+      (c) =>
+        c.faction === faction &&
+        c.locationSystemId === system.id &&
+        !(c.mission && c.mission.phase === 'travelling'),
+    )
+  ) {
+    return 'eyes';
+  }
+  return reportOn(state, system, faction) ? 'report' : 'none';
+}
+
+/**
+ * The watch on an island, as far as this side has any way of knowing it.
+ *
+ * Its own report where it has one, the live figure where it can see for
+ * itself, and an assumption where it has neither. The assumption is what makes
+ * looking worth a fortnight: a guess is a number you can act on and be wrong
+ * about, where a blank is a decision you cannot make at all, and the opponent
+ * has to be able to make it before it has learned anything.
+ */
+export function knownWatch(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+): number {
+  const sight = sightOf(state, system, faction);
+  if (sight === 'eyes') return watchOn(state, system, faction).total;
+  if (sight === 'report') return reportOn(state, system, faction)!.watch;
+  return ASSUMED_WATCH;
+}
+
+/**
+ * The island as this side knows it: live, remembered, or not at all.
+ *
+ * The one call anything outside the island sheet should be making about an
+ * enemy island's contents. A Reach's list of islands counts companies and
+ * works down its right-hand edge, and counting them off the live world would
+ * have handed back for free, on a list, exactly what the sheet had just
+ * stopped giving away.
+ */
+export function knownIsland(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+): System | undefined {
+  const sight = sightOf(state, system, faction);
+  if (sight === 'eyes') return system;
+  if (sight === 'report') return reportOn(state, system, faction)!.island;
+  return undefined;
+}
+
+/**
+ * A fortnight spent counting somebody else's guns.
+ *
+ * Failure here is not being caught — being caught happened at the door, a
+ * fortnight ago, and ended the errand there. This is the officer who got in,
+ * spent two weeks in the wrong taverns and came out with nothing worth
+ * writing down, which is the memo's distinction exactly: *"a failed mission
+ * doesn't necessarily mean your spy was detected."*
+ */
+function espionageOutcome(
+  state: GameState,
+  character: Character,
+  system: System,
+  success: boolean,
+): void {
+  const faction = character.faction as PlayableFaction;
+  if (!success) {
+    pushEvent(state, {
+      kind: 'mission',
+      text: `${character.name} comes away from ${system.name} with nothing anybody could act on.`,
+      systemId: system.id,
+      characterId: character.id,
+    });
+    return;
+  }
+
+  const party = partyStrength(state, character);
+  fileReport(state, faction, writeReport(state, faction, system, character));
+
+  // The second island, out of somebody's dispatches rather than seen.
+  const bonus =
+    party.espionage >= ESPIONAGE_SECOND_ISLAND && system.control === otherFaction(faction)
+      ? secondIsland(state, system, faction)
+      : undefined;
+  if (bonus) fileReport(state, faction, writeReport(state, faction, bonus, character, true));
+
+  const held = watchOn(state, system, faction).total;
+  pushEvent(state, {
+    kind: 'order',
+    text: bonus
+      ? `${character.name} has the measure of ${system.name} — ${countOf(system)}, and a watch of ${held} — and came away with ${bonus.name}'s dispatches besides.`
+      : `${character.name} has the measure of ${system.name}: ${countOf(system)}, and a watch of ${held}.`,
+    systemId: system.id,
+    characterId: character.id,
+  });
+}
+
+/** The one line a report is worth in the log; the sheet carries the rest. */
+function countOf(system: System): string {
+  const companies = system.garrison;
+  const works = system.facilities.filter((f) => !f.building).length;
+  return `${companies} ${companies === 1 ? 'company' : 'companies'} and ${works} ${works === 1 ? 'works' : 'works'}`;
+}
+
+/**
+ * Whose dispatches the spy happened to be reading.
+ *
+ * Another island the same side holds, charted, that the spy's own side has no
+ * fresh report on — a bonus that told you again what you already knew would be
+ * no bonus. Never their capital: the memo's restriction on the free planet,
+ * and the reason for it is ours as well. The Confederate capital is the
+ * Crown's entire war aim, and a war aim that can arrive as a side effect of a
+ * lucky roll somewhere else is not a war aim.
+ *
+ * Nearest first, because a spy on Kestrel Bar reads Kestrel Bar's mail, and
+ * what comes into Kestrel Bar is news of its neighbours.
+ */
+function secondIsland(
+  state: GameState,
+  from: System,
+  faction: PlayableFaction,
+): System | undefined {
+  const theirs = otherFaction(faction);
+  const seat = state.factions[theirs].hqSystemId;
+  const hidingALord = new Set(
+    state.characters
+      .filter((c) => isLord(c) && c.faction === theirs && c.status !== 'captured')
+      .map((c) => c.locationSystemId),
+  );
+  return state.systems
+    .filter(
+      (s) =>
+        s.id !== from.id &&
+        s.id !== seat &&
+        !hidingALord.has(s.id) &&
+        s.control === theirs &&
+        s.explored[faction] &&
+        reportOn(state, s, faction) === undefined,
+    )
+    .sort(
+      (a, b) =>
+        Math.hypot(a.x - from.x, a.y - from.y) - Math.hypot(b.x - from.x, b.y - from.y),
+    )[0];
 }
 
 /**

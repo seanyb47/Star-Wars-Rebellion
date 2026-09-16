@@ -27,6 +27,7 @@ import {
   orderFightRound,
   orderSail,
   sailError,
+  isCovert,
   missionTypeFor,
   missionsOffered,
   type ChartLayer,
@@ -337,7 +338,9 @@ export function App() {
     const island = state.systems.find((s) => s.id === systemId)!;
     const officer = state.characters.find((c) => c.id === characterId)!;
     const errand = type ?? missionTypeFor(state, island, officer.faction as PlayableFaction);
-    flash(errand === 'incite' || errand === 'sabotage' || errand === 'abduct' || errand === 'rescue' ? 'Under way, quietly.' : 'Under way.');
+    // The covert list, asked of the rules rather than spelled out again here —
+    // it had already fallen a mission behind once and would have again.
+    flash(errand && isCovert(errand) ? 'Under way, quietly.' : 'Under way.');
   };
 
   const handleSelectSystem = (systemId: string) => {
