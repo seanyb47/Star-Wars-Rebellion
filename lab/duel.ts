@@ -7,6 +7,7 @@
  *
  *   npx vite-node lab/duel.ts <games> <first-seed>
  */
+import { audit, type Violation } from './audit';
 import { generateGalaxy } from '../src/sim/galaxy';
 import { advanceDay } from '../src/sim/advanceDay';
 import { isLord } from '../src/sim/lords';
@@ -29,6 +30,16 @@ interface Row {
   why: string;
 }
 
+/** Every rule that must hold, checked every day of every war. */
+const broken = new Map<string, { count: number; first: string }>();
+function check(state: GameState, seed: number): void {
+  for (const v of audit(state) as Violation[]) {
+    const seen = broken.get(v.rule);
+    if (seen) seen.count += 1;
+    else broken.set(v.rule, { count: 1, first: `seed ${seed}, day ${v.day}: ${v.detail}` });
+  }
+}
+
 const held = (s: GameState, f: PlayableFaction) => s.systems.filter((x) => x.control === f).length;
 const hulls = (s: GameState, f: PlayableFaction) =>
   s.fleets.filter((x) => x.faction === f).reduce((n, x) => n + x.ships.length, 0);
@@ -36,7 +47,10 @@ const hulls = (s: GameState, f: PlayableFaction) =>
 function play(seed: number): Row {
   let state = generateGalaxy(seed, 'empire');
   state.observing = true;
-  for (let d = 0; d < CAP && !state.winner; d++) state = advanceDay(state);
+  for (let d = 0; d < CAP && !state.winner; d++) {
+    state = advanceDay(state);
+    check(state, seed);
+  }
   const lordsHeld = state.characters.filter((c) => isLord(c) && c.status === 'captured').length;
   const why = state.winner
     ? 'decided'
@@ -84,6 +98,13 @@ for (const f of ['empire', 'alliance'] as const) {
   );
 }
 console.log(`Lords in irons at the end: ${mean(rows.map((r) => r.lordsHeld)).toFixed(2)} of 3`);
+if (broken.size) {
+  console.log(`\n--- rules broken (${broken.size}) ---`);
+  for (const [rule, { count, first }] of broken) console.log(`  ${rule} x${count} — ${first}`);
+} else {
+  console.log('\nno rule broken in any war.');
+}
+
 const stuck = rows.filter((r) => r.winner === 'none');
 if (stuck.length) {
   console.log(`\n--- never ended (${stuck.length}) ---`);
