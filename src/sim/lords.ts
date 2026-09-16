@@ -30,7 +30,7 @@
  * which is what makes them a losing condition worth defending: the Crown's war
  * becomes a manhunt rather than a search for three hulls.
  */
-import { CAPTIVE_DAYS, MOOT_SUPPORT_PER_DAY, PIRATE_LORDS, type PirateLord } from './constants';
+import { MOOT_SUPPORT_PER_DAY, PIRATE_LORDS, type PirateLord } from './constants';
 import { getSystem, pushEvent } from './helpers';
 import type { Character, GameState, LordPower } from './types';
 
@@ -116,7 +116,7 @@ export function holdTheMoot(state: GameState): void {
 }
 
 /**
- * A Lord comes home, exchanged or broken out.
+ * A Lord comes home, cut out of the cells by one of their own.
  *
  * There is no ship to cut out of the Crown's harbor any more. They are put
  * ashore where the Confederacy keeps its books, and that is the whole of it.
@@ -125,7 +125,7 @@ export function restoreLord(state: GameState, character: Character): void {
   if (!isLord(character)) return;
   // Worked out here rather than read off the faction's `hqSystemId`, which is
   // a day-old answer: an island can fall in the evening, after home was last
-  // chosen, and putting an exchanged Lord ashore on ground the Crown took that
+  // chosen, and putting a freed Lord ashore on ground the Crown took that
   // afternoon hands them straight back.
   const home = getSystem(state, confederateHome(state));
   character.locationSystemId = home.id;
@@ -172,7 +172,7 @@ export function syncHome(state: GameState): void {
   }
   // Holding nothing at all. The old rule simply kept whatever it had, which
   // over a losing war meant home stayed on an island that had since gone to
-  // the Crown — and a Lord exchanged out of irons was put ashore *inside*
+  // the Crown — and a Lord cut out of irons was put ashore *inside*
   // their harbor, to be taken again the same week. With no ground of their
   // own, home is the friendliest water the Crown does not hold.
   const friendly = state.systems
@@ -181,8 +181,6 @@ export function syncHome(state: GameState): void {
   if (friendly[0]) state.factions.alliance.hqSystemId = friendly[0].id;
 }
 
-/** Days a Lord spends in the Crown's cells before an exchange. */
-export const LORD_CAPTIVE_DAYS = CAPTIVE_DAYS;
 
 /**
  * The islands a Lord is standing on, for the chart's star.

@@ -802,8 +802,6 @@ export const ABDUCT_BASE = 0.42;
 export const RESCUE_BASE = 0.3;
 /** How much of the target's Combat protects them, as a divisor. */
 export const ABDUCT_RESIST_DIVISOR = 230;
-/** Days a rescued or exchanged prisoner is unfit for. Long: it is a real loss. */
-export const CAPTIVE_DAYS = 60;
 
 /**
  * Putting an island of yours back in order.
@@ -865,6 +863,19 @@ export const INCITE_PRIORITY_PENALTY = 30;
  */
 export const AI_ABDUCT_BONUS = 150;
 export const AI_LORD_BOUNTY = 200;
+/**
+ * What the opponent will spend to get its own people out of a cell.
+ *
+ * Above the bounty on taking one of theirs, and well above courting an island:
+ * from 16 September a prisoner is held until somebody comes for them, so an
+ * officer left in the cells is an officer gone for the rest of the war — and
+ * for a Lord it is a third of the war's victory condition sitting in the
+ * enemy's hands. The opponent had no term for rescue at all and never once
+ * tried it, which was survivable only while the gaoler opened the door by
+ * himself.
+ */
+export const AI_RESCUE_BONUS = 220;
+export const AI_LORD_RESCUE_BONUS = 400;
 
 /** Recruitment (amended v4.11). */
 /** How many of the unaligned are scattered over the isles in a given game.
@@ -1162,8 +1173,9 @@ export const LOYALTY_BAND_LABEL: Record<LoyaltyBand, string> = {
 /**
  * Victory. Two ways, one each, and nothing else: the Confederacy wins the day
  * it holds Highwater; the Crown wins the day all three Pirate Lords are in
- * irons at once. Captives are exchanged after sixty days, so the Crown's is a
- * window rather than a checklist.
+ * irons at once. Nobody is released for nothing — a prisoner is held until
+ * their own side sends somebody to get them out — so the Crown's condition is a
+ * grip it has to keep hold of rather than a checklist.
  */
 
 /** Opponent AI cadence (spec 4.7). */

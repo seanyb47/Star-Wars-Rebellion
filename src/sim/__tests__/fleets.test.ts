@@ -826,7 +826,7 @@ describe('the Pirate Lords', () => {
     expect(allLordsTaken(state)).toBe(false);
     three[2].status = 'captured';
     expect(allLordsTaken(state)).toBe(true);
-    // One exchanged and the cause is alive again.
+    // One of them out of the cells and the cause is alive again.
     three[1].status = 'available';
     expect(allLordsTaken(state)).toBe(false);
   });

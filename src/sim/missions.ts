@@ -11,7 +11,6 @@ import {
   SABOTAGE_BASE,
   ABDUCT_BASE,
   ABDUCT_RESIST_DIVISOR,
-  CAPTIVE_DAYS,
   COMMAND_BASE,
   COMMAND_SUPPORT_GAIN,
   CRAFT_GRADES,
@@ -804,29 +803,23 @@ export function advanceMissions(state: GameState, rng: Rng): void {
     }
 
     /**
-     * Prisoners come home.
+     * A prisoner stays a prisoner.
      *
-     * Held at the captor's seat, out of the war, and then exchanged — nobody
-     * in this setting keeps an officer for good, and a cast of twenty-six
-     * cannot afford them to. They come back to their own capital rather than
-     * to wherever they were lifted from, because that is where an exchange
-     * puts you.
+     * They used to walk free after sixty days. Sean, 16 September: *"Why would
+     * anyone be released without a rescue mission?"* — and there is no answer.
+     * Nobody hands back the leader of the rebellion because two months have
+     * passed. The old reasoning was about the cast: *"nobody in this setting
+     * keeps an officer for good, and a cast of twenty-six cannot afford them
+     * to."* But the game has had a rescue errand the whole time. A prisoner is
+     * not a character removed from the war; they are a character sitting in a
+     * cell on a named island, waiting for somebody to come for them, which is
+     * a better thing to be than a countdown.
+     *
+     * So: nothing happens here. Captivity ends one way, in `rescueOutcome`.
+     * Wounds still heal below — a body mends on its own and a gaoler does not
+     * open the door on its own.
      */
-    if (character.status === 'captured') {
-      character.injuredDays = Math.max(0, (character.injuredDays ?? 0) - 1);
-      if (character.injuredDays === 0) {
-        character.status = 'available';
-        character.injuredDays = undefined;
-        character.locationSystemId = state.factions[character.faction as PlayableFaction].hqSystemId;
-        pushEvent(state, {
-          kind: 'mission',
-          text: `${character.name} has been exchanged and is back in the war.`,
-          characterId: character.id,
-        });
-        restoreLord(state, character);
-      }
-      continue;
-    }
+    if (character.status === 'captured') continue;
 
     if (character.status === 'injured') {
       character.injuredDays = Math.max(0, (character.injuredDays ?? 0) - 1);
@@ -1102,7 +1095,10 @@ function abductOutcome(
     return;
   }
   mark.status = 'captured';
-  mark.injuredDays = CAPTIVE_DAYS;
+  // No counter. Captivity used to run on `injuredDays` down from sixty; now it
+  // ends only when somebody comes for them, and leaving a number ticking on a
+  // prisoner would put a countdown on every panel that reads one.
+  mark.injuredDays = undefined;
   mark.mission = undefined;
   // Whatever they were holding, they are not holding it now. Without this an
   // island went on counting a commander who was in a cell three Reaches away

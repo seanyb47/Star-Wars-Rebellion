@@ -72,9 +72,9 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 
 A Lord is a ship when idle and a person on an errand. Left alone they are aboard, and what the ship does is what the Lord does for the cause. Sent ashore — to parley, to spy, to sign somebody on — they are an officer like any other: they can be found out, hurt, and carried off to Highwater in irons, and their ship lies where they left it, unable to sail, her power asleep, until they are back on her deck. That is the Confederacy's whole dilemma and it is meant to hurt: the three best people they have are also three of their best hulls, and early on there is nothing else to send.
 
-A Lord's ship does not sink. When her hull gives she strikes her colours, is taken as a prize, and the Lord goes in irons to Highwater. Exchanged or broken out, the Lord comes home with the ship, cut out of the Crown's harbor the same night. Calloway, meanwhile, came out of the Black Tide as Admiral Corvus Blackwater and hunts his own old ship for the Crown.
+A Lord taken goes in irons to Highwater and **stays there**. Nobody is released for nothing: a prisoner is held until their own side sends somebody to break them out, which is an errand like any other — it costs an officer, a voyage and a roll, and it can fail. Measured, a Lord in the Crown's cells is out again in a median of seventy days, but the spread runs from twenty-seven to a hundred and forty-eight, and a Confederacy down to its last islands with no officer to spare does not get them back at all. Calloway, meanwhile, came out of the Black Tide as Admiral Corvus Blackwater and hunts his own old ship for the Crown.
 
-**How the war ends.** One way each. The Confederacy wins the day it holds Highwater. The Crown wins the day all three Lords are in irons at once.
+**How the war ends.** One way each. The Confederacy wins the day it holds Highwater. The Crown wins the day all three Lords are in irons **at once** — which is a grip it has to keep hold of, because the Brethren keep coming to get them back.
 
 **Creed:** Freedom · Opportunity · Independence · Brotherhood · A bolder tomorrow.
 **Motto:** *Free seas. Free peoples. Always.*

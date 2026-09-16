@@ -443,15 +443,16 @@ describe('the clock stops for combat and for nothing else', () => {
     const state = generateGalaxy(301, 'empire');
     const who = state.characters.find((c) => c.faction === 'empire')!;
     state.pendingDecisions.push({ characterId: who.id, systemId: who.locationSystemId, success: true });
-    // Carried off while waiting: the question goes with them, or it would
-    // pause the captivity it is attached to.
+    // Carried off while waiting: the question goes with them, because nobody
+    // in a cell is going to answer it.
     who.status = 'captured';
-    who.injuredDays = 30;
     who.mission = undefined;
     const rng = createRng(1);
     advanceMissions(state, rng);
     expect(state.pendingDecisions).toHaveLength(0);
-    expect(getCharacter(state, who.id).injuredDays).toBe(29);
+    // And they are still in the cell. Captivity has no clock on it since
+    // 16 September — only a rescue ends it.
+    expect(getCharacter(state, who.id).status).toBe('captured');
   });
 });
 

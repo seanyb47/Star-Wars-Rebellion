@@ -3,6 +3,7 @@ import { advanceDay } from '../advanceDay';
 import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
 import { isLord } from '../lords';
+import { getSystem } from '../helpers';
 import {
   advanceMissions,
   bestOf,
@@ -15,6 +16,7 @@ import {
   isRecruitTarget,
   isResearchTarget,
   isRescueTarget,
+  captiveOn,
   missionTypeFor,
   missionsOffered,
   partyOf,
@@ -24,7 +26,7 @@ import {
 } from '../missions';
 import { effectiveSpec, queueBuild } from '../build';
 import { buildSpec, shipsFor } from '../constants';
-import { CAPTIVE_DAYS, MISSION_PARTY_MAX, MISSION_WORK_DAYS, RESEARCH_MIN_SUPPORT } from '../constants';
+import { MISSION_PARTY_MAX, MISSION_WORK_DAYS, RESEARCH_MIN_SUPPORT } from '../constants';
 import type { Character, GameState, System } from '../types';
 
 function world(seed = 501): GameState {
@@ -110,11 +112,47 @@ describe('abduction', () => {
     // And they are inert while held: not idle, not sailable, not a target.
     expect(isAbductTarget(state, mine, 'empire')).toBe(false);
 
-    // Two months later they are exchanged and back at their own capital.
+    // And they stay there. Sean, 16 September: *"Why would anyone be released
+    // without a rescue mission?"* — nobody hands back the enemy's officers
+    // because two months have passed, so nothing comes of waiting.
     const rng = createRng(3);
-    for (let i = 0; i < CAPTIVE_DAYS + 1; i++) advanceMissions(state, rng);
+    for (let i = 0; i < 240; i++) advanceMissions(state, rng);
+    expect(them.status).toBe('captured');
+    expect(them.locationSystemId).toBe(state.factions.empire.hqSystemId);
+  });
+
+  it('gives a prisoner back only to somebody who comes and gets them', () => {
+    const state = world();
+    const mine = plainIsland(state);
+    const them = state.characters.find((c) => c.faction === 'alliance' && !isLord(c))!;
+    const me = state.characters.find((c) => c.faction === 'empire')!;
+    place(state, them, mine);
+    place(state, me, mine);
+    me.espionage = 100;
+    them.combat = 1;
+    them.leadership = 1;
+    startMission(state, me.id, mine.id);
+    runMission(state);
+    expect(them.status).toBe('captured');
+
+    // The cell is on a named island, and that island is now an errand for the
+    // side that lost them — which is the whole point of holding rather than
+    // releasing: a prisoner is a place on the chart, not a countdown.
+    const gaol = getSystem(state, them.locationSystemId);
+    gaol.explored.alliance = true;
+    expect(isRescueTarget(state, gaol, 'alliance')).toBe(true);
+    expect(captiveOn(state, gaol, 'alliance')?.id).toBe(them.id);
+
+    const saviour = state.characters.find(
+      (c) => c.faction === 'alliance' && c.id !== them.id && c.status === 'available',
+    )!;
+    place(state, saviour, gaol);
+    saviour.espionage = 100;
+    startMission(state, saviour.id, gaol.id, 'rescue');
+    runMission(state);
     expect(them.status).toBe('available');
-    expect(them.locationSystemId).toBe(state.factions.alliance.hqSystemId);
+    // Home among their own, not left standing in the Crown's harbor.
+    expect(getSystem(state, them.locationSystemId).control).not.toBe('empire');
   });
 });
 
@@ -209,7 +247,6 @@ describe('rescue', () => {
     const [held, rescuer] = state.characters.filter((c) => c.faction === 'alliance');
     // Held at the Crown's seat, as an abduction leaves them.
     held.status = 'captured';
-    held.injuredDays = CAPTIVE_DAYS;
     held.mission = undefined;
     held.locationSystemId = empireHq.id;
     // Not on offer until the seat is known.

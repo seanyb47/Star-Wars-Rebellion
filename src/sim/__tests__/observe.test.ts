@@ -92,3 +92,59 @@ describe('observing', () => {
     void countFacilities;
   });
 });
+
+describe('a prisoner is held until somebody comes', () => {
+  it('is not let go by the clock, however long it runs', () => {
+    const state = generateGalaxy(501, 'empire');
+    const who = state.characters.find((c) => c.faction === 'alliance')!;
+    who.status = 'captured';
+    who.mission = undefined;
+    who.locationSystemId = state.factions.empire.hqSystemId;
+    // With nobody able to come for them: the Confederacy cannot see the island
+    // the cells are on, so no rescue is possible and the only thing left that
+    // could free them is a clock. There is no clock.
+    //
+    // Isolated on purpose — the first version of this test just waited a year
+    // and the prisoner walked out on day ninety, because the opponent had gone
+    // and got them, which is the rule working rather than failing.
+    const gaol = state.systems.find((s) => s.id === who.locationSystemId)!;
+    gaol.explored.alliance = false;
+    let next = state;
+    // A year. The old rule opened the door at sixty days.
+    for (let d = 0; d < 365 && !next.winner; d++) {
+      next = advanceDay(next);
+      const cell = next.systems.find((s) => s.id === gaol.id)!;
+      cell.explored.alliance = false;
+    }
+    const after = next.characters.find((c) => c.id === who.id)!;
+    expect(after.status).toBe('captured');
+  });
+
+  it('is gone after by the opponent, and got out', () => {
+    // The whole reason the clock could be cut: there is a rescue errand, and
+    // from 16 September the opponent knows to use it. Without this the change
+    // would simply be "the Crown wins".
+    let freed = 0;
+    for (const seed of [8000, 8001, 8002, 8003, 8004, 8005]) {
+      let state = generateGalaxy(seed, 'empire');
+      for (let d = 0; d < 60; d++) state = advanceDay(state);
+      const victim = state.characters.find(
+        (c) => c.faction === 'alliance' && c.status !== 'captured',
+      )!;
+      victim.status = 'captured';
+      victim.mission = undefined;
+      victim.locationSystemId = state.factions.empire.hqSystemId;
+      const gaol = state.systems.find((s) => s.id === victim.locationSystemId)!;
+      gaol.explored.alliance = true;
+      const id = victim.id;
+      for (let d = 0; d < 400 && !state.winner; d++) {
+        state = advanceDay(state);
+        if (state.characters.find((c) => c.id === id)!.status !== 'captured') {
+          freed += 1;
+          break;
+        }
+      }
+    }
+    expect(freed).toBe(6);
+  });
+});

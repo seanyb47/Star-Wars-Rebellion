@@ -19,7 +19,6 @@ import {
   SMUGGLED_SHARE,
   SUPPORT_FIRM,
   SUPPORT_STEADY,
-  CAPTIVE_DAYS,
   YARD_BUILDS,
   type FacilityType,
   type GameState,
@@ -433,7 +432,7 @@ export function Almanac({
         <br />
         <br />
         <b>They can be taken.</b> Anyone of yours standing on an island the enemy can reach can be
-        carried off, and held. Captives come back in an exchange after {CAPTIVE_DAYS} days — which
+        carried off, and held. A prisoner stays in the cells until one of their own comes and gets them out — which
         is what makes the Crown's victory a window rather than a list, since it needs all three
         Lords in irons at the same moment.
       </div>
@@ -858,7 +857,7 @@ export function Almanac({
         <b>One way each.</b> The Confederacy wins the day it holds Highwater. The Crown wins the
         day all three Pirate Lords — {PIRATE_LORDS.map((l) => l.name).join(', ')} — are in irons
         at once. They are people, not ships: you take one by carrying them off a quay, the same
-        way anyone is taken. Captives are exchanged after {CAPTIVE_DAYS} days, so the Crown's is a
+        way anyone is taken. Nobody is let go for nothing, so the Crown's is a
         window, not a list.
       </div>
 

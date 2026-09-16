@@ -6,6 +6,8 @@ import {
   AI_NEAR_BONUS,
   AI_ABDUCT_BONUS,
   AI_LORD_BOUNTY,
+  AI_RESCUE_BONUS,
+  AI_LORD_RESCUE_BONUS,
   AI_RECRUIT_BONUS,
   AI_RESEARCH_BONUS,
   AI_SURVEY_BONUS,
@@ -75,6 +77,7 @@ import {
   isMissionTarget,
   abductOn,
   isRecruitTarget,
+  isRescueTarget,
   isResearchTarget,
   isSurveyTarget,
   missionsOffered,
@@ -508,7 +511,12 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
         // Its own ground too, when one of theirs is standing on it: an enemy
         // officer in your own harbor is the easiest prize in the game and the
         // opponent used to walk straight past it.
-        liftable(s) !== undefined),
+        liftable(s) !== undefined ||
+        // And anywhere it has somebody in a cell. A prisoner is held until
+        // somebody comes for them now, so this is not a nicety: an officer
+        // left in the cells is an officer gone for good, and a Lord left there
+        // is a third of the enemy's victory condition handed over.
+        isRescueTarget(state, s, ai)),
   );
   if (open.length === 0) return;
 
@@ -529,6 +537,18 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     // sixteen measured games it never once tried it — while somebody was
     // liftable somewhere on 95% of days. With the Lords made personnel, that
     // was the Crown's whole route to victory going unused.
+    // Our own, in their cells. Before the prize for taking one of theirs:
+    // getting a Lord back is worth more than taking one, because the one in
+    // the cell is already lost and the one on the quay is only at risk.
+    const prisoner = captiveOn(state, s, ai);
+    if (prisoner) {
+      return (
+        close +
+        AI_RESCUE_BONUS +
+        quality(prisoner) +
+        (isLord(prisoner) ? AI_LORD_RESCUE_BONUS : 0)
+      );
+    }
     const mark = liftable(s);
     if (mark) {
       return close + AI_ABDUCT_BONUS + quality(mark) + (isLord(mark) ? AI_LORD_BOUNTY : 0);

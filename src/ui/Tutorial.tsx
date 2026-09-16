@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import factionData from '../data/factions.json';
 import reachData from '../data/reaches.json';
 import { numberWord } from './words';
-import { CAPTIVE_DAYS, PIRATE_LORDS, type PlayableFaction } from '../sim';
+import { PIRATE_LORDS, type PlayableFaction } from '../sim';
 
 /** Bumped when the tutorial is rewritten, so people who skipped the old one see the new. */
 const DONE_KEY = 'seven-seas.taught.v2';
@@ -47,8 +47,8 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
     body: (side) => {
       const lords = PIRATE_LORDS.map((l) => l.name).join(', ');
       return side === 'empire'
-        ? `Hunt down the three Pirate Lords — ${lords}. They are people, not ships: find where one is standing and carry them off a quay. Hold all three in irons at once and the Confederacy is finished. Captives are exchanged after ${CAPTIVE_DAYS} days, so it is a window. And hold Highwater: the day it falls, the Crown falls.`
-        : `Take Highwater. The day the Confederacy holds it, the Crown is finished. You lose the day all three Pirate Lords — ${lords} — are in the Crown's irons at once. They can be carried off a quay like anyone else, so keep at least one of them out of reach. Captives are exchanged after ${CAPTIVE_DAYS} days.`;
+        ? `Hunt down the three Pirate Lords — ${lords}. They are people, not ships: find where one is standing and carry them off a quay. Hold all three in irons at once and the Confederacy is finished. Nobody is released for nothing — a prisoner stays in the cells until their own side sends somebody to break them out. And hold Highwater: the day it falls, the Crown falls.`
+        : `Take Highwater. The day the Confederacy holds it, the Crown is finished. You lose the day all three Pirate Lords — ${lords} — are in the Crown's irons at once. They can be carried off a quay like anyone else, so keep at least one of them out of reach — and send somebody after any you lose, because nobody comes home on their own.`;
     },
   },
   {
