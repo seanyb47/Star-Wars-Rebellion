@@ -881,14 +881,31 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   recomputeLedger(state);
   const meeting = allianceHq.name;
   const lordLine = PIRATE_LORDS.map((l) => `${l.name} of the ${shipClass(l.ship).name}`).join(', ');
+  /**
+   * The first card of the war, and the only warning either side gets.
+   *
+   * Sean, on the Confederate opening: *"kinda like how in SW Rebellion the
+   * rebels all start on Yavin 4 but the game tells you the empire will be
+   * looking for you."* The three Lords sign the articles standing in the same
+   * harbor, and the Crown wins by holding all three at once — so on day one
+   * the entire Confederate victory condition is on one quay, and one landing
+   * there ends the war in an afternoon. Measured over a hundred wars with
+   * both sides played by the machine, two of them ended before day ninety
+   * exactly that way: the Home Fleet found the meeting place and stormed it
+   * with all three Lords ashore.
+   *
+   * That is a fine way to lose a game you were told about and a miserable way
+   * to lose one you were not. So the card says it plainly, and says what to do
+   * about it — the answer is the player's to carry out, not the game's.
+   */
   state.events.push({
     id: `evt-${++state.nextId}`,
     day: 1,
     kind: 'war',
     text:
       player === 'alliance'
-        ? `The ${factionData.alliance.name} is formed at ${meeting}, beyond the Crown's charts, under three Pirate Lords: ${lordLine}. Several islands have already declared for it. Take ${capital.name} and the Crown falls; lose all three Lords and the cause dies with them.`
-        : `Word reaches ${capital.name}: a meeting has taken place in uncharted waters, and the ${factionData.alliance.name} has been formed under three Pirate Lords. Several islands have openly declared for it. Hunt the Lords down before they become a problem — and hold ${capital.name}, whatever else.`,
+        ? `The ${factionData.alliance.name} is formed at ${meeting}, beyond the Crown's charts, under three Pirate Lords: ${lordLine}. Several islands have already declared for it. Take ${capital.name} and the Crown falls. Let the Crown hold all three Lords at the same time and the cause dies with them — and all three are standing on this one quay tonight. The Imperium will come looking for ${meeting}. Get them to sea, and keep them apart.`
+        : `Word reaches ${capital.name}: a meeting has taken place in uncharted waters, and the ${factionData.alliance.name} has been formed under three Pirate Lords. Several islands have openly declared for it. Find where they met, take all three of them alive and hold them at the same time, and the rebellion is over — and hold ${capital.name}, whatever else.`,
     systemId: player === 'alliance' ? allianceHq.id : capital.id,
   });
   return state;

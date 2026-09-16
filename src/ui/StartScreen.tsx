@@ -28,8 +28,8 @@ const FACTION_DETAIL: Record<
   },
   alliance: {
     strengths: ['Three Pirate Lords, each with a power nobody else has', 'More envoys, and better ones', 'No capital to lose'],
-    weaknesses: ['Outgunned in open water', 'Lose all three Lords and the cause dies', 'Half your captains take some managing'],
-    opening: 'You begin at a meeting place beyond the Crown\'s charts, three Lords and the people who came with them, with islands across the Reaches already declared for you.',
+    weaknesses: ['Outgunned in open water', 'Lose all three Lords at once and the cause dies', 'Half your captains take some managing'],
+    opening: 'You begin at a meeting place beyond the Crown\'s charts, three Lords and the people who came with them, with islands across the Reaches already declared for you. All three Lords are in that one harbor, and the Imperium will be looking for it.',
   },
 };
 

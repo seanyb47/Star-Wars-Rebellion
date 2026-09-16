@@ -278,3 +278,37 @@ describe('generateGalaxy', () => {
     }
   });
 });
+
+/**
+ * Sean: *"kinda like how in SW Rebellion the rebels all start on Yavin 4 but
+ * the game tells you the empire will be looking for you."* The three Lords
+ * sign the articles in one harbor and the Crown wins by holding all three at
+ * once, so on day one the whole Confederate victory condition is on one quay.
+ * Two wars in a hundred end before day ninety exactly that way.
+ */
+describe('the first card of the war', () => {
+  it('tells the Confederacy its principals are all on one quay, and to move them', () => {
+    const state = generateGalaxy(31005, 'alliance');
+    const card = state.events.find((e) => e.kind === 'war')!;
+    const meeting = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
+    expect(card.text).toContain(meeting.name);
+    // The three of them really are standing there, which is what makes the
+    // warning worth printing.
+    const lords = state.characters.filter((c) => isLord(c));
+    expect(lords).toHaveLength(3);
+    for (const lord of lords) expect(lord.locationSystemId).toBe(meeting.id);
+    expect(card.text).toMatch(/this one quay/);
+    expect(card.text).toMatch(/will come looking for/);
+    expect(card.text).toMatch(/keep them apart/);
+  });
+
+  it('tells the Crown the meeting place has to be found before anybody can be taken', () => {
+    const state = generateGalaxy(31005, 'empire');
+    const card = state.events.find((e) => e.kind === 'war')!;
+    const meeting = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
+    // And never names it: finding it is the Crown's half of the game.
+    expect(card.text).not.toContain(meeting.name);
+    expect(card.text).toMatch(/Find where they met/);
+    expect(card.text).toMatch(/at the same time/);
+  });
+});

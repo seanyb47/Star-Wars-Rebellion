@@ -48,7 +48,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
       const lords = PIRATE_LORDS.map((l) => l.name).join(', ');
       return side === 'empire'
         ? `Hunt down the three Pirate Lords — ${lords}. They are people, not ships: find where one is standing and carry them off a quay. Hold all three in irons at once and the Confederacy is finished. Nobody is released for nothing — a prisoner stays in the cells until their own side sends somebody to break them out. And hold Highwater: the day it falls, the Crown falls.`
-        : `Take Highwater. The day the Confederacy holds it, the Crown is finished. You lose the day all three Pirate Lords — ${lords} — are in the Crown's irons at once. They can be carried off a quay like anyone else, so keep at least one of them out of reach — and send somebody after any you lose, because nobody comes home on their own.`;
+        : `Take Highwater. The day the Confederacy holds it, the Crown is finished. You lose the day all three Pirate Lords — ${lords} — are in the Crown's irons at once, and this morning all three of them are standing in the same harbor. They can be carried off a quay like anyone else, and the Imperium will come looking for the meeting place: get them to sea, keep them apart, and send somebody after any you lose, because nobody comes home on their own.`;
     },
   },
   {
