@@ -241,9 +241,22 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
     held.reduce((n, s) => n + s.facilities.filter((f) => f.owner === ai && f.type === type).length, 0);
   const wanted: FacilityType[] = [];
   if (countOf('training_facility') < 2) wanted.push('training_facility');
-  if (countOf('shipyard') < 1) wanted.push('shipyard');
-  else if (countOf('shipyard') < 2 && gold > AI_SHIP_RESERVE * 3) wanted.push('shipyard');
-  else if (countOf('shipyard') < 3 && gold > AI_RICH * 2) wanted.push('shipyard');
+  /**
+   * Slipways, and how many is enough.
+   *
+   * It used to stop at three for the whole faction, which is a ceiling on the
+   * navy rather than a budget: measured over twelve wars of twelve hundred
+   * days, both sides finished with six or seven slipways, twenty-two islands
+   * and five to thirteen thousand gold sitting in the vault doing nothing,
+   * because a hull takes a month to build and there were not enough berths to
+   * spend the income in. Gold that is never spent is a war that never
+   * happens. One berth for every four islands, as far as the treasury will
+   * carry it.
+   */
+  const slipways = countOf('shipyard');
+  if (slipways < 1) wanted.push('shipyard');
+  else if (slipways < 2 && gold > AI_SHIP_RESERVE * 3) wanted.push('shipyard');
+  else if (slipways * 4 < held.length && gold > AI_RICH * 2) wanted.push('shipyard');
   // Rich, it also fortifies: a battery on each held port that has none, so a
   // treasury with nothing to buy turns into something a raider has to reckon with.
   const walls = countOf('fort') + countOf('heavy_fort');
@@ -618,9 +631,6 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     }
     // Its own yards, when there is nothing louder to do with the officer.
     if (isResearchTarget(s, ai)) return close + AI_RESEARCH_BONUS;
-    // One of its own in the enemy's cells: worth more than any island.
-    const held = captiveOn(state, s, ai);
-    if (held) return close + AI_RECRUIT_BONUS + quality(held);
     // Its own, and slipping: worth more the further it has slipped, and an
     // island in open revolt outranks any island it might merely win over.
     if (s.control === ai) return close + (s.uprising ? 110 : (HELD_SUPPORT_LEVEL - s.support[ai]) * 1.5);
@@ -629,6 +639,14 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     return close + (100 - s.support[enemy]) - INCITE_PRIORITY_PENALTY;
   };
 
+  /**
+   * Islands it already has somebody working, so it does not send two officers
+   * to do the same job — a person included. Letting two go after the same
+   * mark sounds like what a manhunt is and measured worse across forty wars:
+   * Crown 14 — Confederacy 19 became Crown 7 — Confederacy 23, because the
+   * second boat mostly finds the quay empty and the officer on it was the one
+   * that should have been somewhere else.
+   */
   const taken = new Set(
     state.characters
       .filter((c) => c.faction === ai && c.mission)
@@ -668,27 +686,68 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     );
   };
 
-  // The best officer takes the best island, and so on down, so the opponent's
-  // strongest diplomat is not left courting a backwater.
-  for (const officer of idle.slice(0, AI_MISSION_PARTIES)) {
-    const ranked = open
-      .filter((s) => !taken.has(s.id) && canStartMission(state, officer.id, s.id))
-      .sort((a, b) => worth(officer, b) - worth(officer, a));
-    for (const target of ranked) {
-      const kind = errandAt(officer, target);
-      // Nothing it is willing to do here; try the next island down.
-      if (kind === null) continue;
-      // Already enough of them out after people. The island's own answer is
-      // an abduction while somebody of theirs is standing on it, so this is
-      // where the detail is held to its size — try the next island down
-      // rather than sending a fourth officer after the same three Lords.
-      const hunt = (kind ?? missionTypeFor(state, target, ai)) === 'abduct';
-      if (hunt && hunters <= 0) continue;
-      taken.add(target.id);
-      startMission(state, officer.id, target.id, kind);
-      if (hunt) hunters--;
-      break;
-    }
+  /**
+   * The best island first, and then the right officer for what it needs.
+   *
+   * This used to go the other way round — the best diplomat picked first and
+   * took whatever was worth most — which meant the officer least suited to a
+   * raid was the one sent on it. An abduction is set against espionage, so
+   * the Crown's diplomat walked into the Confederate anchorage after a Lord
+   * with a rating of forty-six and both the snatch and the getting out again
+   * priced off it. Measured over twelve wars, a quarter of the Crown's
+   * officer-days were spent in irons and another fourteenth injured, against
+   * eight and three per cent of the Confederacy's, and its route to winning
+   * the war is the raid.
+   *
+   * So the island is chosen first and the hand second, on the rating the
+   * errand is actually settled by: talking on Diplomacy, everything covert on
+   * Espionage, a posting on Leadership. Proximity breaks a tie, so the pass
+   * still prefers somebody who is already near.
+   */
+  const settledBy = (type: MissionType): keyof Pick<
+    Character,
+    'diplomacy' | 'espionage' | 'leadership'
+  > => {
+    if (type === 'command') return 'leadership';
+    if (type === 'diplomacy' || type === 'incite' || type === 'recruit') return 'diplomacy';
+    return 'espionage';
+  };
+  const free = [...idle];
+  // Islands are worth what they are worth to whoever ends up going; the only
+  // officer-dependent term is the nearness bonus, so rank once on the first
+  // hand and let the tie-break below do the rest.
+  const ranked = [...open]
+    .filter((s) => !taken.has(s.id))
+    .sort((a, b) => worth(free[0], b) - worth(free[0], a));
+  let started = 0;
+  for (const target of ranked) {
+    if (started >= AI_MISSION_PARTIES || free.length === 0) break;
+    const able = free.filter((o) => canStartMission(state, o.id, target.id));
+    if (able.length === 0) continue;
+    // What the island would have this errand be, asked of the hand most
+    // likely to be sent — every officer gets the same answer bar the party
+    // filter inside `missionsOffered`, and that one only drops `command`.
+    const kind = errandAt(able[0], target);
+    // Nothing it is willing to do here; try the next island down.
+    if (kind === null) continue;
+    // Already enough of them out after people. The island's own answer is
+    // an abduction while somebody of theirs is standing on it, so this is
+    // where the detail is held to its size — try the next island down
+    // rather than sending a fourth officer after the same three Lords.
+    const type = kind ?? missionTypeFor(state, target, ai)!;
+    const hunt = type === 'abduct';
+    if (hunt && hunters <= 0) continue;
+    const rating = settledBy(type);
+    const near = (o: Character) =>
+      state.systems.find((x) => x.id === o.locationSystemId)?.sectorId === target.sectorId ? 1 : 0;
+    const officer = able.sort(
+      (a, b) => b[rating] - a[rating] || near(b) - near(a),
+    )[0];
+    taken.add(target.id);
+    startMission(state, officer.id, target.id, kind);
+    free.splice(free.indexOf(officer), 1);
+    started++;
+    if (hunt) hunters--;
   }
 }
 
