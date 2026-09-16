@@ -2,6 +2,7 @@
  * Everything that must be true of a game state, checked every day of every
  * game. A violation here is a bug, not a balance opinion.
  */
+import { fleetCapacity } from '../src/sim/fleets';
 import type { GameState } from '../src/sim/types';
 
 export interface Violation { rule: string; detail: string; day: number; }
@@ -99,6 +100,16 @@ export function audit(s: GameState): Violation[] {
       }
     }
     if (c.status === 'on_mission' && aboard.has(c.id)) bad('errand-aboard', c.name);
+    // Ashore means ashore *there*. A working phase anywhere but the island the
+    // errand names would make every rule that reads a location wrong at once —
+    // who can be lifted off a quay, who is caught when an island falls, who a
+    // foil chance is measured against.
+    if (c.mission?.phase === 'working' && c.locationSystemId !== c.mission.targetSystemId)
+      bad('working-elsewhere', `${c.name} working ${c.mission.type} but standing elsewhere`);
+    // The opponent gives up on an errand after four spells; nobody should be
+    // carrying a tally that says otherwise.
+    if (c.mission && c.mission.cycles !== undefined && (!num(c.mission.cycles) || c.mission.cycles < 1))
+      bad('errand-cycles-bad', `${c.name} ${c.mission.cycles}`);
   }
   const byId = new Set<string>();
   for (const c of s.characters) { if (byId.has(c.id)) bad('duplicate-person', c.id); byId.add(c.id); }
@@ -121,6 +132,10 @@ export function audit(s: GameState): Violation[] {
     for (const sh of f.ships)
       if (['harbor', 'swallowtail', 'ironback'].includes(sh.classId))
         bad('legend-afloat', `${f.name} carries ${sh.classId}`);
+    // Every hull carries companies now, at Sean's word, so berths are a real
+    // number and a squadron must never be over them.
+    if (f.troops > fleetCapacity(f))
+      bad('over-berthed', `${f.name} ${f.troops} companies in ${fleetCapacity(f)} berths`);
   }
   const ghosts = s.fleets.filter((f) => f.ships.length === 0 && f.officerIds.length === 0 && f.troops === 0);
   if (ghosts.length > 0) bad('ghost-fleet', `${ghosts.length} empty`);
@@ -128,6 +143,21 @@ export function audit(s: GameState): Violation[] {
   if (crewless.length > 0) bad('people-on-no-hull', `${crewless.length} fleet(s) with no ships but crew/companies aboard`);
 
   if (s.battle && !systemIds.has(s.battle.systemId)) bad('battle-orphan', s.battle.systemId);
+  // A battle sheet is a question for the player. Watching, there is nobody to
+  // ask, and one that nobody can answer stops the clock for the rest of the
+  // war — which is exactly what it did before 17 September.
+  if (s.observing && s.battle) bad('sheet-with-no-player', s.battle.systemId);
+  // Nor a report nobody will answer, for the same reason.
+  if (s.observing && s.pendingDecisions.length > 0)
+    bad('reports-with-no-player', `${s.pendingDecisions.length} waiting`);
+  // A side with no island has nowhere to put anybody: everyone of theirs is
+  // taken the same evening, and the war ends on the victory check.
+  for (const side of ['empire', 'alliance'] as const) {
+    if (s.systems.some((x) => x.control === side)) continue;
+    const loose = s.characters.filter((c) => c.faction === side && c.status !== 'captured');
+    if (loose.length > 0)
+      bad('landless-at-large', `${side}: ${loose.length} still out with no ground to stand on`);
+  }
   const seenDecisions = new Set<string>();
   for (const d of s.pendingDecisions) {
     if (!charIds.has(d.characterId)) bad('decision-orphan', d.characterId);

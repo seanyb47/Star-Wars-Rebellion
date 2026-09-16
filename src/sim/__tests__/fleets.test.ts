@@ -11,6 +11,7 @@ import {
   assaultError,
   embark,
   embarkError,
+  clearWrecks,
   fleetCapacity,
   fleetGuns,
   fleetsAt,
@@ -886,6 +887,32 @@ describe('what the confirm sheet promises', () => {
     expect(together).toBeGreaterThan(alone);
     sailFleet(state, fleet.id, far.id, 'empire');
     expect(fleet.voyage!.daysRemaining).toBe(together);
+  });
+
+  /**
+   * Found by the audit, forty-three times in twenty-four wars: a squadron with
+   * four companies aboard and two berths left to put them in. Only a squadron
+   * sunk to the last hull ever lost the people in it, so one that lost *some*
+   * of its ships kept every company — riding in berths that were on the bottom
+   * of the harbor, and putting a landing party ashore that should have
+   * drowned.
+   */
+  it('drowns the companies riding in hulls that have gone down', () => {
+    const state = generateGalaxy(31, 'empire');
+    const here = state.systems.find((s) => s.control === 'empire')!;
+    const fleet = addShip(state, here, 'empire', 'fluyt');
+    addShip(state, here, 'empire', 'fluyt');
+    const berths = fleetCapacity(fleet);
+    expect(berths).toBeGreaterThan(1);
+    here.garrison = berths + 20;
+    if (fleet.troops < berths) embark(state, fleet.id, berths - fleet.troops, 'empire');
+    expect(fleet.troops).toBe(berths);
+    // Half the squadron is sunk.
+    fleet.ships = fleet.ships.slice(0, 1);
+    clearWrecks(state);
+    expect(fleet.troops).toBe(fleetCapacity(fleet));
+    expect(fleet.troops).toBeLessThan(berths);
+    expect(state.events.at(-1)!.text).toMatch(/go down with the hulls/);
   });
 
   it('never quotes a crossing it would refuse to make', () => {
