@@ -1137,13 +1137,20 @@ export function CharacterPortrait({
       {lord && !ringed && (
         <circle cx="32" cy="32" r="31" fill="none" stroke="var(--brass)" strokeWidth="5" />
       )}
+      {/*
+        The faction ring on the medallion itself. Inside one of Sean's rings it
+        is saying a thing the ring has already said, in the ring's own colour,
+        an inch further in — so there it becomes a plain dark edge instead,
+        which still parts the photograph from the frame's inner bevel without
+        adding a second red circle to a red frame.
+      */}
       <circle
         cx="32"
         cy="32"
         r={lord && !ringed ? 27.5 : 31}
         fill="none"
-        stroke={tint}
-        strokeWidth={ringed ? 1.5 : lord ? 2 : 2.5}
+        stroke={ringed ? INK.black : tint}
+        strokeWidth={ringed ? 2 : lord ? 2 : 2.5}
       />
     </svg>
   );
