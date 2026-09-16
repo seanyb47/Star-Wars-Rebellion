@@ -130,7 +130,12 @@ export function playGame(
       bump('player-decisions');
       const home =
         answer === 'come-home' ||
-        (answer === 'mixed' && (decisionCoin = (decisionCoin * 1103515245 + 12345) & 0x7fffffff) % 2 === 0);
+        // Math.imul, not `*`: the plain multiply overflows a double, the low
+        // bits are lost, and `& 0x7fffffff` then returns an even number every
+        // time after the second draw. "Mixed" was answering "come home" to
+        // 270 of 282 reports and had never once exercised the other branch.
+        (answer === 'mixed' &&
+          (decisionCoin = (Math.imul(decisionCoin, 1103515245) + 12345) & 0x7fffffff) % 2 === 0);
       if (home) { endMission(state, p.characterId); bump('answered-home'); }
       else { continueMission(state, p.characterId); bump('answered-carry-on'); }
     }
