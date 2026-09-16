@@ -703,6 +703,11 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
    */
   const errandAt = (officer: Character, s: System): MissionType | null | undefined => {
     if (liftable(s)) return undefined;
+    // Nothing the island answers on its own. Command is on offer on any
+    // ground of ours and is never a default — a posting spends an officer for
+    // good — so a wholly loyal island with no yard and nobody ashore has
+    // something a player may choose and nothing the opponent should be handed.
+    if (missionTypeFor(state, s, ai) === null) return null;
     if (missionTypeFor(state, s, ai) !== 'abduct') return undefined;
     return (
       missionsOffered(state, s, ai, officer).find(

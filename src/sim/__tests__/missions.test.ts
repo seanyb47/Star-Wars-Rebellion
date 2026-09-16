@@ -21,7 +21,7 @@ import {
   successChance,
   travelDays,
 } from '../missions';
-import { getCharacter, getSystem } from '../helpers';
+import { getCharacter, getSystem, setSupport } from '../helpers';
 import { createRng } from '../rng';
 import type { GameState, System } from '../types';
 
@@ -72,6 +72,22 @@ describe('mission eligibility', () => {
     const { state, sameSector } = setup();
     expect(isDiplomacyTarget(sameSector, 'empire')).toBe(true);
     const own = state.systems.find((s) => s.control === 'empire')!;
+    setSupport(own, 'empire', 70);
+    expect(isDiplomacyTarget(own, 'empire')).toBe(true);
+  });
+
+  /**
+   * Sean: *"Parley shouldn't be available if location is 100% your loyalty
+   * already."* Opinion adds up to a hundred across the two sides, so an island
+   * at a hundred for you is one the other side has nobody on — a fortnight
+   * ashore to move a bar that cannot move.
+   */
+  it('refuses an island already wholly yours, and takes it back the moment it drifts', () => {
+    const { state } = setup();
+    const own = state.systems.find((s) => s.control === 'empire')!;
+    setSupport(own, 'empire', 100);
+    expect(isDiplomacyTarget(own, 'empire')).toBe(false);
+    setSupport(own, 'empire', 99.5);
     expect(isDiplomacyTarget(own, 'empire')).toBe(true);
   });
 

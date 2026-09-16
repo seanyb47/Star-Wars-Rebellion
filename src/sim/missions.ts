@@ -19,6 +19,7 @@ import {
   RESEARCH_MIN_SUPPORT,
   RESEARCH_PROGRESS,
   SABOTAGE_PRIORITY,
+  SUPPORT_MAX,
   SURVEY_PER_ISLAND,
   MISSION_PARTY_MAX,
   MISSION_WORK_DAYS,
@@ -83,11 +84,23 @@ function worldPlace(state: GameState, system: System): { x: number; y: number } 
   return { x: sector.x + system.x, y: sector.y + system.y };
 }
 
-/** Eligible target: settled, quiet, and not the enemy's (spec 4.5). */
+/**
+ * Eligible target: settled, quiet, not the enemy's, and with something left to
+ * win (spec 4.5).
+ *
+ * Sean: *"Parley shouldn't be available if location is 100% your loyalty
+ * already."* Every island's regard for the two sides adds up to a hundred, so
+ * an island sitting at a hundred for you is one where the other side has
+ * nobody at all — there is no argument left to have there, and the errand was
+ * offering a fortnight ashore and an 86% chance of moving a bar that cannot
+ * move. It becomes worth doing again the moment the island drifts back off the
+ * ceiling, which it does on its own within a day or two.
+ */
 export function isDiplomacyTarget(system: System, faction: PlayableFaction): boolean {
   if (!system.populated) return false;
   if (system.uprising) return false;
   if (!system.explored[faction]) return false;
+  if (system.support[faction] >= SUPPORT_MAX) return false;
   return system.control === 'neutral' || system.control === faction || system.control === 'none';
 }
 
@@ -427,12 +440,26 @@ export function missionTypeFor(
   return null;
 }
 
+/**
+ * Is there anything at all to do here.
+ *
+ * This used to ask `missionTypeFor` — what the island's *default* errand would
+ * be — which is a different question, and the difference only showed once a
+ * wholly loyal island stopped offering a parley. Command is offered on any
+ * island of yours and is deliberately never the default (a posting spends an
+ * officer for good and should be asked for), so an island with nothing else
+ * left answered null, and this said "nothing to be done there" about ground
+ * you hold with a chair standing empty in it. You could not post a commander
+ * to your own capital.
+ *
+ * The list is the answer. Anything offered means there is something to do.
+ */
 export function isMissionTarget(
   state: GameState,
   system: System,
   faction: PlayableFaction,
 ): boolean {
-  return missionTypeFor(state, system, faction) !== null;
+  return missionsOffered(state, system, faction).length > 0;
 }
 
 /**
@@ -678,7 +705,14 @@ export function startMission(
   // to the quay they were already on.
   const passage = travelDays(state, character.locationSystemId, targetSystemId);
   const days = passage === 0 ? 0 : Math.max(1, Math.ceil(passage * passageShare(character)));
-  const type = chosen ?? missionTypeFor(state, target, character.faction as PlayableFaction)!;
+  // No type and no default is not an errand. `missionError` above lets an
+  // island through when *anything* is offered, and Command is offered on your
+  // own ground without ever being the default — so "let the island decide" has
+  // a case with nothing to decide, and it used to make a mission with no type
+  // in it rather than saying so.
+  const fallen = missionTypeFor(state, target, character.faction as PlayableFaction);
+  const type = chosen ?? fallen;
+  if (!type) throw new Error('Nothing to be done there.');
 
   // Whoever is actually allowed in the boat, capped at a boatful. Anybody
   // named who cannot go is dropped rather than refusing the whole errand: the
@@ -974,7 +1008,13 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
                 ? `${character.name} finds the cells at ${system.name} empty; the exchange came first.`
               : mission.type === 'command'
                 ? `${character.name} lands on ${system.name} to find order already restored.`
-                : `${character.name} abandons the talks on ${system.name}; the island is beyond reach.`,
+                : system.support[faction] >= SUPPORT_MAX
+                  // Not a failure: they arrived to find the argument already
+                  // won. "Beyond reach" is for an island that went the other
+                  // way, and reading it over a hundred-per-cent island of your
+                  // own would be nonsense.
+                  ? `${character.name} finds ${system.name} wholly yours already, and nothing left to argue.`
+                  : `${character.name} abandons the talks on ${system.name}; the island is beyond reach.`,
       systemId: system.id,
       characterId: character.id,
     });

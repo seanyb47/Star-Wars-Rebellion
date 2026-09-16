@@ -1,4 +1,4 @@
-import { GARRISON_FOR_BAND, SPILLOVER_FRACTION, loyaltyBand } from './constants';
+import { GARRISON_FOR_BAND, SPILLOVER_FRACTION, SUPPORT_MAX, loyaltyBand } from './constants';
 import type {
   Deposit,
   Faction,
@@ -44,7 +44,7 @@ export function sectorOf(state: GameState, systemId: string): string {
 }
 
 export function clampSupport(value: number): number {
-  return Math.max(0, Math.min(100, value));
+  return Math.max(0, Math.min(SUPPORT_MAX, value));
 }
 
 export function countFacilities(system: System, type: FacilityType, owner: Faction): number {
@@ -141,7 +141,7 @@ export function pushEvent(state: GameState, event: Omit<GameEvent, 'id' | 'day'>
 export function setSupport(system: System, faction: PlayableFaction, value: number): void {
   const mine = clampSupport(value);
   system.support[faction] = mine;
-  system.support[otherFaction(faction)] = 100 - mine;
+  system.support[otherFaction(faction)] = SUPPORT_MAX - mine;
 }
 
 /** Move the balance by a signed amount, and report what actually moved. */

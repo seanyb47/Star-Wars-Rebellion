@@ -720,6 +720,12 @@ export function earns(item: BuildItem): boolean {
  * always pulling the island back to the middle.
  */
 export const FLIP_SUPPORT_MIN = 80;
+/**
+ * The whole of an island's opinion. Every island's regard for the two sides
+ * adds up to this, so a point one side wins is a point the other loses, and an
+ * island sitting here is one where the other side has nobody left at all.
+ */
+export const SUPPORT_MAX = 100;
 export const UPRISING_SUPPORT = 30;
 export const UPRISING_END_SUPPORT = 40;
 export const SPILLOVER_FRACTION = 0.2;

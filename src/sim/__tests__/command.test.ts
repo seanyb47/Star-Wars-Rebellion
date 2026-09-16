@@ -7,6 +7,7 @@ import {
   fleetsToCommand,
   foilChance,
   isCommandTarget,
+  missionError,
   missionTypeFor,
   missionsOffered,
   relieve,
@@ -14,6 +15,7 @@ import {
   takePost,
 } from '../missions';
 import { orderRelieve, sendDiplomat } from '../commands';
+import { setSupport } from '../helpers';
 import { UPRISING_SUPPORT } from '../constants';
 
 function world(seed = 501) {
@@ -34,15 +36,31 @@ function world(seed = 501) {
 
 describe('a posting, not an errand', () => {
   it('offers Command on any island of yours, not only one in revolt', () => {
-    const { state, home } = world();
+    const { state, home, officer } = world();
     expect(home.uprising).toBe(false);
     expect(isCommandTarget(home, 'empire')).toBe(true);
     expect(missionsOffered(state, home, 'empire')).toContain('command');
-    // But it is never the default on a quiet island: a posting spends an
-    // officer for good and should be asked for.
+    // But it never jumps the queue on a quiet island: a posting spends an
+    // officer for good and should be asked for, so anything the island can
+    // still offer comes first.
+    setSupport(home, 'empire', 70);
     expect(missionTypeFor(state, home, 'empire')).not.toBe('command');
     home.uprising = true;
     expect(missionTypeFor(state, home, 'empire')).toBe('command');
+
+    /*
+     * Never the default, but always available — and those are two different
+     * questions. An island of yours with nothing else left (wholly loyal, so
+     * no parley; no yard, no stranger ashore, nobody in its cells) has no
+     * default errand at all, and the eligibility check used to ask for one.
+     * So you could not post a commander to your own capital the day it came
+     * round to a hundred.
+     */
+    home.uprising = false;
+    setSupport(home, 'empire', 100);
+    expect(missionTypeFor(state, home, 'empire')).toBeNull();
+    expect(missionsOffered(state, home, 'empire')).toEqual(['command']);
+    expect(missionError(state, officer.id, home.id, 'command')).toBeNull();
   });
 
   it('is taken at once when the officer is already there', () => {
