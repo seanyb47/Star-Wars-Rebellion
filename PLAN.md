@@ -2912,3 +2912,111 @@ running across the face, the timber at y=420 for trunks over understory.
 They show on the island's Buildings tab as their own tiles, dimmed and marked
 *unworked*, and in the encyclopedia beside the rule. The drawn glyphs stay as
 the fallback.
+
+## Bigger art, the encyclopedia in the console, and observe mode — 16 September
+
+Sean asked for unit art to stop being small. The boards went from three columns
+to two, works and ground and companies and crew from 30px glyphs to 64-68px
+paintings, hulls in the fleet list from 84 to 112. Tapping a unit with nothing
+else to do opens the encyclopedia at that entry; a unit that already does
+something keeps that and takes a corner mark. A new `useLookUp` context carries
+it, because the panels are four deep inside a sheet and the encyclopedia is held
+at the top.
+
+The encyclopedia moved out of the top rail and onto the console between Build
+and Log, and the rail gained an eye: **observe mode**, which hands the player's
+side to the opponent's brain and makes a game of player-against-machine into
+machine-against-machine. `runAI` takes a side now and `advanceDay` runs it
+twice. The lock lives in the one `run()` wrapper every order passes through, so
+it cannot be got round by a screen somebody forgot to disable, and `setSpeed`
+is deliberately not a `run` command — you keep the clock and lose everything
+else.
+
+Buildings stopped being reorderable and are always grouped, in one fixed order.
+
+## Coral is the Confederacy's, and the canon documents arrive — 16 September
+
+Sean: *"Coral should be a confederacy only thing."* It was on both sides — the
+Crown's hulls were grown over with it for warding, the Sovereign was warded with
+it, the Tidewrought were brass-and-coral, Crane's collar grew it. That made the
+Confederacy's one piece of real strangeness into something both navies did.
+
+The Crown coppers instead: milled plate bolted on below the waterline, bright as
+a new coin and green as a drowned church a year later. Carpentry, not warding —
+the warding is disciplined Tidecraft, which is what the canon says. Crane's
+collar bloom became verdigris and kept its image.
+
+Then four source documents arrived and became `docs/canon/`: the project README,
+the Art Direction Guide v2.2, the Naval Art Master, the Faction Sigils sheet, and
+the one-sheet board. The lore was brought into line with all of them — both
+creeds went to their full five clauses, both palettes and both sigils are written
+down, the supernatural got its own palette, and a new section carries the north
+star, the 70/20/10 mix and the three readability tests. 149 art prompts had a
+stale style clause and 43 had the old creeds; both swept.
+
+## The Heavy Fortress, and the fleet goes to twenty-one hulls — 16 September
+
+Two fort paintings, and Sean's ruling: Fortress and Heavy Fortress, the second a
+tier you build rather than an upgrade you apply. 250 gold, 45 guns, 150 of wall,
+on the one plot a Fortress would have taken — slightly the worse buy per gun and
+per day, more than twice the harbour per **plot**, which is the scarce thing. The
+siege rules stopped asking `type === 'fort'` and started asking `isWall`,
+`wallGuns`, `wallStrength`.
+
+Then the Naval Art Master's roster: eight hulls became twenty-one. Four a side
+from the first morning and three grades of shipwright craft opening the rest —
+the craft ladder already existed and had nothing to unlock. The Crown improves
+families it trusts and ends very high; the Confederacy has no II programme by
+rule, so it opens broader and answers with different ships. Measured over 24
+wars: twelve wins each, zero unfinished, better than the eight hulls managed.
+
+**Two bugs of the same shape, in one day.** A convenient default hid each one.
+The build menu kept a fourth hand-written copy of the facility list, so the
+Heavy Fortress existed, the opponent built them, they stood on islands and
+fired, and the player could not order one. Then `buildMenu` gained a `grade`
+argument defaulting to "nothing researched" and two call sites forgot it — the
+opponent's own hull-laying loop among them — so it picked the dearest hull its
+grade allowed, checked it against a menu pretending it had researched nothing,
+and skipped every shipyard it owned: 78,000 gold, seven slipways, grade three,
+not one hull in the water. Both fixes were the same: stop the default existing,
+let the compiler name every caller.
+
+## The Boom goes, and a prisoner stays a prisoner — 16 September
+
+The Boom was cut. Twelve full wars, zero standing on zero islands: the opponent
+had no rule that wanted one and a player had no reason to buy one next to a
+Fortress that stops a landing outright. 24 wars before and after came out
+byte-identical.
+
+Then Sean asked the question that mattered: *"Why would anyone be released
+without a rescue mission?"* Nobody hands back the leader of the rebellion
+because two months have passed. The sixty-day counter is gone; captivity now
+ends only when somebody comes. That could not ship alone — the opponent had no
+rescue behaviour at all — so it learned to go and get its people, a Lord scored
+above taking one of theirs. Measured: out again in a median of 58 days, 70 for a
+Lord, but varying 27 to 148, costing an officer and a voyage, able to fail, and
+**impossible for a Confederacy down to its last islands** — which was exactly
+the case that used to leave the Crown holding sixty-three islands and unable to
+finish.
+
+"Exchange" is retired as a word throughout. Nothing was ever exchanged.
+
+## A stormed island gives up its people — 16 September
+
+Sean's rule, and the last piece: taking an island takes everyone standing on it,
+errands included. Not the ones at sea. And storming an island frees your own out
+of its cells.
+
+Which means taking every island takes every Lord, and the Crown's victory
+condition stopped being a manhunt it could never close. No second victory
+condition was needed after all; the existing one simply became reachable.
+
+Every hull carries companies now, at Sean's word — a sloop carried nobody and
+could not put one person on an empty beach.
+
+**And the finding that matters.** Observe mode was built as a toy and
+immediately earned itself: played by the machine on *both* sides, the Crown
+loses **21-0** with three unfinished. Every player-idle campaign all day read
+12-12 and hid it completely, because an idle side loses differently from a
+played one. That is the deepest balance problem in the game and it is where the
+tuning starts.
