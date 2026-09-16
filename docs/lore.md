@@ -56,7 +56,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 
 **Truth:** Both. Officers run from principled to overzealous, and the good ones spend their careers arguing with the rest.
 
-**Aesthetic** *(Art Direction Guide §3, Naval Art Master)***:** deep Imperial green — botanical, not emerald — antique gold and brass, warm ivory, black iron, refined wood, grey stone. Clean, symmetrical, maintained, disciplined and formidable. **Crown power should look civilized and impressive, never sinister.** Names are virtues and titles. Everything is straight lines until you look closely.
+**Aesthetic** — *Art Direction Guide §3, Naval Art Master.* deep Imperial green — botanical, not emerald — antique gold and brass, warm ivory, black iron, refined wood, grey stone. Clean, symmetrical, maintained, disciplined and formidable. **Crown power should look civilized and impressive, never sinister.** Names are virtues and titles. Everything is straight lines until you look closely.
 
 **How a Crown hull reads.** A standard ship wears white or warm-ivory sails with green accents, antique brass, elegant wood trim and black iron, and carries **exactly one obvious Crown emblem**. An elite or **II**-generation ship wears **deep Imperial-green sails** — that is the immediate signal, at any distance, that the thing coming over the horizon is one of the good ones — with antique-gold trim, sophisticated naval detailing, and **two subtle emblems** rather than one loud one.
 
@@ -85,7 +85,7 @@ A Lord's ship does not sink. When her hull gives she strikes her colours, is tak
 
 **Truth:** Both. Hale spends as much of her time managing her own worst captains as fighting the Crown.
 
-**Aesthetic** *(Art Direction Guide §3, Naval Art Master)***:** crimson and rust red, black, weathered wood, leather, brass, cream. Patched and dyed sails, unusual rigging, whalebone masts, sails dyed with squid ink, and whatever the island had. Coral-grown hulls — theirs alone, and the one thing the Crown has never managed to copy, though not every Confederate hull has any. Tamed sea-beasts in the small-craft squadrons. Names are jokes, threats, and dead lovers.
+**Aesthetic** — *Art Direction Guide §3, Naval Art Master.* crimson and rust red, black, weathered wood, leather, brass, cream. Patched and dyed sails, unusual rigging, whalebone masts, sails dyed with squid ink, and whatever the island had. Coral-grown hulls — theirs alone, and the one thing the Crown has never managed to copy, though not every Confederate hull has any. Tamed sea-beasts in the small-craft squadrons. Names are jokes, threats, and dead lovers.
 
 **How a Confederate hull reads.** It doesn't, not as a class. **The Confederacy is not a standardised navy**, and that is the point: its ships should look as though they came from different captains, different cultures, different yards, and in a good many cases from somebody else's fleet. Individualised, charismatic, improvised. Every standard vessel carries **exactly one obvious Confederate emblem or flag**, and there is **no II programme** — where the Crown improves a family, the Confederacy finds another answer.
 
@@ -287,7 +287,7 @@ _Ashore somewhere in the Reaches, waiting for whichever side asks first._
 
 _There are no fighters in these waters. A small craft is just a small ship, so each fleet runs small to large with a transport off to one side, and the Confederacy has three hulls nobody else has._
 
-**Two rules govern every hull** *(Naval Art Master)***.** A ship has one longitudinal centreline, and keel, hull, gundecks, bow, stern and bowsprit all align to it — no cinematic angle justifies a bow that has been turned sideways. And a player should know a ship by her silhouette before reading her name: strip the colour, the flags and the name away and hull, bow, stern, masts, sail plan and signature structure should still say which one she is.
+**Two rules govern every hull,** from the Naval Art Master. A ship has one longitudinal centreline, and keel, hull, gundecks, bow, stern and bowsprit all align to it — no cinematic angle justifies a bow that has been turned sideways. And a player should know a ship by her silhouette before reading her name: strip the colour, the flags and the name away and hull, bow, stern, masts, sail plan and signature structure should still say which one she is.
 
 ### The eight the game builds
 
