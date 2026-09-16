@@ -210,6 +210,25 @@ button {
   background: var(--bg-sunken); border: 1px solid var(--border);
   display: grid; place-items: center; font-size: 15px;
 }
+/* Watching rather than playing. Loud on purpose: it is a developer's switch
+   that takes every order away, and finding out by tapping things is worse
+   than being told. */
+.iconbtn--watching {
+  color: var(--bg); background: var(--metal-hi); border-color: var(--metal-hi);
+}
+/* And a line across the top of the glass while it is on, so it is obvious on
+   a screenshot and from across a desk. */
+.watchbar {
+  /* In the flow above the top bar rather than over it: an overlay covered the
+     side's own name, and a developer's switch should not cost you the thing
+     you are watching. */
+  flex: none; z-index: 6;
+  padding: calc(3px + var(--safe-top)) 10px 3px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--metal); color: var(--bg);
+  font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+  pointer-events: none;
+}
 
 /* ---------- The chrome: wood, brass and rust, one per side ----------
    The layout is one; the plates swap. The Crown gets green-black oak and
@@ -320,7 +339,8 @@ button {
   flex: none;
   position: relative;
   z-index: 2;
-  display: grid; grid-template-columns: repeat(4, 1fr) 84px;
+  /* Five now, since the encyclopedia came down off the top rail. */
+  display: grid; grid-template-columns: repeat(5, 1fr) 84px;
   border-top: 1px solid var(--metal-lo); box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.5);
   padding-bottom: var(--safe-bottom);
   /* An icon, a label under it, and the padding that separates them. Stated

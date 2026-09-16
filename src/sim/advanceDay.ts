@@ -71,6 +71,10 @@ export function advanceDay(state: GameState): GameState {
   payUpkeep(next, rng);
   recomputeLedger(next);
   runAI(next, rng);
+  // Observing: the player's side is played too, by the same rules and the same
+  // doctrine. The opponent moves first, which is the order it has always moved
+  // in — the watcher's side is the one that used to be waiting for a human.
+  if (next.observing) runAI(next, rng, next.player);
   // Last, so the day ends with home somewhere the Confederacy actually holds.
   // It used to be worked out first thing, and then an island could fall in the
   // evening — to drift, to a rising, or to the opponent's own landing after

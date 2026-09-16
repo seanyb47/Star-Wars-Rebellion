@@ -6,11 +6,19 @@ import type { NarratorMood } from './narrator/mood';
 export type Tab = 'galaxy' | 'characters' | 'build' | 'feed';
 
 /**
+ * What the console can carry. The encyclopedia is not a screen — it opens a
+ * sheet over whatever you were looking at — but Sean asked for it down here
+ * beside the rest rather than up in the top bar, and on the bar it has to look
+ * like everything else on the bar.
+ */
+type Slot = Tab | 'almanac';
+
+/**
  * The console's four buttons. Drawn, not typed: the old glyphs were whatever
  * the phone's font made of an anchor and a bullet, and they sat at different
  * weights and baselines. These are one stroke, one size, one baseline.
  */
-function TabIcon({ id }: { id: Tab }) {
+function TabIcon({ id }: { id: Slot }) {
   const common = {
     width: 24,
     height: 24,
@@ -62,13 +70,25 @@ function TabIcon({ id }: { id: Tab }) {
           <circle cx="9.5" cy="9" r="0.9" fill="currentColor" />
         </svg>
       );
+    case 'almanac':
+      // An open book, which is what it was in the top bar.
+      return (
+        <svg {...common}>
+          <path d="M12 6.5C10.5 5 8.4 4.4 5 4.5v13c3.4-.1 5.5.5 7 2 1.5-1.5 3.6-2.1 7-2v-13c-3.4-.1-5.5.5-7 2Z" />
+          <path d="M12 6.5v12" />
+        </svg>
+      );
   }
 }
 
-const TABS: Array<{ id: Tab; label: string }> = [
+const SLOTS: Array<{ id: Slot; label: string }> = [
   { id: 'galaxy', label: terms.tabs.map },
   { id: 'characters', label: terms.tabs.characters },
   { id: 'build', label: terms.tabs.build },
+  // Sean, 16 September: *"Move encyclopedia to bottom utility bar left of
+  // log."* It was an icon in the top rail, where it sat between the clock and
+  // the volume and read as a setting rather than as somewhere to go.
+  { id: 'almanac', label: 'Book' },
   { id: 'feed', label: terms.tabs.feed },
 ];
 
@@ -78,6 +98,7 @@ export function TabBar({
   unread,
   player,
   onAskAdvisor,
+  onOpenAlmanac,
   mood = 'neutral',
   talking = false,
 }: {
@@ -86,17 +107,20 @@ export function TabBar({
   unread: number;
   player: 'empire' | 'alliance';
   onAskAdvisor: () => void;
+  onOpenAlmanac: () => void;
   /** The advisor's face and whether they are mid-sentence (see useAdvisorVoice). */
   mood?: NarratorMood;
   talking?: boolean;
 }) {
   return (
     <nav className="tabbar">
-      {TABS.map((entry) => (
+      {SLOTS.map((entry) => (
         <button
           key={entry.id}
           className={`tab${tab === entry.id ? ' tab--active' : ''}`}
-          onClick={() => onChange(entry.id)}
+          onClick={() =>
+            entry.id === 'almanac' ? onOpenAlmanac() : onChange(entry.id as Tab)
+          }
           aria-current={tab === entry.id ? 'page' : undefined}
         >
           <span className="tab__icon">

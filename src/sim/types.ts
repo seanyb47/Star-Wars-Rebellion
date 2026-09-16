@@ -561,4 +561,19 @@ export interface GameState {
    * worth.
    */
   doctrine?: { tier: 'plain' | 'sharp' | 'ruthless'; without?: string[] };
+  /**
+   * Hands your side to the opponent's brain and makes you the audience.
+   *
+   * Sean, 16 September: *"a button... that turns the active player into AI so
+   * I can literally watch the AI play and open screens and do stuff. I still
+   * control speed of game but all other functions are locked and I just
+   * observe."* A development tool — it turns a game of player against machine
+   * into machine against machine, with the panels still open to look at.
+   *
+   * Enforced in `commands.ts`, in the one wrapper every order passes through,
+   * rather than by greying out buttons: a lock that lives in the simulation
+   * cannot be got round by a screen somebody forgot to disable. Opening
+   * panels, changing the speed and reading anything are all still yours.
+   */
+  observing?: boolean;
 }

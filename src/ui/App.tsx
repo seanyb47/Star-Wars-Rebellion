@@ -31,6 +31,7 @@ import {
   missionsOffered,
   type ChartLayer,
   sendDiplomat,
+  setObserving,
   setSpeed,
   type BuildItem,
   type GameState,
@@ -589,6 +590,11 @@ export function App() {
   return (
     <LookUpProvider value={lookUp}>
     <div className="app" data-side={state.player}>
+      {/* Watching. Said plainly across the top, because every order is refused
+          while it is on and a silent lock is a bug report. */}
+      {state.observing && (
+        <div className="watchbar">Observing — both sides played by the opponent</div>
+      )}
       {/* Waits for the war-begins dispatch to be read: two cards at once is
           nobody's idea of a clean start. */}
       {teaching && dispatches.length === 0 && !readingId && (
@@ -600,7 +606,7 @@ export function App() {
         soundOn={sound.on}
         onToggleSound={sound.toggle}
         onSetSpeed={(speed: Speed) => setState(setSpeed(state, speed))}
-        onOpenAlmanac={() => lookUp('people')}
+        onToggleObserving={() => setState(setObserving(state, !state.observing))}
         onOpenMenu={() => setMenuOpen(true)}
       />
 
@@ -726,6 +732,7 @@ export function App() {
         unread={unread}
         player={state.player}
         onAskAdvisor={() => setNarratorOpen(true)}
+        onOpenAlmanac={() => lookUp('people')}
         mood={voice.mood}
         talking={voice.talking}
       />

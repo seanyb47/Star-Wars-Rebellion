@@ -154,8 +154,15 @@ const AI_ORDERS_PER_TICK = 3;
  */
 const AI_RICH = 600;
 
-export function runAI(state: GameState, rng: Rng): void {
-  const ai = otherFaction(state.player);
+/**
+ * A day's thinking for one side.
+ *
+ * `side` defaults to the opponent, which is every ordinary game. Passing the
+ * player's own side is what observe mode does: the same brain, run twice, and
+ * a war neither of us is playing.
+ */
+export function runAI(state: GameState, rng: Rng, side?: PlayableFaction): void {
+  const ai = side ?? otherFaction(state.player);
   if (state.day % AI_BUILD_INTERVAL === 0) {
     // More than one order a tick. One every five days could not keep up
     // with a war that hands the opponent an island a week, each with a

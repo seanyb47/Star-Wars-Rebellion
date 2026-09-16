@@ -56,12 +56,16 @@ function GearIcon() {
  * was reachable only through the menu, which is where you go to quit, not to
  * look something up mid-war.
  */
-function BookIcon() {
+/** An eye: shut while you are playing, open while you are watching. */
+function EyeIcon({ open }: { open: boolean }) {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 5.2c2.6-1 5.3-1 8 0v13.4c-2.7-1-5.4-1-8 0z" />
-      <path d="M20 5.2c-2.6-1-5.3-1-8 0v13.4c2.7-1 5.4-1 8 0z" />
-      <path d="M12 5.2v13.4" />
+      <path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+      {open ? (
+        <circle cx="12" cy="12" r="3" fill="currentColor" fillOpacity="0.3" />
+      ) : (
+        <path d="M4 4l16 16" />
+      )}
     </svg>
   );
 }
@@ -81,7 +85,7 @@ export function TopBar({
   soundOn,
   onToggleSound,
   onSetSpeed,
-  onOpenAlmanac,
+  onToggleObserving,
   onOpenMenu,
 }: {
   state: GameState;
@@ -89,7 +93,8 @@ export function TopBar({
   soundOn: boolean;
   onToggleSound: () => void;
   onSetSpeed: (speed: Speed) => void;
-  onOpenAlmanac: () => void;
+  /** Hand your side to the opponent, or take it back. */
+  onToggleObserving: () => void;
   onOpenMenu: () => void;
 }) {
   const longPress = useRef<{ timer: number; fired: boolean }>({ timer: 0, fired: false });
@@ -127,6 +132,7 @@ export function TopBar({
   };
 
   const running = state.speed !== 'paused' && !autoPaused && !state.winner;
+  const observing = Boolean(state.observing);
 
   return (
     <header className="topbar">
@@ -178,8 +184,16 @@ export function TopBar({
           <span className="speed__dots">{speedDots(state.speed)}</span>
           <span>{autoPaused && state.speed !== 'paused' ? 'Held' : SPEED_LABEL[state.speed]}</span>
         </button>
-        <button className="iconbtn" onClick={onOpenAlmanac} aria-label="Encyclopedia">
-          <BookIcon />
+        {/* Right of the clock, as asked. The one control that is still yours
+            while observing is the clock, so the switch belongs beside it. */}
+        <button
+          className={`iconbtn${observing ? ' iconbtn--watching' : ''}`}
+          onClick={onToggleObserving}
+          aria-pressed={observing}
+          aria-label={observing ? 'Take your side back' : 'Watch the opponent play both sides'}
+          title={observing ? 'Take your side back' : 'Observe: let the opponent play both sides'}
+        >
+          <EyeIcon open={observing} />
         </button>
         <button
           className={`iconbtn${soundOn ? ' iconbtn--on' : ''}`}

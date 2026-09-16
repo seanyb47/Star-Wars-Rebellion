@@ -30,6 +30,9 @@ export interface CommandResult {
 }
 
 function run(state: GameState, fn: (draft: GameState) => void): CommandResult {
+  // Watching, not playing. Every order in the game comes through here, so this
+  // is the whole of the lock — and the clock, which does not, stays yours.
+  if (state.observing) return { state, error: 'Observing. Your side is being played by the opponent.' };
   const draft = cloneState(state);
   try {
     fn(draft);
@@ -41,6 +44,19 @@ function run(state: GameState, fn: (draft: GameState) => void): CommandResult {
 
 export function newGame(seed = Date.now() >>> 0, player: PlayableFaction = 'empire'): GameState {
   return generateGalaxy(seed, player);
+}
+
+/**
+ * Hand your side over, or take it back.
+ *
+ * Not a `run` command, because `run` is exactly what it turns off.
+ */
+export function setObserving(state: GameState, observing: boolean): GameState {
+  if (Boolean(state.observing) === observing) return state;
+  const next = cloneState(state);
+  if (observing) next.observing = true;
+  else delete next.observing;
+  return next;
 }
 
 export function setSpeed(state: GameState, speed: Speed): GameState {
