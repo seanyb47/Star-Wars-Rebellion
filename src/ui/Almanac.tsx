@@ -46,11 +46,11 @@ import {
 import {
   CategoryIcon,
   CharacterPortrait,
+  FacilityThumb,
   CompanyIcon,
   ShipThumb,
   CompanyRow,
   CreaturePainting,
-  FacilityIcon,
 } from './art';
 import { GoldFig, Sheet } from './components';
 
@@ -144,8 +144,11 @@ export function Almanac({
       <div className="stack">
         {BUILD_ORDER.map((type) => (
           <div key={type} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
-            <span className="facility__icon">
-              <FacilityIcon type={type} size={30} />
+            {/* The painting, not the glyph. Every works but the two defences
+                has one, and an encyclopedia of what things are is the last
+                place that should be showing a line drawing instead. */}
+            <span className="facility__thumb">
+              <FacilityThumb type={type} owner={state.player} width={84} />
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="row row--between">

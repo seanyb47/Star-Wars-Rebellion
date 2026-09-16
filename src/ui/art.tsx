@@ -1489,20 +1489,38 @@ export function ShipThumb({
  * glyph still does the work at the 22px the build buttons use, and a painting
  * that wide only reads with room to be wide in.
  */
+/**
+ * Whether this works has a painting at all, so a caller can decide between the
+ * picture and the drawn glyph before it lays anything out. Fort and Boom have
+ * never been painted; everything else has, for both sides.
+ */
+export function facilityPainting(
+  type: string,
+  owner: 'empire' | 'alliance' | 'neutral' | 'none',
+): string | undefined {
+  const side = owner === 'alliance' ? 'alliance' : 'empire';
+  return paintedIsland(`facility-${type.replace(/_/g, '-')}-${side}`);
+}
+
 export function FacilityThumb({
   type,
   owner,
   width = 96,
+  /** Fill whatever it is put in, at the painting's own proportions. */
+  fill,
 }: {
   type: string;
   owner: 'empire' | 'alliance' | 'neutral' | 'none';
   width?: number;
+  fill?: boolean;
 }) {
-  const side = owner === 'alliance' ? 'alliance' : 'empire';
-  const painting = paintedIsland(`facility-${type.replace(/_/g, '-')}-${side}`);
+  const painting = facilityPainting(type, owner);
   if (!painting) return <FacilityIcon type={type as never} size={30} />;
   return (
-    <span className="facthumb" style={{ width, height: Math.round(width * 0.42) }}>
+    <span
+      className="facthumb"
+      style={fill ? { width: '100%', aspectRatio: '96 / 40' } : { width, height: Math.round(width * 0.42) }}
+    >
       <img src={painting} alt="" loading="lazy" />
     </span>
   );

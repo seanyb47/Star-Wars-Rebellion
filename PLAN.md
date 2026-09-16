@@ -2702,3 +2702,37 @@ facility blurbs lost their "Costs gold to keep." — the figure beside them says
 it, and the sentence was saying it twice.
 
 377 tests green.
+
+## The building art was already there — 16 September
+
+> I think you have the art already, it's just not applied to all instances of
+> buildings.
+
+Right, and worth writing down because it is the kind of thing that hides. Ten
+facility paintings have been in `src/art/islands/` since the first art batch —
+five works, both sides — and they were being drawn in exactly **two** places:
+the works card at the bottom of the Buildings tab, and the unit card in the
+build flow. Everywhere else a works appeared, the game drew a line glyph at it.
+
+The worst of those was **the slot board**, which is the thing a player actually
+looks at to see what stands on an island. Seven tiles of drawn icons, with the
+paintings sitting on disk and appearing only if you scrolled past them.
+
+- `Slot` takes an optional `art` now: a painting run full width across the top
+  of the tile, name under it, in place of the centred 34px glyph. `icon` stays
+  the fallback, so a works with no painting still gets its glyph and the two
+  sorts of tile sit in the same grid.
+- The encyclopedia's Buildings page shows the painting too, at the width the
+  works card uses.
+- `facilityPainting()` is exported so a caller can ask *whether* there is one
+  before choosing a layout, rather than `FacilityThumb` silently falling back
+  and leaving the container the wrong shape.
+
+**Fort and Boom are the genuine gap**, and the sweep confirms it: no file for
+them anywhere — not in `src/art`, not in `art-masters`, not in the slices. They
+are the two prompts in `art-units.md` that have never been run.
+
+Checked the same class of bug elsewhere while in there. Every remaining glyph is
+a glyph on purpose: the 22px build buttons, the build menu's category icons, the
+16px marks on event cards, and the contact sheet, which exists to review the
+glyphs. Ships and portraits are painted wherever there is room for a painting.

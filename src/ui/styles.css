@@ -1869,3 +1869,15 @@ button.tcard:hover { border-color: var(--brass); }
 .goldfig__per { color: var(--muted); margin-left: -2px; }
 .goldfig--earn b { color: var(--good, #7fc99a); }
 .goldfig--cost b { color: var(--metal-hi); }
+
+/* --- A painted thing on a board ----------------------------------------- */
+/* The works paintings are wide banners, so they run the full width of the tile
+   with the name under them rather than being squeezed into the 34px square the
+   drawn glyphs sit in. The tile loses its side padding to let the band bleed. */
+.slot--art { padding: 0 0 6px; }
+.slot__art { display: block; width: 100%; line-height: 0; }
+.slot__art .facthumb {
+  display: block; width: 100%; border: 0; border-radius: 7px 7px 0 0;
+}
+.slot--art .slot__name { padding: 5px 4px 0; }
+.slot--art .slot__note { padding: 0 4px; }

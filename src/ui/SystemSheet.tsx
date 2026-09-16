@@ -50,6 +50,7 @@ import {
   CreaturePainting,
   FacilityIcon,
   FacilityThumb,
+  facilityPainting,
   IslandBanner,
   ShipIcon,
 } from './art';
@@ -641,6 +642,14 @@ export function SystemSheet({
               <Slot
                 key={facility.id}
                 icon={<FacilityIcon type={facility.type} size={30} />}
+                // The board is where a player actually looks to see what
+                // stands on an island, and it was drawing line glyphs at works
+                // that have had paintings since the first art batch.
+                art={
+                  facilityPainting(facility.type, facility.owner) ? (
+                    <FacilityThumb type={facility.type} owner={facility.owner} fill />
+                  ) : undefined
+                }
                 name={
                   facility.count > 1
                     ? `${facility.count}× ${FACILITY_LABEL[facility.type]}`

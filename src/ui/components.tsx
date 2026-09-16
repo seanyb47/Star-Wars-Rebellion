@@ -202,6 +202,7 @@ export function SlotBoard({
 /** One thing on the board: a picture, a name, and optionally a line under it. */
 export function Slot({
   icon,
+  art,
   name,
   note,
   tone,
@@ -210,6 +211,17 @@ export function Slot({
   order,
 }: {
   icon: ReactNode;
+  /**
+   * A painting of the thing, run full width across the top of the tile in
+   * place of the drawn glyph.
+   *
+   * The works have had paintings since the first art batch and the board was
+   * still drawing line glyphs at them — the picture only ever appeared on the
+   * card further down the panel, which is the one place the player is *not*
+   * looking when they want to know what stands on an island. `icon` stays the
+   * fallback, so a works with no painting yet still gets its glyph.
+   */
+  art?: ReactNode;
   name: string;
   note?: string;
   /** 'warn' for something that needs attention, 'dim' for something idle. */
@@ -219,10 +231,12 @@ export function Slot({
   /** Present only in reorder mode. An end with nowhere to go is absent. */
   order?: { up?: () => void; down?: () => void };
 }) {
-  const className = `slot${tone ? ` slot--${tone}` : ''}${onClick ? ' slot--tap' : ''}`;
+  const className = `slot${art ? ' slot--art' : ''}${tone ? ` slot--${tone}` : ''}${
+    onClick ? ' slot--tap' : ''
+  }`;
   const body = (
     <>
-      <span className="slot__icon">{icon}</span>
+      {art ? <span className="slot__art">{art}</span> : <span className="slot__icon">{icon}</span>}
       <span className="slot__name">{name}</span>
       {note && <span className="slot__note">{note}</span>}
     </>
