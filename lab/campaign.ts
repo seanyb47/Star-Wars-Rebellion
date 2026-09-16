@@ -61,7 +61,7 @@ const show = (label: string, key: string, per = true) => {
 for (const k of ['event-flip','event-mutiny','event-battle','event-loss','event-order','event-mission','event-war'])
   show(k.replace('event-','log: '), k);
 console.log('');
-for (const k of ['text-abduction','text-strike','text-rising','text-sabotage','text-creature','text-rescue','text-exchange','text-survey','text-research','text-recruit','text-blockade'])
+for (const k of ['text-abduction','text-rising','text-sabotage','text-creature','text-rescue','text-survey','text-research','text-recruit','text-blockade'])
   show(k.replace('text-',''), k);
 console.log('');
 for (const k of ['player-battle-rounds','battle-won','battle-lost','battle-they-fled','battle-you-fled','battle-beast-slain','battle-runaway','player-decisions','answered-home','answered-carry-on'])
@@ -94,8 +94,8 @@ if (orderKeys.length) {
 }
 
 const never = [
-  'text-abduction','text-strike','text-rising','text-sabotage','text-creature','text-rescue',
-  'text-exchange','text-survey','text-research','text-recruit','text-blockade',
+  'text-abduction','text-rising','text-sabotage','text-creature','text-rescue',
+  'text-survey','text-research','text-recruit','text-blockade',
   'battle-you-fled','battle-beast-slain','beast-slain-days',
 ].filter((k) => sum(k) === 0);
 if (never.length) console.log(`\n!! NEVER HAPPENED IN ${N} GAMES: ${never.join(', ')}`);

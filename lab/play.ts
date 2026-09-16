@@ -144,12 +144,10 @@ export function playGame(
       // Only the errand that worked: the line above also catches the briefing
       // that sets one off and the log line that ends the war.
       if (/ off the quay at /i.test(e.text)) bump('text-lifted');
-      if (/strikes her colours|struck/i.test(e.text)) bump('text-strike');
       if (/mutiny|rises|risen/i.test(e.text)) bump('text-rising');
       if (/sabotage|wrecked|burns the/i.test(e.text)) bump('text-sabotage');
       if (/creature|kraken|leviathan|serpent|beast/i.test(e.text)) bump('text-creature');
       if (/out of the cells|in the cells at/i.test(e.text)) bump('text-rescue');
-      if (/exchang/i.test(e.text)) bump('text-exchange');
       if (/survey|charted/i.test(e.text)) bump('text-survey');
       if (/research|craft|shipwright/i.test(e.text)) bump('text-research');
       if (/recruit|signs on|signed on/i.test(e.text)) bump('text-recruit');
