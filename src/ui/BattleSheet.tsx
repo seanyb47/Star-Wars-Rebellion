@@ -242,7 +242,7 @@ function HullRow({ faction, row }: { faction: PlayableFaction; row: BattleHulls 
   const hurt = row.whole - row.left;
   return (
     <div className="battle__hull">
-      <ShipThumb faction={faction} role={cls.role} size={24} />
+      <ShipThumb faction={faction} role={cls.role} cls={cls.id} size={24} />
       <span className="battle__hull-name">
         {row.count > 1 && <b>{row.count}× </b>}
         {cls.name}

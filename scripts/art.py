@@ -295,6 +295,29 @@ def retire(entry: dict) -> None:
     )
 
 
+def cmd_retire(args) -> None:
+    """Take a subject off the books.
+
+    Added 16 September, when the ships stopped being four-per-side by role and
+    became twenty-four by name: eight entries were left pointing at files that
+    no longer existed, and `check` could only say so, not fix it. A retired
+    subject keeps its master in `_retired/` — the whole point of the register is
+    that a change can be undone — and leaves the shipped file alone if one is
+    somehow still there.
+    """
+    data = load()
+    entry = data["assets"].get(args.key)
+    if entry is None:
+        sys.exit(f"nothing registered as {args.key!r}")
+    retire(entry)
+    ship = os.path.join(ROOT, entry["shipped"]["file"]) if entry.get("shipped") else None
+    if ship and os.path.exists(ship):
+        os.remove(ship)
+    del data["assets"][args.key]
+    save(data)
+    print(f"retired {args.key} (master kept in {os.path.relpath(RETIRED, ROOT)}/)")
+
+
 def cmd_add(args) -> None:
     if "/" not in args.key:
         sys.exit("key is folder/slug, e.g. scenes/battle or portraits/sable")
@@ -597,6 +620,10 @@ def main() -> None:
     l = sub.add_parser("list", help="every subject, painted or not")
     l.add_argument("--missing", action="store_true", help="only what is still owed")
     l.set_defaults(func=cmd_list)
+
+    rt = sub.add_parser("retire", help="drop a subject the game no longer has, keeping its master")
+    rt.add_argument("key", help="folder/slug")
+    rt.set_defaults(func=cmd_retire)
 
     sub.add_parser("check", help="does the register still match the disk?").set_defaults(func=cmd_check)
     sub.add_parser("doc", help="regenerate ASSETS.md").set_defaults(func=cmd_doc)

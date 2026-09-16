@@ -205,16 +205,43 @@ export type FacilityType =
  */
 export type ShipRole = 'small' | 'medium' | 'large' | 'transport';
 
-/** World bible section 6. Four classes a side, none needing research. */
+/** How far a side's shipwrights have got: nothing, then three grades. */
+export type ShipGrade = 0 | 1 | 2 | 3;
+
+/**
+ * Every hull in the game, from the Naval Art Master roster.
+ *
+ * Four a side can be laid down from the first morning; the rest wait on the
+ * shipwrights. The Crown improves families it already trusts and announces it
+ * with green sails — a **II** is the same design taken further, not a new one.
+ * The Confederacy has no II programme by rule, so where the Crown refines, it
+ * finds another answer: a corvette built round a boarding action, a whaler
+ * with the ice-frames still in her, a cruiser cut to one captain's taste.
+ */
 export type ShipClassId =
+  // --- Crown Imperium ---
   | 'kestrel'
+  | 'kestrel-ii'
   | 'razorback'
+  | 'razorback-ii'
+  | 'bulwark'
+  | 'vanguard'
+  | 'vanguard-ii'
   | 'sovereign'
+  | 'sovereign-ii'
+  | 'majestic'
   | 'fluyt'
+  | 'fluyt-ii'
+  // --- Free Confederacy ---
   | 'swift'
+  | 'cutlass'
   | 'tempest'
-  | 'reef'
+  | 'marauder'
+  | 'freebooter'
   | 'brig'
+  | 'reef'
+  | 'urskin-whaler'
+  | 'reefwalker'
   /** The Pirate Lords' ships. Legends: named in the lore, never on the water. */
   | 'harbor'
   | 'swallowtail'

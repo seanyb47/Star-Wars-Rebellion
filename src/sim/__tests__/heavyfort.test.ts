@@ -159,7 +159,7 @@ describe('the Heavy Fortress, as a second tier', () => {
     const yard = port.facilities.find(
       (f) => f.type === 'construction_yard' && f.owner === 'empire' && !f.building,
     )!;
-    expect(buildMenu(yard)).toContain('heavy_fort');
+    expect(buildMenu(yard, 3)).toContain('heavy_fort');
     // A wall needs no forest and no vein under it, unlike the earners.
     expect(buildError(state, yard.id, 'heavy_fort')).toBeNull();
   });

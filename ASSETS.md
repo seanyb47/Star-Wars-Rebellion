@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**98 of 103 painted.** 3334KB shipped, 10.7MB of masters kept back.
+**114 of 127 painted.** 3812KB shipped, 10.6MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -77,18 +77,36 @@ the head, cropped square out of the portrait; the medallion. 26 of 26.
 
 ## ships — 640×480
 
-three-quarter view, whole vessel, masts and waterline both in frame. 8 of 8.
+three-quarter view, whole vessel, masts and waterline both in frame. 24 of 32.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
-| Reef-class — Free Confederacy large | `alliance-large` | 1 | 52KB | 379×518, 102KB | 379×284 @ 0,117, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Tempest — Free Confederacy medium | `alliance-medium` | 1 | 51KB | 376×518, 96KB | 376×282 @ 0,118, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Swift — Free Confederacy small | `alliance-small` | 1 | 42KB | 376×518, 87KB | 376×282 @ 0,118, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Brig — Free Confederacy transport | `alliance-transport` | 1 | 45KB | 381×518, 88KB | 381×286 @ 0,116, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Sovereign — Crown Imperium large | `empire-large` | 1 | 51KB | 379×506, 95KB | 379×284 @ 0,111, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Razorback — Crown Imperium medium | `empire-medium` | 1 | 46KB | 376×506, 85KB | 376×282 @ 0,112, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Kestrel — Crown Imperium small | `empire-small` | 1 | 35KB | 376×506, 76KB | 376×282 @ 0,112, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Fluyt — Crown Imperium transport | `empire-transport` | 1 | 39KB | 381×506, 81KB | 381×286 @ 0,110, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| brig | `brig` | 1 | 31KB | 234×174, 21KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| bulwark | `bulwark` | 1 | 35KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| cutlass | `cutlass` | 1 | 34KB | 233×174, 23KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| fluyt | `fluyt` | 1 | 32KB | 233×174, 22KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| fluyt-ii | `fluyt-ii` | 1 | 32KB | 234×174, 23KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| free-harbor | `free-harbor` | 1 | 35KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| freebooter | `freebooter` | 1 | 36KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| ironback | `ironback` | 1 | 38KB | 234×174, 25KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| kestrel | `kestrel` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| kestrel-ii | `kestrel-ii` | 1 | 34KB | 233×174, 23KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| majestic | `majestic` | 1 | 34KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| marauder | `marauder` | 1 | 35KB | 234×174, 25KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| razorback | `razorback` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| razorback-ii | `razorback-ii` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| reef-class | `reef-class` | 1 | 42KB | 234×174, 26KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| reefwalker | `reefwalker` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| sovereign | `sovereign` | 1 | 33KB | 233×174, 23KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| sovereign-ii | `sovereign-ii` | 1 | 35KB | 234×174, 23KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| swallowtail | `swallowtail` | 1 | 31KB | 234×174, 22KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| swift | `swift` | 1 | 32KB | 234×174, 22KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| tempest | `tempest` | 1 | 34KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| urskin-whaler | `urskin-whaler` | 1 | 39KB | 233×174, 26KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| vanguard | `vanguard` | 1 | 34KB | 234×174, 23KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| vanguard-ii | `vanguard-ii` | 1 | 36KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+
+**Still owed (8):** `alliance-large`, `alliance-medium`, `alliance-small`, `alliance-transport`, `empire-large`, `empire-medium`, `empire-small`, `empire-transport`
 
 ## islands — 768×204
 
@@ -249,14 +267,30 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **portraits/wren-tally** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **portraits/wyatt-ansell** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **scenes/battle** — Delivered 1536x1024 (square-ish) rather than the 1024x432 banner shape; the shipped band is the middle of it. Crop recovered by matching the shipped file against the master, not recorded at the time — the reason this register now exists.
-- **ships/alliance-large** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
-- **ships/alliance-medium** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
-- **ships/alliance-small** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
-- **ships/alliance-transport** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
-- **ships/empire-large** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
-- **ships/empire-medium** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
-- **ships/empire-small** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
-- **ships/empire-transport** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **ships/brig** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/bulwark** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/cutlass** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/fluyt** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/fluyt-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/free-harbor** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/freebooter** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/ironback** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/kestrel** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/kestrel-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/majestic** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/marauder** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/razorback** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/razorback-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/reef-class** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/reefwalker** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/sovereign** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/sovereign-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/swallowtail** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/swift** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/tempest** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/urskin-whaler** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/vanguard** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/vanguard-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 
 ## Changing one
 

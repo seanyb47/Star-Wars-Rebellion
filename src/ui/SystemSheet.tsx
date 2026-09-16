@@ -15,6 +15,8 @@ import {
   smuggledOff,
   UPKEEP_PER_DAY,
   buildError,
+  gradeOf,
+  ANY_GRADE,
   buildingRank,
   clearError,
   depositsLeft,
@@ -201,7 +203,8 @@ function WorksCard({
 }) {
   // The one holding the order speaks for the island; failing that, the first.
   const holder = facilities.find((f) => f.building) ?? facilities[0];
-  const menu = buildMenu(holder);
+  // The real grade: a shipyard offers what this side's shipwrights can draw.
+  const menu = buildMenu(holder, gradeOf(state, state.player));
   const mine = holder.owner === state.player;
   const order = holder.building;
   const hands = crewOn(system, type, holder.owner);
@@ -446,7 +449,7 @@ export function SystemSheet({
   const producers = (() => {
     const byKind = new Map<FacilityType, Facility[]>();
     for (const f of system.facilities) {
-      if (f.owner !== state.player || f.founding || buildMenu(f).length === 0) continue;
+      if (f.owner !== state.player || f.founding || buildMenu(f, ANY_GRADE).length === 0) continue;
       byKind.set(f.type, [...(byKind.get(f.type) ?? []), f]);
     }
     return [...byKind].map(([type, facilities]) => ({ type, facilities }));

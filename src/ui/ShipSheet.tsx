@@ -53,7 +53,7 @@ export function ShipSheet({
       stacked
       banner={
         <div className="shipsheet__art">
-          <ShipThumb faction={fleet.faction} role={cls.role} size={132} />
+          <ShipThumb faction={fleet.faction} role={cls.role} cls={cls.id} size={132} />
         </div>
       }
     >

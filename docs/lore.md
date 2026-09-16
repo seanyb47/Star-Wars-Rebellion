@@ -289,49 +289,87 @@ _There are no fighters in these waters. A small craft is just a small ship, so e
 
 **Two rules govern every hull,** from the Naval Art Master. A ship has one longitudinal centreline, and keel, hull, gundecks, bow, stern and bowsprit all align to it — no cinematic angle justifies a bow that has been turned sideways. And a player should know a ship by her silhouette before reading her name: strip the colour, the flags and the name away and hull, bow, stern, masts, sail plan and signature structure should still say which one she is.
 
-### The eight the game builds
+### The fleet, and what it takes to build it
 
-These are the hulls a shipyard can lay down today, four a side, and everything below this heading is one of them.
+Four hulls a side can be laid down on the first morning. Everything else waits
+on the shipwrights: an officer set to **research** at a loyal island with a
+yard adds craft, and each of the three grades opens designs the grade before
+could not draw. Sean's ruling, 16 September: *"They are all building but better
+units require r&d. Like in SWRebellion."*
 
-### The Crown Imperium
+**The two sides climb differently, and that is the point.** The Crown improves
+families it already trusts — a **II** is the same design taken further, and she
+announces herself with deep Imperial-green sails — so its ladder is long and
+ends very high: three ships at the top grade, one of them the largest thing
+either navy can build. The Confederacy has no II programme by rule, so it opens
+broader instead. It is the only side with a superheavy on day one, and where
+the Crown refines, it finds another answer: a corvette built round a boarding
+action, a whaler with the ice-frames still in her, a cruiser cut to one
+captain's taste. One long climb against one broad start.
 
-- **Sovereign** (large). A first-rate of the line, built straight and coppered to the waterline. Nothing afloat hits harder or takes more killing. Slow to arrive anywhere.
-- **Razorback** (medium). A heavy frigate. Cheap for what it carries, quick enough to be useful, and outmatched by anything of the line.
-- **Kestrel** (small). A sloop-of-war. The fastest thing the Crown puts to sea and the first to sink. Good for closing a harbor cheaply.
-- **Fluyt** (transport). An unarmed merchantman pressed into service. Carries more companies than anything else and cannot defend itself at all.
+**Craft** is the grade needed; **Wall** is what the hull throws at stone rather
+than at another ship; **Lift** is companies carried.
 
-### The Free Confederacy
+#### The Crown Imperium
 
-- **Reef-class** (large). Grown, not built — a living coral hull the Reef-folk sing into shape over years. No two alike. Enormous, and in no hurry.
-- **Tempest** (medium). A frigate patched together out of three others. Not pretty. Holds its own against anything short of a ship of the line.
-- **Swift** (small). A schooner, stolen and re-rigged. Outruns everything on the water and comes apart if anything catches it.
-- **Brig** (transport). A blunt-nosed hauler. No guns worth the name, but it lands companies where they are wanted.
+| Hull | Size | Craft | Gold | Days | Guns | Hull | Wall | Lift |
+|---|---|---|---|---|---|---|---|---|
+| **Kestrel** | Small | — | 45 | 8 | 8 | 9 | 1 | 0 |
+| **Razorback** | Medium | — | 85 | 14 | 18 | 17 | 5 | 1 |
+| **Sovereign** | Large | — | 150 | 22 | 30 | 32 | 14 | 2 |
+| **Fluyt** | Transport | — | 55 | 10 | 0 | 14 | 0 | 3 |
+| **Bulwark** | Medium | 1 | 110 | 18 | 14 | 28 | 6 | 1 |
+| **Kestrel II** | Small | 1 | 65 | 10 | 11 | 13 | 1 | 0 |
+| **Vanguard** | Large | 2 | 165 | 22 | 28 | 26 | 10 | 2 |
+| **Razorback II** | Medium | 2 | 115 | 17 | 23 | 22 | 5 | 1 |
+| **Fluyt II** | Transport | 2 | 80 | 13 | 0 | 20 | 0 | 4 |
+| **Vanguard II** | Large | 3 | 200 | 26 | 35 | 31 | 12 | 2 |
+| **Sovereign II** | Large | 3 | 230 | 30 | 38 | 42 | 18 | 2 |
+| **Majestic** | Large | 3 | 300 | 38 | 46 | 55 | 24 | 3 |
+
+#### The Free Confederacy
+
+| Hull | Size | Craft | Gold | Days | Guns | Hull | Wall | Lift |
+|---|---|---|---|---|---|---|---|---|
+| **Swift** | Small | — | 45 | 8 | 7 | 8 | 1 | 0 |
+| **Tempest** | Medium | — | 85 | 14 | 16 | 19 | 5 | 1 |
+| **Brig** | Transport | — | 55 | 10 | 0 | 14 | 0 | 3 |
+| **Reef-class** | Large | — | 150 | 24 | 30 | 38 | 18 | 2 |
+| **Cutlass** | Small | 1 | 70 | 11 | 14 | 11 | 2 | 1 |
+| **Reefwalker** | Small | 1 | 50 | 8 | 5 | 7 | 0 | 0 |
+| **Marauder** | Medium | 2 | 105 | 15 | 22 | 16 | 4 | 1 |
+| **Urskin Whaler** | Medium | 2 | 120 | 18 | 18 | 30 | 9 | 2 |
+| **Freebooter** | Large | 3 | 235 | 30 | 40 | 40 | 16 | 2 |
+
+Measured over twenty-four wars with the roster in: twelve wins each and not one
+war left unfinished, which is a better answer than the eight hulls gave.
 
 #### The Pirate Lords' ships
 
-**The *Free Harbor*.** Commodore-Elect Adaira Hale's ship, and the Confederacy's floating parliament. Corwin Calloway's old coral-grown three-decker, named for what he meant her to be: any deck of his was a free harbor to anyone the Crown wanted. The Moot sits on her quarterdeck. Wherever she lies at anchor the island comes round to the Confederacy a point a day, and she is home to anyone coming back from a parley.
+Three hulls are named in the stories and never put on the water. When the Lords
+became people rather than ships, their ships became lore: nothing builds them,
+nothing sails them, nothing fights them, and they are here so a name in a bio
+resolves to something with prose attached.
 
-**The *Swallowtail*.** Captain Silas Reyne's coral-grown sloop, which should not be as fast as she is. Faster than anything afloat, and the last thing in a harbor the enemy's guns can find: while another Confederate hull floats beside her, she is not hit.
+**The *Free Harbor*.** Commodore-Elect Adaira Hale's ship, and the Confederacy's
+floating parliament — Corwin Calloway's old coral-grown three-decker, named for
+what he meant her to be: any deck of his was a free harbor to anyone the Crown
+wanted.
 
-**The *Ironback*.** The Crown dreadnought Admiral Dorian Jessup took with him when he left the Imperium's service. The heaviest guns on the water, and every Confederate fleet lying in her harbor fights under his command. She is the captured-ship rule made flesh: **Imperial bones, visibly** — the hull, the gundecks and the stern are Highwater's work and always will be — under Confederate weathering, crimson accents, Confederate colours and a decade of improvised modification.
+**The *Swallowtail*.** Captain Silas Reyne's coral-grown sloop, which should not
+be as fast as she is.
+
+**The *Ironback*.** The Crown dreadnought Admiral Dorian Jessup took with him
+when he left the Imperium's service. She is the captured-ship rule made flesh:
+**Imperial bones, visibly** — the hull, the gundecks and the stern are
+Highwater's work and always will be — under Confederate weathering, crimson
+accents and a decade of improvised modification.
 
 #### The captured-ship rule
 
-A prize keeps the structural DNA of whoever built her and takes on the visible modifications of whoever holds her now. She is never repainted into the other side's shipwright tradition, because the tradition is in the timber.
-
-### The fleet beyond the game
-
-*(Naval Art Master. Twenty-four hulls are being painted; the game builds eight of them. Recorded here so the lore and the art do not drift apart, and so nobody mistakes a proposed design for something the fiction has always said.)*
-
-**The Crown builds in families and improves them.** A **II** is a deliberate next generation of a hull the Admiralty already trusts — the same family, refined — and she announces herself with deep Imperial-green sails. There is no Confederate equivalent: where the Crown improves a design, the Confederacy finds a different answer to the same problem.
-
-| | Crown Imperium | Free Confederacy |
-|---|---|---|
-| **Canonical** — named in this document | Sovereign, Razorback, Kestrel, Fluyt | Reef-class, Tempest, Swift, Brig, *Free Harbor*, *Swallowtail*, *Ironback* |
-| **Proposed** — designed from the lore, not named by it | Bulwark, Vanguard, Majestic | Cutlass, Marauder, Freebooter, Urskin Whaler, Reefwalker |
-| **II generations** | Kestrel II, Razorback II, Vanguard II, Sovereign II, Fluyt II | *(none — by rule)* |
-
-A proposed hull is not a lie, but it is not scripture either: it may be promoted by being written into this document, and until then nothing should claim the lore names it.
+A prize keeps the structural DNA of whoever built her and takes on the visible
+modifications of whoever holds her now. She is never repainted into the other
+side's shipwright tradition, because the tradition is in the timber.
 
 ### The walls: Fortress and Heavy Fortress
 

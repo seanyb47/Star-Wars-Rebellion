@@ -61,20 +61,41 @@ function put(
 }
 
 describe('ship classes', () => {
-  it('balances the two fleets identically, role for role', () => {
-    for (const role of ['small', 'medium', 'large', 'transport'] as const) {
-      const empire = shipSpec(
-        (['sovereign', 'razorback', 'kestrel', 'fluyt'] as ShipClassId[]).find(
-          (id) => shipClass(id).role === role,
-        )!,
+  it('opens the two fleets even in weight without making them the same ships', () => {
+    // Mirror images until 16 September, when the Naval Art Master's roster
+    // arrived and the two navies stopped being one navy in two colours: the
+    // Crown builds straight and heavy, the Confederacy builds fast and odd.
+    // What has to stay true is that neither opening is worth more than the
+    // other — so the four day-one hulls a side are compared by total weight
+    // rather than hull by hull.
+    const OPENING: Record<PlayableFaction, ShipClassId[]> = {
+      empire: ['sovereign', 'razorback', 'kestrel', 'fluyt'],
+      alliance: ['reef', 'tempest', 'swift', 'brig'],
+    };
+    const weigh = (ids: ShipClassId[]) =>
+      ids.reduce(
+        (n, id) => {
+          const s = shipSpec(id);
+          return {
+            guns: n.guns + s.guns,
+            hull: n.hull + s.hull,
+            gold: n.gold + s.costGold,
+            carries: n.carries + s.carries,
+          };
+        },
+        { guns: 0, hull: 0, gold: 0, carries: 0 },
       );
-      const alliance = shipSpec(
-        (['reef', 'tempest', 'swift', 'brig'] as ShipClassId[]).find(
-          (id) => shipClass(id).role === role,
-        )!,
-      );
-      expect({ ...empire, label: '' }).toEqual({ ...alliance, label: '' });
+    const crown = weigh(OPENING.empire);
+    const confed = weigh(OPENING.alliance);
+    // Within a tenth on every count: different ships, the same opening.
+    for (const key of ['guns', 'hull', 'gold', 'carries'] as const) {
+      const ratio = crown[key] / confed[key];
+      expect(ratio, `${key} ${crown[key]} vs ${confed[key]}`).toBeGreaterThan(0.9);
+      expect(ratio, `${key} ${crown[key]} vs ${confed[key]}`).toBeLessThan(1.1);
     }
+    // And they really are different ships, or the rule above is vacuous.
+    expect(shipSpec('razorback').guns).not.toBe(shipSpec('tempest').guns);
+    expect(shipSpec('reef').pace).not.toBe(shipSpec('sovereign').pace);
   });
 
   it('makes every size good at something and bad at something', () => {
@@ -515,7 +536,7 @@ describe('officers', () => {
     // The same battle twice, once with a good officer aboard and once without.
     // Measure what the enemy has left, not the damage on it: a sunk ship is
     // removed, so counting damage reads zero exactly when you hurt them most.
-    const hullLeft = (withOfficer: boolean) => {
+    const hullLeft = (withOfficer: boolean, seed: number) => {
       const { state, home } = setup(21);
       // Highwater's own batteries fire for whoever holds it, and forty guns a
       // round drown out what an officer aboard is worth. The question here is
@@ -529,13 +550,26 @@ describe('officers', () => {
         crew.leadership = 100;
         board(state, mine.id, crew.id, 'empire');
       }
-      const rng = createRng(4);
+      const rng = createRng(seed);
       for (let i = 0; i < 2; i++) advanceFleets(state, rng);
       return state.fleets
         .filter((f) => f.faction === 'alliance')
-        .reduce((n, f) => n + f.ships.reduce((h, s) => h + (SHIP_ROLES.large.hull - s.damage), 0), 0);
+        // Each hull's own number, not the size's: a Reef-class carries more
+        // frame than a large hull generally does, and reading the size's
+        // figure off her made this count nonsense.
+        .reduce(
+          (n, f) => n + f.ships.reduce((h, s) => h + (shipSpec(s.classId).hull - s.damage), 0),
+          0,
+        );
     };
-    expect(hullLeft(true)).toBeLessThan(hullLeft(false));
+    // Over a spread of seeds, not one. A fleet action is two or three rounds of
+    // dice and an officer is a thumb on the scale, not a guarantee — on any
+    // single seed the thumb loses often enough that asserting it never does
+    // is asserting the dice. Ten actions is enough to see the thumb.
+    const SEEDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const led = SEEDS.reduce((n, seed) => n + hullLeft(true, seed), 0);
+    const unled = SEEDS.reduce((n, seed) => n + hullLeft(false, seed), 0);
+    expect(led, `led ${led} vs unled ${unled}`).toBeLessThan(unled);
   });
 
   it('makes combat tell in a landing', () => {

@@ -525,11 +525,33 @@ export interface ShipClass {
    * bio resolves to something with prose attached.
    */
   legend?: true;
-  /** Numbers of its own, over the size's. */
+  /**
+   * The research grade a side must have reached before a yard will lay one
+   * down. Absent means day one.
+   *
+   * Sean's ruling, 16 September: *"They are all building but better units
+   * require r&d. Like in SWRebellion."* Rebellion gates its better hulls
+   * behind a research track run by people rather than by a build queue, and
+   * that is what the craft ladder here already was — it simply had nothing to
+   * unlock, and made hulls cheaper and quicker instead. Now it has something.
+   */
+  craft?: 1 | 2 | 3;
+  /**
+   * Numbers of its own, over the size's.
+   *
+   * A role is a starting point, not a straitjacket: a Bulwark is a medium with
+   * half again the hull and four fewer guns, a Marauder is a medium that hits
+   * like one and folds like a sloop. Anything not stated here is the role's.
+   */
   hull?: number;
   guns?: number;
   pace?: number;
   carries?: number;
+  costGold?: number;
+  days?: number;
+  upkeep?: number;
+  speed?: number;
+  bombard?: number;
 }
 
 /**
@@ -604,16 +626,30 @@ export function isShipClass(item: BuildItem): item is ShipClassId {
 export function shipSpec(id: ShipClassId): ShipRoleSpec {
   const cls = shipClass(id);
   const spec = { ...SHIP_ROLES[cls.role], label: cls.name };
-  if (cls.hull) spec.hull = cls.hull;
-  if (cls.guns !== undefined) spec.guns = cls.guns;
-  if (cls.pace !== undefined) spec.pace = cls.pace;
-  if (cls.carries !== undefined) spec.carries = cls.carries;
+  for (const key of ['hull', 'guns', 'pace', 'carries', 'costGold', 'days', 'upkeep', 'speed', 'bombard'] as const) {
+    const own = cls[key];
+    if (own !== undefined) spec[key] = own;
+  }
   return spec;
 }
 
-/** Hulls a faction can lay down without research. */
+/** What grade of shipwright craft this hull waits on. Nothing, for most. */
+export function craftNeeded(id: ShipClassId): number {
+  return shipClass(id).craft ?? 0;
+}
+
+/**
+ * Every hull a faction has designs for, research or no research.
+ *
+ * `shipsAt` is what a yard will actually take an order for today.
+ */
 export function shipsFor(faction: PlayableFaction): ShipClass[] {
   return SHIP_CLASSES.filter((c) => c.faction === faction && !c.legend);
+}
+
+/** The hulls a side can lay down at a given grade of craft. */
+export function shipsAt(faction: PlayableFaction, grade: number): ShipClass[] {
+  return shipsFor(faction).filter((c) => (c.craft ?? 0) <= grade);
 }
 
 export function buildSpec(item: BuildItem): BuildSpec {

@@ -79,7 +79,7 @@ function ShipRow({
         <span className="shiprow__box" aria-hidden="true">
           {pick.on ? '☑' : '☐'}
         </span>
-        <ShipThumb faction={faction} role={cls.role} size={112} />
+        <ShipThumb faction={faction} role={cls.role} cls={cls.id} size={112} />
         <span className="shiprow__text">
           <span className="shiprow__name">
             {grouped && ships.length > 1 && <b className="shiprow__n">{ships.length}×</b>}
@@ -117,7 +117,7 @@ function ShipRow({
         </span>
       )}
       <button className="shiprow__tap" onClick={onOpen} aria-label={`${cls.name} — details`}>
-        <ShipThumb faction={faction} role={cls.role} size={112} />
+        <ShipThumb faction={faction} role={cls.role} cls={cls.id} size={112} />
         {/* Name over figures rather than beside them. With the painting at the
             size Sean asked for there is no longer a row's width to put a name,
             a hull count and a gun count side by side in. */}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import {
+  ANY_GRADE,
   buildMenu,
   controlTally,
   freeSlots,
@@ -68,7 +69,7 @@ function buildAnswers(state: GameState): Answer[] {
   const canBuild = held.filter(
     (s) =>
       !s.uprising &&
-      s.facilities.some((f) => f.owner === you && buildMenu(f).length > 0) &&
+      s.facilities.some((f) => f.owner === you && buildMenu(f, ANY_GRADE).length > 0) &&
       freeSlots(s) > 0,
   );
   const idle = state.characters.filter((c) => c.faction === you && c.status === 'available');

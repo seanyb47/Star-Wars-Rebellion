@@ -48,6 +48,7 @@ import {
   wallGuns,
   wallStrength,
   YARD_BUILDABLE,
+  gradeOf,
 } from '../sim';
 import {
   CategoryIcon,
@@ -640,19 +641,38 @@ export function Almanac({
           all units and this was the one category with none: the hulls were
           four lines under the battle rules and the cost, the upkeep, the lift
           and the weight against a wall were nowhere at all. */}
-      <div className="section-title">The four hulls</div>
+      <div className="section-title">Every hull</div>
+      <p className="tiny muted" style={{ margin: '0 0 8px' }}>
+        Four a side can be laid down from the first morning. The rest wait on
+        the shipwrights: put an officer on research at a loyal island with a
+        yard, and each grade of craft opens what the grade before could not
+        draw. The Crown improves families it already trusts — a <b>II</b> is
+        the same design taken further — and the Confederacy, which has no such
+        programme, answers with different ships instead.
+      </p>
       <div className="stack">
         {shipsFor(state.player).map((cls) => {
           const spec = shipSpec(cls.id);
           return (
             <div key={cls.id} id={`enc-${cls.id}`} className="card">
               <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
-                <ShipThumb faction={state.player} role={cls.role} size={140} />
+                <ShipThumb faction={state.player} role={cls.role} cls={cls.id} size={140} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="row row--between">
                     <b>{cls.name}</b>
                     <span className="tiny muted">
                       <GoldFig n={spec.costGold} per={null} /> · {spec.days}d
+                    </span>
+                  </div>
+                  <div className="row row--between">
+                    <span className="tiny">
+                      {cls.craft ? (
+                        <b className="enc-craft">
+                          Craft {cls.craft} — {gradeOf(state, state.player) >= cls.craft ? 'researched' : 'not yet'}
+                        </b>
+                      ) : (
+                        <span className="muted">Buildable from day one</span>
+                      )}
                     </span>
                   </div>
                   <div className="tiny" style={{ marginTop: 2 }}>
@@ -767,7 +787,7 @@ export function Almanac({
           const spec = shipSpec(cls.id);
           return (
             <div key={cls.id} className="card row" style={{ gap: 10, alignItems: 'center' }}>
-              <ShipThumb faction={state.player} role={cls.role} size={30} />
+              <ShipThumb faction={state.player} role={cls.role} cls={cls.id} size={30} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="row row--between">
                   <b className="small">{cls.name}</b>

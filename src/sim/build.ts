@@ -2,7 +2,9 @@ import terms from '../data/terms.json';
 import {
   buildLabel,
   isShipClass,
-  shipsFor,
+  shipsAt,
+  shipClass,
+  craftNeeded,
   YARD_BUILDABLE,
   YARD_BUILDS,
   buildSpec,
@@ -31,6 +33,7 @@ import type {
   GameState,
   PlayableFaction,
   ResourceType,
+  ShipGrade,
   System,
 } from './types';
 
@@ -109,14 +112,41 @@ export function busyAt(
 }
 
 /** What a given facility is allowed to queue (spec 4.4). */
-export function buildMenu(facility: Facility): BuildItem[] {
+/**
+ * What this works will take an order for.
+ *
+ * `grade` is the side's shipwright craft, and it only ever matters to a
+ * shipyard: the better hulls are designs nobody on this side can build yet.
+ *
+ * Deliberately not optional. It was, for about an hour, defaulting to nothing
+ * researched — and two call sites forgot it, so the opponent picked a hull its
+ * grade allowed, checked it against a menu that pretended it had researched
+ * nothing, found it missing and quietly skipped every shipyard it owned.
+ * Seventy-eight thousand gold, seven slipways and not one hull in the water.
+ * Callers that only want to know whether a works has anything at all to do
+ * pass `ANY_GRADE` and say so.
+ */
+export function buildMenu(facility: Facility, grade: ShipGrade): BuildItem[] {
   if (facility.type === 'construction_yard') return [...YARD_BUILDABLE];
   if (facility.type === 'training_facility') return ['troop'];
   if (facility.type === 'shipyard' && isPlayable(facility.owner)) {
-    return shipsFor(facility.owner).map((c) => c.id);
+    return shipsAt(facility.owner, grade).map((c) => c.id);
   }
   return [];
 }
+
+/** The side's shipwright craft, as a grade, for a build menu. */
+export function gradeOf(state: GameState, faction: PlayableFaction): ShipGrade {
+  return craftGrade(state.factions[faction].craft) as ShipGrade;
+}
+
+/**
+ * For the callers asking "has this works anything left to do at all" rather
+ * than "may this side order that hull today" — the idle marks on the chart,
+ * the advisor's nagging, the panel's empty state. Everything, so the answer
+ * is about the works and not about the research.
+ */
+export const ANY_GRADE: ShipGrade = 3;
 
 /**
  * What an order actually costs this side today, craft included.
@@ -226,7 +256,16 @@ export function buildError(
   if (!found) return 'No such building.';
   const { system, facility } = found;
   if (!isPlayable(facility.owner)) return 'That facility is not yours.';
-  if (!buildMenu(facility).includes(item)) return 'This building cannot make that.';
+  const grade = gradeOf(state, facility.owner);
+  if (!buildMenu(facility, grade).includes(item)) {
+    // Told apart on purpose: a shipyard that cannot build a Sovereign II yet
+    // is a different problem from a training ground being asked for a hull,
+    // and the first one has an answer — put somebody on the research.
+    if (isShipClass(item) && shipClass(item).faction === facility.owner) {
+      return `${shipClass(item).name} needs ${craftNeeded(item)} ${craftNeeded(item) === 1 ? 'grade' : 'grades'} of shipwright craft.`;
+    }
+    return 'This building cannot make that.';
+  }
   // One job of a kind at a time, per island — not per works. The rest of the
   // island's yards of that kind are not idle hands to give another job to;
   // they are already on this one, which is why it goes faster.
@@ -350,7 +389,7 @@ export function planBuild(
   // stable, and `crewOn` counts the others.
   const seen = new Set<string>();
   const makers = producerFacilities(state, faction).filter(({ system, facility }) => {
-    if (facility.founding || !buildMenu(facility).includes(item)) return false;
+    if (facility.founding || !buildMenu(facility, gradeOf(state, faction)).includes(item)) return false;
     if (seen.has(system.id)) return false;
     seen.add(system.id);
     return true;
@@ -644,7 +683,7 @@ export function producerFacilities(state: GameState, faction: PlayableFaction) {
   for (const system of state.systems) {
     if (system.control !== faction) continue;
     for (const facility of system.facilities) {
-      if (facility.owner === faction && buildMenu(facility).length > 0) {
+      if (facility.owner === faction && buildMenu(facility, ANY_GRADE).length > 0) {
         out.push({ system, facility });
       }
     }

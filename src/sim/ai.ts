@@ -27,7 +27,7 @@ import {
   AI_KEEP_TIMBER,
   YARD_BUILDS,
   shipSpec,
-  shipsFor,
+  shipsAt,
 } from './constants';
 import {
   buildMenu,
@@ -36,6 +36,7 @@ import {
   clearForest,
   foundWorks,
   foundWorksError,
+  gradeOf,
   openDeposits,
   planBuild,
   queueBuild,
@@ -375,7 +376,7 @@ function bestSpotFor(
     if (worth < 1) continue;
     for (const facility of system.facilities) {
       if (facility.owner !== ai || facility.building) continue;
-      if (!buildMenu(facility).includes(item)) continue;
+      if (!buildMenu(facility, gradeOf(state, ai)).includes(item)) continue;
       if (!canQueueBuild(state, facility.id, item)) continue;
       if (!best || worth > best.worth) best = { facilityId: facility.id, worth };
     }
@@ -682,7 +683,13 @@ function aiConsolidate(state: GameState, ai: PlayableFaction): void {
 /** One hull at a time, and never at the expense of the economy. */
 function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
   if (state.factions[ai].gold < AI_SHIP_RESERVE) return;
-  const classes = shipsFor(ai);
+  // What its shipwrights can actually draw, not what the side has names for.
+  // This list is sorted by cost and the dearest affordable hull is picked, so
+  // handing it the whole roster had it ordering a Majestic on day one, being
+  // refused by `buildError` every time, and never putting a hull in the water
+  // again — two seeds that had always finished stopped finishing at all.
+  const grade = gradeOf(state, ai);
+  const classes = shipsAt(ai, grade);
   const afloat = fleetsOf(state, ai).flatMap((f) => f.ships);
   // Keep roughly two fighting hulls to every transport.
   const transports = afloat.filter((s) => s.classId === classes.find((c) => c.role === 'transport')!.id);
@@ -746,7 +753,7 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
     if (system.control !== ai || system.uprising) continue;
     for (const facility of system.facilities) {
       if (facility.type !== 'shipyard' || facility.owner !== ai || facility.building) continue;
-      if (!buildMenu(facility).includes(pick.id)) continue;
+      if (!buildMenu(facility, grade).includes(pick.id)) continue;
       if (!canQueueBuild(state, facility.id, pick.id)) continue;
       if (laid > 0 && state.factions[ai].gold < AI_RICH + shipSpec(pick.id).costGold) return;
       if (laid > 0 && surplus(state, ai) - UPKEEP_PER_DAY[pick.id] < AI_SURPLUS_MARGIN) return;

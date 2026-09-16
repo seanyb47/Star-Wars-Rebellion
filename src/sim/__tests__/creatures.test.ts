@@ -10,6 +10,7 @@ import {
   woundBeast,
   stirBeasts,
 } from '../creatures';
+import { shipSpec } from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { advanceDay } from '../advanceDay';
 import { createRng } from '../rng';
@@ -137,12 +138,20 @@ describe('a creature in the harbor', () => {
 
   it('fires on a fleet lying there with nobody else in sight', () => {
     const { state, target, fleet } = standoff();
-    const before = fleet.ships.reduce((n, s) => n + s.damage, 0);
+    // Hull still floating, not damage dealt: a hull beaten to nothing is
+    // removed from the fleet, so counting damage reads zero exactly when the
+    // beast did its worst. This bit the test the day the hulls stopped all
+    // being the size's own number and a sloop lost a point of frame.
+    const afloat = (st: typeof state) =>
+      st.fleets
+        .filter((f) => f.id === fleet.id)
+        .reduce(
+          (n, f) => n + f.ships.reduce((m, s) => m + (shipSpec(s.classId).hull - s.damage), 0),
+          0,
+        );
+    const before = afloat(state);
     resolveBattles(state, createRng(7));
-    const after = state.fleets
-      .filter((f) => f.id === fleet.id)
-      .reduce((n, f) => n + f.ships.reduce((m, s) => m + s.damage, 0), 0);
-    expect(after).toBeGreaterThan(before);
+    expect(afloat(state)).toBeLessThan(before);
     expect(state.events.some((e) => e.kind === 'battle' && e.systemId === target.id)).toBe(true);
   });
 

@@ -1564,13 +1564,24 @@ export function CreaturePainting({
 export function ShipThumb({
   faction,
   role,
+  cls,
   size = 46,
 }: {
   faction: 'empire' | 'alliance';
   role: 'small' | 'medium' | 'large' | 'transport';
+  /**
+   * The hull's own id, which is what the paintings are named by now.
+   *
+   * There were eight ship paintings — one per size per side — and twenty-one
+   * hulls arrived on 16 September, so a Razorback and a Bulwark can no longer
+   * share a picture on the grounds that both are medium. `role` stays as the
+   * fallback for the drawn glyph and for anything asking before it knows which
+   * class it has.
+   */
+  cls?: string;
   size?: number;
 }) {
-  const painting = paintedShip(`${faction}-${role}`);
+  const painting = (cls ? paintedShip(cls) : undefined) ?? paintedShip(`${faction}-${role}`);
   if (!painting) return <ShipIcon role={role} size={size * 0.6} />;
   // 4:3, at Sean's word, and the same shape the paintings are delivered in —
   // the box used to be 1:0.82 against a 3:4 painting and threw away 39% of

@@ -6,7 +6,7 @@ import {
   roomBand,
   type MarkSize,
 } from './constants';
-import { buildMenu } from './build';
+import { ANY_GRADE, buildMenu } from './build';
 import { islandIncome } from './economy';
 import { freeSlots } from './helpers';
 import { fleetsAt, isAtSea } from './fleets';
@@ -182,7 +182,7 @@ export function idleFacilities(
 ): number {
   if (system.control !== faction || system.uprising) return 0;
   const ofKind = system.facilities.filter(
-    (f) => f.owner === faction && f.type === type && buildMenu(f).length > 0,
+    (f) => f.owner === faction && f.type === type && buildMenu(f, ANY_GRADE).length > 0,
   );
   if (ofKind.some((f) => f.building)) return 0;
   return ofKind.filter((f) => !f.founding).length;

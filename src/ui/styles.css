@@ -1965,3 +1965,6 @@ button.tcard:hover { border-color: var(--brass); }
 
 /* A company's figure in the encyclopedia, at a size you can actually read. */
 .company__thumb { flex: none; width: 76px; display: grid; place-items: center; }
+
+/* A hull the shipwrights have not reached yet, in the encyclopedia. */
+.enc-craft { color: var(--metal-hi); letter-spacing: 0.02em; }
