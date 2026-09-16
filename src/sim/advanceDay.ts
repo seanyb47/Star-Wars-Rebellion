@@ -6,8 +6,8 @@ import { stirBeasts } from './creatures';
 import { advanceFleets, advanceSieges, clearWrecks, repairOvernight, updateBlockades } from './fleets';
 import { allLordsTaken, holdTheMoot, syncHome } from './lords';
 import { collectIncome, payUpkeep, recomputeLedger } from './economy';
-import { cloneState, pushEvent } from './helpers';
-import { advanceMissions, syncMissionParties } from './missions';
+import { cloneState, getSystem, otherFaction, pushEvent } from './helpers';
+import { advanceMissions, syncMissionParties, takePrisoner } from './missions';
 import { createRng } from './rng';
 import {
   driftSupport,
@@ -80,6 +80,7 @@ export function advanceDay(state: GameState): GameState {
   // evening — to drift, to a rising, or to the opponent's own landing after
   // the ledger was cut — leaving home sitting on Crown ground until morning.
   syncHome(next);
+  roundUpTheLandless(next);
   checkVictory(next);
 
   next.rngSeed = rng.seed;
@@ -87,6 +88,48 @@ export function advanceDay(state: GameState): GameState {
     next.events = next.events.slice(next.events.length - MAX_EVENTS);
   }
   return next;
+}
+
+/**
+ * Nowhere left to stand.
+ *
+ * Sean, on a landing taking everyone ashore: *"effectively capturing all
+ * islands means you captured all lords."* It did not, and the gap was a war
+ * that could not be ended. Measured, seed 11021: on day 2,301 the Crown held
+ * all sixty-three islands in the world, and the Confederacy — with no ground,
+ * no harbor, no hull and no income — still had two Lords at large, walking
+ * from one Crown island to the next stirring up revolts, while a fourth
+ * officer broke the third out of the cells at Highwater as fast as the Crown
+ * could put him back in. Nothing in the rules could finish it, because the
+ * only thing that removes a person is a landing and there was nothing left to
+ * land on.
+ *
+ * So this is the consequence of Sean's sentence rather than a new rule beside
+ * it: a side that holds no island at all has nowhere to put anybody, and
+ * everyone of theirs still at large is taken where they stand. The victory
+ * check below then reads exactly as it always has — all three Lords in irons
+ * — and the war ends for the reason it had already been won.
+ *
+ * Deliberately symmetric, though only one side can reach it: were the Crown
+ * ever to hold nothing, Highwater would have fallen and the war would be over
+ * on the line above anyway.
+ */
+function roundUpTheLandless(state: GameState): void {
+  for (const side of ['empire', 'alliance'] as const) {
+    if (state.systems.some((s) => s.control === side)) continue;
+    const taker = otherFaction(side);
+    for (const person of state.characters) {
+      if (person.faction !== side || person.status === 'captured') continue;
+      takePrisoner(state, person, taker);
+      pushEvent(state, {
+        kind: 'loss',
+        text: `${person.name} is taken up on ${
+          getSystem(state, person.locationSystemId).name
+        }. There is no harbor left anywhere that will have them.`,
+        characterId: person.id,
+      });
+    }
+  }
 }
 
 /**

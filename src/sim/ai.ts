@@ -240,7 +240,25 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
   const countOf = (type: FacilityType) =>
     held.reduce((n, s) => n + s.facilities.filter((f) => f.owner === ai && f.type === type).length, 0);
   const wanted: FacilityType[] = [];
-  if (countOf('training_facility') < 2) wanted.push('training_facility');
+  /**
+   * Drill grounds, and why two was never enough.
+   *
+   * A company can only be raised where a drill ground stands, and it stays on
+   * that island: two of them for the whole faction is two islands that can
+   * ever put a company in the field. A side that conquers widely then cannot
+   * keep conquering, because every island it takes holds the one company its
+   * allegiance asks for and can spare nothing — measured, a Crown that had
+   * taken fifty-six islands of sixty-three sat on seventy-seven hulls in
+   * three squadrons with not one company aboard any of them, facing seven
+   * Confederate islands most of which had no wall at all. The war was over
+   * and could not be ended.
+   *
+   * One for every six islands, which keeps the early game as it was and lets
+   * a big holding raise what it needs to use it.
+   */
+  const drills = countOf('training_facility');
+  if (drills < 2 || (drills * 6 < held.length && gold > AI_RICH))
+    wanted.push('training_facility');
   /**
    * Slipways, and how many is enough.
    *
@@ -1016,6 +1034,41 @@ function aiLoadAndSail(state: GameState, fleet: Fleet, ai: PlayableFaction): voi
     const take = Math.min(room, sparedCompanies(here, state));
     if (take > 0 && embarkError(state, fleet.id, take, ai) === null) {
       embark(state, fleet.id, take, ai);
+    }
+  }
+
+  /**
+   * Nothing aboard: go where there are companies before going where they are
+   * wanted.
+   *
+   * A squadron loads what the island it is lying at can spare and then sails
+   * at the enemy whether or not it loaded anything, which works while a side
+   * is small and fails the moment it is large: a Crown holding fifty-five
+   * islands keeps a company on every one of them to stay quiet and can spare
+   * nothing anywhere, so measured, it finished wars with forty-two hulls in
+   * six squadrons, a hundred and seven companies ashore, and not one company
+   * at sea — cruising past eight Confederate islands, five of them without a
+   * wall, unable to land on any of them. The war was over and could not be
+   * ended.
+   *
+   * The Confederacy already staged its one strike this way, gathering at the
+   * island with the most to spare. This is the same habit for everybody:
+   * ones and twos from a dozen quiet islands are a landing party, and the
+   * only thing stopping them being one was that nobody went to collect them.
+   */
+  if (fleet.troops === 0 && fleetCapacity(fleet) > 0) {
+    const muster = state.systems
+      .filter((s) => s.control === ai && s.id !== fleet.systemId)
+      .map((s) => ({ s, spare: sparedCompanies(s, state) }))
+      .filter((x) => x.spare > 0)
+      .sort(
+        (a, b) =>
+          b.spare - a.spare ||
+          travelDays(state, fleet.systemId, a.s.id) - travelDays(state, fleet.systemId, b.s.id),
+      )[0];
+    if (muster && sailError(state, fleet.id, muster.s.id, ai) === null) {
+      sailFleet(state, fleet.id, muster.s.id, ai);
+      return;
     }
   }
 
