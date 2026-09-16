@@ -225,8 +225,14 @@ export function Slot({
   art?: ReactNode;
   name: string;
   note?: string;
-  /** 'warn' for something that needs attention, 'dim' for something idle. */
-  tone?: 'warn' | 'dim';
+  /**
+   * 'warn' for something that needs attention, 'dim' for something idle, and
+   * 'lord' for one of the three — which is not a state but a rank, and is here
+   * rather than as a colour passed into `note` because the tile wants to say it
+   * twice: brass on the rim of the medallion and brass on the line under the
+   * name. One word, one language.
+   */
+  tone?: 'warn' | 'dim' | 'lord';
   onClick?: () => void;
   /**
    * Look this unit up in the encyclopedia.

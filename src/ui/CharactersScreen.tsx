@@ -99,7 +99,7 @@ export function CharactersScreen({
                   actually scan this screen for is who is already busy. */}
               {!idle && <span className="crewcard__badge">{statusBadge(character)}</span>}
             </span>
-            {lord && <span className="crewcard__rank">Pirate Lord</span>}
+            {lord && <span className="crewcard__rank">{terms.lord}</span>}
             <span className="crewcard__name">{character.name}</span>
             <span className="crewcard__where">
               {missionLine(state, character) ??

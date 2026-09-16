@@ -1190,6 +1190,19 @@ button {
   border-style: dashed; border-color: #24505f;
 }
 .slot--warn { border-color: var(--bad); }
+/* One of the three. The same brass the crew card's Lord border uses and the
+   same the medallion's rim uses, so the three signals are one signal. Quiet on
+   the tile and loud on the rim: a board of Lords should not read as a board of
+   warnings. */
+.slot--lord { border-color: color-mix(in srgb, var(--brass) 55%, transparent); }
+.slot--lord .slot__note {
+  color: var(--brass);
+  opacity: 0.85;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 9.5px;
+  font-weight: 700;
+}
 .slot--dim { opacity: 0.55; }
 .slot__icon { display: flex; align-items: center; justify-content: center; height: 68px; }
 .slot__name {

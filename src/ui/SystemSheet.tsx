@@ -53,6 +53,7 @@ import {
   garrisonRoster,
   garrisonSummary,
   MISSION_LABEL,
+  isLord,
   type PlayableFaction,
 } from '../sim';
 import {
@@ -1272,14 +1273,33 @@ export function SystemSheet({
                   />
                 }
                 name={character.name}
+                /*
+                 * What they are doing, or failing that, what they are.
+                 *
+                 * The brass rim says a Lord is not an ordinary officer; this
+                 * says which kind of not-ordinary. Second to the errand on
+                 * purpose — an officer three days from a raid is a fact about
+                 * today and their rank is a fact about the whole war — so the
+                 * line only appears when there is nothing happening to report,
+                 * which on a quay full of idle Lords is exactly when it is
+                 * wanted.
+                 */
                 note={
                   character.mission
                     ? `${errandName(character.mission.type)} ${character.mission.daysRemaining}d`
-                    : character.status === 'available'
-                      ? undefined
-                      : character.status.replace('_', ' ')
+                    : character.status !== 'available'
+                      ? character.status.replace('_', ' ')
+                      : isLord(character)
+                        ? terms.lord
+                        : undefined
                 }
-                tone={character.status === 'injured' ? 'warn' : undefined}
+                tone={
+                  character.status === 'injured'
+                    ? 'warn'
+                    : isLord(character)
+                      ? 'lord'
+                      : undefined
+                }
                 onClick={() => onOpenCharacter?.(character.id)}
                 order={
                   prefs.reorder && crew.length > 1 && onOrderCrew

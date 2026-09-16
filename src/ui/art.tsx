@@ -773,6 +773,7 @@ import {
   paintedCrest,
   paintedTroop,
 } from './painted';
+import { lordOfName } from '../sim/lords';
 import { useInView } from './useInView';
 
 /**
@@ -944,6 +945,21 @@ export function CharacterPortrait({
       : faction === 'alliance'
         ? 'var(--alliance)'
         : 'var(--neutral)';
+  /**
+   * One of the three, and it says so on its own.
+   *
+   * Sean, 18 September, looking at Freeport's crew tab: *"the pirate lords need
+   * more emphasis around their character image. Hard to know who is a pirate
+   * lord."* Four medallions, four identical red rings, and three of the four
+   * were the Confederacy's entire losing condition.
+   *
+   * Decided here off the name rather than passed in, because `isLord` only ever
+   * needed the name and a prop would have to be remembered at every call site —
+   * there are eleven, and the one that got forgotten would be the one that
+   * mattered. A Lord now wears the ring everywhere a Lord appears: this island's
+   * crew, the crew screen, a fleet's officers, the errand sheet, the log.
+   */
+  const lord = lordOfName(name) !== undefined;
 
   // A painting is only fetched once the medallion is near the screen; until
   // then the drawn cameo stands in, which is the whole reason it can.
@@ -1068,7 +1084,23 @@ export function CharacterPortrait({
       </g>
       )}
 
-      <circle cx="32" cy="32" r="31" fill="none" stroke={tint} strokeWidth="2.5" />
+      {/*
+        The rim. One ring for an officer, and for a Lord a brass band with the
+        faction's own colour still showing inside it, so a Lord reads as a Lord
+        *and* as one of theirs rather than as a third faction. Brass because
+        the crew screen's Lord card is already brass-edged and the chrome's
+        metal is the same — a second visual language for the same fact would be
+        worse than none.
+      */}
+      {lord && <circle cx="32" cy="32" r="31" fill="none" stroke="var(--brass)" strokeWidth="5" />}
+      <circle
+        cx="32"
+        cy="32"
+        r={lord ? 27.5 : 31}
+        fill="none"
+        stroke={tint}
+        strokeWidth={lord ? 2 : 2.5}
+      />
     </svg>
   );
 }
