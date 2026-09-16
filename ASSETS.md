@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**96 of 101 painted.** 3213KB shipped, 9.4MB of masters kept back.
+**97 of 102 painted.** 3272KB shipped, 10.0MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -133,6 +133,14 @@ the natural world, and where the 20% fantasy is allowed out. 5 of 5.
 | The Kraken | `the-kraken` | 1 | 45KB | 763×361, 108KB | 763×350 @ 0,5, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Young Sea Dragon | `young-sea-dragon` | 1 | 61KB | 765×351, 128KB | 765×351 @ 0,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 
+## buildings — 512×384
+
+one building on its island, three-quarter view; the build order card. 1 of 1.
+
+| subject | slug | v | shipped | master | crop | added | source |
+|---|---|---|---|---|---|---|---|
+| Fort — Crown Imperium | `fort-empire` | 1 | 58KB | 1448×1086, 707KB | whole frame | 2026-09-16 | Sean, 16 September |
+
 ## scenes — 1024×432
 
 full-bleed dispatch banner, quiet sky. 7 of 7.
@@ -158,6 +166,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 
 ## Notes
 
+- **buildings/fort-empire** — The first works painted as a standalone 4:3 rather than sliced out of a contact sheet. Cut grey stone, a line of cannon on the seawall, sentry turrets, the keep behind and a Crown town up the hill — the Art Direction Guide's Crown to the letter.
 - **chart/seas** — Delivered at luma 56 — as bright as the reference maps and about twice what the interface needs; a Confederacy mark on it measured 2.7:1 against a 3:1 floor. Darkened at ingest with gamma 1.6 rather than repainted: composition was right, only value was wrong, and the master keeps the bright original.
 - **chart/title** — The second chart painting. Darker and more evenly lit than chart/seas — sea luma 43 against 57, and a bottom edge at 43 rather than 73 — but it holds fewer separable chains (9 against 10 at a 20px dilation, 5 against 9 by area), and the chart needs ten. So it takes the title screen, where nothing has to be tapped and the dominant centre island is an asset rather than a crowding problem.
 - **creatures/ghost-ship** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.

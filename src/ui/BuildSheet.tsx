@@ -14,9 +14,9 @@ import {
   type GameState,
   type System,
 } from '../sim';
-import { CompanyIcon, FacilityIcon, ShipIcon } from './art';
+import { CompanyIcon, FacilityIcon, ShipIcon, facilityPainting } from './art';
 import { GoldFig, Sheet, Stat } from './components';
-import { paintedBuilding, paintedIsland, paintedShip } from './painted';
+import { paintedShip } from './painted';
 
 /**
  * Rebellion's build flow, in two sheets.
@@ -305,7 +305,10 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
   }
 
   const type = item as FacilityType;
-  const painting = paintedBuilding(type) ?? paintedIsland(`facility-${type.replace(/_/g, '-')}-${you}`);
+  // The same lookup the island board and the encyclopedia use, so a works
+  // painted once shows up everywhere it is named rather than only where
+  // somebody remembered to spell the file name out again.
+  const painting = facilityPainting(type, you);
   return (
     <div className="card unit">
       <div className={`unit__art${painting ? ' unit__art--wide' : ''}`}>

@@ -1,5 +1,32 @@
 {
   "assets": {
+    "buildings/fort-empire": {
+      "folder": "buildings",
+      "slug": "fort-empire",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Fort \u2014 Crown Imperium",
+      "source": "Sean, 16 September",
+      "notes": "The first works painted as a standalone 4:3 rather than sliced out of a contact sheet. Cut grey stone, a line of cannon on the seawall, sentry turrets, the keep behind and a Crown town up the hill \u2014 the Art Direction Guide's Crown to the letter.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/buildings/fort-empire.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 724882,
+        "sha1": "35c52f3e3f861b3e"
+      },
+      "shipped": {
+        "file": "src/art/buildings/fort-empire.webp",
+        "w": 512,
+        "h": 384,
+        "bytes": 59988,
+        "sha1": "fff18f2241f23aa7"
+      }
+    },
     "chart/seas": {
       "folder": "chart",
       "slug": "seas",

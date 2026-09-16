@@ -750,6 +750,7 @@ export function CompanyRow({
  * ------------------------------------------------------------------ */
 
 import {
+  paintedBuilding,
   paintedCreature,
   paintedFace,
   paintedIsland,
@@ -1575,16 +1576,41 @@ export function ShipThumb({
  * that wide only reads with room to be wide in.
  */
 /**
+ * The shape every works picture is shown in, whatever shape it was painted.
+ *
+ * One ratio for all of them, because the board is a grid and a row is as tall
+ * as its tallest tile — mixing a 4:3 painting with a 4:1 strip leaves the strip
+ * floating in a tile half empty. 16:10 is the compromise: a whole painting
+ * keeps the middle 83% of its height, which on the fort is the cannon, the
+ * wall and the water, and a sliced strip shows its middle two fifths, which is
+ * the building the strip was painted around.
+ *
+ * As the strips are replaced with paintings of their own this can go to 4:3.
+ */
+const FACILITY_BAND = 1.6;
+
+/** Whose colours a works flies. Nobody's counts as the Crown's, for art. */
+function facilitySide(owner: 'empire' | 'alliance' | 'neutral' | 'none'): 'empire' | 'alliance' {
+  return owner === 'alliance' ? 'alliance' : 'empire';
+}
+
+/**
  * Whether this works has a painting at all, so a caller can decide between the
- * picture and the drawn glyph before it lays anything out. Fort and Boom have
- * never been painted; everything else has, for both sides.
+ * picture and the drawn glyph before it lays anything out.
+ *
+ * Two places to look, in order. `buildings/` holds paintings commissioned one
+ * at a time as whole 4:3 pictures — the Crown fort, which arrived on 16
+ * September, is the first. `islands/` holds the older five, which were sliced
+ * out of a contact sheet and are wide strips about four to one. A works with
+ * neither still gets its drawn glyph.
  */
 export function facilityPainting(
   type: string,
   owner: 'empire' | 'alliance' | 'neutral' | 'none',
 ): string | undefined {
-  const side = owner === 'alliance' ? 'alliance' : 'empire';
-  return paintedIsland(`facility-${type.replace(/_/g, '-')}-${side}`);
+  const kind = type.replace(/_/g, '-');
+  const side = facilitySide(owner);
+  return paintedBuilding(`${kind}-${side}`) ?? paintedIsland(`facility-${kind}-${side}`);
 }
 
 export function FacilityThumb({
@@ -1604,7 +1630,11 @@ export function FacilityThumb({
   return (
     <span
       className="facthumb"
-      style={fill ? { width: '100%', aspectRatio: '96 / 40' } : { width, height: Math.round(width * 0.42) }}
+      style={
+        fill
+          ? { width: '100%', aspectRatio: String(FACILITY_BAND) }
+          : { width, height: Math.round(width / FACILITY_BAND) }
+      }
     >
       <img src={painting} alt="" loading="lazy" />
     </span>

@@ -1678,10 +1678,11 @@ button.tcard:hover { border-color: var(--brass); }
   color: var(--brass); border: 1px solid var(--border);
 }
 .unit__art img { width: 100%; height: 100%; object-fit: cover; display: block; }
-/* A hull is painted 4:3 and a works is painted as a wide banner, so each keeps
-   its own shape rather than being cropped into a shared box. */
+/* A hull is painted 4:3 and keeps it. A works is shown in the same 16:10 band
+   everywhere it appears — the island board, the encyclopedia and this card —
+   so the crop a player learns a building by is the same crop every time. */
 .unit__art--tall { aspect-ratio: 4 / 3; }
-.unit__art--wide { aspect-ratio: 768 / 204; }
+.unit__art--wide { aspect-ratio: 16 / 10; }
 /* Nothing painted yet: a glyph in a box that is not the size of a poster. */
 .unit__art:not(.unit__art--tall):not(.unit__art--wide) { width: 110px; height: 110px; aspect-ratio: auto; }
 .unit__body { min-width: 0; }

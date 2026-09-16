@@ -382,7 +382,7 @@ Every island in the game gets its own painting instead of sharing one of ten by 
 
 `fort-empire.png`
 
-> A Fort: a battery on the harbor wall, built by the Crown Imperium. A white-stone bastion with embrasures in a neat row, brass guns run out, a flag on the staff, gunners in sea-green and cream at drill, the harbor mouth beyond. Seen from a low approach, landscape composition, figures for scale. No borders or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, approximately 70% historical swashbuckling adventure, 20% nautical fantasy and mysticism, 10% whimsy; never photorealistic, steampunk, grimdark, chibi, childish, generic high fantasy, futuristic or excessively cartoonish
+> A Fort: a battery on the harbor wall, built by the Crown Imperium. A white-stone bastion with embrasures in a neat row, brass guns run out, a flag on the staff, gunners in Imperial-green and warm ivory at drill, the harbor mouth beyond. Seen from a low approach, landscape composition, figures for scale. No borders or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, approximately 70% historical swashbuckling adventure, 20% nautical fantasy and mysticism, 10% whimsy; never photorealistic, steampunk, grimdark, chibi, childish, generic high fantasy, futuristic or excessively cartoonish
 
 ### Fort — Free Confederacy
 
