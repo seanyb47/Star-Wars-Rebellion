@@ -807,6 +807,27 @@ export const ABDUCT_BASE = 0.42;
  * off a quay — the whole harbor is watching the cells — and read off
  * Espionage, since it is craft and not argument.
  */
+/**
+ * How hard it is to get somebody out of a cell — and the master dial of the
+ * whole war, which is worth knowing before anybody turns it.
+ *
+ * A prisoner is held until somebody comes for them, and the Crown wins by
+ * holding all three Lords *at once*. So how long a Lord stays in irons is
+ * what decides whether the Crown's victory condition is reachable at all, and
+ * it turns out to be a knife edge. Measured over four seed blocks, ninety-six
+ * wars, making a Lord specifically harder to free than an ordinary officer:
+ *
+ *   no penalty      Crown 42 — Confederacy 52   (as it ships)
+ *   minus 0.07      no measurable change at all
+ *   minus 0.11      Crown 33 — Confederacy 35, the same within noise
+ *   minus 0.15      Crown 56 — Confederacy 37, and every war finished
+ *
+ * Nothing, nothing, nothing, then the game. Two rescues in a row failing is
+ * what lets the Crown hold two long enough to go for the third, and the odds
+ * of that turn over very fast. Left alone deliberately: the balance is good
+ * where it is and this is the wrong dial to set by accident. It is, though,
+ * exactly the right dial for a difficulty setting.
+ */
 export const RESCUE_BASE = 0.3;
 /** How much of the target's Combat protects them, as a divisor. */
 export const ABDUCT_RESIST_DIVISOR = 230;
