@@ -590,7 +590,7 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
         // enemy islands, and its own in trouble — and research lives on its
         // own islands doing *well*, so it fell through every clause and the
         // whole mechanic never fired.
-        (follows(state, 'research-your-own-yards') && isResearchTarget(s, ai)) ||
+        (follows(state, 'research-your-own-yards') && isResearchTarget(state, s, ai)) ||
         // And the outer Reaches. An island nobody lives on is `none`, which
         // matched no clause here at all, so the whole frontier — a third of
         // the world, and the only free land in it — was invisible.
@@ -705,7 +705,7 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     }
     // Its own yards. The first hand there outranks everything on the chart;
     // every hand after that is worth what yard work has always been worth.
-    if (isResearchTarget(s, ai)) {
+    if (isResearchTarget(state, s, ai)) {
       return close + AI_RESEARCH_BONUS + (atTheYards ? 0 : AI_FIRST_YARD_BONUS);
     }
     // Its own, and slipping: worth more the further it has slipped, and an

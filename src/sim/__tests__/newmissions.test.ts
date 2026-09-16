@@ -26,7 +26,7 @@ import {
 } from '../missions';
 import { effectiveSpec, queueBuild } from '../build';
 import { buildSpec, shipsFor } from '../constants';
-import { MISSION_PARTY_MAX, MISSION_WORK_DAYS, RESEARCH_MIN_SUPPORT } from '../constants';
+import { CRAFT_GRADES, MISSION_PARTY_MAX, MISSION_WORK_DAYS, RESEARCH_MIN_SUPPORT } from '../constants';
 import type { Character, GameState, System } from '../types';
 
 function world(seed = 501): GameState {
@@ -225,12 +225,24 @@ describe('research', () => {
         s.facilities.some((f) => f.type === 'shipyard' || f.type === 'construction_yard'),
     )!;
     yard.support.empire = RESEARCH_MIN_SUPPORT - 10;
-    expect(isResearchTarget(yard, 'empire')).toBe(false);
+    expect(isResearchTarget(state, yard, 'empire')).toBe(false);
     // Below the floor there is still a parley worth having, and it wins.
     expect(missionTypeFor(state, yard, 'empire')).toBe('diplomacy');
 
     yard.support.empire = RESEARCH_MIN_SUPPORT + 5;
-    expect(isResearchTarget(yard, 'empire')).toBe(true);
+    expect(isResearchTarget(state, yard, 'empire')).toBe(true);
+
+    /*
+     * And it stops once the shipwrights have nothing left to learn. There are
+     * three grades; past the third every further fortnight in the yards buys a
+     * number no rule reads, and research is exempt from the patience rule that
+     * ends every other errand — so without this an officer stayed in the yards
+     * for the rest of the war.
+     */
+    state.factions.empire.craft = CRAFT_GRADES[CRAFT_GRADES.length - 1];
+    expect(isResearchTarget(state, yard, 'empire')).toBe(false);
+    expect(missionTypeFor(state, yard, 'empire')).not.toBe('research');
+    state.factions.empire.craft = 0;
     expect(missionTypeFor(state, yard, 'empire')).toBe('research');
   });
 

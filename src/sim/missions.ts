@@ -427,7 +427,25 @@ export function relieve(state: GameState, characterId: string): void {
  * better use of an officer; above it a parley was busy-work — the bar was
  * already full — and the yards may as well be improving the hulls.
  */
-export function isResearchTarget(system: System, faction: PlayableFaction): boolean {
+export function isResearchTarget(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+): boolean {
+  /*
+   * Nothing left for the shipwrights to learn.
+   *
+   * There are three grades and `craftGrade` stops counting at the third, so
+   * past it every further fortnight in the yards buys a number that no rule
+   * reads. This had no such guard, and research is deliberately exempt from
+   * the patience rule that ends every other errand — so an officer sent to the
+   * yards of a side that had finished its craft stayed there for the rest of
+   * the war, working on nothing. Measured over ten wars: yard errands running
+   * a median of 64 days and a maximum of 1,390, which is the whole war, and
+   * the Pirate Lords spending more of their time in a shipyard than on any
+   * other errand there is.
+   */
+  if (craftGrade(state.factions[faction].craft) >= CRAFT_GRADES.length) return false;
   if (!system.explored[faction] || system.control !== faction || system.uprising) return false;
   if (system.support[faction] < RESEARCH_MIN_SUPPORT) return false;
   return system.facilities.some(
@@ -476,7 +494,7 @@ export function missionTypeFor(
   // of theirs ran out of work. The opponent is sent spying by a rule of its
   // own in `ai.ts`, which can weigh whether it actually wants to know.
   // Above parley, and only where parley had nothing left to win.
-  if (isResearchTarget(system, faction)) return 'research';
+  if (isResearchTarget(state, system, faction)) return 'research';
   if (isDiplomacyTarget(system, faction)) return 'diplomacy';
   if (isInciteTarget(system, faction)) return 'incite';
   if (isSabotageTarget(system, faction)) return 'sabotage';
@@ -532,7 +550,7 @@ export function missionsOffered(
   if (isRescueTarget(state, system, faction)) out.push('rescue');
   if (isAbductTarget(state, system, faction)) out.push('abduct');
   if (isCommandTarget(system, faction) && (!officer || canCommand(officer))) out.push('command');
-  if (isResearchTarget(system, faction)) out.push('research');
+  if (isResearchTarget(state, system, faction)) out.push('research');
   if (isDiplomacyTarget(system, faction)) out.push('diplomacy');
   if (isInciteTarget(system, faction)) out.push('incite');
   if (isSabotageTarget(system, faction)) out.push('sabotage');
@@ -564,7 +582,7 @@ export function stillWorthDoing(
   if (type === 'abduct') return isAbductTarget(state, system, faction);
   if (type === 'rescue') return isRescueTarget(state, system, faction);
   if (type === 'command') return isCommandTarget(system, faction);
-  if (type === 'research') return isResearchTarget(system, faction);
+  if (type === 'research') return isResearchTarget(state, system, faction);
   return isDiplomacyTarget(system, faction);
 }
 
