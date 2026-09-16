@@ -41,10 +41,12 @@ describe('support maths', () => {
     expect(supportMultiplier(0)).toBeCloseTo(0.5);
   });
 
-  it('derives the garrison a restless world needs', () => {
-    expect(requiredGarrison(50)).toBe(0);
-    expect(requiredGarrison(29)).toBe(3);
-    expect(requiredGarrison(0)).toBe(5);
+  it('asks for companies by band: none when firm, a token when steady, four when thin, six in a revolt', () => {
+    expect(requiredGarrison(95)).toBe(0);
+    expect(requiredGarrison(65)).toBe(1);
+    expect(requiredGarrison(59)).toBe(4);
+    expect(requiredGarrison(0)).toBe(4);
+    expect(requiredGarrison(20, true)).toBe(6);
   });
 });
 

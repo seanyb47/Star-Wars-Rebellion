@@ -1,4 +1,4 @@
-import { SPILLOVER_FRACTION } from './constants';
+import { GARRISON_FOR_BAND, SPILLOVER_FRACTION, loyaltyBand } from './constants';
 import type {
   Faction,
   FacilityType,
@@ -49,25 +49,13 @@ export function countFacilities(system: System, type: FacilityType, owner: Facti
   return system.facilities.filter((f) => f.type === type && f.owner === owner).length;
 }
 
-/** Slots taken by mines. Mines occupy raw slots; everything else occupies energy slots. */
-export function usedRawSlots(system: System): number {
-  return system.facilities.filter((f) => f.type === 'mine').length;
-}
-
-export function usedEnergySlots(system: System): number {
-  return system.facilities.filter((f) => f.type !== 'mine').length;
-}
-
-export function freeRawSlots(system: System): number {
-  return system.rawSlots - usedRawSlots(system);
-}
-
-export function freeEnergySlots(system: System): number {
-  return system.energySlots - usedEnergySlots(system);
-}
-
+/**
+ * Room left to build on. Everything standing takes one berth, whatever it is,
+ * and an order still on its way has already taken its own (it stands from the
+ * day it is ordered).
+ */
 export function freeSlots(system: System): number {
-  return freeRawSlots(system) + freeEnergySlots(system);
+  return system.slots - system.facilities.length;
 }
 
 export function factionSystems(state: GameState, faction: Faction): System[] {
@@ -84,15 +72,34 @@ export function pushEvent(state: GameState, event: Omit<GameEvent, 'id' | 'day'>
  *
  * Returns the actual delta applied to the target system after clamping.
  */
+/**
+ * Allegiance is a balance, not two opinions.
+ *
+ * Every island's regard for the two sides adds up to a hundred: there is no
+ * undecided middle to win over first, so a point one side gains is a point
+ * the other loses. Setting one number therefore sets both, and this is the
+ * only place in the game that writes either of them.
+ */
+export function setSupport(system: System, faction: PlayableFaction, value: number): void {
+  const mine = clampSupport(value);
+  system.support[faction] = mine;
+  system.support[otherFaction(faction)] = 100 - mine;
+}
+
+/** Move the balance by a signed amount, and report what actually moved. */
+export function shiftSupport(system: System, faction: PlayableFaction, delta: number): number {
+  const before = system.support[faction];
+  setSupport(system, faction, before + delta);
+  return system.support[faction] - before;
+}
+
 export function applySupportChange(
   state: GameState,
   system: System,
   faction: PlayableFaction,
   delta: number,
 ): number {
-  const before = system.support[faction];
-  system.support[faction] = clampSupport(before + delta);
-  const applied = system.support[faction] - before;
+  const applied = shiftSupport(system, faction, delta);
 
   const spill = delta * SPILLOVER_FRACTION;
   if (spill === 0) return applied;
@@ -101,14 +108,18 @@ export function applySupportChange(
     if (other.id === system.id) continue;
     if (other.sectorId !== system.sectorId) continue;
     if (!other.populated) continue;
-    other.support[faction] = clampSupport(other.support[faction] + spill);
+    shiftSupport(other, faction, spill);
   }
   return applied;
 }
 
-/** Garrison needed to hold a restless island down (spec 4.3). */
-export function requiredGarrison(support: number): number {
-  return Math.max(0, Math.ceil((50 - support) / 10));
+/**
+ * Companies needed to hold an island down: nothing on one that is firmly
+ * yours, a token on a steady one, four where allegiance is thin and six to
+ * face down a revolt (spec 4.3, and Sean's ladder of 15 September).
+ */
+export function requiredGarrison(support: number, uprising = false): number {
+  return GARRISON_FOR_BAND[loyaltyBand(support, uprising)];
 }
 
 /** Mine output scales with how loyal the populace is (spec 4.2.1). */

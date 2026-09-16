@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import factionData from '../data/factions.json';
+import reachData from '../data/reaches.json';
+import { numberWord } from './words';
 import type { PlayableFaction } from '../sim';
 import { CompassRose, FactionCrest } from './art';
+import { paintedChart } from './painted';
 
 /**
  * Difficulty is shown because the player asked to see the choice, but only
@@ -19,16 +22,19 @@ const FACTION_DETAIL: Record<
   { strengths: string[]; weaknesses: string[]; opening: string }
 > = {
   empire: {
-    strengths: ['Rich, charted Inner Seas', 'Strong from the first day', 'A capital nobody can find and burn'],
-    weaknesses: ['Your seat cannot move', 'Fewer envoys than the Brethren', 'Every island you press resents you'],
-    opening: 'You begin at Highwater with the core of the world already in hand, and everything to lose.',
+    strengths: ['Rich, charted Inner Seas', 'Ships of the line from the first day', 'The Lords have to be found; Highwater is on every chart'],
+    weaknesses: ['Lose Highwater and lose everything', 'Fewer envoys than the Brethren', 'Islands resent what the walls cost them'],
+    opening: 'You begin at Highwater with the core of the world in hand. Somewhere past your charts three Pirate Lords have met, and islands are already declaring for them.',
   },
   alliance: {
-    strengths: ['A harbour that moves when found', 'More envoys, and better ones', 'Nothing to lose but the tide'],
-    weaknesses: ['Outgunned in open water', 'Scattered across the Outer Seas', 'Half your captains are worth hanging'],
-    opening: 'You begin on the fringe with four islands and a shouting-match for a government.',
+    strengths: ['Three Pirate Lords, each with a power nobody else has', 'More envoys, and better ones', 'No capital to lose'],
+    weaknesses: ['Outgunned in open water', 'Lose all three Lords and the cause dies', 'Half your captains take some managing'],
+    opening: 'You begin at a meeting place beyond the Crown\'s charts, three Lords and the people who came with them, with islands across the Reaches already declared for you.',
   },
 };
+
+const ISLANDS = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
+const REACHES = reachData.reaches.length;
 
 export function StartScreen({
   hasSave,
@@ -41,16 +47,23 @@ export function StartScreen({
 }) {
   const [faction, setFaction] = useState<PlayableFaction | null>(null);
   const detail = faction ? FACTION_DETAIL[faction] : null;
+  // The world, behind the choice of which side of it to take. Clear behind the
+  // title and scrimmed away under the text — see .start--painted, which is
+  // where the legibility is actually bought.
+  const backdrop = paintedChart('title');
 
   return (
-    <div className="start">
+    <div
+      className={backdrop ? 'start start--painted' : 'start'}
+      style={backdrop ? ({ ['--backdrop' as string]: `url(${backdrop})` }) : undefined}
+    >
       <header className="start__head">
         <div className="start__rose">
           <CompassRose size={64} opacity={0.55} />
         </div>
         <h1 className="start__title serif">Master of the Seven Seas</h1>
         <p className="start__tagline">
-          Seven seas, a hundred islands, and something older than both fleets moving underneath.
+          {numberWord(REACHES)[0].toUpperCase() + numberWord(REACHES).slice(1)} seas, {numberWord(ISLANDS)} islands, and something older than both fleets moving underneath.
         </p>
       </header>
 
@@ -66,12 +79,16 @@ export function StartScreen({
         {(['empire', 'alliance'] as const).map((id) => (
           <button
             key={id}
-            className={`facard${faction === id ? ' facard--picked' : ''}`}
+            className={`facard facard--${id}${faction === id ? ' facard--picked' : ''}`}
             onClick={() => setFaction(id)}
             aria-pressed={faction === id}
           >
             <FactionCrest faction={id} size={64} />
             <div className="facard__name serif">{factionData[id].name}</div>
+            {/* The creed, as the style guide sets it: three words under the
+                crest that say what the side is for, before the paragraph that
+                says what it costs. */}
+            <div className="facard__creed">{factionData[id].creed}</div>
             <div className="facard__blurb">{factionData[id].blurb}</div>
           </button>
         ))}

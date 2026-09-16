@@ -1,0 +1,122 @@
+{
+  "_comment": "Garrison companies, world bible section 7, after Rebellion's ground units. Rebellion gives a regiment three numbers and a picture, and that is all it needs: what it does landing, what it does defending, and how much it sees. Ours does the same. Every side has a line unit it always has, sailors it can put ashore wherever it builds hulls, and units that are a particular people from a particular sort of island — those are not bought, they are who lives there. The two the Crown makes rather than recruits are the only ones behind research. Numbers are on the same scale as the original's: 15 is a militiaman, 50 is the worst thing either side can put on a beach.",
+  "_stats": "offense: what a company is worth landing on somebody. defense: what it is worth holding ground. watch: what it sees — the eyes that catch a saboteur, an agitator or a boat coming in at night.",
+  "types": [
+    {
+      "id": "crown-regulars",
+      "faction": "empire",
+      "name": "Crown Regulars",
+      "role": "line",
+      "people": "Human",
+      "offense": 20,
+      "defense": 20,
+      "watch": 15,
+      "blurb": "Line infantry of the Admiralty's own regiments. Nothing about them is remarkable and there are a great many of them, which between the two has decided most of the wars the Crown has won."
+    },
+    {
+      "id": "crown-ships-company",
+      "faction": "empire",
+      "name": "Ship's Company",
+      "role": "sailors",
+      "people": "Human",
+      "offense": 15,
+      "defense": 15,
+      "watch": 20,
+      "blurb": "Sailors put ashore with cutlasses and told to hold something. Worse at it than soldiers and better at noticing a boat that should not be there, which is the trade you are making."
+    },
+    {
+      "id": "crown-marines",
+      "faction": "empire",
+      "name": "Crown Marines",
+      "role": "elite",
+      "people": "Human",
+      "offense": 30,
+      "defense": 30,
+      "watch": 25,
+      "blurb": "The white-coats. Drilled to go over a gunwale or up a beach and to keep going, and posted where the Crown means to be seen keeping order. The best thing either side can land on day one."
+    },
+    {
+      "id": "tidewrought",
+      "faction": "empire",
+      "name": "Tidewrought",
+      "role": "made",
+      "people": "Brass and coral",
+      "research": true,
+      "offense": 40,
+      "defense": 35,
+      "watch": 5,
+      "blurb": "Automata of brass and cultivated coral that walk in over the seabed and come out of the surf already advancing. They hit like a falling spar and they see nothing at all; a company of them will march past a saboteur standing still."
+    },
+    {
+      "id": "drowned-guard",
+      "faction": "empire",
+      "name": "The Drowned Guard",
+      "role": "made",
+      "people": "Human (once)",
+      "research": true,
+      "offense": 45,
+      "defense": 40,
+      "watch": 30,
+      "blurb": "Marines who have been cold-baptised: held under the Deep until they stop struggling, and brought back. Black plate, no fear, and something missing behind the eyes. The worst thing the Crown can put on a beach, and the Admiralty does not discuss how they are made."
+    },
+
+    {
+      "id": "island-militia",
+      "faction": "alliance",
+      "name": "Island Militia",
+      "role": "line",
+      "people": "Whoever lives there",
+      "offense": 15,
+      "defense": 20,
+      "watch": 10,
+      "blurb": "The island's own, with whatever was in the shed. They will not take anything off anybody, and on their own ground they are a great deal harder to shift than their drill suggests."
+    },
+    {
+      "id": "brethren-ships-company",
+      "faction": "alliance",
+      "name": "Ship's Company",
+      "role": "sailors",
+      "people": "Mixed",
+      "offense": 15,
+      "defense": 15,
+      "watch": 15,
+      "blurb": "A crew put ashore. Every one of them has been on the other end of a landing and none of them has been drilled for this one."
+    },
+    {
+      "id": "reefwalkers",
+      "faction": "alliance",
+      "name": "Reefwalkers",
+      "role": "native",
+      "people": "Shoal-folk",
+      "home": ["port-city", "free-harbor"],
+      "offense": 20,
+      "defense": 20,
+      "watch": 35,
+      "blurb": "Shoal-folk scouts, small and webbed and night-eyed, who can hear a hull creak a mile out. The best watch in the world: nothing lands on an island they are on without the island knowing first."
+    },
+    {
+      "id": "reef-guard",
+      "faction": "alliance",
+      "name": "Reef Guard",
+      "role": "native",
+      "people": "Reef-folk",
+      "home": ["reef-isle", "tide-isle", "drowned-isle"],
+      "offense": 20,
+      "defense": 45,
+      "watch": 20,
+      "blurb": "Reef-folk in coral plate grown to the wearer over years. They do not charge and they do not rout. Taking an island they are standing on costs more than the island is worth, which is the entire point of them."
+    },
+    {
+      "id": "urskin-berserkers",
+      "faction": "alliance",
+      "name": "Urskin Berserkers",
+      "role": "native",
+      "people": "Urskin",
+      "home": ["ice-isle", "rock-isle"],
+      "offense": 50,
+      "defense": 20,
+      "watch": 20,
+      "blurb": "Torvik's people, tusked and shaggy and eight feet of them, coming up a beach with the harpoons they use on things bigger than boats. Nothing in the game hits harder going forward. Ask them to stand still and hold a wall and you have wasted them."
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "_comment": "Hull classes, world bible section 6. Names and prose live here; the numbers live in sim/constants.ts, keyed by size, so both fleets are balanced identically and only their names and character differ. There are deliberately no fighters: a small craft is just a small ship, so the range is small / medium / large, with the transport off to one side. The last three are legends: the Pirate Lords' own ships, which are never put on the water. They were game pieces until 15 September and it did not work — see sim/lords.ts. They stay here because the stories about them are the reason a Lord can do what they do, and because a name on a bio has to resolve to something. Nothing builds them, nothing sails them, and they have no numbers.",
+  "classes": [
+    {
+      "id": "sovereign",
+      "faction": "empire",
+      "role": "large",
+      "name": "Sovereign",
+      "blurb": "A first-rate of the line, built straight and warded with cultivated coral. Nothing afloat hits harder or takes more killing. Slow to arrive anywhere."
+    },
+    {
+      "id": "razorback",
+      "faction": "empire",
+      "role": "medium",
+      "name": "Razorback",
+      "blurb": "A heavy frigate. Cheap for what it carries, quick enough to be useful, and outmatched by anything of the line."
+    },
+    {
+      "id": "kestrel",
+      "faction": "empire",
+      "role": "small",
+      "name": "Kestrel",
+      "blurb": "A sloop-of-war. The fastest thing the Crown puts to sea and the first to sink. Good for closing a harbor cheaply."
+    },
+    {
+      "id": "fluyt",
+      "faction": "empire",
+      "role": "transport",
+      "name": "Fluyt",
+      "blurb": "An unarmed merchantman pressed into service. Carries more companies than anything else and cannot defend itself at all."
+    },
+    {
+      "id": "reef",
+      "faction": "alliance",
+      "role": "large",
+      "name": "Reef-class",
+      "blurb": "Grown, not built — a living coral hull the Reef-folk sing into shape over years. No two alike. Enormous, and in no hurry."
+    },
+    {
+      "id": "tempest",
+      "faction": "alliance",
+      "role": "medium",
+      "name": "Tempest",
+      "blurb": "A frigate patched together out of three others. Not pretty. Holds its own against anything short of a ship of the line."
+    },
+    {
+      "id": "swift",
+      "faction": "alliance",
+      "role": "small",
+      "name": "Swift",
+      "blurb": "A schooner, stolen and re-rigged. Outruns everything on the water and comes apart if anything catches it."
+    },
+    {
+      "id": "brig",
+      "faction": "alliance",
+      "role": "transport",
+      "name": "Brig",
+      "blurb": "A blunt-nosed hauler. No guns worth the name, but it lands companies where they are wanted."
+    },
+    {
+      "id": "harbor",
+      "faction": "alliance",
+      "role": "large",
+      "legend": true,
+      "name": "Free Harbor",
+      "blurb": "Commodore-Elect Adaira Hale's ship: Corwin Calloway's old coral-grown three-decker, named for what he meant her to be, since any deck of his was a free harbor to anyone the Crown wanted. The Moot was called on her quarterdeck and has been the Moot ever since. Where Hale is, the Moot sits — the hull was never the point, and nobody has seen it in years."
+    },
+    {
+      "id": "swallowtail",
+      "faction": "alliance",
+      "role": "small",
+      "legend": true,
+      "name": "Swallowtail",
+      "blurb": "Captain Silas Reyne's coral-grown sloop, which should not be as fast as she is and has never once been caught. Reyne is not off her for a night in his life, so far as anyone tells it, and that is the whole of why he turns up where he does when he does — a week's sail in half a week, every time, and no explanation offered."
+    },
+    {
+      "id": "ironback",
+      "faction": "alliance",
+      "role": "large",
+      "legend": true,
+      "name": "Ironback",
+      "blurb": "The Crown dreadnought Admiral Dorian Jessup took with him when he left the Imperium's service, and fought the Crown's own line with for nine years. What he learned aboard her he teaches to whatever squadron is lying in the harbor he is posted to, which is worth more to the Confederacy now than the ship ever was."
+    }
+  ]
+}
