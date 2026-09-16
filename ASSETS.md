@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**127 of 140 painted.** 3992KB shipped, 11.6MB of masters kept back.
+**127 of 140 painted.** 3993KB shipped, 11.6MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -183,9 +183,9 @@ a plain frame, uniform along each edge; stretched around art as a border. 3 of 3
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
-| Alliance | `alliance` | 1 | 2KB | 192×192, 7KB | whole frame | 2026-09-16 | Sean's frame sheet, 17 Sep 2026 |
-| Empire | `empire` | 1 | 1KB | 192×192, 4KB | whole frame | 2026-09-16 | Sean's frame sheet, 17 Sep 2026 |
-| Neutral | `neutral` | 1 | 4KB | 192×192, 9KB | whole frame | 2026-09-16 | Sean's frame sheet, 17 Sep 2026 |
+| Alliance | `alliance` | 2 (+1 retired) | 3KB | 192×192, 7KB | whole frame | 2026-09-16 | Sean's frame sheet, 17 Sep 2026 |
+| Empire | `empire` | 2 (+1 retired) | 2KB | 192×192, 5KB | whole frame | 2026-09-16 | Sean's frame sheet, 17 Sep 2026 |
+| Neutral | `neutral` | 2 (+1 retired) | 4KB | 192×192, 9KB | whole frame | 2026-09-16 | Sean's frame sheet, 17 Sep 2026 |
 
 ## scenes — 1024×432
 
@@ -247,9 +247,9 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **faces/tobias-renn** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **faces/wren-tally** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **faces/wyatt-ansell** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
-- **frames/alliance** — Cut from a 27-frame sheet and squared, so it is upscaled and its proportions are not the source's. A border-image stretches each edge anyway.
-- **frames/empire** — Cut from a 27-frame sheet and squared, so it is upscaled and its proportions are not the source's. A border-image stretches each edge anyway.
-- **frames/neutral** — Cut from a 27-frame sheet and squared, so it is upscaled and its proportions are not the source's. A border-image stretches each edge anyway.
+- **frames/alliance** — Rebuilt symmetric from the one corner the sheet gave us whole: the first cut ran flush to two canvas edges and border-image took clipped ornaments off them.
+- **frames/empire** — Rebuilt symmetric from the one corner the sheet gave us whole: the first cut ran flush to two canvas edges and border-image took clipped ornaments off them.
+- **frames/neutral** — Rebuilt symmetric from the one corner the sheet gave us whole: the first cut ran flush to two canvas edges and border-image took clipped ornaments off them.
 - **islands/drowned-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/facility-construction-yard-alliance** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/facility-construction-yard-empire** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.

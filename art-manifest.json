@@ -996,12 +996,12 @@
     "frames/alliance": {
       "folder": "frames",
       "slug": "alliance",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "Alliance",
       "source": "Sean's frame sheet, 17 Sep 2026",
-      "notes": "Cut from a 27-frame sheet and squared, so it is upscaled and its proportions are not the source's. A border-image stretches each edge anyway.",
+      "notes": "Rebuilt symmetric from the one corner the sheet gave us whole: the first cut ran flush to two canvas edges and border-image took clipped ornaments off them.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -1009,26 +1009,36 @@
         "file": "art-masters/frames/alliance.webp",
         "w": 192,
         "h": 192,
-        "bytes": 7256,
-        "sha1": "731bb863ea9cc18f"
+        "bytes": 7220,
+        "sha1": "62e8d47e6ff75706"
       },
       "shipped": {
         "file": "src/art/frames/alliance.webp",
         "w": 192,
         "h": 192,
-        "bytes": 2886,
-        "sha1": "32a5286745833207"
-      }
+        "bytes": 3098,
+        "sha1": "4b961a8ce6bba5ef"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-16",
+          "master": "art-masters/_retired/frames/alliance.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean's frame sheet, 17 Sep 2026"
+        }
+      ]
     },
     "frames/empire": {
       "folder": "frames",
       "slug": "empire",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "Empire",
       "source": "Sean's frame sheet, 17 Sep 2026",
-      "notes": "Cut from a 27-frame sheet and squared, so it is upscaled and its proportions are not the source's. A border-image stretches each edge anyway.",
+      "notes": "Rebuilt symmetric from the one corner the sheet gave us whole: the first cut ran flush to two canvas edges and border-image took clipped ornaments off them.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -1036,26 +1046,36 @@
         "file": "art-masters/frames/empire.webp",
         "w": 192,
         "h": 192,
-        "bytes": 5042,
-        "sha1": "2ff06b315e25732d"
+        "bytes": 5808,
+        "sha1": "21b1d10ae50e13c0"
       },
       "shipped": {
         "file": "src/art/frames/empire.webp",
         "w": 192,
         "h": 192,
-        "bytes": 2020,
-        "sha1": "c2abfd908c2cc342"
-      }
+        "bytes": 2466,
+        "sha1": "9d06ccc2c9c51a2f"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-16",
+          "master": "art-masters/_retired/frames/empire.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean's frame sheet, 17 Sep 2026"
+        }
+      ]
     },
     "frames/neutral": {
       "folder": "frames",
       "slug": "neutral",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "Neutral",
       "source": "Sean's frame sheet, 17 Sep 2026",
-      "notes": "Cut from a 27-frame sheet and squared, so it is upscaled and its proportions are not the source's. A border-image stretches each edge anyway.",
+      "notes": "Rebuilt symmetric from the one corner the sheet gave us whole: the first cut ran flush to two canvas edges and border-image took clipped ornaments off them.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -1063,16 +1083,26 @@
         "file": "art-masters/frames/neutral.webp",
         "w": 192,
         "h": 192,
-        "bytes": 10082,
-        "sha1": "e79a8ae8095f85f2"
+        "bytes": 9942,
+        "sha1": "3c0408937006e5d6"
       },
       "shipped": {
         "file": "src/art/frames/neutral.webp",
         "w": 192,
         "h": 192,
-        "bytes": 4216,
-        "sha1": "b5e653b49e29e9c8"
-      }
+        "bytes": 4438,
+        "sha1": "28bb0f5cc996f5cb"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-16",
+          "master": "art-masters/_retired/frames/neutral.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean's frame sheet, 17 Sep 2026"
+        }
+      ]
     },
     "islands/drowned-isle": {
       "folder": "islands",
