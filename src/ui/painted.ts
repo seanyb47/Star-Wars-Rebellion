@@ -91,6 +91,20 @@ const MISSIONS = import.meta.glob('../art/missions/*.{webp,png,jpg}', {
  * edge and only a uniform edge survives that. The ones with a crest or a
  * skull over the top bar cannot be stretched and are not here.
  */
+/**
+ * The personnel rings: a hole with ornament round it, hung over a medallion.
+ *
+ * Not a `border-image` like `frames/`, and the difference is the point — an
+ * edge can be stretched and a crown cannot. These are square paintings with
+ * alpha inside and out, centred on their opening, so the only thing the UI
+ * needs to know is how much of the square the opening takes up.
+ */
+const RINGS = import.meta.glob('../art/rings/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
 const FRAMES = import.meta.glob('../art/frames/*.{webp,png,jpg}', {
   eager: true,
   query: '?url',
@@ -151,6 +165,7 @@ const ISLE_URLS = bySlug(ISLES);
 const CREATURE_URLS = bySlug(CREATURES);
 const BUILDING_URLS = bySlug(BUILDINGS);
 const FRAME_URLS = bySlug(FRAMES);
+const RING_URLS = bySlug(RINGS);
 const MISSION_URLS = bySlug(MISSIONS);
 const TROOP_URLS = bySlug(TROOPS);
 const CREST_URLS = bySlug(CRESTS);
@@ -210,6 +225,28 @@ export function paintedBuilding(type: string): string | undefined {
 const MISSION_ART: Record<string, string> = { diplomacy: 'parley', survey: 'explore' };
 export function paintedMission(type: string): string | undefined {
   return MISSION_URLS[slugify(MISSION_ART[type] ?? type)];
+}
+
+/**
+ * What fraction of each ring's square its opening is, measured off the art.
+ *
+ * Every ring is centred on its opening, so a face drawn at `size × opening`
+ * in the middle of a `size` square lands in the hole whichever ring is used.
+ * The five differ because the ornaments do: a plain ring is nearly all
+ * opening, and the Brethren's ornate one spends a third of its square on a
+ * skull, two sabres and a lot of torn cloth.
+ */
+export const RING_OPENING: Record<string, number> = {
+  'crown-ornate': 0.438,
+  'brethren-ornate': 0.373,
+  'crown-plain': 0.469,
+  'brethren-plain': 0.466,
+  'free-plain': 0.513,
+};
+
+/** One of the five personnel rings, by slug. */
+export function paintedRing(slug: string): string | undefined {
+  return RING_URLS[slugify(slug)];
 }
 
 /** The frame for a side, or for nobody's ground. */

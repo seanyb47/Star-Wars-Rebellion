@@ -81,6 +81,12 @@ FOLDERS: dict[str, tuple[int, int, str]] = {
     # sit on the errand sheet where a generic envelope icon used to, so square
     # and small is the whole brief.
     "missions": (256, 256, "the object an errand is, close and lit; the errand sheet's tile"),
+    # Sean's personnel frames, 18 September: five rings, two a side and one for
+    # nobody's. Not borders in the `border-image` sense — a ring is a hole with
+    # ornament round it, so it is shipped as a square painting with alpha and
+    # hung *over* a medallion rather than sliced. Square and centred on the
+    # opening, so one number per ring scales the face inside it.
+    "rings": (512, 512, "a circular frame, alpha outside and inside; centred on its opening"),
     # Sean's frame sheet, 17 September. These are not pictures, they are
     # borders: shipped square so the nine slices are symmetric, and cut from
     # the sheet's plainest frames on purpose — a uniform edge is what a

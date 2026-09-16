@@ -769,11 +769,20 @@ import {
   paintedIsle,
   paintedPortrait,
   paintedFrame,
+  paintedRing,
+  RING_OPENING,
   paintedShip,
   paintedCrest,
   paintedTroop,
 } from './painted';
 import { lordOfName } from '../sim/lords';
+import { CROWN_PRINCIPAL } from '../sim/constants';
+
+/**
+ * The smallest medallion worth hanging one of Sean's rings on. See the note
+ * beside `ringed` in `CharacterPortrait` for what was measured.
+ */
+const RING_MIN = 80;
 import { useInView } from './useInView';
 
 /**
@@ -960,6 +969,25 @@ export function CharacterPortrait({
    * crew, the crew screen, a fleet's officers, the errand sheet, the log.
    */
   const lord = lordOfName(name) !== undefined;
+  /**
+   * Which of Sean's five rings this person wears.
+   *
+   * Two a side and one for nobody's, which turns out to be exactly the number
+   * of things a medallion has to say: whose you are, and whether you are one of
+   * the ones the war is about. Ornate is the principals — the three Lords, and
+   * the Lord Regent on the Crown's side, who is its one irreplaceable officer
+   * in the same way. Plain is everybody else in uniform. The iron-and-rope one
+   * is for the unaligned, who are in nobody's uniform yet.
+   */
+  const ring = lord || name === CROWN_PRINCIPAL
+    ? faction === 'empire'
+      ? 'crown-ornate'
+      : 'brethren-ornate'
+    : faction === 'empire'
+      ? 'crown-plain'
+      : faction === 'alliance'
+        ? 'brethren-plain'
+        : 'free-plain';
 
   // A painting is only fetched once the medallion is near the screen; until
   // then the drawn cameo stands in, which is the whole reason it can.
@@ -974,12 +1002,26 @@ export function CharacterPortrait({
   // disappears at 32px and takes the drawing with it.
   const line = { stroke: INK.black, strokeWidth: 3, strokeLinejoin: 'round' as const };
 
-  return (
+  /**
+   * Below this the ring is not worth drawing.
+   *
+   * Measured against the art rather than guessed: at sixty-six pixels the
+   * crown is four pixels of gold mush and the skull is a grey smudge, and the
+   * face inside has shrunk to a thumbnail to make room for them. At eighty-odd
+   * every ring reads and the head is still a head. Under it the medallion
+   * keeps the plain stroke it always had, and a Lord keeps the brass band.
+   */
+  const ringed = size >= RING_MIN && paintedRing(ring) !== undefined;
+  // The hole is centred in every ring's square, so the face is simply drawn
+  // smaller and the ring laid over it.
+  const box = ringed ? Math.round(size * RING_OPENING[ring]) : size;
+
+  const medallion = (
     <svg
       ref={holder}
       viewBox="0 0 64 64"
-      width={size}
-      height={size}
+      width={box}
+      height={box}
       aria-hidden="true"
       style={{ opacity: dim ? 0.45 : 1, display: 'block' }}
     >
@@ -1092,16 +1134,26 @@ export function CharacterPortrait({
         metal is the same — a second visual language for the same fact would be
         worse than none.
       */}
-      {lord && <circle cx="32" cy="32" r="31" fill="none" stroke="var(--brass)" strokeWidth="5" />}
+      {lord && !ringed && (
+        <circle cx="32" cy="32" r="31" fill="none" stroke="var(--brass)" strokeWidth="5" />
+      )}
       <circle
         cx="32"
         cy="32"
-        r={lord ? 27.5 : 31}
+        r={lord && !ringed ? 27.5 : 31}
         fill="none"
         stroke={tint}
-        strokeWidth={lord ? 2 : 2.5}
+        strokeWidth={ringed ? 1.5 : lord ? 2 : 2.5}
       />
     </svg>
+  );
+
+  if (!ringed) return medallion;
+  return (
+    <span className="medallion" style={{ width: size, height: size, opacity: dim ? 0.55 : 1 }}>
+      {medallion}
+      <img className="medallion__ring" src={paintedRing(ring)} alt="" loading="lazy" />
+    </span>
   );
 }
 

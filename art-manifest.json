@@ -2972,6 +2972,141 @@
         "sha1": "cb700dc31cd19b38"
       }
     },
+    "rings/brethren-ornate": {
+      "folder": "rings",
+      "slug": "brethren-ornate",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Brethren Ornate",
+      "source": "Sean's personnel frame sheet, 18 Sep 2026",
+      "notes": "Cut from the five-ring sheet, keyed off its gradient ground on textured coverage, and normalised square about its opening.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/rings/brethren-ornate.webp",
+        "w": 512,
+        "h": 512,
+        "bytes": 76520,
+        "sha1": "da42660cc6a34569"
+      },
+      "shipped": {
+        "file": "src/art/rings/brethren-ornate.webp",
+        "w": 512,
+        "h": 512,
+        "bytes": 42268,
+        "sha1": "a8113f14b75864e2"
+      }
+    },
+    "rings/brethren-plain": {
+      "folder": "rings",
+      "slug": "brethren-plain",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Brethren Plain",
+      "source": "Sean's personnel frame sheet, 18 Sep 2026",
+      "notes": "Cut from the five-ring sheet, keyed off its gradient ground on textured coverage, and normalised square about its opening.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/rings/brethren-plain.webp",
+        "w": 512,
+        "h": 512,
+        "bytes": 66662,
+        "sha1": "4b0930add0c0fed4"
+      },
+      "shipped": {
+        "file": "src/art/rings/brethren-plain.webp",
+        "w": 512,
+        "h": 512,
+        "bytes": 34438,
+        "sha1": "84fd838972ace877"
+      }
+    },
+    "rings/crown-ornate": {
+      "folder": "rings",
+      "slug": "crown-ornate",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Crown Ornate",
+      "source": "Sean's personnel frame sheet, 18 Sep 2026",
+      "notes": "Cut from the five-ring sheet, keyed off its gradient ground on textured coverage, and normalised square about its opening.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/rings/crown-ornate.webp",
+        "w": 512,
+        "h": 512,
+        "bytes": 79890,
+        "sha1": "53e617561dc56b18"
+      },
+      "shipped": {
+        "file": "src/art/rings/crown-ornate.webp",
+        "w": 512,
+        "h": 512,
+        "bytes": 45556,
+        "sha1": "a0427b15e0142978"
+      }
+    },
+    "rings/crown-plain": {
+      "folder": "rings",
+      "slug": "crown-plain",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Crown Plain",
+      "source": "Sean's personnel frame sheet, 18 Sep 2026",
+      "notes": "Cut from the five-ring sheet, keyed off its gradient ground on textured coverage, and normalised square about its opening.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/rings/crown-plain.webp",
+        "w": 512,
+        "h": 512,
+        "bytes": 59572,
+        "sha1": "3ce1678c64a86475"
+      },
+      "shipped": {
+        "file": "src/art/rings/crown-plain.webp",
+        "w": 512,
+        "h": 512,
+        "bytes": 32818,
+        "sha1": "7b58d62af1aa47cb"
+      }
+    },
+    "rings/free-plain": {
+      "folder": "rings",
+      "slug": "free-plain",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Free Plain",
+      "source": "Sean's personnel frame sheet, 18 Sep 2026",
+      "notes": "Cut from the five-ring sheet, keyed off its gradient ground on textured coverage, and normalised square about its opening.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/rings/free-plain.webp",
+        "w": 512,
+        "h": 512,
+        "bytes": 62916,
+        "sha1": "6567445d69ac9bab"
+      },
+      "shipped": {
+        "file": "src/art/rings/free-plain.webp",
+        "w": 512,
+        "h": 512,
+        "bytes": 33060,
+        "sha1": "01a9ef51be82a2af"
+      }
+    },
     "scenes/battle": {
       "folder": "scenes",
       "slug": "battle",

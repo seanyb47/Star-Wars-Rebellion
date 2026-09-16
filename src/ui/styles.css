@@ -1204,7 +1204,15 @@ button {
   font-weight: 700;
 }
 .slot--dim { opacity: 0.55; }
-.slot__icon { display: flex; align-items: center; justify-content: center; height: 68px; }
+/* The picture on a tile. A fixed 68 held every board's rows in step while
+   every icon was a glyph of about that size; a personnel ring is 132 and was
+   simply drawn over the name. A floor rather than a ceiling: the boards that
+   were in step stay in step, and anything taller pushes the name down instead
+   of landing on it. */
+.slot__icon {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 68px; flex: none;
+}
 .slot__name {
   font-size: 11px; line-height: 1.2; color: var(--text);
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -2062,4 +2070,28 @@ button.tcard:hover { border-color: var(--brass); }
 }
 .report-age b {
   color: var(--brass);
+}
+
+/* A medallion wearing one of the personnel rings.
+   The face is drawn smaller and centred; the ring is laid over the whole
+   square, its ornaments hanging out past the head the way they do on the
+   painting. Nothing here is a hit target, so the ring never takes a tap
+   meant for the tile under it. */
+.medallion {
+  position: relative;
+  display: block;
+  flex: none;
+}
+.medallion > svg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.medallion__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }

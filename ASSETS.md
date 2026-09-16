@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**127 of 140 painted.** 4001KB shipped, 11.6MB of masters kept back.
+**132 of 145 painted.** 4185KB shipped, 11.9MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -177,6 +177,18 @@ the object an errand is, close and lit; the errand sheet's tile. 10 of 10.
 | Research | `research` | 1 | 20KB | 328×333, 58KB | 328×328 @ 0,2 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
 | Sabotage | `sabotage` | 1 | 15KB | 284×309, 41KB | 284×284 @ 0,12 | 2026-09-16 | Sean's mission contact sheet, 17 Sep 2026 |
 
+## rings — 512×512
+
+a circular frame, alpha outside and inside; centred on its opening. 5 of 5.
+
+| subject | slug | v | shipped | master | crop | added | source |
+|---|---|---|---|---|---|---|---|
+| Brethren Ornate | `brethren-ornate` | 1 | 41KB | 512×512, 74KB | whole frame | 2026-09-16 | Sean's personnel frame sheet, 18 Sep 2026 |
+| Brethren Plain | `brethren-plain` | 1 | 33KB | 512×512, 65KB | whole frame | 2026-09-16 | Sean's personnel frame sheet, 18 Sep 2026 |
+| Crown Ornate | `crown-ornate` | 1 | 44KB | 512×512, 78KB | whole frame | 2026-09-16 | Sean's personnel frame sheet, 18 Sep 2026 |
+| Crown Plain | `crown-plain` | 1 | 32KB | 512×512, 58KB | whole frame | 2026-09-16 | Sean's personnel frame sheet, 18 Sep 2026 |
+| Free Plain | `free-plain` | 1 | 32KB | 512×512, 61KB | whole frame | 2026-09-16 | Sean's personnel frame sheet, 18 Sep 2026 |
+
 ## frames — 192×192
 
 a plain frame, uniform along each edge; stretched around art as a border. 3 of 3.
@@ -306,6 +318,11 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **portraits/tobias-renn** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **portraits/wren-tally** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **portraits/wyatt-ansell** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **rings/brethren-ornate** — Cut from the five-ring sheet, keyed off its gradient ground on textured coverage, and normalised square about its opening.
+- **rings/brethren-plain** — Cut from the five-ring sheet, keyed off its gradient ground on textured coverage, and normalised square about its opening.
+- **rings/crown-ornate** — Cut from the five-ring sheet, keyed off its gradient ground on textured coverage, and normalised square about its opening.
+- **rings/crown-plain** — Cut from the five-ring sheet, keyed off its gradient ground on textured coverage, and normalised square about its opening.
+- **rings/free-plain** — Cut from the five-ring sheet, keyed off its gradient ground on textured coverage, and normalised square about its opening.
 - **scenes/battle** — Delivered 1536x1024 (square-ish) rather than the 1024x432 banner shape; the shipped band is the middle of it. Crop recovered by matching the shipped file against the master, not recorded at the time — the reason this register now exists.
 - **ships/brig** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/bulwark** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
