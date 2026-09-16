@@ -1451,6 +1451,12 @@ button.tcard:hover { border-color: var(--brass); }
 .tcard__art { position: relative; display: block; line-height: 0; background: var(--water-deep); }
 /* A painting at card size: fill the frame, crop the sides rather than letterbox.
    The subjects are centred in their own tiles, so a centre crop keeps them. */
+/* A framed painting: the frame is a border-image, so it is drawn in the
+   element's own border box and takes no layout room the box did not have. The
+   radius goes — a bitmap frame has square corners and rounding them clips the
+   corner ornament off. */
+.painting--framed { border-radius: 0 !important; overflow: visible; }
+.painting--framed > img { border-radius: 0; }
 .painting { position: relative; overflow: hidden; background: var(--water-deep); }
 .painting img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; display: block; }
 .painting__cameo { display: flex; align-items: center; justify-content: center; height: 100%; }

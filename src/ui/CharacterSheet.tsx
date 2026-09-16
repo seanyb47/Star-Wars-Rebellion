@@ -183,6 +183,7 @@ export function CharacterSheet({
           somebody is, is the reason to send them; the ratings are only how it
           goes once you have. */}
       <CharacterPainting
+        framed
         name={character.name}
         faction={
           character.faction === 'empire' || character.faction === 'alliance'

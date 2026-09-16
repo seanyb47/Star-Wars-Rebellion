@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 /**
  * Every picture in the game, drawn as SVG in code.
  *
@@ -767,6 +768,7 @@ import {
   paintedIsland,
   paintedIsle,
   paintedPortrait,
+  paintedFrame,
   paintedShip,
   paintedCrest,
   paintedTroop,
@@ -1422,21 +1424,70 @@ export function NarratorPortrait({
  * A character with no painting gets the drawn cameo instead, at a size where it
  * is a deliberate illustration rather than a stand-in.
  */
+/**
+ * The border-image for a side, as an inline style.
+ *
+ * Inline rather than a class per side because the url comes out of the
+ * bundler's glob and only it knows the hashed name. `border-image-slice` is
+ * in source pixels — the frames ship 192 square and their border band and
+ * corner ornament fit inside 46 of that — and `border-image-width` is in CSS
+ * pixels, so the same source draws a 14px frame round a portrait and the same
+ * 14px round a banner three times as wide.
+ */
+function frameStyle(side: string): CSSProperties {
+  const frame = paintedFrame(side);
+  if (!frame) return {};
+  return {
+    borderStyle: 'solid',
+    borderWidth: 15,
+    borderImageSource: `url(${frame})`,
+    borderImageSlice: 40,
+    borderImageWidth: '15px',
+    borderImageRepeat: 'stretch',
+  };
+}
+
 export function CharacterPainting({
   name,
   faction,
   people,
   height = 150,
+  framed = false,
 }: {
   name: string;
   faction: 'empire' | 'alliance' | 'neutral';
   people?: string;
   height?: number;
+  /**
+   * Whether to hang it in the frame of whoever they answer to.
+   *
+   * Opt-in, and the reason is the crew grid: framed, every card lost fifteen
+   * pixels a side of face to a border and a mount, a Lord's card wore the
+   * brass card border *and* a timber frame at once, and six of them on one
+   * screen read as a junk shop. A frame is for one big painting you are
+   * looking at, not for a grid of thumbnails you are scanning.
+   */
+  framed?: boolean;
 }) {
   const [holder, near] = useInView<HTMLDivElement>();
   const painting = near ? paintedPortrait(name) : undefined;
+  /**
+   * The frame of whoever they answer to.
+   *
+   * Sean's frame sheet, 17 September: *"apply where you think will look
+   * good."* The two biggest paintings on any screen are an officer's portrait
+   * and an island's banner, and both sat in a plain rounded box. A frame is
+   * the cheapest thing in the game that says whose this is — the Crown's
+   * brass corners, the Brethren's weathered timber, rope for anyone who has
+   * not chosen — and it costs no room, because it is drawn in the padding the
+   * box already had.
+   */
   return (
-    <div ref={holder} className="painting" style={{ height }}>
+    <div
+      ref={holder}
+      className={`painting${framed ? ' painting--framed' : ''}`}
+      style={{ height, ...(framed ? frameStyle(faction) : {}) }}
+    >
       {painting ? (
         <img src={painting} alt="" loading="lazy" />
       ) : (
@@ -1499,7 +1550,11 @@ export function IslandBanner({
     );
   }
   return (
-    <div ref={holder} className="isle-banner" style={{ height: Math.round(height * 0.86) }}>
+    <div
+      ref={holder}
+      className="isle-banner painting--framed"
+      style={{ height: Math.round(height * 0.86), ...frameStyle(faction) }}
+    >
       <img src={painting} alt="" loading="lazy" />
       {/* The panel's own text starts immediately under this, so the foot of the
           banner fades rather than ending on a hard edge. */}

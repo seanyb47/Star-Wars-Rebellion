@@ -81,6 +81,13 @@ FOLDERS: dict[str, tuple[int, int, str]] = {
     # sit on the errand sheet where a generic envelope icon used to, so square
     # and small is the whole brief.
     "missions": (256, 256, "the object an errand is, close and lit; the errand sheet's tile"),
+    # Sean's frame sheet, 17 September. These are not pictures, they are
+    # borders: shipped square so the nine slices are symmetric, and cut from
+    # the sheet's plainest frames on purpose — a uniform edge is what a
+    # `border-image` can stretch around an island banner or a portrait without
+    # showing the join. The ornate ones with a crest or a skull over the top
+    # bar cannot be stretched and are not here.
+    "frames": (192, 192, "a plain frame, uniform along each edge; stretched around art as a border"),
     "scenes": (1024, 432, "full-bleed dispatch banner, quiet sky"),
     # The one painting the interface draws on top of, so it ships at the chart's
     # own proportion and is judged by whether a mark reads against it.

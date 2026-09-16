@@ -993,6 +993,87 @@
         "sha1": "281a8d57ecfd7a47"
       }
     },
+    "frames/alliance": {
+      "folder": "frames",
+      "slug": "alliance",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Alliance",
+      "source": "Sean's frame sheet, 17 Sep 2026",
+      "notes": "Cut from a 27-frame sheet and squared, so it is upscaled and its proportions are not the source's. A border-image stretches each edge anyway.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/frames/alliance.webp",
+        "w": 192,
+        "h": 192,
+        "bytes": 7256,
+        "sha1": "731bb863ea9cc18f"
+      },
+      "shipped": {
+        "file": "src/art/frames/alliance.webp",
+        "w": 192,
+        "h": 192,
+        "bytes": 2886,
+        "sha1": "32a5286745833207"
+      }
+    },
+    "frames/empire": {
+      "folder": "frames",
+      "slug": "empire",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Empire",
+      "source": "Sean's frame sheet, 17 Sep 2026",
+      "notes": "Cut from a 27-frame sheet and squared, so it is upscaled and its proportions are not the source's. A border-image stretches each edge anyway.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/frames/empire.webp",
+        "w": 192,
+        "h": 192,
+        "bytes": 5042,
+        "sha1": "2ff06b315e25732d"
+      },
+      "shipped": {
+        "file": "src/art/frames/empire.webp",
+        "w": 192,
+        "h": 192,
+        "bytes": 2020,
+        "sha1": "c2abfd908c2cc342"
+      }
+    },
+    "frames/neutral": {
+      "folder": "frames",
+      "slug": "neutral",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Neutral",
+      "source": "Sean's frame sheet, 17 Sep 2026",
+      "notes": "Cut from a 27-frame sheet and squared, so it is upscaled and its proportions are not the source's. A border-image stretches each edge anyway.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/frames/neutral.webp",
+        "w": 192,
+        "h": 192,
+        "bytes": 10082,
+        "sha1": "e79a8ae8095f85f2"
+      },
+      "shipped": {
+        "file": "src/art/frames/neutral.webp",
+        "w": 192,
+        "h": 192,
+        "bytes": 4216,
+        "sha1": "b5e653b49e29e9c8"
+      }
+    },
     "islands/drowned-isle": {
       "folder": "islands",
       "slug": "drowned-isle",

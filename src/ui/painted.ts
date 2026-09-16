@@ -81,6 +81,22 @@ const MISSIONS = import.meta.glob('../art/missions/*.{webp,png,jpg}', {
   import: 'default',
 }) as Record<string, string>;
 
+/**
+ * A frame per side: the Crown's brass corners, the Brethren's weathered
+ * timber, and rope for anything neither of them holds.
+ *
+ * Sean's frame sheet, 17 September. These are borders rather than pictures —
+ * shipped square so the nine slices come out symmetric, and cut from the
+ * sheet's plainest frames on purpose, because a `border-image` stretches each
+ * edge and only a uniform edge survives that. The ones with a crest or a
+ * skull over the top bar cannot be stretched and are not here.
+ */
+const FRAMES = import.meta.glob('../art/frames/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
 /** One painting per garrison company type: the Marines, the Reef Guard. */
 const TROOPS = import.meta.glob('../art/troops/*.{webp,png,jpg}', {
   eager: true,
@@ -134,6 +150,7 @@ const FACE_URLS = bySlug(FACES);
 const ISLE_URLS = bySlug(ISLES);
 const CREATURE_URLS = bySlug(CREATURES);
 const BUILDING_URLS = bySlug(BUILDINGS);
+const FRAME_URLS = bySlug(FRAMES);
 const MISSION_URLS = bySlug(MISSIONS);
 const TROOP_URLS = bySlug(TROOPS);
 const CREST_URLS = bySlug(CRESTS);
@@ -193,6 +210,11 @@ export function paintedBuilding(type: string): string | undefined {
 const MISSION_ART: Record<string, string> = { diplomacy: 'parley', survey: 'explore' };
 export function paintedMission(type: string): string | undefined {
   return MISSION_URLS[slugify(MISSION_ART[type] ?? type)];
+}
+
+/** The frame for a side, or for nobody's ground. */
+export function paintedFrame(side: string): string | undefined {
+  return FRAME_URLS[slugify(side === 'empire' || side === 'alliance' ? side : 'neutral')];
 }
 
 /** A company type's painting, by its id (`crown-marines`, `reef-guard`). */
