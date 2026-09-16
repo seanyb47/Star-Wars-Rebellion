@@ -9,6 +9,7 @@ import {
   RECRUITS_AT_START,
   RECRUITS_IN_PLAY,
   rollRating,
+  watchOf,
   CAPITAL_WALLS,
   CROWN_PRINCIPAL,
   HOME_PORT_WALLS,
@@ -767,6 +768,14 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         espionage: roll(entry.ratings.espionage),
         combat: roll(entry.ratings.combat),
         leadership: roll(entry.ratings.leadership),
+        // The fifth rating follows from the four above unless the bible names
+        // one, so nobody has to keep a second set of numbers in step.
+        watch: watchOf({
+          espionage: roll(entry.ratings.espionage),
+          combat: roll(entry.ratings.combat),
+          leadership: roll(entry.ratings.leadership),
+          watch: (entry.ratings as { watch?: number }).watch,
+        }),
         locationSystemId: where(entry.name, index),
         status: 'available',
       });
@@ -828,6 +837,12 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       espionage: roll(entry.ratings.espionage),
       combat: roll(entry.ratings.combat),
       leadership: roll(entry.ratings.leadership),
+      watch: watchOf({
+        espionage: roll(entry.ratings.espionage),
+        combat: roll(entry.ratings.combat),
+        leadership: roll(entry.ratings.leadership),
+        watch: (entry.ratings as { watch?: number }).watch,
+      }),
       locationSystemId: openIslands[index].id,
       status: 'available',
       appearsOnDay:

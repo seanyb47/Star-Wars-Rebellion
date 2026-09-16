@@ -405,6 +405,105 @@ export const BEAST_HIT_CHANCE = 0.55;
  */
 export const COMMANDER_WATCH = 0.25;
 
+/*
+ * The watch: how hard it is to do quiet work on somebody else's island.
+ *
+ * Sean's rule, 17 September, and it is one number built out of four things:
+ * *"all garrisons have a detection score. So do all crew members... If a crew
+ * member is idle their detection score is added to the island's overall
+ * detection score. Loyalty also improves detection. And a crew member set to
+ * command improves the overall detection score of the island by a factor of
+ * their leadership. Therefore covert action is more easily succeeded when
+ * enemy loyalty is low. There is no commander or crew on the island. There
+ * are few garrisons."*
+ *
+ * Every company ashore already carried a `watch` rating and only ever spent it
+ * on smuggling. This is what it was for.
+ */
+
+/**
+ * An officer's own watch, when the bible does not give them one.
+ *
+ * Sean: *"should be low for many but those who specialize in espionage,
+ * combat or leadership will probably have better."* Espionage is the bulk of
+ * it — noticing is the thing Espionage *is* — and the better of Combat and
+ * Leadership adds a quarter, which is the sentry and the officer whose job is
+ * knowing what happens on their island. Diplomacy buys nothing: a good talker
+ * is not a good watchman.
+ *
+ * Lands between about 25 and 70 on the present cast, against companies worth
+ * 10 to 35 apiece — so one good officer standing about is worth two companies
+ * of the line, and a poor one is worth one.
+ */
+export const WATCH_FROM_ESPIONAGE = 0.5;
+export const WATCH_FROM_BEARING = 0.25;
+/**
+ * What a posted commander is worth, on their Leadership.
+ *
+ * Bigger than standing about, because it is the whole of the job rather than
+ * a side effect of being there: a commander is the one person on the island
+ * whose business is that nothing happens on it without them hearing of it.
+ */
+export const WATCH_FROM_COMMAND = 0.9;
+/**
+ * What the island's own people are worth, at full allegiance.
+ *
+ * A population that is with its governor is a population that mentions the
+ * strangers asking questions; one that is not says nothing to anybody. This is
+ * the term that makes Sean's chain work — soften an island with incitement and
+ * every covert errand on it afterwards is easier — and it is why a raid on a
+ * loyal capital is a different proposition from a raid on a sullen frontier.
+ */
+export const WATCH_FROM_LOYALTY = 60;
+/**
+ * How much of the island's watch a covert errand actually has to beat, against
+ * how much an open one does. Talking to people in daylight is not creeping
+ * about their powder store.
+ */
+export const COVERT_EXPOSURE = 1;
+export const OPEN_EXPOSURE = 0.25;
+/**
+ * The watch a party can shrug off per point of its best Espionage, and the
+ * floor and ceiling on being found out. Nobody is ever safe on somebody
+ * else's island and nobody is ever certain to be caught.
+ */
+export const WATCH_PER_ESPIONAGE = 1.6;
+
+/**
+ * What one person notices.
+ *
+ * Derived rather than written down, so a fifth rating nobody has to maintain
+ * cannot drift out of step with the four that decide everything else — and so
+ * the bible's rule is the formula rather than a hope about numbers somebody
+ * typed. A bible entry may still name one, the way a ship class overrides its
+ * role's stats, for anyone who should see more or less than their ratings say.
+ */
+export function watchOf(person: {
+  espionage: number;
+  combat: number;
+  leadership: number;
+  watch?: number;
+}): number {
+  if (person.watch !== undefined) return person.watch;
+  return Math.round(
+    person.espionage * WATCH_FROM_ESPIONAGE +
+      Math.max(person.combat, person.leadership) * WATCH_FROM_BEARING,
+  );
+}
+export const FOIL_FLOOR = 0.03;
+export const FOIL_CEILING = 0.85;
+/**
+ * Being caught, once you have been found out.
+ *
+ * Detection and consequence are separate questions: the watch decides whether
+ * anybody notices, and this decides whether the people who noticed can lay
+ * hands on you. Scaled so a quiet frontier holding with two companies and no
+ * commander rarely takes anybody, and a loyal capital with six and a general
+ * in the chair usually does. Never certain — the boat is always close.
+ */
+export const CAPTURE_DIVISOR = 260;
+export const CAPTURE_CEILING = 0.7;
+
 export const BEAST_WAKE_DAY = 200;
 export const BEAST_WAKE_CHANCE = 0.01;
 export const BEAST_MOVE_CHANCE = 0.13;
@@ -788,7 +887,23 @@ export const FOIL_PER_WATCHER = 0.3;
  *  rating. Pushing an island under UPRISING_SUPPORT is what sets it alight. */
 export const INCITE_SUPPORT_LOSS = 9;
 /** Incitement is harder work than a parley; this scales the officer's chance. */
-export const INCITE_SUCCESS_SCALE = 0.75;
+/**
+ * Stirring up an island, on Leadership against its loyalty.
+ *
+ * Sean: *"Parley is only to gain loyalty on your locations or neutral ones.
+ * You have to send your crew on Incite Uprising mission if you're trying to
+ * inspire loyalty in an enemy location."* So this is the only lever there is
+ * on ground somebody else holds, and it is priced off the thing it is arguing
+ * against: at a hundred for them it is near hopeless, at fifty-five it is the
+ * best errand on the board. Which is what makes Sean's chain work — soften the
+ * island first, and every covert errand on it afterwards is easier, because
+ * the watch falls with the loyalty.
+ */
+export const INCITE_BASE = 0.62;
+export const INCITE_LOYALTY_WEIGHT = 0.45;
+/** What a garrison is worth at keeping hold of somebody in its cells, against
+ *  the Combat of the party come to take them out. */
+export const RESCUE_GARRISON_DIVISOR = 420;
 
 /**
  * The floor on a sabotage, before the saboteur's own Espionage is added.
@@ -1250,6 +1365,11 @@ export const AI_MISSION_PATIENCE = 4;
  * that has to do the winning. Hunting is a standing detail, not the corps.
  */
 export const AI_HUNTERS = 2;
+/** How much of an island's watch the opponent counts against a covert errand
+ *  there. A loyal capital with six companies is worth roughly two hundred, so
+ *  at this rate it costs an abduction most of its bounty — which is the point:
+ *  soften it first, or go somewhere else. */
+export const AI_WATCH_CAUTION = 0.6;
 /**
  * What the first officer at the yards is worth, over and above an ordinary
  * spell of yard work.

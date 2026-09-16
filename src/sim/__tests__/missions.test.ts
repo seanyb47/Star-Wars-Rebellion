@@ -16,6 +16,7 @@ import {
   quality,
   recruitChance,
   missionError,
+  missionOdds,
   missionTypeFor,
   startMission,
   successChance,
@@ -224,10 +225,29 @@ describe('resolution', () => {
     expect(getSystem(state, sameSector.id).control).toBe('empire');
   });
 
-  it('queues a continue-or-return decision for the player', () => {
+  /**
+   * Sean: *"parley mission should keep going automatically until loyalty is
+   * 100% yours or you're interrupted."* It is the one errand with an end you
+   * can see coming and no decision in the middle of it, and asking every
+   * fortnight was a prompt whose answer was always the same.
+   */
+  it('never asks about a parley: the talks run themselves', () => {
     const { state, diplomat, sameSector } = setup();
     const cycle = cycleDays(state, diplomat.id, sameSector.id);
     startMission(state, diplomat.id, sameSector.id);
+    runDays(state, cycle, 2);
+    expect(state.pendingDecisions).toHaveLength(0);
+    expect(getCharacter(state, diplomat.id).mission?.type).toBe('diplomacy');
+    expect(getCharacter(state, diplomat.id).mission!.daysRemaining).toBe(MISSION_WORK_DAYS);
+  });
+
+  it('queues a continue-or-return decision on an errand that has one', () => {
+    const { state, diplomat } = setup();
+    // Charting a chain is a decision every time: there is always more dark
+    // water, and whether it is worth another fortnight is the player's call.
+    const dark = state.systems.find((s) => !s.explored.empire)!;
+    const cycle = cycleDays(state, diplomat.id, dark.id);
+    startMission(state, diplomat.id, dark.id, 'survey');
     runDays(state, cycle, 2);
     expect(state.pendingDecisions).toHaveLength(1);
     expect(state.pendingDecisions[0].characterId).toBe(diplomat.id);
@@ -318,7 +338,13 @@ describe('incitement', () => {
     const state = generateGalaxy(seed);
     const agent = state.characters.find((c) => c.faction === 'empire')!;
     agent.diplomacy = 100;
-    agent.espionage = 0; // measure the risk undiluted by craft
+    // Incitement is settled on Leadership now, not Diplomacy.
+    agent.leadership = 100;
+    // And Espionage is what gets them through the door before any of that is
+    // asked. Covert work by somebody who cannot hide is caught, which is the
+    // design: the risk tests below pass no agent at all and so still measure
+    // the island's watch undiluted.
+    agent.espionage = 90;
     const island = state.systems.find(
       (s) => s.control === 'alliance' && s.populated && quiet(state, s),
     )!;
@@ -328,9 +354,20 @@ describe('incitement', () => {
     return { state, agent, island };
   }
 
-  it('is harder than a parley, and every point it takes off the holder is yours', () => {
+  it('is harder the tighter their grip, and every point it takes off them is yours', () => {
     const { state, agent, island } = withEnemyIsland(70);
-    expect(successChance(agent, 'incite')).toBeLessThan(successChance(agent, 'diplomacy'));
+    /*
+     * Sean's rule, off the memo: incitement is Leadership *modified by the
+     * island's loyalty*, so the island is half the sum and the same officer is
+     * a different proposition on a wavering holding and on a wholly loyal one.
+     * It used to be a flat discount on Diplomacy, which made an enemy capital
+     * exactly as easy to stir as a frontier outpost.
+     */
+    const tight = missionOdds(state, agent, island, 'empire', 'incite');
+    island.support = { empire: 45, alliance: 55 };
+    const wavering = missionOdds(state, agent, island, 'empire', 'incite');
+    island.support = { empire: 30, alliance: 70 };
+    expect(wavering).toBeGreaterThan(tight);
 
     startMission(state, agent.id, island.id);
     expect(getCharacter(state, agent.id).mission!.type).toBe('incite');
@@ -342,6 +379,7 @@ describe('incitement', () => {
       const trial = generateGalaxy(311);
       const who = trial.characters.find((c) => c.id === agent.id)!;
       who.diplomacy = 100;
+      who.leadership = 100;
       const where = trial.systems.find((s) => s.id === island.id)!;
       where.explored.empire = true;
       where.support = { ...before };
@@ -371,16 +409,31 @@ describe('incitement', () => {
     island.garrison = 1;
     const sailAndWork = cycleDays(state, agent.id, island.id) + 12;
     startMission(state, agent.id, island.id);
-    // Work it until it rises, answering its own continue decisions.
+    /*
+     * Work it until it rises, answering its own continue decisions — and
+     * sending the officer back when the watch turns them off the island,
+     * which is what a player does and what the rule now requires. Being found
+     * out ends the errand outright since 17 September: the two stages are the
+     * door and the job, and a party caught at the door never gets to the job.
+     * The test used to give up at the first setback, which measured luck.
+     */
     let rose = false;
-    for (let cycle = 0; cycle < 8 && !rose; cycle++) {
+    for (let cycle = 0; cycle < 12 && !rose; cycle++) {
       runDays(state, sailAndWork, 7 + cycle);
       rose = getSystem(state, island.id).uprising;
-      if (!rose && state.pendingDecisions.length > 0) {
+      if (rose) break;
+      const who = getCharacter(state, agent.id);
+      expect(who.status, 'taken on a one-company island').not.toBe('captured');
+      if (who.status === 'injured') {
+        who.status = 'available';
+        who.injuredDays = undefined;
+        startMission(state, who.id, island.id);
+        continue;
+      }
+      if (state.pendingDecisions.length > 0) {
         state.pendingDecisions = [];
         continueMission(state, agent.id);
       }
-      if (getCharacter(state, agent.id).status === 'injured') break;
     }
     expect(rose).toBe(true);
   });

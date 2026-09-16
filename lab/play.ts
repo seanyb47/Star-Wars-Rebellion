@@ -9,6 +9,7 @@ import { orderFightRound, orderBreakOff, orderCloseBattle } from '../src/sim/com
 import { battleView, fleetBombard } from '../src/sim/fleets';
 import { lords, powerOf } from '../src/sim/lords';
 import { audit, type Violation } from './audit';
+import { isLord } from '../src/sim/lords';
 import { pilot, type PilotTally } from './pilot';
 import { shipClass } from '../src/sim/constants';
 import type { Tier } from '../src/sim/doctrine';
@@ -218,7 +219,10 @@ export function playGame(
   if (!state.winner) {
     const hw = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
     const walls = hw.facilities.filter((f) => f.type === 'fort' && !f.building).length;
-    const caught = state.characters.filter((c) => c.status === 'captured' && c.faction === 'alliance').length;
+    // Lords, not every Confederate officer in a cell. It counted the whole
+    // roster and printed it "of 3", so a stalled war could report "5/3 Lords"
+    // and nobody noticed until the covert rework started filling the cells.
+    const caught = state.characters.filter((c) => c.status === 'captured' && isLord(c)).length;
     const weight = Math.max(0, ...state.fleets.filter((f) => f.faction === 'alliance').map(fleetBombard));
     stall =
       islands('empire') <= 10 ? `Confederacy holds ${islands('alliance')}, cannot finish Highwater (${walls} walls, best bombard ${weight})`

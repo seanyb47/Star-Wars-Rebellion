@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { advanceDay, checkVictory } from '../advanceDay';
 import { MISSION_WORK_DAYS, YARD_BUILDS } from '../constants';
 import { generateGalaxy } from '../galaxy';
-import { newGame, orderBuild, resolvePendingMission, sendDiplomat, setSpeed } from '../commands';
+import { newGame, orderBuild, sendDiplomat, setSpeed } from '../commands';
 import { clearSave, loadGame, saveGame } from '../persist';
-import { getSystem } from '../helpers';
+import { getSystem, setSupport } from '../helpers';
 import { travelDays } from '../missions';
 import type { GameState } from '../types';
 
@@ -165,12 +165,34 @@ describe('commands', () => {
     // Exactly the passage plus the work: the clock pauses on a decision in
     // play, and a test that runs past it sees the same decision raised again.
     state = tick(sent.state, travelDays(state, home.id, target.id) + MISSION_WORK_DAYS);
-    expect(state.pendingDecisions).toHaveLength(1);
 
-    const resolved = resolvePendingMission(state, diplomat.id, 'return');
-    expect(resolved.error).toBeUndefined();
-    expect(resolved.state.pendingDecisions).toHaveLength(0);
-    const freed = resolved.state.characters.find((c) => c.id === diplomat.id)!;
+    /*
+     * And nobody is asked anything. A parley runs itself until the island is
+     * wholly yours or something stops it — Sean's rule, 17 September — so the
+     * end-to-end test is that the talks carry on by themselves and stop when
+     * there is nobody left to talk round.
+     */
+    expect(state.pendingDecisions).toHaveLength(0);
+    expect(state.characters.find((c) => c.id === diplomat.id)!.mission?.type).toBe('diplomacy');
+
+    // Cycle after cycle, unasked.
+    state = tick(state, MISSION_WORK_DAYS * 2);
+    expect(state.pendingDecisions).toHaveLength(0);
+    expect(state.characters.find((c) => c.id === diplomat.id)!.mission?.type).toBe('diplomacy');
+
+    /*
+     * And they stop when there is nobody left to talk round. Set outright
+     * rather than argued up to: on an island you already hold, opinion drifts
+     * back toward `HELD_SUPPORT_LEVEL` every day, so a parley on your own
+     * ground settles into a tug of war in the sixties and never reaches the
+     * ceiling by itself. Reaching it is a thing that happens on a neutral
+     * island being won over, or with the drift beaten by something else — and
+     * either way this is the rule for what happens when it does.
+     */
+    for (const s of state.systems) if (s.id === target.id) setSupport(s, 'empire', 100);
+    state = tick(state, MISSION_WORK_DAYS + 1);
+    const freed = state.characters.find((c) => c.id === diplomat.id)!;
+    expect(freed.mission).toBeUndefined();
     expect(freed.status).toBe('available');
   });
 });

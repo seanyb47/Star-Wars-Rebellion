@@ -43,8 +43,8 @@ function place(state: GameState, who: Character, system: System) {
 }
 
 /** Run enough days for a mission started on the spot to land and report. */
-function runMission(state: GameState, days = MISSION_WORK_DAYS + 2) {
-  const rng = createRng(7);
+function runMission(state: GameState, days = MISSION_WORK_DAYS + 2, seed = 7) {
+  const rng = createRng(seed);
   for (let i = 0; i < days; i++) advanceMissions(state, rng);
 }
 
@@ -96,7 +96,10 @@ describe('abduction', () => {
     const me = state.characters.find((c) => c.faction === 'empire')!;
     place(state, them, mine);
     place(state, me, mine);
+    // Espionage gets the party through the door; Combat takes the mark off
+    // the quay. Two ratings, two stages, since 17 September.
     me.espionage = 100;
+    me.combat = 100;
     them.combat = 1;
     them.leadership = 1;
 
@@ -134,6 +137,12 @@ describe('abduction', () => {
     startMission(state, me.id, mine.id);
     runMission(state);
     expect(them.status).toBe('captured');
+    // And the abductor is done. Their side is the player's here, so the errand
+    // ends in a report waiting to be answered — leave it unanswered and the
+    // officer keeps working the same quay every fortnight, which is how this
+    // test used to lift the rescuer off it before she could reach the cells.
+    endMission(state, me.id);
+    state.pendingDecisions = [];
 
     // The cell is on a named island, and that island is now an errand for the
     // side that lost them — which is the whole point of holding rather than
@@ -147,9 +156,32 @@ describe('abduction', () => {
       (c) => c.faction === 'alliance' && c.id !== them.id && c.status === 'available',
     )!;
     place(state, saviour, gaol);
+    // Same two stages: Espionage past the watch, Combat past the gaolers.
     saviour.espionage = 100;
-    startMission(state, saviour.id, gaol.id, 'rescue');
-    runMission(state);
+    saviour.combat = 100;
+    /*
+     * And the gaolers are real now: the rescue is set against the companies
+     * holding the cells, so storming a six-company capital with one officer is
+     * a coin flip at best and a way to lose the rescuer at worst — *"a rescue
+     * against a large garrison and a strong commander is an entirely different
+     * operation"*. That is the rule working and not the rule under test, so the
+     * capital is thinly held here, the way it would be with its companies away
+     * on a landing. What is under test is that a prisoner comes back when
+     * somebody comes for them, and never otherwise.
+     */
+    gaol.garrison = 1;
+    for (let go = 0; go < 8 && them.status === 'captured'; go++) {
+      if (saviour.status === 'injured') {
+        saviour.status = 'available';
+        saviour.injuredDays = undefined;
+      }
+      expect(saviour.status, 'the rescuer was taken too').not.toBe('captured');
+      if (saviour.status === 'available') startMission(state, saviour.id, gaol.id, 'rescue');
+      // A fresh seed each attempt: the draws are replayed from the seed every
+      // call, so re-running the same one only ever re-runs the same luck.
+      runMission(state, MISSION_WORK_DAYS + 2, 7 + go);
+      state.pendingDecisions = [];
+    }
     expect(them.status).toBe('available');
     // Home among their own, not left standing in the Crown's harbor.
     expect(getSystem(state, them.locationSystemId).control).not.toBe('empire');
@@ -259,8 +291,13 @@ describe('rescue', () => {
     expect(missionTypeFor(state, empireHq, 'alliance')).toBe('rescue');
 
     place(state, rescuer, allianceHq);
+    // Espionage past the watch, Combat past the gaolers — and the Crown's seat
+    // is the hardest gaol in the world, six companies and a loyal town, so
+    // this needs both and a thinner guard than a capital keeps at rest.
     rescuer.espionage = 100;
-    // Seven in ten with a master spy; a handful of seeds finds a landing.
+    rescuer.combat = 100;
+    empireHq.garrison = 2;
+    // A handful of seeds finds a landing.
     let freed = false;
     for (let seed = 1; seed <= 12 && !freed; seed++) {
       const trial = structuredClone(state);

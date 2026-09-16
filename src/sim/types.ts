@@ -387,6 +387,17 @@ export interface Character {
   espionage: number;
   combat: number;
   leadership: number;
+  /**
+   * What they notice. The fifth rating, and the only one that works for you
+   * while you are doing nothing: an officer standing idle on an island adds
+   * this to what the island sees coming.
+   *
+   * Derived from the other four unless the bible gives one — see `watchOf` —
+   * because Sean's rule is that it *follows* from what somebody is: *"should
+   * be low for many but those who specialize in espionage, combat or
+   * leadership will probably have better."*
+   */
+  watch: number;
   locationSystemId: string;
   status: 'available' | 'on_mission' | 'injured' | 'captured';
   /** Days left of an `injured` status. Absent when not injured. */

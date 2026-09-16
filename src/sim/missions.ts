@@ -1,11 +1,6 @@
 import {
   AI_MISSION_PATIENCE,
-  FOIL_CHANCE,
   FOIL_INJURY_DAYS,
-  FOIL_PER_WATCHER,
-  COMMANDER_WATCH,
-  INCITE_FOIL_CHANCE,
-  INCITE_SUCCESS_SCALE,
   INCITE_SUPPORT_LOSS,
   FACILITY_LABEL,
   RECRUIT_QUALITY_DIVISOR,
@@ -18,8 +13,21 @@ import {
   RESEARCH_BASE,
   RESEARCH_MIN_SUPPORT,
   RESEARCH_PROGRESS,
+  CAPTURE_CEILING,
+  INCITE_BASE,
+  INCITE_LOYALTY_WEIGHT,
+  RESCUE_GARRISON_DIVISOR,
+  CAPTURE_DIVISOR,
+  COVERT_EXPOSURE,
+  FOIL_CEILING,
+  FOIL_FLOOR,
+  OPEN_EXPOSURE,
   SABOTAGE_PRIORITY,
   SUPPORT_MAX,
+  WATCH_FROM_COMMAND,
+  WATCH_FROM_LOYALTY,
+  watchOf,
+  WATCH_PER_ESPIONAGE,
   SURVEY_PER_ISLAND,
   MISSION_PARTY_MAX,
   MISSION_WORK_DAYS,
@@ -38,6 +46,7 @@ import {
   pushEvent,
   returnDeposit,
 } from './helpers';
+import { garrisonRoster } from './troops';
 import { sightBeast } from './creatures';
 import { recomputeLedger } from './economy';
 import { resolveControlAndUnrest } from './support';
@@ -520,6 +529,74 @@ export function stillWorthDoing(
   return isDiplomacyTarget(system, faction);
 }
 
+/** The parts of an island's watch, named, so the sheet can show its working. */
+export interface Watch {
+  /** Companies ashore, at what each of them sees. */
+  garrison: number;
+  /** Their officers standing about on it with nothing else to do. */
+  idle: number;
+  /** Whoever holds the chair, on their Leadership. */
+  commander: number;
+  /** The island's own people, by how much they are with whoever holds it. */
+  people: number;
+  total: number;
+}
+
+/**
+ * Everything on this island that might notice somebody working against it.
+ *
+ * `against` is the side doing the working, so the watch is everybody *else's*
+ * — the holder's companies, the holder's officers standing idle on it, the
+ * holder's commander in the chair, and the holder's standing with the people
+ * who live there.
+ *
+ * An island nobody holds still has a garrison and still has people, and they
+ * still notice: the unaligned are not on your side either.
+ */
+export function watchOn(state: GameState, system: System, against: PlayableFaction): Watch {
+  const holder = system.control;
+  const theirs = holder !== against && (holder === 'empire' || holder === 'alliance');
+
+  const garrison = garrisonRoster(system).reduce((n, company) => n + company.watch, 0);
+
+  // Only the ones standing about. Somebody away on an errand of their own is
+  // not watching the quay, which is Sean's rule and is also the interesting
+  // half of it: an island whose officers are all out working is an island
+  // with its guard down.
+  const idle = state.characters
+    .filter(
+      (c) =>
+        c.faction !== against &&
+        c.faction !== 'neutral' &&
+        c.locationSystemId === system.id &&
+        c.status === 'available' &&
+        c.id !== system.commanderId,
+    )
+    .reduce((n, c) => n + watchOf(c), 0);
+
+  const held = commanderOf(state, system);
+  const commander =
+    held && held.faction !== against && held.status !== 'injured' && held.status !== 'captured'
+      ? Math.round(held.leadership * WATCH_FROM_COMMAND)
+      : 0;
+
+  // The people. Only where somebody holds the island and somebody lives on it
+  // — an empty rock has nobody to mention you to anybody.
+  const people =
+    theirs && system.populated
+      ? Math.round((system.support[holder] / SUPPORT_MAX) * WATCH_FROM_LOYALTY)
+      : 0;
+
+  return { garrison, idle, commander, people, total: garrison + idle + commander + people };
+}
+
+/** The errands that are done out of sight, and are therefore worth hiding. */
+export const COVERT: MissionType[] = ['incite', 'sabotage', 'abduct', 'rescue', 'survey'];
+
+export function isCovert(type: MissionType): boolean {
+  return COVERT.includes(type);
+}
+
 /**
  * How likely the work is to be found out.
  *
@@ -533,29 +610,66 @@ export function foilChance(
   system: System,
   faction: PlayableFaction,
   agent?: Character,
+  type: MissionType = 'diplomacy',
 ): number {
-  // Nobody is hunting you on your own island.
+  // Nobody is hunting you on your own island. Still true, and still the
+  // reason yard work and a posting are safe errands.
   if (system.control === faction) return 0;
-  const enemy = otherFaction(faction);
-  const watchers = state.characters.filter(
-    (c) => c.faction === enemy && c.locationSystemId === system.id && c.status !== 'injured',
-  );
-  const best = watchers.reduce((n, c) => Math.max(n, c.espionage), 0);
-  const base = system.control === enemy ? INCITE_FOIL_CHANCE : FOIL_CHANCE;
-  // A posted commander is the other half of what leadership is for. Espionage
-  // is the officer who happens to be standing there and notices you; command
-  // is the one whose whole job is that nothing happens on this island without
-  // them hearing of it. It was the gap in the faction profile — the Crown's
-  // leadership edge bought it nothing defensively — and this is where it pays.
-  const held = commanderOf(state, system);
-  const watch = held && held.faction === enemy && held.status !== 'injured'
-    ? (held.leadership / 100) * COMMANDER_WATCH
-    : 0;
-  const risk = base + (best / 100) * FOIL_PER_WATCHER + watch;
-  // Craft cuts the risk but never to nothing: a careful officer is still a
-  // stranger asking questions in someone else's harbor.
-  const craft = agent ? 1 - (agent.espionage / 100) * 0.6 : 1;
-  return Math.max(0, Math.min(0.85, risk * craft));
+
+  const seen = watchOn(state, system, faction).total;
+  // What the errand has to hide. Creeping about somebody's powder store is
+  // not the same as talking to people in daylight, and the island's watch is
+  // one number either way — what changes is how much of it is pointed at you.
+  const exposure = isCovert(type) ? COVERT_EXPOSURE : OPEN_EXPOSURE;
+  // And what the party can shrug off, on its best Espionage. This is the
+  // memo's first stage entire: Espionage is what gets you through the door,
+  // whatever the errand turns out to need once you are inside.
+  const craft = (agent ? agent.espionage : 0) * WATCH_PER_ESPIONAGE;
+  const risk = (seen * exposure - craft) / 100;
+  return Math.max(FOIL_FLOOR, Math.min(FOIL_CEILING, risk));
+}
+
+/**
+ * What the island can do to somebody it has caught.
+ *
+ * The memo's third layer: detection and consequence are different questions,
+ * and the second one is settled by what is standing there rather than by who
+ * was watching. Companies fight, a commander leads them, and the officer has
+ * their own Combat to get back to the boat with.
+ *
+ * Only on covert work, and only on ground somebody else holds. Being noticed
+ * at a parley is an awkward afternoon; being caught in a powder store is how
+ * people end up in irons, which is the price Sean attached to incitement:
+ * *"it exposes your crew to being detected and potentially captured."*
+ */
+export function captureChance(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+  agent?: Character,
+): number {
+  /**
+   * Only on ground the enemy actually holds.
+   *
+   * An island that has not chosen a side has no gaol of yours to put anybody
+   * in and no reason to hand a stranger to the Crown — being caught there is
+   * being run off the quay. The first cut of this asked only "is it not
+   * mine", which made every unaligned island in the world a Crown prison the
+   * moment a Confederate officer was noticed on it: measured over ten wars,
+   * forty-eight Confederate officers taken against thirty-four of the
+   * Crown's, and *not one* Confederate officer merely hurt and away, because
+   * their whole trade is worked on neutral ground.
+   */
+  const holder = system.control;
+  if (holder !== otherFaction(faction)) return 0;
+  const muscle =
+    garrisonRoster(system).reduce((n, company) => n + company.offense, 0) +
+    (() => {
+      const held = commanderOf(state, system);
+      return held && held.faction !== faction && held.status === 'available' ? held.combat : 0;
+    })();
+  const fight = agent ? agent.combat : 0;
+  return Math.max(0, Math.min(CAPTURE_CEILING, (muscle - fight) / CAPTURE_DIVISOR));
 }
 
 /**
@@ -807,15 +921,30 @@ export const MISSION_LABEL: Record<MissionType, string> = {
 
 /** Chance the mission lands its argument (spec 4.5). */
 export function successChance(character: Character, type: MissionType = 'diplomacy'): number {
-  // Breaking things is not an argument, so it is not read off Diplomacy. This
-  // is the active use Espionage never had: the rating that decides how much of
-  // a chain a landing charts now also decides whether a yard burns.
   // A survey is the one thing that always tells you something: an officer who
   // has spent a fortnight ashore has seen the island whether or not they found
   // what they went for. The roll decides how much of the chain comes with it.
   if (type === 'survey') return 1;
-  if (type === 'sabotage') return SABOTAGE_BASE + character.espionage / 260;
-  if (type === 'rescue') return RESCUE_BASE + character.espionage / 250;
+  /**
+   * Each errand on the rating that should settle it — Sean's cheat sheet, and
+   * for three of them this is a change.
+   *
+   * Sabotage was Espionage alone; it is Espionage *and* Combat now, weighted
+   * evenly, because getting in and wrecking the place are two different jobs
+   * and a 90/20 is a fine spy and a poor saboteur. Rescue was Espionage; it is
+   * Combat, set against the garrison holding the cells (see `missionOdds`).
+   * Incitement was Diplomacy discounted; it is Leadership against the island's
+   * loyalty, which is what makes softening an island a thing you *do* rather
+   * than a thing that happens.
+   *
+   * Espionage has not lost anything by this. It is the whole of the first
+   * stage now, on every covert errand there is, which is a great deal more
+   * than being the only rating three of them read.
+   */
+  if (type === 'sabotage') {
+    return SABOTAGE_BASE + (character.espionage + character.combat) / 2 / 260;
+  }
+  if (type === 'rescue') return RESCUE_BASE + character.combat / 250;
   // Restoring order is what Leadership is for. It only ever rated how well a
   // company fought until now, which left the best commanders in the game with
   // nothing to do but stand on a deck.
@@ -823,11 +952,49 @@ export function successChance(character: Character, type: MissionType = 'diploma
   if (type === 'research') return RESEARCH_BASE + character.espionage / 300;
   // Abduction is set against the person, not the place, and is handled where
   // the target is known. This is the floor.
-  if (type === 'abduct') return ABDUCT_BASE + character.espionage / 300;
-  const base = 0.4 + character.diplomacy / 200;
-  // Talking people round who have nobody to answer to is one thing. Turning
-  // them against a governor with a garrison behind him is another.
-  return type === 'incite' ? base * INCITE_SUCCESS_SCALE : base;
+  if (type === 'abduct') return ABDUCT_BASE + character.combat / 300;
+  if (type === 'incite') return INCITE_BASE + character.leadership / 200;
+  return 0.4 + character.diplomacy / 200;
+}
+
+/**
+ * The same question with the island in it.
+ *
+ * Two errands are set against what is standing on the ground rather than
+ * against a flat number: breaking somebody out is set against the garrison
+ * holding them, and stirring up an island is set against how much that island
+ * likes whoever holds it. Everything else is the officer alone, and falls
+ * through to `successChance`.
+ *
+ * Kept apart from the first stage on purpose. The watch decides whether
+ * anybody sees you; this decides whether the work comes off once nobody has.
+ */
+export function missionOdds(
+  state: GameState,
+  party: Character,
+  system: System,
+  faction: PlayableFaction,
+  type: MissionType,
+): number {
+  if (type === 'rescue') {
+    const bars = garrisonRoster(system).reduce((n, company) => n + company.defense, 0);
+    return Math.max(0.05, successChance(party, 'rescue') - bars / RESCUE_GARRISON_DIVISOR);
+  }
+  if (type === 'incite') {
+    // Their grip on the place, which is the whole of what you are arguing
+    // against. An island at a hundred for them has nobody left to talk to; one
+    // at fifty-five is halfway to yours already.
+    const holder = system.control;
+    const theirs =
+      holder === 'empire' || holder === 'alliance' ? system.support[holder] : SUPPORT_MAX / 2;
+    return Math.max(
+      0.05,
+      successChance(party, 'incite') - (theirs / SUPPORT_MAX) * INCITE_LOYALTY_WEIGHT,
+    );
+  }
+  void state;
+  void faction;
+  return successChance(party, type);
 }
 
 /** How good someone is, for the purposes of how hard they are to sign on. */
@@ -982,6 +1149,57 @@ export function advanceMissions(state: GameState, rng: Rng): void {
 }
 
 /**
+ * Found out, and what it costs.
+ *
+ * Two things, in the memo's order: the watch notices, and then the people who
+ * noticed try to lay hands on you. On open work — a parley, a posting — the
+ * worst of it is an awkward afternoon and a fortnight lost. On covert work on
+ * somebody else's island it can be irons, which is the price Sean attached to
+ * incitement and the rest: *"it exposes your crew to being detected and
+ * potentially captured."*
+ *
+ * The party takes it, not only its leader, because the party is what walked
+ * into the harbor. Companions are turned loose with the errand; whoever was
+ * leading it carries the consequence.
+ */
+function caughtAshore(
+  state: GameState,
+  character: Character,
+  system: System,
+  faction: PlayableFaction,
+  party: Character,
+  rng: Rng,
+): void {
+  const covert = isCovert(character.mission!.type);
+  const taken =
+    covert && rng.chance(captureChance(state, system, faction, party));
+  character.mission = undefined;
+  if (taken) {
+    const captor = otherFaction(faction);
+    takePrisoner(state, character, captor);
+    pushEvent(state, {
+      kind: 'loss',
+      text: `${character.name} was taken on ${system.name} with the work half done, and is in irons at ${
+        getSystem(state, character.locationSystemId).name
+      }.`,
+      systemId: system.id,
+      characterId: character.id,
+    });
+    return;
+  }
+  character.status = 'injured';
+  character.injuredDays = FOIL_INJURY_DAYS;
+  pushEvent(state, {
+    kind: 'loss',
+    text: covert
+      ? `${character.name} was found out on ${system.name} and hurt getting back to the boat.`
+      : `${character.name} is turned off ${system.name}; the talks are over before they began.`,
+    systemId: system.id,
+    characterId: character.id,
+  });
+}
+
+/**
  * A cycle ashore has run out. What it was for depends on the island, which the
  * mission remembers; what it costs depends on whose island it is.
  */
@@ -1021,6 +1239,27 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
     return;
   }
 
+  /**
+   * The door, and then the job.
+   *
+   * Sean's memo on how Rebellion does this: *"a covert mission generally has
+   * two separate problems. Can the team get through the target's security
+   * without being detected? If it gets through, can the team actually
+   * accomplish the mission?"* — and the order matters, because a party that
+   * is caught on the way in never gets to attempt the work at all. This used
+   * to run the other way round: the errand resolved in full and *then* the
+   * foil roll happened, so an officer could burn a shipyard down and be found
+   * out doing it, which is two outcomes for one fortnight.
+   *
+   * Espionage is the whole of this stage whatever the errand is. What the
+   * errand needs once inside is settled below, and is a different rating.
+   */
+  const party = partyStrength(state, character);
+  if (rng.chance(foilChance(state, system, faction, party, mission.type))) {
+    caughtAshore(state, character, system, faction, party, rng);
+    return;
+  }
+
   let success: boolean;
   if (mission.type === 'abduct') {
     // Read again now, not remembered from the order: they may have sailed and
@@ -1038,7 +1277,7 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
     recruitOutcome(state, character, recruit, system, success);
   } else {
     // The boat's best hand at the thing, not the officer who signed for it.
-    success = rng.chance(successChance(partyStrength(state, character), mission.type));
+    success = rng.chance(missionOdds(state, party, system, faction, mission.type));
     if (mission.type === 'incite') {
       inciteOutcome(state, character, system, success);
     } else if (mission.type === 'sabotage') {
@@ -1052,22 +1291,6 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
     } else {
       parleyOutcome(state, character, system, success);
     }
-  }
-
-  // Being found out, which is the price of working on ground that is not yours.
-  // Measured before the outcome moved anything: who was watching is what
-  // matters, not what they saw.
-  if (rng.chance(foilChance(state, system, faction, character))) {
-    character.status = 'injured';
-    character.injuredDays = FOIL_INJURY_DAYS;
-    character.mission = undefined;
-    pushEvent(state, {
-      kind: 'loss',
-      text: `${character.name} was found out on ${system.name} and hurt getting back to the boat.`,
-      systemId: system.id,
-      characterId: character.id,
-    });
-    return;
   }
 
   /**
@@ -1085,7 +1308,36 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
    * irons, and not one war won in twenty-four. It read as a balance problem
    * for a day. It was this line.
    */
-  if (faction === state.player && !state.observing) {
+  /**
+   * A parley never asks. Sean: *"parley mission should keep going
+   * automatically until loyalty is 100% yours or you're interrupted —
+   * blockade, abduction attempt, garrisons find you."*
+   *
+   * It is the one errand with an end state you can see coming and no decision
+   * in the middle of it: talks go on until the island is wholly yours or
+   * something stops them. Asking every fortnight was a prompt whose answer was
+   * always the same, and measured, it was the single most consequential thing
+   * a player could get wrong — answering "come home" every time took twelve
+   * piloted wars from Crown 4 — Confederacy 5 to Crown 1 — Confederacy 8.
+   *
+   * The interruptions are all real events and all handled elsewhere: the watch
+   * finding them ends the errand in `caughtAshore`, an attempt on the officer
+   * ends it by taking or hurting them, and a blockade or the island changing
+   * hands ends it through `stillWorthDoing` at the top of this function.
+   */
+  const machinePlayed = faction !== state.player || Boolean(state.observing);
+  if (mission.type === 'diplomacy') {
+    // The opponent still gives up on talks that are going nowhere — its
+    // patience is what stopped its officers standing on foreign quays for a
+    // year being farmed, and that measured as forty carried off against four.
+    // A player sets a parley and forgets it; the machine has other calls on
+    // the same officer and no way to notice it is wasting one.
+    if (done(state, system, faction, mission.type) || (machinePlayed && outOfPatience(mission))) {
+      endMission(state, character.id);
+    } else {
+      continueMission(state, character.id);
+    }
+  } else if (!machinePlayed) {
     // Never twice for the same officer: one report, one answer.
     if (!state.pendingDecisions.some((d) => d.characterId === character.id)) {
       state.pendingDecisions.push({ characterId: character.id, systemId: system.id, success });
@@ -1146,7 +1398,12 @@ function done(
   // Never: the yards can always be improved on, and it is the player who
   // decides the officer is better used somewhere else.
   if (type === 'research') return false;
-  return system.control === faction;
+  // Talks are finished when there is nobody left to talk round, which is the
+  // island wholly yours — not merely flying your colours. Sean's rule, and it
+  // is what makes a parley an errand you set and forget: *"keep going
+  // automatically until loyalty is 100% yours."* The island coming over on
+  // the way is a milestone, not the end.
+  return system.support[faction] >= SUPPORT_MAX;
 }
 
 /**
@@ -1197,8 +1454,16 @@ function recruitOutcome(
  * is an officer against a place, and a place does not have a sword.
  */
 export function abductChance(officer: Character, mark: Character): number {
-  const resist = Math.max(mark.combat, mark.leadership) / ABDUCT_RESIST_DIVISOR;
-  return Math.max(0.05, ABDUCT_BASE + officer.espionage / 300 - resist);
+  // Combat both ways, at Sean's word: *"Abduction is much simpler. You're
+  // attempting to capture an enemy character... Your team's Combat capability
+  // vs target's Combat capability."* It used to be the party's Espionage
+  // against the better of the mark's Combat and Leadership, which priced the
+  // snatch off the rating that had already been spent getting through the
+  // door — one number doing two jobs, and Vader's bodyguard counting for
+  // nothing. Leadership no longer helps a mark resist: being followed is not
+  // being hard to carry.
+  const resist = mark.combat / ABDUCT_RESIST_DIVISOR;
+  return Math.max(0.05, ABDUCT_BASE + officer.combat / 300 - resist);
 }
 
 /**

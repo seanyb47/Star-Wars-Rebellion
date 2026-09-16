@@ -44,11 +44,11 @@ const YARDSTICK = {
 } as const;
 /** Someone worth having, who knows it — the hard end of the range. */
 const STAR_HAND: Character = {
-  ...YARDSTICK, diplomacy: 95, espionage: 95, combat: 95, leadership: 95,
+  ...YARDSTICK, diplomacy: 95, espionage: 95, combat: 95, leadership: 95, watch: 95,
 };
 /** An ordinary hand off a quay — the easy end. */
 const GREEN_HAND: Character = {
-  ...YARDSTICK, diplomacy: 50, espionage: 50, combat: 50, leadership: 50,
+  ...YARDSTICK, diplomacy: 50, espionage: 50, combat: 50, leadership: 50, watch: 50,
 };
 
 export function statusBadge(character: Character) {

@@ -5,6 +5,7 @@ import {
   AI_MISSION_PARTIES,
   AI_FIRST_YARD_BONUS,
   AI_HUNTERS,
+  AI_WATCH_CAUTION,
   AI_RESCUE_PARTIES,
   AI_NEAR_BONUS,
   AI_ABDUCT_BONUS,
@@ -78,6 +79,7 @@ import {
 import {
   canStartMission,
   endMission,
+  isCovert,
   isMissionTarget,
   abductOn,
   isRecruitTarget,
@@ -91,6 +93,7 @@ import {
   startMission,
   captiveOn,
   travelDays,
+  watchOn,
 } from './missions';
 import type { Rng } from './rng';
 import type {
@@ -611,6 +614,29 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
    * anything. A person outranks either, because people are scarce and permanent
    * and an island can be worked again next month.
    */
+  /**
+   * What a quiet errand on this island is likely to cost.
+   *
+   * Sean's memo is a strategy as much as a mechanic — *"espionage to discover
+   * defenses, sabotage to weaken them, incite uprising to destabilise, then
+   * diplomacy"* — and the first thing that strategy requires is the sense to
+   * see that a raid on a loyal capital with six companies in it is not a raid,
+   * it is a way of losing an officer. Measured the day the watch went in, with
+   * nothing here: the Confederacy went on sending people into Highwater the
+   * way it always had, and *every single one of them* that was caught went
+   * into irons rather than merely being hurt — forty-eight taken to the
+   * Crown's thirty-four, and not one Confederate officer hurt and got away in
+   * ten wars. The Crown is the side with garrisons; without this, that alone
+   * won it the war.
+   *
+   * So covert work is priced against what the island sees. The effect is the
+   * chain Sean drew, arrived at by the opponent on its own: a hard island is
+   * not worth raiding, an island whose loyalty has been stirred down is, and
+   * incitement is the thing that moves one into the other.
+   */
+  const caution = (s: System, type: MissionType | null | undefined) =>
+    type && isCovert(type) ? watchOn(state, s, ai).total * AI_WATCH_CAUTION : 0;
+
   const atTheYards = state.characters.some(
     (c) => c.faction === ai && c.mission?.type === 'research',
   );
@@ -631,12 +657,19 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
         close +
         AI_RESCUE_BONUS +
         quality(prisoner) +
-        (isLord(prisoner) ? AI_LORD_RESCUE_BONUS : 0)
+        (isLord(prisoner) ? AI_LORD_RESCUE_BONUS : 0) -
+        caution(s, 'rescue')
       );
     }
     const mark = liftable(s);
     if (mark) {
-      return close + AI_ABDUCT_BONUS + quality(mark) + (isLord(mark) ? AI_LORD_BOUNTY : 0);
+      return (
+        close +
+        AI_ABDUCT_BONUS +
+        quality(mark) +
+        (isLord(mark) ? AI_LORD_BOUNTY : 0) -
+        caution(s, 'abduct')
+      );
     }
     const recruit = recruitOn(state, s, ai);
     if (recruit) return close + AI_RECRUIT_BONUS + quality(recruit);
@@ -661,6 +694,15 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     if (s.control === ai) return close + (s.uprising ? 110 : (HELD_SUPPORT_LEVEL - s.support[ai]) * 1.5);
     if (s.control === 'neutral') return close + s.support[ai];
     // The weaker their hold, the nearer the uprising threshold, the better.
+    /*
+     * And incitement is *not* discounted for what the island sees, which is
+     * the one exception and the point of the whole chain. Stirring an island
+     * down is how its watch is lowered — the people are a third of what sees
+     * you — so pricing it off the watch would have the opponent refuse to
+     * soften the one island it most needs softened. Measured with the
+     * discount on it: the Crown stopped working Freeport at all and three
+     * wars in twenty-four ran to the cap with the Lords untouched.
+     */
     return close + (100 - s.support[enemy]) - INCITE_PRIORITY_PENALTY;
   };
 

@@ -3,7 +3,9 @@ import terms from '../data/terms.json';
 import loreData from '../data/lore.json';
 import factionData from '../data/factions.json';
 import {
+  otherFaction,
   recruitOn,
+  watchOn,
   type MissionType,
   FACILITY_BLURB,
   FACILITY_LABEL,
@@ -810,6 +812,47 @@ export function SystemSheet({
               the island settles under your flag.
             </p>
           )}
+          {/*
+            What the island sees.
+            
+            Sean's rule, 17 September: companies, officers standing idle, a
+            commander in the chair and the island's own loyalty all add up to
+            one number, and that number is what every quiet errand against this
+            island has to get past. It is read off the island rather than
+            written on it, so this is the only place a player can find out why
+            a raid on a loyal capital is a different proposition from a raid on
+            a sullen frontier — and why softening one first is worth the
+            fortnight.
+          */}
+          {(() => {
+            const mine = system.control === state.player;
+            /*
+             * Whose side the watch is arrayed against, which flips with whose
+             * island it is. On one of theirs the number a player wants is the
+             * one standing against *them*; on one of your own it is what an
+             * agent of theirs would face. Asking it the same way on both — as
+             * the first cut of this did — reads an enemy island's watch with
+             * its own people left out of it and its own officers counted as
+             * watchers for you.
+             */
+            const seen = watchOn(state, system, mine ? otherFaction(state.player) : state.player);
+            if (seen.total === 0) return null;
+            const parts = [
+              seen.garrison > 0 && `${seen.garrison} from the companies`,
+              seen.people > 0 && `${seen.people} from its people`,
+              seen.commander > 0 && `${seen.commander} from the chair`,
+              seen.idle > 0 && `${seen.idle} from officers ashore`,
+            ].filter(Boolean) as string[];
+            return (
+              <p className="tiny muted" style={{ margin: '0 0 8px' }}>
+                <b>The watch: {seen.total}.</b>{' '}
+                {parts.join(', ')}.{' '}
+                {mine
+                  ? 'What anybody working quietly against this island has to get past.'
+                  : 'Get past it with Espionage, or bring it down first by stirring the island up.'}
+              </p>
+            );
+          })()}
           <div className="row row--between" style={{ marginBottom: 8 }}>
             <span className="tiny muted">
               {system.garrison} ashore

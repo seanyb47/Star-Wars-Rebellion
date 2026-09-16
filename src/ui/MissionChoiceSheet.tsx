@@ -9,7 +9,9 @@ import {
   captiveOn,
   missionsOffered,
   recruitOn,
-  successChance,
+  foilChance,
+  isCovert,
+  missionOdds,
   travelDays,
   MISSION_WORK_DAYS,
   type GameState,
@@ -109,7 +111,23 @@ export function MissionChoiceSheet({
 
       <div className="stack">
         {offered.map((type) => {
-          const odds = type === 'recruit' ? null : Math.round(successChance(boat, type) * 100);
+          /**
+           * Two numbers, because there are two stages.
+           *
+           * Getting through the island's watch unseen, and then doing the job
+           * once nobody has. One figure could not say why a raid on a loyal
+           * capital is a bad idea — the work is as likely to come off there as
+           * anywhere; it is the getting in and out that kills you — and that
+           * is the thing a player most needs to see before spending an
+           * officer. Only for covert work: nobody hides a parley.
+           */
+          const odds =
+            type === 'recruit'
+              ? null
+              : Math.round(missionOdds(state, boat, island, faction, type) * 100);
+          const unseen = isCovert(type)
+            ? Math.round((1 - foilChance(state, island, faction, boat, type)) * 100)
+            : null;
           const what =
             type === 'recruit' && recruit
               ? `Sign on ${recruit.name}, who is ashore here, for good.`
@@ -130,7 +148,10 @@ export function MissionChoiceSheet({
                       {type === 'command' ? 'Command the island' : MISSION_LABEL[type]}
                     </b>
                     {odds !== null && type !== 'command' && (
-                      <span className="tiny muted">{odds}% to land it</span>
+                      <span className="tiny muted">
+                        {unseen !== null && <>{unseen}% unseen · </>}
+                        {odds}% to land it
+                      </span>
                     )}
                   </span>
                   <span className="tiny muted choice__what">{what}</span>
