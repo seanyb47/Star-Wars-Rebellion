@@ -17,7 +17,7 @@
  *
  * - **Reyne** and the Swallowtail. Any errand he leads makes the passage in
  *   half the time. Han Solo's trick, and the one Sean asked for by name.
- * - **Hale** and the Free Harbor. While she holds a posting, the Moot sits
+ * - **Hale** and the Open Deck. While she holds a posting, the Moot sits
  *   with her and the island comes round a point a day.
  * - **Jessup** and the Ironback. While he holds a posting, every fleet in that
  *   harbor fights under the Admiral's command.
@@ -95,7 +95,7 @@ export function allLordsTaken(state: GameState): boolean {
 /**
  * The Moot, worked once a day wherever Hale is posted.
  *
- * It used to be "wherever the Free Harbor lies at anchor", which measured zero
+ * It used to be "wherever the Open Deck lies at anchor", which measured zero
  * over a whole war: the ship never moved, because she was also the Confederacy's
  * seat and the opponent would not commit her, and she sat on an island already
  * at a hundred. A posting is chosen, so it is somewhere it can do something.

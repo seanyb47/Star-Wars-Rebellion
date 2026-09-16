@@ -5,6 +5,7 @@ import reachData from '../../data/reaches.json';
 import terms from '../../data/terms.json';
 import {
   FACILITY_LABEL,
+  SHIP_CLASSES,
   GARRISON_SMUGGLING_CUT,
   GOLD_PER_DAY,
   RATING_SWING_MAJOR,
@@ -430,6 +431,40 @@ describe('the roster', () => {
       expect(person.blurb, `${person.name} has no bio`).toBeTruthy();
       expect((person.blurb ?? '').length, person.name).toBeGreaterThan(60);
       expect(person.epithet, `${person.name} has no epithet`).toBeTruthy();
+    }
+  });
+});
+
+/**
+ * Sean, on Adaira Hale's ship: *"Free Harbor and Freeport sound too alike.
+ * Change Freeharbor name."* He is right, and the collision is the kind that
+ * only shows up when somebody reads the two names a minute apart — a ship and
+ * the Confederacy's meeting place, both opening on the same four letters. She
+ * is the *Open Deck* now.
+ *
+ * Four letters is the test because four letters is what the ear catches. It
+ * runs over every hull against every island, so the next name that lands too
+ * near an existing one fails here rather than in somebody's head.
+ */
+describe('names a player hears', () => {
+  const bare = (x: string) => x.toLowerCase().replace(/[^a-z]/g, '');
+  const shared = (a: string, b: string) => {
+    const x = bare(a);
+    const y = bare(b);
+    let n = 0;
+    while (n < x.length && n < y.length && x[n] === y[n]) n += 1;
+    return n;
+  };
+
+  it('gives no ship a name that opens like the name of an island', () => {
+    const state = generateGalaxy(501, 'alliance');
+    for (const cls of SHIP_CLASSES) {
+      for (const island of state.systems) {
+        expect(
+          shared(cls.name, island.name),
+          `${cls.name} / ${island.name}`,
+        ).toBeLessThan(4);
+      }
     }
   });
 });

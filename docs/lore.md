@@ -95,7 +95,7 @@ A Lord taken goes in irons to Highwater and **stays there**. Nobody is released 
 
 #### The three Pirate Lords
 
-**Commodore-Elect Adaira Hale** — the ***Free Harbor*** — Corwin Calloway's old coral-grown three-decker, named for what he meant her to be: any deck of his was a free harbor to anyone the Crown wanted. Sailors who fled the licensing raids found a berth aboard her, then a flag, then a cause. Everyone saw her burn at the Broken Chain; the Reef-folk sang the coral closed over the char and brought her out of the smoke.
+**Commodore-Elect Adaira Hale** — the ***Open Deck*** — Corwin Calloway's old coral-grown three-decker, named for what he meant her to be: any deck of his stood open to anyone the Crown wanted. Sailors who fled the licensing raids found a berth aboard her, then a flag, then a cause. Everyone saw her burn at the Broken Chain; the Reef-folk sang the coral closed over the char and brought her out of the smoke.
 
 The Moot sails with *her*, not with the ship. While Hale holds a posting, that island comes round to the Confederacy a point a day — their ground, unaligned ground, or the Crown's.
 
@@ -339,7 +339,7 @@ than at another ship; **Lift** is companies carried.
 | **Reefwalker** | Small | 1 | 50 | 8 | 5 | 7 | 0 | 0 |
 | **Marauder** | Medium | 2 | 105 | 15 | 22 | 16 | 4 | 1 |
 | **Urskin Whaler** | Medium | 2 | 120 | 18 | 18 | 30 | 9 | 2 |
-| **Freebooter** | Large | 3 | 235 | 30 | 40 | 40 | 16 | 2 |
+| **Buccaneer** | Large | 3 | 235 | 30 | 40 | 40 | 16 | 2 |
 
 Measured over twenty-four wars with the roster in: twelve wins each and not one
 war left unfinished, which is a better answer than the eight hulls gave.
@@ -351,10 +351,12 @@ became people rather than ships, their ships became lore: nothing builds them,
 nothing sails them, nothing fights them, and they are here so a name in a bio
 resolves to something with prose attached.
 
-**The *Free Harbor*.** Commodore-Elect Adaira Hale's ship, and the Confederacy's
+**The *Open Deck*.** Commodore-Elect Adaira Hale's ship, and the Confederacy's
 floating parliament — Corwin Calloway's old coral-grown three-decker, named for
-what he meant her to be: any deck of his was a free harbor to anyone the Crown
-wanted.
+what he meant her to be: any deck of his stood open to anyone the Crown wanted.
+(She was the *Free Harbor* until 17 September, when Sean pointed out that a
+ship and the Confederacy's meeting place should not be near-homophones: *"Free
+Harbor and Freeport sound too alike."*)
 
 **The *Swallowtail*.** Captain Silas Reyne's coral-grown sloop, which should not
 be as fast as she is.

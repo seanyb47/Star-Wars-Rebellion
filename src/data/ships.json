@@ -265,7 +265,7 @@
       "faction": "alliance",
       "role": "large",
       "craft": 3,
-      "name": "Freebooter",
+      "name": "Buccaneer",
       "costGold": 235,
       "days": 30,
       "upkeep": 7,
@@ -282,8 +282,8 @@
       "faction": "alliance",
       "role": "large",
       "legend": true,
-      "name": "Free Harbor",
-      "blurb": "Commodore-Elect Adaira Hale's ship: Corwin Calloway's old coral-grown three-decker, named for what he meant her to be, since any deck of his was a free harbor to anyone the Crown wanted. The Moot was called on her quarterdeck and has been the Moot ever since. Where Hale is, the Moot sits — the hull was never the point, and nobody has seen it in years."
+      "name": "Open Deck",
+      "blurb": "Commodore-Elect Adaira Hale's ship: Corwin Calloway's old coral-grown three-decker, named for what he meant her to be, since any deck of his stood open to anyone the Crown wanted. The Moot was called on her quarterdeck and has been the Moot ever since. Where Hale is, the Moot sits — the hull was never the point, and nobody has seen it in years."
     },
     {
       "id": "swallowtail",

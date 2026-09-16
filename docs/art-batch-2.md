@@ -670,7 +670,7 @@ These exist in the game but were cut from contact sheets at a fraction of the si
 
 > A fortified stone harbor town, white walls and pale towers stacked up a hillside, tall ships at anchor, busy quays under a blue sky. Imperial order at its best. Seen from a low approach as if from a boat, landscape composition, strong silhouette against sky. No borders or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, approximately 70% historical swashbuckling adventure, 20% nautical fantasy and mysticism, 10% whimsy; never photorealistic, steampunk, grimdark, chibi, childish, generic high fantasy, futuristic or excessively cartoonish.
 
-#### Free Harbor
+#### Open Deck (briefed as *Free Harbor*; renamed 17 September)
 
 `free-harbor.png`
 
