@@ -21,10 +21,11 @@ tell me when you think an image is not matching the earlier ones.
 
 **painterly, weathered, cinematic.** Hand-painted illustration with visible,
 textured brushwork; rich but weathered colours; dramatic natural lighting;
-approximately 80% historical realism, 20% dark nautical fantasy. Never
-photorealistic, never cartoonish, never steampunk, never high-fantasy glossy.
-Think a painted trading card or a game's character portrait, not a photo and
-not a cartoon.
+approximately 70% historical swashbuckling adventure, 20% nautical fantasy and
+mysticism, 10% whimsy — the mix the Art Direction Guide sets. Never
+photorealistic, never steampunk, never grimdark, never chibi or childish, never
+generic high fantasy, never futuristic, never cartoonish. Think a painted
+trading card or a game's character portrait, not a photo and not a cartoon.
 
 Framing for **all six**: chest-up portrait, three-quarter angle facing
 slightly to the viewer's left, **vertical 4:5**, subject centred, plain

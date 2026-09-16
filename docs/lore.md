@@ -2,6 +2,13 @@
 
 _Everything the game knows about its world, in one place. Edit freely: this is the fiction, not the rules. Regenerate from the repository with `scripts/lore_doc.py` after the bible or the data changes, or edit here and tell Claude what to carry back._
 
+> **Canon.** This document is the first of the project's four sources of truth. The other three live in [`canon/`](canon/): the **Art Direction Guide v2.2**, the **Faction Sigils & Emblems** sheet, and the **Naval Art Master v2**. Where this file carries a rule from one of them it says so in the margin. The project's standing order is Sean's: *"When a new request conflicts with an established rule, follow the user's newest explicit decision. Otherwise preserve the existing canon."*
+>
+> Three overrides sit above everything else, from the project README:
+> - **Coral is Confederacy only.** Crown ships use no visible coral construction and no coral warding.
+> - **The supplied Crown and Confederacy sigils are the official marks.** Everything earlier is superseded.
+> - **Crown II ships are improved generations of existing Crown families.** The Confederacy has no standardised II programme, and a captured ship keeps its original bones.
+
 ## 1. The World
 
 An archipelago world with no continents. Seven Seas, each its own archipelago with its own water, its own weather, and its own idea of what is normal. The three Inner Seas behave like seas. The four Outer Seas do not always.
@@ -18,13 +25,29 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 - **The Confederacy's story:** the Imperium's dredging fleets pull things up out of the deep that should stay there, and the Tide follows them. The Leviathan was *found* in the Black Tide, not built. The Crown is feeding the thing it says it fights.
 - **Truth:** both have evidence. Neither is entirely right.
 
+### How it all looks
+
+*(Art Direction Guide §1, §2, §6 and the board in [`canon/`](canon/). The full laws live there; this is what the fiction needs to know about them.)*
+
+**The north star.** Stylized cinematic pirate-adventure illustration: painterly, richly detailed, historically grounded Age-of-Sail construction, colorful and readable at game scale. **Adventure first, charm second, darkness selectively.**
+
+**The mix is roughly 70 / 20 / 10** — seventy parts historical swashbuckling adventure, twenty parts nautical fantasy and mysticism, ten parts whimsy. Historical maritime construction is the foundation; the fantasy *enhances* the world rather than replacing it. Never photorealistic, steampunk, grimdark, chibi, childish, generic high fantasy, futuristic or cartoonish.
+
+**Four pillars,** in the board's own words: a **historical foundation** of authentic ships, architecture, weapons and gear; **nautical fantasy** — mystery, ancient ruins, strange creatures, the unknown; **charm and life** — colorful characters, lively ports, wildlife, a sense of fun; and **adventure and danger** — a world of opportunity, risk, and great stories.
+
+**Faction identity comes from construction philosophy, not merely colour.** Take away the green and the crimson and the two navies should still be telling you which is which by how they are put together: the Crown ordered, refined and standardized, the Confederacy individual, improvised and culturally varied.
+
+**Three tests every object passes.** The *silhouette* test — recognizable without colour. The *faction* test — recognizable without emblem or label. The *thumbnail* test — the subject still reads when it is thirty pixels high in a panel. Detail that cannot survive the reduction is detail that does not go in.
+
+*"Different paths. The same sea. A greater horizon."*
+
 ## 2. The Two Sides
 
 ### The Crown Imperium
 
 *The Sovereign Admiralty of the Crown Imperium.* Ruled from **Highwater**, a fortress-island whose seawalls are three hundred feet high and carved with the names of every island the Tide has taken. Governed by a Lord Regent in the name of a boy-king nobody has seen in eleven years.
 
-**Creed:** Order · Stability · A brighter tomorrow.
+**Creed:** Order · Stability · Trade · Civilization · A brighter tomorrow.
 **Motto:** *Through trade, duty, and discipline, a safer world.*
 
 **What they say about themselves:** Before the Imperium, every Reach was its own corsair kingdom and the Tide ate a village a month. The Admiralty built the walls, charted the reefs, schooled the Tidemasters, standardized the coin and ran down the wreckers. The islands are still here because of the Crown.
@@ -33,7 +56,13 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 
 **Truth:** Both. Officers run from principled to overzealous, and the good ones spend their careers arguing with the rest.
 
-**Aesthetic:** black iron, grey stone, white sailcloth, brass and copper. Ships are built, then *sheathed* — milled copper plate bolted on below the waterline against worm and weed, bright as a new coin the day she launches and green as a drowned church a year later. Names are virtues and titles. Everything is straight lines until you look closely.
+**Aesthetic** *(Art Direction Guide §3, Naval Art Master)***:** deep Imperial green — botanical, not emerald — antique gold and brass, warm ivory, black iron, refined wood, grey stone. Clean, symmetrical, maintained, disciplined and formidable. **Crown power should look civilized and impressive, never sinister.** Names are virtues and titles. Everything is straight lines until you look closely.
+
+**How a Crown hull reads.** A standard ship wears white or warm-ivory sails with green accents, antique brass, elegant wood trim and black iron, and carries **exactly one obvious Crown emblem**. An elite or **II**-generation ship wears **deep Imperial-green sails** — that is the immediate signal, at any distance, that the thing coming over the horizon is one of the good ones — with antique-gold trim, sophisticated naval detailing, and **two subtle emblems** rather than one loud one.
+
+**What keeps the sea out.** Ships are built and then *sheathed*: milled copper plate bolted on below the waterline against worm and weed, bright as a new coin the day she launches and green as a drowned church a year later. That is carpentry, not warding. **The Crown's protection against the Deep is disciplined Tidecraft and engineered warding** — licensed Tidecallers, iron, brass, and conventional naval construction done properly. **No coral.** The Admiralty has spent a century failing to grow it and calls the other way superstition.
+
+**The mark.** A gold crown over a fouled anchor, a compass star behind them, laurel to either side and a maritime wave beneath, on Imperial green. Reduced for a sail or a flag it keeps the crown, the anchor and the star; the laurel and the wave may go. It is never a generic crown, a bare anchor, a lion or a shield.
 
 ### The Free Confederacy
 
@@ -47,8 +76,8 @@ A Lord's ship does not sink. When her hull gives she strikes her colours, is tak
 
 **How the war ends.** One way each. The Confederacy wins the day it holds Highwater. The Crown wins the day all three Lords are in irons at once.
 
-**Creed:** Freedom · Opportunity · No masters.
-**Motto:** *A wider world for those bold enough to take it.*
+**Creed:** Freedom · Opportunity · Independence · Brotherhood · A bolder tomorrow.
+**Motto:** *Free seas. Free peoples. Always.*
 
 **What they say about themselves:** No conscription. No licences. Every captain elected, every share counted on deck, every Tidecaller free to be what the sea made them. The Imperium calls it piracy when a village keeps its own fish.
 
@@ -56,7 +85,13 @@ A Lord's ship does not sink. When her hull gives she strikes her colours, is tak
 
 **Truth:** Both. Hale spends as much of her time managing her own worst captains as fighting the Crown.
 
-**Aesthetic:** patched, painted, mismatched. Coral-grown hulls — theirs alone, and the one thing the Crown has never managed to copy — whalebone masts, sails dyed with squid ink. Tamed sea-beasts in the small-craft squadrons. Names are jokes, threats, and dead lovers.
+**Aesthetic** *(Art Direction Guide §3, Naval Art Master)***:** crimson and rust red, black, weathered wood, leather, brass, cream. Patched and dyed sails, unusual rigging, whalebone masts, sails dyed with squid ink, and whatever the island had. Coral-grown hulls — theirs alone, and the one thing the Crown has never managed to copy, though not every Confederate hull has any. Tamed sea-beasts in the small-craft squadrons. Names are jokes, threats, and dead lovers.
+
+**How a Confederate hull reads.** It doesn't, not as a class. **The Confederacy is not a standardised navy**, and that is the point: its ships should look as though they came from different captains, different cultures, different yards, and in a good many cases from somebody else's fleet. Individualised, charismatic, improvised. Every standard vessel carries **exactly one obvious Confederate emblem or flag**, and there is **no II programme** — where the Crown improves a family, the Confederacy finds another answer.
+
+**And they are not the villains.** A world that reads the crimson as evil has read it wrong. They are freedom, opportunity and brotherhood, with all the disorder that comes attached.
+
+**The mark.** A skull in a red headscarf over crossed cutlasses, a compass star behind. Reduced for a sail it keeps the skull, the blades and the star; the cloth texture may go. At icon size, skull and crossed cutlasses and nothing else. It is never a generic skull-and-crossbones.
 
 #### The three Pirate Lords
 
@@ -95,6 +130,8 @@ What it looks like, by rank:
 - **Journeyman** — can call a breeze into a sail, still a cup of water, hear a ship through the hull.
 - **Tidecaller** — can turn a wind, flatten a swell around one ship, speak to reef-beasts.
 - **Tidemaster** — can becalm a strait, raise a wave across a harbor mouth, or make the water around a fleet go flat, black, and silent.
+
+**When the supernatural appears it should be visually obvious** *(Art Direction Guide §8)*. It has its own palette and does not borrow either faction's: spectral teal, sea-green, moonlit cyan and deep violet; strange stars, unnatural fog, bioluminescence, ghost light, ancient stone. A Tidemaster flattening a harbor and a ruin under the water are lit by the same strange light, and neither of them is lit like a ship.
 
 There is no dark side. Tidecraft is neutral; the sea doesn't care. What a person does with it is the question. The Imperium licenses it and trains its Tidecallers cold and obedient. The Confederacy mostly lets its Deep-touched run wild, which produces geniuses and disasters in equal measure. The witch-island of **Hagsmoor** trains its own and answers to no one.
 
@@ -250,6 +287,12 @@ _Ashore somewhere in the Reaches, waiting for whichever side asks first._
 
 _There are no fighters in these waters. A small craft is just a small ship, so each fleet runs small to large with a transport off to one side, and the Confederacy has three hulls nobody else has._
 
+**Two rules govern every hull** *(Naval Art Master)***.** A ship has one longitudinal centreline, and keel, hull, gundecks, bow, stern and bowsprit all align to it — no cinematic angle justifies a bow that has been turned sideways. And a player should know a ship by her silhouette before reading her name: strip the colour, the flags and the name away and hull, bow, stern, masts, sail plan and signature structure should still say which one she is.
+
+### The eight the game builds
+
+These are the hulls a shipyard can lay down today, four a side, and everything below this heading is one of them.
+
 ### The Crown Imperium
 
 - **Sovereign** (large). A first-rate of the line, built straight and coppered to the waterline. Nothing afloat hits harder or takes more killing. Slow to arrive anywhere.
@@ -270,7 +313,25 @@ _There are no fighters in these waters. A small craft is just a small ship, so e
 
 **The *Swallowtail*.** Captain Silas Reyne's coral-grown sloop, which should not be as fast as she is. Faster than anything afloat, and the last thing in a harbor the enemy's guns can find: while another Confederate hull floats beside her, she is not hit.
 
-**The *Ironback*.** The Crown dreadnought Admiral Dorian Jessup took with him when he left the Imperium's service. The heaviest guns on the water, and every Confederate fleet lying in her harbor fights under his command.
+**The *Ironback*.** The Crown dreadnought Admiral Dorian Jessup took with him when he left the Imperium's service. The heaviest guns on the water, and every Confederate fleet lying in her harbor fights under his command. She is the captured-ship rule made flesh: **Imperial bones, visibly** — the hull, the gundecks and the stern are Highwater's work and always will be — under Confederate weathering, crimson accents, Confederate colours and a decade of improvised modification.
+
+#### The captured-ship rule
+
+A prize keeps the structural DNA of whoever built her and takes on the visible modifications of whoever holds her now. She is never repainted into the other side's shipwright tradition, because the tradition is in the timber.
+
+### The fleet beyond the game
+
+*(Naval Art Master. Twenty-four hulls are being painted; the game builds eight of them. Recorded here so the lore and the art do not drift apart, and so nobody mistakes a proposed design for something the fiction has always said.)*
+
+**The Crown builds in families and improves them.** A **II** is a deliberate next generation of a hull the Admiralty already trusts — the same family, refined — and she announces herself with deep Imperial-green sails. There is no Confederate equivalent: where the Crown improves a design, the Confederacy finds a different answer to the same problem.
+
+| | Crown Imperium | Free Confederacy |
+|---|---|---|
+| **Canonical** — named in this document | Sovereign, Razorback, Kestrel, Fluyt | Reef-class, Tempest, Swift, Brig, *Free Harbor*, *Swallowtail*, *Ironback* |
+| **Proposed** — designed from the lore, not named by it | Bulwark, Vanguard, Majestic | Cutlass, Marauder, Freebooter, Urskin Whaler, Reefwalker |
+| **II generations** | Kestrel II, Razorback II, Vanguard II, Sovereign II, Fluyt II | *(none — by rule)* |
+
+A proposed hull is not a lie, but it is not scripture either: it may be promoted by being written into this document, and until then nothing should claim the lore names it.
 
 
 ## 7. The Seas, the Reaches and the Islands
