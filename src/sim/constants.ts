@@ -1211,6 +1211,18 @@ export const AI_RESCUE_PARTIES = 2;
  * a year waiting to be carried off.
  */
 export const AI_MISSION_PATIENCE = 4;
+/**
+ * How many officers the opponent will have out hunting people at once.
+ *
+ * The three Lords stand on Confederate ground and can always be gone after,
+ * so they are three permanent top-ranked targets that never go away — and the
+ * Crown chased them with a quarter to a third of its whole corps, measured
+ * over eight wars, while spending one to four per cent of it on yard work. It
+ * ended the war at craft one against the Confederacy's three: hunting the
+ * principals is the Crown's route to winning, and it was eating the fleet
+ * that has to do the winning. Hunting is a standing detail, not the corps.
+ */
+export const AI_HUNTERS = 2;
 /** What the opponent adds for an island in the Reach an officer already sits
  *  in, so it is not forever sailing ten days the long way round. */
 export const AI_NEAR_BONUS = 25;

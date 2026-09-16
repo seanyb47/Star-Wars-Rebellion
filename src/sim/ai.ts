@@ -3,6 +3,7 @@ import {
   AI_FLEET_INTERVAL,
   AI_MISSION_INTERVAL,
   AI_MISSION_PARTIES,
+  AI_HUNTERS,
   AI_RESCUE_PARTIES,
   AI_NEAR_BONUS,
   AI_ABDUCT_BONUS,
@@ -635,6 +636,15 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
   );
 
   /**
+   * How many it already has out after people, and how many more it will send.
+   * Rescue is not counted: getting your own back is not a hunt, and a side
+   * that has just lost three officers should be allowed to want all three.
+   */
+  let hunters =
+    AI_HUNTERS -
+    state.characters.filter((c) => c.faction === ai && c.mission?.type === 'abduct').length;
+
+  /**
    * Doctrine: `hunt-the-principals`, the other half of it.
    *
    * An errand takes its kind from the island unless the order names one, and
@@ -668,8 +678,15 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
       const kind = errandAt(officer, target);
       // Nothing it is willing to do here; try the next island down.
       if (kind === null) continue;
+      // Already enough of them out after people. The island's own answer is
+      // an abduction while somebody of theirs is standing on it, so this is
+      // where the detail is held to its size — try the next island down
+      // rather than sending a fourth officer after the same three Lords.
+      const hunt = (kind ?? missionTypeFor(state, target, ai)) === 'abduct';
+      if (hunt && hunters <= 0) continue;
       taken.add(target.id);
       startMission(state, officer.id, target.id, kind);
+      if (hunt) hunters--;
       break;
     }
   }
