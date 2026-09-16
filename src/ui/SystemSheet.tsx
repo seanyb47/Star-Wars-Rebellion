@@ -426,7 +426,7 @@ function TheirsAshore({
                   name={character.name}
                   faction={character.faction}
                   people={character.people}
-                  size={116}
+                  size={140}
                 />
               }
               name={character.name}
@@ -1268,7 +1268,7 @@ export function SystemSheet({
                     name={character.name}
                     faction={character.faction}
                     people={character.people}
-                    size={116}
+                    size={140}
                     dim={character.status !== 'available'}
                   />
                 }
@@ -1326,7 +1326,7 @@ export function SystemSheet({
                     name={character.name}
                     faction={character.faction}
                     people={character.people}
-                    size={116}
+                    size={140}
                   />
                 }
                 name={character.name}

@@ -2099,7 +2099,9 @@ button.tcard:hover { border-color: var(--brass); }
      deal of red before it is four people, which is the wrong way round — the
      ring is there to say whose they are, not to be the thing you look at.
      Held back rather than shrunk away: the ornament is still legible at this
-     weight, it has just stopped out-shouting the face it frames. */
-  opacity: 0.78;
-  filter: saturate(0.78);
+     weight, it has just stopped out-shouting the face it frames. Turned down
+     twice — the second time alongside the face being tucked under the bevel,
+     which is the half of it that actually changed the hierarchy. */
+  opacity: 0.55;
+  filter: saturate(0.8);
 }

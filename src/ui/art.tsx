@@ -783,6 +783,14 @@ import { CROWN_PRINCIPAL } from '../sim/constants';
  * beside `ringed` in `CharacterPortrait` for what was measured.
  */
 const RING_MIN = 80;
+
+/**
+ * How much wider than its hole the face is drawn, so it disappears under the
+ * ring's inner edge instead of stopping short of it. Measured against the art
+ * rather than picked: much past this and the ring's inner bevel is swallowed
+ * and the join looks like a mistake; much under it and the dark rim is back.
+ */
+const RING_OVERLAP = 1.25;
 import { useInView } from './useInView';
 
 /**
@@ -1012,9 +1020,20 @@ export function CharacterPortrait({
    * keeps the plain stroke it always had, and a Lord keeps the brass band.
    */
   const ringed = size >= RING_MIN && paintedRing(ring) !== undefined;
-  // The hole is centred in every ring's square, so the face is simply drawn
-  // smaller and the ring laid over it.
-  const box = ringed ? Math.round(size * RING_OPENING[ring]) : size;
+  /**
+   * The hole is centred in every ring's square, so the face is drawn smaller
+   * and the ring laid over it — and drawn a quarter larger than the hole on
+   * purpose, so it runs *under* the ring's inner bevel rather than sitting in
+   * the middle of it with a rim of dark showing all the way round.
+   *
+   * Sean, on the first two cuts: *"we want the image to pop not the frame."*
+   * Dimming the ring alone could not do that, because the complaint is about
+   * area and not brightness: at the hole's own size the face is a third of the
+   * medallion across and a *ninth* of it by area, so however quiet the ring is
+   * made, it is still almost all of what you are looking at. Tucking the face
+   * under the bevel is what turns the ring back into a band around a portrait.
+   */
+  const box = ringed ? Math.round(size * RING_OPENING[ring] * RING_OVERLAP) : size;
 
   const medallion = (
     <svg
