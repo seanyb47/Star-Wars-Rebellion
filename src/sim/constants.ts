@@ -1116,9 +1116,17 @@ export const RECRUIT_QUALITY_DIVISOR = 200;
  *
  * Leadership settles it, not Diplomacy: *"the primary attribute governing
  * recruitment is Leadership."* And only a Recruiter may lead one, which is the
- * memo's other restriction and lands where it should — the Crown has exactly
- * one, the Regent, and the Confederacy has four. Both sides always have at
- * least one, because the Regent and the three Lords are drawn into every war.
+ * memo's other restriction.
+ *
+ * The Crown has **two** — the Regent and Admiral Blackwater — and the
+ * Confederacy four, which is Rebellion's own asymmetry (two against four) and
+ * is a correction. It shipped at one against four, and one was a single point
+ * of failure rather than an asymmetry: measured over sixteen wars, the Crown
+ * had *no Recruiter at large at all* at twenty of eighty sample points against
+ * the Brethren's three, because its one Recruiter was the Regent and the
+ * Regent goes in irons. A side that cannot recruit cannot replace the officers
+ * it needs to rescue the officer who would let it recruit, and three wars in
+ * forty froze solid inside that loop.
  */
 /**
  * Allegiance an island must already have before anybody will sign on there.
@@ -1150,6 +1158,26 @@ export const RECRUIT_LOYALTY_WEIGHT = 0.25;
 export const RECRUIT_CEILING = 0.85;
 /** The role that may lead one. */
 export const RECRUITER_ROLE = 'Recruiter';
+/*
+ * Tried, and the most interesting thing cut all session.
+ *
+ * Only a Recruiter may keep a table, and that turns out to be an absorbing
+ * state rather than an asymmetry: in the wars that ran long the Crown had *no
+ * Recruiter at large at all, at every late sample point, in every war*, because
+ * both of its Recruiters are prime abduction targets and a side that cannot
+ * recruit cannot replace the officers it needs to rescue the officer who would
+ * let it recruit. So the lock was rebuilt as a strong preference — anybody may
+ * try, a Recruiter is about twice as good — and it worked exactly as intended:
+ * the Crown's officers at large at day one thousand went from 1.0 to 3.4, and
+ * its late-war chance of having a Recruiter from nought to certain.
+ *
+ * And the war got much worse: **ten wars in eighty never ended, against
+ * three.** With both corps healthy, both sides rescue faster than either can
+ * hold three Lords at once, and the Crown's victory condition stops closing.
+ * The Crown's corps collapse is load-bearing — it is currently what *ends* long
+ * wars — so this cannot ship until the war can be finished another way. That
+ * is a design decision rather than a tuning one, and it is Sean's.
+ */
 /**
  * What the opponent will pay for signing someone on, against courting an
  * island. Multiplied by how likely the attempt is, like the two political
@@ -1232,6 +1260,19 @@ export const AI_RESEARCH_BONUS = 55;
  * Short of the weight, it calls the rest of the navy in first.
  */
 export const AI_SIEGE_DAYS = 6;
+
+/*
+ * Tried and cut: a floor of four slipways whatever the acreage, and an
+ * afford-it test in place of the be-rich test, to let the smaller side build a
+ * navy sized to its war aim rather than to its land. It did exactly what it
+ * was meant to — the Confederacy's slipways went from 1.1 to 3.2 by day three
+ * hundred — and the war got *worse*: Crown 30-7 against 28-11, and three
+ * unfinished against one, because both sides spent their gold on berths
+ * instead of hulls and the Crown, with twice the income, filled its new berths
+ * and the Confederacy could not. It is the same lesson as the siege length and
+ * the hunter cap below: a symmetric improvement to how well the machine plays
+ * is worth more to the side with more to play with.
+ */
 /**
  * How long a treasury is expected to cover a deficit.
  *
@@ -1592,6 +1633,37 @@ export const AI_HUNTERS = 2;
  *  at this rate it costs an abduction most of its bounty — which is the point:
  *  soften it first, or go somewhere else. */
 export const AI_WATCH_CAUTION = 0.6;
+/**
+ * How much thinner a corps has to get before the opponent starts looking
+ * after it, and how careful it becomes at the worst of it.
+ *
+ * Added 17 September, and it is the fix for the longest-standing stall in the
+ * game. Measured over sixteen wars with both sides played: in the wars that
+ * dragged, the Crown's officers at large fell to **0.5 by day two thousand**
+ * while the Confederacy's rose to **twelve**, and the Crown had no Recruiter
+ * at large *at all* at every late sample point. Across twelve wars the Crown
+ * launched a hundred and twenty-two raids and lost ninety people, and answered
+ * with twenty-seven rescues; the Brethren lost a hundred and thirty-eight and
+ * answered with sixty-two, and got a hundred and three of them back.
+ *
+ * The missing idea is the one a person applies without thinking: a side with
+ * six officers can afford a raid that will probably cost it one, and a side
+ * with one cannot. So the price of being seen rises as the hands run out, and
+ * getting your own people back rises with how much of your corps is sitting in
+ * somebody else's cells. Nothing else changes — the same raids are available
+ * at the same odds; what changes is when a side judges them worth it.
+ */
+export const AI_CORPS_COMFORT = 4;
+export const AI_SCARCITY_MAX = 4;
+/*
+ * Tried and cut: scaling a rescue's worth by how much of the corps was in
+ * irons, so a side with its people in somebody's cells would go and get them.
+ * It reads as obviously right and measured plainly worse — 28-9 with three
+ * wars unfinished against 28-11 with one, and seventy days longer — because a
+ * side down to its last hands sent *them* into enemy harbours after the rest,
+ * where they were taken too. It amplified the doom loop it was meant to break.
+ * The scarcity term above is the half that works.
+ */
 /**
  * What the first officer at the yards is worth, over and above an ordinary
  * spell of yard work.

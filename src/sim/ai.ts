@@ -6,6 +6,8 @@ import {
   AI_FIRST_YARD_BONUS,
   AI_HUNTERS,
   AI_WATCH_CAUTION,
+  AI_CORPS_COMFORT,
+  AI_SCARCITY_MAX,
   AI_RESCUE_PARTIES,
   AI_NEAR_BONUS,
   AI_ABDUCT_BONUS,
@@ -335,6 +337,20 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
    * carry it.
    */
   const slipways = countOf('shipyard');
+  /*
+   * And a floor under it, because a berth for every four islands is a navy
+   * budgeted off acreage — which is the right rule for a side that wins by
+   * taking ground and exactly the wrong one for a side that does not.
+   *
+   * Measured: both sides open with two slipways. By day three hundred the
+   * Crown has **4.9 and eighteen hulls**; the Confederacy has **1.2 and four**,
+   * with eighteen free berths and the gold to build on them. It was not short
+   * of room or of money — it holds five islands, so `slipways * 4 < held`
+   * wanted two slipways and it built none. The Confederacy's whole war is one
+   * amphibious assault on the strongest fortress in the world, and this rule
+   * denied it the fleet to make it with, forever, by arithmetic on land it has
+   * no intention of taking.
+   */
   if (slipways < 1) wanted.push('shipyard');
   else if (slipways < 2 && gold > AI_SHIP_RESERVE * 3) wanted.push('shipyard');
   else if (slipways * 4 < held.length && gold > AI_RICH * 2) wanted.push('shipyard');
@@ -710,8 +726,24 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
    */
   const caution = (s: System, type: MissionType | null | undefined) => {
     if (!type || !isCovert(type)) return 0;
-    return knownWatch(state, s, ai) * AI_WATCH_CAUTION;
+    return knownWatch(state, s, ai) * AI_WATCH_CAUTION * scarcity;
   };
+
+  /**
+   * How thin the corps is.
+   *
+   * One at ease and rising as the hands run out — see `AI_CORPS_COMFORT`. It
+   * is read by two things and they are the same thought twice: a side short of
+   * officers is more careful about being seen, and a side whose people are
+   * mostly in irons wants them back more than it wants a new prize.
+   */
+  const handsFree = state.characters.filter(
+    (c) => c.faction === ai && c.status !== 'captured',
+  ).length;
+  const scarcity = Math.max(
+    1,
+    Math.min(AI_SCARCITY_MAX, AI_CORPS_COMFORT / Math.max(1, handsFree)),
+  );
 
   const atTheYards = state.characters.some(
     (c) => c.faction === ai && c.mission?.type === 'research',

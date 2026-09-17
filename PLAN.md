@@ -3542,3 +3542,107 @@ grouped by class with a count rather than drawn one per hull; and a bombardment
 report is raised only on a day that resolves something — a siege grinding on is
 a line in the log, because a card every day for a fortnight is a card nobody
 reads.
+
+## A tuning run, and the thing it found under the win table — 17 September
+
+Sean: *"run game sims and tune."* The headline numbers were Crown 25–12 with
+three wars in forty never ending. The three stalls all had the same shape, and
+tracing them found a problem the win table cannot show.
+
+### The stall
+
+Seed 9014 sat at Crown 47 islands, Brethren 3, neutral 3 — **unchanged from day
+1,200 to day 3,000**. Seed 9020 held two of the three Lords in irons
+continuously for 1,800 days and never took the third. Seed 9002 reached 62 of
+63 islands and could not finish.
+
+In 9020 the last free Lord stood on **one island, liftable, for 1,802
+consecutive days**, with a garrison of two. The Crown ran 403 abduction cycles
+at her and never succeeded. The reason, printed by the probe in one line:
+
+> Crown officers not in irons: **1**
+
+### The corps collapse
+
+`lab/corps.ts` is new and is the diagnostic that matters. Averaged over the
+wars *still running* at each day — which is the whole trick, since dividing by
+every war makes a collapsing corps look like a shrinking sample:
+
+| day | Crown free | Crown in irons | no Recruiter | Brethren free | Brethren in irons |
+|---|---|---|---|---|---|
+| 200 | 3.6 | 1.5 | 20% | 5.3 | 1.8 |
+| 500 | 3.0 | 3.2 | 62% | 4.5 | 3.8 |
+| 1000 | 2.0 | 3.2 | 50% | **9.0** | 2.8 |
+| 2000 | 0.5 | 3.5 | **100%** | **12.0** | 1.0 |
+| 3000 | 1.0 | 3.0 | **100%** | **13.0** | 0.0 |
+
+The Confederacy signs the entire unaligned pool and ends with thirteen
+officers. The Crown ends with one, and **has no Recruiter at large at every
+late sample point in every war** — its two Recruiters are prime abduction
+targets, and a side that cannot recruit cannot replace the officers it needs to
+rescue the officer who would let it recruit. Across twelve wars the Crown
+launched 122 raids, lost 90 people and answered with 27 rescues; the Brethren
+lost 138 and answered with 62, getting 103 back.
+
+### What shipped
+
+**A second Crown Recruiter.** Admiral Blackwater joins the Regent, making it
+two against the Confederacy's four — which is Rebellion's own asymmetry. One
+was not an asymmetry, it was a single point of failure. Median war length
+672 → 588 on its own.
+
+**Scarcity: the price of being seen rises as the hands run out.** The missing
+idea is the one a person applies without thinking — a side with six officers
+can afford a raid that will probably cost it one, a side with one cannot. The
+covert-risk discount is now multiplied by `AI_CORPS_COMFORT / hands free`,
+capped at four. Nothing else changes: the same raids at the same odds, and what
+changes is when a side judges them worth it.
+
+**Measured, 80 wars, both sides played:** Crown 55 — Confederacy 22, **three
+never ended**, median 696 days. Against the 40-war baseline of Crown 25–12 with
+three never ending, the stalemate rate halves (7.5% → 3.75%) at a few points of
+balance. `lab/errands.ts` reads its healthiest yet: officer-days idle **11.4%**,
+against 34% at the start of the day, with all ten errands in use.
+
+### Four things tried and cut, and they rhyme
+
+- **Rescue urgency** — scale a rescue's worth by how much of the corps is in
+  irons. Reads as obviously right; measured 28–9 with three unfinished against
+  28–11 with one, and seventy days longer. A side down to its last hands sent
+  *them* into enemy harbours after the rest, where they were taken too. It
+  amplified the doom loop it was meant to break.
+- **A longer siege commitment** (`AI_SIEGE_DAYS` 6 → 10), to let the smaller
+  side commit to Highwater's walls: Crown 32–7.
+- **One hunter instead of two**, to slow the Crown's manhunt: Crown 30–8, and
+  *more* stalls — fewer failed raids means a healthier Crown corps.
+- **A slipway floor**, because the navy is budgeted off acreage
+  (`slipways * 4 < held`) and the Confederacy holds five islands, so it wanted
+  two slipways and built none while sitting on eighteen free berths and the
+  gold. It did exactly what it was meant to — 1.2 slipways to 3.2 by day 300 —
+  and the war got worse: Crown 30–7, three unfinished, because both sides spent
+  gold on berths instead of hulls and only the Crown had the income to fill
+  them.
+
+**They rhyme, and the rhyme is the finding: every symmetric improvement to how
+well the machine plays is worth more to the side with more to play with.** The
+Crown has twice the islands and twice the income; anything that helps both
+sides play better widens the gap. A balance fix has to be asymmetric.
+
+### And the one that worked, and cannot ship
+
+Rebuilding the Recruiter restriction as a strong preference — anybody may keep
+a table, a Recruiter is about twice as good — fixed the absorbing state
+completely. Crown officers at large at day 1,000 went from 1.0 to **3.4**, and
+its late-war chance of having a Recruiter from nought to certain.
+
+And **ten wars in eighty then never ended, against three**. With both corps
+healthy, both sides rescue faster than either can hold three Lords at once, and
+the Crown's victory condition stops closing.
+
+So the Crown's corps collapse is currently *load-bearing*: it is what ends long
+wars. It cannot be fixed until the war can be finished another way — and that
+is a design decision rather than a tuning one. The obvious candidates, none of
+which I would pick unilaterally: widen `roundUpTheLandless` so a side reduced to
+one or two islands with no fleet is finished rather than only a side with none;
+give the Crown a second victory condition; or make a Lord held a long time
+harder to get back.
