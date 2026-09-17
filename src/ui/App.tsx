@@ -31,7 +31,7 @@ import {
   missionTypeFor,
   missionsOffered,
   type ChartLayer,
-  sendDiplomat,
+  sendCrew,
   setObserving,
   setSpeed,
   type BuildItem,
@@ -327,7 +327,7 @@ export function App() {
     /** Which squadron a Command posting is for, when it is not the island. */
     fleetId?: string,
   ) => {
-    const result = sendDiplomat(state, characterId, systemId, type, companionIds, fleetId);
+    const result = sendCrew(state, characterId, systemId, type, companionIds, fleetId);
     if (result.error) {
       flash(result.error);
       return;

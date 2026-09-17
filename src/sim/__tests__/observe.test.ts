@@ -138,7 +138,7 @@ describe('observing', () => {
    * them off it. Two thirds of the corps ended in irons and the recruiting,
    * the research and the war went with it.
    */
-  it('answers its own officers instead of leaving them on the quay', () => {
+  it('answers its own crew instead of leaving them on the quay', () => {
     const end = run(setObserving(generateGalaxy(77, 'empire'), true), 400);
     expect(end.pendingDecisions).toHaveLength(0);
     const mine = end.characters.filter((c) => c.faction === 'empire');

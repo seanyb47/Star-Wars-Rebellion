@@ -77,13 +77,13 @@ describe('who is in the boat', () => {
   it('never stacks a party into a certainty', () => {
     const { state, island } = neutralIsland();
     setSupport(island, 'alliance', 95);
-    const best = envoy(state, { diplomacy: 100, roles: ['Diplomat'] });
+    const best = envoy(state, { diplomacy: 100, roles: ['Negotiator'] });
     const boat = [best, { ...best, id: 'b' }, { ...best, id: 'c' }, { ...best, id: 'd' }];
     expect(parleyStanding(island, 'empire', boat).chance).toBeLessThanOrEqual(PARLEY_CEILING);
   });
 
   /**
-   * A Diplomat along for the ride is a good talker, not a second embassy.
+   * A Negotiator along for the ride is a good talker, not a second embassy.
    *
    * Whoever is doing the talking is the best hand aboard, not whoever the
    * order was written for, so the bonus follows the rating — a trained envoy
@@ -92,22 +92,22 @@ describe('who is in the boat', () => {
   it('pays the specialist bonus to the one doing the talking and to nobody else', () => {
     const { state } = neutralIsland();
     const plain = envoy(state, { diplomacy: 70, roles: [] });
-    const specialist = envoy(state, { diplomacy: 70, roles: ['Diplomat'], id: 'spec' });
+    const specialist = envoy(state, { diplomacy: 70, roles: ['Negotiator'], id: 'spec' });
     // Leading it: the bonus is paid.
-    expect(partyPull([specialist, plain], 'diplomacy', 'Diplomat')).toBeGreaterThan(
-      partyPull([plain, { ...plain, id: 'p2' }], 'diplomacy', 'Diplomat'),
+    expect(partyPull([specialist, plain], 'diplomacy', 'Negotiator')).toBeGreaterThan(
+      partyPull([plain, { ...plain, id: 'p2' }], 'diplomacy', 'Negotiator'),
     );
     // Out-talked, and along for the ride: it is not.
     const better = envoy(state, { diplomacy: 90, roles: [], id: 'better' });
-    expect(partyPull([better, specialist], 'diplomacy', 'Diplomat')).toBe(
-      partyPull([better, plain], 'diplomacy', 'Diplomat'),
+    expect(partyPull([better, specialist], 'diplomacy', 'Negotiator')).toBe(
+      partyPull([better, plain], 'diplomacy', 'Negotiator'),
     );
-    // And a boat full of Diplomats is paid it once, not four times.
-    const one = partyPull([specialist], 'diplomacy', 'Diplomat');
+    // And a boat full of Negotiators is paid it once, not four times.
+    const one = partyPull([specialist], 'diplomacy', 'Negotiator');
     const four = partyPull(
       [specialist, { ...specialist, id: 's2' }, { ...specialist, id: 's3' }, { ...specialist, id: 's4' }],
       'diplomacy',
-      'Diplomat',
+      'Negotiator',
     );
     expect(four - one).toBeLessThan(plain.diplomacy * 2);
   });
@@ -135,7 +135,7 @@ describe('what troops are for', () => {
     expect(inciteStanding(state, island, 'empire', boat).chance).toBeLessThan(bare);
   });
 
-  it('counts an officer in the chair as security too', () => {
+  it('counts their crew in the chair as security too', () => {
     const { state, island } = heldIsland();
     const bare = politicalSecurity(state, island);
     const officer = state.characters.find((c) => c.faction === 'alliance')!;
@@ -177,7 +177,7 @@ describe('the two errands', () => {
     setSupport(island, 'alliance', 95);
     const hard = parleyStanding(island, 'empire', [envoy(state, { diplomacy: 10, roles: [] })]);
     setSupport(island, 'alliance', 10);
-    const easy = parleyStanding(island, 'empire', [envoy(state, { diplomacy: 95, roles: ['Diplomat'] })]);
+    const easy = parleyStanding(island, 'empire', [envoy(state, { diplomacy: 95, roles: ['Negotiator'] })]);
     expect(hard.band).toBe('very-difficult');
     expect(easy.band).toBe('very-favorable');
     expect(easy.chance).toBeGreaterThan(hard.chance);

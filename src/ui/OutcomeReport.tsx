@@ -232,7 +232,7 @@ function People({ rows, verdict }: { rows: PersonRow[]; verdict: Verdict }) {
   const rest = rows.filter((r) => !r.grave);
   return (
     <div className="outcome__block">
-      <div className="section-title">{verdict === 'draw' ? 'Aboard' : 'Commanders'}</div>
+      <div className="section-title">{verdict === 'draw' ? 'Aboard' : 'Crew'}</div>
       {gone.map((row) => (
         <div key={row.id} className="outcome__gone">
           <b>{row.name}</b>

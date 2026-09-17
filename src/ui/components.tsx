@@ -9,6 +9,16 @@ export function Sheet(props: {
   /** A small mark drawn after the title — the island's worth, say. Kept
    *  separate from `title` so the accessible name stays plain text. */
   titleMark?: ReactNode;
+  /**
+   * What kind of thing this sheet is about, over the title.
+   *
+   * Sean's word of 17 September: one word per idea. The three things a player
+   * can be looking at are the **World Map**, a **Reach Map** and a
+   * **Location**, and a screen that does not say which it is leaves the player
+   * to work it out from the contents. Two words in small caps, and only where
+   * the kind is not obvious from the tab you arrived on.
+   */
+  eyebrow?: string;
   subtitle?: ReactNode;
   onClose: () => void;
   children: ReactNode;
@@ -48,9 +58,12 @@ export function Sheet(props: {
         <div className="sheet__grip" />
         <div className="sheet__head">
           <div className="row row--between">
-            <div className="sheet__title">
-              {props.title}
-              {props.titleMark}
+            <div className="sheet__titles">
+              {props.eyebrow && <div className="sheet__eyebrow">{props.eyebrow}</div>}
+              <div className="sheet__title">
+                {props.title}
+                {props.titleMark}
+              </div>
             </div>
             <button className="iconbtn" onClick={props.onClose} aria-label="Close">
               ✕

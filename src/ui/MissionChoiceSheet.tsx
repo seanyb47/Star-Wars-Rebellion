@@ -92,10 +92,10 @@ const WHAT: Record<MissionType, string> = {
   survey: 'Chart the island: who lives on it, what stands on it, whether a garrison would hold it.',
   espionage:
     'Count what is on the island and write it down — companies, works, hulls, their people, and what they have under way here.',
-  abduct: 'Carry off the enemy officer ashore here and hold them at your seat.',
+  abduct: 'Carry off the enemy crew member ashore here and hold them at your seat.',
   command: 'Take command and put the island back in order.',
   research: 'Put the yards to work on the craft: cheaper, quicker hulls.',
-  rescue: 'Break one of yours out of the cells and get them home.',
+  rescue: 'Break one of your crew out of the cells and get them home.',
 };
 
 export function MissionChoiceSheet({

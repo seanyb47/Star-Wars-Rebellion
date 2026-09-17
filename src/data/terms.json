@@ -1,13 +1,13 @@
 {
-  "_comment": "Player-facing vocabulary. World bible sections 1, 9 and 10. Change a word here and it changes everywhere.",
+  "_comment": "Player-facing vocabulary. World bible sections 1, 9 and 10. Change a word here and it changes everywhere. One word per idea, at Sean's word of 17 September: a person of yours is CREW and never an officer or personnel; talking a place round is a PARLEY and never diplomacy; and the three things you can be looking at are the WORLD MAP, a REACH MAP and a LOCATION. In prose a location is still an island, because in this world it is one - what is forbidden is a second word for the same idea in a label.",
   "gold": "Gold",
   "income": "Income",
   "upkeep": "Upkeep",
   "ground": "Ground",
   "water": "Water",
   "allegiance": "Allegiance",
-  "island": "Island",
-  "islands": "Islands",
+  "island": "Location",
+  "islands": "Locations",
   "reach": "Reach",
   "sea": "Sea",
   "innerSea": "Inner",
@@ -23,7 +23,7 @@
   "uninhabited": "Uninhabited",
   "uncharted": "Unexplored",
   "tabs": {
-    "map": "Seas",
+    "map": "World Map",
     "characters": "Crew",
     "feed": "Log",
     "build": "Build"
@@ -47,5 +47,9 @@
     "fort": "A battery on the harbor wall. Fires on any enemy hull lying off the island, whether or not you have a fleet there, and no landing can be made while one still stands.",
     "heavy_fort": "The same wall built twice over: more than twice the guns and two and a half times the stone, on the one plot a Fortress would have taken. Costs more per gun than two Fortresses would, and is the only answer on an island with no room left."
   },
-  "space": "Space"
+  "space": "Space",
+  "worldMap": "World Map",
+  "reachMap": "Reach Map",
+  "crew": "Crew",
+  "crewOne": "crew member"
 }

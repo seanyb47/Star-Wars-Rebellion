@@ -300,7 +300,15 @@ export function orderAssault(state: GameState, fleetId: string): CommandResult {
   });
 }
 
-export function sendDiplomat(
+/**
+ * Send one of your crew off on an errand.
+ *
+ * Named for what it does rather than for the one errand it was first written
+ * for: it was `sendDiplomat` when parley was the only thing a person could be
+ * sent to do, and it has sent people to spy, incite, sabotage, research,
+ * recruit and take command for a long time since.
+ */
+export function sendCrew(
   state: GameState,
   characterId: string,
   targetSystemId: string,

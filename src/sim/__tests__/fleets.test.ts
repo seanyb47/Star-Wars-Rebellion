@@ -502,7 +502,7 @@ describe('the opponent builds toward its navy', () => {
   });
 });
 
-describe('officers', () => {
+describe('crew', () => {
   it('will not sign on somebody who is not standing where the fleet is', () => {
     const { state, home } = setup();
     const fleet = put(state, home, 'empire', ['kestrel']);

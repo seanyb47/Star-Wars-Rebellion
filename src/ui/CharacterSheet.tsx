@@ -74,7 +74,7 @@ export function statusBadge(character: Character) {
 /** The four ratings, spelled out and bar-charted rather than abbreviated. */
 export function Ratings({ character }: { character: Character }) {
   const entries: Array<[string, number]> = [
-    ['Diplomacy', character.diplomacy],
+    [terms.parley, character.diplomacy],
     ['Espionage', character.espionage],
     ['Combat', character.combat],
     ['Leadership', character.leadership],
@@ -289,7 +289,7 @@ export function CharacterSheet({
           </b>
         </div>
         <div className="row row--between">
-          <span className="muted">Signing on · a loyal harbor of yours</span>
+          <span className="muted">Signing on · somewhere loyal of your own</span>
           {/* A range, because it depends on the harbor: the numbers are for a
               port that will just about hold a table and for one that adores
               you. Only a Recruiter may lead one at all, so anybody else reads

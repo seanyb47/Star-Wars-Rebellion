@@ -14,7 +14,7 @@ import {
   startMission,
   takePost,
 } from '../missions';
-import { orderRelieve, sendDiplomat } from '../commands';
+import { orderRelieve, sendCrew } from '../commands';
 import { setSupport } from '../helpers';
 import { UPRISING_SUPPORT } from '../constants';
 
@@ -73,7 +73,7 @@ describe('a posting, not an errand', () => {
     expect(missionError(state, officer.id, home.id, 'command')).toBeNull();
   });
 
-  it('is taken at once when the officer is already there', () => {
+  it('is taken at once when they are already there', () => {
     const { state, home, officer } = world();
     startMission(state, officer.id, home.id, 'command');
     expect(home.commanderId).toBe(officer.id);
@@ -83,7 +83,7 @@ describe('a posting, not an errand', () => {
     expect(officer.status).toBe('available');
   });
 
-  it('costs a voyage when the officer is somewhere else', () => {
+  it('costs a voyage when they are somewhere else', () => {
     const { state, officer } = world();
     const far = state.systems.find(
       (s) => s.control === 'empire' && s.id !== officer.locationSystemId,
@@ -190,7 +190,7 @@ describe('a posting, not an errand', () => {
     expect(orderRelieve(sailing, who.id).error).toBe('The fleet is at sea.');
   });
 
-  it('relieves the officer who was already holding the post', () => {
+  it('relieves whoever was already holding the post', () => {
     const { state, home, officer } = world();
     const second = state.characters.find(
       (c) => c.faction === 'empire' && c.id !== officer.id && c.status === 'available',
@@ -209,7 +209,7 @@ describe('a posting, not an errand', () => {
     const { state, home, officer } = world();
     // Commands hand back a new state rather than editing this one, so the
     // posting is in the result and not in `state`.
-    const ordered = sendDiplomat(state, officer.id, home.id, 'command');
+    const ordered = sendCrew(state, officer.id, home.id, 'command');
     expect(ordered.error).toBeUndefined();
     let ran = ordered.state;
     for (let i = 0; i < 20; i++) ran = advanceDay(ran);

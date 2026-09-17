@@ -32,7 +32,7 @@ type Persona = {
 };
 
 const PEOPLE: Persona[] = [
-  { key: 'hale', name: 'Hale', people: 'Human officer', hat: 'tricorn', build: 1 },
+  { key: 'hale', name: 'Hale', people: 'Human crew', hat: 'tricorn', build: 1 },
   { key: 'torvik', name: 'Torvik', people: 'Urskin', hat: 'none', build: 1.42, tusks: true },
   { key: 'sable', name: 'Sable', people: 'The Hushed', hat: 'hood', build: 0.72 },
   { key: 'quist', name: 'Quist', people: 'Reef-folk', hat: 'crest', build: 1.05 },

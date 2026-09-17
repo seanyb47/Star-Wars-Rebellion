@@ -542,6 +542,7 @@ function NoReport({
   return (
     <Sheet
       title={live.name}
+      eyebrow={terms.island}
       subtitle={`${sector.name} · ${holder ? factionData[holder].shortName : 'unaligned'}`}
       onClose={onClose}
       banner={
@@ -652,6 +653,7 @@ export function SystemSheet({
     return (
       <Sheet
         title={live.name}
+        eyebrow={terms.island}
         subtitle={`${sector.name} · ${terms.uncharted}`}
         onClose={onClose}
       >
@@ -779,6 +781,7 @@ export function SystemSheet({
 
   return (
     <Sheet
+      eyebrow={terms.island}
       title={system.name}
       titleMark={
         <WorthMark
@@ -1176,7 +1179,7 @@ export function SystemSheet({
               seen.garrison > 0 && `${seen.garrison} from the companies`,
               seen.people > 0 && `${seen.people} from its people`,
               seen.commander > 0 && `${seen.commander} from the chair`,
-              seen.idle > 0 && `${seen.idle} from officers ashore`,
+              seen.idle > 0 && `${seen.idle} from crew standing idle ashore`,
             ].filter(Boolean) as string[];
             return (
               <p className="tiny muted" style={{ margin: '0 0 8px' }}>
@@ -1299,7 +1302,7 @@ export function SystemSheet({
                     </>
                   ) : here ? (
                     <>
-                      This harbor is loyal enough ({loyalty}) to sign hands on. Send a{' '}
+                      This place is loyal enough ({loyalty}) to sign hands on. Send a{' '}
                       <b>Recruiter</b> of yours here and they will keep an open table for a
                       fortnight: the better they lead and the more this island loves you, the
                       likelier somebody worth having sits down at it.
@@ -1311,9 +1314,9 @@ export function SystemSheet({
                     </>
                   ) : (
                     <>
-                      Allegiance here is {loyalty}, and a harbor wants {RECRUIT_MIN_SUPPORT} before
+                      Allegiance here is {loyalty}, and it wants {RECRUIT_MIN_SUPPORT} before
                       anybody will sign with you on it. Parley this island up, or recruit from a
-                      more devoted one — a secure, well-loved port is worth keeping for exactly
+                      more devoted one — a secure, well-loved island is worth keeping for exactly
                       this.
                     </>
                   )}

@@ -65,14 +65,18 @@ export function ReachSheet({
   return (
     <Sheet
       title={sector.name}
+      /* One word per idea, at Sean's word of 17 September. The three things a
+         player can be looking at are the World Map, a Reach Map and a
+         Location, and each says which it is. */
+      eyebrow={terms.reachMap}
       subtitle={
         <span>
           {onOpenList ? (
             <button className="linkish" onClick={() => onOpenList(sector.id)}>
-              {summary.islands} islands
+              {summary.islands} {terms.islands.toLowerCase()}
             </button>
           ) : (
-            `${summary.islands} islands`
+            `${summary.islands} ${terms.islands.toLowerCase()}`
           )}
           {summary.mutinies > 0 && (
             <span className="badge badge--warn" style={{ marginLeft: 8 }}>

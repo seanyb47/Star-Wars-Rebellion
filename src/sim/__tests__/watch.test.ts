@@ -60,7 +60,7 @@ describe('the watch', () => {
     expect(watchOn(state, island, 'empire').total).toBeLessThan(hard);
   });
 
-  it('counts their officers only while they are standing about', () => {
+  it('counts their crew only while they are standing about', () => {
     const { state, island } = enemyIsland();
     const idler = state.characters.find((c) => c.faction === 'alliance')!;
     idler.locationSystemId = island.id;

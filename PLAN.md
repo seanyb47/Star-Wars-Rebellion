@@ -3646,3 +3646,79 @@ which I would pick unilaterally: widen `roundUpTheLandless` so a side reduced to
 one or two islands with no fleet is finished rather than only a side with none;
 give the Crown a second victory condition; or make a Lord held a long time
 harder to get back.
+
+---
+
+## One word per idea — 17 September
+
+Sean: *"I think we need to cleanup names. I don't mean unit names I mean
+gameplay terms. Like is it 'crew', 'officer' or 'personnel'? Let's make it
+crew. Is it 'diplomacy' or 'parley'? Let's make it parley. Is it island or
+port? Let's make it: World Map / Reach Map / Location."*
+
+Asked how deep to take it, he picked **labels, and kill the synonyms**: every
+label, filter, tab, tooltip and errand name uses the agreed word, and prose
+keeps its voice. In a sentence a location is still an island, because in this
+world it is one. What is forbidden is a second word for the same idea in a
+label.
+
+### The three words, and what they replaced
+
+| Idea | The word | What was also being used |
+|---|---|---|
+| A person of yours | **Crew** | officer, personnel |
+| Talking a place round | **Parley** | diplomacy |
+| The whole archipelago | **World Map** | the chart, Seas |
+| One chain, opened | **Reach Map** | the chain view |
+| One island, opened | **Location** | island, port, harbor |
+
+All five live in `src/data/terms.json`, which was already the vocabulary file;
+the pass mostly consisted of finding the places that had gone round it.
+
+### The three views now say which one they are
+
+A player looking at a sheet could not tell whether they were in a Reach or on
+an island, because both opened with a name in the same type. `Sheet` gained an
+**eyebrow** — a small line above the title — and the Reach map, the Reach's
+list of its islands and the island panel all carry theirs. Three screens, three
+labels, in the same place every time.
+
+### A person who talks is a Negotiator
+
+The role chip on a crew sheet said **Diplomat** while the rating beside it said
+Parley. It is now **Negotiator**, which is the word the advisor was already
+using when asked who to send. `sendDiplomat` went with it — renamed `sendCrew`,
+since it has sent people to spy, incite, sabotage, research, recruit and take
+command for a long time.
+
+### The test that keeps it
+
+`src/ui/__tests__/vocabulary.test.ts` reads every interface file through
+Vite's raw glob, strips the comments and the `${...}` interpolations, and
+fails on `personnel`, on the noun `officer`, on `Diplomacy` and on `diplomat`
+in anything the game says out loud.
+
+Stripping the comments **first** is the point: the files are full of Sean's own
+memos quoted back at the code, and a citation that says *"only show this section
+when personnel status is relevant"* is a record of why the code is the way it
+is, not a word the game says. Rewording those to satisfy a lint would be
+falsifying the record.
+
+It caught two things I had missed by hand. The first cut of the officer rule
+looked for the noun behind an article — *an officer*, *your officer* — and the
+tutorial's very first card slipped straight through it saying *"ships, officers
+and islands of its own"*, which is exactly the use the pass exists to kill. The
+rule is now the bare noun in any position. And the advisor's roster note still
+read `Diplomacy 78 · ashore at Highwater`.
+
+### What a screenshot found that no test could
+
+The Reach's **map** view counted *15 locations* and its **list** view counted
+*15 islands*, with no eyebrow on the list at all — two views of one thing
+disagreeing about what the thing is called. Both now read the same. The main
+island panel had no eyebrow either: the two I had added went to the *dark* and
+*uncharted* variants of the sheet, and the one a player actually sees most was
+a third render path further down the file.
+
+The tab bar fits **World Map** at 414pt beside Crew, Build, Book and Log with
+room to spare, which was the one thing a rename could have broken visually.

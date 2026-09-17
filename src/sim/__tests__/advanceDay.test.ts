@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { advanceDay, checkVictory } from '../advanceDay';
 import { MISSION_WORK_DAYS, YARD_BUILDS } from '../constants';
 import { generateGalaxy, START_GOLD } from '../galaxy';
-import { newGame, orderBuild, sendDiplomat, setSpeed } from '../commands';
+import { newGame, orderBuild, sendCrew, setSpeed } from '../commands';
 import { clearSave, loadGame, saveGame } from '../persist';
 import { getSystem, setSupport } from '../helpers';
 import { travelDays } from '../missions';
@@ -75,7 +75,7 @@ describe('the opponent AI', () => {
     expect(aiOrders.length).toBeGreaterThan(0);
   });
 
-  it('sends a diplomat out on its mission cycle', () => {
+  it('sends a crew member out on their errand cycle', () => {
     const state = tick(generateGalaxy(407), 11);
     const busy = state.characters.filter((c) => c.faction === 'alliance' && c.mission);
     expect(busy.length).toBeGreaterThan(0);
@@ -159,7 +159,7 @@ describe('commands', () => {
     // its yards to be put to work.
     target.support.empire = 60;
 
-    const sent = sendDiplomat(state, diplomat.id, target.id);
+    const sent = sendCrew(state, diplomat.id, target.id);
     expect(sent.error).toBeUndefined();
     // Exactly the passage plus the work: the clock pauses on a decision in
     // play, and a test that runs past it sees the same decision raised again.

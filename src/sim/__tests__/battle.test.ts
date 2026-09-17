@@ -456,7 +456,7 @@ describe('the clock stops for combat and for nothing else', () => {
   });
 });
 
-describe('only certain officers can hold a place', () => {
+describe('only certain crew can hold a place', () => {
   it('offers Command to a Leader and refuses it to anyone else', () => {
     const state = generateGalaxy(301, 'empire');
     const island = state.systems.find((s) => s.control === 'empire')!;

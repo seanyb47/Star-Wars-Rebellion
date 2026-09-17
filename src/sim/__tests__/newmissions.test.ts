@@ -88,7 +88,7 @@ describe('abduction', () => {
     expect(missionTypeFor(state, theirs, 'empire')).toBe('abduct');
   });
 
-  it('takes an enemy officer caught off their own ground, and gives them back later', () => {
+  it('takes an enemy crew member caught off their own ground, and gives them back later', () => {
     const state = world();
     const mine = plainIsland(state);
     // Not a Lord: they never leave their ships and cannot be lifted off a quay.

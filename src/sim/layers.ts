@@ -58,7 +58,7 @@ export const CHART_LAYERS: LayerSpec[] = [
   // the chart; Loyalty stays the resting state.
   { id: 'none', label: 'None', hint: 'The chart alone: no marks, just the sea and the Reaches.' },
   { id: 'allegiance', label: 'Loyalty', hint: 'Every island, coloured by whose it is and sized by how firmly they hold it: big is firm, small is thin and leaking trade to the other side.' },
-  { id: 'idleCrew', label: 'Idle crew', hint: 'Islands where one of your officers is ashore with nothing to do.' },
+  { id: 'idleCrew', label: 'Idle crew', hint: 'Islands where one of your crew is ashore with nothing to do.' },
   /*
    * There was a **To sign on** filter here, and it pinned every island an
    * unaligned officer happened to be standing on. It is gone at Sean's word of
@@ -73,7 +73,7 @@ export const CHART_LAYERS: LayerSpec[] = [
   { id: 'room', label: 'Available land', hint: `Islands of yours with berths still open, sized by how many: big is ${ROOM_AMPLE} or more, small is one.` },
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
   { id: 'garrisons', label: 'Garrisons', hint: `Islands of yours holding companies ashore, sized by how many: big is ${GARRISON_STRONG} or more, small is under ${GARRISON_FAIR}.` },
-  { id: 'missions', label: 'Missions', hint: 'Islands your officers are working on, or sailing for.' },
+  { id: 'missions', label: 'Missions', hint: 'Islands your crew are working on, or sailing for.' },
   { id: 'worth', label: 'Production', hint: 'What each island earns its holder in gold a day, right now.' },
 ];
 

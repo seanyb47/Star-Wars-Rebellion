@@ -565,7 +565,7 @@ describe('recruitment', () => {
 
   /** Both sides can always grow: the Regent and the three Lords are drawn into
    *  every war, and the Crown's Regent and two of the Lords are Recruiters. */
-  it('leaves each side at least one officer who can keep a table', () => {
+  it('leaves each side at least one crew member who can keep a table', () => {
     for (let seed = 1; seed <= 12; seed++) {
       const state = generateGalaxy(seed);
       for (const faction of ['empire', 'alliance'] as const) {

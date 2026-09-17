@@ -2232,3 +2232,12 @@ button.tcard:hover { border-color: var(--brass); }
 .outcome__control { margin: 0; font-size: 13px; }
 .outcome__bullets { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 3px; }
 .outcome__bullets li { font-size: 12px; line-height: 1.4; color: var(--chrome-text); }
+
+/* The kind of thing a sheet is about, over its name: WORLD MAP, REACH MAP,
+   LOCATION. Sean's word of 17 September — one word per idea, and a screen
+   should say which of the three it is rather than leaving it to be inferred. */
+.sheet__titles { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.sheet__eyebrow {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--chrome-muted); line-height: 1;
+}

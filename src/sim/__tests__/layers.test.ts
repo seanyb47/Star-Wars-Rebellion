@@ -67,7 +67,7 @@ describe('chart layers', () => {
     expect(layerMark(state, mine, 'idleYards', 'empire').lit).toBe(false);
   });
 
-  it('lights islands where an officer is ashore with nothing to do', () => {
+  it('lights islands where a crew member is ashore with nothing to do', () => {
     const { state } = setup();
     const officer = state.characters.find((c) => c.faction === 'empire')!;
     const where = getSystem(state, officer.locationSystemId);

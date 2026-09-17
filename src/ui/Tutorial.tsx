@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import factionData from '../data/factions.json';
 import reachData from '../data/reaches.json';
+import terms from '../data/terms.json';
 import { numberWord } from './words';
 import { PIRATE_LORDS, type PlayableFaction } from '../sim';
 
@@ -39,7 +40,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
     body: (side) => {
       const you = factionData[side];
       const them = factionData[side === 'empire' ? 'alliance' : 'empire'];
-      return `A war for the Seven Seas: ${numberWord(ISLANDS)} islands in ${numberWord(REACHES)} chains. You are the ${you.name}'s ${you.playerTitle} — the highest rank it has, and every admiral and captain answers to you. ${them.name} is out there with ships, officers and islands of its own, and it wants what you have.`;
+      return `A war for the Seven Seas: ${numberWord(ISLANDS)} islands in ${numberWord(REACHES)} chains. You are the ${you.name}'s ${you.playerTitle} — the highest rank it has, and every admiral and captain answers to you. ${them.name} is out there with ships, crew and islands of its own, and it wants what you have.`;
     },
   },
   {
@@ -52,14 +53,14 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
     },
   },
   {
-    title: 'The chart',
+    title: `The ${terms.worldMap}`,
     body: () =>
       'Every island is a dot in the colour of who holds it: green the Crown, red the Confederacy, blue settled but nobody\'s, grey unexplored or empty. How big the dot is says how firmly it is held — a big one is loyal, a small one is thin and running a quarter of its trade to the other side. A filter draws what it points at big and everything else small. The star is the thing to watch: it marks Highwater, and wherever a Pirate Lord is standing. Tap a chain to zoom in.',
   },
   {
-    title: 'One island',
+    title: `One ${terms.island}`,
     body: () =>
-      'Inside a chain, tap an island for its panel: Harbor for the ships lying there, Crew for your officers there, Garrison for companies ashore, Buildings for what stands and what you can order, Log for what has happened.',
+      'Inside a chain, tap an island for its panel: Harbor for the ships lying there, Crew for yours ashore, Garrison for companies ashore, Buildings for what stands and what you can order, Log for what has happened.',
   },
   {
     title: 'Allegiance',
@@ -69,7 +70,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'Your crew',
     body: () =>
-      'Seven officers, each rated for Diplomacy, Espionage, Combat and Leadership. Send one to an island and the island offers the errand: parley with the undecided, stir up trouble on theirs, keep an open table at a loyal harbor of your own and sign somebody on, chart the unknown, burn their yards, carry off their officer, break one of yours out of their cells, restore order on yours. Where it offers more than one, you choose.',
+      'Your crew, each rated for Parley, Espionage, Combat and Leadership. Send one to an island and the island offers the errand: parley with the undecided, stir up trouble on theirs, keep an open table somewhere loyal of your own and sign somebody on, chart the unknown, burn their yards, carry off one of their crew, break one of yours out of their cells, restore order on yours. Where it offers more than one, you choose.',
   },
   {
     title: 'Gold',
@@ -100,8 +101,8 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
     title: 'A first move',
     body: (side) =>
       side === 'empire'
-        ? 'Two of your islands are sullen and held by garrison alone. Send a diplomat to one of them before the Confederacy sends theirs. Then start the hunt: the three Lords are ashore on islands in the outer Reaches you have not charted, and they move. Explore the frontier, and watch for the star.'
-        : 'Your three Lords are at the meeting place beyond the Crown\'s charts, with the rest of your people. Each brings one thing nobody else can — read their sheets. Two of the three want a posting to work, so put them in command of an island where it will do something, and send your best diplomat to a neutral island in your own chain. Put Wyatt Ansell on the Shipyard. And keep the Lords apart: the Crown needs all three at once.',
+        ? 'Two of your islands are sullen and held by garrison alone. Send a negotiator to one of them before the Confederacy sends theirs. Then start the hunt: the three Lords are ashore on islands in the outer Reaches you have not charted, and they move. Explore the frontier, and watch for the star.'
+        : 'Your three Lords are at the meeting place beyond the Crown\'s charts, with the rest of your people. Each brings one thing nobody else can — read their sheets. Two of the three want a posting to work, so put them in command of an island where it will do something, and send your best negotiator to a neutral island in your own chain. Put Wyatt Ansell on the Shipyard. And keep the Lords apart: the Crown needs all three at once.',
   },
 ];
 

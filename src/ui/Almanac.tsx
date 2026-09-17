@@ -98,7 +98,7 @@ const PAGES = [
   { id: 'companies', label: 'Companies' },
   { id: 'works', label: 'Buildings' },
   { id: 'ships', label: 'Ships' },
-  { id: 'islands', label: 'Islands' },
+  { id: 'islands', label: terms.islands },
   { id: 'rules', label: 'Rules' },
 ] as const;
 
@@ -416,16 +416,16 @@ export function Almanac({
 
       {page === 'people' && (
         <>
-      <div className="section-title">What an officer is for</div>
+      <div className="section-title">What a {terms.crewOne} is for</div>
       <div className="card small">
         <b>Four numbers, and each one is a different errand.</b>{' '}
-        <b>Diplomacy</b> wins islands over and stirs them up. <b>Espionage</b> is the quiet work —
+        <b>{terms.parley}</b> wins islands over and stirs them up. <b>Espionage</b> is the quiet work —
         sabotage, and carrying somebody off a quay. <b>Combat</b> tells in a landing and keeps them
         alive when an errand goes wrong. <b>Leadership</b> is worth a hit chance to every gun in
         the squadron they sail with, and holds an island quiet when they are posted to it.
         <br />
         <br />
-        <b>A posting is not an errand.</b> Put an officer in command of an island and they stay:
+        <b>A posting is not an errand.</b> Put a {terms.crewOne} in command of an island and they stay:
         the island does not rise while they stand on it, and a stranger asking questions in its
         harbor is far likelier to be found out. They are not available for anything else until
         relieved, and leaving ends the posting.
@@ -468,7 +468,7 @@ export function Almanac({
               </div>
             </div>
             <div className="statgrid">
-              <span><i>Diplomacy</i><b>{entry.ratings.diplomacy}</b></span>
+              <span><i>{terms.parley}</i><b>{entry.ratings.diplomacy}</b></span>
               <span><i>Espionage</i><b>{entry.ratings.espionage}</b></span>
               <span><i>Combat</i><b>{entry.ratings.combat}</b></span>
               <span><i>Leadership</i><b>{entry.ratings.leadership}</b></span>
@@ -580,11 +580,11 @@ export function Almanac({
             [terms.upkeep, 'What everything you own costs to keep, per day. If you cannot pay, something breaks.'],
             [terms.allegiance, `How much of an island's population is on your side, out of 100. It sets what the island earns you and whether it stays quiet.`],
             [terms.space, 'Berths to build on. Every building takes one; companies and hulls take none.'],
-            [terms.island, 'One place on the chart. Seventy-one of them.'],
-            [terms.reach, 'A chain of seven to ten islands. Allegiance won on one spills 20% onto the rest.'],
+            [terms.island, 'One place on the chart, and the screen you get when you open one. Seventy-one of them.'],
+            [terms.reach, `A chain of seven to ten ${terms.islands.toLowerCase()}, and the ${terms.reachMap} you get when you open one. Word of a rising or a defection carries down it; an ordinary fortnight's work does not.`],
             [terms.mutiny, `An island can rise against you once its allegiance falls under ${UPRISING_SUPPORT} — not on any particular morning, and never while there are companies enough in the square. It earns nothing and builds nothing until allegiance climbs back to ${UPRISING_END_SUPPORT} or six companies face it down.`],
             [terms.parley, `Sending a crew member to talk an island round, where nobody has chosen a side or the island is already yours. The sail is as long as the distance — a few days inside a ${terms.reach}, a fortnight or more across open sea — then ${MISSION_WORK_DAYS} days' work before they report. Who you send decides it: the errand sheet says how it looks, from Very difficult to Very favorable, and what is making it look that way.`],
-            [terms.incite, `The same trip to an island they hold, to turn it against its governor. You do not win the island — you cost them their grip on it, and an island pushed far enough rises on its own, which stops everything being built or loaded there. Dangerous work: their officers are watching, and yours can be hurt.`],
+            [terms.incite, `The same trip to an island they hold, to turn it against its governor. You do not win the island — you cost them their grip on it, and an island pushed far enough rises on its own, which stops everything being built or loaded there. Dangerous work: their crew are watching, and yours can be hurt.`],
             ['Unaligned', `An island that has not picked a side. Every island's regard for the two of you adds up to a hundred, so a point you win is a point they lose. There is no number at which it comes over: a meeting that goes well may end with the island declaring for you, and the warmer it already is the likelier that is.`],
             ['Smuggling', 'On an island where your allegiance is under 50, the day’s takings may go to the enemy instead.'],
           ] as const

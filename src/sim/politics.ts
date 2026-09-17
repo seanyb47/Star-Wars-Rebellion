@@ -129,7 +129,7 @@ export function partyPull(
     pull += person[rating] * falloff;
     // A specialist is worth more at the thing they are a specialist in, and
     // only the one actually doing it — which is the best hand aboard, whoever
-    // the order was written for. A Diplomat along for the ride is a good
+    // the order was written for. A Negotiator along for the ride is a good
     // talker, not a second embassy.
     if (i === 0 && role && person.roles?.includes(role)) pull += ROLE_BONUS;
   }
@@ -203,7 +203,7 @@ export function parleyStanding(
   faction: PlayableFaction,
   party: Character[],
 ): Standing {
-  const pull = partyPull(party, 'diplomacy', 'Diplomat');
+  const pull = partyPull(party, 'diplomacy', 'Negotiator');
   const resist = system.support[otherFaction(faction)];
   const momentum = momentumFor(system, faction) * MOMENTUM_WEIGHT;
   const chance = Math.max(
@@ -256,7 +256,7 @@ export function inciteStanding(
       { label: party.length > 1 ? 'Your agitators' : 'Your agitator', weight: mark(pull - 50, 18) },
       { label: 'Their hold on the people', weight: mark(40 - loyalty, 12) },
       { label: 'Companies ashore', weight: -mark(garrisonRoster(system).length * SECURITY_PER_COMPANY, 8) },
-      ...(system.commanderId ? [{ label: 'An officer in the chair', weight: -2 }] : []),
+      ...(system.commanderId ? [{ label: 'Their crew in the chair', weight: -2 }] : []),
       ...(momentum !== 0 ? [{ label: 'Recent unrest here', weight: mark(momentum, 4) }] : []),
     ],
   };

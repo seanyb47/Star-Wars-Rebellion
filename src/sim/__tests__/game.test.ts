@@ -75,7 +75,7 @@ describe('the opponent expands', () => {
     expect(after).toBeGreaterThan(before + 1);
   });
 
-  it('never sends an officer anywhere there is nothing to do', () => {
+  it('never sends a crew member anywhere there is nothing to do', () => {
     // Checked against the AI directly rather than inferred from a long run: an
     // island can come over while a diplomat is still at sea, so a mission in
     // flight pointing at friendly ground proves nothing either way.
@@ -121,7 +121,7 @@ describe('the opponent expands', () => {
     expect(dispatched).toBeGreaterThan(30);
   });
 
-  it('puts more than one officer to work', () => {
+  it('puts more than one of them to work', () => {
     // A faction with five officers and one of them at sea is not playing. The
     // previous version used its best diplomat and left the rest on the quay.
     let best = 0;
@@ -134,7 +134,7 @@ describe('the opponent expands', () => {
     expect(best).toBeGreaterThan(1);
   });
 
-  it('stands an officer down when the island comes over while they are at sea', () => {
+  it('stands a crew member down when the island comes over while they are at sea', () => {
     // The legitimate case the previous version of the test above mistook for a
     // bug: spillover from a neighbouring parley can flip the target in transit.
     // Forced here rather than fished for across seeds, so it stays covered

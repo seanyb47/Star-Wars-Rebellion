@@ -121,7 +121,7 @@ function buildAnswers(state: GameState): Answer[] {
         .map((c) => ({
           id: c.id,
           name: c.name,
-          note: `Diplomacy ${c.diplomacy} · ashore at ${
+          note: `${terms.parley} ${c.diplomacy} · ashore at ${
             state.systems.find((s) => s.id === c.locationSystemId)?.name ?? 'unknown'
           }`,
         })),

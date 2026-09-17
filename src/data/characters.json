@@ -30,7 +30,7 @@
         "Leader",
         "Recruiter",
         "Spec Ops",
-        "Diplomat"
+        "Negotiator"
       ],
       "bio": "Burned and drowned at the Broken Chain, pulled from the Black Tide by the Regent's surgeons and rebuilt with brass lungs and a black leather mask. Keeps every promise, even to enemies. Executes captains for failure and feels nothing.",
       "major": true,
@@ -47,7 +47,7 @@
       "epithet": "the Survivor",
       "people": "Human",
       "roles": [
-        "Diplomat",
+        "Negotiator",
         "Leader"
       ],
       "bio": "Careful and competent; survives Blackwater's flagship by never being the one blamed. Good at parley because he listens.",
@@ -65,7 +65,7 @@
       "epithet": "the Sleepless",
       "people": "Human",
       "roles": [
-        "Diplomat",
+        "Negotiator",
         "Leader"
       ],
       "bio": "Oversees the Leviathan's completion at Greenholm. Charming at dinner; has stopped sleeping.",
@@ -139,7 +139,7 @@
       "epithet": "the Magistrate",
       "people": "Human",
       "roles": [
-        "Diplomat",
+        "Negotiator",
         "Recruiter",
         "Leader"
       ],
@@ -178,7 +178,7 @@
       "epithet": "of Carrow",
       "people": "Human",
       "roles": [
-        "Diplomat",
+        "Negotiator",
         "Recruiter",
         "Latent Deep-touched"
       ],
@@ -234,7 +234,7 @@
       "people": "Human",
       "roles": [
         "General",
-        "Diplomat",
+        "Negotiator",
         "Leader"
       ],
       "bio": "Elderly ex-Imperium admiral; the Confederacy's grandfather figure and its steadiest voice at a parley table.",
@@ -331,7 +331,7 @@
       },
       "roles": [
         "Recruiter",
-        "Diplomat"
+        "Negotiator"
       ]
     },
     {
@@ -379,7 +379,7 @@
         "leadership": 62
       },
       "roles": [
-        "Diplomat"
+        "Negotiator"
       ]
     },
     {
@@ -396,7 +396,7 @@
       },
       "roles": [
         "Leader",
-        "Diplomat"
+        "Negotiator"
       ]
     },
     {
@@ -412,7 +412,7 @@
         "leadership": 58
       },
       "roles": [
-        "Diplomat",
+        "Negotiator",
         "Recruiter"
       ]
     },

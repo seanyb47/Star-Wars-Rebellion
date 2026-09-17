@@ -14,7 +14,7 @@ import {
   orderAssault,
   orderDetach,
   orderBombard,
-  sendDiplomat,
+  sendCrew,
   resolvePendingMission,
   type CommandResult,
 } from '../src/sim/commands';
@@ -92,7 +92,7 @@ export function pilot(state: GameState, tally: PilotTally): GameState {
     }
     if (!best) { note('officer:nothing-to-do'); continue; }
     claimed.add(best.system.id);
-    state = take(sendDiplomat(state, officer.id, best.system.id, best.type), `errand:${best.type}`);
+    state = take(sendCrew(state, officer.id, best.system.id, best.type), `errand:${best.type}`);
   }
 
   // 3. Spend the treasury. Found works where there are none, then build.

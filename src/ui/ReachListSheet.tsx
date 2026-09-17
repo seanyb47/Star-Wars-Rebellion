@@ -33,10 +33,11 @@ export function ReachListSheet({
 
   return (
     <Sheet
+      eyebrow={terms.reachMap}
       title={sector.name}
       subtitle={
         <span>
-          {summary.islands} islands
+          {summary.islands} {terms.islands.toLowerCase()}
           {summary.mutinies > 0 && (
             <span className="badge badge--warn" style={{ marginLeft: 8 }}>
               {summary.mutinies} in {terms.mutiny.toLowerCase()}
@@ -68,7 +69,7 @@ export function ReachListSheet({
         />
       </div>
 
-      <div className="section-title">The islands</div>
+      <div className="section-title">The {terms.islands.toLowerCase()}</div>
       <div className="stack">
         {summary.perIsland.map((entry) => (
           <IslandRow
