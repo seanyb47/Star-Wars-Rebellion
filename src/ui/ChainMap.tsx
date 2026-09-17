@@ -3,7 +3,6 @@ import {
   isMissionTarget,
   layerMark,
   missionTypeFor,
-  recruitOn,
   ROOM_TRACK,
   type GameState,
   type ChartLayer,
@@ -343,7 +342,6 @@ export function ChainMap({
         // Which work this island means, so the ring can say so before you tap.
         const work = pickingFor && !sailing ? missionTypeFor(state, system, pickingFor) : null;
         // Named in the label when the errand is to sign them on.
-        const loose = work === 'recruit' ? recruitOn(state, system, viewer) : null;
         // Whose hulls lie off it. One sail per side present, in that side's
         // colour — the fleet's owner, not the island's — and no count: the
         // count is on the Harbor tab, and a sail beside the name is the
@@ -363,7 +361,7 @@ export function ChainMap({
             style={{ cursor: live ? 'pointer' : 'default' }}
             aria-label={
               work === 'recruit'
-                ? `${system.name}, sign on ${loose?.name ?? 'someone'}`
+                ? `${system.name}, keep an open table and sign somebody on`
                 : work === 'incite'
                   ? `${system.name}, stir up trouble`
                   : work === 'diplomacy'

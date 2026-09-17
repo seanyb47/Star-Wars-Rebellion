@@ -65,17 +65,29 @@ export interface BuildSpec {
 
 /** Construction-yard menu (spec 4.4). */
 export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
-  // A gold mine is a prize now rather than a default: it can only go on a vein,
-  // and there are few veins. Priced and timed to match — a third the islands
-  // will never see one, and the ones that do are worth a war.
+  /*
+   * The two earners cost nothing, at Sean's word of 17 September: *"Gold mine
+   * and lumber mill need to be zero cost... early game, shouldn't be terribly
+   * constrained by gold."*
+   *
+   * They are still not free, which is the point. A mine can only go on a vein
+   * and a mill on a forest, and there are only so many of either; the deposit
+   * takes the berth, and berths are the game's real scarcity; and each is ten
+   * days and five that the island's yards are doing nothing else with, one job
+   * at a time. What the price bought was a first fortnight spent staring at a
+   * ledger instead of at the chart, and Sean's other sentence says where the
+   * gold is meant to come from anyway: *"as you use diplomacy to sway islands
+   * to your side many will have income producing facilities."* Winning ground
+   * is the economy; sinking shafts is what you do with ground you have won.
+   */
   // Quick, both of them, and deliberately so. An island's works can only hold
   // one job at a time now, so a forested island with four stands of timber is
   // four jobs in a queue — at ten days each that is half a year before the
   // island is worth what it is worth, and measured, the opponent ended wars
   // sitting on thirteen thousand gold with two forests an island still
   // standing. Felling trees is not building a slipway.
-  mine: { costGold: 130, days: 10, label: terms.facilities.mine },
-  refinery: { costGold: 65, days: 5, label: terms.facilities.refinery },
+  mine: { costGold: 0, days: 10, label: terms.facilities.mine },
+  refinery: { costGold: 0, days: 5, label: terms.facilities.refinery },
   construction_yard: { costGold: 120, days: 20, label: terms.facilities.construction_yard },
   training_facility: { costGold: 80, days: 15, label: terms.facilities.training_facility },
   shipyard: { costGold: 150, days: 25, label: terms.facilities.shipyard },
@@ -1080,9 +1092,88 @@ export const RECRUIT_LAST_DAY = 420;
 /** Scales an officer's chance by how good the recruit is: someone worth having
  *  knows it. `chance × (1 − quality/RECRUIT_QUALITY_DIVISOR)`. */
 export const RECRUIT_QUALITY_DIVISOR = 200;
-/** What the opponent adds for signing someone on, against courting an island.
- *  People are scarce and permanent; an island can be worked again next month. */
-export const AI_RECRUIT_BONUS = 120;
+
+/**
+ * Signing on, rebuilt to Sean's memo of 17 September.
+ *
+ * What it replaced was a manhunt. Eight strangers were scattered on eight
+ * islands, the chart carried a filter that pinned every one of them, and
+ * growing your corps meant sailing an officer to wherever a particular person
+ * happened to be standing — often ground you did not hold, sometimes the
+ * enemy's. Sean: *"the game does not force the player to travel around the
+ * galaxy looking for specific people... the character pool determines who is
+ * available; the recruiting location determines the conditions under which you
+ * attempt to obtain them."*
+ *
+ * So the pool is a pool, and the island is the *condition*. You recruit at a
+ * harbor of your own that is loyal enough to be worth recruiting at, which
+ * makes a secure rear area a thing worth building — Sean's whole point — and
+ * turns the errand from a race into a decision about where your capital is.
+ *
+ * Leadership settles it, not Diplomacy: *"the primary attribute governing
+ * recruitment is Leadership."* And only a Recruiter may lead one, which is the
+ * memo's other restriction and lands where it should — the Crown has exactly
+ * one, the Regent, and the Confederacy has four. Both sides always have at
+ * least one, because the Regent and the three Lords are drawn into every war.
+ */
+/**
+ * Allegiance an island must already have before anybody will sign on there.
+ *
+ * Exactly where drift settles a properly held island, and that is measured
+ * rather than chosen. It opened at 70 — deliberately *above* the resting
+ * point, so that a recruiting harbor would be one you had kept up rather than
+ * one you merely held — and in six wars of machine play not a single hand was
+ * signed on, by either side. Nothing in the game pushes a held island past its
+ * resting point on its own: opinion drifts to `HELD_SUPPORT_LEVEL` and stops,
+ * and neither the opponent nor an ordinary player has a reason to spend a
+ * fortnight arguing with an island that already flies their flag.
+ *
+ * So the gate is "held and content" and the *reward* for a devoted harbor is
+ * in the odds instead, where it belongs: `RECRUIT_LOYALTY_WEIGHT` pays out
+ * across the whole stretch from here to a hundred, so the rear area Sean's
+ * memo wants you to build is worth building without being the price of entry.
+ * A newly taken island, or one somebody is stirring up, is under this and
+ * signs nobody.
+ */
+export const RECRUIT_MIN_SUPPORT = HELD_SUPPORT_LEVEL;
+/** The floor, before the officer and the island are weighed in. */
+export const RECRUIT_BASE = 0.2;
+/** What Leadership is worth: at a hundred, most of the rest of the chance. */
+export const RECRUIT_LEADERSHIP_DIVISOR = 260;
+/** What the last thirty points of an island's allegiance are worth. */
+export const RECRUIT_LOYALTY_WEIGHT = 0.25;
+/** Nothing is certain. */
+export const RECRUIT_CEILING = 0.85;
+/** The role that may lead one. */
+export const RECRUITER_ROLE = 'Recruiter';
+/**
+ * What the opponent will pay for signing someone on, against courting an
+ * island. Multiplied by how likely the attempt is, like the two political
+ * errands, so a lukewarm harbor is not scored as a devoted one.
+ *
+ * Raised from 120 on 17 September because at 120 the errand was dead. An
+ * officer is permanent and works many islands over a war, which is the case
+ * for paying more for one than for a single island — and measured at 120,
+ * with the errand priced at most 68 against a neutral island's 150 and a
+ * Lord on a quay's several hundred, the opponent started *no* recruitment at
+ * all across six wars while up to fourteen of its own harbors qualified.
+ * Sean's memo is explicit that this is the strongest early play there is:
+ * *"the optimal early-game behavior... is essentially to recruit
+ * aggressively."*
+ */
+export const AI_RECRUIT_BONUS = 300;
+/*
+ * Tried and cut: discounting this to a fifth once the side had seven hands,
+ * to give Sean's memo its arc — *"early game, recruit heavily... late game,
+ * recruitment becomes largely irrelevant"* — with roster size standing in for
+ * the clock. It bought nothing it was meant to. Agitators and saboteurs did
+ * not come back (2 and 0 errands, the same as without it), and everything
+ * else got worse: officer-days on errands fell from 40% to 32%, days in irons
+ * rose from 18% to 22%, and a third of the recruiting stopped. The arc is
+ * already in the pool — two of the unaligned are about at the start and the
+ * rest drift in over four hundred days — so pricing it twice only starved the
+ * corps. What crowds out sabotage is a separate question and belongs there.
+ */
 /**
  * What an unaligned island is worth going and talking to.
  *
@@ -1184,6 +1275,29 @@ export const AI_RUNWAY_DAYS = 120;
  */
 export const AI_SURVEY_BONUS = 30;
 export const AI_SURVEY_HUNGER = 6;
+/**
+ * And what *not being able to see* is worth, whatever the ledger says.
+ *
+ * Added 17 September, and it is the fix for a chain nobody would have guessed
+ * at. Sean asked for a richer opening — free mills, a purse that fills every
+ * yard on the first morning — and measured over six wars the errand economy
+ * fell apart: parleys halved, explorations went from 38 to 16, reports from 44
+ * to 17, and agitators and saboteurs stopped being sent *at all* (91 and 37
+ * down to 3 and 0). Nothing had touched any of those rules.
+ *
+ * The cause was this line. Exploring was priced off `AI_SURVEY_HUNGER` alone —
+ * *"a side with money to spare would rather court an island than chart one"* —
+ * so a comfortable side scored the whole dark frontier at 30 and went nowhere
+ * near it. An island nobody has charted cannot be incited, raided or spied on,
+ * because every one of those errands needs `explored`. So making the opponent
+ * rich quietly blinded it, and being blind took three errands off the board.
+ *
+ * Wanting ground when the bill grows is still true and still here. This is the
+ * other reason to go and look, and it is the one that does not care what is in
+ * the treasury: a side that cannot see most of the world wants to see it. It
+ * fades on its own as the chart fills, which is exactly when it should.
+ */
+export const AI_SURVEY_DARK = 110;
 /** What each plot of empty land is worth to a squadron looking for somewhere. */
 export const AI_PLOT_WORTH = 9;
 /** Above this surplus the opponent is comfortable and expands for its own sake;
@@ -1530,6 +1644,19 @@ export const SCOUT_PER_ISLAND = 25;
  * and a poor one is better used elsewhere.
  */
 export const SURVEY_PER_ISLAND = 34;
+
+/**
+ * What a works waits on the shipwrights for.
+ *
+ * Sean, 17 September: *"Heavy Fortress needs to be gated by Research
+ * mission."* Until now the research errand reached hulls and nothing else, so
+ * the one building in the game that is a campaign decision could be thrown up
+ * on day one by anybody with 250 gold. A grade is a hundred progress — one
+ * officer, three or four cycles in your own yards — so this is a fortnight or
+ * two of somebody's time and not a tech tree, which is the right weight for
+ * the thing it unlocks.
+ */
+export const FACILITY_CRAFT: Partial<Record<FacilityType, number>> = { heavy_fort: 1 };
 
 /** Facility types that a construction yard is allowed to queue. */
 export const YARD_BUILDABLE: FacilityType[] = [

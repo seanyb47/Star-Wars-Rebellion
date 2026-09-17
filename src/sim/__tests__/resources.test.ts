@@ -106,9 +106,18 @@ describe('what is in the ground', () => {
     expect(emptyWorked).toBe(0);
   });
 
-  it('prices a vein well above a stand of timber', () => {
+  /**
+   * A vein is worth more than a stand of timber, and since Sean's word of
+   * 17 September neither costs anything to work. What separates them now is
+   * what they earn and how long they take to raise — the price was the third
+   * lever and it is gone, because the early game is meant to be short of
+   * time and ground rather than of coin.
+   */
+  it('prices a vein well above a stand of timber, in earnings and in days', () => {
     expect(GOLD_PER_DAY.mine).toBeGreaterThan(GOLD_PER_DAY.refinery * 2);
-    expect(YARD_BUILDS.mine.costGold).toBeGreaterThan(YARD_BUILDS.refinery.costGold);
+    expect(YARD_BUILDS.mine.days).toBeGreaterThan(YARD_BUILDS.refinery.days);
+    expect(YARD_BUILDS.mine.costGold).toBe(0);
+    expect(YARD_BUILDS.refinery.costGold).toBe(0);
   });
 });
 

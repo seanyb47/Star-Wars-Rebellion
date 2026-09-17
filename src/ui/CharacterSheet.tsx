@@ -4,6 +4,9 @@ import {
   inciteLoss,
   parleyGain,
   recruitChance,
+  canRecruit,
+  isPlayable,
+  RECRUIT_MIN_SUPPORT,
   successChance,
   LORD_POWER_LABEL,
   lordOfName,
@@ -12,6 +15,8 @@ import {
   powerOf,
   type Character,
   type GameState,
+  type PlayableFaction,
+  type System,
 } from '../sim';
 import { CharacterPainting } from './art';
 import { Sheet } from './components';
@@ -37,19 +42,21 @@ function Where({
   );
 }
 
-/** Yardsticks for the signing-on range: how a star and an ordinary hand would
- *  answer this officer. Only their ratings are read, so the rest is filler. */
-const YARDSTICK = {
-  id: '', name: '', faction: 'neutral', locationSystemId: '', status: 'available',
-} as const;
-/** Someone worth having, who knows it — the hard end of the range. */
-const STAR_HAND: Character = {
-  ...YARDSTICK, diplomacy: 95, espionage: 95, combat: 95, leadership: 95, watch: 95,
-};
-/** An ordinary hand off a quay — the easy end. */
-const GREEN_HAND: Character = {
-  ...YARDSTICK, diplomacy: 50, espionage: 50, combat: 50, leadership: 50, watch: 50,
-};
+/**
+ * Yardsticks for the signing-on range.
+ *
+ * Two harbors rather than two strangers, since Sean's memo of 17 September:
+ * the errand is set against the island now, not against whoever happened to be
+ * standing on it. The easy end is a harbor that adores you, the hard end the
+ * least loyal harbor that will hold a table at all. Only `support` and
+ * `control` are read, so the rest is filler.
+ */
+function harborAt(faction: PlayableFaction, standing: number): System {
+  return {
+    support: { empire: 0, alliance: 0, [faction]: standing } as System['support'],
+    control: faction,
+  } as System;
+}
 
 export function statusBadge(character: Character) {
   switch (character.status) {
@@ -282,12 +289,23 @@ export function CharacterSheet({
           </b>
         </div>
         <div className="row row--between">
-          <span className="muted">Signing on · wherever someone is</span>
-          {/* A range, because it depends who is standing there: the numbers are
-              for a plain hand and for the best person in the world. */}
+          <span className="muted">Signing on · a loyal harbor of yours</span>
+          {/* A range, because it depends on the harbor: the numbers are for a
+              port that will just about hold a table and for one that adores
+              you. Only a Recruiter may lead one at all, so anybody else reads
+              a dash rather than a number they cannot use. */}
           <b>
-            {Math.round(recruitChance(character, STAR_HAND) * 100)}–
-            {Math.round(recruitChance(character, GREEN_HAND) * 100)}%
+            {canRecruit(character) && isPlayable(character.faction) ? (
+              <>
+                {Math.round(
+                  recruitChance(character, harborAt(character.faction as PlayableFaction, RECRUIT_MIN_SUPPORT), character.faction as PlayableFaction) * 100,
+                )}
+                –
+                {Math.round(recruitChance(character, harborAt(character.faction as PlayableFaction, 100), character.faction as PlayableFaction) * 100)}%
+              </>
+            ) : (
+              'Not a Recruiter'
+            )}
           </b>
         </div>
         <div className="row row--between">

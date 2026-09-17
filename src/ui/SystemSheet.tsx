@@ -4,7 +4,9 @@ import loreData from '../data/lore.json';
 import factionData from '../data/factions.json';
 import {
   otherFaction,
-  recruitOn,
+  recruitPool,
+  canRecruitAt,
+  RECRUIT_MIN_SUPPORT,
   reportOn,
   sightOf,
   type Sight,
@@ -706,7 +708,6 @@ export function SystemSheet({
   const crew = state.characters.filter(
     (c) => c.faction === state.player && c.locationSystemId === system.id,
   );
-  const loose = recruitOn(state, system, state.player);
   const inbound = state.characters.filter(
     (c) =>
       c.faction === state.player &&
@@ -1071,6 +1072,50 @@ export function SystemSheet({
 
       {tab === 'garrison' && (
         <>
+          {/*
+            What you have in the water off this island, before what is standing
+            on it.
+
+            Sean, 17 September: *"How do I see my garrisons aboard a fleet when
+            it's stationed in an enemy harbor?"* You could not, on this tab.
+            Companies aboard were a line inside the Harbor tab's fleet card,
+            which is the right place to load and unload them and the wrong
+            place to go looking — a player about to storm an island opens the
+            Garrison tab, because that is the tab about who holds the ground,
+            and read the enemy's companies with no sight of their own landing
+            force to set against them. So the two numbers now sit on the same
+            screen: what is ashore, and what you have brought to take it off
+            them. Only your own, only fleets actually lying here, and the block
+            simply is not there when you have nothing in the water.
+          */}
+          {(() => {
+            const riding = state.fleets.filter(
+              (f) => f.faction === state.player && !f.voyage && f.systemId === system.id && f.troops > 0,
+            );
+            if (riding.length === 0) return null;
+            const aboard = riding.reduce((n, f) => n + f.troops, 0);
+            const theirs =
+              system.control === state.player ? 0 : (report ? report.island.garrison : system.garrison);
+            return (
+              <div className="card small" style={{ marginBottom: 10 }}>
+                <div className="row row--between">
+                  <b>
+                    {aboard} {aboard === 1 ? 'company' : 'companies'} aboard, off this island
+                  </b>
+                  <span className="tiny muted">
+                    {riding.length === 1 ? riding[0].name : `${riding.length} squadrons`}
+                  </span>
+                </div>
+                <p className="tiny muted" style={{ margin: '4px 0 0' }}>
+                  {system.control === state.player
+                    ? 'Yours already — land them from the Harbor tab whenever you want them ashore.'
+                    : theirs > 0
+                      ? `${theirs} ${theirs === 1 ? 'company holds' : 'companies hold'} the island${report ? ', the day it was counted' : ''}. The landing is ordered from the Harbor tab.`
+                      : `Nothing of theirs is standing ashore${report ? ', the day it was counted' : ''}. The landing is ordered from the Harbor tab.`}
+                </p>
+              </div>
+            );
+          })()}
           {/* What the island thinks of its holder, where it belongs: how many
               companies it asks for and how much of its trade goes out the back
               are both read off this number. */}
@@ -1225,35 +1270,57 @@ export function SystemSheet({
 
       {tab === 'crew' && (
         <>
-          {/* Somebody the war has not claimed. First, because it is the one
-              thing on this tab you can act on that will not wait — the other
-              side is looking for them too. */}
-          {loose && (
-            <>
-              <div className="section-title">On the quay</div>
-              <div className="card small row" style={{ gap: 10, alignItems: 'flex-start' }}>
-                <CharacterPortrait
-                  name={loose.name}
-                  faction="neutral"
-                  people={loose.people}
-                  size={40}
-                />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <b>{loose.name}</b>
-                  {loose.people && <div className="tiny muted">{loose.people}</div>}
-                  {loose.blurb && (
-                    <p className="tiny muted" style={{ margin: '4px 0 0' }}>
-                      {loose.blurb}
-                    </p>
+          {/*
+            Whether this is a harbor you could grow your corps out of.
+
+            There used to be a card here naming the unaligned officer standing
+            on this particular quay, because that was how signing on worked:
+            find the person, sail to the person. Since Sean's memo of 17
+            September there is no person to find — you keep an open table at a
+            harbor of your own that is loyal enough, and see who comes. So what
+            this tab says is whether *this* is such a harbor, which is the
+            question a player who wants more officers is actually asking, and
+            it says it on your own islands only, where the answer can be acted
+            on. It is also the one place the game explains the rule, which
+            matters: nothing on the chart points at recruiting any more.
+          */}
+          {system.control === state.player && system.populated && (() => {
+            const pool = recruitPool(state).length;
+            const here = canRecruitAt(state, system, state.player);
+            const loyalty = Math.round(system.support[state.player]);
+            return (
+              <>
+                <div className="section-title">Signing on</div>
+                <p className="muted tiny" style={{ margin: '0 0 10px' }}>
+                  {pool === 0 ? (
+                    <>
+                      There is nobody left in the Seven Seas to sign. Whoever you have is whoever
+                      you will have.
+                    </>
+                  ) : here ? (
+                    <>
+                      This harbor is loyal enough ({loyalty}) to sign hands on. Send a{' '}
+                      <b>Recruiter</b> of yours here and they will keep an open table for a
+                      fortnight: the better they lead and the more this island loves you, the
+                      likelier somebody worth having sits down at it.
+                    </>
+                  ) : system.uprising ? (
+                    <>
+                      Nobody signs articles on an island in {terms.mutiny.toLowerCase()}. Put this
+                      one back in order first.
+                    </>
+                  ) : (
+                    <>
+                      Allegiance here is {loyalty}, and a harbor wants {RECRUIT_MIN_SUPPORT} before
+                      anybody will sign with you on it. Parley this island up, or recruit from a
+                      more devoted one — a secure, well-loved port is worth keeping for exactly
+                      this.
+                    </>
                   )}
-                </div>
-              </div>
-              <p className="muted tiny" style={{ marginTop: 6 }}>
-                Send one of your own here to put it to them. They belong to
-                nobody yet, and will not wait for you.
-              </p>
-            </>
-          )}
+                </p>
+              </>
+            );
+          })()}
 
           <TheirsAshore state={state} system={system} report={filed} sight={sight} />
 

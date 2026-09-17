@@ -56,6 +56,30 @@ function GearIcon() {
  * was reachable only through the menu, which is where you go to quit, not to
  * look something up mid-war.
  */
+/**
+ * Two bars, or a triangle.
+ *
+ * Sean, 17 September: *"How do I pause game? I see speed but we need a pause
+ * button next to it."* Pausing was a 450ms hold on the speed button and had
+ * been since the clock was built — which is a gesture nobody discovers, and
+ * the one control a strategy game must never hide. The speed button still
+ * cycles and still holds to pause; this is the same thing said out loud.
+ */
+function PauseIcon({ paused }: { paused: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="currentColor">
+      {paused ? (
+        <path d="M8 5.5v13l11-6.5z" />
+      ) : (
+        <>
+          <rect x="7.5" y="5.5" width="3.6" height="13" rx="1" />
+          <rect x="12.9" y="5.5" width="3.6" height="13" rx="1" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 /** An eye: shut while you are playing, open while you are watching. */
 function EyeIcon({ open }: { open: boolean }) {
   return (
@@ -183,6 +207,27 @@ export function TopBar({
         >
           <span className="speed__dots">{speedDots(state.speed)}</span>
           <span>{autoPaused && state.speed !== 'paused' ? 'Held' : SPEED_LABEL[state.speed]}</span>
+        </button>
+        {/* And the pause, its own button, right of the clock. It shows what
+            the next tap does rather than what the clock is doing: two bars
+            while the day is moving, a triangle while it is not. Coming off a
+            pause returns to the speed you were last running at, which is the
+            same memory the hold-to-pause gesture uses. */}
+        <button
+          className={`iconbtn${state.speed === 'paused' ? ' iconbtn--on' : ''}`}
+          onClick={() => {
+            if (state.speed === 'paused') {
+              onSetSpeed(last.current);
+              return;
+            }
+            last.current = state.speed;
+            onSetSpeed('paused');
+          }}
+          aria-pressed={state.speed === 'paused'}
+          aria-label={state.speed === 'paused' ? 'Start the clock' : 'Pause the clock'}
+          title={state.speed === 'paused' ? 'Start the clock' : 'Pause'}
+        >
+          <PauseIcon paused={state.speed === 'paused'} />
         </button>
         {/* Right of the clock, as asked. The one control that is still yours
             while observing is the clock, so the switch belongs beside it. */}

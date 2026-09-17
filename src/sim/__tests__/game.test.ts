@@ -8,6 +8,8 @@ import { getSystem } from '../helpers';
 import { isLord } from '../lords';
 import {
   advanceMissions,
+  canRecruit,
+  canRecruitAt,
   continueMission,
   isMissionTarget,
   missionTypeFor,
@@ -90,15 +92,27 @@ describe('the opponent expands', () => {
         dispatched++;
         const target = getSystem(state, sent.mission!.targetSystemId);
         expect(isMissionTarget(state, target, 'alliance')).toBe(true);
-        // The island decides the errand, so the AI's mission type must be
-        // exactly what the island would give any officer standing on it —
-        // with one exception, which is the whole point of a posting. Command
-        // is offered everywhere and defaulted almost nowhere, so it is asked
-        // for by name; the opponent asks for it only to seat a Lord, and only
-        // on ground it is not already handing over.
+        /*
+         * The island decides the errand, so the AI's mission type must be
+         * exactly what the island would give any officer standing on it —
+         * with two exceptions, and both are errands that are offered widely
+         * and defaulted to nowhere, so they have to be asked for by name.
+         *
+         * A **posting**: the opponent asks for it only to seat a Lord, and
+         * only on ground it is not already handing over.
+         *
+         * **Signing on**, since Sean's memo of 17 September: any harbor of
+         * yours that is loyal enough will hold a table, which is most of a
+         * side's own islands, so defaulting to it would make it the answer to
+         * all of them and quietly pre-empt the yards. The opponent names it,
+         * and only on its own ground, and only with a Recruiter.
+         */
         if (sent.mission!.type === 'command') {
           expect(isLord(sent)).toBe(true);
           expect(target.control).not.toBe('empire');
+        } else if (sent.mission!.type === 'recruit') {
+          expect(canRecruit(sent)).toBe(true);
+          expect(canRecruitAt(state, target, 'alliance')).toBe(true);
         } else {
           expect(sent.mission!.type).toBe(missionTypeFor(state, target, 'alliance'));
         }

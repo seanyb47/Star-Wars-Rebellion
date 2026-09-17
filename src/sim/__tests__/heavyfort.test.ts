@@ -19,6 +19,8 @@ import {
   UPKEEP_PER_DAY,
   FACILITY_LABEL,
   BUILDING_ORDER,
+  CRAFT_GRADES,
+  FACILITY_CRAFT,
   isWall,
   wallGuns,
   wallStrength,
@@ -156,11 +158,44 @@ describe('the Heavy Fortress, as a second tier', () => {
     )!;
     port.slots = port.facilities.length + (port.deposits?.length ?? 0) + 2;
     state.factions.empire.gold = 5000;
+    // Behind the research errand since 17 September: one grade of shipwright
+    // craft, which is a fortnight or two of somebody's time in your own yards.
+    state.factions.empire.craft = CRAFT_GRADES[0];
     const yard = port.facilities.find(
       (f) => f.type === 'construction_yard' && f.owner === 'empire' && !f.building,
     )!;
     expect(buildMenu(yard, 3)).toContain('heavy_fort');
     // A wall needs no forest and no vein under it, unlike the earners.
+    expect(buildError(state, yard.id, 'heavy_fort')).toBeNull();
+  });
+
+  /**
+   * Sean, 17 September: *"Heavy Fortress needs to be gated by Research
+   * mission."* It is the only building in the game that waits on anything, and
+   * a side that has put nobody in its yards cannot have one at any price.
+   */
+  it('is not on the menu until somebody has been in the yards', () => {
+    const state = world();
+    const port = state.systems.find(
+      (s) =>
+        s.control === 'empire' &&
+        s.facilities.some((f) => f.type === 'construction_yard' && f.owner === 'empire'),
+    )!;
+    port.slots = port.facilities.length + (port.deposits?.length ?? 0) + 2;
+    state.factions.empire.gold = 5000;
+    state.factions.empire.craft = 0;
+    const yard = port.facilities.find(
+      (f) => f.type === 'construction_yard' && f.owner === 'empire' && !f.building,
+    )!;
+    expect(buildMenu(yard, 0)).not.toContain('heavy_fort');
+    // And it says so in a way the player can act on, rather than refusing.
+    expect(buildError(state, yard.id, 'heavy_fort')).toMatch(/shipwright craft/);
+    // The plain Fortress is untouched: a wall you can always throw up.
+    expect(buildMenu(yard, 0)).toContain('fort');
+    expect(FACILITY_CRAFT.fort ?? 0).toBe(0);
+
+    // One grade, and it is on the menu.
+    state.factions.empire.craft = CRAFT_GRADES[0];
     expect(buildError(state, yard.id, 'heavy_fort')).toBeNull();
   });
 

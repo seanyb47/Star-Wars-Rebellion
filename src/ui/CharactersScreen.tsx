@@ -117,17 +117,24 @@ export function CharactersScreen({
       })}
     </div>
     {/*
-      Sean, looking at this screen: *"I don't think we have the recruit
-      mission do we? How do we get more free?"* We do, and it is the only way
-      a crew ever grows — but nothing on the screen that shows you your crew
-      said so, and the chart had no filter for looking. Two sentences at the
-      foot of the roster, which is where the question gets asked.
+      Sean asked it twice: *"I don't think we have the recruit mission do
+      we? How do we get more free?"*, and then, once it existed but had been
+      rebuilt out from under the old chart filter, *"as imperium… how do I
+      recruit more personnel?"* Both times the answer was yes-but-nowhere-is-
+      it-written. This is where the question gets asked, so this is where it is
+      answered — and it has to be written down now rather than pointed at,
+      because nothing on the chart marks a recruiting harbor any more.
     */}
     <p className="pad tiny muted" style={{ paddingTop: 0, lineHeight: 1.45 }}>
-      A crew grows one way: officers who have not picked a side come ashore
-      across the Reaches through the war, and one of yours sent to sign them on
-      makes them yours for good. The chart&rsquo;s <b>To sign on</b> filter shows
-      where they are standing — and the other side is looking too.
+      A crew grows one way. Send a <b>Recruiter</b> of yours to any island you
+      hold that is loyal enough, and they keep an open table there for a
+      fortnight: officers the war has not claimed hear of it and some of them
+      sign the articles. What settles it is the Recruiter&rsquo;s{' '}
+      <b>Leadership</b> and how much that island loves you — a devoted home
+      harbor is worth keeping for exactly this — and nothing is certain, but a
+      fortnight that comes to nothing costs only the fortnight. There are only
+      so many hands left in the Seven Seas, and the other side is signing them
+      too.
       {inIrons && (
         <>
           {' '}

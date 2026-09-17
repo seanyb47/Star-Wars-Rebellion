@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { advanceDay, checkVictory } from '../advanceDay';
 import { MISSION_WORK_DAYS, YARD_BUILDS } from '../constants';
-import { generateGalaxy } from '../galaxy';
+import { generateGalaxy, START_GOLD } from '../galaxy';
 import { newGame, orderBuild, sendDiplomat, setSpeed } from '../commands';
 import { clearSave, loadGame, saveGame } from '../persist';
 import { getSystem, setSupport } from '../helpers';
@@ -9,7 +9,6 @@ import { travelDays } from '../missions';
 import type { GameState } from '../types';
 
 /** What a new game starts with; kept here so the test states the intent. */
-const START_GOLD = 150;
 
 function tick(state: GameState, days: number): GameState {
   let next = state;
@@ -135,14 +134,14 @@ describe('commands', () => {
     const yard = host.facilities.find(
       (f) => f.type === 'construction_yard' && f.owner === 'empire',
     )!;
-    // A forest to raise it on: an earner needs ground under it now.
-    host.deposits = [{ id: 'dep-order', type: 'forest' }];
-    const result = orderBuild(state, yard.id, 'refinery');
+    // A wall, because the two earners cost nothing to raise since 17 September
+    // and this is about the treasury being charged on the new state alone.
+    const result = orderBuild(state, yard.id, 'fort');
     expect(result.error).toBeUndefined();
     expect(result.state).not.toBe(state);
     // The order is paid for out of the treasury, and only on the new state.
     expect(state.factions.empire.gold).toBe(START_GOLD);
-    expect(result.state.factions.empire.gold).toBe(START_GOLD - YARD_BUILDS.refinery.costGold);
+    expect(result.state.factions.empire.gold).toBe(START_GOLD - YARD_BUILDS.fort.costGold);
   });
 
   it('runs a diplomacy mission end to end through the command layer', () => {
@@ -201,8 +200,17 @@ describe('commands', () => {
      * island being won over, or with the drift beaten by something else — and
      * either way this is the rule for what happens when it does.
      */
-    for (const s of state.systems) if (s.id === target.id) setSupport(s, 'empire', 100);
-    state = tick(state, MISSION_WORK_DAYS + 1);
+    /* Held at the ceiling for the whole window rather than set once. Opinion
+       drifts back toward `HELD_SUPPORT_LEVEL` a quarter-point a day, so a
+       single set is only true on the morning it is made — and whether the
+       cycle happens to end before the drift has eaten a quarter point is a
+       matter of where the day's other business left the dice. The rule under
+       test is "talks end when there is nobody left to talk round", not "they
+       end within one cycle of a number that is already sliding". */
+    for (let day = 0; day < MISSION_WORK_DAYS + 1; day++) {
+      for (const s of state.systems) if (s.id === target.id) setSupport(s, 'empire', 100);
+      state = advanceDay(state);
+    }
     const freed = state.characters.find((c) => c.id === diplomat.id)!;
     expect(freed.mission).toBeUndefined();
     expect(freed.status).toBe('available');

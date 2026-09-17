@@ -45,23 +45,38 @@ function timber(state: GameState, system: System) {
 }
 
 describe('queueing builds', () => {
+  /* A wall rather than a mine: the two earners cost nothing to raise since
+     Sean's word of 17 September, so a mine no longer has a price to deduct. A
+     Fortress does, wants no ground under it, and is the same order otherwise. */
   it('deducts refined at order time and sets the build clock', () => {
     const state = generateGalaxy(201);
     const { facility } = yardOf(state, 'empire');
     state.factions.empire.gold = 200;
-    queueBuild(state, facility.id, 'mine');
-    expect(state.factions.empire.gold).toBe(70);
+    queueBuild(state, facility.id, 'fort');
+    expect(state.factions.empire.gold).toBe(100);
     expect(facility.building).toEqual({
-      item: 'mine', work: 10, workLeft: 10, travel: 0, travelLeft: 0, costGold: 130,
+      item: 'fort', work: 18, workLeft: 18, travel: 0, travelLeft: 0, costGold: 100,
     });
+  });
+
+  /* And the other half of the same word: they really are free. */
+  it('takes nothing at all for a mine or a mill', () => {
+    const state = generateGalaxy(201);
+    const { system, facility } = yardOf(state, 'empire');
+    timber(state, system);
+    state.factions.empire.gold = 0;
+    expect(buildError(state, facility.id, 'mine')).toBeNull();
+    queueBuild(state, facility.id, 'mine');
+    expect(state.factions.empire.gold).toBe(0);
+    expect(facility.building!.costGold).toBe(0);
   });
 
   it('refuses an order the treasury cannot cover', () => {
     const state = generateGalaxy(201);
     const { facility } = yardOf(state, 'empire');
     state.factions.empire.gold = 10;
-    expect(buildError(state, facility.id, 'mine')).toMatch(/Needs 130 gold/);
-    expect(() => queueBuild(state, facility.id, 'mine')).toThrow();
+    expect(buildError(state, facility.id, 'fort')).toMatch(/Needs 100 gold/);
+    expect(() => queueBuild(state, facility.id, 'fort')).toThrow();
   });
 
   it('refuses a second order on works already at that kind of work', () => {
@@ -250,7 +265,7 @@ describe('orders sent to another island', () => {
     const sail = travelDays(state, system.id, there.id);
     expect(facility.building).toEqual({
       item: 'mine', work: 10, workLeft: 10, travel: sail, travelLeft: sail,
-      costGold: 130, destinationId: there.id,
+      costGold: 0, destinationId: there.id,
     });
     const minesBefore = there.facilities.filter((f) => f.type === 'mine').length;
     const hereBefore = system.facilities.length;
@@ -342,7 +357,8 @@ describe('orders sent to another island', () => {
       expect(plan.travel).toBe(0);
     }
     state.factions.empire.gold = 0;
-    expect(planBuild(state, 'empire', 'mine', there.id).error).toMatch(/Needs 130 gold/);
+    // A mine is free now, so an empty treasury is asked about a wall instead.
+    expect(planBuild(state, 'empire', 'fort', there.id).error).toMatch(/Needs 100 gold/);
     void facility;
   });
 });

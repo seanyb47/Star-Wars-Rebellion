@@ -62,7 +62,14 @@ describe('a posting, not an errand', () => {
     // And a report on your own capital, always: the memo's counter-intelligence
     // trick is that an island of yours is exactly where you cannot see what
     // the other side has quietly got working on it.
-    expect(missionsOffered(state, home, 'empire')).toEqual(['command', 'espionage']);
+    // Signing on is there too, at a hundred: a devoted harbor of yours is
+    // exactly where a Recruiter keeps a table, since Sean's memo of 17
+    // September. Still never a default — `missionTypeFor` is null above.
+    expect(missionsOffered(state, home, 'empire')).toEqual([
+      'recruit',
+      'command',
+      'espionage',
+    ]);
     expect(missionError(state, officer.id, home.id, 'command')).toBeNull();
   });
 
@@ -103,51 +110,55 @@ describe('a posting, not an errand', () => {
   });
 
   it('holds an island quiet that would otherwise rise', () => {
-    const { state, officer } = world();
     /*
      * A revolt is a roll taken once a day now rather than a threshold crossed
-     * on a particular morning, so this asks over months instead of overnight:
-     * left alone the island goes out sooner or later, and with an officer in
-     * the chair it does not go out at all. That is still the whole of what a
-     * posting buys ashore — see `politicalSecurity`.
+     * on a particular morning, so this asks how *often* rather than whether.
+     *
+     * It used to assert that an officer in the chair prevented one outright,
+     * for two hundred days, absolutely — and that stopped being true the day
+     * agitators started being sent. Momentum from an incitement is pressure
+     * like any other: enough of it beats any one officer's Leadership, and it
+     * should. What a posting buys is that a revolt becomes rare and needs
+     * somebody to work for it, not that the island is sealed. Measured over
+     * six wars with the chair held, one island in six went out inside two
+     * hundred days, against every one of them left to itself.
      */
-    /*
-     * Not the seat. Emptying Highwater's square does not start a revolt, it
-     * ends the war — the Confederacy wins the day it holds the capital — so
-     * the island under test has to be an ordinary holding.
-     */
-    const plain = state.systems.find(
-      (s) => s.control === 'empire' && s.populated && s.id !== state.factions.empire.hqSystemId,
-    )!;
-    plain.support.empire = UPRISING_SUPPORT - 10;
-    plain.support.alliance = 100 - plain.support.empire;
-    plain.garrison = 1;
-    let loose = state;
-    let rose = false;
-    for (let d = 0; d < 200 && !rose; d++) {
-      loose = advanceDay(loose);
-      const now = loose.systems.find((s) => s.id === plain.id)!;
-      rose = now.uprising;
-      // Hold it where it was put: drift would otherwise carry it back to easy.
-      now.support.empire = UPRISING_SUPPORT - 10;
-      now.support.alliance = 100 - now.support.empire;
-      now.garrison = 1;
-    }
-    expect(rose).toBe(true);
+    const seeds = [501, 502, 503, 504, 505, 506];
+    /** How many days it took this island to rise, or 200 if it never did. */
+    const runUp = (seed: number, seat: boolean) => {
+      const world = generateGalaxy(seed, 'empire');
+      // Not the seat. Emptying Highwater's square does not start a revolt, it
+      // ends the war — the Confederacy wins the day it holds the capital — so
+      // the island under test has to be an ordinary holding.
+      const plain = world.systems.find(
+        (x) => x.control === 'empire' && x.populated && x.id !== world.factions.empire.hqSystemId,
+      )!;
+      if (seat) {
+        const officer = world.characters.find(
+          (c) => c.faction === 'empire' && c.status === 'available',
+        )!;
+        plain.garrison = 1;
+        takePost(world, officer, plain);
+      }
+      let now = world;
+      for (let d = 0; d < 200; d++) {
+        const island = now.systems.find((x) => x.id === plain.id)!;
+        // Hold it where it was put: drift would carry it back to easy.
+        island.support.empire = UPRISING_SUPPORT - 10;
+        island.support.alliance = 100 - island.support.empire;
+        island.garrison = 1;
+        if (island.uprising) return d;
+        now = advanceDay(now);
+      }
+      return 200;
+    };
 
-    // With an officer in the chair, it does not.
-    let held = generateGalaxy(501, 'empire');
-    const same = held.systems.find((s) => s.id === plain.id)!;
-    same.garrison = 1;
-    takePost(held, held.characters.find((c) => c.id === officer.id)!, same);
-    for (let d = 0; d < 200; d++) {
-      held = advanceDay(held);
-      const now = held.systems.find((s) => s.id === plain.id)!;
-      now.support.empire = UPRISING_SUPPORT - 10;
-      now.support.alliance = 100 - now.support.empire;
-      now.garrison = 1;
-      expect(now.uprising, `day ${d}`).toBe(false);
-    }
+    const bare = seeds.map((seed) => runUp(seed, false));
+    const held = seeds.map((seed) => runUp(seed, true));
+    // Left to itself, a sullen island with one company in the square goes out.
+    expect(bare.filter((d) => d < 200).length).toBeGreaterThan(seeds.length / 2);
+    // With somebody in the chair, most of them never do.
+    expect(held.filter((d) => d < 200).length).toBeLessThan(bare.filter((d) => d < 200).length);
   });
 
   it('makes an island far harder to work against', () => {

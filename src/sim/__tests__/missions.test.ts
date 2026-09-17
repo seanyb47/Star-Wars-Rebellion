@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy, START_CHARACTERS } from '../galaxy';
-import { MISSION_WORK_DAYS, RECRUITS_IN_PLAY } from '../constants';
+import { MISSION_WORK_DAYS, RECRUIT_CEILING, RECRUIT_MIN_SUPPORT } from '../constants';
 import {
   advanceMissions,
   continueMission,
@@ -9,11 +9,12 @@ import {
   isDiplomacyTarget,
   isInciteTarget,
   isMissionTarget,
-  isRecruitTarget,
+  canRecruit,
+  canRecruitAt,
+  recruitPool,
   isSabotageTarget,
   isSurveyTarget,
 
-  quality,
   recruitChance,
   missionError,
 
@@ -526,145 +527,156 @@ describe('incitement', () => {
   });
 });
 
+/**
+ * Signing on, rebuilt to Sean's Rebellion memo of 17 September.
+ *
+ * The old model was a manhunt: eight strangers scattered on eight islands, a
+ * chart filter that pinned every one of them, and an errand that meant sailing
+ * to wherever a particular person happened to be standing — often ground you
+ * did not hold. *"The game does not force the player to travel around the
+ * galaxy looking for specific people... the character pool determines who is
+ * available; the recruiting location determines the conditions."*
+ *
+ * So: a pool, a harbor of your own that is loyal enough, a Recruiter to keep
+ * the table, Leadership to settle it, and nothing certain.
+ */
 describe('recruitment', () => {
-  /** A charted island with exactly one unaligned person standing on it. */
-  function withRecruit(seed = 321) {
+  /** A loyal harbor of the Crown's, and a Recruiter standing in it. */
+  function withHarbor(seed = 321) {
     const state = generateGalaxy(seed);
-    const officer = state.characters.find((c) => c.faction === 'empire')!;
-    officer.diplomacy = 100;
-    const recruit = state.characters.find((c) => c.faction === 'neutral')!;
-    const island = getSystem(state, recruit.locationSystemId);
-    island.explored.empire = true;
-    island.uprising = false;
-    return { state, officer, recruit, island };
+    const officer = state.characters.find((c) => c.faction === 'empire' && canRecruit(c))!;
+    const island = state.systems.find(
+      (s) => s.control === 'empire' && s.populated && !s.uprising,
+    )!;
+    setSupport(island, 'empire', 90);
+    officer.locationSystemId = island.id;
+    return { state, officer, island };
   }
-
-  it('puts unaligned people on the map, away from either seat', () => {
-    const state = generateGalaxy(5);
-    const loose = state.characters.filter((c) => c.faction === 'neutral');
-    expect(loose).toHaveLength(RECRUITS_IN_PLAY);
-    const seats = [state.factions.empire.hqSystemId, state.factions.alliance.hqSystemId];
-    for (const person of loose) {
-      const where = getSystem(state, person.locationSystemId);
-      expect(where.populated).toBe(true);
-      expect(seats).not.toContain(where.id);
-      expect(person.status).toBe('available');
-    }
-    // One apiece: two people on one island would hide one of them.
-    expect(new Set(loose.map((c) => c.locationSystemId)).size).toBe(loose.length);
-  });
 
   it('belongs to neither side until signed, and never shows up as crew', () => {
     const state = generateGalaxy(6);
     for (const faction of ['empire', 'alliance'] as const) {
       const roster = state.characters.filter((c) => c.faction === faction);
       expect(roster).toHaveLength(START_CHARACTERS[faction]);
-      // The point of the test: nobody unaligned has quietly been counted as
-      // one of the side's own.
       for (const who of roster) expect(who.appearsOnDay).toBeUndefined();
     }
     expect(state.characters.some((c) => c.faction === 'neutral')).toBe(true);
   });
 
-  it('is what an island offers when somebody is standing on it', () => {
-    const { state, island } = withRecruit();
-    expect(missionTypeFor(state, island, 'empire')).toBe('recruit');
-    // Signing someone on comes before whatever else the island was good for.
-    island.control = 'neutral';
-    expect(isDiplomacyTarget(island, 'empire')).toBe(true);
-    expect(missionTypeFor(state, island, 'empire')).toBe('recruit');
+  /** Both sides can always grow: the Regent and the three Lords are drawn into
+   *  every war, and the Crown's Regent and two of the Lords are Recruiters. */
+  it('leaves each side at least one officer who can keep a table', () => {
+    for (let seed = 1; seed <= 12; seed++) {
+      const state = generateGalaxy(seed);
+      for (const faction of ['empire', 'alliance'] as const) {
+        expect(
+          state.characters.some((c) => c.faction === faction && canRecruit(c)),
+          `seed ${seed}, ${faction}`,
+        ).toBe(true);
+      }
+    }
   });
 
-  it('stays hidden on an island you have not charted', () => {
-    const { state, island, officer } = withRecruit();
-    island.explored.empire = false;
-    expect(isRecruitTarget(state, island, 'empire')).toBe(false);
-    // You may still sail there, but to survey it — you cannot sign on somebody
-    // you have no idea is standing on the quay. Finding them is what the trip
-    // is for.
-    expect(missionTypeFor(state, island, 'empire')).toBe('survey');
-    expect(missionError(state, officer.id, island.id)).toBeNull();
+  it('is offered at a loyal harbor of your own and at no other kind of island', () => {
+    const { state, island, officer } = withHarbor();
+    expect(canRecruitAt(state, island, 'empire')).toBe(true);
+    expect(missionsOffered(state, island, 'empire', officer)).toContain('recruit');
+
+    // Not somebody else's island, however warm it is to you.
+    const theirs = state.systems.find((s) => s.control === 'alliance' && s.populated)!;
+    setSupport(theirs, 'empire', 100);
+    expect(canRecruitAt(state, theirs, 'empire')).toBe(false);
+
+    // Not an unaligned one either. You sign articles in your own harbor.
+    const nobody = state.systems.find((s) => s.control === 'neutral' && s.populated)!;
+    setSupport(nobody, 'empire', 100);
+    expect(canRecruitAt(state, nobody, 'empire')).toBe(false);
   });
 
-  it('is harder to sign on the better they are', () => {
-    const { officer, recruit } = withRecruit();
-    const plain = { ...recruit, diplomacy: 40, espionage: 40, combat: 40, leadership: 40 };
-    const star = { ...recruit, diplomacy: 40, espionage: 40, combat: 40, leadership: 95 };
-    expect(quality(star)).toBe(95);
-    expect(recruitChance(officer, star)).toBeLessThan(recruitChance(officer, plain));
-    // And a better negotiator does better on the same person.
-    expect(recruitChance({ ...officer, diplomacy: 100 }, star)).toBeGreaterThan(
-      recruitChance({ ...officer, diplomacy: 20 }, star),
+  it('wants a harbor that is loyal, not merely held', () => {
+    const { state, island } = withHarbor();
+    setSupport(island, 'empire', RECRUIT_MIN_SUPPORT - 1);
+    expect(canRecruitAt(state, island, 'empire')).toBe(false);
+    setSupport(island, 'empire', RECRUIT_MIN_SUPPORT);
+    expect(canRecruitAt(state, island, 'empire')).toBe(true);
+    // And nobody signs articles on an island in revolt.
+    island.uprising = true;
+    expect(canRecruitAt(state, island, 'empire')).toBe(false);
+  });
+
+  it('is led by a Recruiter and by nobody else', () => {
+    const { state, island, officer } = withHarbor();
+    const other = state.characters.find(
+      (c) => c.faction === 'empire' && c.id !== officer.id && !canRecruit(c),
+    )!;
+    expect(missionsOffered(state, island, 'empire', officer)).toContain('recruit');
+    expect(missionsOffered(state, island, 'empire', other)).not.toContain('recruit');
+    expect(recruitChance(other, island, 'empire')).toBe(0);
+  });
+
+  /** *"The primary attribute governing recruitment is Leadership."* */
+  it('is settled by Leadership and by the harbor, and never by certainty', () => {
+    const { officer, island } = withHarbor();
+    const strong = { ...officer, leadership: 100 };
+    const weak = { ...officer, leadership: 20 };
+    expect(recruitChance(strong, island, 'empire')).toBeGreaterThan(
+      recruitChance(weak, island, 'empire'),
     );
+    // Diplomacy is not what this errand is about any more.
+    expect(recruitChance({ ...officer, diplomacy: 100 }, island, 'empire')).toBe(
+      recruitChance({ ...officer, diplomacy: 10 }, island, 'empire'),
+    );
+    // A devoted harbor beats a merely adequate one, with the same officer.
+    const devoted = { ...island, support: { empire: 100, alliance: 0 } };
+    const adequate = { ...island, support: { empire: RECRUIT_MIN_SUPPORT, alliance: 100 - RECRUIT_MIN_SUPPORT } };
+    expect(recruitChance(officer, devoted, 'empire')).toBeGreaterThan(
+      recruitChance(officer, adequate, 'empire'),
+    );
+    expect(recruitChance(strong, devoted, 'empire')).toBeLessThanOrEqual(RECRUIT_CEILING);
   });
 
-  it('adds them to your roster for good, and ends the mission', () => {
+  it('adds somebody to your roster for good, and stands them at the harbor', () => {
     let signed = false;
     for (let seed = 1; seed <= 40 && !signed; seed++) {
-      const { state, officer, recruit, island } = withRecruit();
+      const { state, officer, island } = withHarbor();
       const before = state.characters.filter((c) => c.faction === 'empire').length;
-      const cycle = cycleDays(state, officer.id, island.id) + 12;
-      startMission(state, officer.id, island.id);
+      const pool = recruitPool(state).map((c) => c.id);
+      startMission(state, officer.id, island.id, 'recruit');
       expect(getCharacter(state, officer.id).mission!.type).toBe('recruit');
-      runDays(state, cycle, seed);
-
-      const after = getCharacter(state, recruit.id);
-      if (after.faction !== 'empire') continue;
+      runDays(state, cycleDays(state, officer.id, island.id) + 12, seed);
+      const roster = state.characters.filter((c) => c.faction === 'empire');
+      if (roster.length === before) continue;
       signed = true;
-      expect(state.characters.filter((c) => c.faction === 'empire')).toHaveLength(before + 1);
-      expect(after.status).toBe('available');
-      expect(after.locationSystemId).toBe(island.id);
-      // Nothing left to do there, so the island stops offering it.
-      expect(isRecruitTarget(state, island, 'empire')).toBe(false);
+      expect(roster).toHaveLength(before + 1);
+      const joined = roster.find((c) => pool.includes(c.id))!;
+      expect(joined.status).toBe('available');
+      // Sean's memo: both of them stay where the papers were signed.
+      expect(joined.locationSystemId).toBe(island.id);
     }
     expect(signed).toBe(true);
   });
 
-  it('does not cancel a parley because a stranger wandered ashore', () => {
-    // Signing someone on outranks a parley when choosing where to send an
-    // officer. It must not outrank one already fifteen days under way: what
-    // matters once they are committed is whether their own errand still exists.
-    const { state } = withRecruit();
-    const officer = state.characters.filter((c) => c.faction === 'empire')[1];
-    // Nobody's, charted, and with nobody ashore to sign on — or the errand
-    // would already be a recruitment.
-    const quiet = state.systems.find(
-      (s) =>
-        s.control === 'neutral' &&
-        s.populated &&
-        s.explored.empire &&
-        !state.characters.some((c) => c.faction === 'neutral' && c.locationSystemId === s.id),
-    )!;
-    startMission(state, officer.id, quiet.id);
-    expect(getCharacter(state, officer.id).mission!.type).toBe('diplomacy');
-
-    // Somebody turns up on the island while the boat is out.
-    const wanderer = state.characters.find((c) => c.faction === 'neutral')!;
-    wanderer.locationSystemId = quiet.id;
-    wanderer.appearsOnDay = 1;
-    expect(missionTypeFor(state, quiet, 'empire')).toBe('recruit');
-
-    runDays(state, travelDays(state, officer.locationSystemId, quiet.id) + 1, 4);
-    const after = getCharacter(state, officer.id);
-    expect(after.mission?.type).toBe('diplomacy');
-    expect(after.mission?.phase).toBe('working');
+  it('stops being offered once there is nobody left in the world to sign', () => {
+    const { state, island, officer } = withHarbor();
+    for (const person of recruitPool(state)) person.faction = 'alliance';
+    expect(recruitPool(state)).toHaveLength(0);
+    expect(canRecruitAt(state, island, 'empire')).toBe(false);
+    expect(missionsOffered(state, island, 'empire', officer)).not.toContain('recruit');
   });
 
-  it('stands the officer down if the other side signs them first', () => {
-    const { state, officer, recruit, island } = withRecruit();
-    startMission(state, officer.id, island.id);
-    expect(getCharacter(state, officer.id).mission!.phase).toBe('travelling');
-
-    // The Alliance gets to them while the boat is still out.
-    getCharacter(state, recruit.id).faction = 'alliance';
-
-    const rng = createRng(3);
-    for (let day = 0; day < travelDays(state, officer.locationSystemId, island.id) + 2; day++) {
-      advanceMissions(state, rng);
-    }
+  /** *"Unsuccessful recruitment can be attempted again immediately."* A
+   *  fortnight that came to nothing costs the fortnight and nothing else. */
+  it('costs nothing but the fortnight when nobody signs', () => {
+    const { state, officer, island } = withHarbor();
+    const before = { ...state.factions.empire };
+    startMission(state, officer.id, island.id, 'recruit');
+    runDays(state, cycleDays(state, officer.id, island.id) + 2, 77);
     const after = getCharacter(state, officer.id);
-    expect(after.mission).toBeUndefined();
-    expect(after.status).toBe('available');
+    expect(after.status).not.toBe('captured');
+    expect(after.status).not.toBe('injured');
+    expect(state.factions.empire.gold).toBe(before.gold);
+    // Still standing in their own harbor, free to try again.
+    expect(after.locationSystemId).toBe(island.id);
   });
 });
 

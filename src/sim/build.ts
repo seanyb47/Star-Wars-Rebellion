@@ -6,6 +6,7 @@ import {
   shipClass,
   craftNeeded,
   YARD_BUILDABLE,
+  FACILITY_CRAFT,
   YARD_BUILDS,
   buildSpec,
   FACILITY_LABEL,
@@ -127,7 +128,11 @@ export function busyAt(
  * pass `ANY_GRADE` and say so.
  */
 export function buildMenu(facility: Facility, grade: ShipGrade): BuildItem[] {
-  if (facility.type === 'construction_yard') return [...YARD_BUILDABLE];
+  // A works waits on the shipwrights too now, for exactly one building: see
+  // `FACILITY_CRAFT`. Everything else a yard has always been able to raise.
+  if (facility.type === 'construction_yard') {
+    return YARD_BUILDABLE.filter((type) => (FACILITY_CRAFT[type] ?? 0) <= grade);
+  }
   if (facility.type === 'training_facility') return ['troop'];
   if (facility.type === 'shipyard' && isPlayable(facility.owner)) {
     return shipsAt(facility.owner, grade).map((c) => c.id);
@@ -263,6 +268,15 @@ export function buildError(
     // and the first one has an answer — put somebody on the research.
     if (isShipClass(item) && shipClass(item).faction === facility.owner) {
       return `${shipClass(item).name} needs ${craftNeeded(item)} ${craftNeeded(item) === 1 ? 'grade' : 'grades'} of shipwright craft.`;
+    }
+    // Same answer for the one building that waits on the yards: it is not
+    // "this works cannot make that", it is "not yet", and the difference is
+    // whether the player has something to go and do about it.
+    const wants = YARD_BUILDABLE.includes(item as FacilityType)
+      ? (FACILITY_CRAFT[item as FacilityType] ?? 0)
+      : 0;
+    if (wants > grade) {
+      return `${FACILITY_LABEL[item as FacilityType]} needs ${wants} ${wants === 1 ? 'grade' : 'grades'} of shipwright craft.`;
     }
     return 'This building cannot make that.';
   }

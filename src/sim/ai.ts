@@ -19,6 +19,7 @@ import {
   AI_RESEARCH_BONUS,
   AI_SURVEY_BONUS,
   AI_SURVEY_HUNGER,
+  AI_SURVEY_DARK,
   AI_PLOT_WORTH,
   AI_COMFORTABLE,
   wallStrength,
@@ -94,7 +95,9 @@ import {
   missionsOffered,
   missionTypeFor,
   quality,
-  recruitOn,
+  recruitChance,
+  canRecruit,
+  canRecruitAt,
   startMission,
   captiveOn,
   travelDays,
@@ -713,6 +716,69 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
   const atTheYards = state.characters.some(
     (c) => c.faction === ai && c.mission?.type === 'research',
   );
+
+  /**
+   * What an island of its own is worth, and which errand that worth is for.
+   *
+   * Three things a held island can want, weighed against each other rather
+   * than in a fixed order: its yards put to work on the craft, a harbor loyal
+   * enough to keep a recruiting table at, and — worth most of all — order
+   * restored where the island has risen. Returns the best of them with the
+   * errand attached, so the scoring pass and the pass that names the errand
+   * cannot disagree about which one it was.
+   */
+  /* Declared here rather than beside the assignment loop below, because the
+     scoring closures read it: an island's worth depends on who is actually
+     free to go to it, not on one arbitrary hand. */
+  const free = [...idle];
+
+  const ownGround = (
+    hands: Character[],
+    s: System,
+  ): { type: MissionType; worth: number } | null => {
+    const options: Array<{ type: MissionType; worth: number }> = [];
+    // The first hand in the yards outranks everything on the chart; every
+    // hand after that is worth what yard work has always been worth.
+    if (isResearchTarget(state, s, ai)) {
+      options.push({
+        type: 'research',
+        worth: AI_RESEARCH_BONUS + (atTheYards ? 0 : AI_FIRST_YARD_BONUS),
+      });
+    }
+    // A harbor loyal enough to sign hands on at — a condition rather than a
+    // person since Sean's memo, and only if the officer who would go is the
+    // sort who can. The officer and the island are both in the price, so the
+    // one Recruiter a side has goes to the harbor that loves it most.
+    /*
+     * Asked of the whole boat's worth of free hands rather than of one of
+     * them, and that is not a nicety. Only a Recruiter may lead this errand;
+     * the island is scored before the hand is chosen; so asking a single
+     * arbitrary officer meant a side whose first idle hand was not a Recruiter
+     * never scored a single harbor as a recruiting harbor. Measured with that
+     * bug in: not one hand signed on across six wars, and the corps stood
+     * idle 47% of the time because the islands it *had* scored kept coming
+     * back as errands nobody present could actually start.
+     */
+    const recruiter = hands
+      .filter(canRecruit)
+      .sort((a, b) => b.leadership - a.leadership)[0];
+    if (recruiter && canRecruitAt(state, s, ai)) {
+      options.push({
+        type: 'recruit',
+        worth: AI_RECRUIT_BONUS * recruitChance(recruiter, s, ai),
+      });
+    }
+    // Its own, and slipping: worth more the further it has slipped, and an
+    // island in open revolt outranks any island it might merely win over.
+    if (s.control === ai) {
+      options.push({
+        type: s.uprising ? 'command' : 'diplomacy',
+        worth: s.uprising ? 110 : (HELD_SUPPORT_LEVEL - s.support[ai]) * 1.5,
+      });
+    }
+    if (options.length === 0) return null;
+    return options.reduce((best, o) => (o.worth > best.worth ? o : best));
+  };
   const worth = (officer: Character, s: System) => {
     const home = state.systems.find((x) => x.id === officer.locationSystemId)?.sectorId;
     const close = s.sectorId === home ? AI_NEAR_BONUS : 0;
@@ -744,8 +810,6 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
         caution(s, 'abduct')
       );
     }
-    const recruit = recruitOn(state, s, ai);
-    if (recruit) return close + AI_RECRUIT_BONUS + quality(recruit);
     // Somewhere nobody has been. Worth more the tighter the ledger: a side
     // with money to spare would rather court an island than chart one, and a
     // side feeling its upkeep should be out looking for ground.
@@ -755,16 +819,22 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
       const hunger = follows(state, 'expand-when-the-bill-grows')
         ? Math.max(0, AI_COMFORTABLE - surplus(state, ai)) * AI_SURVEY_HUNGER
         : 0;
-      return close + AI_SURVEY_BONUS + hunger;
+      // And how much of the world it still cannot see, which is a reason to
+      // look that has nothing to do with the purse. See `AI_SURVEY_DARK`.
+      const dark =
+        state.systems.filter((x) => !x.explored[ai]).length / Math.max(1, state.systems.length);
+      return close + AI_SURVEY_BONUS + hunger + dark * AI_SURVEY_DARK;
     }
-    // Its own yards. The first hand there outranks everything on the chart;
-    // every hand after that is worth what yard work has always been worth.
-    if (isResearchTarget(state, s, ai)) {
-      return close + AI_RESEARCH_BONUS + (atTheYards ? 0 : AI_FIRST_YARD_BONUS);
-    }
-    // Its own, and slipping: worth more the further it has slipped, and an
-    // island in open revolt outranks any island it might merely win over.
-    if (s.control === ai) return close + (s.uprising ? 110 : (HELD_SUPPORT_LEVEL - s.support[ai]) * 1.5);
+    // Its own ground, which since 17 September offers up to three different
+    // things at once and must be priced as the best of them rather than as
+    // whichever the list happened to check first. Signing on is the new one
+    // and it is exactly the kind that would have broken this: a loyal harbor
+    // is a recruiting harbor, most of a side's own islands are loyal, and a
+    // branch returning early on it sent the whole corps home and left the
+    // chart unspied and the yards unworked — measured, zero espionage errands
+    // in three full wars.
+    const own = ownGround(free, s);
+    if (own) return close + own.worth;
     /*
      * An unaligned island: a whole island for a fortnight ashore.
      *
@@ -854,6 +924,20 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
       return 'espionage';
     }
     if (liftable(s)) return undefined;
+    /*
+     * Ground of its own, where more than one thing is on offer and neither is
+     * a default any more.
+     *
+     * Signing on stopped being the island's automatic answer on 17 September —
+     * it is a standing condition of every loyal harbor now rather than a
+     * stranger on a quay, so `missionTypeFor` would make "recruit" the answer
+     * to most of a side's own islands and quietly pre-empt the yards. The
+     * scoring pass already decided which of the three this island was picked
+     * *for*; this says so out loud rather than asking the island again and
+     * getting a different answer.
+     */
+    const own = ownGround([officer, ...free], s);
+    if (own && (own.type === 'recruit' || own.type === 'research')) return own.type;
     // Nothing the island answers on its own. Command is on offer on any
     // ground of ours and is never a default — a posting spends an officer for
     // good — so a wholly loyal island with no yard and nobody ashore has
@@ -889,11 +973,13 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     Character,
     'diplomacy' | 'espionage' | 'leadership'
   > => {
-    if (type === 'command') return 'leadership';
-    if (type === 'diplomacy' || type === 'incite' || type === 'recruit') return 'diplomacy';
+    // Signing on moved to Leadership on 17 September — *"the primary attribute
+    // governing recruitment is Leadership"* — and it had been picking the best
+    // talker for it, who is very often not the officer allowed to go at all.
+    if (type === 'command' || type === 'recruit') return 'leadership';
+    if (type === 'diplomacy' || type === 'incite') return 'diplomacy';
     return 'espionage';
   };
-  const free = [...idle];
   // Islands are worth what they are worth to whoever ends up going; the only
   // officer-dependent term is the nearness bonus, so rank once on the first
   // hand and let the tie-break below do the rest.
@@ -921,7 +1007,13 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     const rating = settledBy(type);
     const near = (o: Character) =>
       state.systems.find((x) => x.id === o.locationSystemId)?.sectorId === target.sectorId ? 1 : 0;
-    const officer = able.sort(
+    // Some errands only certain people may lead. Filtering here rather than
+    // trusting the ranking is what stops the pass naming an errand and then
+    // handing it to somebody the rules will refuse — which spends the island
+    // and the tick and starts nothing.
+    const fit = type === 'recruit' ? able.filter(canRecruit) : able;
+    if (fit.length === 0) continue;
+    const officer = fit.sort(
       (a, b) => b[rating] - a[rating] || near(b) - near(a),
     )[0];
     taken.add(target.id);

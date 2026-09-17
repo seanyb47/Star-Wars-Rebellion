@@ -82,32 +82,6 @@ describe('chart layers', () => {
     expect(layerMark(state, where, 'idleCrew', 'empire').count ?? 0).toBe(others);
   });
 
-  /**
-   * Sean, looking at the Crew screen: *"I don't think we have the recruit
-   * mission do we? How do we get more free?"* We did — and the chart had no
-   * way to look for one, which is the same thing. Eight of the unaligned turn
-   * up over the first four hundred days and signing them on is the only way
-   * either side's crew ever grows.
-   */
-  it('lights islands with somebody ashore left to sign on, and only once they have landed', () => {
-    const { state, mine } = setup();
-    const loose = state.characters.find((c) => c.faction === 'neutral')!;
-    loose.locationSystemId = mine.id;
-    loose.mission = undefined;
-    mine.explored.empire = true;
-
-    // Not before the day they come ashore.
-    loose.appearsOnDay = state.day + 40;
-    expect(layerMark(state, mine, 'unaligned', 'empire').lit).toBe(false);
-
-    loose.appearsOnDay = 1;
-    expect(layerMark(state, mine, 'unaligned', 'empire').lit).toBe(true);
-
-    // Never an island you have not charted, whoever is standing on it.
-    mine.explored.empire = false;
-    expect(layerMark(state, mine, 'unaligned', 'empire').lit).toBe(false);
-  });
-
   it('counts hulls in harbor, not hulls at sea', () => {
     const { state, mine } = setup();
     addShip(state, mine, 'empire', 'kestrel');

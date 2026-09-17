@@ -8,7 +8,6 @@ import {
   abductOn,
   captiveOn,
   missionsOffered,
-  recruitOn,
   foilChance,
   isCovert,
   missionOdds,
@@ -87,7 +86,8 @@ function Marks({ factors }: { factors: Factor[] }) {
 const WHAT: Record<MissionType, string> = {
   diplomacy: 'Talk the island round. Its allegiance to you rises with every landed argument.',
   incite: 'Set its people against their holder. Push them far enough and the island rises.',
-  recruit: 'Sign on the unaligned officer ashore here, for good.',
+  recruit:
+    'Keep an open table here for a fortnight and see who signs the articles. A Recruiter leads it; what they are worth as a leader and how much this island loves you decide whether anybody worth having sits down.',
   sabotage: 'Break something of theirs on the island — a yard, a mill, a shipyard.',
   survey: 'Chart the island: who lives on it, what stands on it, whether a garrison would hold it.',
   espionage:
@@ -119,7 +119,6 @@ export function MissionChoiceSheet({
   // to take, listed under Command alongside the island itself.
   const squadrons = fleetsToCommand(state, systemId, faction);
   const sail = travelDays(state, character.locationSystemId, systemId);
-  const recruit = recruitOn(state, island, faction);
   const captive = abductOn(state, island, faction);
   const held = captiveOn(state, island, faction);
 
@@ -215,13 +214,11 @@ export function MissionChoiceSheet({
             ? Math.round((1 - foilChance(state, island, faction, boat, type)) * 100)
             : null;
           const what =
-            type === 'recruit' && recruit
-              ? `Sign on ${recruit.name}, who is ashore here, for good.`
-              : type === 'abduct' && captive
-                ? `Carry off ${captive.name} and hold them at your seat.`
-                : type === 'rescue' && held
-                  ? `Break ${held.name} out of the cells and get them home.`
-                  : WHAT[type];
+            type === 'abduct' && captive
+              ? `Carry off ${captive.name} and hold them at your seat.`
+              : type === 'rescue' && held
+                ? `Break ${held.name} out of the cells and get them home.`
+                : WHAT[type];
           return (
             <Fragment key={type}>
               <button className="card card--tap choice" onClick={() => onChoose(type, taking)}>

@@ -4,7 +4,12 @@ import {
   FOIL_INJURY_DAYS,
   INCITE_SUPPORT_LOSS,
   FACILITY_LABEL,
-  RECRUIT_QUALITY_DIVISOR,
+  RECRUIT_BASE,
+  RECRUIT_CEILING,
+  RECRUIT_LEADERSHIP_DIVISOR,
+  RECRUIT_LOYALTY_WEIGHT,
+  RECRUIT_MIN_SUPPORT,
+  RECRUITER_ROLE,
   SABOTAGE_BASE,
   ABDUCT_BASE,
   ABDUCT_RESIST_DIVISOR,
@@ -140,18 +145,43 @@ export function isInciteTarget(system: System, faction: PlayableFaction): boolea
  * there. Whose island it is does not matter — an unaligned harpooner on their
  * ground can still be talked onto your books, it is only far riskier.
  */
-export function recruitOn(
+export function recruitPool(state: GameState): Character[] {
+  return state.characters.filter((c) => c.faction === 'neutral' && hasArrived(state, c));
+}
+
+/**
+ * Whether this officer is the sort who can sign anybody on.
+ *
+ * Sean's memo: *"recruitment is restricted to specific major characters... the
+ * Empire has fewer recruiters."* Ours are marked in the bible, and the draw
+ * guarantees each side one: the Crown always has the Regent, the Confederacy
+ * always has its three Lords, and Hale and Reyne are both Recruiters. So a
+ * side can always grow, and a side whose recruiter is in irons cannot — which
+ * is the right reason to go and get them out.
+ */
+export function canRecruit(officer: Character): boolean {
+  return Boolean(officer.roles?.includes(RECRUITER_ROLE));
+}
+
+/**
+ * Whether this island is somewhere signing on could be attempted today.
+ *
+ * Yours, settled, quiet, and loyal enough to be worth the trip — and somebody
+ * left in the world to sign. Nothing about who is standing on the island: the
+ * pool is the pool and this is the condition, which is the whole of the
+ * change.
+ */
+export function canRecruitAt(
   state: GameState,
   system: System,
   faction: PlayableFaction,
-): Character | undefined {
-  if (!system.explored[faction]) return undefined;
-  return state.characters.find(
-    (c) =>
-      c.faction === 'neutral' &&
-      c.locationSystemId === system.id &&
-      hasArrived(state, c) &&
-      !c.mission,
+): boolean {
+  return (
+    system.control === faction &&
+    system.populated &&
+    !system.uprising &&
+    system.support[faction] >= RECRUIT_MIN_SUPPORT &&
+    recruitPool(state).length > 0
   );
 }
 
@@ -166,7 +196,7 @@ export function isRecruitTarget(
   system: System,
   faction: PlayableFaction,
 ): boolean {
-  return recruitOn(state, system, faction) !== undefined;
+  return canRecruitAt(state, system, faction);
 }
 
 /**
@@ -463,10 +493,14 @@ export function isResearchTarget(
  * What landing here would mean. The island decides, not a menu: you cannot
  * parley with an enemy island and there is nothing to incite on your own.
  *
- * Signing someone on comes first wherever there is someone to sign. They are
- * the scarce thing — an island can be worked again next month, and a person
- * standing on a quay can be gone — and it keeps the rule to one sentence a
- * player can hold in their head.
+ * Signing on is deliberately *not* in this list, and was until 17 September.
+ * It used to come first, which was right when it meant a particular stranger
+ * was standing on this particular quay and could be gone next month. It is not
+ * a person any more, it is a standing condition of every loyal harbor you
+ * hold — so defaulting to it would make "recruit" the answer to every good
+ * island you own, silently pre-empting the yards and the chair. It is offered
+ * everywhere it is legal and chosen on purpose, like a posting and like a
+ * report.
  *
  * Sabotage comes last, and that placement is the design rather than an
  * afterthought. On an enemy island the better answer is nearly always to turn
@@ -480,7 +514,6 @@ export function missionTypeFor(
   system: System,
   faction: PlayableFaction,
 ): MissionType | null {
-  if (isRecruitTarget(state, system, faction)) return 'recruit';
   // One of your own in their cells outranks anything done to the island
   // holding them: two months out of the war is two months you get back.
   if (isRescueTarget(state, system, faction)) return 'rescue';
@@ -552,7 +585,13 @@ export function missionsOffered(
   officer?: Character,
 ): MissionType[] {
   const out: MissionType[] = [];
-  if (isRecruitTarget(state, system, faction)) out.push('recruit');
+  // Only a Recruiter is offered it, the way only a commander is offered a
+  // posting. Sean's memo: *"recruitment is restricted to specific major
+  // characters."* Asked of the island alone, it stays on the list — the chart's
+  // rings are about what the island is for, not who happens to be free.
+  if (isRecruitTarget(state, system, faction) && (!officer || canRecruit(officer))) {
+    out.push('recruit');
+  }
   if (isRescueTarget(state, system, faction)) out.push('rescue');
   if (isAbductTarget(state, system, faction)) out.push('abduct');
   if (isCommandTarget(system, faction) && (!officer || canCommand(officer))) out.push('command');
@@ -873,8 +912,7 @@ const ERRAND_PURPOSE: Record<
     `to take ${abductOn(state, target, faction)!.name} off the quay`,
   command: () => 'to take command there',
   research: () => 'to put its yards to work on the craft',
-  recruit: (state, target, faction) =>
-    `to put it to ${recruitOn(state, target, faction)!.name}`,
+  recruit: () => 'to keep an open table and see who sits down',
   rescue: (state, target, faction) =>
     `to break ${captiveOn(state, target, faction)!.name} out`,
   diplomacy: () => 'to parley',
@@ -1089,9 +1127,48 @@ export function quality(recruit: Character): number {
  * against how little the other party needs to hear it: somebody worth having
  * knows they are worth having, and has been asked before.
  */
-export function recruitChance(officer: Character, recruit: Character): number {
-  const base = 0.4 + officer.diplomacy / 200;
-  return base * (1 - quality(recruit) / RECRUIT_QUALITY_DIVISOR);
+export function recruitChance(
+  officer: Character,
+  system: System,
+  faction: PlayableFaction,
+): number {
+  if (!canRecruit(officer)) return 0;
+  const loyalty = Math.max(0, system.support[faction] - RECRUIT_MIN_SUPPORT);
+  const span = Math.max(1, SUPPORT_MAX - RECRUIT_MIN_SUPPORT);
+  return Math.min(
+    RECRUIT_CEILING,
+    RECRUIT_BASE +
+      officer.leadership / RECRUIT_LEADERSHIP_DIVISOR +
+      (loyalty / span) * RECRUIT_LOYALTY_WEIGHT,
+  );
+}
+
+/**
+ * Who walks in, once somebody has agreed to come.
+ *
+ * Success is binary — Sean's memo is explicit that it is, and that a failure
+ * costs nothing but the fortnight — so this is not a second test. It is which
+ * of the pool turns up, and it is the one place the recruiter and the harbor
+ * are paid a second time: a strong officer in a devoted port draws from three
+ * names and keeps the best of them, an indifferent one in a lukewarm harbor
+ * gets whoever answered the notice. Somebody worth having is still rarer than
+ * somebody ordinary, which is what `quality` was always for.
+ */
+function whoSignsOn(
+  pool: Character[],
+  officer: Character,
+  system: System,
+  faction: PlayableFaction,
+  rng: Rng,
+): Character {
+  const pull = Math.max(0, Math.min(1, (officer.leadership + system.support[faction]) / 200));
+  const draws = 1 + Math.floor(pull * 2);
+  let best = rng.pick(pool);
+  for (let i = 1; i < draws; i++) {
+    const other = rng.pick(pool);
+    if (quality(other) > quality(best)) best = other;
+  }
+  return best;
 }
 
 /** How far an incitement pushes the holder's grip down, on a landed attempt. */
@@ -1351,12 +1428,17 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
     success = rng.chance(abductChance(character, mark));
     abductOutcome(state, character, mark, system, success);
   } else if (mission.type === 'recruit') {
-    // Who is standing there is read again now, not remembered from the order:
-    // the enemy may have signed them on while this officer was at sea, and the
-    // type check above has already let that case fall through to stand-down.
-    const recruit = recruitOn(state, system, faction)!;
-    success = rng.chance(recruitChance(character, recruit));
-    recruitOutcome(state, character, recruit, system, success);
+    // The pool is read again now, not remembered from the order: the other
+    // side may have signed the last of them on while this officer was at sea.
+    const pool = recruitPool(state);
+    success = pool.length > 0 && rng.chance(recruitChance(character, system, faction));
+    recruitOutcome(
+      state,
+      character,
+      success ? whoSignsOn(pool, character, system, faction, rng) : undefined,
+      system,
+      success,
+    );
   } else {
     // The boat's best hand at the thing, not the officer who signed for it.
     // The two political errands settle themselves: their odds and the size of
@@ -1525,15 +1607,15 @@ function done(
 function recruitOutcome(
   state: GameState,
   officer: Character,
-  recruit: Character,
+  recruit: Character | undefined,
   system: System,
   success: boolean,
 ): void {
   const faction = officer.faction as PlayableFaction;
-  if (!success) {
+  if (!success || !recruit) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${recruit.name} hears ${officer.name} out on ${system.name}, and says no.`,
+      text: `${officer.name} keeps an open table on ${system.name} for a fortnight, and nobody worth the articles sits down at it.`,
       systemId: system.id,
       characterId: officer.id,
     });
@@ -1541,12 +1623,27 @@ function recruitOutcome(
   }
   recruit.faction = faction;
   recruit.status = 'available';
+  // Both of them stand where the papers were signed. Sean's memo: *"keeps both
+  // characters at the recruiting island"* — the new hand is at the harbor they
+  // joined at, not wherever the world happened to park them, and can be given
+  // an errand from there the same morning.
+  recruit.locationSystemId = system.id;
   pushEvent(state, {
     kind: 'order',
-    text: `${recruit.name} has signed on at ${system.name}. ${recruit.blurb ?? ''}`.trim(),
+    text: `${recruit.name} has signed the articles on ${system.name}, put there by ${officer.name}. ${recruit.blurb ?? ''}`.trim(),
     systemId: system.id,
     characterId: recruit.id,
   });
+  // The last of them. Sean's memo: the game should say when the roster is
+  // exhausted, because from that morning a recruiter is only a recruiter in
+  // name and belongs somewhere else.
+  if (recruitPool(state).length === 0) {
+    pushEvent(state, {
+      kind: 'order',
+      text: `There is nobody left in the Seven Seas to sign. Every hand not already in the war is in it now — whoever you have is whoever you will have.`,
+      systemId: system.id,
+    });
+  }
 }
 
 /**

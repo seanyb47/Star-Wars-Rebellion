@@ -315,8 +315,25 @@ function openingCast(faction: PlayableFaction, rng: Rng) {
   // and not as the order they happened to come out of the bag.
   return roster.filter((e) => taken.has(e.name));
 }
-/** Enough to lay down a camp or two before the first income arrives. */
-const START_GOLD = 150;
+/**
+ * Enough to set every works you own to work on the first morning.
+ *
+ * Sean, 17 September: *"I should have enough starting gold to build in each of
+ * my available facilities... early game, shouldn't be terribly constrained by
+ * gold."* At 150 it was: measured across eight worlds, giving each opening
+ * works even its *cheapest* legal job costs 140 to 220, so a Crown opening in
+ * the wrong seed could not fill its own yards on day one, and a player's first
+ * decision was which of their buildings to leave idle. That is the wrong first
+ * decision. Sean's list of what early game should be waiting on is explicit —
+ * things building, officers finishing errands, islands coming over — and coin
+ * is on none of it.
+ *
+ * 450 is measured rather than picked: a *middling* job in every works costs
+ * 420 to 440 across the same eight worlds. So the opening covers a real job
+ * everywhere with a little to spare, and still does not cover the dearest job
+ * everywhere (650), which is where the choosing starts.
+ */
+export const START_GOLD = 450;
 
 /** Scatter points inside the sector disc, rejecting anything too close. */
 function scatterSystems(rng: Rng, count: number): Array<{ x: number; y: number }> {

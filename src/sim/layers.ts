@@ -10,7 +10,6 @@ import { ANY_GRADE, buildMenu } from './build';
 import { islandIncome } from './economy';
 import { freeSlots } from './helpers';
 import { fleetsAt, isAtSea } from './fleets';
-import { recruitOn } from './missions';
 import terms from '../data/terms.json';
 import type { FacilityType, GameState, PlayableFaction, System } from './types';
 
@@ -32,7 +31,6 @@ export type ChartLayer =
   | 'none'
   | 'allegiance'
   | 'idleCrew'
-  | 'unaligned'
   | 'idleYards'
   | 'idleDrills'
   | 'idleSlips'
@@ -61,18 +59,14 @@ export const CHART_LAYERS: LayerSpec[] = [
   { id: 'none', label: 'None', hint: 'The chart alone: no marks, just the sea and the Reaches.' },
   { id: 'allegiance', label: 'Loyalty', hint: 'Every island, coloured by whose it is and sized by how firmly they hold it: big is firm, small is thin and leaking trade to the other side.' },
   { id: 'idleCrew', label: 'Idle crew', hint: 'Islands where one of your officers is ashore with nothing to do.' },
-  /**
-   * Where the next officer is, which was the one question the chart could not
-   * answer.
-   *
-   * Signing somebody on is the only way either side's crew ever grows — eight
-   * of the unaligned turn up over the first four hundred days, two of them
-   * ashore on the opening morning — and there was no way to look for them.
-   * You could stumble on one by opening an island, or by picking a mission
-   * target and noticing a ring. So the errand existed and was, in practice,
-   * invisible.
+  /*
+   * There was a **To sign on** filter here, and it pinned every island an
+   * unaligned officer happened to be standing on. It is gone at Sean's word of
+   * 17 September — *"the 'to sign on' shouldn't exist"* — along with the
+   * manhunt it existed to serve. Signing somebody on is no longer a race to a
+   * particular quay: you keep an open table at a loyal harbor of your own and
+   * see who comes. There is nothing left on the chart to point at.
    */
-  { id: 'unaligned', label: 'To sign on', hint: 'Islands with an unaligned officer ashore, charted and not yet anybody\'s. Send a crew member to sign them on before the other side does.' },
   { id: 'idleYards', label: 'Idle yards', hint: `Islands where your ${terms.facilities.construction_yard.toLowerCase()}s have no order on them, numbered by how many are standing — three means a job here takes a third the days.` },
   { id: 'idleDrills', label: 'Idle training', hint: `Islands where your ${terms.facilities.training_facility.toLowerCase()}s are drilling nobody, numbered by how many would fall on the next company.` },
   { id: 'idleSlips', label: 'Idle shipyards', hint: `Islands where your ${terms.facilities.shipyard.toLowerCase()}s have nothing on the stocks, numbered by how many would work the next hull together.` },
@@ -242,12 +236,6 @@ export function layerMark(
       ).length;
       return n > 0 ? { lit: true, count: n } : DARK;
     }
-    case 'unaligned':
-      // Asked of the errand itself rather than re-derived here, so the chart
-      // can never light an island the Recruit order would refuse: one of the
-      // unaligned who has come ashore by now, is not already somebody's, and
-      // is standing where you have charted.
-      return recruitOn(state, system, faction) ? { lit: true } : DARK;
     case 'room': {
       // Where there is still ground to build on, and it is yours to build
       // on: an island in revolt takes no orders, and room on somebody else's
