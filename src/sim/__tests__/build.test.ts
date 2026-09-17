@@ -12,6 +12,12 @@ import {
   queueBuild,
 } from '../build';
 import { getSystem, returnDeposit } from '../helpers';
+// The day counts come from the spec rather than being written out again here.
+// Sean retunes build rates — ships forever, buildings medium, companies fast —
+// and a test that repeats the numbers fails for that alone, saying nothing
+// about whether the machinery still works. Seven of these did exactly that the
+// first time the rates moved.
+import { TROOP_BUILD, YARD_BUILDS } from '../constants';
 import { travelDays } from '../missions';
 import type { GameState, System } from '../types';
 
@@ -55,7 +61,8 @@ describe('queueing builds', () => {
     queueBuild(state, facility.id, 'fort');
     expect(state.factions.empire.gold).toBe(100);
     expect(facility.building).toEqual({
-      item: 'fort', work: 18, workLeft: 18, travel: 0, travelLeft: 0, costGold: 100,
+      item: 'fort', work: YARD_BUILDS.fort.days, workLeft: YARD_BUILDS.fort.days,
+      travel: 0, travelLeft: 0, costGold: 100,
     });
   });
 
@@ -148,7 +155,7 @@ describe('completing builds', () => {
     expect(findFacility(state, facility.id)!.facility.building).toBeUndefined();
   });
 
-  it('raises the garrison when a troop regiment finishes', () => {
+  it('raises the garrison when a company finishes', () => {
     const state = generateGalaxy(202);
     const training = state.systems
       .flatMap((s) => s.facilities)
@@ -157,11 +164,11 @@ describe('completing builds', () => {
     state.factions.empire.gold = 500;
     const before = host.garrison;
     queueBuild(state, training.id, 'troop');
-    for (let day = 0; day < 5; day++) advanceBuilds(state);
+    for (let day = 0; day < TROOP_BUILD.days; day++) advanceBuilds(state);
     expect(getSystem(state, host.id).garrison).toBe(before + 1);
   });
 
-  it('settles an unpopulated world when a facility completes there', () => {
+  it('settles an uninhabited island when a building completes there', () => {
     const state = generateGalaxy(203);
     const empty = state.systems.find((s) => !s.populated)!;
     empty.control = 'empire';
@@ -171,7 +178,7 @@ describe('completing builds', () => {
     empty.deposits = [{ id: 'dep-test', type: 'gold' }];
     state.factions.empire.gold = 500;
     queueBuild(state, 'fac-test', 'mine');
-    for (let day = 0; day < 10; day++) advanceBuilds(state);
+    for (let day = 0; day < YARD_BUILDS.mine.days; day++) advanceBuilds(state);
 
     const settled = getSystem(state, empty.id);
     expect(settled.populated).toBe(true);
@@ -179,14 +186,14 @@ describe('completing builds', () => {
     expect(settled.control).toBe('empire');
   });
 
-  it('freezes construction while a world is in revolt', () => {
+  it('stops building while an island is in mutiny', () => {
     const state = generateGalaxy(204);
     const { system, facility } = yardOf(state, 'empire');
     state.factions.empire.gold = 500;
     queueBuild(state, facility.id, 'mine');
     system.uprising = true;
-    for (let day = 0; day < 20; day++) advanceBuilds(state);
-    expect(findFacility(state, facility.id)!.facility.building!.workLeft).toBe(10);
+    for (let day = 0; day < YARD_BUILDS.mine.days * 2; day++) advanceBuilds(state);
+    expect(findFacility(state, facility.id)!.facility.building!.workLeft).toBe(YARD_BUILDS.mine.days);
   });
 });
 
@@ -212,8 +219,8 @@ describe('laying down a works', () => {
     expect(state.factions.empire.gold).toBe(80);
     const works = island.facilities.find((f) => f.type === 'construction_yard')!;
     expect(works.founding).toBe(true);
-    expect(works.building?.workLeft).toBe(20);
-    for (let d = 0; d < 20; d++) advanceBuilds(state);
+    expect(works.building?.workLeft).toBe(YARD_BUILDS.construction_yard.days);
+    for (let d = 0; d < YARD_BUILDS.construction_yard.days; d++) advanceBuilds(state);
     expect(works.building).toBeUndefined();
     expect(works.founding).toBeUndefined();
     // One works, not two: finishing the order must not raise a second one.
@@ -264,12 +271,13 @@ describe('orders sent to another island', () => {
     // Passage is a distance now, so ask for the figure rather than knowing it.
     const sail = travelDays(state, system.id, there.id);
     expect(facility.building).toEqual({
-      item: 'mine', work: 10, workLeft: 10, travel: sail, travelLeft: sail,
+      item: 'mine', work: YARD_BUILDS.mine.days, workLeft: YARD_BUILDS.mine.days,
+      travel: sail, travelLeft: sail,
       costGold: 0, destinationId: there.id,
     });
     const minesBefore = there.facilities.filter((f) => f.type === 'mine').length;
     const hereBefore = system.facilities.length;
-    for (let d = 0; d < 10 + sail; d++) advanceBuilds(state);
+    for (let d = 0; d < YARD_BUILDS.mine.days + sail; d++) advanceBuilds(state);
     expect(facility.building).toBeUndefined();
     expect(there.facilities.filter((f) => f.type === 'mine').length).toBe(minesBefore + 1);
     expect(system.facilities.length).toBe(hereBefore);
@@ -348,7 +356,7 @@ describe('orders sent to another island', () => {
     const plan = planBuild(state, 'empire', 'mine', there.id);
     expect(plan.error).toBeNull();
     expect(plan.facilityId).not.toBeNull();
-    expect(plan.days).toBe(10);
+    expect(plan.days).toBe(YARD_BUILDS.mine.days);
     expect(plan.travel).toBe(
       plan.fromSystemId === null ? 0 : travelDays(state, plan.fromSystemId, there.id),
     );

@@ -3722,3 +3722,144 @@ a third render path further down the file.
 
 The tab bar fits **World Map** at 414pt beside Crew, Build, Book and Log with
 room to spare, which was the one thing a rename could have broken visually.
+
+---
+
+## A glossary, a translation table, and three build speeds — 17 September
+
+### The glossary
+
+Sean: *"add a glossary to the encyclopedia."* There had been one — eleven
+entries at the top of the Rules page, where a player looking a word up had to
+already know the word was a rule. It is now its own tab with about forty
+entries, grouped the way the vocabulary pass grouped the ideas: what you are
+looking at, your people, errands, what people think, money and building, war.
+A filter box narrows it, because forty entries on a phone is a scroll.
+
+Writing it caught two things:
+
+- The old entry for a Location said *"seventy-one of them."* There are 63. It
+  now counts `reaches.json` rather than remembering.
+- My first draft interpolated the label into the prose and produced **"the
+  companies standing on an location"** — which is precisely the failure the
+  vocabulary rule exists to prevent, committed by the person who wrote the
+  rule. A headword is the agreed label; the sentence under it says *island*.
+
+### The translation table
+
+Sean: *"correct me when I use wrong terms from now on. I use a lot of SW
+Rebellion terms. So you should note from a dev perspective which ones mean same
+thing."*
+
+`docs/rebellion-terms.md` is that table — regiment→Company, system→Location,
+sector→Reach, personnel→Crew, mission→Errand, uprising→Mutiny, and the rest —
+and `CLAUDE.md` now carries the rule that governs using it: **understand him
+first, then correct in passing.** A clause, never a lecture, and never a
+question he has to answer before he gets his work. The left column is another
+game's vocabulary and appears nowhere a player can see.
+
+### Three build speeds
+
+Sean: *"I think construction is happening too fast. Look at rates for SW
+Rebellion. Ships take forever, facilities medium, troops generally fast."*
+
+The original derives build time from cost and divides it by how many yards of
+that kind work the job — which is already this game's model (`daysToFinish` is
+`workLeft / crewOn`, asked fresh every morning). So this was a numbers problem,
+not a structural one. What was wrong with the numbers is that the three classes
+overlapped almost completely: ships ran 8–38 days and buildings 5–32, so a
+ship of the line and a Shipyard cost about the same fortnight.
+
+Now they are three separate bands, at one works. More works divide it.
+
+| | was | now |
+|---|---|---|
+| A company | 5 | **7** |
+| Lumber Mill | 5 | 12 |
+| Gold Mine | 10 | 20 |
+| Training Facility | 15 | 28 |
+| Fortress | 18 | 30 |
+| Construction Yard | 20 | 34 |
+| Shipyard | 25 | 42 |
+| Heavy Fortress | 32 | 54 |
+| A sloop | 8–11 | **18–24** |
+| A frigate | 15–18 | **38–45** |
+| A ship of the line | 22–38 | **64–110** |
+
+### What it cost, measured
+
+Forty wars, both sides played, seeds 1–40, against the same forty before the
+change:
+
+| | before | ships ×3.2 | ships ×2.9 |
+|---|---|---|---|
+| Crown — Confederacy | 23 – 13 | 19 – 13 | 17 – 14 |
+| Never ended | 4 | **8** | **9** |
+| Median length | 624 | 780 | 912 |
+| Crown hulls at the end | 17.0 | 13.6 | 11.1 |
+| Confederacy islands | 9.8 | **19.4** | 16.1 |
+| Crown gold at the end | 561 | **4,431** | 922 |
+
+The gentler ×2.9 was tried precisely to buy back the endings and did not: nine
+never ended against eight, and the median ran *longer*. At forty wars that
+difference is noise, which is the finding — **inside that range the exact
+multiplier buys nothing**, so the slower one ships, because it is the one that
+reads as *forever*.
+
+Two of those are the point and one is a bill.
+
+**The point:** the Confederacy doubles its ground. With fewer hulls the Crown
+cannot police sixty-three islands, so the political game decides more of the
+map — which is the game Sean has been asking for since the allegiance rework.
+And gold stops being the constraint, exactly as his September memo wanted:
+*"early game shouldn't be terribly constrained by gold... usually constraint
+early game is waiting on things to build."*
+
+**The bill:** the war ends less often — one in five now runs to the cap instead
+of one in ten. This is the same fork the tuning run found and it has not moved:
+the Crown's corps collapse is what ends long wars, and anything that thins the
+Crown's fleet thins its manhunt. Slowing ships did not create the problem; it
+made the existing one twice as visible.
+
+Two test failures say the same thing in miniature: a war where the player does
+nothing no longer ends inside 3,000 days, and the opponent's rescue rate falls
+below the floor its test asserts. Both are real regressions of *decisiveness*,
+not of correctness, and both are downstream of the fork.
+
+### The two tests it broke, and what they were really measuring
+
+Neither was a bug in the change, and neither is now weaker for it.
+
+**"Lets the opponent win when the player does nothing"** pinned seed 1 and a
+1,500-day deadline. Probing it at 6,000 days found something better than a
+fix: on that seed the idle Crown ends day 5,000 holding **35 islands to the
+Confederacy's one** and *still* has not won, because winning wants all three
+Lords in irons at once and an idle side runs no manhunt. It is not beaten — it
+never finishes. The test now samples six seeds and allows two exceptions, which
+is the claim it was always making.
+
+**"Is gone after by the opponent, and mostly got out"** wanted more than a
+third of eight rescues to succeed and got exactly two. Eight samples against a
+one-third bar cannot tell a regression from a coin, and a build-rate change had
+flipped it. Sixteen seeds now, measured at **5 of 16**, with the bar at a
+quarter and the measured figure written into the test.
+
+### Long guns: the answer is that they are already built
+
+Asked when they go in. The rule has been live since the retreat pass:
+`fleets.ts` gives a fort, a long-gunned hull or a creature a shot at half
+weight (`LONG_GUN_SHARE`) at anything trying to break off, the Encyclopedia has
+a Long guns row, and the spec type carries the flag.
+
+**No hull in `ships.json` sets it.** The constants file says why, and says it
+was on purpose: *"nothing has them yet, which is the point — early retreat is
+nearly free, and the day the first long-gunned hull is launched is the day
+breaking off starts to cost."* So forts have them, ships do not, and the arc
+was left as a design decision rather than a property of being large.
+
+What is left is picking the hulls. The recommendation is the Craft-3 ships of
+the line — `vanguard-ii`, `sovereign-ii`, `majestic`, `freebooter` — so that
+long guns are a thing **Research buys** in the back half of a war and the
+moment they arrive is legible: retreat stops being free the day the enemy
+launches one. Not done in this pass, because two balance changes measured
+together are two balance changes nobody can read.

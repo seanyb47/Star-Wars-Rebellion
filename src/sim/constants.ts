@@ -63,7 +63,30 @@ export interface BuildSpec {
   label: string;
 }
 
-/** Construction-yard menu (spec 4.4). */
+/**
+ * Construction-yard menu (spec 4.4), and the middle of three speeds.
+ *
+ * Sean, 17 September: *"I think construction is happening too fast. Look at
+ * rates for SW Rebellion. Ships take forever, facilities medium, troops
+ * generally fast."*
+ *
+ * The original derives build time from what a thing costs and divides it by
+ * how many yards of that kind are working the job, which is already this
+ * game's model — `daysToFinish` is `workLeft / crewOn`, asked every morning.
+ * What was wrong was that the three classes overlapped almost exactly: ships
+ * ran 8 to 38 days and buildings 5 to 32, so a ship of the line and a Shipyard
+ * cost about the same fortnight and neither felt like what it was.
+ *
+ * So the three bands are pulled apart. These figures are for one works; two
+ * halve them and three cut them to a third.
+ *
+ * *Tried and cut:* a gentler slowdown, ships at 2.9x rather than 3.2x
+ * (`majestic` 110 days rather than 137). Measured over the same forty wars it
+ * was no better where it mattered — nine wars never ended against eight, and
+ * the median ran 912 days against 780 — which is noise at this sample size and
+ * says the exact multiplier inside that range buys nothing. Taking the slower
+ * one because it is the one that reads as *forever*.
+ */
 export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
   /*
    * The two earners cost nothing, at Sean's word of 17 September: *"Gold mine
@@ -86,17 +109,17 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
   // island is worth what it is worth, and measured, the opponent ended wars
   // sitting on thirteen thousand gold with two forests an island still
   // standing. Felling trees is not building a slipway.
-  mine: { costGold: 0, days: 10, label: terms.facilities.mine },
-  refinery: { costGold: 0, days: 5, label: terms.facilities.refinery },
-  construction_yard: { costGold: 120, days: 20, label: terms.facilities.construction_yard },
-  training_facility: { costGold: 80, days: 15, label: terms.facilities.training_facility },
-  shipyard: { costGold: 150, days: 25, label: terms.facilities.shipyard },
-  fort: { costGold: 100, days: 18, label: terms.facilities.fort },
+  mine: { costGold: 0, days: 20, label: terms.facilities.mine },
+  refinery: { costGold: 0, days: 12, label: terms.facilities.refinery },
+  construction_yard: { costGold: 120, days: 34, label: terms.facilities.construction_yard },
+  training_facility: { costGold: 80, days: 28, label: terms.facilities.training_facility },
+  shipyard: { costGold: 150, days: 42, label: terms.facilities.shipyard },
+  fort: { costGold: 100, days: 30, label: terms.facilities.fort },
   // Two and a half Fortresses' worth of stone and a bit over twice the guns,
   // for two and a half times the gold and not quite twice the time — on one
   // plot. Slightly worse per gun than building two Fortresses, and the only
   // thing you can do with a single berth on an island that has no more.
-  heavy_fort: { costGold: 250, days: 32, label: terms.facilities.heavy_fort },
+  heavy_fort: { costGold: 250, days: 54, label: terms.facilities.heavy_fort },
 };
 
 /**
@@ -533,8 +556,16 @@ export const BEAST_FLEE_CHANCE = 0.35;
 export const START_GARRISON_MAX = 6;
 export const START_GARRISON_SPARE = 1;
 
-/** Training-facility menu (spec 4.4). */
-export const TROOP_BUILD: BuildSpec = { costGold: 25, days: 5, label: terms.troop };
+/**
+ * Training-facility menu (spec 4.4).
+ *
+ * The fast one, and meant to stay the fast one: Sean's reading of the
+ * original's three speeds is *"ships take forever, facilities medium, troops
+ * generally fast."* A company is a week — long enough that a garrison is a
+ * decision made in advance and not a button pressed when the sail appears on
+ * the horizon, short enough that losing an island is recoverable.
+ */
+export const TROOP_BUILD: BuildSpec = { costGold: 25, days: 7, label: terms.troop };
 
 /**
  * Hulls.
