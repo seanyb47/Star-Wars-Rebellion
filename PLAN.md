@@ -3745,6 +3745,26 @@ Writing it caught two things:
   vocabulary rule exists to prevent, committed by the person who wrote the
   rule. A headword is the agreed label; the sentence under it says *island*.
 
+### A–Z, asked afterwards
+
+*"Should glossary be in ABC order?"* — not as a whole. The filter box already
+serves the player who knows the word they want, and a flat A–Z scatters Parley,
+Incitement and Sabotage over six screens when they are the same kind of thing.
+
+But the question found a real flaw: *inside* a group the order had been the
+order the entries were written, which is no order to scan by. So every group
+sorts A–Z now, at the point of use rather than in the source, so adding an
+entry never means finding its place first.
+
+One group is exempt, and the exemption is the interesting part. **What you are
+looking at** runs World Map → Reach Map → Location → Reach → Sea → Unexplored,
+which is zoom order, outermost inward. Sorted it reads *Location, Reach, Reach
+Map, Sea, Unexplored, World Map* and the hierarchy — the one thing that list is
+teaching — is gone. It carries a `keepOrder` flag saying so.
+
+Sorting also caught a headword: *"The watch"* filed under T is a word nobody
+finds. It is **Watch**, like every other headword, which is a bare noun.
+
 ### The translation table
 
 Sean: *"correct me when I use wrong terms from now on. I use a lot of SW

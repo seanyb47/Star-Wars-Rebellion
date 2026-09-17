@@ -32,7 +32,17 @@ import {
 const ISLAND_COUNT = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
 
 type Entry = readonly [word: string, meaning: string];
-type Group = { title: string; entries: readonly Entry[] };
+type Group = {
+  title: string;
+  entries: readonly Entry[];
+  /**
+   * Leave this group in the order it is written, because the order says
+   * something. Only one group does: the views run outermost inward, and
+   * sorting them gives *Location, Reach, Reach Map, Sea, Unexplored, World
+   * Map*, which throws away the one thing that list is teaching.
+   */
+  keepOrder?: true;
+};
 
 function groups(): Group[] {
   /*
@@ -44,6 +54,7 @@ function groups(): Group[] {
   return [
     {
       title: 'What you are looking at',
+      keepOrder: true,
       entries: [
         [
           terms.worldMap,
@@ -165,7 +176,9 @@ function groups(): Group[] {
           `On an island where your allegiance is under 50, some of the day's takings go to the enemy instead, and what stands there starts leaking to them.`,
         ],
         [
-          'The watch',
+          // A headword is a bare noun, so it sorts where a reader looks for it:
+          // "The watch" filed under T is a word nobody finds.
+          'Watch',
           'How closely an island is being watched. Spies of theirs, a commander in the chair and loyal people all raise it, and everything covert has to get past it before it can even be attempted.',
         ],
         [
@@ -236,7 +249,26 @@ function groups(): Group[] {
 }
 
 export function GlossaryPage() {
-  const all = useMemo(groups, []);
+  /*
+   * A–Z inside each group, asked and answered on 17 September: *"should
+   * glossary be in ABC order?"*
+   *
+   * Not as a whole — the filter box above already serves the player who knows
+   * the word they want, and a flat A–Z would scatter Parley, Incitement and
+   * Sabotage over six screens when they are the same kind of thing. But the
+   * order *inside* a group had been the order the entries were written, which
+   * is no order at all to scan by. Sorted here rather than in the source, so
+   * adding an entry never means finding its place first.
+   */
+  const all = useMemo(
+    () =>
+      groups().map((g) =>
+        g.keepOrder
+          ? g
+          : { ...g, entries: [...g.entries].sort(([a], [b]) => a.localeCompare(b)) },
+      ),
+    [],
+  );
   const [q, setQ] = useState('');
   const needle = q.trim().toLowerCase();
   const shown = needle
