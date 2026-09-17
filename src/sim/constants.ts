@@ -1113,11 +1113,24 @@ export const AI_SIEGE_DAYS = 6;
  * sitting on six figures with a thin ledger built nothing, and a war it had
  * otherwise already won never ended.
  *
- * Four hundred days is most of a war. At six hundred gold this adds one and a
- * half a day and changes nothing; at a hundred thousand it adds two hundred and
- * fifty, and a side that rich should be spending like it.
+ * Four hundred days was most of a war, and that was the mistake: it only ever
+ * released a side that was *absurdly* rich. Sean, 18 September, watching:
+ * *"in observe mode I don't see the AI utilising facilities right."* Measured
+ * on one war, and it is plain — the Crown at day 80 holds 73 gold and has three
+ * construction yards working; at day 320 it holds 1,140 and has **none**
+ * working and sixteen standing idle, with five idle slipways and eight idle
+ * drill grounds beside them. Nothing was wrong with the yards. Every island it
+ * had taken in between brought a garrison to feed, so the daily ledger went
+ * under, and at four hundred days a treasury of 1,140 licenses 2.85 a day
+ * against a margin of 3. The bank could not clear the bar by itself, ever.
+ *
+ * A hundred and twenty days instead, which is the horizon a side should
+ * actually be spending on: gold still in the vault when the war ends bought
+ * nothing at all, and a deficit a bank can carry for four months is not a
+ * deficit worth refusing an order over. The same 1,140 now licenses nine and a
+ * half a day, which is a slipway working.
  */
-export const AI_RUNWAY_DAYS = 400;
+export const AI_RUNWAY_DAYS = 120;
 
 /**
  * What the outer Reaches are worth, and why anybody goes there.
