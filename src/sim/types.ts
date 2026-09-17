@@ -5,6 +5,9 @@
  * (`GameState`) so that saving is `JSON.stringify` and loading is `JSON.parse`.
  */
 
+import type { OperationReport } from './outcome';
+import type { Ripple } from './propagate';
+
 export type Faction = 'empire' | 'alliance' | 'neutral' | 'none';
 export type PlayableFaction = 'empire' | 'alliance';
 
@@ -548,6 +551,12 @@ export interface GameEvent {
   /** The tally behind a landing. */
   landing?: LandingReport;
   /**
+   * The full outcome report, for the operations that resolve inside the day's
+   * own pass rather than in front of the player: a bombardment and an assault.
+   * The card unfolds it into the same screen the battle sheet shows.
+   */
+  report?: OperationReport;
+  /**
    * Keep this one out of the dispatch cards. It still belongs in the log — it
    * happened and the player should be able to find it — but something else is
    * already telling them about it. Set on the rounds of an action the player
@@ -589,6 +598,26 @@ export interface PendingBattle {
   /** Set when the other side has broken off rather than fight on. */
   theyFled?: boolean;
   /**
+   * What each side brought, counted the moment the action opened.
+   *
+   * Sean's outcome specification prints *"ships committed"* against *"ships
+   * destroyed"*, and neither can be worked out afterwards from a board that
+   * only holds what is still afloat. Written once, at the first broadside.
+   */
+  committed?: { empire: number; alliance: number };
+  /** Who was serving with a squadron in this water when it opened, by id, so
+   *  the report can say what became of each of them. */
+  aboard?: string[];
+  /** What the fighting here moved politically, gathered as it happened. */
+  ripples?: Ripple[];
+  /**
+   * The report, once the action is over.
+   *
+   * The live sheet is a decision — fight on or run. This is the other screen
+   * entirely: what it cost, what it settled, and what the Reach made of it.
+   */
+  report?: OperationReport;
+  /**
    * How it ended, once it has. The action stays on the state after it is
    * settled rather than vanishing, so the player reads the result of the round
    * they just ordered instead of watching the sheet disappear. Cleared when
@@ -597,6 +626,16 @@ export interface PendingBattle {
   settled?: BattleOutcome;
 }
 
+/**
+ * How an action ended.
+ *
+ * Five ways, which fold into Sean's three outcome states rather than replacing
+ * them: `won`, `they-fled` and `beast-slain` are a **victory**; `lost` is a
+ * **defeat**; and `you-fled` is a **draw** — you were not destroyed and they
+ * were not driven off, so the question of who owns that water is unresolved.
+ * See `verdictOf`. The detail is kept because the report says *how* as well as
+ * *what*, and "they ran" and "they are on the bottom" are not the same news.
+ */
 export type BattleOutcome = 'won' | 'lost' | 'they-fled' | 'you-fled' | 'beast-slain';
 
 /**

@@ -115,23 +115,53 @@ export function cascadeDamp(order: number): number {
 }
 
 /**
+ * What one island felt, for the report to lay out.
+ *
+ * Sean's outcome specification asks a combat screen to show the political
+ * consequence island by island — *"Port Royal: −2 Crown, Kingston: +1 Crown"* —
+ * and *"only when something actually changed"*. So a shock hands back what it
+ * actually moved rather than the caller guessing from the constants, and the
+ * sign is toward the faction the news favoured.
+ */
+export interface Ripple {
+  systemId: string;
+  name: string;
+  faction: PlayableFaction;
+  /** Signed toward `faction`, and never rounded: the sheet rounds it. */
+  delta: number;
+  /** The island it happened on, rather than one that merely heard about it. */
+  epicentre?: true;
+}
+
+/**
  * Let a piece of news out into the world.
  *
- * Returns the islands the regional part actually moved, so the caller can look
- * at them for a cascade. It does not re-derive control itself — that is one
+ * Returns what every island felt, so a caller can report it and so a cascade
+ * can look at what moved. It does not re-derive control itself — that is one
  * call a day and one place, and a shock raised mid-tick must not start rolling
  * for mutinies.
  */
-export function applyShock(state: GameState, shock: Shock, rng: Rng): System[] {
+export function applyShock(state: GameState, shock: Shock, rng: Rng): Ripple[] {
   const epicentre = state.systems.find((s) => s.id === shock.systemId);
   if (!epicentre) return [];
   const damp = cascadeDamp(shock.order ?? 0);
   if (damp <= 0) return [];
 
-  // The island it happened on. Local, and nothing here spills anywhere.
-  if (shock.local !== 0) applyLocalSupport(epicentre, shock.faction, shock.local * damp);
+  const moved: Ripple[] = [];
+  const felt = (island: System, delta: number, here?: true) => {
+    const real = applyLocalSupport(island, shock.faction, delta);
+    if (real === 0) return;
+    moved.push({
+      systemId: island.id,
+      name: island.name,
+      faction: shock.faction,
+      delta: real,
+      ...(here ? { epicentre: here } : {}),
+    });
+  };
 
-  const moved: System[] = [];
+  // The island it happened on. Local, and nothing here spills anywhere.
+  if (shock.local !== 0) felt(epicentre, shock.local * damp, true);
   if (shock.scope !== 'local' && shock.regional) {
     const reach = byNearness(state, epicentre);
     const connectivity = connectivityOf(state, epicentre.sectorId);
@@ -149,9 +179,8 @@ export function applyShock(state: GameState, shock: Shock, rng: Rng): System[] {
       const jitter = 1 + (rng.next() * 2 - 1) * REGIONAL_JITTER;
       const delta = shock.regional * falloff * connectivity * damp * jitter;
       if (Math.abs(delta) < 0.05) continue;
-      applyLocalSupport(island, shock.faction, delta);
+      felt(island, delta);
       shake(state, island, shock.order ?? 0);
-      moved.push(island);
     }
   }
 
@@ -168,7 +197,7 @@ export function applyShock(state: GameState, shock: Shock, rng: Rng): System[] {
       const jitter = 1 + (rng.next() * 2 - 1) * GLOBAL_JITTER;
       const delta = shock.global * damp * jitter;
       if (Math.abs(delta) < 0.05) continue;
-      applyLocalSupport(island, shock.faction, delta);
+      felt(island, delta);
     }
   }
 

@@ -1,4 +1,4 @@
-import { GARRISON_FOR_BAND, SPILLOVER_FRACTION, SUPPORT_MAX, loyaltyBand } from './constants';
+import { GARRISON_FOR_BAND, SUPPORT_MAX, loyaltyBand } from './constants';
 import type {
   Deposit,
   Faction,
@@ -174,25 +174,15 @@ export function applyLocalSupport(
   return shiftSupport(system, faction, delta);
 }
 
-export function applySupportChange(
-  state: GameState,
-  system: System,
-  faction: PlayableFaction,
-  delta: number,
-): number {
-  const applied = shiftSupport(system, faction, delta);
-
-  const spill = delta * SPILLOVER_FRACTION;
-  if (spill === 0) return applied;
-
-  for (const other of state.systems) {
-    if (other.id === system.id) continue;
-    if (other.sectorId !== system.sectorId) continue;
-    if (!other.populated) continue;
-    shiftSupport(other, faction, spill);
-  }
-  return applied;
-}
+/*
+ * There was an `applySupportChange` here, and it was the rule Sean's
+ * propagation memo of 17 September opens by forbidding: it spilled a flat
+ * fifth of *every* allegiance change onto *every* island in the Reach,
+ * equally, always. A routine fortnight's parley moved nine islands. Its last
+ * caller went with the memo; anything that should reach past one island now
+ * raises a shock, which falls off with distance, varies island by island,
+ * scales with how connected the chain is, and damps through a cascade.
+ */
 
 /**
  * Companies needed to hold an island down: nothing on one that is firmly

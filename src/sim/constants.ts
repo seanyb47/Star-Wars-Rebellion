@@ -839,7 +839,11 @@ export const FLIP_SUPPORT_MIN = 80;
 export const SUPPORT_MAX = 100;
 export const UPRISING_SUPPORT = 30;
 export const UPRISING_END_SUPPORT = 40;
-export const SPILLOVER_FRACTION = 0.2;
+/*
+ * `SPILLOVER_FRACTION` stood here: the fifth of every allegiance change that
+ * used to land on every island in the Reach. Gone with the rule it served —
+ * see `propagate.ts`, and Sean's memo of 17 September.
+ */
 /** Points of support an island loses or regains per day as opinion drifts back
  *  toward its natural level. Small on purpose: it makes gains need keeping up
  *  without ever taking an island off you on its own. */

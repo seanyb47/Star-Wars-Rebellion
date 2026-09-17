@@ -3457,3 +3457,88 @@ The Confederacy has also gone back to hoarding — ten thousand gold it is not
 spending, which is an opponent-economy problem rather than a political one and
 was briefly fixed earlier today by nothing more than longer wars not being in
 the sample.
+
+## Three outcomes, three screens — 17 September
+
+Sean's combat outcome specification, and the instruction on top of it: *"LOSS
+and DRAW must have their own presentation logic, not simply be the same screen
+with the word changed."*
+
+### A draw had to be invented before it could be presented
+
+The game had four endings — won, lost, they-fled, beast-slain — and no third
+state. `verdictOf` folds the five ways an action can end into Sean's three:
+`won`, `they-fled` and `beast-slain` are a **victory**; `lost` is a **defeat**;
+and breaking off is a **draw**, because you were not destroyed and they were
+not driven off, so who owns that water is unresolved. What breaking off *did* —
+that you hauled off and they are still there — is a fact, and facts go in the
+consequences, which is §13's whole point.
+
+Bombardments and assaults needed their own third states, and both fell out of
+rules that were already there.
+
+- A bombardment either **silences the harbor** (objective achieved), **knocks
+  stones about without silencing it** (inconclusive — §7: *"do not call this a
+  victory simply because something was destroyed"*), or **achieves nothing at
+  all** (failed, which is §6's explicit *"the player should not receive a
+  generic Defeat screen when the operation simply failed"*).
+- An assault that is thrown back **with companies still in the hold** is
+  inconclusive — §10's *"both forces remain capable of continuing operations"* —
+  and one thrown back with nothing left aboard is a defeat. The rule was
+  already in `resolveLanding`; what is new is that the screen tells them apart.
+
+### The three screens do not share an order
+
+This is the part that is not a re-tint.
+
+- **Victory** reads down §2's layout: your force, their force, who came
+  through, what it settled, what moved politically.
+- **Defeat** leads with the player's losses, because *"they are the most
+  important consequence"*, and the loss is drawn as one large figure rather
+  than one of four in a row. Anybody taken off the strategic map is boxed out
+  of the list entirely — a name in a row of names reads as a footnote and
+  losing an officer is not a footnote.
+- **Draw** leads with *"no decisive control established"*, boxed, **above any
+  tally at all**. A screen that opens with two columns of losses invites the
+  player to total them and award somebody the win, which is the one reading a
+  draw exists to refuse. Its headline is also the quietest of the three: a loud
+  DRAW reads as a result, and a draw is the absence of one.
+
+### Facts and consequences, reported apart
+
+§13 asks for a victory that can carry heavy losses and a political backlash,
+and a defeat that can leave the enemy wrecked and the Reach pleased. `tensionOf`
+is that: one line, and only when the word and the contents actually disagree —
+*"Won, and it cost more than it was worth"*, *"Beaten off, and they will be a
+long time making good what it cost them"*. When they agree it says nothing,
+because a sheet that always editorialises is a sheet nobody reads.
+
+The political section prints island by island and only what moved, which is why
+`applyShock` now hands back a `Ripple[]` rather than a list of systems: the
+screen shows what actually changed rather than what the constants say it should
+have. §8's sentence gets its own line on an assault screen — *"military capture
+does not automatically equal political allegiance"* — so an island carried by
+storm reads **Crown holds Port Royal** and, separately, *occupied and
+politically hostile*.
+
+### And the flat spill is finally gone
+
+`applySupportChange` — the fifth of every allegiance change that landed on every
+island in the Reach — had one caller left after the propagation work. It has
+none now, and neither it nor `SPILLOVER_FRACTION` is in the codebase any more.
+`applyLocalSupport` is what the ordinary case uses, and it returns what actually
+moved so the outcome screen can print it.
+
+20 new tests in `outcome.test.ts`, most of them asking whether the three screens
+genuinely differ rather than whether the arithmetic adds up: that a draw's first
+line is the absence of a decision and never claims either fleet was destroyed,
+that the three accounts of the same action are three different accounts, that a
+failed bombardment never uses the word beaten, and that being repulsed reads
+differently from being unable to finish. 513 pass.
+
+**Not built, and worth saying:** §20's propagation animation is the Reach ripple
+from the political work, not a per-screen one; the surviving-ship thumbnails are
+grouped by class with a count rather than drawn one per hull; and a bombardment
+report is raised only on a day that resolves something — a siege grinding on is
+a line in the log, because a card every day for a fortnight is a card nobody
+reads.

@@ -54,9 +54,24 @@ import {
   requiredGarrison,
   setSupport,
   reachName,
+  isPlayable,
 } from './helpers';
 import factionData from '../data/factions.json';
-import { applyShock, landingShock } from './propagate';
+import { applyShock, landingShock, type Ripple } from './propagate';
+import {
+  VERDICT_WORD,
+  assaultStrategic,
+  battleStrategic,
+  bombardStrategic,
+  forceName,
+  tensionOf,
+  verdictOf,
+  type Fate,
+  type ForceTally,
+  type OperationReport,
+  type PersonRow,
+  type Verdict,
+} from './outcome';
 import { lordPowerAt, restoreLord } from './lords';
 import { caughtOnLanding, takePrisoner, travelDays } from './missions';
 import type { Rng } from './rng';
@@ -801,9 +816,23 @@ export function resolveBattles(state: GameState, rng: Rng): void {
     // fellow's broadside does, not before — and keeping it out of this path
     // means it only ever happens where the player can watch it, since the
     // rounds after the first are all fought from the battle sheet.
-    const pending: PendingBattle = { systemId, rounds: 1, last: tally };
+    const pending: PendingBattle = {
+      systemId,
+      rounds: 1,
+      last: tally,
+      // Counted before the round is read back, so "committed" means what came
+      // to the fight rather than what survived the first broadside. The first
+      // exchange has already happened by the time this runs, so the hulls it
+      // sank are added back in.
+      committed: {
+        empire: countAt(state, 'empire', systemId) + tally.empire,
+        alliance: countAt(state, 'alliance', systemId) + tally.alliance,
+      },
+    };
     state.battle = pending;
+    pending.aboard = aboardAt(state, systemId);
     pending.settled = outcomeOf(state, system, pending);
+    if (pending.settled) settleReport(state, pending, pending.settled);
   }
 }
 
@@ -824,6 +853,7 @@ export function fightBattleRound(state: GameState, rng: Rng): void {
   pending.last = tally;
   pending.theyFled = enemyBreaksOff(state, system, rng);
   pending.settled = outcomeOf(state, system, pending);
+  if (pending.settled) settleReport(state, pending, pending.settled);
   // The player fights an action round by round, outside the day's own pass,
   // so a squadron sunk here would sit on the board with no hulls until the
   // clock next turned. The wrecks go at the end of the round that made them.
@@ -983,8 +1013,35 @@ export function bombardError(
  */
 export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
   const system = getSystem(state, fleet.systemId);
+  const wallsBefore = fortsOf(system).length;
   let weight = fleetBombard(fleet);
-  if (weight <= 0) return;
+  /*
+   * Nothing to fire with, which is a *failed* operation and not a lost one.
+   *
+   * Sean's §6 is explicit that these are different screens: *"the player
+   * should not receive a generic 'Defeat' screen when the operation simply
+   * failed to accomplish its bombardment objective."* A squadron that has been
+   * shot to pieces, or that never had the guns for it, achieved nothing — and
+   * saying so is more use than calling it a defeat.
+   */
+  if (weight <= 0) {
+    if (fleet.faction === state.player) {
+      pushEvent(state, {
+        kind: 'battle',
+        text: `${fleet.name} can put nothing into the walls of ${system.name} today.`,
+        systemId: system.id,
+        report: bombardReport(state, system, 'defeat', {
+          wallsDown: 0,
+          wallsLeft: wallsBefore,
+          companies: 0,
+          civilian: 0,
+          ripples: [],
+          why: `${fleet.name} has not the guns left to work a wall.`,
+        }),
+      });
+    }
+    return;
+  }
   /**
    * Whose news this is.
    *
@@ -1045,6 +1102,7 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
   const felled = rubble.length;
   if (felled > 0) system.facilities = system.facilities.filter((f) => !rubble.includes(f.id));
 
+  const ripples: Ripple[] = [];
   if (felled > 0 && mine) {
     pushEvent(state, {
       kind: 'battle',
@@ -1063,17 +1121,19 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
      * Only when a wall actually falls — a siege that grinds away for a
      * fortnight is a fortnight of noise, not a fortnight of news.
      */
-    applyShock(
-      state,
-      {
-        systemId: system.id,
-        faction: fleet.faction,
-        scope: 'regional',
-        local: SHOCK_MILITARY_FIRE.local,
-        regional: SHOCK_MILITARY_FIRE.regional,
-        news: `The batteries of ${system.name} are down, and the town behind them is untouched. It is being told that way up and down ${reachName(state, system)}.`,
-      },
-      rng,
+    ripples.push(
+      ...applyShock(
+        state,
+        {
+          systemId: system.id,
+          faction: fleet.faction,
+          scope: 'regional',
+          local: SHOCK_MILITARY_FIRE.local,
+          regional: SHOCK_MILITARY_FIRE.regional,
+          news: `The batteries of ${system.name} are down, and the town behind them is untouched. It is being told that way up and down ${reachName(state, system)}.`,
+        },
+        rng,
+      ),
     );
   } else if (standing.length > 0 && mine) {
     pushEvent(state, {
@@ -1088,8 +1148,114 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
 
   // Past the walls. Only now can the guns reach the companies, and only at a
   // price the whole Reach pays.
-  if (fortsOf(system).length > 0 || weight <= 0) return;
-  shellTheTown(state, system, fleet, weight, rng);
+  if (fortsOf(system).length > 0 || weight <= 0) {
+    /*
+     * The harbor is not silenced, so the day's work is *inconclusive* — §7,
+     * and Sean's line about it is the one that shapes the screen: *"do not
+     * call this a victory simply because something was destroyed."* A card
+     * only when something actually happened; a siege grinding on is a line in
+     * the log, not a screen.
+     */
+    if (fleet.faction === state.player && felled > 0) {
+      pushEvent(state, {
+        kind: 'battle',
+        text: `${fleet.name} works the walls of ${system.name}, and they are not silenced yet.`,
+        quiet: true,
+        systemId: system.id,
+        report: bombardReport(state, system, 'draw', {
+          wallsDown: felled,
+          wallsLeft: fortsOf(system).length,
+          companies: 0,
+          civilian: 0,
+          ripples,
+        }),
+      });
+    }
+    return;
+  }
+  const broken = shellTheTown(state, system, fleet, weight, rng, ripples);
+  if (fleet.faction !== state.player) return;
+  /*
+   * Past the walls, which means the town took shot meant for the garrison.
+   * Military damage and civilian damage are reported apart because the
+   * political rules price them completely differently — §5 asks for exactly
+   * that separation, and §7 for the tradeoff to be *"immediately apparent"*.
+   */
+  pushEvent(state, {
+    kind: 'battle',
+    text: `${fleet.name} fires into ${system.name} over the heads of its people.`,
+    quiet: true,
+    systemId: system.id,
+    report: bombardReport(state, system, felled > 0 ? 'victory' : 'draw', {
+      wallsDown: felled + (wallsBefore - fortsOf(system).length - felled),
+      wallsLeft: fortsOf(system).length,
+      companies: broken,
+      civilian: system.populated ? 1 : 0,
+      ripples,
+    }),
+  });
+}
+
+/**
+ * A bombardment's own outcome screen.
+ *
+ * Three states and none of them is "defeat" in the ordinary sense — a
+ * bombardment either silences the harbor, knocks stones about without
+ * silencing it, or achieves nothing at all. See §5 to §7.
+ */
+function bombardReport(
+  state: GameState,
+  system: System,
+  verdict: Verdict,
+  input: {
+    wallsDown: number;
+    wallsLeft: number;
+    companies: number;
+    civilian: number;
+    ripples: Ripple[];
+    why?: string;
+  },
+): OperationReport {
+  const { wallsDown, wallsLeft, companies, civilian, ripples, why } = input;
+  const report: OperationReport = {
+    kind: 'bombardment',
+    verdict,
+    headline:
+      verdict === 'victory'
+        ? 'Bombardment complete'
+        : verdict === 'defeat'
+          ? 'Bombardment failed'
+          : 'Inconclusive',
+    operation: 'Bombardment',
+    title: `The guns off ${system.name}`,
+    systemId: system.id,
+    day: state.day,
+    people: [],
+    damage: [
+      { label: 'Batteries beaten down', value: wallsDown },
+      { label: 'Batteries still standing', value: wallsLeft },
+      { label: 'Defending companies broken', value: companies },
+      { label: 'Shot into the town', value: civilian, civilian: true },
+    ],
+    control: isPlayable(system.control)
+      ? `${factionData[system.control].shortName} holds ${system.name}`
+      : undefined,
+    strategic: bombardStrategic({
+      verdict,
+      where: system.name,
+      wallsDown,
+      wallsLeft,
+      companies,
+      civilian,
+      why,
+    }),
+    political: ripples,
+  };
+  report.tension =
+    verdict !== 'victory' && civilian > 0
+      ? 'Little taken, and a town that will not forget how it was done.'
+      : tensionOf(report);
+  return report;
 }
 
 /** Shot that goes looking for companies, and what it finds instead. */
@@ -1099,8 +1265,9 @@ function shellTheTown(
   fleet: Fleet,
   weight: number,
   rng: Rng,
-): void {
-  if (system.garrison <= 0) return;
+  ripples: Ripple[],
+): number {
+  if (system.garrison <= 0) return 0;
   const broken = Math.min(system.garrison, Math.floor(weight / BOMBARD_PER_COMPANY));
   system.garrison -= broken;
 
@@ -1125,18 +1292,20 @@ function shellTheTown(
      * costs more than the first — but it now falls off with distance, varies
      * island by island, and carries, faintly, past the chain.
      */
-    applyShock(
-      state,
-      {
-        systemId: system.id,
-        faction: enemy,
-        scope: 'global',
-        local: SHOCK_CIVILIAN_FIRE.local * stack,
-        regional: SHOCK_CIVILIAN_FIRE.regional * stack,
-        global: SHOCK_CIVILIAN_FIRE.global * stack,
-        news: `${system.name} is being shelled over the heads of its people. The story is going everywhere a ship goes.`,
-      },
-      rng,
+    ripples.push(
+      ...applyShock(
+        state,
+        {
+          systemId: system.id,
+          faction: enemy,
+          scope: 'global',
+          local: SHOCK_CIVILIAN_FIRE.local * stack,
+          regional: SHOCK_CIVILIAN_FIRE.regional * stack,
+          global: SHOCK_CIVILIAN_FIRE.global * stack,
+          news: `${system.name} is being shelled over the heads of its people. The story is going everywhere a ship goes.`,
+        },
+        rng,
+      ),
     );
   }
 
@@ -1153,6 +1322,7 @@ function shellTheTown(
       systemId: system.id,
     });
   }
+  return broken;
 }
 
 /**
@@ -1555,11 +1725,40 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   };
 
   if (!attackerWins) {
+    /*
+     * Thrown back — but not necessarily *beaten*, and that is Sean's §10.
+     *
+     * A landing that failed and left nothing aboard is a defeat: there is
+     * nothing ashore and nothing left to try again with, and the defender has
+     * decisively prevailed. A landing that failed with companies still in the
+     * hold is **inconclusive** — *"both forces remain capable of continuing
+     * operations... the assault objective was not achieved"* — and it must not
+     * be presented as the same thing. It is the same rule that already lives
+     * in `resolveLanding`; what is new is that the screen now says which of
+     * the two happened rather than printing "thrown back" for both.
+     */
+    const again = fleet.troops > 0;
     pushEvent(state, {
       kind: 'battle',
-      text: `The landing on ${system.name} is thrown back into the sea.`,
+      text: again
+        ? `The landing on ${system.name} is thrown back, and the boats pull for the ships.`
+        : `The landing on ${system.name} is thrown back into the sea.`,
       systemId: system.id,
       landing: report,
+      ...(fleet.faction === state.player || system.control === state.player
+        ? {
+            report: assaultReport(state, system, again ? 'draw' : 'defeat', {
+              attacker: fleet.faction,
+              landed,
+              lost: landed - fleet.troops,
+              ashore: 0,
+              aboard: fleet.troops,
+              defenders: garrisonBefore,
+              defendersLost: garrisonBefore - system.garrison,
+              ripples: [],
+            }),
+          }
+        : {}),
     });
     return;
   }
@@ -1652,18 +1851,21 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
    * a place by storm. The same two hundred marines, a day's sail apart, and a
    * different piece of news each time.
    */
+  const ripples: Ripple[] = [];
   if (system.populated) {
-    applyShock(
-      state,
-      landingShock(
+    ripples.push(
+      ...applyShock(
         state,
-        { ...system, support: { ...system.support, [fleet.faction]: welcome } } as System,
-        fleet.faction,
-        SHOCK_CONQUEST.local,
-        SHOCK_CONQUEST.regional,
-        SHOCK_LIBERATION_LEVEL,
+        landingShock(
+          state,
+          { ...system, support: { ...system.support, [fleet.faction]: welcome } } as System,
+          fleet.faction,
+          SHOCK_CONQUEST.local,
+          SHOCK_CONQUEST.regional,
+          SHOCK_LIBERATION_LEVEL,
+        ),
+        rng,
       ),
-      rng,
     );
   }
 
@@ -1674,7 +1876,102 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
     }, and the people are sullen.`,
     systemId: system.id,
     landing: report,
+    ...(fleet.faction === state.player || system.control === state.player
+      ? {
+          report: assaultReport(state, system, 'victory', {
+            attacker: fleet.faction,
+            landed,
+            lost: landed - survivors,
+            ashore: holding,
+            aboard: fleet.troops,
+            defenders: garrisonBefore,
+            defendersLost: garrisonBefore - Math.max(0, garrisonBefore - spent),
+            ripples,
+          }),
+        }
+      : {}),
   });
+}
+
+/**
+ * A landing's own outcome screen.
+ *
+ * §8's sentence is the one that decides the shape of it: *"military capture
+ * does not automatically equal political allegiance."* So an island carried by
+ * storm shows **who holds it** and, separately, **what its people think** —
+ * *Occupied — politically hostile* — and the two are never conflated. The
+ * other two states are §9 and §10: thrown back with nothing left to try again
+ * with, against thrown back with the boats still full.
+ */
+function assaultReport(
+  state: GameState,
+  system: System,
+  verdict: Verdict,
+  input: {
+    attacker: PlayableFaction;
+    landed: number;
+    lost: number;
+    ashore: number;
+    aboard: number;
+    defenders: number;
+    defendersLost: number;
+    ripples: Ripple[];
+  },
+): OperationReport {
+  const { attacker, landed, lost, ashore, aboard, defenders, defendersLost, ripples } = input;
+  const defender = otherFaction(attacker);
+  const holder = isPlayable(system.control) ? factionData[system.control].shortName : 'Nobody';
+  const report: OperationReport = {
+    kind: 'assault',
+    verdict,
+    headline:
+      verdict === 'victory'
+        ? 'Island taken'
+        : verdict === 'defeat'
+          ? 'Assault repulsed'
+          : 'Assault inconclusive',
+    operation: 'Assault',
+    title: `The landing on ${system.name}`,
+    systemId: system.id,
+    day: state.day,
+    mine: {
+      faction: attacker,
+      name: forceName(attacker, 'assault'),
+      committed: landed,
+      destroyed: lost,
+      damaged: 0,
+      surviving: ashore + aboard,
+      roster: [],
+    },
+    theirs: {
+      faction: defender,
+      name: `${factionData[defender].shortName} garrison`,
+      committed: defenders,
+      destroyed: defendersLost,
+      damaged: 0,
+      surviving: Math.max(0, defenders - defendersLost),
+      roster: [],
+    },
+    people: [],
+    damage: [
+      { label: 'Companies ashore, holding', value: ashore },
+      { label: 'Companies still aboard', value: aboard },
+    ],
+    control: `${holder} holds ${system.name}`,
+    strategic: assaultStrategic({
+      verdict,
+      where: system.name,
+      holder,
+      aboard,
+      allegiance: Math.round(system.support[attacker]),
+    }),
+    political: ripples,
+  };
+  report.tension =
+    verdict === 'victory' && system.support[attacker] < 40
+      ? 'The island is yours and its people are not, which is two different problems.'
+      : tensionOf(report);
+  return report;
 }
 
 /**
@@ -1919,6 +2216,8 @@ export interface BattleView {
   last?: PendingBattle['last'];
   theyFled: boolean;
   settled?: BattleOutcome;
+  /** The full report, once it is over. The sheet swaps itself for this. */
+  report?: OperationReport;
 }
 
 /**
@@ -2013,6 +2312,7 @@ export function battleView(state: GameState): BattleView | undefined {
     fleeable: fleeable.map((f) => f.id),
     fleeBlockedBecause: fleeable.length > 0 ? null : firstReason,
     last: pending.last,
+    report: pending.report,
     theyFled: Boolean(pending.theyFled),
     settled: pending.settled,
   };
@@ -2045,3 +2345,169 @@ export function closeBattle(state: GameState): void {
   if (state.battle?.settled) state.battle = undefined;
 }
 
+
+/* ------------------------------------------------------- outcome reporting */
+
+/**
+ * One side's butcher's bill, for the outcome screen.
+ *
+ * `committed` cannot be worked out after the fact from a board that only holds
+ * what is still afloat, so it is read from the snapshot the action took when
+ * it opened. Everything else is the water as it stands now.
+ */
+function tallyFor(
+  state: GameState,
+  faction: PlayableFaction,
+  systemId: string,
+  committed: number,
+): ForceTally {
+  const ships = fleetsOf(state, faction)
+    .filter((f) => !isAtSea(f) && f.systemId === systemId)
+    .flatMap((f) => f.ships);
+  const byClass = new Map<ShipClassId, number>();
+  for (const ship of ships) byClass.set(ship.classId, (byClass.get(ship.classId) ?? 0) + 1);
+  return {
+    faction,
+    name: forceName(faction, 'battle'),
+    committed,
+    destroyed: Math.max(0, committed - ships.length),
+    damaged: ships.filter((s) => s.damage > 0).length,
+    surviving: ships.length,
+    roster: [...byClass].map(([classId, count]) => ({ classId, count })),
+  };
+}
+
+/**
+ * What became of the people who were aboard.
+ *
+ * Sean's specification asks for this *"only when personnel status is
+ * relevant"*, and a name with nothing beside it is worse than no section at
+ * all — so an officer who was never in the water does not appear, and a side
+ * that had nobody out produces an empty list and no heading.
+ *
+ * The fates are read off the world rather than tracked through the fight: an
+ * officer whose squadron hauled off has *escaped*, one still lying in that
+ * water has *survived*, one in the cells was *captured*, and one who is hurt
+ * is *wounded*. A Lord taken is called out as the loss it is.
+ */
+function peopleFor(state: GameState, systemId: string, wereAboard: string[]): PersonRow[] {
+  const rows: PersonRow[] = [];
+  for (const id of wereAboard) {
+    const person = state.characters.find((c) => c.id === id);
+    if (!person || !isPlayable(person.faction)) continue;
+    const fate: Fate =
+      person.status === 'captured'
+        ? 'captured'
+        : person.status === 'injured'
+          ? 'wounded'
+          : person.locationSystemId === systemId
+            ? 'survived'
+            : 'escaped';
+    rows.push({
+      id: person.id,
+      name: person.name,
+      faction: person.faction as PlayableFaction,
+      fate,
+      // Taken is the one fate that removes somebody from the map, which
+      // Sean's §3 asks to be shown prominently rather than listed.
+      ...(fate === 'captured' ? { grave: true as const } : {}),
+    });
+  }
+  return rows;
+}
+
+/**
+ * The report an action leaves behind.
+ *
+ * Built once, when the action settles, from what the water looks like then —
+ * so the screen is a record of a thing that happened rather than a live view
+ * that keeps changing under the player while they read it.
+ */
+export function buildBattleReport(
+  state: GameState,
+  pending: PendingBattle,
+  outcome: BattleOutcome,
+  ripples: Ripple[],
+  wereAboard: string[],
+): OperationReport {
+  const system = getSystem(state, pending.systemId);
+  const me = state.player;
+  const them = otherFaction(me);
+  const verdict = verdictOf(outcome);
+  const committed = pending.committed ?? { empire: 0, alliance: 0 };
+  const mine = tallyFor(state, me, system.id, committed[me]);
+  const theirs = tallyFor(state, them, system.id, committed[them]);
+
+  // Where the survivors went, if they went. Read off the world rather than
+  // assumed: a squadron that broke off is at sea for somewhere, and the
+  // player wants to know where before they decide what to do next.
+  const away = fleetsOf(state, me).find((f) => isAtSea(f) && f.voyage);
+  const withdrewTo =
+    verdict !== 'victory' && away?.voyage
+      ? state.systems.find((s) => s.id === away.voyage!.targetSystemId)?.name
+      : undefined;
+
+  const holder = isPlayable(system.control)
+    ? system.control === me
+      ? `${system.name} is still yours.`
+      : `${system.name} itself stays under the ${factionData[them].shortName}; nothing at sea changes who is standing on it.`
+    : `${system.name} answers to nobody, and still does.`;
+
+  const report: OperationReport = {
+    kind: 'battle',
+    verdict,
+    headline:
+      outcome === 'beast-slain'
+        ? 'The water is clear'
+        : outcome === 'they-fled'
+          ? 'They break off'
+          : VERDICT_WORD[verdict],
+    operation: 'Fleet action',
+    title: `Action off ${system.name}`,
+    systemId: system.id,
+    day: state.day,
+    mine,
+    theirs: theirs.committed > 0 || theirs.surviving > 0 ? theirs : undefined,
+    people: peopleFor(state, system.id, wereAboard),
+    damage: [],
+    strategic: battleStrategic({
+      verdict,
+      where: system.name,
+      theirs: factionData[them].shortName,
+      withdrewTo,
+      ashore: holder,
+      theyFled: outcome === 'they-fled',
+      wiped: outcome === 'lost',
+    }),
+    political: ripples,
+  };
+  report.tension = tensionOf(report);
+  return report;
+}
+
+/** Hulls of a side lying at an island right now. */
+function countAt(state: GameState, faction: PlayableFaction, systemId: string): number {
+  return fleetsOf(state, faction)
+    .filter((f) => !isAtSea(f) && f.systemId === systemId)
+    .reduce((n, f) => n + f.ships.length, 0);
+}
+
+/** Everybody serving with a squadron in this water, by id. */
+function aboardAt(state: GameState, systemId: string): string[] {
+  return state.fleets
+    .filter((f) => !isAtSea(f) && f.systemId === systemId)
+    .flatMap((f) => f.officerIds ?? []);
+}
+
+/**
+ * Write the report, once and only once.
+ *
+ * An action settles on the round that settles it, and the sheet then stays up
+ * showing the result — so this must not run again on a re-render or on a
+ * second look at the same settled action, or the tallies would be rebuilt
+ * against a world that has moved on since.
+ */
+function settleReport(state: GameState, pending: PendingBattle, outcome: BattleOutcome): void {
+  if (pending.report) return;
+  pending.report = buildBattleReport(state, pending, outcome, pending.ripples ?? [], pending.aboard ?? []);
+}

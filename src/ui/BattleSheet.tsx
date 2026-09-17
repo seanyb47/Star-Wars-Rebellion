@@ -9,6 +9,7 @@ import {
 import factionData from '../data/factions.json';
 import { EventScene } from './EventScene';
 import { FactionCrest, ShipThumb } from './art';
+import { OutcomeReport } from './OutcomeReport';
 import type { BattleOutcome, GameState, PlayableFaction } from '../sim/types';
 
 /**
@@ -64,6 +65,17 @@ export function BattleSheet({
             of assessment and the two buttons are always on the screen however
             many hulls are in the water. */}
         <div className="battle__body">
+          {/*
+            Once the action is over the sheet stops being a decision and
+            becomes a report — which is a different screen, not the same one
+            with a line added. Sean's outcome specification: the result, what
+            it cost both sides, who came through it, what it settled, and what
+            the Reach made of it, laid out three different ways depending on
+            which of the three outcomes it was.
+          */}
+          {view.report && <OutcomeReport report={view.report} />}
+          {!view.report && (
+            <>
           <EventScene kind="battle" tint={`var(--${me})`} seed={view.system.id} height={92} />
 
           {/* Two words, before any of the arithmetic. A player who has to add
@@ -109,7 +121,7 @@ export function BattleSheet({
             <p className="tiny muted battle__line">{roundLine(view, me, them)}</p>
           )}
 
-          {view.settled && (
+          {view.settled && !view.report && (
             <p className="dispatch__text serif battle__verdict">
               {verdict(view, view.settled, them)}
             </p>
@@ -120,6 +132,8 @@ export function BattleSheet({
               No breaking off:{' '}
               {(view.fleeBlockedBecause ?? 'there is nowhere to run to.').toLowerCase()}
             </p>
+          )}
+            </>
           )}
         </div>
 

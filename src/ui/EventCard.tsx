@@ -3,6 +3,7 @@ import factionData from '../data/factions.json';
 import type { EventKind, GameEvent, GameState } from '../sim';
 import { CompanyIcon, FactionCrest, ShipIcon } from './art';
 import { EventScene } from './EventScene';
+import { OutcomeReport } from './OutcomeReport';
 
 /**
  * One thing that happened, told rather than logged.
@@ -116,17 +117,31 @@ export function EventCards({
           </button>
         </div>
 
-        <EventScene
-          kind={event.kind}
-          tint={tintFor(state, event)}
-          seed={event.id}
-          height={138}
-        />
+        {/*
+          An operation that resolved carries its own screen, and that screen
+          brings its own illustration and its own opening line — so the card's
+          generic scene and its one-line text would be a second, blander
+          version of both stacked on top of it. A bombardment or an assault
+          therefore *is* the report; everything else is a dispatch with a
+          tally under it, as it always was.
+        */}
+        {event.report ? (
+          <OutcomeReport report={event.report} />
+        ) : (
+          <>
+            <EventScene
+              kind={event.kind}
+              tint={tintFor(state, event)}
+              seed={event.id}
+              height={138}
+            />
 
-        <p className="dispatch__text serif">{event.text}</p>
+            <p className="dispatch__text serif">{event.text}</p>
 
-        {event.battle && <BattleTally report={event.battle} />}
-        {event.landing && <LandingTally report={event.landing} />}
+            {event.battle && <BattleTally report={event.battle} />}
+            {event.landing && <LandingTally report={event.landing} />}
+          </>
+        )}
 
         <div className="dispatch__foot">
           <span className="tiny muted">
