@@ -3339,3 +3339,121 @@ before — the Confederacy survives well enough that the Crown cannot get all
 three Lords in irons at once, and rescues more than doubled. That is a
 decisiveness problem the balance decision Sean already owes a steer on should
 probably be taken together with, rather than something to paper over here.
+
+## News travels: local, regional, global — 17 September
+
+Sean's propagation memo, and its first two sections are a description of what
+the code was already doing wrong. *"Do not make every allegiance change affect
+the region."* *"Do NOT simply add the same allegiance value to every island."*
+`applySupportChange` did both: a flat fifth of **every** allegiance change
+spilled onto **every** island in the Reach, equally, always. One fortnight's
+parley moved nine islands, and moved the far end of a chain exactly as much as
+the harbor next door.
+
+### The three scopes
+
+**LOCAL** is nearly everything, and is now genuinely local. A landed parley, a
+failed one, a backfire, an incitement, a commander taking a chair, the daily
+drift — all of them move one island and nothing else. `applyLocalSupport` is
+the new call and most of the game uses it.
+
+**REGIONAL** is raised by name, at named moments, and is the only thing that
+reaches past the island. Ten triggers:
+
+| event | who it favours | Sean's § |
+|---|---|---|
+| an unaligned island declares | whoever it joined | 3 |
+| an empty harbor changes hands | the taker | 3 |
+| an island rises in mutiny | whoever is *not* holding it | 3 |
+| a landing on people who wanted you | the attacker | 12 |
+| a landing on people who did not | **against** the attacker | 11 |
+| the walls come down, town untouched | the attacker | 14 |
+| an action won by a clear margin | the victor, scaled by guns sunk | 15 |
+| a Pirate Lord taken | the taker | 16 |
+| a Pirate Lord broken out | the rescuer | 16 |
+| shelling a town over its people | **against** the attacker, and globally | 13 |
+
+**GLOBAL** is one event: shot that goes past the walls looking for the garrison.
+A large local loss, a moderate regional one, and a very faint one everywhere
+else, because *"people across the region hear about the destruction"* — not
+because every island changes sides.
+
+### How far it carries
+
+Four things scale every regional effect, and the point of all four is that no
+two islands feel the same thing.
+
+- **Falloff.** `REGIONAL_FALLOFF` is `[1, 0.7, 0.45, 0.3, 0.18, 0.1]`, nearest
+  first, then nothing. Read against a regional figure of 3 that is Sean's own
+  worked example — target +10, adjacent +3, second +2, distant +1, remote +0.5.
+- **Jitter.** ±40% per island, so a cascade is never a calculation.
+- **Connectivity.** Each Reach rolls one, 0.45 to 1.45, once at worldgen and
+  never again — §9's *"distinct political personalities"*. It is drawn from a
+  **stream of its own**: taking seven draws out of the worldgen RNG mid-layout
+  moved every island, deposit and garrison after them, and a world is a thing
+  players share by its number.
+- **Cascade damping.** `[1, 0.6, 0.3, 0]`, and the zero is deliberate —
+  "negligible" that is not actually zero is a chain that runs for ever at a
+  hundredth of a point. An island the news has lately reached remembers it
+  (`System.shaken`), so when *it* declares or rises, its own shock goes out one
+  step deeper and much quieter. The chain is emergent: nothing decides an
+  island will fall, only how loudly it is heard from when it does.
+
+### What the player sees
+
+No figure, ever (§19). The feed carries the news — *"Word of the rising on
+Cald is running through the Kettle Reach"* — and the loyalty dots move. §20's
+propagation animation is a ring that opens out of the Reach and fades, drawn
+under everything and taking no pointer events, for the two or three days a
+shock is fresh; it holds still for anyone who has asked their system for
+reduced motion.
+
+### What the measurements said
+
+**Six wars, both sides played, six hundred days each — shocks actually raised:**
+
+| | raised |
+|---|---|
+| peaceful conversion | 15 |
+| conquest (landing on unwilling people) | 23 |
+| a Lord taken | 6 |
+| a Lord broken out | 3 |
+| major fleet action | 3 |
+| liberation, defection, mutiny, bombardment | **0** |
+
+Four of the five zeroes are not propagation faults — the underlying event never
+happens. Over the same six wars there were **no mutinies at all**, no empty
+harbor ever changed hands, three siege-days in total and no wall ever beaten
+down. The wiring for each is proven directly in `propagate.test.ts` instead.
+
+**And the mutiny zero is the finding worth acting on.** Held islands sit at a
+mean allegiance of 67.5 with 3.1 companies ashore, so `mutinyChance` reads
+`max(0, 45 − 67.5) − 18.6` and is **0.00% a day on every island, every day**.
+The only route to a revolt is an agitator driving allegiance twenty-odd points
+below where drift settles it *and* beating the garrison's political security,
+and the opponent almost never sends one. `AI_AGITATION_PATIENCE` now gives an
+incitement the eight cycles a courting parley gets, for the same arithmetic
+reason — but it did not move the number, because the opponent's scoring rarely
+picks the errand in the first place. So the end of Sean's own chain —
+*"espionage to discover defenses, sabotage to weaken them, incite uprising to
+destabilise, then diplomacy"* — is still not reachable in machine play, and
+`MUTINY_WATCH` against `SECURITY_PER_COMPANY` is where it would be fixed.
+
+**Measured, matched seeds, 24 wars both sides played, before and after:**
+
+|  | before | after |
+|---|---|---|
+| result | Crown 18 — 5 | Crown 14 — 7 |
+| Crown's share of decided wars | 78% | **67%** |
+| never ended | 1 | 3 |
+| median length | 489 days | 732 days |
+| Confederacy's islands | 9.5 | 10.8 |
+| Confederacy's gold at the end | 414 | 10,807 |
+
+The balance is the best it has been all session and the cost is legible: with
+the flat spill gone, allegiance moves roughly a fifth as fast across a chain,
+so wars run about half as long again and three in twenty-four reach the cap.
+The Confederacy has also gone back to hoarding — ten thousand gold it is not
+spending, which is an opponent-economy problem rather than a political one and
+was briefly fixed earlier today by nothing more than longer wars not being in
+the sample.

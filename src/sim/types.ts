@@ -19,6 +19,14 @@ export interface Sector {
   systemIds: string[];
   x: number;
   y: number;
+  /**
+   * How much this Reach's islands talk to each other about politics.
+   *
+   * Rolled once at worldgen and never changed. A high one passes a defection
+   * down the whole chain; a low one has to be taken island by island. See
+   * `connectivityOf` and Sean's propagation memo, §9.
+   */
+  connectivity?: number;
 }
 
 /** An island. */
@@ -139,6 +147,17 @@ export interface System {
    * political rework still loads.
    */
   momentum?: number;
+  /**
+   * The last time news from somewhere else reached here, and how far down the
+   * chain it had already come.
+   *
+   * Only written by `applyShock`, only read by `orderFor`, and only for a
+   * fortnight or so. It is how a cascade knows it is a cascade: an island that
+   * declares for somebody a week after the news of its neighbour's defection
+   * arrived is heard from at one step deeper and much quieter than an island
+   * that declared out of a clear sky. See Sean's propagation memo, §6 and §7.
+   */
+  shaken?: { day: number; order: number };
   /**
    * The officer holding this island, if one has been posted to it.
    *
@@ -652,6 +671,16 @@ export interface GameState {
    * were, in one round a day, and reported to the log.
    */
   battle?: PendingBattle;
+  /**
+   * Which Reach the chart should be rippling, and from what day.
+   *
+   * Sean's propagation memo, §20: *"use a short visual propagation animation...
+   * the effect should visually travel outward from the original event."* The
+   * rules cannot draw, so a regional shock leaves this note and the chart picks
+   * it up; it expires on its own after `SHOCKWAVE_DAYS`, so a game saved on the
+   * day of a defection does not reopen mid-animation.
+   */
+  shockwave?: { sectorId: string; day: number };
   /** Set once a victory condition trips; the clock stops afterwards. */
   winner?: PlayableFaction;
   /**

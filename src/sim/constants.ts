@@ -1198,6 +1198,16 @@ export const AI_COURT_BONUS = 170;
  */
 export const AI_COURTING_PATIENCE = 8;
 /**
+ * And how many an agitator gets, for the same reason.
+ *
+ * An incitement has to move an island about twenty points against a drift that
+ * is always pulling it back, which is three or four landed fortnights — and at
+ * the ordinary patience of four the opponent gave up on every one of them just
+ * short. Measured over six wars: not a single island rose in either direction
+ * in thirty-six hundred days of war.
+ */
+export const AI_AGITATION_PATIENCE = 8;
+/**
  * What the opponent thinks a fortnight in its own yards is worth.
  *
  * Deliberately under an island — craft is a slow compounding thing and a
@@ -1927,3 +1937,89 @@ export const MOMENTUM_WEIGHT = 1.2;
  */
 export const AI_JOIN_WEIGHT = 80;
 export const AI_INCITE_BONUS = 200;
+
+/**
+ * How news travels — Sean's propagation memo of 17 September, in numbers.
+ *
+ * The shape of every figure here comes from his worked example: a major
+ * political conversion moves the island itself about ten points, the island
+ * next door about three, the next about two, a distant one about one and a
+ * remote one about half. Read `REGIONAL_FALLOFF` against a `regional` of 3 and
+ * that is exactly what comes out.
+ */
+/** What each island in the Reach feels, nearest first, as a fraction of the
+ *  shock's regional figure. Six deep, then the news has run out of people who
+ *  care. */
+export const REGIONAL_FALLOFF = [1, 0.7, 0.45, 0.3, 0.18, 0.1];
+/** How much any one island's share may vary, either way. *"The exact effect
+ *  can vary slightly... without guaranteeing a cascade."* */
+export const REGIONAL_JITTER = 0.4;
+/** The same, for the rare thing the whole world hears about. */
+export const GLOBAL_JITTER = 0.5;
+/**
+ * A Reach's political connectivity, rolled once at worldgen.
+ *
+ * *"High-connectivity region: stronger domino effects... low-connectivity
+ * region: more isolated politics, more resistant to outside influence."* At
+ * 0.45 a Reach barely passes news along at all and has to be taken island by
+ * island; at 1.45 one defection is felt down the whole chain.
+ */
+export const CONNECTIVITY_MIN = 0.45;
+export const CONNECTIVITY_MAX = 1.45;
+/**
+ * What a shock is still worth at each depth of a cascade.
+ *
+ * Sean's §7: *"initial event 100%; second-order 50-70%; third-order 20-40%;
+ * fourth-order negligible. This prevents one diplomatic action from
+ * accidentally flipping an entire world."* Taken at the middle of each band,
+ * and then a hard stop, because "negligible" that is not actually zero is a
+ * chain that runs for ever at a hundredth of a point.
+ */
+export const CASCADE_DAMP = [1, 0.6, 0.3, 0];
+/** How long an island remembers being shaken, for counting cascade depth.
+ *  About a fortnight: long enough for the news to have caused what it caused,
+ *  short enough that a second rising a season later is its own event. */
+export const CASCADE_MEMORY = 20;
+/** How long the chart ripples a Reach after something happened in it. */
+export const SHOCKWAVE_DAYS = 3;
+
+/**
+ * What each kind of event is worth, locally and regionally.
+ *
+ * The regional figure is what the *nearest* island feels; `REGIONAL_FALLOFF`
+ * takes it down the chain from there. Only events on this list are regional at
+ * all — Sean's first rule is that *"the vast majority of normal actions should
+ * be LOCAL"*, and a landed parley, a failed one, a garrison arriving and the
+ * daily drift are all local and stay local.
+ */
+/** An unaligned island declares for somebody of its own accord. §3. */
+export const SHOCK_CONVERSION = { local: 0, regional: 3 };
+/** An island somebody held changes hands without a shot. §3. */
+export const SHOCK_DEFECTION = { local: 0, regional: 3.5 };
+/** An island throws its governor out. §3. */
+export const SHOCK_MUTINY = { local: 0, regional: 2.5 };
+/** A landing. Positive where the people wanted you, negative where they did
+ *  not — §11 against §12 — and the line between is `SHOCK_LIBERATION_LEVEL`. */
+export const SHOCK_CONQUEST = { local: 6, regional: 2.5 };
+export const SHOCK_LIBERATION_LEVEL = 55;
+/**
+ * A day's bombardment, and the sharpest distinction in the memo.
+ *
+ * §13: shelling an island's works is *"a major political mistake"* — a large
+ * local loss, a moderate regional one, and a very small global one, because
+ * *"people across the region hear about the destruction"*. §14: shelling a
+ * wall is not, because *"the attacking faction is perceived as defeating the
+ * enemy military rather than attacking civilians"*, and it is worth a little
+ * goodwill instead. The whole difference is what the guns were pointed at.
+ */
+export const SHOCK_CIVILIAN_FIRE = { local: 5, regional: 1.6, global: 0.25 };
+export const SHOCK_MILITARY_FIRE = { local: 0.8, regional: 0.3 };
+/** A fleet action, scaled by the guns that went to the bottom. §15: a patrol
+ *  is nothing, a battle fleet is felt. */
+export const SHOCK_PER_GUN_SUNK = 0.045;
+/** Below this many guns destroyed, nobody outside the harbor hears about it. */
+export const SHOCK_BATTLE_FLOOR = 25;
+/** And a ceiling, so one enormous action is not the end of the political war. */
+export const SHOCK_BATTLE_CEILING = 4;
+/** One of the three Lords taken, or got back out. §16, and rare by nature. */
+export const SHOCK_PRINCIPAL = { local: 4, regional: 2 };

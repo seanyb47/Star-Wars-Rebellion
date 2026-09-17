@@ -4,6 +4,8 @@ import reachData from '../data/reaches.json';
 import chartData from '../data/chart.json';
 import { createRng, type Rng } from './rng';
 import {
+  CONNECTIVITY_MAX,
+  CONNECTIVITY_MIN,
   PIRATE_LORDS,
   RECRUIT_LAST_DAY,
   RECRUITS_AT_START,
@@ -491,6 +493,16 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   const rng = createRng(seed);
 
   const sectors: Sector[] = [];
+  /*
+   * A stream of its own for the Reaches' political temperaments.
+   *
+   * Drawn from the same seed and therefore just as reproducible, but kept off
+   * the main worldgen stream on purpose: taking seven draws out of `rng` in
+   * the middle of laying out the map moved every island, deposit and garrison
+   * rolled after them, and a world is a thing players share by its number. A
+   * feature added on Tuesday should not reshuffle Monday's world.
+   */
+  const politics = createRng(seed * 31 + 7);
   const systems: System[] = [];
   let idCounter = 0;
   const makeId = (prefix: string) => `${prefix}-${++idCounter}`;
@@ -596,6 +608,20 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       systems.push(system);
     }
     sectors.push(sector);
+  }
+
+  /*
+   * And how much each chain talks to itself.
+   *
+   * Sean's propagation memo, §9: *"this gives different parts of the world
+   * distinct political personalities."* Rolled once, never touched again, so
+   * it is a fact about the world a player can learn — a Reach where one
+   * defection is felt down the whole chain is worth a diplomat that a Reach of
+   * nine strangers is not.
+   */
+  for (const sector of sectors) {
+    sector.connectivity =
+      CONNECTIVITY_MIN + politics.next() * (CONNECTIVITY_MAX - CONNECTIVITY_MIN);
   }
 
   const byId = new Map(systems.map((s) => [s.id, s] as const));

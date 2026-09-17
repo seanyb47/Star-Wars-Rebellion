@@ -1,5 +1,7 @@
 import {
   FLIP_SUPPORT_MIN,
+  SHOCK_DEFECTION,
+  SHOCK_MUTINY,
   HELD_SUPPORT_LEVEL,
   LEAK_CHANCE,
   SMUGGLED_SHARE,
@@ -9,9 +11,11 @@ import {
   type LoyaltyBand,
 } from './constants';
 import { mutinyChance } from './politics';
+import { applyShock, orderFor } from './propagate';
 import {
   handOver,
   isPlayable,
+  reachName,
   otherFaction,
   pushEvent,
   requiredGarrison,
@@ -89,6 +93,7 @@ export function resolveControlAndUnrest(state: GameState, rng?: Rng): void {
       system.support[otherFaction(system.control)] >= FLIP_SUPPORT_MIN
     ) {
       const taker = otherFaction(system.control);
+      const order = orderFor(state, system);
       system.control = taker;
       handOver(system, taker);
       system.uprising = false;
@@ -97,6 +102,28 @@ export function resolveControlAndUnrest(state: GameState, rng?: Rng): void {
         text: `${system.name} has declared for the ${factionName(taker)}. There was nobody ashore to argue.`,
         systemId: system.id,
       });
+      /*
+       * And it carries. Sean's propagation memo, §3: a *peaceful defection* —
+       * an enemy-held island changing allegiance without being conquered — is
+       * the loudest of his regional events, louder than an unaligned island
+       * making up its mind, because somebody has lost something rather than
+       * merely failed to gain it.
+       */
+      if (rng) {
+        applyShock(
+          state,
+          {
+            systemId: system.id,
+            faction: taker,
+            scope: 'regional',
+            local: SHOCK_DEFECTION.local,
+            regional: SHOCK_DEFECTION.regional,
+            order,
+            news: `${system.name} has changed hands without a shot fired. ${reachName(state, system)} has noticed which way it went.`,
+          },
+          rng,
+        );
+      }
     }
 
     /*
@@ -155,12 +182,34 @@ export function resolveControlAndUnrest(state: GameState, rng?: Rng): void {
        * hold somewhere else will, inside a month, and nobody can say which
        * morning — which is the whole of what was wanted.
        */
+      const order = orderFor(state, system);
       system.uprising = true;
       pushEvent(state, {
         kind: 'mutiny',
       text: `${system.name} has risen in mutiny. Nothing is being loaded or landed.`,
         systemId: system.id,
       });
+      /*
+       * And the Reach hears. Sean's §3 again: *"an island throws off its
+       * current faction without a conventional assault"* is a major political
+       * event, and it favours whoever is *not* holding the island — a rising
+       * is an argument against the governor made in front of the neighbours.
+       * Quieter than a defection, because nothing has actually changed hands
+       * yet and everybody watching knows it.
+       */
+      applyShock(
+        state,
+        {
+          systemId: system.id,
+          faction: otherFaction(system.control),
+          scope: 'regional',
+          local: SHOCK_MUTINY.local,
+          regional: SHOCK_MUTINY.regional,
+          order,
+          news: `Word of the rising on ${system.name} is running through ${reachName(state, system)}.`,
+        },
+        rng,
+      );
     }
   }
 }

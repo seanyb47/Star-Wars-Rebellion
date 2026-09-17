@@ -2123,3 +2123,27 @@ button.tcard:hover { border-color: var(--brass); }
   opacity: 0.55;
   filter: saturate(0.8);
 }
+
+/* News running through a Reach: a ring that opens out of the chain and fades.
+   Sean's propagation memo, §20 — the point is to make regional politics read
+   as connected rather than as nine islands that happened to move at once. It
+   runs for a couple of seconds and repeats while the shock is fresh, and the
+   dots changing underneath it are the actual message. */
+.map__shock {
+  fill: none;
+  stroke: var(--metal-hi);
+  stroke-width: 3;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: shockring 1.8s ease-out infinite;
+}
+@keyframes shockring {
+  0% { transform: scale(0.35); opacity: 0; }
+  15% { opacity: 0.85; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No travelling ring for anyone who has asked the system for less movement.
+     The Reach still marks itself, it simply sits still while it does it. */
+  .map__shock { animation: none; opacity: 0.5; }
+}

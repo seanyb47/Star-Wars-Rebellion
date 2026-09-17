@@ -6,6 +6,7 @@ export * from './galaxy';
 export * from './economy';
 export * from './support';
 export * from './politics';
+export * from './propagate';
 export * from './reach';
 export * from './build';
 export * from './fleets';

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { GameState, PlayableFaction, System } from '../sim';
 import {
+  shockwaveOn,
   isMissionTarget,
   layerMark,
   lordIslands,
@@ -589,6 +590,28 @@ export function GalaxyMap({
               style={{ cursor: live ? 'pointer' : 'default' }}
               opacity={live ? 1 : 0.35}
             >
+              {/*
+                News running through the chain.
+
+                Sean's propagation memo, §20: *"use a short visual propagation
+                animation... the effect should visually travel outward from the
+                original event... this will make regional politics feel
+                connected rather than independently simulated."* A ring that
+                opens out of the Reach and fades, for the two or three days a
+                shock is fresh. It is drawn under everything and takes no
+                pointer events, so it cannot get between a finger and an
+                island — the dots moving underneath it are the actual message,
+                and this only says where to look.
+              */}
+              {shockwaveOn(state, sector.id) && (
+                <circle
+                  className="map__shock"
+                  cx={spot.x}
+                  cy={spot.y}
+                  r={chainR}
+                  pointerEvents="none"
+                />
+              )}
               {/* The disc is the tap target: the whole chain, not any one
                   island. Over the painting it stays invisible — the painted
                   shallows already show where a chain is, and a grey wash on

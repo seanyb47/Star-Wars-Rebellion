@@ -1,5 +1,6 @@
 import {
   AI_MISSION_PATIENCE,
+  AI_AGITATION_PATIENCE,
   AI_COURTING_PATIENCE,
   FOIL_INJURY_DAYS,
   INCITE_SUPPORT_LOSS,
@@ -30,6 +31,8 @@ import {
   OPEN_EXPOSURE,
   SABOTAGE_PRIORITY,
   MOMENTUM_PER_SUCCESS,
+  SHOCK_CONVERSION,
+  SHOCK_PRINCIPAL,
   SUPPORT_MAX,
   WATCH_FROM_COMMAND,
   WATCH_FROM_LOYALTY,
@@ -50,7 +53,8 @@ import {
   WORKS_ON,
 } from './constants';
 import {
-  applySupportChange,
+  applyLocalSupport,
+  reachName,
   getCharacter,
   getSystem,
   isPlayable,
@@ -65,6 +69,7 @@ import { recomputeLedger } from './economy';
 import { resolveControlAndUnrest } from './support';
 import { isLord, passageShare, restoreLord } from './lords';
 import { inciteStanding, joinChance, parleyStanding, pushMomentum, runCycle } from './politics';
+import { applyShock, orderFor } from './propagate';
 import factionData from '../data/factions.json';
 import type { Rng } from './rng';
 import type {
@@ -1426,7 +1431,7 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
     // is standing there today who gets carried off.
     const mark = abductOn(state, system, faction)!;
     success = rng.chance(abductChance(character, mark));
-    abductOutcome(state, character, mark, system, success);
+    abductOutcome(state, character, mark, system, success, rng);
   } else if (mission.type === 'recruit') {
     // The pool is read again now, not remembered from the order: the other
     // side may have signed the last of them on while this officer was at sea.
@@ -1455,7 +1460,7 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
     if (mission.type === 'sabotage') {
       sabotageOutcome(state, character, system, success);
     } else if (mission.type === 'rescue') {
-      rescueOutcome(state, character, system, success);
+      rescueOutcome(state, character, system, success, rng);
     } else if (mission.type === 'survey') {
       surveyOutcome(state, character, system);
     } else if (mission.type === 'espionage') {
@@ -1561,6 +1566,27 @@ function outOfPatience(system: System, mission: Mission): boolean {
    */
   if (mission.type === 'diplomacy' && system.control === 'neutral') {
     return (mission.cycles ?? 1) >= AI_COURTING_PATIENCE;
+  }
+  /*
+   * And stirring an island toward a rising is the same shape of campaign, for
+   * the same reason.
+   *
+   * Driving a harbor from where drift settles it down to where its people
+   * start thinking about rising is twenty points, which is three or four
+   * landed fortnights against a drift that is always pulling back — so at a
+   * patience of four the opponent walked away from every one of them a cycle
+   * or two short. Measured over six wars of six hundred days with both sides
+   * played: **not one island rose**, in either direction, ever. The whole
+   * mutiny half of the political model — and the end of Sean's own chain,
+   * *"espionage to discover defenses, sabotage to weaken them, incite uprising
+   * to destabilise, then diplomacy"* — was unreachable for want of a number.
+   *
+   * So while the island is still going the right way, the work goes on. The
+   * ordinary rules above end it the moment it stops being an incitement
+   * target — it rose, somebody took it, or it turned back.
+   */
+  if (mission.type === 'incite') {
+    return (mission.cycles ?? 1) >= AI_AGITATION_PATIENCE;
   }
   return (mission.cycles ?? 1) >= AI_MISSION_PATIENCE;
 }
@@ -1690,6 +1716,7 @@ function abductOutcome(
   mark: Character,
   system: System,
   success: boolean,
+  rng: Rng,
 ): void {
   const faction = officer.faction as PlayableFaction;
   if (!success) {
@@ -1701,6 +1728,7 @@ function abductOutcome(
     });
     return;
   }
+  const famous = isLord(mark);
   takePrisoner(state, mark, faction);
   const held = getSystem(state, mark.locationSystemId);
   pushEvent(state, {
@@ -1709,6 +1737,31 @@ function abductOutcome(
     systemId: system.id,
     characterId: mark.id,
   });
+  /*
+   * And if it was one of the three, the Reach hears about it.
+   *
+   * Sean's propagation memo, §16: *"exceptional character events may also
+   * produce regional effects — capturing a famous enemy commander... these
+   * should be rare. Do not allow ordinary character missions to create
+   * galaxy-wide political effects."* A Pirate Lord is the only person in the
+   * game famous enough, and there are three of them, so this fires a handful
+   * of times a war at most. Lifting an ordinary officer off a quay is a good
+   * day's work and stays a good day's work.
+   */
+  if (famous) {
+    applyShock(
+      state,
+      {
+        systemId: system.id,
+        faction,
+        scope: 'regional',
+        local: SHOCK_PRINCIPAL.local,
+        regional: SHOCK_PRINCIPAL.regional,
+        news: `${mark.name} is in irons. There is not a harbor in ${reachName(state, system)} that has not heard it by nightfall.`,
+      },
+      rng,
+    );
+  }
 }
 
 /**
@@ -1723,6 +1776,7 @@ function rescueOutcome(
   officer: Character,
   system: System,
   success: boolean,
+  rng: Rng,
 ): void {
   const faction = officer.faction as PlayableFaction;
   const captive = captiveOn(state, system, faction)!;
@@ -1746,6 +1800,26 @@ function rescueOutcome(
     characterId: captive.id,
   });
   restoreLord(state, captive);
+  /*
+   * And a famous one getting out is news too. Sean's §16 lists *"successful
+   * rescue of a famous leader"* beside capturing one, and it is the same rule
+   * with the sign reversed: it happens where the cells were, so the Reach that
+   * was holding them is the Reach that has to explain itself.
+   */
+  if (isLord(captive)) {
+    applyShock(
+      state,
+      {
+        systemId: system.id,
+        faction,
+        scope: 'regional',
+        local: SHOCK_PRINCIPAL.local,
+        regional: SHOCK_PRINCIPAL.regional,
+        news: `${captive.name} is out of the cells at ${system.name} and gone. ${reachName(state, system)} is enjoying the story.`,
+      },
+      rng,
+    );
+  }
 }
 
 /**
@@ -1799,7 +1873,9 @@ export function takePost(
     if (old) old.locationSystemId = system.id;
   }
   system.commanderId = officer.id;
-  applySupportChange(state, system, faction, COMMAND_SUPPORT_GAIN + officer.leadership / 9);
+  // Local, like everything ordinary. Sean's memo lists "local officer
+  // activity" and "local garrison changes" among the things that stay put.
+  applyLocalSupport(system, faction, COMMAND_SUPPORT_GAIN + officer.leadership / 9);
   const wasOut = system.uprising;
   if (wasOut) {
     system.uprising = false;
@@ -2247,7 +2323,7 @@ function parleyOutcome(
     if (cycle.backfired) {
       // The other side has something to point at now. Not a catastrophe —
       // about a point, and the room remembers it for a while.
-      applySupportChange(state, system, otherFaction(faction), 1);
+      applyLocalSupport(system, otherFaction(faction), 1);
       pushMomentum(system, otherFaction(faction), MOMENTUM_PER_SUCCESS / 2);
     }
     pushEvent(state, {
@@ -2262,9 +2338,19 @@ function parleyOutcome(
     return;
   }
 
-  // One change, because allegiance is one balance: what you win is what they
-  // lose, and saying it twice would carry the island twice as fast.
-  applySupportChange(state, system, faction, cycle.swing);
+  /*
+   * One change, on one island.
+   *
+   * Two things at once. Allegiance is one balance — what you win is what they
+   * lose, so saying it twice would carry the island twice as fast. And it is
+   * *local*: this used to spill a fifth of every point onto all nine of the
+   * Reach's other islands, so a routine fortnight moved a whole chain. Sean's
+   * propagation memo forbids exactly that — *"do not make every allegiance
+   * change affect the region"* — and a successful parley is his first example
+   * of an event that stays where it happened. What carries down the chain is
+   * the island *declaring*, below.
+   */
+  applyLocalSupport(system, faction, cycle.swing);
   pushMomentum(system, faction, MOMENTUM_PER_SUCCESS);
 
   /*
@@ -2276,6 +2362,7 @@ function parleyOutcome(
    * any standing.
    */
   if (rng.chance(joinChance(system, faction))) {
+    const order = orderFor(state, system);
     system.control = faction;
     handOver(system, faction);
     system.uprising = false;
@@ -2286,6 +2373,27 @@ function parleyOutcome(
       systemId: system.id,
       characterId: character.id,
     });
+    /*
+     * And the Reach hears about it. Sean's propagation memo, §3: a peaceful
+     * political conversion is the first of his major events, and *"the player
+     * should occasionally experience: I took ONE island and suddenly the whole
+     * region started moving."* Whether it does is not up to this line — the
+     * neighbours get a few points each and what they do with them is their own
+     * business, which is the whole of §21.
+     */
+    applyShock(
+      state,
+      {
+        systemId: system.id,
+        faction,
+        scope: 'regional',
+        local: SHOCK_CONVERSION.local,
+        regional: SHOCK_CONVERSION.regional,
+        order,
+        news: `${system.name} has come over to the ${factionData[faction].shortName} of its own accord, and every harbor in ${reachName(state, system)} is talking about it.`,
+      },
+      rng,
+    );
     resolveControlAndUnrest(state);
     return;
   }
@@ -2336,7 +2444,11 @@ function inciteOutcome(
 
   // Everything you take off the governor is yours, whether the island means
   // it that way or not: there is no third place for an angry island to go.
-  applySupportChange(state, system, holder, -cycle.swing);
+  // Local. Stirring an island down is his "successful Incite" — the first
+  // list, the one that stays on the island it happened on. What the Reach
+  // hears about is the island actually rising, and that is raised where the
+  // revolt is: see `resolveControlAndUnrest`.
+  applyLocalSupport(system, holder, -cycle.swing);
   pushMomentum(system, faction, MOMENTUM_PER_SUCCESS);
   pushEvent(state, {
     kind: 'mission',

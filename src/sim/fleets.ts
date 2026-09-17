@@ -13,8 +13,13 @@ import {
   wallStrength,
   FORT_REPAIR_PER_DAY,
   BOMBARD_PER_COMPANY,
-  CIVILIAN_LOYALTY_HIT,
-  CIVILIAN_REACH_HIT,
+  SHOCK_BATTLE_CEILING,
+  SHOCK_BATTLE_FLOOR,
+  SHOCK_PER_GUN_SUNK,
+  SHOCK_CIVILIAN_FIRE,
+  SHOCK_MILITARY_FIRE,
+  SHOCK_CONQUEST,
+  SHOCK_LIBERATION_LEVEL,
   CIVILIAN_STACK,
   CIVILIAN_STACK_MAX,
   REPAIR_PER_DAY,
@@ -48,7 +53,10 @@ import {
   pushEvent,
   requiredGarrison,
   setSupport,
+  reachName,
 } from './helpers';
+import factionData from '../data/factions.json';
+import { applyShock, landingShock } from './propagate';
 import { lordPowerAt, restoreLord } from './lords';
 import { caughtOnLanding, takePrisoner, travelDays } from './missions';
 import type { Rng } from './rng';
@@ -1047,6 +1055,26 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
       ...(system.control === state.player ? { kind: 'loss' as const } : {}),
       systemId: system.id,
     });
+    /*
+     * And it is read as a military success rather than an atrocity. Sean's
+     * §14: shot that destroys the enemy's soldiers without touching the town
+     * reads as *"defeating the enemy military rather than attacking
+     * civilians"*, and is worth a little goodwill instead of costing a lot.
+     * Only when a wall actually falls — a siege that grinds away for a
+     * fortnight is a fortnight of noise, not a fortnight of news.
+     */
+    applyShock(
+      state,
+      {
+        systemId: system.id,
+        faction: fleet.faction,
+        scope: 'regional',
+        local: SHOCK_MILITARY_FIRE.local,
+        regional: SHOCK_MILITARY_FIRE.regional,
+        news: `The batteries of ${system.name} are down, and the town behind them is untouched. It is being told that way up and down ${reachName(state, system)}.`,
+      },
+      rng,
+    );
   } else if (standing.length > 0 && mine) {
     pushEvent(state, {
       kind: 'battle',
@@ -1061,11 +1089,17 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
   // Past the walls. Only now can the guns reach the companies, and only at a
   // price the whole Reach pays.
   if (fortsOf(system).length > 0 || weight <= 0) return;
-  shellTheTown(state, system, fleet, weight);
+  shellTheTown(state, system, fleet, weight, rng);
 }
 
 /** Shot that goes looking for companies, and what it finds instead. */
-function shellTheTown(state: GameState, system: System, fleet: Fleet, weight: number): void {
+function shellTheTown(
+  state: GameState,
+  system: System,
+  fleet: Fleet,
+  weight: number,
+  rng: Rng,
+): void {
   if (system.garrison <= 0) return;
   const broken = Math.min(system.garrison, Math.floor(weight / BOMBARD_PER_COMPANY));
   system.garrison -= broken;
@@ -1075,11 +1109,35 @@ function shellTheTown(state: GameState, system: System, fleet: Fleet, weight: nu
   const stack = 1 + Math.min(already * CIVILIAN_STACK, CIVILIAN_STACK_MAX);
   const enemy = otherFaction(fleet.faction);
   if (system.populated) {
-    setSupport(system, enemy, system.support[enemy] + CIVILIAN_LOYALTY_HIT * stack);
-    for (const other of state.systems) {
-      if (other.id === system.id || other.sectorId !== system.sectorId || !other.populated) continue;
-      setSupport(other, enemy, other.support[enemy] + CIVILIAN_REACH_HIT * stack);
-    }
+    /*
+     * The one thing in the game the whole world hears about.
+     *
+     * Sean's propagation memo, §13: shot that goes past the walls looking for
+     * the garrison is *"a major political mistake"* — a large loss on the
+     * island, a moderate shock through the Reach, and a *very small* effect
+     * everywhere else, because *"people across the region hear about the
+     * destruction"* and not because every island changes sides. §18: a global
+     * effect ignores the Reach boundary entirely, which is the point of it.
+     *
+     * This used to be a flat hit on the island and the same flat hit on every
+     * other island in the Reach, near or far, and nothing beyond. It escalates
+     * the same way it always did — a town remembers, and the second day of it
+     * costs more than the first — but it now falls off with distance, varies
+     * island by island, and carries, faintly, past the chain.
+     */
+    applyShock(
+      state,
+      {
+        systemId: system.id,
+        faction: enemy,
+        scope: 'global',
+        local: SHOCK_CIVILIAN_FIRE.local * stack,
+        regional: SHOCK_CIVILIAN_FIRE.regional * stack,
+        global: SHOCK_CIVILIAN_FIRE.global * stack,
+        news: `${system.name} is being shelled over the heads of its people. The story is going everywhere a ship goes.`,
+      },
+      rng,
+    );
   }
 
   if (fleet.faction === state.player || system.control === state.player) {
@@ -1326,6 +1384,11 @@ function fightRound(
     empire: empire.reduce((n, f) => n + f.ships.length, 0),
     alliance: alliance.reduce((n, f) => n + f.ships.length, 0),
     hurt: hurtIn([...empire, ...alliance]),
+    // In guns, for the politics of it: Sean's §15 scales a fleet action's
+    // political weight by the importance of what went down, and a sloop and a
+    // first-rate are not the same news.
+    empireGuns: empire.reduce((n, f) => n + fleetGuns(f), 0),
+    allianceGuns: alliance.reduce((n, f) => n + fleetGuns(f), 0),
   };
 
   // The three parties. Forts shoot for the side that holds the island; the
@@ -1398,6 +1461,42 @@ function fightRound(
   const after = fleetsAt(state, system.id);
   const count = (side: PlayableFaction) =>
     after.filter((f) => f.faction === side).reduce((n, f) => n + f.ships.length, 0);
+  /*
+   * And who, if anybody, won something worth talking about.
+   *
+   * Sean's propagation memo, §15: *"destroying a significant enemy capital
+   * fleet should produce a regional political effect... destroying a small
+   * patrol should have negligible political impact; destroying a major battle
+   * fleet should have substantial regional impact."* So it is weighed in guns
+   * that went to the bottom rather than hulls, floored so a sloop run down in
+   * a corner is nobody's business, and capped so one enormous afternoon does
+   * not decide the political war on its own.
+   *
+   * The side that came off better is the one the news favours, and it is the
+   * *difference* that counts: two fleets that wrecked each other are a
+   * bloodbath, not a victory, and the Reach has nothing to say about it.
+   */
+  const lost = {
+    empire: before.empireGuns - here.filter((f) => f.faction === 'empire').reduce((n, f) => n + fleetGuns(f), 0),
+    alliance: before.allianceGuns - here.filter((f) => f.faction === 'alliance').reduce((n, f) => n + fleetGuns(f), 0),
+  };
+  const margin = Math.abs(lost.empire - lost.alliance);
+  if (margin >= SHOCK_BATTLE_FLOOR && before.empire > 0 && before.alliance > 0) {
+    const victor: PlayableFaction = lost.empire < lost.alliance ? 'empire' : 'alliance';
+    applyShock(
+      state,
+      {
+        systemId: system.id,
+        faction: victor,
+        scope: 'regional',
+        local: 0,
+        regional: Math.min(SHOCK_BATTLE_CEILING, margin * SHOCK_PER_GUN_SUNK),
+        news: `The ${factionData[victor].shortName} has the better of an action off ${system.name}, and ${reachName(state, system)} is counting the wrecks.`,
+      },
+      rng,
+    );
+  }
+
   return {
     empire: before.empire - count('empire'),
     alliance: before.alliance - count('alliance'),
@@ -1539,7 +1638,34 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   // An island taken at gunpoint does not love you for it: enough regard to
   // hold it above a revolt, and no more. The rest of the island's feeling is
   // the other side's, which is what taking a place by storm buys you.
+  const welcome = system.support[fleet.faction];
   setSupport(system, fleet.faction, Math.max(system.support[fleet.faction], 35));
+
+  /*
+   * And the Reach makes up its mind about how it was done.
+   *
+   * Sean's §11 and §12 are one rule with a sign, and the sign is what the
+   * island itself wanted. Landing on people who were already yours is a
+   * liberation and *"nearby islands receive a smaller positive effect"*;
+   * landing on people who were not is a conquest, and the neighbours *"become
+   * somewhat less supportive of the invader"* — the political cost of taking
+   * a place by storm. The same two hundred marines, a day's sail apart, and a
+   * different piece of news each time.
+   */
+  if (system.populated) {
+    applyShock(
+      state,
+      landingShock(
+        state,
+        { ...system, support: { ...system.support, [fleet.faction]: welcome } } as System,
+        fleet.faction,
+        SHOCK_CONQUEST.local,
+        SHOCK_CONQUEST.regional,
+        SHOCK_LIBERATION_LEVEL,
+      ),
+      rng,
+    );
+  }
 
   pushEvent(state, {
     kind: 'flip',

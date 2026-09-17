@@ -151,6 +151,29 @@ export function shiftSupport(system: System, faction: PlayableFaction, delta: nu
   return system.support[faction] - before;
 }
 
+/**
+ * Move one island's allegiance and nothing else's.
+ *
+ * The counterpart to `applySupportChange`, and since Sean's propagation memo of
+ * 17 September it is what almost everything should be using. That one spills a
+ * flat fifth of whatever it moves onto every island in the Reach, equally,
+ * always — which the memo's first rule forbids: *"do not make every allegiance
+ * change affect the region."* Anything that reaches beyond one island now goes
+ * through `applyShock`, which knows how far the news carries and to whom.
+ */
+/** The chain an island belongs to, by name, for a line of news. */
+export function reachName(state: GameState, system: System): string {
+  return state.sectors.find((s) => s.id === system.sectorId)?.name ?? 'the Reach';
+}
+
+export function applyLocalSupport(
+  system: System,
+  faction: PlayableFaction,
+  delta: number,
+): number {
+  return shiftSupport(system, faction, delta);
+}
+
 export function applySupportChange(
   state: GameState,
   system: System,
