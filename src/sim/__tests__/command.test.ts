@@ -103,24 +103,51 @@ describe('a posting, not an errand', () => {
   });
 
   it('holds an island quiet that would otherwise rise', () => {
-    const { state, home, officer } = world();
-    home.support.empire = UPRISING_SUPPORT - 10;
-    home.support.alliance = 100 - home.support.empire;
-    home.garrison = 0;
-    // Without a commander it goes out.
-    let loose = advanceDay(state);
-    expect(loose.systems.find((s) => s.id === home.id)!.uprising).toBe(true);
+    const { state, officer } = world();
+    /*
+     * A revolt is a roll taken once a day now rather than a threshold crossed
+     * on a particular morning, so this asks over months instead of overnight:
+     * left alone the island goes out sooner or later, and with an officer in
+     * the chair it does not go out at all. That is still the whole of what a
+     * posting buys ashore — see `politicalSecurity`.
+     */
+    /*
+     * Not the seat. Emptying Highwater's square does not start a revolt, it
+     * ends the war — the Confederacy wins the day it holds the capital — so
+     * the island under test has to be an ordinary holding.
+     */
+    const plain = state.systems.find(
+      (s) => s.control === 'empire' && s.populated && s.id !== state.factions.empire.hqSystemId,
+    )!;
+    plain.support.empire = UPRISING_SUPPORT - 10;
+    plain.support.alliance = 100 - plain.support.empire;
+    plain.garrison = 1;
+    let loose = state;
+    let rose = false;
+    for (let d = 0; d < 200 && !rose; d++) {
+      loose = advanceDay(loose);
+      const now = loose.systems.find((s) => s.id === plain.id)!;
+      rose = now.uprising;
+      // Hold it where it was put: drift would otherwise carry it back to easy.
+      now.support.empire = UPRISING_SUPPORT - 10;
+      now.support.alliance = 100 - now.support.empire;
+      now.garrison = 1;
+    }
+    expect(rose).toBe(true);
 
-    // With one, it does not.
-    const held = generateGalaxy(501, 'empire');
-    const same = held.systems.find((s) => s.id === home.id)!;
-    same.support.empire = UPRISING_SUPPORT - 10;
-    same.support.alliance = 100 - same.support.empire;
-    same.garrison = 0;
+    // With an officer in the chair, it does not.
+    let held = generateGalaxy(501, 'empire');
+    const same = held.systems.find((s) => s.id === plain.id)!;
+    same.garrison = 1;
     takePost(held, held.characters.find((c) => c.id === officer.id)!, same);
-    same.support.empire = UPRISING_SUPPORT - 10;
-    const quiet = advanceDay(held);
-    expect(quiet.systems.find((s) => s.id === home.id)!.uprising).toBe(false);
+    for (let d = 0; d < 200; d++) {
+      held = advanceDay(held);
+      const now = held.systems.find((s) => s.id === plain.id)!;
+      now.support.empire = UPRISING_SUPPORT - 10;
+      now.support.alliance = 100 - now.support.empire;
+      now.garrison = 1;
+      expect(now.uprising, `day ${d}`).toBe(false);
+    }
   });
 
   it('makes an island far harder to work against', () => {

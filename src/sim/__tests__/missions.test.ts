@@ -12,11 +12,11 @@ import {
   isRecruitTarget,
   isSabotageTarget,
   isSurveyTarget,
-  inciteLoss,
+
   quality,
   recruitChance,
   missionError,
-  missionOdds,
+
   missionTypeFor,
   missionsOffered,
   startMission,
@@ -25,6 +25,8 @@ import {
 } from '../missions';
 import { getCharacter, getSystem, setSupport } from '../helpers';
 import { createRng } from '../rng';
+import { resolveControlAndUnrest } from '../support';
+import { inciteStanding } from '../politics';
 import type { GameState, System } from '../types';
 
 
@@ -51,9 +53,21 @@ function setup(seed = 301) {
   return { state, diplomat, home, sameSector, crossSector };
 }
 
+/**
+ * Days, the way `advanceDay` spends them — the errands *and* the daily pass
+ * that re-derives control.
+ *
+ * It used to be the errands alone, which was fine while a revolt was a
+ * threshold the mission itself could cross. Mutiny is a roll taken once a day
+ * now, in the control pass, so a loop that never ran that pass could stir an
+ * island as far as it liked and never see it rise.
+ */
 function runDays(state: GameState, days: number, seed: number) {
   const rng = createRng(seed);
-  for (let day = 0; day < days; day++) advanceMissions(state, rng);
+  for (let day = 0; day < days; day++) {
+    advanceMissions(state, rng);
+    resolveControlAndUnrest(state, rng);
+  }
 }
 
 /**
@@ -212,29 +226,46 @@ describe('resolution', () => {
     expect(successChance(diplomat)).toBeCloseTo(0.85);
   });
 
-  it('raises your support and lowers theirs on a success', () => {
-    const { state, diplomat, sameSector } = setup();
-    diplomat.diplomacy = 100; // success chance 0.9
-    sameSector.support = { empire: 20, alliance: 80 };
-    const cycle = cycleDays(state, diplomat.id, sameSector.id);
-    startMission(state, diplomat.id, sameSector.id);
-
-    // Seed 2 draws a success on the resolving day.
-    runDays(state, cycle, 2);
-    const after = getSystem(state, sameSector.id);
-    // One balance: what you win is exactly what they lose.
-    expect(after.support.empire).toBeCloseTo(38); // 20 + 8 + 100/10
-    expect(after.support.alliance).toBeCloseTo(62);
-    expect(after.support.empire + after.support.alliance).toBeCloseTo(100);
-  });
-
-  it('flips a neutral world once the mission pushes support over the line', () => {
+  /**
+   * Allegiance is still one balance, whatever the cycle happened to roll: what
+   * you win is exactly what they lose. The figure is no longer predictable —
+   * it used to be a flat `8 + Diplomacy/10` every single time — so this asks
+   * the rule rather than the arithmetic.
+   */
+  it('moves one balance: what you win is exactly what they lose', () => {
     const { state, diplomat, sameSector } = setup();
     diplomat.diplomacy = 100;
-    sameSector.support = { empire: 65, alliance: 35 };
+    sameSector.support = { empire: 20, alliance: 80 };
+    const before = getSystem(state, sameSector.id).support.empire;
     const cycle = cycleDays(state, diplomat.id, sameSector.id);
     startMission(state, diplomat.id, sameSector.id);
     runDays(state, cycle, 2);
+    const after = getSystem(state, sameSector.id);
+    expect(after.support.empire + after.support.alliance).toBeCloseTo(100);
+    // A cycle either lands or it does not; either way the island is not left
+    // somewhere between the two sides' books.
+    expect(after.support.empire).not.toBe(before + 18);
+  });
+
+  /**
+   * The eighty-point line is gone. Sean's brief: *"as allegiance becomes
+   * strongly favorable, the probability of the island peacefully joining
+   * should increase... but none of these should guarantee conversion."*
+   *
+   * So a warm island does not join on a number, and a cold one cannot be
+   * talked over at all. Given enough meetings, a warm one does come across.
+   */
+  it('lets a warm island decide to join, in its own time and never on a number', () => {
+    const { state, diplomat, sameSector } = setup();
+    diplomat.diplomacy = 100;
+    sameSector.support = { empire: 88, alliance: 12 };
+    // Crossing eighty does nothing by itself: no meeting, no decision.
+    resolveControlAndUnrest(state);
+    expect(getSystem(state, sameSector.id).control).toBe('neutral');
+
+    startMission(state, diplomat.id, sameSector.id);
+    const cycle = cycleDays(state, diplomat.id, sameSector.id);
+    runDays(state, cycle + MISSION_WORK_DAYS * 8, 2);
     expect(getSystem(state, sameSector.id).control).toBe('empire');
   });
 
@@ -376,9 +407,9 @@ describe('incitement', () => {
      * It used to be a flat discount on Diplomacy, which made an enemy capital
      * exactly as easy to stir as a frontier outpost.
      */
-    const tight = missionOdds(state, agent, island, 'empire', 'incite');
+    const tight = inciteStanding(state, island, 'empire', [agent]).chance;
     island.support = { empire: 45, alliance: 55 };
-    const wavering = missionOdds(state, agent, island, 'empire', 'incite');
+    const wavering = inciteStanding(state, island, 'empire', [agent]).chance;
     island.support = { empire: 30, alliance: 70 };
     expect(wavering).toBeGreaterThan(tight);
 
@@ -402,10 +433,15 @@ describe('incitement', () => {
       const after = getSystem(trial, island.id);
       if (after.support.alliance < before.alliance) {
         landed = true;
-        // Their grip falls by the officer's measure, and there is no third
-        // place for an angry island to go, so all of it lands on you.
+        /*
+         * How far their grip falls is no longer a figure anybody can predict —
+         * a landed cycle is worth somewhere between a couple of points and ten,
+         * read off how well the roll went. What has not changed, and is what
+         * this is for, is that there is no third place for an angry island to
+         * go: every point taken off the governor lands on you.
+         */
         const lost = before.alliance - after.support.alliance;
-        expect(lost).toBeGreaterThanOrEqual(inciteLoss(who) - 0.001);
+        expect(lost).toBeGreaterThan(0);
         expect(after.support.empire - before.empire).toBeCloseTo(lost);
         expect(after.support.empire + after.support.alliance).toBeCloseTo(100);
       }

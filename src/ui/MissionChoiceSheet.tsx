@@ -12,10 +12,16 @@ import {
   foilChance,
   isCovert,
   missionOdds,
+  inciteStanding,
+  parleyStanding,
+  joinChance,
+  BAND_LABEL,
   travelDays,
   MISSION_WORK_DAYS,
+  type Factor,
   type GameState,
   type MissionType,
+  type Standing,
 } from '../sim';
 import { Sheet } from './components';
 import { CategoryIcon } from './art';
@@ -39,6 +45,35 @@ function MissionTile({ type }: { type: string }) {
       ) : (
         <CategoryIcon kind="missions" size={22} />
       )}
+    </span>
+  );
+}
+
+/**
+ * Pluses and minuses, because a figure would be the wrong promise.
+ *
+ * Sean's brief, 17 September: *"the exact probability should NOT be directly
+ * exposed to the player... provide a tooltip such as: PARLEY — FAVORABLE /
+ * Diplomat: +++ / Island allegiance: ++ / Enemy political presence: - / Local
+ * conditions: +"*. So a parley and an incitement say how they look and what is
+ * making them look that way, and never what the dice are. A player can see
+ * that their envoy is the strong part and the island's own mind is the weak
+ * one, and still not know what the fortnight will do — which is the whole
+ * difference between judging a situation and doing arithmetic on it.
+ */
+function Marks({ factors }: { factors: Factor[] }) {
+  return (
+    <span className="factors">
+      {factors.map((factor) => (
+        <span className="factor" key={factor.label}>
+          <span className="factor__label">{factor.label}</span>
+          <span className={`factor__mark factor__mark--${factor.weight < 0 ? 'bad' : 'good'}`}>
+            {factor.weight === 0
+              ? '·'
+              : (factor.weight < 0 ? '−' : '+').repeat(Math.abs(factor.weight))}
+          </span>
+        </span>
+      ))}
     </span>
   );
 }
@@ -100,7 +135,32 @@ export function MissionChoiceSheet({
     );
   // The odds on each card are the boat's, not the officer's, so adding the
   // right person visibly moves them before you commit to anything.
-  const boat = bestOf([character, ...mates.filter((m) => taking.includes(m.id))]);
+  const party = [character, ...mates.filter((m) => taking.includes(m.id))];
+  const boat = bestOf(party);
+  /*
+   * Talking is the one thing a whole boat does together.
+   *
+   * Every other errand is settled by the best hand aboard and a passenger is
+   * decoration; a parley and an incitement take the whole party with
+   * diminishing returns, so the second and third name you tick are worth
+   * something and never worth as much as the first. The sheet therefore hands
+   * the party itself to `parleyStanding`, not `bestOf` of it, and a player
+   * watching the pluses move as they add people is watching the real rule.
+   */
+  const standingFor = (type: MissionType): Standing | null =>
+    type === 'diplomacy'
+      ? parleyStanding(island, faction, party)
+      : type === 'incite'
+        ? inciteStanding(state, island, faction, party)
+        : null;
+  /** How near an unaligned island is to simply throwing in with you. */
+  const willingness = (): string => {
+    const chance = joinChance(island, faction);
+    if (chance <= 0.02) return 'It is nowhere near declaring for you yet.';
+    if (chance < 0.2) return 'It is beginning to listen. It will not declare for you yet.';
+    if (chance < 0.45) return 'It is warm to you. A good meeting might carry it.';
+    return 'It is all but yours. The next good meeting may well carry it.';
+  };
 
   return (
     <Sheet
@@ -146,8 +206,9 @@ export function MissionChoiceSheet({
            * is the thing a player most needs to see before spending an
            * officer. Only for covert work: nobody hides a parley.
            */
+          const standing = standingFor(type);
           const odds =
-            type === 'recruit'
+            type === 'recruit' || standing
               ? null
               : Math.round(missionOdds(state, boat, island, faction, type) * 100);
           const unseen = isCovert(type)
@@ -170,14 +231,25 @@ export function MissionChoiceSheet({
                     <b className="choice__name">
                       {type === 'command' ? 'Command the island' : MISSION_LABEL[type]}
                     </b>
-                    {odds !== null && type !== 'command' && (
-                      <span className="tiny muted">
-                        {unseen !== null && <>{unseen}% unseen · </>}
-                        {odds}% to land it
+                    {standing ? (
+                      <span className={`tiny band band--${standing.band}`}>
+                        {BAND_LABEL[standing.band]}
                       </span>
+                    ) : (
+                      odds !== null &&
+                      type !== 'command' && (
+                        <span className="tiny muted">
+                          {unseen !== null && <>{unseen}% unseen · </>}
+                          {odds}% to land it
+                        </span>
+                      )
                     )}
                   </span>
-                  <span className="tiny muted choice__what">{what}</span>
+                  <span className="tiny muted choice__what">
+                    {what}
+                    {type === 'diplomacy' && island.control === 'neutral' && ` ${willingness()}`}
+                  </span>
+                  {standing && <Marks factors={standing.factors} />}
                 </span>
               </button>
               {/* A posting can be to a deck instead of to the island, so every

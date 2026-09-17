@@ -14,6 +14,8 @@ import {
   AI_LORD_RESCUE_BONUS,
   AI_RECRUIT_BONUS,
   AI_COURT_BONUS,
+  AI_JOIN_WEIGHT,
+  AI_INCITE_BONUS,
   AI_RESEARCH_BONUS,
   AI_SURVEY_BONUS,
   AI_SURVEY_HUNGER,
@@ -37,6 +39,7 @@ import {
   shipSpec,
   shipsAt,
 } from './constants';
+import { inciteStanding, joinChance, parleyStanding } from './politics';
 import {
   buildMenu,
   canQueueBuild,
@@ -762,9 +765,24 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     // Its own, and slipping: worth more the further it has slipped, and an
     // island in open revolt outranks any island it might merely win over.
     if (s.control === ai) return close + (s.uprising ? 110 : (HELD_SUPPORT_LEVEL - s.support[ai]) * 1.5);
-    // An unaligned island: a whole island for a fortnight ashore, and the
-    // warmer it already is to you the fewer fortnights it takes.
-    if (s.control === 'neutral') return close + AI_COURT_BONUS + s.support[ai];
+    /*
+     * An unaligned island: a whole island for a fortnight ashore.
+     *
+     * Two halves, because there are two questions now and they are not the
+     * same one. How likely is this fortnight to land at all — which is the
+     * envoy against what the island already thinks, and the reason the right
+     * officer should go to the hard island rather than the near one — and how
+     * near the island is to simply declaring, which is what the fortnight is
+     * being spent to reach. Under the old term there was only allegiance, so
+     * a poor talker and a great one were sent to the same places.
+     */
+    if (s.control === 'neutral') {
+      return (
+        close +
+        AI_COURT_BONUS * parleyStanding(s, ai, [officer]).chance +
+        joinChance(s, ai) * AI_JOIN_WEIGHT
+      );
+    }
     // The weaker their hold, the nearer the uprising threshold, the better.
     /*
      * And incitement is *not* discounted for what the island sees, which is
@@ -775,7 +793,7 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
      * discount on it: the Crown stopped working Freeport at all and three
      * wars in twenty-four ran to the cap with the Lords untouched.
      */
-    return close + (100 - s.support[enemy]) - INCITE_PRIORITY_PENALTY;
+    return close + AI_INCITE_BONUS * inciteStanding(state, s, ai, [officer]).chance - INCITE_PRIORITY_PENALTY;
   };
 
   /**

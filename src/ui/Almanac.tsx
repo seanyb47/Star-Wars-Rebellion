@@ -582,10 +582,10 @@ export function Almanac({
             [terms.space, 'Berths to build on. Every building takes one; companies and hulls take none.'],
             [terms.island, 'One place on the chart. Seventy-one of them.'],
             [terms.reach, 'A chain of seven to ten islands. Allegiance won on one spills 20% onto the rest.'],
-            [terms.mutiny, `An island whose allegiance falls under ${UPRISING_SUPPORT} rises unless enough companies hold it. It earns nothing and builds nothing until allegiance climbs back to ${UPRISING_END_SUPPORT}.`],
-            [terms.parley, `Sending a crew member to talk an island round, where nobody has chosen a side or the island is already yours. The sail is as long as the distance — a few days inside a ${terms.reach}, a fortnight or more across open sea — then ${MISSION_WORK_DAYS} days' work before they report.`],
+            [terms.mutiny, `An island can rise against you once its allegiance falls under ${UPRISING_SUPPORT} — not on any particular morning, and never while there are companies enough in the square. It earns nothing and builds nothing until allegiance climbs back to ${UPRISING_END_SUPPORT} or six companies face it down.`],
+            [terms.parley, `Sending a crew member to talk an island round, where nobody has chosen a side or the island is already yours. The sail is as long as the distance — a few days inside a ${terms.reach}, a fortnight or more across open sea — then ${MISSION_WORK_DAYS} days' work before they report. Who you send decides it: the errand sheet says how it looks, from Very difficult to Very favorable, and what is making it look that way.`],
             [terms.incite, `The same trip to an island they hold, to turn it against its governor. You do not win the island — you cost them their grip on it, and an island pushed far enough rises on its own, which stops everything being built or loaded there. Dangerous work: their officers are watching, and yours can be hurt.`],
-            ['Unaligned', `An island that has not picked a side. Every island's regard for the two of you adds up to a hundred, so a point you win is a point they lose; at ${FLIP_SUPPORT_MIN} it runs up your colours.`],
+            ['Unaligned', `An island that has not picked a side. Every island's regard for the two of you adds up to a hundred, so a point you win is a point they lose. There is no number at which it comes over: a meeting that goes well may end with the island declaring for you, and the warmer it already is the likelier that is.`],
             ['Smuggling', 'On an island where your allegiance is under 50, the day’s takings may go to the enemy instead.'],
           ] as const
         ).map(([word, meaning]) => (

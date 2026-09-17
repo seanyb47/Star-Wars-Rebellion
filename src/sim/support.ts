@@ -5,10 +5,10 @@ import {
   SMUGGLED_SHARE,
   SUPPORT_DRIFT,
   UPRISING_END_SUPPORT,
-  UPRISING_SUPPORT,
   loyaltyBand,
   type LoyaltyBand,
 } from './constants';
+import { mutinyChance } from './politics';
 import {
   handOver,
   isPlayable,
@@ -19,7 +19,7 @@ import {
 } from './helpers';
 import type { Rng } from './rng';
 import factionData from '../data/factions.json';
-import type { GameState, PlayableFaction, System } from './types';
+import type { GameState, PlayableFaction } from './types';
 
 function factionName(faction: PlayableFaction): string {
   return factionData[faction].name;
@@ -57,21 +57,10 @@ export function driftSupport(state: GameState): void {
 }
 
 /**
- * Does this faction meet the bar to win an unaligned island over (spec 4.3)?
- *
- * One number, because allegiance is a balance: a lead over the other side is
- * arithmetic on the same figure, not a second test.
- */
-export function canFlip(system: System, faction: PlayableFaction): boolean {
-  if (system.control !== 'neutral') return false;
-  return system.support[faction] >= FLIP_SUPPORT_MIN;
-}
-
-/**
  * Re-derive control and unrest for every system. Run once per tick, and again
  * after anything that moves support.
  */
-export function resolveControlAndUnrest(state: GameState): void {
+export function resolveControlAndUnrest(state: GameState, rng?: Rng): void {
   for (const system of state.systems) {
     // Uninhabited islands are held only by boots on the ground (spec 4.3).
     if (!system.populated) {
@@ -110,25 +99,22 @@ export function resolveControlAndUnrest(state: GameState): void {
       });
     }
 
-    for (const faction of ['empire', 'alliance'] as const) {
-      if (canFlip(system, faction)) {
-        system.control = faction;
-        // Its works come with it. An island won over does not burn its own
-        // mills on the way across.
-        handOver(system, faction);
-        // The companies that held it for somebody else go home; one stays
-        // under the new colours. An island won over is a prize, not a
-        // garrison bill — and a treasury that inherits forty militia it
-        // never asked for runs dry with nothing to show for it.
-        system.garrison = Math.min(system.garrison, 1);
-        pushEvent(state, {
-          kind: 'flip',
-      text: `${system.name} has run up the colours of the ${factionName(faction)}.`,
-          systemId: system.id,
-        });
-        break;
-      }
-    }
+    /*
+     * An unaligned island no longer joins anybody by arithmetic.
+     *
+     * There used to be a loop here that ran the colours up the moment either
+     * side's standing touched eighty — no meeting, no decision, just a number
+     * crossing a line overnight. Sean's brief, 17 September: *"remove the rule
+     * 'an unaligned island automatically joins a faction when allegiance
+     * reaches 80'... this should feel like a political decision by the island
+     * rather than filling an XP bar."*
+     *
+     * Joining happens in `parleyOutcome` now, and only there: after a meeting
+     * that went well, at a chance that climbs with the island's warmth and
+     * never reaches certainty. What is left in this function is the physical
+     * rule above — a harbor with no company in it is not held by anybody,
+     * whatever the map says — which is about control and not about politics.
+     */
 
     if (!isPlayable(system.control)) {
       system.uprising = false;
@@ -150,15 +136,25 @@ export function resolveControlAndUnrest(state: GameState): void {
           systemId: system.id,
         });
       }
-    } else if (
-      support < UPRISING_SUPPORT &&
-      system.garrison < requiredGarrison(support) &&
-      // An island with an officer posted to it does not rise. That is the
-      // whole of what a posting buys ashore, and it is worth an officer: the
-      // alternative is companies, which cost gold every day and can be landed
-      // on by somebody else.
-      !system.commanderId
-    ) {
+    } else if (rng && rng.chance(mutinyChance(state, system))) {
+      /*
+       * No line any more.
+       *
+       * It used to be one: under thirty, short of companies, and no officer
+       * posted — all three true, and the island rose that morning; any one of
+       * them false and it never would, however wretched. Sean's brief: *"do not
+       * make allegiance under thirty an automatic Mutiny trigger. Treat thirty
+       * as a major warning threshold... actual Mutiny should be determined by
+       * the combination of allegiance, garrison, officer presence, and Incite
+       * pressure."*
+       *
+       * So `mutinyChance` weighs how far under easy the island sits and what
+       * agitators have lately been doing there against its companies and
+       * whoever holds the chair, and returns a small chance each day. A sullen
+       * island with the square full may never rise. The same island stripped to
+       * hold somewhere else will, inside a month, and nobody can say which
+       * morning — which is the whole of what was wanted.
+       */
       system.uprising = true;
       pushEvent(state, {
         kind: 'mutiny',

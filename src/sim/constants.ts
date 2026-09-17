@@ -1685,3 +1685,118 @@ export function buildBlurb(item: BuildItem): string {
   if (isShipClass(item)) return shipClass(item).blurb;
   return FACILITY_BLURB[item];
 }
+
+/* ---------------------------------------------------------------------------
+ * The political model. See `src/sim/politics.ts` for what each of these does
+ * and why; the numbers live here because every other dial in the game does.
+ *
+ * Tuned to two readings Sean asked for by name. A ninety-Diplomacy envoy on an
+ * unaligned harbor should be plainly favourable and never certain; a
+ * thirty-five-Diplomacy one against an island that loves the other side should
+ * be plainly hopeless and never impossible.
+ * ------------------------------------------------------------------------ */
+
+/** Even odds before anything is known about either side. */
+export const PARLEY_BASE_CHANCE = 0.5;
+/** How much a point of advantage is worth. At 160, a forty-point edge in
+ *  persuasion over the island's own view moves the odds a quarter. */
+export const PARLEY_SCALE = 160;
+/** Sean's rule 7: 95 Diplomacy is not a hundred per cent and 35 is not nil. */
+export const PARLEY_FLOOR = 0.08;
+export const PARLEY_CEILING = 0.92;
+/** What a landed fortnight moves, worst to best. The old rule gave a flat
+ *  `8 + Diplomacy/10` every single time. */
+/*
+ * What a landed fortnight is worth, from the one that barely came off to the
+ * one that went beautifully.
+ *
+ * These have to be read against `SUPPORT_DRIFT`, which is the thing that
+ * caught the first pass out. An island nobody holds settles back toward fifty
+ * at a quarter-point a day, so a fortnight ashore is arguing against three and
+ * a half points of forgetting before it has won anything. At 2-10 — a mean of
+ * six, landed about half the time — a parley won about three points a
+ * fortnight and lost three and a half, which is not slow, it is a treadmill:
+ * modelled over four thousand courtings, only *forty per cent* of them ever
+ * carried the island inside the opponent's patience, and measured over six
+ * wars the two sides between them left the archipelago with thirty-seven
+ * unaligned islands still on it and never sent a single agitator or explorer
+ * anywhere, because there was always another neutral island to fail at.
+ *
+ * At 4-18 a trained envoy carries a cold island in four fortnights and nine
+ * times in ten, an ordinary officer in five and six times in ten, and a poor
+ * one fails outright as often as not — which is the shape Sean asked for: who
+ * you send is the question, and the answer is never certain.
+ */
+export const PARLEY_SWING_MIN = 4;
+export const PARLEY_SWING_MAX = 18;
+
+/** Incitement starts from worse odds than a parley, by Sean's rule 13. */
+export const INCITE_BASE_CHANCE = 0.42;
+export const INCITE_SCALE = 180;
+export const INCITE_FLOOR = 0.05;
+export const INCITE_CEILING = 0.85;
+/** How much of the holder's standing argues back. */
+export const INCITE_RESIST = 0.8;
+
+/** What each hand after the first is worth on a political errand. */
+export const PARTY_FALLOFF = [1, 0.75, 0.5, 0.25];
+/** What being the right sort of person is worth, for the one leading it. */
+export const ROLE_BONUS = 12;
+
+/** Political security: what a company is worth, and what an officer is worth
+ *  per point of Leadership. Neither buys allegiance — both buy quiet. */
+export const SECURITY_PER_COMPANY = 6;
+export const SECURITY_FROM_OFFICER = 0.3;
+
+/**
+ * Joining. The replacement for the eighty-point line.
+ *
+ * Asked only after a parley cycle that landed, so at 60 an island is a long
+ * shot, at 80 it is better than one meeting in three, at 100 it is two in
+ * three — and it is never a certainty at any number.
+ */
+export const JOIN_FLOOR = 55;
+export const JOIN_SPAN = 70;
+export const JOIN_CEILING = 0.7;
+
+/** Where unrest starts being possible at all, and how steeply. There is no
+ *  line any more — this is the top of a slope, not a trigger. */
+export const MUTINY_WATCH = 45;
+export const MUTINY_DIVISOR = 900;
+/** The most an island can rise on any one day, however wretched it is. */
+export const MUTINY_CEILING = 0.05;
+
+/** What has lately happened here, and how fast it is forgotten. */
+export const MOMENTUM_PER_SUCCESS = 6;
+export const MOMENTUM_CAP = 30;
+export const MOMENTUM_DECAY = 0.4;
+/** How much momentum is worth against the other terms. */
+export const MOMENTUM_WEIGHT = 1.2;
+
+/**
+ * What the opponent makes of all that.
+ *
+ * It used to price a political errand off allegiance alone: an unaligned
+ * island by how warm it already was, an enemy island by how weakly held. Both
+ * were the only figures there were. Now there is a standing that folds in who
+ * is in the boat, what the island thinks, what is standing in the square and
+ * what has lately been happening there — so the opponent reads that instead,
+ * and these are what each half of it is worth against the other.
+ *
+ * Both are a premium multiplied by how likely the errand is to come off, and
+ * that is the whole change. A flat premium on courting was a veto on
+ * incitement dressed up as a preference: an unaligned island scored a hundred
+ * and seventy whether the envoy could talk it round or not, an enemy island
+ * scored a fraction of that at best, and measured over six wars the two sides
+ * between them sent *no agitator anywhere at all* — nor any explorer, nor
+ * much of a spy, because there was always another neutral island to fail at.
+ * Priced this way a hostile harbor nobody can talk round stops outranking a
+ * weakly-held one that would rise if somebody leaned on it.
+ *
+ * And the incitement side is the one political security finally reaches. Under
+ * the old term a harbor with six companies and a commander in the chair scored
+ * exactly as well as an empty one at the same allegiance; `inciteStanding`
+ * prices them in, so the softer island up the chain wins the trip.
+ */
+export const AI_JOIN_WEIGHT = 80;
+export const AI_INCITE_BONUS = 200;

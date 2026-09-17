@@ -1803,6 +1803,24 @@ button.tcard:hover { border-color: var(--brass); }
 .choice__name { font-size: 14px; }
 .choice__what { white-space: normal; line-height: 1.35; }
 
+/* How a parley or an incitement looks, and what is making it look that way.
+   Words rather than a figure — the brief is explicit that the player judges a
+   situation here, they do not do arithmetic on it — and one line per term, the
+   label left and its pluses right, so the pluses fall into a column the eye
+   can read down. Adding the right person to the boat visibly moves them. */
+.band { font-weight: 600; letter-spacing: 0.02em; white-space: nowrap; }
+.band--very-difficult { color: var(--bad); }
+.band--difficult { color: #e08b52; }
+.band--moderate { color: var(--chrome-muted); }
+.band--favorable { color: #9ed07a; }
+.band--very-favorable { color: var(--good); }
+.factors { display: flex; flex-direction: column; gap: 1px; margin-top: 4px; }
+.factor { display: flex; justify-content: space-between; gap: 8px; font-size: 10px; }
+.factor__label { color: var(--chrome-muted); white-space: normal; }
+.factor__mark { font-weight: 700; letter-spacing: 1px; flex: none; }
+.factor__mark--good { color: var(--good); }
+.factor__mark--bad { color: var(--bad); }
+
 /* The battle summary on a dispatch card: two sides, side by side. */
 /* ---------- The battle sheet ---------- */
 /* Head and foot pinned, the middle scrolls: the assessment and the two buttons

@@ -3227,3 +3227,115 @@ neither of which touches what he specified:
   the machine sits on three to five thousand gold at the end of every war. That
   is an opponent problem rather than an opening problem, and fixing it would
   give the Confederacy back more than a hull would.
+
+## An island decides rather than fills a bar — 17 September
+
+Sean's memo of the seventeenth, in one sentence of his own: the system should
+feel like *"my character is attempting to influence a population"* and not like
+*"my character is filling an allegiance progress bar."* Both halves of the old
+design were certain — a parley added `8 + Diplomacy/10` every fortnight without
+fail, and an unaligned island joined the day the bar touched eighty — so the
+only question a player ever had was how many fortnights, and it was arithmetic
+done once, in advance.
+
+**What replaced it** lives in `src/sim/politics.ts` and turns on four terms.
+
+- **Pull** — what the boat's people are worth at this kind of persuasion, the
+  best hand whole and the rest at three quarters, a half and a quarter. Sean's
+  rule: *"allow multiple characters to participate... however, apply
+  diminishing returns."* Four of the best diplomat in the world are worth two
+  and a half of him, so the opportunity cost is real — one excellent envoy
+  working four islands, or four of them on the island that decides the war.
+  A specialist's bonus goes to whoever is actually doing the talking, which is
+  the best hand aboard and not whoever the order was written for.
+- **Resist** — what the island already thinks, against you.
+- **Political security** — companies ashore and the officer in the chair.
+  Sean: *"troops do not make people love the government. They make it harder
+  for political opposition to act."* So security appears **nowhere** in a
+  parley and everywhere in an incitement and in whether an island dares rise.
+- **Momentum** — what has lately been happening there, built by success,
+  capped, and forgotten at four tenths of a point a day if nobody keeps it up.
+
+A fortnight ashore is a roll against those, and a landed one is worth a
+variable amount rather than a fixed one — Sean's weak/normal/strong/exceptional
+as a continuum, read off how far the roll beat the odds. Only after a landed
+parley is the island asked whether it will declare, at a chance that climbs
+with its warmth and reaches two in three at a hundred, never certainty.
+`resolveControlAndUnrest` lost its auto-flip loop entirely; the one flag
+arithmetic still moves is the physical rule that an empty harbor belongs to
+whoever wants it.
+
+**Mutiny lost its trigger** the same way. It was three conditions ANDed — under
+thirty, short of companies, no officer — so an island either rose that morning
+or never could. Sean: *"treat thirty as a major warning threshold... actual
+Mutiny should be determined by the combination of allegiance, garrison, officer
+presence, and Incite pressure."* It is now a small daily chance, rolled once a
+day in `advanceDay` and nowhere else, so a revolt is a morning's news rather
+than something re-rolled six times a day because six things touched the island.
+
+### What the player is told, and what they are not
+
+Sean is explicit: *"do NOT tell the player 'this Parley has a 73.2% chance of
+success'."* A parley or an incitement on the errand sheet reads **Very
+difficult** through **Very favorable**, with the terms behind it drawn as
+pluses and minuses — *Your envoy ++, What the island already thinks +,
+Recent standing here +++* — and the figure never leaves the rules. Covert work
+keeps its two percentages, because getting past a watch is a different kind of
+question and the player is buying a specific risk there.
+
+### The treadmill the first pass walked into
+
+`PARLEY_SWING_MIN/MAX` opened at 2–10. That looks reasonable and is not, once
+it is read against `SUPPORT_DRIFT`: an island nobody holds settles back toward
+fifty at a quarter-point a day, which is three and a half points a fortnight,
+and a mean swing of six landed about half the time wins three. A parley was
+losing ground. Modelled over four thousand courtings, only **forty per cent**
+ever carried the island inside the opponent's patience; measured over six wars,
+the two sides left thirty-seven unaligned islands on the chart and sent **no
+agitator and no explorer anywhere at all**, because there was always another
+neutral island to fail at. At 4–18 a trained envoy carries a cold island in
+four fortnights nine times in ten, an ordinary officer in five and six times in
+ten, and a poor one fails outright as often as not.
+
+### The flat premium that was a veto
+
+The opponent scored an unaligned island at a flat `AI_COURT_BONUS` of 170 and
+an enemy-held one at a fraction of that. The comment in `ai.ts` claimed this
+was *"a premium and not a veto"*; measured, it was a veto. Both are now the
+premium multiplied by how likely the errand is to come off, so a hostile harbor
+nobody can talk round stops outranking a weakly-held one that would rise if
+somebody leaned on it — and `inciteStanding` puts political security into that
+price, which is the first time companies ashore have deterred the opponent from
+walking officers into a garrisoned island for months.
+
+**Measured, six wars, both sides played, errands started:**
+
+|                     | before | after |
+|---------------------|--------|-------|
+| Parley              | 172    | 157   |
+| Stirring up trouble | 4      | **77** |
+| Sabotage            | 0      | **35** |
+| Explore             | 31     | 38    |
+| Espionage           | 17     | 37    |
+| Rescue              | 53     | 112   |
+
+Sabotage had never once been sent in the project's history.
+
+**Measured, matched seeds, forty wars both sides played:**
+
+|                          | before | after |
+|--------------------------|--------|-------|
+| result                   | Crown 36 — 4 | Crown 29 — 5 |
+| never ended              | 0      | 6     |
+| median length            | 513 days | 588 days |
+| Confederacy's islands    | 3.6    | **7.7** |
+| Crown's islands          | 32.0   | 23.1  |
+
+The Confederacy is materially healthier and the Crown's share of decided wars
+falls from 90% to 85%, which is the right direction and nowhere near far
+enough. Two costs come with it, both honest: wars are about seventy days
+longer, and **six in forty now run to the cap without ending** where none did
+before — the Confederacy survives well enough that the Crown cannot get all
+three Lords in irons at once, and rescues more than doubled. That is a
+decisiveness problem the balance decision Sean already owes a steer on should
+probably be taken together with, rather than something to paper over here.

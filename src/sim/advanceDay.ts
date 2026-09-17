@@ -8,6 +8,7 @@ import { allLordsTaken, holdTheMoot, syncHome } from './lords';
 import { collectIncome, payUpkeep, recomputeLedger } from './economy';
 import { cloneState, getSystem, otherFaction, pushEvent } from './helpers';
 import { advanceMissions, syncMissionParties, takePrisoner } from './missions';
+import { decayMomentum } from './politics';
 import { createRng } from './rng';
 import {
   driftSupport,
@@ -56,7 +57,13 @@ export function advanceDay(state: GameState): GameState {
   // Opinion cools before control is re-derived, so a hold nobody is keeping up
   // can be the thing that loses an island this morning.
   driftSupport(next);
-  resolveControlAndUnrest(next);
+  // Yesterday's politics, a day further from mattering.
+  decayMomentum(next);
+  // Once a day, with the dice: this is the only call that can raise a mutiny.
+  // Every other call re-derives control after something moved allegiance, and
+  // a revolt should be a morning's news rather than something re-rolled six
+  // times a day because six things touched the same island.
+  resolveControlAndUnrest(next, rng);
   // What is in the water takes its turn after the fighting, so a creature
   // that has just been hurt can decide to break off from it.
   stirBeasts(next, rng);

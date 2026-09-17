@@ -129,6 +129,17 @@ export interface System {
    */
   garrisonOrder?: string[];
   /**
+   * What has lately been happening here politically, and who it favours.
+   *
+   * Positive toward the Crown, negative toward the Brethren, fading to nothing
+   * on its own. Written by a landed parley or incitement and read by the next
+   * one, so a second fortnight on the same island is worth more than the
+   * first and walking away wastes what was built. Absent means quiet, which is
+   * most islands most of the time — and is why a save written before the
+   * political rework still loads.
+   */
+  momentum?: number;
+  /**
    * The officer holding this island, if one has been posted to it.
    *
    * A posting rather than an errand: they arrive, they stay, and they are not

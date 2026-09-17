@@ -24,6 +24,7 @@ import {
   FOIL_FLOOR,
   OPEN_EXPOSURE,
   SABOTAGE_PRIORITY,
+  MOMENTUM_PER_SUCCESS,
   SUPPORT_MAX,
   WATCH_FROM_COMMAND,
   WATCH_FROM_LOYALTY,
@@ -36,6 +37,7 @@ import {
   TRAVEL_LEAGUE,
   TRAVEL_OPEN_SEA,
   RESCUE_BASE,
+  PARLEY_SWING_MAX,
   ESPIONAGE_BASE,
   ESPIONAGE_DIVISOR,
   ESPIONAGE_SECOND_ISLAND,
@@ -47,6 +49,7 @@ import {
   getCharacter,
   getSystem,
   isPlayable,
+  handOver,
   otherFaction,
   pushEvent,
   returnDeposit,
@@ -56,6 +59,8 @@ import { sightBeast } from './creatures';
 import { recomputeLedger } from './economy';
 import { resolveControlAndUnrest } from './support';
 import { isLord, passageShare, restoreLord } from './lords';
+import { inciteStanding, joinChance, parleyStanding, pushMomentum, runCycle } from './politics';
+import factionData from '../data/factions.json';
 import type { Rng } from './rng';
 import type {
   Character,
@@ -1354,10 +1359,18 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
     recruitOutcome(state, character, recruit, system, success);
   } else {
     // The boat's best hand at the thing, not the officer who signed for it.
-    success = rng.chance(missionOdds(state, party, system, faction, mission.type));
+    // The two political errands settle themselves: their odds and the size of
+    // what they win are one model in `politics.ts`, and a single shared
+    // pass/fail roll cannot carry both.
     if (mission.type === 'incite') {
-      inciteOutcome(state, character, system, success);
-    } else if (mission.type === 'sabotage') {
+      inciteOutcome(state, character, system, partyOf(state, character), rng);
+      success = true;
+    } else if (mission.type === 'diplomacy') {
+      parleyOutcome(state, character, system, partyOf(state, character), rng);
+      success = true;
+    } else {
+    success = rng.chance(missionOdds(state, party, system, faction, mission.type));
+    if (mission.type === 'sabotage') {
       sabotageOutcome(state, character, system, success);
     } else if (mission.type === 'rescue') {
       rescueOutcome(state, character, system, success);
@@ -1367,8 +1380,7 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
       espionageOutcome(state, character, system, success);
     } else if (mission.type === 'research') {
       researchOutcome(state, character, system, success);
-    } else {
-      parleyOutcome(state, character, system, success);
+    }
     }
   }
 
@@ -1452,16 +1464,18 @@ function outOfPatience(system: System, mission: Mission): boolean {
    * A parley on unaligned ground is the exception, and it was costing whole
    * islands.
    *
-   * An island joins at eighty and a good diplomat argues about fifteen a
-   * fortnight, so courting one from a cold start is four spells ashore — which
-   * is exactly the patience. Measured over four hundred days of machine play:
-   * the two sides between them converted *seven* neutral islands, because the
-   * opponent kept walking away one cycle short of the line it had spent two
-   * months getting to.
+   * Courting an island nobody holds is a long argument. Each spell ashore
+   * moves it a few points and then asks it, at a chance that climbs with how
+   * warm it has become, whether it will come over — so a cold island is
+   * several visits from joining however good the diplomat is, and walking away
+   * at four throws away the two months that bought the warmth. Measured over
+   * four hundred days of machine play under the old patience: the two sides
+   * between them converted *seven* neutral islands, because the opponent kept
+   * leaving one cycle short of the ground it had already paid for.
    *
-   * So while the island is still climbing toward joining, the talks go on. Not
-   * for ever: the moment it stops being a flip target — it joined, somebody
-   * took it, or it turned on them — the ordinary rules above end the errand.
+   * So while the island is still worth courting, the talks go on. Not for
+   * ever: the moment it stops being a flip target — it joined, somebody took
+   * it, or it turned on them — the ordinary rules above end the errand.
    */
   if (mission.type === 'diplomacy' && system.control === 'neutral') {
     return (mission.cycles ?? 1) >= AI_COURTING_PATIENCE;
@@ -2112,29 +2126,79 @@ function sabotageOutcome(
 }
 
 /** Talking an island round: your own standing up, theirs down. */
+/**
+ * A fortnight of talking, and what the harbor made of it.
+ *
+ * The odds and the size of the result both come from `politics.ts` now, and
+ * neither is fixed: the old rule added `8 + Diplomacy/10` every cycle without
+ * fail, so a player could work out in advance exactly how many fortnights an
+ * island would take. Sean's brief: *"the player should never know with
+ * certainty that the next mission cycle will succeed."*
+ */
 function parleyOutcome(
   state: GameState,
   character: Character,
   system: System,
-  success: boolean,
+  party: Character[],
+  rng: Rng,
 ): void {
   const faction = character.faction as PlayableFaction;
-  if (!success) {
+  const standing = parleyStanding(system, faction, party);
+  const cycle = runCycle(standing, rng);
+
+  if (!cycle.landed) {
+    if (cycle.backfired) {
+      // The other side has something to point at now. Not a catastrophe —
+      // about a point, and the room remembers it for a while.
+      applySupportChange(state, system, otherFaction(faction), 1);
+      pushMomentum(system, otherFaction(faction), MOMENTUM_PER_SUCCESS / 2);
+    }
     pushEvent(state, {
       kind: 'mission',
-      text: `${character.name} makes no headway on ${system.name}.`,
+      text: cycle.backfired
+        ? `${character.name} is heard out on ${system.name} and answered; the room goes the other way.`
+        : `${character.name} makes no headway on ${system.name}.`,
       systemId: system.id,
       characterId: character.id,
     });
+    resolveControlAndUnrest(state);
     return;
   }
+
   // One change, because allegiance is one balance: what you win is what they
   // lose, and saying it twice would carry the island twice as fast.
-  const gain = parleyGain(character);
-  applySupportChange(state, system, faction, gain);
+  applySupportChange(state, system, faction, cycle.swing);
+  pushMomentum(system, faction, MOMENTUM_PER_SUCCESS);
+
+  /*
+   * And then the island decides — or does not.
+   *
+   * The replacement for the eighty-point line. Asked only here, after a
+   * meeting that went well, so joining is a thing that happens *at* a meeting
+   * rather than overnight when a number is crossed, and it is never certain at
+   * any standing.
+   */
+  if (rng.chance(joinChance(system, faction))) {
+    system.control = faction;
+    handOver(system, faction);
+    system.uprising = false;
+    delete system.momentum;
+    pushEvent(state, {
+      kind: 'flip',
+      text: `${system.name} has declared for the ${factionData[faction].shortName}. ${character.name} was in the room.`,
+      systemId: system.id,
+      characterId: character.id,
+    });
+    resolveControlAndUnrest(state);
+    return;
+  }
+
   pushEvent(state, {
     kind: 'mission',
-    text: `${character.name} sways ${system.name}: allegiance up ${gain.toFixed(1)} points.`,
+    text:
+      cycle.swing >= PARLEY_SWING_MAX * 0.8
+        ? `${character.name} carries the room on ${system.name}: allegiance up ${cycle.swing.toFixed(1)} points.`
+        : `${character.name} sways ${system.name}: allegiance up ${cycle.swing.toFixed(1)} points.`,
     systemId: system.id,
     characterId: character.id,
   });
@@ -2151,26 +2215,35 @@ function inciteOutcome(
   state: GameState,
   character: Character,
   system: System,
-  success: boolean,
+  party: Character[],
+  rng: Rng,
 ): void {
   const faction = character.faction as PlayableFaction;
   const holder = otherFaction(faction);
-  if (!success) {
+  const standing = inciteStanding(state, system, faction, party);
+  const cycle = runCycle(standing, rng);
+
+  if (!cycle.landed) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${character.name} finds no ear for it on ${system.name}.`,
+      text: cycle.backfired
+        ? `${character.name} finds no ear for it on ${system.name}, and the wrong people hear about the asking.`
+        : `${character.name} finds no ear for it on ${system.name}.`,
       systemId: system.id,
       characterId: character.id,
     });
+    if (cycle.backfired) pushMomentum(system, holder, MOMENTUM_PER_SUCCESS / 2);
+    resolveControlAndUnrest(state);
     return;
   }
+
   // Everything you take off the governor is yours, whether the island means
   // it that way or not: there is no third place for an angry island to go.
-  const loss = inciteLoss(character);
-  applySupportChange(state, system, holder, -loss);
+  applySupportChange(state, system, holder, -cycle.swing);
+  pushMomentum(system, faction, MOMENTUM_PER_SUCCESS);
   pushEvent(state, {
     kind: 'mission',
-    text: `${character.name} stirs up ${system.name}: the governor's hold falls ${loss.toFixed(1)} points.`,
+    text: `${character.name} stirs up ${system.name}: the governor's hold falls ${cycle.swing.toFixed(1)} points.`,
     systemId: system.id,
     characterId: character.id,
   });

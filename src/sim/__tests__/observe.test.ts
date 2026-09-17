@@ -3,6 +3,7 @@ import { generateGalaxy } from '../galaxy';
 import { advanceDay } from '../advanceDay';
 import { orderBuild, orderSail, setObserving, setSpeed } from '../commands';
 import { countFacilities } from '../helpers';
+import { AI_COURTING_PATIENCE } from '../constants';
 
 function run(state = generateGalaxy(501, 'empire'), days = 220) {
   let next = state;
@@ -144,13 +145,22 @@ describe('observing', () => {
     /*
      * Nobody stuck ashore for months on somebody else's quay: the opponent's
      * patience is four spells, and this side is played the same way. Yard work
-     * and a posting are the exempt pair on purpose — both are done on ground
-     * you hold, where nobody is hunting you and the work genuinely never runs
-     * out — so they are not what this is about.
+     * and a posting are exempt on purpose — both are done on ground you hold,
+     * where nobody is hunting you and the work genuinely never runs out — and
+     * so is courting an island nobody holds, which is a long argument that is
+     * meant to take months. None of the three are what this is about.
      */
     for (const officer of mine) {
-      if (officer.mission?.type === 'research' || officer.mission?.type === 'command') continue;
-      expect(officer.mission?.cycles ?? 0, officer.name).toBeLessThanOrEqual(5);
+      const mission = officer.mission;
+      if (mission?.type === 'research' || mission?.type === 'command') continue;
+      if (
+        mission?.type === 'diplomacy' &&
+        end.systems.find((s) => s.id === mission.targetSystemId)?.control === 'neutral'
+      ) {
+        expect(mission.cycles ?? 0, officer.name).toBeLessThanOrEqual(AI_COURTING_PATIENCE + 1);
+        continue;
+      }
+      expect(mission?.cycles ?? 0, officer.name).toBeLessThanOrEqual(5);
     }
     // And the corps is still a corps.
     const irons = mine.filter((c) => c.status === 'captured').length;
