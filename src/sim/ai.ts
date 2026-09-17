@@ -13,6 +13,7 @@ import {
   AI_RESCUE_BONUS,
   AI_LORD_RESCUE_BONUS,
   AI_RECRUIT_BONUS,
+  AI_COURT_BONUS,
   AI_RESEARCH_BONUS,
   AI_SURVEY_BONUS,
   AI_SURVEY_HUNGER,
@@ -24,6 +25,7 @@ import {
   AI_RUNWAY_DAYS,
   AI_SHIP_RESERVE,
   AI_TROOP_POOL,
+  AI_LANDING_POOL,
   HELD_SUPPORT_LEVEL,
   INCITE_PRIORITY_PENALTY,
   loyaltyBand,
@@ -158,7 +160,19 @@ function surplus(state: GameState, ai: PlayableFaction): number {
 /** Kept clear over and above whatever the next order will cost to run. */
 const AI_SURPLUS_MARGIN = 3;
 /** Orders the opponent may place in one build tick, gold permitting. */
-const AI_ORDERS_PER_TICK = 3;
+/**
+ * Orders the opponent may place in one build tick, gold permitting.
+ *
+ * Three every five days was set when a side held nine islands. It conquers
+ * now, and a side holding twenty-five has three times the berths and three
+ * times the bill — so the same three orders left it further behind every week
+ * it won. Measured at day 300 of one war: twenty-eight to thirty-two works
+ * standing idle across both sides, against two to four working.
+ *
+ * Six. The real brakes are still the ones that should be — the surplus, the
+ * treasury, and whether there is ground to build on at all.
+ */
+const AI_ORDERS_PER_TICK = 6;
 /**
  * Above this the opponent is hoarding, not saving: by day 400 it sat on
  * thousands of gold with no cadence to spend it. Rich, it places twice the
@@ -246,6 +260,28 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
       .filter((s) => s.garrison < target(s))
       .sort((a, b) => target(b) - b.garrison - (target(a) - a.garrison));
     for (const system of short) {
+      const drill = system.facilities.find(
+        (f) => f.owner === ai && f.type === 'training_facility' && !f.building,
+      );
+      if (drill && canQueueBuild(state, drill.id, 'troop')) {
+        queueBuild(state, drill.id, 'troop');
+        return true;
+      }
+    }
+    /*
+     * And a drill ground on an island that has all the companies it needs
+     * still drills, for the side rather than for the island under it.
+     *
+     * Companies are raised where a drill ground stands and stay there until a
+     * hull carries them, so "this island is short" was the only reason to
+     * drill at all — which meant the islands that *had* the drill grounds, the
+     * long-held quiet ones, were exactly the islands never short of anything.
+     * Idle drill grounds for the rest of the war, and no companies to land
+     * with. A pool on top of what the island needs is what a landing is made
+     * of, and the cap keeps it from becoming a garrison bill of its own.
+     */
+    const pooled = held.filter((s) => s.garrison < target(s) + AI_LANDING_POOL);
+    for (const system of pooled) {
       const drill = system.facilities.find(
         (f) => f.owner === ai && f.type === 'training_facility' && !f.building,
       );
@@ -726,7 +762,9 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     // Its own, and slipping: worth more the further it has slipped, and an
     // island in open revolt outranks any island it might merely win over.
     if (s.control === ai) return close + (s.uprising ? 110 : (HELD_SUPPORT_LEVEL - s.support[ai]) * 1.5);
-    if (s.control === 'neutral') return close + s.support[ai];
+    // An unaligned island: a whole island for a fortnight ashore, and the
+    // warmer it already is to you the fewer fortnights it takes.
+    if (s.control === 'neutral') return close + AI_COURT_BONUS + s.support[ai];
     // The weaker their hold, the nearer the uprising threshold, the better.
     /*
      * And incitement is *not* discounted for what the island sees, which is

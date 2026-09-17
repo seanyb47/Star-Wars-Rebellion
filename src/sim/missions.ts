@@ -1,5 +1,6 @@
 import {
   AI_MISSION_PATIENCE,
+  AI_COURTING_PATIENCE,
   FOIL_INJURY_DAYS,
   INCITE_SUPPORT_LOSS,
   FACILITY_LABEL,
@@ -1410,7 +1411,7 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
     // year being farmed, and that measured as forty carried off against four.
     // A player sets a parley and forgets it; the machine has other calls on
     // the same officer and no way to notice it is wasting one.
-    if (done(state, system, faction, mission.type) || (machinePlayed && outOfPatience(mission))) {
+    if (done(state, system, faction, mission.type) || (machinePlayed && outOfPatience(system, mission))) {
       endMission(state, character.id);
     } else {
       continueMission(state, character.id);
@@ -1420,7 +1421,7 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
     if (!state.pendingDecisions.some((d) => d.characterId === character.id)) {
       state.pendingDecisions.push({ characterId: character.id, systemId: system.id, success });
     }
-  } else if (done(state, system, faction, mission.type) || outOfPatience(mission)) {
+  } else if (done(state, system, faction, mission.type) || outOfPatience(system, mission)) {
     endMission(state, character.id);
   } else {
     continueMission(state, character.id);
@@ -1445,8 +1446,26 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
  * judge it worth it. Yard work is exempt because it is done on your own
  * island, where nobody is hunting you and the work genuinely never runs out.
  */
-function outOfPatience(mission: Mission): boolean {
+function outOfPatience(system: System, mission: Mission): boolean {
   if (mission.type === 'research' || mission.type === 'command') return false;
+  /*
+   * A parley on unaligned ground is the exception, and it was costing whole
+   * islands.
+   *
+   * An island joins at eighty and a good diplomat argues about fifteen a
+   * fortnight, so courting one from a cold start is four spells ashore — which
+   * is exactly the patience. Measured over four hundred days of machine play:
+   * the two sides between them converted *seven* neutral islands, because the
+   * opponent kept walking away one cycle short of the line it had spent two
+   * months getting to.
+   *
+   * So while the island is still climbing toward joining, the talks go on. Not
+   * for ever: the moment it stops being a flip target — it joined, somebody
+   * took it, or it turned on them — the ordinary rules above end the errand.
+   */
+  if (mission.type === 'diplomacy' && system.control === 'neutral') {
+    return (mission.cycles ?? 1) >= AI_COURTING_PATIENCE;
+  }
   return (mission.cycles ?? 1) >= AI_MISSION_PATIENCE;
 }
 

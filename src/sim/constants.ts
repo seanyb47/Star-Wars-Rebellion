@@ -1084,6 +1084,29 @@ export const RECRUIT_QUALITY_DIVISOR = 200;
  *  People are scarce and permanent; an island can be worked again next month. */
 export const AI_RECRUIT_BONUS = 120;
 /**
+ * What an unaligned island is worth going and talking to.
+ *
+ * It had no bonus at all: a neutral island scored its current regard for you
+ * and nothing else, twenty or thirty against a research posting's fifty-five
+ * and an abduction's hundred and fifty. So a whole island, permanently, for a
+ * fortnight ashore on ground where nobody is hunting you, was priced below
+ * sending somebody to a shipyard. Sean: *"diplomacy should be an early game
+ * high priority... the easiest high value choice out the gate."*
+ *
+ * Priced above lifting one of theirs and below getting one of your own back,
+ * which is the right order: an officer in their cells is already lost, an
+ * officer on their quay is only at risk, and an island is an island.
+ */
+export const AI_COURT_BONUS = 170;
+/**
+ * Spells ashore the opponent will spend courting one unaligned island.
+ *
+ * Longer than its patience for anything else, because the thing it is waiting
+ * for has a known finish line — eighty — and walking away at three cycles
+ * throws away everything the first two bought. See `outOfPatience`.
+ */
+export const AI_COURTING_PATIENCE = 8;
+/**
  * What the opponent thinks a fortnight in its own yards is worth.
  *
  * Deliberately under an island — craft is a slow compounding thing and a
@@ -1382,10 +1405,29 @@ export const LOYALTY_BAND_LABEL: Record<LoyaltyBand, string> = {
 
 /** Opponent AI cadence (spec 4.7). */
 export const AI_BUILD_INTERVAL = 5;
-export const AI_MISSION_INTERVAL = 10;
+/**
+ * How often the opponent hands out errands, and how many at a time.
+ *
+ * Sean, 17 September, watching a war at day 300: *"often there are shipyards,
+ * construction yards and training facilities idle. Seems like unoptimized
+ * play... tons of blue (unaligned) locations. I feel like diplomacy should be
+ * an early game high priority."*
+ *
+ * Both halves came back to this pair. Two errands every ten days is one errand
+ * per side per five days, against five to eight officers who are free — so most
+ * of a side's people stood on a quay most of the war. Measured over four
+ * hundred days with both sides played: **fifty-nine errands in total**, across
+ * two factions, of which thirteen were parleys. A side cannot court the
+ * unaligned world at one parley every sixty days.
+ *
+ * Every three days, four at a time. The cap still exists — an opponent that
+ * empties its whole roster onto the chart in one pass leaves nothing at home —
+ * but it is now a brake on a moving thing rather than the thing itself.
+ */
+export const AI_MISSION_INTERVAL = 3;
 /** How many officers the opponent will have ashore at once. One is not a
  *  faction playing the game; all of them at once is a diplomatic blitz. */
-export const AI_MISSION_PARTIES = 2;
+export const AI_MISSION_PARTIES = 4;
 /**
  * How many errands the opponent will break off to go and get its own people.
  *
@@ -1454,6 +1496,15 @@ export const AI_SHIP_RESERVE = 200;
 /** Spare companies the opponent keeps on a drilling island, over what holds it
  *  quiet, so it has something to put aboard a transport. */
 export const AI_TROOP_POOL = 2;
+/**
+ * Companies a drill-ground island will raise over and above what holds it.
+ *
+ * What a landing is made of. Without it a drill ground only ever worked for
+ * the island under it, and the islands with drill grounds are the long-held
+ * quiet ones that are never short — so they drilled nothing for the rest of
+ * the war while the side had no companies to put ashore anywhere.
+ */
+export const AI_LANDING_POOL = 4;
 
 /**
  * How much the best officer aboard is worth at a rating of 100, as a fraction
