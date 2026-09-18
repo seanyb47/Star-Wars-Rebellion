@@ -28,7 +28,6 @@ import {
   SCOUT_PER_ISLAND,
   shipSpec,
   GUN_DECKS,
-  HIT_CHANCE,
   hitChanceOn,
   aimAt,
   shipClass,
@@ -756,21 +755,26 @@ export function fightingAt(state: GameState, systemId: string): Fleet[] {
 /**
  * Is anybody in action at this island?
  *
- * Three ways to be. Two fleets in the same water is the obvious one. A fort is
- * a warship that cannot weigh anchor, so an enemy fleet lying off a fortified
- * harbor is in action whether or not a fleet meets it. And whatever is in the
- * water is nobody's, does not care whose colours are flying, and has anybody
- * anchored there in action whether or not the other side ever turns up.
+ * Two ways to be. Two fleets in the same water is the obvious one. And
+ * whatever is in the water is nobody's, does not care whose colours are
+ * flying, and has anybody anchored there in action whether or not the other
+ * side ever turns up.
+ *
+ * **A fort is not one of them, as of 18 September.** It used to be — *"a fort
+ * is a warship that cannot weigh anchor"* — and the result was the screen Sean
+ * caught: a squadron lying off Highwater, no enemy ship anywhere, losing a
+ * hull a day to forty guns it could not touch, under a heading that called it
+ * a broadside. That is not an action; there is nobody to fight. His ruling is
+ * that harbor guns answer a bombardment and nothing else, which is also what
+ * his own order of operations always said — *their fleet, then the blockade,
+ * then the walls, then the landing*. The walls come after their fleet, so they
+ * are not part of the fleet action. `bombardRound` is where the wall fires.
  */
 export function contestedAt(state: GameState, system: System): boolean {
   const here = fightingAt(state, system.id);
   if (here.length === 0) return false;
   if (beastAlive(system)) return true;
-  if (here.some((f) => f.faction === 'empire') && here.some((f) => f.faction === 'alliance')) {
-    return true;
-  }
-  if (system.control !== 'empire' && system.control !== 'alliance') return false;
-  return fortGuns(system) > 0 && here.some((f) => f.faction === otherFaction(system.control as PlayableFaction));
+  return here.some((f) => f.faction === 'empire') && here.some((f) => f.faction === 'alliance');
 }
 
 /**
@@ -944,6 +948,21 @@ export function wallCondition(system: System): number {
  * is the dangerous one and every day after is cheaper, which is the right
  * shape for a siege and comes free with giving the wall a condition.
  */
+/**
+ * Is this fleet under the island's guns?
+ *
+ * Only a squadron that has opened on the walls is. Sean, 18 September:
+ * *"guns should be anti bombardment only"* — so the battery is silent at a
+ * fleet that is merely lying there, and answers the moment that fleet starts
+ * throwing shot at it. One test, so the battle, the break-off and the parting
+ * volley cannot drift apart about what counts.
+ */
+export function underTheWall(state: GameState, fleet: Fleet): boolean {
+  if (!fleet.bombarding) return false;
+  const system = getSystem(state, fleet.systemId);
+  return system.control !== fleet.faction && fortGuns(system) > 0;
+}
+
 export function fortGuns(system: System): number {
   if (system.control !== 'empire' && system.control !== 'alliance') return 0;
   const forts = system.facilities.filter(
@@ -1411,22 +1430,15 @@ function hullsOf(fleets: Fleet[]): Combatant[] {
   return out;
 }
 
-/** The island's own guns, which fire for whoever holds it and cannot be sunk. */
-function wallOf(system: System, side: PlayableFaction): Combatant[] {
-  const guns = system.control === side ? fortGuns(system) : 0;
-  if (guns <= 0) return [];
-  return [
-    {
-      guns,
-      // A fort is not a target a fleet action can remove: it is masonry, and
-      // taking it is a landing. It shoots and is not shot at.
-      left: Infinity,
-      whole: Infinity,
-      hitChance: HIT_CHANCE,
-      hurt: () => false,
-    },
-  ];
-}
+/*
+ * `wallOf` used to stand here, and put the island's own guns into the fleet
+ * action as a combatant with an infinite hull that shot and could not be shot
+ * at. It is gone with Sean's ruling of 18 September: harbor guns are answered
+ * only by a bombardment, and a bombardment is the one place they fire. The
+ * fort has not been weakened — `bombardRound` still opens with *"the wall
+ * answers first, at what it still has"*, at full weight and against a fleet
+ * that can now actually shoot back at it.
+ */
 
 /**
  * One hull's shots for the round, each carrying its share of her weight.
@@ -1528,7 +1540,6 @@ function reportRound(
           guns: alliance.reduce((n, f) => n + fleetGuns(f), 0),
         },
       },
-      shore: fortGuns(system),
       holder: system.control,
     },
   });
@@ -1563,8 +1574,8 @@ function fightRound(
 
   // The three parties. Forts shoot for the side that holds the island; the
   // creature shoots for nobody and is shot at by everybody.
-  const empireGuns = [...hullsOf(empire), ...wallOf(system, 'empire')];
-  const allianceGuns = [...hullsOf(alliance), ...wallOf(system, 'alliance')];
+  const empireGuns = hullsOf(empire);
+  const allianceGuns = hullsOf(alliance);
   const monster = beastCombatant(system);
 
   // Leadership tells here, as it always has: a well-handled squadron gets more
@@ -2034,7 +2045,12 @@ export function fleeError(state: GameState, fleetId: string, actor: PlayableFact
   const enemies = fleetsAt(state, system.id).some(
     (f) => f.faction !== fleet.faction && fleetGuns(f) > 0,
   );
-  if (!enemies && !beastAlive(system) && fortGuns(system) === 0) return 'Nothing to break off from.';
+  // A fort on its own is not something to break off from any more: it does not
+  // fire unless you are firing at it. A squadron that *is* bombarding is in
+  // something, and leaving it costs the run past the guns.
+  if (!enemies && !beastAlive(system) && !underTheWall(state, fleet)) {
+    return 'Nothing to break off from.';
+  }
   if (!refugeFor(state, fleet)) return 'Nowhere to run to.';
   // Cut off. A squadron four times your weight, with something fast enough to
   // stay with you, does not stand and watch you go.
@@ -2071,12 +2087,13 @@ export function fleeBattle(
   const system = getSystem(state, fleet.systemId);
   const refuge = refugeFor(state, fleet)!;
 
-  // Everything at this island that can reach a fleet under way. A fort can:
-  // it is a battery on the harbor wall and you have to sail past it. A hull
-  // can only if she carries long guns. A creature always can — it is in the
-  // water with you, and being unable to outswim the Kraken is the point of it.
+  // Everything at this island that can reach a fleet under way. A fort can,
+  // but only if you had opened on it: the guns are manned and laid because you
+  // gave them something to answer, and you have to sail back past them. A hull
+  // can reach only if she carries long guns. A creature always can — it is in
+  // the water with you, and being unable to outswim the Kraken is the point.
   const reaching: Array<{ guns: number }> = [];
-  const wall = system.control !== fleet.faction ? fortGuns(system) : 0;
+  const wall = underTheWall(state, fleet) ? fortGuns(system) : 0;
   if (wall > 0) reaching.push({ guns: Math.round(wall * LONG_GUN_SHARE) });
   for (const other of fleetsAt(state, system.id)) {
     if (other.faction === fleet.faction) continue;
@@ -2205,9 +2222,11 @@ export interface BattleView {
   rounds: number;
   mine: BattleSide;
   theirs: BattleSide;
-  /** Guns on the harbor wall, and whose they are. */
-  shore: number;
-  shoreIsMine: boolean;
+  /*
+   * There is no `shore` here. The harbor's guns do not fire in a fleet action
+   * and so are not part of the decision this sheet exists to put in front of
+   * the player: fight on, or run. They are a bombardment's problem.
+   */
   beast?: { name: string; damage: number; hull: number; guns: number };
   odds: BattleOdds;
   /** Which of your fleets could break off, if any. */
@@ -2280,19 +2299,17 @@ export function battleView(state: GameState): BattleView | undefined {
   const here = fightingAt(state, system.id);
   const mineFleets = here.filter((f) => f.faction === state.player);
   const theirFleets = here.filter((f) => f.faction === otherFaction(state.player));
-  const shore = fortGuns(system);
-  const shoreIsMine = system.control === state.player;
   const beast = beastAt(system);
   const alive = beastAlive(system);
 
   const mine = sideOf(state, mineFleets);
   const theirs = sideOf(state, theirFleets);
-  // Guns bearing on each side, for the assessment only: the wall fires for
-  // whoever holds the island, and the creature fires on everybody, so it
+  // Guns bearing on each side, for the assessment only. The wall is not in it:
+  // it does not fire in a fleet action. The creature fires on everybody, so it
   // counts against both.
   const beastGunsHere = alive && beast ? beastGuns(system) : 0;
-  const forMe = mine.guns + (shoreIsMine ? shore : 0);
-  const againstMe = theirs.guns + (shoreIsMine ? 0 : shore) + beastGunsHere;
+  const forMe = mine.guns;
+  const againstMe = theirs.guns + beastGunsHere;
 
   const fleeable = mineFleets.filter((f) => fleeError(state, f.id, state.player) === null);
   const firstReason = mineFleets.length === 0 ? null : fleeError(state, mineFleets[0].id, state.player);
@@ -2302,8 +2319,6 @@ export function battleView(state: GameState): BattleView | undefined {
     rounds: pending.rounds,
     mine,
     theirs,
-    shore,
-    shoreIsMine,
     beast:
       beast && alive
         ? { name: beast.name, damage: system.beastDamage ?? 0, hull: beast.hull, guns: beastGunsHere }

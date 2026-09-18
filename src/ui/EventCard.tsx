@@ -187,12 +187,13 @@ export function EventCards({
 }
 
 /**
- * Rebellion's battle summary: each side's crest, what it brought, what it
- * lost, and the harbor's guns if they fired. Laid out rather than told, so
- * the sentence above can stay a sentence.
+ * Rebellion's battle summary: each side's crest, what it brought, and what it
+ * lost. Laid out rather than told, so the sentence above can stay a sentence.
+ *
+ * The harbor's guns used to have a line of their own here. They no longer fire
+ * in an action at sea, so there is nothing to report.
  */
 function BattleTally({ report }: { report: NonNullable<GameEvent['battle']> }) {
-  const holder = report.holder === 'empire' || report.holder === 'alliance' ? report.holder : null;
   return (
     <div className="tally">
       {(['empire', 'alliance'] as const).map((side) => {
@@ -221,11 +222,6 @@ function BattleTally({ report }: { report: NonNullable<GameEvent['battle']> }) {
           </div>
         );
       })}
-      {report.shore > 0 && holder && (
-        <div className="tally__foot tiny muted">
-          The harbor's own guns fired for the {factionData[holder].shortName}: {report.shore}.
-        </div>
-      )}
     </div>
   );
 }

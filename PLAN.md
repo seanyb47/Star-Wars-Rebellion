@@ -3933,3 +3933,74 @@ the art and the manifest entry moved with her — legends are filtered out of
 break. Two places still say Ironback and both are right to: the world bible's S5
 dreadnought *class* rows and the Ghost Fleet's *"2–3 old Ironbacks"*. They mean a
 type of hull, which the Fleet Roster has now made true rather than stale.
+
+---
+
+## Harbor guns answer a bombardment and nothing else
+
+Sean sent a screenshot of an action off Highwater and said the screen made no
+sense. He was right twice over, and the second half is the cause of the first.
+
+> *"First; it's not a broadside bc one fleet. Second; guns should be anti
+> bombardment only."*
+
+**What he was looking at.** Five Confederate hulls with twenty-eight guns, the
+Imperium with **zero hulls** and forty harbor guns, `UNFAVORABLE` over the top,
+a hull lost that round, and a heading calling it the *First broadside*. He had
+sailed to Highwater and been put into a battle against a building. The wall was
+a combatant with an infinite hull that shot and could not be shot at, so the
+only way out was to run, and lying there cost a hull a day for ever.
+
+**The rule was already written the other way.** `bombardError` carries his own
+order of operations — *their fleet, then the blockade, then the walls, then the
+landing* — and `bombardRound` opens with *"the wall answers first, at what it
+still has."* The walls come **after** their fleet, which means they were never
+meant to be part of the fleet action. The fort was doing the job twice: once
+correctly, against a bombardment, and once wrongly, against anything afloat.
+
+So the second copy is gone. `wallOf` is deleted, `contestedAt` no longer counts
+a fort, the assessment no longer adds a wall to either side, and the battle
+sheet no longer has a `shore` at all. One shared test, `underTheWall`, decides
+whether the battery is live — is this fleet bombarding? — and the battle, the
+break-off and the parting volley all ask it, so they cannot drift apart.
+
+**The fort has not been weakened.** It still refuses a landing outright while
+it stands, it still has to be beaten down with shot, and it still answers that
+shot at full weight — against a fleet that can now actually hit it back. What
+it has lost is the thing it should never have had: the power to sink ships that
+were not attacking it.
+
+**Measured, 24 wars, seeds 9000–9023, both sides machine-played:**
+
+| | Before | After |
+|---|---|---|
+| Crown — Confederacy — unfinished | 13 — 7 — **4** | 17 — 7 — **0** |
+| Length (min / median / max) | 240 / **876** / 2808 | 216 / **420** / 1332 |
+| Crown at the end | 24.1 islands, 12.4 hulls, 2020 gold | 19.0 islands, 17.8 hulls, 505 gold |
+| Confederacy at the end | 11.6 islands, 6.4 hulls, **8157 gold** | 6.6 islands, 5.4 hulls, **1152 gold** |
+| Lords in irons | 1.96 of 3 | 2.25 of 3 |
+
+Three things to read in that, and the first is the one that matters.
+
+**The stalemate was the fort.** Every war now finishes. The four that used to
+run to the three-thousand-day cap were *all* Crown-ahead — 46, 20, 59 and 15
+islands — and all four became Crown wins. The Confederacy still wins exactly
+seven. So the head-to-head balance did not move at all; the wars that could
+never close now close the way they were already leaning. That is the fork the
+last tuning run found and could not choose between, and it turns out not to
+have been a balance problem: fronts froze because a fleet could not sit off a
+fortified island long enough to do anything to it.
+
+**The median war halved**, 876 days to 420. This is the number to look at
+first if the new pace feels wrong — it is a large change and it is not a side
+effect to be explained away, it is what happens when the sequence he designed
+(beat their fleet, blockade, break the walls, land) can actually be run.
+
+**The Confederacy has stopped hoarding.** 8,157 gold at the end became 1,152.
+That was an open item and it was downstream of the same thing: gold piles up in
+a war where there is nothing useful to spend it on.
+
+**The wording.** With the fort out of it, the only one-fleet action left is a
+creature, and a creature does not fire a broadside — it makes a pass. The
+heading reads *First pass* there and *First broadside* when there are two
+fleets in the water, which is the only case the word was ever true of.

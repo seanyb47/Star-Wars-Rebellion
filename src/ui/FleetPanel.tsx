@@ -511,9 +511,10 @@ export function ShipsHere({
   const inbound = state.fleets.filter(
     (f) => f.faction === state.player && f.voyage?.targetSystemId === systemId,
   );
-  // The fixed defences sit in the harbor with the hulls: a fort is a warship
-  // that cannot weigh anchor, and it belongs on this tab rather than under
-  // Buildings with the mills, because this is where it fights.
+  // The fixed defences sit in the harbor with the hulls rather than under
+  // Buildings with the mills, because this is where they matter: no landing
+  // goes in past a wall that stands, and a bombardment is answered by it.
+  // They do not fight an action at sea — see `contestedAt`.
   const island = state.systems.find((s) => s.id === systemId);
   // And whatever is in the water. It is not a fleet and it is nobody's, but a
   // card among the ships is exactly what it is to the player: a thing lying in

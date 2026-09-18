@@ -205,15 +205,13 @@ describe('the assessment', () => {
     expect(view.mine.troops).toBe(2);
   });
 
-  it('counts the shore for whoever holds it and the creature against everyone', () => {
+  it('lays out both sides of a fleet action with the condition, not just a count', () => {
     const { state, home } = world();
     put(state, home, 'empire', ['sovereign', 'sovereign', 'sovereign']);
     put(state, home, 'alliance', ['tempest', 'tempest', 'tempest']);
     resolveBattles(state, createRng(6));
     const view = battleView(state)!;
     expect(view.system.id).toBe(home.id);
-    // The player's own harbor, so the wall is theirs.
-    expect(view.shoreIsMine).toBe(true);
     expect(view.mine.hulls).toBeGreaterThan(0);
     expect(view.theirs.hulls).toBeGreaterThan(0);
     // Condition, not just a count: what is left, out of what it started as.

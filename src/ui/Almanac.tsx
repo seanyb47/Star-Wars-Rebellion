@@ -328,11 +328,12 @@ export function Almanac({
           two that are not about money at all. */}
       <div className="section-title">Standing defences</div>
       <div className="card small">
-        <b>A {FACILITY_LABEL.fort.toLowerCase()} is {FORT_GUNS} guns that cannot weigh anchor.</b>{' '}
-        It fires in every action fought in its water, on the side of whoever holds the island. It
-        also does something no fleet can: while one stands, <i>no landing is possible</i>. An
-        enemy who wants the island has to beat the wall down with shot first, which is the only
-        thing that can touch it.
+        <b>A {FACILITY_LABEL.fort.toLowerCase()} is {FORT_GUNS} guns that answer a bombardment.</b>{' '}
+        It does not fire at ships that are merely lying in its water — an enemy squadron can sit
+        off a fortified harbor all year and never be shot at. Open on the walls and the whole
+        battery answers, at full weight, for as long as it stands. It also does something no fleet
+        can: while one stands, <i>no landing is possible</i>. An enemy who wants the island has to
+        beat the wall down with shot first, which is the only thing that can touch it.
         <br />
         <br />
         <b>It has a condition, and its gunnery falls with it.</b> {FORT_STRENGTH} of strength; a
@@ -772,10 +773,10 @@ export function Almanac({
       <div className="section-title">An action at sea</div>
       <div className="card small">
         <b>Where it happens.</b> Wherever your hulls and theirs lie in the same
-        water — nobody manoeuvres and there is no open sea to meet in. A fort on
-        the wall is a warship that cannot weigh anchor, so lying off a fortified
-        harbor is an action whether or not a fleet comes out; and a creature is
-        nobody's, so anchoring in its water is an action on its own.
+        water — nobody manoeuvres and there is no open sea to meet in. A
+        creature is nobody's, so anchoring in its water is an action on its own.
+        A fort is <i>not</i>: the walls answer a bombardment, not a fleet, so a
+        fortified harbor with no ships in it is not something to fight.
         <br />
         <br />
         <b>How it runs.</b> The day you meet, one broadside is fired and the
@@ -786,8 +787,8 @@ export function Almanac({
         <br />
         <br />
         <b>What you are told.</b> Two words over the sheet, off the guns still
-        firing on both sides with the wall counted for whoever holds it and the
-        creature counted against everybody:{' '}
+        firing on both sides, with the creature counted against everybody and
+        the wall counted for nobody:{' '}
         {(['overwhelming', 'favorable', 'even', 'unfavorable', 'desperate'] as const)
           .map((band) => BATTLE_ODDS_LABEL[band])
           .join(' · ')}
@@ -796,8 +797,9 @@ export function Almanac({
         <br />
         <b>Breaking off.</b> Always works — there is no roll that keeps you in a
         fight you have decided to leave. What it costs is the run. Only guns
-        that reach can touch a fleet already under way: the wall can, a creature
-        always can, and a hull only if she carries long guns, at{' '}
+        that reach can touch a fleet already under way: a creature always can, a
+        hull only if she carries long guns, and the wall only if you were
+        bombarding it — all at{' '}
         {Math.round(LONG_GUN_SHARE * 100)}% of her weight. How many shots you
         eat on the way out is your speed, which is why a first-rate is an
         expensive thing to have to withdraw and a sloop is nearly free. You run

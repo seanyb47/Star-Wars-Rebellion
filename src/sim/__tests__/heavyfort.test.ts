@@ -3,9 +3,9 @@ import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
 import {
   addShip,
+  advanceSieges,
   fortGuns,
   fortsOf,
-  resolveBattles,
   wallCondition,
 } from '../fleets';
 import { advanceDay } from '../advanceDay';
@@ -118,12 +118,15 @@ describe('the Heavy Fortress, as a second tier', () => {
     state.fleets.length = 0;
     const port = bare(state);
     wall(port, 'heavy_fort');
+    expect(fortGuns(port)).toBe(HEAVY_FORT_GUNS);
 
-    // A raider that would be a nuisance to a Fortress is in real trouble here.
-    const raider = addShip(state, port, 'alliance', 'swift');
-    const rng = createRng(3);
+    // A squadron that would be a nuisance to a Fortress is in real trouble
+    // here — once it opens fire. Since 18 September the battery answers a
+    // bombardment and nothing else, so the order is what puts it in range.
+    const raider = addShip(state, port, 'alliance', 'reef');
+    raider.bombarding = true;
     const before = raider.ships[0].damage;
-    resolveBattles(state, rng);
+    advanceSieges(state, createRng(3));
     expect(raider.ships.length === 0 || raider.ships[0].damage > before).toBe(true);
   });
 

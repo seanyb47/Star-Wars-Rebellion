@@ -523,8 +523,7 @@ export type EventKind =
 /** What each side brought to an action at sea, and what it cost them. */
 export interface BattleReport {
   sides: Record<PlayableFaction, { hulls: number; lost: number; guns: number }>;
-  /** The harbor's own guns, and whose harbor it is. */
-  shore: number;
+  /** Whose harbor it was fought in. The wall itself never fires in one. */
   holder: Faction;
 }
 

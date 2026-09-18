@@ -58,7 +58,7 @@ export function BattleSheet({
       >
         <div className="dispatch__head">
           <span className="dispatch__title">Action off {view.system.name}</span>
-          <span className="tiny muted">{ordinal(view.rounds)} broadside</span>
+          <span className="tiny muted">{ordinal(view.rounds)} {roundWord(view)}</span>
         </div>
 
         {/* The one scrolling part. Head and foot are pinned, so the two words
@@ -83,20 +83,12 @@ export function BattleSheet({
               instead of a decision. */}
           <div className={`odds odds--${view.odds}`}>{BATTLE_ODDS_LABEL[view.odds]}</div>
 
-          {/* A side is drawn when it is in the fight: hulls in the water,
-              guns on the wall, or something it lost this broadside. A whole
-              empty board for a faction that never turned up — which is every
-              action fought against a creature alone — is noise in the middle
-              of a decision. */}
-          {sides(view, me, them).map(({ faction, side, label, lost, shore }) => (
-            <Side
-              key={faction}
-              faction={faction}
-              side={side}
-              label={label}
-              lost={lost}
-              shore={shore}
-            />
+          {/* A side is drawn when it is in the fight: hulls in the water, or
+              something it lost this round. A whole empty board for a faction
+              that never turned up — which is every action fought against a
+              creature alone — is noise in the middle of a decision. */}
+          {sides(view, me, them).map(({ faction, side, label, lost }) => (
+            <Side key={faction} faction={faction} side={side} label={label} lost={lost} />
           ))}
 
           {view.beast && (
@@ -173,14 +165,11 @@ function Side({
   side,
   label,
   lost,
-  shore,
 }: {
   faction: PlayableFaction;
   side: BattleSide;
   label: string;
   lost: number;
-  /** Harbor guns firing for this side, if any. */
-  shore: number;
 }) {
   const whole = side.whole > 0 ? side.left / side.whole : 0;
   return (
@@ -188,12 +177,11 @@ function Side({
       <div className="battle__side-head">
         <FactionCrest faction={faction} size={24} />
         <b className="battle__side-name">{label}</b>
-        {/* Guns include the wall's, because that is what is firing at you and
-            what the assessment above is made of. The line under the roster
-            says how many of them are the wall's. */}
+        {/* Guns afloat, and only those. The harbor's own battery is not in an
+            action at sea — it answers a bombardment, which is a different
+            operation and a different screen. */}
         <span className="battle__side-sum">
-          <b>{side.hulls}</b> {side.hulls === 1 ? 'hull' : 'hulls'} · <b>{side.guns + shore}</b>{' '}
-          guns
+          <b>{side.hulls}</b> {side.hulls === 1 ? 'hull' : 'hulls'} · <b>{side.guns}</b> guns
         </span>
       </div>
 
@@ -210,23 +198,10 @@ function Side({
           ))}
         </div>
       ) : (
-        <div className="tiny muted battle__note">
-          {/* Two different nothings. A wall firing with no fleet behind it was
-              never afloat in the first place, and telling the player it has
-              been sunk would be a lie about the one thing they are deciding
-              on. */}
-          {shore > 0
-            ? "No ships — the harbor's guns are fighting alone."
-            : 'Nothing left afloat here.'}
-        </div>
+        <div className="tiny muted battle__note">Nothing left afloat here.</div>
       )}
 
       <div className="battle__notes">
-        {shore > 0 && (
-          <span className="tiny battle__note">
-            Harbor guns <b>{shore}</b>
-          </span>
-        )}
         {side.officers.length > 0 && (
           <span className="tiny battle__note">
             {side.officers[0].name}
@@ -281,17 +256,28 @@ function sides(view: BattleView, me: PlayableFaction, them: PlayableFaction) {
       side: view.mine,
       label: 'Yours',
       lost: view.last ? view.last[me] : 0,
-      shore: view.shoreIsMine ? view.shore : 0,
     },
     {
       faction: them,
       side: view.theirs,
       label: factionData[them].shortName,
       lost: view.last ? view.last[them] : 0,
-      shore: view.shoreIsMine ? 0 : view.shore,
     },
   ];
-  return rows.filter((r) => r.side.hulls > 0 || r.shore > 0 || r.lost > 0);
+  return rows.filter((r) => r.side.hulls > 0 || r.lost > 0);
+}
+
+/**
+ * What to call a round of this particular fight.
+ *
+ * Sean, on the screen that started this: *"it's not a broadside bc one
+ * fleet."* A broadside is one ship's side answering another's, so the word is
+ * right for two fleets in the same water and wrong for anything else. What is
+ * left after the harbor guns stopped fighting fleet actions is the creature,
+ * and a creature makes a pass at you.
+ */
+function roundWord(view: BattleView): string {
+  return view.theirs.hulls === 0 && view.beast ? 'pass' : 'broadside';
 }
 
 function roundLine(view: BattleView, me: PlayableFaction, them: PlayableFaction): string {

@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
-import { addShip, fortGuns, isBlockaded, resolveBattles } from '../fleets';
+import {
+  addShip,
+  advanceSieges,
+  bombardError,
+  contestedAt,
+  fortGuns,
+  isBlockaded,
+  resolveBattles,
+} from '../fleets';
 import { requiredGarrison } from '../helpers';
 import {
   CAPITAL_GARRISON,
@@ -86,22 +94,46 @@ describe('the opening, against Rebellion', () => {
 });
 
 describe('forts', () => {
-  it('fire on an enemy fleet lying off the harbor even with no fleet of their own', () => {
+  it('hold their fire at a fleet that is only lying there', () => {
+    // Sean, 18 September: *"guns should be anti bombardment only."* A harbor
+    // battery used to fight any enemy hull in the water, which made a
+    // fortified island grind down a squadron that had not fired a shot and
+    // could not fire back — the walls cannot be sunk in a fleet action. The
+    // battery is silent now until it is given something to answer.
     const state = world();
     state.fleets.length = 0;
     const port = mineWithWater(state);
-    // Exactly two walls, whatever the island opened with.
     port.facilities = port.facilities.filter((f) => f.type !== 'fort');
     build(port, 'fort');
     build(port, 'fort');
     expect(fortGuns(port)).toBe(2 * FORT_GUNS);
     const raider = addShip(state, port, 'alliance', 'swift');
-    const rng = createRng(3);
     const before = raider.ships[0].damage;
-    resolveBattles(state, rng);
-    // Ten guns against one sloop: it is hit, on day one, by a harbor with no navy.
-    const hurt = raider.ships.length === 0 || raider.ships[0].damage > before;
-    expect(hurt).toBe(true);
+    resolveBattles(state, createRng(3));
+    expect(raider.ships).toHaveLength(1);
+    expect(raider.ships[0].damage).toBe(before);
+    // Not an action at all, which is why nothing was fought: there is nobody
+    // in the water to fight.
+    expect(contestedAt(state, port)).toBe(false);
+  });
+
+  it('answer the moment that fleet opens on the walls', () => {
+    // The other half of the same ruling, and the reason it is not a nerf: a
+    // squadron that starts throwing shot gets the whole battery back, at full
+    // weight, exactly as it always did.
+    const state = world();
+    state.fleets.length = 0;
+    const port = mineWithWater(state);
+    port.facilities = port.facilities.filter((f) => f.type !== 'fort');
+    build(port, 'fort');
+    build(port, 'fort');
+    // A hull that throws heavy enough for the order to be allowed at all.
+    const raider = addShip(state, port, 'alliance', 'reef');
+    expect(bombardError(state, raider.id, 'alliance')).toBeNull();
+    raider.bombarding = true;
+    const before = raider.ships[0].damage;
+    advanceSieges(state, createRng(3));
+    expect(raider.ships.length === 0 || raider.ships[0].damage > before).toBe(true);
   });
 
   it('count only for whoever holds the island, and only once finished', () => {

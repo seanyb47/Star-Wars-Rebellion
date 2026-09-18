@@ -79,7 +79,7 @@ export function freeSlots(system: System): number {
  * stand on forests that have already been cut — so the works earn nothing, the
  * ground they stand on is spent, and the island is barren for ever. Taking a
  * developed island has to mean taking what is on it, which is also what the
- * defences have always done: a seawall fires for whoever holds the island,
+ * defences have always done: a seawall answers for whoever holds the island,
  * never for whoever paid for it.
  *
  * Anything still being built is lost. The builders scatter when the boats come

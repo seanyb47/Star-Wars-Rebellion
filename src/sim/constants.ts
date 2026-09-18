@@ -125,8 +125,10 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
 /**
  * The fixed defences, and what they are worth.
  *
- * A fort fires like a medium hull and a bit — enough that two of them turn a
- * sloop raid away, not enough that a harbor never needs a fleet.
+ * A fort fires like a medium hull and a bit — but only at a squadron actually
+ * bombarding it, since Sean's ruling of 18 September. What it is worth is the
+ * landing it refuses outright and the price it charges to be knocked down; it
+ * is not a substitute for a fleet and no longer pretends to be one.
  *
  * There was a second defence, a Boom — a chain across the harbor mouth that
  * cost a landing what two companies would and held the port open under light
@@ -135,7 +137,8 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
  * had no rule that ever wanted one and a player had no reason to buy one, with
  * a Fortress beside it that stops a landing outright.
  */
-// Scaled with the hulls: a fort still fires like a frigate and a bit.
+// Scaled with the hulls: a fort still answers a bombardment like a frigate
+// and a bit.
 export const FORT_GUNS = 20;
 /**
  * And the Heavy Fortress, which is a berth's worth of decision.
