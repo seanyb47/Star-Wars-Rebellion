@@ -209,18 +209,23 @@ describe('the design rules the export states about itself', () => {
     // 'Majestic remains the strongest individual ship.' Asserted on the one
     // figure the roster still gives her outright, not on a combat model.
     //
-    // The revision of 18 September deliberately took the other two away: the
-    // Urskin Whaler is now 'the largest hull in the game' at 1,800 and the
-    // Coral-Class carries the heaviest Armor at 110. That is the endgame rule
-    // working — the Confederacy answers a Majestic with two ships, not one —
-    // so both are pinned here rather than left to look like data errors.
+    // The locked revision states it outright: *'Majestic remains the strongest
+    // individual ship and the only Maximum Armor 30 hull. Urskin Whaler keeps
+    // the greatest hull and Heavy Gun mass.'* So she tops guns and armor, and
+    // the one thing she does not top is hull — the Whaler's 1,800 to her 1,600.
+    // Pinned because a roster that stops being lopsided by accident and one
+    // that stops on purpose look identical in a diff.
     const majestic = ROSTER.byId.get('CWN-MAJ-R8-01')!;
     for (const other of ROSTER.ships) {
       if (other.id === majestic.id) continue;
       expect(gunsOf(other)).toBeLessThan(gunsOf(majestic));
     }
+    expect(heaviest((s) => s.armor).id).toBe('CWN-MAJ-R8-01');
+    expect(majestic.armor).toBe(30);
     expect(heaviest((s) => s.hull).id).toBe('CFS-URW-R7-01');
-    expect(heaviest((s) => s.armor).id).toBe('CFS-COR-R8-01');
+    // And the Whaler's Heavy Guns are the Confederacy's greatest, not the
+    // game's: the Majestic's sixteen still beat her thirteen.
+    expect(majestic.guns.heavyGuns).toBeGreaterThan(ROSTER.byId.get('CFS-URW-R7-01')!.guns.heavyGuns);
   });
 
   it('lets a Coral-Class and an Urskin Whaler out-gun and out-hull a Majestic', () => {
@@ -288,8 +293,10 @@ describe('what the shipped data is warned about', () => {
 
   it('would flag a starting ship given two top-tier stats', () => {
     const doc = corrupt((d) => {
+      // Armor 30 is T4+ under the rescaled bands, which with her T4 Hull of
+      // 900 gives a starting ship two top-tier stats.
       const sovereign = ships(d).find((s) => s['Ship ID'] === 'CWN-SOV-S04')!;
-      sovereign['Armor'] = 95;
+      sovereign['Armor'] = 30;
     });
     const warnings = validateRoster(doc).filter((i) => i.severity === 'warning');
     expect(warnings.some((w) => w.field === 'Early-game power')).toBe(true);
@@ -297,7 +304,7 @@ describe('what the shipped data is warned about', () => {
 
   it('warns rather than throws when a value leaves its tier bands', () => {
     const doc = corrupt((d) => {
-      ships(d)[0]['Gold/Day Maintenance'] = 0.05; // below T1's 0.1 floor
+      ships(d)[0]['Armor'] = 999; // past T4+'s 30, so outside every band
     });
     const issues = validateRoster(doc);
     expect(issues.filter((i) => i.severity === 'error')).toEqual([]);

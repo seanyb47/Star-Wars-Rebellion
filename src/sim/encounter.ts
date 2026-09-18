@@ -64,7 +64,7 @@ export type EncounterChoice = 'attack' | 'flee';
  *   driven off the water.
  *
  * Which model wins is an open question, recorded in
- * `docs/naval-combat-open-questions.md`.
+ * `docs/naval-combat.md`.
  */
 export type EncounterOutcome = 'victory' | 'defeat' | 'you-fled' | 'they-fled';
 

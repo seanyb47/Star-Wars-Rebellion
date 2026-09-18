@@ -3,143 +3,388 @@
     "file": "Master of the Seven Seas — Fleet Roster",
     "kind": "Google Sheet",
     "fileId": "1U3WMR3Ndg8ndkiZ8tFWJHNEQdAphLJEuiklh8MJyCJU",
-    "version": "2026-09-18",
-    "revision": "2026-09-18T07:13Z",
+    "version": "2026-09-18b",
+    "revision": "2026-09-18T21:48Z",
     "imported": "2026-09-18",
-    "note": "Sean's own revision of the fleet roster, read from Drive and imported verbatim. It supersedes the v2.4 JSON export of the same day: twenty-four hulls now rather than twenty-five, four starting ships and eight research unlocks a side, and the Confederacy's gapped ladder closed. Combat resolution is not here and never was — that is the 7 Seas — Naval Combat System document. Change this file by re-reading the sheet, not by hand.",
-    "supersedes": {
-      "file": "Master_of_the_Seven_Seas_Combat_System_v2_4.json",
-      "version": "2.4"
-    }
+    "note": "Sean's combat update. The sheet now carries four things: the roster, a Ratings & Pricing system that prices every hull, the LOCKED combat specification, and a Combat Derived Stats table of per-ship hit chances and average volleys. The combat rules here supersede the '7 Seas — Naval Combat System' document of the same morning. Change this file by re-reading the sheet, not by hand.",
+    "supersedes": [
+      {
+        "file": "Master of the Seven Seas — Fleet Roster",
+        "revision": "2026-09-18T07:13Z"
+      },
+      {
+        "file": "7 Seas — Naval Combat System",
+        "kind": "Google Doc",
+        "scope": "combat mechanics"
+      }
+    ]
   },
   "_notes": [
     {
-      "about": "Ironback",
-      "shipId": "CFS-IRB-R5-01",
-      "note": "The name collides with a legend hull in the live game: the Ironback is the Crown dreadnought Admiral Dorian Jessup took with him when he left the Imperium's service, and she is named in his fleet-command power. Sean's ruling of 18 September was to keep the legend and rename the roster ship, which is where the provisional 'Frostback' came from. This revision of the roster, written by him afterwards, says Ironback — so Ironback it is here, imported as written. Nothing reads this name but a label, and the collision is recorded rather than resolved."
+      "about": "There is no Firepower stat",
+      "note": "The blocking item is dissolved rather than answered. The locked rules open with *'There is no ship-level Firepower stat. Every individual cannon makes its own attack using the rules for its gun type.'* So the three gun columns ARE the combat inputs, Speed stays a category rather than becoming 1-10, and the conversion everything downstream was waiting on is cancelled."
     },
     {
-      "about": "Names retired by this revision",
-      "note": "Dreadnought (now Morningstar), Long-Gun Line Ship, Wayfinder II, Freebooter, Swallowtail (which the v2.4 import had renamed Bonecutter for the same legend-hull reason), Reefwalker (now Reefwarden) and Reef-Class (now Coral-Class Dreadnaught). The Swallowtail collision is gone with the ship: she belongs to Reyne again."
+      "about": "Armor and First Strike are back",
+      "note": "Both were removed on the morning of 18 September and both return in this specification: armor as a flat subtraction with per-gun-type penetration, First Strike as the Long Gun phase resolving before Light and Heavy. Armor is also rescaled to 0-30 from the old 0-110."
+    },
+    {
+      "about": "Ironback",
+      "note": "Still the R5 Confederate siege ship. Jessup's legend hull was renamed the Adamant on 18 September so this name could stand; the collision is resolved and nothing here needs to change for it."
     }
   ],
   "purpose": {
-    "Purpose": "Authoritative working roster for ship progression, strategic roles, tier placement, construction economics, and faction identity. Combat-resolution rules remain defined in the separate Naval Combat System document.",
+    "Purpose": "Authoritative working roster for ship progression, economics, ratings, and combat inputs. Ratings & Pricing governs purchase value; Combat Rules and Combat Stats govern the ship-versus-ship simulation model.",
     "Roster structure": "Each faction has four starting ships and eight research unlocks. Research order establishes progression, not strict replacement: efficient, specialized, and logistical ships may remain useful throughout the campaign.",
-    "Faction contrast": "The Crown favors standardized progression, disciplined combined fleets, and increasingly dominant capital ships. The Confederacy favors asymmetric specialists, retrofits, raiders, living-coral vessels, and ships that combine military and strategic utility.",
-    "Balance philosophy": "Every ship should have a clear reason to build it and an intentional weakness. Power may be paid for through cost, construction time, upkeep, speed, repair, fragility, narrow specialization, or dependence on fleet support.",
-    "Current status": "Ship concepts and tier identities are approved working designs. Exact numerical balance remains subject to simulation and playtesting; future revisions should preserve each ship's defining role and tradeoffs."
-  },
-  "buildTimeScaleDays": {
-    "extreme_low": 40,
-    "majestic": 1000
+    "Faction contrast": "The Crown favors standardized progression, disciplined combined fleets, and dominant capital ships. The Confederacy favors asymmetric specialists, retrofits, raiders, living-coral vessels, and military-strategic hybrids.",
+    "Balance philosophy": "Every ship needs a clear reason to build it and an intentional weakness. Ships are not required to offer equal value: value monsters, fair-rate designs, specialist overpays, and prestige capitals are all valid when deliberate.",
+    "Pricing system": "The Ratings & Pricing tab is the authoritative pricing method. Ship Roster columns T:Z calculate capability points, reference cost, synergy and weakness modifiers, price ratio, and S/A/B/C/D/F purchase-value rating.",
+    "Rating scope": "The letter rating measures purchase value only. Build time and maintenance are evaluated separately because they control production tempo and sustainable fleet size.",
+    "Current status": "Ship identities and pricing are approved working designs. Combat damage, armor penetration, phase order, accuracy, targeting, retreat, and simulation standards are now locked in the Combat Rules tab. The executable 5,000-trial engine is the next build step; special infrastructure/component damage remains outside the initial model."
   },
   "tierBands": {
-    "Speed": {
-      "T0": "None",
-      "T1": "Slow",
-      "T2": "Normal",
-      "T3": "Fast",
-      "T4": "Very Fast"
-    },
     "Long Guns": {
       "T0": "0",
-      "T1": "1–2",
-      "T2": "3–4",
-      "T3": "5–7",
+      "T1": "1-2",
+      "T2": "3-4",
+      "T3": "5-7",
       "T4": "8+"
     },
     "Heavy Guns": {
       "T0": "0",
       "T1": "1",
-      "T2": "2–4",
-      "T3": "5–8",
+      "T2": "2-4",
+      "T3": "5-8",
       "T4": "9+"
     },
     "Light Guns": {
       "T0": "0",
-      "T1": "1–2",
-      "T2": "3–5",
-      "T3": "6–9",
+      "T1": "1-2",
+      "T2": "3-5",
+      "T3": "6-9",
       "T4": "10+"
     },
     "Armor": {
       "T0": "0",
-      "T1": "1–29",
-      "T2": "30–49",
-      "T3": "50–74",
-      "T4": "75+"
+      "T1": "1-10",
+      "T2": "11-20",
+      "T3": "21-25",
+      "T4": "26-29",
+      "T4+": "30"
     },
     "Hull": {
       "T0": "0",
-      "T1": "1–199",
-      "T2": "200–399",
-      "T3": "400–799",
-      "T4": "800+"
+      "T1": "1-199",
+      "T2": "200-399",
+      "T3": "400-799",
+      "T4": "800-1599",
+      "T4+": "1600+"
     },
     "Bombardment": {
       "T0": "0",
       "T1": "1",
-      "T2": "2–3",
-      "T3": "4–6",
+      "T2": "2-3",
+      "T3": "4-6",
       "T4": "7+"
     },
     "Troop Capacity": {
       "T0": "0",
-      "T1": "1–2",
-      "T2": "3–5",
-      "T3": "6–9",
+      "T1": "1-2",
+      "T2": "3-5",
+      "T3": "6-9",
       "T4": "10+"
+    }
+  },
+  "armorClasses": {
+    "None": "0",
+    "Light": "1-10",
+    "Medium": "11-20",
+    "Heavy": "21-25",
+    "_note": "Armor has four gameplay classes: None, Light, Medium and Heavy. Heavy+ (26-29) and Maximum (30) are pricing sub-bands inside Heavy, used to value elite capital protection without adding new gameplay classes."
+  },
+  "pricing": {
+    "capabilityPoints": {
+      "T0": 0,
+      "T1": 1,
+      "T2": 2,
+      "T3": 4,
+      "T4": 7,
+      "T4+": 10,
+      "_why": "High-tier concentration is more valuable than the same number of scattered low-tier abilities. Escalating weights price threshold effects and capital-ship slot efficiency."
     },
-    "Repair Rate": {
-      "T0": "0%",
-      "T1": "0.1–1.0%",
-      "T2": "1.1–2.0%",
-      "T3": "2.1–3.0%",
-      "T4": "3.1%+"
+    "speedPoints": {
+      "None": 0,
+      "Slow": 1,
+      "Normal": 2,
+      "Fast": 3,
+      "Very Fast": 5
     },
-    "Days to Build": {
-      "T0": "0",
-      "T1": "1–30",
-      "T2": "31–75",
-      "T3": "76–180",
-      "T4": "181+"
+    "repairPoints": {
+      "Below 0.5%": 0,
+      "0.5-0.9%": 1,
+      "1.0%": 2,
+      "1.1-2.0%": 3,
+      "Above 2.0%": 5
     },
-    "Gold to Build": {
-      "T0": "0",
-      "T1": "1–100",
-      "T2": "101–250",
-      "T3": "251–600",
-      "T4": "601+"
+    "baseReferenceGoldPerPoint": 25,
+    "synergies": {
+      "Mobile firepower": {
+        "pct": 10,
+        "when": "Fast or Very Fast with at least one T3+ gun battery."
+      },
+      "Pursuit hunter": {
+        "pct": 10,
+        "when": "Fast or Very Fast with T2+ Long Guns."
+      },
+      "Fortress package": {
+        "pct": 10,
+        "when": "T3+ Armor and T3+ Hull."
+      },
+      "Regenerative defense": {
+        "pct": 10,
+        "when": "Above-rate Repair with T2+ Armor or Hull."
+      },
+      "Independent raider": {
+        "pct": 10,
+        "when": "Fast or Very Fast with both Troops and Bombardment."
+      },
+      "Invasion package": {
+        "pct": 10,
+        "when": "T2+ Troops and T2+ Bombardment."
+      },
+      "Combined-arms battery": {
+        "pct": 10,
+        "when": "T2+ Long, Heavy, and Light Guns."
+      },
+      "Broad utility": {
+        "pct": 10,
+        "when": "At least four meaningful T2+ capabilities, including Fast speed or above-rate Repair."
+      },
+      "Capital concentration": {
+        "pct": 20,
+        "when": "At least three T4/T4+ capabilities."
+      },
+      "_cap": 50
     },
-    "Gold/Day Maintenance": {
-      "T0": "0",
-      "T1": "0.1–2",
-      "T2": "2.1–5",
-      "T3": "5.1–15",
-      "T4": "15+"
+    "weaknesses": {
+      "Glass hull": {
+        "pct": -15,
+        "when": "No Armor and T1 Hull."
+      },
+      "Slow without reach": {
+        "pct": -10,
+        "when": "Slow speed and no Long Guns."
+      },
+      "Unscreened heavy hull": {
+        "pct": -5,
+        "when": "T3+ Armor or Hull with no Light Guns."
+      },
+      "Poor recovery": {
+        "pct": -10,
+        "when": "Below-rate Repair on a ship with T3+ Armor or Hull."
+      },
+      "_cap": -25,
+      "_note": "A zero stat alone is not a discount because it already contributes zero points."
     },
-    "Status": {
-      "T0": "Destroyed",
-      "T1": "Critically Damaged",
-      "T2": "Heavily Damaged",
-      "T3": "Damaged",
-      "T4": "Healthy"
+    "capitalScale": [
+      {
+        "fromPoints": 30,
+        "toPoints": 39,
+        "pct": 20
+      },
+      {
+        "fromPoints": 40,
+        "toPoints": 49,
+        "pct": 40
+      },
+      {
+        "fromPoints": 50,
+        "pct": 60
+      }
+    ],
+    "roundReferenceToNearestGold": 5,
+    "valueBands": {
+      "S — Value Monster": "Below 55%",
+      "A — Very Above Rate": "55-74%",
+      "B — Above Rate": "75-89%",
+      "C — On Rate": "90-110%",
+      "D — Below Rate": "111-135%",
+      "F — Very Below Rate": "Above 135%"
+    },
+    "buildTimeBands": {
+      "benchmark": "On Rate = 1 build day per gold of actual build cost",
+      "Very Below Rate": "Above 150% of cost",
+      "Below Rate": "111-150%",
+      "On Rate": "90-110%",
+      "Above Rate": "60-89%",
+      "Very Above Rate": "Below 60%"
+    },
+    "maintenanceBands": {
+      "benchmark": "On Rate = ceil(1% of actual build cost) gold per day",
+      "Very Below Rate": "Above 150% of baseline",
+      "Below Rate": "101-150%",
+      "On Rate": "Exactly 100%",
+      "Above Rate": "51-99%",
+      "Very Above Rate": "50% or less"
+    },
+    "repairBands": {
+      "Very Below Rate": "Below 0.5% per day",
+      "Below Rate": "0.5-0.9%",
+      "On Rate": "1.0%",
+      "Above Rate": "1.1-2.0%",
+      "Very Above Rate": "Above 2.0%"
+    }
+  },
+  "combatRules": {
+    "_status": "LOCKED. Authoritative combat specification for ship-versus-ship and fleet simulation.",
+    "principle": "There is no ship-level Firepower stat. Every individual cannon makes its own attack using the rules for its gun type.",
+    "battleTarget": "Evenly matched battles should usually resolve in 1-3 player-visible Combat Exchanges.",
+    "cannon": {
+      "attackGranularity": "One attack per individual cannon. Ten guns create ten separate attacks.",
+      "hitRoll": "Roll d100 for every cannon; the attack hits when the roll is at or below final hit chance after the gun-type modifier.",
+      "Light": {
+        "damageDice": "2d20",
+        "penetration": 0.0,
+        "accuracy": 10
+      },
+      "Heavy": {
+        "damageDice": "4d20",
+        "penetration": 0.5,
+        "accuracy": 0
+      },
+      "Long": {
+        "damageDice": "2d20",
+        "penetration": 0.5,
+        "accuracy": 0
+      },
+      "effectiveArmor": "CEILING(Target Armor x (1 - Armor Penetration))",
+      "damageTaken": "MAX(0, Rolled Damage - Effective Armor)",
+      "example": "Armor 25 stops a 25-damage Light hit. A 26-damage Light hit deals 1. A 26-damage Heavy hit faces 13 effective armor and deals 13."
+    },
+    "phases": {
+      "attackCommand": "The player chooses Attack/Fight. Snapshot each side's current total Hull, then resolve consecutive internal combat rounds until either side has lost at least 30% of that starting snapshot or a fleet is destroyed.",
+      "phaseRule": "Target assignment occurs before dice are rolled within each phase.",
+      "phase1": "Assess every surviving Long Gun and assign targets using the optimal targeting algorithm. Long Guns resolve before Light and Heavy Guns. Roll all assigned Long Gun attacks, then apply all Long Gun damage simultaneously. Ships sunk by Long Guns are removed before Phase 2 and do not fire Light or Heavy Guns.",
+      "phase2": "Assign every surviving Light and Heavy Gun target as one combined simultaneous firing solution. Light and Heavy Guns on both sides fire before any Phase 2 damage removes ships. Roll all assigned attacks, then apply all Phase 2 damage simultaneously. After the complete round, test the 30% Combat Exchange stop condition.",
+      "exchangeStopShare": 0.3,
+      "repair": "No repair occurs during combat rounds.",
+      "persistence": "Damage remains after the round and after the battle until repaired outside combat.",
+      "mutualDestruction": "Record the analytical result as mutual destruction. In the player-facing UI, loss of the player's entire fleet displays Defeat."
+    },
+    "accuracy": {
+      "base": 75,
+      "min": 10,
+      "max": 95,
+      "formula": "CLAMP(75 + gun base modifier + gun-vs-Size modifier + gun-vs-Speed modifier, 10, 95)",
+      "sizes": [
+        "Small",
+        "Medium",
+        "Large",
+        "Gigantic"
+      ],
+      "speeds": [
+        "Slow",
+        "Normal",
+        "Fast",
+        "Very Fast"
+      ],
+      "gunBase": {
+        "Light": 10,
+        "Long": 0,
+        "Heavy": 0
+      },
+      "gunVsSize": {
+        "Light": {
+          "Small": 0,
+          "Medium": 0,
+          "Large": 0,
+          "Gigantic": 0
+        },
+        "Long": {
+          "Small": -10,
+          "Medium": -5,
+          "Large": 0,
+          "Gigantic": 10
+        },
+        "Heavy": {
+          "Small": -30,
+          "Medium": -15,
+          "Large": 0,
+          "Gigantic": 15
+        }
+      },
+      "gunVsSpeed": {
+        "Light": {
+          "Slow": 5,
+          "Normal": 0,
+          "Fast": -10,
+          "Very Fast": -20
+        },
+        "Long": {
+          "Slow": 5,
+          "Normal": 0,
+          "Fast": -15,
+          "Very Fast": -25
+        },
+        "Heavy": {
+          "Slow": 10,
+          "Normal": 0,
+          "Fast": -20,
+          "Very Fast": -35
+        }
+      },
+      "intent": "Heavy accuracy is contextual: average against intended large targets, poor against small/fast targets.",
+      "_note": "The Size and Speed read are the TARGET's. These gun-specific matrices replace the former universal Size and Speed modifiers."
+    },
+    "targeting": {
+      "timing": "Assign targets before rolling attacks. Long Guns optimize separately in Phase 1; Light and Heavy Guns optimize together in Phase 2.",
+      "expectedDamage": "For each gun/target pair: Hit Chance x expected post-armor damage.",
+      "expectedShotsToKill": "CEILING(Remaining Hull / Expected Damage per shot); an attack that cannot penetrate receives no viable-kill score.",
+      "targetThreat": "Estimate the target's next-volley weapon output from its surviving individual cannons.",
+      "priorityScore": "Target Threat / Expected Shots to Kill",
+      "allocation": "Assign the next cannon to the viable target with the highest priority score. Track expected assigned damage and stop assigning to that target once an expected kill is covered; then recalculate.",
+      "overkillControl": "This spreads fire when further shots would be expected overkill.",
+      "noncombatTransports": "Transports with zero guns remain valid targets but are considered only after armed targets are handled.",
+      "tieBreaking": "Break equal priority scores randomly to prevent perfectly repetitive battles.",
+      "visibility": "The targeting math is internal and is not a visible ship stat."
+    },
+    "retreat": {
+      "volley": "Every surviving enemy Long Gun receives one attack when the opposing fleet flees.",
+      "targeting": "Use the same optimizer; target hit chance naturally accounts for Speed and Size.",
+      "damage": "Use normal Long Gun damage (2d20), 50% armor penetration, and the Long Gun +-0 accuracy modifier.",
+      "resolution": "Apply the retreat volley simultaneously; surviving fleeing ships then escape.",
+      "success": "Flee never fails and never forces an additional normal round.",
+      "noLongGuns": "If the pursuing fleet has no surviving Long Guns, the fleeing fleet takes no retreat attacks."
+    },
+    "simulation": {
+      "trials": 5000,
+      "coverage": "Every ship versus every ship, including mirrors; Swift versus Swift is N/A.",
+      "recorded": [
+        "win/loss/mutual-destruction rate",
+        "average internal rounds and Combat Exchanges",
+        "average surviving Hull",
+        "destruction probability",
+        "average damage inflicted",
+        "retreat survival",
+        "cost efficiency"
+      ],
+      "targetDuration": "Evenly matched battles should usually resolve in 1-3 player-visible Combat Exchanges; one Exchange may contain multiple internal combat rounds.",
+      "randomness": "Each cannon rolls its own d100 hit roll and its own damage dice.",
+      "openBoundary": "Special infrastructure or component damage has not yet been defined in the roster and is excluded from the initial simulator."
     }
   },
   "designRules": {
-    "Early-game power": "Starting ships may be strong, but multiple high-tier capabilities require major drawbacks such as poor efficiency, fragility, Slow speed, weak repair, or narrow specialization.",
-    "Fleet structure": "Each faction fields four starting ships followed by eight research unlocks. New research should expand fleet-building choices rather than make every earlier hull obsolete.",
+    "Early-game power": "Starting ships may be strong, but multiple high-tier capabilities require major drawbacks such as poor efficiency, fragility, Slow speed, weak repair, narrow specialization, or production constraints.",
+    "Fleet structure": "Each faction fields four starting ships followed by eight research unlocks. Research should expand fleet-building choices rather than make every earlier hull obsolete.",
     "Crown doctrine": "Standardized combined-arms fleets, dependable progression, strong Heavy Guns and capital ships, and deliberate reliance on escorts to cover specialist weaknesses.",
     "Confederacy doctrine": "Asymmetric specialists, fast raiders, retrofits, amphibious reef technology, regeneration, and ships that trade standardization for unusual strategic advantages.",
-    "Weapon system": "The roster uses Long Guns, Heavy Guns, and Light Guns. Gun tiers describe battery strength; ships should not receive every category unless broad armament is central to their identity.",
-    "Long Guns": "A midgame technology milestone used primarily for retreat fire and pursuit. Long Guns do not grant First Strike in normal combat.",
+    "Weapon system": "Each cannon attacks separately. Light Guns are accurate 2d20 weapons with no penetration; Long Guns are lower-accuracy 2d20 weapons with 50% penetration and first strike; Heavy Guns are the least accurate 4d20 weapons with 50% penetration.",
+    "Long Guns": "A midgame technology milestone. Long Guns fire in the first-strike phase and receive one free retreat volley against a fleeing fleet.",
     "Bombardment": "A strategic siege rating used against fortifications and locations. It never contributes to ship-to-ship damage; specialized ordnance may justify Bombardment without naval Heavy or Long Guns.",
-    "Value and specialization": "Ships are not expected to offer equal general value. Some may be deliberate value monsters, while inefficient ships remain desirable because they provide a scarce capability. Every ship still needs a clear strategic reason to build it, and extreme strengths should carry visible tradeoffs.",
-    "Maintenance baseline": "Standard daily maintenance is ceil(Gold to Build × 1%). Efficient ships fall below this rate; inefficient, cheap, improvised, or difficult-to-service ships may exceed it substantially.",
-    "Build-time baseline": "On-rate construction has Days to Build equal to Gold to Build. Faster or slower completion is an intentional production advantage or drawback; the overall range runs from roughly 40 days to 1,000 days for Majestic.",
-    "Gun-cost baseline": "On-rate armament value is (Long Guns + Heavy Guns + Light Guns) × 50 gold. A ship costing more allocates value to defense, speed, utility, regeneration, or another capability; a ship costing less receives above-rate firepower and must pay elsewhere.",
-    "Endgame": "Majestic remains the strongest individual ship. Urskin Whaler supplies the Confederacy's greatest hull, troop capacity, and Heavy Gun mass; the Coral-Class Dreadnaught supplies regenerative, heavily armored combined-arms power. Together they exceed a lone Majestic."
+    "Value philosophy": "Ships are not expected to offer equal general value. S-tier value monsters and deliberately inefficient specialists are allowed, but every extreme needs a clear strategic purpose and visible counterweight.",
+    "Pricing authority": "Ratings & Pricing defines the authoritative reference-price process. Ship Roster columns T:Z apply it automatically to every ship.",
+    "Three economic levers": "Purchase cost, build time, and maintenance are separate. A ship should rarely dominate all three without explicit approval and simulation priority.",
+    "Endgame": "Majestic remains the strongest individual ship and the only Maximum Armor 30 hull. Urskin Whaler keeps the greatest hull and Heavy Gun mass; Coral-Class supplies Heavy Armor 29, regeneration, and combined arms. One of either Confederate capital loses to Majestic, while two of either—or one of each—should defeat it reliably."
   },
   "ships": [
     {
@@ -148,6 +393,7 @@
       "Research Order": "S01",
       "Ship": "Wayfinder",
       "Role": "Exploration transport",
+      "Size": "Medium",
       "Speed": "Normal",
       "Long Guns": 0,
       "Heavy Guns": 0,
@@ -161,7 +407,15 @@
       "Gold to Build": 125,
       "Gold/Day Maintenance": 2,
       "Status": "Healthy",
-      "Design Notes": "Low-threat strategic transport with T1 Light Guns, T2 Hull, and capacity for four troops. Its modest combat profile reduces its targeting priority, helping it preserve valuable embarked forces."
+      "Combatant Type": "Warship",
+      "Design Notes": "No Armor; 300 Hull; 2 Light Guns. A medium exploration transport whose modest threat helps preserve its four embarked troops.",
+      "Capability Points": 9,
+      "Base Reference Cost": 225,
+      "Synergy %": "0%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 225,
+      "Price Ratio": "55.6%",
+      "Value Rating": "A — Very Above Rate"
     },
     {
       "Ship ID": "CWN-INT-S02",
@@ -169,6 +423,7 @@
       "Research Order": "S02",
       "Ship": "Interceptor I",
       "Role": "Disposable light-gun interceptor",
+      "Size": "Small",
       "Speed": "Very Fast",
       "Long Guns": 0,
       "Heavy Guns": 0,
@@ -179,10 +434,18 @@
       "Troop Capacity": 0,
       "Repair Rate": "1%",
       "Days to Build": 40,
-      "Gold to Build": 80,
+      "Gold to Build": 215,
       "Gold/Day Maintenance": 2,
       "Status": "Healthy",
-      "Design Notes": "Very Fast and inexpensive, with T2 Light Guns but no Armor and only T1 Hull. Individually fragile; dangerous when fielded in numbers against lightly protected Confederate ships."
+      "Combatant Type": "Warship",
+      "Design Notes": "No Armor; 90 Hull; 4 Light Guns. Very Fast and cheap enough to swarm, but deliberately fragile.",
+      "Capability Points": 10,
+      "Base Reference Cost": 250,
+      "Synergy %": "0%",
+      "Weakness %": "-15%",
+      "Scaled Reference Cost": 215,
+      "Price Ratio": "100.0%",
+      "Value Rating": "C — On Rate"
     },
     {
       "Ship ID": "CWN-MOR-S03",
@@ -190,20 +453,29 @@
       "Research Order": "S03",
       "Ship": "Morningstar",
       "Role": "Inefficient early heavy warship",
+      "Size": "Large",
       "Speed": "Slow",
       "Long Guns": 0,
       "Heavy Guns": 8,
       "Light Guns": 6,
-      "Armor": 70,
+      "Armor": 24,
       "Hull": 650,
       "Bombardment": 6,
       "Troop Capacity": 0,
       "Repair Rate": "0.5%",
       "Days to Build": 176,
-      "Gold to Build": 600,
+      "Gold to Build": 675,
       "Gold/Day Maintenance": 20,
       "Status": "Healthy",
-      "Design Notes": "An intentionally inefficient but powerful starting warship. T3 Heavy Guns, Armor, Hull, and Bombardment deliver strong early damage, offset by Slow speed, poor repair, high construction cost, and exceptional upkeep."
+      "Combatant Type": "Warship",
+      "Design Notes": "Heavy Armor 24; 650 Hull; 8 Heavy and 6 Light Guns. Powerful but Slow, poorly repairing, costly to maintain, and intentionally D-tier.",
+      "Capability Points": 22,
+      "Base Reference Cost": 550,
+      "Synergy %": "20%",
+      "Weakness %": "-20%",
+      "Scaled Reference Cost": 550,
+      "Price Ratio": "122.7%",
+      "Value Rating": "D — Below Rate"
     },
     {
       "Ship ID": "CWN-SOV-S04",
@@ -211,20 +483,29 @@
       "Research Order": "S04",
       "Ship": "Sovereign",
       "Role": "Starting capital assault ship",
+      "Size": "Gigantic",
       "Speed": "Slow",
       "Long Guns": 0,
       "Heavy Guns": 7,
       "Light Guns": 4,
-      "Armor": 65,
+      "Armor": 25,
       "Hull": 900,
       "Bombardment": 6,
       "Troop Capacity": 6,
       "Repair Rate": "1%",
       "Days to Build": 360,
-      "Gold to Build": 900,
+      "Gold to Build": 1000,
       "Gold/Day Maintenance": 25,
       "Status": "Healthy",
-      "Design Notes": "The Crown's starting capital ship combines strong Heavy Guns, Armor, Hull, Bombardment, and troop capacity. Its limited Light Guns leave it vulnerable to fast swarms unless screened by Interceptors."
+      "Combatant Type": "Warship",
+      "Design Notes": "Heavy Armor 25; 900 Hull; 7 Heavy and 4 Light Guns. A starting capital assault ship with high upkeep and an escort dependency; intentionally D-tier.",
+      "Capability Points": 28,
+      "Base Reference Cost": 700,
+      "Synergy %": "30%",
+      "Weakness %": "-10%",
+      "Scaled Reference Cost": 840,
+      "Price Ratio": "119.0%",
+      "Value Rating": "D — Below Rate"
     },
     {
       "Ship ID": "CWN-VAN-R1-01",
@@ -232,11 +513,12 @@
       "Research Order": "R1",
       "Ship": "Vanguard",
       "Role": "Efficient general-purpose gunship",
+      "Size": "Large",
       "Speed": "Normal",
       "Long Guns": 0,
       "Heavy Guns": 4,
       "Light Guns": 7,
-      "Armor": 35,
+      "Armor": 18,
       "Hull": 500,
       "Bombardment": 3,
       "Troop Capacity": 0,
@@ -245,7 +527,15 @@
       "Gold to Build": 300,
       "Gold/Day Maintenance": 10,
       "Status": "Healthy",
-      "Design Notes": "An efficiency upgrade over Morningstar: Normal speed, lower construction and maintenance costs, and strong repair. It sacrifices some Heavy Guns, Armor, and Bombardment for better overall fleet value."
+      "Combatant Type": "Warship",
+      "Design Notes": "Medium Armor 18; 500 Hull; 4 Heavy and 7 Light Guns. An efficient general-purpose upgrade over Morningstar.",
+      "Capability Points": 21,
+      "Base Reference Cost": 525,
+      "Synergy %": "20%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 630,
+      "Price Ratio": "47.6%",
+      "Value Rating": "S — Value Monster"
     },
     {
       "Ship ID": "CWN-RES-R2-01",
@@ -253,20 +543,29 @@
       "Research Order": "R2",
       "Ship": "Resolute",
       "Role": "Fast multirole workhorse",
+      "Size": "Medium",
       "Speed": "Fast",
       "Long Guns": 0,
       "Heavy Guns": 1,
       "Light Guns": 5,
-      "Armor": 20,
+      "Armor": 8,
       "Hull": 250,
       "Bombardment": 1,
       "Troop Capacity": 1,
       "Repair Rate": "2%",
       "Days to Build": 45,
-      "Gold to Build": 125,
+      "Gold to Build": 300,
       "Gold/Day Maintenance": 7,
       "Status": "Healthy",
-      "Design Notes": "Replaces Interceptor I as the Crown's fast workhorse. T2 Light Guns, T1 Heavy Guns, light Armor, T1 Bombardment, and one troop give it broad utility; rapid construction is balanced by inefficient upkeep."
+      "Combatant Type": "Warship",
+      "Design Notes": "Light Armor 8; 250 Hull; 1 Heavy and 5 Light Guns. Fast multirole workhorse with rapid construction and intentionally inefficient upkeep; A-tier.",
+      "Capability Points": 14,
+      "Base Reference Cost": 350,
+      "Synergy %": "30%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 455,
+      "Price Ratio": "65.9%",
+      "Value Rating": "A — Very Above Rate"
     },
     {
       "Ship ID": "CWN-BUL-R3-01",
@@ -274,11 +573,12 @@
       "Research Order": "R3",
       "Ship": "Bulwark",
       "Role": "Defensive long-gun fleet anchor",
+      "Size": "Large",
       "Speed": "Slow",
       "Long Guns": 4,
       "Heavy Guns": 4,
       "Light Guns": 0,
-      "Armor": 45,
+      "Armor": 25,
       "Hull": 700,
       "Bombardment": 3,
       "Troop Capacity": 3,
@@ -287,7 +587,15 @@
       "Gold to Build": 725,
       "Gold/Day Maintenance": 23,
       "Status": "Healthy",
-      "Design Notes": "Introduces Crown Long Guns. T2 Long and Heavy Guns, T2 Armor, T3 Hull, and three troops make it a durable fleet anchor. No Light Guns and poor repair require dedicated screening support."
+      "Combatant Type": "Warship",
+      "Design Notes": "Heavy Armor 25; 700 Hull; 4 Long and 4 Heavy Guns. Durable fleet anchor with no Light Guns and weak repair.",
+      "Capability Points": 18,
+      "Base Reference Cost": 450,
+      "Synergy %": "30%",
+      "Weakness %": "-15%",
+      "Scaled Reference Cost": 520,
+      "Price Ratio": "139.4%",
+      "Value Rating": "F — Very Below Rate"
     },
     {
       "Ship ID": "CWN-VAN-R4-02",
@@ -295,11 +603,12 @@
       "Research Order": "R4",
       "Ship": "Vanguard II",
       "Role": "Advanced value warship",
+      "Size": "Large",
       "Speed": "Normal",
       "Long Guns": 0,
       "Heavy Guns": 7,
       "Light Guns": 9,
-      "Armor": 60,
+      "Armor": 24,
       "Hull": 700,
       "Bombardment": 4,
       "Troop Capacity": 0,
@@ -308,7 +617,15 @@
       "Gold to Build": 550,
       "Gold/Day Maintenance": 12,
       "Status": "Healthy",
-      "Design Notes": "Improves Vanguard with greater Armor, Hull, and Heavy Gun strength while retaining exceptional repair efficiency. A durable, cost-effective core ship for mature Crown fleets."
+      "Combatant Type": "Warship",
+      "Design Notes": "Heavy Armor 24; 700 Hull; 7 Heavy and 9 Light Guns. Advanced, durable value warship with exceptional repair.",
+      "Capability Points": 27,
+      "Base Reference Cost": 675,
+      "Synergy %": "30%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 880,
+      "Price Ratio": "62.5%",
+      "Value Rating": "A — Very Above Rate"
     },
     {
       "Ship ID": "CWN-INT-R5-02",
@@ -316,20 +633,29 @@
       "Research Order": "R5",
       "Ship": "Interceptor II",
       "Role": "Elite pursuit interceptor",
+      "Size": "Small",
       "Speed": "Very Fast",
       "Long Guns": 5,
       "Heavy Guns": 0,
       "Light Guns": 10,
-      "Armor": 40,
+      "Armor": 14,
       "Hull": 150,
       "Bombardment": 0,
       "Troop Capacity": 0,
       "Repair Rate": "1%",
       "Days to Build": 120,
-      "Gold to Build": 700,
+      "Gold to Build": 350,
       "Gold/Day Maintenance": 16,
       "Status": "Healthy",
-      "Design Notes": "A dramatic Interceptor upgrade: Very Fast, T3 Long Guns, T4 Light Guns, and T2 Armor. Its T1 Hull, high price, and costly upkeep prevent it from trading efficiently in prolonged battles."
+      "Combatant Type": "Warship",
+      "Design Notes": "Medium Armor 14; 150 Hull; 5 Long and 10 Light Guns. Elite Very Fast pursuit interceptor; S-tier value offset by extreme maintenance and a fragile hull.",
+      "Capability Points": 21,
+      "Base Reference Cost": 525,
+      "Synergy %": "30%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 685,
+      "Price Ratio": "51.1%",
+      "Value Rating": "S — Value Monster"
     },
     {
       "Ship ID": "CWN-JUS-R6-01",
@@ -337,11 +663,12 @@
       "Research Order": "R6",
       "Ship": "Justiciar",
       "Role": "Backbone offensive warship",
+      "Size": "Large",
       "Speed": "Normal",
       "Long Guns": 7,
       "Heavy Guns": 8,
       "Light Guns": 9,
-      "Armor": 45,
+      "Armor": 22,
       "Hull": 400,
       "Bombardment": 3,
       "Troop Capacity": 0,
@@ -350,7 +677,15 @@
       "Gold to Build": 650,
       "Gold/Day Maintenance": 18,
       "Status": "Healthy",
-      "Design Notes": "A purpose-built offensive warship with T3 Long, Heavy, and Light Guns, medium Armor, low-T3 Hull, and T2 Bombardment. No troop capacity; its value lies entirely in naval aggression."
+      "Combatant Type": "Warship",
+      "Design Notes": "Heavy Armor 22; 400 Hull; 7 Long, 8 Heavy, and 9 Light Guns. Broad offensive backbone with no troop role.",
+      "Capability Points": 27,
+      "Base Reference Cost": 675,
+      "Synergy %": "40%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 945,
+      "Price Ratio": "68.8%",
+      "Value Rating": "A — Very Above Rate"
     },
     {
       "Ship ID": "CWN-SOV-R7-02",
@@ -358,11 +693,12 @@
       "Research Order": "R7",
       "Ship": "Sovereign II",
       "Role": "Mobile assault super-capital",
+      "Size": "Gigantic",
       "Speed": "Normal",
       "Long Guns": 6,
       "Heavy Guns": 14,
       "Light Guns": 3,
-      "Armor": 90,
+      "Armor": 28,
       "Hull": 1200,
       "Bombardment": 8,
       "Troop Capacity": 9,
@@ -371,7 +707,15 @@
       "Gold to Build": 1400,
       "Gold/Day Maintenance": 30,
       "Status": "Healthy",
-      "Design Notes": "A major Sovereign improvement with Normal speed, T4 Heavy Guns and Bombardment, stronger Armor, greater troop capacity, and only moderately increased upkeep. Reduced Light Guns preserve its need for escorts."
+      "Combatant Type": "Warship",
+      "Design Notes": "Heavy Armor 28; 1,200 Hull; 6 Long, 14 Heavy, and 3 Light Guns. Mobile assault super-capital with troop capacity and an escort dependency.",
+      "Capability Points": 43,
+      "Base Reference Cost": 1075,
+      "Synergy %": "50%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 2260,
+      "Price Ratio": "61.9%",
+      "Value Rating": "A — Very Above Rate"
     },
     {
       "Ship ID": "CWN-MAJ-R8-01",
@@ -379,11 +723,12 @@
       "Research Order": "R8",
       "Ship": "Majestic",
       "Role": "Ultimate Crown super-capital",
+      "Size": "Gigantic",
       "Speed": "Slow",
       "Long Guns": 10,
       "Heavy Guns": 16,
       "Light Guns": 10,
-      "Armor": 95,
+      "Armor": 30,
       "Hull": 1600,
       "Bombardment": 12,
       "Troop Capacity": 12,
@@ -392,7 +737,15 @@
       "Gold to Build": 2500,
       "Gold/Day Maintenance": 50,
       "Status": "Healthy",
-      "Design Notes": "The strongest individual ship in the game. It combines top-tier weapons, Armor, Hull, Bombardment, and troop capacity; enormous cost, 1,000-day construction, high upkeep, and Slow speed limit its availability."
+      "Combatant Type": "Warship",
+      "Design Notes": "Maximum Armor 30; 1,600 Hull; 10 Long, 16 Heavy, and 10 Light Guns. Strongest individual ship; enormous cost, build time, and upkeep constrain it.",
+      "Capability Points": 58,
+      "Base Reference Cost": 1450,
+      "Synergy %": "50%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 3480,
+      "Price Ratio": "71.8%",
+      "Value Rating": "A — Very Above Rate"
     },
     {
       "Ship ID": "CFS-SWI-S01",
@@ -400,6 +753,7 @@
       "Research Order": "S01",
       "Ship": "Swift",
       "Role": "Extreme-speed exploration craft",
+      "Size": "Small",
       "Speed": "Very Fast",
       "Long Guns": 0,
       "Heavy Guns": 0,
@@ -410,10 +764,18 @@
       "Troop Capacity": 0,
       "Repair Rate": "1%",
       "Days to Build": 40,
-      "Gold to Build": 25,
+      "Gold to Build": 140,
       "Gold/Day Maintenance": 0.5,
       "Status": "Healthy",
-      "Design Notes": "An extremely cheap, Very Fast exploration craft with no combat, transport, Armor, or bombardment capability. Its sole purpose is rapid reconnaissance and map control."
+      "Combatant Type": "Noncombat",
+      "Design Notes": "No Armor; 70 Hull; no guns. Very Fast exploration craft priced at B-tier strategic value; never used in Swift mirror combat.",
+      "Capability Points": 8,
+      "Base Reference Cost": 200,
+      "Synergy %": "0%",
+      "Weakness %": "-15%",
+      "Scaled Reference Cost": 170,
+      "Price Ratio": "82.4%",
+      "Value Rating": "B — Above Rate"
     },
     {
       "Ship ID": "CFS-BRI-S02",
@@ -421,6 +783,7 @@
       "Research Order": "S02",
       "Ship": "Brigantine",
       "Role": "Retrofitted merchant transport",
+      "Size": "Medium",
       "Speed": "Fast",
       "Long Guns": 0,
       "Heavy Guns": 0,
@@ -431,10 +794,18 @@
       "Troop Capacity": 2,
       "Repair Rate": "1.5%",
       "Days to Build": 45,
-      "Gold to Build": 60,
+      "Gold to Build": 275,
       "Gold/Day Maintenance": 1,
       "Status": "Healthy",
-      "Design Notes": "A former merchant brigantine retrofitted with T1 Light Guns. Fast, inexpensive, and able to carry two troops, it retains a sturdy T2 commercial hull but lacks Armor and dedicated naval or siege weapons."
+      "Combatant Type": "Warship",
+      "Design Notes": "No Armor; 250 Hull; 2 Light Guns. Fast retrofit transport with two troop capacity; C-tier purchase value.",
+      "Capability Points": 10,
+      "Base Reference Cost": 250,
+      "Synergy %": "10%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 275,
+      "Price Ratio": "100.0%",
+      "Value Rating": "C — On Rate"
     },
     {
       "Ship ID": "CFS-CHI-S03",
@@ -442,20 +813,29 @@
       "Research Order": "S03",
       "Ship": "Chimera",
       "Role": "Composite defensive warship",
+      "Size": "Medium",
       "Speed": "Slow",
       "Long Guns": 0,
       "Heavy Guns": 1,
       "Light Guns": 2,
-      "Armor": 45,
+      "Armor": 18,
       "Hull": 350,
       "Bombardment": 1,
       "Troop Capacity": 0,
       "Repair Rate": "0.5%",
       "Days to Build": 180,
-      "Gold to Build": 180,
+      "Gold to Build": 205,
       "Gold/Day Maintenance": 4,
       "Status": "Healthy",
-      "Design Notes": "A Slow warship assembled from mismatched hull sections, salvaged Armor, and improvised weapons. T2 Armor and strong T2 Hull make it difficult to sink, while sub-rate guns, poor repair, and inefficient upkeep reflect its retrofit construction."
+      "Combatant Type": "Warship",
+      "Design Notes": "Medium Armor 18; 350 Hull; 1 Heavy and 2 Light Guns. Slow improvised defender with poor repair; C-tier.",
+      "Capability Points": 9,
+      "Base Reference Cost": 225,
+      "Synergy %": "0%",
+      "Weakness %": "-10%",
+      "Scaled Reference Cost": 205,
+      "Price Ratio": "100.0%",
+      "Value Rating": "C — On Rate"
     },
     {
       "Ship ID": "CFS-TID-S04",
@@ -463,11 +843,12 @@
       "Research Order": "S04",
       "Ship": "Tidestalker",
       "Role": "Regenerating light-gun defender",
+      "Size": "Medium",
       "Speed": "Normal",
       "Long Guns": 0,
       "Heavy Guns": 0,
       "Light Guns": 5,
-      "Armor": 10,
+      "Armor": 6,
       "Hull": 300,
       "Bombardment": 0,
       "Troop Capacity": 0,
@@ -476,7 +857,15 @@
       "Gold to Build": 250,
       "Gold/Day Maintenance": 3,
       "Status": "Healthy",
-      "Design Notes": "A living-coral starting warship grown by the amphibious reef peoples. T2 Light Guns, T1 Armor, T2 Hull, and exceptional regeneration make it a sustainable early combatant rather than a burst-damage vessel."
+      "Combatant Type": "Warship",
+      "Design Notes": "Light Armor 6; 300 Hull; 5 Light Guns. Regenerating early defender whose value is sustained operations, not armor penetration.",
+      "Capability Points": 12,
+      "Base Reference Cost": 300,
+      "Synergy %": "10%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 330,
+      "Price Ratio": "75.8%",
+      "Value Rating": "B — Above Rate"
     },
     {
       "Ship ID": "CFS-MAR-R1-01",
@@ -484,6 +873,7 @@
       "Research Order": "R1",
       "Ship": "Marauder",
       "Role": "Independent fast raider",
+      "Size": "Small",
       "Speed": "Fast",
       "Long Guns": 0,
       "Heavy Guns": 1,
@@ -494,10 +884,18 @@
       "Troop Capacity": 2,
       "Repair Rate": "1%",
       "Days to Build": 60,
-      "Gold to Build": 70,
+      "Gold to Build": 175,
       "Gold/Day Maintenance": 1.5,
       "Status": "Healthy",
-      "Design Notes": "A Fast, mass-efficient raider with T3 Light Guns, two troops, and T1 Bombardment from specialized raiding ordnance. No Armor and T1 Hull make it vulnerable, but its speed and versatility enable independent coastal attacks."
+      "Combatant Type": "Warship",
+      "Design Notes": "No Armor; 140 Hull; 1 Heavy and 6 Light Guns. Fast raider with troops and bombardment; deliberate S-tier value monster.",
+      "Capability Points": 13,
+      "Base Reference Cost": 325,
+      "Synergy %": "20%",
+      "Weakness %": "-15%",
+      "Scaled Reference Cost": 340,
+      "Price Ratio": "51.5%",
+      "Value Rating": "S — Value Monster"
     },
     {
       "Ship ID": "CFS-CUT-R2-01",
@@ -505,11 +903,12 @@
       "Research Order": "R2",
       "Ship": "Cutlass",
       "Role": "Conventional fleet warship",
+      "Size": "Small",
       "Speed": "Normal",
       "Long Guns": 0,
       "Heavy Guns": 2,
       "Light Guns": 5,
-      "Armor": 10,
+      "Armor": 7,
       "Hull": 120,
       "Bombardment": 0,
       "Troop Capacity": 0,
@@ -518,7 +917,15 @@
       "Gold to Build": 170,
       "Gold/Day Maintenance": 5,
       "Status": "Healthy",
-      "Design Notes": "The Confederacy's first conventional fleet warship. Normal speed, Heavy Guns, supporting Light Guns, and Armor focus it on naval combat; it carries no troops and contributes no Bombardment."
+      "Combatant Type": "Warship",
+      "Design Notes": "Light Armor 7; 120 Hull; 2 Heavy and 5 Light Guns. Compact conventional fleet warship with no strategic payload.",
+      "Capability Points": 10,
+      "Base Reference Cost": 250,
+      "Synergy %": "0%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 250,
+      "Price Ratio": "68.0%",
+      "Value Rating": "A — Very Above Rate"
     },
     {
       "Ship ID": "CFS-TEM-R3-01",
@@ -526,11 +933,12 @@
       "Research Order": "R3",
       "Ship": "Tempest",
       "Role": "Fast armored long-gun assault ship",
+      "Size": "Medium",
       "Speed": "Fast",
       "Long Guns": 4,
       "Heavy Guns": 1,
       "Light Guns": 2,
-      "Armor": 45,
+      "Armor": 18,
       "Hull": 175,
       "Bombardment": 3,
       "Troop Capacity": 3,
@@ -539,7 +947,15 @@
       "Gold to Build": 220,
       "Gold/Day Maintenance": 6,
       "Status": "Healthy",
-      "Design Notes": "Introduces Confederate Long Guns. Fast speed, T2 Long Guns and Armor, T1 Heavy and Light Guns, three troops, and T2 Bombardment create a highly mobile assault platform with broad strategic utility."
+      "Combatant Type": "Warship",
+      "Design Notes": "Medium Armor 18; 175 Hull; 4 Long, 1 Heavy, and 2 Light Guns. Fast armored assault ship with troops and bombardment.",
+      "Capability Points": 16,
+      "Base Reference Cost": 400,
+      "Synergy %": "40%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 560,
+      "Price Ratio": "39.3%",
+      "Value Rating": "S — Value Monster"
     },
     {
       "Ship ID": "CFS-REE-R4-01",
@@ -547,11 +963,12 @@
       "Research Order": "R4",
       "Ship": "Reefwarden",
       "Role": "Heavy-gun capital hunter",
+      "Size": "Large",
       "Speed": "Normal",
       "Long Guns": 0,
       "Heavy Guns": 7,
       "Light Guns": 4,
-      "Armor": 65,
+      "Armor": 24,
       "Hull": 350,
       "Bombardment": 0,
       "Troop Capacity": 4,
@@ -560,7 +977,15 @@
       "Gold to Build": 700,
       "Gold/Day Maintenance": 5,
       "Status": "Healthy",
-      "Design Notes": "Purpose-built to close the Confederacy's Heavy Gun gap and challenge major Imperium warships. T3 Heavy Guns, T2 Light Guns, T3 Armor, T2 Hull, and four troops; no Long Guns or Bombardment. High cost and long construction are offset by low upkeep."
+      "Combatant Type": "Warship",
+      "Design Notes": "Heavy Armor 24; 350 Hull; 7 Heavy and 4 Light Guns. Capital hunter with strong repair and troop capacity but no Long Guns.",
+      "Capability Points": 21,
+      "Base Reference Cost": 525,
+      "Synergy %": "20%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 630,
+      "Price Ratio": "111.1%",
+      "Value Rating": "D — Below Rate"
     },
     {
       "Ship ID": "CFS-IRB-R5-01",
@@ -568,11 +993,12 @@
       "Research Order": "R5",
       "Ship": "Ironback",
       "Role": "Long-range bombardment specialist",
+      "Size": "Large",
       "Speed": "Slow",
       "Long Guns": 8,
       "Heavy Guns": 1,
       "Light Guns": 0,
-      "Armor": 70,
+      "Armor": 25,
       "Hull": 750,
       "Bombardment": 8,
       "Troop Capacity": 0,
@@ -581,7 +1007,15 @@
       "Gold to Build": 850,
       "Gold/Day Maintenance": 24,
       "Status": "Healthy",
-      "Design Notes": "A dedicated siege platform with T4 Long Guns and Bombardment. T3 Armor and Hull discourage enemy targeting, while T1 Heavy Guns, no Light Guns, no troops, and poor repair keep it specialized."
+      "Combatant Type": "Warship",
+      "Design Notes": "Heavy Armor 25; 750 Hull; 8 Long and 1 Heavy Gun. Slow siege specialist with no Light Guns and poor repair.",
+      "Capability Points": 25,
+      "Base Reference Cost": 625,
+      "Synergy %": "20%",
+      "Weakness %": "-15%",
+      "Scaled Reference Cost": 655,
+      "Price Ratio": "129.8%",
+      "Value Rating": "D — Below Rate"
     },
     {
       "Ship ID": "CFS-BLA-R6-01",
@@ -589,11 +1023,12 @@
       "Research Order": "R6",
       "Ship": "Blackfin",
       "Role": "Fast apex light-gun combatant",
+      "Size": "Medium",
       "Speed": "Fast",
       "Long Guns": 0,
       "Heavy Guns": 0,
       "Light Guns": 12,
-      "Armor": 10,
+      "Armor": 5,
       "Hull": 250,
       "Bombardment": 0,
       "Troop Capacity": 0,
@@ -602,7 +1037,15 @@
       "Gold to Build": 500,
       "Gold/Day Maintenance": 5,
       "Status": "Healthy",
-      "Design Notes": "A Fast, maneuverable specialist carrying the game's only T4 Light Gun battery. It has no troops, Heavy Guns, Long Guns, or Bombardment; efficient cost and rapid construction support mass deployment."
+      "Combatant Type": "Warship",
+      "Design Notes": "Light Armor 5; 250 Hull; 12 Light Guns. Fast apex anti-small combatant with narrow specialization.",
+      "Capability Points": 16,
+      "Base Reference Cost": 400,
+      "Synergy %": "30%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 520,
+      "Price Ratio": "96.2%",
+      "Value Rating": "C — On Rate"
     },
     {
       "Ship ID": "CFS-URW-R7-01",
@@ -610,11 +1053,12 @@
       "Research Order": "R7",
       "Ship": "Urskin Whaler",
       "Role": "Colossal invasion dreadnaught",
+      "Size": "Gigantic",
       "Speed": "Slow",
       "Long Guns": 7,
-      "Heavy Guns": 14,
+      "Heavy Guns": 13,
       "Light Guns": 0,
-      "Armor": 70,
+      "Armor": 25,
       "Hull": 1800,
       "Bombardment": 6,
       "Troop Capacity": 9,
@@ -623,7 +1067,15 @@
       "Gold to Build": 1600,
       "Gold/Day Maintenance": 16,
       "Status": "Healthy",
-      "Design Notes": "The largest hull in the game and a nine-troop invasion platform. T4 Heavy Guns, T3 Long Guns, Armor, and Bombardment deliver enormous strategic weight; Slow speed, no Light Guns, and standard-rate upkeep define its limits."
+      "Combatant Type": "Warship",
+      "Design Notes": "Heavy Armor 25; 1,800 Hull; 7 Long and 13 Heavy Guns. Largest hull and invasion platform; one loses to Majestic, while a pair reliably wins.",
+      "Capability Points": 36,
+      "Base Reference Cost": 900,
+      "Synergy %": "30%",
+      "Weakness %": "-5%",
+      "Scaled Reference Cost": 1350,
+      "Price Ratio": "118.5%",
+      "Value Rating": "D — Below Rate"
     },
     {
       "Ship ID": "CFS-COR-R8-01",
@@ -631,12 +1083,13 @@
       "Research Order": "R8",
       "Ship": "Coral-Class Dreadnaught",
       "Role": "Regenerating living-coral super-capital",
+      "Size": "Gigantic",
       "Speed": "Normal",
       "Long Guns": 7,
       "Heavy Guns": 8,
       "Light Guns": 9,
-      "Armor": 110,
-      "Hull": 750,
+      "Armor": 29,
+      "Hull": 1100,
       "Bombardment": 6,
       "Troop Capacity": 4,
       "Repair Rate": "4%",
@@ -644,7 +1097,15 @@
       "Gold to Build": 2200,
       "Gold/Day Maintenance": 18,
       "Status": "Healthy",
-      "Design Notes": "The final Confederate capital ship. T4+ Armor, T3 Hull, every gun category at T3, T3 Bombardment, Normal speed, and exceptional regeneration provide outstanding long-term value. Its 2,200-gold cost and 900-day growth cycle make deployment a major commitment."
+      "Combatant Type": "Warship",
+      "Design Notes": "Heavy Armor 29; 1,100 Hull; 7 Long, 8 Heavy, and 9 Light Guns. Regenerating combined-arms capital; one loses to Majestic, while a pair reliably wins.",
+      "Capability Points": 39,
+      "Base Reference Cost": 975,
+      "Synergy %": "50%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 1755,
+      "Price Ratio": "125.4%",
+      "Value Rating": "D — Below Rate"
     }
   ]
 }

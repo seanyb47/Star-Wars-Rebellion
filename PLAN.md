@@ -4004,3 +4004,115 @@ a war where there is nothing useful to spend it on.
 creature, and a creature does not fire a broadside — it makes a pass. The
 heading reads *First pass* there and *First broadside* when there are two
 fleets in the water, which is the only case the word was ever true of.
+
+---
+
+## The locked combat system, and the engine it asked for
+
+Sean rewrote the Fleet Roster sheet again on the evening of 18 September, and
+this time the ship table is the smaller half of it. The sheet now carries four
+things: the roster, a **Ratings & Pricing** system that prices every hull from
+its capabilities, the **Combat Rules** marked LOCKED, and a **Combat Derived
+Stats** table of per-ship hit chances and average volleys.
+
+### The sentence that dissolves the blocking item
+
+> *"There is no ship-level Firepower stat. Every individual cannon makes its
+> own attack using the rules for its gun type."*
+
+Every version of the naval document since that morning opened by saying nothing
+downstream could move until the roster was converted to Firepower / Hull /
+Speed 1–10 / hasLongGuns, and that Firepower was explicitly not the three gun
+columns added up. **There was never a Firepower number to derive.** Speed stays
+a category, the three gun columns *are* the combat inputs, and `ShipDefinition`
+now satisfies `CombatStats` structurally — the roster feeds the guns with no
+adapter and no conversion step. The blocking item is cancelled rather than
+completed, which is a better outcome than finishing it would have been.
+
+### Two reversals, both deliberate
+
+**Armor is back**, and rescaled from 0–110 to **0–30**: `effective = ceil(armor
+× (1 − penetration))`, `damage = max(0, rolled − effective)`. So Armor 25 stops
+a 25-damage Light hit dead and takes 13 off the same roll from a Heavy. The
+Majestic is the only Maximum 30 hull.
+
+**First Strike is back**, and is much stronger than the flag that was cut: it is
+now the *shape of the round*. Long Guns are Phase 1, and a hull they sink is
+removed before Phase 2 — so it never fires its Light and Heavy guns at all.
+
+What stays gone: boarding, morale, formation, retreat probability, and a
+size-class **damage** triangle. That last needs saying precisely, because the
+locked rules do have a size matrix. **Size and Speed change accuracy only.** A
+Heavy Gun against a sloop is not doing reduced damage, it is missing — 10% to
+hit against Small and Very Fast, against 95% at a Slow Gigantic. A test holds
+that the dice are the same dice whatever they are pointed at.
+
+### The engine
+
+`lab/navyduel.ts`, which the sheet names as the next build step: 5,000 trials a
+matchup, every hull against every hull, fought to annihilation.
+
+**The endgame rule holds exactly, with nothing tuned to make it.**
+
+| Confederacy fielding | Beats a Majestic | Mutual |
+|---|---|---|
+| 1 Urskin Whaler | **0.0%** | 15.7% |
+| 1 Coral-Class | **0.0%** | 0.0% |
+| 2 Urskin Whalers | **100.0%** | 0.0% |
+| 2 Coral-Class | **98.3%** | 1.5% |
+| 1 of each | **100.0%** | 0.0% |
+
+That is his stated target — *"one of either Confederate capital loses to
+Majestic, while two of either — or one of each — should defeat it reliably"* —
+landing on the nose out of the roster's own numbers. It is the strongest
+evidence available that both the roster and my reading of the rules are right.
+The accuracy model is checked the same way: sixteen hulls' Light, Long and
+Heavy hit chances are asserted against his published Combat Derived Stats
+table, both clamps included.
+
+### One target is missed, and it is worth his attention
+
+> *"Evenly matched battles should usually resolve in 1–3 player-visible Combat
+> Exchanges."*
+
+| Sample | n | Mean Exchanges | Within 1–3 |
+|---|---|---|---|
+| Evenly matched (40–60% win share) | 5 | 3.30 | **40%** |
+| Close (30–70%) | 20 | 3.40 | **25%** |
+| Every matchup | 485 | 2.10 | 82.5% |
+
+So the roster at large sits comfortably inside the target and the *even* fights
+— exactly the ones the rule is about — sit just outside it. The cause is
+structural rather than a bug: the 30% stop is proportional, so the pairings that
+are most evenly matched are the armored ones where each cannon gets least
+through, and they trade many short Exchanges instead of a few decisive ones.
+
+Two dials would move it and **both are his**, because the rules are locked:
+raise the stop share above 30%, or leave it and accept that a close fight
+between two capitals is a long conversation. Nothing was changed to chase it.
+
+### Two findings from the sweep he did not ask for
+
+**The retreat volley barely touches anything Medium or larger.** Fleeing from a
+single long-gunned pursuer, every hull from the Brigantine up escapes 100% of
+the time with most of its hull; only the Swift (69.8%), Interceptor I (84.6%),
+Cutlass (89.8%) and Marauder (94.8%) are ever caught. That is a floor rather
+than the whole picture — this is one pursuer, and a fleet of long-gunned hulls
+multiplies it — but as written, breaking off a capital is nearly free.
+
+**The pricing system tracks combat efficiency well, with two outliers.** Wins
+per 1,000 gold across the whole roster puts Tempest (1.89) and Vanguard (1.71)
+at the top, which matches their S ratings. But the **Chimera** is rated C and
+returns 1.61, and the **Marauder** is rated S and returns 0.98 — middling. The
+likely explanation is that a 1v1 duel cannot see what the Marauder is priced
+for: troops, bombardment and independent raiding are strategic value that never
+appears in a straight fight. Worth knowing before either is retuned.
+
+### Not wired in
+
+`navycombat.ts` is imported by no UI file and by nothing in `advanceDay`. The
+live 24-hull roster and its own combat in `fleets.ts` are untouched and are a
+different fleet with different numbers. Joining them is real work — the live
+roster adopting Size and the 0–30 armor scale, saved games carrying `classId`
+strings that would no longer resolve, and the battle sheet learning to show an
+Exchange rather than a broadside — and it has not been asked for.

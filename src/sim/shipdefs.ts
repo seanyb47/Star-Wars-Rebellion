@@ -53,9 +53,30 @@ export const NAVY_FACTION_TO_PLAYABLE: Record<NavyFaction, 'empire' | 'alliance'
   'Free Confederacy': 'alliance',
 };
 
-/** The five speed categories, T0 to T4 in the export's own tier bands. */
+/** The five speed categories. Combat reads these directly — there is no 1–10. */
 export const SPEED_CATEGORIES = ['None', 'Slow', 'Normal', 'Fast', 'Very Fast'] as const;
 export type SpeedCategory = (typeof SPEED_CATEGORIES)[number];
+
+/**
+ * How big a hull is, smallest first.
+ *
+ * New with the locked combat rules of 18 September, and *"a manual ship
+ * property, separate from Hull and Armor."* It is one half of what decides
+ * whether a gun hits: a Heavy Gun is −30 against a Small hull and +15 against a
+ * Gigantic one, which is the whole of why a first-rate cannot swat sloops.
+ */
+export const SHIP_SIZES = ['Small', 'Medium', 'Large', 'Gigantic'] as const;
+export type ShipSize = (typeof SHIP_SIZES)[number];
+
+/**
+ * Whether a hull is worth shooting at first.
+ *
+ * The roster marks the Swift — no guns at all — as Noncombat, and the targeting
+ * rule is that *"transports with zero guns remain valid targets but are
+ * considered only after armed targets are handled."*
+ */
+export const COMBATANT_TYPES = ['Warship', 'Noncombat'] as const;
+export type CombatantType = (typeof COMBATANT_TYPES)[number];
 
 /**
  * The five condition states, worst first.
@@ -120,8 +141,11 @@ export interface ShipDefinition {
    * design. Validated as non-empty and nothing more.
    */
   readonly role: string;
+  readonly size: ShipSize;
   readonly speed: SpeedCategory;
+  readonly combatantType: CombatantType;
   readonly guns: ShipArmament;
+  /** 0–30 since the locked rules rescaled it. Flat subtraction, after penetration. */
   readonly armor: number;
   readonly hull: number;
   /** Against fortifications and locations only. Never ship-to-ship. */
@@ -136,6 +160,23 @@ export interface ShipDefinition {
   /** What she is launched in. Every hull in the export launches Healthy. */
   readonly launchStatus: ShipStatus;
   readonly designNotes: string;
+  /**
+   * What the Ratings & Pricing tab makes of her.
+   *
+   * Carried because the sheet carries it and because a value rating is the
+   * quickest read on whether a hull is worth building, but nothing in combat
+   * touches any of it: this is economics, and the letter measures *purchase
+   * value only* — build time and upkeep are separate levers by design.
+   */
+  readonly pricing: {
+    readonly capabilityPoints: number;
+    readonly baseReferenceCost: number;
+    readonly synergyPct: number;
+    readonly weaknessPct: number;
+    readonly scaledReferenceCost: number;
+    readonly priceRatio: number;
+    readonly valueRating: string;
+  };
 }
 
 /** The whole roster, plus the bands and rules it was designed against. */
@@ -193,16 +234,21 @@ function parseResearch(raw: unknown): ResearchStep | null {
 function parsePercent(raw: unknown): number | null {
   if (typeof raw === 'number') return raw / 100;
   if (typeof raw !== 'string') return null;
-  const match = /^(\d+(?:\.\d+)?)\s*%$/.exec(raw.trim());
+  const match = /^(-?\d+(?:\.\d+)?)\s*%$/.exec(raw.trim());
   return match ? Number(match[1]) / 100 : null;
 }
 
-/** A tier band string — '0', '1–2', '75+', '0.1–1.0%' — as a numeric test. */
+/** A tier band string — '0', '1-2', '1600+', '0.1–1.0%' — as a numeric test. */
 function bandContains(band: string, value: number): boolean {
-  const spec = band.replace(/%/g, '').trim();
+  // Bands are sometimes written with a gameplay name beside them, as Armor's
+  // '1-10 (Light)' is. The name is documentation; the numbers are the band.
+  const spec = band
+    .replace(/\([^)]*\)/g, '')
+    .replace(/%/g, '')
+    .trim();
   if (spec.endsWith('+')) return value >= Number(spec.slice(0, -1));
-  // The export uses an en dash, not a hyphen.
-  const range = spec.split('–');
+  // Either dash: the sheet writes en dashes, the import writes hyphens.
+  const range = spec.split(/[–-]/);
   if (range.length === 2) return value >= Number(range[0]) && value <= Number(range[1]);
   return value === Number(spec);
 }
@@ -271,6 +317,24 @@ export function validateRoster(raw: unknown): ValidationIssue[] {
     const speed = entry['Speed'];
     if (!SPEED_CATEGORIES.includes(speed as SpeedCategory)) {
       err(id, 'Speed', `Unknown speed category ${JSON.stringify(speed)}.`);
+    }
+    const size = entry['Size'];
+    if (!SHIP_SIZES.includes(size as ShipSize)) {
+      err(id, 'Size', `Unknown size ${JSON.stringify(size)}.`);
+    }
+    const combatant = entry['Combatant Type'];
+    if (!COMBATANT_TYPES.includes(combatant as CombatantType)) {
+      err(id, 'Combatant Type', `Unknown combatant type ${JSON.stringify(combatant)}.`);
+    }
+    // A hull the sheet calls a Warship with nothing to fire, or a Noncombat
+    // with guns, is a data slip rather than a design statement.
+    const gunCount =
+      Number(entry['Long Guns'] ?? 0) + Number(entry['Heavy Guns'] ?? 0) + Number(entry['Light Guns'] ?? 0);
+    if (combatant === 'Noncombat' && gunCount > 0) {
+      warn(id, 'Combatant Type', `Marked Noncombat but carries ${gunCount} guns.`);
+    }
+    if (combatant === 'Warship' && gunCount === 0) {
+      warn(id, 'Combatant Type', 'Marked Warship but carries no guns.');
     }
     const status = entry['Status'];
     if (!SHIP_STATUSES.includes(status as ShipStatus)) {
@@ -349,8 +413,15 @@ export function validateRoster(raw: unknown): ValidationIssue[] {
     const research = parseResearch(entry['Research Order']);
     if (research?.kind !== 'start') continue;
     const top = COMBAT_COLUMNS.filter((column) => {
-      const t4 = bands[column]?.T4;
-      return typeof entry[column] === 'number' && t4 !== undefined && bandContains(t4, entry[column] as number);
+      const value = entry[column];
+      if (typeof value !== 'number') return false;
+      // Both T4 and T4+ are top tier. The revision of 18 September added T4+
+      // to Armor and Hull as pricing sub-bands, and a starting ship sitting in
+      // one of those is exactly what this rule is watching for.
+      return (['T4', 'T4+'] as const).some((tier) => {
+        const band = bands[column]?.[tier];
+        return band !== undefined && bandContains(band, value);
+      });
     });
     if (top.length > 1) {
       warn(
@@ -396,7 +467,9 @@ export function loadRoster(raw: unknown = rosterData): Roster {
     research: parseResearch(entry['Research Order'])!,
     name: entry['Ship'] as string,
     role: entry['Role'] as string,
+    size: entry['Size'] as ShipSize,
     speed: entry['Speed'] as SpeedCategory,
+    combatantType: entry['Combatant Type'] as CombatantType,
     guns: {
       longGuns: entry['Long Guns'] as number,
       heavyGuns: entry['Heavy Guns'] as number,
@@ -412,6 +485,15 @@ export function loadRoster(raw: unknown = rosterData): Roster {
     goldPerDayMaintenance: entry['Gold/Day Maintenance'] as number,
     launchStatus: entry['Status'] as ShipStatus,
     designNotes: (entry['Design Notes'] as string) ?? '',
+    pricing: {
+      capabilityPoints: entry['Capability Points'] as number,
+      baseReferenceCost: entry['Base Reference Cost'] as number,
+      synergyPct: parsePercent(entry['Synergy %']) ?? 0,
+      weaknessPct: parsePercent(entry['Weakness %']) ?? 0,
+      scaledReferenceCost: entry['Scaled Reference Cost'] as number,
+      priceRatio: parsePercent(entry['Price Ratio']) ?? 0,
+      valueRating: (entry['Value Rating'] as string) ?? '',
+    },
   }));
 
   return {
