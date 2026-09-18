@@ -1,13 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../rng';
-import { applyDamage, commission, repairDay, statusOf, type NavyShip, type Squadron } from '../navy';
+import {
+  applyDamage,
+  commission,
+  isAfloat as isAfloatIn,
+  repairDay,
+  statusOf,
+  type NavyShip,
+  type Squadron,
+} from '../navy';
 import { ROSTER, type ShipDefinition } from '../shipdefs';
 import {
+  fleeBattle,
   resolveBoarding,
   resolveRound,
+  runBattle,
   type GunKind,
   type GunneryModel,
   type ShipOrder,
+  type TargetingModel,
 } from '../navycombat';
 
 const MAJESTIC = ROSTER.byId.get('CWN-MAJ-R9-01')!; // 10 long, 16 heavy, 10 light, armor 95
@@ -304,5 +315,86 @@ describe('determinism', () => {
       return JSON.stringify(result);
     };
     expect(run(7)).toBe(run(7));
+  });
+});
+
+describe('the battle loop', () => {
+  /** Everybody shoots the first live enemy. Enough to drive the loop. */
+  const firstEnemy: TargetingModel = {
+    orders(mine, theirs, _rng, roster) {
+      const map = new Map<string, ShipOrder>();
+      const live = (sq: Squadron, owner: string) =>
+        sq.ships.filter((s) => isAfloatIn(s, roster) && s.owner === owner);
+      const myLive = live(mine, 'Crown Imperium');
+      const theirLive = live(theirs, 'Free Confederacy');
+      for (const s of myLive) {
+        if (theirLive[0]) map.set(s.id, { kind: 'fire', targetId: theirLive[0].id });
+      }
+      for (const s of theirLive) {
+        if (myLive[0]) map.set(s.id, { kind: 'fire', targetId: myLive[0].id });
+      }
+      return map;
+    },
+  };
+  const config = (perGun: number) => ({ gunnery: flat(perGun), targeting: firstEnemy });
+
+  it('runs until one side has nothing left, and calls that a victory', () => {
+    const mine = { ships: [commission(MAJESTIC, 'maj-1')] };
+    const theirs = { ships: [commission(SWIFT, 's-1'), commission(SWIFT, 's-2')] };
+    const report = runBattle(mine, theirs, 'Crown Imperium', 'Free Confederacy', config(30), createRng(3));
+    expect(report.outcome).toBe('victory');
+    expect(report.lost.theirs.sort()).toEqual(['s-1', 's-2']);
+    expect(report.lost.mine).toEqual([]);
+  });
+
+  it('calls it a defeat when you are the one with nothing left', () => {
+    const mine = { ships: [commission(SWIFT, 's-1')] };
+    const theirs = { ships: [commission(MAJESTIC, 'maj-1')] };
+    // The Swift is Confederate by class; own her to the Crown for this test.
+    mine.ships[0].owner = 'Crown Imperium';
+    theirs.ships[0].owner = 'Free Confederacy';
+    const report = runBattle(mine, theirs, 'Crown Imperium', 'Free Confederacy', config(30), createRng(3));
+    expect(report.outcome).toBe('defeat');
+  });
+
+  it('stops rather than spinning when neither side can hurt the other', () => {
+    // Two gunless hulls. Nothing happens, and it will go on not happening.
+    const mine = { ships: [commission(FREEBOOTER, 'f-1')] };
+    const theirs = { ships: [commission(SWIFT, 's-1')] };
+    mine.ships[0].owner = 'Crown Imperium';
+    const report = runBattle(mine, theirs, 'Crown Imperium', 'Free Confederacy', config(5), createRng(3));
+    expect(report.outcome).toBe('stalemate');
+    expect(report.rounds).toHaveLength(1);
+  });
+
+  it('honours its round guard', () => {
+    const mine = { ships: [commission(MAJESTIC, 'maj-1')] };
+    const theirs = { ships: [commission(MAJESTIC, 'maj-2')] };
+    theirs.ships[0].owner = 'Free Confederacy';
+    const report = runBattle(
+      mine,
+      theirs,
+      'Crown Imperium',
+      'Free Confederacy',
+      { ...config(1), maxRounds: 3 },
+      createRng(3),
+    );
+    expect(report.rounds).toHaveLength(3);
+    expect(report.outcome).toBe('stalemate');
+  });
+
+  it('gives the same battle twice for the same seed', () => {
+    const run = () => {
+      const mine = { ships: [commission(MAJESTIC, 'maj-1')] };
+      const theirs = { ships: [commission(CUTLASS, 'c-1'), commission(SWIFT, 's-1')] };
+      return JSON.stringify(
+        runBattle(mine, theirs, 'Crown Imperium', 'Free Confederacy', config(11), createRng(9)),
+      );
+    };
+    expect(run()).toBe(run());
+  });
+
+  it('refuses to invent a flee sequence', () => {
+    expect(() => fleeBattle()).toThrow(/flee sequence is not defined/);
   });
 });

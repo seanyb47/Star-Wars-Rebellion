@@ -37,7 +37,8 @@ import {
   type NavyShip,
   type Squadron,
 } from './navy';
-import { ROSTER, type Roster, type ShipDefinition } from './shipdefs';
+import { ROSTER, type NavyFaction, type Roster, type ShipDefinition } from './shipdefs';
+import type { EncounterOutcome } from './encounter';
 
 /* ------------------------------------------------------------- the triangle */
 
@@ -284,4 +285,131 @@ export function resolveBoarding(
     captured,
     troopsLost: captured ? spent : attackers,
   };
+}
+
+/* ------------------------------------------------------------- the battle */
+
+/**
+ * Who each ship fires at, and who boards.
+ *
+ * Undefined by any ruling so far, and therefore injected rather than decided
+ * here. The live game has a targeting rule — score a target by threat removed
+ * per shot spent — and whether v2.4 keeps it is an open question.
+ */
+export interface TargetingModel {
+  orders(mine: Squadron, theirs: Squadron, rng: Rng, roster: Roster): Map<string, ShipOrder>;
+}
+
+export interface BattleConfig {
+  gunnery: GunneryModel;
+  targeting: TargetingModel;
+  /**
+   * A guard, not a rule. How long a battle runs is unruled; this stops an
+   * unwinnable exchange — two squadrons that cannot hurt each other — from
+   * spinning for ever. A battle that hits it is reported as such rather than
+   * quietly called something.
+   */
+  maxRounds?: number;
+  roster?: Roster;
+}
+
+export interface BattleReport {
+  outcome: EncounterOutcome | 'stalemate';
+  rounds: RoundResult[];
+  /** Ships lost, by side, in the order they went. */
+  lost: { mine: string[]; theirs: string[] };
+  captured: { mine: string[]; theirs: string[] };
+}
+
+/** Anything still fighting for this side: afloat, and still hers. */
+function stillFighting(squadron: Squadron, owner: NavyFaction, roster: Roster): NavyShip[] {
+  return squadron.ships.filter((s) => isAfloat(s, roster) && s.owner === owner);
+}
+
+/**
+ * Rounds until one side has nothing left, and what that came to.
+ *
+ * The ending conditions are read straight off Sean's four outcomes: *"Victory!
+ * (you destroyed everything they had)"* and *"Defeat (you lost everything)"*,
+ * so a battle runs until one side has nothing afloat under its own flag. A
+ * captured hull counts for whoever holds her now, which is what makes boarding
+ * worth doing.
+ *
+ * **Two things this deliberately does not do.**
+ *
+ * It does not implement **flee**: that sequence's document has not arrived, so
+ * `fleeBattle` is a named hole rather than a guess. And it does not decide
+ * **mutual annihilation** — where neither side has anything left, the four
+ * outcomes have no answer, so this calls it a defeat (you did, after all, lose
+ * everything) and records the case as an open question rather than burying the
+ * choice.
+ */
+export function runBattle(
+  mine: Squadron,
+  theirs: Squadron,
+  myFaction: NavyFaction,
+  theirFaction: NavyFaction,
+  config: BattleConfig,
+  rng: Rng,
+): BattleReport {
+  const roster = config.roster ?? ROSTER;
+  const maxRounds = config.maxRounds ?? 20;
+  const rounds: RoundResult[] = [];
+  const lost = { mine: [] as string[], theirs: [] as string[] };
+  const captured = { mine: [] as string[], theirs: [] as string[] };
+  const side = new Map<string, 'mine' | 'theirs'>([
+    ...mine.ships.map((s) => [s.id, 'mine'] as const),
+    ...theirs.ships.map((s) => [s.id, 'theirs'] as const),
+  ]);
+
+  while (rounds.length < maxRounds) {
+    if (stillFighting(mine, myFaction, roster).length === 0) break;
+    if (stillFighting(theirs, theirFaction, roster).length === 0) break;
+
+    const result = resolveRound({
+      attacker: mine,
+      defender: theirs,
+      orders: config.targeting.orders(mine, theirs, rng, roster),
+      gunnery: config.gunnery,
+      rng,
+      roster,
+    });
+    rounds.push(result);
+    for (const id of result.sunk) lost[side.get(id) ?? 'theirs'].push(id);
+    for (const id of result.captured) captured[side.get(id) ?? 'theirs'].push(id);
+
+    // A round in which nothing happened at all will not happen differently
+    // next time: two squadrons that cannot reach each other are a stalemate,
+    // not a battle, and looping twenty times to discover it helps nobody.
+    if (result.sunk.length === 0 && result.captured.length === 0 && noDamage(result)) break;
+  }
+
+  const mineLeft = stillFighting(mine, myFaction, roster).length;
+  const theirsLeft = stillFighting(theirs, theirFaction, roster).length;
+  let outcome: BattleReport['outcome'];
+  if (mineLeft === 0) outcome = 'defeat';
+  else if (theirsLeft === 0) outcome = 'victory';
+  else outcome = 'stalemate';
+
+  return { outcome, rounds, lost, captured };
+}
+
+function noDamage(result: RoundResult): boolean {
+  const hurt = (v: VolleyRecord) => v.damage.armorLost > 0 || v.damage.hullLost > 0;
+  return !result.firstStrike.some(hurt) && !result.exchange.some(hurt) && result.boardings.length === 0;
+}
+
+/**
+ * Breaking off — **not implemented**.
+ *
+ * Sean's combat order names a flee sequence and says it is in the docs; no
+ * such document is in the repository. Rather than invent one, this throws, so
+ * a caller that reaches it fails loudly instead of quietly getting a battle
+ * nobody designed.
+ */
+export function fleeBattle(): never {
+  throw new Error(
+    'The flee sequence is not defined. See docs/naval-combat-open-questions.md — ' +
+      'the design document it refers to has not been supplied.',
+  );
 }
