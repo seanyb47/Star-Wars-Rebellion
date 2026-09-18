@@ -202,6 +202,64 @@ longer resolve?
 
 ---
 
+## 11. The attack and the flee sequences — MISSING
+
+Sean's combat order of 18 September ends with two pointers: *"attack sequence:
+in docs"* and *"flee sequence: in docs"*. **Neither document is in the
+repository.** Searched: `docs/`, every markdown file at the root, the v2.4
+JSON and the v2.4 spreadsheet (which carry tier bands, the 25 ships, ten
+design rules and a session-changes list, and nothing else), and the upload
+directory, which has had nothing new since the two v2.4 files.
+
+Until they arrive nothing decides a battle. `src/sim/encounter.ts` is the
+flow around them — which screen is up, what may be pressed, what the player is
+shown — and it takes the resolution as a function handed in.
+
+## 12. Four endings or three verdicts?
+
+Sean's order names four endings: **Victory!** (*"you destroyed everything they
+had"*), **Defeat** (*"you lost everything"*), **You have fled the battle**,
+**Your enemy has fled the battle!**
+
+The game already has a three-verdict outcome model, built to his own
+specification on 17 September, and the two do not line up:
+
+| | 17 September model | 18 September order |
+|---|---|---|
+| Enemy driven off the water | **victory** | *they-fled* — a separate ending |
+| Neither side destroyed or driven off | **draw** — *"no decisive control established"* | no equivalent |
+| Everything of theirs sunk | victory | **victory**, and only this |
+| You broke off | **draw** | *you-fled* |
+
+Two real questions in that table. **Does the draw survive?** It exists because
+of his own ruling that *"LOSS and DRAW must have their own presentation logic"*
+and that a draw must not carry a defeat's consequences. And **does victory now
+require annihilation?** If it does, most battles end in somebody fleeing, and
+the political consequences attached to a decisive action (`SHOCK_BATTLE_FLOOR`
+and the rest) need rethinking.
+
+## 13. When may a player break off?
+
+The order puts **Flee** on the opening hail, before a shot: the player looks at
+both fleets and decides. The current game puts it after the first exchange, on
+purpose — *"Breaking off is a decision taken after you have seen what the other
+fellow's broadside does, not before."*
+
+The new flow is the stronger one for a player who can scout, and it changes
+what scouting is worth. Worth confirming it is deliberate, because it reverses
+a rule that was argued for explicitly.
+
+## 14. Fog of war on an enemy's people
+
+*"Enemy crew on ships are behind fog of war, unless you knew already."*
+Implemented as a `scouted` flag: hulls always visible, who is aboard them only
+when known. What is **not** settled is what "knew already" means — an espionage
+report on the island they sailed from, a report on the fleet itself, a
+freshness window? The existing espionage layer reports on islands, not on
+fleets at sea, so there is nothing to read yet.
+
+---
+
 ## Data observations, reported and not corrected
 
 Per Sean's instruction to report suspected errors rather than fix them.
