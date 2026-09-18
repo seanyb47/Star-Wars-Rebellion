@@ -1,8 +1,13 @@
 # Naval combat — the authoritative system, and what is left open
 
-**Source of truth: *7 Seas — Naval Combat System*** (Google Doc, read from
-Drive 18 September). The v2.4 fleet table and spreadsheet are **legacy
-ship-design data and do not define combat mechanics**.
+**Source of truth for the fighting: *7 Seas — Naval Combat System*** (Google
+Doc, read from Drive 18 September).
+
+**Source of truth for the ships: *Master of the Seven Seas — Fleet Roster***
+(Google Sheet, read from Drive 18 September, revision 07:13). Sean rewrote the
+fleet himself after the v2.4 exports landed, so v2.4 is superseded outright —
+not merely demoted. The sheet says so in its own words: *"Combat-resolution
+rules remain defined in the separate Naval Combat System document."*
 
 A day of earlier instructions is superseded, and this document keeps the record
 of what was removed so nobody re-adds it by accident. Each removal has a test
@@ -47,17 +52,48 @@ Armor, Heavy Guns, Light Guns, Bombardment and Troop Capacity remain in the
 ### 1. The roster is not converted — the blocking item
 
 The combat engine needs `Firepower`, `Hull`, `Speed 1–10`, `hasLongGuns`. The
-v2.4 roster has three gun columns, a Hull, a Speed *category* and an Armor
-figure. **Firepower is explicitly not the three gun columns added up**, and
-Speed 1–10 is not the five categories.
+roster has three gun columns, a Hull, a Speed *category* and an Armor figure.
+**Firepower is explicitly not the three gun columns added up**, and Speed 1–10
+is not the five categories.
 
 Nothing in the repo derives one from the other, on purpose: `CombatStats` is a
 separate shape from `ShipDefinition` so the conversion has to be real design
-work rather than something an adapter could quietly fake. The Fleet Roster
-sheet in Drive (read 18 September) is still the legacy columns plus an art-card
-layout; no Firepower column exists yet.
+work rather than something an adapter could quietly fake.
+
+Sean's revision of the sheet on 18 September rebuilt the fleet — twenty-four
+hulls, a symmetric ladder, four new ships — but **did not add a Firepower
+column or a 1–10 Speed**. So the blocking item is exactly where it was, and
+now against a roster worth converting.
 
 **This is the next fleet-design task and everything downstream waits on it.**
+
+### 1a. What the revision changed, for whoever does the conversion
+
+| | Before (v2.4) | Now |
+|---|---|---|
+| Hulls | 25 | 24 |
+| Ladders | Crown S01–S04 + R1–R9; Confederacy S01–S04 + R1, R5–R11 | four starts and R1–R8 a side, no gaps |
+| Crown | — | Dreadnought → **Morningstar**; **Justiciar** new at R6; Long-Gun Line Ship and Wayfinder II cut |
+| Confederacy | — | **Chimera** and **Tidestalker** new as starts; Freebooter and Swallowtail/Bonecutter cut; Cutlass demoted to R2; Reefwalker → **Reefwarden**; Reef-Class → **Coral-Class Dreadnaught** |
+| Endgame | Majestic heaviest at everything | split three ways: Majestic the heaviest guns, Urskin Whaler the largest hull in the game (1,800), Coral-Class the heaviest armor (110) |
+
+Two rules in the sheet now agree with the combat doc rather than contradicting
+it, which is worth knowing because the v2.4 table did not: *"Long Guns do not
+grant First Strike in normal combat"*, and bombardment *"never contributes to
+ship-to-ship damage"*.
+
+### 1b. Ironback is a name used twice
+
+The R5 Confederate siege ship is called **Ironback**. So is Admiral Dorian
+Jessup's legend hull — the Crown dreadnought he sailed out of the Imperium's
+service with, named in his fleet-command power and in `lore.md`. Sean's ruling
+of 18 September was to keep the legend and rename the roster ship, which is
+where the provisional *Frostback* came from; his own revision, written after
+that ruling, says Ironback.
+
+Imported as written, collision recorded in `_notes` in the data and not
+resolved. The **Swallowtail** collision is gone on its own: that ship was cut,
+so the name belongs to Reyne again.
 
 ### 2. Assessment thresholds — inferred
 

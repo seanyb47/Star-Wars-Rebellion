@@ -14,8 +14,8 @@ import {
 import { applyHullDamage, commission, type Squadron } from '../navy';
 import { ROSTER } from '../shipdefs';
 
-const MAJESTIC = ROSTER.byId.get('CWN-MAJ-R9-01')!;
-const REEF = ROSTER.byId.get('CFS-REE-R9-02')!;
+const MAJESTIC = ROSTER.byId.get('CWN-MAJ-R8-01')!;
+const CORAL = ROSTER.byId.get('CFS-COR-R8-01')!;
 const SWIFT = ROSTER.byId.get('CFS-SWI-S01')!;
 
 /** A resolver that always says the same thing, so the machine can be tested
@@ -94,11 +94,11 @@ describe('the combat order', () => {
 
 describe('what each side is allowed to see', () => {
   const mine: Squadron = { ships: [commission(MAJESTIC, 'maj-1')] };
-  const theirs: Squadron = { ships: [commission(REEF, 'reef-1'), commission(SWIFT, 'swift-1')] };
+  const theirs: Squadron = { ships: [commission(CORAL, 'coral-1'), commission(SWIFT, 'swift-1')] };
 
   it('always shows the enemy hulls, because they are in the water', () => {
     const view = compareFleets(mine, theirs, false);
-    expect(view.theirs.ships.map((s) => s.name)).toEqual(['Reef-Class', 'Swift']);
+    expect(view.theirs.ships.map((s) => s.name)).toEqual(['Coral-Class Dreadnaught', 'Swift']);
   });
 
   it('hides who is aboard an enemy nobody has scouted', () => {

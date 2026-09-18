@@ -63,6 +63,32 @@ an unintended inconsistency in the source, not a design statement. It affects
 states its own and is unaffected). Flag it before encoding, or the derived
 statistics will inherit the error.
 
+### Warning 4 — there is now a *second* roster, and it is not this one
+
+Since this document was written, a **Fleet Roster** sheet has appeared in Drive
+and been imported to `src/data/combat-ships.json` (Sean's own revision of 18
+September, twenty-four hulls, four starts and eight research unlocks a side).
+It is the design roster for the rebuilt naval combat system, which runs
+alongside the live game and is wired into nothing.
+
+**It is not S1 and it does not describe the ships this document describes.**
+The two disagree on names, on ladders and on numbers, and neither is wrong —
+they are different rosters at different stages. This document extracts the
+*live* game. Where the two share a name, check which one you are holding:
+
+- **Ironback.** Here she is Jessup's single legend hull. In the Fleet Roster
+  she is a buildable R5 Confederate siege ship. The collision is recorded in
+  `_notes` in the data and is unresolved. (Warning 1's point about S5's
+  "Ironback" is the same hazard, twice over now.)
+- **Swallowtail.** Reyne's, here and now everywhere: the v2.4 warship that
+  shared the name has been cut from the Fleet Roster.
+- **Reef-class, Reefwalker, Freebooter, Dreadnought.** All renamed or cut in
+  the Fleet Roster (Coral-Class Dreadnaught, Reefwarden, — and Morningstar).
+  The live hulls in this document keep their names.
+
+Warning 3's build-time inconsistency is a bug in the **live** data and is still
+unfixed; the Fleet Roster has nothing to do with it either way.
+
 ### What counts as a weapon in this game
 
 This matters for the weapons section of every entry, so it is stated once:

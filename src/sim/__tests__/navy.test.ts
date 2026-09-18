@@ -17,10 +17,10 @@ import {
   type NavyShip,
 } from '../navy';
 
-const MAJESTIC = ROSTER.byId.get('CWN-MAJ-R9-01')!;
+const MAJESTIC = ROSTER.byId.get('CWN-MAJ-R8-01')!;
 const SWIFT = ROSTER.byId.get('CFS-SWI-S01')!;
-const REEF = ROSTER.byId.get('CFS-REE-R9-02')!;
-const WHALER = ROSTER.byId.get('CFS-URW-R10-01')!;
+const CORAL = ROSTER.byId.get('CFS-COR-R8-01')!;
+const WHALER = ROSTER.byId.get('CFS-URW-R7-01')!;
 
 /**
  * A definition is shared and frozen; an instance is one ship.
@@ -123,11 +123,11 @@ describe('condition', () => {
 
 describe('mending', () => {
   it('mends a share of whole hull a day, not a share of what is left', () => {
-    const ship = commission(REEF, 'reef-1');
-    applyHullDamage(ship, REEF.hull / 2);
+    const ship = commission(CORAL, 'coral-1');
+    applyHullDamage(ship, CORAL.hull / 2);
     const before = ship.hullRemaining;
     repairDay(ship);
-    expect(ship.hullRemaining - before).toBeCloseTo(REEF.hull * REEF.repairRatePerDay);
+    expect(ship.hullRemaining - before).toBeCloseTo(CORAL.hull * CORAL.repairRatePerDay);
   });
 
   it('mends a small hull by a fraction of a point rather than by nothing', () => {
@@ -140,10 +140,10 @@ describe('mending', () => {
   });
 
   it('never mends past whole', () => {
-    const ship = commission(REEF, 'reef-1');
+    const ship = commission(CORAL, 'coral-1');
     applyHullDamage(ship, 1);
     for (let day = 0; day < 100; day++) repairDay(ship);
-    expect(ship.hullRemaining).toBe(REEF.hull);
+    expect(ship.hullRemaining).toBe(CORAL.hull);
   });
 
   it('does not raise a wreck', () => {
@@ -158,31 +158,31 @@ describe('mending', () => {
     // Whether the v2.4 rate carries the live game's conditions — a friendly
     // harbour, a shipyard, never at sea — is unresolved, so the condition is
     // a parameter rather than a rule baked in here.
-    const ship = commission(REEF, 'reef-1');
+    const ship = commission(CORAL, 'coral-1');
     applyHullDamage(ship, 100);
     repairDay(ship, ROSTER, false);
-    expect(ship.hullRemaining).toBe(REEF.hull - 100);
+    expect(ship.hullRemaining).toBe(CORAL.hull - 100);
   });
 });
 
 describe('a squadron', () => {
   const squadron = {
-    ships: [commission(REEF, 'reef-1'), commission(WHALER, 'whaler-1'), commission(SWIFT, 'swift-1')],
+    ships: [commission(CORAL, 'coral-1'), commission(WHALER, 'whaler-1'), commission(SWIFT, 'swift-1')],
   };
 
   it('counts only what is still afloat', () => {
     const wrecked = { ships: squadron.ships.map((s) => ({ ...s })) };
     applyHullDamage(wrecked.ships[2], SWIFT.hull);
     expect(survivors(wrecked)).toHaveLength(2);
-    expect(liftCapacity(wrecked)).toBe(REEF.troopCapacity + WHALER.troopCapacity);
+    expect(liftCapacity(wrecked)).toBe(CORAL.troopCapacity + WHALER.troopCapacity);
     expect(dailyMaintenance(wrecked)).toBeCloseTo(
-      REEF.goldPerDayMaintenance + WHALER.goldPerDayMaintenance,
+      CORAL.goldPerDayMaintenance + WHALER.goldPerDayMaintenance,
     );
   });
 
   it('adds up what it can throw at a wall', () => {
     expect(bombardmentWeight(squadron)).toBe(
-      REEF.bombardment + WHALER.bombardment + SWIFT.bombardment,
+      CORAL.bombardment + WHALER.bombardment + SWIFT.bombardment,
     );
   });
 

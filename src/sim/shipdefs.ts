@@ -1,10 +1,18 @@
 /**
- * The v2.4 naval roster: what a ship *is*, before anybody sails one.
+ * The naval roster: what a ship *is*, before anybody sails one.
  *
- * Sean's combat overhaul of 18 September arrived as a pair of design exports —
- * a JSON and a spreadsheet of the same version — with the JSON authoritative
- * and the spreadsheet a verification reference. They agreed exactly, field for
- * field, so there was nothing to reconcile.
+ * Sean's combat overhaul of 18 September arrived as a pair of v2.4 design
+ * exports, and then he went and rewrote the fleet himself the same day. The
+ * **Fleet Roster sheet in Drive is the roster now** and is read verbatim into
+ * `src/data/combat-ships.json`; the v2.4 export is superseded and the file
+ * records which it replaced.
+ *
+ * What his revision did: twenty-four hulls rather than twenty-five, four
+ * starting ships and eight research unlocks a side with the Confederacy's
+ * gapped ladder closed, two new Confederate starts (Chimera, Tidestalker), a
+ * new Crown warship (Justiciar), and the endgame split three ways — the
+ * Majestic keeps the heaviest guns, the Urskin Whaler takes the largest hull
+ * in the game, the Coral-Class takes the heaviest armor.
  *
  * Three rules shape this file, and all three are his:
  *
@@ -437,13 +445,14 @@ export function startingHulls(faction: NavyFaction, roster: Roster = ROSTER): Sh
 /**
  * What the research errand unlocks next, given what a side has already.
  *
- * `unlocked` is a count of research steps taken, not a set of ids: the export
+ * `unlocked` is a count of research steps taken, not a set of ids: the roster
  * numbers a navy's unlocks in a fixed order and Sean's ruling is that the
  * number *is* the order. Returns undefined when there is nothing left.
  *
- * Note for whoever wires this up: the Free Confederacy's numbering runs R1
- * then R5–R11 with no R2, R3 or R4, so "the nth unlock" and "the step called
- * Rn" are not the same question. This answers the first.
+ * This answers "the nth unlock", which in the revision of 18 September is also
+ * "the step called Rn" — both ladders now run R1–R8 with nothing missing. They
+ * were not always the same question (the Confederacy used to run R1 then
+ * R5–R11), so the counting is kept and a test holds the two together.
  */
 export function nextUnlock(
   faction: NavyFaction,

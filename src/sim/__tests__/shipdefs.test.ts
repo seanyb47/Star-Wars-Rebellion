@@ -5,6 +5,7 @@ import {
   ROSTER,
   RosterError,
   SHIP_STATUSES,
+  type ShipDefinition,
   SPEED_CATEGORIES,
   fleetOf,
   loadRoster,
@@ -35,8 +36,8 @@ function ships(doc: unknown): Array<Record<string, unknown>> {
 
 describe('loading the roster', () => {
   it('reads every ship in the export', () => {
-    expect(ROSTER.ships).toHaveLength(25);
-    expect(ROSTER.byId.size).toBe(25);
+    expect(ROSTER.ships).toHaveLength(24);
+    expect(ROSTER.byId.size).toBe(24);
   });
 
   it('finds no errors in the shipped data', () => {
@@ -46,20 +47,22 @@ describe('loading the roster', () => {
   it('converts a percentage repair rate into a fraction', () => {
     // '1%' and '1.5%' in the export; 0.01 and 0.015 here, so a caller can
     // multiply rather than remembering to divide by a hundred.
-    expect(ROSTER.byId.get('CWN-MAJ-R9-01')!.repairRatePerDay).toBeCloseTo(0.01);
-    expect(ROSTER.byId.get('CFS-IRB-R8-01')!.repairRatePerDay).toBeCloseTo(0.015);
-    expect(ROSTER.byId.get('CFS-REE-R9-02')!.repairRatePerDay).toBeCloseTo(0.04);
+    expect(ROSTER.byId.get('CWN-MAJ-R8-01')!.repairRatePerDay).toBeCloseTo(0.01);
+    expect(ROSTER.byId.get('CFS-BRI-S02')!.repairRatePerDay).toBeCloseTo(0.015);
+    expect(ROSTER.byId.get('CFS-COR-R8-01')!.repairRatePerDay).toBeCloseTo(0.04);
+    // And a fraction of a percent, which is the one a naive parse gets wrong.
+    expect(ROSTER.byId.get('CFS-IRB-R5-01')!.repairRatePerDay).toBeCloseTo(0.005);
   });
 
   it('parses the research ladder into a kind and an order', () => {
     const wayfinder = ROSTER.byId.get('CWN-WAY-S01')!;
     expect(wayfinder.research).toEqual({ kind: 'start', order: 1, raw: 'S01' });
-    const whaler = ROSTER.byId.get('CFS-URW-R10-01')!;
-    expect(whaler.research).toEqual({ kind: 'research', order: 10, raw: 'R10' });
+    const whaler = ROSTER.byId.get('CFS-URW-R7-01')!;
+    expect(whaler.research).toEqual({ kind: 'research', order: 7, raw: 'R7' });
   });
 
   it('keeps the three gun kinds apart', () => {
-    const majestic = ROSTER.byId.get('CWN-MAJ-R9-01')!;
+    const majestic = ROSTER.byId.get('CWN-MAJ-R8-01')!;
     expect(majestic.guns).toEqual({ longGuns: 10, heavyGuns: 16, lightGuns: 10 });
   });
 
@@ -156,21 +159,27 @@ describe('refusing bad data', () => {
   });
 });
 
+/** Every gun a hull carries, of whichever kind. Bombardment is never in it. */
+const gunsOf = (s: ShipDefinition) => s.guns.longGuns + s.guns.heavyGuns + s.guns.lightGuns;
+
+/** The one hull in the whole roster with the most of something. */
+const heaviest = (of: (s: ShipDefinition) => number): ShipDefinition =>
+  ROSTER.ships.reduce((a, b) => (of(b) > of(a) ? b : a));
+
 describe('the design rules the export states about itself', () => {
   it('gives each navy exactly four starting hulls', () => {
-    // 'Crown starts: Wayfinder, Interceptor I, Dreadnought, Sovereign.'
-    // 'Confederacy starts: Swift, Brigantine, Freebooter, Cutlass.'
+    // 'Each faction has four starting ships and eight research unlocks.'
     expect(startingHulls('Crown Imperium').map((s) => s.name)).toEqual([
       'Wayfinder',
       'Interceptor I',
-      'Dreadnought',
+      'Morningstar',
       'Sovereign',
     ]);
     expect(startingHulls('Free Confederacy').map((s) => s.name)).toEqual([
       'Swift',
       'Brigantine',
-      'Freebooter',
-      'Cutlass',
+      'Chimera',
+      'Tidestalker',
     ]);
   });
 
@@ -180,56 +189,82 @@ describe('the design rules the export states about itself', () => {
     expect(nextUnlock('Crown Imperium', 99)).toBeUndefined();
   });
 
-  it('walks a ladder in unlock order, gaps and all', () => {
-    // The Confederacy's numbering runs R1 then R5-R11 with nothing between.
-    // `nextUnlock` answers "the nth unlock", which steps over the gap.
-    const order = ['Marauder', 'Bonecutter', 'Tempest', 'Reefwalker'];
+  it('walks each ladder in unlock order, eight rungs and no gaps', () => {
+    // The roster of 18 September closed the gaps: both navies now run R1-R8
+    // with nothing missing, so "the nth unlock" and "the step called Rn" are
+    // finally the same question. Asserted because they were not, and a future
+    // revision could part them again.
+    const order = ['Marauder', 'Cutlass', 'Tempest', 'Reefwarden'];
     order.forEach((name, i) => expect(nextUnlock('Free Confederacy', i)!.name).toBe(name));
-  });
 
-  it('gives the Majestic the heaviest guns, armor and hull of any one ship', () => {
-    // 'Majestic is the strongest individual ship.' Asserted on the three
-    // figures the export actually gives, not on a combat model that does not
-    // exist yet.
-    const majestic = ROSTER.byId.get('CWN-MAJ-R9-01')!;
-    const guns = (s: { guns: { longGuns: number; heavyGuns: number; lightGuns: number } }) =>
-      s.guns.longGuns + s.guns.heavyGuns + s.guns.lightGuns;
-    for (const other of ROSTER.ships) {
-      if (other.id === majestic.id) continue;
-      expect(guns(other)).toBeLessThan(guns(majestic));
-      expect(other.hull).toBeLessThan(majestic.hull);
-      expect(other.armor).toBeLessThanOrEqual(majestic.armor);
+    for (const faction of NAVY_FACTIONS) {
+      const ladder = fleetOf(faction).filter((s) => s.research.kind === 'research');
+      expect(ladder).toHaveLength(8);
+      expect(ladder.map((s) => s.research.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+      ladder.forEach((ship, i) => expect(nextUnlock(faction, i)!.id).toBe(ship.id));
     }
   });
 
-  it('lets a Reef-Class and an Urskin Whaler out-gun and out-hull a Majestic', () => {
-    // 'Reef-Class + Urskin Whaler should exceed it as a combined fleet.'
-    // Guns and hull only: whether the pair actually beats her is a question
-    // for a combat model, and there is not one.
-    const reef = ROSTER.byId.get('CFS-REE-R9-02')!;
-    const whaler = ROSTER.byId.get('CFS-URW-R10-01')!;
-    const majestic = ROSTER.byId.get('CWN-MAJ-R9-01')!;
-    const guns = (s: typeof reef) => s.guns.longGuns + s.guns.heavyGuns + s.guns.lightGuns;
-    expect(guns(reef) + guns(whaler)).toBeGreaterThan(guns(majestic));
-    expect(reef.hull + whaler.hull).toBeGreaterThan(majestic.hull);
+  it('gives the Majestic the heaviest guns of any one ship, and not the heaviest everything', () => {
+    // 'Majestic remains the strongest individual ship.' Asserted on the one
+    // figure the roster still gives her outright, not on a combat model.
+    //
+    // The revision of 18 September deliberately took the other two away: the
+    // Urskin Whaler is now 'the largest hull in the game' at 1,800 and the
+    // Coral-Class carries the heaviest Armor at 110. That is the endgame rule
+    // working — the Confederacy answers a Majestic with two ships, not one —
+    // so both are pinned here rather than left to look like data errors.
+    const majestic = ROSTER.byId.get('CWN-MAJ-R8-01')!;
+    for (const other of ROSTER.ships) {
+      if (other.id === majestic.id) continue;
+      expect(gunsOf(other)).toBeLessThan(gunsOf(majestic));
+    }
+    expect(heaviest((s) => s.hull).id).toBe('CFS-URW-R7-01');
+    expect(heaviest((s) => s.armor).id).toBe('CFS-COR-R8-01');
+  });
+
+  it('lets a Coral-Class and an Urskin Whaler out-gun and out-hull a Majestic', () => {
+    // 'Together they exceed a lone Majestic.' Guns and hull only: whether the
+    // pair actually beats her is a question for a combat model, and the roster
+    // is not one.
+    const coral = ROSTER.byId.get('CFS-COR-R8-01')!;
+    const whaler = ROSTER.byId.get('CFS-URW-R7-01')!;
+    const majestic = ROSTER.byId.get('CWN-MAJ-R8-01')!;
+    expect(gunsOf(coral) + gunsOf(whaler)).toBeGreaterThan(gunsOf(majestic));
+    expect(coral.hull + whaler.hull).toBeGreaterThan(majestic.hull);
+  });
+
+  it('gives the Urskin Whaler the Confederacy\'s hull, troops and heavy guns', () => {
+    // 'Urskin Whaler supplies the Confederacy's greatest hull, troop capacity,
+    // and Heavy Gun mass.' Within her own navy, which is what the rule says:
+    // the Majestic still carries more troops and more heavy guns than she does.
+    const confederacy = fleetOf('Free Confederacy');
+    for (const field of ['hull', 'troopCapacity'] as const) {
+      const best = confederacy.reduce((a, b) => (b[field] > a[field] ? b : a));
+      expect(best.id).toBe('CFS-URW-R7-01');
+    }
+    const mostHeavy = confederacy.reduce((a, b) => (b.guns.heavyGuns > a.guns.heavyGuns ? b : a));
+    expect(mostHeavy.id).toBe('CFS-URW-R7-01');
   });
 
   it('keeps bombardment off the list of things a ship shoots at a ship', () => {
     // 'Bombardment: Only affects fortifications/locations, never ship-to-ship.'
     // The guarantee is structural: bombardment is not part of `guns`, so no
     // armament total can pick it up by accident.
-    const dreadnought = ROSTER.byId.get('CWN-DRE-S03')!;
-    expect(dreadnought.bombardment).toBeGreaterThan(0);
-    expect(Object.keys(dreadnought.guns)).toEqual(['longGuns', 'heavyGuns', 'lightGuns']);
+    const morningstar = ROSTER.byId.get('CWN-MOR-S03')!;
+    expect(morningstar.bombardment).toBeGreaterThan(0);
+    expect(Object.keys(morningstar.guns)).toEqual(['longGuns', 'heavyGuns', 'lightGuns']);
   });
 
   it('keeps the two navies mechanically asymmetric', () => {
-    // 'Crown and Confederacy fleets must remain mechanically asymmetric.'
-    // Measured as: the ladders are different lengths and no two hulls across
-    // the two navies are statistically identical.
+    // 'The Crown favors standardized progression... The Confederacy favors
+    // asymmetric specialists.' The ladders used to be different lengths and are
+    // not any more — the revision of 18 September gave both navies four starts
+    // and eight unlocks on purpose — so the asymmetry is measured where it now
+    // lives: no two hulls across the two navies are statistically identical.
     const crown = fleetOf('Crown Imperium');
     const confederacy = fleetOf('Free Confederacy');
-    expect(crown.length).not.toBe(confederacy.length);
+    expect(crown).toHaveLength(confederacy.length);
     const fingerprint = (s: (typeof crown)[number]) =>
       [s.speed, s.guns.longGuns, s.guns.heavyGuns, s.guns.lightGuns, s.armor, s.hull].join('/');
     const crownPrints = new Set(crown.map(fingerprint));
