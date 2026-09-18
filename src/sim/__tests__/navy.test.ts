@@ -75,7 +75,6 @@ describe('a ship in the water', () => {
       defId: 'NOT-A-CLASS',
       owner: 'Crown Imperium',
       hullRemaining: 10,
-      armorRemaining: 0,
       troops: 0,
     };
     expect(() => definitionOf(orphan)).toThrow(/unknown class/);

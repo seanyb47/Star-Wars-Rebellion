@@ -9,17 +9,10 @@
  *
  * ## What is deliberately not here
  *
- * The combat formulas. Sean's instruction: *"Do not invent missing combat
- * formulas. Do not assume how damage, armor mitigation, range, initiative,
- * pursuit, boarding, repairs, or victory conditions work unless those rules
- * already exist in the repository."* They do not, so what is here is the state
- * those rules will read and write, and a named placeholder wherever a rule is
- * needed to make sense of it.
- *
- * Every placeholder is marked `UNRESOLVED` and listed in
- * `docs/naval-combat-open-questions.md`. None of them guesses at a number that
- * matters: where a threshold was unavoidable it is a named constant, stated as
- * an assumption, changeable in one place.
+ * Combat. It lives in `navycombat.ts` and reads four numbers — Firepower,
+ * Hull, Speed, hasLongGuns — none of which the v2.4 roster carries yet. This
+ * file is the strategic side: what a hull is, what is left of one, what a
+ * squadron can lift and what it costs to keep.
  */
 import {
   ROSTER,
@@ -53,16 +46,6 @@ export interface NavyShip {
    */
   owner: NavyFaction;
   hullRemaining: number;
-  /**
-   * What is left of her armor.
-   *
-   * Sean's ruling: *"Armor is a separate, ablative durability pool. Incoming
-   * ship damage is applied to Armor first; remaining damage carries into Hull.
-   * One Armor point absorbs one point of damage."* So it is a second pool and
-   * not a divisor, it works the same against all three kinds of gun, and it
-   * does not come back during a fight.
-   */
-  armorRemaining: number;
   /** Companies aboard. Never above the class's `troopCapacity`. */
   troops: number;
 }
@@ -74,12 +57,10 @@ export interface NavyShip {
  * right: *"Healthy: 76–100%. Damaged: 51–75%. Heavily Damaged: 26–50%.
  * Critically Damaged: 1–25%. Destroyed: 0%."*
  *
- * Two parts of the same ruling are load-bearing elsewhere. **Armor loss does
- * not change Status** — `statusOf` reads hull and nothing else. And status is
- * **descriptive only** for now: it reduces no firepower, no speed, nothing,
+ * Status is **descriptive only**: it reduces no firepower, no speed, nothing,
  * *"to avoid introducing an undocumented death spiral and preserve
- * simultaneous resolution."* Nothing in this system reads a status to decide
- * anything, and that is deliberate rather than unfinished.
+ * simultaneous resolution."* Nothing reads a status to decide anything, and
+ * that is deliberate rather than unfinished.
  *
  * Still an argument on every caller, so a later ruling is one call site.
  */
@@ -96,16 +77,9 @@ export const HULL_STATUS_THRESHOLDS: StatusThresholds = {
   damaged: 0.75,
 };
 
-/** Lay down a new hull of this class: whole, armored, empty, and hers. */
+/** Lay down a new hull of this class: whole, empty, and hers. */
 export function commission(def: ShipDefinition, id: string): NavyShip {
-  return {
-    id,
-    defId: def.id,
-    owner: def.faction,
-    hullRemaining: def.hull,
-    armorRemaining: def.armor,
-    troops: 0,
-  };
+  return { id, defId: def.id, owner: def.faction, hullRemaining: def.hull, troops: 0 };
 }
 
 /** Her class. Throws rather than returning undefined: an instance whose class
@@ -149,48 +123,14 @@ export function isAfloat(ship: NavyShip, roster: Roster = ROSTER): boolean {
 /**
  * Take hull off her, and say whether that finished her.
  *
- * The *only* mutation of condition in this system, on purpose: one door in
- * means one place for a future damage formula to call and one place to test.
- * What decides how much damage a shot does — armor, gun type, range — is not
- * here and is not guessed at. This takes a number somebody else worked out.
+ * The strategic layer's door for damage — a creature, a storm, a siege. What
+ * a battle does to a hull is `navycombat.ts`'s business and works on its own
+ * stat block.
  */
 export function applyHullDamage(ship: NavyShip, amount: number, roster: Roster = ROSTER): boolean {
   if (amount <= 0) return !isAfloat(ship, roster);
   ship.hullRemaining = Math.max(0, ship.hullRemaining - amount);
   return !isAfloat(ship, roster);
-}
-
-/** What a volley actually took off her. */
-export interface DamageTally {
-  armorLost: number;
-  hullLost: number;
-  sunk: boolean;
-}
-
-/**
- * Damage arriving from a fight: armor first, then hull.
- *
- * Sean's ruling of 18 September and the whole of it: *"Incoming ship damage is
- * applied to Armor first; remaining damage carries into Hull. One Armor point
- * absorbs one point of damage. Armor works identically against Long, Heavy,
- * and Light Guns."*
- *
- * So there is no mitigation arithmetic here — no divisor, no percentage, no
- * threshold. A point of armor eats a point of damage and is gone. Which kind
- * of gun fired is not a parameter, because by the ruling it cannot matter.
- *
- * This is the door every gun in the game comes through. `applyHullDamage` is
- * still there for damage that has already got past the armor.
- */
-export function applyDamage(ship: NavyShip, amount: number, roster: Roster = ROSTER): DamageTally {
-  if (amount <= 0 || !isAfloat(ship, roster)) {
-    return { armorLost: 0, hullLost: 0, sunk: !isAfloat(ship, roster) };
-  }
-  const armorLost = Math.min(ship.armorRemaining, amount);
-  ship.armorRemaining -= armorLost;
-  const hullLost = Math.min(ship.hullRemaining, amount - armorLost);
-  ship.hullRemaining -= hullLost;
-  return { armorLost, hullLost, sunk: !isAfloat(ship, roster) };
 }
 
 /**
@@ -213,24 +153,7 @@ export function repairDay(
 ): void {
   if (!canRepair || !isAfloat(ship, roster)) return;
   const def = definitionOf(ship, roster);
-  /*
-   * Hull first, armor after — Sean's ruling: *"Normal repair systems restore
-   * Hull first and Armor afterward."*
-   *
-   * Read as one day's work rather than two: the day's budget goes into the
-   * hull, and whatever the hull did not need goes into the armor, so a ship
-   * one point short of whole does not spend a whole day on that point. The
-   * alternative reading — armor cannot begin until the hull is full — would
-   * make the last day of a hull repair mend almost nothing. Neither reading is
-   * in the ruling; this is the one that wastes no work.
-   */
-  let budget = def.hull * def.repairRatePerDay;
-  const hullWanted = Math.min(budget, def.hull - ship.hullRemaining);
-  ship.hullRemaining += hullWanted;
-  budget -= hullWanted;
-  if (budget > 0) {
-    ship.armorRemaining = Math.min(def.armor, ship.armorRemaining + budget);
-  }
+  ship.hullRemaining = Math.min(def.hull, ship.hullRemaining + def.hull * def.repairRatePerDay);
 }
 
 /** Companies she can still take aboard. */
@@ -280,39 +203,12 @@ export function bombardmentWeight(squadron: Squadron, roster: Roster = ROSTER): 
   );
 }
 
-/**
- * The shape a future fight will have, and nothing more.
+/*
+ * The combat interfaces that used to close this file are gone.
  *
- * Deliberately an interface with no implementation. Sean: *"Do not implement a
- * complete damage-resolution system until the formulas and combat sequence
- * have been confirmed."* When they are, something implements this; until then
- * nothing pretends to.
- *
- * The open questions, all of them recorded in
- * `docs/naval-combat-open-questions.md`:
- *
- * - **Armor.** A 0–95 figure with no stated effect. Flat reduction? A share?
- *   A threshold below which a gun does nothing? Different per gun type?
- * - **The three guns.** Long, Heavy and Light are three counts with no stated
- *   difference beyond Long Guns being *"First Strike and pursuit"*. What each
- *   throws, and at what, is undefined.
- * - **First Strike.** Named in the design rules and defined nowhere. A free
- *   round before the exchange? A round at range the other side cannot answer?
- * - **Pursuit.** Long Guns are *"First Strike and pursuit"*. Whether that
- *   stops a withdrawal, punishes it, or catches it is undefined.
- * - **Speed.** Five categories with no mapping to anything — crossing time,
- *   initiative, escape.
- * - **Boarding.** Troop Capacity exists and the Freebooter is a *"boarding /
- *   troop carrier"*, but no boarding rule exists.
- * - **Sequence.** How many rounds, what ends one, and what ends a battle.
+ * They described armor mitigation, three gun kinds, First Strike, pursuit and
+ * boarding — every one of which Sean's ruling of 18 September removed from the
+ * model: *"Any earlier instructions adding armor, weapon triangles, boarding,
+ * or First Strike are superseded."* Combat now lives in `navycombat.ts` and
+ * reads four numbers, none of which this file supplies yet.
  */
-export interface CombatResolver {
-  /** Deterministic for a given seed, so a war can be replayed and measured. */
-  resolve(attacker: Squadron, defender: Squadron, seed: number): CombatResult;
-}
-
-export interface CombatResult {
-  readonly rounds: number;
-  readonly attackerLosses: readonly string[];
-  readonly defenderLosses: readonly string[];
-}

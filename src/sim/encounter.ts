@@ -20,7 +20,7 @@
  * carries, so a save in the middle of a battle is a save, and `lab/duel.ts`
  * can play one machine-against-machine without a screen existing.
  */
-import type { CombatResolver, NavyShip, Squadron } from './navy';
+import type { NavyShip, Squadron } from './navy';
 import { definitionOf, isAfloat, statusOf } from './navy';
 import { ROSTER, type Roster, type ShipStatus } from './shipdefs';
 
@@ -28,8 +28,17 @@ import { ROSTER, type Roster, type ShipStatus } from './shipdefs';
 export type EncounterPhase =
   /** The hail: a thumbnail, the name of the water, three buttons. */
   | 'hail'
-  /** Both fleets, laid out, before anybody has fired. */
+  /** Both fleets, laid out. */
   | 'fleets'
+  /**
+   * A round has been fought and neither fleet is gone: the report, the
+   * assessment, and the choice to go again or break off.
+   *
+   * Sean's ruling of 18 September is the reason this phase exists: *"Resolve
+   * exactly one round whenever the player chooses FIGHT... Otherwise offer
+   * FIGHT AGAIN or FLEE."* A battle is a series of decisions, not one button.
+   */
+  | 'round'
   /** One of the four results. */
   | 'outcome'
   /** Both fleets again, changed — what the damage report is. */
@@ -104,8 +113,10 @@ export interface Encounter {
   phase: EncounterPhase;
   /** Set once the player has chosen; undefined until then. */
   choice?: EncounterChoice;
-  /** Set once the sequence has run. */
+  /** Set once the battle has ended. */
   outcome?: EncounterOutcome;
+  /** How many rounds have been fought. */
+  rounds: number;
   /** Which phase View Fleets should return to. */
   returnTo?: EncounterPhase;
 }
@@ -117,8 +128,12 @@ export function actionsFor(encounter: Encounter): string[] {
       return ['attack', 'flee', 'viewFleets'];
     case 'fleets':
       // The choice is still open from here: Sean's flow has the player decide
-      // *after* looking, which is the whole point of the screen.
-      return encounter.outcome ? ['close'] : ['attack', 'flee', 'back'];
+      // *after* looking, which is the whole point of the screen. Mid-battle
+      // the choice is the same one worded differently.
+      if (encounter.outcome) return ['close'];
+      return encounter.rounds > 0 ? ['fightAgain', 'flee', 'back'] : ['attack', 'flee', 'back'];
+    case 'round':
+      return ['fightAgain', 'flee', 'viewFleets'];
     case 'outcome':
       return ['viewDamageReport'];
     case 'report':
@@ -131,6 +146,7 @@ export function openEncounter(systemId: string, locationName: string): Encounter
     systemId,
     title: `Action off the shores of ${locationName}`,
     phase: 'hail',
+    rounds: 0,
   };
 }
 
@@ -154,14 +170,24 @@ export function back(encounter: Encounter): Encounter {
 export function choose(
   encounter: Encounter,
   choice: EncounterChoice,
-  resolve: (choice: EncounterChoice) => EncounterOutcome,
+  resolve: (choice: EncounterChoice) => EncounterOutcome | undefined,
 ): Encounter {
   if (encounter.outcome) return encounter;
+  /*
+   * `resolve` gives back an ending or nothing. Nothing means the round was
+   * fought and both fleets are still there, which is the ordinary case and
+   * the reason a battle is a loop of decisions rather than one call: *"Resolve
+   * exactly one round whenever the player chooses FIGHT... Otherwise offer
+   * FIGHT AGAIN or FLEE."*
+   *
+   * Fleeing always ends it, because fleeing always succeeds.
+   */
+  const outcome = resolve(choice);
   return {
     ...encounter,
     choice,
-    outcome: resolve(choice),
-    phase: 'outcome',
+    rounds: choice === 'attack' ? encounter.rounds + 1 : encounter.rounds,
+    ...(outcome ? { outcome, phase: 'outcome' as const } : { phase: 'round' as const }),
     returnTo: undefined,
   };
 }
@@ -217,14 +243,9 @@ export function compareFleets(
   };
 }
 
-/**
- * The shape the attack and flee sequences will plug into.
- *
- * Deliberately thin, and deliberately not implemented. When the two sequence
- * documents arrive, something implements `CombatResolver` and returns one of
- * the four endings; nothing in this file changes.
+/*
+ * The resolver interface that used to close this file is gone with the model
+ * it described. Combat is `navycombat.ts` now: `fightRound` for a round,
+ * `resolveFlee` for breaking off, and `enemyWillFlee` for the other side's
+ * decision at the same point.
  */
-export interface EncounterResolver extends CombatResolver {
-  attack(mine: Squadron, theirs: Squadron, seed: number): EncounterOutcome;
-  flee(mine: Squadron, theirs: Squadron, seed: number): EncounterOutcome;
-}

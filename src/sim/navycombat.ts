@@ -1,415 +1,453 @@
 /**
- * The shape of a round, and the boarding action — Sean's rulings of
- * 18 September.
+ * Naval combat, per *7 Seas — Naval Combat System* (authoritative).
  *
- * What is settled and built here:
+ * Sean's ruling of 18 September, and it supersedes a day's worth of earlier
+ * instructions: *"The v2.4 fleet table is legacy ship-design data and does not
+ * define combat mechanics. Any earlier instructions adding armor, weapon
+ * triangles, boarding, or First Strike are superseded."*
  *
- * - **First Strike.** *"A ship with at least one Long Gun fires its Long Guns
- *   during a First Strike step before normal simultaneous fire. First Strike
- *   damage is resolved immediately. A ship destroyed during First Strike does
- *   not fire during the normal attack step. Surviving ships then resolve Heavy
- *   and Light Gun attacks simultaneously against the post–First Strike state.
- *   Long Guns do not fire again during the normal attack step."*
- * - **Boarding.** A ship-to-ship action that replaces that ship's gun attack
- *   for the round, resolved troops against troops, and a win **captures**.
- * - **Armor**, ablative and gun-blind, which lives in `navy.ts`.
+ * So the whole of what combat reads is four numbers:
  *
- * What is still missing, and is therefore an injected interface rather than an
- * implementation:
+ *     Firepower · Hull · Speed · hasLongGuns
  *
- * - **What a gun does.** The rulings say which gun is strong against what and
- *   that Long Guns' advantage is First Strike *"not superior raw damage"* —
- *   but not what a gun's damage *is*. `GunneryModel` is that hole, named.
- * - **The size class the triangle needs.** Sean: *"Use the project's existing
- *   ship-size classifications for the triangle rather than inferring size from
- *   Hull during combat."* The v2.4 roster has no size column — it has a
- *   free-text Role and a Speed category. Until one is added, `sizeOf` has
- *   nothing to read. See `docs/naval-combat-open-questions.md`.
- * - **How many rounds, and what ends a battle.**
- * - **The flee sequence.**
+ * and everything that used to be here — the size-class triangle, the three gun
+ * kinds firing separately, First Strike, ablative armor, ship-to-ship boarding
+ * — is gone rather than disabled. What each of them was is recorded in
+ * `docs/naval-combat-open-questions.md` so the reversal is legible.
+ *
+ * ## What is settled
+ *
+ * - **One attack opportunity per ship per round**, not one per gun.
+ * - **75% to hit**, and `damage = round(Firepower × random(0.85, 1.15))`.
+ * - **A round at a time.** `fightRound` resolves exactly one and stops. It does
+ *   not loop to annihilation; the decision to fight again is the player's.
+ * - **Flee always succeeds.** No roll. Only pursuers with Long Guns may fire,
+ *   at half Firepower, as many attacks as the retreating ship's Speed allows.
+ * - **Armor is not read.** Damage goes straight to Hull.
+ *
+ * ## What is still open
+ *
+ * Two things, both named below rather than guessed at: the **Firepower and
+ * Speed 1–10 conversion** for the 25 legacy hulls (Sean's next fleet-design
+ * task, and explicitly *not* a sum of the three gun columns), and the
+ * **thresholds of the position assessment** — the five bands are named and
+ * what the enemy does in each is ruled, but not what makes a position
+ * `DESPERATE`.
  */
 import type { Rng } from './rng';
-import {
-  applyDamage,
-  definitionOf,
-  isAfloat,
-  type DamageTally,
-  type NavyShip,
-  type Squadron,
-} from './navy';
-import { ROSTER, type NavyFaction, type Roster, type ShipDefinition } from './shipdefs';
-import type { EncounterOutcome } from './encounter';
+import type { NavyFaction } from './shipdefs';
 
-/* ------------------------------------------------------------- the triangle */
+/* ------------------------------------------------------------- the four stats */
 
 /**
- * The size classes the triangle is keyed to.
+ * The whole of what combat reads about a ship.
  *
- * Deliberately the live game's four and not a new set: Sean's ruling is to
- * *"use the project's existing ship-size classifications"*, and those are
- * `small | medium | large | transport` in `SHIP_ROLES`.
+ * Deliberately not `ShipDefinition`. The v2.4 roster carries Armor, three gun
+ * columns and a Speed *category*, none of which this model uses, and Sean's
+ * ruling is explicit that Firepower is **not** the three gun columns added up.
+ * Keeping the shapes apart means the conversion is a real piece of design work
+ * rather than something that could be quietly faked by an adapter.
  */
-export type ShipSizeClass = 'small' | 'medium' | 'large' | 'transport';
-
-/**
- * Which size class a v2.4 hull belongs to.
- *
- * **BLOCKED.** The v2.4 export carries no size column, so there is nothing to
- * read and nothing here guesses. A size cannot be inferred from Hull — the
- * ruling forbids exactly that — and Role is free text.
- *
- * The fix is one column in `combat-ships.json`. A proposed assignment for all
- * 25 hulls is in `docs/naval-combat-open-questions.md` for Sean to approve or
- * correct; it is deliberately *not* in the code, because a made-up size class
- * would silently decide every gunnery matchup in the game.
- */
-export function sizeOf(def: ShipDefinition): ShipSizeClass | undefined {
-  const declared = (def as ShipDefinition & { sizeClass?: ShipSizeClass }).sizeClass;
-  return declared;
+export interface CombatStats {
+  /** One number. Not a count of guns. */
+  readonly firepower: number;
+  readonly hull: number;
+  /** 1–10, where 10 is fastest. Sets exposure to retreat fire, and nothing
+   *  else in this model. */
+  readonly speed: number;
+  /** Whether she can fire on a fleet that is already running. Their only
+   *  special purpose: First Strike is gone. */
+  readonly hasLongGuns: boolean;
 }
 
-/** The three kinds, and the only three. */
-export type GunKind = 'long' | 'heavy' | 'light';
+/** One ship in a battle. */
+export interface CombatShip {
+  readonly id: string;
+  readonly stats: CombatStats;
+  owner: NavyFaction;
+  hullRemaining: number;
+}
+
+export interface CombatFleet {
+  faction: NavyFaction;
+  ships: CombatShip[];
+}
+
+export function commissionForCombat(
+  id: string,
+  owner: NavyFaction,
+  stats: CombatStats,
+): CombatShip {
+  return { id, owner, stats, hullRemaining: stats.hull };
+}
+
+export function isAfloat(ship: CombatShip): boolean {
+  return ship.hullRemaining > 0;
+}
+
+export function survivors(fleet: CombatFleet): CombatShip[] {
+  return fleet.ships.filter(isAfloat);
+}
+
+/* -------------------------------------------------------------- the gunnery */
+
+export const HIT_CHANCE = 0.75;
+/** Damage varies by this much either way: `random(0.85, 1.15)`. */
+export const DAMAGE_SWING = 0.15;
+/** What a Long Gun throws into a fleet that is running: half of normal. */
+export const LONG_GUN_SHARE = 0.5;
 
 /**
- * What a volley of one kind of gun does to one target.
+ * One attack, at normal weight or at a retreating target.
  *
- * The one thing the rulings do not give, and therefore the one thing this file
- * refuses to invent. An implementation decides damage per gun, whether a shot
- * can miss, and how the triangle weights a matchup — Sean's ruling names the
- * directions (*"Light Guns: strongest against small/fast ships; weak against
- * capital ships. Heavy Guns: strongest against large/armored ships; weak
- * against small/fast ships"*) but no magnitudes.
+ * The ruling, verbatim:
  *
- * Takes an `Rng` so a battle can be replayed exactly, which `lab/duel.ts`
- * needs.
+ *     hitChance = 0.75
+ *     if hit: damage = round(Firepower × random(0.85, 1.15))
+ *     else:   damage = 0
+ *
+ * Injected rather than hard-wired so a later ruling — a commander's edge, a
+ * status penalty, weather — has one place to go, and so a test can drive a
+ * battle without the RNG. `standardGunnery` is the ruling as written.
  */
 export interface GunneryModel {
-  volley(
-    shooter: ShipDefinition,
-    target: ShipDefinition,
-    kind: GunKind,
-    guns: number,
-    rng: Rng,
-  ): number;
+  attack(firepower: number, rng: Rng): number;
 }
 
-/* ---------------------------------------------------------------- the round */
+export const standardGunnery: GunneryModel = {
+  attack(firepower, rng) {
+    if (firepower <= 0) return 0;
+    if (!rng.chance(HIT_CHANCE)) return 0;
+    const swing = 1 + (rng.next() * 2 - 1) * DAMAGE_SWING;
+    return Math.round(firepower * swing);
+  },
+};
 
-/** What one ship means to do this round. */
-export type ShipOrder =
-  | { kind: 'fire'; targetId: string }
-  | { kind: 'board'; targetId: string; troops: number }
-  | { kind: 'hold' };
-
-export interface RoundInput {
-  attacker: Squadron;
-  defender: Squadron;
-  /** By ship id. A ship with no order holds. */
-  orders: ReadonlyMap<string, ShipOrder>;
-  gunnery: GunneryModel;
-  rng: Rng;
-  roster?: Roster;
+/** Take hull off her. Returns what was actually taken. */
+export function damage(ship: CombatShip, amount: number): number {
+  if (amount <= 0 || !isAfloat(ship)) return 0;
+  const taken = Math.min(ship.hullRemaining, amount);
+  ship.hullRemaining -= taken;
+  return taken;
 }
 
-export interface VolleyRecord {
-  shooterId: string;
+/* ---------------------------------------------------------------- a round */
+
+export interface AttackRecord {
+  attackerId: string;
   targetId: string;
-  kind: GunKind;
-  damage: DamageTally;
+  hit: boolean;
+  damage: number;
 }
 
-export interface BoardingRecord {
-  boarderId: string;
-  targetId: string;
-  committed: number;
-  defending: number;
-  captured: boolean;
-  troopsLost: number;
-}
-
-export interface RoundResult {
-  firstStrike: VolleyRecord[];
-  exchange: VolleyRecord[];
-  boardings: BoardingRecord[];
-  /** Ships lost this round, by id, in the order they went. */
+/** How each side saw the round. */
+export interface RoundReport {
+  attacks: AttackRecord[];
+  /** Ships lost this round, in the order they went. */
   sunk: string[];
-  /** Ships that changed hands this round. */
-  captured: string[];
+  /** True once either fleet has nothing left. */
+  over: boolean;
 }
 
 /**
- * One round: First Strike, then the simultaneous exchange, with boarding in
- * place of a gun attack for any ship that chose it.
+ * Who each ship fires at. §6 of the authoritative system.
  *
- * The ordering rules are the whole reason this function exists, and each is
- * Sean's:
+ * The player never picks a target — *"The combat engine selects targets
+ * automatically"* — and the rule is given in full:
  *
- * 1. Long Guns fire first and their damage lands **immediately**, so a ship
- *    sunk by First Strike is gone before the exchange.
- * 2. Ships that survived First Strike then fire Heavy and Light **against the
- *    post-First-Strike state** — simultaneously, so a ship sunk in the
- *    exchange still got her shot off. That is the live game's rule too, and
- *    the ruling on Status being descriptive exists to protect it.
- * 3. A Long Gun does not fire twice.
- * 4. A ship that boards does not fire at all.
- */
-export function resolveRound(input: RoundInput): RoundResult {
-  const roster = input.roster ?? ROSTER;
-  const result: RoundResult = {
-    firstStrike: [],
-    exchange: [],
-    boardings: [],
-    sunk: [],
-    captured: [],
-  };
-  const all = [...input.attacker.ships, ...input.defender.ships];
-  const byId = new Map(all.map((s) => [s.id, s] as const));
-  const orderFor = (ship: NavyShip): ShipOrder => input.orders.get(ship.id) ?? { kind: 'hold' };
-  const noteSunk = (ship: NavyShip, tally: DamageTally) => {
-    if (tally.sunk && !result.sunk.includes(ship.id)) result.sunk.push(ship.id);
-  };
-
-  // A ship boarding this round does not shoot, whatever she is carrying.
-  const firing = all.filter((s) => isAfloat(s, roster) && orderFor(s).kind === 'fire');
-
-  /* 1. First Strike. Resolved one at a time and applied as it happens. */
-  for (const shooter of firing) {
-    if (!isAfloat(shooter, roster)) continue; // sunk by an earlier First Strike
-    const def = definitionOf(shooter, roster);
-    if (def.guns.longGuns <= 0) continue;
-    const order = orderFor(shooter) as { kind: 'fire'; targetId: string };
-    const target = byId.get(order.targetId);
-    if (!target || !isAfloat(target, roster)) continue;
-    const damage = applyDamage(
-      target,
-      input.gunnery.volley(def, definitionOf(target, roster), 'long', def.guns.longGuns, input.rng),
-      roster,
-    );
-    result.firstStrike.push({ shooterId: shooter.id, targetId: target.id, kind: 'long', damage });
-    noteSunk(target, damage);
-  }
-
-  /*
-   * 2. The exchange. Everything is worked out against the state at the start
-   *    of the step and applied afterwards, so two ships that sink each other
-   *    both fire. Long Guns are excluded: they have had their round.
-   */
-  const pending: Array<{ shooter: NavyShip; target: NavyShip; kind: GunKind; amount: number }> = [];
-  for (const shooter of firing) {
-    if (!isAfloat(shooter, roster)) continue; // step 1 rule: the dead do not fire
-    const def = definitionOf(shooter, roster);
-    const order = orderFor(shooter) as { kind: 'fire'; targetId: string };
-    const target = byId.get(order.targetId);
-    if (!target || !isAfloat(target, roster)) continue;
-    const targetDef = definitionOf(target, roster);
-    for (const kind of ['heavy', 'light'] as const) {
-      const guns = kind === 'heavy' ? def.guns.heavyGuns : def.guns.lightGuns;
-      if (guns <= 0) continue;
-      pending.push({
-        shooter,
-        target,
-        kind,
-        amount: input.gunnery.volley(def, targetDef, kind, guns, input.rng),
-      });
-    }
-  }
-  for (const shot of pending) {
-    const damage = applyDamage(shot.target, shot.amount, roster);
-    result.exchange.push({
-      shooterId: shot.shooter.id,
-      targetId: shot.target.id,
-      kind: shot.kind,
-      damage,
-    });
-    noteSunk(shot.target, damage);
-  }
-
-  /* 3. Boarding, for anybody who chose it instead of firing. */
-  for (const boarder of all) {
-    const order = orderFor(boarder);
-    if (order.kind !== 'board' || !isAfloat(boarder, roster)) continue;
-    const target = byId.get(order.targetId);
-    if (!target || !isAfloat(target, roster)) continue;
-    const record = resolveBoarding(boarder, target, order.troops, input.rng, roster);
-    result.boardings.push(record);
-    if (record.captured) result.captured.push(target.id);
-  }
-
-  return result;
-}
-
-/**
- * One boarding action.
- *
- * Sean's ruling: *"Resolve the attacker's committed troops against the
- * defender's troops. If the attacker wins, the target is captured rather than
- * destroyed; if the attacker loses, the committed attacking troops are lost.
- * The exact troop-combat formula should reuse the game's existing land-troop
- * combat rules if possible."*
- *
- * So the arithmetic is `resolveLanding`'s, deliberately: the larger force
- * wins, a tie goes to a roll, and both sides spend the smaller number. It is
- * written out again here rather than shared with `fleets.ts`, because this
- * system runs in parallel and reaching into live combat code to extract a
- * helper would change a tested system for the benefit of one that is not
- * wired in yet. **When the two converge, these should become one function.**
- *
- * What is *not* carried over is the officer's Combat edge that a landing gets.
- * That edge reads a live `GameState`, which this system does not have, and
- * inventing an equivalent would be inventing a rule.
- */
-export function resolveBoarding(
-  boarder: NavyShip,
-  target: NavyShip,
-  committed: number,
-  rng: Rng,
-  roster: Roster = ROSTER,
-): BoardingRecord {
-  const attackers = Math.max(0, Math.min(committed, boarder.troops));
-  const defenders = target.troops;
-  const spent = Math.min(attackers, defenders);
-  const captured = attackers > defenders || (attackers === defenders && rng.next() > 0.5);
-
-  boarder.troops -= captured ? spent : attackers;
-  target.troops = Math.max(0, defenders - spent);
-  if (captured) {
-    // Taken, not sunk. She keeps whatever hull and armor she has left.
-    target.owner = definitionOf(boarder, roster).faction;
-  }
-  return {
-    boarderId: boarder.id,
-    targetId: target.id,
-    committed: attackers,
-    defending: defenders,
-    captured,
-    troopsLost: captured ? spent : attackers,
-  };
-}
-
-/* ------------------------------------------------------------- the battle */
-
-/**
- * Who each ship fires at, and who boards.
- *
- * Undefined by any ruling so far, and therefore injected rather than decided
- * here. The live game has a targeting rule — score a target by threat removed
- * per shot spent — and whether v2.4 keeps it is an open question.
+ *   1. Prefer viable enemy warships.
+ *   2. Prefer higher-threat enemy ships.
+ *   3. Avoid concentrating every attack against a single ship unless that ship
+ *      is clearly the highest-priority target.
+ *   4. Allow some natural distribution of fire.
+ *   5. *"70% of attacks: highest-priority viable target. 30% of attacks:
+ *      randomly selected viable enemy target."*
  */
 export interface TargetingModel {
-  orders(mine: Squadron, theirs: Squadron, rng: Rng, roster: Roster): Map<string, ShipOrder>;
+  pick(shooter: CombatShip, enemies: CombatShip[], rng: Rng): CombatShip | undefined;
 }
 
-export interface BattleConfig {
-  gunnery: GunneryModel;
-  targeting: TargetingModel;
-  /**
-   * A guard, not a rule. How long a battle runs is unruled; this stops an
-   * unwinnable exchange — two squadrons that cannot hurt each other — from
-   * spinning for ever. A battle that hits it is reported as such rather than
-   * quietly called something.
-   */
-  maxRounds?: number;
-  roster?: Roster;
+/** The share of attacks that go to the best target rather than a random one. */
+export const FOCUS_SHARE = 0.7;
+
+/**
+ * How dangerous a target is, for the 70% that pick deliberately.
+ *
+ * §6: *"Target priority should consider Firepower, Remaining Hull, and Ship
+ * importance/value. Do not create a new visible stat for target priority."* So
+ * this is derived at the moment of firing and stored nowhere.
+ *
+ * **The one inference in the combat engine.** The doc gives the inputs and the
+ * direction, not a formula. This is threat removed per point of damage spent
+ * removing it — the same shape the live game's targeting already uses — so a
+ * hurt gunship outranks a fresh one and a Swift with no guns is shot last. It
+ * is one function, changeable in one place, and no rule depends on its
+ * particular arithmetic.
+ */
+export function threatOf(ship: CombatShip): number {
+  return (ship.stats.firepower + 1) / Math.max(1, ship.hullRemaining);
 }
 
-export interface BattleReport {
-  outcome: EncounterOutcome | 'stalemate';
-  rounds: RoundResult[];
-  /** Ships lost, by side, in the order they went. */
-  lost: { mine: string[]; theirs: string[] };
-  captured: { mine: string[]; theirs: string[] };
-}
+export const standardTargeting: TargetingModel = {
+  pick(_shooter, enemies, rng) {
+    const viable = enemies.filter(isAfloat);
+    if (viable.length === 0) return undefined;
+    /*
+     * A ship that cannot shoot back is not a *warship*, and §6 asks for those
+     * to be preferred — so an unarmed hull is only fired on once nothing armed
+     * is left. It is also what stops a fleet spending its whole broadside on a
+     * transport while a first-rate goes untouched.
+     */
+    const armed = viable.filter((s) => s.stats.firepower > 0);
+    const pool = armed.length > 0 ? armed : viable;
+    if (pool.length === 1) return pool[0];
+    if (rng.next() < FOCUS_SHARE) {
+      return pool.reduce((best, s) => (threatOf(s) > threatOf(best) ? s : best), pool[0]);
+    }
+    return pool[rng.int(pool.length)];
+  },
+};
 
-/** Anything still fighting for this side: afloat, and still hers. */
-function stillFighting(squadron: Squadron, owner: NavyFaction, roster: Roster): NavyShip[] {
-  return squadron.ships.filter((s) => isAfloat(s, roster) && s.owner === owner);
+/** The simplest possible targeting, for tests that are about something else. */
+export const firstAfloat: TargetingModel = {
+  pick: (_shooter, enemies) => enemies.find(isAfloat),
+};
+
+export interface RoundConfig {
+  gunnery?: GunneryModel;
+  targeting?: TargetingModel;
 }
 
 /**
- * Rounds until one side has nothing left, and what that came to.
+ * Exactly one round, and then stop.
  *
- * The ending conditions are read straight off Sean's four outcomes: *"Victory!
- * (you destroyed everything they had)"* and *"Defeat (you lost everything)"*,
- * so a battle runs until one side has nothing afloat under its own flag. A
- * captured hull counts for whoever holds her now, which is what makes boarding
- * worth doing.
+ * Sean's ruling, and the reason this is not a loop: *"`runBattle()` must
+ * therefore pause after each completed round for a new strategic decision. It
+ * must not loop automatically until one fleet is destroyed."*
  *
- * **Two things this deliberately does not do.**
- *
- * It does not implement **flee**: that sequence's document has not arrived, so
- * `fleeBattle` is a named hole rather than a guess. And it does not decide
- * **mutual annihilation** — where neither side has anything left, the four
- * outcomes have no answer, so this calls it a defeat (you did, after all, lose
- * everything) and records the case as an open question rather than burying the
- * choice.
+ * Every surviving ship gets **one** attack opportunity, whatever she carries.
+ * All of them are worked out against the state at the start of the round and
+ * applied together, so two ships that sink each other both fire — the ordinary
+ * meaning of a simultaneous exchange, and the thing the removal of First
+ * Strike restores.
  */
-export function runBattle(
-  mine: Squadron,
-  theirs: Squadron,
-  myFaction: NavyFaction,
-  theirFaction: NavyFaction,
-  config: BattleConfig,
+export function fightRound(
+  attacker: CombatFleet,
+  defender: CombatFleet,
   rng: Rng,
-): BattleReport {
-  const roster = config.roster ?? ROSTER;
-  const maxRounds = config.maxRounds ?? 20;
-  const rounds: RoundResult[] = [];
-  const lost = { mine: [] as string[], theirs: [] as string[] };
-  const captured = { mine: [] as string[], theirs: [] as string[] };
-  const side = new Map<string, 'mine' | 'theirs'>([
-    ...mine.ships.map((s) => [s.id, 'mine'] as const),
-    ...theirs.ships.map((s) => [s.id, 'theirs'] as const),
-  ]);
+  config: RoundConfig = {},
+): RoundReport {
+  const gunnery = config.gunnery ?? standardGunnery;
+  const targeting = config.targeting ?? standardTargeting;
+  const report: RoundReport = { attacks: [], sunk: [], over: false };
 
-  while (rounds.length < maxRounds) {
-    if (stillFighting(mine, myFaction, roster).length === 0) break;
-    if (stillFighting(theirs, theirFaction, roster).length === 0) break;
-
-    const result = resolveRound({
-      attacker: mine,
-      defender: theirs,
-      orders: config.targeting.orders(mine, theirs, rng, roster),
-      gunnery: config.gunnery,
-      rng,
-      roster,
-    });
-    rounds.push(result);
-    for (const id of result.sunk) lost[side.get(id) ?? 'theirs'].push(id);
-    for (const id of result.captured) captured[side.get(id) ?? 'theirs'].push(id);
-
-    // A round in which nothing happened at all will not happen differently
-    // next time: two squadrons that cannot reach each other are a stalemate,
-    // not a battle, and looping twenty times to discover it helps nobody.
-    if (result.sunk.length === 0 && result.captured.length === 0 && noDamage(result)) break;
+  // Worked out first, applied after: that is what makes the round simultaneous.
+  const volleys: Array<{ shooter: CombatShip; target: CombatShip; amount: number }> = [];
+  for (const [side, foe] of [
+    [attacker, defender],
+    [defender, attacker],
+  ] as const) {
+    for (const shooter of survivors(side)) {
+      const target = targeting.pick(shooter, survivors(foe), rng);
+      if (!target) continue;
+      volleys.push({ shooter, target, amount: gunnery.attack(shooter.stats.firepower, rng) });
+    }
   }
 
-  const mineLeft = stillFighting(mine, myFaction, roster).length;
-  const theirsLeft = stillFighting(theirs, theirFaction, roster).length;
-  let outcome: BattleReport['outcome'];
-  if (mineLeft === 0) outcome = 'defeat';
-  else if (theirsLeft === 0) outcome = 'victory';
-  else outcome = 'stalemate';
+  for (const volley of volleys) {
+    const dealt = damage(volley.target, volley.amount);
+    report.attacks.push({
+      attackerId: volley.shooter.id,
+      targetId: volley.target.id,
+      hit: volley.amount > 0,
+      damage: dealt,
+    });
+    if (!isAfloat(volley.target) && !report.sunk.includes(volley.target.id)) {
+      report.sunk.push(volley.target.id);
+    }
+  }
 
-  return { outcome, rounds, lost, captured };
+  report.over = survivors(attacker).length === 0 || survivors(defender).length === 0;
+  return report;
 }
 
-function noDamage(result: RoundResult): boolean {
-  const hurt = (v: VolleyRecord) => v.damage.armorLost > 0 || v.damage.hullLost > 0;
-  return !result.firstStrike.some(hurt) && !result.exchange.some(hurt) && result.boardings.length === 0;
+/* ----------------------------------------------------------------- fleeing */
+
+/**
+ * How many times a retreating ship can be fired on, by her Speed.
+ *
+ * The ruling's table, exactly. A range is rolled; a single figure is certain.
+ * Speed 10 is clean away.
+ */
+export const RETREAT_EXPOSURE: Record<number, readonly [number, number]> = {
+  10: [0, 0],
+  9: [0, 1],
+  8: [1, 1],
+  7: [1, 1],
+  6: [1, 2],
+  5: [2, 2],
+  4: [2, 2],
+  3: [2, 3],
+  2: [3, 3],
+  1: [3, 4],
+};
+
+export function retreatAttacksFor(speed: number, rng: Rng): number {
+  const band = RETREAT_EXPOSURE[Math.max(1, Math.min(10, Math.round(speed)))];
+  if (!band) return 0;
+  const [low, high] = band;
+  return high > low ? low + rng.int(high - low + 1) : low;
+}
+
+export interface FleeReport {
+  /** Every shot the pursuers got, in order. */
+  attacks: AttackRecord[];
+  sunk: string[];
+  /** False when nobody in the pursuing fleet carries Long Guns. */
+  pursued: boolean;
 }
 
 /**
- * Breaking off — **not implemented**.
+ * Breaking off, which always works.
  *
- * Sean's combat order names a flee sequence and says it is in the docs; no
- * such document is in the repository. Rather than invent one, this throws, so
- * a caller that reaches it fails loudly instead of quietly getting a battle
- * nobody designed.
+ * Sean's ruling: *"Flee always succeeds. It does not roll for success and does
+ * not begin another normal combat round."* What it costs is retreat fire, and
+ * only from hulls that carry Long Guns — *"If the pursuing fleet has no Long
+ * Guns, the retreating fleet takes no retreat fire."*
+ *
+ * Each shot is the ordinary 75% at half Firepower. Combat ends afterwards
+ * whatever the result: there is no round after a flee.
  */
-export function fleeBattle(): never {
-  throw new Error(
-    'The flee sequence is not defined. See docs/naval-combat-open-questions.md — ' +
-      'the design document it refers to has not been supplied.',
+export function resolveFlee(
+  fleeing: CombatFleet,
+  pursuing: CombatFleet,
+  rng: Rng,
+  config: RoundConfig = {},
+): FleeReport {
+  const gunnery = config.gunnery ?? standardGunnery;
+  const report: FleeReport = { attacks: [], sunk: [], pursued: false };
+
+  const pursuers = survivors(pursuing).filter((s) => s.stats.hasLongGuns);
+  if (pursuers.length === 0) return report;
+  report.pursued = true;
+
+  /*
+   * Exposure is a property of the ship running, not of the ship chasing: the
+   * table is read off the *retreating* hull's Speed. Where more pursuers carry
+   * Long Guns than a ship has exposure, the extra guns find nothing to shoot
+   * at — she is simply out of range that quickly.
+   */
+  let next = 0;
+  for (const runner of survivors(fleeing)) {
+    const shots = retreatAttacksFor(runner.stats.speed, rng);
+    for (let i = 0; i < shots; i++) {
+      const pursuer = pursuers[next % pursuers.length];
+      next += 1;
+      const amount = gunnery.attack(pursuer.stats.firepower * LONG_GUN_SHARE, rng);
+      const dealt = damage(runner, amount);
+      report.attacks.push({
+        attackerId: pursuer.id,
+        targetId: runner.id,
+        hit: amount > 0,
+        damage: dealt,
+      });
+      if (!isAfloat(runner)) {
+        if (!report.sunk.includes(runner.id)) report.sunk.push(runner.id);
+        break; // no point shooting a wreck
+      }
+    }
+  }
+  return report;
+}
+
+/* -------------------------------------------------------- how it is going */
+
+/** The five bands, best to worst. */
+export const ASSESSMENTS = [
+  'OVERWHELMINGLY FAVORABLE',
+  'FAVORABLE',
+  'EVEN',
+  'UNFAVORABLE',
+  'DESPERATE',
+] as const;
+export type Assessment = (typeof ASSESSMENTS)[number];
+
+/**
+ * What a fleet has left to fight with.
+ *
+ * §8: *"Do not reduce a fleet to one giant combat power number... The fleet's
+ * combat capability emerges from total surviving Firepower and total surviving
+ * Hull."* So this is not a stat anything stores or shows — it is computed from
+ * the survivors when somebody asks how it is going, and losing a ship lowers
+ * it because that ship's firepower and hull have gone with her.
+ */
+export function fightingStrength(fleet: CombatFleet): { firepower: number; hull: number } {
+  return survivors(fleet).reduce(
+    (total, s) => ({
+      firepower: total.firepower + s.stats.firepower,
+      hull: total.hull + s.hullRemaining,
+    }),
+    { firepower: 0, hull: 0 },
   );
+}
+
+/**
+ * How a side reads its own position, after a round. §16.
+ *
+ * *"After every round, provide a simple assessment using relative surviving
+ * combat strength... Do not reveal the exact mathematical probability."*
+ *
+ * The doc gives the five bands and the basis; it does not give the cut points,
+ * so `ASSESSMENT_CUTS` is an inference and says so. Everything else here is
+ * ruled: the comparison is surviving firepower against surviving firepower and
+ * hull against hull, and the player is shown a word rather than a number.
+ */
+export interface AssessmentModel {
+  assess(mine: CombatFleet, theirs: CombatFleet): Assessment;
+}
+
+/**
+ * Where one band ends and the next begins, as a ratio of my strength to
+ * theirs. **Inferred, not ruled.**
+ */
+export const ASSESSMENT_CUTS = {
+  overwhelming: 2.0,
+  favorable: 1.25,
+  even: 0.8,
+  unfavorable: 0.4,
+} as const;
+
+export const standardAssessment: AssessmentModel = {
+  assess(mine, theirs) {
+    const us = fightingStrength(mine);
+    const them = fightingStrength(theirs);
+    // Firepower says whether I can win; hull says how long I last. Neither
+    // alone answers "how is it going", so the ratio is of their product.
+    const ours = us.firepower * us.hull;
+    const other = them.firepower * them.hull;
+    if (ours <= 0) return 'DESPERATE';
+    if (other <= 0) return 'OVERWHELMINGLY FAVORABLE';
+    const ratio = ours / other;
+    if (ratio >= ASSESSMENT_CUTS.overwhelming) return 'OVERWHELMINGLY FAVORABLE';
+    if (ratio >= ASSESSMENT_CUTS.favorable) return 'FAVORABLE';
+    if (ratio >= ASSESSMENT_CUTS.even) return 'EVEN';
+    if (ratio >= ASSESSMENT_CUTS.unfavorable) return 'UNFAVORABLE';
+    return 'DESPERATE';
+  },
+};
+
+/**
+ * Whether the enemy breaks off, at the same decision point as the player.
+ *
+ * Sean's ruling: *"The enemy evaluates its position after every completed
+ * round, at the same decision point as the player... `DESPERATE`: flee."*
+ * Everything else fights on. No random flee probability, and mission-specific
+ * fight-to-the-death behaviour is explicitly out of the base engine.
+ */
+export function enemyWillFlee(
+  theirs: CombatFleet,
+  mine: CombatFleet,
+  assessment: AssessmentModel = standardAssessment,
+): boolean {
+  return assessment.assess(theirs, mine) === 'DESPERATE';
 }
