@@ -3471,38 +3471,6 @@
         "sha1": "3d19804f641d5bf9"
       }
     },
-    "ships/free-harbor": {
-      "folder": "ships",
-      "slug": "free-harbor",
-      "version": 1,
-      "added": "2026-09-16",
-      "updated": "2026-09-16",
-      "title": "free-harbor",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
-      "crop": {
-        "x": 0,
-        "y": 0,
-        "w": 232,
-        "h": 174
-      },
-      "tone": null,
-      "upscaled": true,
-      "master": {
-        "file": "art-masters/ships/free-harbor.webp",
-        "w": 233,
-        "h": 174,
-        "bytes": 25200,
-        "sha1": "95c374e8e71989df"
-      },
-      "shipped": {
-        "file": "src/art/ships/free-harbor.webp",
-        "w": 640,
-        "h": 480,
-        "bytes": 36152,
-        "sha1": "2c0db8b442b62c82"
-      }
-    },
     "ships/freebooter": {
       "folder": "ships",
       "slug": "freebooter",
@@ -3533,6 +3501,38 @@
         "h": 480,
         "bytes": 37672,
         "sha1": "b2c7438d50fa257c"
+      }
+    },
+    "ships/harbor": {
+      "folder": "ships",
+      "slug": "harbor",
+      "version": 1,
+      "added": "2026-09-16",
+      "updated": "2026-09-16",
+      "title": "Open Deck",
+      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands. Refiled from ships/free-harbor to ships/harbor on 18 September: the ship was renamed Open Deck on 17 September and her class id is `harbor`, so the painting no longer matched the slug the game looks her up by and she drew as a placeholder. The island archetype `free-harbor` is a different thing and keeps its name.",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 232,
+        "h": 174
+      },
+      "tone": null,
+      "upscaled": true,
+      "master": {
+        "file": "art-masters/ships/harbor.webp",
+        "w": 233,
+        "h": 174,
+        "bytes": 25200,
+        "sha1": "95c374e8e71989df"
+      },
+      "shipped": {
+        "file": "src/art/ships/harbor.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 36152,
+        "sha1": "2c0db8b442b62c82"
       }
     },
     "ships/ironback": {

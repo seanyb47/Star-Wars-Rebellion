@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import terms from '../data/terms.json';
 import characterRoster from '../data/characters.json';
+import factionData from '../data/factions.json';
 import reachData from '../data/reaches.json';
 import { GlossaryPage } from './Glossary';
+
+/** Counted from the data rather than remembered: the old figure said 71. */
+const ISLAND_COUNT = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
 import {
   FACILITY_LABEL,
   GOLD_PER_DAY,
@@ -21,6 +25,7 @@ import {
   type FacilityType,
   type GameState,
   CREATURES,
+  SHIP_CLASSES,
   troopsOf,
   BATTLE_ODDS_LABEL,
   BREAK_OFF_ODDS,
@@ -56,6 +61,7 @@ import {
   CompanyRow,
   CreaturePainting,
 } from './art';
+import type { PlayableFaction } from '../sim';
 import { GoldFig, Sheet } from './components';
 import { useSideSwipe } from './LayerStrip';
 
@@ -121,7 +127,25 @@ export function Almanac({
    */
   entry?: string;
 }) {
-  const roster = characterRoster[state.player];
+  const you = state.player;
+  const them: PlayableFaction = you === 'empire' ? 'alliance' : 'empire';
+  /*
+   * Both navies, the player's own first — and everything else besides.
+   *
+   * Sean, 18 September: *"encyclopedia should have all units not just what is
+   * in the game, so i should see all crew for example."* It had been showing
+   * one side of everything: seven of the twenty-six people, one navy's hulls,
+   * one navy's companies. A reference that only lists what you happen to own
+   * is a roster, and the game already has one of those on the Crew screen.
+   *
+   * Fog of war is not the reason any of it was hidden — an enemy hull's stats
+   * were never secret, only which of them are in the water — so nothing here
+   * gives away anything a player could not read off a ship sheet.
+   */
+  const sides: Array<{ faction: PlayableFaction; label: string }> = [
+    { faction: you, label: 'Yours' },
+    { faction: them, label: factionData[them].name },
+  ];
   const [page, setPage] = useState<Page>(opening);
   // A sideways drag moves along the tabs, the same gesture the chart and the
   // island panel already use for their rows.
@@ -357,8 +381,11 @@ export function Almanac({
         the rest are a people rather than a purchase — they are on their own
         islands and nowhere else.
       </p>
+      {sides.map(({ faction, label }) => (
+      <div key={faction}>
+      <div className="section-title">{label}</div>
       <div className="stack">
-        {troopsOf(state.player).map((type) => (
+        {troopsOf(faction).map((type) => (
           <div key={type.id} id={`enc-${type.id}`} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
             <span className="company__thumb">
               <CompanyIcon size={76} type={type.id} />
@@ -379,6 +406,8 @@ export function Almanac({
           </div>
         ))}
       </div>
+      </div>
+      ))}
       <p className="tiny muted" style={{ marginTop: 6 }}>
         Attack / hold / watch. A landing is still settled on how many companies
         are ashore, not on these — they say who is standing there, and what they
@@ -436,14 +465,33 @@ export function Almanac({
         Lords in irons at the same moment.
       </div>
 
-      <div className="section-title">Your crew</div>
+      {[
+        ...sides.map((side) => ({
+          ...side,
+          people: characterRoster[side.faction as 'empire' | 'alliance'],
+          art: side.faction,
+        })),
+        /*
+         * And the ones nobody has yet. The recruit pool is twelve people the
+         * Recruitment errand draws from — half the cast, and until now not
+         * visible anywhere in the game until one of them signed on.
+         */
+        {
+          faction: 'neutral' as const,
+          label: 'Unaligned',
+          people: characterRoster.recruits,
+          art: 'neutral' as const,
+        },
+      ].map(({ faction, label, people, art }) => (
+      <div key={faction}>
+      <div className="section-title">{label}</div>
       <div className="stack">
-        {roster.map((entry) => (
-          <div key={entry.id} id={`enc-${slugOf(entry.name)}`} className="card">
+        {people.map((entry) => (
+          <div key={entry.name} id={`enc-${slugOf(entry.name)}`} className="card">
             <div className="row" style={{ gap: 12, alignItems: 'flex-start' }}>
               <CharacterPortrait
                 name={entry.name}
-                faction={state.player}
+                faction={art}
                 people={entry.people}
                 size={84}
               />
@@ -475,6 +523,8 @@ export function Almanac({
           </div>
         ))}
       </div>
+      </div>
+      ))}
 
         </>
       )}
@@ -483,7 +533,7 @@ export function Almanac({
         <>
       <div className="section-title">What an island is</div>
       <div className="card small">
-        <b>Seventy-one of them, and every one is the same four questions.</b> Who holds it. What it
+        <b>{ISLAND_COUNT} of them, and every one is the same four questions.</b> Who holds it. What it
         thinks of you, out of a hundred — and the two sides' shares always add to a hundred, so a
         point you win is a point they lose. How much room it has to build on. And how many
         companies are standing on it.
@@ -630,13 +680,16 @@ export function Almanac({
         the same design taken further — and the Confederacy, which has no such
         programme, answers with different ships instead.
       </p>
+      {sides.map(({ faction, label }) => (
+      <div key={faction}>
+      <div className="section-title">{label}</div>
       <div className="stack">
-        {shipsFor(state.player).map((cls) => {
+        {shipsFor(faction).map((cls) => {
           const spec = shipSpec(cls.id);
           return (
             <div key={cls.id} id={`enc-${cls.id}`} className="card">
               <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
-                <ShipThumb faction={state.player} role={cls.role} cls={cls.id} size={140} />
+                <ShipThumb faction={faction} role={cls.role} cls={cls.id} size={140} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="row row--between">
                     <b>{cls.name}</b>
@@ -648,7 +701,9 @@ export function Almanac({
                     <span className="tiny">
                       {cls.craft ? (
                         <b className="enc-craft">
-                          Craft {cls.craft} — {gradeOf(state, state.player) >= cls.craft ? 'researched' : 'not yet'}
+                          Craft {cls.craft}
+                          {faction === you &&
+                            ` — ${gradeOf(state, you) >= cls.craft ? 'researched' : 'not yet'}`}
                         </b>
                       ) : (
                         <span className="muted">Buildable from day one</span>
@@ -681,6 +736,8 @@ export function Almanac({
           );
         })}
       </div>
+      </div>
+      ))}
 
       <div className="section-title">Which hull beats which</div>
       <div className="card small">
@@ -791,6 +848,28 @@ export function Almanac({
             </div>
           );
         })}
+      </div>
+
+      {/*
+        The three the stories are about, and nothing builds.
+        `shipsFor` drops them because nothing can be laid down; an
+        encyclopedia is exactly where they belong.
+      */}
+      <div className="section-title">Ships of the stories</div>
+      <p className="tiny muted" style={{ margin: '0 0 6px' }}>
+        Named in the Pirate Lords' own bios and never put on the water. Nothing
+        builds them, nothing sails them, nothing fights them.
+      </p>
+      <div className="stack">
+        {SHIP_CLASSES.filter((c) => c.legend).map((cls) => (
+          <div key={cls.id} id={`enc-${cls.id}`} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
+            <ShipThumb faction={cls.faction} role={cls.role} cls={cls.id} size={76} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <b className="small">{cls.name}</b>
+              <div className="tiny muted" style={{ marginTop: 4 }}>{cls.blurb}</div>
+            </div>
+          </div>
+        ))}
       </div>
 
         </>
