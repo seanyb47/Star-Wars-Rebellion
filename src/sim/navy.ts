@@ -23,6 +23,7 @@
  */
 import {
   ROSTER,
+  type NavyFaction,
   type Roster,
   type ShipDefinition,
   type ShipStatus,
@@ -45,7 +46,23 @@ export interface NavyShip {
   readonly id: string;
   /** Her class, into `Roster.byId`. */
   readonly defId: string;
+  /**
+   * Whose she is *now*. Not readonly, because a boarding action changes it:
+   * Sean's ruling of 18 September is that a won boarding captures the target
+   * rather than destroying her.
+   */
+  owner: NavyFaction;
   hullRemaining: number;
+  /**
+   * What is left of her armor.
+   *
+   * Sean's ruling: *"Armor is a separate, ablative durability pool. Incoming
+   * ship damage is applied to Armor first; remaining damage carries into Hull.
+   * One Armor point absorbs one point of damage."* So it is a second pool and
+   * not a divisor, it works the same against all three kinds of gun, and it
+   * does not come back during a fight.
+   */
+  armorRemaining: number;
   /** Companies aboard. Never above the class's `troopCapacity`. */
   troops: number;
 }
@@ -53,17 +70,18 @@ export interface NavyShip {
 /**
  * Where the five condition states begin and end.
  *
- * **UNRESOLVED — an assumption, not design.** The export lists Status as a
- * tier band with five names and gives no thresholds at all, so these four
- * numbers are the one place in this file where something had to be picked.
- * They are even quarters between destroyed and whole, which is the least
- * surprising reading and is trivially replaced: every caller takes them as an
- * argument, and nothing else in the system depends on their values.
+ * **Ruled, 18 September**, and the placeholder these replaced happened to be
+ * right: *"Healthy: 76–100%. Damaged: 51–75%. Heavily Damaged: 26–50%.
+ * Critically Damaged: 1–25%. Destroyed: 0%."*
  *
- * Open question for Sean: at what share of her hull is a ship Damaged, Heavily
- * Damaged, Critically Damaged? And does a status *do* anything — a gunnery
- * penalty, a speed penalty, a chance to strike — or is it a label for the
- * player?
+ * Two parts of the same ruling are load-bearing elsewhere. **Armor loss does
+ * not change Status** — `statusOf` reads hull and nothing else. And status is
+ * **descriptive only** for now: it reduces no firepower, no speed, nothing,
+ * *"to avoid introducing an undocumented death spiral and preserve
+ * simultaneous resolution."* Nothing in this system reads a status to decide
+ * anything, and that is deliberate rather than unfinished.
+ *
+ * Still an argument on every caller, so a later ruling is one call site.
  */
 export interface StatusThresholds {
   /** At or below this fraction of whole hull, and above zero. */
@@ -78,9 +96,16 @@ export const HULL_STATUS_THRESHOLDS: StatusThresholds = {
   damaged: 0.75,
 };
 
-/** Lay down a new hull of this class, whole and empty. */
+/** Lay down a new hull of this class: whole, armored, empty, and hers. */
 export function commission(def: ShipDefinition, id: string): NavyShip {
-  return { id, defId: def.id, hullRemaining: def.hull, troops: 0 };
+  return {
+    id,
+    defId: def.id,
+    owner: def.faction,
+    hullRemaining: def.hull,
+    armorRemaining: def.armor,
+    troops: 0,
+  };
 }
 
 /** Her class. Throws rather than returning undefined: an instance whose class
@@ -135,6 +160,39 @@ export function applyHullDamage(ship: NavyShip, amount: number, roster: Roster =
   return !isAfloat(ship, roster);
 }
 
+/** What a volley actually took off her. */
+export interface DamageTally {
+  armorLost: number;
+  hullLost: number;
+  sunk: boolean;
+}
+
+/**
+ * Damage arriving from a fight: armor first, then hull.
+ *
+ * Sean's ruling of 18 September and the whole of it: *"Incoming ship damage is
+ * applied to Armor first; remaining damage carries into Hull. One Armor point
+ * absorbs one point of damage. Armor works identically against Long, Heavy,
+ * and Light Guns."*
+ *
+ * So there is no mitigation arithmetic here — no divisor, no percentage, no
+ * threshold. A point of armor eats a point of damage and is gone. Which kind
+ * of gun fired is not a parameter, because by the ruling it cannot matter.
+ *
+ * This is the door every gun in the game comes through. `applyHullDamage` is
+ * still there for damage that has already got past the armor.
+ */
+export function applyDamage(ship: NavyShip, amount: number, roster: Roster = ROSTER): DamageTally {
+  if (amount <= 0 || !isAfloat(ship, roster)) {
+    return { armorLost: 0, hullLost: 0, sunk: !isAfloat(ship, roster) };
+  }
+  const armorLost = Math.min(ship.armorRemaining, amount);
+  ship.armorRemaining -= armorLost;
+  const hullLost = Math.min(ship.hullRemaining, amount - armorLost);
+  ship.hullRemaining -= hullLost;
+  return { armorLost, hullLost, sunk: !isAfloat(ship, roster) };
+}
+
 /**
  * A day's mending, at her class's own rate.
  *
@@ -155,7 +213,24 @@ export function repairDay(
 ): void {
   if (!canRepair || !isAfloat(ship, roster)) return;
   const def = definitionOf(ship, roster);
-  ship.hullRemaining = Math.min(def.hull, ship.hullRemaining + def.hull * def.repairRatePerDay);
+  /*
+   * Hull first, armor after — Sean's ruling: *"Normal repair systems restore
+   * Hull first and Armor afterward."*
+   *
+   * Read as one day's work rather than two: the day's budget goes into the
+   * hull, and whatever the hull did not need goes into the armor, so a ship
+   * one point short of whole does not spend a whole day on that point. The
+   * alternative reading — armor cannot begin until the hull is full — would
+   * make the last day of a hull repair mend almost nothing. Neither reading is
+   * in the ruling; this is the one that wastes no work.
+   */
+  let budget = def.hull * def.repairRatePerDay;
+  const hullWanted = Math.min(budget, def.hull - ship.hullRemaining);
+  ship.hullRemaining += hullWanted;
+  budget -= hullWanted;
+  if (budget > 0) {
+    ship.armorRemaining = Math.min(def.armor, ship.armorRemaining + budget);
+  }
 }
 
 /** Companies she can still take aboard. */

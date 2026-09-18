@@ -1,36 +1,115 @@
-# Naval combat v2.4 — unresolved mechanics
+# Naval combat v2.4 — rulings and remaining gaps
 
-The data model, loader, validation and runtime state are built. **No damage
-resolution is**, because the formulas do not exist yet and Sean's instruction
-is explicit: *"Do not invent missing combat formulas... If a required mechanic
-is undefined, create a clean interface or placeholder and document the
-unresolved design question."*
+Sean ruled on five of these on 18 September. **What he settled is built**;
+what is still open is below, unchanged in kind: named, placeheld, never
+guessed at.
 
-This is that document. Each entry says what the design export establishes, what
-it does not, and what the code does in the meantime.
+## Settled, and implemented
+
+| Ruling | Where it lives |
+|---|---|
+| **Armor** is an ablative pool, damage to armor first then hull, one point absorbs one point, identical against all three gun kinds, no regeneration in combat | `applyDamage` in `navy.ts` — note it takes no gun kind at all, which is how the rule is enforced rather than remembered |
+| **Repair** restores hull first, armor afterward | `repairDay` in `navy.ts` |
+| **Status bands** 76–100 / 51–75 / 26–50 / 1–25 / 0, armor loss does not affect status, status is descriptive only | `HULL_STATUS_THRESHOLDS` and `statusOf` in `navy.ts`. Nothing reads a status to decide anything, deliberately |
+| **First Strike**: Long Guns fire first and land immediately; a ship sunk there does not fire in the exchange; survivors fire Heavy and Light simultaneously against the post-First-Strike state; Long Guns do not fire twice | `resolveRound` in `navycombat.ts` |
+| **Boarding** replaces the gun attack, targets only a live ship, resolves committed troops against defending troops, a win captures rather than destroys, a loss spends the committed companies | `resolveBoarding` in `navycombat.ts`, mirroring `resolveLanding`'s arithmetic |
+
+Two notes on the implementation of those rulings.
+
+**The status placeholder turned out to be right.** It had been even quarters,
+labelled a guess; the ruling puts the bands at 76–100 / 51–75 / 26–50 / 1–25,
+which is the same four boundaries. It is now documented as ruled rather than
+assumed.
+
+**Boarding duplicates `resolveLanding` rather than sharing with it.** The
+ruling asks to reuse the land-troop rules, and the arithmetic is reused
+exactly — larger force wins, a tie goes to a roll, both sides spend the smaller
+number. It is written out a second time because extracting a shared helper
+would mean editing live, tested combat code for the benefit of a system that
+is not wired in. **When the two converge these should become one function**,
+and the duplicate says so in a comment. The one thing not carried over is the
+officer's Combat edge a landing gets: it reads a live `GameState` this system
+does not have.
 
 ---
 
-## 1. Armor — the biggest gap
+## The blocking gap the rulings created
 
-**Established:** every ship has an Armor figure from 0 to 95, banded T0–T4
-(0 / 1–29 / 30–49 / 50–74 / 75+). The Bulwark is *"Armor-focused defensive
-ship"*; the Reef-Class has *"living coral armor"*.
+### The triangle needs a size class, and the data has none
 
-**Undefined:** what armor *does*. Every reading gives a different game:
+Sean's ruling: *"Use the project's existing ship-size classifications for the
+triangle rather than inferring size from Hull during combat."* Right call —
+and the v2.4 export has **no size column**. It has a free-text Role
+(*"Fast scout / interceptor"*) and a Speed category, and nothing else that
+could serve.
 
-- a flat reduction per hit (armor 95 makes light guns useless)
-- a percentage reduction (armor 95 = 95% off, or 95/200, or something else)
-- a threshold below which a gun does nothing at all
-- different treatment per gun type — plausible, since the roster gives
-  Interceptor II armor 65 with zero heavy guns, which reads like a ship meant
-  to shrug off light fire
+So `sizeOf()` in `navycombat.ts` reads an optional `sizeClass` field that no
+ship currently has, and returns undefined for all 25. **Nothing guesses**, on
+purpose: a made-up size class would silently decide every gunnery matchup in
+the game.
 
-**Placeholder:** `ShipDefinition.armor` is loaded and validated. Nothing reads
-it.
+The fix is one column in `combat-ships.json`. Here is a proposed assignment for
+review — hull banding (≤200 small, 201–500 medium, 501+ large) with troop and
+logistics hulls pulled out as transports. **It is a proposal in a document, not
+a decision in the code.**
 
-**The question:** what does a point of armor do, and is it the same against all
-three kinds of gun?
+| Ship | Navy | Hull | Armor | Guns | Troops | Speed | Proposed |
+|---|---|---|---|---|---|---|---|
+| Wayfinder | Crown | 300 | 0 | 2 | 4 | Normal | transport |
+| Interceptor I | Crown | 90 | 0 | 4 | 0 | Very Fast | small |
+| Dreadnought | Crown | 650 | 40 | 6 | 0 | Slow | large |
+| Sovereign | Crown | 900 | 65 | 12 | 6 | Slow | large |
+| Vanguard | Crown | 150 | 20 | 10 | 0 | Normal | small |
+| Resolute | Crown | 375 | 35 | 13 | 1 | Fast | medium |
+| Long-Gun Line Ship | Crown | 450 | 40 | 15 | 0 | Normal | medium |
+| Bulwark | Crown | 725 | 75 | 8 | 2 | Slow | large |
+| Interceptor II | Crown | 90 | 65 | 17 | 0 | Very Fast | small |
+| Wayfinder II | Crown | 300 | 20 | 5 | 6 | Normal | transport |
+| Vanguard II | Crown | 500 | 55 | 19 | 0 | Normal | medium |
+| Sovereign II | Crown | 1200 | 90 | 27 | 9 | Slow | large |
+| Majestic | Crown | 1600 | 95 | 36 | 12 | Slow | large |
+| Swift | Free | 70 | 0 | 0 | 0 | Very Fast | small |
+| Brigantine | Free | 250 | 5 | 2 | 2 | Normal | transport |
+| Freebooter | Free | 140 | 30 | 0 | 6 | Slow | transport |
+| Cutlass | Free | 120 | 10 | 7 | 0 | Normal | small |
+| Marauder | Free | 140 | 0 | 7 | 2 | Fast | small |
+| Bonecutter | Free | 165 | 5 | 10 | 0 | Fast | small |
+| Tempest | Free | 175 | 10 | 8 | 0 | Very Fast | small |
+| Reefwalker | Free | 500 | 55 | 10 | 4 | Normal | medium |
+| Frostback | Free | 800 | 70 | 14 | 8 | Slow | large |
+| Reef-Class | Free | 900 | 90 | 19 | 4 | Normal | large |
+| Urskin Whaler | Free | 1400 | 65 | 22 | 14 | Slow | large |
+| Blackfin | Free | 250 | 20 | 7 | 10 | Fast | medium |
+
+Four of these I am least sure of, and would not assign without a word:
+
+- **Vanguard** (Crown R1) — 150 hull puts her with the sloops, but she is the
+  *"general-purpose gunship"* and carries ten guns. Small or medium?
+- **Freebooter** — called a transport here because she has no guns and six
+  troops, but she is *"boarding / troop carrier"* and boarding wants her to
+  survive closing with something. Transport makes her the easiest thing in the
+  game to hit.
+- **Interceptor II** — 90 hull and 65 armor. Small by hull, but more armored
+  than a Dreadnought; the triangle would have heavy guns struggle to catch her
+  *and* armor absorb what did.
+- **Blackfin** — ten troops and fast, which reads transport, but 250 hull and
+  seven guns put her with the mediums.
+
+### A second, smaller conflict in the same ruling
+
+Sean noted it himself: the art guide calls the Freebooter a *"heavy independent
+combat"* cruiser and v2.4 makes her a slow, gunless boarding vessel, **and
+ruled that v2.4 takes precedence for gameplay.** Recorded here because the art
+brief and the roster now describe different ships, and whoever commissions art
+for her should be told.
+
+---
+
+## Still unresolved
+
+
+## 1. Armor — **RULED 18 September**, see the table above.
+
 
 ---
 
@@ -53,24 +132,8 @@ size, as the current game has?
 
 ---
 
-## 3. First Strike
+## 3. First Strike — **RULED 18 September**, see the table above.
 
-**Established:** the phrase, in one design rule, attached to Long Guns.
-
-**Undefined:** what it is. Candidates: a free round before the exchange; a
-round at a range the other side cannot answer; initiative ordering within a
-round; a to-hit advantage.
-
-This matters more than it looks. The current game resolves a round
-**simultaneously** — every hull fires against the state at the start of the
-round, so a ship that sinks still gets her shot off. First Strike is the first
-thing in this design that would break that, and whether it does is a real
-design decision rather than an implementation detail.
-
-**Placeholder:** none. Nothing named First Strike exists in the code.
-
-**The question:** what does First Strike do, and does it break simultaneous
-resolution?
 
 ---
 
@@ -110,39 +173,13 @@ under its own sail? No ship in the roster has it.
 
 ---
 
-## 6. Ship Status thresholds
+## 6. Ship Status thresholds — **RULED 18 September**, see the table above.
 
-**Established:** five states — Healthy, Damaged, Heavily Damaged, Critically
-Damaged, Destroyed — listed as a tier band T4 down to T0.
-
-**Undefined:** the boundaries, and whether a status does anything mechanical.
-
-**Placeholder — and the one assumption in the whole implementation:**
-`HULL_STATUS_THRESHOLDS` in `navy.ts` puts them at even quarters (75% / 50% /
-25%). This is a guess, it is labelled as one, and every function takes the
-thresholds as an argument so nothing can come to depend on the particular
-numbers. A test asserts that a different set of thresholds changes the answer.
-
-**The questions:** where do the four boundaries fall? And does a damaged ship
-fight worse, sail slower, or is the status a label for the player?
 
 ---
 
-## 7. Boarding
+## 7. Boarding — **RULED 18 September**, see the table above.
 
-**Established:** Troop Capacity, 0–14. The Freebooter is a *"boarding / troop
-carrier"* with **no guns at all** and 6 troops — a ship that can only be for
-boarding.
-
-**Undefined:** any boarding rule whatsoever. The live game has none either:
-troop capacity is used for landing companies on islands, and a ship is never
-taken by boarders.
-
-**Placeholder:** `NavyShip.troops`, `spareCapacity`, `liftCapacity`.
-
-**The question:** is boarding a ship-to-ship action in v2.4, or is Troop
-Capacity still only about putting companies ashore? If it is an action: what
-decides it, and does the loser's hull change hands?
 
 ---
 

@@ -70,7 +70,14 @@ describe('a ship in the water', () => {
   });
 
   it('throws on an instance whose class has gone', () => {
-    const orphan: NavyShip = { id: 'x', defId: 'NOT-A-CLASS', hullRemaining: 10, troops: 0 };
+    const orphan: NavyShip = {
+      id: 'x',
+      defId: 'NOT-A-CLASS',
+      owner: 'Crown Imperium',
+      hullRemaining: 10,
+      armorRemaining: 0,
+      troops: 0,
+    };
     expect(() => definitionOf(orphan)).toThrow(/unknown class/);
   });
 });
@@ -101,10 +108,10 @@ describe('condition', () => {
     expect(statusOf(ship)).toBe('Healthy');
   });
 
-  it('takes its thresholds as an argument, because they are a guess', () => {
-    // HULL_STATUS_THRESHOLDS is an assumption — the export names five states
-    // and gives no boundaries. Nothing may depend on the particular numbers,
-    // so the function must honour a different set.
+  it('puts the bands where the ruling puts them', () => {
+    // 'Healthy: 76-100%. Damaged: 51-75%. Heavily Damaged: 26-50%.
+    // Critically Damaged: 1-25%. Destroyed: 0%.' Still an argument on every
+    // caller so a later ruling is one call site, not a rewrite.
     const ship = at(0.6);
     expect(statusOf(ship)).toBe('Damaged');
     expect(statusOf(ship, ROSTER, { critical: 0.7, heavy: 0.8, damaged: 0.9 })).toBe(
