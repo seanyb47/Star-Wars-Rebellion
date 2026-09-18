@@ -103,7 +103,7 @@ The Moot sails with *her*, not with the ship. While Hale holds a posting, that i
 
 He is not off her for a night in his life, so far as anyone tells it. Any errand Reyne leads makes the passage in half the time.
 
-**Admiral Dorian Jessup** — the ***Ironback*** — the Crown dreadnought he took with him when he left the Imperium's service.
+**Admiral Dorian Jessup** — the ***Adamant*** — the Crown dreadnought he took with him when he left the Imperium's service.
 
 What he learned aboard her he teaches to whatever squadron is lying where he is. While Jessup holds a posting, every fleet in that harbor fights under the Admiral's command.
 
@@ -361,7 +361,7 @@ Harbor and Freeport sound too alike."*)
 **The *Swallowtail*.** Captain Silas Reyne's coral-grown sloop, which should not
 be as fast as she is.
 
-**The *Ironback*.** The Crown dreadnought Admiral Dorian Jessup took with him
+**The *Adamant*.** The Crown dreadnought Admiral Dorian Jessup took with him
 when he left the Imperium's service. She is the captured-ship rule made flesh:
 **Imperial bones, visibly** — the hull, the gundecks and the stern are
 Highwater's work and always will be — under Confederate weathering, crimson

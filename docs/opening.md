@@ -21,7 +21,7 @@ still not a base in the sense that matters — losing it loses nothing, because
 the Crown wins by taking the three Lords and by nothing else — and it is dealt
 none of the opening's camps, mills or yards, because the articles were signed
 on it a week ago rather than settled on. The three ships — the *Open Deck*, the *Swallowtail*, the
-*Ironback* — and the Confederacy's whole navy lie there on day one. The Confederacy knows
+*Adamant* — and the Confederacy's whole navy lie there on day one. The Confederacy knows
 Freeport and nothing else out here; the Crown knows only that a meeting took
 place.
 

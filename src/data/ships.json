@@ -294,11 +294,11 @@
       "blurb": "Captain Silas Reyne's coral-grown sloop, which should not be as fast as she is and has never once been caught. Reyne is not off her for a night in his life, so far as anyone tells it, and that is the whole of why he turns up where he does when he does — a week's sail in half a week, every time, and no explanation offered."
     },
     {
-      "id": "ironback",
+      "id": "adamant",
       "faction": "alliance",
       "role": "large",
       "legend": true,
-      "name": "Ironback",
+      "name": "Adamant",
       "blurb": "The Crown dreadnought Admiral Dorian Jessup took with him when he left the Imperium's service, and fought the Crown's own line with for nine years. What he learned aboard her he teaches to whatever squadron is lying in the harbor he is posted to, which is worth more to the Confederacy now than the ship ever was."
     }
   ]

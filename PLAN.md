@@ -3883,3 +3883,53 @@ long guns are a thing **Research buys** in the back half of a war and the
 moment they arrive is legible: retreat stops being free the day the enemy
 launches one. Not done in this pass, because two balance changes measured
 together are two balance changes nobody can read.
+
+---
+
+## The fleet roster Sean rewrote, and a legend renamed
+
+Two things on 18 September, and the second follows from the first.
+
+**The roster.** The Fleet Roster sheet in Drive is the ships now. It supersedes
+the v2.4 export of the same morning outright rather than sitting beside it, so
+`combat-ships.json` is a re-read of the sheet and records what it replaced. The
+shape changed more than the numbers: twenty-four hulls instead of twenty-five,
+four starting ships and eight research unlocks a side, and the Confederacy's
+gapped ladder closed — which quietly fixed a wart, because "the nth unlock" and
+"the step called Rn" are now the same question and `nextUnlock` no longer has to
+explain why they were not.
+
+The endgame is the interesting part. It used to be one ship: the Majestic was
+heaviest at guns, hull and armor together, and a test said so. It is now split
+three ways — the Majestic keeps the guns, the Urskin Whaler takes the largest
+hull in the game at 1,800, the Coral-Class takes the heaviest armor at 110 —
+which is the sheet's own endgame rule doing work: *"Together they exceed a lone
+Majestic."* The Confederacy answers a first-rate with two ships, not one. The
+test was rewritten to assert the split rather than deleted, because a roster
+that stops being lopsided by accident and a roster that stops being lopsided on
+purpose look identical in a diff.
+
+The blocking item did not move. Still no Firepower column and no 1–10 Speed, and
+Firepower is explicitly not the three gun columns added up, so no adapter can
+fake the conversion the combat engine needs. It is now a roster worth
+converting, which is a different thing from being converted.
+
+**The name.** The roster calls an R5 Confederate siege ship the *Ironback*, and
+so did Jessup's legend hull — the Crown dreadnought he sailed out of the
+Imperium's service with, named in his fleet-command power. One name, two jobs: a
+unique ship in the live game and a class anybody can lay down in the design
+roster.
+
+Renaming the roster ship was tried first, that morning, and produced the
+provisional *Frostback*. It was the wrong way round. The roster is Sean's own
+document and will be read by whoever converts it; a legend is one field, one art
+file and a line of flavour. So the legend moved: Jessup's dreadnought is the
+***Adamant***, and the roster was not touched to make room.
+
+*Adamant* keeps the iron without the word, reads as the Crown first-rate she
+actually is, and says something about a man who left rather than bent. The id,
+the art and the manifest entry moved with her — legends are filtered out of
+`buildableShips`, so no fleet has ever carried the class id and no save can
+break. Two places still say Ironback and both are right to: the world bible's S5
+dreadnought *class* rows and the Ghost Fleet's *"2–3 old Ironbacks"*. They mean a
+type of hull, which the Fleet Roster has now made true rather than stale.

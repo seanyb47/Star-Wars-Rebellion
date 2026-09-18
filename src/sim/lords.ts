@@ -19,7 +19,7 @@
  *   half the time. Han Solo's trick, and the one Sean asked for by name.
  * - **Hale** and the Open Deck. While she holds a posting, the Moot sits
  *   with her and the island comes round a point a day.
- * - **Jessup** and the Ironback. While he holds a posting, every fleet in that
+ * - **Jessup** and the Adamant. While he holds a posting, every fleet in that
  *   harbor fights under the Admiral's command.
  *
  * Two of the three hang off Command, which is already a mission and already

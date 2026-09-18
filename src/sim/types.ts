@@ -277,7 +277,7 @@ export type ShipClassId =
   /** The Pirate Lords' ships. Legends: named in the lore, never on the water. */
   | 'harbor'
   | 'swallowtail'
-  | 'ironback';
+  | 'adamant';
 
 /** What a Pirate Lord does that nobody else in the war can. */
 export type LordPower = 'moot' | 'runner' | 'line';

@@ -76,10 +76,10 @@ The two disagree on names, on ladders and on numbers, and neither is wrong —
 they are different rosters at different stages. This document extracts the
 *live* game. Where the two share a name, check which one you are holding:
 
-- **Ironback.** Here she is Jessup's single legend hull. In the Fleet Roster
-  she is a buildable R5 Confederate siege ship. The collision is recorded in
-  `_notes` in the data and is unresolved. (Warning 1's point about S5's
-  "Ironback" is the same hazard, twice over now.)
+- **Ironback.** Was a collision and is not any more: Sean renamed the legend
+  on 18 September, so Jessup's hull is the ***Adamant*** here and Ironback
+  belongs to the Fleet Roster's buildable R5 siege ship. Warning 1's point
+  about S5's "Ironback" class stands, and now agrees with the roster.
 - **Swallowtail.** Reyne's, here and now everywhere: the v2.4 warship that
   shared the name has been cut from the Fleet Roster.
 - **Reef-class, Reefwalker, Freebooter, Dreadnought.** All renamed or cut in
@@ -2085,9 +2085,9 @@ last"* refers to a cut targeting mechanic and should not be converted.
 
 ---
 
-## IRONBACK
+## ADAMANT
 
-**Ship ID:** `ironback` · **Faction:** Free Confederacy (Crown-built) ·
+**Ship ID:** `adamant` · **Faction:** Free Confederacy (Crown-built) ·
 **Class:** Dreadnought / first-rate · **Tier:** N/A — legend · **Role:**
 Admiral Dorian Jessup's captured flagship
 
@@ -2106,12 +2106,14 @@ tradition is in the timber."*
 ### Everything else
 Unestablished. S5 notes she was *"Pre-war ship of the line"* and that the
 Crown's and Confederacy's versions are *"Identical"* — but S5's Ironback is a
-**buildable class**, and the implemented Ironback is **a single legend ship**.
-Do not merge the two.
+**buildable class**, and this ship is **a single legend hull**. Do not merge
+the two. She was called the *Ironback* until 18 September, when Sean renamed
+her so that the buildable Ironback in the Fleet Roster could keep the name;
+the entry is filed under her new one.
 
 ### Special Abilities
 Delivered as Dorian Jessup's character power, **He fights a harbor the
-Ironback's way**: *"While he holds a posting, every fleet lying in that harbor
+Adamant's way**: *"While he holds a posting, every fleet lying in that harbor
 fights under the Admiral's command."* Mechanically this applies his leadership
 edge to every friendly fleet at that island whether or not he is aboard one.
 
@@ -2171,7 +2173,7 @@ no comparative entries, because the source establishes none.
 | Buccaneer | Confederacy | Great cruiser | Large; bespoke upper works | Fast for a ship of the line | High, below the Crown's heaviest | **Second-heaviest battery in the game**; three gun decks | Apex capital; *"answer to a first-rate, and not a copy of one"* | Secondary | Substantial | Craft 3 |
 | **Open Deck** | Confederacy | Grown coral three-decker | Three decks | — | — | — | **Legend — not sailed.** Hale's Moot power | — | — | N/A |
 | **Swallowtail** | Confederacy | Grown coral sloop | Sloop | *"Fastest thing afloat"* | — | — | **Legend — not sailed.** Reyne's half-passage power | — | — | N/A |
-| **Ironback** | Confederacy (Crown-built) | Dreadnought | Dreadnought | — | Imperial hull, gundecks and stern, permanently | — | **Legend — not sailed.** Jessup's fleet-command power | — | — | N/A |
+| **Adamant** | Confederacy (Crown-built) | Dreadnought | Dreadnought | — | Imperial hull, gundecks and stern, permanently | — | **Legend — not sailed.** Jessup's fleet-command power | — | — | N/A |
 
 ---
 
@@ -2246,7 +2248,8 @@ dropped: *"There are no fighters in these waters. A small craft is just a small
 ship."*
 
 Note also that S5's names for several implemented hulls differ from what
-shipped — S5's "Ironback" is a buildable class rather than a legend, and the
+shipped — S5's "Ironback" is a buildable class rather than a legend (and the
+legend is the *Adamant* now, so the two no longer collide), and the
 Marauder, Razorback, Sovereign, Reef-class, Swift, Tempest, Brig, Fluyt and
 Kestrel survived while the classes listed around them did not.
 

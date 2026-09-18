@@ -739,14 +739,14 @@ export const CROWN_PRINCIPAL = 'Lord Regent Halvard Corvane';
 export const PIRATE_LORDS: PirateLord[] = [
   { name: 'Commodore-Elect Adaira Hale', ship: 'harbor', power: 'moot' },
   { name: 'Captain Silas Reyne', ship: 'swallowtail', power: 'runner' },
-  { name: 'Admiral Dorian Jessup', ship: 'ironback', power: 'line' },
+  { name: 'Admiral Dorian Jessup', ship: 'adamant', power: 'line' },
 ];
 
 /** What each power is called, so it can be named before it is explained. */
 export const LORD_POWER_LABEL: Record<LordPower, string> = {
   moot: 'The Moot sails with her',
   runner: 'He is never off the Swallowtail',
-  line: "He fights a harbor the Ironback's way",
+  line: "He fights a harbor the Adamant's way",
 };
 
 /** What each power does, in the player's words. */

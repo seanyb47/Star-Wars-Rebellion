@@ -6,7 +6,7 @@
       "version": 2,
       "added": "2026-09-16",
       "updated": "2026-09-16",
-      "title": "Fortress \u2014 Crown Imperium",
+      "title": "Fortress — Crown Imperium",
       "source": "Sean, 16 September",
       "notes": "Second take, and the better one: warmer light, the whole bastion line in frame, the guns reading at tile size. Replaces the first fort of the same day, which is retired.",
       "crop": null,
@@ -43,7 +43,7 @@
       "version": 1,
       "added": "2026-09-16",
       "updated": "2026-09-16",
-      "title": "Heavy Fortress \u2014 Crown Imperium",
+      "title": "Heavy Fortress — Crown Imperium",
       "source": "Sean, 16 September",
       "notes": "The battery close-up: eight heavy guns run out, shot pyramids and powder barrels behind them, bastions stepped down to the water. Reads as the same fortress with more of everything, which is exactly what the tier is.",
       "crop": null,
@@ -72,7 +72,7 @@
       "updated": "2026-09-14",
       "title": "The Seven Seas",
       "source": "ChatGPT art project, 12 Sep 2026",
-      "notes": "Delivered at luma 56 \u2014 as bright as the reference maps and about twice what the interface needs; a Confederacy mark on it measured 2.7:1 against a 3:1 floor. Darkened at ingest with gamma 1.6 rather than repainted: composition was right, only value was wrong, and the master keeps the bright original.",
+      "notes": "Delivered at luma 56 — as bright as the reference maps and about twice what the interface needs; a Confederacy mark on it measured 2.7:1 against a 3:1 floor. Darkened at ingest with gamma 1.6 rather than repainted: composition was right, only value was wrong, and the master keeps the bright original.",
       "crop": null,
       "tone": null,
       "master": {
@@ -111,7 +111,7 @@
       "updated": "2026-09-12",
       "title": "The Shattered Blue, from the title screen",
       "source": "ChatGPT art project, 12 Sep 2026",
-      "notes": "The second chart painting. Darker and more evenly lit than chart/seas \u2014 sea luma 43 against 57, and a bottom edge at 43 rather than 73 \u2014 but it holds fewer separable chains (9 against 10 at a 20px dilation, 5 against 9 by area), and the chart needs ten. So it takes the title screen, where nothing has to be tapped and the dominant centre island is an asset rather than a crowding problem.",
+      "notes": "The second chart painting. Darker and more evenly lit than chart/seas — sea luma 43 against 57, and a bottom edge at 43 rather than 73 — but it holds fewer separable chains (9 against 10 at a 20px dilation, 5 against 9 by area), and the chart needs ten. So it takes the title screen, where nothing has to be tapped and the dominant centre island is an asset rather than a crowding problem.",
       "crop": null,
       "tone": {
         "gamma": 1.25
@@ -1230,7 +1230,7 @@
       "version": 1,
       "added": "2026-09-12",
       "updated": "2026-09-12",
-      "title": "Camp \u2014 Free Confederacy",
+      "title": "Camp — Free Confederacy",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
@@ -1262,7 +1262,7 @@
       "version": 1,
       "added": "2026-09-12",
       "updated": "2026-09-12",
-      "title": "Camp \u2014 Crown Imperium",
+      "title": "Camp — Crown Imperium",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
@@ -1294,7 +1294,7 @@
       "version": 1,
       "added": "2026-09-12",
       "updated": "2026-09-12",
-      "title": "Mill \u2014 Free Confederacy",
+      "title": "Mill — Free Confederacy",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
@@ -1326,7 +1326,7 @@
       "version": 1,
       "added": "2026-09-12",
       "updated": "2026-09-12",
-      "title": "Mill \u2014 Crown Imperium",
+      "title": "Mill — Crown Imperium",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
@@ -1358,7 +1358,7 @@
       "version": 1,
       "added": "2026-09-12",
       "updated": "2026-09-12",
-      "title": "Slipway \u2014 Free Confederacy",
+      "title": "Slipway — Free Confederacy",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
@@ -1390,7 +1390,7 @@
       "version": 1,
       "added": "2026-09-12",
       "updated": "2026-09-12",
-      "title": "Slipway \u2014 Crown Imperium",
+      "title": "Slipway — Crown Imperium",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
@@ -3115,7 +3115,7 @@
       "updated": "2026-09-12",
       "title": "Two ships close enough to hurt each other",
       "source": "ChatGPT art project, 12 Sep 2026",
-      "notes": "Delivered 1536x1024 (square-ish) rather than the 1024x432 banner shape; the shipped band is the middle of it. Crop recovered by matching the shipped file against the master, not recorded at the time \u2014 the reason this register now exists.",
+      "notes": "Delivered 1536x1024 (square-ish) rather than the 1024x432 banner shape; the shipped band is the middle of it. Crop recovered by matching the shipped file against the master, not recorded at the time — the reason this register now exists.",
       "crop": {
         "x": 0,
         "y": 112,
@@ -3318,7 +3318,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "brig",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3350,7 +3350,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "bulwark",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 0,
@@ -3382,7 +3382,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "cutlass",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 0,
@@ -3414,7 +3414,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "fluyt",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 0,
@@ -3446,7 +3446,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "fluyt-ii",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3478,7 +3478,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "freebooter",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 0,
@@ -3510,7 +3510,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "Open Deck",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands. Refiled from ships/free-harbor to ships/harbor on 18 September: the ship was renamed Open Deck on 17 September and her class id is `harbor`, so the painting no longer matched the slug the game looks her up by and she drew as a placeholder. The island archetype `free-harbor` is a different thing and keeps its name.",
       "crop": {
         "x": 0,
@@ -3535,14 +3535,14 @@
         "sha1": "2c0db8b442b62c82"
       }
     },
-    "ships/ironback": {
+    "ships/adamant": {
       "folder": "ships",
-      "slug": "ironback",
+      "slug": "adamant",
       "version": 1,
       "added": "2026-09-16",
       "updated": "2026-09-16",
-      "title": "ironback",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "title": "adamant",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3553,14 +3553,14 @@
       "tone": null,
       "upscaled": true,
       "master": {
-        "file": "art-masters/ships/ironback.webp",
+        "file": "art-masters/ships/adamant.webp",
         "w": 234,
         "h": 174,
         "bytes": 26150,
         "sha1": "63a797f796157def"
       },
       "shipped": {
-        "file": "src/art/ships/ironback.webp",
+        "file": "src/art/ships/adamant.webp",
         "w": 640,
         "h": 480,
         "bytes": 38962,
@@ -3574,7 +3574,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "kestrel",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3606,7 +3606,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "kestrel-ii",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 0,
@@ -3638,7 +3638,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "majestic",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3670,7 +3670,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "marauder",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3702,7 +3702,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "razorback",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3734,7 +3734,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "razorback-ii",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3766,7 +3766,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "reef-class",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3798,7 +3798,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "reefwalker",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3830,7 +3830,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "sovereign",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 0,
@@ -3862,7 +3862,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "sovereign-ii",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3894,7 +3894,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "swallowtail",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3926,7 +3926,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "swift",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3958,7 +3958,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "tempest",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -3990,7 +3990,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "urskin-whaler",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 0,
@@ -4022,7 +4022,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "vanguard",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,
@@ -4054,7 +4054,7 @@
       "added": "2026-09-16",
       "updated": "2026-09-16",
       "title": "vanguard-ii",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "source": "Sean, 16 September — sliced from the fleet contact sheet",
       "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
       "crop": {
         "x": 1,

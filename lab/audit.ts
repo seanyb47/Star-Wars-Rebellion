@@ -130,7 +130,7 @@ export function audit(s: GameState): Violation[] {
       if (!num(sh.damage) || sh.damage < 0) bad('damage-bad', `${f.name} ${sh.classId} ${sh.damage}`);
     }
     for (const sh of f.ships)
-      if (['harbor', 'swallowtail', 'ironback'].includes(sh.classId))
+      if (['harbor', 'swallowtail', 'adamant'].includes(sh.classId))
         bad('legend-afloat', `${f.name} carries ${sh.classId}`);
     // Every hull carries companies now, at Sean's word, so berths are a real
     // number and a squadron must never be over them.

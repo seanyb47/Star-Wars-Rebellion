@@ -82,18 +82,21 @@ it, which is worth knowing because the v2.4 table did not: *"Long Guns do not
 grant First Strike in normal combat"*, and bombardment *"never contributes to
 ship-to-ship damage"*.
 
-### 1b. Ironback is a name used twice
+### 1b. Ironback — settled, the other way round
 
-The R5 Confederate siege ship is called **Ironback**. So is Admiral Dorian
-Jessup's legend hull — the Crown dreadnought he sailed out of the Imperium's
-service with, named in his fleet-command power and in `lore.md`. Sean's ruling
-of 18 September was to keep the legend and rename the roster ship, which is
-where the provisional *Frostback* came from; his own revision, written after
-that ruling, says Ironback.
+The R5 Confederate siege ship is called **Ironback**, and so was Admiral Dorian
+Jessup's legend hull. Sean settled it on 18 September by **renaming the legend**:
+Jessup's dreadnought is the ***Adamant*** now, throughout the live game, the art
+and the lore. The roster ship keeps Ironback, as his sheet has it, and nothing
+in the data was touched to make that work.
 
-Imported as written, collision recorded in `_notes` in the data and not
-resolved. The **Swallowtail** collision is gone on its own: that ship was cut,
-so the name belongs to Reyne again.
+So the name is used once again, and the **Swallowtail** collision resolved
+itself the same day — that v2.4 ship was cut, so the name is Reyne's alone.
+
+Two places still say Ironback on purpose, and neither is a ship: the world
+bible's S5 dreadnought *class* rows, and the Ghost Fleet's *"2–3 old
+Ironbacks"* in `lore.md`. Both mean a type of hull rather than a named one,
+which the Fleet Roster now makes true rather than false.
 
 ### 2. Assessment thresholds — inferred
 
