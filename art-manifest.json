@@ -4021,6 +4021,33 @@
         "sha1": "2c0db8b442b62c82"
       }
     },
+    "ships/ironback": {
+      "folder": "ships",
+      "slug": "ironback",
+      "version": 1,
+      "added": "2026-09-19",
+      "updated": "2026-09-19",
+      "title": "Ironback",
+      "source": "Sean, 19 September \u2014 production painting",
+      "notes": "The Ironback: a captured Imperial two-decker cut down and plated over in bolted iron, a great bow chaser over the beakhead and a row of long barrels reaching well past her side, shelling a clifftop fortress through snow and storm light. The armour is patchwork over the old straight Imperial lines, which is the whole story of her.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/ironback.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 694758,
+        "sha1": "8aaefaf0f1ac4422"
+      },
+      "shipped": {
+        "file": "src/art/ships/ironback.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 86962,
+        "sha1": "95189d8cdfe30536"
+      }
+    },
     "ships/justiciar": {
       "folder": "ships",
       "slug": "justiciar",

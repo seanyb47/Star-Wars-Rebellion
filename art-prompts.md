@@ -623,11 +623,11 @@ tint, which is a mistake this project has already made once and measured.
 
 ---
 
-## The two hulls still without a painting
+## The one hull still without a painting
 
-Everything else on the roster has one. These two fall through to the drawn
-silhouette until they land, and both are on their second pass — the prompts
-below are the **revisions**, written against what the first attempt got wrong.
+Everything else on the roster has one. The Blackfin falls through to the drawn
+silhouette until hers lands. The Ironback's arrived on 19 September and is kept
+below her prompt as the record of what was asked for against what came back.
 
 ### Blackfin — `ships/blackfin`
 
@@ -650,13 +650,21 @@ generic-pirate red cloth everywhere.
 stays in every variant. The white foresails help rather than hurt — they make
 the black main read as *the* signature rather than as a dark ship.
 
-### Ironback — `ships/ironback`
+### Ironback — `ships/ironback` · **painted 19 September**
 
 R5 Confederate, a razee siege ship: 26 Long Guns, Bombardment 8, and it loses
 at sea by design. The first pass found the two things that matter — a riveted
 iron carapace arched over the spine, and a clifftop fortress under fire — and
 then flew a Jolly Roger over red-and-white striped sails with an ordinary
 broadside underneath.
+
+**What the revision landed, for the record.** The guns came back right: long
+barrels reaching well past the hull and an enormous bow chaser, firing on the
+fortress. The flag came back as the **Confederacy's own crest** rather than a
+stock Jolly Roger, which is the carve-out above working rather than the ban
+failing. The sails are still red-and-white striped rather than the weathered
+grey patched canvas that was asked for — accepted as sent, and noted here so a
+future re-cut knows what was wanted.
 
 > Same ship and composition: a captured Imperial two-decker cut down and re-armored
 > as a Confederate siege ship, bombarding a clifftop fortress. Keep the riveted

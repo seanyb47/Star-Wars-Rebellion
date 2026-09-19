@@ -55,8 +55,8 @@ const LEGACY_ROLE: Record<ShipSize, 'small' | 'medium' | 'large' | 'transport'> 
  *
  * Most of the roster has art under its own name. The rest inherit from the
  * hull they replaced, which is a lineage rather than a guess — the Coral-Class
- * *is* the Reef-class grown up. Two have nothing yet (Blackfin, Ironback) and
- * fall through to the drawn silhouette.
+ * *is* the Reef-class grown up. One has nothing yet — the Blackfin — and
+ * falls through to the drawn silhouette.
  *
  * An entry moves from a borrowed slug to its own the day it is painted: the
  * Wayfinder was on the Fluyt's and is not any more.
@@ -88,11 +88,16 @@ const ART_SLUG: Record<string, string> = {
   // on the 19th, and the mapping did not move back with the painting.
   'CFS-URW-R3-01': 'urskin-whaler',
   'CFS-TID-S04': 'tidestalker',
+  'CFS-IRB-R5-01': 'ironback',
 };
 
 /** Counted from the data rather than remembered: the old figure said 71. */
 const ISLAND_COUNT = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
 import {
+  atSea,
+  isPlayable,
+  sightOf,
+  type Character,
   FACILITY_LABEL,
   GOLD_PER_DAY,
   TROOP_BUILD,
@@ -428,19 +433,32 @@ function Stat({ label, value, share }: { label: string; value: string | number; 
  * were about.
  */
 /**
- * Where one of your own crew is, in a line.
+ * Where a crew member is, in a line.
  *
  * Sean, 19 September: *"In the encyclopedia (just for crew) say 'Ashore at
  * [location]' / 'Commanding [fleet name / location name]' ... If en route say
- * 'Enroute to [location]'."*
+ * 'Enroute to [location]'."* And, on the enemy half: *"With all enemy
+ * information we always add a disclaimer it's either unknown whereabouts or it
+ * says location and the days since last intelligence so we know the intel is
+ * how many days old. Could be true maybe not."*
  *
- * **Only your own.** An enemy officer's whereabouts is intelligence — the same
- * thing the espionage errand is *for* — and a reference page that printed
- * "Ashore at Highwater" beside every Crown name would hand a player the entire
- * enemy disposition for free. Unaligned people are left out for a different
- * reason: signing on is set against an island rather than against whoever is
- * standing on it, so where a recruit happens to be is not a fact the game
- * means anything by.
+ * So there are two rules here, not one.
+ *
+ * **Your own people are simply stated.** You know where your own crew are.
+ *
+ * **Anyone of theirs is dated.** Their whereabouts is the thing the espionage
+ * errand exists to buy, so the line never states it flatly: either you can see
+ * them from somewhere of yours this morning — *in sight* — or it is read off
+ * the newest report of yours that had them on it and says how old that report
+ * is, or you do not know and it says so. Where a report is what you have, the
+ * island named is the *report's*, never the one they are actually standing on:
+ * naming the true island and calling it twelve days old would be the leak
+ * wearing a disclaimer.
+ *
+ * The unaligned get nothing, for a different reason than secrecy: signing on
+ * is set against an island rather than against whoever happens to be standing
+ * on it, so where a recruit is standing is not a fact the game means anything
+ * by.
  *
  * On the one state Sean's list names that the simulation does not have: taking
  * a deck *is* the posting. `takePost` and `board` both put an officer in
@@ -449,20 +467,27 @@ function Stat({ label, value, share }: { label: string; value: string | number; 
  */
 export function whereabouts(state: GameState, name: string): string | null {
   const who = state.characters.find((c) => c.name === name);
-  if (!who || who.faction !== state.player) return null;
-  const at = (id: string) => state.systems.find((s) => s.id === id)?.name ?? 'somewhere';
+  if (!who || !isPlayable(who.faction)) return null;
+  const at = (id: string) => state.systems.find((s) => s.id === id)?.name;
+  if (who.faction !== state.player) return theirWhereabouts(state, who);
 
-  if (who.status === 'captured') return `In irons at ${at(who.locationSystemId)}`;
+  if (who.status === 'captured') {
+    // Sean: *"Don't say in irons. Just say Captured at location. If [I don't]
+    // know just say captured."* The island is unknown where it was never
+    // charted — a seat you have not found is a cell you cannot name.
+    const cell = at(who.locationSystemId);
+    return cell ? `Captured at ${cell}` : 'Captured';
+  }
 
   // A companion carries no errand of their own; they are wherever the officer
   // leading it is.
   const errand = who.mission ?? state.characters.find((c) => c.id === who.escorting)?.mission;
-  if (errand?.phase === 'travelling') return `Enroute to ${at(errand.targetSystemId)}`;
+  if (errand?.phase === 'travelling') return `Enroute to ${at(errand.targetSystemId) ?? 'somewhere'}`;
 
   const deck = state.fleets.find((f) => f.officerIds.includes(who.id));
   if (deck) {
     return deck.voyage
-      ? `Commanding ${deck.name}, enroute to ${at(deck.voyage.targetSystemId)}`
+      ? `Commanding ${deck.name}, enroute to ${at(deck.voyage.targetSystemId) ?? 'somewhere'}`
       : `Commanding ${deck.name}`;
   }
 
@@ -471,7 +496,38 @@ export function whereabouts(state: GameState, name: string): string | null {
 
   // Ashore: on the island the errand is being worked on, or on the one they
   // are standing about on.
-  return `Ashore at ${at(errand?.targetSystemId ?? who.locationSystemId)}`;
+  return `Ashore at ${at(errand?.targetSystemId ?? who.locationSystemId) ?? 'somewhere'}`;
+}
+
+/** How old a report reads, in the line's own words. */
+function intelAge(days: number): string {
+  if (days <= 0) return 'reported today';
+  return `report ${days} day${days === 1 ? '' : 's'} old`;
+}
+
+/**
+ * One of theirs, and never without saying how well you know it.
+ */
+function theirWhereabouts(state: GameState, who: Character): string {
+  const standing = atSea(state, who)
+    ? undefined
+    : state.systems.find((s) => s.id === who.locationSystemId);
+  // Live: an island of yours, an unaligned one you have charted, or one you
+  // have a hull or a person at. `sightOf` is the same rule the island sheet
+  // runs on, so the two screens cannot disagree about what you can see.
+  if (standing && sightOf(state, standing, state.player) === 'eyes') {
+    const verb = who.status === 'captured' ? 'Captured at' : 'Ashore at';
+    return `${verb} ${standing.name} · in sight`;
+  }
+
+  // Otherwise the newest report of yours that had them standing on it.
+  let best: { island: string; day: number } | undefined;
+  for (const report of Object.values(state.intel?.[state.player] ?? {})) {
+    if (!report?.officerIds.includes(who.id)) continue;
+    if (!best || report.day > best.day) best = { island: report.island.name, day: report.day };
+  }
+  if (!best) return 'Unknown whereabouts';
+  return `Ashore at ${best.island} · ${intelAge(state.day - best.day)}`;
 }
 
 function EntrySheet({

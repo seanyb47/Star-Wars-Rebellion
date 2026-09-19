@@ -79,29 +79,129 @@ describe('where one of your crew is', () => {
     expect(whereabouts(state, escort.name)).toBe(`Enroute to ${target.name}`);
   });
 
-  it('puts a prisoner in irons rather than ashore', () => {
+  it('says captured, and names the cell only where the cell is known', () => {
+    // Sean: *"Don't say in irons. Just say Captured at location. If [I don't]
+    // know just say captured."*
     const state = generateGalaxy(11, 'alliance');
     const who = ours(state)[0];
     who.status = 'captured';
     const cells = getSystem(state, state.factions.empire.hqSystemId);
     who.locationSystemId = cells.id;
-    expect(whereabouts(state, who.name)).toBe(`In irons at ${cells.name}`);
+    expect(whereabouts(state, who.name)).toBe(`Captured at ${cells.name}`);
+
+    who.locationSystemId = 'sys-that-is-not-there';
+    expect(whereabouts(state, who.name)).toBe('Captured');
   });
 
-  it('says nothing at all about anybody who is not yours', () => {
+  it('never states one of theirs flatly, and says nothing of the unaligned', () => {
     /*
-     * The line is intelligence. A reference page that printed "Ashore at
-     * Highwater" beside every Crown name would hand over the whole enemy
-     * disposition for free — which is what the espionage errand is for.
+     * Sean: *"With all enemy information we always add a disclaimer it's
+     * either unknown whereabouts or it says location and the days since last
+     * intelligence so we know the intel is how many days old."* So every
+     * enemy line carries one of the two, and none of them is bare.
      */
     const state = generateGalaxy(11, 'alliance');
+    let theirs = 0;
     for (const c of state.characters) {
-      if (c.faction === 'alliance') expect(whereabouts(state, c.name)).not.toBeNull();
-      else expect(whereabouts(state, c.name)).toBeNull();
+      const line = whereabouts(state, c.name);
+      if (c.faction === 'alliance') {
+        expect(line).not.toBeNull();
+        expect(line).not.toContain('·');
+        continue;
+      }
+      if (c.faction === 'neutral') {
+        // Signing on is set against an island, not against whoever is
+        // standing on it, so where a recruit is standing means nothing.
+        expect(line).toBeNull();
+        continue;
+      }
+      theirs += 1;
+      expect(line === 'Unknown whereabouts' || line!.includes(' · ')).toBe(true);
     }
-    // Including the Crown's, whose own player would see them and ours must not.
-    expect(state.characters.some((c) => c.faction === 'empire')).toBe(true);
-    expect(state.characters.some((c) => c.faction === 'neutral')).toBe(true);
+    expect(theirs).toBeGreaterThan(0);
+  });
+
+  it('is unknown for one of theirs you have never seen or had a report on', () => {
+    const state = generateGalaxy(11, 'alliance');
+    const them = state.characters.find((c) => c.faction === 'empire')!;
+    // Somewhere of theirs, uncharted: no eyes and no report.
+    const dark = state.systems.find((s) => s.control === 'empire')!;
+    dark.explored.alliance = false;
+    them.locationSystemId = dark.id;
+    state.intel = { empire: {}, alliance: {} };
+    expect(whereabouts(state, them.name)).toBe('Unknown whereabouts');
+  });
+
+  it('says in sight where you can see them for yourself', () => {
+    const state = generateGalaxy(11, 'alliance');
+    const them = state.characters.find((c) => c.faction === 'empire')!;
+    // An island of yours: you do not need a spy to see who is standing on it.
+    const mine = state.systems.find((s) => s.control === 'alliance')!;
+    them.locationSystemId = mine.id;
+    expect(whereabouts(state, them.name)).toBe(`Ashore at ${mine.name} · in sight`);
+
+    them.status = 'captured';
+    expect(whereabouts(state, them.name)).toBe(`Captured at ${mine.name} · in sight`);
+  });
+
+  it('dates a report, and names the report’s island rather than the true one', () => {
+    /*
+     * The half that matters. A report is where they *were*; naming where they
+     * actually are and calling it twelve days old would be the leak wearing a
+     * disclaimer.
+     */
+    const state = generateGalaxy(11, 'alliance');
+    const them = state.characters.find((c) => c.faction === 'empire')!;
+    const [seen, actually] = state.systems.filter(
+      (s) => s.control === 'empire' && s.id !== state.factions.empire.hqSystemId,
+    );
+    them.locationSystemId = actually.id;
+    actually.explored.alliance = false;
+    state.day = 50;
+    state.intel = {
+      alliance: {
+        [seen.id]: {
+          day: 38,
+          byId: 'x',
+          byName: 'A spy',
+          island: seen,
+          officerIds: [them.id],
+          errands: [],
+          harbor: [],
+          watch: 0,
+        },
+      },
+      empire: {},
+    };
+    expect(whereabouts(state, them.name)).toBe(`Ashore at ${seen.name} · report 12 days old`);
+    expect(whereabouts(state, them.name)).not.toContain(actually.name);
+
+    // A day old reads as a day, and today's reads as today's.
+    state.intel.alliance![seen.id]!.day = 49;
+    expect(whereabouts(state, them.name)).toBe(`Ashore at ${seen.name} · report 1 day old`);
+    state.intel.alliance![seen.id]!.day = 50;
+    expect(whereabouts(state, them.name)).toBe(`Ashore at ${seen.name} · reported today`);
+  });
+
+  it('prefers the newest report it has of them', () => {
+    const state = generateGalaxy(11, 'alliance');
+    const them = state.characters.find((c) => c.faction === 'empire')!;
+    const [old, fresh] = state.systems.filter((s) => s.control === 'empire');
+    them.locationSystemId = fresh.id;
+    fresh.explored.alliance = false;
+    state.day = 60;
+    const page = (island: typeof old, day: number) => ({
+      day,
+      byId: 'x',
+      byName: 'A spy',
+      island,
+      officerIds: [them.id],
+      errands: [],
+      harbor: [],
+      watch: 0,
+    });
+    state.intel = { alliance: { [old.id]: page(old, 20), [fresh.id]: page(fresh, 55) }, empire: {} };
+    expect(whereabouts(state, them.name)).toBe(`Ashore at ${fresh.name} · report 5 days old`);
   });
 
   it('says nothing about somebody the draw left out of this war', () => {

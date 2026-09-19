@@ -5567,3 +5567,61 @@ Two hulls have no painting: the **Ironback** and the **Blackfin** — the two
 whose revision prompts went into `art-prompts.md` this afternoon. Every other
 hull on the 25-ship roster is painted and wired, and no mapping points at a
 file that is not there.
+
+## Enemy whereabouts are dated, never stated (19 September, same day)
+
+Two corrections, both Sean's, both to the line added an hour earlier.
+
+**"Don't say in irons. Just say Captured at location. If [I don't] know just
+say captured."** Done: *Captured at Highwater*, or *Captured* where the island
+was never charted — a seat you have not found is a cell you cannot name.
+
+**"With all enemy information we always add a disclaimer it's either unknown
+whereabouts or it says location and the days since last intelligence so we know
+the intel is how many days old. Could be true maybe not."**
+
+This reverses my call of an hour earlier, and it is the better rule. I had left
+enemy crew blank on the grounds that their whereabouts is what the espionage
+errand exists to buy. Sean's answer is that the fog is the *interesting* part
+and should be shown as fog rather than hidden as a blank — so an enemy line now
+always carries one of two disclaimers:
+
+- **`Ashore at Highwater · in sight`** — you can see them for yourself this
+  morning, because you hold the island, or it is unaligned and charted, or you
+  have a hull or a person standing at it. Read through `sightOf`, the same
+  function the island sheet runs on, so the two screens cannot disagree about
+  what you can see.
+- **`Ashore at Wrightsport · report 12 days old`** — read off the newest report
+  of yours that had them on it. *reported today* on the day it is written, and
+  *1 day old* rather than *1 days old*.
+- **`Unknown whereabouts`** — no eyes, no report.
+
+**The half that matters, and the easy thing to get wrong.** Where a report is
+what you have, the island named is the **report's**, never the one they are
+actually standing on. Naming the true island and hanging "12 days old" off it
+would be the leak wearing a disclaimer — the player would read a stale label
+and receive live intelligence. There is a test for exactly this: the officer is
+moved to an uncharted island, a report places him somewhere else twelve days
+ago, and the line is asserted *not* to contain the name of where he really is.
+
+The unaligned stay blank, for a different reason than secrecy: signing on is
+set against an island rather than against whoever is standing on it, so where a
+recruit is standing is not a fact the game means anything by.
+
+## The Ironback gets her painting (19 September)
+
+The last hull but one. A captured Imperial two-decker plated over in bolted
+iron, a great bow chaser over the beakhead, long barrels reaching well past her
+side, shelling a clifftop fortress through snow and storm light — which is
+precisely her stat block: 26 Long Guns, 2 Heavy, Bombardment 8, Armor 25, Slow,
+and a ship that loses at sea by design.
+
+Two of the three revision notes landed. The guns are right — long barrels, not
+a broadside of medium cannon — and the flag came back as the **Confederacy's
+own crest** rather than a stock Jolly Roger, which is the carve-out written
+this afternoon working rather than the ban failing. The sails are still
+red-and-white striped rather than the weathered grey patched canvas asked for;
+accepted as sent, and recorded in `art-prompts.md` so a future re-cut knows
+what was wanted.
+
+**One hull left on a drawn silhouette: the Blackfin.**
