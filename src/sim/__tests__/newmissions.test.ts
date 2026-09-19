@@ -3,7 +3,7 @@ import { advanceDay } from '../advanceDay';
 import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
 import { isLord } from '../lords';
-import { getSystem } from '../helpers';
+import { getCharacter, getSystem } from '../helpers';
 import {
   advanceMissions,
   bestOf,
@@ -15,7 +15,9 @@ import {
   isMissionTarget,
   isRecruitTarget,
   isResearchTarget,
+  passageDays,
   stillWorthDoing,
+  travelDays,
   isRescueTarget,
   captiveOn,
   missionTypeFor,
@@ -489,5 +491,51 @@ describe('a boat with more than one in it', () => {
       expect(mate.status).toBe('available');
       expect(mate.escorting).toBeUndefined();
     }
+  });
+});
+
+/**
+ * The sail the sheet quotes is the sail the order takes.
+ *
+ * Sean's dev report: *"Captain Silas Reyne's sail estimate shows the full
+ * passage, identical to any other officer. His actual sail is halved at
+ * execution."* His evidence — the sheet said 25 days, the log said thirteen —
+ * and his diagnosis, that the preview and the execution used different sums,
+ * were both exactly right.
+ *
+ * Pinned against the officer with the power rather than against a number, so
+ * it holds if the power is ever retuned.
+ */
+describe('the passage a sheet quotes', () => {
+  it('is the one the order actually takes, for the Lord who halves it and for everybody else', () => {
+    const state = world();
+    const reyne = state.characters.find((c) => c.name === 'Captain Silas Reyne')!;
+    const ordinary = state.characters.find(
+      (c) => c.faction === reyne.faction && !isLord(c) && c.id !== reyne.id,
+    )!;
+    // Same start and same target, so the only difference is who is leading.
+    ordinary.locationSystemId = reyne.locationSystemId;
+    const far = state.systems.find(
+      (s) => travelDays(state, reyne.locationSystemId, s.id) > 10,
+    )!;
+
+    const quotedReyne = passageDays(state, reyne, far.id);
+    const quotedOther = passageDays(state, ordinary, far.id);
+    // The power is real and visible before the order is given.
+    expect(quotedReyne).toBeLessThan(quotedOther);
+    expect(quotedOther).toBe(travelDays(state, ordinary.locationSystemId, far.id));
+
+    // And the order takes exactly what was quoted, which is the whole point.
+    startMission(state, reyne.id, far.id);
+    expect(getCharacter(state, reyne.id).mission!.daysRemaining).toBe(quotedReyne);
+
+    startMission(state, ordinary.id, far.id);
+    expect(getCharacter(state, ordinary.id).mission!.daysRemaining).toBe(quotedOther);
+  });
+
+  it('is nought for an island already stood on, however fast the leader', () => {
+    const state = world();
+    const reyne = state.characters.find((c) => c.name === 'Captain Silas Reyne')!;
+    expect(passageDays(state, reyne, reyne.locationSystemId)).toBe(0);
   });
 });

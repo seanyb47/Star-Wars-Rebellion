@@ -11,7 +11,7 @@ import {
   parleyStanding,
   joinChance,
   BAND_LABEL,
-  travelDays,
+  passageDays,
   MISSION_WORK_DAYS,
   type Factor,
   type GameState,
@@ -114,7 +114,9 @@ export function MissionChoiceSheet({
   // Squadrons of yours lying here, each of them a post an officer can be sent
   // to take, listed under Command alongside the island itself.
   const squadrons = fleetsToCommand(state, systemId, faction);
-  const sail = travelDays(state, character.locationSystemId, systemId);
+  // The leader's passage, not the distance: Reyne halves it, and the sheet has
+  // to say so or his power is invisible exactly where it is chosen.
+  const sail = passageDays(state, character, systemId);
   const captive = abductOn(state, island, faction);
   const held = captiveOn(state, island, faction);
 

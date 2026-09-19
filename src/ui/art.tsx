@@ -1406,29 +1406,58 @@ export function ParrotPortrait({ size = 44 }: { size?: number }) {
   );
 }
 
-/** Secretary Crane: grey, unblinking, and possibly not alive. */
+/**
+ * Secretary Sabine Marlow, who has been sitting behind Crane's face.
+ *
+ * Sean's dev report raised the Crown advisor as a fidelity question — build
+ * says Marlow, older notes said Crane — and the world bible settles it the
+ * other way round from the way it was asked: Crane *"retired from the
+ * advisor's chair 2026-09-13, kept for later"*, and §16 has carried Marlow's
+ * full portrait brief ever since. So the **name** in `Narrator.tsx` is right.
+ *
+ * What was wrong is the face. Marlow has no painting yet, so this drawn
+ * fallback is what every Crown player actually looks at, and it was still
+ * Crane: a long grey lashless face, two unblinking eyes, hair flat to the
+ * skull. Marlow is a woman of sixty-one with iron-grey hair *cropped short and
+ * no wig*, half-moon reading spectacles, a high white collar and a black
+ * stock, in the Admiralty's sea-green civil dress with cream facings — staff
+ * uniform, so no epaulettes and no braid.
+ *
+ * Drawn to that rather than to Crane's, which is all the fidelity a 44px
+ * cameo can carry: the crop, the spectacles, the collar and the green coat.
+ * The mourning rings and the ink on her fingers wait for the painting.
+ */
 export function SecretaryPortrait({ size = 44 }: { size?: number }) {
   return (
     <svg viewBox="0 0 40 40" width={size} height={size} aria-hidden="true" style={{ display: 'block' }}>
       <circle cx="20" cy="20" r="18" fill="#071a22" />
       <circle cx="20" cy="20" r="18" fill="var(--empire)" opacity="0.14" />
-      <g clipPath="url(#crane-clip)">
+      <g clipPath="url(#marlow-clip)">
         <defs>
-          <clipPath id="crane-clip">
+          <clipPath id="marlow-clip">
             <circle cx="20" cy="20" r="18" />
           </clipPath>
         </defs>
-        {/* Narrow shoulders, high collar, long face */}
-        <path d="M2 41 Q3 28 20 26 Q37 28 38 41 Z" fill="#8e9aa1" />
-        <path d="M20 26 L15 34 L20 31 L25 34 Z" fill="#e8edef" />
-        <rect x="17.4" y="21" width="5.2" height="7" rx="1.4" fill="#b9c4c9" />
-        <ellipse cx="20" cy="15" rx="6.2" ry="8" fill="#b9c4c9" />
-        {/* Severe hair, drawn flat to the skull */}
-        <path d="M13.6 12 Q20 3 26.4 12 Q20 8.5 13.6 12 Z" fill="#3b464c" />
-        {/* Two unblinking eyes */}
-        <circle cx="17.6" cy="14.5" r="1" fill="#0b1c22" />
-        <circle cx="22.4" cy="14.5" r="1" fill="#0b1c22" />
-        <path d="M17 20 h6" stroke="#7d888e" strokeWidth="1" strokeLinecap="round" />
+        {/* The Admiralty's civil dress: sea-green coat, cream facings, no braid. */}
+        <path d="M2 41 Q3 28 20 26 Q37 28 38 41 Z" fill="#254b36" />
+        <path d="M14.5 27 Q20 33 25.5 27 L27 41 L13 41 Z" fill="#e8dcc0" opacity="0.5" />
+        {/* High white collar and black stock. */}
+        <path d="M20 26 L16 31 L20 29 L24 31 Z" fill="#f2efe6" />
+        <rect x="18.2" y="27.4" width="3.6" height="3" rx="0.8" fill="#14181a" />
+        <rect x="17.6" y="21.5" width="4.8" height="6" rx="1.4" fill="#d8c3a8" />
+        {/* A rounder face than Crane's long one. */}
+        <ellipse cx="20" cy="15.4" rx="6.4" ry="7" fill="#d8c3a8" />
+        {/* Iron-grey, cropped short and swept off the brow. No wig. */}
+        <path d="M13.4 14.6 Q13 6.6 20 6.6 Q27 6.6 26.6 14.6 Q24 9.6 20 9.9 Q16 9.6 13.4 14.6 Z" fill="#9aa3a6" />
+        {/* Half-moon reading spectacles, which are the whole silhouette at this size. */}
+        <g stroke="#c9a227" strokeWidth="0.9" fill="none">
+          <path d="M14.9 15.6 h4.2 M20.9 15.6 h4.2" />
+          <path d="M15 15.6 a2.1 1.9 0 0 0 4 0" />
+          <path d="M21 15.6 a2.1 1.9 0 0 0 4 0" />
+        </g>
+        <circle cx="17.1" cy="15.3" r="0.75" fill="#3b464c" />
+        <circle cx="22.9" cy="15.3" r="0.75" fill="#3b464c" />
+        <path d="M18.2 20.2 h3.6" stroke="#a98f74" strokeWidth="0.9" strokeLinecap="round" />
       </g>
       <circle cx="20" cy="20" r="18" fill="none" stroke="var(--empire)" strokeWidth="1.6" opacity="0.85" />
     </svg>

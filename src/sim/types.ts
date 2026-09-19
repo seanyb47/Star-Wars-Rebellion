@@ -562,6 +562,22 @@ export interface GameEvent {
    * is fighting by hand, where the battle sheet is the report.
    */
   quiet?: boolean;
+  /**
+   * Stop the player for this one, whatever its kind.
+   *
+   * The inverse of `quiet`, and it exists for the same reason: which events
+   * deserve a card is *mostly* a property of the kind, and occasionally not.
+   * `loss` is the kind that proves it — it carries a gold shortfall, a mill
+   * burned, a hull sunk and an officer carried off, and only the last of those
+   * is worth interrupting a player for.
+   *
+   * Sean's dev report: *"My officer (Pryor) was carried off Ulverne... No
+   * dispatch card — the only trace was a Log line. Losing an officer is a real
+   * setback and currently has no surfaced notification."* Widening the whole
+   * `loss` kind would have raised a card every time a mine ran dry; this marks
+   * the handful that earn one.
+   */
+  notable?: boolean;
 }
 
 /**

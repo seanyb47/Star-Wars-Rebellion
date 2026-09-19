@@ -214,6 +214,36 @@ export function App() {
    * stands on the island doing nothing until you answer, which costs you their
    * time, which is the honest price of not deciding.
    */
+  /**
+   * Everything notable that has happened *by the time you dismiss*, not by the
+   * time the card was drawn.
+   *
+   * Sean's dev report, the highest-impact bug in it: *"the event/dispatch modal
+   * doesn't fully clear. Dismissing reveals an identical copy queued behind it,
+   * and while any copy is mounted, taps on the world map do nothing."*
+   *
+   * One cause, two symptoms. Dismissal used to mark the `dispatches` array
+   * captured in the render that drew the card — and the clock deliberately
+   * keeps running while a card is up, so at Fast (a day and a half a second)
+   * more notable news lands behind it constantly. Those arrivals were never in
+   * the list being marked, so the moment the card closed another opened,
+   * looking identical because it often *was* the same kind of event.
+   *
+   * The dead map follows from that rather than from any pointer-events fault:
+   * every card brings a full-screen scrim whose job is to dismiss on tap, so a
+   * card that instantly replaces itself eats the next tap, and the next. Hence
+   * "had to hit the × 2–3 times."
+   *
+   * `stateRef` is already kept current for the autosave, so reading the log
+   * through it marks what is actually there at the moment of the tap.
+   */
+  const markRead = useCallback(() => {
+    setToldOf((seen) => {
+      const now = stateRef.current.events.filter(isNotable).map((e) => e.id);
+      return now.length === 0 ? seen : [...new Set([...seen, ...now])];
+    });
+  }, []);
+
   const clockHeld = state.battle !== undefined;
 
 
@@ -762,11 +792,11 @@ export function App() {
           onShow={(event) => voice.say(event.text, moodForEvent(event, state))}
           onClose={() => {
             if (reading) setReadingId(null);
-            else setToldOf((seen) => [...seen, ...dispatches.map((e) => e.id)]);
+            else markRead();
           }}
           onOpenIsland={(systemId) => {
             if (reading) setReadingId(null);
-            else setToldOf((seen) => [...seen, ...dispatches.map((e) => e.id)]);
+            else markRead();
             setTab('galaxy');
             setOpenSystemId(systemId);
             setOpenSystemTab('harbor');

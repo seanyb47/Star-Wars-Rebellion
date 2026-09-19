@@ -109,6 +109,38 @@ export function travelDays(state: GameState, fromSystemId: string, toSystemId: s
   return Math.min(TRAVEL_MAX_DAYS, Math.max(1, Math.round(across * TRAVEL_MAX_DAYS)));
 }
 
+/**
+ * How long *this* officer's passage takes, which is not the same as how far it
+ * is.
+ *
+ * Sean's dev report: *"Captain Silas Reyne's sail estimate shows the full
+ * passage, identical to any other officer. His actual sail is halved at
+ * execution... Right now his signature advantage is invisible at the point of
+ * decision."* His evidence: the sheet quoted 25 days' sail, the log showed
+ * thirteen.
+ *
+ * Both numbers were correct and they came from two places — `travelDays` in
+ * the preview, `travelDays × passageShare` in `startMission` — which is the
+ * only way a preview can lie about the thing it previews. One function now,
+ * and the sheet calls the same one the order does.
+ *
+ * The Swallowtail's power is why it exists: Reyne is never off her, so
+ * anywhere he *leads* a boat he is there in half the time. Rounded up, and
+ * never less than a day — fast is not instant. Standing on the island already
+ * is the one case that stays at nought, and it has to: a posting taken in the
+ * room you are standing in is taken now, and clamping the halving to a minimum
+ * of one without excepting it would send every officer on a day's voyage to
+ * the quay they are already standing on.
+ */
+export function passageDays(
+  state: GameState,
+  leader: Character,
+  toSystemId: string,
+): number {
+  const passage = travelDays(state, leader.locationSystemId, toSystemId);
+  return passage === 0 ? 0 : Math.max(1, Math.ceil(passage * passageShare(leader)));
+}
+
 /** An island's place in the world: its Reach's centre, plus its own offset. */
 function worldPlace(state: GameState, system: System): { x: number; y: number } {
   const sector = state.sectors.find((s) => s.id === system.sectorId);
@@ -998,8 +1030,7 @@ export function startMission(
   // the `days === 0` branch below), and clamping the halving to a minimum of
   // one without excepting it would have sent every officer on a day's voyage
   // to the quay they were already on.
-  const passage = travelDays(state, character.locationSystemId, targetSystemId);
-  const days = passage === 0 ? 0 : Math.max(1, Math.ceil(passage * passageShare(character)));
+  const days = passageDays(state, character, targetSystemId);
   // No type and no default is not an errand. `missionError` above lets an
   // island through when *anything* is offered, and Command is offered on your
   // own ground without ever being the default — so "let the island decide" has
@@ -1459,6 +1490,9 @@ function caughtAshore(
     takePrisoner(state, character, captor);
     pushEvent(state, {
       kind: 'loss',
+      // A card, not a log line: losing a crew member is a setback on the scale
+      // of an island changing hands, and it used to pass in silence.
+      notable: true,
       text: `${character.name} was taken on ${system.name} with the work half done, and is in irons at ${
         getSystem(state, character.locationSystemId).name
       }.`,
@@ -1859,6 +1893,7 @@ function abductOutcome(
   const held = getSystem(state, mark.locationSystemId);
   pushEvent(state, {
     kind: 'loss',
+    notable: true,
     text: `${officer.name} has taken ${mark.name} off the quay at ${system.name}. They are held at ${held.name}.`,
     systemId: system.id,
     characterId: mark.id,
@@ -1921,6 +1956,9 @@ function rescueOutcome(
   captive.locationSystemId = state.factions[faction].hqSystemId;
   pushEvent(state, {
     kind: 'mission',
+    // The other half of a capture, and just as worth stopping for: Sean asked
+    // for *"captures (and probably rescues)"*.
+    notable: true,
     text: `${officer.name} has ${captive.name} out of the cells at ${system.name} and away. They are home and fit for sea.`,
     systemId: system.id,
     characterId: captive.id,

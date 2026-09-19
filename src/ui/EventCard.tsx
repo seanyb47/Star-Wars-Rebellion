@@ -18,6 +18,9 @@ import { OutcomeReport } from './OutcomeReport';
 const NOTABLE: EventKind[] = ['war', 'flip', 'mutiny', 'battle'];
 
 export function isNotable(event: GameEvent): boolean {
+  // An event may ask for a card that its kind would not get — see `notable`.
+  // Somebody being carried off is a `loss`, and so is a mine running dry.
+  if (event.notable && !event.quiet) return true;
   // `quiet` is set on the rounds of an action the player is fighting by hand.
   // The battle sheet is already telling them; a card over the top of it would
   // be the same news twice.
