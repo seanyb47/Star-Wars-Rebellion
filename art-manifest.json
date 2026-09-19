@@ -3705,6 +3705,33 @@
         }
       ]
     },
+    "ships/morningstar": {
+      "folder": "ships",
+      "slug": "morningstar",
+      "version": 1,
+      "added": "2026-09-19",
+      "updated": "2026-09-19",
+      "title": "Morningstar",
+      "source": "Sean, 19 September \u2014 production painting",
+      "notes": "First painting for the Morningstar, who is new with the Fleet Roster of 18 September and had no art at all. Delivered at 1448x1086, exactly 4:3, so the whole painting ships with no crop.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/morningstar.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 639830,
+        "sha1": "3b59f320d1eb83c7"
+      },
+      "shipped": {
+        "file": "src/art/ships/morningstar.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 93274,
+        "sha1": "2bdcaf1e166356b8"
+      }
+    },
     "ships/razorback": {
       "folder": "ships",
       "slug": "razorback",

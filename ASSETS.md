@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**133 of 146 painted.** 4401KB shipped, 14.0MB of masters kept back.
+**134 of 147 painted.** 4492KB shipped, 14.6MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -77,7 +77,7 @@ the head, cropped square out of the portrait; the medallion. 26 of 26.
 
 ## ships — 640×480
 
-three-quarter view, whole vessel, masts and waterline both in frame. 25 of 33.
+three-quarter view, whole vessel, masts and waterline both in frame. 26 of 34.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
@@ -93,6 +93,7 @@ three-quarter view, whole vessel, masts and waterline both in frame. 25 of 33.
 | kestrel-ii | `kestrel-ii` | 1 | 34KB | 233×174, 23KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | majestic | `majestic` | 1 | 34KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | marauder | `marauder` | 2 (+1 retired) | 99KB | 1448×1086, 760KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
+| Morningstar | `morningstar` | 1 | 91KB | 1448×1086, 624KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
 | razorback | `razorback` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | razorback-ii | `razorback-ii` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | reef-class | `reef-class` | 1 | 42KB | 234×174, 26KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
@@ -337,6 +338,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/kestrel-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/majestic** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/marauder** — Replaces the 234x174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered at 1448x1086, which is exactly 4:3, so the whole painting ships with no crop.
+- **ships/morningstar** — First painting for the Morningstar, who is new with the Fleet Roster of 18 September and had no art at all. Delivered at 1448x1086, exactly 4:3, so the whole painting ships with no crop.
 - **ships/razorback** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/razorback-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/reef-class** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
