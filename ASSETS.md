@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**132 of 145 painted.** 4185KB shipped, 11.9MB of masters kept back.
+**132 of 145 painted.** 4248KB shipped, 12.6MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -81,18 +81,18 @@ three-quarter view, whole vessel, masts and waterline both in frame. 24 of 32.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
+| adamant | `adamant` | 1 | 38KB | 234×174, 25KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | brig | `brig` | 1 | 31KB | 234×174, 21KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | bulwark | `bulwark` | 1 | 35KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | cutlass | `cutlass` | 1 | 34KB | 233×174, 23KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | fluyt | `fluyt` | 1 | 32KB | 233×174, 22KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | fluyt-ii | `fluyt-ii` | 1 | 32KB | 234×174, 23KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
-| free-harbor | `free-harbor` | 1 | 35KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | freebooter | `freebooter` | 1 | 36KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
-| ironback | `ironback` | 1 | 38KB | 234×174, 25KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| Open Deck | `harbor` | 1 | 35KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | kestrel | `kestrel` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | kestrel-ii | `kestrel-ii` | 1 | 34KB | 233×174, 23KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | majestic | `majestic` | 1 | 34KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
-| marauder | `marauder` | 1 | 35KB | 234×174, 25KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| marauder | `marauder` | 2 (+1 retired) | 99KB | 1448×1086, 760KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
 | razorback | `razorback` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | razorback-ii | `razorback-ii` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | reef-class | `reef-class` | 1 | 42KB | 234×174, 26KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
@@ -324,18 +324,18 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **rings/crown-plain** — Cut from the five-ring sheet, keyed off its gradient ground on textured coverage, and normalised square about its opening.
 - **rings/free-plain** — Cut from the five-ring sheet, keyed off its gradient ground on textured coverage, and normalised square about its opening.
 - **scenes/battle** — Delivered 1536x1024 (square-ish) rather than the 1024x432 banner shape; the shipped band is the middle of it. Crop recovered by matching the shipped file against the master, not recorded at the time — the reason this register now exists.
+- **ships/adamant** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/brig** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/bulwark** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/cutlass** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/fluyt** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/fluyt-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
-- **ships/free-harbor** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/freebooter** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
-- **ships/ironback** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/harbor** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands. Refiled from ships/free-harbor to ships/harbor on 18 September: the ship was renamed Open Deck on 17 September and her class id is `harbor`, so the painting no longer matched the slug the game looks her up by and she drew as a placeholder. The island archetype `free-harbor` is a different thing and keeps its name.
 - **ships/kestrel** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/kestrel-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/majestic** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
-- **ships/marauder** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/marauder** — Replaces the 234x174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered at 1448x1086, which is exactly 4:3, so the whole painting ships with no crop.
 - **ships/razorback** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/razorback-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/reef-class** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
