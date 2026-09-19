@@ -5058,3 +5058,61 @@ each filter draws, a Fort against a Boom — which is a manual, and the game now
 has one. These teach the loop and nothing else: open an island, send somebody,
 build something, start the clock, read the Log. The last card says where the
 rest is rather than being it.
+
+## The sheet, re-read (19 September)
+
+*"I made more ship changes... I updated doc with new changes and damage
+calculations."*
+
+### What actually changed
+
+Diffed the whole roster tab against `combat-ships.json` before touching
+anything: **all 24 hulls matched field for field, zero diffs.** The change is
+one addition — `CFS-URW-R3-01`, the **Urskin Whaler**, a Medium retrofit at
+Confederacy R3. She is the ship he said he would invest back when the Gigantic
+hull was renamed the Goliath to free the name, and her art has been on disk
+since that day.
+
+The damage calculations turned out not to be a rule change. The Combat
+Simulation Rules tab matches `navycombat.ts` exactly — the gun profiles, both
+accuracy matrices, the armor formula, the phase order, the 30% exchange stop,
+the targeting algorithm, the retreat volley. Nothing needed editing.
+
+### The import found two things the code had assumed
+
+**Two hulls may share a research rung.** The validator refused the import:
+*"R3 is already taken by CFS-TEM-R3-01"*. That was my inference from a roster
+where it happened to hold, and the sheet says otherwise on purpose — its own
+Roster structure note reads *"research order establishes progression, not
+strict replacement"*. So it is a warning now, not an error. It stays a warning
+because a collision typed by accident looks exactly like a pair placed on
+purpose, and only the sheet knows which.
+
+**The two navies are no longer the same length.** Thirteen Confederate hulls to
+the Crown's twelve. The test that pinned them equal now pins the difference,
+because the sheet's stated contrast is *"the Confederacy favors asymmetric
+specialists, retrofits, raiders"* and a retrofit is exactly what she is.
+
+The guards did their job on the rest: she was caught with no flavour line (and
+falling back to Design Notes, which are stats), and caught missing from the
+encyclopedia bridge — where the comment written when she was unhooked said *"she
+gets mapped the day she lands."* She has.
+
+### And a cross-check worth more than the import
+
+The sheet grew a **Combat Derived Stats** tab: for every hull, what each gun
+type scores against her, and what her own battery averages. That is the same
+arithmetic `navycombat.ts` does, worked independently in another tool — the one
+check available that is not the engine marking its own homework.
+
+It is now `src/data/combat-derived.json`, copied verbatim, and a test compares
+it hull by hull: twenty-five ships × three gun types for accuracy, plus every
+volley column and every combatant type. Verified non-vacuous by nudging one
+matrix cell by a single point, which fails it and names the ship.
+
+**One correction to my first reading of it.** The volley columns are labelled
+*"pre-armor average damage"* and I assumed hit chance was in them. It is not:
+the Wayfinder's two light guns come out at 42, which is 2 × 21 flat rather than
+85% of it. The column measures what a hull *throws*, not what lands — the right
+yardstick for comparing two batteries, and emphatically not expected damage.
+The test says so where it could mislead the next reader.

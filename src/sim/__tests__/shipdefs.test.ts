@@ -36,8 +36,10 @@ function ships(doc: unknown): Array<Record<string, unknown>> {
 
 describe('loading the roster', () => {
   it('reads every ship in the export', () => {
-    expect(ROSTER.ships).toHaveLength(24);
-    expect(ROSTER.byId.size).toBe(24);
+    // Twenty-five since the re-import of 19 September: the Urskin Whaler
+    // arrived as a second Confederacy R3 beside the Tempest.
+    expect(ROSTER.ships).toHaveLength(25);
+    expect(ROSTER.byId.size).toBe(25);
   });
 
   it('finds no errors in the shipped data', () => {
@@ -105,13 +107,22 @@ describe('refusing bad data', () => {
     expect(validateRoster(sloppy).some((i) => /which is already/.test(i.message))).toBe(true);
   });
 
-  it('is happy with the twenty-four names the sheet actually ships', () => {
+  it('is happy with the names the sheet actually ships', () => {
     const names = ROSTER.ships.map((s) => s.name.trim().toLowerCase());
     expect(new Set(names).size).toBe(names.length);
-    // The rename itself, pinned: the dreadnaught is the Goliath and nothing
-    // in this roster is called the Whaler until Sean enters her.
+    /*
+     * Both Urskins, and the distinction that made the duplicate-name check
+     * worth writing in the first place.
+     *
+     * The Gigantic hull was renamed to Goliath on 19 September precisely so
+     * that *"Urskin Whaler"* would be free for the ship Sean said he was going
+     * to invest, and this test asserted her absence until he did. He has: she
+     * is a Medium retrofit at R3, not the R7 monster, and the two names now
+     * both exist and must stay distinct.
+     */
     expect(ROSTER.byId.get('CFS-URG-R7-01')!.name).toBe('Urskin Goliath');
-    expect(names).not.toContain('urskin whaler');
+    expect(ROSTER.byId.get('CFS-URW-R3-01')!.name).toBe('Urskin Whaler');
+    expect(ROSTER.byId.get('CFS-URW-R3-01')!.size).toBe('Medium');
   });
 
   it('catches an unknown enum value', () => {
@@ -161,19 +172,42 @@ describe('refusing bad data', () => {
     expect(() => loadRoster(doc)).toThrow(/Repair Rate/);
   });
 
-  it('catches two hulls on the same rung of one ladder', () => {
+  it('notes two hulls on the same rung of one ladder without refusing them', () => {
+    /*
+     * A warning since 19 September, and the demotion is the finding.
+     *
+     * This was an error on the reasoning that the research errand would have
+     * nothing to choose between two hulls on one rung. That was inferred from
+     * a roster where it happened to hold; the sheet has now done it on purpose
+     * — the Whaler at Confederacy R3 beside the Tempest — and its own Roster
+     * structure note says *"research order establishes progression, not strict
+     * replacement"*. A rung that unlocks two is a choice, not a contradiction.
+     *
+     * It stays a warning rather than going silent because a collision typed by
+     * accident looks exactly like a pair placed on purpose, and only the sheet
+     * knows which it is.
+     */
     const doc = corrupt((d) => {
       const list = ships(d);
       const crown = list.filter((s) => s['Faction'] === 'Crown Imperium');
       crown[1]['Research Order'] = crown[0]['Research Order'];
     });
-    expect(() => loadRoster(doc)).toThrow(/is already taken by/);
+    expect(() => loadRoster(doc)).not.toThrow();
+    const shared = validateRoster(doc).filter(
+      (i) => /is shared with/.test(i.message) && i.shipId?.startsWith('CWN-'),
+    );
+    expect(shared).toHaveLength(1);
+    expect(shared[0].severity).toBe('warning');
   });
 
   it('allows the two navies the same rung as each other', () => {
     // Both open at S01 and both unlock an R1, which is correct: the ladders
     // are per faction. This is the case the duplicate check must not catch.
-    expect(validateRoster(rosterData).filter((i) => /already taken/.test(i.message))).toEqual([]);
+    expect(
+      validateRoster(rosterData).filter(
+        (i) => /is shared with/.test(i.message) && !i.shipId?.startsWith('CFS-URW'),
+      ),
+    ).toEqual([]);
   });
 
   it('reports everything wrong at once rather than the first thing', () => {
@@ -218,19 +252,29 @@ describe('the design rules the export states about itself', () => {
   });
 
   it('walks each ladder in unlock order, eight rungs and no gaps', () => {
-    // The roster of 18 September closed the gaps: both navies now run R1-R8
-    // with nothing missing, so "the nth unlock" and "the step called Rn" are
-    // finally the same question. Asserted because they were not, and a future
-    // revision could part them again.
-    const order = ['Marauder', 'Cutlass', 'Tempest', 'Reefwarden'];
+    /*
+     * Eight rungs each, still — but a rung may now hold more than one hull.
+     *
+     * The Whaler arrived at Confederacy R3 on 19 September beside the Tempest,
+     * so "the nth unlock" and "the step called Rn" have parted company again
+     * on that ladder, and `nextUnlock` walks hulls rather than steps. Both
+     * facts are worth pinning: every step from 1 to 8 is present on both
+     * ladders with no gaps, and the sequence `nextUnlock` hands out is the
+     * ladder in order however many hulls sit on a step.
+     */
+    const order = ['Marauder', 'Cutlass', 'Tempest', 'Urskin Whaler', 'Reefwarden'];
     order.forEach((name, i) => expect(nextUnlock('Free Confederacy', i)!.name).toBe(name));
 
     for (const faction of NAVY_FACTIONS) {
       const ladder = fleetOf(faction).filter((s) => s.research.kind === 'research');
-      expect(ladder).toHaveLength(8);
-      expect(ladder.map((s) => s.research.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+      const steps = ladder.map((s) => s.research.order);
+      expect([...new Set(steps)]).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+      // Non-decreasing: a ladder that jumped about would make `nextUnlock`
+      // hand out a later hull before an earlier one.
+      expect(steps).toEqual([...steps].sort((a, b) => a - b));
       ladder.forEach((ship, i) => expect(nextUnlock(faction, i)!.id).toBe(ship.id));
     }
+    expect(fleetOf('Free Confederacy').filter((s) => s.research.raw === 'R3')).toHaveLength(2);
   });
 
   it('gives the Majestic the heaviest guns of any one ship, and not the heaviest everything', () => {
@@ -297,7 +341,11 @@ describe('the design rules the export states about itself', () => {
     // lives: no two hulls across the two navies are statistically identical.
     const crown = fleetOf('Crown Imperium');
     const confederacy = fleetOf('Free Confederacy');
-    expect(crown).toHaveLength(confederacy.length);
+    // Not the same length any more: the Confederacy has thirteen hulls to the
+    // Crown's twelve since the Whaler, which is the sheet's stated contrast
+    // rather than a slip — *"the Confederacy favors asymmetric specialists,
+    // retrofits, raiders"*, and a retrofit is exactly what she is.
+    expect(confederacy.length).toBe(crown.length + 1);
     const fingerprint = (s: (typeof crown)[number]) =>
       [s.speed, s.guns.longGuns, s.guns.heavyGuns, s.guns.lightGuns, s.armor, s.hull].join('/');
     const crownPrints = new Set(crown.map(fingerprint));
@@ -311,9 +359,11 @@ describe('what the shipped data is warned about', () => {
    * that the set cannot change without somebody noticing — if a future export
    * clears one or adds one, this test says so.
    */
-  it('flags the Sovereign as a starting ship in a top tier, and nothing else', () => {
+  it('flags the shared R3 rung, and nothing else', () => {
     const warnings = validateRoster(rosterData).filter((i) => i.severity === 'warning');
-    expect(warnings.map((w) => `${w.shipId}/${w.field}`)).toEqual([]);
+    // One, and it is the deliberate one: the Whaler standing on the Tempest's
+    // rung. Pinned so that a second warning cannot appear unnoticed.
+    expect(warnings.map((w) => `${w.shipId}/${w.field}`)).toEqual(['CFS-URW-R3-01/Research Order']);
     // Sovereign carries exactly one top-tier combat stat (Hull 900), and the
     // rule is about *multiple* top-tier capabilities, so it does not trip.
     expect(ROSTER.byId.get('CWN-SOV-S04')!.hull).toBe(900);

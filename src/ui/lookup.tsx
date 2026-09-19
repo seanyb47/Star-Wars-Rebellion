@@ -85,13 +85,14 @@ const ENCYCLOPEDIA_SHIP: Record<string, string> = {
   // the new roster cut them rather than renaming them, so they are left out
   // deliberately rather than pointed at the nearest thing.
   //
-  // The Urskin Whaler was mapped here until 19 September and is now out for a
-  // different reason: she is waiting for her counterpart rather than lacking
-  // one. The hull she pointed at, the Gigantic 1,800-hull CFS-URW-R7-01, has
-  // been renamed the Urskin Goliath, and the live Whaler is a Medium of 30
-  // hull with a harpoon over the bow — sending a player from one to the other
-  // would be worse than sending them nowhere. Sean is putting a real Urskin
-  // Whaler into the roster sheet; she gets mapped the day she lands.
+  // And the Whaler, mapped again the day she landed. She was pulled out on 19
+  // September when the Gigantic CFS-URW-R7-01 she used to point at was renamed
+  // the Urskin Goliath — a live Medium sending a player to an 1,800-hull
+  // monster would have been worse than sending them nowhere — with the note
+  // that she went back the moment Sean entered a real one in the sheet. He
+  // has: CFS-URW-R3-01, a Medium retrofit at Confederacy R3, which is the
+  // same ship the live roster has been sailing all along.
+  'urskin-whaler': 'CFS-URW-R3-01',
 };
 
 /** The entry to open for a hull, or nothing where the new roster has none. */

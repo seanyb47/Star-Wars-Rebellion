@@ -35,7 +35,8 @@
     {
       "about": "Urskin Goliath, and the name URW",
       "note": "Renamed by hand on 19 September at Sean's word: *'Change its name to Urskin Goliath. I am gonna invest a new ship called the Urskin Whaler.'* The Gigantic 1,800-hull dreadnaught is the Goliath; a new, much smaller Urskin Whaler is going into the sheet and is not here yet. The Ship ID moved with the name, CFS-URW-R7-01 -> CFS-URG-R7-01, so that URW is free for the hull that is actually a whaler. That part is a call made here rather than read off the sheet - if the sheet says otherwise on the next import, the sheet wins."
-    }
+    },
+    "Re-imported 19 September from the Fleet Roster sheet, which Sean had updated. All 24 hulls already here matched the sheet field for field, and the locked combat matrices in navycombat.ts match its Combat Simulation Rules tab exactly, so the only change is the 25th hull: CFS-URW-R3-01, the Urskin Whaler — a second Confederacy R3 standing beside the Tempest rather than replacing it."
   ],
   "purpose": {
     "Purpose": "Authoritative working roster for ship progression, economics, ratings, and combat inputs. Ratings & Pricing governs purchase value; Combat Rules and Combat Stats govern the ship-versus-ship simulation model.",
@@ -960,6 +961,36 @@
       "Scaled Reference Cost": 560,
       "Price Ratio": "39.3%",
       "Value Rating": "S — Value Monster"
+    },
+    {
+      "Ship ID": "CFS-URW-R3-01",
+      "Faction": "Free Confederacy",
+      "Research Order": "R3",
+      "Ship": "Urskin Whaler",
+      "Role": "Retrofitted armored whaler",
+      "Size": "Medium",
+      "Speed": "Normal",
+      "Long Guns": 0,
+      "Heavy Guns": 2,
+      "Light Guns": 4,
+      "Armor": 16,
+      "Hull": 380,
+      "Bombardment": 1,
+      "Troop Capacity": 2,
+      "Repair Rate": "1%",
+      "Days to Build": 110,
+      "Gold to Build": 400,
+      "Gold/Day Maintenance": 6,
+      "Status": "Healthy",
+      "Combatant Type": "Warship",
+      "Design Notes": "Medium Armor 16; 380 Hull; 2 Heavy and 4 Light Guns; no Long Guns. A broad civilian whaler retrofitted into a durable mixed-battery troop escort; deliberately priced on-rate. Harpoon ballistae are cultural deck equipment, not naval guns.",
+      "Capability Points": 14,
+      "Base Reference Cost": 350,
+      "Synergy %": "10%",
+      "Weakness %": "0%",
+      "Scaled Reference Cost": 385,
+      "Price Ratio": "103.9%",
+      "Value Rating": "C — On Rate"
     },
     {
       "Ship ID": "CFS-REE-R4-01",

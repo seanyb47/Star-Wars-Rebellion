@@ -360,11 +360,28 @@ export function validateRoster(raw: unknown): ValidationIssue[] {
     if (!research) {
       err(id, 'Research Order', `Expected S01-style or R1-style, got ${JSON.stringify(entry['Research Order'])}.`);
     } else if (typeof faction === 'string') {
-      // Two hulls cannot occupy the same step of the same navy's ladder: the
-      // research errand would have nothing to choose between them.
+      /*
+       * Two hulls may share a step; it is worth a note and not a refusal.
+       *
+       * This was an error until 19 September, on the reasoning that the
+       * research errand would have nothing to choose between them. That was my
+       * inference from a roster where it happened to be true, and the sheet has
+       * now said otherwise on purpose: the Urskin Whaler arrives at Confederacy
+       * R3 beside the Tempest, and the sheet's own Roster structure note says
+       * *"research order establishes progression, not strict replacement"*.
+       *
+       * A tier that unlocks two hulls is a choice rather than a contradiction —
+       * the Tempest is a fast long-gun striker and the Whaler a slow armored
+       * escort, and a player reaching R3 gaining both is a normal shape for a
+       * tech tree. It stays a warning because it is still worth seeing in the
+       * import log: an accidental collision looks exactly like a deliberate
+       * pair, and only the sheet knows which this is.
+       */
       const key = `${faction}/${research.raw}`;
       const already = seenOrder.get(key);
-      if (already) err(id, 'Research Order', `${research.raw} is already taken by ${already} in the ${faction}.`);
+      if (already) {
+        warn(id, 'Research Order', `${research.raw} is shared with ${already} in the ${faction}.`);
+      }
       seenOrder.set(key, id);
     }
 
