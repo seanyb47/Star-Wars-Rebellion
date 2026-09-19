@@ -24,6 +24,42 @@
   </head>
   <body>
     <div id="root"></div>
+    <!--
+      A shell that outlived its bundle heals itself, once.
+
+      Sean, 19 September: *"A previously-installed (PWA) session throws 404s on
+      load... Returning users could hit failed asset loads until a hard
+      refresh."* There is no service worker here and never has been, so nothing
+      is precaching. What goes stale is this document: an installed standalone
+      app holds it, it names its script by content hash, and the next deploy
+      deletes the hash it is naming.
+
+      When that happens nothing of the app runs, so nothing in the app can fix
+      it — the recovery has to be inline and has to come before the module. One
+      reload with a cache-busting query is enough to fetch fresh HTML, and the
+      sessionStorage guard means a genuine outage shows an error rather than a
+      reload loop.
+    -->
+    <script>
+      (function () {
+        var KEY = 'seven-seas.rescued';
+        window.addEventListener(
+          'error',
+          function (e) {
+            var el = e.target;
+            if (!el || (el.tagName !== 'SCRIPT' && el.tagName !== 'LINK')) return;
+            try {
+              if (sessionStorage.getItem(KEY)) return;
+              sessionStorage.setItem(KEY, '1');
+            } catch (err) {
+              return;
+            }
+            location.replace(location.pathname + '?rebuilt=' + Date.now());
+          },
+          true,
+        );
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

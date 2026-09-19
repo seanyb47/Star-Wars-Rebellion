@@ -5647,3 +5647,100 @@ standing rule, since the crest is theirs.
 register: 25 cells on the Ships page, 25 with a photograph in them. The drawn
 silhouette is now a fallback nothing reaches, and it stays for the next ship
 Sean adds.
+
+## The second playtest pass: two fixed, one diagnosed differently, one automated (19 September)
+
+### 1. Reyne's quoted sail — already correct, and now pinned
+
+Measured before touching anything, because the fix for this shipped in
+`d7d5f10` and Sean is reporting it as still broken. It is not:
+
+```
+powerOf(Reyne) = runner   share = 0.5
+raw travelDays        = 100
+preview, Reyne        = 50
+preview, anybody else = 100
+booked daysRemaining  = 50
+```
+
+The preview and the order agree exactly. `MissionChoiceSheet` calls
+`passageDays`, which applies `passageShare`, and there is no second screen in
+the game that quotes a sail estimate.
+
+**Which leaves the question of what Sean saw**, and the honest answer is that I
+cannot reproduce it and can only offer the likeliest explanation: the same
+stale-shell problem he reports as item 3. It does not fit perfectly — all three
+of the dev-report fixes were in one commit and he reports one of them as
+working — so it is a hypothesis rather than a finding, and item 4 is now built
+so the next report can settle it in one glance.
+
+The regression test is deliberately not "Reyne is halved". It is **the preview
+equals the booking, for every officer on four seeds**, because the bug was two
+functions disagreeing rather than one being wrong; plus a source assertion that
+the sheet calls `passageDays` and never `travelDays`, since the bug was a
+screen reaching past the helper.
+
+### 2. Silent captures — two of five paths were done, three were not
+
+Sean was right, and more precisely right than he knew. The abduction errand —
+the path he actually hit with Pryor — *was* carded. Three others were not:
+
+- taken when an island is stormed (`fleets.ts`),
+- taken up when a side has no harbor left anywhere (`advanceDay.ts`),
+- **freed by a landing** — the rescue half he also asked for (`fleets.ts`).
+
+All three now carry `notable: true`.
+
+**The test is over the rule, not the paths.** A war sweep was written first and
+thrown away: three 600-day wars with both sides machine-played produced **zero**
+captures between them, so the net caught nothing and would have gone on
+catching nothing after a regression. (Worth knowing on its own — the opponent
+does carry people off against a human, because a human leaves officers standing
+about on islands and the machine does not. That is a plausible reading of
+Sean's *"Crown kidnapping is relentless"* sitting beside a machine war with
+none at all.) So the test reads the sim's own source, finds every `pushEvent`
+whose prose is about somebody changing hands, and requires the flag in the same
+call — five today, and a sixth written next month is caught without anybody
+remembering. Verified non-vacuous by removing one flag: it fails and names the
+file and the call.
+
+### 3. The stale-asset 404s — there is no service worker
+
+Sean's diagnosis was *"the service worker is precaching old asset hashes"*.
+**There is no service worker in this project and never has been** — no
+registration, no `sw.js`, no PWA plugin, nothing precaching anything. The
+manifest makes the app installable and does nothing else. So there was no
+service-worker cache to bust, and adding one to fix a caching bug would have
+been adding the exact machinery that causes them.
+
+What actually goes stale is the **document**. An installed standalone app holds
+`index.html`; that HTML names its script and stylesheet by content hash; the
+next deploy deletes the hashes it is naming. The shell then asks for files that
+are gone — which is precisely the symptom, and needs no service worker to
+happen. (The manifest and icon paths were checked too, in case they were the
+404s: Vite rewrites them correctly for the subfolder.)
+
+Two fixes, because the failure has two shapes:
+
+- **The bundle is gone and nothing runs.** Nothing in the app can fix this, so
+  the recovery is an inline script in `index.html`, before the module: catch a
+  script or stylesheet failing to load, and reload once with a cache-busting
+  query. A `sessionStorage` guard means a genuine outage shows an error rather
+  than a reload loop.
+- **The bundle loads but is not the current one.** `build.json` is emitted
+  beside the bundle **unhashed**, so it is always at a known URL; the app
+  fetches it with `cache: 'no-store'` and reloads once if the server's build id
+  disagrees with the one compiled in. Keyed to what the server is serving, so a
+  second deploy while the tab is open is still caught and a reload that changes
+  nothing will not try again. Silent on failure — offline is the normal reason
+  it cannot be answered, and a game that will not start because it could not
+  check its own version would be the worse bug.
+
+### 4. A version that cannot go stale
+
+0.4.0 → **0.5.0**, and the menu reads `Version 0.5.0 · build 202609192152`. The
+version is hand-set and says what was released; **the build id is stamped by
+the bundler and changes on its own every time**, so two deploys can never look
+alike in that line however often the version is forgotten — which is the actual
+thing Sean needs for QA. It is the same id `build.json` carries, so the number
+on the screen and the number the freshness check compares are one number.

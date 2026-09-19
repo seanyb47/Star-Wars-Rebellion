@@ -1265,8 +1265,14 @@ function MenuSheet({
         Your game saves itself constantly — after every order and whenever you switch away from
         the app — so you can close it at any point and pick the war back up from the title screen.
       </p>
+      {/* The build as well as the version. Sean: *"Bump the version string
+          each deploy — the menu still says v0.4.0 on a new bundle, which makes
+          cache issues and QA retests hard to track."* The version is hand-set
+          and says what was released; the build is stamped by the bundler and
+          changes on its own every time, so two deploys can never look alike
+          here however often the version is forgotten. */}
       <p className="tiny muted" style={{ marginTop: 14, textAlign: 'center' }}>
-        Version {__APP_VERSION__}
+        Version {__APP_VERSION__} · build {__BUILD_ID__}
       </p>
     </Sheet>
   );

@@ -1546,7 +1546,7 @@ function caughtAshore(
       // A card, not a log line: losing a crew member is a setback on the scale
       // of an island changing hands, and it used to pass in silence.
       notable: true,
-      text: `${character.name} was taken on ${system.name} with the work half done, and is in irons at ${
+      text: `${character.name} was taken on ${system.name} with the work half done, and is held at ${
         getSystem(state, character.locationSystemId).name
       }.`,
       systemId: system.id,

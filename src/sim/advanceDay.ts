@@ -130,6 +130,8 @@ function roundUpTheLandless(state: GameState): void {
       takePrisoner(state, person, taker);
       pushEvent(state, {
         kind: 'loss',
+        // Every capture raises a card. See `notable` on GameEvent.
+        notable: true,
         text: `${person.name} is taken up on ${
           getSystem(state, person.locationSystemId).name
         }. There is no harbor left anywhere that will have them.`,

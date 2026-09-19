@@ -5,7 +5,19 @@ import { ArtSheet } from './ui/ArtSheet';
 import { StyleTest } from './ui/StyleTest';
 import { StyleGallery } from './ui/StyleGallery';
 import { PaintingGallery } from './ui/PaintingGallery';
+import { checkFreshness, refreshIfStale } from './ui/freshness';
 import './ui/styles.css';
+
+/*
+ * A shell older than the bundle on the server reloads itself, once.
+ *
+ * The inline script in index.html catches the hard case, where the bundle is
+ * gone and none of this runs. This catches the quiet one: an installed app
+ * running happily on an old document whose assets happen to have survived a
+ * deploy. Fired and forgotten — `checkFreshness` never rejects, and a failure
+ * to reach the server is simply not an answer rather than a reason to stop.
+ */
+void checkFreshness().then(refreshIfStale);
 
 /**
  * Where the glass is, and how tall it is.

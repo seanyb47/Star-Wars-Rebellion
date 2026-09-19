@@ -1835,7 +1835,9 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
     takePrisoner(state, caught, fleet.faction);
     pushEvent(state, {
       kind: 'loss',
-      text: `${caught.name} was taken on ${system.name} when it fell, and is in irons at ${
+      // Every capture raises a card. See `notable` on GameEvent.
+      notable: true,
+      text: `${caught.name} was taken on ${system.name} when it fell, and is held at ${
         getSystem(state, caught.locationSystemId).name
       }.`,
       systemId: system.id,
@@ -1857,6 +1859,8 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
     freed.injuredDays = undefined;
     pushEvent(state, {
       kind: 'mission',
+      // And every rescue. Sean asked for *"captures (and probably rescues)"*.
+      notable: true,
       text: `${freed.name} is out of the cells at ${system.name}, freed by the landing.`,
       systemId: system.id,
       characterId: freed.id,
