@@ -134,6 +134,59 @@ export function CompassRose({
 const IMP = { deep: '#183128', field: '#254b36', line: '#2f634d', gold: '#c9a227', cream: '#f0dbbe' };
 const CON = { deep: '#4a1418', field: '#6b121e', ray: '#a03832', bright: '#ca6150', bone: '#f0dbbe' };
 
+/**
+ * The faction mark at reading size: one shape, one colour, no scene.
+ *
+ * Sean, 19 September: *"use the simpler sigils not complex ones. These are too
+ * detailed for small size."* He is right, and the painted crests are not the
+ * only offenders — the drawn `ImperiumCrest` and `ConfederacyCrest` are a
+ * laurel wreath around an anchor under a crown, and a skull over crossed
+ * cutlasses on a twelve-ray starburst. Both are built to be read at ninety
+ * pixels on a faction card. At the eighteen a name beside a name gets, the
+ * wreath is a smudge and the skull is a dot.
+ *
+ * So this is not those shrunk: it is a different drawing for a different job.
+ * A crown and a pair of crossed cutlasses, chunky enough to survive being
+ * half an em tall, and different enough in silhouette that you can tell them
+ * apart without resolving either — which is the only thing a sigil on a list
+ * row has to do.
+ */
+export function FactionSigil({
+  faction,
+  size = 18,
+}: {
+  faction: 'empire' | 'alliance' | 'neutral' | 'none';
+  size?: number;
+}) {
+  if (faction !== 'empire' && faction !== 'alliance') return null;
+  const tint = faction === 'empire' ? IMP.gold : CON.bright;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      aria-hidden="true"
+      style={{ display: 'block', flex: 'none' }}
+    >
+      {faction === 'empire' ? (
+        // A crown: five points and a band, and nothing else in the box.
+        <g fill={tint}>
+          <path d="M3 16 L3 7 L8.5 11 L12 4.5 L15.5 11 L21 7 L21 16 Z" />
+          <rect x="3" y="17.5" width="18" height="3" rx="1" />
+        </g>
+      ) : (
+        // Crossed cutlasses: an X, which no crown can be mistaken for.
+        <g stroke={tint} strokeWidth="2.6" strokeLinecap="round" fill="none">
+          <path d="M5 19 L18 5" />
+          <path d="M19 19 L6 5" />
+          <path d="M3.5 20.5 L7 17" strokeWidth="3.4" />
+          <path d="M20.5 20.5 L17 17" strokeWidth="3.4" />
+        </g>
+      )}
+    </svg>
+  );
+}
+
 export function ImperiumCrest({ size = 96 }: { size?: number }) {
   return (
     <svg viewBox="0 0 100 110" width={size} height={size * 1.1} aria-hidden="true">

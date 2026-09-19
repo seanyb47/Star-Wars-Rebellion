@@ -135,7 +135,7 @@ import {
   CompanyRow,
   CreaturePainting,
   IslandBanner,
-  FactionCrest,
+  FactionSigil,
 } from './art';
 import type { PlayableFaction } from '../sim';
 import { GoldFig, Sheet } from './components';
@@ -428,7 +428,7 @@ function EntrySheet({
         return {
           title: who.name,
           subtitle: `${who.people}${lord ? ` · ${terms.lord}` : ''}`,
-          emblem: who.side === 'neutral' ? null : <FactionCrest faction={who.side} size={30} />,
+          emblem: <FactionSigil faction={who.side} size={26} />,
           art: (
             <div className="encfull__art">
               <CharacterFace name={who.name} faction={who.side} people={who.people} />
@@ -513,7 +513,7 @@ function EntrySheet({
           title: cls.name,
           // The crest says whose she is, so the subtitle does not have to.
           subtitle: cls.role,
-          emblem: <FactionCrest faction={side} size={30} />,
+          emblem: <FactionSigil faction={side} size={26} />,
           art: (
             <div className="encfull__art">
               <ShipThumb
@@ -650,7 +650,7 @@ function EntrySheet({
         return {
           title: type.name,
           subtitle: type.people,
-          emblem: <FactionCrest faction={type.faction} size={30} />,
+          emblem: <FactionSigil faction={type.faction} size={26} />,
           art: (
             <div className="encfull__art encfull__art--figure">
               <CompanyIcon size={150} type={type.id} />
@@ -688,7 +688,7 @@ function EntrySheet({
         return {
           title: FACILITY_LABEL[type],
           subtitle: 'Buildings',
-          emblem: <FactionCrest faction={state.player} size={30} />,
+          emblem: <FactionSigil faction={state.player} size={26} />,
           art: (
             <div className="encfull__art">
               <FacilityThumb type={type} owner={state.player} fill />
@@ -1116,11 +1116,11 @@ export function Almanac({
             >
               <span className="encmini__art encmini__art--figure">
                 <CompanyIcon size={92} type={type.id} />
-                <span className="encmini__sigil">
-                  <FactionCrest faction={type.faction} size={26} />
-                </span>
               </span>
-              <b className="encmini__name">{type.name}</b>
+              <b className="encmini__name encmini__name--sigil">
+                <FactionSigil faction={type.faction} />
+                {type.name}
+              </b>
               <span className="encmini__line">
                 {type.offense} / {type.defense} / {type.watch}
                 {type.research && ' · not yet built'}
@@ -1185,13 +1185,11 @@ export function Almanac({
             >
               <span className="encmini__art">
                 <CharacterFace name={who.name} faction={who.side} people={who.people} />
-                {who.side !== 'neutral' && (
-                  <span className="encmini__sigil">
-                    <FactionCrest faction={who.side} size={26} />
-                  </span>
-                )}
               </span>
-              <b className="encmini__name">{who.name}</b>
+              <b className="encmini__name encmini__name--sigil">
+                <FactionSigil faction={who.side} />
+                {who.name}
+              </b>
               {PIRATE_LORDS.some((l) => l.name === who.name) && (
                 <span className="encmini__tag">{terms.lord}</span>
               )}
@@ -1427,11 +1425,18 @@ export function Almanac({
                   cls={ART_SLUG[cls.id] ?? cls.id}
                   size={280}
                 />
-                <span className="encmini__sigil">
-                  <FactionCrest faction={side} size={26} />
-                </span>
               </span>
-              <b className="encmini__name">{cls.name}</b>
+              {/* The sigil sits with the words, not over the painting.
+                  Sean, 19 September: *"Move sigils out of the image box and
+                  into the text box."* Laid over the art it was a badge stuck
+                  on a picture — it covered the corner of whatever it was
+                  labelling and had to carry its own dark disc to stay legible
+                  against sky or sea. Beside the name it needs neither, and it
+                  is where you are already reading. */}
+              <b className="encmini__name encmini__name--sigil">
+                <FactionSigil faction={side} />
+                {cls.name}
+              </b>
               <span className="encmini__line">
                 {cls.size} · {cls.hull} hull
               </span>

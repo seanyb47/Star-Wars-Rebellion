@@ -2606,18 +2606,12 @@ button.tcard:hover { border-color: var(--brass); }
 .pg__meta--dim { color: #6f858f; }
 
 /* The faction sigil on an encyclopedia cell.
-
-   Sean, 19 September: *"Don't separate crown and confederate ships. Put them
-   all in encyclopedia in ABC order. But put a mini sigil next to each."* Two
-   lists meant knowing whose a thing was before you could find it, which is
-   backwards for a reference. The sigil says it on the cell itself and costs
-   less room than the heading it replaced. Bottom-right, because every kind of
-   art on these cells puts its subject somewhere else. */
-.encmini__art { position: relative; }
-.encmini__sigil {
-  position: absolute; right: 4px; bottom: 4px; line-height: 0;
-  filter: drop-shadow(0 1px 3px rgba(4, 18, 25, 0.95));
-}
+/* The sigil beside the name, not over the picture.
+   Sean, 19 September: *"Move sigils out of the image box and into the text
+   box."* Over the art it needed its own dark disc to stay legible against sky
+   or sea, and it covered the corner of the thing it was labelling. Beside the
+   name it needs neither. */
+.encmini__name--sigil { display: flex; align-items: center; gap: 6px; }
 
 /* ---- The sheet header's emblem and its close mark ----------------------- */
 .sheet__emblem { flex: none; line-height: 0; margin-right: 10px; }
