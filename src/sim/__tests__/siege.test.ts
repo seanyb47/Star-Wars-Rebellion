@@ -219,11 +219,11 @@ describe('taking the island', () => {
 });
 
 describe('the Crown opens behind its own seawalls', () => {
-  it('walls and mans Highwater in every world', () => {
+  it('walls and mans the Aldermain in every world', () => {
     for (const seed of [3, 11, 29, 101]) {
       const state = generateGalaxy(seed, 'alliance');
       const seat = getSystem(state, state.factions.empire.hqSystemId);
-      expect(seat.name, `seed ${seed}`).toBe('Highwater');
+      expect(seat.name, `seed ${seed}`).toBe('The Aldermain');
       expect(fortsOf(seat), `seed ${seed}`).toHaveLength(CAPITAL_WALLS);
       expect(seat.garrison, `seed ${seed}`).toBe(CAPITAL_GARRISON);
     }

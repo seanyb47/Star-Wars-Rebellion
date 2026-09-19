@@ -22,9 +22,9 @@ const FACTION_DETAIL: Record<
   { strengths: string[]; weaknesses: string[]; opening: string }
 > = {
   empire: {
-    strengths: ['Rich, charted Inner Seas', 'Ships of the line from the first day', 'The Lords have to be found; Highwater is on every chart'],
-    weaknesses: ['Lose Highwater and lose everything', 'Fewer envoys than the Brethren', 'Islands resent what the walls cost them'],
-    opening: 'You begin at Highwater with the core of the world in hand. Somewhere past your charts three Pirate Lords have met, and islands are already declaring for them.',
+    strengths: ['Rich, charted Inner Seas', 'Ships of the line from the first day', 'The Lords have to be found; the Aldermain is on every chart'],
+    weaknesses: ['Lose the Aldermain and lose everything', 'Fewer envoys than the Brethren', 'Islands resent what the walls cost them'],
+    opening: 'You begin at Highwater, the walled capital on the Aldermain, with the core of the world in hand. Somewhere past your charts three Pirate Lords have met, and islands are already declaring for them.',
   },
   alliance: {
     strengths: ['Three Pirate Lords, each with a power nobody else has', 'More envoys, and better ones', 'No capital to lose'],

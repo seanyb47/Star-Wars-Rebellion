@@ -13,6 +13,7 @@ import {
 import { shipSpec } from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { advanceDay } from '../advanceDay';
+import { inProse } from '../helpers';
 import { createRng } from '../rng';
 import { addShip, resolveBattles, sailFleet } from '../fleets';
 import { BEAST_FLEE_HURT, BEAST_WAKE_DAY } from '../constants';
@@ -251,8 +252,12 @@ describe('once the rumours start', () => {
     expect(home.beastRoaming).toBe(true);
     const rumour = state.events.find((e) => /^Rumours of/.test(e.text))!;
     expect(rumour).toBeDefined();
-    // The Sea is named, because that is what a rumour is about.
-    expect(rumour.text).toContain(state.sectors.find((s) => s.id === home.sectorId)!.sea);
+    // The Sea is named, because that is what a rumour is about — and named the
+    // way a sentence names it, *"spreading in the Far Sea"* rather than *"in
+    // The Far Sea"*. The label keeps its capital; the prose does not.
+    expect(rumour.text).toContain(
+      inProse(state.sectors.find((s) => s.id === home.sectorId)!.sea),
+    );
 
     for (let i = 0; i < 400 && beastNow(state)!.id === home.id; i++) {
       stirBeasts(state, createRng(1000 + i));

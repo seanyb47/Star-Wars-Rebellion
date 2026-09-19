@@ -91,7 +91,7 @@ function localOf(faction: PlayableFaction, system: Pick<System, 'archetype'>): T
  * in every game and a garrison does not reshuffle itself when one is lost.
  */
 export function garrisonRoster(
-  system: Pick<System, 'name' | 'archetype' | 'control' | 'garrison' | 'facilities'>,
+  system: Pick<System, 'name' | 'seed' | 'archetype' | 'control' | 'garrison' | 'facilities'>,
 ): TroopType[] {
   if (system.control !== 'empire' && system.control !== 'alliance') return [];
   const faction = system.control;
@@ -101,7 +101,7 @@ export function garrisonRoster(
   // Sailors come off hulls, so they are ashore where hulls are: an island with
   // a shipyard has a ship's company in the square and one without does not.
   const hasYard = system.facilities.some((f) => f.type === 'shipyard' && !f.building);
-  const seed = [...system.name].reduce((n, c) => n + c.charCodeAt(0), 0);
+  const seed = system.seed ?? [...system.name].reduce((n, c) => n + c.charCodeAt(0), 0);
 
   const out: TroopType[] = [];
   for (let i = 0; i < system.garrison; i++) {

@@ -45,6 +45,7 @@ import {
 } from './creatures';
 import { fireOnce, pickTarget, type Combatant } from './round';
 import {
+  inProse,
   getSystem,
   handOver,
   nextId,
@@ -456,7 +457,7 @@ export function sailFleet(
   fleet.voyage = { targetSystemId, daysRemaining: days };
   pushEvent(state, {
     kind: 'order',
-    text: `${fleet.name} weighs anchor for ${target.name}.`,
+    text: `${fleet.name} weighs anchor for ${inProse(target.name)}.`,
     systemId: fleet.systemId,
   });
 }

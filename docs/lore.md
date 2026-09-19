@@ -45,7 +45,7 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 
 ### The Crown Imperium
 
-*The Sovereign Admiralty of the Crown Imperium.* Ruled from **Highwater**, a fortress-island whose seawalls are three hundred feet high and carved with the names of every island the Tide has taken. Governed by a Lord Regent in the name of a boy-king nobody has seen in eleven years.
+*The Sovereign Admiralty of the Crown Imperium.* Ruled from **Highwater**, the walled capital city on **the Aldermain** — the one great island, far larger than anything else, with the best ground and the best resources in the world — behind seawalls three hundred feet high. Governed by a Lord Regent in the name of a boy-king nobody has seen in eleven years.
 
 **Creed:** Order · Stability · Trade · Civilization · A brighter tomorrow.
 **Motto:** *Through trade, duty, and discipline, a safer world.*
@@ -74,7 +74,7 @@ A Lord is a ship when idle and a person on an errand. Left alone they are aboard
 
 A Lord taken goes in irons to Highwater and **stays there**. Nobody is released for nothing: a prisoner is held until their own side sends somebody to break them out, which is an errand like any other — it costs an officer, a voyage and a roll, and it can fail. Measured, a Lord in the Crown's cells is out again in a median of seventy days, but the spread runs from twenty-seven to a hundred and forty-eight, and a Confederacy down to its last islands with no officer to spare does not get them back at all. Calloway, meanwhile, came out of the Black Tide as Admiral Corvus Blackwater and hunts his own old ship for the Crown.
 
-**How the war ends.** One way each. The Confederacy wins the day it holds Highwater. The Crown wins the day all three Lords are in irons **at once** — which is a grip it has to keep hold of, because the Brethren keep coming to get them back.
+**How the war ends.** One way each. The Confederacy wins the day it holds the Aldermain. The Crown wins the day all three Lords are in irons **at once** — which is a grip it has to keep hold of, because the Brethren keep coming to get them back.
 
 **Creed:** Freedom · Opportunity · Independence · Brotherhood · A bolder tomorrow.
 **Motto:** *Free seas. Free peoples. Always.*
@@ -113,7 +113,7 @@ What he learned aboard her he teaches to whatever squadron is lying where he is.
 - **Reef-folk** (Coralhome (Amber Sea)). Amphibious. Gill-slits at the throat, luminous eyes, skin that shifts color with mood. Grow their ships from living coral over years. The Confederacy's best admirals. Once bound to Imperium oar-benches under an old indenture the Crown quietly stopped enforcing and has never apologised for.
 - **Shoal-folk** (The Shoals (Amber Sea)). Small, webbed, night-eyed, chattering. Can hear a ship's hull creak a mile off. Best watchers in the world; cheap to arm because they arm themselves.
 - **Urskin** (Northreach (Far Sea)). Huge, shaggy, tusked sea-bear folk. Harpooners and whalers. Loyal to death, slow to anger, terrifying past it. Torvik is Urskin. **Confederacy, always** — the whaling fleets are named in the articles and no Urskin has ever signed Crown ones.
-- **The Rumor Guild** (human)** (Bothaway (Amber Sea)). A guild, not a people. Ink-stained, sharp, sells to both sides.
+- **The Rumor Guild** (human)** (Hearsay Cay (Amber Sea)). A guild, not a people. Ink-stained, sharp, sells to both sides.
 - **The Hushed** (The Drowned Reach (Bone Sea)). Pale, eel-thin, silent folk from half-drowned islands. Bound to the Crown by an old bargain. Nobody hears them coming.
 - **The Fatmouths** (Fatmouth & Blackreef). Bloated harbor-kings who own the wharves, the warehouses and most of the debts. Nobody has seen Jubal's legs; there is a rumor he doesn't have any.
 - **Tidewrought** (Imperium yards). Brass-and-iron automata built by Lemmick, animated by a bound sliver of the Deep. Walk the seabed. See poorly. Never tire.
@@ -446,11 +446,11 @@ The Crown's home waters; Highwater is here.
 - **Sievern**
 - **Ulverne**
 - **Yarrow Minor**. The royal dockyard.
-- **Caridad**. The Imperium's naval academy.
-- **Raltiera**. Banking houses. Half the war is paid for here.
-- **Obroa Scala**. The Great Library: charts and archives.
-- **Bimisario**. Market island.
-- **Palanca**
+- **Kingsward**. The Imperium's naval academy.
+- **Minterne**. Banking houses. Half the war is paid for here.
+- **Cartmel**. The Great Library: charts and archives.
+- **Chepstow**. Market island.
+- **Marlbury**
 
 ### The Merchant Sea — Whalers' Reach
 
@@ -459,14 +459,14 @@ _Inner Sea. Mediterranean: sun, terraced harbors, guild towns, the best slipways
 Contested: both sides hold islands here from the first day.
 
 - **Wrightsport**. Shipwright capital of the Seven Seas; Reyne's home port.
-- **Duroso**. Old seafaring people. The best navigators alive.
-- **Comenara**
-- **Corfino**
-- **Dralla**
-- **Selona**
-- **Talusa**
-- **Tralosa**
-- **Vagrano**
+- **Starcross**. Old seafaring people. The best navigators alive.
+- **Ashcombe**
+- **Oakhanger**
+- **Sawtry**
+- **Pitchcombe**
+- **Tarmouth**
+- **Ropley**
+- **Wainfleet**
 
 ### The Bone Sea — Wreckers' Reach
 
@@ -477,11 +477,11 @@ Contested: both sides hold islands here from the first day.
 - **Gibbet Rock**. An Imperium prison. The name is not a metaphor.
 - **Gardenholm**. Sacred and green. No tree on it has ever been cut.
 - **The Kettles**. Prison mines, cutting ambergris out of a dead leviathan's skull.
-- **Jomarrow**. Hermit island.
-- **Fetral**
-- **Fillsving**
-- **Jerrador**
-- **Cubbin**
+- **Anchorite Rock**. Hermit island.
+- **Ravenscar**
+- **Wrackham**
+- **Slaughden**
+- **Coffinswell**
 
 ### The Far Sea — Rime Reach
 
@@ -491,9 +491,9 @@ Frontier: uncharted at the start, and where the Pirate Lords signed the articles
 
 - **Northreach**. Torvik's homeland. Urskin whalers and harpooners.
 - **Tallow Cay**. Whale-oil and salt. Far enough out that nobody counts the ships.
-- **Tjerfon**. A cutter base, of sorts.
+- **Sharpness**. A cutter base, of sorts.
 - **Rime Island**. Frozen rock. Nothing here but weather.
-- **Gentnes**
+- **Frostwick**
 - **Varrow**. Fairweather's floating market: a city of lashed-together hulks.
 
 ### The Sea of Storms — Cinder Reach
@@ -504,11 +504,11 @@ Contested: both sides hold islands here from the first day.
 
 - **Greenholm**. Forested and heavily patrolled. Something large is being finished here.
 - **Firewatch**. An active volcano. The ash never quite settles.
-- **Vejun Keep**. Admiral Blackwater's private fortress. The water below it is always flat.
+- **Leeward Keep**. Admiral Blackwater's private fortress. The water below it is always flat.
 - **Tundvik**. The edge of the charts.
 - **Tamalu**
 - **Sorrowhead**
-- **Anaja**
+- **Brimstone Cay**
 - **Basilisk Rock**
 
 ### The Glass Sea — Salt Reach
@@ -518,14 +518,14 @@ _Outer Sea. WEIRD: the water goes flat and holds sound for miles; islands appear
 Frontier: uncharted at the start, and where the Pirate Lords signed the articles. One island of these Reaches is renamed **Freeport** every game and keeps its own position, outline and room — the place the Confederacy was founded, and the one island out here that flies its colours from the first day.
 
 - **Powder Isle**. Saltpetre. Every gun in the Seven Seas owes this rock.
-- **Rylo Salt**. A salt-slave island. One side never sees dusk.
+- **Saltgrave**. A salt-slave island. One side never sees dusk.
 - **Blackreef**. Jubal the Fat's corsair haven. Debts are collected here.
 - **The Terraces**. Rice breadbasket of the Outer Seas.
-- **Bakuran Flats**
+- **The White Flats**
 - **Chaswell**
-- **Dalter**
-- **Joyol**
-- **Kimmen**
+- **Scaldwell**
+- **Noonday Rock**
+- **Salthouse**
 
 ### The Amber Sea — Coral Reach
 
@@ -534,12 +534,12 @@ _Inner Sea. Tropical / Caribbean: plantations, sugar, reefs, hurricanes, old mon
 Frontier: uncharted at the start, and where the Pirate Lords signed the articles. One island of these Reaches is renamed **Freeport** every game and keeps its own position, outline and room — the place the Confederacy was founded, and the one island out here that flies its colours from the first day.
 
 - **Coralhome**. The Reef-folk. Their ships are sung into shape over years.
-- **Bothaway**. Home of the Rumor Guild, who sell to both sides.
-- **Sluysvaan**. The great civilian dockyards.
-- **Umgulla**. Gambling and racing. Everyone owes someone here.
+- **Hearsay Cay**. Home of the Rumor Guild, who sell to both sides.
+- **Graving Bay**. The great civilian dockyards.
+- **Newmarket**. Gambling and racing. Everyone owes someone here.
 - **Preston's Reach**. Signal towers. Word travels fast from here.
 - **The Shoals**. The Shoal-folk: webbed, night-eyed, and the best watchers in the world.
-- **Passh Bay**. Amber and turtle-shell. Three harbors and no customs house.
+- **Hawksbill Bay**. Amber and turtle-shell. Three harbors and no customs house.
 - **Denby Cay**. Sugar and rum. Old money, and none of it decided.
 
 ## 8. What Lives in the Water

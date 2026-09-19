@@ -210,6 +210,24 @@ export function atSea(state: GameState, character: Character): boolean {
   return state.fleets.some((f) => f.voyage !== undefined && f.officerIds.includes(character.id));
 }
 
+/**
+ * An island's name as it reads *inside* a sentence.
+ *
+ * Four islands wear a definite article as part of the name — The Kettles, The
+ * Shoals, The Terraces, The White Flats — and since 19 September so does the
+ * Crown's seat, the Aldermain. As a label that capital *The* is right, and on
+ * a chart and a tab it is what the island is called. Dropped into the middle
+ * of a sentence it is not: *"hold The Aldermain, whatever else"*.
+ *
+ * This is the vocabulary rule from CLAUDE.md applied to a name rather than a
+ * noun — **a label uses the agreed word, and prose keeps its voice** — so the
+ * label keeps its capital and the sentence gets the article it wants. Only the
+ * leading article moves; the name itself is untouched.
+ */
+export function inProse(name: string): string {
+  return name.startsWith('The ') ? 'the ' + name.slice(4) : name;
+}
+
 /** Everyone of a side who is actually standing on this island today. */
 export function ashoreAt(
   state: GameState,

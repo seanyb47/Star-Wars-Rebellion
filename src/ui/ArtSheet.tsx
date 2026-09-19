@@ -41,7 +41,7 @@ const CAST: Array<{ name: string; people: string }> = [
   ...characterRoster.alliance.map((c) => ({ name: c.name, people: c.people })),
   ...characterRoster.recruits.map((c) => ({ name: c.name, people: c.people })),
 ];
-const ISLES = ['Bysse', 'Coralhome', 'Fraytis', 'Wistrell', 'Highwater', 'Denby Cay'];
+const ISLES = ['Bysse', 'Coralhome', 'Fraytis', 'Wistrell', 'The Aldermain', 'Denby Cay'];
 const EVENTS: EventKind[] = ['war', 'flip', 'mutiny', 'battle', 'loss', 'order', 'mission'];
 
 function Row({ label, note, children }: { label: string; note?: string; children: React.ReactNode }) {

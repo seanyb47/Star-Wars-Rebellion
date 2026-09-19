@@ -107,8 +107,8 @@ PORTS_ON_THE_GREAT_ISLAND = 3
 # island's lagoon, and the library on its eastern bay. A pinned island takes
 # no pick from the painting; the pin counts as taken when the rest are spaced.
 PINS: dict[str, tuple[float, float]] = {
-    "Highwater": (485.2, 707.0),
-    "Obroa Scala": (584.0, 754.9),
+    "The Aldermain": (485.2, 707.0),
+    "Cartmel": (584.0, 754.9),
 }
 PORT_GAP_PX = 60
 

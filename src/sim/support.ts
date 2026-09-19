@@ -13,6 +13,7 @@ import {
 import { mutinyChance } from './politics';
 import { applyShock, orderFor } from './propagate';
 import {
+  inProse,
   handOver,
   isPlayable,
   reachName,
@@ -266,7 +267,7 @@ export function reportLoyaltySlips(state: GameState, before: Map<string, Loyalty
       // A cut of the enemy's trade coming your way is not a loss, whatever it
       // is to them, and the log colours by kind.
       kind: holder === state.player ? 'loss' : 'order',
-      text: `The customs books on ${system.name} stop balancing. ${share}% of everything it ships now leaves in somebody else's hold, bound for the ${factionName(otherFaction(holder))}.`,
+      text: `The customs books on ${inProse(system.name)} stop balancing. ${share}% of everything it ships now leaves in somebody else's hold, bound for the ${factionName(otherFaction(holder))}.`,
       systemId: system.id,
     });
   }

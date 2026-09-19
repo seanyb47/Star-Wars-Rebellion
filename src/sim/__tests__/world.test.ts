@@ -147,9 +147,9 @@ describe('the generated world matches the bible', () => {
     }
   });
 
-  it('seats the Imperium at Highwater', () => {
+  it('seats the Imperium at the Aldermain', () => {
     const hq = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
-    expect(hq.name).toBe('Highwater');
+    expect(hq.name).toBe('The Aldermain');
     expect(hq.isCore).toBe(true);
   });
 
@@ -161,8 +161,8 @@ describe('the generated world matches the bible', () => {
   });
 
   it('carries the bible notes through onto the islands that have them', () => {
-    const highwater = state.systems.find((s) => s.name === 'Highwater')!;
-    expect(highwater.note).toMatch(/seawalls/i);
+    const aldermain = state.systems.find((s) => s.name === 'The Aldermain')!;
+    expect(aldermain.note).toMatch(/seawalls/i);
     const plain = state.systems.find((s) => s.name === 'Avermere')!;
     expect(plain.note).toBeUndefined();
   });

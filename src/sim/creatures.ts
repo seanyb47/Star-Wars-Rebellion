@@ -9,7 +9,7 @@ import {
   BEAST_WAKE_DAY,
   shipSpec,
 } from './constants';
-import { pushEvent } from './helpers';
+import { inProse, pushEvent } from './helpers';
 import type { Rng } from './rng';
 import type { Faction, GameState, IslandArchetype, PlayableFaction, System } from './types';
 
@@ -173,11 +173,11 @@ export function creature(slug: string): Creature | undefined {
  * answer down; nothing else should call it, because an island's creature is
  * whatever is on the island, not whatever this would say now.
  */
-export function creatureFor(system: Pick<System, 'name' | 'archetype'>): Creature | undefined {
+export function creatureFor(system: Pick<System, 'name' | 'archetype' | 'seed'>): Creature | undefined {
   if (!system.archetype) return undefined;
   const found = CREATURES.filter((c) => c.waters.includes(system.archetype!));
   if (found.length === 0) return undefined;
-  const seed = [...system.name].reduce((n, c) => n + c.charCodeAt(0), 0);
+  const seed = system.seed ?? [...system.name].reduce((n, c) => n + c.charCodeAt(0), 0);
   return found[seed % found.length];
 }
 
@@ -247,7 +247,7 @@ export function sightBeast(
   system.beastSeen[faction] = true;
   const beast = creature(system.beast);
   if (!beast) return undefined;
-  return beast.found.replace('{island}', system.name);
+  return beast.found.replace('{island}', inProse(system.name));
 }
 
 // --- Once the rumours start ------------------------------------------------
@@ -413,7 +413,7 @@ export function stirBeasts(state: GameState, rng: Rng): void {
       const beast = beastAt(system)!;
       pushEvent(state, {
         kind: 'battle',
-        text: `Rumours of ${beast.name} are spreading in ${seaOf(state, system) ?? 'the Reaches'}.`,
+        text: `Rumours of ${beast.name} are spreading in ${inProse(seaOf(state, system) ?? 'the Reaches')}.`,
         systemId: system.id,
       });
       continue;

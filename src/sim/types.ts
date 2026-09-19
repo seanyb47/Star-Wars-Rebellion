@@ -56,6 +56,24 @@ export type IslandArchetype =
 export interface System {
   id: string;
   name: string;
+  /**
+   * The number this island's look, its creature and its garrison mix are drawn
+   * from, carried in `reaches.json`.
+   *
+   * It used to be computed from the island's name, and that turned out to be a
+   * trap: the 19 September pass that took the last Star Wars planet names off
+   * the chart would have silently re-rolled the terrain, the deposits and what
+   * lives in the water of thirty-two islands, when Sean's brief for it said
+   * *"keep each island's existing note, role, coordinates and mechanical data
+   * exactly as-is. Only the name changes."* A label should not be able to move
+   * the world, so the number is written down instead, frozen at the value each
+   * island already had.
+   *
+   * Optional because a hand-built System in a test has no data row behind it;
+   * the readers fall back to the old name sum, which is what those tests were
+   * getting before.
+   */
+  seed?: number;
   /** Which of the ten island paintings this one wears. */
   archetype: IslandArchetype;
   /** A line of colour from the world bible, shown on the island sheet. */

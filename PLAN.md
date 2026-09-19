@@ -715,10 +715,10 @@ charted, settled, nobody's Reach — a corner of the map with no reason to sail
 to it. It is now the third uncharted Reach, which makes it a third place the
 Lords might have signed the articles: Freeport can fall in Coral as readily as
 in Salt or Rime. It is fogged and a quarter settled like the other two, which
-does mean Coralhome and the great dockyards at Sluysvaan are bare rock in most
+does mean Coralhome and the great dockyards at Graving Bay are bare rock in most
 games — the same bargain Rime and Salt already make with their own named
 islands. Three names from the bible's Coral list joined it, **The Shoals**,
-**Passh Bay** and **Denby Cay**, and `scripts/chart_positions.py` placed all
+**Hawksbill Bay** and **Denby Cay**, and `scripts/chart_positions.py` placed all
 eight on the painting's own land; the world is 63 islands now. Sixteen idle
 games of sixteen still end, median 446 days, and day one is unchanged at 65
 against 56 for the Crown and 60 against 49 for the Confederacy.
@@ -5542,7 +5542,7 @@ inventing a word for a thing that cannot happen.
 | Errand on passage | *Enroute to Greenholm* |
 | Aboard a squadron under way | *Commanding Fleet 2, enroute to Bracton* |
 | Aboard a squadron at anchor | *Commanding Fleet 2* |
-| Holding an island | *Commanding Vagrano* |
+| Holding an island | *Commanding Wainfleet* |
 | Working an errand ashore | *Ashore at Greenholm* |
 | Idle | *Ashore at Freeport* |
 
@@ -5744,3 +5744,92 @@ the bundler and changes on its own every time**, so two deploys can never look
 alike in that line however often the version is forgotten — which is the actual
 thing Sean needs for QA. It is the same id `build.json` carries, so the number
 on the screen and the number the freshness check compares are one number.
+
+---
+
+## The last Star Wars names come off the chart
+
+*19 September 2026. Sean: "The island names in `src/data/` still contain Star
+Wars planet names carried over from the Rebellion conversion… Do not assume a
+name is clean because it sounds invented. Check it."*
+
+### The audit did not need guessing
+
+The obvious way to do this was to read sixty-three island names and decide, one
+by one, which of them sounded like a Star Wars planet. That is exactly the
+method that would have missed the ones that matter, and Sean said so in the
+brief.
+
+It turned out not to be necessary. `seven-seas-world-bible.md` §13 is the
+conversion table from the original packet, and it carries **the original planet
+in the left-hand column beside every island**. So the audit is a lookup, not a
+judgement: every island's provenance is written down, and the question for each
+one is only whether the conversion went far enough.
+
+Sean flagged five. The table found **thirty-one**, and the largest finding was
+one he had not suspected:
+
+> **Whalers' Reach is the Corellian system, almost intact.** Wrightsport←Corellia,
+> Duroso←Duros, Dralla←Drall, Selona←Selonia, Talusa←Talus, Tralosa←Tralus.
+> Eight of its nine islands were light respellings; only Wrightsport had
+> actually been converted. Duroso's note — *"the best navigators alive"* — is
+> the Duros species' defining canon trait, carried straight over.
+
+Others were the same shape: the note gave the original away as loudly as the
+name. Tierfon→Tjerfon is *"a cutter base, of sorts"* and Tierfon was a Rebel
+fighter base. Ryloth→Rylo Salt is *"one side never sees dusk"*, which is
+Ryloth's tidal lock, and *"a salt-slave island"*, which is the Twi'leks.
+Umgul→Umgulla is *"gambling and racing"*, which is Umgul's blob races.
+Bothawui→Bothaway is *"the Rumor Guild, who sell to both sides"*, which is the
+Bothans. Sluis Van→Sluysvaan is a shipyard in both worlds.
+
+Three were flagged and **kept**, because a shared syllable is not a borrowing:
+Basilisk Rock (basilisk is an English word and HMS *Basilisk* was a real ship of
+1695), Chaswell, and the derived-but-plainly-English set — Gorley, Avermere,
+Sievern, Ulverne, Yarrow Minor, The Kettles, Denby Cay, Chandler's Rest.
+
+### The rename must not move the world, and nearly did
+
+Sean's rule was *"keep each island's existing note, role, coordinates and
+mechanical data exactly as-is. Only the name changes."*
+
+The code did not allow that. Three separate places seeded off the island's
+name — its archetype in `galaxy.ts` (which decides its painting **and feeds
+`groundOf`, so its forests and gold veins**), its creature in `creatures.ts`,
+and its garrison mix in `troops.ts`, each computing `[...name].reduce(char
+codes)`. Renaming thirty-two islands would have silently re-rolled the terrain,
+the deposits and what lives in the water across most of the map. The first test
+run said so: thirteen failures, only six of them about names.
+
+So the seed is **written down** instead. `reaches.json` carries a `seed` per
+island, frozen at the value that island already had, and `System.seed` carries
+it into the sim; the three readers take it and fall back to the old name sum for
+a hand-built test system. A label can no longer move the world, this time or the
+next time.
+
+**Verified rather than asserted.** A scratch harness dumped every island's
+archetype, room, population, control, garrison, deposits, creature and
+coordinates across five seeds, with names mapped through the rename, and diffed
+the pre-rename world against the post-rename one: **identical, 320 rows, five
+seeds**. Then the freeze was deliberately broken and the same diff re-run:
+**416 differing lines**. The check sees what it claims to see.
+
+### The Aldermain
+
+Canon v4.0 §3 settles the map change: the island in Sovereign Reach called
+Highwater becomes **the Aldermain**, and Highwater stays as the walled capital
+city standing on it. That is what shipped — the node is the Aldermain,
+`capitalIslandName` points at it, and `hqLabel` stays *Highwater*, because the
+seat the interface names is the city.
+
+It also makes the data honest about something that was nearly true already:
+`reaches.json` marks Highwater, Gorley and Ballmoor as ports and its own comment
+called them *"the three port cities on Sovereign Reach's great island"* — a
+great island with no name. It has one now.
+
+The island's note lost its Black Tide clause in the same move, because v4.0 cuts
+the Tide entirely and the note was *"carved with the name of every island the
+Tide has taken"*. The Crown's faction blurb went the same way. Those two are the
+whole of the Tide sweep in this pass; the rest of it — Blackwater's backstory,
+Ros Carrow's island, the Deep, `docs/lore.md` — sits behind v4.0's own open
+questions and is not ours to invent.

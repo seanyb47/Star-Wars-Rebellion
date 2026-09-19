@@ -47,7 +47,7 @@ import type {
   Deposit,
 } from './types';
 import { recomputeLedger } from './economy';
-import { handOver, requiredGarrison, setSupport } from './helpers';
+import { handOver, inProse, requiredGarrison, setSupport } from './helpers';
 
 /**
  * What each Sea's islands look like.
@@ -548,12 +548,14 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         x: points[i].x,
         y: points[i].y,
         explored: { empire: charted, alliance: charted },
+        seed: island.seed,
         archetype: looksLike(
           sector.sea,
           populated,
           port,
-          // Seeded from the name so an island looks the same in every game.
-          [...island.name].reduce((n, c) => n + c.charCodeAt(0), 0),
+          // The island's own frozen seed, so it looks the same in every game
+          // and goes on looking the same through a rename. See System.seed.
+          island.seed,
         ),
         populated,
         isCore: isCoreSector,
@@ -1047,8 +1049,8 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     kind: 'war',
     text:
       player === 'alliance'
-        ? `The ${factionData.alliance.name} is formed at ${meeting}, beyond the Crown's charts, under three Pirate Lords: ${lordLine}. Several islands have already declared for it. Take ${capital.name} and the Crown falls. Let the Crown hold all three Lords at the same time and the cause dies with them — and all three are standing on this one quay tonight. The Imperium will come looking for ${meeting}. Get them to sea, and keep them apart.`
-        : `Word reaches ${capital.name}: a meeting has taken place in uncharted waters, and the ${factionData.alliance.name} has been formed under three Pirate Lords. Several islands have openly declared for it. Find where they met, take all three of them alive and hold them at the same time, and the rebellion is over — and hold ${capital.name}, whatever else.`,
+        ? `The ${factionData.alliance.name} is formed at ${meeting}, beyond the Crown's charts, under three Pirate Lords: ${lordLine}. Several islands have already declared for it. Take ${inProse(capital.name)} and the Crown falls. Let the Crown hold all three Lords at the same time and the cause dies with them — and all three are standing on this one quay tonight. The Imperium will come looking for ${meeting}. Get them to sea, and keep them apart.`
+        : `Word reaches ${inProse(capital.name)}: a meeting has taken place in uncharted waters, and the ${factionData.alliance.name} has been formed under three Pirate Lords. Several islands have openly declared for it. Find where they met, take all three of them alive and hold them at the same time, and the rebellion is over — and hold ${inProse(capital.name)}, whatever else.`,
     systemId: player === 'alliance' ? allianceHq.id : capital.id,
   });
   return state;

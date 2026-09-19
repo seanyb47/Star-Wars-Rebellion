@@ -1243,7 +1243,7 @@ function MenuSheet({
         <Stat label={factionData.alliance.shortName} value={tally.alliance} />
       </div>
       <p className="tiny muted" style={{ marginTop: 6 }}>
-        Highwater falling ends the Crown. All three Pirate Lords in irons at once ends the
+        The Aldermain falling ends the Crown. All three Pirate Lords in irons at once ends the
         Confederacy.
       </p>
 

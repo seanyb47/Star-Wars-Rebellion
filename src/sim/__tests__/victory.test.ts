@@ -24,14 +24,14 @@ describe('how the war ends', () => {
     expect(state.events.at(-1)!.kind).toBe('war');
   });
 
-  it('is won by the Confederacy the day it holds Highwater, and by nothing less', () => {
+  it('is won by the Confederacy the day it holds the Aldermain, and by nothing less', () => {
     const state = generateGalaxy(7, 'alliance');
     // Holding most of the world is not the war.
     for (const s of state.systems) if (s.populated && s.control !== 'empire') s.control = 'alliance';
     checkVictory(state);
     expect(state.winner).toBeUndefined();
     const capital = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
-    expect(capital.name).toBe('Highwater');
+    expect(capital.name).toBe('The Aldermain');
     capital.control = 'alliance';
     checkVictory(state);
     expect(state.winner).toBe('alliance');

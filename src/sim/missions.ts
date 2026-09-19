@@ -53,6 +53,7 @@ import {
   mayServe,
 } from './constants';
 import {
+  inProse,
   applyLocalSupport,
   atSea,
   reachName,
@@ -1142,7 +1143,7 @@ export function startMission(
   const errand = ERRAND_PURPOSE[type](state, target, character.faction as PlayableFaction);
   pushEvent(state, {
     kind: 'mission',
-    text: `${character.name} sails for ${target.name} ${errand}.`,
+    text: `${character.name} sails for ${inProse(target.name)} ${errand}.`,
     systemId: targetSystemId,
     characterId,
   });
@@ -1483,7 +1484,7 @@ export function advanceMissions(state: GameState, rng: Rng): void {
         character.mission = undefined;
         pushEvent(state, {
           kind: 'mission',
-          text: `${character.name} lands on ${landed.name} to find the work already done, and stands by.`,
+          text: `${character.name} lands on ${inProse(landed.name)} to find the work already done, and stands by.`,
           systemId: landed.id,
           characterId: character.id,
         });
@@ -1501,7 +1502,7 @@ export function advanceMissions(state: GameState, rng: Rng): void {
       mission.daysRemaining = MISSION_WORK_DAYS;
       pushEvent(state, {
         kind: 'mission',
-      text: `${character.name} has made landfall at ${landed.name}.`,
+      text: `${character.name} has made landfall at ${inProse(landed.name)}.`,
         systemId: mission.targetSystemId,
         characterId: character.id,
       });
@@ -1588,13 +1589,13 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
           : mission.type === 'recruit'
             ? recruitPool(state, faction).length === 0
               ? `${character.name} keeps a table on ${system.name} and nobody unclaimed is left ashore to sit at it.`
-              : `${character.name} lands on ${system.name} to find it will not hold a table for them any more.`
+              : `${character.name} lands on ${inProse(system.name)} to find it will not hold a table for them any more.`
             : mission.type === 'abduct'
               ? `${character.name} finds the quay at ${system.name} empty; their mark has sailed.`
               : mission.type === 'rescue'
                 ? `${character.name} finds the cells at ${system.name} empty; the exchange came first.`
               : mission.type === 'command'
-                ? `${character.name} lands on ${system.name} to find order already restored.`
+                ? `${character.name} lands on ${inProse(system.name)} to find order already restored.`
               : mission.type === 'research'
                 // Not "the island is beyond reach", which is what this said
                 // until Sean's playtest found it: a yards errand that stops
@@ -2190,7 +2191,7 @@ function surveyOutcome(
     text:
       opened.length === 1
         ? `${character.name} puts ${opened[0]} on the chart.`
-        : `${character.name} charts ${opened[0]} and ${opened.length - 1} more of the chain.`,
+        : `${character.name} charts ${inProse(opened[0])} and ${opened.length - 1} more of the chain.`,
     systemId: system.id,
     characterId: character.id,
   });

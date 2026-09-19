@@ -1,7 +1,19 @@
 # MASTER OF THE SEVEN SEAS — WORLD BIBLE
-## v2.1 — Living reference for Claude Code
+## v2.1 — **superseded 19 September 2026.** A non-canon idea pool.
 
-> **Instruction to Claude Code:** This file is the source of truth for names, lore, factions, and the map. Keep it on hand and reference it whenever you touch anything player-facing. When a name, mechanic, or lore fact changes during development, **update this file in the same commit** and add a line to the Changelog at the bottom. Sections 0–13 are the one-for-one conversion of the original game; Section 14 is new mechanics that go *beyond* the original and are scheduled for later phases.
+> **Read `CANON.md` first.** Sean's canon document of 19 September 2026 demotes
+> this file: *"The old world bible is a non-canon idea pool: raw material, not
+> truth."* Nothing here is canon on its own account. Several of its load-bearing
+> ideas have since been **cut outright** — the Black Tide, the Drowned Reach,
+> and the Deep as a system with its Tidecaller ranks and Crown licensing — and
+> this file has not been swept for them, so it still describes a world the game
+> is leaving. Section 13's island tables are the exception worth keeping: they
+> are the audit trail of which original planet each island was converted from,
+> which is what the 19 September rename pass was checked against.
+>
+> What follows is the file as it stood, kept for the raw material.
+
+> **Instruction to Claude Code (historical):** This file is the source of truth for names, lore, factions, and the map. Keep it on hand and reference it whenever you touch anything player-facing. When a name, mechanic, or lore fact changes during development, **update this file in the same commit** and add a line to the Changelog at the bottom. Sections 0–13 are the one-for-one conversion of the original game; Section 14 is new mechanics that go *beyond* the original and are scheduled for later phases.
 
 **Tone:** Fantasy pirates, in the register of an adventure story rather than a grim one. Sea-magic is real and visible. The water is not always water. Ships are grown as often as built. Crews are not all human. Two sides who each believe themselves the decent one — the Imperium keeps the walls standing, the Confederacy keeps the sea open, and both are right — while something older than either moves underneath. **Different crews. The same horizon.**
 
@@ -126,7 +138,7 @@ A Lord's ship does not sink. When her hull gives she strikes her colours, is tak
 | Mon Calamari | **Reef-folk** | Coralhome (Amber Sea) | Amphibious. Gill-slits at the throat, luminous eyes, skin that shifts color with mood. Grow their ships from living coral over years. The Confederacy's best admirals. Once bound to Imperium oar-benches under an old indenture the Crown quietly stopped enforcing and has never apologised for. **Confederacy only** — which the rules enforce from 19 September, having merely said it until then. |
 | Sullustan | **Shoal-folk** | The Shoals (Amber Sea) | Small, webbed, night-eyed, chattering. Can hear a ship's hull creak a mile off. Best watchers in the world; cheap to arm because they arm themselves. |
 | Wookiee | **Urskin** | Northreach (Far Sea) | Huge, shaggy, tusked sea-bear folk. Harpooners and whalers. Loyal to death, slow to anger, terrifying past it. Torvik is Urskin. **Confederacy only.** |
-| Bothan | **The Rumor Guild** (human) | Bothaway (Amber Sea) | A guild, not a people. Ink-stained, sharp, sells to both sides. |
+| Bothan | **The Rumor Guild** (human) | Hearsay Cay (Amber Sea) | A guild, not a people. Ink-stained, sharp, sells to both sides. |
 | Noghri | **The Hushed** | The Drowned Reach (Bone Sea) | Pale, eel-thin, silent folk from half-drowned islands. Bound to the Crown by an old bargain. Nobody hears them coming. |
 | Hutt | **The Fatmouths** | Fatmouth & Blackreef | Bloated harbor-kings who own the wharves, the warehouses and most of the debts. Nobody has seen Jubal's legs; there is a rumor he doesn't have any. |
 | Droids (advisors, probes, espionage droids) | **Tidewrought** | Imperium yards | Brass-and-coral automata built by Lemmick, animated by a bound sliver of the Deep. Walk the seabed. See poorly. Never tire. |
@@ -607,15 +619,15 @@ written.
 
 | Original | Island | Notes |
 |---|---|---|
-| Commenor | **Comenara** |  |
+| Commenor | **Ashcombe** |  |
 | Corellia | **Wrightsport** | shipwright capital of the Seven Seas; Reyne's home port |
-| Corfai | **Corfino** |  |
-| Drall | **Dralla** |  |
-| Duros | **Duroso** | old seafaring people; navigators |
-| Selonia | **Selona** |  |
-| Talus | **Talusa** |  |
-| Tralus | **Tralosa** |  |
-| Vagran | **Vagrano** |  |
+| Corfai | **Oakhanger** |  |
+| Drall | **Sawtry** |  |
+| Duros | **Starcross** | old seafaring people; navigators |
+| Selonia | **Pitchcombe** |  |
+| Talus | **Tarmouth** |  |
+| Tralus | **Ropley** |  |
+| Vagran | **Wainfleet** |  |
 | Xyquine | **Ciquina** |  |
 
 **Lantern Reach** (orig. Fakir sector — `large` map)
@@ -624,14 +636,14 @@ written.
 |---|---|---|
 | Ando | **Andoro** | fisherfolk; rough |
 | Berchest | **Berquessa** |  |
-| Bimmisaari | **Bimisario** | market island |
-| Carida | **Caridad** | the Imperium's naval academy |
+| Bimmisaari | **Chepstow** | market island |
+| Carida | **Kingsward** | the Imperium's naval academy |
 | Delaya | **Delaira** | sister-island of drowned Carrow; Ros Carrow's exile home |
 | Halowan | **Halowar** |  |
 | Mrisst | **Marista** |  |
-| Obroa-skai | **Obroa Scala** | the Great Library; charts and archives |
-| Palanhi | **Palanca** |  |
-| Ralltiir | **Raltiera** | banking houses |
+| Obroa-skai | **Cartmel** | the Great Library; charts and archives |
+| Palanhi | **Marlbury** |  |
+| Ralltiir | **Minterne** | banking houses |
 
 ### The Amber Sea (Inner Sea)
 *Tropical / Caribbean: plantations, sugar, reefs, hurricanes, old money with divided loyalties.*
@@ -640,16 +652,16 @@ written.
 
 | Original | Island | Notes |
 |---|---|---|
-| Bothawui | **Bothaway** | home of the Rumor Guild (Guild Spies) |
-| Bpfassh | **Passh Bay** |  |
+| Bothawui | **Hearsay Cay** | home of the Rumor Guild (Guild Spies) |
+| Bpfassh | **Hawksbill Bay** |  |
 | Denab | **Denby Cay** |  |
 | Kothlis | **Cothlis Cay** | Guild outpost |
 | Mon Calamari | **Coralhome** | the Reef people; builds Reef-class ships; Quist's home |
 | Orto | **Ortovale** |  |
 | Praesitlyn | **Preston's Reach** | signal-tower island |
-| Sluis Van | **Sluysvaan** | the great civilian dockyards |
+| Sluis Van | **Graving Bay** | the great civilian dockyards |
 | Sullust | **The Shoals** | home of the Reefwalkers |
-| Umgul | **Umgulla** | gambling and racing island |
+| Umgul | **Newmarket** | gambling and racing island |
 
 **Sugar Reach** (orig. Farfin sector — `medium` map)
 
@@ -669,7 +681,7 @@ written.
 ### The Far Sea (Outer Sea)
 *Arctic / Norse: ice, fjords, whalers, the last free people. Norse-flavored names.*
 
-**Rime Reach, the ice** (orig. Churba sector — folded into the Reach above in v5.8: Rime Island, Gentnes, Rishi Bank and Varrow stay on the chart; the rest are held back for larger maps)
+**Rime Reach, the ice** (orig. Churba sector — folded into the Reach above in v5.8: Rime Island, Frostwick, Rishi Bank and Varrow stay on the chart; the rest are held back for larger maps)
 
 | Original | Island | Notes |
 |---|---|---|
@@ -677,7 +689,7 @@ written.
 | Anoat | **Annat Fjord** | polluted mining fjord |
 | Bespin | **Varrow** | Fairweather's floating market — a city of lashed-together hulks |
 | Deyer | **Deyr** | fishing; all water |
-| Gentes | **Gentnes** |  |
+| Gentes | **Frostwick** |  |
 | Hoth | **Rime Island** | frozen rock; classic second Free Harbor |
 | Lelmra | **Lelmar** |  |
 | New Cov | **Nykov** |  |
@@ -695,7 +707,7 @@ written.
 | Kashyyyk | **Northreach** | Torvik's homeland; source of Berserkers |
 | Linuri | **Linnur** |  |
 | Qat Chrystac | **Kristak** |  |
-| Tierfon | **Tjerfon** | cutter base |
+| Tierfon | **Sharpness** | cutter base |
 | Woostri | **Vustri** |  |
 | Yavin | **Tallow Cay** | CONFEDERACY KNOWN START ISLAND |
 
@@ -738,14 +750,14 @@ written.
 |---|---|---|
 | Adega | **Tamalu** |  |
 | Agrilat | **Sorrowhead** |  |
-| Annaj | **Anaja** |  |
+| Annaj | **Brimstone Cay** |  |
 | Basilisk | **Basilisk Rock** |  |
 | Endor | **Greenholm** | forested island where the Leviathan is being finished |
 | Gandolo IV | **Gandolo Spit** |  |
 | Hozrel XI | **Firewatch** | active volcano |
 | Khuiumin | **Kuimin** |  |
 | Pzob | **Emberfall** |  |
-| Vjun | **Vejun Keep** | Admiral Blackwater's private fortress |
+| Vjun | **Leeward Keep** | Admiral Blackwater's private fortress |
 
 **Monsoon Reach** (orig. Kanchen sector — `medium` map)
 
@@ -784,15 +796,15 @@ written.
 
 | Original | Island | Notes |
 |---|---|---|
-| Bakura | **Bakuran Flats** |  |
+| Bakura | **The White Flats** |  |
 | Chazwa | **Chaswell** |  |
-| Daltar | **Dalter** |  |
-| Joiol | **Joyol** |  |
-| Kimanan | **Kimmen** |  |
+| Daltar | **Scaldwell** |  |
+| Joiol | **Noonday Rock** |  |
+| Kimanan | **Salthouse** |  |
 | Lafra | **Lafray** |  |
 | Mantessa | **Mantissa** |  |
 | Poderis | **Powder Isle** | saltpetre — powder works |
-| Ryloth | **Rylo Salt** | salt-slave island; one side never sees dusk |
+| Ryloth | **Saltgrave** | salt-slave island; one side never sees dusk |
 | Tatooine | **Blackreef** | Jubal the Fat's corsair haven |
 
 **Mirage Reach** (orig. Mayagil sector — `medium` map)
@@ -820,7 +832,7 @@ written.
 | Dar'Or | **Darrow** |  |
 | Douglas III | **Douglass Rock** |  |
 | Engira | **Engiry** |  |
-| Jomark | **Jomarrow** | hermit island |
+| Jomark | **Anchorite Rock** | hermit island |
 | Kiffex | **Kiffey** |  |
 | Trogan | **Troggan** |  |
 | Waskiro | **Wastiro** |  |
@@ -833,12 +845,12 @@ written.
 | Original | Island | Notes |
 |---|---|---|
 | Akrit'tar | **Gibbet Rock** | Imperium prison |
-| F'tral | **Fetral** |  |
-| Fwillsving | **Fillsving** |  |
+| F'tral | **Ravenscar** |  |
+| Fwillsving | **Wrackham** |  |
 | Ithor | **Gardenholm** | sacred green island; no cutting of trees |
-| Jerijador | **Jerrador** |  |
+| Jerijador | **Slaughden** |  |
 | Kessel | **The Kettles** | prison mines cutting ambergris out of a dead leviathan's skull |
-| Kubindi | **Cubbin** |  |
+| Kubindi | **Coffinswell** |  |
 | Morvogodine | **Morvogine** |  |
 | Norval II | **Norvell** |  |
 | Skor II | **Skorra** |  |
@@ -1302,8 +1314,9 @@ not a bark, and it goes in the text.
 - **2026-09-15 v7.0** — **A base per ability, and a swing per game.** Every character now carries one base figure per ability in `characters.json`, set by their lore and by what the game needs of them, instead of a min-max band. A game rolls each ability within a swing of its base: **twenty either way for a major character** — the fourteen named principals, marked `major: true` — and **ten for a minor one**, the unaligned. The roll is deliberately not capped at a hundred: a high base can come out at 101 or 112, and an officer having the game of their life is allowed to be better than anyone has a right to be. The floor is 1. Measured over 80 worlds: ratings run 12 to 112, majors span forty, minors twenty, and nobody lands further from their base than their swing allows.
 - **2026-09-15 v6.9** — **A Lord is a ship when idle and a person on an errand.** Sean's rule: the three Lords can be sent on missions — recruitment, espionage, parley — and ashore they are ordinary officers who can be found out, hurt, or taken in irons. Their ship cannot sail without them and its power sleeps while they are away; a hull that strikes with nobody aboard is a prize and not a capture. Ratings retuned to the brief: **Hale** a master diplomat and recruiter, **Reyne** amazing at combat and espionage and a recruiter, **Jessup** amazing at combat, all three good leaders. **Land** also redistributed: the least an island can hold is four berths, not three, and every island a side opens the war holding has eight to twelve.
 - **2026-09-15 v6.8** — **Freeport opens at a hundred.** The island the articles were signed on answers to the Confederacy the way Highwater answers to the Crown: a hundred to nothing, Confederate colours, a seat's two companies ashore. It had been left merely fond of them, which could not stand — anything over eighty runs a neutral island's colours up on the next tick, so a warm Freeport flipped on day one anyway and announced it in the log as though it were news. It still carries none of the opening's camps, mills or yards, and losing it still loses nothing.
-- **2026-09-15 v6.7** — **Coral Reach goes dark.** The atoll was the one charted, settled, nobody's Reach, and nobody had a reason to sail to it. It is now the third frontier Reach — uncharted by both sides, a quarter of it settled behind the fog, and a third place the articles might have been signed, so Freeport can fall in Coral as readily as in Salt or Rime. Three of the bible's Coral islands join the chart with it: **The Shoals**, **Passh Bay** and **Denby Cay**. Sixty-three islands. No other rules changed.
+- **2026-09-15 v6.7** — **Coral Reach goes dark.** The atoll was the one charted, settled, nobody's Reach, and nobody had a reason to sail to it. It is now the third frontier Reach — uncharted by both sides, a quarter of it settled behind the fog, and a third place the articles might have been signed, so Freeport can fall in Coral as readily as in Salt or Rime. Three of the bible's Coral islands join the chart with it: **The Shoals**, **Hawksbill Bay** and **Denby Cay**. Sixty-three islands. No other rules changed.
 - **2026-09-15 v6.6** — **Freeport.** The island where the articles were signed now has a name and a place on the chart: one uncharted island in Salt or Rime Reach is renamed Freeport each game and keeps the painting's position, outline and room (`chartName` holds what the painting calls it). It is nobody's. The opening also spreads out — the Regent alone at Highwater and the Admiralty about the Crown's holdings; the three Lords aboard their ships at Freeport with one or two Confederates ashore beside them and the rest on the islands that have declared. A Lord is now the only Confederate aboard anything on day one. Room is drawn against one thirteen-berth track everywhere, so a bar's length is an island's room rather than how full it is, and **Available land** joins the chart filters.
+- **2026-09-19 v9.21** — **The last Star Wars names come off the chart.** Thirty-one islands renamed, audited against this file's own section 13 tables, which name the original planet beside every island: the five Sean flagged (Obroa Scala, Caridad, Raltiera, Bimisario, Bakuran Flats) plus twenty-six more, among them the whole of Whalers' Reach, which was the Corellian system almost intact — Duroso←Duros, Dralla←Drall, Selona←Selonia, Talusa←Talus, Tralosa←Tralus. The new names are English and Anglo-nautical, matched to each island's role and Reach. **The great island of Sovereign Reach is now the Aldermain**, and Highwater is the walled capital city standing on it. An island's terrain seed is written down in `reaches.json` rather than computed from its name, so the rename moved names and nothing else — verified island-for-island against the pre-rename world across five seeds.
 - **2026-09-15 v6.5** — Companies take a **twentieth** off the smugglers apiece, not a tenth: a hand on disloyalty rather than a cure. A leaking island now gives away what stands on it, how many hold it, and any island of yours in the same chain the enemy had not charted.
 - **2026-09-15 v6.4** — **One pool of room.** Ground and Water are withdrawn as separate slot types, for the reason Sweetwater was withdrawn before them: two numbers per island to answer one question. An island has room to build, every building takes one berth of it whatever the building is, and companies and hulls take none. Saves bump to v4.
 - **2026-09-15 v6.3** — **Garrisons answer to allegiance.** What an island asks for is set by its band — none when firm, one steady, four thin, six in revolt — and six companies ashore will face down a revolt whatever the island thinks. Every company also takes a tenth off the smugglers' share, so ten shut the back door. Both advisors will now explain allegiance and garrisons on request, and name the islands it is costing.
@@ -1312,8 +1325,8 @@ not a bark, and it goes in the text.
 - **2026-09-14 v6.0** — **No base. Three Pirate Lords.** Sean's call: the Confederacy has no seat at all. It has three Lords — Hale, Reyne, Jessup — each bound to a ship with a power of its own (§2 Faction B, §6B). They start together at a random uncharted Outer island where the Confederacy was formed; the Crown hears only that a meeting took place and that islands are declaring. One way to win each: the Confederacy takes Highwater; the Crown takes all three Lords, which means finding and taking their ships. The 60% attrition rule is gone. The star on the chart now marks exactly two things — Highwater and wherever a Lord's ship lies — and nothing else.
 - **2026-09-14 v5.9** — Sixty islands, not a hundred. The chart's sixty best sites — the biggest landmasses' harbors and the clearest islands, ranked by the painting itself, with no quota per chain — and the names that carry a note or a character keep their places. Sovereign 15, Whalers' 9, Wreckers' 8, Rime 6 (three on the chain, three bergs), Cinder 8, Salt 9, Coral 5. Everything dropped goes back on the shelf for the larger maps.
 - **2026-09-14 v5.9** — **The Free Harbor is a ship.** The Confederacy's seat is Corwin Calloway's old three-decker, not an anchorage: the Moot sits on her quarterdeck, captives are held in her cells, and officers come home to whichever island she is lying off. She sails like any fleet; the opponent keeps her out of sight and runs when the Crown charts her island; the Crown takes the Confederacy's seat by sinking her. §2 Faction B carries the lore of the ship and the captain, §6B lists her, open question 6 is settled.
-- **2026-09-14 v5.8** — Reach names follow the chart. **Rime Reach** is the dark northern chain plus four bergs of the pack ice (Rime Island, Gentnes, Rishi Bank, Varrow); the Far Sea has one Reach. The long chain down the west is **Whalers' Reach**; the name Shipwrights' Reach is retired. Seven Reaches, still 100 islands: Pantlow and Forliss (Grey) join Whalers', Delaira (Lantern) joins Coral, Galpos (Rice) joins Salt, Ambrey (Last) joins Cinder. The frontier is Rime and Salt; the Confederacy's base is in one of the two.
-- **2026-09-14 v5.7** — The small map goes to 100 islands. Twenty-nine promoted from the Reaches held back for larger maps, each into the surviving Reach of its Sea: Lantern's civic islands (Caridad, Raltiera, Obroa Scala, Bimisario, Palanca) into Sovereign Reach and its fisherfolk (Andoro, Berquessa, Marista) into Coral; Grey Reach's timber islands (Belfrey, Capperil, Kempsley, Ketterly, Ombwick) into Shipwrights'; Still Reach's Jomarrow, Douglass Rock and Crondre into Wreckers'; Last Reach's Thanta Isle, Tundvik and Kirdholm into Cinder; Rice Reach's The Terraces, Catshead, Heff Island and Tio Isle into Salt; Sugar's Ferrol Key and Rishi Bank into Rime; Whalers' own Linnur, Kristak and Vustri plus Sugar's Bilbrin into Whalers'. Their notes travel with them. On the chart a big island's mark is its port on the coast and a small island is the island; the great island of Sovereign Reach carries Highwater, Gorley and Ballmoor on its shore.
+- **2026-09-14 v5.8** — Reach names follow the chart. **Rime Reach** is the dark northern chain plus four bergs of the pack ice (Rime Island, Frostwick, Rishi Bank, Varrow); the Far Sea has one Reach. The long chain down the west is **Whalers' Reach**; the name Shipwrights' Reach is retired. Seven Reaches, still 100 islands: Pantlow and Forliss (Grey) join Whalers', Delaira (Lantern) joins Coral, Galpos (Rice) joins Salt, Ambrey (Last) joins Cinder. The frontier is Rime and Salt; the Confederacy's base is in one of the two.
+- **2026-09-14 v5.7** — The small map goes to 100 islands. Twenty-nine promoted from the Reaches held back for larger maps, each into the surviving Reach of its Sea: Lantern's civic islands (Kingsward, Minterne, Cartmel, Chepstow, Marlbury) into Sovereign Reach and its fisherfolk (Andoro, Berquessa, Marista) into Coral; Grey Reach's timber islands (Belfrey, Capperil, Kempsley, Ketterly, Ombwick) into Shipwrights'; Still Reach's Anchorite Rock, Douglass Rock and Crondre into Wreckers'; Last Reach's Thanta Isle, Tundvik and Kirdholm into Cinder; Rice Reach's The Terraces, Catshead, Heff Island and Tio Isle into Salt; Sugar's Ferrol Key and Rishi Bank into Rime; Whalers' own Linnur, Kristak and Vustri plus Sugar's Bilbrin into Whalers'. Their notes travel with them. On the chart a big island's mark is its port on the coast and a small island is the island; the great island of Sovereign Reach carries Highwater, Gorley and Ballmoor on its shore.
 - **2026-09-13 v5.6** — Marlow's dead: husband and both sons, all captains, all lost in the Crown's service — the Narrows, the Black Tide, the Wreckers' coast — and her faith unshaken. Her accent locked: English RP, Judi Dench's M.
 - **2026-09-13 v5.5** — Marlow is a **Secretary**, not an admiral: First Secretary of the Admiralty, the permanent official who has never been to sea, widow of one captain and mother of two more, the only person permitted to lecture the Imperator. Look and history revised in §16.1.
 - **2026-09-13 v5.4** — The Crown's advisor is **Sabine Marlow**, the Imperator's M: sarcastic, exact, entirely the Imperium's. Secretary Crane retires to a possible silent cameo. The player is the **Imperator** (Crown) and the **Captain-General of the Free** (Confederacy); §16.5. Marlow's look in §16.1, her voice in §16.4.
@@ -1342,7 +1355,7 @@ not a bark, and it goes in the text.
 - **2026-09-09 v2.6** — Vocabulary and economy, after playtesting. Stores and Fittings are withdrawn: they were invented words that told a player nothing. There is now one currency, **Gold**, on the rule that a building either earns gold or costs gold — Camps and Mills earn, Works, Drill Grounds, Slipways and companies cost. Sweetwater is withdrawn from the UI in favour of **Ground** and **Water** for the two slot types, for the same reason. Character ratings are spelled out rather than abbreviated. See amendment A1 in the build spec for the rules.
 - **2026-09-09 v2.5** — Added the Reach panel, after the original's sector view: a Reach's islands listed with three icons each (missions, military, facilities), over a summary of what the Reach earns and the mean allegiance across its settled islands. The island panel's tabs were re-cut to match those three — Overview / Missions / Military / Facilities / Log — so an icon on the Reach panel opens the island straight onto the matching tab.
 - **2026-09-09 v2.4** — Unit art. Every building type has its own glyph (Camp a cut hillside and pick, Mill a waterwheel, Works a shear-legs crane, Drill Ground a rack of pikes, Slipway a hull on the stocks), shown on the Build tab, on the build buttons and as marks on the island portrait. Garrisons are drawn as companies of pike figures, with the shortfall to the needed garrison greyed in. Characters have cameo portraits cut from their own names — hat, beard, epaulettes and collar vary, and Urskin are visibly not human. `Character.people` is now carried through from the roster so the portrait can read it.
-- **2026-09-13 v5.1** — **Names follow latitude; eight Reaches, still seven Seas.** The top of the chart is north, and Coral Reach had been sitting at the same latitude as Rime. So the names moved to the clusters they describe: the dark forested diagonal in the north-east is **Whalers' Reach** (Far Sea — the name cut at v5.0 comes back, seven islands), the long chain down the right edge is **Wreckers' Reach** (Bone Sea, now an Inner Reach beside the Crown), and the spiral atoll in the south-east is **Coral Reach** (Amber Sea, nine islands, Passh Bay and Denby Cay restored) — because an atoll ring is a reef and that is where Coralhome belongs. Sugar Reach, which stood in for the empty chain for one deploy, returns to the medium map. Seventy-one islands; three Inner Reaches, five Outer. No rules changed.
+- **2026-09-13 v5.1** — **Names follow latitude; eight Reaches, still seven Seas.** The top of the chart is north, and Coral Reach had been sitting at the same latitude as Rime. So the names moved to the clusters they describe: the dark forested diagonal in the north-east is **Whalers' Reach** (Far Sea — the name cut at v5.0 comes back, seven islands), the long chain down the right edge is **Wreckers' Reach** (Bone Sea, now an Inner Reach beside the Crown), and the spiral atoll in the south-east is **Coral Reach** (Amber Sea, nine islands, Hawksbill Bay and Denby Cay restored) — because an atoll ring is a reef and that is where Coralhome belongs. Sugar Reach, which stood in for the empty chain for one deploy, returns to the medium map. Seventy-one islands; three Inner Reaches, five Outer. No rules changed.
 - **2026-09-12 v5.0** — **Seven Reaches, one for each Sea.** The small map was ten Reaches of ten islands; it is now seven of seven to twelve, sixty-two in all. The reason is the chart: it is a painting now, and three of the ten sat on clusters it could not show clearly — Whalers' on islets too small to hit, Sugar and Mirage running together with their neighbours down the right-hand side. All three shared a Sea with a Reach that survives, so every Sea keeps its place, its character and its islands in the fiction; what moved to the medium map is a second archipelago inside three Seas, beside Scrap Reach which was already held back. Island counts are no longer uniform: a Reach holds as many islands as its painted cluster can show as separate places at a 48-unit spacing, which is what lets the chain view lay every island out clearly instead of stacking them. A Sea and a Reach are the same thing at this size, so the chart names the Seas and the panels name the Reaches and neither is lying. Settles open question 5 — three Inner and four Outer, as written. No rules changed.
 - **2026-09-12 v4.9** — Tone retuned to the faction style guide. The register is now heroic adventure rather than grimdark: both sides believe themselves the decent one and neither is written as the villain. Added each faction's creed and motto (Order · Stability · A brighter tomorrow / Freedom · Opportunity · No masters) and put the creed on the title screen's faction cards. Softened the ugly halves throughout — conscription rolls rather than press gangs emptying villages, opportunists rather than slavers, the Fatmouths as harbor-kings rather than slaver-kings, Corvane's ledger as tragic conviction rather than cruelty. The rule that every named character carries one admirable and one ugly trait is unchanged; it says the same thing the guide's "different crews, the same horizon" does. **The darkness moved rather than left** — it is now the Black Tide, the kraken and the drowned places, not the people. No rules changed.
 - **2026-09-08 v2.3** — Presentation pass. Added a title screen (faction choice with crests, strengths and weaknesses drawn from section 2; difficulty shown but only Normal exists). Replaced the space-era chrome with an admiralty-chart look: deep-water palette, brass accents, chart lettering, rhumb lines and a compass rose. Islands are now drawn as generated coastlines rather than dots, sized by their slots, and each island's bible note appears on its panel. The island panel gained Overview / Build / Garrison / Log tabs. Faction crests and the app icon are SVG drawn in code. No rules changed.
