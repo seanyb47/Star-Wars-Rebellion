@@ -3797,6 +3797,33 @@
         "sha1": "d732b24506077e40"
       }
     },
+    "ships/chimera": {
+      "folder": "ships",
+      "slug": "chimera",
+      "version": 1,
+      "added": "2026-09-19",
+      "updated": "2026-09-19",
+      "title": "Chimera",
+      "source": "Sean, 19 September",
+      "notes": "The Chimera: a retrofit with three colours of timber in her, a great crimson skull-and-cutlasses course, and a Confederate anchorage of stilt-huts and half-built hulls behind her. Well plated for her size and cheap to keep, which is the hull's whole argument.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/chimera.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 782740,
+        "sha1": "90730887bab071be"
+      },
+      "shipped": {
+        "file": "src/art/ships/chimera.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 91186,
+        "sha1": "081998381aa232ca"
+      }
+    },
     "ships/coral-class": {
       "folder": "ships",
       "slug": "coral-class",
