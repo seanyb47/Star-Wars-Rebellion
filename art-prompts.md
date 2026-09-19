@@ -58,9 +58,27 @@ Sean, 19 September, after it happened twice in a row: *"definitely add 'no
 skull, no jolly roger, no crossbones' to the standing negative prompt for every
 ship in this set."* It is the strongest pirate prior in these models and has to
 be banned by name or it comes back. This is an original world — the Confederacy
-flies its own sigil, and a generic skull makes a Shoal-folk warship read as a
-Halloween pirate. A small turquoise-and-bone pennant at the masthead tells the
-story the skull was trying to tell, and tells it correctly.
+flies its own sigil, and a *generic* skull makes a Shoal-folk warship read as a
+Halloween pirate.
+
+**But the ban needs a carve-out, and it is not a small one.** The Free
+Confederacy's own crest — `src/art/crests/confederacy.webp`, the one the
+interface draws on every card of theirs — *is* a red-bandana'd skull over
+crossed cutlasses on a compass-rose shield. Applied blindly, this negative
+prompt strips the faction's real emblem off every Confederate hull. So:
+
+- **Banned:** a generic Jolly Roger — plain white skull and crossbones, the
+  stock pirate flag, a skull used as decoration anywhere other than a flag.
+- **Wanted, where a Confederate ship flies colours at all:** their own crest,
+  small and at the masthead or on a single sail, matching the painted crest.
+- **Neither, for the Blackfin:** she is the one hull whose silhouette *is* her
+  identity, so her mainsail stays plain black and she carries a turquoise-and-
+  bone pennant only.
+
+The rule underneath is that a skull has to be *theirs* and has to be small. The
+Chimera and the Cutlass both came back with the Confederacy's crest on a sail
+and both are right; the Blackfin and the Ironback came back with stock Jolly
+Rogers and both are wrong.
 
 Worth adding beside it, where the generator takes them: *no cartoon
 proportions, no oversized cannons, no floating or glowing elements, no

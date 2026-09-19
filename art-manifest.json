@@ -3854,34 +3854,44 @@
     "ships/cutlass": {
       "folder": "ships",
       "slug": "cutlass",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
+      "updated": "2026-09-19",
       "title": "cutlass",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
-      "crop": {
-        "x": 0,
-        "y": 0,
-        "w": 232,
-        "h": 174
-      },
+      "source": "Sean, 19 September \u2014 production painting",
+      "notes": "The Cutlass proper, replacing the 234x174 contact-sheet slice that had been standing in since 16 September. A small corvette with iron banding bolted along her side, a row of light guns and a bow chaser, red-striped main and the Confederacy's own crest on the mizzen, running out past sea stacks at first light.",
+      "crop": null,
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/ships/cutlass.webp",
-        "w": 233,
-        "h": 174,
-        "bytes": 24046,
-        "sha1": "96ec1b56812ead7e"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 602012,
+        "sha1": "ec13a242577b49b4"
       },
       "shipped": {
         "file": "src/art/ships/cutlass.webp",
         "w": 640,
         "h": 480,
-        "bytes": 34854,
-        "sha1": "2f4327f41e8f14de"
-      }
+        "bytes": 77990,
+        "sha1": "bb7c7f25f9ed2f55"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/ships/cutlass.v1.webp",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
     },
     "ships/fluyt": {
       "folder": "ships",
