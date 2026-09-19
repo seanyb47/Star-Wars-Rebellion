@@ -4116,3 +4116,72 @@ different fleet with different numbers. Joining them is real work — the live
 roster adopting Size and the 0–30 armor scale, saved games carrying `classId`
 strings that would no longer resolve, and the battle sheet learning to show an
 Exchange rather than a broadside — and it has not been asked for.
+
+---
+
+## Moving the live game onto the locked model — the sequencing problem
+
+Sean: *"start me rebuilding the encyclopedia around new names and stats and
+removing old stats or discontinued ones like 'against a wall' and 'getting
+clear' and 'broadsides'. Yea basically scrap old model. This is the future!"*
+
+He chose the staged plan: swap the roster and rebuild the Encyclopedia first,
+leave combat resolution on `fleets.ts` for one more pass. **That split is not
+available, and this is the record of why.**
+
+### The roster swap forces the engine swap
+
+The live damage formula is `damage = guns × swing`, applied against `hull`:
+
+| | Old scale | New scale |
+|---|---|---|
+| Guns | 5–46 (a weight of fire) | 0–36 (a count of cannon) |
+| Hull | 1–55 | 70–1800 |
+| Shots to sink a typical hull | about 1 | about 50 |
+
+A Razorback's 18 guns against 17 hull killed in one shot. A Majestic's 36
+cannon against an Urskin Whaler's 1,800 hull takes fifty. Dropping the new
+numbers into the old formula does not make the war slightly slower, it makes
+every action interminable and every test that asks whether a war ends fail.
+
+And the coupling is wider than `fightRound`. Three more things read the old
+scale and would have to move in the same commit:
+
+- **Officer leadership**, which is a hit-chance edge on a volley. The locked
+  rules have no officers in them at all, so keeping the live feature means
+  extending the sheet's model, which is a design decision rather than a port.
+- **The Kraken**, which is a combatant with a `guns` number and its own strike.
+- **Forts**, at 20 guns against hulls that now run to 1,800.
+
+So "roster now, engine next" would have committed a knowingly broken war. I did
+not do that.
+
+### What is parked, and what it cost
+
+`src/data/ships.next.json` — the full twenty-four hulls on the new model,
+**every field verified against the Fleet Roster sheet**, plus the three legend
+hulls. Ids are slugs of the new names; eleven of them already have paintings
+(bulwark, cutlass, majestic, marauder, sovereign, sovereign-ii, swift, tempest,
+urskin-whaler, vanguard, vanguard-ii) and six more map cleanly by lineage
+(reef-class → coral-class, reefwalker → reefwarden, brig → brigantine, kestrel
+→ interceptor-i, kestrel-ii → interceptor-ii, fluyt → wayfinder). Seven need
+new art: morningstar, resolute, justiciar, chimera, tidestalker, blackfin,
+ironback.
+
+The migration itself was taken far enough to prove the shape and then rolled
+back rather than left half-applied: `ShipClass` loses `role` for `size`, gains
+`research`, `armor`, `repairPct` and three gun counts; `SHIP_ROLES`,
+`GUN_DECKS`, `HULL_EASE`, `GUNNERY_ON_SMALL`, `hitChanceOn` and `aimAt` all
+delete outright, because all six were the one idea the locked rules replace —
+that size changes damage. It changes accuracy now, and only accuracy.
+
+### The order it actually wants to go in
+
+1. **Engine and roster together**, one commit: `ships.json` replaced, sea
+   combat delegating to `navycombat.ts`, the Kraken and the forts rescaled, and
+   a ruling needed on where officer leadership attaches.
+2. **The Encyclopedia**, on the result — which is when *Against a wall* becomes
+   **Bombardment** (the stat survives, the label was old), *Getting clear*
+   becomes the Long Gun retreat volley, and *Broadsides* goes with nothing to
+   replace it, because there are no gun decks: every cannon fires on its own.
+3. **Re-measure the war from scratch.** The balance will be unrecognisable.
