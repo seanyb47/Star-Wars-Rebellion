@@ -4431,3 +4431,35 @@ go looking for the files.
 *(The gallery counts 139 and the register 136. Three files — `chrome/wood` and
 the two crests — predate the register and were never added to it. Not a fault:
 the gallery reads the disk and the register reads itself.)*
+
+### One art column, every tab
+
+Sean, straight after: *"Make ships on encyclopedia same size images as crew. In
+fact all units same size."*
+
+They had been all over the place — a crew face at 216px, a hull at 140, a works
+at 84, a company at 76 — because each entry was built when its own tab was, and
+each picked whatever number looked right on that page alone. Swiping between
+tabs, nothing lined up.
+
+Every unit now shares `.encunit__art`: **the same 60% of the card**, which is
+what makes the column read as one column down the whole reference. Not the same
+*box*, deliberately. A hull is 4:3, a works is a wide strip and a head is
+square; forcing those into one shape would either crop the art or hang it in
+empty space. Each fills the width and keeps its own proportions, so they come
+out 216×216, 216×162 and 216×135 and still align on the left edge, which is the
+edge the eye follows.
+
+A company is the exception that proves it: there are no troop paintings, so it
+is still a drawn figure, and stretching a 14:26 silhouette to 216 wide would
+have made it four hundred pixels tall. It sits centred in a 4:3 plate at the
+same width instead, which gives it the same weight as the paintings beside it.
+
+The knock-on was the text column, now 40% of a phone: the `row--between`
+headers that used to run name-left figure-right across a full card had nowhere
+to go and were breaking names in half — *Interceptor / I*, *Crown / Marines*.
+They stack in this context now, set once in CSS rather than by rewriting four
+headers, because `row--between` is still the right markup and only its width
+changed.
+
+`.company__thumb` went with it — the encyclopedia was its only caller.

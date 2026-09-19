@@ -359,14 +359,15 @@ export function Almanac({
       </p>
       <div className="stack">
         {BUILD_ORDER.map((type) => (
-          <div key={type} id={`enc-${slugOf(type)}`} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
+          <div key={type} id={`enc-${slugOf(type)}`} className="card encunit">
+            <div className="encunit__head">
             {/* The painting, not the glyph. Every works but the two defences
                 has one, and an encyclopedia of what things are is the last
                 place that should be showing a line drawing instead. */}
-            <span className="facility__thumb">
-              <FacilityThumb type={type} owner={state.player} width={84} />
-            </span>
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="encunit__art">
+              <FacilityThumb type={type} owner={state.player} fill />
+            </div>
+            <div className="encunit__who">
               <div className="row row--between">
                 <b>{FACILITY_LABEL[type]}</b>
                 <span className="tiny muted">
@@ -386,6 +387,7 @@ export function Almanac({
                 {terms.facilityBlurbs[type]}
               </div>
             </div>
+            </div>
           </div>
         ))}
       </div>
@@ -394,13 +396,15 @@ export function Almanac({
       <div className="section-title">What is in the ground</div>
       <div className="stack" style={{ marginBottom: 10 }}>
         {(['forest', 'gold'] as const).map((type) => (
-          <div key={type} id={`enc-${type}`} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
-            <span className="facility__thumb">
-              <ResourceThumb type={type} width={84} />
-            </span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <b>{RESOURCE_LABEL[type]}</b>
-              <div className="tiny muted" style={{ marginTop: 3 }}>{RESOURCE_BLURB[type]}</div>
+          <div key={type} id={`enc-${type}`} className="card encunit">
+            <div className="encunit__head">
+              <div className="encunit__art">
+                <ResourceThumb type={type} fill />
+              </div>
+              <div className="encunit__who">
+                <b>{RESOURCE_LABEL[type]}</b>
+                <div className="tiny muted" style={{ marginTop: 3 }}>{RESOURCE_BLURB[type]}</div>
+              </div>
             </div>
           </div>
         ))}
@@ -541,11 +545,12 @@ export function Almanac({
       <div className="section-title">{label}</div>
       <div className="stack">
         {[...troopsOf(faction)].sort(byName).map((type) => (
-          <div key={type.id} id={`enc-${type.id}`} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
-            <span className="company__thumb">
-              <CompanyIcon size={76} type={type.id} />
-            </span>
-            <div style={{ flex: 1, minWidth: 0 }}>
+          <div key={type.id} id={`enc-${type.id}`} className="card encunit">
+            <div className="encunit__head">
+            <div className="encunit__art encunit__art--figure">
+              <CompanyIcon size={124} type={type.id} />
+            </div>
+            <div className="encunit__who">
               <div className="row row--between">
                 <b className="small">{type.name}</b>
                 <span className="tiny muted">
@@ -557,6 +562,7 @@ export function Almanac({
                 {type.research && ' · not yet built'}
               </div>
               <div className="tiny muted" style={{ marginTop: 4 }}>{type.blurb}</div>
+            </div>
             </div>
           </div>
         ))}
@@ -661,11 +667,11 @@ export function Almanac({
               other tabs have read art-left-text-right all along, so the crew
               page had been the odd one out as well as the loud one.
             */}
-            <div className="enccrew__head">
-              <div className="enccrew__art">
+            <div className="encunit__head">
+              <div className="encunit__art">
                 <CharacterFace name={entry.name} faction={art} people={entry.people} />
               </div>
-              <div className="enccrew__who">
+              <div className="encunit__who">
                 {/* The same quiet rank the crew screen wears, for the same
                     reason: three of the names on this page are the
                     Confederacy's victory condition and nothing distinguished
@@ -882,15 +888,17 @@ export function Almanac({
         {[...fleetOf(faction)].sort(byName).map((cls) => {
           const total = cls.guns.longGuns + cls.guns.heavyGuns + cls.guns.lightGuns;
           return (
-            <div key={cls.id} id={`enc-${cls.id}`} className="card">
-              <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
-                <ShipThumb
-                  faction={NAVY_FACTION_TO_PLAYABLE[faction]}
-                  role={LEGACY_ROLE[cls.size]}
-                  cls={ART_SLUG[cls.id] ?? cls.id}
-                  size={140}
-                />
-                <div style={{ flex: 1, minWidth: 0 }}>
+            <div key={cls.id} id={`enc-${cls.id}`} className="card encunit">
+              <div className="encunit__head">
+                <div className="encunit__art">
+                  <ShipThumb
+                    faction={NAVY_FACTION_TO_PLAYABLE[faction]}
+                    role={LEGACY_ROLE[cls.size]}
+                    cls={ART_SLUG[cls.id] ?? cls.id}
+                    size={216}
+                  />
+                </div>
+                <div className="encunit__who">
                   <div className="row row--between">
                     <b>{cls.name}</b>
                     <span className="tiny muted">

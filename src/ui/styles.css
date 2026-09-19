@@ -2117,7 +2117,8 @@ button.tcard:hover { border-color: var(--brass); }
 .is-landed { box-shadow: 0 0 0 2px var(--metal); border-radius: 10px; }
 
 /* A company's figure in the encyclopedia, at a size you can actually read. */
-.company__thumb { flex: none; width: 76px; display: grid; place-items: center; }
+/* `.company__thumb` stood here. The encyclopedia was its only caller and it
+   now uses the shared `.encunit__art` column like every other unit. */
 
 /* A hull the shipwrights have not reached yet, in the encyclopedia. */
 .enc-craft { color: var(--metal-hi); letter-spacing: 0.02em; }
@@ -2305,14 +2306,54 @@ button.tcard:hover { border-color: var(--brass); }
    the card is about 230px — under the 256px source, so this is the first size
    at which the crop has been shown sharp — and it leaves a column beside it
    for the name, which is what lets the rest of the entry line up in bands. */
-.enccrew { padding: 12px; }
-.enccrew__head { display: flex; gap: 12px; align-items: flex-start; }
-.enccrew__art { line-height: 0; flex: 0 0 60%; }
-.enccrew__art .charface {
+.enccrew,
+.encunit { padding: 12px; }
+
+/* One art column, every tab.
+
+   Sean, 19 September: *"Make ships on encyclopedia same size images as crew.
+   In fact all units same size."* They were all over the place — a crew face at
+   216px, a hull at 140, a works at 84 and a company at 76 — because each
+   entry had been built when its own tab was, and each picked a number that
+   looked right on its own page. Nothing lined up when you swiped between them.
+
+   Same **width** for all of them, 60% of the card, which is what makes the
+   column read as one column. Not the same box: a hull is 4:3, a works is a
+   wide strip and a head is square, and forcing those into one shape would
+   either crop the art or hang it in a lot of empty space. Each fills the
+   width and keeps its own proportions. */
+.encunit__head { display: flex; gap: 12px; align-items: flex-start; }
+.encunit__art { line-height: 0; flex: 0 0 60%; min-width: 0; }
+.encunit__who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+/* Each kind of art, told to fill that column rather than the pixel size its
+   component was asked for. The components keep their defaults for every other
+   screen; only the encyclopedia overrides them. */
+.encunit__art .charface {
   width: 100% !important; height: auto !important; aspect-ratio: 1 / 1;
   border-radius: 8px;
 }
-.enccrew__who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.encunit__art .shipthumb {
+  display: block; width: 100% !important; height: auto !important;
+  aspect-ratio: 4 / 3; border-radius: 8px;
+}
+.encunit__art .facthumb { display: block; width: 100%; border-radius: 8px; }
+/* A company is a drawn figure, not a painting, so it is centred in the column
+   at a height that gives it the same weight as the paintings beside it rather
+   than stretched to a width it was never drawn for. */
+.encunit__art--figure {
+  display: grid; place-items: center; aspect-ratio: 4 / 3;
+  border: 1px solid var(--border); border-radius: 8px; background: rgba(0, 0, 0, 0.18);
+}
+
+/* The text column is 40% of a phone now, so the header rows that used to run
+   name-left figure-right across a full card have to stack. Done here rather
+   than by rewriting four headers: `row--between` is the right markup and only
+   its width has changed. */
+.encunit__who .row--between {
+  flex-direction: column; align-items: flex-start; gap: 0;
+}
+.encunit__who .row--between > * { text-align: left; }
 .enccrew__name { font-size: 15px; line-height: 1.2; color: var(--text); }
 .enccrew__sworn {
   margin-top: 2px; font-size: 10px; font-weight: 700;
