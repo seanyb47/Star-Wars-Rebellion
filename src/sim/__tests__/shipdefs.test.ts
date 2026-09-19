@@ -57,8 +57,8 @@ describe('loading the roster', () => {
   it('parses the research ladder into a kind and an order', () => {
     const wayfinder = ROSTER.byId.get('CWN-WAY-S01')!;
     expect(wayfinder.research).toEqual({ kind: 'start', order: 1, raw: 'S01' });
-    const whaler = ROSTER.byId.get('CFS-URW-R7-01')!;
-    expect(whaler.research).toEqual({ kind: 'research', order: 7, raw: 'R7' });
+    const goliath = ROSTER.byId.get('CFS-URG-R7-01')!;
+    expect(goliath.research).toEqual({ kind: 'research', order: 7, raw: 'R7' });
   });
 
   it('keeps the three gun kinds apart', () => {
@@ -84,6 +84,34 @@ describe('refusing bad data', () => {
     });
     expect(() => loadRoster(doc)).toThrow(RosterError);
     expect(validateRoster(doc).some((i) => /Duplicate ship id/.test(i.message))).toBe(true);
+  });
+
+  it('catches two hulls under one name', () => {
+    // The near miss this came from: the Gigantic CFS-URW-R7-01 and the live
+    // roster's 30-hull medium were both the 'Urskin Whaler' until Sean
+    // renamed the big one the Goliath on 19 September, and the sheet would
+    // have accepted the real whaler beside her without a word. Ids are the
+    // key the code uses; the name is the one the player reads.
+    const doc = corrupt((d) => {
+      const list = d.ships as Array<Record<string, unknown>>;
+      list[1]['Ship'] = list[0]['Ship'];
+    });
+    expect(validateRoster(doc).some((i) => /which is already/.test(i.message))).toBe(true);
+    // Case and stray spacing are the same collision, not a different one.
+    const sloppy = corrupt((d) => {
+      const list = d.ships as Array<Record<string, unknown>>;
+      list[1]['Ship'] = `  ${String(list[0]['Ship']).toUpperCase()} `;
+    });
+    expect(validateRoster(sloppy).some((i) => /which is already/.test(i.message))).toBe(true);
+  });
+
+  it('is happy with the twenty-four names the sheet actually ships', () => {
+    const names = ROSTER.ships.map((s) => s.name.trim().toLowerCase());
+    expect(new Set(names).size).toBe(names.length);
+    // The rename itself, pinned: the dreadnaught is the Goliath and nothing
+    // in this roster is called the Whaler until Sean enters her.
+    expect(ROSTER.byId.get('CFS-URG-R7-01')!.name).toBe('Urskin Goliath');
+    expect(names).not.toContain('urskin whaler');
   });
 
   it('catches an unknown enum value', () => {
@@ -210,9 +238,9 @@ describe('the design rules the export states about itself', () => {
     // figure the roster still gives her outright, not on a combat model.
     //
     // The locked revision states it outright: *'Majestic remains the strongest
-    // individual ship and the only Maximum Armor 30 hull. Urskin Whaler keeps
+    // individual ship and the only Maximum Armor 30 hull. Urskin Goliath keeps
     // the greatest hull and Heavy Gun mass.'* So she tops guns and armor, and
-    // the one thing she does not top is hull — the Whaler's 1,800 to her 1,600.
+    // the one thing she does not top is hull — the Goliath's 1,800 to her 1,600.
     // Pinned because a roster that stops being lopsided by accident and one
     // that stops on purpose look identical in a diff.
     const majestic = ROSTER.byId.get('CWN-MAJ-R8-01')!;
@@ -222,34 +250,34 @@ describe('the design rules the export states about itself', () => {
     }
     expect(heaviest((s) => s.armor).id).toBe('CWN-MAJ-R8-01');
     expect(majestic.armor).toBe(30);
-    expect(heaviest((s) => s.hull).id).toBe('CFS-URW-R7-01');
-    // And the Whaler's Heavy Guns are the Confederacy's greatest, not the
+    expect(heaviest((s) => s.hull).id).toBe('CFS-URG-R7-01');
+    // And the Goliath's Heavy Guns are the Confederacy's greatest, not the
     // game's: the Majestic's sixteen still beat her thirteen.
-    expect(majestic.guns.heavyGuns).toBeGreaterThan(ROSTER.byId.get('CFS-URW-R7-01')!.guns.heavyGuns);
+    expect(majestic.guns.heavyGuns).toBeGreaterThan(ROSTER.byId.get('CFS-URG-R7-01')!.guns.heavyGuns);
   });
 
-  it('lets a Coral-Class and an Urskin Whaler out-gun and out-hull a Majestic', () => {
+  it('lets a Coral-Class and an Urskin Goliath out-gun and out-hull a Majestic', () => {
     // 'Together they exceed a lone Majestic.' Guns and hull only: whether the
     // pair actually beats her is a question for a combat model, and the roster
     // is not one.
     const coral = ROSTER.byId.get('CFS-COR-R8-01')!;
-    const whaler = ROSTER.byId.get('CFS-URW-R7-01')!;
+    const goliath = ROSTER.byId.get('CFS-URG-R7-01')!;
     const majestic = ROSTER.byId.get('CWN-MAJ-R8-01')!;
-    expect(gunsOf(coral) + gunsOf(whaler)).toBeGreaterThan(gunsOf(majestic));
-    expect(coral.hull + whaler.hull).toBeGreaterThan(majestic.hull);
+    expect(gunsOf(coral) + gunsOf(goliath)).toBeGreaterThan(gunsOf(majestic));
+    expect(coral.hull + goliath.hull).toBeGreaterThan(majestic.hull);
   });
 
-  it('gives the Urskin Whaler the Confederacy\'s hull, troops and heavy guns', () => {
-    // 'Urskin Whaler supplies the Confederacy's greatest hull, troop capacity,
+  it('gives the Urskin Goliath the Confederacy\'s hull, troops and heavy guns', () => {
+    // 'Urskin Goliath supplies the Confederacy's greatest hull, troop capacity,
     // and Heavy Gun mass.' Within her own navy, which is what the rule says:
     // the Majestic still carries more troops and more heavy guns than she does.
     const confederacy = fleetOf('Free Confederacy');
     for (const field of ['hull', 'troopCapacity'] as const) {
       const best = confederacy.reduce((a, b) => (b[field] > a[field] ? b : a));
-      expect(best.id).toBe('CFS-URW-R7-01');
+      expect(best.id).toBe('CFS-URG-R7-01');
     }
     const mostHeavy = confederacy.reduce((a, b) => (b.guns.heavyGuns > a.guns.heavyGuns ? b : a));
-    expect(mostHeavy.id).toBe('CFS-URW-R7-01');
+    expect(mostHeavy.id).toBe('CFS-URG-R7-01');
   });
 
   it('keeps bombardment off the list of things a ship shoots at a ship', () => {

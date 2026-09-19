@@ -67,7 +67,6 @@ const ENCYCLOPEDIA_SHIP: Record<string, string> = {
   tempest: 'CFS-TEM-R3-01',
   cutlass: 'CFS-CUT-R2-01',
   marauder: 'CFS-MAR-R1-01',
-  'urskin-whaler': 'CFS-URW-R7-01',
   // Same ship, renamed by the new roster.
   kestrel: 'CWN-INT-S02', // → Interceptor I
   'kestrel-ii': 'CWN-INT-R5-02', // → Interceptor II
@@ -78,6 +77,14 @@ const ENCYCLOPEDIA_SHIP: Record<string, string> = {
   // Razorback, Razorback II, Fluyt II and the Buccaneer have no counterpart:
   // the new roster cut them rather than renaming them, so they are left out
   // deliberately rather than pointed at the nearest thing.
+  //
+  // The Urskin Whaler was mapped here until 19 September and is now out for a
+  // different reason: she is waiting for her counterpart rather than lacking
+  // one. The hull she pointed at, the Gigantic 1,800-hull CFS-URW-R7-01, has
+  // been renamed the Urskin Goliath, and the live Whaler is a Medium of 30
+  // hull with a harpoon over the bow — sending a player from one to the other
+  // would be worse than sending them nowhere. Sean is putting a real Urskin
+  // Whaler into the roster sheet; she gets mapped the day she lands.
 };
 
 /** The entry to open for a hull, or nothing where the new roster has none. */

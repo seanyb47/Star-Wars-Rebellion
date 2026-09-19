@@ -20,7 +20,7 @@ import {
 const MAJESTIC = ROSTER.byId.get('CWN-MAJ-R8-01')!;
 const SWIFT = ROSTER.byId.get('CFS-SWI-S01')!;
 const CORAL = ROSTER.byId.get('CFS-COR-R8-01')!;
-const WHALER = ROSTER.byId.get('CFS-URW-R7-01')!;
+const GOLIATH = ROSTER.byId.get('CFS-URG-R7-01')!;
 
 /**
  * A definition is shared and frozen; an instance is one ship.
@@ -167,30 +167,30 @@ describe('mending', () => {
 
 describe('a squadron', () => {
   const squadron = {
-    ships: [commission(CORAL, 'coral-1'), commission(WHALER, 'whaler-1'), commission(SWIFT, 'swift-1')],
+    ships: [commission(CORAL, 'coral-1'), commission(GOLIATH, 'goliath-1'), commission(SWIFT, 'swift-1')],
   };
 
   it('counts only what is still afloat', () => {
     const wrecked = { ships: squadron.ships.map((s) => ({ ...s })) };
     applyHullDamage(wrecked.ships[2], SWIFT.hull);
     expect(survivors(wrecked)).toHaveLength(2);
-    expect(liftCapacity(wrecked)).toBe(CORAL.troopCapacity + WHALER.troopCapacity);
+    expect(liftCapacity(wrecked)).toBe(CORAL.troopCapacity + GOLIATH.troopCapacity);
     expect(dailyMaintenance(wrecked)).toBeCloseTo(
-      CORAL.goldPerDayMaintenance + WHALER.goldPerDayMaintenance,
+      CORAL.goldPerDayMaintenance + GOLIATH.goldPerDayMaintenance,
     );
   });
 
   it('adds up what it can throw at a wall', () => {
     expect(bombardmentWeight(squadron)).toBe(
-      CORAL.bombardment + WHALER.bombardment + SWIFT.bombardment,
+      CORAL.bombardment + GOLIATH.bombardment + SWIFT.bombardment,
     );
   });
 
   it('knows what room is left aboard', () => {
-    const ship = commission(WHALER, 'whaler-2');
-    expect(spareCapacity(ship)).toBe(WHALER.troopCapacity);
+    const ship = commission(GOLIATH, 'goliath-2');
+    expect(spareCapacity(ship)).toBe(GOLIATH.troopCapacity);
     ship.troops = 4;
-    expect(spareCapacity(ship)).toBe(WHALER.troopCapacity - 4);
+    expect(spareCapacity(ship)).toBe(GOLIATH.troopCapacity - 4);
     ship.troops = 999;
     expect(spareCapacity(ship)).toBe(0);
   });

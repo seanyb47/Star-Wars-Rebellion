@@ -87,7 +87,7 @@ const ART_SLUG: Record<string, string> = {
   'CFS-TEM-R3-01': 'tempest',
   'CFS-CUT-R2-01': 'cutlass',
   'CFS-MAR-R1-01': 'marauder',
-  'CFS-URW-R7-01': 'urskin-whaler',
+  'CFS-URG-R7-01': 'urskin-goliath',
 };
 
 /** Counted from the data rather than remembered: the old figure said 71. */

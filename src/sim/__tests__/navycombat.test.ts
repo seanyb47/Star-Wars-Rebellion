@@ -151,7 +151,7 @@ describe('accuracy, against the target', () => {
       'CFS-MAR-R1-01': [75, 50, 25], // Small, Fast
       'CFS-CUT-R2-01': [85, 65, 45], // Small, Normal
       'CFS-BLA-R6-01': [75, 55, 40], // Medium, Fast
-      'CFS-URW-R7-01': [90, 90, 95], // Gigantic, Slow
+      'CFS-URG-R7-01': [90, 90, 95], // Gigantic, Slow
       'CFS-COR-R8-01': [85, 85, 90], // Gigantic, Normal
     };
     for (const [id, [light, long, heavy]] of Object.entries(expected)) {
@@ -178,7 +178,7 @@ describe('accuracy, against the target', () => {
       'CWN-MAJ-R8-01': 1092,
       'CWN-JUS-R6-01': 672,
       'CWN-SOV-R7-02': 777,
-      'CFS-URW-R7-01': 693,
+      'CFS-URG-R7-01': 693,
       'CFS-COR-R8-01': 672,
       'CFS-SWI-S01': 0,
     };
@@ -444,7 +444,7 @@ describe('the roster feeds the engine with no conversion', () => {
     const rng = createRng(2026);
     const crown = [commission('maj', ROSTER.byId.get('CWN-MAJ-R8-01')!)];
     const confed = [
-      commission('urw', ROSTER.byId.get('CFS-URW-R7-01')!),
+      commission('urw', ROSTER.byId.get('CFS-URG-R7-01')!),
       commission('cor', ROSTER.byId.get('CFS-COR-R8-01')!),
     ];
     let exchanges = 0;

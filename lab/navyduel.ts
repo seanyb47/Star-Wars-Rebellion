@@ -268,14 +268,14 @@ console.log('\n--- the endgame rule ---');
 console.log("  'One of either Confederate capital loses to Majestic, while two of either");
 console.log("   — or one of each — should defeat it reliably.'\n");
 const MAJ = ROSTER.byId.get('CWN-MAJ-R8-01')!;
-const URW = ROSTER.byId.get('CFS-URW-R7-01')!;
+const URG = ROSTER.byId.get('CFS-URG-R7-01')!;
 const COR = ROSTER.byId.get('CFS-COR-R8-01')!;
 const endgame: Array<[string, () => Fleet]> = [
-  ['1 Urskin Whaler', one(URW)],
+  ['1 Urskin Goliath', one(URG)],
   ['1 Coral-Class', one(COR)],
-  ['2 Urskin Whalers', pair(URW, URW)],
+  ['2 Urskin Goliaths', pair(URG, URG)],
   ['2 Coral-Class', pair(COR, COR)],
-  ['1 of each', pair(URW, COR)],
+  ['1 of each', pair(URG, COR)],
 ];
 console.log(pad('  Confederacy fielding', 26) + pad('beats Majestic', 16) + pad('mutual', 9) + 'exchanges');
 for (const [label, make] of endgame) {

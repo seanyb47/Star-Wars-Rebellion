@@ -11,7 +11,7 @@
  * starting ships and eight research unlocks a side with the Confederacy's
  * gapped ladder closed, two new Confederate starts (Chimera, Tidestalker), a
  * new Crown warship (Justiciar), and the endgame split three ways — the
- * Majestic keeps the heaviest guns, the Urskin Whaler takes the largest hull
+ * Majestic keeps the heaviest guns, the Urskin Goliath takes the largest hull
  * in the game, the Coral-Class takes the heaviest armor.
  *
  * Three rules shape this file, and all three are his:
@@ -294,6 +294,7 @@ export function validateRoster(raw: unknown): ValidationIssue[] {
   const bands = (doc.tierBands ?? {}) as Record<string, Record<string, string>>;
 
   const seenIds = new Set<string>();
+  const seenNames = new Map<string, string>();
   const seenOrder = new Map<string, string>();
 
   for (const entry of ships as Array<Record<string, unknown>>) {
@@ -307,6 +308,20 @@ export function validateRoster(raw: unknown): ValidationIssue[] {
 
     const name = entry['Ship'];
     if (typeof name !== 'string' || name.trim() === '') err(id, 'Ship', 'Missing name.');
+    // Two hulls under one name. The ids caught above are what the code keys
+    // on; the name is what the player reads, and nothing else checks it.
+    //
+    // Added 19 September, from a near miss rather than a theory: the Gigantic
+    // CFS-URW-R7-01 and the live roster's 30-hull medium were both called the
+    // Urskin Whaler for a day, and the only reason it never showed was that
+    // the two rosters do not meet. The moment the whaler Sean is adding goes
+    // into this sheet beside the hull now renamed the Goliath, it would have.
+    if (typeof name === 'string' && name.trim() !== '') {
+      const key = name.trim().toLowerCase();
+      const first = seenNames.get(key);
+      if (first) err(id, 'Ship', `Called ${JSON.stringify(name)}, which is already ${first}.`);
+      else seenNames.set(key, id);
+    }
     const role = entry['Role'];
     if (typeof role !== 'string' || role.trim() === '') err(id, 'Role', 'Missing role.');
 

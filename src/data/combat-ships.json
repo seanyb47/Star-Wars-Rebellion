@@ -31,6 +31,10 @@
     {
       "about": "Ironback",
       "note": "Still the R5 Confederate siege ship. Jessup's legend hull was renamed the Adamant on 18 September so this name could stand; the collision is resolved and nothing here needs to change for it."
+    },
+    {
+      "about": "Urskin Goliath, and the name URW",
+      "note": "Renamed by hand on 19 September at Sean's word: *'Change its name to Urskin Goliath. I am gonna invest a new ship called the Urskin Whaler.'* The Gigantic 1,800-hull dreadnaught is the Goliath; a new, much smaller Urskin Whaler is going into the sheet and is not here yet. The Ship ID moved with the name, CFS-URW-R7-01 -> CFS-URG-R7-01, so that URW is free for the hull that is actually a whaler. That part is a call made here rather than read off the sheet - if the sheet says otherwise on the next import, the sheet wins."
     }
   ],
   "purpose": {
@@ -384,7 +388,7 @@
     "Value philosophy": "Ships are not expected to offer equal general value. S-tier value monsters and deliberately inefficient specialists are allowed, but every extreme needs a clear strategic purpose and visible counterweight.",
     "Pricing authority": "Ratings & Pricing defines the authoritative reference-price process. Ship Roster columns T:Z apply it automatically to every ship.",
     "Three economic levers": "Purchase cost, build time, and maintenance are separate. A ship should rarely dominate all three without explicit approval and simulation priority.",
-    "Endgame": "Majestic remains the strongest individual ship and the only Maximum Armor 30 hull. Urskin Whaler keeps the greatest hull and Heavy Gun mass; Coral-Class supplies Heavy Armor 29, regeneration, and combined arms. One of either Confederate capital loses to Majestic, while two of either—or one of each—should defeat it reliably."
+    "Endgame": "Majestic remains the strongest individual ship and the only Maximum Armor 30 hull. Urskin Goliath keeps the greatest hull and Heavy Gun mass; Coral-Class supplies Heavy Armor 29, regeneration, and combined arms. One of either Confederate capital loses to Majestic, while two of either—or one of each—should defeat it reliably."
   },
   "ships": [
     {
@@ -1048,10 +1052,10 @@
       "Value Rating": "C — On Rate"
     },
     {
-      "Ship ID": "CFS-URW-R7-01",
+      "Ship ID": "CFS-URG-R7-01",
       "Faction": "Free Confederacy",
       "Research Order": "R7",
-      "Ship": "Urskin Whaler",
+      "Ship": "Urskin Goliath",
       "Role": "Colossal invasion dreadnaught",
       "Size": "Gigantic",
       "Speed": "Slow",

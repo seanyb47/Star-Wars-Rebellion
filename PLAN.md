@@ -4242,3 +4242,77 @@ than stall a third time, leadership now enters the engine as **percentage
 points on the hit roll**, clamped like everything else — it changes who
 connects, never what a hit is worth. It is flagged in `hitChance` as not being
 from the sheet, and one line overturns it.
+
+---
+
+## The Urskin Goliath, and a Whaler that will actually be a whaler
+
+Sean, 19 September, with two paintings attached: *"Change its name to Urskin
+Goliath. I am gonna invest a new ship called the Urskin Whaler and put it in
+the google sheet here is the whaler art and Goliath art. The big one is the
+Goliath small one is whaler."*
+
+### Why the name had to move rather than the art
+
+There were already two ships called the Urskin Whaler and they were nothing
+like each other. The live roster's is a **Medium of 30 hull** — *"a northern
+whaling hull with the ice-frames still in her and a harpoon battery over the
+bow"*. The locked roster's `CFS-URW-R7-01` is a **Gigantic of 1,800**, the
+largest hull in the game, filed as a *colossal invasion dreadnaught*. One name,
+a sixtyfold difference in hull, and the only reason it had not bitten yet is
+that the two rosters never meet.
+
+So this is not a cosmetic rename. It splits a name that was doing two jobs. The
+dreadnaught becomes the **Goliath**, which is what she has always been, and the
+Whaler goes back to being a whaler — the hull the live roster has described all
+along, and the one Sean is now putting into the sheet properly.
+
+### The Ship ID moved too, and that part was my call
+
+`CFS-URW-R7-01` → `CFS-URG-R7-01`. The sheet is the source of truth for IDs and
+this one was not read off it, so it is flagged in `combat-ships.json`'s own
+`_notes` and the sheet overrules it on the next import. The reason not to wait:
+leaving the Goliath holding **URW** guarantees a collision the moment a real
+Urskin Whaler is entered.
+
+That id collision would at least have been caught — `validateRoster` has
+checked for a duplicate `Ship ID` since the import, and `ROSTER.byId.size` is
+asserted against the ship count besides. **The one that would not have been
+caught is the name.** Nothing checked that two hulls were called different
+things, which is precisely the collision that has been sitting in the game
+all day: a Gigantic of 1,800 and a Medium of 30, both the Urskin Whaler,
+invisible only because the two rosters never meet. So the validator now
+rejects a repeated name the way it rejects a repeated id, case- and
+space-insensitively, and a test pins it along with the rename itself. That
+guard is worth more than the rename that prompted it — it is the thing that
+will catch the *next* one, in a sheet nobody has read yet.
+
+### What did not change
+
+Every number. Same Gigantic, same 1,800 hull, same 7 Long and 13 Heavy, same
+armour 25. The 5,000-trial endgame table is unchanged to the decimal — one
+Goliath still loses to a Majestic 100% of the time, two still win 100% — which
+is the check that this was a rename and not an edit.
+
+### The two paintings
+
+The big one, installed this morning under the Whaler's slug, moves to
+`ships/urskin-goliath`: a bone-hulled leviathan with a whale skull for a
+figurehead, three gun decks and ranks of bone spars out over the ice. She reads
+Gigantic, which is the point.
+
+The new one takes `ships/urskin-whaler` at v3, retiring both the Goliath copy
+that held the slug for a few hours and the contact-sheet placeholder under it.
+Same ice, same bone frames, same Urskin hand — but two masts, one gun deck, and
+a harpoon run out over the bow. That harpoon is the live roster's own blurb
+made visible, and it is the first ship art in the game that reads *smaller*
+than the hull beside it on purpose.
+
+### One thing unhooked rather than repointed
+
+`ENCYCLOPEDIA_SHIP` had the live `urskin-whaler` pointing at `CFS-URW-R7-01`.
+That mapping is now removed rather than redirected. Sending a player who taps a
+30-hull whaler to an entry for a 1,800-hull dreadnaught is worse than sending
+them nowhere, and she is the first hull in that map to be *waiting* for her
+counterpart rather than lacking one. She gets remapped the day the Whaler
+lands in the sheet.

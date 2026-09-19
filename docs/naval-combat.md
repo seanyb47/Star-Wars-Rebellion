@@ -96,11 +96,19 @@ The sheet states the target outright:
 
 | Confederacy fielding | Beats a Majestic |
 |---|---|
-| 1 Urskin Whaler | **0%** |
+| 1 Urskin Goliath | **0%** |
 | 1 Coral-Class | **0%** |
-| 2 Urskin Whalers | **100%** |
+| 2 Urskin Goliaths | **100%** |
 | 2 Coral-Class | **~99%** |
 | 1 of each | **100%** |
+
+**The Gigantic hull in that table was called the Urskin Whaler until 19
+September.** Sean renamed her the **Urskin Goliath** and is putting a genuine
+Urskin Whaler — a far smaller working hull — into the sheet in her place. Her
+Ship ID moved with her, `CFS-URW-R7-01` → `CFS-URG-R7-01`, so that URW is free
+for the whaler; that part was decided here rather than read off the sheet, and
+the sheet overrules it on the next import. Nothing else about her changed, so
+every figure below is the same hull under a new name.
 
 Nothing was tuned to make that true. It falls out of the roster's own numbers
 against the locked rules, which is the strongest evidence available that both

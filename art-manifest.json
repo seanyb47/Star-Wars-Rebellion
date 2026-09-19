@@ -4057,15 +4057,42 @@
         }
       ]
     },
+    "ships/urskin-goliath": {
+      "folder": "ships",
+      "slug": "urskin-goliath",
+      "version": 1,
+      "added": "2026-09-19",
+      "updated": "2026-09-19",
+      "title": "Urskin Goliath",
+      "source": "Sean, 19 September \u2014 production painting",
+      "notes": "The colossal invasion dreadnaught, renamed from Urskin Whaler on 19 September. Shipped at ships/urskin-whaler for a few hours on the same day, before the name moved; that copy is retired under the old slug.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/urskin-goliath.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 671210,
+        "sha1": "f004e984f0739b95"
+      },
+      "shipped": {
+        "file": "src/art/ships/urskin-goliath.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 94208,
+        "sha1": "58064702c4028cf7"
+      }
+    },
     "ships/urskin-whaler": {
       "folder": "ships",
       "slug": "urskin-whaler",
-      "version": 2,
+      "version": 3,
       "added": "2026-09-16",
       "updated": "2026-09-19",
-      "title": "urskin-whaler",
+      "title": "Urskin Whaler",
       "source": "Sean, 19 September \u2014 production painting",
-      "notes": "Replaces the 234\u00d7174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered 1448\u00d71086; shipped whole, no crop.",
+      "notes": "The Urskin Whaler proper: a bone-framed working whaler with a harpoon over the bow, not the dreadnaught. Replaces the Goliath painting that briefly held this slug on 19 September, and the contact-sheet placeholder before it.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -4073,15 +4100,15 @@
         "file": "art-masters/ships/urskin-whaler.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 671210,
-        "sha1": "f004e984f0739b95"
+        "bytes": 640980,
+        "sha1": "f3d9da9e891a5496"
       },
       "shipped": {
         "file": "src/art/ships/urskin-whaler.webp",
         "w": 640,
         "h": 480,
-        "bytes": 94208,
-        "sha1": "58064702c4028cf7"
+        "bytes": 80406,
+        "sha1": "45cb163067f554a2"
       },
       "history": [
         {
@@ -4096,6 +4123,14 @@
           },
           "tone": null,
           "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        },
+        {
+          "version": 2,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/ships/urskin-whaler.v2.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean, 19 September \u2014 production painting"
         }
       ]
     },
