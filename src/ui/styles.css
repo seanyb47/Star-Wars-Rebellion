@@ -1582,8 +1582,21 @@ button.tcard:hover { border-color: var(--brass); }
 }
 
 /* ---- The crew, as portraits ------------------------------------------- */
-.crewgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-@media (min-width: 620px) { .crewgrid { grid-template-columns: repeat(3, 1fr); } }
+/*
+   Sean, 19 September: *"The crew images need to be at least 3x larger."*
+   They could not be, two to a row: a phone gives each column about 200px, so
+   making the painting three times taller would have produced a 200-wide,
+   590-tall sliver of somebody's chin. Height alone was the wrong dial.
+
+   So the grid goes to one column on a phone and the painting takes the full
+   width. 200x196 becomes about 406x420 — a little over twice as tall, over
+   four times the area, and the whole face rather than a crop of it. Two
+   columns return at tablet width and three on a desktop, where there is
+   room for them to still be large.
+*/
+.crewgrid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 560px) { .crewgrid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 900px) { .crewgrid { grid-template-columns: repeat(3, 1fr); } }
 .crewcard {
   display: flex; flex-direction: column; text-align: left; padding: 0;
   background: var(--bg-raised); border: 1px solid var(--border); border-radius: 12px;
@@ -2254,3 +2267,13 @@ button.tcard:hover { border-color: var(--brass); }
   font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--chrome-muted); line-height: 1;
 }
+
+/* The encyclopedia's crew entry: the painting above the words, full width.
+   `.painting` is line-height 0 and sizes itself off its height, so all this
+   has to do is give it the card's width back and round the top corners to
+   match the card it sits in. */
+.enccrew { padding: 0; overflow: hidden; }
+.enccrew > div:not(.enccrew__art) { padding: 0 12px 12px; }
+.enccrew .statgrid { margin: 0 12px 12px; }
+.enccrew__art { line-height: 0; }
+.enccrew__art .painting { border-radius: 0; width: 100%; }

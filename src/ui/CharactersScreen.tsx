@@ -88,11 +88,14 @@ export function CharactersScreen({
             onClick={() => onOpen(character.id)}
           >
             <span className="crewcard__art">
+              {/* One to a row on a phone, so the painting gets the whole
+                  width and the face is a face rather than a crop. See
+                  `.crewgrid`. */}
               <CharacterPainting
                 name={character.name}
                 faction={character.faction === 'empire' || character.faction === 'alliance' ? character.faction : 'neutral'}
                 people={character.people}
-                height={196}
+                height={420}
               />
               {/* Only when they are not free. "Available" on all seven cards
                   said nothing and covered seven faces to say it; what you

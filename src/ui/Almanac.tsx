@@ -129,7 +129,7 @@ import {
 } from '../sim';
 import {
   CategoryIcon,
-  CharacterPortrait,
+  CharacterPainting,
   FacilityThumb,
   ResourceThumb,
   CompanyIcon,
@@ -564,31 +564,43 @@ export function Almanac({
       <div className="section-title">{label}</div>
       <div className="stack">
         {people.map((entry) => (
-          <div key={entry.name} id={`enc-${slugOf(entry.name)}`} className="card">
-            <div className="row" style={{ gap: 12, alignItems: 'flex-start' }}>
-              <CharacterPortrait
+          <div key={entry.name} id={`enc-${slugOf(entry.name)}`} className="card enccrew">
+            {/*
+              The painting, full width and large, above the words rather than
+              beside them.
+
+              Two things were wrong with the 84px thumbnail this replaces.
+              It was the *drawn* cameo — the fallback for a face nobody has
+              painted — so the encyclopedia was the one screen in the game that
+              never showed a crew member's actual portrait, though all
+              twenty-six exist. And at 84px beside a paragraph there was no
+              room to make it bigger without squeezing the bio into a column an
+              inch wide. Stacked, it can have the whole width.
+            */}
+            <div className="enccrew__art">
+              <CharacterPainting
                 name={entry.name}
                 faction={art}
                 people={entry.people}
-                size={84}
+                height={260}
               />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                {/* The same quiet rank the crew screen wears, for the same
-                    reason: three of the names on this page are the
-                    Confederacy's victory condition and nothing distinguished
-                    them from a purser. */}
-                {PIRATE_LORDS.some((l) => l.name === entry.name) && (
-                  <div className="crewcard__rank" style={{ padding: 0, marginBottom: 2 }}>
-                    Pirate Lord
-                  </div>
-                )}
-                <b className="small">{entry.name}</b>
-                <div className="tiny muted" style={{ marginTop: 1 }}>
-                  {entry.people} · {entry.roles.join(', ')}
+            </div>
+            <div style={{ minWidth: 0 }}>
+              {/* The same quiet rank the crew screen wears, for the same
+                  reason: three of the names on this page are the
+                  Confederacy's victory condition and nothing distinguished
+                  them from a purser. */}
+              {PIRATE_LORDS.some((l) => l.name === entry.name) && (
+                <div className="crewcard__rank" style={{ padding: 0, marginBottom: 2 }}>
+                  Pirate Lord
                 </div>
-                <div className="tiny muted" style={{ marginTop: 4 }}>
-                  {entry.bio}
-                </div>
+              )}
+              <b className="small">{entry.name}</b>
+              <div className="tiny muted" style={{ marginTop: 1 }}>
+                {entry.people} · {entry.roles.join(', ')}
+              </div>
+              <div className="tiny muted" style={{ marginTop: 4 }}>
+                {entry.bio}
               </div>
             </div>
             <div className="statgrid">
