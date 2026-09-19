@@ -540,14 +540,14 @@ troop figure conflicts with the implemented one.
 
 ## BULWARK
 
-**Ship ID:** `bulwark` · **Faction:** Crown Imperium · **Class:** Armoured
+**Ship ID:** `bulwark` · **Faction:** Crown Imperium · **Class:** Armored
 frigate, medium · **Tier:** Craft grade 1 · **Standard or special:** A
 specialist variant, not an upgrade of an existing family · **Role:**
 Line-holding medium
 
 ### Physical Description
 The most physically specific of the research-gated hulls: *"broad, deep, high
-in the freeboard"* (S1). *"Armoured"* is used of her and of no other hull in the
+in the freeboard"* (S1). *"Armored"* is used of her and of no other hull in the
 game. **No art brief exists for her**, so masts, decks, length and livery are
 unestablished beyond the general Crown rule; note however that every craft-1+
 Crown hull that mentions livery mentions **green sails**, and she is not one of
@@ -610,7 +610,7 @@ particularly poorly used as a pursuit or raiding hull, by her own description.
   four fewer guns."*
 
 ### Known
-Armoured frigate; broad, deep, high freeboard; built to stand and not move;
+Armored frigate; broad, deep, high freeboard; built to stand and not move;
 fewer guns and substantially more hull than a Razorback; craft grade 1; states
 her own pace, speed, guns, hull, cost, build time, upkeep and bombardment.
 
@@ -2154,7 +2154,7 @@ no comparative entries, because the source establishes none.
 | Razorback | Crown | Heavy frigate | Medium; workmanlike | Quick enough to be useful | Below the roster's hull-to-gun baseline; outmatched by the line | Above-baseline battery; two gun decks | General gun platform; best class against small hulls | Minor — one company | Minor | Day one |
 | Sovereign | Crown | First-rate of the line | Massive, deep-hulled, three gun decks | *"Slow to arrive anywhere"* | *"Takes more killing"* than anything at day one; coppered to the waterline; easiest class to hit | Heaviest day-one battery; three gun decks | Ship of the line; backbone of the fleet | Secondary — two companies | Major | Day one |
 | Fluyt | Crown | Merchantman | Fat-bellied, blunt, high-sterned | Unremarkable | Undefended; **no gunports** | **None** | None | **Primary** — highest day-one lift | None | Day one |
-| Bulwark | Crown | Armoured frigate | Medium; broad, deep, high freeboard | Slower than her class; *"built to stand and not move"* | *"Half again the hull"* of a Razorback; toughest Crown medium | **Fewer** guns than a Razorback; two gun decks | Line-holding medium | Minor | Minor | Craft 1 |
+| Bulwark | Crown | Armored frigate | Medium; broad, deep, high freeboard | Slower than her class; *"built to stand and not move"* | *"Half again the hull"* of a Razorback; toughest Crown medium | **Fewer** guns than a Razorback; two gun decks | Line-holding medium | Minor | Minor | Craft 1 |
 | Kestrel II | Crown | Sloop-of-war | Small; frames doubled, rig re-cut | Faster than the Kestrel; second-fastest in the game | Materially tougher than the Kestrel; still fragile | Better armed than the Kestrel; one gun deck | Scout, picket | Minimal | Negligible | Craft 1 |
 | Vanguard | Crown | Cruiser | Large | Fast for her size; *"can catch what it is shooting at"* | **Thinner in the side than a Sovereign** | *"Nearly a first-rate's broadside"*; three gun decks | Hunting cruiser / pursuit capital | Secondary | Secondary | Craft 2 |
 | Razorback II | Crown | Heavy frigate | Medium | Quicker than the Razorback | *"Better-framed"* than the Razorback | Heavier battery than the Razorback; two gun decks | General-purpose medium | Minor | Minor | Craft 2 |

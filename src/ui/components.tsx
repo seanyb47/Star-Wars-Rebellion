@@ -10,6 +10,17 @@ export function Sheet(props: {
    *  separate from `title` so the accessible name stays plain text. */
   titleMark?: ReactNode;
   /**
+   * Whose this is, drawn left of the name.
+   *
+   * Sean, 19 September: *"Put the owning faction's emblem in the sheet
+   * header, in the same spot on every unit, ship, character, and facility
+   * sheet (left of the name)."* Same spot on every sheet is the whole point,
+   * so it lives here rather than being drawn by each sheet into its own
+   * corner — and it earns its room by taking the faction's name back out of
+   * the subtitle, which was spending a line saying what a crest says.
+   */
+  emblem?: ReactNode;
+  /**
    * What kind of thing this sheet is about, over the title.
    *
    * Sean's word of 17 September: one word per idea. The three things a player
@@ -67,6 +78,7 @@ export function Sheet(props: {
         <div className="sheet__grip" />
         <div className="sheet__head">
           <div className="row row--between">
+            {props.emblem && <span className="sheet__emblem">{props.emblem}</span>}
             <div className="sheet__titles">
               {props.eyebrow && <div className="sheet__eyebrow">{props.eyebrow}</div>}
               <div className="sheet__title">
@@ -74,7 +86,11 @@ export function Sheet(props: {
                 {props.titleMark}
               </div>
             </div>
-            <button className="iconbtn" onClick={props.onClose} aria-label="Close">
+            {/* A plain mark, not a boxed one: it is the least important
+                control on the sheet and the box was giving it the weight of
+                the most. The grip above still says the sheet can be dragged
+                away, which is how most people close it anyway. */}
+            <button className="sheet__x" onClick={props.onClose} aria-label="Close">
               ✕
             </button>
           </div>

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { subjectFor, slugOf } from '../Almanac';
+import { shipFlavour, subjectFor, slugOf } from '../Almanac';
+import shipFlavourData from '../../data/ship-flavour.json';
 import { ROSTER } from '../../sim/shipdefs';
 import { CHART_LAYERS, TROOP_TYPES, YARD_BUILDABLE } from '../../sim';
 import { orderedLayers } from '../prefs';
@@ -129,6 +130,42 @@ describe('the filter strip in the order the player set', () => {
       const got = orderedLayers(CHART_LAYERS, saved);
       expect(got).toHaveLength(CHART_LAYERS.length);
       expect(new Set(got.map((l) => l.id)).size).toBe(CHART_LAYERS.length);
+    }
+  });
+});
+
+/**
+ * Flavour text: one line per hull, and no line without a hull.
+ *
+ * It lives outside `combat-ships.json` on purpose — that file says in its own
+ * header to be changed by re-reading Sean's sheet and never by hand, so a
+ * line written in there would be gone on the next import. The cost of keeping
+ * it apart is that the two can drift, which is what this catches: a hull
+ * added to the sheet with no line written for it, or a line left behind by a
+ * hull that was cut or renamed.
+ */
+describe('what a hull is good and bad against', () => {
+  it('has a line for every hull and a hull for every line', () => {
+    const written = Object.keys(shipFlavourData.flavour);
+    const hulls = ROSTER.ships.map((s) => s.id);
+    expect([...written].sort()).toEqual([...hulls].sort());
+  });
+
+  it('says something about the hull rather than reading its stats back', () => {
+    for (const cls of ROSTER.ships) {
+      const line = shipFlavour(cls.id);
+      expect(line.length, cls.name).toBeGreaterThan(80);
+      // The fault it replaced: the roster's own notes opened by listing the
+      // grid — "Heavy Armor 22; 400 Hull; 7 Long and 8 Heavy Guns."
+      expect(line, cls.name).not.toMatch(/\d+\s+Hull\b/);
+      expect(line, cls.name).not.toMatch(/;\s*\d+\s/);
+    }
+  });
+
+  it('is two sentences at most, so it fits under the stats', () => {
+    for (const cls of ROSTER.ships) {
+      const sentences = shipFlavour(cls.id).split(/(?<=[.!?])\s+/).filter(Boolean);
+      expect(sentences.length, cls.name).toBeLessThanOrEqual(2);
     }
   });
 });

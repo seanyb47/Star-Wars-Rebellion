@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import terms from '../data/terms.json';
 import characterRoster from '../data/characters.json';
 import factionData from '../data/factions.json';
+import shipFlavourData from '../data/ship-flavour.json';
 import reachData from '../data/reaches.json';
 import { GlossaryPage, glossaryAnchor, glossaryWords } from './Glossary';
 import {
@@ -13,15 +14,11 @@ import {
   GUN_VS_SPEED,
   HIT_CEILING,
   HIT_FLOOR,
-  hitChance,
 } from '../sim/navycombat';
 import {
-  NAVY_FACTIONS,
   NAVY_FACTION_TO_PLAYABLE,
   ROSTER,
   SHIP_SIZES,
-  fleetOf,
-  type NavyFaction,
   type ShipSize,
 } from '../sim/shipdefs';
 
@@ -32,16 +29,11 @@ import {
  * Sean's instruction was to rebuild this around the new names and stats. The
  * live roster follows when the engine does.
  */
-const ROSTER_SIDES: Array<{ faction: NavyFaction; label: string }> = NAVY_FACTIONS.map((f) => ({
-  faction: f,
-  label: f,
-}));
-
 const SIZE_ORDER = SHIP_SIZES;
 const SPEED_ORDER = ['Slow', 'Normal', 'Fast', 'Very Fast'] as const;
 
 /** The heaviest armour anybody carries, read from the roster rather than fixed. */
-const MAX_ARMOUR = Math.max(...ROSTER.ships.map((s) => s.armor));
+const MAX_ARMOR = Math.max(...ROSTER.ships.map((s) => s.armor));
 
 /**
  * `ShipThumb` draws its fallback silhouette from the old four roles, which the
@@ -117,7 +109,6 @@ import {
   COMMAND_ROLES,
   RECRUITER_ROLE,
   TROOP_TYPES,
-  troopsOf,
   FORT_GUNS,
   RESOURCE_LABEL,
   RESOURCE_BLURB,
@@ -142,6 +133,7 @@ import {
   ShipThumb,
   CompanyRow,
   CreaturePainting,
+  FactionCrest,
 } from './art';
 import type { PlayableFaction } from '../sim';
 import { GoldFig, Sheet } from './components';
@@ -296,6 +288,66 @@ function GoldLine({ type }: { type: FacilityType }) {
 }
 
 /**
+ * What a hull is good and bad against, in the world's voice.
+ *
+ * Its own file rather than a column on the roster, because
+ * `combat-ships.json` says in its own header to be changed by re-reading the
+ * sheet and never by hand — a line written in there would be gone the next
+ * time Sean rewrites the roster. Falls back to the roster's design notes,
+ * which is what was shown before, so a hull added to the sheet without a line
+ * still says something.
+ */
+export function shipFlavour(id: string): string {
+  const written = (shipFlavourData.flavour as Record<string, string>)[id];
+  return written ?? ROSTER.byId.get(id)?.designNotes ?? '';
+}
+
+/**
+ * The highest anybody carries, per stat, read off the roster.
+ *
+ * The bars under the numbers are *relative* — a hull's armour means little
+ * until you know somebody out there has thirty — so the scale has to be the
+ * fleet's own and has to move when the fleet does. Computed once, from the
+ * data, rather than typed in and left to rot the next time Sean rewrites the
+ * sheet.
+ */
+const STAT_MAX = {
+  hull: Math.max(...ROSTER.ships.map((s) => s.hull)),
+  armor: Math.max(...ROSTER.ships.map((s) => s.armor)),
+  repair: Math.max(...ROSTER.ships.map((s) => s.repairRatePerDay)),
+  longGuns: Math.max(...ROSTER.ships.map((s) => s.guns.longGuns)),
+  heavyGuns: Math.max(...ROSTER.ships.map((s) => s.guns.heavyGuns)),
+  lightGuns: Math.max(...ROSTER.ships.map((s) => s.guns.lightGuns)),
+  bombardment: Math.max(...ROSTER.ships.map((s) => s.bombardment)),
+  troopCapacity: Math.max(...ROSTER.ships.map((s) => s.troopCapacity)),
+  size: SHIP_SIZES.length - 1,
+  speed: SPEED_ORDER.length - 1,
+};
+
+/**
+ * One stat: its name, its figure, and a bar of how that figure sits against
+ * the biggest in the game.
+ *
+ * `share` is separate from the text because two of these are words rather
+ * than numbers — Size and Speed are ordered categories, so they get a bar off
+ * their position in the order and a name in the figure. A stat with no bar to
+ * draw (`share` left out) just prints.
+ */
+function Stat({ label, value, share }: { label: string; value: string | number; share?: number }) {
+  return (
+    <div className="shipstat">
+      <i>{label}</i>
+      <b>{value}</b>
+      {share !== undefined && (
+        <span className="shipstat__bar">
+          <span style={{ width: `${Math.max(2, Math.min(100, share * 100))}%` }} />
+        </span>
+      )}
+    </div>
+  );
+}
+
+/**
  * One entry, opened out of the reference — everything the game knows about
  * one thing.
  *
@@ -334,6 +386,7 @@ function EntrySheet({
         return {
           title: who.name,
           subtitle: `${who.people}${lord ? ` · ${terms.lord}` : ''}`,
+          emblem: who.side === 'neutral' ? null : <FactionCrest faction={who.side} size={30} />,
           art: (
             <div className="encfull__art">
               <CharacterFace name={who.name} faction={who.side} people={who.people} />
@@ -389,7 +442,9 @@ function EntrySheet({
         const side = NAVY_FACTION_TO_PLAYABLE[cls.faction];
         return {
           title: cls.name,
-          subtitle: `${cls.faction} · ${cls.role}`,
+          // The crest says whose she is, so the subtitle does not have to.
+          subtitle: cls.role,
+          emblem: <FactionCrest faction={side} size={30} />,
           art: (
             <div className="encfull__art">
               <ShipThumb
@@ -402,49 +457,111 @@ function EntrySheet({
           ),
           content: (
             <>
-              <div className="row row--between small" style={{ marginTop: 2 }}>
-                <span>
-                  {cls.research.kind === 'start' ? (
-                    <span className="muted">Buildable from day one</span>
-                  ) : (
-                    <b className="enc-craft">Research {cls.research.raw}</b>
-                  )}
-                </span>
-                <span className="tiny muted">
-                  <GoldFig n={cls.goldToBuild} per={null} /> · {cls.daysToBuild}d
-                </span>
+              {/*
+                Cost, Build, Upkeep — three labelled chips, one row.
+
+                They were three different shapes in three places: a research
+                badge and a bare `650 · 130d` on one line, an upkeep line
+                under it. Sean, 19 September, asked for one row of three, and
+                he is right that they are one thing — what she costs you, in
+                the three currencies a hull is paid for in.
+
+                Research went with them. *"That stays back-end only. Players
+                learn it by playing."* The ladder still exists and still gates
+                the yards; the reference no longer recites it.
+              */}
+              <div className="shipcost">
+                <div><i>Cost</i><b><GoldFig n={cls.goldToBuild} per={null} /></b></div>
+                <div><i>Build</i><b>{cls.daysToBuild} days</b></div>
+                <div><i>{terms.upkeep}</i><b><GoldFig n={cls.goldPerDayMaintenance} per="day" /></b></div>
               </div>
-              <div className="tiny" style={{ marginTop: 2 }}>
-                <GoldFig label={terms.upkeep} n={cls.goldPerDayMaintenance} tone="cost" />
+
+              {/*
+                Three groups rather than one grid of ten.
+
+                Defence, Handling, Firepower — which is how you think about a
+                hull when you are deciding whether to build her, and which
+                also fixes the empty cells: a flat ten-cell grid had to show
+                `Carries —` on every warship that carries nobody. A stat with
+                no value is left out of its group instead, and a group with
+                nothing in it does not appear.
+              */}
+              <div className="section-title">Defense</div>
+              <div className="shipstats">
+                <Stat label="Hull" value={cls.hull} share={cls.hull / STAT_MAX.hull} />
+                {cls.armor > 0 && (
+                  <Stat label="Armor" value={cls.armor} share={cls.armor / STAT_MAX.armor} />
+                )}
+                <Stat
+                  label="Repairs"
+                  value={`${(cls.repairRatePerDay * 100).toFixed(1)}%/day`}
+                  share={cls.repairRatePerDay / STAT_MAX.repair}
+                />
               </div>
-              <div className="statgrid" style={{ marginTop: 10 }}>
-                <span><i>Size</i><b>{cls.size}</b></span>
-                <span><i>Speed</i><b>{cls.speed}</b></span>
-                <span><i>Hull</i><b>{cls.hull}</b></span>
-                <span><i>Armour</i><b>{cls.armor || '\u2014'}</b></span>
-                <span><i>Long guns</i><b>{cls.guns.longGuns || '\u2014'}</b></span>
-                <span><i>Heavy guns</i><b>{cls.guns.heavyGuns || '\u2014'}</b></span>
-                <span><i>Light guns</i><b>{cls.guns.lightGuns || '\u2014'}</b></span>
-                <span><i>Bombardment</i><b>{cls.bombardment || '\u2014'}</b></span>
-                <span><i>Carries</i><b>{cls.troopCapacity || '\u2014'}</b></span>
-                <span><i>Repairs</i><b>{(cls.repairRatePerDay * 100).toFixed(1)}%/day</b></span>
-              </div>
-              <p className="encfull__lore">{cls.designNotes}</p>
-              <div className="section-title">What can hit her</div>
-              <div className="card small">
-                Size and Speed change <b>accuracy only</b> — a gun that misses her is missing,
-                not doing less damage.
-                <div className="statgrid" style={{ marginTop: 8 }}>
-                  <span><i>Light gun</i><b>{hitChance('Light', cls)}%</b></span>
-                  <span><i>Long gun</i><b>{hitChance('Long', cls)}%</b></span>
-                  <span><i>Heavy gun</i><b>{hitChance('Heavy', cls)}%</b></span>
-                </div>
-                {total > 0 && (
-                  <p className="tiny muted" style={{ margin: '8px 0 0' }}>
-                    She throws <b>{total}</b> cannon a round, each one its own attack.
-                  </p>
+
+              <div className="section-title">Handling</div>
+              <div className="shipstats">
+                <Stat
+                  label="Size"
+                  value={cls.size}
+                  share={(SIZE_ORDER.indexOf(cls.size) + 1) / (STAT_MAX.size + 1)}
+                />
+                <Stat
+                  label="Speed"
+                  value={cls.speed}
+                  share={(SPEED_ORDER.indexOf(cls.speed as (typeof SPEED_ORDER)[number]) + 1) / (STAT_MAX.speed + 1)}
+                />
+                {cls.troopCapacity > 0 && (
+                  <Stat
+                    label="Carries"
+                    value={cls.troopCapacity}
+                    share={cls.troopCapacity / STAT_MAX.troopCapacity}
+                  />
                 )}
               </div>
+
+              {total > 0 && (
+                <>
+                  <div className="section-title">Firepower</div>
+                  <div className="shipstats">
+                    {cls.guns.longGuns > 0 && (
+                      <Stat
+                        label="Long guns"
+                        value={cls.guns.longGuns}
+                        share={cls.guns.longGuns / STAT_MAX.longGuns}
+                      />
+                    )}
+                    {cls.guns.heavyGuns > 0 && (
+                      <Stat
+                        label="Heavy guns"
+                        value={cls.guns.heavyGuns}
+                        share={cls.guns.heavyGuns / STAT_MAX.heavyGuns}
+                      />
+                    )}
+                    {cls.guns.lightGuns > 0 && (
+                      <Stat
+                        label="Light guns"
+                        value={cls.guns.lightGuns}
+                        share={cls.guns.lightGuns / STAT_MAX.lightGuns}
+                      />
+                    )}
+                    {cls.bombardment > 0 && (
+                      <Stat
+                        label="Bombardment"
+                        value={cls.bombardment}
+                        share={cls.bombardment / STAT_MAX.bombardment}
+                      />
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/*
+                What she is good and bad against, rather than her stats read
+                back. The roster's own Design Notes said *"Heavy Armor 22; 400
+                Hull; 7 Long..."*, which is the grid above in a sentence.
+              */}
+              <p className="encfull__lore">{shipFlavour(cls.id)}</p>
             </>
           ),
         };
@@ -455,6 +572,7 @@ function EntrySheet({
         return {
           title: type.name,
           subtitle: type.people,
+          emblem: <FactionCrest faction={type.faction} size={30} />,
           art: (
             <div className="encfull__art encfull__art--figure">
               <CompanyIcon size={150} type={type.id} />
@@ -492,6 +610,7 @@ function EntrySheet({
         return {
           title: FACILITY_LABEL[type],
           subtitle: 'Buildings',
+          emblem: <FactionCrest faction={state.player} size={30} />,
           art: (
             <div className="encfull__art">
               <FacilityThumb type={type} owner={state.player} fill />
@@ -555,7 +674,14 @@ function EntrySheet({
 
   if (!body) return null;
   return (
-    <Sheet title={body.title} subtitle={body.subtitle} onClose={onClose} top banner={body.art}>
+    <Sheet
+      title={body.title}
+      subtitle={body.subtitle}
+      emblem={'emblem' in body ? body.emblem : undefined}
+      onClose={onClose}
+      top
+      banner={body.art}
+    >
       {body.content}
     </Sheet>
   );
@@ -568,15 +694,22 @@ function EntrySheet({
  * research."* One scroll with everything on it was a manual; this is a
  * reference, and the tab is the question you came in with.
  */
+/*
+ * Sean's order, 19 September: *"Crew, Ships, Troops, Buildings, Locations,
+ * Rules, Glossary."* Units first and biggest-first within them, then the
+ * places, then the two reference pages — which is roughly how often each one
+ * is opened, and puts the two that are all prose at the end where they do not
+ * stand between the player and a picture.
+ */
 const PAGES = [
   { id: 'people', label: 'Crew' },
-  // The id is a route and half the game passes it; only the word changes.
+  { id: 'ships', label: 'Ships' },
+  // The id is a route and half the game passes it; only the word changed.
   { id: 'companies', label: terms.troops },
   { id: 'works', label: 'Buildings' },
-  { id: 'ships', label: 'Ships' },
   { id: 'islands', label: terms.islands },
-  { id: 'glossary', label: 'Glossary' },
   { id: 'rules', label: 'Rules' },
+  { id: 'glossary', label: 'Glossary' },
 ] as const;
 
 type Page = (typeof PAGES)[number]['id'];
@@ -603,24 +736,6 @@ export function Almanac({
   entry?: string;
 }) {
   const you = state.player;
-  const them: PlayableFaction = you === 'empire' ? 'alliance' : 'empire';
-  /*
-   * Both navies, the player's own first — and everything else besides.
-   *
-   * Sean, 18 September: *"encyclopedia should have all units not just what is
-   * in the game, so i should see all crew for example."* It had been showing
-   * one side of everything: seven of the twenty-six people, one navy's hulls,
-   * one navy's companies. A reference that only lists what you happen to own
-   * is a roster, and the game already has one of those on the Crew screen.
-   *
-   * Fog of war is not the reason any of it was hidden — an enemy hull's stats
-   * were never secret, only which of them are in the water — so nothing here
-   * gives away anything a player could not read off a ship sheet.
-   */
-  const sides: Array<{ faction: PlayableFaction; label: string }> = [
-    { faction: you, label: 'Yours' },
-    { faction: them, label: factionData[them].name },
-  ];
   const [page, setPage] = useState<Page>(opening);
   /*
    * The entry currently open on top of the reference.
@@ -675,7 +790,6 @@ export function Almanac({
     <>
     <Sheet
       title="Encyclopedia"
-      subtitle="A picture and a name. Tap one for everything the game knows about it."
       onClose={onClose}
       stacked
       onTouchStart={swipe.onTouchStart}
@@ -698,15 +812,13 @@ export function Almanac({
     >
       {page === 'works' && (
         <>
-      <div className="section-title">Buildings</div>
-      <p className="tiny muted" style={{ marginTop: 0 }}>
-        A building either earns {terms.gold.toLowerCase()} or costs it, and every one of them
-        takes one free berth on the island, whatever it is.
-        Buildings are raised by a {FACILITY_LABEL.construction_yard} — the island's own, or
-        whichever of yours would have it there soonest, whose builders sail over and add the
-        passage after the work. Troops and hulls are sent the same way: drilled or laid down
-        where you have the ground for it, and delivered where you asked.
-      </p>
+      {/* Sean, 19 September: *"Cut the text at the beginning of each section...
+          It's obvious what these are and if not they can read about them in
+          the glossary and rules."* Every unit page opened with a paragraph
+          explaining what the page was, which is a thing you read once and then
+          scroll past for the rest of the game. The pictures start at the top
+          now. The rules those paragraphs carried are on the Rules page and in
+          the Glossary, which is where somebody who does not know goes. */}
       <div className="encgrid">
         {BUILD_ORDER.map((type) => {
           const subject: Subject = { kind: 'works', id: type };
@@ -851,7 +963,6 @@ export function Almanac({
 
       {page === 'companies' && (
         <>
-      <div className="section-title">Troops</div>
       <div className="card">
         <div className="row row--between">
           <b>{TROOP_BUILD.label}</b>
@@ -874,17 +985,12 @@ export function Almanac({
       {/* Who those troops are. One line each, three numbers each, the way
           the original does a regiment: what it is worth landing, what it is
           worth holding, and how much it sees. */}
-      <p className="tiny muted" style={{ margin: '10px 0 6px' }}>
-        A troop is one of these. Which you get is the island: the line
-        troops are everywhere, sailors come ashore where hulls are built, and
-        the rest are a people rather than a purchase — they are on their own
-        islands and nowhere else.
-      </p>
-      {sides.map(({ faction, label }) => (
-      <div key={faction}>
-      <div className="section-title">{label}</div>
+      {/* Both sides in one A-Z, the sigil saying whose. Same reasoning as
+          the hulls: you look a name up because you do not already know it. */}
       <div className="encgrid">
-        {[...troopsOf(faction)].sort(byName).map((type) => {
+        {TROOP_TYPES.slice()
+          .sort(byName)
+          .map((type) => {
           const subject: Subject = { kind: 'company', id: type.id };
           return (
             <button
@@ -895,6 +1001,9 @@ export function Almanac({
             >
               <span className="encmini__art encmini__art--figure">
                 <CompanyIcon size={92} type={type.id} />
+                <span className="encmini__sigil">
+                  <FactionCrest faction={type.faction} size={26} />
+                </span>
               </span>
               <b className="encmini__name">{type.name}</b>
               <span className="encmini__line">
@@ -905,8 +1014,6 @@ export function Almanac({
           );
         })}
       </div>
-      </div>
-      ))}
       <p className="tiny muted" style={{ marginTop: 6 }}>
         Attack / hold / watch. A landing is still settled on how many troops
         are ashore, not on these — they say who is standing there, and what they
@@ -943,28 +1050,15 @@ export function Almanac({
 
       {page === 'people' && (
         <>
-      {[
-        ...sides.map((side) => ({
-          ...side,
-          people: characterRoster[side.faction as 'empire' | 'alliance'],
-          art: side.faction,
-        })),
-        /*
-         * And the ones nobody has yet. The recruit pool is twelve people the
-         * Recruitment errand draws from — half the cast, and until now not
-         * visible anywhere in the game until one of them signed on.
-         */
-        {
-          faction: 'neutral' as const,
-          label: 'Unaligned',
-          people: characterRoster.recruits,
-          art: 'neutral' as const,
-        },
-      ].map(({ faction, label, people, art }) => (
-      <div key={faction}>
-      <div className="section-title">{label}</div>
+      {/* The whole cast in one A-Z, the sigil saying whose — and, for the
+          twelve nobody has yet, no sigil at all, which is the plainest way to
+          say unaligned. They were three lists before, and a reference you can
+          only search by already knowing the answer is not one. */}
       <div className="encgrid">
-        {[...people].sort(byPerson).map((who) => {
+        {everyone()
+          .slice()
+          .sort(byPerson)
+          .map((who) => {
           const subject: Subject = { kind: 'person', id: slugOf(who.name) };
           const sworn = PEOPLE_ALLEGIANCE[who.people];
           return (
@@ -975,13 +1069,14 @@ export function Almanac({
               onClick={() => setOpenEntry(subject)}
             >
               <span className="encmini__art">
-                <CharacterFace name={who.name} faction={art} people={who.people} />
+                <CharacterFace name={who.name} faction={who.side} people={who.people} />
+                {who.side !== 'neutral' && (
+                  <span className="encmini__sigil">
+                    <FactionCrest faction={who.side} size={26} />
+                  </span>
+                )}
               </span>
               <b className="encmini__name">{who.name}</b>
-              {/* Three of these are the Confederacy's victory condition and
-                  nothing else on a cell would say so. Under the name rather
-                  than over it, so every cell starts its text at the same
-                  height and the grid does not go ragged. */}
               {PIRATE_LORDS.some((l) => l.name === who.name) && (
                 <span className="encmini__tag">{terms.lord}</span>
               )}
@@ -993,8 +1088,6 @@ export function Almanac({
           );
         })}
       </div>
-      </div>
-      ))}
 
       {/* The teaching, under the pictures rather than over them.
 
@@ -1184,21 +1277,24 @@ export function Almanac({
         yet.
       </div>
 
-      <div className="section-title">Every hull</div>
-      <p className="tiny muted" style={{ margin: '0 0 8px' }}>
-        Four a side from the first morning, then eight the shipwrights open in
-        order: put a {terms.crewOne} on research at a loyal island with a yard,
-        and each grade of craft draws what the grade before could not. The
-        Crown improves families it already trusts — a <b>II</b> is the same
-        design taken further — and the Confederacy, which has no such
-        programme, answers with different ships instead.
-      </p>
-      {ROSTER_SIDES.map(({ faction, label }) => (
-      <div key={faction}>
-      <div className="section-title">{label}</div>
+      {/*
+        One list, both navies, A-Z. Sean, 19 September: *"Don't separate crown
+        and confederate ships. Put them all in encyclopedia in ABC order. But
+        put a mini sigil next to each."*
+
+        Two lists meant you had to know whose a hull was before you could find
+        it, which is backwards for a reference — you look a name up *because*
+        you do not know. The sigil on the cell says whose it is in less room
+        than a heading did, and says it on the cell you are actually looking
+        at rather than a scroll-length away at the top of a section.
+      */}
       <div className="encgrid">
-        {[...fleetOf(faction)].sort(byName).map((cls) => {
+        {ROSTER.ships
+          .slice()
+          .sort(byName)
+          .map((cls) => {
           const subject: Subject = { kind: 'ship', id: cls.id };
+          const side = NAVY_FACTION_TO_PLAYABLE[cls.faction];
           return (
             <button
               key={cls.id}
@@ -1208,23 +1304,23 @@ export function Almanac({
             >
               <span className="encmini__art">
                 <ShipThumb
-                  faction={NAVY_FACTION_TO_PLAYABLE[faction]}
+                  faction={side}
                   role={LEGACY_ROLE[cls.size]}
                   cls={ART_SLUG[cls.id] ?? cls.id}
                   size={280}
                 />
+                <span className="encmini__sigil">
+                  <FactionCrest faction={side} size={26} />
+                </span>
               </span>
               <b className="encmini__name">{cls.name}</b>
               <span className="encmini__line">
                 {cls.size} · {cls.hull} hull
-                {cls.research.kind !== 'start' && ` · ${cls.research.raw}`}
               </span>
             </button>
           );
         })}
       </div>
-      </div>
-      ))}
 
       <div className="section-title">The three cannon</div>
       <div className="card small">
@@ -1252,12 +1348,12 @@ export function Almanac({
         reaches a fleet already running.
       </div>
 
-      <div className="section-title">Armour</div>
+      <div className="section-title">Armor</div>
       <div className="card small">
         <b>It is subtracted, not a chance to shrug.</b> A gun rolls its damage,
         the armour in front of it comes off the top, and what is left goes into
-        the hull. Armour runs from nothing to {MAX_ARMOUR}, and only the
-        Majestic carries {MAX_ARMOUR}.
+        the hull. Armor runs from nothing to {MAX_ARMOR}, and only the
+        Majestic carries {MAX_ARMOR}.
         <br />
         <br />
         <b>Penetration halves it.</b> A heavy or long gun faces half the

@@ -354,9 +354,6 @@ export function GlossaryPage() {
 
   return (
     <>
-      <p className="tiny muted" style={{ margin: '0 0 10px' }}>
-        Every word the game uses for something, and what it means. The Rules page has the rest.
-      </p>
       <input
         className="input"
         type="search"
