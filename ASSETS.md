@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**141 of 154 painted.** 5305KB shipped, 21.6MB of masters kept back.
+**142 of 155 painted.** 5388KB shipped, 22.2MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -77,11 +77,12 @@ the head, cropped square out of the portrait; the medallion. 26 of 26.
 
 ## ships — 640×480
 
-three-quarter view, whole vessel, masts and waterline both in frame. 33 of 41.
+three-quarter view, whole vessel, masts and waterline both in frame. 34 of 42.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
 | adamant | `adamant` | 1 | 38KB | 234×174, 25KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| Blackfin | `blackfin` | 1 | 83KB | 1448×1086, 656KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
 | brig | `brig` | 1 | 31KB | 234×174, 21KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | bulwark | `bulwark` | 1 | 35KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Chimera | `chimera` | 1 | 89KB | 1448×1086, 764KB | whole frame | 2026-09-19 | Sean, 19 September |
@@ -334,6 +335,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **rings/free-plain** — Cut from the five-ring sheet, keyed off its gradient ground on textured coverage, and normalised square about its opening.
 - **scenes/battle** — Delivered 1536x1024 (square-ish) rather than the 1024x432 banner shape; the shipped band is the middle of it. Crop recovered by matching the shipped file against the master, not recorded at the time — the reason this register now exists.
 - **ships/adamant** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/blackfin** — The Blackfin: a low knife-lean corvette under a tall black mainsail carrying the Confederacy's crest, white foresails beside it, and both rails crowded end to end with small crewed guns on carriages instead of a single gunport. A prize running for the horizon astern. The silhouette guardrail held: the black main owns the frame.
 - **ships/brig** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/bulwark** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/chimera** — The Chimera: a retrofit with three colours of timber in her, a great crimson skull-and-cutlasses course, and a Confederate anchorage of stilt-huts and half-built hulls behind her. Well plated for her size and cheap to keep, which is the hull's whole argument.

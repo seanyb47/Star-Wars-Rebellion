@@ -3733,6 +3733,33 @@
         "sha1": "ece5153ef650fc50"
       }
     },
+    "ships/blackfin": {
+      "folder": "ships",
+      "slug": "blackfin",
+      "version": 1,
+      "added": "2026-09-19",
+      "updated": "2026-09-19",
+      "title": "Blackfin",
+      "source": "Sean, 19 September \u2014 production painting",
+      "notes": "The Blackfin: a low knife-lean corvette under a tall black mainsail carrying the Confederacy's crest, white foresails beside it, and both rails crowded end to end with small crewed guns on carriages instead of a single gunport. A prize running for the horizon astern. The silhouette guardrail held: the black main owns the frame.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/blackfin.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 671800,
+        "sha1": "6d68c4e84c16952b"
+      },
+      "shipped": {
+        "file": "src/art/ships/blackfin.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 85074,
+        "sha1": "f8fffaf8a0509069"
+      }
+    },
     "ships/brig": {
       "folder": "ships",
       "slug": "brig",

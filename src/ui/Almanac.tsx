@@ -55,8 +55,9 @@ const LEGACY_ROLE: Record<ShipSize, 'small' | 'medium' | 'large' | 'transport'> 
  *
  * Most of the roster has art under its own name. The rest inherit from the
  * hull they replaced, which is a lineage rather than a guess — the Coral-Class
- * *is* the Reef-class grown up. One has nothing yet — the Blackfin — and
- * falls through to the drawn silhouette.
+ * *is* the Reef-class grown up. Since 19 September every hull on the roster
+ * has one, so the drawn silhouette is a fallback that nothing currently
+ * reaches — kept because the next ship Sean adds will reach it.
  *
  * An entry moves from a borrowed slug to its own the day it is painted: the
  * Wayfinder was on the Fluyt's and is not any more.
@@ -89,6 +90,7 @@ const ART_SLUG: Record<string, string> = {
   'CFS-URW-R3-01': 'urskin-whaler',
   'CFS-TID-S04': 'tidestalker',
   'CFS-IRB-R5-01': 'ironback',
+  'CFS-BLA-R6-01': 'blackfin',
 };
 
 /** Counted from the data rather than remembered: the old figure said 71. */

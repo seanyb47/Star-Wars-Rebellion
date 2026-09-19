@@ -5625,3 +5625,25 @@ accepted as sent, and recorded in `art-prompts.md` so a future re-cut knows
 what was wanted.
 
 **One hull left on a drawn silhouette: the Blackfin.**
+
+## The Blackfin, and the roster is painted (19 September)
+
+The last one. A low knife-lean corvette under a tall black mainsail, white
+foresails beside it, both rails crowded end to end with small crewed guns on
+carriages and not a gunport anywhere — which is what 29 light guns should look
+like, and she carries more of them than anything else in the game. A prize
+running for the horizon astern.
+
+**The guardrail held**, which was the whole point of writing one: the black
+main owns the frame, and the white foresails make it read as *the* signature
+rather than as a dark ship. The gun arrangement is right and was the half that
+mattered. Two notes did not land and are recorded rather than re-cut — the guns
+read as brass cannon rather than stubby iron carronades, and the cloth is red
+rather than turquoise-and-bone. Her mainsail carries the Confederacy crest
+rather than being plain, which contradicts her own exception but not the
+standing rule, since the crest is theirs.
+
+**All 25 hulls are painted.** Verified in the browser rather than off the
+register: 25 cells on the Ships page, 25 with a photograph in them. The drawn
+silhouette is now a fallback nothing reaches, and it stays for the next ship
+Sean adds.

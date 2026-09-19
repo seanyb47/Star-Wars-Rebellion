@@ -623,13 +623,15 @@ tint, which is a mistake this project has already made once and measured.
 
 ---
 
-## The one hull still without a painting
+## The last two hulls, both painted 19 September
 
-Everything else on the roster has one. The Blackfin falls through to the drawn
-silhouette until hers lands. The Ironback's arrived on 19 September and is kept
-below her prompt as the record of what was asked for against what came back.
+**Every hull on the roster now has a painting.** Both of these took a second
+pass, so the prompts below are the **revisions** — kept, with what came back
+noted under each, as the record of what was asked for against what landed. The
+drawn silhouette is a fallback nothing currently reaches; it stays for the next
+ship Sean adds.
 
-### Blackfin — `ships/blackfin`
+### Blackfin — `ships/blackfin` · **painted 19 September**
 
 R6 Confederate, a 29-gun carronade corvette, Fast, and the holder of the Light
 Gun crown. The first pass got the silhouette right and the culture wrong: a
@@ -649,6 +651,17 @@ generic-pirate red cloth everywhere.
 **The guardrail:** the tall black mainsail is her name and her silhouette. It
 stays in every variant. The white foresails help rather than hurt — they make
 the black main read as *the* signature rather than as a dark ship.
+
+**What the revision landed, for the record.** The guardrail held: the black
+main owns the frame and the white foresails do their job. The gun *arrangement*
+is right and is the half that mattered — both rails crowded end to end with
+small crewed pieces on carriages and not a gunport anywhere, which is what 29
+light guns should look like. Two notes did not land, and are recorded rather
+than re-cut: the guns read as brass cannon rather than stubby iron carronades,
+and the cloth is still red rather than turquoise-and-bone. Her mainsail also
+carries the Confederacy crest rather than being plain — which contradicts her
+own exception above but not the standing rule, since the crest is theirs. Taken
+as sent.
 
 ### Ironback — `ships/ironback` · **painted 19 September**
 
