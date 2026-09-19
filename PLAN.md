@@ -4316,3 +4316,118 @@ That mapping is now removed rather than redirected. Sending a player who taps a
 them nowhere, and she is the first hull in that map to be *waiting* for her
 counterpart rather than lacking one. She gets remapped the day the Whaler
 lands in the sheet.
+
+---
+
+## The encyclopedia tidied, and the art given somewhere to live
+
+Sean, 19 September, six things at once: *"Crew images are too big now. Reduce
+by 40% / Also center their heads some are off screen / And make their role tags
+clickable to glossary term / Overall ui for encyclopedia needs some work. Looks
+a little messy. Needs cleaner design / Put all encyclopedia entities in
+alphabetical order / Can you save all art to Google Drive also? So I can view
+it when I want. All unit thumbnails."*
+
+### The heads were being cut in the crop, not by the CSS
+
+Worth writing down because the obvious diagnosis was wrong. The face crops are
+square and the box they render into is square, so `object-fit: cover` was
+taking nothing off — the CSS could not have been clipping anybody.
+
+The crops themselves were the problem. Recovering each one's box by matching
+the 124px face master against the portrait master it came from showed all
+twenty-six anchored at **y = 6**, with a side of 124 out of a portrait only
+~200 tall. That is a box pushed hard against the top of the frame, and it was
+cutting the Widow Ashgrave's hat, Blackwater's hair, Isolde Marrow's crown and
+several more. Four were also well off the head horizontally — Ozmond's centre
+sat at 36% of the portrait's width against a head at 47%.
+
+Recut at **154px square from y = 0**, centred on the head. The head centres
+were read off a ruler overlay rather than detected: the cast includes a
+sea-bear, a goblin, a fish-person and a green Bog-folk, and no face detector
+available here handles four of twenty-six. `cv2` 5.0 has dropped the cascade
+API in any case. The boxes are recorded in the register, so a future nudge is
+`art.py recrop` rather than another matching pass.
+
+### 40% smaller is also, for the first time, sharp
+
+The art was the card's full 384px from a 256px source — the largest version of
+this picture was also the softest. At 60% it is about 216px, under the source,
+so the reduction Sean asked for is the first size at which the crop has been
+shown at or below its own resolution.
+
+### What the tidying actually was
+
+Four bands instead of three things run together. The head sits beside the name
+now, which frees a column that was empty for anyone without a rank or a sworn
+people — the four ratings go there, level with the face, which is the pairing
+you actually read. Then role chips, then the life. The other tabs have read
+art-left-text-right all along, so the crew page had been the odd one out as
+well as the loud one.
+
+### Alphabetical, with one judgement call
+
+Every list on the screen had its own order and every one of those orders served
+somebody writing the game: buildings by unlock, hulls by research grade, crew
+by roster position. A reference is for looking things up, so all of it is A–Z
+now — **within the groups**, which stay. Flattening Crown and Confederacy into
+one list would lose the distinction every entry on the page turns on, and the
+glossary settled the same question the same way on 17 September.
+
+People sort by **surname**, not by the displayed name. A page reading *Admiral,
+Admiral, Captain, Captain* is not alphabetical in any sense a reader wants.
+Blackwater, Calloway, Carrow, Corvane — the way a book of people does it. The
+cast makes it easy: no particles, the mononyms are their own surname, and *The
+Widow Ashgrave* files under A, which is right.
+
+### Role tags, and nine words the game had never explained
+
+Eleven tags across the cast. Two had glossary entries. The other nine —
+Leader, General, Spec Ops, Ship Design, Drill Research, Deep-touched, Latent
+Deep-touched, Tidemaster, Wing-Captain — were words the game showed the player
+and defined nowhere, so they got written before the tags became links: a chip
+that opens the glossary and lands on nothing is worse than one that does
+nothing.
+
+Each entry says whether the tag is a **rule or a label**, which a player cannot
+tell from the card and which turns out to be a four/five split. Recruiter gates
+Recruitment. Leader and General gate Command. Negotiator is worth +12 at a
+parley and Spec Ops the same at an incitement. The other five are read by
+nothing. A chip is brass and bordered when it opens something and flat when it
+does not, so the difference is visible before you tap rather than after.
+
+`glossaryWords()` decides which is which, and a test walks the cast against it
+— a role added to somebody with no entry written fails the build rather than
+quietly going grey.
+
+### A real bug found on the way
+
+The first role tag did nothing. `Almanac` seeds its open tab from a prop into
+`useState`, so a lookup made while the encyclopedia was *already open* never
+moved it — and the crew tags are the first lookup in the game that fires from
+inside the sheet. Asking twice for the same page and entry was broken for the
+same reason. Lookups are counted now and the count is the component's React
+key, so every request is distinct and the sheet remounts at what was asked for.
+
+### Google Drive: the half that could not be done, and what replaced it
+
+The connector takes a file only as base64 inline and the tool channel truncates
+long output at roughly 20KB, so a 90KB ship painting cannot be round-tripped
+through it — never mind 139 files and 5MB. A 12KB test file went up fine and a
+105KB one could not be read back to send. That is a hard ceiling, not a slow
+path.
+
+So Drive gets the **written index** — every asset, its version, shipped and
+master size, and where it came from — and the art itself gets `?art=paintings`,
+a gallery beside the three `?art` instruments already in `main.tsx`. All 139
+files at shipped resolution, grouped, searchable, each tappable to the file on
+its own. It deploys with the game, which makes it strictly better than a folder
+would have been: install a painting and it is there on the next deploy, with no
+second copy to remember to update and no way for it to go stale.
+
+The index says all of this in the folder, so the reason is where somebody would
+go looking for the files.
+
+*(The gallery counts 139 and the register 136. Three files — `chrome/wood` and
+the two crests — predate the register and were never added to it. Not a fault:
+the gallery reads the disk and the register reads itself.)*

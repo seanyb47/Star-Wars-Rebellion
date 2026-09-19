@@ -4,6 +4,7 @@ import type { GameState } from '../sim';
 import { CharacterFace } from './art';
 import { useLookUp } from './lookup';
 import { slugOf } from './Almanac';
+import { glossaryAnchor, glossaryWords } from './Glossary';
 import { statusBadge } from './CharacterSheet';
 
 /*
@@ -31,6 +32,32 @@ import { statusBadge } from './CharacterSheet';
  */
 /** The square the face fills. One a row on a phone, so it is the column. */
 const FACE = 300;
+
+/**
+ * One role tag, and a way into the glossary if the glossary has the word.
+ *
+ * The same rule the encyclopedia's `RoleTags` follows, and deliberately the
+ * same look: a tag that can be opened wears the brass and a border, one that
+ * cannot stays flat. A player should be able to see which tags are worth a tap
+ * without tapping them all to find out.
+ */
+function RoleChip({ role }: { role?: string }) {
+  const lookUp = useLookUp();
+  if (!role) return null;
+  if (!lookUp || !glossaryWords().has(role.toLowerCase())) {
+    return <span className="crewcard__roletag roletag">{role}</span>;
+  }
+  return (
+    <button
+      type="button"
+      className="crewcard__roletag roletag roletag--tap"
+      onClick={() => lookUp('glossary', glossaryAnchor(role))}
+      aria-label={`What is a ${role}?`}
+    >
+      {role}
+    </button>
+  );
+}
 
 export function CharactersScreen({
   state,
@@ -99,14 +126,25 @@ export function CharactersScreen({
                 {character.name}
                 {lord && <span className="crewcard__lordmark"> · {terms.lord}</span>}
               </span>
-              {/* The role tag. First role only: it is what they are for, and
-                  five of them in a row is a paragraph again. */}
-              <span className="crewcard__role">{character.roles?.[0] ?? '—'}</span>
               <span className="crewcard__stats">
                 <b>D</b>{character.diplomacy} <b>E</b>{character.espionage}{' '}
                 <b>C</b>{character.combat} <b>L</b>{character.leadership}
               </span>
             </button>
+            {/*
+              The role tag, and it is its own control now.
+
+              Sean, 19 September: *"make their role tags clickable to glossary
+              term."* It cannot stay inside the card's own button — a button
+              inside a button is invalid and the inner one never fires — so it
+              comes out and sits between the card and Orders, which is the
+              same split `crewcard__orders` already uses and for the same
+              reason. Tap the face for the person, the tag for the word.
+
+              First role only, as before: it is what they are for, and five of
+              them in a row is a paragraph again.
+            */}
+            <RoleChip role={character.roles?.[0]} />
             {/*
               And the orders.
 

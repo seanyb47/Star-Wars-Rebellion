@@ -3,7 +3,7 @@ import terms from '../data/terms.json';
 import characterRoster from '../data/characters.json';
 import factionData from '../data/factions.json';
 import reachData from '../data/reaches.json';
-import { GlossaryPage } from './Glossary';
+import { GlossaryPage, glossaryAnchor, glossaryWords } from './Glossary';
 import {
   BASE_HIT_CHANCE,
   DAMAGE_DIE,
@@ -141,6 +141,7 @@ import {
 import type { PlayableFaction } from '../sim';
 import { GoldFig, Sheet } from './components';
 import { useSideSwipe } from './LayerStrip';
+import { useLookUp } from './lookup';
 
 /** The same rule `painted.ts` uses, so an id and an anchor are the same word. */
 export function slugOf(name: string): string {
@@ -152,12 +153,88 @@ export function slugOf(name: string): string {
 }
 
 /**
+ * A–Z, everywhere on this screen.
+ *
+ * Sean, 19 September: *"Put all encyclopedia entities in alphabetical order."*
+ * Every list here had its own order and each had a reason — buildings in the
+ * order a yard unlocks them, hulls by research grade, crew in roster order —
+ * and every one of those reasons serves somebody writing the game rather than
+ * somebody looking a thing up. A reference is for looking things up.
+ *
+ * The groups stay: Yours before Theirs, each navy together. Sorting *within* a
+ * group is what a reference does, and flattening the Crown and the
+ * Confederacy into one A–Z would lose the one distinction every entry on the
+ * page turns on. Same call the glossary made on 17 September.
+ */
+const collate = (a: string, b: string) => a.localeCompare(b, 'en');
+
+/**
+ * People sort by the last word of their name, because a page of *Admiral*,
+ * *Admiral*, *Captain*, *Captain* is not alphabetical order in any sense a
+ * reader wants. Blackwater, Calloway, Carrow, Corvane — the way any book of
+ * people does it.
+ *
+ * The cast makes this easy: nobody is a von or a de, the three mononyms
+ * (Sable) are their own surname, and *The Widow Ashgrave* files under A, which
+ * is right.
+ */
+export function surnameOf(name: string): string {
+  const words = name.replace(/["'’]/g, '').trim().split(/\s+/);
+  return words[words.length - 1] ?? name;
+}
+const byPerson = (a: { name: string }, b: { name: string }) =>
+  collate(surnameOf(a.name), surnameOf(b.name)) || collate(a.name, b.name);
+const byName = (a: { name: string }, b: { name: string }) => collate(a.name, b.name);
+
+/**
  * Everything in the game, in one place, read out of the same constants the
  * simulation runs on — so it cannot quietly go out of date the way a
  * hand-written manual would.
  */
-/** Everything a yard can lay down, in the sim's own order. Not a copy of it. */
-const BUILD_ORDER: FacilityType[] = YARD_BUILDABLE;
+/** Everything a yard can lay down. The sim's order, sorted for the reader. */
+const BUILD_ORDER: FacilityType[] = [...YARD_BUILDABLE].sort((a, b) =>
+  collate(FACILITY_LABEL[a], FACILITY_LABEL[b]),
+);
+
+/**
+ * A crew member's role tags, each one a way into the glossary.
+ *
+ * Sean, 19 September: *"make their role tags clickable to glossary term."*
+ * The tags had been the tail of a grey line — `Human · Tidemaster, Leader,
+ * Recruiter` — and eleven words the game never explained anywhere. Nine of
+ * them got a glossary entry in the same pass, because a tag that opens the
+ * glossary and lands on nothing is worse than a tag that does nothing.
+ *
+ * `glossaryWords` decides whether a tag is a link rather than a list kept
+ * here: a role added to a character with no entry written for it renders as
+ * plain text instead of a dead link, and a test fails so somebody writes one.
+ */
+function RoleTags({ roles }: { roles: readonly string[] }) {
+  const lookUp = useLookUp();
+  const known = glossaryWords();
+  if (roles.length === 0) return null;
+  return (
+    <div className="roletags">
+      {roles.map((role) =>
+        lookUp && known.has(role.toLowerCase()) ? (
+          <button
+            key={role}
+            type="button"
+            className="roletag roletag--tap"
+            onClick={() => lookUp('glossary', glossaryAnchor(role))}
+            title={`What is a ${role}?`}
+          >
+            {role}
+          </button>
+        ) : (
+          <span key={role} className="roletag">
+            {role}
+          </span>
+        ),
+      )}
+    </div>
+  );
+}
 
 function GoldLine({ type }: { type: FacilityType }) {
   const earns = GOLD_PER_DAY[type];
@@ -463,7 +540,7 @@ export function Almanac({
       <div key={faction}>
       <div className="section-title">{label}</div>
       <div className="stack">
-        {troopsOf(faction).map((type) => (
+        {[...troopsOf(faction)].sort(byName).map((type) => (
           <div key={type.id} id={`enc-${type.id}`} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
             <span className="company__thumb">
               <CompanyIcon size={76} type={type.id} />
@@ -564,63 +641,67 @@ export function Almanac({
       <div key={faction}>
       <div className="section-title">{label}</div>
       <div className="stack">
-        {people.map((entry) => (
+        {[...people].sort(byPerson).map((entry) => (
           <div key={entry.name} id={`enc-${slugOf(entry.name)}`} className="card enccrew">
             {/*
-              The face, square and the full width of the card.
+              Head, name, tags, numbers, life — in that order, and each one in
+              its own band rather than three of them run together in a line of
+              grey text.
 
-              Three passes to get here. The 84px ringed medallion showed about
-              63px of face through its opening; the full-width figure painting
-              that replaced it showed the whole person but a head is only a
-              third of a three-quarter portrait, so the face was still around
-              200px. Sean: *"Make encyclopedia images much larger for crew."*
-              The only dial left was to stop showing the figure and show the
-              head, which is what `art/faces` is cut for — about 340px of face
-              at a phone's width, and the same square treatment the crew card
-              wears so the two screens agree.
+              Sean, 19 September: *"Crew images are too big now. Reduce by
+              40%... Overall ui for encyclopedia needs some work. Looks a
+              little messy."* The art was the full 384px width of the card,
+              which is where a 256px face crop is upscaled half again and goes
+              soft. At 60% it is about 230px — under the source for the first
+              time, so it is also the first time this picture has been sharp.
 
-              The three-quarter paintings are not orphaned by this: they are
-              still what `CharacterSheet` opens with, which is the one screen
-              with room to look at a whole person.
+              It sits beside the name now rather than above it, which is what
+              buys the tidying: the header is one band, the tags are one band,
+              the numbers are one band. Companies, buildings and hulls on the
+              other tabs have read art-left-text-right all along, so the crew
+              page had been the odd one out as well as the loud one.
             */}
-            <div className="enccrew__art">
-              <CharacterFace name={entry.name} faction={art} people={entry.people} />
-            </div>
-            <div style={{ minWidth: 0 }}>
-              {/* The same quiet rank the crew screen wears, for the same
-                  reason: three of the names on this page are the
-                  Confederacy's victory condition and nothing distinguished
-                  them from a purser. */}
-              {PIRATE_LORDS.some((l) => l.name === entry.name) && (
-                <div className="crewcard__rank" style={{ padding: 0, marginBottom: 2 }}>
-                  Pirate Lord
-                </div>
-              )}
-              <b className="small">{entry.name}</b>
-              <div className="tiny muted" style={{ marginTop: 1 }}>
-                {entry.people} · {entry.roles.join(', ')}
+            <div className="enccrew__head">
+              <div className="enccrew__art">
+                <CharacterFace name={entry.name} faction={art} people={entry.people} />
               </div>
-              {/* A sworn people. Worth saying on the Unaligned list above all:
-                  an Urskin standing on one of your islands is somebody the
-                  Crown can never sign, and a recruiter sent for them is a
-                  wasted voyage. */}
-              {PEOPLE_ALLEGIANCE[entry.people] && (
-                <div className="crewcard__role" style={{ padding: '2px 0 0' }}>
-                  {PEOPLE_ALLEGIANCE[entry.people] === you
-                    ? 'Will only serve you'
-                    : `Will only serve the ${factionData[PEOPLE_ALLEGIANCE[entry.people]!].shortName}`}
-                </div>
-              )}
-              <div className="tiny muted" style={{ marginTop: 4 }}>
-                {entry.bio}
+              <div className="enccrew__who">
+                {/* The same quiet rank the crew screen wears, for the same
+                    reason: three of the names on this page are the
+                    Confederacy's victory condition and nothing distinguished
+                    them from a purser. */}
+                {PIRATE_LORDS.some((l) => l.name === entry.name) && (
+                  <div className="crewcard__rank">{terms.lord}</div>
+                )}
+                <b className="enccrew__name">{entry.name}</b>
+                <div className="tiny muted">{entry.people}</div>
+                {/* A sworn people. Worth saying on the Unaligned list above
+                    all: an Urskin standing on one of your islands is somebody
+                    the Crown can never sign, and a recruiter sent for them is
+                    a wasted voyage. */}
+                {PEOPLE_ALLEGIANCE[entry.people] && (
+                  <div className="enccrew__sworn">
+                    {PEOPLE_ALLEGIANCE[entry.people] === you
+                      ? 'Will only serve you'
+                      : `Only serves the ${factionData[PEOPLE_ALLEGIANCE[entry.people]!].shortName}`}
+                  </div>
+                )}
+                {/* The four numbers, stacked beside the head rather than in a
+                    band under it. Two things at once: it fills a column that
+                    was mostly empty for anybody without a rank or a sworn
+                    people, and it puts the ratings level with the face, which
+                    is the pairing you actually read — who they are and what
+                    they are worth. */}
+                <dl className="enccrew__ratings">
+                  <div><dt>{terms.parley}</dt><dd>{entry.ratings.diplomacy}</dd></div>
+                  <div><dt>Espionage</dt><dd>{entry.ratings.espionage}</dd></div>
+                  <div><dt>Combat</dt><dd>{entry.ratings.combat}</dd></div>
+                  <div><dt>Leadership</dt><dd>{entry.ratings.leadership}</dd></div>
+                </dl>
               </div>
             </div>
-            <div className="statgrid">
-              <span><i>{terms.parley}</i><b>{entry.ratings.diplomacy}</b></span>
-              <span><i>Espionage</i><b>{entry.ratings.espionage}</b></span>
-              <span><i>Combat</i><b>{entry.ratings.combat}</b></span>
-              <span><i>Leadership</i><b>{entry.ratings.leadership}</b></span>
-            </div>
+            <RoleTags roles={entry.roles} />
+            <p className="enccrew__bio">{entry.bio}</p>
           </div>
         ))}
       </div>
@@ -676,7 +757,7 @@ export function Almanac({
         chain, so a Reach is the unit a war is actually fought in.
       </p>
       <div className="stack">
-        {reachData.reaches.map((reach) => (
+        {[...reachData.reaches].sort(byName).map((reach) => (
           <div key={reach.name} className="card row row--between small">
             <span>
               <b>{reach.name}</b>
@@ -798,7 +879,7 @@ export function Almanac({
       <div key={faction}>
       <div className="section-title">{label}</div>
       <div className="stack">
-        {fleetOf(faction).map((cls) => {
+        {[...fleetOf(faction)].sort(byName).map((cls) => {
           const total = cls.guns.longGuns + cls.guns.heavyGuns + cls.guns.lightGuns;
           return (
             <div key={cls.id} id={`enc-${cls.id}`} className="card">

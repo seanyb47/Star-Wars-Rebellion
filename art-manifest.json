@@ -294,704 +294,1094 @@
     "faces/admiral-corvus-blackwater": {
       "folder": "faces",
       "slug": "admiral-corvus-blackwater",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Admiral Corvus Blackwater",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 35,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/admiral-corvus-blackwater.webp",
-        "w": 124,
-        "h": 124,
-        "bytes": 9044,
-        "sha1": "6be2c4f9ebcb5d16"
+        "w": 249,
+        "h": 201,
+        "bytes": 28096,
+        "sha1": "5019cd2ce6e8cbeb"
       },
       "shipped": {
         "file": "src/art/faces/admiral-corvus-blackwater.webp",
         "w": 256,
         "h": 256,
-        "bytes": 9168,
-        "sha1": "005a06fcede3f826"
-      }
+        "bytes": 10842,
+        "sha1": "cd4c136db0009073"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/admiral-corvus-blackwater.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/admiral-dorian-jessup": {
       "folder": "faces",
       "slug": "admiral-dorian-jessup",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Admiral Dorian Jessup",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 31,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/admiral-dorian-jessup.webp",
-        "w": 122,
-        "h": 122,
-        "bytes": 8820,
-        "sha1": "c2ce43de6196d626"
+        "w": 220,
+        "h": 199,
+        "bytes": 24196,
+        "sha1": "0b08ca40633a82d1"
       },
       "shipped": {
         "file": "src/art/faces/admiral-dorian-jessup.webp",
         "w": 256,
         "h": 256,
-        "bytes": 8940,
-        "sha1": "a46ee08ffaf5a18f"
-      }
+        "bytes": 11298,
+        "sha1": "713b459ec5e719ea"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/admiral-dorian-jessup.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/admiral-kendrick-ozmond": {
       "folder": "faces",
       "slug": "admiral-kendrick-ozmond",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Admiral Kendrick Ozmond",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 41,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/admiral-kendrick-ozmond.webp",
-        "w": 124,
-        "h": 124,
-        "bytes": 7858,
-        "sha1": "c4d2cfcf49e419ec"
+        "w": 252,
+        "h": 201,
+        "bytes": 23748,
+        "sha1": "7548a63ffa47ae02"
       },
       "shipped": {
         "file": "src/art/faces/admiral-kendrick-ozmond.webp",
         "w": 256,
         "h": 256,
-        "bytes": 7682,
-        "sha1": "fd91a0deb0cc988d"
-      }
+        "bytes": 9658,
+        "sha1": "c5dc460c1035e4e6"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/admiral-kendrick-ozmond.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/anselm-big-torvik": {
       "folder": "faces",
       "slug": "anselm-big-torvik",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Anselm Big Torvik",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 18,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/anselm-big-torvik.webp",
-        "w": 122,
-        "h": 122,
-        "bytes": 9512,
-        "sha1": "240c01b23cc917c8"
+        "w": 215,
+        "h": 199,
+        "bytes": 24772,
+        "sha1": "95fe35dc7eb942ae"
       },
       "shipped": {
         "file": "src/art/faces/anselm-big-torvik.webp",
         "w": 256,
         "h": 256,
-        "bytes": 9492,
-        "sha1": "074fca22144640f7"
-      }
+        "bytes": 11710,
+        "sha1": "9ae692c660778990"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/anselm-big-torvik.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/brannoc-tull": {
       "folder": "faces",
       "slug": "brannoc-tull",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Brannoc Tull",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 24,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/brannoc-tull.webp",
-        "w": 124,
-        "h": 124,
-        "bytes": 8886,
-        "sha1": "d078e970e8229092"
+        "w": 211,
+        "h": 200,
+        "bytes": 23726,
+        "sha1": "bc1128c9913f388b"
       },
       "shipped": {
         "file": "src/art/faces/brannoc-tull.webp",
         "w": 256,
         "h": 256,
-        "bytes": 9426,
-        "sha1": "f158d1a24a75dcef"
-      }
+        "bytes": 10976,
+        "sha1": "8e96b7aa286d81cf"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/brannoc-tull.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/captain-fenwick-pryor": {
       "folder": "faces",
       "slug": "captain-fenwick-pryor",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Captain Fenwick Pryor",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 42,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/captain-fenwick-pryor.webp",
-        "w": 124,
-        "h": 124,
-        "bytes": 8322,
-        "sha1": "fc66196ba84f4de9"
+        "w": 248,
+        "h": 201,
+        "bytes": 24702,
+        "sha1": "d55400ca197817a7"
       },
       "shipped": {
         "file": "src/art/faces/captain-fenwick-pryor.webp",
         "w": 256,
         "h": 256,
-        "bytes": 8550,
-        "sha1": "722d2f167f3f44b4"
-      }
+        "bytes": 9862,
+        "sha1": "45ac9082446ffe2e"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/captain-fenwick-pryor.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/captain-isolde-marrow": {
       "folder": "faces",
       "slug": "captain-isolde-marrow",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Captain Isolde Marrow",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 44,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/captain-isolde-marrow.webp",
-        "w": 126,
-        "h": 126,
-        "bytes": 9540,
-        "sha1": "7030088fb29bec83"
+        "w": 241,
+        "h": 206,
+        "bytes": 27106,
+        "sha1": "7365bab8000ffe9a"
       },
       "shipped": {
         "file": "src/art/faces/captain-isolde-marrow.webp",
         "w": 256,
         "h": 256,
-        "bytes": 9852,
-        "sha1": "0977c407b3c615d6"
-      }
+        "bytes": 11756,
+        "sha1": "ba341c63f3e19f7d"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/captain-isolde-marrow.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/captain-lorne-neddam": {
       "folder": "faces",
       "slug": "captain-lorne-neddam",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Captain Lorne Neddam",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 40,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/captain-lorne-neddam.webp",
-        "w": 124,
-        "h": 124,
-        "bytes": 9410,
-        "sha1": "22df7db5fbc46b8a"
+        "w": 248,
+        "h": 201,
+        "bytes": 26688,
+        "sha1": "8e143d15e8b8a275"
       },
       "shipped": {
         "file": "src/art/faces/captain-lorne-neddam.webp",
         "w": 256,
         "h": 256,
-        "bytes": 9778,
-        "sha1": "3c0dfd3da2f31511"
-      }
+        "bytes": 11034,
+        "sha1": "925cb26e60fb793e"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/captain-lorne-neddam.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/captain-silas-reyne": {
       "folder": "faces",
       "slug": "captain-silas-reyne",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Captain Silas Reyne",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 20,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/captain-silas-reyne.webp",
-        "w": 122,
-        "h": 122,
-        "bytes": 7616,
-        "sha1": "552771be798e71fa"
+        "w": 206,
+        "h": 199,
+        "bytes": 18744,
+        "sha1": "b93de261f06e5422"
       },
       "shipped": {
         "file": "src/art/faces/captain-silas-reyne.webp",
         "w": 256,
         "h": 256,
-        "bytes": 7158,
-        "sha1": "4e73e07a0d35ea64"
-      }
+        "bytes": 8786,
+        "sha1": "8bb9ed41a75ccd61"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/captain-silas-reyne.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/colonel-maximilian-vierling": {
       "folder": "faces",
       "slug": "colonel-maximilian-vierling",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Colonel Maximilian Vierling",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 22,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/colonel-maximilian-vierling.webp",
-        "w": 122,
-        "h": 122,
-        "bytes": 9148,
-        "sha1": "f1259d061870a10a"
+        "w": 220,
+        "h": 199,
+        "bytes": 25066,
+        "sha1": "f2b7d0ba8a42253e"
       },
       "shipped": {
         "file": "src/art/faces/colonel-maximilian-vierling.webp",
         "w": 256,
         "h": 256,
-        "bytes": 9488,
-        "sha1": "5dee8c59208818da"
-      }
+        "bytes": 11412,
+        "sha1": "f1aeed7db1866705"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/colonel-maximilian-vierling.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/commodore-elect-adaira-hale": {
       "folder": "faces",
       "slug": "commodore-elect-adaira-hale",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Commodore Elect Adaira Hale",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 30,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/commodore-elect-adaira-hale.webp",
-        "w": 122,
-        "h": 122,
-        "bytes": 8332,
-        "sha1": "5b9f0a6f644f55f2"
+        "w": 214,
+        "h": 199,
+        "bytes": 23538,
+        "sha1": "0cd8093ad654e01a"
       },
       "shipped": {
         "file": "src/art/faces/commodore-elect-adaira-hale.webp",
         "w": 256,
         "h": 256,
-        "bytes": 8674,
-        "sha1": "ccf8e8c2ed104615"
-      }
+        "bytes": 10902,
+        "sha1": "836b96f7b537db4e"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/commodore-elect-adaira-hale.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/doctor-ambrose-kell": {
       "folder": "faces",
       "slug": "doctor-ambrose-kell",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Doctor Ambrose Kell",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 58,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/doctor-ambrose-kell.webp",
-        "w": 126,
-        "h": 126,
-        "bytes": 9146,
-        "sha1": "913d29c2ca851181"
+        "w": 270,
+        "h": 206,
+        "bytes": 31622,
+        "sha1": "564e69b62379902b"
       },
       "shipped": {
         "file": "src/art/faces/doctor-ambrose-kell.webp",
         "w": 256,
         "h": 256,
-        "bytes": 8976,
-        "sha1": "3fbea820847d359d"
-      }
+        "bytes": 10674,
+        "sha1": "442f3cc0eeb55e35"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/doctor-ambrose-kell.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/governor-tiberius-jarrold": {
       "folder": "faces",
       "slug": "governor-tiberius-jarrold",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Governor Tiberius Jarrold",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 42,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/governor-tiberius-jarrold.webp",
-        "w": 124,
-        "h": 124,
-        "bytes": 9060,
-        "sha1": "507abc594e9d6f79"
+        "w": 248,
+        "h": 201,
+        "bytes": 25422,
+        "sha1": "6c99d43762d94cac"
       },
       "shipped": {
         "file": "src/art/faces/governor-tiberius-jarrold.webp",
         "w": 256,
         "h": 256,
-        "bytes": 9084,
-        "sha1": "49ab7752792cf3e1"
-      }
+        "bytes": 11244,
+        "sha1": "820fb6ebcd964beb"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/governor-tiberius-jarrold.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/hesper-lyn": {
       "folder": "faces",
       "slug": "hesper-lyn",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Hesper Lyn",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 26,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/hesper-lyn.webp",
-        "w": 124,
-        "h": 124,
-        "bytes": 8432,
-        "sha1": "7c851f8bf3cd36b6"
+        "w": 210,
+        "h": 200,
+        "bytes": 21960,
+        "sha1": "6597f8e10931fff7"
       },
       "shipped": {
         "file": "src/art/faces/hesper-lyn.webp",
         "w": 256,
         "h": 256,
-        "bytes": 8066,
-        "sha1": "11549282e39483f4"
-      }
+        "bytes": 9806,
+        "sha1": "c6c083b7f5f3948d"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/hesper-lyn.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/jory-halloran": {
       "folder": "faces",
       "slug": "jory-halloran",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Jory Halloran",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 59,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/jory-halloran.webp",
-        "w": 126,
-        "h": 126,
-        "bytes": 9170,
-        "sha1": "54ebdb398dcf67f7"
+        "w": 272,
+        "h": 206,
+        "bytes": 30232,
+        "sha1": "937cfb85fe20505b"
       },
       "shipped": {
         "file": "src/art/faces/jory-halloran.webp",
         "w": 256,
         "h": 256,
-        "bytes": 9206,
-        "sha1": "5359b3d63068b256"
-      }
+        "bytes": 10774,
+        "sha1": "240104aaa92a4f66"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/jory-halloran.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/lord-regent-halvard-corvane": {
       "folder": "faces",
       "slug": "lord-regent-halvard-corvane",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Lord Regent Halvard Corvane",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 41,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/lord-regent-halvard-corvane.webp",
-        "w": 124,
-        "h": 124,
-        "bytes": 8588,
-        "sha1": "6c5eaae636e0edb6"
+        "w": 251,
+        "h": 201,
+        "bytes": 24732,
+        "sha1": "2b292b1039254057"
       },
       "shipped": {
         "file": "src/art/faces/lord-regent-halvard-corvane.webp",
         "w": 256,
         "h": 256,
-        "bytes": 8526,
-        "sha1": "49c0a7ac132a339d"
-      }
+        "bytes": 10380,
+        "sha1": "121f5dc71b6de02e"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/lord-regent-halvard-corvane.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/maren-quist": {
       "folder": "faces",
       "slug": "maren-quist",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Maren Quist",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 28,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/maren-quist.webp",
-        "w": 124,
-        "h": 124,
-        "bytes": 9260,
-        "sha1": "bd165ad5b57274e7"
+        "w": 211,
+        "h": 200,
+        "bytes": 22962,
+        "sha1": "7c8ec542db725c0e"
       },
       "shipped": {
         "file": "src/art/faces/maren-quist.webp",
         "w": 256,
         "h": 256,
-        "bytes": 9774,
-        "sha1": "4652dbaa575e6aea"
-      }
+        "bytes": 11178,
+        "sha1": "b4ff6b818c18a325"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/maren-quist.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/pellam-voss": {
       "folder": "faces",
       "slug": "pellam-voss",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Pellam Voss",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 37,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/pellam-voss.webp",
-        "w": 124,
-        "h": 124,
-        "bytes": 9852,
-        "sha1": "e0bdd03cdc58330a"
+        "w": 215,
+        "h": 200,
+        "bytes": 24446,
+        "sha1": "f71869a5e32d41e1"
       },
       "shipped": {
         "file": "src/art/faces/pellam-voss.webp",
         "w": 256,
         "h": 256,
-        "bytes": 10492,
-        "sha1": "c039883c7582778b"
-      }
+        "bytes": 12392,
+        "sha1": "6d557b70ccf80a1b"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/pellam-voss.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/rosalind-ros-carrow": {
       "folder": "faces",
       "slug": "rosalind-ros-carrow",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Rosalind Ros Carrow",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 13,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/rosalind-ros-carrow.webp",
-        "w": 122,
-        "h": 122,
-        "bytes": 9212,
-        "sha1": "dc5ac68ef5c78282"
+        "w": 204,
+        "h": 199,
+        "bytes": 22586,
+        "sha1": "4b744f55e12c1df8"
       },
       "shipped": {
         "file": "src/art/faces/rosalind-ros-carrow.webp",
         "w": 256,
         "h": 256,
-        "bytes": 9550,
-        "sha1": "7696798b87e0dfef"
-      }
+        "bytes": 11224,
+        "sha1": "b1d39e2b5b9f9462"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/rosalind-ros-carrow.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/sable": {
       "folder": "faces",
       "slug": "sable",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Sable",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 25,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/sable.webp",
-        "w": 124,
-        "h": 124,
-        "bytes": 7390,
-        "sha1": "2b1ec35ee2a67605"
+        "w": 204,
+        "h": 200,
+        "bytes": 18296,
+        "sha1": "5fc8ae01741b21e6"
       },
       "shipped": {
         "file": "src/art/faces/sable.webp",
         "w": 256,
         "h": 256,
-        "bytes": 6376,
-        "sha1": "a0ed1d26b48b1383"
-      }
+        "bytes": 7760,
+        "sha1": "e84134942b461dd5"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/sable.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/silvaine-crow": {
       "folder": "faces",
       "slug": "silvaine-crow",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Silvaine Crow",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 48,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/silvaine-crow.webp",
-        "w": 126,
-        "h": 126,
-        "bytes": 9248,
-        "sha1": "3d45eb8ea3b8158b"
+        "w": 240,
+        "h": 206,
+        "bytes": 26684,
+        "sha1": "b2d2b4971696ca72"
       },
       "shipped": {
         "file": "src/art/faces/silvaine-crow.webp",
         "w": 256,
         "h": 256,
-        "bytes": 8646,
-        "sha1": "e3cb77f299a03bf6"
-      }
+        "bytes": 10840,
+        "sha1": "cc29744be48f8aba"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/silvaine-crow.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/tam-calloway": {
       "folder": "faces",
       "slug": "tam-calloway",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Tam Calloway",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 23,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/tam-calloway.webp",
-        "w": 122,
-        "h": 122,
-        "bytes": 9160,
-        "sha1": "8cdeeba85dc685ab"
+        "w": 209,
+        "h": 199,
+        "bytes": 23802,
+        "sha1": "77bd3920af78f493"
       },
       "shipped": {
         "file": "src/art/faces/tam-calloway.webp",
         "w": 256,
         "h": 256,
-        "bytes": 9506,
-        "sha1": "0825d4fc6f742cd0"
-      }
+        "bytes": 11744,
+        "sha1": "447057452e5cbb55"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/tam-calloway.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/the-widow-ashgrave": {
       "folder": "faces",
       "slug": "the-widow-ashgrave",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "The Widow Ashgrave",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 42,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/the-widow-ashgrave.webp",
-        "w": 126,
-        "h": 126,
-        "bytes": 8994,
-        "sha1": "7e93183fc5b577a5"
+        "w": 237,
+        "h": 206,
+        "bytes": 26812,
+        "sha1": "0a6eea8ba103a006"
       },
       "shipped": {
         "file": "src/art/faces/the-widow-ashgrave.webp",
         "w": 256,
         "h": 256,
-        "bytes": 9260,
-        "sha1": "72cbe74ba3642a50"
-      }
+        "bytes": 11306,
+        "sha1": "dec25de2e3b0a95f"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/the-widow-ashgrave.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/tobias-renn": {
       "folder": "faces",
       "slug": "tobias-renn",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Tobias Renn",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 48,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/tobias-renn.webp",
-        "w": 126,
-        "h": 126,
-        "bytes": 9032,
-        "sha1": "e39a368cc95892a7"
+        "w": 236,
+        "h": 206,
+        "bytes": 26662,
+        "sha1": "c5d1f8cc940af5a9"
       },
       "shipped": {
         "file": "src/art/faces/tobias-renn.webp",
         "w": 256,
         "h": 256,
-        "bytes": 9092,
-        "sha1": "b3cd1e708c884b05"
-      }
+        "bytes": 10686,
+        "sha1": "4a0eca7c57e64715"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/tobias-renn.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/wren-tally": {
       "folder": "faces",
       "slug": "wren-tally",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Wren Tally",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 18,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/wren-tally.webp",
-        "w": 124,
-        "h": 124,
-        "bytes": 8856,
-        "sha1": "57386c3072a74044"
+        "w": 220,
+        "h": 200,
+        "bytes": 24324,
+        "sha1": "e937cc62c98bb8bf"
       },
       "shipped": {
         "file": "src/art/faces/wren-tally.webp",
         "w": 256,
         "h": 256,
-        "bytes": 8690,
-        "sha1": "b66a8cfe700dea35"
-      }
+        "bytes": 10910,
+        "sha1": "1676645a9d569149"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/wren-tally.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "faces/wyatt-ansell": {
       "folder": "faces",
       "slug": "wyatt-ansell",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
+      "updated": "2026-09-19",
       "title": "Wyatt Ansell",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
-      "crop": null,
+      "source": "Recut 19 September from the portrait master",
+      "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
+      "crop": {
+        "x": 25,
+        "y": 0,
+        "w": 154,
+        "h": 154
+      },
       "tone": null,
       "upscaled": true,
       "master": {
         "file": "art-masters/faces/wyatt-ansell.webp",
-        "w": 124,
-        "h": 124,
-        "bytes": 9050,
-        "sha1": "54a9f8f00e247f26"
+        "w": 217,
+        "h": 200,
+        "bytes": 23210,
+        "sha1": "6758dc9493ececba"
       },
       "shipped": {
         "file": "src/art/faces/wyatt-ansell.webp",
         "w": 256,
         "h": 256,
-        "bytes": 8726,
-        "sha1": "281a8d57ecfd7a47"
-      }
+        "bytes": 10878,
+        "sha1": "068baa308453eca7"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/faces/wyatt-ansell.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "frames/alliance": {
       "folder": "frames",

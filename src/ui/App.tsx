@@ -104,9 +104,29 @@ export function App() {
   // The encyclopedia, and where in it. `at` is set when a unit somewhere in
   // the game was tapped to get here, so the page opens on that entry rather
   // than at the top of a page of thirty.
-  const [almanac, setAlmanac] = useState<{ page: EncPage; at?: string } | null>(null);
+  /*
+   * `nth` counts lookups, and its only job is to be the encyclopedia's React
+   * key.
+   *
+   * Without it a lookup made *from inside* the encyclopedia did nothing: the
+   * Almanac holds its open tab in `useState` seeded from the `page` prop, so
+   * a new prop on an already-mounted sheet never moved it. That never showed
+   * while every lookup came from a game screen with the sheet shut — the
+   * first one that did not was the crew role tags of 19 September, which land
+   * on the Glossary tab from the Crew tab. Asking for the same page and entry
+   * twice running had the same problem for the same reason.
+   *
+   * Counting makes every request distinct, so the sheet remounts at what was
+   * asked for. Losing the scroll position is correct here: a lookup means
+   * take me to this thing.
+   */
+  const [almanac, setAlmanac] = useState<{ page: EncPage; at?: string; nth: number } | null>(null);
   const almanacOpen = almanac !== null;
-  const lookUp = useCallback((page: EncPage, at?: string) => setAlmanac({ page, at }), []);
+  const lookUp = useCallback(
+    (page: EncPage, at?: string) =>
+      setAlmanac((prev) => ({ page, at, nth: (prev?.nth ?? 0) + 1 })),
+    [],
+  );
   const [pickingFor, setPickingFor] = useState<string | null>(null);
   // An island that offers an officer more than one errand asks which.
   const [missionChoice, setMissionChoice] = useState<{ characterId: string; systemId: string } | null>(null);
@@ -984,6 +1004,7 @@ export function App() {
 
       {almanac && (
         <Almanac
+          key={almanac.nth}
           state={state}
           page={almanac.page}
           entry={almanac.at}

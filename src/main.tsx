@@ -4,6 +4,7 @@ import { App } from './ui/App';
 import { ArtSheet } from './ui/ArtSheet';
 import { StyleTest } from './ui/StyleTest';
 import { StyleGallery } from './ui/StyleGallery';
+import { PaintingGallery } from './ui/PaintingGallery';
 import './ui/styles.css';
 
 /**
@@ -135,8 +136,10 @@ window.addEventListener('orientationchange', () => setTimeout(measureGlass, 120)
 // `?art` opens the contact sheet instead of the game: every drawing in one
 // place, which is the only way to tell whether they look like one set. Never
 // linked from the game — it is an instrument, not a screen.
-// `?art` is the contact sheet, `?art=style` the inking comparison, and
-// `?art=gallery` four whole styles across the three subjects.
+// `?art` is the contact sheet, `?art=style` the inking comparison,
+// `?art=gallery` four whole styles across the three subjects, and
+// `?art=paintings` every painted asset in the game at shipped size — which is
+// the one of the four meant to be looked at rather than worked from.
 const art = new URLSearchParams(window.location.search).get('art');
 const page =
   art === null ? (
@@ -145,6 +148,8 @@ const page =
     <StyleTest />
   ) : art === 'gallery' ? (
     <StyleGallery />
+  ) : art === 'paintings' ? (
+    <PaintingGallery />
   ) : (
     <ArtSheet />
   );

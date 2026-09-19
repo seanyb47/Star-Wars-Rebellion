@@ -1645,11 +1645,15 @@ button.tcard:hover { border-color: var(--brass); }
   font-size: 9.5px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
   color: var(--brass); opacity: 0.8;
 }
-/* The role tag: what they are for, in a word. */
+/* The role tag: what they are for, in a word — and, since 19 September, the
+   way to the glossary entry for that word. It sits outside `crewcard__tap`
+   now (a button cannot hold a button), so it needs its own margin where it
+   used to inherit the card's padding. */
 .crewcard__role {
   padding: 2px 10px 0; font-size: 11px; font-weight: 700;
   letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); opacity: 0.85;
 }
+.crewcard__roletag { align-self: flex-start; margin: 4px 10px 0; }
 .crewcard__stats {
   font-size: 12.5px; color: #9db4bd; padding: 6px 10px 0;
   font-variant-numeric: tabular-nums; letter-spacing: 0.01em;
@@ -2286,19 +2290,100 @@ button.tcard:hover { border-color: var(--brass); }
   color: var(--chrome-muted); line-height: 1;
 }
 
-/* The encyclopedia's crew entry: the painting above the words, full width.
+/* The encyclopedia's crew entry: head beside the name, then tags, numbers,
+   life. Four bands, each doing one job.
 
-   Sean, twice: the images must be far larger, and *"I can barely see their
-   faces."* The second is the sharper note and it is not the same problem as
-   the first. These are three-quarter figures against a harbour, so a head is
-   only ever about a third of the frame — and any fixed height crops with
-   `object-fit: cover`, which was cutting into the third that matters.
+   Four passes to get here, and the last two are the interesting ones. The
+   painting went full-width to answer *"I can barely see their faces"* — right
+   diagnosis, since a head is only a third of a three-quarter figure and a
+   fixed height was cropping into the third that matters, but the cure ran
+   past the disease. At the card's full 384px a 256px face crop is blown up
+   half again, so the biggest version of this picture was also the softest one,
+   and 26 of them stacked read as a slideshow rather than a reference.
 
-   It now shows the head crop rather than the three-quarter figure, square and
-   the card's full width — about 400x400 on a phone, and a face around 340px
-   against the 63px the ringed medallion it started as could show. */
-.enccrew { padding: 0; overflow: hidden; }
-.enccrew > div:not(.enccrew__art) { padding: 0 12px 12px; }
-.enccrew .statgrid { margin: 0 12px 12px; }
-.enccrew__art { line-height: 0; }
-.enccrew__art .charface { width: 100% !important; height: auto !important; aspect-ratio: 1 / 1; }
+   Sean, 19 September: *"Crew images are too big now. Reduce by 40%."* 60% of
+   the card is about 230px — under the 256px source, so this is the first size
+   at which the crop has been shown sharp — and it leaves a column beside it
+   for the name, which is what lets the rest of the entry line up in bands. */
+.enccrew { padding: 12px; }
+.enccrew__head { display: flex; gap: 12px; align-items: flex-start; }
+.enccrew__art { line-height: 0; flex: 0 0 60%; }
+.enccrew__art .charface {
+  width: 100% !important; height: auto !important; aspect-ratio: 1 / 1;
+  border-radius: 8px;
+}
+.enccrew__who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.enccrew__name { font-size: 15px; line-height: 1.2; color: var(--text); }
+.enccrew__sworn {
+  margin-top: 2px; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--brass); opacity: 0.85;
+}
+.enccrew__ratings { margin: 8px 0 0; display: flex; flex-direction: column; gap: 3px; }
+.enccrew__ratings > div {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 6px;
+  border-top: 1px solid var(--border); padding-top: 3px;
+}
+.enccrew__ratings dt { font-size: 10.5px; color: #8fa6b0; letter-spacing: 0.04em; }
+.enccrew__ratings dd {
+  margin: 0; font-size: 14px; font-weight: 700; color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.enccrew__bio { margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: #9db4bd; }
+
+/* Role tags, which are now the way into the glossary rather than the tail of
+   a grey line. A chip that is a link gets the brass and the border; one the
+   glossary has no word for stays flat, so the difference is visible before
+   you tap rather than after. */
+.roletags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.roletag {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 8px; border-radius: 999px; border: 1px solid transparent;
+  background: rgba(0, 0, 0, 0.22); color: #9db4bd; line-height: 1;
+}
+.roletag--tap {
+  border-color: rgba(198, 160, 74, 0.45); color: var(--brass);
+  cursor: pointer; font-family: inherit;
+}
+.roletag--tap:active { background: rgba(198, 160, 74, 0.18); }
+.roletag--tap:focus-visible { outline: 2px solid var(--brass); outline-offset: 1px; }
+
+/* ---- ?art=paintings: every painting in the game -------------------------
+   Not a game screen. Sean asked for the art somewhere he could look at it
+   whenever he liked; this is that, deployed with the build so it is never a
+   stale second copy. Its own small stylesheet because it shares nothing with
+   the game's chrome and should not start. */
+.pg { padding: 12px 14px 40px; color: var(--text); }
+.pg__bar {
+  position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap;
+  gap: 8px; align-items: center; padding: 10px 0 12px; margin-bottom: 4px;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+}
+.pg__bar > div:first-child { flex: 1 1 260px; }
+.pg__sub { font-size: 11.5px; color: #8fa6b0; margin-top: 2px; }
+.pg__find {
+  flex: 0 1 220px; padding: 7px 10px; border-radius: 8px;
+  border: 1px solid var(--border); background: rgba(0, 0, 0, 0.25);
+  color: inherit; font: inherit; font-size: 13px;
+}
+.pg__size {
+  padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.25); color: var(--brass); font: inherit;
+  font-size: 12px; cursor: pointer;
+}
+.pg__none { color: #8fa6b0; }
+.pg__folder {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--brass); margin: 18px 0 8px;
+}
+.pg__folder span { color: #6f858f; margin-left: 6px; letter-spacing: 0; }
+.pg__grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.pg__grid--wide { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.pg__cell {
+  display: flex; flex-direction: column; gap: 1px; text-decoration: none; color: inherit;
+  background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px; overflow: hidden;
+}
+.pg__cell img { width: 100%; height: auto; display: block; border-radius: 5px; background: var(--water-deep); }
+.pg__cell b { font-size: 12.5px; margin-top: 5px; line-height: 1.25; }
+.pg__meta { font-size: 10.5px; color: #8fa6b0; line-height: 1.35; }
+.pg__meta--dim { color: #6f858f; }

@@ -1,7 +1,14 @@
 import { createContext, useContext, type ReactNode } from 'react';
 
 /** The encyclopedia's tabs, by the name the Almanac knows them by. */
-export type EncPage = 'people' | 'companies' | 'works' | 'ships' | 'islands' | 'rules';
+export type EncPage =
+  | 'people'
+  | 'companies'
+  | 'works'
+  | 'ships'
+  | 'islands'
+  | 'glossary'
+  | 'rules';
 
 /**
  * Open the encyclopedia at a particular thing.

@@ -97,6 +97,52 @@ function groups(): Group[] {
           'Recruiter',
           `A ${terms.crewOne} who can keep an open table and sign people on. Only a Recruiter may lead a Recruitment, and both sides always have at least one.`,
         ],
+        /*
+         * The other nine role tags, added 19 September because Sean asked for
+         * the tags to be tappable — *"make their role tags clickable to
+         * glossary term"* — and a tag that opens the glossary and finds
+         * nothing there is worse than one that does nothing.
+         *
+         * Each entry says plainly whether the tag is a rule or a label. Four
+         * of them are read by the sim and five are not, and a player has no
+         * way to tell which from the card.
+         */
+        [
+          'Leader',
+          `A ${terms.crewOne} fit to hold a place rather than visit it. A Leader or a General may be given Command of an island; nobody else may, whatever their Leadership.`,
+        ],
+        [
+          'General',
+          'Ground command. It does the same job as Leader for the one rule that reads it — either tag lets somebody take Command of an island — and marks somebody who fights ashore rather than afloat.',
+        ],
+        [
+          'Spec Ops',
+          `The quiet trades. A Spec Ops ${terms.crewOne} leading an ${terms.incite.toLowerCase()} is worth roughly a second agent, the same way a Negotiator is at a ${terms.parley.toLowerCase()}.`,
+        ],
+        [
+          'Ship Design',
+          'A shipwright. A label, not a rule: the Research errand is settled on ratings and anybody may be sent, so this says who ought to go rather than who may.',
+        ],
+        [
+          'Drill Research',
+          'The same for companies — who knows how a landing party should be trained. A label rather than a rule, like Ship Design.',
+        ],
+        [
+          'Deep-touched',
+          'Born hearing the sea: weather felt before it breaks, a lie known by its echo. Lore for now — nothing in the sim reads it.',
+        ],
+        [
+          'Latent Deep-touched',
+          'The gift, untrained and possibly unknown to its owner. Exactly one person in the game carries it, and it does nothing yet.',
+        ],
+        [
+          'Tidemaster',
+          'The trained gift at its highest rank — able to becalm a strait or raise a wave across a harbor mouth. Two people in the game hold it, and like the rest of the Deep it is lore rather than a rule so far.',
+        ],
+        [
+          'Wing-Captain',
+          'Commands the small craft that work off a larger hull. One person in the game holds the tag, and nothing reads it yet.',
+        ],
         [
           terms.lord,
           'One of the three who signed the articles. Each commands a ship nobody else can sail and brings something nobody else has. Ashore they are ordinary crew, and can be found out, hurt or carried off like anybody.',
@@ -248,6 +294,29 @@ function groups(): Group[] {
   ];
 }
 
+/**
+ * The anchor id a glossary row carries, from the word itself.
+ *
+ * One function rather than the same `replace` written in two places: the row
+ * renders it and anything linking to a word computes it, so a link cannot
+ * drift from its target.
+ */
+export function glossaryAnchor(word: string): string {
+  return word.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+}
+
+/**
+ * Every headword in the glossary, lower-cased.
+ *
+ * Exported so a screen can ask *is this a word the glossary explains?* before
+ * offering to open it — which is how the crew role tags decide whether to be
+ * a link or plain text. A test walks the cast against this and fails if
+ * somebody is given a role tag nothing defines.
+ */
+export function glossaryWords(): Set<string> {
+  return new Set(groups().flatMap((g) => g.entries.map(([word]) => word.toLowerCase())));
+}
+
 export function GlossaryPage() {
   /*
    * A–Z inside each group, asked and answered on 17 September: *"should
@@ -307,7 +376,7 @@ export function GlossaryPage() {
           <div className="section-title">{group.title}</div>
           <dl className="glossary">
             {group.entries.map(([word, meaning]) => (
-              <div key={word} className="glossary__row" id={`enc-${word.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}>
+              <div key={word} className="glossary__row" id={`enc-${glossaryAnchor(word)}`}>
                 <dt>{word}</dt>
                 <dd>{meaning}</dd>
               </div>
