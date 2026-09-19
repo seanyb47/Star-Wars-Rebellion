@@ -4287,6 +4287,33 @@
         "sha1": "05d8f7f0caa7a05a"
       }
     },
+    "ships/resolute": {
+      "folder": "ships",
+      "slug": "resolute",
+      "version": 1,
+      "added": "2026-09-19",
+      "updated": "2026-09-19",
+      "title": "Resolute",
+      "source": "Sean, 19 September \u2014 production painting",
+      "notes": "Her first painting; she had been falling through to the drawn silhouette since the roster landed. Crown R2 medium: one heavy bow chaser over a deck of light guns, which is what the roster gives her.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/resolute.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 658986,
+        "sha1": "51edc6ef5e7b1de3"
+      },
+      "shipped": {
+        "file": "src/art/ships/resolute.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 81052,
+        "sha1": "42150b60356c7992"
+      }
+    },
     "ships/sovereign": {
       "folder": "ships",
       "slug": "sovereign",
