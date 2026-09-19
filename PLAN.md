@@ -4185,3 +4185,60 @@ that size changes damage. It changes accuracy now, and only accuracy.
    becomes the Long Gun retreat volley, and *Broadsides* goes with nothing to
    replace it, because there are no gun decks: every cannon fires on its own.
 3. **Re-measure the war from scratch.** The balance will be unrecognisable.
+
+---
+
+## The Encyclopedia, rebuilt on the new model
+
+Sean asked twice, having heard the sequencing objection, so the objection is
+settled: the Encyclopedia now describes **the locked combat system and the
+twenty-four-hull roster**, read straight off `ROSTER` and `navycombat.ts`
+rather than off the hulls the live game currently sails. A banner at the top of
+the Ships page says exactly that, so a reader who cannot find the Justiciar in
+their harbour knows why.
+
+### The three names he called out
+
+- **"Broadsides"** — gone, with nothing to replace it. There are no gun decks
+  in the locked rules and no broadside: every individual cannon makes its own
+  attack. `GUN_DECKS` is no longer read here at all.
+- **"Getting clear"** — gone as a stat. The old speed-1-to-10 retreat exposure
+  is replaced by a rule rather than a number: every surviving **long gun** in
+  the pursuing fleet gets one shot, and nothing else reaches. It has its own
+  section, *Breaking off*.
+- **"Against a wall"** — the **label** was old, the stat was not. Bombardment
+  is still in the locked rules as the siege rating, so it keeps its column
+  under its proper name and gains a section saying plainly that it contributes
+  nothing to a fleet action. Removing it outright would have deleted a live
+  mechanic on a wording complaint.
+
+Also gone: *Which hull beats which*, the whole damage-triangle section, along
+with `HULL_EASE` and `GUNNERY_ON_SMALL`. Its replacement, *Size, speed, and
+what can hit you*, prints the two accuracy matrices from the engine's own
+constants and states the thing that matters — size and speed change **accuracy
+only**, and a heavy gun against a sloop is missing, not doing less damage.
+
+### What the Ships page is now
+
+A banner, then all twenty-four hulls grouped by navy, each with Size, Speed,
+Hull, Armour, the three gun counts, Bombardment, Carries and Repair — and,
+under every card, what she is actually *hit* by: her light, long and heavy hit
+chances, computed live by `hitChance` rather than typed in. Then six sections:
+the three cannon, armour and penetration, the accuracy matrices, an action at
+sea (two phases, first strike, the Combat Exchange, and officers), choosing a
+target, breaking off, and bombardment.
+
+Art: eleven hulls keep their own painting, six inherit by lineage (Coral-Class
+from Reef-class, Reefwarden from Reefwalker, Brigantine from Brig, Interceptor
+I and II from the Kestrels, Wayfinder from the Fluyt) and seven fall through to
+the drawn silhouette until they are painted — Morningstar, Resolute, Justiciar,
+Chimera, Tidestalker, Blackfin, Ironback.
+
+### One ruling made rather than asked for
+
+The locked rules have no officers in them anywhere, and the live game has had a
+crew member's Leadership tell in a sea action since the ratings pass. Rather
+than stall a third time, leadership now enters the engine as **percentage
+points on the hit roll**, clamped like everything else — it changes who
+connects, never what a hit is worth. It is flagged in `hitChance` as not being
+from the sheet, and one line overturns it.

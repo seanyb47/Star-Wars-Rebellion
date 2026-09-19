@@ -4,6 +4,87 @@ import characterRoster from '../data/characters.json';
 import factionData from '../data/factions.json';
 import reachData from '../data/reaches.json';
 import { GlossaryPage } from './Glossary';
+import {
+  BASE_HIT_CHANCE,
+  DAMAGE_DIE,
+  EXCHANGE_STOP_SHARE,
+  GUNS,
+  GUN_VS_SIZE,
+  GUN_VS_SPEED,
+  HIT_CEILING,
+  HIT_FLOOR,
+  hitChance,
+} from '../sim/navycombat';
+import {
+  NAVY_FACTIONS,
+  NAVY_FACTION_TO_PLAYABLE,
+  ROSTER,
+  SHIP_SIZES,
+  fleetOf,
+  type NavyFaction,
+  type ShipSize,
+} from '../sim/shipdefs';
+
+/**
+ * The fleet the Encyclopedia describes.
+ *
+ * Read off the Fleet Roster rather than off the hulls the live game sails:
+ * Sean's instruction was to rebuild this around the new names and stats. The
+ * live roster follows when the engine does.
+ */
+const ROSTER_SIDES: Array<{ faction: NavyFaction; label: string }> = NAVY_FACTIONS.map((f) => ({
+  faction: f,
+  label: f,
+}));
+
+const SIZE_ORDER = SHIP_SIZES;
+const SPEED_ORDER = ['Slow', 'Normal', 'Fast', 'Very Fast'] as const;
+
+/** The heaviest armour anybody carries, read from the roster rather than fixed. */
+const MAX_ARMOUR = Math.max(...ROSTER.ships.map((s) => s.armor));
+
+/**
+ * `ShipThumb` draws its fallback silhouette from the old four roles, which the
+ * locked rules replaced with four Sizes. One is not the other — a role said
+ * what a hull was for and a Size says how hard she is to hit — but they line
+ * up closely enough for a 140px drawing, and this is the only place the old
+ * vocabulary survives.
+ */
+const LEGACY_ROLE: Record<ShipSize, 'small' | 'medium' | 'large' | 'transport'> = {
+  Small: 'small',
+  Medium: 'medium',
+  Large: 'large',
+  Gigantic: 'large',
+};
+
+/**
+ * Which painting stands in for a hull that has not been painted yet.
+ *
+ * Eleven of the twenty-four already have their own art under their own name.
+ * Six more inherit from the hull they replaced, which is a lineage rather than
+ * a guess — the Coral-Class *is* the Reef-class grown up. The remaining seven
+ * (Morningstar, Resolute, Justiciar, Chimera, Tidestalker, Blackfin, Ironback)
+ * have nothing yet and fall through to the drawn silhouette.
+ */
+const ART_SLUG: Record<string, string> = {
+  'CFS-COR-R8-01': 'reef-class',
+  'CFS-REE-R4-01': 'reefwalker',
+  'CFS-BRI-S02': 'brig',
+  'CWN-INT-S02': 'kestrel',
+  'CWN-INT-R5-02': 'kestrel-ii',
+  'CWN-WAY-S01': 'fluyt',
+  'CWN-SOV-S04': 'sovereign',
+  'CWN-SOV-R7-02': 'sovereign-ii',
+  'CWN-MAJ-R8-01': 'majestic',
+  'CWN-BUL-R3-01': 'bulwark',
+  'CWN-VAN-R1-01': 'vanguard',
+  'CWN-VAN-R4-02': 'vanguard-ii',
+  'CFS-SWI-S01': 'swift',
+  'CFS-TEM-R3-01': 'tempest',
+  'CFS-CUT-R2-01': 'cutlass',
+  'CFS-MAR-R1-01': 'marauder',
+  'CFS-URW-R7-01': 'urskin-whaler',
+};
 
 /** Counted from the data rather than remembered: the old figure said 71. */
 const ISLAND_COUNT = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
@@ -27,21 +108,13 @@ import {
   CREATURES,
   SHIP_CLASSES,
   troopsOf,
-  BATTLE_ODDS_LABEL,
-  BREAK_OFF_ODDS,
   FORT_GUNS,
-  LONG_GUN_SHARE,
-  shipsFor,
-  shipSpec,
   RESOURCE_LABEL,
   RESOURCE_BLURB,
   FORT_STRENGTH,
   FORT_REPAIR_PER_DAY,
   REPAIR_PER_DAY,
   REPAIR_AT_A_YARD,
-  GUN_DECKS,
-  HULL_EASE,
-  GUNNERY_ON_SMALL,
   BOMBARD_PER_COMPANY,
   CIVILIAN_LOYALTY_HIT,
   SUPPORT_FIRM as FIRM,
@@ -49,7 +122,6 @@ import {
   wallGuns,
   wallStrength,
   YARD_BUILDABLE,
-  gradeOf,
 } from '../sim';
 import {
   CategoryIcon,
@@ -668,70 +740,91 @@ export function Almanac({
 
       {page === 'ships' && (
         <>
-      {/* The whole class, every number the rules read. Sean asked for stats on
-          all units and this was the one category with none: the hulls were
-          four lines under the battle rules and the cost, the upkeep, the lift
-          and the weight against a wall were nowhere at all. */}
+      {/*
+        The fleet on the locked combat model of 18 September.
+
+        Read off `ROSTER` — the Fleet Roster sheet — rather than off the hulls
+        the game currently sails, because Sean's instruction was to rebuild
+        this around the new names and stats and scrap the old model. The live
+        roster and the engine that fights it follow in the next pass; the note
+        at the top says so rather than letting the reader find out.
+      */}
+      <div className="card small" style={{ borderColor: 'var(--warn, #b8863b)' }}>
+        <b>This is the new fleet.</b> Twenty-four hulls on the locked combat
+        rules — three kinds of cannon, armour, Size and Speed. The war you are
+        playing still sails the old fleet and fights it the old way until the
+        engine swap lands, so a name here may not be a name in your harbour
+        yet.
+      </div>
+
       <div className="section-title">Every hull</div>
       <p className="tiny muted" style={{ margin: '0 0 8px' }}>
-        Four a side can be laid down from the first morning. The rest wait on
-        the shipwrights: put an officer on research at a loyal island with a
-        yard, and each grade of craft opens what the grade before could not
-        draw. The Crown improves families it already trusts — a <b>II</b> is
-        the same design taken further — and the Confederacy, which has no such
+        Four a side from the first morning, then eight the shipwrights open in
+        order: put a {terms.crewOne} on research at a loyal island with a yard,
+        and each grade of craft draws what the grade before could not. The
+        Crown improves families it already trusts — a <b>II</b> is the same
+        design taken further — and the Confederacy, which has no such
         programme, answers with different ships instead.
       </p>
-      {sides.map(({ faction, label }) => (
+      {ROSTER_SIDES.map(({ faction, label }) => (
       <div key={faction}>
       <div className="section-title">{label}</div>
       <div className="stack">
-        {shipsFor(faction).map((cls) => {
-          const spec = shipSpec(cls.id);
+        {fleetOf(faction).map((cls) => {
+          const total = cls.guns.longGuns + cls.guns.heavyGuns + cls.guns.lightGuns;
           return (
             <div key={cls.id} id={`enc-${cls.id}`} className="card">
               <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
-                <ShipThumb faction={faction} role={cls.role} cls={cls.id} size={140} />
+                <ShipThumb
+                  faction={NAVY_FACTION_TO_PLAYABLE[faction]}
+                  role={LEGACY_ROLE[cls.size]}
+                  cls={ART_SLUG[cls.id] ?? cls.id}
+                  size={140}
+                />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="row row--between">
                     <b>{cls.name}</b>
                     <span className="tiny muted">
-                      <GoldFig n={spec.costGold} per={null} /> · {spec.days}d
+                      <GoldFig n={cls.goldToBuild} per={null} /> · {cls.daysToBuild}d
                     </span>
                   </div>
                   <div className="row row--between">
                     <span className="tiny">
-                      {cls.craft ? (
-                        <b className="enc-craft">
-                          Craft {cls.craft}
-                          {faction === you &&
-                            ` — ${gradeOf(state, you) >= cls.craft ? 'researched' : 'not yet'}`}
-                        </b>
-                      ) : (
+                      {cls.research.kind === 'start' ? (
                         <span className="muted">Buildable from day one</span>
+                      ) : (
+                        <b className="enc-craft">Research {cls.research.raw}</b>
                       )}
                     </span>
+                    <span className="tiny muted">{cls.role}</span>
                   </div>
                   <div className="tiny" style={{ marginTop: 2 }}>
-                    <GoldFig label={terms.upkeep} n={spec.upkeep} tone="cost" />
+                    <GoldFig label={terms.upkeep} n={cls.goldPerDayMaintenance} tone="cost" />
                   </div>
-                  <div className="tiny muted" style={{ marginTop: 4 }}>{cls.blurb}</div>
+                  <div className="tiny muted" style={{ marginTop: 4 }}>{cls.designNotes}</div>
                 </div>
               </div>
+              {/* Guns are counts of individual cannon, each of which makes its
+                  own attack. There is no total worth showing as a stat, so the
+                  three are shown as three. */}
               <div className="statgrid">
-                <span><i>Guns</i><b>{spec.guns || '—'}</b></span>
-                <span><i>Hull</i><b>{spec.hull}</b></span>
-                <span><i>Against a wall</i><b>{spec.bombard || '—'}</b></span>
-                <span><i>Carries</i><b>{spec.carries || '—'}</b></span>
-                <span>
-                  <i>Pace</i>
-                  <b>{spec.pace < 1 ? 'Fast' : spec.pace > 1 ? 'Slow' : 'Steady'}</b>
-                </span>
-                <span><i>Getting clear</i><b>{spec.speed}/10</b></span>
-                <span><i>Broadsides</i><b>{GUN_DECKS[cls.role]}</b></span>
-                <span>
-                  <i>Long guns</i>
-                  <b>{spec.longGuns ? 'Yes' : 'No'}</b>
-                </span>
+                <span><i>Size</i><b>{cls.size}</b></span>
+                <span><i>Speed</i><b>{cls.speed}</b></span>
+                <span><i>Hull</i><b>{cls.hull}</b></span>
+                <span><i>Armour</i><b>{cls.armor || '—'}</b></span>
+                <span><i>Long guns</i><b>{cls.guns.longGuns || '—'}</b></span>
+                <span><i>Heavy guns</i><b>{cls.guns.heavyGuns || '—'}</b></span>
+                <span><i>Light guns</i><b>{cls.guns.lightGuns || '—'}</b></span>
+                <span><i>Bombardment</i><b>{cls.bombardment || '—'}</b></span>
+                <span><i>Carries</i><b>{cls.troopCapacity || '—'}</b></span>
+                <span><i>Repairs</i><b>{(cls.repairRatePerDay * 100).toFixed(1)}%/day</b></span>
+              </div>
+              {/* What she is actually hit by, which is the thing Size and
+                  Speed are for and the thing no column of stats shows. */}
+              <div className="tiny muted" style={{ marginTop: 6 }}>
+                Hit by a light gun <b>{hitChance('Light', cls)}%</b> · a long gun{' '}
+                <b>{hitChance('Long', cls)}%</b> · a heavy gun <b>{hitChance('Heavy', cls)}%</b>
+                {total > 0 && <> · she throws <b>{total}</b> {total === 1 ? 'cannon' : 'cannon'} a round</>}
               </div>
             </div>
           );
@@ -740,118 +833,180 @@ export function Almanac({
       </div>
       ))}
 
-      <div className="section-title">Which hull beats which</div>
+      <div className="section-title">The three cannon</div>
       <div className="card small">
-        <b>It goes round, not up.</b> Frigates take sloops, sloops take ships of the line, ships of
-        the line take frigates. A fleet of one kind has a hole in it the other side can aim at, and
-        no weight of sloops opens a fortified harbor.
+        <b>A gun is the thing that acts, not a ship.</b> There is no single
+        number for how hard a hull hits. Every individual cannon aboard her
+        makes its own attack, with its own roll to hit and its own dice — ten
+        guns are ten attacks — so a battery of many small guns and one great
+        gun behave nothing alike even where they add to the same weight.
         <br />
         <br />
-        <b>Three things make it turn.</b> A bigger hull is an easier target — a first-rate is hit{' '}
-        {Math.round(HULL_EASE.large * 100)}% as often as the dice say against a sloop's{' '}
-        {Math.round(HULL_EASE.small * 100)}%. A frigate's guns are handy against something small
-        and quick ({GUNNERY_ON_SMALL.medium.toFixed(2)}× on a sloop) where a first-rate's are not
-        ({GUNNERY_ON_SMALL.large.toFixed(2)}×). And weight is spread over decks: a ship of the line
-        fires {GUN_DECKS.large} broadsides of a third her weight rather than one great shot, so she
-        is not wasting thirty damage on a nine-hull sloop.
+        <b>Light.</b> {GUNS.Light.dice}d{DAMAGE_DIE} a cannon, and the most
+        accurate thing afloat at <b>+{GUNS.Light.accuracy}</b> to hit. It
+        ignores no armour at all, which is the whole of its weakness: against a
+        heavily plated hull most of what it lands is stopped dead.
         <br />
         <br />
-        <b>Measured by the purse</b>, even gold a side: two frigates beat four sloops, four sloops
-        beat a first-rate, two first-rates beat three frigates.
+        <b>Heavy.</b> {GUNS.Heavy.dice}d{DAMAGE_DIE} a cannon — twice a light
+        gun's dice — and it halves the armour in front of it. It is also the
+        worst-aimed gun in the world against anything small or quick.
+        <br />
+        <br />
+        <b>Long.</b> {GUNS.Long.dice}d{DAMAGE_DIE} a cannon and halves armour
+        like a heavy gun. Two things are its own: it <b>fires first</b>, before
+        any other gun on either side, and it is the <b>only</b> gun that
+        reaches a fleet already running.
       </div>
 
-      <div className="section-title">Shot against the land</div>
+      <div className="section-title">Armour</div>
       <div className="card small">
-        A hull's weight against a wall is a different number from her guns, and a transport has
-        none of it. Shot goes at the walls while any stand; only when none do can it reach the
-        garrison, and it takes {BOMBARD_PER_COMPANY} of weight to break one company. Shot that goes
-        looking for companies in a town finds the town: the island's regard falls{' '}
-        {CIVILIAN_LOYALTY_HIT} a day, every island in the Reach hears of it, and each further day
-        costs more than the last.
+        <b>It is subtracted, not a chance to shrug.</b> A gun rolls its damage,
+        the armour in front of it comes off the top, and what is left goes into
+        the hull. Armour runs from nothing to {MAX_ARMOUR}, and only the
+        Majestic carries {MAX_ARMOUR}.
+        <br />
+        <br />
+        <b>Penetration halves it.</b> A heavy or long gun faces half the
+        armour, rounded up; a light gun faces all of it. So against armour 25 a
+        25-damage light hit does <b>nothing</b>, a 26-damage light hit does{' '}
+        <b>1</b>, and a 26-damage heavy hit faces 13 and does <b>13</b>.
+        <br />
+        <br />
+        That one rule is most of why a fleet needs more than one kind of gun.
+        Light guns cannot open a first-rate however many of them you bring.
+      </div>
+
+      <div className="section-title">Size, speed, and what can hit you</div>
+      <div className="card small">
+        <b>Size and speed change accuracy and nothing else.</b> A heavy gun
+        firing at a sloop is not doing less damage — it is <i>missing</i>. The
+        dice are the same dice whatever they are pointed at.
+        <br />
+        <br />
+        Every shot starts at <b>{BASE_HIT_CHANCE}%</b> and is moved by what the
+        gun is and what it is shooting at, then held between{' '}
+        <b>{HIT_FLOOR}%</b> and <b>{HIT_CEILING}%</b>.
+      </div>
+      <div className="card small">
+        <div className="tiny muted" style={{ marginBottom: 4 }}>
+          Against a hull of this size:
+        </div>
+        <div className="statgrid">
+          {SIZE_ORDER.map((sz) => (
+            <span key={sz}>
+              <i>{sz}</i>
+              <b>
+                {GUN_VS_SIZE.Light[sz] >= 0 ? '+' : ''}{GUN_VS_SIZE.Light[sz]} ·{' '}
+                {GUN_VS_SIZE.Long[sz] >= 0 ? '+' : ''}{GUN_VS_SIZE.Long[sz]} ·{' '}
+                {GUN_VS_SIZE.Heavy[sz] >= 0 ? '+' : ''}{GUN_VS_SIZE.Heavy[sz]}
+              </b>
+            </span>
+          ))}
+        </div>
+        <div className="tiny muted" style={{ margin: '6px 0 4px' }}>
+          Against a hull of this speed:
+        </div>
+        <div className="statgrid">
+          {SPEED_ORDER.map((sp) => (
+            <span key={sp}>
+              <i>{sp}</i>
+              <b>
+                {GUN_VS_SPEED.Light[sp] >= 0 ? '+' : ''}{GUN_VS_SPEED.Light[sp]} ·{' '}
+                {GUN_VS_SPEED.Long[sp] >= 0 ? '+' : ''}{GUN_VS_SPEED.Long[sp]} ·{' '}
+                {GUN_VS_SPEED.Heavy[sp] >= 0 ? '+' : ''}{GUN_VS_SPEED.Heavy[sp]}
+              </b>
+            </span>
+          ))}
+        </div>
+        <div className="tiny muted" style={{ marginTop: 6 }}>
+          Light · long · heavy, in that order. A heavy gun is{' '}
+          {GUN_VS_SIZE.Heavy.Small} against a small hull and{' '}
+          {GUN_VS_SPEED.Heavy['Very Fast']} against a very fast one — put those
+          together and it hits a small very fast hull <b>one time in ten</b>,
+          which is why a first-rate alone is meat for a swarm and why a fleet
+          of all one size is a fleet somebody can bring the wrong guns to.
+        </div>
       </div>
 
       <div className="section-title">An action at sea</div>
       <div className="card small">
         <b>Where it happens.</b> Wherever your hulls and theirs lie in the same
         water — nobody manoeuvres and there is no open sea to meet in. A
-        creature is nobody's, so anchoring in its water is an action on its own.
-        A fort is <i>not</i>: the walls answer a bombardment, not a fleet, so a
-        fortified harbor with no ships in it is not something to fight.
+        creature is nobody's, so anchoring in its water is an action on its
+        own. A fort is not: the walls answer a bombardment, not a fleet.
         <br />
         <br />
-        <b>How it runs.</b> The day you meet, one broadside is fired and the
-        clock stops. After that it is yours: fight on a round at a time, or
-        break off. Everyone fires at once each round, worked out against the
-        state at the start of it, so a hull that goes down still got its shot
-        away. Most actions are decided in two or three.
+        <b>A round has two phases.</b> First every long gun on both sides fires
+        — targets chosen, then dice — and anything sunk by them is gone before
+        it can answer. Then every light and heavy gun on both sides fires as
+        one solution, so a hull going down still gets her shot away and two
+        ships can sink each other.
         <br />
         <br />
-        <b>What you are told.</b> Two words over the sheet, off the guns still
-        firing on both sides, with the creature counted against everybody and
-        the wall counted for nobody:{' '}
-        {(['overwhelming', 'favorable', 'even', 'unfavorable', 'desperate'] as const)
-          .map((band) => BATTLE_ODDS_LABEL[band])
-          .join(' · ')}
-        . Under it, every hull in the water on both sides and what it has left.
+        <b>What you press is a Combat Exchange, not a round.</b> One press of
+        Fight runs rounds until a side has lost{' '}
+        <b>{Math.round(EXCHANGE_STOP_SHARE * 100)}%</b> of the hull it had when
+        the Exchange opened, or a fleet is gone. Two fresh fleets trade several
+        rounds before that; a battered one comes back to you almost at once.
         <br />
         <br />
-        <b>Breaking off.</b> Always works — there is no roll that keeps you in a
-        fight you have decided to leave. What it costs is the run. Only guns
-        that reach can touch a fleet already under way: a creature always can, a
-        hull only if she carries long guns, and the wall only if you were
-        bombarding it — all at{' '}
-        {Math.round(LONG_GUN_SHARE * 100)}% of her weight. How many shots you
-        eat on the way out is your speed, which is why a first-rate is an
-        expensive thing to have to withdraw and a sloop is nearly free. You run
-        for the nearest island you hold; with nowhere to run, or companies of
-        yours ashore, you stay.
+        <b>Who is aboard still tells.</b> The best Leadership serving with a
+        fleet adds to the hit chance of every cannon it fires.
         <br />
         <br />
-        <b>They break off too</b>, once the guns still firing against them are{' '}
-        {BREAK_OFF_ODDS} times their own and there is somewhere to run — never
-        on the first exchange. It is a rule rather than a judgement, which means
-        you can bait it.
-        <br />
-        <br />
-        <b>Who is aboard.</b> The best Leadership with a fleet is worth a hit
-        chance to every gun in it. Companies aboard go down with the hull
-        carrying them, which is what makes a loaded transport worth escorting
-        and worth sinking. A fort is {FORT_GUNS} guns.
+        <b>Nothing mends mid-battle</b>, and damage stays on the hull when it
+        ends, until she is repaired somewhere quiet.
       </div>
 
-      {/* The four hulls as a table, because the decision the battle sheet asks
-          for is made of exactly these numbers. */}
-      <div className="stack" style={{ marginTop: 10 }}>
-        {shipsFor(state.player).map((cls) => {
-          const spec = shipSpec(cls.id);
-          return (
-            <div key={cls.id} className="card row" style={{ gap: 10, alignItems: 'center' }}>
-              <ShipThumb faction={state.player} role={cls.role} cls={cls.id} size={30} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="row row--between">
-                  <b className="small">{cls.name}</b>
-                  <span className="tiny muted">
-                    {spec.guns} guns · {spec.hull} hull
-                    {spec.longGuns ? ' · long guns' : ''}
-                  </span>
-                </div>
-                <div className="tiny muted" style={{ marginTop: 1 }}>
-                  {spec.guns === 0
-                    ? 'Cannot fight. Carries more than anything else afloat.'
-                    : `Speed ${spec.speed} — ${
-                        spec.speed >= 8
-                          ? 'slips away under fire'
-                          : spec.speed >= 5
-                            ? 'gets clear at a price'
-                            : 'pays dearly to withdraw'
-                      }.`}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      <div className="section-title">Choosing a target</div>
+      <div className="card small">
+        <b>Guns are laid before dice are rolled.</b> Each cannon is pointed at
+        whichever enemy removes the most threat per shot it would take to
+        remove her — her weight of guns divided by how many hits she has left
+        in her.
+        <br />
+        <br />
+        <b>They do not pile on.</b> Once enough fire is laid on a hull to
+        expect her sunk, the rest of the battery looks elsewhere, so a fleet
+        spreads instead of emptying itself into one wreck.
+        <br />
+        <br />
+        <b>And they know what they cannot hurt.</b> A cannon that could not get
+        through a hull's armour will not be pointed at her while anything else
+        floats. An unarmed transport is a target only when nothing armed is
+        left.
       </div>
 
+      <div className="section-title">Breaking off</div>
+      <div className="card small">
+        <b>It always works.</b> There is no roll that keeps you in a fight you
+        have decided to leave, and no further round once you have left.
+        <br />
+        <br />
+        <b>What it costs is the long guns.</b> Every surviving long gun in the
+        pursuing fleet gets one shot at you as you go, at its ordinary dice and
+        penetration — and nothing else reaches. A pursuer with no long guns
+        watches you leave and cannot touch you, which is the clearest single
+        reason to build them.
+      </div>
+
+      <div className="section-title">Bombardment</div>
+      <div className="card small">
+        <b>Against stone, never against ships.</b> Bombardment is its own
+        rating and it contributes nothing to a fleet action — a hull can carry
+        a siege train and be nearly harmless at sea, and the Ironback is
+        exactly that.
+        <br />
+        <br />
+        Shot goes at the walls while any stand; only when none do can it reach
+        the garrison, and it takes {BOMBARD_PER_COMPANY} of weight to break one
+        company. The wall answers a bombardment at its full weight the whole
+        time, which is what makes the first day of a siege the expensive one.
+        Shot that goes looking for companies in a town finds the town: the
+        island's regard falls {CIVILIAN_LOYALTY_HIT} a day, every island in the
+        Reach hears of it, and each further day costs more than the last.
+      </div>
       {/*
         The three the stories are about, and nothing builds.
         `shipsFor` drops them because nothing can be laid down; an
