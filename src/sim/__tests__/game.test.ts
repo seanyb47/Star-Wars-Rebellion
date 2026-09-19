@@ -81,12 +81,20 @@ describe('a full game', () => {
    *
    * That is a real cost of the rescaling and it belongs in the open, not
    * papered over with a bigger day cap. What is being tested here is the
-   * *condition* — take Highwater and the war ends — and seed 1 demonstrates
-   * it. How often the opponent can get there is the sibling test above, which
-   * already tolerates two exceptions in six and now uses both of them.
+   * *condition* — take Highwater and the war ends — and a seed that reaches it
+   * demonstrates it.
+   *
+   * Seed 2 again, and the churn is the point. Fixing the yards errand later
+   * the same day — it had been throwing out a hundred days of work whenever an
+   * island drifted below the allegiance floor — moved which seeds settle,
+   * because a side that reaches the top of its research tree builds a
+   * different fleet. Re-measured over the same twelve: nine settle where ten
+   * did, median 599 days against 659, and seeds 1, 6 and 12 are the ones that
+   * now run out rather than 2 and 9. Neither set is better; the war is simply
+   * not the same war once research works.
    */
   it('ends the way the rules say: Highwater fallen, or every Lord in irons', () => {
-    const state = playOut(1, 'empire');
+    const state = playOut(2, 'empire');
     expect(state.winner).toBe('alliance');
     const capital = getSystem(state, state.factions.empire.hqSystemId);
     expect(capital.control).toBe('alliance');

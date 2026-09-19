@@ -15,6 +15,7 @@ import {
   isMissionTarget,
   isRecruitTarget,
   isResearchTarget,
+  stillWorthDoing,
   isRescueTarget,
   captiveOn,
   missionTypeFor,
@@ -244,6 +245,63 @@ describe('research', () => {
     expect(missionTypeFor(state, yard, 'empire')).not.toBe('research');
     state.factions.empire.craft = 0;
     expect(missionTypeFor(state, yard, 'empire')).toBe('research');
+  });
+
+  /**
+   * A fortnight's work is not undone by the harbour going two points cooler.
+   *
+   * Sean's Day 150 playtest: *"'In the yards' errand fails with a parley
+   * message... Craft stayed 0 all game (Crown hit 34)."* Reproduced by running
+   * the war: the Lord Regent put in at Highwater on day 2 with the island at
+   * 99.5, worked its yards for a hundred and four days, and lost the lot on
+   * day 106 when Highwater drifted to 72.9 — a fraction under the floor.
+   *
+   * The allegiance floor is a rule about *choosing* the errand: below it there
+   * is still an argument to be won and a parley is the better use of an
+   * officer. Re-checking it every cycle turned it into a rule about the work
+   * being possible, which made a long errand fragile in proportion to its
+   * length — and research is the longest there is.
+   *
+   * Measured across three wars, machine-played: craft finished at 179.7, 24.0
+   * and 164.3 with two or three abandonments apiece; afterwards 520.7, 527.7
+   * and 504.0 with none. The grades are 100 / 260 / 520, so the top of the
+   * research tree had never once been reached by either side.
+   */
+  it('keeps working through a dip in allegiance, and stops for the things that really stop it', () => {
+    const state = world();
+    const yard = state.systems.find(
+      (s) =>
+        s.control === 'empire' &&
+        s.facilities.some((f) => f.type === 'shipyard' || f.type === 'construction_yard'),
+    )!;
+    yard.support.empire = RESEARCH_MIN_SUPPORT + 5;
+    expect(isResearchTarget(state, yard, 'empire')).toBe(true);
+    expect(stillWorthDoing(state, yard, 'empire', 'research')).toBe(true);
+
+    // The drift that used to end it. It may no longer be *chosen* here — a
+    // parley is the better errand now — but the shipwrights carry on.
+    yard.support.empire = RESEARCH_MIN_SUPPORT - 3;
+    expect(isResearchTarget(state, yard, 'empire')).toBe(false);
+    expect(stillWorthDoing(state, yard, 'empire', 'research')).toBe(true);
+
+    // What does stop them, one at a time.
+    yard.uprising = true;
+    expect(stillWorthDoing(state, yard, 'empire', 'research')).toBe(false);
+    yard.uprising = false;
+
+    yard.control = 'alliance';
+    expect(stillWorthDoing(state, yard, 'empire', 'research')).toBe(false);
+    yard.control = 'empire';
+
+    const yards = yard.facilities.filter(
+      (f) => f.type === 'shipyard' || f.type === 'construction_yard',
+    );
+    yard.facilities = yard.facilities.filter((f) => !yards.includes(f));
+    expect(stillWorthDoing(state, yard, 'empire', 'research')).toBe(false);
+    yard.facilities.push(...yards);
+
+    state.factions.empire.craft = CRAFT_GRADES[CRAFT_GRADES.length - 1];
+    expect(stillWorthDoing(state, yard, 'empire', 'research')).toBe(false);
   });
 
   it('makes hulls cheaper and quicker, and only hulls', () => {

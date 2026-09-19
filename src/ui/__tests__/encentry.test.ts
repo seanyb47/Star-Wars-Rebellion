@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { loreShip, shipFlavour, subjectFor, slugOf } from '../Almanac';
 import shipFlavourData from '../../data/ship-flavour.json';
 import { ROSTER } from '../../sim/shipdefs';
-import { CHART_LAYERS, SHIP_CLASSES, TROOP_TYPES, YARD_BUILDABLE } from '../../sim';
+import { CHART_LAYERS, GOLD_PER_DAY, SHIP_CLASSES, TROOP_TYPES, YARD_BUILDABLE } from '../../sim';
 import { orderedLayers } from '../prefs';
 import characterRoster from '../../data/characters.json';
 import { PIRATE_LORDS } from '../../sim';
@@ -199,5 +199,56 @@ describe('the hull a Pirate Lord is remembered for', () => {
     const told = PIRATE_LORDS.map((l) => l.ship).sort();
     const legends = SHIP_CLASSES.filter((c) => c.legend).map((c) => c.id).sort();
     expect(told).toEqual(legends);
+  });
+});
+
+/**
+ * What a building earns, said once.
+ *
+ * Sean's Day 150 playtest: *"Gold Mine earnings are shown wrong. The build
+ * screen says 'Earns 2/day,' but Pa.mine = 9 in code... This is the most
+ * important economic choice and the UI gets it wrong."*
+ *
+ * The build sheet had the two figures typed in by hand — `item === 'mine' ? 2
+ * : 3` — next to a table that said 9 and 3. The mill's literal happened to
+ * agree and the mine's was out by more than four times, on the one screen
+ * where a player chooses between them.
+ *
+ * So this greps the UI rather than testing a function: the fault was not bad
+ * arithmetic, it was a number existing in two places, and only a search finds
+ * the second one coming back.
+ */
+describe('what a works earns is read and never retyped', () => {
+  /*
+   * Through Vite's raw glob, the way `vocabulary.test.ts` already does it —
+   * not `node:fs`, which passes under vitest and then fails the typecheck
+   * because the app carries no Node types.
+   */
+  const SOURCES = import.meta.glob('../*.tsx', {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  }) as Record<string, string>;
+  const ui = Object.entries(SOURCES).map(([path, text]) => ({
+    file: path.replace('../', ''),
+    text,
+  }));
+
+  it('never writes an earnings figure as a literal beside the word Earns', () => {
+    for (const { file, text } of ui) {
+      // `label="Earns" n={...}` where the value is a bare number.
+      const typed = [...text.matchAll(/label="Earns"\s+n=\{\s*(\d+(?:\.\d+)?)\s*\}/g)];
+      expect(typed.map((m) => m[0]), file).toEqual([]);
+      // Nor the shape that started it: a ternary of two bare numbers.
+      const ternary = [...text.matchAll(/label="Earns"\s+n=\{[^}]*\?\s*\d+\s*:\s*\d+\s*\}/g)];
+      expect(ternary.map((m) => m[0]), file).toEqual([]);
+    }
+  });
+
+  it('agrees with the table for the two works that earn', () => {
+    expect(GOLD_PER_DAY.mine).toBe(9);
+    expect(GOLD_PER_DAY.refinery).toBe(3);
+    // And the table is the only place either number is stated.
+    expect(GOLD_PER_DAY.mine).toBeGreaterThan(GOLD_PER_DAY.refinery);
   });
 });

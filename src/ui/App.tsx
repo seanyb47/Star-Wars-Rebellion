@@ -11,6 +11,7 @@ import {
   loadGame,
   newGame,
   orderBuild,
+  missionReport,
   resolvePendingMission,
   saveGame,
   orderFlee,
@@ -1067,19 +1068,22 @@ function MissionDecisionSheet({
       }
     >
       <p style={{ marginTop: 0 }}>
-        {character.mission?.type === 'incite'
-          ? decision.success
-            ? `Word is spreading on ${system.name}. The governor's hold is slipping.`
-            : `${system.name} will not be moved this time; the governor still has them.`
-          : decision.success
-            ? `The talks on ${system.name} went well. Opinion has shifted your way.`
-            : `The talks on ${system.name} went nowhere this time.`}
+        {missionReport(
+          character.mission?.type ?? 'diplomacy',
+          decision.success,
+          system.name,
+        )}
       </p>
-      <div className="card row" style={{ gap: 18 }}>
-        <Stat label={factionData.empire.shortName} value={Math.round(system.support.empire)} />
-        <Stat label={factionData.alliance.shortName} value={Math.round(system.support.alliance)} />
-        <Stat label="Control" value={<ControlBadge faction={system.control} />} />
-      </div>
+      {/* The allegiance row belongs to the two errands that move allegiance.
+          On a sabotage or a survey it was three numbers that had not changed
+          and had nothing to do with what the officer just did. */}
+      {(character.mission?.type === 'diplomacy' || character.mission?.type === 'incite') && (
+        <div className="card row" style={{ gap: 18 }}>
+          <Stat label={factionData.empire.shortName} value={Math.round(system.support.empire)} />
+          <Stat label={factionData.alliance.shortName} value={Math.round(system.support.alliance)} />
+          <Stat label="Control" value={<ControlBadge faction={system.control} />} />
+        </div>
+      )}
     </Sheet>
   );
 }

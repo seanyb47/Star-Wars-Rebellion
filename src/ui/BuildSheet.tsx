@@ -2,6 +2,7 @@ import terms from '../data/terms.json';
 import {
   buildLabel,
   planBuild,
+  GOLD_PER_DAY,
   shipClass,
   shipSpec,
   shipsFor,
@@ -253,8 +254,20 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
   const upkeepLine =
     plan.upkeep > 0 ? (
       <GoldFig label={terms.upkeep} n={plan.upkeep} tone="cost" />
-    ) : item === 'mine' || item === 'refinery' ? (
-      <GoldFig label="Earns" n={item === 'mine' ? 2 : 3} tone="earn" />
+    ) : GOLD_PER_DAY[item] > 0 ? (
+      /*
+       * From the table, not from a literal.
+       *
+       * Sean's Day 150 playtest: *"Gold Mine earnings are shown wrong. The
+       * build screen says 'Earns 2/day,' but Pa.mine = 9 in code (Lumber Mill
+       * = 3). This is the most important economic choice and the UI gets it
+       * wrong."* He is exactly right: this line read `item === 'mine' ? 2 : 3`
+       * — a pair of numbers typed in by hand beside a `GOLD_PER_DAY` table
+       * that says 9 and 3. The mill's happened to agree; the mine's was off by
+       * more than four times, on the one screen where a player decides which
+       * of the two to build.
+       */
+      <GoldFig label="Earns" n={GOLD_PER_DAY[item]} tone="earn" />
     ) : (
       <span className="muted">Nothing to keep</span>
     );

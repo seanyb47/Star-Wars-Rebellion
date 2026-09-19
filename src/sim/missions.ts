@@ -498,9 +498,45 @@ export function isResearchTarget(
    * the Pirate Lords spending more of their time in a shipyard than on any
    * other errand there is.
    */
+  if (system.support[faction] < RESEARCH_MIN_SUPPORT) return false;
+  return researchStillPossible(state, system, faction);
+}
+
+/**
+ * Whether the shipwrights can still be working — as against whether the errand
+ * was worth choosing in the first place.
+ *
+ * These were one function until Sean's Day 150 playtest, and that is the whole
+ * bug: *"'In the yards' errand fails with a parley message... Craft stayed 0
+ * all game (Crown hit 34)."*
+ *
+ * Reproduced exactly. The Lord Regent put in at Highwater on day 2 with the
+ * island at 99.5 and worked its yards for a hundred and four days; on day 106
+ * Highwater drifted to 72.9, a fraction under the seventy-five floor, and the
+ * entire errand was thrown out. Across three wars the Confederacy's craft
+ * finished on 0.0 every time.
+ *
+ * The floor is a rule about *choosing*: below it the island still has an
+ * argument to be won and a parley is the better use of an officer. It was
+ * never a rule about the work becoming impossible — a shipwright does not put
+ * down their tools because the harbour has gone two points cooler — and
+ * re-checking it every cycle made a long errand fragile in proportion to how
+ * long it was, which is exactly backwards.
+ *
+ * So what can genuinely stop the work stays: the island changing hands, rising,
+ * losing its yards, or the craft topping out. The allegiance floor does not.
+ */
+export function researchStillPossible(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+): boolean {
+  /*
+   * Nothing left for the shipwrights to learn: three grades, and `craftGrade`
+   * stops counting at the third.
+   */
   if (craftGrade(state.factions[faction].craft) >= CRAFT_GRADES.length) return false;
   if (!system.explored[faction] || system.control !== faction || system.uprising) return false;
-  if (system.support[faction] < RESEARCH_MIN_SUPPORT) return false;
   return system.facilities.some(
     (f) => f.owner === faction && (f.type === 'shipyard' || f.type === 'construction_yard'),
   );
@@ -644,7 +680,8 @@ export function stillWorthDoing(
   if (type === 'abduct') return isAbductTarget(state, system, faction);
   if (type === 'rescue') return isRescueTarget(state, system, faction);
   if (type === 'command') return isCommandTarget(system, faction);
-  if (type === 'research') return isResearchTarget(state, system, faction);
+  // The yards keep working through a dip in allegiance; see the note there.
+  if (type === 'research') return researchStillPossible(state, system, faction);
   return isDiplomacyTarget(system, faction);
 }
 
@@ -1028,6 +1065,69 @@ export function startMission(
 }
 
 /**
+ * What a cycle ashore came to, in that errand's own words.
+ *
+ * Sean's Day 150 playtest: *"Mission report dialogs use parley wording for
+ * every errand type. Recruiting, sabotage and exploring all report 'The talks
+ * on X went well / went nowhere.' Reyne burned Wrightsport's shipyard and the
+ * report said 'talks went well.'"*
+ *
+ * He is quoting the code accurately. The report sheet had one ternary with a
+ * special case for incitement and the parley line for everything else, so
+ * eight of the ten errands reported as a negotiation — including the ones
+ * where the officer had just set fire to something.
+ *
+ * Here rather than in the sheet so the log and the dialog cannot drift, which
+ * is the fault that produced the single ternary in the first place.
+ */
+export function missionReport(type: MissionType, success: boolean, place: string): string {
+  const lines: Record<MissionType, [string, string]> = {
+    diplomacy: [
+      `The talks on ${place} went well. Opinion has shifted your way.`,
+      `The talks on ${place} went nowhere this time.`,
+    ],
+    incite: [
+      `Word is spreading on ${place}. The governor's hold is slipping.`,
+      `${place} will not be moved this time; the governor still has them.`,
+    ],
+    recruit: [
+      `The table on ${place} was worth keeping: somebody worth having has signed.`,
+      `A fortnight of open table on ${place} and nobody worth the ink sat down.`,
+    ],
+    sabotage: [
+      `It burned. ${place} is short of what it had this morning.`,
+      `Nothing took on ${place} — too many eyes, and the job was left alone.`,
+    ],
+    survey: [
+      `${place} is on your charts now, and something of what lies round it.`,
+      `Fog, foul ground and no landing: ${place} keeps its secrets a while longer.`,
+    ],
+    espionage: [
+      `The count from ${place} is in: what stands there, and what is under way.`,
+      `No way in on ${place}. Whatever is there is still theirs to know.`,
+    ],
+    abduct: [
+      `Taken off the quay at ${place} quietly, and away before the alarm.`,
+      `The lift on ${place} failed; their man is still standing there.`,
+    ],
+    rescue: [
+      `Out of the cells at ${place} and away — one of yours is coming home.`,
+      `The cells at ${place} held. Whoever is in them is in them still.`,
+    ],
+    command: [
+      `${place} answers again. Order restored, and somebody in the chair.`,
+      `${place} is still in uproar; the chair is not worth sitting in yet.`,
+    ],
+    research: [
+      `The shipwrights on ${place} have something to show for the fortnight.`,
+      `A fortnight in the yards on ${place} and nothing came of it.`,
+    ],
+  };
+  const pair = lines[type];
+  return pair ? pair[success ? 0 : 1] : `${place}: the work is done for now.`;
+}
+
+/**
  * What to call an errand, in one place.
  *
  * Three screens were spelling these out in their own nested ternaries and the
@@ -1406,6 +1506,16 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
                 ? `${character.name} finds the cells at ${system.name} empty; the exchange came first.`
               : mission.type === 'command'
                 ? `${character.name} lands on ${system.name} to find order already restored.`
+              : mission.type === 'research'
+                // Not "the island is beyond reach", which is what this said
+                // until Sean's playtest found it: a yards errand that stops
+                // being possible has lost its yards or its island, and saying
+                // so as a failed negotiation was nonsense twice over.
+                ? `${character.name} finds no yard left working on ${system.name}.`
+                : mission.type === 'sabotage' || mission.type === 'espionage'
+                  ? `${character.name} finds nothing worth the risk on ${system.name}.`
+                  : mission.type === 'survey'
+                    ? `${character.name} finds ${system.name} already charted.`
                 : system.support[faction] >= SUPPORT_MAX
                   // Not a failure: they arrived to find the argument already
                   // won. "Beyond reach" is for an island that went the other
