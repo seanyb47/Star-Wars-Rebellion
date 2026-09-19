@@ -4463,3 +4463,68 @@ headers, because `row--between` is still the right markup and only its width
 changed.
 
 `.company__thumb` went with it — the encyclopedia was its only caller.
+
+## Two layers: a picture to scroll, an entry to open
+
+Sean, 19 September: *"I feel like on the encyclopedia you're trying to do too
+much... Within the encyclopedia you can look at pics and scroll. But when you
+find the entry you want you click it for max info in a single entry. And then
+in the game panels if you need to learn about something you click it and it
+pops up the full max entry."*
+
+He is right, and the thing he is describing is not a tidy-up. Every list row
+had been carrying its whole subject — art, name, tags, a stat grid, hit
+chances, lore — and twenty-six of those is a **document you scroll past**
+rather than a reference you look things up in. The page was doing the browsing
+job and the reading job at once and failing the first.
+
+### The browse layer
+
+A grid, two to a row: a picture, a name, and one line. Ships get *Large · 700
+hull · R3*, crew get their people, companies their three numbers, works their
+cost. That is the fact you would sort or choose by and nothing else. A dozen
+hulls fit on a screen where one and a half used to.
+
+The crew page's three paragraphs about what a rating is for moved **below** the
+grid on the same reasoning: it is a page you read once and then scroll past
+twenty-six times.
+
+### The entry layer
+
+`EntrySheet` — one subject, everything known about it, on a third sheet level
+above the reference. It is not a new document: it is what the rows were
+carrying, plus the couple of facts that had only ever been stated in
+page-level prose and never on the thing they were about. A person's entry now
+answers *may this one be sent recruiting, may this one hold an island* from
+their own `roles` rather than leaving the player to hold the rule in their head
+while looking at somebody.
+
+### One destination, two ways in
+
+The sheet is keyed by **id**, not by whatever object the caller happened to be
+holding, which is what lets a game panel and the reference's own list be the
+same request. Tapping a crew card on the Crew screen now opens that person's
+entry directly, over the encyclopedia rather than instead of it, so closing it
+leaves you somewhere sensible.
+
+`subjectFor` does the guessing — hull ids, company ids, works types, the two
+resources, a person's slug — once, in one place. That guess is the fragile
+part of the design: a new id space that happened to look like an old one would
+send a player to the wrong sheet in silence. So a test walks every id in all
+five spaces and fails if any two ever collide, and another pins that a
+glossary word, a cut hull and the empty case all resolve to nothing rather
+than to a wrong guess.
+
+### A second silent bug, found by rewriting the anchors
+
+Landing on an entry had never worked for a hull. The cells were keyed
+`enc-CWN-MAJ-R8-01` and the effect looked for `enc-${slugOf(entry)}`, which
+lower-cases — and `getElementById` does not. **Every ship lookup in the game
+has been landing at the top of the Ships page since the roster went in**, which
+looks exactly like a lookup that did nothing. Both ends go through `anchorOf`
+now, so they cannot drift apart again.
+
+That is the second one this week in the same few lines — the first was lookups
+from inside an already-open encyclopedia doing nothing at all. Both were
+invisible because the failure mode of a broken lookup is a page that opens
+anyway, just not where you wanted it.

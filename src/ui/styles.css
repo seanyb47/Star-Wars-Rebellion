@@ -469,6 +469,9 @@ button {
 .pickbar__btn { flex: 1; min-height: var(--tap); font-size: 13.5px; font-weight: 600; }
 .sheet--stacked { z-index: 23; }
 .scrim--stacked { z-index: 22; }
+/* The encyclopedia's second layer: one entry, opened out of the reference. */
+.sheet--top { z-index: 25; }
+.scrim--top { z-index: 24; }
 
 .chip--toast {
   z-index: 30;
@@ -2118,7 +2121,7 @@ button.tcard:hover { border-color: var(--brass); }
 
 /* A company's figure in the encyclopedia, at a size you can actually read. */
 /* `.company__thumb` stood here. The encyclopedia was its only caller and it
-   now uses the shared `.encunit__art` column like every other unit. */
+   now uses the shared encyclopedia cell like every other unit. */
 
 /* A hull the shipwrights have not reached yet, in the encyclopedia. */
 .enc-craft { color: var(--metal-hi); letter-spacing: 0.02em; }
@@ -2291,85 +2294,88 @@ button.tcard:hover { border-color: var(--brass); }
   color: var(--chrome-muted); line-height: 1;
 }
 
-/* The encyclopedia's crew entry: head beside the name, then tags, numbers,
-   life. Four bands, each doing one job.
+/* The one-column unit entry stood here and is gone with the list it belonged
+   to. Three passes built it — the crew art grew to answer *"I can barely see
+   their faces"*, came back 40% to answer *"too big now"*, and then every
+   other unit was brought to the same width — and all three are folded into
+   the two layers below: a picture-and-a-name cell, and one entry opened out
+   of it. `.encunit__*` and `.enccrew__*` went with them. */
 
-   Four passes to get here, and the last two are the interesting ones. The
-   painting went full-width to answer *"I can barely see their faces"* — right
-   diagnosis, since a head is only a third of a three-quarter figure and a
-   fixed height was cropping into the third that matters, but the cure ran
-   past the disease. At the card's full 384px a 256px face crop is blown up
-   half again, so the biggest version of this picture was also the softest one,
-   and 26 of them stacked read as a slideshow rather than a reference.
+/* ---- The encyclopedia's two layers -------------------------------------
 
-   Sean, 19 September: *"Crew images are too big now. Reduce by 40%."* 60% of
-   the card is about 230px — under the 256px source, so this is the first size
-   at which the crop has been shown sharp — and it leaves a column beside it
-   for the name, which is what lets the rest of the entry line up in bands. */
-.enccrew,
-.encunit { padding: 12px; }
+   Sean, 19 September: *"I feel like on the encyclopedia you're trying to do
+   too much... Within the encyclopedia you can look at pics and scroll. But
+   when you find the entry you want you click it for max info in a single
+   entry. And then in the game panels if you need to learn about something you
+   click it and it pops up the full max entry."*
 
-/* One art column, every tab.
-
-   Sean, 19 September: *"Make ships on encyclopedia same size images as crew.
-   In fact all units same size."* They were all over the place — a crew face at
-   216px, a hull at 140, a works at 84 and a company at 76 — because each
-   entry had been built when its own tab was, and each picked a number that
-   looked right on its own page. Nothing lined up when you swiped between them.
-
-   Same **width** for all of them, 60% of the card, which is what makes the
-   column read as one column. Not the same box: a hull is 4:3, a works is a
-   wide strip and a head is square, and forcing those into one shape would
-   either crop the art or hang it in a lot of empty space. Each fills the
-   width and keeps its own proportions. */
-.encunit__head { display: flex; gap: 12px; align-items: flex-start; }
-.encunit__art { line-height: 0; flex: 0 0 60%; min-width: 0; }
-.encunit__who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-
-/* Each kind of art, told to fill that column rather than the pixel size its
-   component was asked for. The components keep their defaults for every other
-   screen; only the encyclopedia overrides them. */
-.encunit__art .charface {
-  width: 100% !important; height: auto !important; aspect-ratio: 1 / 1;
-  border-radius: 8px;
+   So the list stopped being the reference and became the way into it. Every
+   entry had been carrying its whole self — art, stats, hit chances, lore — and
+   twenty-six of those is a document you scroll past rather than a thing you
+   look things up in. The list is pictures and a name now, two to a row, which
+   is what makes it scannable: a dozen hulls on a screen instead of one and a
+   half. Everything that was in the row is still written; it is one tap away
+   in a sheet of its own, and that same sheet is what a game panel opens
+   directly. */
+.encgrid {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
-.encunit__art .shipthumb {
-  display: block; width: 100% !important; height: auto !important;
-  aspect-ratio: 4 / 3; border-radius: 8px;
+.encmini {
+  display: flex; flex-direction: column; gap: 1px; padding: 0 0 8px;
+  text-align: left; color: inherit; font: inherit; cursor: pointer;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden;
 }
-.encunit__art .facthumb { display: block; width: 100%; border-radius: 8px; }
-/* A company is a drawn figure, not a painting, so it is centred in the column
-   at a height that gives it the same weight as the paintings beside it rather
-   than stretched to a width it was never drawn for. */
-.encunit__art--figure {
-  display: grid; place-items: center; aspect-ratio: 4 / 3;
-  border: 1px solid var(--border); border-radius: 8px; background: rgba(0, 0, 0, 0.18);
+.encmini:active { background: rgba(0, 0, 0, 0.18); }
+.encmini:focus-visible { outline: 2px solid var(--brass); outline-offset: -2px; }
+.encmini__art { display: block; line-height: 0; width: 100%; }
+/* Each art kind told to fill the cell, the same override the one-column
+   layout needed — the cell is narrower, nothing else changed. */
+.encmini__art .charface { width: 100% !important; height: auto !important; aspect-ratio: 1 / 1; }
+.encmini__art .shipthumb {
+  display: block; width: 100% !important; height: auto !important; aspect-ratio: 4 / 3;
+  border: 0; border-radius: 0;
+}
+.encmini__art .facthumb { display: block; width: 100%; border: 0; border-radius: 0; }
+.encmini__art--figure {
+  display: grid; place-items: center; aspect-ratio: 4 / 3; background: rgba(0, 0, 0, 0.22);
+}
+.encmini__name {
+  font-size: 13px; font-weight: 600; line-height: 1.2; color: var(--text);
+  padding: 7px 9px 0;
+}
+/* One line, and only the fact you would sort or choose by. Everything else is
+   inside. */
+.encmini__line {
+  font-size: 10.5px; color: #8fa6b0; line-height: 1.35; padding: 2px 9px 0;
+  font-variant-numeric: tabular-nums;
+}
+.encmini__tag {
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--brass); opacity: 0.85; padding: 3px 9px 0;
+}
+/* The entry itself, on the layer above. The art runs the full width here
+   because there is nothing competing with it any more. */
+.encfull__art { line-height: 0; border-radius: 10px; overflow: hidden; }
+.encfull__art .charface { width: 100% !important; height: auto !important; aspect-ratio: 1 / 1; }
+.encfull__art .shipthumb {
+  display: block; width: 100% !important; height: auto !important; aspect-ratio: 4 / 3;
+}
+.encfull__art .facthumb { display: block; width: 100%; }
+.encfull__art--figure {
+  display: grid; place-items: center; aspect-ratio: 16 / 9;
+  border: 1px solid var(--border); border-radius: 10px; background: rgba(0, 0, 0, 0.18);
 }
 
 /* The text column is 40% of a phone now, so the header rows that used to run
    name-left figure-right across a full card have to stack. Done here rather
    than by rewriting four headers: `row--between` is the right markup and only
    its width has changed. */
-.encunit__who .row--between {
-  flex-direction: column; align-items: flex-start; gap: 0;
-}
-.encunit__who .row--between > * { text-align: left; }
-.enccrew__name { font-size: 15px; line-height: 1.2; color: var(--text); }
-.enccrew__sworn {
-  margin-top: 2px; font-size: 10px; font-weight: 700;
-  letter-spacing: 0.1em; text-transform: uppercase; color: var(--brass); opacity: 0.85;
-}
-.enccrew__ratings { margin: 8px 0 0; display: flex; flex-direction: column; gap: 3px; }
-.enccrew__ratings > div {
-  display: flex; justify-content: space-between; align-items: baseline; gap: 6px;
-  border-top: 1px solid var(--border); padding-top: 3px;
-}
-.enccrew__ratings dt { font-size: 10.5px; color: #8fa6b0; letter-spacing: 0.04em; }
-.enccrew__ratings dd {
-  margin: 0; font-size: 14px; font-weight: 700; color: var(--text);
-  font-variant-numeric: tabular-nums;
-}
-.enccrew__bio { margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: #9db4bd; }
+/* The lore paragraph on an opened entry: a ship's design notes, a person's
+   life, a company's line. Serif-adjacent spacing, because it is the one thing
+   on the sheet that is prose rather than a figure. */
+.encfull__lore { margin: 12px 0 2px; font-size: 13px; line-height: 1.55; color: #c3d6de; }
 
 /* Role tags, which are now the way into the glossary rather than the tail of
    a grey line. A chip that is a link gets the brass and the border; one the

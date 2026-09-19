@@ -114,6 +114,9 @@ import {
   type GameState,
   CREATURES,
   SHIP_CLASSES,
+  COMMAND_ROLES,
+  RECRUITER_ROLE,
+  TROOP_TYPES,
   troopsOf,
   FORT_GUNS,
   RESOURCE_LABEL,
@@ -238,12 +241,324 @@ function RoleTags({ roles }: { roles: readonly string[] }) {
   );
 }
 
+/**
+ * One thing the encyclopedia has an entry for.
+ *
+ * Carried as an id rather than the object, so that a game panel asking for
+ * *the Majestic* and the reference's own list asking for *the Majestic* are
+ * the same request and land on the same sheet.
+ */
+export type Subject =
+  | { kind: 'person'; id: string }
+  | { kind: 'ship'; id: string }
+  | { kind: 'company'; id: string }
+  | { kind: 'works'; id: FacilityType }
+  | { kind: 'resource'; id: 'forest' | 'gold' };
+
+/** The anchor a list cell carries, so closing an entry lands you back on it. */
+function anchorOf(s: Subject): string {
+  return `enc-${s.kind}-${slugOf(s.id)}`;
+}
+
+/**
+ * Which entry a lookup means, from the slug a caller passed.
+ *
+ * Callers are all over the game and none of them know about `Subject` — a
+ * fleet panel passes a hull's class id, an island panel passes a works type,
+ * a crew card passes a name. Each id space is distinct enough to tell apart
+ * by looking, so the guessing happens once, here.
+ */
+export function subjectFor(entry: string | undefined): Subject | null {
+  if (!entry) return null;
+  if (ROSTER.byId.has(entry)) return { kind: 'ship', id: entry };
+  if (entry === 'forest' || entry === 'gold') return { kind: 'resource', id: entry };
+  if (YARD_BUILDABLE.includes(entry as FacilityType)) return { kind: 'works', id: entry as FacilityType };
+  if (TROOP_TYPES.some((t) => t.id === entry)) return { kind: 'company', id: entry };
+  if (everyone().some((c) => slugOf(c.name) === slugOf(entry))) return { kind: 'person', id: slugOf(entry) };
+  return null;
+}
+
+/** The whole cast, both navies and the recruit pool, in one list. */
+function everyone() {
+  return [
+    ...characterRoster.empire.map((c) => ({ ...c, side: 'empire' as const })),
+    ...characterRoster.alliance.map((c) => ({ ...c, side: 'alliance' as const })),
+    ...characterRoster.recruits.map((c) => ({ ...c, side: 'neutral' as const })),
+  ];
+}
+
 function GoldLine({ type }: { type: FacilityType }) {
   const earns = GOLD_PER_DAY[type];
   const costs = UPKEEP_PER_DAY[type];
   if (earns > 0) return <GoldFig label="Earns" n={earns} tone="earn" />;
   if (costs > 0) return <GoldFig label={terms.upkeep} n={costs} tone="cost" />;
   return <span className="muted">No running cost</span>;
+}
+
+/**
+ * One entry, opened out of the reference — everything the game knows about
+ * one thing.
+ *
+ * Sean, 19 September: *"when you find the entry you want you click it for max
+ * info in a single entry. And then in the game panels if you need to learn
+ * about something you click it and it pops up the full max entry."* So this is
+ * the bottom of the encyclopedia and it is also what a fleet panel or an
+ * island panel opens directly — one destination, reached two ways, which is
+ * the point of keying it by id rather than by whatever object the caller
+ * happened to be holding.
+ *
+ * Nothing here is new information. It is what the list rows were carrying
+ * before they were cut back to a picture and a name, plus the couple of facts
+ * that were only ever stated in page-level prose and never on the thing they
+ * were about.
+ */
+function EntrySheet({
+  subject,
+  state,
+  you,
+  onClose,
+}: {
+  subject: Subject;
+  state: GameState;
+  you: PlayableFaction;
+  onClose: () => void;
+}) {
+  const body = (() => {
+    switch (subject.kind) {
+      case 'person': {
+        const who = everyone().find((c) => slugOf(c.name) === subject.id);
+        if (!who) return null;
+        const roles: string[] = who.roles ?? [];
+        const sworn = PEOPLE_ALLEGIANCE[who.people];
+        const lord = PIRATE_LORDS.some((l) => l.name === who.name);
+        return {
+          title: who.name,
+          subtitle: `${who.people}${lord ? ` · ${terms.lord}` : ''}`,
+          art: (
+            <div className="encfull__art">
+              <CharacterFace name={who.name} faction={who.side} people={who.people} />
+            </div>
+          ),
+          content: (
+            <>
+              <RoleTags roles={roles} />
+              <div className="statgrid" style={{ marginTop: 10 }}>
+                <span><i>{terms.parley}</i><b>{who.ratings.diplomacy}</b></span>
+                <span><i>Espionage</i><b>{who.ratings.espionage}</b></span>
+                <span><i>Combat</i><b>{who.ratings.combat}</b></span>
+                <span><i>Leadership</i><b>{who.ratings.leadership}</b></span>
+              </div>
+              <p className="encfull__lore">{who.bio}</p>
+              {/* The two things `roles` actually gates. They were written on
+                  the Crew page in prose and nowhere on the person, so a
+                  player had to hold the rule in their head while looking at
+                  somebody to know whether it applied to them. */}
+              <div className="section-title">What they may be sent to do</div>
+              <div className="card small">
+                <b>Any errand</b> is open to anybody — the rating decides how it goes.
+                Two are not:
+                <br />
+                <br />
+                <b>Recruitment.</b>{' '}
+                {roles.includes(RECRUITER_ROLE)
+                  ? 'Yes — they are a Recruiter and may keep an open table.'
+                  : 'No. Only a Recruiter may lead one.'}
+                <br />
+                <b>Command of an island.</b>{' '}
+                {roles.some((r) => (COMMAND_ROLES as readonly string[]).includes(r))
+                  ? 'Yes — they may hold a place rather than visit it.'
+                  : 'No. Only a Leader or a General may take a chair.'}
+              </div>
+              {sworn && (
+                <div className="card small" style={{ marginTop: 8 }}>
+                  <b>Sworn.</b> The {who.people} sail for the{' '}
+                  {factionData[sworn].shortName} and nobody else
+                  {sworn === you
+                    ? ' — which is you, so they can be signed.'
+                    : ', so no recruiter of yours will ever sign them however loyal the island.'}
+                </div>
+              )}
+            </>
+          ),
+        };
+      }
+      case 'ship': {
+        const cls = ROSTER.byId.get(subject.id);
+        if (!cls) return null;
+        const total = cls.guns.longGuns + cls.guns.heavyGuns + cls.guns.lightGuns;
+        const side = NAVY_FACTION_TO_PLAYABLE[cls.faction];
+        return {
+          title: cls.name,
+          subtitle: `${cls.faction} · ${cls.role}`,
+          art: (
+            <div className="encfull__art">
+              <ShipThumb
+                faction={side}
+                role={LEGACY_ROLE[cls.size]}
+                cls={ART_SLUG[cls.id] ?? cls.id}
+                size={560}
+              />
+            </div>
+          ),
+          content: (
+            <>
+              <div className="row row--between small" style={{ marginTop: 2 }}>
+                <span>
+                  {cls.research.kind === 'start' ? (
+                    <span className="muted">Buildable from day one</span>
+                  ) : (
+                    <b className="enc-craft">Research {cls.research.raw}</b>
+                  )}
+                </span>
+                <span className="tiny muted">
+                  <GoldFig n={cls.goldToBuild} per={null} /> · {cls.daysToBuild}d
+                </span>
+              </div>
+              <div className="tiny" style={{ marginTop: 2 }}>
+                <GoldFig label={terms.upkeep} n={cls.goldPerDayMaintenance} tone="cost" />
+              </div>
+              <div className="statgrid" style={{ marginTop: 10 }}>
+                <span><i>Size</i><b>{cls.size}</b></span>
+                <span><i>Speed</i><b>{cls.speed}</b></span>
+                <span><i>Hull</i><b>{cls.hull}</b></span>
+                <span><i>Armour</i><b>{cls.armor || '\u2014'}</b></span>
+                <span><i>Long guns</i><b>{cls.guns.longGuns || '\u2014'}</b></span>
+                <span><i>Heavy guns</i><b>{cls.guns.heavyGuns || '\u2014'}</b></span>
+                <span><i>Light guns</i><b>{cls.guns.lightGuns || '\u2014'}</b></span>
+                <span><i>Bombardment</i><b>{cls.bombardment || '\u2014'}</b></span>
+                <span><i>Carries</i><b>{cls.troopCapacity || '\u2014'}</b></span>
+                <span><i>Repairs</i><b>{(cls.repairRatePerDay * 100).toFixed(1)}%/day</b></span>
+              </div>
+              <p className="encfull__lore">{cls.designNotes}</p>
+              <div className="section-title">What can hit her</div>
+              <div className="card small">
+                Size and Speed change <b>accuracy only</b> — a gun that misses her is missing,
+                not doing less damage.
+                <div className="statgrid" style={{ marginTop: 8 }}>
+                  <span><i>Light gun</i><b>{hitChance('Light', cls)}%</b></span>
+                  <span><i>Long gun</i><b>{hitChance('Long', cls)}%</b></span>
+                  <span><i>Heavy gun</i><b>{hitChance('Heavy', cls)}%</b></span>
+                </div>
+                {total > 0 && (
+                  <p className="tiny muted" style={{ margin: '8px 0 0' }}>
+                    She throws <b>{total}</b> cannon a round, each one its own attack.
+                  </p>
+                )}
+              </div>
+            </>
+          ),
+        };
+      }
+      case 'company': {
+        const type = TROOP_TYPES.find((t) => t.id === subject.id);
+        if (!type) return null;
+        return {
+          title: type.name,
+          subtitle: type.people,
+          art: (
+            <div className="encfull__art encfull__art--figure">
+              <CompanyIcon size={150} type={type.id} />
+            </div>
+          ),
+          content: (
+            <>
+              <div className="statgrid" style={{ marginTop: 10 }}>
+                <span><i>Attack</i><b>{type.offense}</b></span>
+                <span><i>Hold</i><b>{type.defense}</b></span>
+                <span><i>Watch</i><b>{type.watch}</b></span>
+              </div>
+              <p className="encfull__lore">{type.blurb}</p>
+              <div className="card small">
+                <b>{TROOP_BUILD.label}s cost the same whoever they are:</b>{' '}
+                <GoldFig n={TROOP_BUILD.costGold} per={null} /> and {TROOP_BUILD.days}d at a{' '}
+                {FACILITY_LABEL.training_facility}, then{' '}
+                <GoldFig label={terms.upkeep} n={UPKEEP_PER_DAY.troop} tone="cost" /> a day.
+                Which kind you get is the island, not the order.
+                {type.research && (
+                  <>
+                    <br />
+                    <br />
+                    <b>Not yet built.</b> This company has no way into the game until the
+                    research that opens it is in.
+                  </>
+                )}
+              </div>
+            </>
+          ),
+        };
+      }
+      case 'works': {
+        const type = subject.id;
+        return {
+          title: FACILITY_LABEL[type],
+          subtitle: 'Buildings',
+          art: (
+            <div className="encfull__art">
+              <FacilityThumb type={type} owner={state.player} fill />
+            </div>
+          ),
+          content: (
+            <>
+              <div className="row row--between small" style={{ marginTop: 4 }}>
+                <span className="tiny">
+                  <GoldLine type={type} />
+                </span>
+                <span className="tiny muted">
+                  <GoldFig n={YARD_BUILDS[type].costGold} per={null} /> · {YARD_BUILDS[type].days}d
+                </span>
+              </div>
+              {isWall(type) && (
+                <div className="statgrid" style={{ marginTop: 10 }}>
+                  <span><i>Guns</i><b>{wallGuns(type)}</b></span>
+                  <span><i>Wall</i><b>{wallStrength(type)}</b></span>
+                </div>
+              )}
+              <p className="encfull__lore">{terms.facilityBlurbs[type]}</p>
+              <div className="card small">
+                <b>It takes a berth.</b> Every building takes one of the island's plots,
+                whatever it is, and an island has only so many. Companies and hulls take none.
+                <br />
+                <br />
+                <b>Several of a kind work together.</b> Three of these on one island finish a
+                job in a third of the time, and one raised halfway through speeds up the job
+                already running.
+              </div>
+            </>
+          ),
+        };
+      }
+      case 'resource': {
+        const type = subject.id;
+        return {
+          title: RESOURCE_LABEL[type],
+          subtitle: 'What is in the ground',
+          art: (
+            <div className="encfull__art">
+              <ResourceThumb type={type} fill />
+            </div>
+          ),
+          content: (
+            <>
+              <p className="encfull__lore">{RESOURCE_BLURB[type]}</p>
+              <div className="card small">
+                <b>It is rolled when the world is made and never changes.</b> A{' '}
+                {type === 'forest' ? FACILITY_LABEL.refinery : FACILITY_LABEL.mine} can only be
+                raised on one, and the works takes the deposit's own plot — so working ground you
+                already have costs no room, and a full island can still work what is under it.
+              </div>
+            </>
+          ),
+        };
+      }
+    }
+  })();
+
+  if (!body) return null;
+  return (
+    <Sheet title={body.title} subtitle={body.subtitle} onClose={onClose} top banner={body.art}>
+      {body.content}
+    </Sheet>
+  );
 }
 
 /**
@@ -264,6 +579,9 @@ const PAGES = [
 ] as const;
 
 type Page = (typeof PAGES)[number]['id'];
+
+/** The pages that list units, and so the only ones an entry can open over. */
+const UNIT_PAGES: Page[] = ['people', 'companies', 'works', 'ships'];
 
 export function Almanac({
   state,
@@ -303,6 +621,24 @@ export function Almanac({
     { faction: them, label: factionData[them].name },
   ];
   const [page, setPage] = useState<Page>(opening);
+  /*
+   * The entry currently open on top of the reference.
+   *
+   * Seeded from `entry`, which is how a game panel gets what Sean asked for —
+   * *"in the game panels if you need to learn about something you click it
+   * and it pops up the full max entry"*. The list is behind it either way, so
+   * closing the entry leaves you somewhere sensible rather than back in the
+   * game.
+   */
+  /*
+   * Only the four unit pages can deep-link to an entry. The glossary sends a
+   * word — `spec-ops`, `in-irons` — and a word that happened to look like a
+   * works type or somebody's name would otherwise pop that unit's sheet over
+   * the glossary, which is a class of bug rather than a bug.
+   */
+  const [openEntry, setOpenEntry] = useState<Subject | null>(() =>
+    UNIT_PAGES.includes(opening) ? subjectFor(entry) : null,
+  );
   // A sideways drag moves along the tabs, the same gesture the chart and the
   // island panel already use for their rows.
   const swipe = useSideSwipe((step) => {
@@ -312,11 +648,21 @@ export function Almanac({
     setPage(PAGES[next].id);
   });
 
-  // Land on the thing that sent us here. Done after paint, because the page
-  // it lives on may only have just been rendered.
+  /*
+   * Scroll the list to whatever sent us here, so closing the entry lands on
+   * its cell rather than at the top of a long page.
+   *
+   * This used to be the whole answer to a lookup and it had never worked for
+   * a hull: the cells were keyed `enc-CWN-MAJ-R8-01` and this looked for
+   * `enc-${slugOf(entry)}`, which lower-cases — and `getElementById` does not.
+   * Every ship lookup in the game has been landing at the top of the Ships
+   * page since the roster went in. Both ends go through `anchorOf` now, so
+   * they cannot drift apart again.
+   */
   useEffect(() => {
-    if (!entry) return;
-    const found = document.getElementById(`enc-${slugOf(entry)}`);
+    const subject = UNIT_PAGES.includes(page) ? subjectFor(entry) : null;
+    if (!subject) return;
+    const found = document.getElementById(anchorOf(subject));
     if (!found) return;
     found.scrollIntoView({ block: 'center' });
     found.classList.add('is-landed');
@@ -325,9 +671,10 @@ export function Almanac({
   }, [entry, page]);
 
   return (
+    <>
     <Sheet
       title="Encyclopedia"
-      subtitle="Every unit in the game, with the numbers the rules actually use"
+      subtitle="A picture and a name. Tap one for everything the game knows about it."
       onClose={onClose}
       stacked
       onTouchStart={swipe.onTouchStart}
@@ -359,57 +706,47 @@ export function Almanac({
         passage after the work. Companies and hulls are sent the same way: drilled or laid down
         where you have the ground for it, and delivered where you asked.
       </p>
-      <div className="stack">
-        {BUILD_ORDER.map((type) => (
-          <div key={type} id={`enc-${slugOf(type)}`} className="card encunit">
-            <div className="encunit__head">
-            {/* The painting, not the glyph. Every works but the two defences
-                has one, and an encyclopedia of what things are is the last
-                place that should be showing a line drawing instead. */}
-            <div className="encunit__art">
-              <FacilityThumb type={type} owner={state.player} fill />
-            </div>
-            <div className="encunit__who">
-              <div className="row row--between">
-                <b>{FACILITY_LABEL[type]}</b>
-                <span className="tiny muted">
-                  <GoldFig n={YARD_BUILDS[type].costGold} per={null} /> · {YARD_BUILDS[type].days}d
-                </span>
-              </div>
-              <div className="tiny" style={{ marginTop: 2 }}>
-                <GoldLine type={type} />
-                {isWall(type) && (
-                  <span className="muted">
-                    {' · '}
-                    {wallGuns(type)} guns · {wallStrength(type)} wall
-                  </span>
-                )}
-              </div>
-              <div className="tiny muted" style={{ marginTop: 2 }}>
-                {terms.facilityBlurbs[type]}
-              </div>
-            </div>
-            </div>
-          </div>
-        ))}
+      <div className="encgrid">
+        {BUILD_ORDER.map((type) => {
+          const subject: Subject = { kind: 'works', id: type };
+          return (
+            <button
+              key={type}
+              id={anchorOf(subject)}
+              className="encmini"
+              onClick={() => setOpenEntry(subject)}
+            >
+              <span className="encmini__art">
+                <FacilityThumb type={type} owner={state.player} fill />
+              </span>
+              <b className="encmini__name">{FACILITY_LABEL[type]}</b>
+              <span className="encmini__line">
+                {YARD_BUILDS[type].costGold}g · {YARD_BUILDS[type].days}d
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* The rule that decides where half of these can go at all. */}
       <div className="section-title">What is in the ground</div>
-      <div className="stack" style={{ marginBottom: 10 }}>
-        {(['forest', 'gold'] as const).map((type) => (
-          <div key={type} id={`enc-${type}`} className="card encunit">
-            <div className="encunit__head">
-              <div className="encunit__art">
+      <div className="encgrid" style={{ marginBottom: 10 }}>
+        {(['forest', 'gold'] as const).map((type) => {
+          const subject: Subject = { kind: 'resource', id: type };
+          return (
+            <button
+              key={type}
+              id={anchorOf(subject)}
+              className="encmini"
+              onClick={() => setOpenEntry(subject)}
+            >
+              <span className="encmini__art">
                 <ResourceThumb type={type} fill />
-              </div>
-              <div className="encunit__who">
-                <b>{RESOURCE_LABEL[type]}</b>
-                <div className="tiny muted" style={{ marginTop: 3 }}>{RESOURCE_BLURB[type]}</div>
-              </div>
-            </div>
-          </div>
-        ))}
+              </span>
+              <b className="encmini__name">{RESOURCE_LABEL[type]}</b>
+            </button>
+          );
+        })}
       </div>
       <div className="card small">
         <b>Every island has something in it, and that is what its earners are.</b>{' '}
@@ -545,29 +882,27 @@ export function Almanac({
       {sides.map(({ faction, label }) => (
       <div key={faction}>
       <div className="section-title">{label}</div>
-      <div className="stack">
-        {[...troopsOf(faction)].sort(byName).map((type) => (
-          <div key={type.id} id={`enc-${type.id}`} className="card encunit">
-            <div className="encunit__head">
-            <div className="encunit__art encunit__art--figure">
-              <CompanyIcon size={124} type={type.id} />
-            </div>
-            <div className="encunit__who">
-              <div className="row row--between">
-                <b className="small">{type.name}</b>
-                <span className="tiny muted">
-                  {type.offense} / {type.defense} / {type.watch}
-                </span>
-              </div>
-              <div className="tiny muted" style={{ marginTop: 1 }}>
-                {type.people}
+      <div className="encgrid">
+        {[...troopsOf(faction)].sort(byName).map((type) => {
+          const subject: Subject = { kind: 'company', id: type.id };
+          return (
+            <button
+              key={type.id}
+              id={anchorOf(subject)}
+              className="encmini"
+              onClick={() => setOpenEntry(subject)}
+            >
+              <span className="encmini__art encmini__art--figure">
+                <CompanyIcon size={92} type={type.id} />
+              </span>
+              <b className="encmini__name">{type.name}</b>
+              <span className="encmini__line">
+                {type.offense} / {type.defense} / {type.watch}
                 {type.research && ' · not yet built'}
-              </div>
-              <div className="tiny muted" style={{ marginTop: 4 }}>{type.blurb}</div>
-            </div>
-            </div>
-          </div>
-        ))}
+              </span>
+            </button>
+          );
+        })}
       </div>
       </div>
       ))}
@@ -607,6 +942,67 @@ export function Almanac({
 
       {page === 'people' && (
         <>
+      {[
+        ...sides.map((side) => ({
+          ...side,
+          people: characterRoster[side.faction as 'empire' | 'alliance'],
+          art: side.faction,
+        })),
+        /*
+         * And the ones nobody has yet. The recruit pool is twelve people the
+         * Recruitment errand draws from — half the cast, and until now not
+         * visible anywhere in the game until one of them signed on.
+         */
+        {
+          faction: 'neutral' as const,
+          label: 'Unaligned',
+          people: characterRoster.recruits,
+          art: 'neutral' as const,
+        },
+      ].map(({ faction, label, people, art }) => (
+      <div key={faction}>
+      <div className="section-title">{label}</div>
+      <div className="encgrid">
+        {[...people].sort(byPerson).map((who) => {
+          const subject: Subject = { kind: 'person', id: slugOf(who.name) };
+          const sworn = PEOPLE_ALLEGIANCE[who.people];
+          return (
+            <button
+              key={who.name}
+              id={anchorOf(subject)}
+              className="encmini"
+              onClick={() => setOpenEntry(subject)}
+            >
+              <span className="encmini__art">
+                <CharacterFace name={who.name} faction={art} people={who.people} />
+              </span>
+              <b className="encmini__name">{who.name}</b>
+              {/* Three of these are the Confederacy's victory condition and
+                  nothing else on a cell would say so. Under the name rather
+                  than over it, so every cell starts its text at the same
+                  height and the grid does not go ragged. */}
+              {PIRATE_LORDS.some((l) => l.name === who.name) && (
+                <span className="encmini__tag">{terms.lord}</span>
+              )}
+              <span className="encmini__line">
+                {who.people}
+                {sworn && sworn !== you && ' · sworn elsewhere'}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      </div>
+      ))}
+
+      {/* The teaching, under the pictures rather than over them.
+
+          Sean: *"Within the encyclopedia you can look at pics and scroll."*
+          Three paragraphs about what a rating is for had been standing
+          between the tab and the first face, which is a page you read once
+          and then scroll past twenty-six times. What a *particular* person
+          may be sent to do is on their own entry now; this is the general
+          rule, and the general rule can wait until after the roster. */}
       <div className="section-title">What a {terms.crewOne} is for</div>
       <div className="card small">
         <b>Four numbers, and each one is a different errand.</b>{' '}
@@ -628,93 +1024,6 @@ export function Almanac({
         Lords in irons at the same moment.
       </div>
 
-      {[
-        ...sides.map((side) => ({
-          ...side,
-          people: characterRoster[side.faction as 'empire' | 'alliance'],
-          art: side.faction,
-        })),
-        /*
-         * And the ones nobody has yet. The recruit pool is twelve people the
-         * Recruitment errand draws from — half the cast, and until now not
-         * visible anywhere in the game until one of them signed on.
-         */
-        {
-          faction: 'neutral' as const,
-          label: 'Unaligned',
-          people: characterRoster.recruits,
-          art: 'neutral' as const,
-        },
-      ].map(({ faction, label, people, art }) => (
-      <div key={faction}>
-      <div className="section-title">{label}</div>
-      <div className="stack">
-        {[...people].sort(byPerson).map((entry) => (
-          <div key={entry.name} id={`enc-${slugOf(entry.name)}`} className="card enccrew">
-            {/*
-              Head, name, tags, numbers, life — in that order, and each one in
-              its own band rather than three of them run together in a line of
-              grey text.
-
-              Sean, 19 September: *"Crew images are too big now. Reduce by
-              40%... Overall ui for encyclopedia needs some work. Looks a
-              little messy."* The art was the full 384px width of the card,
-              which is where a 256px face crop is upscaled half again and goes
-              soft. At 60% it is about 230px — under the source for the first
-              time, so it is also the first time this picture has been sharp.
-
-              It sits beside the name now rather than above it, which is what
-              buys the tidying: the header is one band, the tags are one band,
-              the numbers are one band. Companies, buildings and hulls on the
-              other tabs have read art-left-text-right all along, so the crew
-              page had been the odd one out as well as the loud one.
-            */}
-            <div className="encunit__head">
-              <div className="encunit__art">
-                <CharacterFace name={entry.name} faction={art} people={entry.people} />
-              </div>
-              <div className="encunit__who">
-                {/* The same quiet rank the crew screen wears, for the same
-                    reason: three of the names on this page are the
-                    Confederacy's victory condition and nothing distinguished
-                    them from a purser. */}
-                {PIRATE_LORDS.some((l) => l.name === entry.name) && (
-                  <div className="crewcard__rank">{terms.lord}</div>
-                )}
-                <b className="enccrew__name">{entry.name}</b>
-                <div className="tiny muted">{entry.people}</div>
-                {/* A sworn people. Worth saying on the Unaligned list above
-                    all: an Urskin standing on one of your islands is somebody
-                    the Crown can never sign, and a recruiter sent for them is
-                    a wasted voyage. */}
-                {PEOPLE_ALLEGIANCE[entry.people] && (
-                  <div className="enccrew__sworn">
-                    {PEOPLE_ALLEGIANCE[entry.people] === you
-                      ? 'Will only serve you'
-                      : `Only serves the ${factionData[PEOPLE_ALLEGIANCE[entry.people]!].shortName}`}
-                  </div>
-                )}
-                {/* The four numbers, stacked beside the head rather than in a
-                    band under it. Two things at once: it fills a column that
-                    was mostly empty for anybody without a rank or a sworn
-                    people, and it puts the ratings level with the face, which
-                    is the pairing you actually read — who they are and what
-                    they are worth. */}
-                <dl className="enccrew__ratings">
-                  <div><dt>{terms.parley}</dt><dd>{entry.ratings.diplomacy}</dd></div>
-                  <div><dt>Espionage</dt><dd>{entry.ratings.espionage}</dd></div>
-                  <div><dt>Combat</dt><dd>{entry.ratings.combat}</dd></div>
-                  <div><dt>Leadership</dt><dd>{entry.ratings.leadership}</dd></div>
-                </dl>
-              </div>
-            </div>
-            <RoleTags roles={entry.roles} />
-            <p className="enccrew__bio">{entry.bio}</p>
-          </div>
-        ))}
-      </div>
-      </div>
-      ))}
 
         </>
       )}
@@ -886,66 +1195,30 @@ export function Almanac({
       {ROSTER_SIDES.map(({ faction, label }) => (
       <div key={faction}>
       <div className="section-title">{label}</div>
-      <div className="stack">
+      <div className="encgrid">
         {[...fleetOf(faction)].sort(byName).map((cls) => {
-          const total = cls.guns.longGuns + cls.guns.heavyGuns + cls.guns.lightGuns;
+          const subject: Subject = { kind: 'ship', id: cls.id };
           return (
-            <div key={cls.id} id={`enc-${cls.id}`} className="card encunit">
-              <div className="encunit__head">
-                <div className="encunit__art">
-                  <ShipThumb
-                    faction={NAVY_FACTION_TO_PLAYABLE[faction]}
-                    role={LEGACY_ROLE[cls.size]}
-                    cls={ART_SLUG[cls.id] ?? cls.id}
-                    size={216}
-                  />
-                </div>
-                <div className="encunit__who">
-                  <div className="row row--between">
-                    <b>{cls.name}</b>
-                    <span className="tiny muted">
-                      <GoldFig n={cls.goldToBuild} per={null} /> · {cls.daysToBuild}d
-                    </span>
-                  </div>
-                  <div className="row row--between">
-                    <span className="tiny">
-                      {cls.research.kind === 'start' ? (
-                        <span className="muted">Buildable from day one</span>
-                      ) : (
-                        <b className="enc-craft">Research {cls.research.raw}</b>
-                      )}
-                    </span>
-                    <span className="tiny muted">{cls.role}</span>
-                  </div>
-                  <div className="tiny" style={{ marginTop: 2 }}>
-                    <GoldFig label={terms.upkeep} n={cls.goldPerDayMaintenance} tone="cost" />
-                  </div>
-                  <div className="tiny muted" style={{ marginTop: 4 }}>{cls.designNotes}</div>
-                </div>
-              </div>
-              {/* Guns are counts of individual cannon, each of which makes its
-                  own attack. There is no total worth showing as a stat, so the
-                  three are shown as three. */}
-              <div className="statgrid">
-                <span><i>Size</i><b>{cls.size}</b></span>
-                <span><i>Speed</i><b>{cls.speed}</b></span>
-                <span><i>Hull</i><b>{cls.hull}</b></span>
-                <span><i>Armour</i><b>{cls.armor || '—'}</b></span>
-                <span><i>Long guns</i><b>{cls.guns.longGuns || '—'}</b></span>
-                <span><i>Heavy guns</i><b>{cls.guns.heavyGuns || '—'}</b></span>
-                <span><i>Light guns</i><b>{cls.guns.lightGuns || '—'}</b></span>
-                <span><i>Bombardment</i><b>{cls.bombardment || '—'}</b></span>
-                <span><i>Carries</i><b>{cls.troopCapacity || '—'}</b></span>
-                <span><i>Repairs</i><b>{(cls.repairRatePerDay * 100).toFixed(1)}%/day</b></span>
-              </div>
-              {/* What she is actually hit by, which is the thing Size and
-                  Speed are for and the thing no column of stats shows. */}
-              <div className="tiny muted" style={{ marginTop: 6 }}>
-                Hit by a light gun <b>{hitChance('Light', cls)}%</b> · a long gun{' '}
-                <b>{hitChance('Long', cls)}%</b> · a heavy gun <b>{hitChance('Heavy', cls)}%</b>
-                {total > 0 && <> · she throws <b>{total}</b> {total === 1 ? 'cannon' : 'cannon'} a round</>}
-              </div>
-            </div>
+            <button
+              key={cls.id}
+              id={anchorOf(subject)}
+              className="encmini"
+              onClick={() => setOpenEntry(subject)}
+            >
+              <span className="encmini__art">
+                <ShipThumb
+                  faction={NAVY_FACTION_TO_PLAYABLE[faction]}
+                  role={LEGACY_ROLE[cls.size]}
+                  cls={ART_SLUG[cls.id] ?? cls.id}
+                  size={280}
+                />
+              </span>
+              <b className="encmini__name">{cls.name}</b>
+              <span className="encmini__line">
+                {cls.size} · {cls.hull} hull
+                {cls.research.kind !== 'start' && ` · ${cls.research.raw}`}
+              </span>
+            </button>
           );
         })}
       </div>
@@ -1242,5 +1515,15 @@ export function Almanac({
       )}
 
     </Sheet>
+    {/* On top of the reference, and the thing a game panel opens directly. */}
+    {openEntry && (
+      <EntrySheet
+        subject={openEntry}
+        state={state}
+        you={you}
+        onClose={() => setOpenEntry(null)}
+      />
+    )}
+    </>
   );
 }

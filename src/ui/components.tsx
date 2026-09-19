@@ -38,6 +38,15 @@ export function Sheet(props: {
   banner?: ReactNode;
   /** Raise this sheet above one already open, rather than behind it. */
   stacked?: boolean;
+  /**
+   * A third level, above a stacked sheet.
+   *
+   * There are exactly two of these and they are the encyclopedia's two
+   * layers: the reference itself is `stacked` over whatever game screen sent
+   * you there, and one entry opened out of it sits on top of that. Nothing
+   * else needs a third level and nothing else should take one.
+   */
+  top?: boolean;
   /** A sideways drag across the body, where the sheet has tabs to move along. */
   onTouchStart?: (e: React.TouchEvent) => void;
   onTouchEnd?: (e: React.TouchEvent) => void;
@@ -45,11 +54,11 @@ export function Sheet(props: {
   return (
     <>
       <div
-        className={`scrim${props.stacked ? ' scrim--stacked' : ''}`}
+        className={`scrim${props.top ? ' scrim--top' : props.stacked ? ' scrim--stacked' : ''}`}
         onClick={props.onClose}
       />
       <div
-        className={`sheet${props.stacked ? ' sheet--stacked' : ''}${
+        className={`sheet${props.top ? ' sheet--top' : props.stacked ? ' sheet--stacked' : ''}${
           props.tabs ? ' sheet--tabbed' : ''
         }`}
         role="dialog"
