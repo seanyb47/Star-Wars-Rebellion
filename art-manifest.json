@@ -3407,6 +3407,33 @@
         "sha1": "d732b24506077e40"
       }
     },
+    "ships/coral-class": {
+      "folder": "ships",
+      "slug": "coral-class",
+      "version": 1,
+      "added": "2026-09-19",
+      "updated": "2026-09-19",
+      "title": "Coral Class",
+      "source": "Sean, 19 September \u2014 production painting",
+      "notes": "Her own painting at last; she had been borrowing the Reef-class's, the hull she grew out of. Mastless on purpose \u2014 the Coral-Class is grown rather than built \u2014 so the folder's 'masts and waterline both in frame' is met by the waterline alone. Delivered at 1448x1086, exactly 4:3, shipped uncropped.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/coral-class.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 822042,
+        "sha1": "e496e035b9fe40ce"
+      },
+      "shipped": {
+        "file": "src/art/ships/coral-class.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 108508,
+        "sha1": "c0032f81b99d7577"
+      }
+    },
     "ships/cutlass": {
       "folder": "ships",
       "slug": "cutlass",

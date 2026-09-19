@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**134 of 147 painted.** 4492KB shipped, 14.6MB of masters kept back.
+**135 of 148 painted.** 4598KB shipped, 15.4MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -77,13 +77,14 @@ the head, cropped square out of the portrait; the medallion. 26 of 26.
 
 ## ships — 640×480
 
-three-quarter view, whole vessel, masts and waterline both in frame. 26 of 34.
+three-quarter view, whole vessel, masts and waterline both in frame. 27 of 35.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
 | adamant | `adamant` | 1 | 38KB | 234×174, 25KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | brig | `brig` | 1 | 31KB | 234×174, 21KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | bulwark | `bulwark` | 1 | 35KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| Coral Class | `coral-class` | 1 | 105KB | 1448×1086, 802KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
 | cutlass | `cutlass` | 1 | 34KB | 233×174, 23KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | fluyt | `fluyt` | 1 | 32KB | 233×174, 22KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | fluyt-ii | `fluyt-ii` | 1 | 32KB | 234×174, 23KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
@@ -329,6 +330,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/adamant** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/brig** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/bulwark** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/coral-class** — Her own painting at last; she had been borrowing the Reef-class's, the hull she grew out of. Mastless on purpose — the Coral-Class is grown rather than built — so the folder's 'masts and waterline both in frame' is met by the waterline alone. Delivered at 1448x1086, exactly 4:3, shipped uncropped.
 - **ships/cutlass** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/fluyt** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/fluyt-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.

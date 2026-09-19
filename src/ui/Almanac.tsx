@@ -70,7 +70,7 @@ const LEGACY_ROLE: Record<ShipSize, 'small' | 'medium' | 'large' | 'transport'> 
  * Wayfinder was on the Fluyt's and is not any more.
  */
 const ART_SLUG: Record<string, string> = {
-  'CFS-COR-R8-01': 'reef-class',
+  'CFS-COR-R8-01': 'coral-class',
   'CFS-REE-R4-01': 'reefwalker',
   'CFS-BRI-S02': 'brig',
   'CWN-INT-S02': 'kestrel',
