@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**135 of 148 painted.** 4598KB shipped, 15.4MB of masters kept back.
+**135 of 148 painted.** 4651KB shipped, 16.0MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -104,7 +104,7 @@ three-quarter view, whole vessel, masts and waterline both in frame. 27 of 35.
 | swallowtail | `swallowtail` | 1 | 31KB | 234×174, 22KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | swift | `swift` | 1 | 32KB | 234×174, 22KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | tempest | `tempest` | 2 (+1 retired) | 91KB | 1448×1086, 722KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
-| urskin-whaler | `urskin-whaler` | 1 | 39KB | 233×174, 26KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| urskin-whaler | `urskin-whaler` | 2 (+1 retired) | 92KB | 1448×1086, 655KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
 | vanguard | `vanguard` | 1 | 34KB | 234×174, 23KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | vanguard-ii | `vanguard-ii` | 1 | 36KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Wayfinder | `wayfinder` | 1 | 96KB | 1448×1086, 699KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
@@ -350,7 +350,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/swallowtail** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/swift** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/tempest** — Replaces the 234x174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered at 1448x1086, exactly 4:3, so the whole painting ships with no crop.
-- **ships/urskin-whaler** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/urskin-whaler** — Replaces the 234×174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered 1448×1086; shipped whole, no crop.
 - **ships/vanguard** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/vanguard-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/wayfinder** — Her own painting, under her own name. The Wayfinder is new with the Fleet Roster of 18 September and had been borrowing the Fluyt's, the Crown transport she replaces. Delivered at 1448x1086, exactly 4:3, so the whole painting ships with no crop.

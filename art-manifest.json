@@ -4060,34 +4060,44 @@
     "ships/urskin-whaler": {
       "folder": "ships",
       "slug": "urskin-whaler",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
+      "updated": "2026-09-19",
       "title": "urskin-whaler",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
-      "crop": {
-        "x": 0,
-        "y": 0,
-        "w": 232,
-        "h": 174
-      },
+      "source": "Sean, 19 September \u2014 production painting",
+      "notes": "Replaces the 234\u00d7174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered 1448\u00d71086; shipped whole, no crop.",
+      "crop": null,
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/ships/urskin-whaler.webp",
-        "w": 233,
-        "h": 174,
-        "bytes": 27490,
-        "sha1": "38f79e49e6b8f903"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 671210,
+        "sha1": "f004e984f0739b95"
       },
       "shipped": {
         "file": "src/art/ships/urskin-whaler.webp",
         "w": 640,
         "h": 480,
-        "bytes": 40772,
-        "sha1": "ceb848a76aa6b57d"
-      }
+        "bytes": 94208,
+        "sha1": "58064702c4028cf7"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/ships/urskin-whaler.v1.webp",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
     },
     "ships/vanguard": {
       "folder": "ships",
