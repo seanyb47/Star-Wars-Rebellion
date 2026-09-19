@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import terms from '../data/terms.json';
 import factionData from '../data/factions.json';
 import {
+  ashoreAt,
   fleetsAt,
   isAtSea,
   otherFaction,
@@ -744,9 +745,10 @@ export function SystemSheet({
   const holder =
     system.control === 'empire' || system.control === 'alliance' ? system.control : null;
   const needed = requiredGarrison(holder ? system.support[holder] : 50, system.uprising);
-  const crew = state.characters.filter(
-    (c) => c.faction === state.player && c.locationSystemId === system.id,
-  );
+  // Standing on the island, not filed under it. Sean's playtest: *"After
+  // Fleet 2 sailed from Vagrano, Isolde Marrow still showed as available at
+  // Vagrano."* She was aboard and under way; `ashoreAt` leaves her off.
+  const crew = ashoreAt(state, system.id, state.player);
   const inbound = state.characters.filter(
     (c) =>
       c.faction === state.player &&

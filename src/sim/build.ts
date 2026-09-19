@@ -1,3 +1,4 @@
+import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import {
   buildLabel,
@@ -585,7 +586,10 @@ export function advanceBuilds(state: GameState): void {
       if (landing.id !== system.id && landing.control !== facility.owner) {
         pushEvent(state, {
           kind: 'loss',
-          text: `${landing.name} is no longer yours; the ${buildLabel(order.item).toLowerCase()} bound for it turns back to ${system.name}.`,
+          text:
+            facility.owner === state.player
+              ? `${landing.name} is no longer yours; the ${buildLabel(order.item).toLowerCase()} bound for it turns back to ${system.name}.`
+              : `${landing.name} has changed hands; the ${buildLabel(order.item).toLowerCase()} bound for it turns back to ${system.name}.`,
           systemId: system.id,
         });
         landing = system;
@@ -680,7 +684,14 @@ function completeBuild(
     system.control = owner;
     pushEvent(state, {
       kind: 'flip',
-      text: `${system.name} has been settled. There are people on it now, and they are yours.`,
+      // Whose people they are depends on who did the settling. Sean's
+      // playtest: *"'Rime Island has been settled... they are yours' appeared
+      // when the CROWN settled it."* One log serves both sides, so anything
+      // written in the second person has to ask first.
+      text:
+        owner === state.player
+          ? `${system.name} has been settled. There are people on it now, and they are yours.`
+          : `${system.name} has been settled. There are people on it now, and they answer to the ${factionData[owner].shortName}.`,
       systemId: system.id,
     });
   }

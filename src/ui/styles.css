@@ -2023,6 +2023,7 @@ button.tcard:hover { border-color: var(--brass); }
 }
 .tally__side--empire { border-color: rgba(79, 196, 106, 0.4); }
 .tally__side--alliance { border-color: rgba(216, 72, 63, 0.45); }
+.tally__side--beast { border-color: #5a4a2a; background: rgba(90, 74, 42, 0.16); }
 .tally__body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .tally__name { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--chrome-text); }
 .tally__row { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }

@@ -276,14 +276,25 @@ export function assaultStrategic(input: {
   aboard: number;
   /** What the island thinks of the attacker, after. */
   allegiance: number;
+  /**
+   * Whether anybody lives there.
+   *
+   * §8's sentence is about people, and an island without any has no politics
+   * to be separate from the military fact. Sean's playtest found an empty rock
+   * reported as *"the people did not want this"*, which is the sentence
+   * reading a support number nobody holds.
+   */
+  populated?: boolean;
 }): string[] {
-  const { verdict, where, holder, aboard, allegiance } = input;
+  const { verdict, where, holder, aboard, allegiance, populated = true } = input;
   if (verdict === 'victory') {
     return [
       `${where} is carried, and the troops that took it are holding it.`,
-      allegiance < 50
-        ? 'Occupied, and politically hostile: the people did not want this and have not changed their minds.'
-        : 'The harbor is content enough to be held without a struggle.',
+      !populated
+        ? 'Nobody lives there: the landing party is the whole of the island\'s opinion. Finish anything on it and it settles.'
+        : allegiance < 50
+          ? 'Occupied, and politically hostile: the people did not want this and have not changed their minds.'
+          : 'The harbor is content enough to be held without a struggle.',
       'The squadron offshore is free to do something else.',
     ];
   }

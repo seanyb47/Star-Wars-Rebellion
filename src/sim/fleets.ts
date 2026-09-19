@@ -1521,10 +1521,23 @@ function reportRound(
     return;
   }
   const tally = (n: number) => `${n} ${n === 1 ? 'hull' : 'hulls'}`;
-  const against = beast && beastAlive(system) ? ` against ${beast.name}` : '';
+  const alive = beast !== undefined && beastAlive(system);
+  const against = alive ? ` against ${beast!.name}` : '';
+  // Only the sides that were actually in the water get named. A squadron
+  // alone with a creature is one faction and a monster, and saying "the
+  // Confederacy loses 0 hulls" about a side that never sailed reads as an
+  // enemy fleet that came through untouched.
+  const wasThere: Array<[PlayableFaction, number]> = [
+    ['empire', lostEmpire],
+    ['alliance', lostAlliance],
+  ];
+  const losses = wasThere
+    .filter(([side]) => before[side] > 0)
+    .map(([side, lost]) => `the ${factionData[side].shortName} ${tally(lost)}`)
+    .join(', ');
   pushEvent(state, {
     kind: 'battle',
-    text: `Action off ${system.name}${against}. The Imperium loses ${tally(lostEmpire)}, the Confederacy ${tally(lostAlliance)}.`,
+    text: `Action off ${system.name}${against}. ${losses ? `${losses[0].toUpperCase()}${losses.slice(1)} lost.` : 'Nothing afloat on either side.'}`,
     systemId: system.id,
     quiet,
     battle: {
@@ -1541,6 +1554,15 @@ function reportRound(
         },
       },
       holder: system.control,
+      beast:
+        alive && beast
+          ? {
+              name: beast.name,
+              guns: beastGuns(system),
+              damage: system.beastDamage ?? 0,
+              hull: beast.hull,
+            }
+          : undefined,
     },
   });
 }
@@ -1844,7 +1866,12 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   system.explored[fleet.faction] = true;
   // A landing that only just carried the place has not brought enough to sit
   // on it, and the island says so at once rather than a fortnight later.
-  system.uprising = holding < hold;
+  //
+  // Unless there is nobody on it. Sean's playtest: *"Coralhome (uninhabited)
+  // shows MUTINY, and the assault report says 'the people did not want
+  // this.'"* A rock with a landing party on it and no islanders has nobody to
+  // rise, whatever the garrison a populated island of that size would want.
+  system.uprising = system.populated && holding < hold;
   // An island taken at gunpoint does not love you for it: enough regard to
   // hold it above a revolt, and no more. The rest of the island's feeling is
   // the other side's, which is what taking a place by storm buys you.
@@ -1880,11 +1907,12 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
     );
   }
 
+  const aboardStill = fleet.troops > 0 ? `, ${fleet.troops} more stay aboard` : '';
   pushEvent(state, {
     kind: 'flip',
-    text: `${system.name} is carried by storm. ${holding} ${holding === 1 ? 'troop holds' : 'troops hold'} it${
-      fleet.troops > 0 ? `, ${fleet.troops} more stay aboard` : ''
-    }, and the people are sullen.`,
+    text: system.populated
+      ? `${system.name} is carried by storm. ${holding} ${holding === 1 ? 'troop holds' : 'troops hold'} it${aboardStill}, and the people are sullen.`
+      : `${system.name} is occupied. ${holding} ${holding === 1 ? 'troop is' : 'troops are'} ashore on an empty island${aboardStill}, and there is nobody on it to mind.`,
     systemId: system.id,
     landing: report,
     ...(fleet.faction === state.player || system.control === state.player
@@ -1975,11 +2003,12 @@ function assaultReport(
       holder,
       aboard,
       allegiance: Math.round(system.support[attacker]),
+      populated: system.populated,
     }),
     political: ripples,
   };
   report.tension =
-    verdict === 'victory' && system.support[attacker] < 40
+    verdict === 'victory' && system.populated && system.support[attacker] < 40
       ? 'The island is yours and its people are not, which is two different problems.'
       : tensionOf(report);
   return report;

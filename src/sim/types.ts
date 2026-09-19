@@ -525,6 +525,17 @@ export interface BattleReport {
   sides: Record<PlayableFaction, { hulls: number; lost: number; guns: number }>;
   /** Whose harbor it was fought in. The wall itself never fires in one. */
   holder: Faction;
+  /**
+   * The creature in the water, where one was in the fight.
+   *
+   * Sean's playtest: *"The Sea Dragon fight dispatch showed 'IMPERIUM vs
+   * CONFEDERACY 0 hulls,' as if the beast were us."* A squadron alone with a
+   * monster is still two sides, and one of them is not a faction. The battle
+   * sheet has drawn the creature as its own side since it was built; the
+   * dispatch card was still drawing an empty crest for whichever faction
+   * happened not to be there, which reads as an enemy fleet that lost nothing.
+   */
+  beast?: { name: string; guns: number; damage: number; hull: number };
 }
 
 /** A landing: who went ashore against whom, and how it ended. */

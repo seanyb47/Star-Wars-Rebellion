@@ -6,7 +6,7 @@ import {
 } from './constants';
 import { ANY_GRADE, buildMenu } from './build';
 import { islandIncome } from './economy';
-import { freeSlots } from './helpers';
+import { ashoreAt, freeSlots } from './helpers';
 import { fleetsAt, isAtSea } from './fleets';
 import terms from '../data/terms.json';
 import type { FacilityType, GameState, PlayableFaction, System } from './types';
@@ -235,12 +235,11 @@ export function layerMark(
       return n > 0 ? { lit: true, count: n } : DARK;
     }
     case 'idleCrew': {
-      const n = state.characters.filter(
-        (c) =>
-          c.faction === faction &&
-          c.locationSystemId === system.id &&
-          c.status === 'available' &&
-          !c.mission,
+      // Standing on it, not filed under it: a crew member aboard a squadron
+      // that has sailed is still filed under the port they left, and an idle
+      // hand three days out is not an idle hand you can give work to.
+      const n = ashoreAt(state, system.id, faction).filter(
+        (c) => c.status === 'available' && !c.mission,
       ).length;
       return n > 0 ? { lit: true, count: n } : DARK;
     }

@@ -263,7 +263,9 @@ export function reportLoyaltySlips(state: GameState, before: Map<string, Loyalty
     if (now === 'uprising' || BAND_RANK[now] >= BAND_RANK[was]) continue;
     const share = Math.round(SMUGGLED_SHARE[now] * 100);
     pushEvent(state, {
-      kind: 'loss',
+      // A cut of the enemy's trade coming your way is not a loss, whatever it
+      // is to them, and the log colours by kind.
+      kind: holder === state.player ? 'loss' : 'order',
       text: `The customs books on ${system.name} stop balancing. ${share}% of everything it ships now leaves in somebody else's hold, bound for the ${factionName(otherFaction(holder))}.`,
       systemId: system.id,
     });
@@ -304,18 +306,34 @@ export function leakInformation(state: GameState, rng: Rng): void {
     system.explored[enemy] = true;
     for (const s of alongside) s.explored[enemy] = true;
     const works = system.facilities.length;
-    const more =
+    // One log serves both sides, so a leak has to know which way it ran.
+    // Sean's playtest: *"'Somebody on Rime Island has talked. The Free
+    // Confederacy has its buildings on their charts' is phrased as if it were
+    // my intel."* When the island that talked is the enemy's, it *is* the
+    // player's intel, and reporting it as a loss in the third person gets it
+    // exactly backwards.
+    const mine = holder === state.player;
+    const alsoMine =
       alongside.length > 0
-        ? `${alongside.length} more of yours in the same chain`
+        ? `${alongside.length} more of ${mine ? 'yours' : 'theirs'} in the same chain`
         : '';
     pushEvent(state, {
-      kind: 'loss',
-      text: itself
-        ? `Somebody on ${system.name} has talked. The ${factionName(enemy)} has its ${works} ` +
-          `${works === 1 ? 'building' : 'buildings'} and ${system.garrison} ashore on their charts now` +
-          (more ? `, and ${more} with it.` : '.')
-        : `Somebody on ${system.name} has talked, and it was not about ${system.name}. The ` +
-          `${factionName(enemy)} has ${more} on their charts now.`,
+      kind: mine ? 'loss' : 'mission',
+      text: mine
+        ? itself
+          ? `Somebody on ${system.name} has talked. The ${factionName(enemy)} has your ${works} ` +
+            `${works === 1 ? 'building' : 'buildings'} and ${system.garrison} ashore on their charts now` +
+            (alsoMine ? `, and ${alsoMine} with it.` : '.')
+          : `Somebody on ${system.name} has talked, and it was not about ${system.name}. The ` +
+            `${factionName(enemy)} has ${alsoMine} on their charts now.`
+        : itself
+          ? `Somebody on ${system.name} has talked, and it reached you. Their ${works} ` +
+            `${works === 1 ? 'building' : 'buildings'} and ${system.garrison} ashore are on your charts now` +
+            (alsoMine ? `, and ${alsoMine} with them.` : '.')
+          : `Somebody on ${system.name} has talked, and it was not about ${system.name}. ` +
+            `${alsoMine[0].toUpperCase()}${alsoMine.slice(1)} ${
+              alongside.length === 1 ? 'is' : 'are'
+            } on your charts now.`,
       systemId: system.id,
     });
   }

@@ -1,5 +1,6 @@
 import { GARRISON_FOR_BAND, SUPPORT_MAX, loyaltyBand } from './constants';
 import type {
+  Character,
   Deposit,
   Faction,
   FacilityType,
@@ -183,6 +184,45 @@ export function applyLocalSupport(
  * raises a shock, which falls off with distance, varies island by island,
  * scales with how connected the chain is, and damps through a cascade.
  */
+
+/**
+ * Whether a crew member is on the water rather than on an island.
+ *
+ * `locationSystemId` is where somebody last set foot, not where they are: a
+ * squadron carries its officers' location forward only when it comes to
+ * anchor, and an errand only when the boat touches the beach. For the whole
+ * of a voyage the person is still filed under the port they left.
+ *
+ * Sean's playtest: *"Crew and fleets at sea still appear to be at their
+ * departure port. After Fleet 2 sailed from Vagrano, Isolde Marrow still
+ * showed as available at Vagrano and was offered as a party member there."*
+ * Fleets were already handled — `isAtSea` keeps a sailing squadron out of
+ * every harbor — and people were not. So every question of the form "who is
+ * standing on this island" asks this first.
+ *
+ * Deliberately not a change to `locationSystemId` itself. Half the game reads
+ * it and would have to cope with a person who is nowhere; the port somebody
+ * sailed from is also the honest answer to "where did they come from", which
+ * is what the recall and the fate lists want.
+ */
+export function atSea(state: GameState, character: Character): boolean {
+  if (character.mission?.phase === 'travelling') return true;
+  return state.fleets.some((f) => f.voyage !== undefined && f.officerIds.includes(character.id));
+}
+
+/** Everyone of a side who is actually standing on this island today. */
+export function ashoreAt(
+  state: GameState,
+  systemId: string,
+  faction?: PlayableFaction,
+): Character[] {
+  return state.characters.filter(
+    (c) =>
+      c.locationSystemId === systemId &&
+      (faction === undefined || c.faction === faction) &&
+      !atSea(state, c),
+  );
+}
 
 /**
  * Companies needed to hold an island down: nothing on one that is firmly

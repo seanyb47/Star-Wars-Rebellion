@@ -120,7 +120,7 @@ export function CharactersScreen({
                 />
                 {/* Only when they are not free. What you scan this screen for
                     is who is already busy. */}
-                {!idle && <span className="crewcard__badge">{statusBadge(character)}</span>}
+                {!idle && <span className="crewcard__badge">{statusBadge(character, state)}</span>}
               </span>
               <span className="crewcard__name">
                 {character.name}

@@ -1,5 +1,6 @@
 import terms from '../data/terms.json';
 import {
+  atSea as atSeaNow,
   MISSION_LABEL,
   MISSION_WORK_DAYS,
   inciteLoss,
@@ -59,17 +60,53 @@ function harborAt(faction: PlayableFaction, standing: number): System {
   } as System;
 }
 
-export function statusBadge(character: Character) {
+/**
+ * What somebody is doing, in two words.
+ *
+ * "At sea" used to stand for the whole of `on_mission`, which covers the
+ * passage out *and* the fortnight ashore doing the thing. Sean's playtest:
+ * *"Crew status reads AT SEA while the crew member is working ashore on a
+ * mission."* An errand has a phase; the badge reads it. Somebody aboard a
+ * squadron under way is at sea too, and that one needs the fleets, so `state`
+ * is passed where the caller has it.
+ */
+export type CrewStatus = { label: string; tone: 'good' | 'neutral' | 'warn' };
+
+/** The badge's words and colour, apart from the badge, so they can be read. */
+export function crewStatus(character: Character, state?: GameState): CrewStatus {
   switch (character.status) {
     case 'available':
-      return <span className="badge badge--good">Available</span>;
+      return state && atSeaNow(state, character)
+        ? { label: 'At sea', tone: 'neutral' }
+        : { label: 'Available', tone: 'good' };
     case 'on_mission':
-      return <span className="badge badge--neutral">At sea</span>;
+      return errandPhase(character, state) === 'working'
+        ? { label: 'Ashore', tone: 'neutral' }
+        : { label: 'At sea', tone: 'neutral' };
     case 'injured':
-      return <span className="badge badge--warn">Laid up {character.injuredDays ?? 0}d</span>;
+      return { label: `Laid up ${character.injuredDays ?? 0}d`, tone: 'warn' };
     default:
-      return <span className="badge badge--warn">Captured</span>;
+      return { label: 'Captured', tone: 'warn' };
   }
+}
+
+export function statusBadge(character: Character, state?: GameState) {
+  const { label, tone } = crewStatus(character, state);
+  return <span className={`badge badge--${tone}`}>{label}</span>;
+}
+
+/**
+ * Which half of an errand somebody is in — their own, or the leader's if they
+ * are only along for it. Unknown without the state, and the passage is the
+ * safer guess: a card that says "at sea" about somebody ashore is the bug,
+ * and one that says it about somebody whose leader we cannot find is a
+ * card we have no better answer for.
+ */
+export function errandPhase(character: Character, state?: GameState): 'travelling' | 'working' {
+  if (character.mission) return character.mission.phase;
+  if (!state || !character.escorting) return 'travelling';
+  const leader = state.characters.find((c) => c.id === character.escorting);
+  return leader?.mission?.phase ?? 'travelling';
 }
 
 /** The four ratings, spelled out and bar-charted rather than abbreviated. */
@@ -209,7 +246,7 @@ export function CharacterSheet({
           )}
           {character.people && <div className="tiny muted">{character.people}</div>}
         </div>
-        {statusBadge(character)}
+        {statusBadge(character, state)}
       </div>
 
       {posted && (

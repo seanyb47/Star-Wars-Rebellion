@@ -54,6 +54,7 @@ import {
 } from './constants';
 import {
   applyLocalSupport,
+  atSea,
   reachName,
   getCharacter,
   getSystem,
@@ -491,7 +492,9 @@ export function caughtOnLanding(
       c.faction !== 'neutral' &&
       c.locationSystemId === system.id &&
       c.status !== 'captured' &&
-      !(c.status === 'on_mission' && c.mission?.phase === 'travelling'),
+      // Officers at sea are not caught, because they are at sea — whether
+      // that is an errand still on passage or a squadron that has sailed.
+      !atSea(state, c),
   );
 }
 
@@ -758,7 +761,9 @@ export function watchOn(state: GameState, system: System, against: PlayableFacti
         c.faction !== 'neutral' &&
         c.locationSystemId === system.id &&
         c.status === 'available' &&
-        c.id !== system.commanderId,
+        c.id !== system.commanderId &&
+        // Not somebody three days out aboard a squadron that left from here.
+        !atSea(state, c),
     )
     .reduce((n, c) => n + watchOf(c), 0);
 
@@ -868,9 +873,16 @@ export function captureChance(
  * island is at that island — so both count and the test is one comparison. A
  * Lord may not go along: their absence pins their own ship, and that cost
  * should be theirs to choose rather than somebody else's to pay.
+ *
+ * A fleet *under way* is the exception the comparison misses, and Sean's
+ * playtest found it: *"After Fleet 2 sailed from Vagrano, Isolde Marrow still
+ * showed as available at Vagrano and was offered as a party member there."*
+ * She was aboard and three days out. Nobody at sea is at any island, and
+ * nobody can be put in a boat from an island they are not standing on.
  */
 export function companionsFor(state: GameState, leader: Character): Character[] {
   const here = leader.locationSystemId;
+  if (atSea(state, leader)) return [];
   return state.characters.filter(
     (c) =>
       c.id !== leader.id &&
@@ -881,7 +893,8 @@ export function companionsFor(state: GameState, leader: Character): Character[] 
       // A Lord may ride in somebody else's boat now. They are personnel and
       // nothing else, and putting two of the three in one party is a way to
       // lose a war in an afternoon — which is the player's risk to take.
-      c.locationSystemId === here,
+      c.locationSystemId === here &&
+      !atSea(state, c),
   );
 }
 

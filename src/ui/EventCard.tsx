@@ -197,9 +197,16 @@ export function EventCards({
  * in an action at sea, so there is nothing to report.
  */
 function BattleTally({ report }: { report: NonNullable<GameEvent['battle']> }) {
+  // A side is drawn when it was in the fight. A faction that never sailed is
+  // left off rather than given an empty crest: against a creature alone that
+  // read as an enemy fleet standing off untouched, which is Sean's playtest
+  // note about the Sea Dragon.
+  const present = (['empire', 'alliance'] as const).filter(
+    (side) => report.sides[side].hulls > 0 || report.sides[side].lost > 0,
+  );
   return (
     <div className="tally">
-      {(['empire', 'alliance'] as const).map((side) => {
+      {present.map((side) => {
         const s = report.sides[side];
         return (
           <div key={side} className={`tally__side tally__side--${side}`}>
@@ -225,6 +232,25 @@ function BattleTally({ report }: { report: NonNullable<GameEvent['battle']> }) {
           </div>
         );
       })}
+      {report.beast && (
+        <div className="tally__side tally__side--beast">
+          <div className="tally__body">
+            <div className="tally__name">{report.beast.name}</div>
+            <div className="tally__row">
+              <span>
+                <b>{report.beast.guns}</b> guns · nobody's
+              </span>
+            </div>
+            <div className="tally__row">
+              <span className="muted">
+                {report.beast.damage > 0
+                  ? `${report.beast.damage} of ${report.beast.hull} in it`
+                  : 'Not a mark on it yet'}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

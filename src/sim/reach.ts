@@ -1,4 +1,5 @@
 import { UPKEEP_PER_DAY } from './constants';
+import { atSea } from './helpers';
 import { islandIncome } from './economy';
 import { knownIsland } from './missions';
 import type { GameState, PlayableFaction, System } from './types';
@@ -42,12 +43,19 @@ export interface ReachSummary {
   perIsland: IslandSummary[];
 }
 
-/** Characters of yours on, or on their way to, this island. */
+/**
+ * Characters of yours on, or on their way to, this island.
+ *
+ * Standing on it, not filed under it. Somebody aboard a squadron that has
+ * sailed from here is neither on the island nor on their way to it, and used
+ * to be counted for the port they left.
+ */
 function missionCount(state: GameState, system: System, faction: PlayableFaction): number {
   return state.characters.filter(
     (c) =>
       c.faction === faction &&
-      (c.locationSystemId === system.id || c.mission?.targetSystemId === system.id),
+      ((c.locationSystemId === system.id && !atSea(state, c)) ||
+        c.mission?.targetSystemId === system.id),
   ).length;
 }
 
