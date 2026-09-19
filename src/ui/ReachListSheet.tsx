@@ -53,6 +53,18 @@ export function ReachListSheet({
         <Stat label={factionData[enemy].shortName} value={summary.enemyHeld} />
         <Stat label="Ashore" value={summary.garrison} />
       </div>
+      {/* What the four numbers above leave out, said rather than hidden.
+          Sean's playtest: *"Coral Reach summary said 'Unaligned 1' while every
+          other island there was unexplored. Possible info leak."* It was
+          counting the whole chain. It counts what you have charted now, and
+          this line is the rest of it. */}
+      {summary.uncharted > 0 && (
+        <p className="tiny muted" style={{ margin: '6px 0 0' }}>
+          {summary.uncharted} more {summary.uncharted === 1 ? 'island' : 'islands'} in this{' '}
+          {terms.reach.toLowerCase()} nobody of yours has been to. Whose they are, and who lives
+          on them, is not known.
+        </p>
+      )}
 
       <div className="section-title">What it earns you</div>
       <div className="card row" style={{ gap: 16 }}>

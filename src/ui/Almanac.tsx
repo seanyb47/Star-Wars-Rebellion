@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import terms from '../data/terms.json';
 import characterRoster from '../data/characters.json';
 import factionData from '../data/factions.json';
@@ -313,8 +313,24 @@ export function subjectFor(entry: string | undefined): Subject | null {
   return null;
 }
 
+/**
+ * Which of the bible's cast the opening draw actually seated.
+ *
+ * Seven a side in `characters.json`; four of the Crown's and five of the
+ * Confederacy's are drawn into any one war, and the rest sit it out entirely —
+ * they are not in the recruit pool either, so no amount of signing on will
+ * produce them. Sean's playtest: *"The Encyclopedia lists Ros Carrow and 'Big'
+ * Torvik under 'Yours,' but they never appear in the Crew roster."*
+ *
+ * The reference still lists the whole cast, which is what a reference is for.
+ * It stops flying a flag over somebody who is not in the game.
+ */
+export function inThisWar(state: GameState): Set<string> {
+  return new Set(state.characters.map((c) => c.name));
+}
+
 /** The whole cast, both navies and the recruit pool, in one list. */
-function everyone() {
+export function everyone() {
   return [
     ...characterRoster.empire.map((c) => ({ ...c, side: 'empire' as const })),
     ...characterRoster.alliance.map((c) => ({ ...c, side: 'alliance' as const })),
@@ -426,10 +442,17 @@ function EntrySheet({
         const roles: string[] = who.roles ?? [];
         const sworn = PEOPLE_ALLEGIANCE[who.people];
         const lord = PIRATE_LORDS.some((l) => l.name === who.name);
+        // Four of the Crown's seven and five of the Confederacy's are seated
+        // by the opening draw; the rest sit this war out and are not in the
+        // recruit pool either. The entry says so rather than flying a flag
+        // over somebody who is not in the game.
+        const inPlay = inThisWar(state).has(who.name);
         return {
           title: who.name,
-          subtitle: `${who.people}${lord ? ` · ${terms.lord}` : ''}`,
-          emblem: <FactionSigil faction={who.side} size={26} />,
+          subtitle: `${who.people}${lord ? ` · ${terms.lord}` : ''}${
+            inPlay ? '' : ' · not in this war'
+          }`,
+          emblem: inPlay ? <FactionSigil faction={who.side} size={26} /> : undefined,
           art: (
             <div className="encfull__art">
               <CharacterFace name={who.name} faction={who.side} people={who.people} />
@@ -838,6 +861,14 @@ export function Almanac({
   entry?: string;
 }) {
   const you = state.player;
+  /*
+   * Who the draw actually seated this war.
+   *
+   * Seven a side in the bible, four and five of them in any one game, and the
+   * rest never enter it at all — not even into the recruit pool. The people
+   * page is a reference to the whole cast and says which of them are here.
+   */
+  const present = useMemo(() => inThisWar(state), [state]);
   const [page, setPage] = useState<Page>(opening);
   /*
    * The entry currently open on top of the reference.
@@ -1177,18 +1208,30 @@ export function Almanac({
           .map((who) => {
           const subject: Subject = { kind: 'person', id: slugOf(who.name) };
           const sworn = PEOPLE_ALLEGIANCE[who.people];
+          /*
+           * Whether this person is in *this* war.
+           *
+           * The bible has seven a side and the opening seats four and five of
+           * them; the rest sit the war out entirely, and are not in the
+           * recruit pool either. Sean's playtest: *"The Encyclopedia lists Ros
+           * Carrow and 'Big' Torvik under 'Yours,' but they never appear in
+           * the Crew roster."* The page stays a reference to the whole cast —
+           * that is what a reference is for — but it stops flying a flag over
+           * somebody who was never drawn.
+           */
+          const inPlay = present.has(who.name);
           return (
             <button
               key={who.name}
               id={anchorOf(subject)}
-              className="encmini"
+              className={`encmini${inPlay ? '' : ' encmini--absent'}`}
               onClick={() => setOpenEntry(subject)}
             >
               <span className="encmini__art">
                 <CharacterFace name={who.name} faction={who.side} people={who.people} />
               </span>
               <b className="encmini__name encmini__name--sigil">
-                <FactionSigil faction={who.side} />
+                {inPlay && <FactionSigil faction={who.side} />}
                 {who.name}
               </b>
               {PIRATE_LORDS.some((l) => l.name === who.name) && (
@@ -1196,7 +1239,11 @@ export function Almanac({
               )}
               <span className="encmini__line">
                 {who.people}
-                {sworn && sworn !== you && ' · sworn elsewhere'}
+                {!inPlay
+                  ? ' · not in this war'
+                  : sworn && sworn !== you
+                    ? ' · sworn elsewhere'
+                    : ''}
               </span>
             </button>
           );

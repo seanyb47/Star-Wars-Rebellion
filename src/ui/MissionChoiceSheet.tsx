@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react';
 import {
+  alreadySentOn,
   companionsFor,
   fleetsToCommand,
   MISSION_LABEL,
@@ -93,6 +94,17 @@ const WHAT: Record<MissionType, string> = {
   research: 'Put the yards to work on the craft: cheaper, quicker hulls.',
   rescue: 'Break one of your crew out of the cells and get them home.',
 };
+
+/**
+ * Errands where a second boat on the same island is simply wasted.
+ *
+ * Signing on is one table; a rescue or an abduction is one person to carry;
+ * research is the island's yards, and they can only be put to work once. A
+ * parley or an incitement is not on the list: two boats arguing the same case
+ * is a real tactic, and the sheet says who else is at it without calling it a
+ * mistake.
+ */
+const ONE_AT_A_TIME: MissionType[] = ['recruit', 'rescue', 'abduct', 'research', 'command'];
 
 export function MissionChoiceSheet({
   state,
@@ -208,6 +220,19 @@ export function MissionChoiceSheet({
            * still reports what happened. This is only what is shown before.
            */
           const standing = standingFor(type);
+          /*
+           * Somebody of yours is already doing this here.
+           *
+           * Sean's playtest: *"Two recruiters on one island: 'Silvaine Crow
+           * lands on Freeport to find the berth already taken.' The UI should
+           * block or warn before sending the second one."* Warn rather than
+           * block: a second parley on the same island is a reasonable thing
+           * to want, and a second table at the same harbor is not, and the
+           * player is the one who should decide which of those they are
+           * doing. The month is theirs to spend either way — but not to spend
+           * without being told.
+           */
+          const doubling = alreadySentOn(state, island, faction, type, character.id);
           const what =
             type === 'abduct' && captive
               ? `Carry off ${captive.name} and hold them at your seat.`
@@ -238,6 +263,13 @@ export function MissionChoiceSheet({
                     {what}
                     {type === 'diplomacy' && island.control === 'neutral' && ` ${willingness()}`}
                   </span>
+                  {doubling.length > 0 && (
+                    <span className="tiny choice__doubling">
+                      {doubling.map((c) => c.name).join(' and ')}{' '}
+                      {doubling.length === 1 ? 'is' : 'are'} already on this here
+                      {ONE_AT_A_TIME.includes(type) ? ', and there is only the one to do' : ''}.
+                    </span>
+                  )}
                   {standing && <Marks factors={standing.factors} />}
                 </span>
               </button>

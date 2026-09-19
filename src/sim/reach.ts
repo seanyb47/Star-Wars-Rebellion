@@ -31,6 +31,17 @@ export interface ReachSummary {
   held: number;
   enemyHeld: number;
   unaligned: number;
+  /**
+   * Islands in the Reach this side has never charted.
+   *
+   * Sean's playtest: *"Coral Reach summary said 'Unaligned 1' while every
+   * other island there was unexplored. Possible info leak."* It was: the
+   * counts were taken over every island in the chain, so the summary told a
+   * player how many unaligned harbors were waiting in water their boats had
+   * never been in. They are counted here instead, as a number of unknowns,
+   * and left out of the four counts above.
+   */
+  uncharted: number;
   /** Gold your holdings here earn in a day, at the allegiance they have now. */
   goldPerDay: number;
   /** Gold your holdings here cost to keep for a day. */
@@ -66,7 +77,10 @@ export function summariseReach(
 ): ReachSummary {
   const enemy = faction === 'empire' ? 'alliance' : 'empire';
   const systems = state.systems.filter((s) => s.sectorId === sectorId);
-  const settled = systems.filter((s) => s.populated);
+  // What this side has actually been to. Everything the summary counts is
+  // counted over these; the rest of the chain is a number of unknowns.
+  const charted = systems.filter((s) => s.explored[faction]);
+  const settled = charted.filter((s) => s.populated);
 
   let goldPerDay = 0;
   let upkeepPerDay = 0;
@@ -91,14 +105,15 @@ export function summariseReach(
     sectorId,
     islands: systems.length,
     settled: settled.length,
-    held: systems.filter((s) => s.control === faction).length,
-    enemyHeld: systems.filter((s) => s.control === enemy).length,
-    unaligned: systems.filter((s) => s.control === 'neutral').length,
+    held: charted.filter((s) => s.control === faction).length,
+    enemyHeld: charted.filter((s) => s.control === enemy).length,
+    unaligned: charted.filter((s) => s.control === 'neutral').length,
+    uncharted: systems.length - charted.length,
     goldPerDay,
     upkeepPerDay,
     allegiance: { empire: mean('empire'), alliance: mean('alliance') },
     garrison,
-    mutinies: systems.filter((s) => s.uprising).length,
+    mutinies: charted.filter((s) => s.uprising).length,
     perIsland: systems.map((system) => {
       // What this side can actually count on it. An island held against you
       // that nobody has looked at is dashes, not numbers — the same rule the
@@ -136,6 +151,17 @@ export interface SeaSummary {
   held: number;
   enemyHeld: number;
   unaligned: number;
+  /**
+   * Islands in the Reach this side has never charted.
+   *
+   * Sean's playtest: *"Coral Reach summary said 'Unaligned 1' while every
+   * other island there was unexplored. Possible info leak."* It was: the
+   * counts were taken over every island in the chain, so the summary told a
+   * player how many unaligned harbors were waiting in water their boats had
+   * never been in. They are counted here instead, as a number of unknowns,
+   * and left out of the four counts above.
+   */
+  uncharted: number;
   goldPerDay: number;
   upkeepPerDay: number;
   garrison: number;
@@ -158,8 +184,12 @@ export function summariseSea(
   const perReach = reachesOfSea(state, sea).map((sector) =>
     summariseReach(state, sector.id, faction),
   );
+  // Charted and settled. The same rule the Reach summary runs on: averaging
+  // in an island whose water this side has never been in is telling them
+  // about it.
   const settledIslands = state.systems.filter(
-    (s) => s.populated && perReach.some((r) => r.sectorId === s.sectorId),
+    (s) =>
+      s.populated && s.explored[faction] && perReach.some((r) => r.sectorId === s.sectorId),
   );
   const mean = (of: PlayableFaction) =>
     settledIslands.length === 0
@@ -176,6 +206,7 @@ export function summariseSea(
     held: sum((r) => r.held),
     enemyHeld: sum((r) => r.enemyHeld),
     unaligned: sum((r) => r.unaligned),
+    uncharted: sum((r) => r.uncharted),
     goldPerDay: sum((r) => r.goldPerDay),
     upkeepPerDay: sum((r) => r.upkeepPerDay),
     garrison: sum((r) => r.garrison),

@@ -241,6 +241,46 @@ export function hasArrived(state: GameState, person: Character): boolean {
   return state.day >= (person.appearsOnDay ?? 1);
 }
 
+/**
+ * Unclaimed hands who have not turned up yet.
+ *
+ * The roster arrives across the whole war — two on the first morning and the
+ * rest spread out to `RECRUIT_LAST_DAY` — so an empty pool is usually a gap
+ * between arrivals rather than the end of the world's people. Measured over
+ * six seeds: eight unaligned in all, arriving on roughly days 1, 1, 70, 135,
+ * 205, 275, 350 and 425, which leaves a two-month hole after each one signs.
+ */
+export function recruitsToCome(state: GameState): Character[] {
+  return state.characters.filter((c) => c.faction === 'neutral' && !hasArrived(state, c));
+}
+
+/**
+ * Crew of yours already committed to this errand at this island.
+ *
+ * Sean's playtest: *"Two recruiters on one island: 'Silvaine Crow lands on
+ * Freeport to find the berth already taken.' The UI should block or warn
+ * before sending the second one."* The rule is not that the second one is
+ * forbidden — an island can be parleyed by two boats and be the better for
+ * it — but that signing on and a few others are one table, and a player
+ * about to spend a month on a duplicate should be told before they spend it.
+ */
+export function alreadySentOn(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+  type: MissionType,
+  except?: string,
+): Character[] {
+  return state.characters.filter(
+    (c) =>
+      c.faction === faction &&
+      c.id !== except &&
+      !c.escorting &&
+      c.mission?.type === type &&
+      c.mission.targetSystemId === system.id,
+  );
+}
+
 export function isRecruitTarget(
   state: GameState,
   system: System,
@@ -1546,7 +1586,9 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
         mission.type === 'incite'
           ? `${character.name} finds nothing left to stir on ${system.name} and goes quiet.`
           : mission.type === 'recruit'
-            ? `${character.name} lands on ${system.name} to find the berth already taken.`
+            ? recruitPool(state, faction).length === 0
+              ? `${character.name} keeps a table on ${system.name} and nobody unclaimed is left ashore to sit at it.`
+              : `${character.name} lands on ${system.name} to find it will not hold a table for them any more.`
             : mission.type === 'abduct'
               ? `${character.name} finds the quay at ${system.name} empty; their mark has sailed.`
               : mission.type === 'rescue'
@@ -1833,13 +1875,25 @@ function recruitOutcome(
     systemId: system.id,
     characterId: recruit.id,
   });
-  // The last of them. Sean's memo: the game should say when the roster is
-  // exhausted, because from that morning a recruiter is only a recruiter in
-  // name and belongs somewhere else.
+  // The last of them — and only when it really is the last of them.
+  //
+  // Sean's memo asked the game to say when the roster is exhausted, because
+  // from that morning a recruiter is only a recruiter in name. It was saying
+  // it whenever nobody unclaimed happened to be *ashore*, which on day 107 of
+  // his Confederacy run was five of the eight still to come. Measured across
+  // six seeds: the unaligned arrive on roughly days 1, 1, 70, 135, 205, 275,
+  // 350 and 425, so the pool is empty for most of the war and permanently
+  // empty only at the very end of it. Telling a player their recruiters are
+  // finished when six names are still to turn up retires the verb by mistake,
+  // which is what happened.
   if (recruitPool(state).length === 0) {
+    const coming = recruitsToCome(state).length;
     pushEvent(state, {
       kind: 'order',
-      text: `There is nobody left in the Seven Seas to sign. Every hand not already in the war is in it now — whoever you have is whoever you will have.`,
+      text:
+        coming === 0
+          ? `There is nobody left in the Seven Seas to sign. Every hand not already in the war is in it now — whoever you have is whoever you will have.`
+          : `That is everybody currently ashore and unclaimed. The Seas are not done making people: others will come up out of them as the war goes on, and a recruiter will have a table to keep again.`,
       systemId: system.id,
     });
   }
