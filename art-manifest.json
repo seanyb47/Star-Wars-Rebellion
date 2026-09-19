@@ -4376,34 +4376,44 @@
     "ships/reefwalker": {
       "folder": "ships",
       "slug": "reefwalker",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
-      "title": "reefwalker",
+      "updated": "2026-09-19",
+      "title": "Reefwarden",
       "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
-      "crop": {
-        "x": 1,
-        "y": 0,
-        "w": 232,
-        "h": 174
-      },
+      "notes": "Replacement commission, 19 September 2026. Delivered 1448x1086, exactly the 4:3 the ship card wants, so no crop. Retires a 234x174 master that was never a real master. The slug stays 'reefwalker': the hull was renamed Reefwarden in the v3 roster and the painting's filename did not follow, which is a rename of art files rather than of a name anybody reads.",
+      "crop": null,
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/ships/reefwalker.webp",
-        "w": 234,
-        "h": 174,
-        "bytes": 24736,
-        "sha1": "74d5f0e79c9129d7"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 713974,
+        "sha1": "3174442b064f2259"
       },
       "shipped": {
         "file": "src/art/ships/reefwalker.webp",
         "w": 640,
         "h": 480,
-        "bytes": 36342,
-        "sha1": "05d8f7f0caa7a05a"
-      }
+        "bytes": 94562,
+        "sha1": "82c919687dc1d114"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/ships/reefwalker.v1.webp",
+          "crop": {
+            "x": 1,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
     },
     "ships/resolute": {
       "folder": "ships",

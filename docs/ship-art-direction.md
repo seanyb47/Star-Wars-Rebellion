@@ -287,13 +287,14 @@ the Peoples Art Guide for the crews.
 
 *Large, Normal. CFS-REE-R4-01, research R4.*
 
+**PAINTED — 19 September 2026.** `src/art/ships/reefwalker.webp`. The delivered
+painting is the reference now, and the identity below describes it rather than
+proposing it. (The slug still reads `reefwalker`: the hull was renamed
+Reefwarden in the v3 roster and the art filename did not follow.)
+
 **Encyclopedia entry (in game):** Reef-folk work, and a capital ship's battery on a hull that costs a fraction of one. A Reefwarden takes two years of growing and shaping before she ever floats, which the free yards can only afford because the reef does most of the labour itself. She is named for a duty rather than a weapon, and the Reef-folk are particular about that.
 
-**Visual identity:** A large frigate of grown coral sheathed over timber — flowing organic lines forward, conventional carpentry aft where the two meet. Pale coral against dark wood, sea-grass canvas, gunports cut clean through living material.
-
-**Prompt:**
-
-> Reefwarden, a heavy frigate (44) of the Free Confederacy. A large frigate of grown coral sheathed over timber — flowing organic lines forward, conventional carpentry aft where the two meet. Pale coral against dark wood, sea-grass canvas, gunports cut clean through living material. Warmer, lower light — lantern light, weather coming, an anchorage that nobody surveyed. Three-quarter view from slightly below the horizon, the whole vessel in frame, open water and weather behind her, nothing else competing for the eye. No borders, frames or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical; no skull, no jolly roger, no crossbones
+**Visual identity:** A frigate whose whole hull is grown: overlapping plates of rust-red and ochre coral sheathing her from keel to rail, dark timber gunport frames and rails set into the living material, heavy guns run out through ports cut clean through it. Reef-folk in the waist and at the rail, blue-skinned and crested. Below the waterline, pale coral keel-fins stand out from her sides like the ribs of a reef. Her one flag is the Confederacy's own crest.
 
 ### Ironback — Razee siege ship (28)
 

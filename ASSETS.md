@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**142 of 155 painted.** 5388KB shipped, 22.2MB of masters kept back.
+**142 of 155 painted.** 5444KB shipped, 22.9MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -102,7 +102,7 @@ three-quarter view, whole vessel, masts and waterline both in frame. 34 of 42.
 | razorback | `razorback` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | razorback-ii | `razorback-ii` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | reef-class | `reef-class` | 1 | 42KB | 234×174, 26KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
-| reefwalker | `reefwalker` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| Reefwarden | `reefwalker` | 2 (+1 retired) | 92KB | 1448×1086, 697KB | whole frame | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Resolute | `resolute` | 1 | 79KB | 1448×1086, 643KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
 | sovereign | `sovereign` | 1 | 33KB | 233×174, 23KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | sovereign-ii | `sovereign-ii` | 1 | 35KB | 234×174, 23KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
@@ -355,7 +355,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/razorback** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/razorback-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/reef-class** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
-- **ships/reefwalker** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/reefwalker** — Replacement commission, 19 September 2026. Delivered 1448x1086, exactly the 4:3 the ship card wants, so no crop. Retires a 234x174 master that was never a real master. The slug stays 'reefwalker': the hull was renamed Reefwarden in the v3 roster and the painting's filename did not follow, which is a rename of art files rather than of a name anybody reads.
 - **ships/resolute** — Her first painting; she had been falling through to the drawn silhouette since the roster landed. Crown R2 medium: one heavy bow chaser over a deck of light guns, which is what the roster gives her.
 - **ships/sovereign** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/sovereign-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
