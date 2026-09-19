@@ -6,7 +6,7 @@ import { ChartMark } from './ChartMark';
 import { WorthMark } from './worth';
 import { ControlBadge, RoomBar } from './components';
 
-export type IslandTab = 'harbor' | 'crew' | 'garrison' | 'buildings' | 'lore';
+export type IslandTab = 'harbor' | 'crew' | 'garrison' | 'buildings';
 
 /**
  * The tab an island should open on, given what the chart is filtering by.

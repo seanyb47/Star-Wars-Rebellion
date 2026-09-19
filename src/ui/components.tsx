@@ -1,4 +1,4 @@
-import { Children, type ReactNode } from 'react';
+import { Children, useCallback, useRef, useState, type ReactNode } from 'react';
 import factionData from '../data/factions.json';
 import { allegianceColour, allegianceSegments } from './allegiance';
 import { usePrefs } from './prefs';
@@ -116,15 +116,23 @@ export function Sheet(props: {
 }
 
 /**
- * The two checkboxes over any list of things the player owns: fold alike ones
- * into a count, and show the arrows that put them in order.
+ * The one toggle left: fold alike hulls into a count, or list them out.
  *
- * One control, used by the harbor, the garrison, the crew and the buildings,
- * because they are one preference — somebody who wants their hulls grouped
- * wants their companies grouped too, and having to say so four times would be
- * four places to forget.
+ * There were two, over four lists. Sean, 19 September: *"don't need to make
+ * group alike and reorder buttons. Always group them and allow me to press
+ * and hold to drag and move. Same goes for all units. No need for group and
+ * reorder. Just always combine alike. The only exception is ships!"*
+ *
+ * So grouping stops being a preference anywhere but the harbor, and the
+ * reason ships are the exception is that they are the only list whose items
+ * are not interchangeable: four Kestrels are four hulls carrying four
+ * different amounts of damage, and somebody choosing which to send wants them
+ * apart. A troop is a troop and a yard is a yard.
+ *
+ * Reordering lost its toggle outright — a list you rearrange by holding a row
+ * and dragging it does not need a mode switched on first.
  */
-export function ListOpts() {
+export function GroupHulls() {
   const [prefs, setPrefs] = usePrefs();
   return (
     <div className="listopts tiny">
@@ -134,13 +142,6 @@ export function ListOpts() {
         aria-pressed={prefs.group}
       >
         {prefs.group ? '☑' : '☐'} Group alike
-      </button>
-      <button
-        className={`listopt${prefs.reorder ? ' listopt--on' : ''}`}
-        onClick={() => setPrefs({ reorder: !prefs.reorder })}
-        aria-pressed={prefs.reorder}
-      >
-        {prefs.reorder ? '☑' : '☐'} Reorder
       </button>
     </div>
   );
@@ -238,6 +239,104 @@ export function SlotBoard({
 }
 
 /** One thing on the board: a picture, a name, and optionally a line under it. */
+/**
+ * Hold a tile, then drag it past its neighbour to move it.
+ *
+ * Sean, 19 September: *"allow me to press and hold to drag and move."*
+ *
+ * Built on the one-step `order.up` / `order.down` the lists already expose
+ * rather than on a drop target, which is what keeps it small: while a tile is
+ * held, crossing the width of a tile in either direction moves it one place
+ * and the origin resets. Drag three tiles' worth and it has moved three
+ * places, which is what dragging feels like, without anybody having to track
+ * a drop index.
+ *
+ * Pointer events rather than touch, so a mouse works the same way and a test
+ * can drive it. The press has to be *held* — 320ms — because these tiles are
+ * also buttons, and a tile that reordered on a quick drag would fight the
+ * scroll of the board it sits in. The click that follows a real drag is
+ * swallowed, or letting go would also open the thing you just moved.
+ */
+const HOLD_MS = 320;
+
+function useHoldDrag(order?: { up?: () => void; down?: () => void }) {
+  const [held, setHeld] = useState(false);
+  const from = useRef<{ x: number; y: number } | null>(null);
+  const timer = useRef<number | undefined>(undefined);
+  const moved = useRef(false);
+  const node = useRef<HTMLElement | null>(null);
+  const pointer = useRef<number | undefined>(undefined);
+
+  const stop = useCallback(() => {
+    window.clearTimeout(timer.current);
+    timer.current = undefined;
+    from.current = null;
+    const tile = node.current;
+    const id = pointer.current;
+    if (tile && id !== undefined && tile.hasPointerCapture?.(id)) tile.releasePointerCapture(id);
+    pointer.current = undefined;
+    setHeld(false);
+  }, []);
+
+  if (!order) {
+    return { held: false, moved, handlers: {} as Record<string, never> };
+  }
+
+  const handlers = {
+    onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
+      const tile = e.currentTarget;
+      node.current = tile;
+      moved.current = false;
+      pointer.current = e.pointerId;
+      const { clientX: x, clientY: y } = e;
+      timer.current = window.setTimeout(() => {
+        from.current = { x, y };
+        setHeld(true);
+        // The tile has to keep the pointer, or the drag ends the instant the
+        // finger crosses onto the neighbour — which is the first thing a drag
+        // does. Without this the gesture can only ever move a tile by less
+        // than its own width, which is to say never.
+        try {
+          tile.setPointerCapture(e.pointerId);
+        } catch {
+          // Some browsers refuse a capture for a pointer already gone.
+        }
+        // Haptic where there is one: picking a thing up should be felt.
+        navigator.vibrate?.(10);
+      }, HOLD_MS);
+    },
+    onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
+      if (!from.current) {
+        // Before the hold lands, any real movement is a scroll, not a drag.
+        return;
+      }
+      const box = node.current?.getBoundingClientRect();
+      // Past the boundary, not past the whole tile: the swap belongs where the
+      // finger crosses onto the neighbour.
+      const step = Math.max(32, (box?.width ?? 80) * 0.6);
+      const dx = e.clientX - from.current.x;
+      const dy = e.clientY - from.current.y;
+      // A board is a grid, so both axes move a tile: sideways by one, and
+      // downwards by one as well, because on a two-across board "the next
+      // one" is as often below as beside.
+      const travel = Math.abs(dx) > Math.abs(dy) ? dx : dy;
+      if (Math.abs(travel) < step) return;
+      const back = travel < 0;
+      const go = back ? order.up : order.down;
+      if (!go) return;
+      go();
+      moved.current = true;
+      from.current = { x: e.clientX, y: e.clientY };
+    },
+    onPointerUp: stop,
+    onPointerCancel: stop,
+    onPointerLeave: () => {
+      if (!from.current) stop();
+    },
+  };
+  return { held, moved, handlers };
+}
+
 export function Slot({
   icon,
   art,
@@ -283,15 +382,22 @@ export function Slot({
    */
   onLookUp?: () => void;
   label?: string;
-  /** Present only in reorder mode. An end with nowhere to go is absent. */
+  /**
+   * Where this tile can go. An end with nowhere to go leaves its side out.
+   *
+   * Two ways in, since 19 September: the arrows under the tile, and holding
+   * the tile and dragging it. The arrows stay because they are the reachable
+   * one — a hold-and-drag is not a keyboard gesture and never will be.
+   */
   order?: { up?: () => void; down?: () => void };
 }) {
   // With nothing else to do, the tile itself is the lookup.
   const tap = onClick ?? onLookUp;
   const corner = onClick && onLookUp ? onLookUp : undefined;
+  const drag = useHoldDrag(order);
   const className = `slot${art ? ' slot--art' : ''}${tone ? ` slot--${tone}` : ''}${
     tap ? ' slot--tap' : ''
-  }`;
+  }${drag.held ? ' slot--held' : ''}`;
   const body = (
     <>
       {art ? <span className="slot__art">{art}</span> : <span className="slot__icon">{icon}</span>}
@@ -300,11 +406,26 @@ export function Slot({
     </>
   );
   const inner = tap ? (
-    <button className={className} onClick={tap} aria-label={label ?? name}>
+    <button
+      className={className}
+      // Letting go after a real drag must not also open the thing that was
+      // dragged. `moved` is a ref rather than state so the click sees it.
+      onClick={() => {
+        if (drag.moved.current) {
+          drag.moved.current = false;
+          return;
+        }
+        tap();
+      }}
+      aria-label={label ?? name}
+      {...drag.handlers}
+    >
       {body}
     </button>
   ) : (
-    <span className={className}>{body}</span>
+    <span className={className} {...drag.handlers}>
+      {body}
+    </span>
   );
   const tile = corner ? (
     <span className="slot-lookup">
@@ -324,7 +445,9 @@ export function Slot({
   if (!order) return tile;
   // On a board the arrows go under the tile rather than beside it: a tile is
   // about as wide as two arrows and the board is a grid, so putting them
-  // alongside would halve the tile.
+  // alongside would halve the tile. They are also not drawn until one is
+  // focused — see `.slot-wrap__order` — because the gesture is the hold and
+  // these are only the keyboard's way in.
   return (
     <span className="slot-wrap">
       {tile}

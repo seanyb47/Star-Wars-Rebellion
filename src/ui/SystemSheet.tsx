@@ -1,8 +1,9 @@
 import { useState, type ReactNode } from 'react';
 import terms from '../data/terms.json';
-import loreData from '../data/lore.json';
 import factionData from '../data/factions.json';
 import {
+  fleetsAt,
+  isAtSea,
   otherFaction,
   recruitPool,
   canRecruitAt,
@@ -49,7 +50,6 @@ import {
   type GameState,
   type Sector,
   type System,
-  creature,
   beastOf,
   byRemembered,
   garrisonRoster,
@@ -77,14 +77,12 @@ import { useLookUp } from './lookup';
 import {
   ControlBadge,
   GoldFig,
-  ListOpts,
   RoomBar,
   Sheet,
   Slot,
   SlotBoard,
   SupportBars,
 } from './components';
-import { usePrefs } from './prefs';
 import { ShipsHere } from './FleetPanel';
 import { WorthMark } from './worth';
 import { controlColour } from './ChainMap';
@@ -112,14 +110,23 @@ function errandName(type: MissionType): string {
  * one is people you order about and the other is companies that hold ground.
  * Everything built sits in Buildings, earners and yards alike.
  */
+/*
+ * Sean's order, 19 September: *"change order to Harbor, Crew, Buildings,
+ * Troops."*
+ *
+ * And the Lore tab is gone with it — *"Cut lore. Move to encyclopedia."* An
+ * island's lore is the same paragraph every time you open the place, which is
+ * a thing you read once; the encyclopedia is where a thing you read once
+ * belongs.
+ *
+ * `garrison` keeps its id, because it is the tab a filter asks for and the
+ * saved `initialTab`; only the word on it changed, from Garrison to Troops.
+ */
 const TABS: Array<{ id: IslandTab; label: string }> = [
   { id: 'harbor', label: 'Harbor' },
   { id: 'crew', label: 'Crew' },
-  { id: 'garrison', label: terms.garrison },
   { id: 'buildings', label: 'Buildings' },
-  // Far right, and last on purpose: it is the tab you go to when you want to
-  // know what the place is, not when you are doing anything to it.
-  { id: 'lore', label: 'Lore' },
+  { id: 'garrison', label: terms.troops },
 ];
 
 /**
@@ -465,10 +472,27 @@ function TheirsAshore({
 function ReportAge({ state, report }: { state: GameState; report: Intel }) {
   const age = state.day - report.day;
   return (
+    /*
+     * Sean, 19 September: *"But info might not be accurate. Put a note — last
+     * report and day! Or better yet 'last report x days ago'."* His second
+     * phrasing, because a day number asks the reader to do the subtraction
+     * against a date they would have to go and look up.
+     *
+     * It matters more now than it did: every tab stays on an enemy island,
+     * so the panel shows a harbor and a garrison whether or not anybody has
+     * looked lately, and this line is the whole difference between *empty*
+     * and *not counted since*.
+     */
     <p className="report-age tiny">
-      <b>{report.secondHand ? "From somebody's dispatches" : `${report.byName}'s report`}</b>
+      <b>
+        {age === 0
+          ? 'Last report today'
+          : age === 1
+            ? 'Last report yesterday'
+            : `Last report ${age} days ago`}
+      </b>
       {' · '}
-      {age === 0 ? 'filed today' : age === 1 ? 'filed yesterday' : `${age} days old`}
+      {report.secondHand ? "somebody's dispatches" : `${report.byName}'s`}
       {age >= 45 && ' — old enough to be wrong'}
       {report.secondHand && '. Nobody of yours has actually been ashore here.'}
     </p>
@@ -638,14 +662,7 @@ export function SystemSheet({
   onOpenReach?: (sectorId: string) => void;
 }) {
   const [tab, setTab] = useState<IslandTab>(initialTab);
-  const [prefs] = usePrefs();
   const lookUp = useLookUp();
-  // Five tabs and a thumb: sliding between them beats aiming at them.
-  const swipe = useSideSwipe((step) => {
-    const at = TABS.findIndex((entry) => entry.id === tab);
-    const next = Math.min(TABS.length - 1, Math.max(0, at + step));
-    if (next !== at) setTab(TABS[next].id);
-  });
   const sector = state.sectors.find((s) => s.id === live.sectorId)!;
   const explored = live.explored[state.player];
 
@@ -716,6 +733,39 @@ export function SystemSheet({
       c.mission?.targetSystemId === system.id &&
       c.mission.phase === 'travelling',
   );
+  /*
+   * Which tabs this island actually has.
+   *
+   * Sean, 19 September: *"Can we make the Harbor tab only appear when there
+   * is something there or on route? Otherwise it just goes to next tab? Same
+   * with crew."* An empty tab is a tap that teaches you nothing, and on a
+   * quiet island of yours three of the four were empty.
+   *
+   * **On an island of theirs every tab stays**, which he asked for in the
+   * same breath: *"When I click on enemy locations I should see all tabs. No
+   * tabs hidden."* Hiding a tab there would say *nothing is in the harbor*
+   * when what you mean is *nobody of yours has looked* — and those are
+   * opposite facts. The report line at the top of the panel says how old the
+   * looking is.
+   */
+  const mine = live.control === state.player;
+  const hullsHere = fleetsAt(state, live.id).length > 0;
+  const hullsBound = state.fleets.some((f) => isAtSea(f) && f.voyage?.targetSystemId === live.id);
+  const hasHarbor = !mine || hullsHere || hullsBound;
+  const hasCrew = !mine || crew.length > 0 || inbound.length > 0;
+  const tabs = TABS.filter(
+    (entry) =>
+      (entry.id !== 'harbor' || hasHarbor) && (entry.id !== 'crew' || hasCrew),
+  );
+  // If the tab we were sent to is not on this island, fall through to the
+  // next one that is rather than showing a panel with nothing selected.
+  const live_tab = tabs.some((entry) => entry.id === tab) ? tab : tabs[0].id;
+  const swipe = useSideSwipe((step) => {
+    const at = tabs.findIndex((entry) => entry.id === live_tab);
+    const next = Math.min(tabs.length - 1, Math.max(0, at + step));
+    if (next !== at) setTab(tabs[next].id);
+  });
+
   const slots = system.slots;
   // The island's makers, folded by kind: one card per kind, because one kind
   // does one job at a time however many of them stand here.
@@ -842,12 +892,12 @@ export function SystemSheet({
       }
       tabs={
         <div className="tabs" role="tablist">
-          {TABS.map((entry) => (
+          {tabs.map((entry) => (
             <button
               key={entry.id}
               role="tab"
-              aria-selected={tab === entry.id}
-              className={`tabs__tab${tab === entry.id ? ' tabs__tab--on' : ''}`}
+              aria-selected={live_tab === entry.id}
+              className={`tabs__tab${live_tab === entry.id ? ' tabs__tab--on' : ''}`}
               onClick={() => setTab(entry.id)}
             >
               {entry.label}
@@ -861,7 +911,7 @@ export function SystemSheet({
     >
       {report && <ReportAge state={state} report={report} />}
 
-      {tab === 'harbor' && (
+      {live_tab === 'harbor' && (
         <>
           {/* The harbor is the ships in it. Allegiance and room used to sit
               above them, and both are on the chain view before you ever open
@@ -869,7 +919,10 @@ export function SystemSheet({
               thing you came to look at. Allegiance moved to the Garrison tab,
               where holding an island is the subject; room leads the Buildings
               tab already. */}
-          <div className="section-title">At anchor</div>
+          {/* No heading. Sean, 19 September: *"Cut the at harbor. If nothing
+              is there, nothing is there."* The tab is called Harbor and the
+              ships are the first thing under it; "At anchor" was a label on
+              the only thing it could have been labelling. */}
           {report ? (
             <RememberedHarbor report={report} player={state.player} />
           ) : (
@@ -922,7 +975,7 @@ export function SystemSheet({
         </>
       )}
 
-      {tab === 'buildings' && (
+      {live_tab === 'buildings' && (
         <>
           {/* Room first, at one length: a bar that is the width of the panel
               on every island, so two islands are compared by how full they
@@ -1073,7 +1126,7 @@ export function SystemSheet({
         </>
       )}
 
-      {tab === 'garrison' && (
+      {live_tab === 'garrison' && (
         <>
           {/*
             What you have in the water off this island, before what is standing
@@ -1210,7 +1263,6 @@ export function SystemSheet({
               else — and who is standing there is the more interesting half:
               the Reef Guard are the reef island, and an Urskin troop on the
               ice is who lives on the ice. */}
-          <ListOpts />
           {/* Grouped, a kind of troop is one tile with a count; ungrouped,
               every troop is its own. The kinds can be put in an order —
               a troop has no identity of its own to move, so what is
@@ -1219,16 +1271,17 @@ export function SystemSheet({
             ghosts={Math.max(0, needed - system.garrison)}
             empty={`No troops are ashore on ${system.name}.`}
           >
-            {(prefs.group
-              ? garrison.map((e) => ({ ...e, key: e.type.id }))
-              : roster.map((type, i) => ({ type, count: 1, key: `${type.id}-${i}` }))
-            ).map(
+            {/* Always folded, since 19 September: a troop is a troop, so the
+                ungrouped list was ten identical tiles saying the same thing
+                ten times. Ships keep the toggle because four Kestrels are
+                four different amounts of damage. */}
+            {garrison.map((e) => ({ ...e, key: e.type.id })).map(
               (entry, i, all) => (
                 <Slot
                   key={entry.key}
                   icon={<CompanyIcon size={64} type={entry.type.id} />}
                   name={
-                    prefs.group && entry.count > 1
+                    entry.count > 1
                       ? `${entry.count}× ${entry.type.name}`
                       : entry.type.name
                   }
@@ -1239,7 +1292,7 @@ export function SystemSheet({
                   onLookUp={() => lookUp?.('companies', entry.type.id)}
                   label={`${entry.type.name} — ${entry.type.people}`}
                   order={
-                    prefs.reorder && prefs.group && all.length > 1 && onOrderGarrison
+                    all.length > 1 && onOrderGarrison
                       ? {
                           up:
                             i === 0
@@ -1269,9 +1322,8 @@ export function SystemSheet({
         </>
       )}
 
-      {tab === 'lore' && <IslandLore state={state} system={system} sector={sector} />}
 
-      {tab === 'crew' && (
+      {live_tab === 'crew' && (
         <>
           {/*
             Whether this is a harbor you could grow your corps out of.
@@ -1327,9 +1379,15 @@ export function SystemSheet({
 
           <TheirsAshore state={state} system={system} report={filed} sight={sight} />
 
-          <div className="section-title">Ashore here</div>
-          {crew.length > 1 && <ListOpts />}
-          <SlotBoard empty={`Nobody of yours is on ${system.name}.`}>
+          {/* Two words apiece, at Sean's word: *"Same with crew. Cut all the
+              text. Ashore / underway. Only add if distinction is necessary."*
+              The empty sentences went with the headings — a board with
+              nothing on it is already saying nobody is there, at greater
+              length than the sentence did. */}
+          {crew.length > 0 && (
+            <>
+          <div className="section-title">Ashore</div>
+          <SlotBoard>
             {crew.map((character, i) => (
               <Slot
                 key={character.id}
@@ -1372,7 +1430,7 @@ export function SystemSheet({
                 }
                 onClick={() => onOpenCharacter?.(character.id)}
                 order={
-                  prefs.reorder && crew.length > 1 && onOrderCrew
+                  crew.length > 1 && onOrderCrew
                     ? {
                         up: i === 0 ? undefined : () => onOrderCrew([character.id], -1),
                         down:
@@ -1385,9 +1443,13 @@ export function SystemSheet({
               />
             ))}
           </SlotBoard>
+            </>
+          )}
 
-          <div className="section-title">Under way to here</div>
-          <SlotBoard empty={`Nobody of yours is sailing for ${system.name}.`}>
+          {inbound.length > 0 && (
+            <>
+          <div className="section-title">Underway</div>
+          <SlotBoard>
             {inbound.map((character) => (
               <Slot
                 key={character.id}
@@ -1405,6 +1467,8 @@ export function SystemSheet({
               />
             ))}
           </SlotBoard>
+            </>
+          )}
         </>
       )}
     </Sheet>
@@ -1425,51 +1489,12 @@ export function SystemSheet({
  * comes last and only once your own boats have seen it — a bestiary you can
  * read on day one is a bestiary, and this is meant to be a log.
  */
-function IslandLore({
-  state,
-  system,
-  sector,
-}: {
-  state: GameState;
-  system: System;
-  sector: Sector;
-}) {
-  const sea = (loreData.seas as Record<string, string>)[sector.sea];
-  const kind = (loreData.archetypes as Record<string, string>)[system.archetype];
-  const beast = system.beast ? creature(system.beast) : undefined;
-  const seen = beast && system.beastSeen?.[state.player];
-  return (
-    <>
-      {system.chartName && system.chartName !== system.name && (
-        <p className="tiny muted" style={{ margin: '0 0 10px' }}>
-          The charts still call this island {system.chartName}.
-        </p>
-      )}
-
-      {system.note && <p className="portrait__note serif">{system.note}</p>}
-
-      <div className="section-title">{sector.sea}</div>
-      <p className="lore__body">{sea ?? `${sector.name} lies in ${sector.sea}.`}</p>
-      <p className="tiny muted" style={{ margin: '4px 0 0' }}>
-        {sector.name} · {sector.systemIds.length} {terms.islands.toLowerCase()}
-      </p>
-
-      <div className="section-title">The island</div>
-      <p className="lore__body">{kind}</p>
-
-      {seen && beast && (
-        <>
-          <div className="section-title">In the water</div>
-          <p className="lore__body">
-            <b>{beast.name}</b>. {beast.lore}
-          </p>
-          {system.beastSlain && (
-            <p className="tiny muted" style={{ margin: '4px 0 0' }}>
-              Killed, and the water off {system.name} is only water now.
-            </p>
-          )}
-        </>
-      )}
-    </>
-  );
-}
+/*
+ * `IslandLore` stood here and lives in `IslandLore.tsx` now.
+ *
+ * Sean, 19 September: *"Cut lore. Move to encyclopedia."* The sea an island
+ * lies in and the kind of place it is do not change, so it was three
+ * paragraphs you read once and swiped past for the rest of the game. This
+ * panel is four tabs of things you can act on; the lore is an encyclopedia
+ * entry.
+ */

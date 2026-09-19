@@ -1204,7 +1204,19 @@ button {
 /* A tile with its two arrows under it. Beside would halve the tile — a board
    is a grid and a tile is about as wide as two arrows. */
 .slot-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 3px; }
-.slot-wrap__order { display: flex; gap: 3px; }
+/* On a board the arrows are out of sight until something reaches for them.
+   Sean, 19 September: *"don't need to make group alike and reorder buttons.
+   Always group them and allow me to press and hold to drag and move."* A row
+   of arrows under every tile is the clutter he is describing, and the hold is
+   the gesture he wants — but a hold is not a gesture a keyboard has, so the
+   arrows stay in the page and come back the moment one is focused. Height and
+   opacity rather than `display: none`, because a hidden button cannot be
+   tabbed to and the point of keeping them is that it can. */
+.slot-wrap__order {
+  display: flex; gap: 3px; height: 0; opacity: 0; overflow: hidden;
+  transition: height 90ms ease, opacity 90ms ease;
+}
+.slot-wrap__order:focus-within { height: 21px; opacity: 1; }
 .slot-wrap__order .orderbtn { flex: 1; width: auto; }
 
 /* ---------- Slot boards ----------
@@ -2404,7 +2416,21 @@ button.tcard:hover { border-color: var(--brass); }
 }
 /* The entry itself, on the layer above. The art runs the full width here
    because there is nothing competing with it any more. */
-.encfull__art { line-height: 0; border-radius: 10px; overflow: hidden; }
+/* A hull or a works with no painting yet falls back to a drawn glyph, which
+   carries its own intrinsic size rather than the painting's box — on the
+   Blackfin a third of it hung out below the banner and over the stats
+   scrolling underneath. The banner clips it, but clipping a ship in half is
+   not a drawing; it gets fitted instead. */
+.encfull__art {
+  line-height: 0; border-radius: 10px; overflow: hidden;
+  display: grid; place-items: center;
+  /* The banner is a flex item in the sheet's column and was being squeezed
+     a little narrower than its own contents, which is what put the glyph
+     through the clip. The body below it scrolls, so it is the one that
+     should give. */
+  flex: none;
+}
+.encfull__art > svg { width: auto; height: auto; max-width: 62%; max-height: 190px; }
 .encfull__art .charface { width: 100% !important; height: auto !important; aspect-ratio: 1 / 1; }
 .encfull__art .shipthumb {
   display: block; width: 100% !important; height: auto !important; aspect-ratio: 4 / 3;
@@ -2538,3 +2564,15 @@ button.tcard:hover { border-color: var(--brass); }
   background: rgba(255, 255, 255, 0.09); overflow: hidden;
 }
 .shipstat__bar > span { display: block; height: 100%; background: var(--brass); opacity: 0.75; }
+
+/* A tile picked up. It lifts, brightens at the rim, and stops trying to look
+   like something you are about to tap. */
+.slot--held {
+  transform: scale(1.06);
+  border-color: var(--brass);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55);
+  z-index: 2;
+}
+/* While a tile can be dragged, the browser must not claim the gesture first:
+   without this the board scrolls and the tile never moves. */
+.slot-wrap .slot { touch-action: none; }

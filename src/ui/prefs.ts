@@ -18,8 +18,14 @@ const KEY = 'seven-seas.prefs.v1';
 export interface Prefs {
   /** Fold identical hulls and troops into one line with a count. */
   group: boolean;
-  /** Show the up and down arrows that put lists in order. */
-  reorder: boolean;
+  /*
+   * `reorder` stood here and is gone.
+   *
+   * It switched the up-and-down arrows on, and Sean cut the switch on 19
+   * September: *"No need for group and reorder."* The arrows are simply
+   * there now on any list long enough to have an order — a mode you have to
+   * turn on before you can move a thing is one more step than moving it.
+   */
   /**
    * The chart filters, in the order this player wants to swipe through them.
    *
@@ -36,7 +42,7 @@ export interface Prefs {
   layerOrder: string[];
 }
 
-const DEFAULTS: Prefs = { group: true, reorder: false, layerOrder: [] };
+const DEFAULTS: Prefs = { group: true, layerOrder: [] };
 
 function read(): Prefs {
   try {

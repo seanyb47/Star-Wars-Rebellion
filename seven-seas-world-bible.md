@@ -344,6 +344,44 @@ Design rule: Imperium ships are built straight and then warded with cultivated c
 | A-wing | **Ray-riders** | Reef-folk riding tamed giant rays; fastest thing on the water; anti-small-craft |
 | B-wing | **Hammer** heavy mortar-launch | Late heavy bombardment craft |
 
+### 6C. What each hull is good and bad against
+
+Sean, 19 September: *"Delete the description text that repeats the stats... Replace it with 1-2 sentences of in-world flavor text per ship that tells the player what the ship is good and bad against, naturally."* These are the lines the ship sheet prints under the stat grid, and they are deliberately free of numbers — the grid is directly above them and says the numbers better. They live in `src/data/ship-flavour.json` rather than in `combat-ships.json`, because that file carries a standing instruction to be changed by re-reading the sheet and never by hand; a line written into it would be gone at the next import. A test fails if a hull has no line, or a line has no hull.
+
+**Crown Imperium**
+
+| R | Ship | What she is for, and what undoes her |
+|---|---|---|
+| S01 | **Wayfinder** | Two guns and a chart table. She finds islands and she settles them, and the only thing she beats is an empty anchorage — put her within sight of a warship and the troops in her belly go down with her. |
+| S02 | **Interceptor I** | Nothing heavy can hold her in its sights, so she lives among the cutters and the couriers and cuts them up at leisure. One broadside from anything plated is all it has ever taken. |
+| S03 | **Morningstar** | Her heavy guns go through plate and her own plate turns most of what comes back, so she breaks early frigates and harbor walls alike. She is far too slow to refuse a fight, and the long-gunned ships of the middle war shoot her to pieces before she is in range to answer. |
+| S04 | **Sovereign** | She carries a small army and the guns to clear the beach for it, and nothing in the early war can stop her arriving. She has no long guns at all, so she takes the whole approach standing up. |
+| R1 | **Vanguard** | Cheap for her size and a wall of shot against sloops, brigs and anything sailing unplated. Against a proper ship of the line she is a great deal of hull and not enough gun. |
+| R2 | **Resolute** | Quick and cheap, made for running down a scout or a lone transport. Anything built for a line action will take her apart, and her one mercy is that she is fast enough to leave before it does. |
+| R3 | **Bulwark** | Plated heavily enough that light shot rings off her, and long-gunned enough to open the argument before the other side can answer. She cannot catch anything, so a fast hull that keeps its distance will out-sail her all day. |
+| R4 | **Vanguard II** | Everything the first Vanguard was, with plate that turns light shot and heavy guns that go through it. She still carries no long guns, so whoever does gets the first word and she has to stand and eat it. |
+| R5 | **Interceptor II** | Too quick to be held in a sight and armed to open at distance: small craft never live to close with her. A single heavy broadside, the one time one lands, ends her. |
+| R6 | **Justiciar** | Guns of all three kinds, so she is never carrying the wrong weapon for what she has met — a plated liner and a swarm of cutters go the same way. She is thin-hulled for her size and carries nobody, so she can win the water off an island and never take it. |
+| R7 | **Sovereign II** | Heavy enough to break a line, plated enough to survive one, and quick enough for a ship of her bulk to choose her own fight. Short of a Majestic there is nothing afloat she ought to lose to. |
+| R8 | **Majestic** | The heaviest battery and the heaviest plate in either navy, and an army in her hold besides: one to one there is nothing she cannot out-shoot. She is slow, so the choice of whether to fight her is never hers, and two lighter hulls at once is exactly what it takes. |
+
+**Free Confederacy**
+
+| R | Ship | What she is for, and what undoes her |
+|---|---|---|
+| S01 | **Swift** | A pair of eyes and a fast hull, and that is the whole of her. Anything at all will sink her, so the entire trick is never being where it is. |
+| S02 | **Brigantine** | A merchantman with a pair of guns bolted on: she is for putting troops on a quiet beach. If there is anything in the anchorage built to fight, she does not arrive. |
+| S03 | **Chimera** | Plated well past her size and cheap to keep, which makes her an infuriating thing to shift off a harbor mouth — light shot simply will not tell on her. She has almost nothing to shoot back with, so she wins by lasting rather than by hitting. |
+| S04 | **Tidestalker** | She mends herself faster than a squadron can wear her down, which makes her the ship for a long season of small actions. Her plate is thin, and one heavy broadside undoes a fortnight of healing. |
+| R1 | **Marauder** | Fast and cheap with two troops below: she is made for undefended harbors and merchantmen sailing alone. A warship of any size finishes her inside a single exchange. |
+| R2 | **Cutlass** | Heavy guns on a hull that small have no business existing, and plated sloops have learned it the hard way. Her own plate is paper and she is not quick enough to leave when it turns against her. |
+| R3 | **Tempest** | Long guns and good plate on a fast hull: she opens the action, hurts, and turns away most of the answer. There is very little behind that plate, and the second exchange is never hers. |
+| R4 | **Reefwarden** | A capital ship's battery on a hull costing a fraction of one — she goes through plate that ought to stop her, and lands troops afterwards. She is hollow for her size, so she wins in the first exchange or she does not win. |
+| R5 | **Ironback** | All long guns: she opens the action a mile out and opens harbor walls from the same distance, and a ship without the reach to reply is beaten at her leisure. Let anything close and she has almost nothing left to fight with. |
+| R6 | **Blackfin** | A storm of light shot, and against bare timber it is murder — she eats scouts, transports and unplated escorts. Put her in front of anything properly plated and every ball she fires rings off the iron. |
+| R7 | **Urskin Goliath** | More hull than anything else afloat, guns that reach and guns that break plate, and an army in her hold. One of her will lose to a Majestic; two will not, and the Confederacy can afford two. |
+| R8 | **Coral-Class Dreadnaught** | Plated like a fortress, armed for every kind of target, and she grows back between actions what you take off her. Only a Majestic out-shoots her, and even that is a long afternoon's work. |
+
 ---
 
 ## 7. GROUND FORCES
@@ -1195,6 +1233,8 @@ not a bark, and it goes in the text.
 ---
 
 ## 15. CHANGELOG
+
+- **2026-09-19 v9.5** — **The Location screen loses what it was only repeating, and every hull gets a line of its own.** Tabs on your island appear only when there is something behind them — Harbor when a hull is in the roads or standing for the place, Crew when somebody is ashore or on passage — and the order is Harbor, Crew, Buildings, Troops. On **their** island all four show whatever the fog says, because a hidden tab would be the fog telling the player a lie shaped like a fact; the age of the report carries the doubt instead (*"Last report 6 days ago"*). "At anchor" is gone, Ashore and Underway appear only when both do, and the glossary's section intros — each a sentence explaining what a list of ships is — are cut. **Grouping stops being a question:** every board folds alike units together always, and only hulls keep the toggle, because four Kestrels are four different amounts of damage and ten Marines are not. Reordering is a press and hold and a drag, built on the one-step up/down the lists already had; the arrows stay in the page for the keyboard but are not drawn until one is focused. **Lore left the Location screen** for the encyclopedia, where the room is. **And the ship sheet says what a ship is for:** the Design Notes column was the stat grid in a sentence, printed under the stat grid, so all twenty-four hulls have a line naming what they beat and what beats them — kept in `src/data/ship-flavour.json` rather than in the roster, which is re-imported from the sheet and would lose them, and reproduced as §6C here from that same file.
 
 - **2026-09-19 v9.4** — **A ground unit is a Troop, and the chart filters are the player's to arrange.** Six notes at once. **The vocabulary reverses:** *"rename 'company' to 'troop(s)' through game when talking about ground units"* undoes the 17 September ruling that made it a Company and retired *troops*, so the table in the working notes turns round with it. `terms.troop` was already the single source, so the flip is one line and the work was the hundred-odd places that spelled it out — 62 string literals and 48 stretches of raw JSX. One exemption: **Ship's Company** is a unit's proper name and a real naval idiom for the crew of a vessel, not the category, so it stands. Ids did not move: `crown-ships-company` is a key and a painting on disk. **And the rename found a hole in the guard** — `vocabulary.test.ts` only ever read quoted strings, so every retired word has gone unchecked in the text *between* the tags since the pass was written, which is where 48 of these were. It reads both now. **Three idle filters became one:** *"Consolidate idle yards, training, shipyards into 'Idle Buildings'"* — three swipes to ask one question, and the answer is the same either way. **Available land moved last**, pinned by a test because the array order *is* the swipe order. **Garrisons and Available land show their number** as well as their size; the numeral takes the band's size, because a numeral replaces the dot and adding it would otherwise have thrown away the banding asked for in the same breath. **The dot ladder is now one rule:** under three small, three to five medium, six and up large — which a garrison has done since 14 September, so the change was open ground, from 2 and 5 to the same 3 and 6. **And the strip has an order the player sets**, in the menu, saved to the device with grouping rather than to the war, stored as ids and reconciled at read time so a filter added or dropped between builds cannot strand anybody.
 

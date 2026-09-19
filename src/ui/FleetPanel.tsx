@@ -28,7 +28,7 @@ import {
 import { CharacterPortrait, CreaturePainting, FacilityIcon, ShipThumb } from './art';
 import { encyclopediaShip, useLookUp } from './lookup';
 import { usePrefs } from './prefs';
-import { ControlBadge, ListOpts } from './components';
+import { ControlBadge, GroupHulls } from './components';
 
 /**
  * One row of a ship list: a class, however many of them there are.
@@ -300,7 +300,7 @@ export function FleetCard({
                 : undefined
             }
             order={
-              prefs.reorder && canOrder && rows.length > 1
+              canOrder && rows.length > 1
                 ? {
                     up: i === 0 ? undefined : () => onOrderShips?.(fleet.id, row.ships.map((sh) => sh.id), -1),
                     down:
@@ -373,7 +373,7 @@ export function FleetCard({
         <div className="fleet__officers">
           {officers.map((officer, i) => (
             <span key={officer.id} className="fleet__officer-wrap">
-              {prefs.reorder && canOrder && officers.length > 1 && (
+              {canOrder && officers.length > 1 && (
                 <button
                   className="orderbtn orderbtn--inline"
                   disabled={i === 0}
@@ -396,7 +396,7 @@ export function FleetCard({
                 />
                 <span className="fleet__officer-name">{officer.name}</span>
               </button>
-              {prefs.reorder && canOrder && officers.length > 1 && (
+              {canOrder && officers.length > 1 && (
                 <button
                   className="orderbtn orderbtn--inline"
                   disabled={i === officers.length - 1}
@@ -601,10 +601,11 @@ export function ShipsHere({
 
   return (
     <div className="stack">
-      {/* How the player likes to read a list, not what is in it. Kept on the
-          device rather than in the save, because it is a habit rather than a
-          fact about this war, and it should hold across every game. */}
-      {here.length > 0 && <ListOpts />}
+      {/* The one list that keeps its toggle: four Kestrels are four hulls
+          with four different amounts of damage on them, and a player choosing
+          which to send wants them apart. Kept on the device rather than in
+          the save — a habit, not a fact about this war. */}
+      {here.length > 0 && <GroupHulls />}
       {monster}
       {defences}
       {here.map((fleet) => (

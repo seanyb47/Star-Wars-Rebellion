@@ -5,6 +5,7 @@ import factionData from '../data/factions.json';
 import shipFlavourData from '../data/ship-flavour.json';
 import reachData from '../data/reaches.json';
 import { GlossaryPage, glossaryAnchor, glossaryWords } from './Glossary';
+import { IslandLore } from './IslandLore';
 import {
   BASE_HIT_CHANCE,
   DAMAGE_DIE,
@@ -133,6 +134,7 @@ import {
   ShipThumb,
   CompanyRow,
   CreaturePainting,
+  IslandBanner,
   FactionCrest,
 } from './art';
 import type { PlayableFaction } from '../sim';
@@ -245,7 +247,8 @@ export type Subject =
   | { kind: 'ship'; id: string }
   | { kind: 'company'; id: string }
   | { kind: 'works'; id: FacilityType }
-  | { kind: 'resource'; id: 'forest' | 'gold' };
+  | { kind: 'resource'; id: 'forest' | 'gold' }
+  | { kind: 'island'; id: string };
 
 /** The anchor a list cell carries, so closing an entry lands you back on it. */
 function anchorOf(s: Subject): string {
@@ -644,6 +647,29 @@ function EntrySheet({
               </div>
             </>
           ),
+        };
+      }
+      case 'island': {
+        const island = state.systems.find((sy) => sy.id === subject.id);
+        if (!island) return null;
+        const reach = state.sectors.find((se) => se.id === island.sectorId);
+        if (!reach) return null;
+        return {
+          title: island.name,
+          subtitle: `${reach.name} · ${reach.sea}`,
+          art: (
+            <div className="encfull__art">
+              <IslandBanner
+                archetype={island.archetype}
+                seed={island.name}
+                faction={island.control}
+                settled={island.populated}
+                facilities={island.facilities.length}
+                height={150}
+              />
+            </div>
+          ),
+          content: <IslandLore state={state} system={island} sector={reach} />,
         };
       }
       case 'resource': {
@@ -1160,6 +1186,56 @@ export function Almanac({
         <b>A dark island</b> is one your charts do not have. You cannot send anyone to it, or sail
         at it, until somebody has explored it. Three of the seven Reaches start dark, and what is
         in their water starts dark with them.
+      </div>
+
+      {/*
+        Every island you have charted, and its lore behind it.
+
+        This is where the island panel's Lore tab went — Sean, 19 September:
+        *"Cut lore. Move to encyclopedia."* The sea a place lies in and the
+        kind of place it is do not change, so they were three paragraphs
+        standing in a tab beside four you act on.
+
+        Charted only, which is the one place this page does not show
+        everything. Everywhere else the rule is that the reference holds the
+        whole game whether or not you own it, because a hull's stats were
+        never secret. An island you have never sent anybody to is different:
+        what is in its water and what lives on it is exactly what the Explore
+        errand is for, and printing it here would hand over the thing the
+        errand buys.
+      */}
+      <div className="section-title">Charted</div>
+      <div className="encgrid">
+        {state.systems
+          .filter((island) => island.explored[you])
+          .slice()
+          .sort(byName)
+          .map((island) => {
+            const subject: Subject = { kind: 'island', id: island.id };
+            return (
+              <button
+                key={island.id}
+                id={anchorOf(subject)}
+                className="encmini"
+                onClick={() => setOpenEntry(subject)}
+              >
+                <span className="encmini__art">
+                  <IslandBanner
+                    archetype={island.archetype}
+                    seed={island.name}
+                    faction={island.control}
+                    settled={island.populated}
+                    facilities={island.facilities.length}
+                    height={104}
+                  />
+                </span>
+                <b className="encmini__name">{island.name}</b>
+                <span className="encmini__line">
+                  {state.sectors.find((se) => se.id === island.sectorId)?.name}
+                </span>
+              </button>
+            );
+          })}
       </div>
 
       <div className="section-title">The seven Reaches</div>

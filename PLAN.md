@@ -4609,3 +4609,86 @@ reconciled at read time — a filter the saved order has never heard of appears
 at the end rather than vanishing, and a retired one is dropped. Five tests on
 that reconciliation, because it is the part that breaks silently between
 versions.
+
+## The location screen, and a hull's own voice (19 September)
+
+Two batches, and the same instinct behind both: *"I feel like on the
+encyclopedia you're trying to do too much."* Most of this is subtraction.
+
+### A tab that has nothing behind it does not appear
+
+*"Can we make the Harbor tab only appear when there is something there or on
+route? Otherwise it just goes to next tab? Same with crew."* Harbor shows when
+a hull is in the roads or standing for the island; Crew shows when somebody is
+ashore or on passage. Buildings and Troops always show, because an island of
+yours always has ground.
+
+The exception matters more than the rule: **on an enemy island every tab
+shows**. *"When I click on enemy locations I should see all tabs. No tabs
+hidden... But info might not be accurate."* Hiding a tab on their island would
+be the fog of war telling the player a lie shaped like a fact — an empty
+Harbor tab that says nothing is there, when what it means is that nothing was
+there the last time anybody looked. So their islands show all four and carry
+the age of the report instead: **"Last report 6 days ago"**, and today and
+yesterday said as words.
+
+### Headings that only said what the reader could see
+
+*"Cut the at harbor. If nothing is there, nothing is there. Same with crew. Cut
+all the text. Ashore / underway. Only add if distinction is necessary."* The
+"At anchor" heading is gone; Ashore and Underway are two words apiece and only
+appear when both exist. The glossary's section intros went the same way — each
+was a sentence explaining what a list of ships is.
+
+### Grouping stops being a question
+
+*"Always group them and allow me to press and hold to drag and move. Same goes
+for all units. No need for group and reorder. Just always combine alike. The
+only exception is ships!"*
+
+Ten identical tiles saying the same thing ten times was never an option
+anybody wanted; four Kestrels genuinely are four different amounts of damage,
+so hulls keep the toggle and nothing else does.
+
+The hold-and-drag is built on the one-step `up`/`down` the lists already
+expose rather than on a drop target, which is what keeps it small: while a
+tile is held, crossing a neighbour's boundary moves it one place and the
+origin resets. Drag three tiles' worth and it moves three places, and nobody
+has to track a drop index.
+
+It needed **pointer capture** to work at all. The first thing a drag does is
+take the finger off the tile it started on, and without capture the tile stops
+receiving moves the instant that happens — so the gesture could only ever move
+a tile by less than its own width, which is to say never. That was the whole
+bug, and it cost most of the afternoon because the arrows were plainly present
+and plainly working.
+
+The arrows stay in the page but are not drawn until one is focused. A hold is
+not a gesture a keyboard has, and the row of them under every tile is exactly
+the clutter Sean was describing.
+
+### What a ship is good and bad against
+
+*"Delete the description text that repeats the stats... Replace it with 1-2
+sentences of in-world flavor text per ship that tells the player what the ship
+is good and bad against, naturally."*
+
+The roster's own Design Notes column read *"Heavy Armor 22; 400 Hull; 7 Long
+and 8 Heavy Guns"* — the stat grid again, in a sentence, directly under the
+stat grid. Twenty-four lines written instead, and then **rewritten**, because
+the first pass still leaned on numerals: *"Twelve light guns is a hail of
+shot"* is the grid wearing a coat. They name opponents now. The Blackfin eats
+scouts, transports and unplated escorts, and every ball she fires rings off
+anything properly plated — which is the light gun's zero penetration said in a
+way a player can act on without doing arithmetic.
+
+They live in `src/data/ship-flavour.json`, not in `combat-ships.json`, because
+that file carries a standing instruction to be changed by re-reading the sheet
+and never by hand; a line written into it would be gone at the next import. A
+test fails if a hull has no line or a line has no hull, and §6C of the world
+bible is generated from the same file.
+
+### Armor, and one word for it
+
+*"Use 'Armor' everywhere: UI, data, and the world bible."* `MAX_ARMOUR` was the
+last holdout and it was in a UI file, so it moved with the rest.
