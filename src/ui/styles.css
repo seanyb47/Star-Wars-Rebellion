@@ -1956,6 +1956,13 @@ button.tcard:hover { border-color: var(--brass); }
 /* Someone in the bible the draw did not seat this war. Still a reference
    entry; just not one of anybody's people. */
 .encmini--absent .encmini__art { opacity: 0.55; filter: saturate(0.4); }
+
+/* Where one of your own crew is, at the top of their entry: the one line on
+   an encyclopedia page that is about today rather than about the world. */
+.encfull__where {
+  font-size: 13px; color: var(--brass); letter-spacing: 0.02em;
+  margin: 0 0 8px; font-variant-numeric: tabular-nums;
+}
 .tally__body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .tally__name { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--chrome-text); }
 .tally__row { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }

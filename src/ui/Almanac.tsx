@@ -427,6 +427,53 @@ function Stat({ label, value, share }: { label: string; value: string | number; 
  * that were only ever stated in page-level prose and never on the thing they
  * were about.
  */
+/**
+ * Where one of your own crew is, in a line.
+ *
+ * Sean, 19 September: *"In the encyclopedia (just for crew) say 'Ashore at
+ * [location]' / 'Commanding [fleet name / location name]' ... If en route say
+ * 'Enroute to [location]'."*
+ *
+ * **Only your own.** An enemy officer's whereabouts is intelligence — the same
+ * thing the espionage errand is *for* — and a reference page that printed
+ * "Ashore at Highwater" beside every Crown name would hand a player the entire
+ * enemy disposition for free. Unaligned people are left out for a different
+ * reason: signing on is set against an island rather than against whoever is
+ * standing on it, so where a recruit happens to be is not a fact the game
+ * means anything by.
+ *
+ * On the one state Sean's list names that the simulation does not have: taking
+ * a deck *is* the posting. `takePost` and `board` both put an officer in
+ * `officerIds` and both relieve whatever they held before, so there is no
+ * aboard-but-idle to tell apart from commanding — anybody on a ship has her.
+ */
+export function whereabouts(state: GameState, name: string): string | null {
+  const who = state.characters.find((c) => c.name === name);
+  if (!who || who.faction !== state.player) return null;
+  const at = (id: string) => state.systems.find((s) => s.id === id)?.name ?? 'somewhere';
+
+  if (who.status === 'captured') return `In irons at ${at(who.locationSystemId)}`;
+
+  // A companion carries no errand of their own; they are wherever the officer
+  // leading it is.
+  const errand = who.mission ?? state.characters.find((c) => c.id === who.escorting)?.mission;
+  if (errand?.phase === 'travelling') return `Enroute to ${at(errand.targetSystemId)}`;
+
+  const deck = state.fleets.find((f) => f.officerIds.includes(who.id));
+  if (deck) {
+    return deck.voyage
+      ? `Commanding ${deck.name}, enroute to ${at(deck.voyage.targetSystemId)}`
+      : `Commanding ${deck.name}`;
+  }
+
+  const chair = state.systems.find((s) => s.commanderId === who.id);
+  if (chair) return `Commanding ${chair.name}`;
+
+  // Ashore: on the island the errand is being worked on, or on the one they
+  // are standing about on.
+  return `Ashore at ${at(errand?.targetSystemId ?? who.locationSystemId)}`;
+}
+
 function EntrySheet({
   subject,
   state,
@@ -451,6 +498,7 @@ function EntrySheet({
         // recruit pool either. The entry says so rather than flying a flag
         // over somebody who is not in the game.
         const inPlay = inThisWar(state).has(who.name);
+        const where = whereabouts(state, who.name);
         return {
           title: who.name,
           subtitle: `${who.people}${lord ? ` · ${terms.lord}` : ''}${
@@ -464,6 +512,9 @@ function EntrySheet({
           ),
           content: (
             <>
+              {/* Where they are, first, because on your own people it is the
+                  one thing on the page that changes. */}
+              {where && <div className="encfull__where">{where}</div>}
               <RoleTags roles={roles} />
               <div className="statgrid" style={{ marginTop: 10 }}>
                 <span><i>{terms.parley}</i><b>{who.ratings.diplomacy}</b></span>

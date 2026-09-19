@@ -5499,3 +5499,71 @@ The grid is `repeat(4, 1fr) 84px` now.
 **One live route needed rewiring.** The Log's "jump to this crew member" set
 the tab and then opened the sheet. It opens the sheet only now, so closing it
 puts you back in the log where you were reading, which is better than it was.
+
+## Where a crew member is, on their encyclopedia entry (19 September)
+
+*"In the encyclopedia (just for crew) say 'Ashore at [location]' /
+'Commanding [fleet name / location name]' / ... 'Aboard [fleet name]' if idle.
+If en route say 'Enroute to [location]'."*
+
+One line at the top of the entry, in brass, above the role tags — the only
+thing on an encyclopedia page that is about *today* rather than about the
+world.
+
+### Only your own people, and that is not a detail
+
+An enemy officer's whereabouts is **intelligence**. It is the thing the
+espionage errand exists to buy, and a reference page printing *"Ashore at
+Highwater"* beside every Crown name would hand a player the entire enemy
+disposition for free, permanently, from turn one. So the line is drawn for the
+player's own crew and for nobody else. Measured on a fresh Confederacy game:
+five entries carry it, twenty-one do not.
+
+The unaligned are left out for a different reason rather than the same one:
+signing on is set against an *island* rather than against whoever happens to be
+standing on it, so where a recruit is standing is not a fact the game means
+anything by.
+
+### The one state on his list the simulation does not have
+
+Sean's list distinguishes *"Commanding [fleet name]"* from *"Aboard [fleet
+name] if idle"*. There is no such distinction to draw: `takePost` and `board`
+both put an officer into `fleet.officerIds`, and both relieve whatever they
+held before. **Taking a deck is the posting** — nobody rides along. So anyone
+on a ship reads *Commanding*, and if he wants a genuine passenger state that is
+a sim change rather than a copy change, and worth saying so rather than
+inventing a word for a thing that cannot happen.
+
+### What it says, in order
+
+| State | Line |
+|---|---|
+| Captured | *In irons at Highwater* |
+| Errand on passage | *Enroute to Greenholm* |
+| Aboard a squadron under way | *Commanding Fleet 2, enroute to Bracton* |
+| Aboard a squadron at anchor | *Commanding Fleet 2* |
+| Holding an island | *Commanding Vagrano* |
+| Working an errand ashore | *Ashore at Greenholm* |
+| Idle | *Ashore at Freeport* |
+
+Captured is the one row Sean did not name, and it is there because the fallback
+would otherwise have read *"Ashore at Highwater"* about somebody in a cell,
+which is a lie rather than a shortening. Injured falls through to *Ashore at*,
+which is true; the days left are on the crew sheet.
+
+A companion carries no errand of their own, so they read the errand of whoever
+is leading the boat — *Enroute to* the same island, which is where they are.
+
+### Not done, and cheap if wanted
+
+The line is on the **entry**, not on the grid cell. Forty-odd cells each
+carrying a location is a lot of moving text on a page whose job is to be
+scanned by face and name, and the cells already carry *people · sworn
+elsewhere / not in this war*. Say the word and it goes on the cells too.
+
+### And the art audit he asked for in the same message
+
+Two hulls have no painting: the **Ironback** and the **Blackfin** — the two
+whose revision prompts went into `art-prompts.md` this afternoon. Every other
+hull on the 25-ship roster is painted and wired, and no mapping points at a
+file that is not there.
