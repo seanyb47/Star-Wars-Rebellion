@@ -4538,6 +4538,33 @@
         }
       ]
     },
+    "ships/tidestalker": {
+      "folder": "ships",
+      "slug": "tidestalker",
+      "version": 1,
+      "added": "2026-09-19",
+      "updated": "2026-09-19",
+      "title": "Tidestalker",
+      "source": "Sean, 19 September",
+      "notes": "The Tidestalker: a sloop-of-war whose whole bow and waterline have grown over with living coral, red and white patched canvas above, running out of a reef anchorage past limestone stacks. The growth is the ship - she is the Confederacy's fastest-mending hull, and this is what mending looks like on her.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/tidestalker.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 742878,
+        "sha1": "c954b010d0116e9f"
+      },
+      "shipped": {
+        "file": "src/art/ships/tidestalker.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 108206,
+        "sha1": "fcea1fecad668d78"
+      }
+    },
     "ships/urskin-goliath": {
       "folder": "ships",
       "slug": "urskin-goliath",

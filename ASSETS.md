@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**139 of 152 painted.** 5072KB shipped, 19.6MB of masters kept back.
+**140 of 153 painted.** 5177KB shipped, 20.4MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -77,7 +77,7 @@ the head, cropped square out of the portrait; the medallion. 26 of 26.
 
 ## ships — 640×480
 
-three-quarter view, whole vessel, masts and waterline both in frame. 31 of 39.
+three-quarter view, whole vessel, masts and waterline both in frame. 32 of 40.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
@@ -107,6 +107,7 @@ three-quarter view, whole vessel, masts and waterline both in frame. 31 of 39.
 | swallowtail | `swallowtail` | 1 | 31KB | 234×174, 22KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | swift | `swift` | 1 | 32KB | 234×174, 22KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | tempest | `tempest` | 2 (+1 retired) | 91KB | 1448×1086, 722KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
+| Tidestalker | `tidestalker` | 1 | 105KB | 1448×1086, 725KB | whole frame | 2026-09-19 | Sean, 19 September |
 | Urskin Goliath | `urskin-goliath` | 1 | 92KB | 1448×1086, 655KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
 | Urskin Whaler | `urskin-whaler` | 3 (+2 retired) | 78KB | 1448×1086, 625KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
 | vanguard | `vanguard` | 1 | 34KB | 234×174, 23KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
@@ -357,6 +358,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/swallowtail** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/swift** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/tempest** — Replaces the 234x174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered at 1448x1086, exactly 4:3, so the whole painting ships with no crop.
+- **ships/tidestalker** — The Tidestalker: a sloop-of-war whose whole bow and waterline have grown over with living coral, red and white patched canvas above, running out of a reef anchorage past limestone stacks. The growth is the ship - she is the Confederacy's fastest-mending hull, and this is what mending looks like on her.
 - **ships/urskin-goliath** — The colossal invasion dreadnaught, renamed from Urskin Whaler on 19 September. Shipped at ships/urskin-whaler for a few hours on the same day, before the name moved; that copy is retired under the old slug.
 - **ships/urskin-whaler** — The Urskin Whaler proper: a bone-framed working whaler with a harpoon over the bow, not the dreadnaught. Replaces the Goliath painting that briefly held this slug on 19 September, and the contact-sheet placeholder before it.
 - **ships/vanguard** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
