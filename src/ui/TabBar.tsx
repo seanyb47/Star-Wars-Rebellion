@@ -3,7 +3,7 @@ import { NarratorFigure } from './art';
 import { NARRATOR } from './Narrator';
 import type { NarratorMood } from './narrator/mood';
 
-export type Tab = 'galaxy' | 'characters' | 'build' | 'feed';
+export type Tab = 'galaxy' | 'build' | 'feed';
 
 /**
  * What the console can carry. The encyclopedia is not a screen — it opens a
@@ -14,8 +14,8 @@ export type Tab = 'galaxy' | 'characters' | 'build' | 'feed';
 type Slot = Tab | 'almanac';
 
 /**
- * The console's four buttons. Drawn, not typed: the old glyphs were whatever
- * the phone's font made of an anchor and a bullet, and they sat at different
+ * The console's buttons. Drawn, not typed: the old glyphs were whatever the
+ * phone's font made of an anchor and a bullet, and they sat at different
  * weights and baselines. These are one stroke, one size, one baseline.
  */
 function TabIcon({ id }: { id: Slot }) {
@@ -38,16 +38,6 @@ function TabIcon({ id }: { id: Slot }) {
           <circle cx="12" cy="12" r="9" />
           <path d="M12 4.5l2.2 5.3L19.5 12l-5.3 2.2L12 19.5l-2.2-5.3L4.5 12l5.3-2.2Z" />
           <circle cx="12" cy="12" r="1.2" fill="currentColor" />
-        </svg>
-      );
-    case 'characters':
-      // Two figures: the crew.
-      return (
-        <svg {...common}>
-          <circle cx="9" cy="8" r="3" />
-          <path d="M3.5 19a5.5 5.5 0 0 1 11 0" />
-          <circle cx="17" cy="9" r="2.4" />
-          <path d="M15.5 14.5a4.5 4.5 0 0 1 5 4.5" />
         </svg>
       );
     case 'build':
@@ -81,9 +71,18 @@ function TabIcon({ id }: { id: Slot }) {
   }
 }
 
+/*
+ * Four, since Sean cut the fifth on 19 September: *"Cut the crew tab from the
+ * bottom utility bar. Now that I think about it 'Idle Crew' is already best
+ * way to view crew anyway."* The roster screen it opened was a list of your
+ * people with their faces on it, and everything it was for is reachable
+ * closer to the work — the Idle crew filter lights the islands with somebody
+ * standing about on them, an island's own Crew tab says who is there, the
+ * advisor answers "who is free" with a tappable list, and the encyclopedia
+ * holds the whole cast A-Z.
+ */
 const SLOTS: Array<{ id: Slot; label: string }> = [
   { id: 'galaxy', label: terms.tabs.map },
-  { id: 'characters', label: terms.tabs.characters },
   { id: 'build', label: terms.tabs.build },
   // Sean, 16 September: *"Move encyclopedia to bottom utility bar left of
   // log."* It was an icon in the top rail, where it sat between the clock and

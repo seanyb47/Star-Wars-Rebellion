@@ -377,8 +377,10 @@ button {
   flex: none;
   position: relative;
   z-index: 2;
-  /* Five now, since the encyclopedia came down off the top rail. */
-  display: grid; grid-template-columns: repeat(5, 1fr) 84px;
+  /* Four and the advisor: the encyclopedia came down off the top rail and the
+     crew tab went on 19 September. Counted from the same list the bar draws,
+     so a slot added or cut never leaves a column behind. */
+  display: grid; grid-template-columns: repeat(4, 1fr) 84px;
   border-top: 1px solid var(--metal-lo); box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.5);
   padding-bottom: var(--safe-bottom);
   /* An icon, a label under it, and the padding that separates them. Stated
@@ -1654,93 +1656,15 @@ button.tcard:hover { border-color: var(--brass); }
 }
 
 /* ---- The crew, as portraits ------------------------------------------- */
-/*
-   Sean, 19 September: *"The crew images need to be at least 3x larger."*
-   They could not be, two to a row: a phone gives each column about 200px, so
-   making the painting three times taller would have produced a 200-wide,
-   590-tall sliver of somebody's chin. Height alone was the wrong dial.
-
-   So the grid goes to one column on a phone and the painting takes the full
-   width. 200x196 becomes about 406x420 — a little over twice as tall, over
-   four times the area, and the whole face rather than a crop of it. Two
-   columns return at tablet width and three on a desktop, where there is
-   room for them to still be large.
-*/
-.crewgrid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-@media (min-width: 560px) { .crewgrid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 900px) { .crewgrid { grid-template-columns: repeat(3, 1fr); } }
-.crewcard {
-  display: flex; flex-direction: column; text-align: left; padding: 0;
-  background: var(--bg-raised); border: 1px solid var(--border); border-radius: 10px;
-  overflow: hidden; color: inherit; font: inherit; position: relative;
-}
-.crewcard--busy { opacity: 0.62; }
-
-/* Sean, 19 September: *"Cut the fancy frames and put in a square one."*
-   The Pirate Lords' brass border and its inner hairline are gone with
-   everything else ornamental. What marked them out was a frame over the art;
-   what marks them now is one brass word after the name, which costs no face
-   and reads just as fast. */
-
-.crewcard__tap {
-  display: flex; flex-direction: column; align-items: stretch; gap: 2px;
-  width: 100%; padding: 0 0 6px; border: 0; background: none;
-  color: inherit; font: inherit; text-align: left; cursor: pointer;
-}
-.crewcard__tap:active { background: rgba(0, 0, 0, 0.18); }
-.crewcard__tap:focus-visible { outline: 2px solid var(--brass); outline-offset: -2px; }
-
-/* Square, and nothing round it. The face fills the column. */
-.crewcard__art { position: relative; display: block; line-height: 0; width: 100%; }
+/* The face square itself, which outlived the crew roster it was built for.
+   Sean cut that screen's tab on 19 September; the component is still what the
+   island's Crew tab, the errand sheet and the encyclopedia all draw a person
+   with, so its three rules stay and the two dozen card rules around them are
+   gone. */
 .charface { overflow: hidden; background: var(--water-deep); line-height: 0; }
 .charface img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 28%; display: block; }
 .charface--dim img { filter: saturate(0.5) brightness(0.8); }
 .charface__cameo { display: flex; align-items: center; justify-content: center; height: 100%; }
-/* In a card the square is the column's width, whatever the component asked for. */
-.crewcard__art .charface { width: 100% !important; height: auto !important; aspect-ratio: 1 / 1; }
-
-/* Bottom-left over the art: the faces are all in the upper half. */
-.crewcard__badge {
-  position: absolute; left: 6px; bottom: 6px; line-height: 1;
-  filter: drop-shadow(0 1px 4px rgba(4, 18, 25, 0.9));
-}
-.crewcard__badge .badge { font-size: 10px; padding: 3px 7px; }
-
-.crewcard__name {
-  font-weight: 600; font-size: 15px; line-height: 1.25;
-  padding: 8px 10px 0; color: var(--text);
-}
-.crewcard__lordmark { color: var(--brass); font-weight: 700; }
-/* The same brass rank line the encyclopedia's crew entry wears. It outlived
-   the card it was named after, which is why it is still called this. */
-.crewcard__rank {
-  font-size: 9.5px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
-  color: var(--brass); opacity: 0.8;
-}
-/* The role tag: what they are for, in a word — and, since 19 September, the
-   way to the glossary entry for that word. It sits outside `crewcard__tap`
-   now (a button cannot hold a button), so it needs its own margin where it
-   used to inherit the card's padding. */
-.crewcard__role {
-  padding: 2px 10px 0; font-size: 11px; font-weight: 700;
-  letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); opacity: 0.85;
-}
-.crewcard__roletag { align-self: flex-start; margin: 4px 10px 0; }
-.crewcard__stats {
-  font-size: 12.5px; color: #9db4bd; padding: 6px 10px 0;
-  font-variant-numeric: tabular-nums; letter-spacing: 0.01em;
-}
-.crewcard__stats b { color: var(--brass); font-weight: 700; margin-right: 1px; }
-.crewcard__stats b:not(:first-child) { margin-left: 3px; }
-
-/* Orders is its own control, apart from the tap target: the card goes to the
-   encyclopedia and this goes to the sheet that can send somebody somewhere. */
-.crewcard__orders {
-  margin: 2px 10px 10px; padding: 9px 10px; border-radius: 8px;
-  border: 1px solid var(--border); background: rgba(0, 0, 0, 0.18);
-  color: inherit; font: inherit; font-size: 13px; cursor: pointer;
-}
-.crewcard__orders:active { border-color: var(--metal); }
 
 /* ---- A character's own page ------------------------------------------- */
 .charsheet__epithet { font-size: 16px; color: var(--brass); font-style: italic; }

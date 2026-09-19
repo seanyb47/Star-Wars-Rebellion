@@ -50,7 +50,6 @@ import { CharacterSheet } from './CharacterSheet';
 import { BuildMenuSheet, BuildOrderSheet, firstItem, type BuildDraft } from './BuildSheet';
 import { MissionChoiceSheet } from './MissionChoiceSheet';
 import { SailConfirmSheet } from './SailConfirmSheet';
-import { CharactersScreen } from './CharactersScreen';
 import { FeedScreen } from './FeedScreen';
 import { Dispatches } from './Dispatches';
 import { GalaxyMap } from './GalaxyMap';
@@ -775,18 +774,15 @@ export function App() {
             }}
           />
         )}
-        {tab === 'characters' && (
-          <CharactersScreen state={state} onOpen={setOpenCharacterId} />
-        )}
         {tab === 'feed' && (
           <FeedScreen
             state={state}
             lastSeen={lastSeen}
             focusId={focusEventId}
-            onJumpToCharacter={(characterId) => {
-              setTab('characters');
-              setOpenCharacterId(characterId);
-            }}
+            /* The crew screen this used to switch to is gone, and the sheet
+               was always the thing worth arriving at: it opens over the log,
+               and closing it puts you back where you were reading. */
+            onJumpToCharacter={(characterId) => setOpenCharacterId(characterId)}
             onRead={setReadingId}
           />
         )}

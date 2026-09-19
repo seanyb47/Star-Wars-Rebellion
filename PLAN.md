@@ -5462,3 +5462,40 @@ mainsail, the Ironback's iron carapace and the fortress under fire. A standing
 negative prompt goes in beside them, because the generator put a Jolly Roger on
 both first attempts: **no skull, no jolly roger, no crossbones.** It is the
 strongest pirate prior in these models and has to be banned by name.
+
+## The crew tab comes off the console (19 September)
+
+*"Cut the 'crew' tab from the bottom utility bar. Now that I think about it
+'Idle Crew' is already best way to view crew anyway."*
+
+He is right, and the screenshot makes the argument better than the reasoning
+does: the Idle crew filter sits directly above the bar it was cut from, with
+its own count on it.
+
+**What the screen was for, and where each of those went.** It was an A–Z of
+your people with their faces on it, and four things reach the same places
+without it: the **Idle crew filter** lights the islands with somebody standing
+about on them and says how many; an island's own **Crew tab** says who is
+there; the **advisor** answers "who is free" with a tappable list, opening the
+sheet directly; and the **encyclopedia** holds the whole cast A–Z. The crew
+*sheet* — the thing the screen existed to open — is untouched and opens over
+whatever you are looking at.
+
+**One thing it genuinely costs**, and it is worth having said: there is no
+longer a single view of everyone of yours at once *including the busy ones*.
+The filter shows the idle; the island tabs show who is standing where. Somebody
+captured, or a fortnight into an errand, is now found through the Log or the
+advisor rather than by scanning a roster. If that turns out to matter it wants
+a filter rather than a tab back — "crew, anywhere" on the chart.
+
+**What came out with it.** `CharactersScreen.tsx` (197 lines) is deleted rather
+than left unreachable; the `characters` member of `Tab`, its icon, and its
+`terms.tabs.characters` label go with it, because a label for a tab that does
+not exist is a word the vocabulary file promises and the game never says. Two
+dozen dead `.crewcard` / `.crewgrid` rules go too — `.charface` stays, since
+the island tabs, the errand sheet and the encyclopedia all draw people with it.
+The grid is `repeat(4, 1fr) 84px` now.
+
+**One live route needed rewiring.** The Log's "jump to this crew member" set
+the tab and then opened the sheet. It opens the sheet only now, so closing it
+puts you back in the log where you were reading, which is better than it was.

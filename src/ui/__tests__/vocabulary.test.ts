@@ -97,7 +97,10 @@ describe('one word per idea', () => {
 
   it('calls a person of yours crew, and never anything else', () => {
     expect(terms.crew).toBe('Crew');
-    expect(terms.tabs.characters).toBe(terms.crew);
+    // No tabs.characters any more: Sean cut the crew tab off the console on
+    // 19 September, and a label for a tab that does not exist is a word the
+    // file promises and the game never says.
+    expect('characters' in terms.tabs).toBe(false);
     expect(terms.crewOne).toBe('crew member');
   });
 
