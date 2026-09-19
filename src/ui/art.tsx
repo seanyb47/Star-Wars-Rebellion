@@ -1823,6 +1823,17 @@ export function ShipThumb({
  */
 const FACILITY_BAND = 1.6;
 
+/**
+ * And 4:3, which is the shape everything commissioned one at a time arrives
+ * in. Sean, 19 September: *"All the unit images I'm sending you are 4:3 can
+ * you please scale them so they don't cut?"* He is right, and the fortresses
+ * he had just sent were the proof — both 4:3 paintings, both squeezed into the
+ * 1.6 band and losing their sky and their water to it. A painting no longer
+ * has to fit one number: the box takes the painting's own shape, so a whole
+ * picture shows whole and a sliced strip keeps the band it was sliced for.
+ */
+const FACILITY_WHOLE = 4 / 3;
+
 /** Whose colours a works flies. Nobody's counts as the Crown's, for art. */
 function facilitySide(owner: 'empire' | 'alliance' | 'neutral' | 'none'): 'empire' | 'alliance' {
   return owner === 'alliance' ? 'alliance' : 'empire';
@@ -1838,13 +1849,23 @@ function facilitySide(owner: 'empire' | 'alliance' | 'neutral' | 'none'): 'empir
  * out of a contact sheet and are wide strips about four to one. A works with
  * neither still gets its drawn glyph.
  */
+export function facilityArt(
+  type: string,
+  owner: 'empire' | 'alliance' | 'neutral' | 'none',
+): { src: string; ratio: number } | undefined {
+  const kind = type.replace(/_/g, '-');
+  const side = facilitySide(owner);
+  const whole = paintedBuilding(`${kind}-${side}`);
+  if (whole) return { src: whole, ratio: FACILITY_WHOLE };
+  const strip = paintedIsland(`facility-${kind}-${side}`);
+  return strip ? { src: strip, ratio: FACILITY_BAND } : undefined;
+}
+
 export function facilityPainting(
   type: string,
   owner: 'empire' | 'alliance' | 'neutral' | 'none',
 ): string | undefined {
-  const kind = type.replace(/_/g, '-');
-  const side = facilitySide(owner);
-  return paintedBuilding(`${kind}-${side}`) ?? paintedIsland(`facility-${kind}-${side}`);
+  return facilityArt(type, owner)?.src;
 }
 
 export function FacilityThumb({
@@ -1859,18 +1880,18 @@ export function FacilityThumb({
   width?: number;
   fill?: boolean;
 }) {
-  const painting = facilityPainting(type, owner);
-  if (!painting) return <FacilityIcon type={type as never} size={30} />;
+  const art = facilityArt(type, owner);
+  if (!art) return <FacilityIcon type={type as never} size={30} />;
   return (
     <span
       className="facthumb"
       style={
         fill
-          ? { width: '100%', aspectRatio: String(FACILITY_BAND) }
-          : { width, height: Math.round(width / FACILITY_BAND) }
+          ? { width: '100%', aspectRatio: String(art.ratio) }
+          : { width, height: Math.round(width / art.ratio) }
       }
     >
-      <img src={painting} alt="" loading="lazy" />
+      <img src={art.src} alt="" loading="lazy" />
     </span>
   );
 }

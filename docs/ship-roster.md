@@ -603,7 +603,7 @@ than the original Razorback. Particularly effective at absorbing fire in a line;
 particularly poorly used as a pursuit or raiding hull, by her own description.
 
 ### Source Evidence
-- S1: *"An armoured frigate: broad, deep, high in the freeboard and built to
+- S1: *"An armored frigate: broad, deep, high in the freeboard and built to
   stand in a line and not move. Fewer guns than a Razorback and half again the
   hull, which is the whole of the argument for her."*
 - S2 (on the role system): *"a Bulwark is a medium with half again the hull and
@@ -615,13 +615,13 @@ fewer guns and substantially more hull than a Razorback; craft grade 1; states
 her own pace, speed, guns, hull, cost, build time, upkeep and bombardment.
 
 ### Implied
-That *"armoured"* implies something beyond ordinary scantlings — doubled
+That *"armored"* implies something beyond ordinary scantlings — doubled
 timber, iron, or the Imperium's coral warding — but **the source never says
-what the armour is**. That *"high in the freeboard"* implies a dry gun deck in a
+what the armor is**. That *"high in the freeboard"* implies a dry gun deck in a
 seaway and a worse roll.
 
 ### Unknown
-What her armour actually consists of; masts; decks; length; appearance (no art
+What her armor actually consists of; masts; decks; length; appearance (no art
 brief); crew; whether she carries green sails like her craft-tier siblings.
 
 ---

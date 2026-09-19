@@ -15,7 +15,7 @@ import {
   type GameState,
   type System,
 } from '../sim';
-import { CompanyIcon, FacilityIcon, ShipIcon, facilityPainting } from './art';
+import { CompanyIcon, FacilityIcon, ShipIcon, facilityArt } from './art';
 import { GoldFig, Sheet, Stat } from './components';
 import { paintedShip } from './painted';
 
@@ -311,11 +311,14 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
   // The same lookup the island board and the encyclopedia use, so a works
   // painted once shows up everywhere it is named rather than only where
   // somebody remembered to spell the file name out again.
-  const painting = facilityPainting(type, you);
+  const art = facilityArt(type, you);
   return (
     <div className="card unit">
-      <div className={`unit__art${painting ? ' unit__art--wide' : ''}`}>
-        {painting ? <img src={painting} alt="" /> : <FacilityIcon type={type} size={56} />}
+      {/* The painting's own shape, not one number for every works: a whole 4:3
+          picture shows whole, a strip sliced out of an island panel keeps the
+          band it was sliced for. */}
+      <div className={`unit__art${art ? ' unit__art--paint' : ''}`} style={art ? { aspectRatio: String(art.ratio) } : undefined}>
+        {art ? <img src={art.src} alt="" /> : <FacilityIcon type={type} size={56} />}
       </div>
       <div className="unit__body">
         <div className="unit__name">{buildLabel(type)}</div>

@@ -1892,6 +1892,9 @@ button.tcard:hover { border-color: var(--brass); }
    so the crop a player learns a building by is the same crop every time. */
 .unit__art--tall { aspect-ratio: 4 / 3; }
 .unit__art--wide { aspect-ratio: 16 / 10; }
+/* A works card carries its aspect inline, from the painting itself, so a 4:3
+   commission is not squeezed into the band the sliced strips were cut for. */
+.unit__art--paint { width: 100%; }
 /* Nothing painted yet: a glyph in a box that is not the size of a poster. */
 .unit__art:not(.unit__art--tall):not(.unit__art--wide) { width: 110px; height: 110px; aspect-ratio: auto; }
 .unit__body { min-width: 0; }
@@ -2400,9 +2403,14 @@ button.tcard:hover { border-color: var(--brass); }
 .encmini__art--figure {
   display: grid; place-items: center; aspect-ratio: 4 / 3; background: rgba(0, 0, 0, 0.22);
 }
+/* Pushed to the foot of the card, so a row of tiles whose paintings are
+   different shapes still reads as a row. Since 19 September a works keeps its
+   painting's own aspect rather than being cut to one band, which means a 4:3
+   commission stands taller in its cell than a sliced strip; the names line up
+   anyway. */
 .encmini__name {
   font-size: 13px; font-weight: 600; line-height: 1.2; color: var(--text);
-  padding: 7px 9px 0;
+  padding: 7px 9px 0; margin-top: auto;
 }
 /* One line, and only the fact you would sort or choose by. Everything else is
    inside. */
@@ -2432,6 +2440,20 @@ button.tcard:hover { border-color: var(--brass); }
 }
 .encfull__art > svg { width: auto; height: auto; max-width: 62%; max-height: 190px; }
 .encfull__art .charface { width: 100% !important; height: auto !important; aspect-ratio: 1 / 1; }
+/* The hull the stories give a Pirate Lord, under their story.
+   Sean, 19 September: *"Move the ships of stories section in ship encyclopedia
+   under the character lore in the crew profile."* A picture and a paragraph
+   side by side, because it is a footnote to the person rather than an entry of
+   its own — the three of them are not built, not sailed and not fought, which
+   is exactly why they do not belong on a page of things you build. */
+.encfull__hull {
+  display: flex; gap: 10px; align-items: flex-start; margin-top: 10px;
+  padding: 10px; border: 1px solid var(--border); border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.encfull__hull .shipthumb { flex: none; }
+.encfull__hull > div { flex: 1; min-width: 0; }
+
 .encfull__art .shipthumb {
   display: block; width: 100% !important; height: auto !important; aspect-ratio: 4 / 3;
 }

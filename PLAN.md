@@ -4221,10 +4221,10 @@ only**, and a heavy gun against a sloop is missing, not doing less damage.
 ### What the Ships page is now
 
 A banner, then all twenty-four hulls grouped by navy, each with Size, Speed,
-Hull, Armour, the three gun counts, Bombardment, Carries and Repair — and,
+Hull, Armor, the three gun counts, Bombardment, Carries and Repair — and,
 under every card, what she is actually *hit* by: her light, long and heavy hit
 chances, computed live by `hitChance` rather than typed in. Then six sections:
-the three cannon, armour and penetration, the accuracy matrices, an action at
+the three cannon, armor and penetration, the accuracy matrices, an action at
 sea (two phases, first strike, the Combat Exchange, and officers), choosing a
 target, breaking off, and bombardment.
 
@@ -4290,7 +4290,7 @@ will catch the *next* one, in a sheet nobody has read yet.
 ### What did not change
 
 Every number. Same Gigantic, same 1,800 hull, same 7 Long and 13 Heavy, same
-armour 25. The 5,000-trial endgame table is unchanged to the decimal — one
+armor 25. The 5,000-trial endgame table is unchanged to the decimal — one
 Goliath still loses to a Majestic 100% of the time, two still win 100% — which
 is the check that this was a rename and not an edit.
 
@@ -4692,3 +4692,60 @@ bible is generated from the same file.
 
 *"Use 'Armor' everywhere: UI, data, and the world bible."* `MAX_ARMOUR` was the
 last holdout and it was in a UI file, so it moved with the rest.
+
+## The Lords' ships, and a picture that fits its frame (19 September)
+
+### A hull is a fact about its Lord
+
+*"Move the ships of stories section in ship encyclopedia under the character
+lore in the crew profile."*
+
+The three legend hulls — the *Free Harbor*, the *Swallowtail*, the *Adamant* —
+sat in a section at the foot of the Ships page under a paragraph explaining
+that nothing builds them, nothing sails them and nothing fights them. That
+paragraph was the tell: a page of things you lay down and send to sea is
+exactly the wrong place for three ships you cannot. They are now a card under
+the bio in the crew entry, which is where the in-game character sheet has put
+them since the Lords stopped being game pieces.
+
+Moving them means the only route to a legend hull is the Lord who owns it, so
+that join is pinned by a test both ways: every Lord resolves to a hull, and
+every hull marked `legend` is claimed by a Lord. Without it a rename would
+drop a ship out of the game's writing entirely and nothing would say so.
+
+### A painting is not one shape
+
+*"All the unit images I'm sending you are 4:3 can you please scale them so
+they don't cut?"*
+
+Measured before changing anything, at a 390px phone. Crew: box 1.00, art 1.00.
+Ships: 1.33 and 1.33. Troops: a 1.01 painting in a 1.33 box, letterboxed.
+**Works: a 1.60 box, and the two fortresses that had just arrived are 1.33** —
+so both were losing their sky and their water to a band. That was the whole of
+the complaint, and it was one constant: `FACILITY_BAND = 1.6`, chosen when the
+only works art was five strips sliced out of a contact sheet at about four to
+one.
+
+So a works painting now carries its own shape. `facilityArt` reports which of
+the two sources matched — a whole 4:3 commission or an old sliced strip — and
+the box takes that ratio, in the encyclopedia, on the island board and on the
+build card alike. Nothing had to be re-cut and nothing else moved. The comment
+above that constant had said *"as the strips are replaced with paintings of
+their own this can go to 4:3"*; this is that, one painting at a time instead
+of all at once.
+
+Two consequences worth writing down. The five strips still show as bands,
+because they *are* bands — they will fill a 4:3 box the day they are
+repainted, with no further code. And the tiles in a row are no longer the same
+height, so the card's caption is pushed to its foot and the names line up
+regardless.
+
+The art briefs in `docs/art-units.md` told the artist the game would crop to a
+16:10 band and to keep the subject clear of the top and bottom eighth. That is
+no longer true, in fourteen prompts.
+
+### Armor, finished properly
+
+The earlier pass moved `MAX_ARMOUR` and stopped. The Rules page still said
+*armour* in eight places a player reads, and a hull blurb said *armoured*. One
+spelling now, through the UI, the data and the docs.

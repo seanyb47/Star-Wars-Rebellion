@@ -33,7 +33,7 @@ import {
 const SIZE_ORDER = SHIP_SIZES;
 const SPEED_ORDER = ['Slow', 'Normal', 'Fast', 'Very Fast'] as const;
 
-/** The heaviest armour anybody carries, read from the roster rather than fixed. */
+/** The heaviest armor anybody carries, read from the roster rather than fixed. */
 const MAX_ARMOR = Math.max(...ROSTER.ships.map((s) => s.armor));
 
 /**
@@ -190,6 +190,21 @@ const byName = (a: { name: string }, b: { name: string }) => collate(a.name, b.n
  * simulation runs on — so it cannot quietly go out of date the way a
  * hand-written manual would.
  */
+/**
+ * The hull a Pirate Lord's stories are about, if this person is one.
+ *
+ * Three ships nothing builds, nothing sails and nothing fights. They used to
+ * be a section at the foot of the Ships page, which put them among the things
+ * a player lays down and then had to explain in a paragraph that they are not
+ * that. A Lord's ship is a fact about the Lord, so it is read where the Lord
+ * is read.
+ */
+export function loreShip(name: string) {
+  const lord = PIRATE_LORDS.find((l) => l.name === name);
+  if (!lord) return undefined;
+  return SHIP_CLASSES.find((c) => c.id === lord.ship);
+}
+
 /** Everything a yard can lay down. The sim's order, sorted for the reader. */
 const BUILD_ORDER: FacilityType[] = [...YARD_BUILDABLE].sort((a, b) =>
   collate(FACILITY_LABEL[a], FACILITY_LABEL[b]),
@@ -308,7 +323,7 @@ export function shipFlavour(id: string): string {
 /**
  * The highest anybody carries, per stat, read off the roster.
  *
- * The bars under the numbers are *relative* — a hull's armour means little
+ * The bars under the numbers are *relative* — a hull's armor means little
  * until you know somebody out there has thirty — so the scale has to be the
  * fleet's own and has to move when the fleet does. Computed once, from the
  * data, rather than typed in and left to rot the next time Sean rewrites the
@@ -405,6 +420,33 @@ function EntrySheet({
                 <span><i>Leadership</i><b>{who.ratings.leadership}</b></span>
               </div>
               <p className="encfull__lore">{who.bio}</p>
+              {/* And the hull the stories give them, which is where the three
+                  legend ships live now. Sean, 19 September: *"Move the ships
+                  of stories section in ship encyclopedia under the character
+                  lore in the crew profile."* They were a section of their own
+                  at the bottom of the Ships page, under a paragraph saying
+                  nothing builds them and nothing sails them — which is true,
+                  and is exactly why they do not belong on a page of things
+                  you build and sail. A Lord's ship is a fact about the Lord.
+                  The in-game character sheet has said it this way since the
+                  Lords stopped being game pieces; the encyclopedia says it the
+                  same way now. */}
+              {loreShip(who.name) && (
+                <div className="encfull__hull">
+                  <ShipThumb
+                    faction={loreShip(who.name)!.faction}
+                    role={loreShip(who.name)!.role}
+                    cls={loreShip(who.name)!.id}
+                    size={116}
+                  />
+                  <div>
+                    <b className="small">The {loreShip(who.name)!.name}</b>
+                    <div className="tiny muted" style={{ marginTop: 4 }}>
+                      {loreShip(who.name)!.blurb}
+                    </div>
+                  </div>
+                </div>
+              )}
               {/* The two things `roles` actually gates. They were written on
                   the Crew page in prose and nowhere on the person, so a
                   player had to hold the rule in their head while looking at
@@ -1347,7 +1389,7 @@ export function Almanac({
       */}
       <div className="card small" style={{ borderColor: 'var(--warn, #b8863b)' }}>
         <b>This is the new fleet.</b> Twenty-four hulls on the locked combat
-        rules — three kinds of cannon, armour, Size and Speed. The war you are
+        rules — three kinds of cannon, armor, Size and Speed. The war you are
         playing still sails the old fleet and fights it the old way until the
         engine swap lands, so a name here may not be a name in your harbour
         yet.
@@ -1409,16 +1451,16 @@ export function Almanac({
         <br />
         <b>Light.</b> {GUNS.Light.dice}d{DAMAGE_DIE} a cannon, and the most
         accurate thing afloat at <b>+{GUNS.Light.accuracy}</b> to hit. It
-        ignores no armour at all, which is the whole of its weakness: against a
+        ignores no armor at all, which is the whole of its weakness: against a
         heavily plated hull most of what it lands is stopped dead.
         <br />
         <br />
         <b>Heavy.</b> {GUNS.Heavy.dice}d{DAMAGE_DIE} a cannon — twice a light
-        gun's dice — and it halves the armour in front of it. It is also the
+        gun's dice — and it halves the armor in front of it. It is also the
         worst-aimed gun in the world against anything small or quick.
         <br />
         <br />
-        <b>Long.</b> {GUNS.Long.dice}d{DAMAGE_DIE} a cannon and halves armour
+        <b>Long.</b> {GUNS.Long.dice}d{DAMAGE_DIE} a cannon and halves armor
         like a heavy gun. Two things are its own: it <b>fires first</b>, before
         any other gun on either side, and it is the <b>only</b> gun that
         reaches a fleet already running.
@@ -1427,13 +1469,13 @@ export function Almanac({
       <div className="section-title">Armor</div>
       <div className="card small">
         <b>It is subtracted, not a chance to shrug.</b> A gun rolls its damage,
-        the armour in front of it comes off the top, and what is left goes into
+        the armor in front of it comes off the top, and what is left goes into
         the hull. Armor runs from nothing to {MAX_ARMOR}, and only the
         Majestic carries {MAX_ARMOR}.
         <br />
         <br />
         <b>Penetration halves it.</b> A heavy or long gun faces half the
-        armour, rounded up; a light gun faces all of it. So against armour 25 a
+        armor, rounded up; a light gun faces all of it. So against armor 25 a
         25-damage light hit does <b>nothing</b>, a 26-damage light hit does{' '}
         <b>1</b>, and a 26-damage heavy hit faces 13 and does <b>13</b>.
         <br />
@@ -1538,7 +1580,7 @@ export function Almanac({
         <br />
         <br />
         <b>And they know what they cannot hurt.</b> A cannon that could not get
-        through a hull's armour will not be pointed at her while anything else
+        through a hull's armor will not be pointed at her while anything else
         floats. An unarmed transport is a target only when nothing armed is
         left.
       </div>
@@ -1571,27 +1613,6 @@ export function Almanac({
         Shot that goes looking for troops in a town finds the town: the
         island's regard falls {CIVILIAN_LOYALTY_HIT} a day, every island in the
         Reach hears of it, and each further day costs more than the last.
-      </div>
-      {/*
-        The three the stories are about, and nothing builds.
-        `shipsFor` drops them because nothing can be laid down; an
-        encyclopedia is exactly where they belong.
-      */}
-      <div className="section-title">Ships of the stories</div>
-      <p className="tiny muted" style={{ margin: '0 0 6px' }}>
-        Named in the Pirate Lords' own bios and never put on the water. Nothing
-        builds them, nothing sails them, nothing fights them.
-      </p>
-      <div className="stack">
-        {SHIP_CLASSES.filter((c) => c.legend).map((cls) => (
-          <div key={cls.id} id={`enc-${cls.id}`} className="card row" style={{ gap: 10, alignItems: 'flex-start' }}>
-            <ShipThumb faction={cls.faction} role={cls.role} cls={cls.id} size={76} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <b className="small">{cls.name}</b>
-              <div className="tiny muted" style={{ marginTop: 4 }}>{cls.blurb}</div>
-            </div>
-          </div>
-        ))}
       </div>
 
         </>

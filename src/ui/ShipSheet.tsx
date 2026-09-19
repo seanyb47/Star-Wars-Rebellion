@@ -18,7 +18,7 @@ import { encyclopediaShip, useLookUp } from './lookup';
  * minimal possible text in gameplay screens. Click on them for stats, lore, an
  * even larger picture."*
  *
- * So the split is by what the thing belongs to. Hull, guns, armour, what she
+ * So the split is by what the thing belongs to. Hull, guns, armor, what she
  * carries, what she costs, what can hit her — those describe the **class**,
  * they are the same for every one ever built, and they live in the
  * encyclopedia where there is room to lay them out. Her **condition** is this

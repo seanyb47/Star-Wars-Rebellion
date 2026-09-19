@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { shipFlavour, subjectFor, slugOf } from '../Almanac';
+import { loreShip, shipFlavour, subjectFor, slugOf } from '../Almanac';
 import shipFlavourData from '../../data/ship-flavour.json';
 import { ROSTER } from '../../sim/shipdefs';
-import { CHART_LAYERS, TROOP_TYPES, YARD_BUILDABLE } from '../../sim';
+import { CHART_LAYERS, SHIP_CLASSES, TROOP_TYPES, YARD_BUILDABLE } from '../../sim';
 import { orderedLayers } from '../prefs';
 import characterRoster from '../../data/characters.json';
+import { PIRATE_LORDS } from '../../sim';
 
 /**
  * Which entry a lookup means.
@@ -156,9 +157,12 @@ describe('what a hull is good and bad against', () => {
       const line = shipFlavour(cls.id);
       expect(line.length, cls.name).toBeGreaterThan(80);
       // The fault it replaced: the roster's own notes opened by listing the
-      // grid — "Heavy Armor 22; 400 Hull; 7 Long and 8 Heavy Guns."
-      expect(line, cls.name).not.toMatch(/\d+\s+Hull\b/);
-      expect(line, cls.name).not.toMatch(/;\s*\d+\s/);
+      // grid — "Heavy Armor 22; 400 Hull; 7 Long and 8 Heavy Guns." The first
+      // pass at replacing them still leaned on the figures — *"Twelve light
+      // guns is a hail of shot"* — which is the grid wearing a coat, printed
+      // directly under the grid. So: no numerals at all. The line names what
+      // she beats and what beats her, and the stats above say by how much.
+      expect(line, cls.name).not.toMatch(/\d/);
     }
   });
 
@@ -167,5 +171,33 @@ describe('what a hull is good and bad against', () => {
       const sentences = shipFlavour(cls.id).split(/(?<=[.!?])\s+/).filter(Boolean);
       expect(sentences.length, cls.name).toBeLessThanOrEqual(2);
     }
+  });
+});
+
+/**
+ * The three ships nothing builds.
+ *
+ * Sean, 19 September: *"Move the ships of stories section in ship encyclopedia
+ * under the character lore in the crew profile."* They used to be a section at
+ * the foot of the Ships page. Moving them means the only thing that finds them
+ * now is the Lord they belong to, so the join is pinned: a Lord with no hull
+ * would silently drop a ship out of the game's writing altogether.
+ */
+describe('the hull a Pirate Lord is remembered for', () => {
+  it('finds one for every Lord, and none for anybody else', () => {
+    for (const lord of PIRATE_LORDS) {
+      const hull = loreShip(lord.name);
+      expect(hull, lord.name).toBeDefined();
+      expect(hull!.id).toBe(lord.ship);
+      expect(hull!.legend, lord.name).toBe(true);
+      expect(hull!.blurb!.length, lord.name).toBeGreaterThan(40);
+    }
+    expect(loreShip('Somebody Else Entirely')).toBeUndefined();
+  });
+
+  it('accounts for every legend hull, so none is left with nowhere to be read', () => {
+    const told = PIRATE_LORDS.map((l) => l.ship).sort();
+    const legends = SHIP_CLASSES.filter((c) => c.legend).map((c) => c.id).sort();
+    expect(told).toEqual(legends);
   });
 });

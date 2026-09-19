@@ -126,7 +126,7 @@ function ShipRow({
             {grouped && ships.length > 1 && <b className="shiprow__n">{ships.length}×</b>}
             {cls.name}
           </span>
-          {/* Condition only. What the class *is* — her guns, her armour, what
+          {/* Condition only. What the class *is* — her guns, her armor, what
               can hit her — is a tap away in the encyclopedia, and a gameplay
               screen wants the picture and the state of this hull, not a
               spec sheet. */}
