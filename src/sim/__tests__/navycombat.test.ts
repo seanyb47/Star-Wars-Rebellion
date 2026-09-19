@@ -75,7 +75,8 @@ describe('the cannon model', () => {
   it('gives each gun kind its own dice, penetration and accuracy', () => {
     expect(GUNS.Light).toEqual({ dice: 2, penetration: 0, accuracy: 10 });
     expect(GUNS.Heavy).toEqual({ dice: 4, penetration: 0.5, accuracy: 0 });
-    expect(GUNS.Long).toEqual({ dice: 2, penetration: 0.5, accuracy: 0 });
+    // Long went to 25% in v3: *"Armor-cracking is Heavy's signature alone."*
+    expect(GUNS.Long).toEqual({ dice: 2, penetration: 0.25, accuracy: 0 });
   });
 
   it('fires once per cannon, so ten guns are ten attacks', () => {
@@ -95,7 +96,21 @@ describe('armor, which is back', () => {
     const target = ship({ hull: 500, armor: 25 }).stats;
     expect(effectiveArmor('Light', target)).toBe(25);
     expect(effectiveArmor('Heavy', target)).toBe(13); // ceil(25 × 0.5)
-    expect(effectiveArmor('Long', target)).toBe(13);
+    // And the Long Gun is no longer the Heavy's equal here: 25% penetration
+    // leaves nineteen of the twenty-five standing.
+    expect(effectiveArmor('Long', target)).toBe(19); // ceil(25 × 0.75)
+  });
+
+  it('is ignored altogether by raking fire down a fleeing stern', () => {
+    // v3's retreat rule: *"STERN RAKE: retreat attacks IGNORE ARMOR (100%
+    // penetration)"*, which is why plate that makes a capital unkillable in
+    // line does nothing for her while she runs.
+    const majestic = ship({ hull: 13900, armor: 30 }).stats;
+    expect(effectiveArmor('Long', majestic)).toBe(23);
+    expect(effectiveArmor('Long', majestic, true)).toBe(0);
+    expect(expectedDamage('Long', majestic, true)).toBeGreaterThan(
+      expectedDamage('Long', majestic),
+    );
   });
 
   it('rounds effective armor up before subtracting', () => {
@@ -358,6 +373,84 @@ describe('breaking off', () => {
     expect(report.volley.shots).toBe(0);
     expect(report.volley.damage).toBe(0);
     expect(report.escaped).toHaveLength(1);
+  });
+
+  it('rakes in four volleys, releasing a speed class after each', () => {
+    /*
+     * v3's sequence, step for step: *"Volley 1 at ALL fleeing ships ->
+     * resolve damage -> update status -> surviving Very Fast ships escape"*,
+     * then Fast, then Normal, then Slow. So one hull of each class means the
+     * Very Fast is shot at once and the Slow four times.
+     */
+    const rng = createRng(11);
+    const runner = (speed: 'Very Fast' | 'Fast' | 'Normal' | 'Slow') =>
+      ship({ hull: 100000, size: 'Gigantic', speed, guns: guns(0, 0, 1) });
+    const fleeing = [runner('Very Fast'), runner('Fast'), runner('Normal'), runner('Slow')];
+    const pursuers = [ship({ hull: 500, guns: guns(6, 0, 0), size: 'Large' })];
+    const report = resolveFlee(fleeing, pursuers, rng);
+
+    expect(report.volleys).toHaveLength(4);
+    expect(report.volleys.map((v) => v.released)).toEqual([
+      ['Very Fast'],
+      ['Fast'],
+      ['Normal'],
+      ['Slow', 'None'],
+    ]);
+    // Six Long Guns fire in every volley, at whoever is still exposed.
+    expect(report.volleys.map((v) => v.tally.shots)).toEqual([6, 6, 6, 6]);
+    // And each class gets clear at its own volley, nobody twice.
+    expect(report.volleys.map((v) => v.escaped.length)).toEqual([1, 1, 1, 1]);
+    expect(report.escaped).toHaveLength(4);
+    expect(report.volley.shots).toBe(24);
+  });
+
+  it('shoots the slow hull four times as often as the fast one', () => {
+    // The same fleet, one class at a time, so the only thing that differs is
+    // how many volleys each is exposed to.
+    const rng = createRng(13);
+    const exposure = (speed: 'Very Fast' | 'Slow') => {
+      let shots = 0;
+      for (let i = 0; i < 50; i++) {
+        const fleeing = [ship({ hull: 100000, size: 'Large', speed, guns: guns(0, 0, 1) })];
+        const chaser = [ship({ hull: 500, guns: guns(3, 0, 0), size: 'Large' })];
+        shots += resolveFlee(fleeing, chaser, rng).volley.shots;
+      }
+      return shots;
+    };
+    expect(exposure('Slow')).toBe(exposure('Very Fast') * 4);
+  });
+
+  it('ignores the armor that makes a capital unkillable in line', () => {
+    /*
+     * The Stern Rake at 100% penetration. Armor 30 stops a 2d20 Long Gun
+     * almost dead in a stand-up fight — the same guns raking her stern take
+     * the full roll. Run both ways over the same seeds so only the rule
+     * differs.
+     */
+    const damage = (armor: number) => {
+      const rng = createRng(29);
+      let total = 0;
+      for (let i = 0; i < 200; i++) {
+        const fleeing = [ship({ hull: 1000000, size: 'Gigantic', speed: 'Slow', armor, guns: guns(0, 0, 1) })];
+        const chaser = [ship({ hull: 500, guns: guns(8, 0, 0), size: 'Large' })];
+        total += resolveFlee(fleeing, chaser, rng).volley.damage;
+      }
+      return total;
+    };
+    // Armor makes no difference at all to raking fire, which is the rule.
+    expect(damage(30)).toBe(damage(0));
+  });
+
+  it('does not let a hull sunk by the volley that released it escape', () => {
+    const rng = createRng(37);
+    const doomed = ship({ hull: 1, size: 'Gigantic', speed: 'Very Fast', guns: guns(0, 0, 1) });
+    const pursuers = [ship({ hull: 500, guns: guns(30, 0, 0), size: 'Large' })];
+    const report = resolveFlee([doomed], pursuers, rng);
+    expect(report.lost).toEqual([doomed.id]);
+    expect(report.escaped).toEqual([]);
+    expect(report.volleys[0].escaped).toEqual([]);
+    // And the sequence stops: there is nobody left to shoot at.
+    expect(report.volleys).toHaveLength(1);
   });
 
   it('is harder on a slow giant than on a fast sloop', () => {

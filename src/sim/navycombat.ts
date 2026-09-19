@@ -18,7 +18,7 @@
  * - **A cannon is the unit of action.** Ten guns are ten attacks, each with its
  *   own d100 to hit and its own damage dice.
  * - **Three gun kinds**, and they differ in all three of dice, penetration and
- *   accuracy: Light 2d20 / 0% / +10, Heavy 4d20 / 50% / ±0, Long 2d20 / 50% /
+ *   accuracy: Light 2d20 / 0% / +10, Heavy 4d20 / 50% / ±0, Long 2d20 / 25% /
  *   ±0.
  * - **Armor is back**, as a flat subtraction after penetration:
  *   `effective = ceil(armor × (1 − pen))`, `damage = max(0, rolled −
@@ -72,7 +72,10 @@ export interface GunProfile {
  * thing that fires first and the only thing that reaches a fleeing hull.
  */
 export const GUNS: Record<GunKind, GunProfile> = {
-  Long: { dice: 2, penetration: 0.5, accuracy: 0 },
+  // Long Guns went from 50% to 25% penetration in v3 of the combat document:
+  // *"Armor-cracking is Heavy's signature alone."* It is the single change
+  // that keeps a first strike from also being the best armor answer.
+  Long: { dice: 2, penetration: 0.25, accuracy: 0 },
   Heavy: { dice: 4, penetration: 0.5, accuracy: 0 },
   Light: { dice: 2, penetration: 0, accuracy: 10 },
 };
@@ -169,8 +172,17 @@ export function hitChance(kind: GunKind, target: CombatStats): number {
   return Math.min(HIT_CEILING, Math.max(HIT_FLOOR, raw));
 }
 
-/** `CEILING(Armor × (1 − penetration))`, rounded up before it is subtracted. */
-export function effectiveArmor(kind: GunKind, target: CombatStats): number {
+/**
+ * `CEILING(Armor × (1 − penetration))`, rounded up before it is subtracted.
+ *
+ * `ignoreArmor` is the Stern Rake and nothing else: v3 gives retreat fire 100%
+ * penetration, *"raking fire down the exposed stern"*, so a fleeing ship's
+ * plate counts for nothing against the parting volleys. It is a property of
+ * the situation rather than of the gun, which is why it is an argument here
+ * instead of a second Long Gun profile.
+ */
+export function effectiveArmor(kind: GunKind, target: CombatStats, ignoreArmor = false): number {
+  if (ignoreArmor) return 0;
   return Math.ceil(target.armor * (1 - GUNS[kind].penetration));
 }
 
@@ -203,8 +215,8 @@ function pmfOf(dice: number): Map<number, number> {
 
 /** `E[max(0, roll − armor)]` for one cannon of this kind against this target. */
 const EXPECTED_CACHE = new Map<string, number>();
-export function expectedDamage(kind: GunKind, target: CombatStats): number {
-  const armor = effectiveArmor(kind, target);
+export function expectedDamage(kind: GunKind, target: CombatStats, ignoreArmor = false): number {
+  const armor = effectiveArmor(kind, target, ignoreArmor);
   const key = `${kind}:${armor}`;
   const cached = EXPECTED_CACHE.get(key);
   if (cached !== undefined) return cached;
@@ -215,8 +227,12 @@ export function expectedDamage(kind: GunKind, target: CombatStats): number {
 }
 
 /** Expected damage once the chance of missing is taken into account. */
-export function expectedDamagePerShot(kind: GunKind, target: CombatStats): number {
-  return (hitChance(kind, target) / 100) * expectedDamage(kind, target);
+export function expectedDamagePerShot(
+  kind: GunKind,
+  target: CombatStats,
+  ignoreArmor = false,
+): number {
+  return (hitChance(kind, target) / 100) * expectedDamage(kind, target, ignoreArmor);
 }
 
 /**
@@ -232,12 +248,17 @@ export function rawVolley(ship: CombatShip): number {
 }
 
 /** Roll one cannon: `undefined` for a miss, otherwise the damage it lands. */
-export function fireCannon(kind: GunKind, target: CombatStats, rng: Rng): number | undefined {
+export function fireCannon(
+  kind: GunKind,
+  target: CombatStats,
+  rng: Rng,
+  ignoreArmor = false,
+): number | undefined {
   // d100, and the sheet's rule is at or below, so 1..100 against the chance.
   if (rng.range(1, 100) > hitChance(kind, target)) return undefined;
   let rolled = 0;
   for (let d = 0; d < GUNS[kind].dice; d++) rolled += rng.range(1, DAMAGE_DIE);
-  return Math.max(0, rolled - effectiveArmor(kind, target));
+  return Math.max(0, rolled - effectiveArmor(kind, target, ignoreArmor));
 }
 
 /* -------------------------------------------------------------- targeting */
@@ -264,16 +285,25 @@ export interface Assignment {
  * somewhere, and they are allowed to pile on — that case is not in the sheet
  * and is the one inference here.
  *
- * **Viability.** A cannon that cannot get through a hull's armor scores no
- * kill at all and will not be pointed at her while anything else floats: the
- * Light Guns of a swarm simply cannot hurt a Majestic, and the algorithm knows
- * it rather than discovering it a thousand missed shots later.
+ * **Guns never hold fire.** v3 is explicit that there is *"no 'cannot
+ * penetrate' exclusion — hopeless targets simply rank last"*. A cannon that
+ * cannot get through a hull's armor scores zero against her, which puts her
+ * bottom of the ranking on her own without a special case; the Light Guns of a
+ * swarm will still pick the frigate over the Majestic every time, and will
+ * still fire at the Majestic when she is all there is. This used to be an
+ * exclusion — hopeless targets were skipped entirely and a fallback picked the
+ * most threatening hull afloat — which agreed with v3 almost everywhere and
+ * disagreed in one place: with overkill control holding back the only
+ * penetrable target, the exclusion sent the gun to a hull already marked for
+ * death instead of to the one it cannot hurt.
  */
 export function assignTargets(
   shooters: Fleet,
   enemies: Fleet,
   kinds: readonly GunKind[],
   rng: Rng,
+  /** Set for retreat fire, where the Stern Rake ignores plate entirely. */
+  ignoreArmor = false,
 ): Assignment[] {
   const targets = survivors(enemies);
   if (targets.length === 0) return [];
@@ -305,11 +335,10 @@ export function assignTargets(
       for (const target of pool) {
         const covered = (assignedExpected.get(target.id) ?? 0) >= target.hullRemaining;
         if (onlyUncovered && covered) continue;
-        const per = expectedDamagePerShot(cannon.kind, target.stats);
-        // Cannot penetrate: no viable-kill score, so never a first choice.
-        if (per <= 0) continue;
-        const shotsToKill = Math.ceil(target.hullRemaining / per);
-        const score = (threat.get(target.id) ?? 0) / Math.max(1, shotsToKill);
+        const per = expectedDamagePerShot(cannon.kind, target.stats, ignoreArmor);
+        // Shots to kill is infinite where nothing gets through, so the
+        // priority is zero and the target ranks last of its own accord.
+        const score = per <= 0 ? 0 : (threat.get(target.id) ?? 0) / Math.max(1, Math.ceil(target.hullRemaining / per));
         if (score > bestScore + 1e-9) {
           bestScore = score;
           best = target;
@@ -320,9 +349,9 @@ export function assignTargets(
       }
       if (best) break;
     }
-    // Nothing this cannon can hurt at all. It still fires, at the most
-    // dangerous thing afloat, and achieves nothing — which is the honest
-    // outcome for a sloop's battery against a wall of armor.
+    // Only when every target is already covered by an expected kill and the
+    // second pass found nothing either — which the two passes make
+    // unreachable in practice, and which is still not a reason to hold fire.
     if (!best) {
       best = pool.reduce((a, b) => ((threat.get(b.id) ?? 0) > (threat.get(a.id) ?? 0) ? b : a));
       ties = [best];
@@ -332,7 +361,8 @@ export function assignTargets(
     const target = ties.length > 1 ? ties[rng.int(ties.length)] : best;
     assignedExpected.set(
       target.id,
-      (assignedExpected.get(target.id) ?? 0) + expectedDamagePerShot(cannon.kind, target.stats),
+      (assignedExpected.get(target.id) ?? 0) +
+        expectedDamagePerShot(cannon.kind, target.stats, ignoreArmor),
     );
     out.push({ kind: cannon.kind, shooter: cannon.shooter, target });
   }
@@ -374,10 +404,11 @@ function volley(
   pending: Map<string, number>,
   tally: PhaseTally,
   rng: Rng,
+  ignoreArmor = false,
 ): void {
   for (const { kind, target } of assignments) {
     tally.shots += 1;
-    const damage = fireCannon(kind, target.stats, rng);
+    const damage = fireCannon(kind, target.stats, rng, ignoreArmor);
     if (damage === undefined) continue;
     tally.hits += 1;
     tally.damage += damage;
@@ -522,7 +553,34 @@ export function combatExchange(a: Fleet, b: Fleet, rng: Rng): ExchangeReport {
 
 /* ---------------------------------------------------------------- retreat */
 
+/**
+ * The order hulls get clear in: fastest away first, and the slow take the
+ * whole sequence. 'None' is a hull that cannot run at all and leaves with the
+ * Slow — there is no fifth volley for her.
+ */
+export const RAKE_ORDER: readonly SpeedCategory[][] = [
+  ['Very Fast'],
+  ['Fast'],
+  ['Normal'],
+  ['Slow', 'None'],
+];
+
+export interface RetreatVolley {
+  /** Which of the four this was, 1-based. */
+  number: number;
+  /** The speed classes that got clear at the end of it. */
+  released: readonly SpeedCategory[];
+  tally: PhaseTally;
+  /** Ids sunk by this volley. */
+  sank: string[];
+  /** Ids that rowed out of range at the end of it. */
+  escaped: string[];
+}
+
 export interface RetreatReport {
+  /** Up to four, in order. Short where everybody was clear or dead sooner. */
+  volleys: RetreatVolley[];
+  /** The whole sequence added up, which is what a one-line report wants. */
   volley: PhaseTally;
   /** Ids of the fleeing hulls that did not get away. */
   lost: string[];
@@ -531,24 +589,59 @@ export interface RetreatReport {
 }
 
 /**
- * Break off. It always works; what it costs is the parting fire.
+ * Break off — the Stern Rake sequence.
  *
- * Only **Long Guns** reach a fleet already under way, one attack each, at
- * their ordinary dice and penetration. A pursuer with none — a swarm of Light
- * Gun interceptors, a Blackfin — watches the enemy go and cannot touch them,
- * which is the clearest single reason to put Long Guns in a fleet.
+ * FLEE never fails. What it costs is up to four parting volleys, and v3 sets
+ * them out step by step: *"Volley 1 at ALL fleeing ships -> resolve damage ->
+ * update status -> surviving Very Fast ships escape"*, then the same again
+ * releasing Fast, then Normal, then Slow. So a Very Fast hull is shot at once
+ * and a Slow one four times, which is the whole of what Speed buys you on the
+ * day it matters most.
+ *
+ * Two rules make it bite. Only **Long Guns** reach a fleet already under way,
+ * so a pursuer with none — a swarm of Light Gun interceptors, a Blackfin —
+ * watches the enemy go and cannot touch them. And the fire **ignores armor
+ * entirely**: *"raking fire down the exposed stern"* at 100% penetration, so
+ * the plate that makes a capital unkillable in line does nothing for her while
+ * she runs. Simmed: a lone fleeing Majestic loses about two fifths of herself.
+ *
+ * `land` is called between volleys rather than at the end, which is the
+ * *"update status"* step v3 names as the hook for component damage: when a hit
+ * can knock a ship down a Speed class, she is simply released a volley later
+ * than she would have been, and nothing here has to change to allow it.
  */
 export function resolveFlee(fleeing: Fleet, pursuers: Fleet, rng: Rng): RetreatReport {
-  const tally = emptyTally();
-  const pending = new Map<string, number>();
-  const assignments = assignTargets(pursuers, fleeing, ['Long'], rng);
-  volley(assignments, pending, tally, rng);
-  const lost = land(fleeing, pending);
-  return {
-    volley: tally,
-    lost,
-    escaped: survivors(fleeing).map((s) => s.id),
-  };
+  const total = emptyTally();
+  const volleys: RetreatVolley[] = [];
+  const gotAway = new Set<string>();
+  const lost: string[] = [];
+
+  for (const [index, released] of RAKE_ORDER.entries()) {
+    // Still in range: afloat, and not yet released by an earlier volley.
+    const exposed = survivors(fleeing).filter((ship) => !gotAway.has(ship.id));
+    if (exposed.length === 0) break;
+
+    const tally = emptyTally();
+    const pending = new Map<string, number>();
+    // Targets re-assigned among the still-exposed each volley, and every
+    // surviving pursuing Long Gun fires in every one of them.
+    volley(assignTargets(pursuers, exposed, ['Long'], rng, true), pending, tally, rng, true);
+    const sank = land(fleeing, pending);
+    lost.push(...sank);
+    total.shots += tally.shots;
+    total.hits += tally.hits;
+    total.damage += tally.damage;
+
+    // And the ones this volley was the last for are clear. Read after the
+    // damage lands, so a hull sunk in it never escapes.
+    const escaped = exposed
+      .filter((ship) => afloat(ship) && released.includes(ship.stats.speed))
+      .map((ship) => ship.id);
+    for (const id of escaped) gotAway.add(id);
+    volleys.push({ number: index + 1, released, tally, sank, escaped });
+  }
+
+  return { volleys, volley: total, lost, escaped: survivors(fleeing).map((s) => s.id) };
 }
 
 /* ------------------------------------------------------------- assessment */

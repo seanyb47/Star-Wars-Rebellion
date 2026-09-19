@@ -5357,3 +5357,108 @@ Every published matchup still lands where the sheet says, so the numbers are
 what Sean intends; it is the *pace* that drifted, and it was already over the
 stated 1–3 before v3. Not touched — the lever the rules name for this is the
 Exchange stop share, and that is a design decision rather than a tuning one.
+
+## Naval Combat System v3 — the rules doc (19 September)
+
+*"Updated files in Naval Combat System folder. Read everything in there. And
+implement."*
+
+The folder holds four things. Three I already had: the v1/v2 roster sheet, the
+v3 roster sheet imported this afternoon, and an old JSON export. The fourth is
+new and is the one that matters — **"7 Seas — Naval Combat System v3"**, a
+Google Doc written the same afternoon, which *"supersedes the Sep 15 combat doc
+entirely."* The roster import covered the ships; this covers the rules, and it
+moves four of them.
+
+### 1. Long Guns fall to 25% penetration
+
+The line that does it: *"Armor-cracking is Heavy's signature alone."* A Long
+Gun had been a Light Gun's dice with a Heavy Gun's penetration, which made it
+the best gun in the game — first strike, full reach, and armor-cracking in one
+purchase. It now takes a quarter off rather than a half. Against Armor 25 a
+26-damage roll goes from 13 through to 7.
+
+**This turned out to be a correction rather than a change.** v3's roster
+publishes ten 5,000-trial matchups; at 50% penetration my engine reproduced
+them to within 2.2 percentage points, and at 25% it reproduces them to within
+**1.4**. Sean's published numbers were produced with 25%, so the sheet and the
+engine had disagreed slightly and now do not.
+
+### 2. Guns never hold fire
+
+*"EVERY GUN ALWAYS FIRES at its highest-priority target; guns never hold fire
+(there is no 'cannot penetrate' exclusion — hopeless targets simply rank
+last)."* The targeting algorithm had an explicit viability exclusion: a cannon
+that could not penetrate a hull skipped her entirely. That agrees with v3
+almost everywhere, because a target it cannot hurt scores zero and comes last
+anyway — and disagrees in one place, which is why the rule is written the way
+it is. With overkill control holding back the only penetrable target, the
+exclusion sent the gun to a hull already marked for death instead of to the one
+it cannot hurt. Zero-score ranking, no special case.
+
+### 3. The Stern Rake: four volleys, and armor counts for nothing
+
+The largest change. Breaking off used to be a single parting volley at ordinary
+penetration. v3 sets out a sequence:
+
+> *"Volley 1 at ALL fleeing ships -> resolve damage -> update status -> surviving
+> Very Fast ships escape"*, then Fast, then Normal, then Slow.
+
+So a Very Fast hull is shot at once and a Slow one four times, which is the
+whole of what Speed buys on the day it matters most. And **retreat fire ignores
+armor entirely** — 100% penetration, *"raking fire down the exposed stern"* —
+so the plate that makes a first-rate unkillable in line does nothing for her
+while she runs.
+
+`land` is called *between* volleys rather than at the end, which is deliberate:
+that is the *"update status"* step the doc names as the hook for component
+damage. When a hit can knock a ship down a Speed class, she is released a
+volley later than she would have been and nothing in the sequence has to change
+to allow it.
+
+### 4. Repair's band boundary
+
+The doc is exact where my import had guessed: *"Slow (below 1.0%/day) / Normal
+(1.0%) / Fast (1.1–2.0%) / Very Fast (above 2.0%)."* Normal is the one exact
+value rather than a range. No hull on the roster moves band, but 0.95%/day used
+to read Normal and now reads Slow.
+
+### What the doc settles that was open
+
+**The duration standard was the wrong one.** This morning I reported that
+mirror duels ran 4.69 Combat Exchanges against a stated target of 1–3, and
+flagged it for Sean. v3 §11 replaces that line: *"mirrors average ~8 internal
+rounds; capital duels 7–10 rounds; evenly matched battles resolve in a handful
+of player-visible Exchanges."* Measured against the new standard, mirrors come
+out at **7.6 internal rounds** and 4.77 Exchanges — which is ~8 and a handful.
+The concern is withdrawn; it was measured against a superseded number.
+
+**Mutual destruction is intended.** *"Same-class mirror duels end in mutual
+destruction ~50% of the time. This is accepted; if playtests ever want messier
+capital fights, the lever is initiative or crew quality — never hull or gun
+counts."* Measured: 16–99% across six mirrors, mean around 53%.
+
+### What could not be verified, and why
+
+v3 publishes retreat costs — *"mid-game fleet ~16%; late-game slow fleet ~15%;
+a lone fleeing Majestic ~41%"* — but not the **scenarios**: which hulls were
+running and, far more important, which were chasing. Retreat damage is close to
+linear in the pursuer's Long Gun count, so "41%" pins a chasing battery that
+nothing here can recover. `lab/v3check.ts` runs plausible readings and prints
+the sheet's figure beside them as a band rather than an equality: 29% / 21% /
+27% against 16 / 15 / 41. The one line that *is* exactly checkable is the
+first, and it reproduces exactly: an early fleet with no Long Guns between them
+takes **0%**.
+
+If Sean wants the published figures reproduced, the missing input is the
+pursuing fleet in each of the three scenarios.
+
+### And the art prompts
+
+The two hulls still on a drawn silhouette are the **Blackfin** and the
+**Ironback**, both now on a second pass. Their revision prompts are in
+`art-prompts.md` with the guardrail for each — the Blackfin's tall plain black
+mainsail, the Ironback's iron carapace and the fortress under fire. A standing
+negative prompt goes in beside them, because the generator put a Jolly Roger on
+both first attempts: **no skull, no jolly roger, no crossbones.** It is the
+strongest pirate prior in these models and has to be banned by name.

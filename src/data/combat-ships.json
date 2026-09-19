@@ -244,9 +244,9 @@
     }
   },
   "combatRules": {
-    "_status": "LOCKED. Authoritative combat specification for ship-versus-ship and fleet simulation.",
+    "_status": "LOCKED. Authoritative combat specification for ship-versus-ship and fleet simulation. Read from the Google Doc '7 Seas — Naval Combat System v3' (19 Sep 2026), which supersedes the Sep 15 document entirely.",
     "principle": "There is no ship-level Firepower stat. Every individual cannon makes its own attack using the rules for its gun type.",
-    "battleTarget": "Evenly matched battles should usually resolve in 1-3 player-visible Combat Exchanges.",
+    "battleTarget": "Mirrors average about 8 internal rounds and capital duels 7-10; evenly matched battles resolve in a handful of player-visible Exchanges. This replaces the older sheet's '1-3 Combat Exchanges' line.",
     "cannon": {
       "attackGranularity": "One attack per individual cannon. Ten guns create ten separate attacks.",
       "hitRoll": "Roll d100 for every cannon; the attack hits when the roll is at or below final hit chance after the gun-type modifier.",
@@ -262,12 +262,14 @@
       },
       "Long": {
         "damageDice": "2d20",
-        "penetration": 0.5,
-        "accuracy": 0
+        "penetration": 0.25,
+        "accuracy": 0,
+        "note": "25% in v3, down from Heavy's own 50%: 'Armor-cracking is Heavy's signature alone.' First strike, and the only guns that fire on a fleeing fleet."
       },
       "effectiveArmor": "CEILING(Target Armor x (1 - Armor Penetration))",
       "damageTaken": "MAX(0, Rolled Damage - Effective Armor)",
-      "example": "Armor 25 stops a 25-damage Light hit. A 26-damage Light hit deals 1. A 26-damage Heavy hit faces 13 effective armor and deals 13."
+      "example": "Armor 25 stops a 25-damage Light hit. A 26-damage Light hit deals 1. A 26-damage Heavy hit faces 13 effective armor and deals 13; the same roll from a Long Gun faces 19 and deals 7.",
+      "consequences": "Light Guns cannot meaningfully hurt Armor 21+, so brig swarms bounce off ships of the line; and Armor 25 against 29 differs little under Heavy fire, so hull is what carries a capital."
     },
     "phases": {
       "attackCommand": "The player chooses Attack/Fight. Snapshot each side's current total Hull, then resolve consecutive internal combat rounds until either side has lost at least 30% of that starting snapshot or a fleet is destroyed.",
@@ -347,22 +349,25 @@
     "targeting": {
       "timing": "Assign targets before rolling attacks. Long Guns optimize separately in Phase 1; Light and Heavy Guns optimize together in Phase 2.",
       "expectedDamage": "For each gun/target pair: Hit Chance x expected post-armor damage.",
-      "expectedShotsToKill": "CEILING(Remaining Hull / Expected Damage per shot); an attack that cannot penetrate receives no viable-kill score.",
+      "expectedShotsToKill": "CEILING(Remaining Hull / Expected Damage per shot).",
       "targetThreat": "Estimate the target's next-volley weapon output from its surviving individual cannons.",
       "priorityScore": "Target Threat / Expected Shots to Kill",
-      "allocation": "Assign the next cannon to the viable target with the highest priority score. Track expected assigned damage and stop assigning to that target once an expected kill is covered; then recalculate.",
+      "allocation": "Assign the next cannon to the target with the highest priority score. Track expected assigned damage and stop assigning to that target once an expected kill is covered; then recalculate.",
       "overkillControl": "This spreads fire when further shots would be expected overkill.",
       "noncombatTransports": "Transports with zero guns remain valid targets but are considered only after armed targets are handled.",
       "tieBreaking": "Break equal priority scores randomly to prevent perfectly repetitive battles.",
-      "visibility": "The targeting math is internal and is not a visible ship stat."
+      "visibility": "The targeting math is internal and is not a visible ship stat.",
+      "neverHoldFire": "EVERY GUN ALWAYS FIRES at its highest-priority target. There is no 'cannot penetrate' exclusion: a gun that gets nothing through scores zero and so ranks last on its own."
     },
     "retreat": {
-      "volley": "Every surviving enemy Long Gun receives one attack when the opposing fleet flees.",
-      "targeting": "Use the same optimizer; target hit chance naturally accounts for Speed and Size.",
-      "damage": "Use normal Long Gun damage (2d20), 50% armor penetration, and the Long Gun +-0 accuracy modifier.",
-      "resolution": "Apply the retreat volley simultaneously; surviving fleeing ships then escape.",
-      "success": "Flee never fails and never forces an additional normal round.",
-      "noLongGuns": "If the pursuing fleet has no surviving Long Guns, the fleeing fleet takes no retreat attacks."
+      "success": "FLEE never fails and never forces an additional normal round.",
+      "whoFires": "Only enemy LONG GUNS reach a fleet already under way. A pursuer with none watches them go.",
+      "sequence": "Up to four sequential volleys with escapes between them. Volley 1 fires at ALL fleeing ships, damage resolves, status updates, and surviving Very Fast ships escape; volley 2 releases Fast; volley 3 Normal; volley 4 Slow. Every surviving pursuing Long Gun fires in every volley, and targets are re-assigned among the still-exposed ships each time.",
+      "sternRake": "Retreat attacks IGNORE ARMOR — 100% penetration, raking fire down the exposed stern.",
+      "accuracy": "Normal Long Gun accuracy against Size and Speed applies throughout.",
+      "simmedCosts": "Early game 0% (no Long Guns yet); mid-game fleet ~16% of fleet hull; late-game slow fleet ~15%; a lone fleeing Majestic ~41%.",
+      "fallbackDial": "If playtests show retreat too punishing: 50% penetration on retreat fire instead of 100%.",
+      "componentDamageHook": "The \"update status\" step between volleys is where component damage will land — a ship knocked down a Speed class mid-retreat is caught by additional volleys. Component damage itself is outside the current model."
     },
     "simulation": {
       "trials": 5000,
@@ -376,18 +381,24 @@
         "retreat survival",
         "cost efficiency"
       ],
-      "targetDuration": "Evenly matched battles should usually resolve in 1-3 player-visible Combat Exchanges; one Exchange may contain multiple internal combat rounds.",
+      "targetDuration": "Mirrors average ~8 internal rounds; capital duels 7-10 rounds; evenly matched battles resolve in a handful of player-visible Exchanges.",
       "randomness": "Each cannon rolls its own d100 hit roll and its own damage dice.",
       "openBoundary": "Special infrastructure or component damage has not yet been defined in the roster and is excluded from the initial simulator."
-    }
+    },
+    "repair": {
+      "when": "Between battles only; never applied during combat.",
+      "meaning": "Recovery time. A 4% ship is back to full in about 25 days; a 0.5% ship is out for months.",
+      "display": "Never show a percentage. Slow (below 1.0%/day) / Normal (1.0%) / Fast (1.1-2.0%) / Very Fast (above 2.0%), always labelled, since the vocabulary matches Speed."
+    },
+    "determinism": "RNG lives at the individual attack level, never one roll per battle. With historical gun counts (~100 a side late game) dice variance averages out: capital duels are near deterministic and same-class mirrors end in mutual destruction about half the time. This is accepted. If playtests ever want messier capital fights the lever is initiative or crew quality, never hull or gun counts. Small-ship fights keep real variance."
   },
   "designRules": {
     "Early-game power": "Starting ships may be strong, but multiple high-tier capabilities require major drawbacks such as poor efficiency, fragility, Slow speed, weak repair, narrow specialization, or production constraints.",
     "Fleet structure": "Each faction fields four starting ships followed by eight research unlocks. Research should expand fleet-building choices rather than make every earlier hull obsolete.",
     "Crown doctrine": "Standardized combined-arms fleets, dependable progression, strong Heavy Guns and capital ships, and deliberate reliance on escorts to cover specialist weaknesses.",
     "Confederacy doctrine": "Asymmetric specialists, fast raiders, retrofits, amphibious reef technology, regeneration, and ships that trade standardization for unusual strategic advantages.",
-    "Weapon system": "Each cannon attacks separately. Light Guns are accurate 2d20 weapons with no penetration; Long Guns are lower-accuracy 2d20 weapons with 50% penetration and first strike; Heavy Guns are the least accurate 4d20 weapons with 50% penetration.",
-    "Long Guns": "A midgame technology milestone. Long Guns fire in the first-strike phase and receive one free retreat volley against a fleeing fleet.",
+    "Weapon system": "Each cannon attacks separately. Light Guns are accurate 2d20 weapons with no penetration; Long Guns are 2d20 weapons with 25% penetration and first strike; Heavy Guns are the least accurate 4d20 weapons with 50% penetration, and armor-cracking is Heavy's signature alone.",
+    "Long Guns": "A midgame technology milestone. Long Guns fire in the first-strike phase and are the only guns that reach a fleeing fleet, in up to four raking volleys that ignore armor.",
     "Bombardment": "A strategic siege rating used against fortifications and locations. It never contributes to ship-to-ship damage; specialized ordnance may justify Bombardment without naval Heavy or Long Guns.",
     "Value philosophy": "Ships are not expected to offer equal general value. S-tier value monsters and deliberately inefficient specialists are allowed, but every extreme needs a clear strategic purpose and visible counterweight.",
     "Pricing authority": "Ratings & Pricing defines the authoritative reference-price process. Ship Roster columns T:Z apply it automatically to every ship.",

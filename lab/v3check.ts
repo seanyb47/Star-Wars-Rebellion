@@ -13,6 +13,7 @@ import { createRng } from '../src/sim/rng';
 import {
   combatExchange,
   commission,
+  resolveFlee,
   survivors,
   totalHull,
   type Fleet,
@@ -31,19 +32,20 @@ function duel(makeA: () => Fleet, makeB: () => Fleet, seed: number) {
   const b = makeB();
   const rng = createRng(seed);
   let exchanges = 0;
+  let rounds = 0;
   while (survivors(a).length > 0 && survivors(b).length > 0 && exchanges < EXCHANGE_CAP) {
     const before = { a: totalHull(a), b: totalHull(b) };
-    combatExchange(a, b, rng);
+    rounds += combatExchange(a, b, rng).rounds;
     exchanges += 1;
     if (totalHull(a) === before.a && totalHull(b) === before.b) break;
   }
   const aGone = survivors(a).length === 0;
   const bGone = survivors(b).length === 0;
-  return { winner: aGone && bGone ? 'mutual' : aGone ? 'b' : bGone ? 'a' : 'none', exchanges };
+  return { winner: aGone && bGone ? 'mutual' : aGone ? 'b' : bGone ? 'a' : 'none', exchanges, rounds };
 }
 
 function run(makeA: () => Fleet, makeB: () => Fleet) {
-  let winA = 0, winB = 0, mutual = 0, none = 0, exchanges = 0;
+  let winA = 0, winB = 0, mutual = 0, none = 0, exchanges = 0, rounds = 0;
   for (let t = 0; t < TRIALS; t++) {
     const out = duel(makeA, makeB, SEED0 + t * 7919);
     if (out.winner === 'a') winA += 1;
@@ -51,9 +53,13 @@ function run(makeA: () => Fleet, makeB: () => Fleet) {
     else if (out.winner === 'mutual') mutual += 1;
     else none += 1;
     exchanges += out.exchanges;
+    rounds += out.rounds;
   }
   const pc = (n: number) => (n / TRIALS) * 100;
-  return { a: pc(winA), b: pc(winB), mutual: pc(mutual), none: pc(none), ex: exchanges / TRIALS };
+  return {
+    a: pc(winA), b: pc(winB), mutual: pc(mutual), none: pc(none),
+    ex: exchanges / TRIALS, rounds: rounds / TRIALS,
+  };
 }
 
 /** What v3 published, as written, so the comparison is against the sheet. */
@@ -88,17 +94,64 @@ for (const c of CASES) {
 console.log(`\nworst gap against the sheet: ${worst.toFixed(1)} percentage points`);
 
 /*
- * And the duration standard, which v3 does not restate but the locked rules
- * do: *"Evenly matched battles should usually resolve in 1-3 player-visible
- * Combat Exchanges."* The matchups above are mostly lopsided and fought to
- * annihilation, so they are the wrong place to read it. These are mirrors.
+ * Pacing, against v3 section 11: *"mirrors average ~8 internal rounds; capital
+ * duels 7-10 rounds; evenly matched battles resolve in a handful of
+ * player-visible Exchanges."* That supersedes the older sheet's "1-3
+ * Exchanges" line, which was the standard the v2 import was measured against.
  */
 const MIRRORS = ['CWN-MAJ-R8-01', 'CWN-SOV-R7-02', 'CWN-VAN-R4-02', 'CFS-TEM-R3-01', 'CFS-MAR-R1-01', 'CFS-COR-R8-01'];
-console.log('\nmirror duels — the duration standard is 1-3 Exchanges');
-let sum = 0;
+console.log('\nmirror duels — v3 wants ~8 internal rounds and a handful of Exchanges');
+let exSum = 0;
+let roundSum = 0;
 for (const id of MIRRORS) {
   const r = run(() => fleet(id), () => fleet(id));
-  sum += r.ex;
-  console.log(`  ${pad(ROSTER.byId.get(id)!.name, 26)} ${r.ex.toFixed(2)} exchanges   mutual ${r.mutual.toFixed(0)}%`);
+  exSum += r.ex;
+  roundSum += r.rounds;
+  console.log(
+    `  ${pad(ROSTER.byId.get(id)!.name, 26)} ${r.rounds.toFixed(1)} rounds   ` +
+    `${r.ex.toFixed(2)} exchanges   mutual ${r.mutual.toFixed(0)}%`,
+  );
 }
-console.log(`  mean ${(sum / MIRRORS.length).toFixed(2)} exchanges`);
+console.log(`  mean ${(roundSum / MIRRORS.length).toFixed(1)} internal rounds, ${(exSum / MIRRORS.length).toFixed(2)} Exchanges`);
+
+/*
+ * And the Stern Rake, which v3 publishes costs for: *"early game 0% (no Long
+ * Guns yet); mid-game fleet ~16% of fleet hull; late-game slow fleet ~15%; a
+ * lone fleeing Majestic ~41%."*
+ *
+ * A caveat that matters: v3 names the costs but not the *scenarios* - which
+ * hulls were running, and above all which were chasing. Retreat damage is
+ * close to linear in the pursuer's Long Gun count, so a figure of 41% pins the
+ * chasing battery and nothing here can recover it. The fleets below are
+ * plausible readings, not the sheet's, and the sheet's number is printed
+ * beside them as a band to be in rather than an equality to hit. The one
+ * exactly checkable line is the first: an early fleet with no Long Guns
+ * between them takes nothing at all.
+ */
+function rakeCost(fleeIds: string[], chaseIds: string[]): number {
+  let lost = 0;
+  let started = 0;
+  for (let t = 0; t < TRIALS; t++) {
+    const f = fleet(...fleeIds);
+    const before = totalHull(f);
+    resolveFlee(f, fleet(...chaseIds), createRng(SEED0 + t * 7919));
+    started += before;
+    lost += before - totalHull(f);
+  }
+  return (lost / started) * 100;
+}
+
+console.log('\nStern Rake — share of fleeing hull lost (scenarios inferred; see the note)');
+const RAKES: Array<[string, string[], string[], number]> = [
+  // Early: the openers have no Long Guns between them, so nothing reaches.
+  ['early game (no Long Guns yet)', ['CFS-BRI-S02', 'CFS-CHI-S03'], ['CWN-WAY-S01', 'CWN-MOR-S03'], 0],
+  ['mid-game fleet', ['CFS-TEM-R3-01', 'CFS-CUT-R2-01', 'CFS-MAR-R1-01'], ['CWN-JUS-R6-01', 'CWN-BUL-R3-01'], 16],
+  ['late-game slow fleet', ['CFS-URG-R7-01', 'CFS-IRB-R5-01'], ['CWN-MAJ-R8-01', 'CWN-SOV-R7-02'], 15],
+  ['a lone fleeing Majestic', ['CWN-MAJ-R8-01'], ['CFS-COR-R8-01', 'CFS-URG-R7-01'], 41],
+];
+for (const [label, flee, chase, want] of RAKES) {
+  const got = rakeCost(flee, chase);
+  const exact = want === 0;
+  const flag = exact && Math.abs(got - want) > 0.01 ? '   <-- must be exact' : '';
+  console.log(`  ${pad(label, 32)} ${got.toFixed(1)}%   sheet ~${want}%${flag}`);
+}

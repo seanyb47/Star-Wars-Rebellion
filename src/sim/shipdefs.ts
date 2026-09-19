@@ -498,16 +498,15 @@ export function validateRoster(raw: unknown): ValidationIssue[] {
 /**
  * Which word a repair fraction reads as.
  *
- * The same five-point scale the pricing tab uses for Repair points — below
- * 0.5%, 0.5-0.9%, 1.0%, 1.1-2.0%, above 2.0% — mapped onto the four words the
- * sheet says a player may see. There is no fifth word, so the bottom two
- * points share Slow, which is what the roster does: every hull at 0.5% is
- * shown Slow and every hull at 1.0% Normal.
+ * The combat document's own four bands, word for word: *"Repair displays as
+ * Slow (below 1.0%/day) / Normal (1.0%) / Fast (1.1-2.0%) / Very Fast (above
+ * 2.0%)"*. Normal is the one exact value rather than a range, which is why the
+ * test is an equality and not a ceiling.
  */
 export function repairBandFor(perDay: number): SpeedCategory {
   const pct = perDay * 100;
-  if (pct <= 0.9) return 'Slow';
-  if (pct <= 1.0) return 'Normal';
+  if (pct < 1.0) return 'Slow';
+  if (pct === 1.0) return 'Normal';
   if (pct <= 2.0) return 'Fast';
   return 'Very Fast';
 }

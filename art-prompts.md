@@ -50,6 +50,22 @@ is displayed inside a card frame — crest badge, title bar, the painting, an
 italic line of the subject's own voice, then a `TYPE · SUBTYPE` bar. The frame
 is drawn by the interface, so **do not paint borders, frames or text**.
 
+## The standing negative prompt
+
+> **no skull, no jolly roger, no crossbones**
+
+Sean, 19 September, after it happened twice in a row: *"definitely add 'no
+skull, no jolly roger, no crossbones' to the standing negative prompt for every
+ship in this set."* It is the strongest pirate prior in these models and has to
+be banned by name or it comes back. This is an original world — the Confederacy
+flies its own sigil, and a generic skull makes a Shoal-folk warship read as a
+Halloween pirate. A small turquoise-and-bone pennant at the masthead tells the
+story the skull was trying to tell, and tells it correctly.
+
+Worth adding beside it, where the generator takes them: *no cartoon
+proportions, no oversized cannons, no floating or glowing elements, no
+unsupported towers or spikes, no Crown-green sails on a Confederate hull.*
+
 ---
 
 # Characters (26)
@@ -588,6 +604,57 @@ tint, which is a mistake this project has already made once and measured.
 
 
 ---
+
+## The two hulls still without a painting
+
+Everything else on the roster has one. These two fall through to the drawn
+silhouette until they land, and both are on their second pass — the prompts
+below are the **revisions**, written against what the first attempt got wrong.
+
+### Blackfin — `ships/blackfin`
+
+R6 Confederate, a 29-gun carronade corvette, Fast, and the holder of the Light
+Gun crown. The first pass got the silhouette right and the culture wrong: a
+Jolly Roger on the mainsail, long brass cannon instead of carronades, and
+generic-pirate red cloth everywhere.
+
+> Same composition and ship, three corrections: the tall black mainsail is PLAIN
+> black sailcloth, salt-worn, no skull, no emblem of any kind — its silhouette IS
+> the identity; a small turquoise-and-bone pennant at the masthead only. Replace
+> all long brass cannons with SHORT SNUB-NOSED IRON CARRONADES on swivel and
+> sliding carriages — stubby wide-mouthed close-range guns lining both rails.
+> Replace every red cloth accent (bandanas, pennants, sail trim) with turquoise,
+> sea-glass, and pale bone tones — Shoal-folk colors. Keep everything else: low
+> knife-lean dark hull, white foresails, hard heel through reef shallows, fleeing
+> brig in the distance, painterly maritime oil style.
+
+**The guardrail:** the tall black mainsail is her name and her silhouette. It
+stays in every variant. The white foresails help rather than hurt — they make
+the black main read as *the* signature rather than as a dark ship.
+
+### Ironback — `ships/ironback`
+
+R5 Confederate, a razee siege ship: 26 Long Guns, Bombardment 8, and it loses
+at sea by design. The first pass found the two things that matter — a riveted
+iron carapace arched over the spine, and a clifftop fortress under fire — and
+then flew a Jolly Roger over red-and-white striped sails with an ordinary
+broadside underneath.
+
+> Same ship and composition: a captured Imperial two-decker cut down and re-armored
+> as a Confederate siege ship, bombarding a clifftop fortress. Keep the riveted
+> iron carapace arched over the deck and the massive bow gun. Corrections: NO
+> pirate flag — no skull, no jolly roger, no crossbones; fly a small turquoise-
+> and-bone Confederate pennant instead. Sails are weathered GREY working canvas
+> with mismatched patched panels — no red-and-white stripes, no green. Fewer
+> gunports, each with an EXTRA-LONG cannon barrel reaching far past the hull
+> (long-range siege guns, not stubby broadside cannon), and two squat wide-mouthed
+> MORTARS visible amidships behind the armor spine, elevated toward the fortress.
+> Underneath the bolted iron patchwork, the hull's original straight Imperial
+> lines still show. Cold grey storm light, painterly maritime oil style.
+
+**The guardrail:** the iron carapace over the spine, and the fortress. She is
+the only hull in the game whose reason to exist is ashore, and the painting
+should show her doing it.
 
 ## Order to make them in
 

@@ -1553,10 +1553,12 @@ export function Almanac({
         worst-aimed gun in the world against anything small or quick.
         <br />
         <br />
-        <b>Long.</b> {GUNS.Long.dice}d{DAMAGE_DIE} a cannon and halves armor
-        like a heavy gun. Two things are its own: it <b>fires first</b>, before
-        any other gun on either side, and it is the <b>only</b> gun that
-        reaches a fleet already running.
+        <b>Long.</b> {GUNS.Long.dice}d{DAMAGE_DIE} a cannon, and it takes a
+        quarter off the armor in front of it rather than the half a heavy gun
+        takes — opening a hull is the heavy gun's trade, not its. Two things
+        are its own: it <b>fires first</b>, before any other gun on either
+        side, and it is the <b>only</b> gun that reaches a fleet already
+        running.
       </div>
 
       <div className="section-title" id="enc-armor">Armor</div>
@@ -1567,10 +1569,12 @@ export function Almanac({
         Majestic carries {MAX_ARMOR}.
         <br />
         <br />
-        <b>Penetration halves it.</b> A heavy or long gun faces half the
-        armor, rounded up; a light gun faces all of it. So against armor 25 a
-        25-damage light hit does <b>nothing</b>, a 26-damage light hit does{' '}
-        <b>1</b>, and a 26-damage heavy hit faces 13 and does <b>13</b>.
+        <b>Penetration takes some of it away.</b> A heavy gun faces half the
+        armor and a long gun three quarters of it, rounded up; a light gun
+        faces all of it. So against armor 25 a 25-damage light hit does{' '}
+        <b>nothing</b>, a 26-damage light hit does <b>1</b>, the same roll from
+        a long gun faces 19 and does <b>7</b>, and from a heavy gun it faces 13
+        and does <b>13</b>.
         <br />
         <br />
         That one rule is most of why a fleet needs more than one kind of gun.
@@ -1672,10 +1676,11 @@ export function Almanac({
         spreads instead of emptying itself into one wreck.
         <br />
         <br />
-        <b>And they know what they cannot hurt.</b> A cannon that could not get
-        through a hull's armor will not be pointed at her while anything else
-        floats. An unarmed transport is a target only when nothing armed is
-        left.
+        <b>And nobody holds fire.</b> A cannon that could not get through a
+        hull's armor scores nothing against her, so she comes last on its list
+        and it shoots at anything else first — but if she is all there is, it
+        fires at her anyway and achieves nothing. An unarmed transport is a
+        target only when nothing armed is left.
       </div>
 
       <div className="section-title" id="enc-breaking-off">Breaking off</div>
@@ -1684,11 +1689,20 @@ export function Almanac({
         have decided to leave, and no further round once you have left.
         <br />
         <br />
-        <b>What it costs is the long guns.</b> Every surviving long gun in the
-        pursuing fleet gets one shot at you as you go, at its ordinary dice and
-        penetration — and nothing else reaches. A pursuer with no long guns
-        watches you leave and cannot touch you, which is the clearest single
-        reason to build them.
+        <b>What it costs is the long guns.</b> Nothing else reaches a fleet
+        already under way. A pursuer with no long guns watches you leave and
+        cannot touch you, which is the clearest single reason to build them.
+        <br />
+        <br />
+        <b>And they fire four times, not once.</b> The pursuers rake you as you
+        turn away, and your ships get clear in the order they can run: the
+        fastest are gone after the first volley, and the slowest take all four.
+        Speed is never worth more than it is on the day you decide to leave.
+        <br />
+        <br />
+        <b>Armor is no help at all here.</b> Raking fire goes in at the stern,
+        where the plate is not, so a wall of armor that makes a first-rate
+        unkillable in line does nothing for her while she runs.
       </div>
 
       <div className="section-title" id="enc-bombardment">Bombardment</div>
