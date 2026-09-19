@@ -33,6 +33,7 @@ import {
   daysToFinish,
   daysToDeliver,
   buildLabel,
+  idleFacilities,
   buildMenu,
   foundWorksError,
   YARD_BUILDS,
@@ -250,6 +251,25 @@ function WorksCard({
               {facilities.length > 1 ? `${facilities.length}× ` : ''}
               {FACILITY_LABEL[type]}
             </div>
+            {/*
+              Which works the chart's Idle buildings count is about.
+              Sean, 19 September, looking at an island the filter had marked
+              with a 1 and finding a construction yard plainly at work:
+              *"This construction yard is making something so it's not idle."*
+              The count was right — the 1 was the slipway standing empty beside
+              it — but the island could only say *how many*, never *which*, and
+              the busy one was at the top of the list. So the works that the
+              count is about says so on itself.
+
+              It asks `idleFacilities`, which is the function the chart mark
+              itself calls, rather than re-deriving idleness from `order`. The
+              two answers can then never drift apart, which is the whole
+              failure this is fixing: a tag that said Idle where the chart
+              disagreed would be worse than no tag.
+            */}
+            {idleFacilities(system, state.player, type) > 0 && (
+              <span className="tiny works__idle">Idle</span>
+            )}
             {holder.owner !== state.player && <ControlBadge faction={holder.owner} />}
           </div>
           {output && (
@@ -775,7 +795,15 @@ export function SystemSheet({
       if (f.owner !== state.player || f.founding || buildMenu(f, ANY_GRADE).length === 0) continue;
       byKind.set(f.type, [...(byKind.get(f.type) ?? []), f]);
     }
-    return [...byKind].map(([type, facilities]) => ({ type, facilities }));
+    return [...byKind]
+      .map(([type, facilities]) => ({ type, facilities }))
+      // Whatever is waiting for an order first: that is what the player came
+      // to this tab to find, and on Sean's Firewatch it was second.
+      .sort(
+        (a, b) =>
+          Number(idleFacilities(system, state.player, b.type) > 0) -
+          Number(idleFacilities(system, state.player, a.type) > 0),
+      );
   })();
   // Who is actually ashore, company by company. Same length as the garrison
   // count the rest of the game runs on; this only says what they are.

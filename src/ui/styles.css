@@ -2120,6 +2120,14 @@ button.tcard:hover { border-color: var(--brass); }
 .works__order {
   margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
 }
+/* The works the chart's Idle-buildings count is about, said on the works
+   itself. Quiet — it is an answer to a question the player asked on the
+   chart, not an alarm. */
+.works__idle {
+  flex: none; padding: 2px 7px; border-radius: 999px;
+  border: 1px solid var(--brass); color: var(--brass);
+  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700;
+}
 .works__crew { color: var(--metal); }
 .workbar {
   position: relative; height: 6px; border-radius: 3px; overflow: hidden;

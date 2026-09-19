@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
-import { CHART_LAYERS, islandWorth, layerMark, layerTally, showsNumber, worthTier } from '../layers';
+import {
+  CHART_LAYERS,
+  idleFacilities,
+  islandWorth,
+  layerMark,
+  layerTally,
+  showsNumber,
+  worthTier,
+} from '../layers';
 import { GARRISON_FAIR, GARRISON_STRONG, ROOM_AMPLE, ROOM_FAIR } from '../constants';
 import { islandIncome } from '../economy';
 import { getSystem } from '../helpers';
@@ -70,6 +78,61 @@ describe('chart layers', () => {
     // Nor is an island in revolt: nothing is being worked there at all.
     mine.uprising = true;
     expect(layerMark(state, mine, 'idleBuildings', 'empire').lit).toBe(false);
+  });
+
+  /**
+   * A yard at work is not idle, and the count says which kinds are.
+   *
+   * Sean, 19 September, on an island the chart had marked with a 1: *"This
+   * construction yard is making something so it's not idle. Shouldn't be
+   * active on idle buildings filter."* Reproduced, and the filter was right —
+   * the yard was contributing nothing and the 1 was the slipway standing empty
+   * beside it. Pinned here because the reasoning is not obvious from the mark:
+   * the island can only say how many, so the moment two kinds of works stand
+   * on one island the count stops being attributable by eye.
+   *
+   * The fix went to the panel, which now tags the works the count is about.
+   * This is the half of it that says the arithmetic was never wrong.
+   */
+  it('drops a whole kind of works from the count while one of that kind is at work', () => {
+    // Across seeds rather than one, because not every map deals a single
+    // island both kinds — and a test that quietly skips is a test that stops
+    // guarding the thing it was written for.
+    let state!: ReturnType<typeof generateGalaxy>;
+    let island: (typeof state.systems)[number] | undefined;
+    for (let seed = 501; seed < 541 && !island; seed++) {
+      state = generateGalaxy(seed, 'empire');
+      island = state.systems.find(
+        (s) =>
+          s.control === 'empire' &&
+          !s.uprising &&
+          s.facilities.some((f) => f.owner === 'empire' && f.type === 'construction_yard') &&
+          s.facilities.some((f) => f.owner === 'empire' && f.type === 'shipyard'),
+      );
+    }
+    expect(island, 'no island in forty seeds holds both a yard and a slipway').toBeDefined();
+    island = island!;
+    const yard = island.facilities.find(
+      (f) => f.owner === 'empire' && f.type === 'construction_yard',
+    )!;
+
+    const yards = () => idleFacilities(island, 'empire', 'construction_yard');
+    const slips = () => idleFacilities(island, 'empire', 'shipyard');
+    expect(yards()).toBeGreaterThan(0);
+    expect(slips()).toBeGreaterThan(0);
+    const both = layerMark(state, island, 'idleBuildings', 'empire').count ?? 0;
+
+    yard.building = { item: 'mine', work: 4, workLeft: 4, travel: 8, travelLeft: 8, costGold: 40 };
+    // The working kind drops out whole; the slipway is untouched and is what
+    // is left of the count.
+    expect(yards()).toBe(0);
+    expect(slips()).toBeGreaterThan(0);
+    expect(layerMark(state, island, 'idleBuildings', 'empire').count).toBe(both - 1);
+
+    // And a blockade is not idleness: it stops the island earning, not
+    // building, so a slipway behind one still wants an order.
+    island.blockaded = true;
+    expect(layerMark(state, island, 'idleBuildings', 'empire').lit).toBe(true);
   });
 
   it('lights islands where a crew member is ashore with nothing to do', () => {

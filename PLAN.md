@@ -4923,3 +4923,58 @@ sim is untouched: `missionOdds` and `foilChance` still settle every errand and
 the espionage report still says what happened. This is only what is shown
 beforehand — and with it went `bestOf`, the whole reason the sheet was
 recomputing the party's best hand on every tick of a checkbox.
+
+## The idle count was right; the island could not say which (19 September)
+
+*"This construction yard is making something so it's not idle. Shouldn't be
+active on idle buildings filter."*
+
+### Reproduced before changing anything
+
+Swept 15,726 island-days across five seeds, four hundred days each, looking
+for any island where `idleFacilities` returned more than zero for a kind of
+works while one of that kind was building. **Zero cases.** Then built Sean's
+Firewatch by hand — an island holding both a construction yard and a slipway —
+and set the yard to work:
+
+```
+before      yards 1  drills 0  slips 1
+yard busy   yards 0  drills 0  slips 1
++blockaded  yards 0  drills 0  slips 1
+```
+
+So the arithmetic was never wrong. The yard dropped out the moment it took the
+job, whole kind at once, which is the *one task per type per island* rule doing
+what it says. The 1 on Firewatch was the **slipway** standing empty beside it,
+which the panel showed offering a Swift at 45 gold.
+
+I also checked the blockade, since Firewatch was under one: a blockade stops an
+island earning, not building, so a slipway behind one still wants an order and
+lighting it is right.
+
+### What was actually wrong
+
+The mark can say *how many* and never *which*. The moment two kinds of works
+stand on one island the count stops being attributable by eye — and the panel
+put the busy one at the top of the list, so the first thing Sean saw on opening
+the island was a yard plainly at work under a filter that had said "idle here".
+He drew the only conclusion the screen supported.
+
+So the answer goes where the question is asked. A works the count is about
+carries an **Idle** tag, and the idle kinds sort to the top of *Order something
+built*.
+
+The tag asks `idleFacilities` — the same function the chart mark calls — rather
+than re-deriving idleness from whether the card has an order. That is the whole
+point: a tag that said Idle where the chart disagreed would be worse than no
+tag, and deriving it twice is how that happens.
+
+### And a test that says the arithmetic was right
+
+Pinned in `layers.test.ts`, because the reasoning is not recoverable from the
+mark. It searches seeds for an island holding both kinds rather than skipping
+when the default map does not deal one — a test that quietly skips has stopped
+guarding anything — and it checks the blockade case in the same breath.
+
+Verified non-vacuous by deleting the `if (ofKind.some((f) => f.building))` line
+and confirming the suite goes red.
