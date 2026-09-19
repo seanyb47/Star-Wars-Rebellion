@@ -5116,3 +5116,110 @@ the Wayfinder's two light guns come out at 42, which is 2 × 21 flat rather than
 85% of it. The column measures what a hull *throws*, not what lands — the right
 yardstick for comparing two batteries, and emphatically not expected damage.
 The test says so where it could mislead the next reader.
+
+## The playtest bug list, second pass (19 September)
+
+Sean's Confederacy run, days 1–150. Bugs 1, 2 and 4 went in the first pass;
+this is 3, 5–12. Two of them turned out to be worse than reported and one of
+them reverses an instruction of his, so both are called out rather than
+buried.
+
+### One log, two sides (#3)
+
+Every dispatch the game writes goes into the same feed, whoever it happened
+to. Anything phrased in the second person therefore has to ask whose news it
+is first, and three writers had not:
+
+- A Crown settlement read *"there are people on it now, and they are yours."*
+- A leak out of a Crown island was filed as the player's **loss**, in the
+  third person, when it was the player's own **intelligence**.
+- An action fought against a creature alone drew a full crest for the faction
+  that never sailed, with nothing lost — which reads as an enemy fleet
+  standing off untouched. `BattleReport` carries the creature now, the way the
+  battle sheet already did, and the card draws only the sides that were in the
+  water.
+
+### An island with nobody on it (#5)
+
+Three symptoms, one flag. `resolveLanding` set `uprising` from whether the
+garrison it left behind met what the island would demand — a rule about
+whether the *islanders* will stand for it. On an uninhabited rock there are no
+islanders. So Coralhome came up MUTINY, its assault report said *"the people
+did not want this"*, and it dropped off the build picker, which hides islands
+in mutiny — taking the rock off the list of places you can settle, which is
+the one thing you take a rock for.
+
+### Filed under the port they left (#6, #8)
+
+`locationSystemId` only moves when a boat touches a beach, so for the whole of
+a passage a crew member is still standing, on paper, at the island their
+squadron sailed from: in its crew list, in its idle-hands count, in its Reach
+tally, offered as a companion, and catchable if it fell. Fleets were already
+right — `isAtSea` keeps a sailing squadron out of every harbor — and people
+were not. `atSea` and `ashoreAt` answer "who is actually here" and every such
+question goes through them. `locationSystemId` itself is untouched: half the
+game reads it, and where somebody sailed from is the honest answer to a
+different question, which the fate lists want.
+
+The badge is the same mistake one level up. An errand is a passage and then a
+fortnight ashore; `on_mission` covers both and the badge printed the passage's
+word over the whole of it.
+
+### The pool that had not run out (#11, and Sean's #27 and dev #5)
+
+**Worse than reported.** The notice *"There is nobody left in the Seven Seas
+to sign"* was reading the unaligned who are **ashore**, and the roster arrives
+across the whole war. Measured over six seeds: eight unaligned, turning up on
+roughly days 1, 1, 70, 135, 205, 275, 350 and 425. So the pool is empty for
+most of the war by design, and the notice fired the first time a player caught
+up with it — telling them on day 80 that five people still to come were never
+coming. Signing on then correctly reappeared when the next one landed, which
+is the contradiction Sean saw on day 107.
+
+His two balance notes about recruiting dying are the same defect wearing a
+different hat. The verb was not dying; the game was announcing that it had,
+and a player who believes it stops using it. Whether the ~65-day gaps between
+arrivals are the right shape is a separate question and his to answer — the
+message is fixed either way.
+
+### Two boats on one errand (#12)
+
+Warned, not blocked. The errand sheet names whoever of yours is already at it,
+and says so more plainly for the five where a second is simply wasted: signing
+on, a rescue, an abduction, research, a posting. Two boats arguing the same
+parley is a real tactic, and which of those the player is doing is theirs to
+decide.
+
+### People who are not in this war (#9)
+
+The bible has seven a side; the opening draw seats four and five, and the
+undrawn sit the war out entirely — they are not put in the recruit pool
+either, so no amount of signing on produces them. The encyclopedia lists the
+whole cast, which is what a reference is for, and has stopped flying your flag
+over somebody who was never drawn.
+
+### A chain counted before it was charted (#10)
+
+A real leak, and a wider one than the single "Unaligned 1" he caught. Yours /
+Unaligned / Theirs / Ashore, the mutiny badge and the mean allegiance were all
+taken over every island in the Reach, charted or not. They count what has been
+charted, and a line says how many islands are left that nobody of yours has
+been to — under-reporting silently would have been the other half of the same
+bug.
+
+### The clock behind a pop-up (#7) — and a rule of his reversed
+
+Sean, 18 September: *"combat is only clock pause. Unless player pauses."* Sean,
+19 September: *"The clock keeps running behind pop-ups. Days pass while a
+report dialog is open (Day 30 became Day 34 on one dialog)."* Those are not
+compatible and the later one wins, but the earlier one was given against a
+card stack that could not have carried it: dismissal used to mark only the
+dispatches captured in the render that drew the card, so at Fast a card
+replaced itself endlessly, and a clock held by one would have been a clock
+held for good. That was the first pass's fix; the hold is safe on top of it.
+
+Three things hold the clock now and nothing else: an action your ships are in,
+a dispatch that interrupted you, and an errand waiting on your answer. A card
+you opened yourself out of the Log does not, because that is somewhere you
+went to look at something — Sean's own distinction, and the reason no
+sub-screen holds it either.

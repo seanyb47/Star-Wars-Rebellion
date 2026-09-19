@@ -244,7 +244,29 @@ export function App() {
     });
   }, []);
 
-  const clockHeld = state.battle !== undefined;
+  /*
+   * And a dispatch holds it again — which reverses the line above, so it says
+   * why here rather than quietly.
+   *
+   * Sean's rule of 18 September was *"combat is only clock pause. Unless
+   * player pauses."* His playtest of the 19th: *"The clock keeps running
+   * behind pop-ups. Days pass while a report dialog is open (Day 30 became
+   * Day 34 on one dialog)."* The later word wins, and the earlier one was
+   * given against a version of the card stack that could not have carried it:
+   * dismissal used to mark only the dispatches captured in the render that
+   * drew the card, so at Fast a card replaced itself endlessly and a clock
+   * held by one would have been a clock held for good. Dismissal marks the
+   * whole log as of the tap now, so one tap clears the queue and the war
+   * starts again.
+   *
+   * Three things hold it, and nothing else: an action your ships are in, a
+   * dispatch that interrupted you, and an errand waiting on your answer. A
+   * card you opened yourself out of the log does not — that is somewhere you
+   * went to look at something, which is Sean's own distinction and the reason
+   * no sub-screen holds the clock either.
+   */
+  const clockHeld =
+    state.battle !== undefined || decision !== null || (!reading && dispatches.length > 0);
 
 
   // ---- The clock -------------------------------------------------------
