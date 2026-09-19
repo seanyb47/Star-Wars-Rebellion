@@ -5223,3 +5223,137 @@ a dispatch that interrupted you, and an errand waiting on your answer. A card
 you opened yourself out of the Log does not, because that is somewhere you
 went to look at something — Sean's own distinction, and the reason no
 sub-screen holds it either.
+
+## Fleet Roster v3 (19 September)
+
+*"Check google sheet for any changes to ships or rules."*
+
+There is a **new sheet**, not an edit to the old one: *Master of the Seven Seas
+— Fleet Roster v3*, created the same afternoon, which says in its own header
+that it **supersedes v1/v2**. The old sheet is untouched since the morning's
+import, and still carries the Combat Simulation Rules tab, which v3 does not
+reproduce.
+
+### What changed, and what did not
+
+**Every one of the 25 hulls changed.** Same ids, same names, same 25 ships.
+
+- **Guns rebased on the Royal Navy rating system** — *"1st rate 100-120 / 2nd
+  90-98 / 3rd 64-80 / 4th 48-60 / 5th-rate frigate 32-44 / 6th rate 20-28 /
+  sloop 16-18 / gun-brig & cutter 6-14."* The Majestic goes from 36 guns to a
+  1st rate's 104; the Sovereign from 11 to a 3rd rate's 74. Roughly a tripling,
+  and a new **Class** column names the rate.
+- **Hulls rescaled four- to ninefold.** Majestic 1,600 → 13,900. Goliath 1,800
+  → 14,000. The tier bands moved with them.
+- **Gold, build days and maintenance rebalanced**, on two stated rules:
+  maintenance is 1% of build gold a day, and build time is one day per gold "on
+  rate".
+- **Gun multipliers are new in the pricing model**: Light ×1.0, Long ×1.25,
+  Heavy ×2.5, which is what let the gun counts triple without every hull
+  repricing.
+
+**Untouched:** Speed, Size, Armor, Bombardment, Troop Capacity, Repair Rate —
+and the whole combat engine. The accuracy matrices, the gun dice, the armor
+formula, the phase order and the 30% Exchange stop are not in v3 and still
+match `navycombat.ts` exactly. `navycombat.ts` was not edited.
+
+### Verified three ways before it was trusted
+
+A transcription of 25 rows × 24 columns is exactly the sort of thing that goes
+wrong silently, so none of it was taken on faith.
+
+1. **The sheet's own arithmetic.** Long + Heavy + Light equals Total Guns;
+   Total Guns equals the rate in the Class name; Gold ÷ Ref Cost equals the
+   stated Price Ratio; the ratio falls in the band of the stated letter. 25
+   rows, four checks, zero mismatches.
+2. **The Combat Derived Stats tab against the engine.** `derived.test.ts`
+   already compares the engine's hit chances and volleys to the sheet's table
+   hull by hull. It passed on the new table **without a line of engine change**
+   — which is the proof that the rules did not move, rather than the
+   assumption.
+3. **v3's own ten published 5,000-trial matchups**, against
+   `lab/v3check.ts` (new). The engine reproduces all ten, worst gap **2.2
+   percentage points** — and the two that are not deterministic, Majestic vs
+   Coral (84.6/1.2/14.2 published, 86.1/0.4/13.5 measured) and Interceptor II
+   vs Blackfin (83/4/13 against 85/3.5/11.3), are inside Monte Carlo noise.
+
+Two different tools, written from the same specification by different hands,
+agreeing to two points. That is the strongest check this project has.
+
+### What v3 stopped publishing, and what was done about each
+
+Role, Design Notes, Status, Combatant Type and the four intermediate pricing
+columns are gone from the sheet. Rather than let "whatever was in the file"
+decide:
+
+- **Role** ← the new **Class** column, rate name with the gun count stripped.
+  The Majestic reads *1st rate* now.
+- **Status** and **Combatant Type** keep the last value the sheet published.
+  Nothing in v3 contradicts them and neither is a stat the rebase touched.
+- **Design Notes is dropped.** Every line of it quoted the stats it was written
+  beside — *"No Armor; 300 Hull; 2 Light Guns"* — and the rebase changed all of
+  them. Carrying it forward would have put wrong numbers on screen through the
+  flavour fallback. `ship-flavour.json` has a line for all 25 and a test that
+  says so.
+- **The pricing working** (Capability Points, Base Reference Cost, Synergy %,
+  Weakness %) is left out. v3 publishes the result and not the method.
+
+### Repair stops being a percentage
+
+v3: *"Repair is a BETWEEN-BATTLES stat (never during combat) and displays to
+players as Slow/Normal/Fast/Very Fast, never a percentage."* The engine already
+never repaired inside a round. The **encyclopedia was showing "1.0%/day"**, and
+that was the one piece of back-end math that had leaked past the rule the sheet
+has always had about hiding it. It shows the sheet's own word now; the bar still
+moves with the fraction, so the ordering on screen is the real ordering. The
+loader warns if a word and its percentage disagree — all 25 agree.
+
+### Two things found on the way
+
+**The Urskin Whaler's painting was never wired up.** It has been on disk since
+16 September. The slug was held by the Gigantic hull until that was renamed the
+Goliath on the 19th, and the mapping did not move back with the painting, so her
+entry has been drawing a silhouette. Fixed.
+
+**Four tests had v2 numbers baked into them** — the Majestic's guns, the
+Marauder's maintenance, the Swift's hull, and "the Goliath leads the
+Confederacy's Heavy Guns" (she does not any more; the Coral-Class carries 50 to
+her 40). Rewritten against the crowns v3 states in its own header, which is
+better than inferring them. One of those rewrites failed first time and was
+right to: I read *"Coral-Class 102 guns, highest broadside (3,192)"* as a gun
+count, and the crown is the **damage** — the Majestic wins the gun count 104 to
+102 while throwing 3,150, because Heavy guns are 4d20 against everything else's
+2d20.
+
+### One new warning, which is the rule working
+
+The **Sovereign** now trips `Early-game power`: a 3rd rate of 74 guns among the
+four hulls the Crown opens with sits top-tier in Heavy Guns, Light Guns and Hull
+at once. The design rule asks for *"major drawbacks such as poor efficiency,
+fragility, Slow speed... or production constraints"* against exactly that, and
+she has three — Slow, 1,940 gold, and 700 days on the stocks, the second-longest
+build in the game. The validator can see the capabilities and cannot see the
+counterweights, so it says so and a reader decides. Pinned alongside the Whaler's
+shared R3 rung so a third warning cannot appear unnoticed.
+
+### Measured, and for Sean to rule on: battles got longer
+
+The locked rules set a duration standard — *"Evenly matched battles should
+usually resolve in 1-3 player-visible Combat Exchanges."* v3 does not restate
+it, and v3 moves away from it, because the hulls were rescaled harder than the
+guns. Mirror duels, 1,000 trials each, before and after the same day:
+
+| Mirror | v2 | v3 |
+|---|---|---|
+| Majestic | 3.67 | 5.52 |
+| Sovereign II | 3.24 | 3.82 |
+| Vanguard II | 3.57 | 4.56 |
+| Tempest | 3.23 | 5.24 |
+| Marauder | 1.72 | 3.49 |
+| Coral-Class | 3.89 | 5.54 |
+| **mean** | **3.22** | **4.69** |
+
+Every published matchup still lands where the sheet says, so the numbers are
+what Sean intends; it is the *pace* that drifted, and it was already over the
+stated 1–3 before v3. Not touched — the lever the rules name for this is the
+Exchange stop share, and that is a design decision rather than a tuning one.

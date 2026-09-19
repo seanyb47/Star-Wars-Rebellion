@@ -39,13 +39,16 @@ describe('a ship in the water', () => {
   });
 
   it('keeps two hulls of one class entirely separate', () => {
+    // Half her frame off one of them. Read off the definition rather than
+    // written out, because v3 rescaled every hull in the game and a literal
+    // here fails for the rescale rather than for the sharing this is about.
     const a = commission(MAJESTIC, 'maj-1');
     const b = commission(MAJESTIC, 'maj-2');
-    applyHullDamage(a, 800);
-    expect(a.hullRemaining).toBe(800);
+    applyHullDamage(a, MAJESTIC.hull / 2);
+    expect(a.hullRemaining).toBe(MAJESTIC.hull / 2);
     expect(b.hullRemaining).toBe(MAJESTIC.hull);
     // And the definition both share is untouched.
-    expect(definitionOf(b).hull).toBe(1600);
+    expect(definitionOf(b).hull).toBe(MAJESTIC.hull);
   });
 
   it('never lets damage take a hull below nothing', () => {
@@ -130,13 +133,14 @@ describe('mending', () => {
     expect(ship.hullRemaining - before).toBeCloseTo(CORAL.hull * CORAL.repairRatePerDay);
   });
 
-  it('mends a small hull by a fraction of a point rather than by nothing', () => {
-    // The Swift is 70 hull at 1% — seven tenths a day. An integer hull would
-    // mend nothing at all for two days and then a point at once.
+  it('mends a hull by a fraction of a point rather than by nothing', () => {
+    // The Swift is the smallest frame in the game at 1% a day. An integer
+    // hull would mend nothing at all until the fraction happened to carry.
     const ship = commission(SWIFT, 'swift-1');
     applyHullDamage(ship, 20);
     repairDay(ship);
-    expect(ship.hullRemaining).toBeCloseTo(50.7);
+    expect(ship.hullRemaining).toBeCloseTo(SWIFT.hull - 20 + SWIFT.hull * SWIFT.repairRatePerDay);
+    expect(Number.isInteger(SWIFT.hull * SWIFT.repairRatePerDay)).toBe(false);
   });
 
   it('never mends past whole', () => {

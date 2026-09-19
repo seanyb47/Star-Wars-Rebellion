@@ -154,6 +154,16 @@ export interface ShipDefinition {
   readonly troopCapacity: number;
   /** A fraction of whole hull per day: the export's '1.5%' is 0.015 here. */
   readonly repairRatePerDay: number;
+  /**
+   * The same thing in the one word a player is allowed to see.
+   *
+   * v3 of the sheet: *"Repair is a BETWEEN-BATTLES stat (never during combat)
+   * and displays to players as Slow/Normal/Fast/Very Fast, never a
+   * percentage."* The fraction stays, because the engine mends by it; the word
+   * is what the encyclopedia prints, and it comes from the sheet rather than
+   * from a band this code invents over the fraction.
+   */
+  readonly repairDisplay: SpeedCategory;
   readonly daysToBuild: number;
   readonly goldToBuild: number;
   readonly goldPerDayMaintenance: number;
@@ -431,6 +441,24 @@ export function validateRoster(raw: unknown): ValidationIssue[] {
       err(id, 'Repair Rate', `A repair rate of ${repair * 100}% a day is outside 0–100%.`);
     }
 
+    // The word the player is shown in place of the percentage. It has to be
+    // one of the four, and it has to agree with the fraction beside it — a
+    // hull labelled Very Fast that mends slower than one labelled Slow would
+    // put the ordering on screen at odds with the ordering in the engine.
+    const shown = entry['Repair Display'];
+    if (!SPEED_CATEGORIES.includes(shown as SpeedCategory)) {
+      err(id, 'Repair Display', `Unknown repair band ${JSON.stringify(shown)}.`);
+    } else if (repair !== null) {
+      const band = repairBandFor(repair);
+      if (band !== shown) {
+        warn(
+          id,
+          'Repair Display',
+          `Shown as ${shown} but ${(repair * 100).toFixed(2)}% a day reads as ${band}.`,
+        );
+      }
+    }
+
     // A hull of nothing cannot be launched, taken or sunk.
     if (typeof entry['Hull'] === 'number' && entry['Hull'] <= 0) {
       err(id, 'Hull', 'A ship needs a hull above zero.');
@@ -465,6 +493,23 @@ export function validateRoster(raw: unknown): ValidationIssue[] {
   }
 
   return issues;
+}
+
+/**
+ * Which word a repair fraction reads as.
+ *
+ * The same five-point scale the pricing tab uses for Repair points — below
+ * 0.5%, 0.5-0.9%, 1.0%, 1.1-2.0%, above 2.0% — mapped onto the four words the
+ * sheet says a player may see. There is no fifth word, so the bottom two
+ * points share Slow, which is what the roster does: every hull at 0.5% is
+ * shown Slow and every hull at 1.0% Normal.
+ */
+export function repairBandFor(perDay: number): SpeedCategory {
+  const pct = perDay * 100;
+  if (pct <= 0.9) return 'Slow';
+  if (pct <= 1.0) return 'Normal';
+  if (pct <= 2.0) return 'Fast';
+  return 'Very Fast';
 }
 
 /* ------------------------------------------------------------------ loader */
@@ -512,14 +557,22 @@ export function loadRoster(raw: unknown = rosterData): Roster {
     bombardment: entry['Bombardment'] as number,
     troopCapacity: entry['Troop Capacity'] as number,
     repairRatePerDay: parsePercent(entry['Repair Rate'])!,
+    repairDisplay: entry['Repair Display'] as SpeedCategory,
     daysToBuild: entry['Days to Build'] as number,
     goldToBuild: entry['Gold to Build'] as number,
     goldPerDayMaintenance: entry['Gold/Day Maintenance'] as number,
     launchStatus: entry['Status'] as ShipStatus,
+    // v3 dropped the Design Notes column, whose text quoted the stats it was
+    // written beside - all of which the rebase changed. `ship-flavour.json`
+    // carries the prose now and every hull has a line there.
     designNotes: (entry['Design Notes'] as string) ?? '',
     pricing: {
-      capabilityPoints: entry['Capability Points'] as number,
-      baseReferenceCost: entry['Base Reference Cost'] as number,
+      // v3 publishes the result of the pricing pass and not its working, so
+      // the four intermediate columns are gone from the sheet and default
+      // here rather than being carried forward from a version that priced
+      // different ships.
+      capabilityPoints: (entry['Capability Points'] as number) ?? 0,
+      baseReferenceCost: (entry['Base Reference Cost'] as number) ?? 0,
       synergyPct: parsePercent(entry['Synergy %']) ?? 0,
       weaknessPct: parsePercent(entry['Weakness %']) ?? 0,
       scaledReferenceCost: entry['Scaled Reference Cost'] as number,

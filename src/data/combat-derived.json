@@ -1,6 +1,6 @@
 {
-  "_comment": "The Fleet Roster's own Combat Derived Stats tab, copied here verbatim on 19 September so the engine can be checked against the sheet's arithmetic rather than against itself. Hit chances are what each gun type scores AGAINST this ship - its Size and Speed read through the gun-vs-Size and gun-vs-Speed matrices - and the volley columns are that ship's own pre-armor average output, hit chance times guns times average dice. Regenerate by re-reading the sheet; never edit by hand.",
-  "_source": "Master of the Seven Seas — Fleet Roster · Combat Derived Stats",
+  "_comment": "The Fleet Roster's own Combat Derived Stats tab, copied here verbatim so the engine can be checked against the sheet's arithmetic rather than against itself. Hit chances are what each gun type scores AGAINST this ship - its Size and Speed read through the gun-vs-Size and gun-vs-Speed matrices. The volley columns are that ship's own pre-armor average output: guns times average dice, and deliberately NOT multiplied by hit chance - the Wayfinder's eight light guns come out at 168, which is 8 x 21 flat rather than 85% of it. It measures what a hull throws, not what lands. Re-read from v3 on 19 September; regenerate by re-reading the sheet, never by hand.",
+  "_source": "Master of the Seven Seas — Fleet Roster v3 · Combat Derived Stats",
   "derived": {
     "CWN-WAY-S01": {
       "lightHit": 85,
@@ -8,8 +8,8 @@
       "heavyHit": 60,
       "longVolley": 0.0,
       "heavyVolley": 0.0,
-      "lightVolley": 42.0,
-      "rawVolley": 42.0,
+      "lightVolley": 168.0,
+      "rawVolley": 168.0,
       "combatant": "Warship"
     },
     "CWN-INT-S02": {
@@ -18,8 +18,8 @@
       "heavyHit": 10,
       "longVolley": 0.0,
       "heavyVolley": 0.0,
-      "lightVolley": 84.0,
-      "rawVolley": 84.0,
+      "lightVolley": 210.0,
+      "rawVolley": 210.0,
       "combatant": "Warship"
     },
     "CWN-MOR-S03": {
@@ -27,9 +27,9 @@
       "longHit": 80,
       "heavyHit": 85,
       "longVolley": 0.0,
-      "heavyVolley": 336.0,
-      "lightVolley": 126.0,
-      "rawVolley": 462.0,
+      "heavyVolley": 1092.0,
+      "lightVolley": 504.0,
+      "rawVolley": 1596.0,
       "combatant": "Warship"
     },
     "CWN-SOV-S04": {
@@ -37,9 +37,9 @@
       "longHit": 90,
       "heavyHit": 95,
       "longVolley": 0.0,
-      "heavyVolley": 294.0,
-      "lightVolley": 84.0,
-      "rawVolley": 378.0,
+      "heavyVolley": 1932.0,
+      "lightVolley": 588.0,
+      "rawVolley": 2520.0,
       "combatant": "Warship"
     },
     "CWN-VAN-R1-01": {
@@ -47,9 +47,9 @@
       "longHit": 75,
       "heavyHit": 75,
       "longVolley": 0.0,
-      "heavyVolley": 168.0,
-      "lightVolley": 147.0,
-      "rawVolley": 315.0,
+      "heavyVolley": 420.0,
+      "lightVolley": 378.0,
+      "rawVolley": 798.0,
       "combatant": "Warship"
     },
     "CWN-RES-R2-01": {
@@ -57,19 +57,19 @@
       "longHit": 55,
       "heavyHit": 40,
       "longVolley": 0.0,
-      "heavyVolley": 42.0,
-      "lightVolley": 105.0,
-      "rawVolley": 147.0,
+      "heavyVolley": 168.0,
+      "lightVolley": 294.0,
+      "rawVolley": 462.0,
       "combatant": "Warship"
     },
     "CWN-BUL-R3-01": {
       "lightHit": 90,
       "longHit": 80,
       "heavyHit": 85,
-      "longVolley": 84.0,
-      "heavyVolley": 168.0,
+      "longVolley": 252.0,
+      "heavyVolley": 1596.0,
       "lightVolley": 0.0,
-      "rawVolley": 252.0,
+      "rawVolley": 1848.0,
       "combatant": "Warship"
     },
     "CWN-VAN-R4-02": {
@@ -77,49 +77,49 @@
       "longHit": 75,
       "heavyHit": 75,
       "longVolley": 0.0,
-      "heavyVolley": 294.0,
-      "lightVolley": 189.0,
-      "rawVolley": 483.0,
+      "heavyVolley": 798.0,
+      "lightVolley": 525.0,
+      "rawVolley": 1323.0,
       "combatant": "Warship"
     },
     "CWN-INT-R5-02": {
       "lightHit": 65,
       "longHit": 40,
       "heavyHit": 10,
-      "longVolley": 105.0,
+      "longVolley": 168.0,
       "heavyVolley": 0.0,
-      "lightVolley": 210.0,
-      "rawVolley": 315.0,
+      "lightVolley": 294.0,
+      "rawVolley": 462.0,
       "combatant": "Warship"
     },
     "CWN-JUS-R6-01": {
       "lightHit": 85,
       "longHit": 75,
       "heavyHit": 75,
-      "longVolley": 147.0,
-      "heavyVolley": 336.0,
-      "lightVolley": 189.0,
-      "rawVolley": 672.0,
+      "longVolley": 441.0,
+      "heavyVolley": 1050.0,
+      "lightVolley": 588.0,
+      "rawVolley": 2079.0,
       "combatant": "Warship"
     },
     "CWN-SOV-R7-02": {
       "lightHit": 85,
       "longHit": 85,
       "heavyHit": 90,
-      "longVolley": 126.0,
-      "heavyVolley": 588.0,
-      "lightVolley": 63.0,
-      "rawVolley": 777.0,
+      "longVolley": 420.0,
+      "heavyVolley": 2184.0,
+      "lightVolley": 378.0,
+      "rawVolley": 2982.0,
       "combatant": "Warship"
     },
     "CWN-MAJ-R8-01": {
       "lightHit": 90,
       "longHit": 90,
       "heavyHit": 95,
-      "longVolley": 210.0,
-      "heavyVolley": 672.0,
-      "lightVolley": 210.0,
-      "rawVolley": 1092.0,
+      "longVolley": 630.0,
+      "heavyVolley": 1932.0,
+      "lightVolley": 588.0,
+      "rawVolley": 3150.0,
       "combatant": "Warship"
     },
     "CFS-SWI-S01": {
@@ -138,8 +138,8 @@
       "heavyHit": 40,
       "longVolley": 0.0,
       "heavyVolley": 0.0,
-      "lightVolley": 42.0,
-      "rawVolley": 42.0,
+      "lightVolley": 126.0,
+      "rawVolley": 126.0,
       "combatant": "Warship"
     },
     "CFS-CHI-S03": {
@@ -147,9 +147,9 @@
       "longHit": 75,
       "heavyHit": 70,
       "longVolley": 0.0,
-      "heavyVolley": 42.0,
-      "lightVolley": 42.0,
-      "rawVolley": 84.0,
+      "heavyVolley": 252.0,
+      "lightVolley": 294.0,
+      "rawVolley": 546.0,
       "combatant": "Warship"
     },
     "CFS-TID-S04": {
@@ -158,8 +158,8 @@
       "heavyHit": 60,
       "longVolley": 0.0,
       "heavyVolley": 0.0,
-      "lightVolley": 105.0,
-      "rawVolley": 105.0,
+      "lightVolley": 378.0,
+      "rawVolley": 378.0,
       "combatant": "Warship"
     },
     "CFS-MAR-R1-01": {
@@ -167,9 +167,9 @@
       "longHit": 50,
       "heavyHit": 25,
       "longVolley": 0.0,
-      "heavyVolley": 42.0,
-      "lightVolley": 126.0,
-      "rawVolley": 168.0,
+      "heavyVolley": 0.0,
+      "lightVolley": 294.0,
+      "rawVolley": 294.0,
       "combatant": "Warship"
     },
     "CFS-CUT-R2-01": {
@@ -177,19 +177,19 @@
       "longHit": 65,
       "heavyHit": 45,
       "longVolley": 0.0,
-      "heavyVolley": 84.0,
-      "lightVolley": 105.0,
-      "rawVolley": 189.0,
+      "heavyVolley": 252.0,
+      "lightVolley": 294.0,
+      "rawVolley": 546.0,
       "combatant": "Warship"
     },
     "CFS-TEM-R3-01": {
       "lightHit": 75,
       "longHit": 55,
       "heavyHit": 40,
-      "longVolley": 84.0,
-      "heavyVolley": 42.0,
-      "lightVolley": 42.0,
-      "rawVolley": 168.0,
+      "longVolley": 252.0,
+      "heavyVolley": 210.0,
+      "lightVolley": 189.0,
+      "rawVolley": 651.0,
       "combatant": "Warship"
     },
     "CFS-URW-R3-01": {
@@ -197,9 +197,9 @@
       "longHit": 70,
       "heavyHit": 60,
       "longVolley": 0.0,
-      "heavyVolley": 84.0,
-      "lightVolley": 84.0,
-      "rawVolley": 168.0,
+      "heavyVolley": 252.0,
+      "lightVolley": 252.0,
+      "rawVolley": 504.0,
       "combatant": "Warship"
     },
     "CFS-REE-R4-01": {
@@ -207,19 +207,19 @@
       "longHit": 75,
       "heavyHit": 75,
       "longVolley": 0.0,
-      "heavyVolley": 294.0,
-      "lightVolley": 84.0,
-      "rawVolley": 378.0,
+      "heavyVolley": 1176.0,
+      "lightVolley": 336.0,
+      "rawVolley": 1512.0,
       "combatant": "Warship"
     },
     "CFS-IRB-R5-01": {
       "lightHit": 90,
       "longHit": 80,
       "heavyHit": 85,
-      "longVolley": 168.0,
-      "heavyVolley": 42.0,
+      "longVolley": 546.0,
+      "heavyVolley": 84.0,
       "lightVolley": 0.0,
-      "rawVolley": 210.0,
+      "rawVolley": 630.0,
       "combatant": "Warship"
     },
     "CFS-BLA-R6-01": {
@@ -228,28 +228,28 @@
       "heavyHit": 40,
       "longVolley": 0.0,
       "heavyVolley": 0.0,
-      "lightVolley": 252.0,
-      "rawVolley": 252.0,
+      "lightVolley": 609.0,
+      "rawVolley": 609.0,
       "combatant": "Warship"
     },
     "CFS-URG-R7-01": {
       "lightHit": 90,
       "longHit": 90,
       "heavyHit": 95,
-      "longVolley": 147.0,
-      "heavyVolley": 546.0,
+      "longVolley": 504.0,
+      "heavyVolley": 1680.0,
       "lightVolley": 0.0,
-      "rawVolley": 693.0,
+      "rawVolley": 2184.0,
       "combatant": "Warship"
     },
     "CFS-COR-R8-01": {
       "lightHit": 85,
       "longHit": 85,
       "heavyHit": 90,
-      "longVolley": 147.0,
-      "heavyVolley": 336.0,
-      "lightVolley": 189.0,
-      "rawVolley": 672.0,
+      "longVolley": 525.0,
+      "heavyVolley": 2100.0,
+      "lightVolley": 567.0,
+      "rawVolley": 3192.0,
       "combatant": "Warship"
     }
   }

@@ -64,8 +64,12 @@ describe('loading the roster', () => {
   });
 
   it('keeps the three gun kinds apart', () => {
+    // A 1st rate of 104 guns since v3 rebased the counts on the Royal Navy's
+    // rating system. The three columns have to add to the rate, which is the
+    // one thing a transcription slip would break.
     const majestic = ROSTER.byId.get('CWN-MAJ-R8-01')!;
-    expect(majestic.guns).toEqual({ longGuns: 10, heavyGuns: 16, lightGuns: 10 });
+    expect(majestic.guns).toEqual({ longGuns: 30, heavyGuns: 46, lightGuns: 28 });
+    expect(Object.values(majestic.guns).reduce((a, b) => a + b)).toBe(104);
   });
 
   it('only ever uses names it knows', () => {
@@ -158,11 +162,14 @@ describe('refusing bad data', () => {
     for (const doc of [negative, fractional, noHull]) expect(() => loadRoster(doc)).toThrow(RosterError);
   });
 
-  it('allows a fractional maintenance cost, because two ships have one', () => {
-    // The Swift is half a gold a day and the Marauder one and a half: a
-    // whole-number rule here would reject the shipped roster.
+  it('allows a fractional maintenance cost, because most ships have one', () => {
+    // A whole-number rule here would reject the shipped roster. It used to be
+    // two ships; v3 sets maintenance at 1% of build gold, so most of the
+    // roster is fractional and the property is asserted rather than a pair of
+    // numbers that move every time Sean reprices a hull.
+    const fractional = ROSTER.ships.filter((s) => !Number.isInteger(s.goldPerDayMaintenance));
+    expect(fractional.length).toBeGreaterThan(2);
     expect(ROSTER.byId.get('CFS-SWI-S01')!.goldPerDayMaintenance).toBe(0.5);
-    expect(ROSTER.byId.get('CFS-MAR-R1-01')!.goldPerDayMaintenance).toBe(1.5);
   });
 
   it('catches a malformed percentage', () => {
@@ -311,17 +318,45 @@ describe('the design rules the export states about itself', () => {
     expect(coral.hull + goliath.hull).toBeGreaterThan(majestic.hull);
   });
 
-  it('gives the Urskin Goliath the Confederacy\'s hull, troops and heavy guns', () => {
-    // 'Urskin Goliath supplies the Confederacy's greatest hull, troop capacity,
-    // and Heavy Gun mass.' Within her own navy, which is what the rule says:
-    // the Majestic still carries more troops and more heavy guns than she does.
+  it('gives the Goliath the hull and the three crowns to whom v3 says', () => {
+    /*
+     * v3 states its own crowns in the sheet header, which is better than
+     * inferring them: *"Hull: Urskin Goliath 14,000 (largest). Armor: Majestic
+     * 30 (the game's only Maximum)... Category crowns: Long = Majestic 30;
+     * Heavy = Sovereign II 52; Light = Blackfin 29."*
+     *
+     * The Goliath keeps the hull and the Confederacy's troop capacity, which
+     * is what the Endgame design rule asks of her. She no longer leads Heavy
+     * Guns even within her own navy — the Coral-Class carries 50 to her 40 —
+     * so the old assertion about her Heavy Gun mass is retired rather than
+     * loosened, and the crowns the sheet actually claims are pinned instead.
+     */
+    const most = (ships: typeof ROSTER.ships, of: (s: ShipDefinition) => number) =>
+      ships.reduce((a, b) => (of(b) > of(a) ? b : a)).id;
     const confederacy = fleetOf('Free Confederacy');
-    for (const field of ['hull', 'troopCapacity'] as const) {
-      const best = confederacy.reduce((a, b) => (b[field] > a[field] ? b : a));
-      expect(best.id).toBe('CFS-URG-R7-01');
-    }
-    const mostHeavy = confederacy.reduce((a, b) => (b.guns.heavyGuns > a.guns.heavyGuns ? b : a));
-    expect(mostHeavy.id).toBe('CFS-URG-R7-01');
+    expect(most(confederacy, (s) => s.hull)).toBe('CFS-URG-R7-01');
+    expect(most(confederacy, (s) => s.troopCapacity)).toBe('CFS-URG-R7-01');
+
+    const all = ROSTER.ships;
+    expect(most(all, (s) => s.hull)).toBe('CFS-URG-R7-01');
+    expect(most(all, (s) => s.armor)).toBe('CWN-MAJ-R8-01');
+    expect(most(all, (s) => s.guns.longGuns)).toBe('CWN-MAJ-R8-01');
+    expect(most(all, (s) => s.guns.heavyGuns)).toBe('CWN-SOV-R7-02');
+    expect(most(all, (s) => s.guns.lightGuns)).toBe('CFS-BLA-R6-01');
+    /*
+     * And the broadside. The header's wording is exact and worth reading
+     * twice: *"Coral-Class 102 guns, highest broadside (3,192) while leading
+     * no single category."* The crown is the 3,192 — average damage thrown —
+     * not the gun count, which the Majestic wins 104 to 102 while throwing
+     * 3,150. Heavy guns are 4d20 against everything else's 2d20, so a hull
+     * can be out-gunned and still out-shoot.
+     */
+    expect(most(all, gunsOf)).toBe('CWN-MAJ-R8-01');
+    const broadside = (s: ShipDefinition) =>
+      (s.guns.longGuns * 2 + s.guns.heavyGuns * 4 + s.guns.lightGuns * 2) * 10.5;
+    expect(most(all, broadside)).toBe('CFS-COR-R8-01');
+    expect(broadside(ROSTER.byId.get('CFS-COR-R8-01')!)).toBe(3192);
+    expect(broadside(ROSTER.byId.get('CWN-MAJ-R8-01')!)).toBe(3150);
   });
 
   it('keeps bombardment off the list of things a ship shoots at a ship', () => {
@@ -359,22 +394,43 @@ describe('what the shipped data is warned about', () => {
    * that the set cannot change without somebody noticing — if a future export
    * clears one or adds one, this test says so.
    */
-  it('flags the shared R3 rung, and nothing else', () => {
+  it('flags the shared R3 rung and the Sovereign, and nothing else', () => {
     const warnings = validateRoster(rosterData).filter((i) => i.severity === 'warning');
-    // One, and it is the deliberate one: the Whaler standing on the Tempest's
-    // rung. Pinned so that a second warning cannot appear unnoticed.
-    expect(warnings.map((w) => `${w.shipId}/${w.field}`)).toEqual(['CFS-URW-R3-01/Research Order']);
-    // Sovereign carries exactly one top-tier combat stat (Hull 900), and the
-    // rule is about *multiple* top-tier capabilities, so it does not trip.
-    expect(ROSTER.byId.get('CWN-SOV-S04')!.hull).toBe(900);
+    // Two, and both are deliberate. Pinned so that a third cannot appear
+    // unnoticed.
+    expect(warnings.map((w) => `${w.shipId}/${w.field}`).sort()).toEqual([
+      'CFS-URW-R3-01/Research Order',
+      'CWN-SOV-S04/Early-game power',
+    ]);
+    /*
+     * The Whaler stands on the Tempest's rung, which the sheet allows on
+     * purpose: *"research order establishes progression, not strict
+     * replacement."*
+     *
+     * The Sovereign is new with v3 and is the rule working rather than the
+     * rule tripping. She is a 3rd rate of 74 guns among the four hulls the
+     * Crown opens with, so she sits top-tier in Heavy Guns, Light Guns and
+     * Hull at once — and the design rule asks for *"major drawbacks such as
+     * poor efficiency, fragility, Slow speed... or production constraints"*
+     * against exactly that. She has three of them: Slow, 1,940 gold, and 700
+     * days on the stocks, which is the second-longest build in the game. The
+     * validator can see the capabilities and cannot see the counterweights,
+     * so it says so and a reader decides.
+     */
+    const sovereign = ROSTER.byId.get('CWN-SOV-S04')!;
+    expect(sovereign.speed).toBe('Slow');
+    expect(sovereign.daysToBuild).toBeGreaterThan(500);
+    expect(sovereign.goldToBuild).toBeGreaterThan(1500);
   });
 
   it('would flag a starting ship given two top-tier stats', () => {
     const doc = corrupt((d) => {
-      // Armor 30 is T4+ under the rescaled bands, which with her T4 Hull of
-      // 900 gives a starting ship two top-tier stats.
-      const sovereign = ships(d).find((s) => s['Ship ID'] === 'CWN-SOV-S04')!;
-      sovereign['Armor'] = 30;
+      // The Chimera is a starting hull with nothing top-tier about her.
+      // Armor 30 is T4+ and a hull of 14,000 is T4+, so this is the smallest
+      // change that gives a starting ship two of them.
+      const chimera = ships(d).find((s) => s['Ship ID'] === 'CFS-CHI-S03')!;
+      chimera['Armor'] = 30;
+      chimera['Hull'] = 14000;
     });
     const warnings = validateRoster(doc).filter((i) => i.severity === 'warning');
     expect(warnings.some((w) => w.field === 'Early-game power')).toBe(true);

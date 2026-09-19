@@ -53,11 +53,10 @@ const LEGACY_ROLE: Record<ShipSize, 'small' | 'medium' | 'large' | 'transport'> 
 /**
  * Which painting a hull uses.
  *
- * Most of the twenty-four have art under their own name. The rest inherit from
- * the hull they replaced, which is a lineage rather than a guess — the
- * Coral-Class *is* the Reef-class grown up. Six have nothing yet
- * (Resolute, Justiciar, Chimera, Tidestalker, Blackfin, Ironback) and fall
- * through to the drawn silhouette.
+ * Most of the roster has art under its own name. The rest inherit from the
+ * hull they replaced, which is a lineage rather than a guess — the Coral-Class
+ * *is* the Reef-class grown up. Three have nothing yet (Tidestalker, Blackfin,
+ * Ironback) and fall through to the drawn silhouette.
  *
  * An entry moves from a borrowed slug to its own the day it is painted: the
  * Wayfinder was on the Fluyt's and is not any more.
@@ -84,6 +83,10 @@ const ART_SLUG: Record<string, string> = {
   'CFS-MAR-R1-01': 'marauder',
   'CFS-URG-R7-01': 'urskin-goliath',
   'CFS-CHI-S03': 'chimera',
+  // Hers has been on disk since 16 September and was never wired up: the
+  // slug was taken by the Gigantic hull until that was renamed the Goliath
+  // on the 19th, and the mapping did not move back with the painting.
+  'CFS-URW-R3-01': 'urskin-whaler',
 };
 
 /** Counted from the data rather than remembered: the old figure said 71. */
@@ -588,9 +591,17 @@ function EntrySheet({
                 {cls.armor > 0 && (
                   <Stat label="Armor" value={cls.armor} share={cls.armor / STAT_MAX.armor} />
                 )}
+                {/* A word, never a percentage. v3 of the roster sheet:
+                    *"Repair is a BETWEEN-BATTLES stat (never during combat)
+                    and displays to players as Slow/Normal/Fast/Very Fast,
+                    never a percentage."* It is the same rule the rest of the
+                    back-end math already follows — tiers, hit chances and
+                    pricing are all hidden — and this was the one number that
+                    had leaked out. The bar still moves with the fraction, so
+                    the ordering a player sees is the real ordering. */}
                 <Stat
                   label="Repairs"
-                  value={`${(cls.repairRatePerDay * 100).toFixed(1)}%/day`}
+                  value={cls.repairDisplay}
                   share={cls.repairRatePerDay / STAT_MAX.repair}
                 />
               </div>
@@ -1434,10 +1445,10 @@ export function Almanac({
         at the top says so rather than letting the reader find out.
       */}
       <div className="card small" style={{ borderColor: 'var(--warn, #b8863b)' }}>
-        <b>This is the new fleet.</b> Twenty-four hulls on the locked combat
+        <b>This is the new fleet.</b> {ROSTER.ships.length} hulls on the locked combat
         rules — three kinds of cannon, armor, Size and Speed. The war you are
         playing still sails the old fleet and fights it the old way until the
-        engine swap lands, so a name here may not be a name in your harbour
+        engine swap lands, so a name here may not be a name in your harbor
         yet.
       </div>
 

@@ -172,14 +172,17 @@ describe('accuracy, against the target', () => {
 
   it('matches the sheet average raw volleys', () => {
     // Also his: 2d20 averages 21 a cannon and 4d20 averages 42.
+    // v3's Combat Derived Stats tab, after the gun counts were rebased on the
+    // rating system. `derived.test.ts` checks the engine against the whole
+    // table; this is the handful worth reading in place.
     const expected: Record<string, number> = {
-      'CWN-WAY-S01': 42,
-      'CWN-MOR-S03': 462,
-      'CWN-MAJ-R8-01': 1092,
-      'CWN-JUS-R6-01': 672,
-      'CWN-SOV-R7-02': 777,
-      'CFS-URG-R7-01': 693,
-      'CFS-COR-R8-01': 672,
+      'CWN-WAY-S01': 168,
+      'CWN-MOR-S03': 1596,
+      'CWN-MAJ-R8-01': 3150,
+      'CWN-JUS-R6-01': 2079,
+      'CWN-SOV-R7-02': 2982,
+      'CFS-URG-R7-01': 2184,
+      'CFS-COR-R8-01': 3192,
       'CFS-SWI-S01': 0,
     };
     for (const [id, volley] of Object.entries(expected)) {
@@ -435,8 +438,8 @@ describe('the roster feeds the engine with no conversion', () => {
   it('takes a ShipDefinition straight, because it satisfies CombatStats', () => {
     const majestic = ROSTER.byId.get('CWN-MAJ-R8-01')!;
     const ship = commission('maj-1', majestic);
-    expect(ship.hullRemaining).toBe(1600);
-    expect(rawVolley(ship)).toBe(1092);
+    expect(ship.hullRemaining).toBe(13900);
+    expect(rawVolley(ship)).toBe(3150);
     expect(hitChance('Heavy', majestic)).toBe(95);
   });
 
