@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**136 of 149 painted.** 4776KB shipped, 17.0MB of masters kept back.
+**136 of 149 painted.** 4826KB shipped, 17.6MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -92,7 +92,7 @@ three-quarter view, whole vessel, masts and waterline both in frame. 28 of 36.
 | Open Deck | `harbor` | 1 | 35KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | kestrel | `kestrel` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | kestrel-ii | `kestrel-ii` | 1 | 34KB | 233×174, 23KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
-| majestic | `majestic` | 1 | 34KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| majestic | `majestic` | 2 (+1 retired) | 84KB | 1448×1086, 671KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
 | marauder | `marauder` | 2 (+1 retired) | 99KB | 1448×1086, 760KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
 | Morningstar | `morningstar` | 1 | 91KB | 1448×1086, 624KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
 | razorback | `razorback` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
@@ -339,7 +339,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/harbor** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands. Refiled from ships/free-harbor to ships/harbor on 18 September: the ship was renamed Open Deck on 17 September and her class id is `harbor`, so the painting no longer matched the slug the game looks her up by and she drew as a placeholder. The island archetype `free-harbor` is a different thing and keeps its name.
 - **ships/kestrel** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/kestrel-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
-- **ships/majestic** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/majestic** — Replaces the 234×174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered 1448×1086, exactly 4:3, so the whole painting ships with no crop.
 - **ships/marauder** — Replaces the 234x174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered at 1448x1086, which is exactly 4:3, so the whole painting ships with no crop.
 - **ships/morningstar** — First painting for the Morningstar, who is new with the Fleet Roster of 18 September and had no art at all. Delivered at 1448x1086, exactly 4:3, so the whole painting ships with no crop.
 - **ships/razorback** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.

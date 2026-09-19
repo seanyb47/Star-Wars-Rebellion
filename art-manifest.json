@@ -4051,34 +4051,44 @@
     "ships/majestic": {
       "folder": "ships",
       "slug": "majestic",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
+      "updated": "2026-09-19",
       "title": "majestic",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
-      "crop": {
-        "x": 1,
-        "y": 0,
-        "w": 232,
-        "h": 174
-      },
+      "source": "Sean, 19 September \u2014 production painting",
+      "notes": "Replaces the 234\u00d7174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered 1448\u00d71086, exactly 4:3, so the whole painting ships with no crop.",
+      "crop": null,
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/ships/majestic.webp",
-        "w": 234,
-        "h": 174,
-        "bytes": 24746,
-        "sha1": "3015947d7501f7ad"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 688048,
+        "sha1": "ede3b5ae8b079887"
       },
       "shipped": {
         "file": "src/art/ships/majestic.webp",
         "w": 640,
         "h": 480,
-        "bytes": 35088,
-        "sha1": "fd896d1497aabf3b"
-      }
+        "bytes": 86156,
+        "sha1": "d6305a8258396cc0"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-19",
+          "master": "art-masters/_retired/ships/majestic.v1.webp",
+          "crop": {
+            "x": 1,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
     },
     "ships/marauder": {
       "folder": "ships",
