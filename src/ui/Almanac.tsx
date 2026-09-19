@@ -58,13 +58,16 @@ const LEGACY_ROLE: Record<ShipSize, 'small' | 'medium' | 'large' | 'transport'> 
 };
 
 /**
- * Which painting stands in for a hull that has not been painted yet.
+ * Which painting a hull uses.
  *
- * Eleven of the twenty-four already have their own art under their own name.
- * Six more inherit from the hull they replaced, which is a lineage rather than
- * a guess — the Coral-Class *is* the Reef-class grown up. The remaining seven
+ * Most of the twenty-four have art under their own name. The rest inherit from
+ * the hull they replaced, which is a lineage rather than a guess — the
+ * Coral-Class *is* the Reef-class grown up. Seven have nothing yet
  * (Morningstar, Resolute, Justiciar, Chimera, Tidestalker, Blackfin, Ironback)
- * have nothing yet and fall through to the drawn silhouette.
+ * and fall through to the drawn silhouette.
+ *
+ * An entry moves from a borrowed slug to its own the day it is painted: the
+ * Wayfinder was on the Fluyt's and is not any more.
  */
 const ART_SLUG: Record<string, string> = {
   'CFS-COR-R8-01': 'reef-class',
@@ -72,7 +75,7 @@ const ART_SLUG: Record<string, string> = {
   'CFS-BRI-S02': 'brig',
   'CWN-INT-S02': 'kestrel',
   'CWN-INT-R5-02': 'kestrel-ii',
-  'CWN-WAY-S01': 'fluyt',
+  'CWN-WAY-S01': 'wayfinder',
   'CWN-SOV-S04': 'sovereign',
   'CWN-SOV-R7-02': 'sovereign-ii',
   'CWN-MAJ-R8-01': 'majestic',

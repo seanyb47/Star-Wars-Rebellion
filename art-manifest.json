@@ -4098,6 +4098,33 @@
         "bytes": 37606,
         "sha1": "0d96a0acfd93880d"
       }
+    },
+    "ships/wayfinder": {
+      "folder": "ships",
+      "slug": "wayfinder",
+      "version": 1,
+      "added": "2026-09-19",
+      "updated": "2026-09-19",
+      "title": "Wayfinder",
+      "source": "Sean, 19 September \u2014 production painting",
+      "notes": "Her own painting, under her own name. The Wayfinder is new with the Fleet Roster of 18 September and had been borrowing the Fluyt's, the Crown transport she replaces. Delivered at 1448x1086, exactly 4:3, so the whole painting ships with no crop.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/wayfinder.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 716798,
+        "sha1": "69dc6d95c0dfdb91"
+      },
+      "shipped": {
+        "file": "src/art/ships/wayfinder.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 98544,
+        "sha1": "303f3bb029a8d0d7"
+      }
     }
   }
 }
