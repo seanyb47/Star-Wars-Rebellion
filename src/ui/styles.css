@@ -12,17 +12,56 @@
   --shallow: #10404f;
   --land: #4a5a52;
   --land-bare: #33403c;
-  --empire: #e2504a;
-  --alliance: #e8c04a;
-  --neutral: #5aa2e0;
-  --unknown: #46595f;
+  /* Faction colours, after the original: the Crown green, the rebels red,
+     and light blue for people who have not picked a side. Kept clear of the
+     mint --good and the orange-leaning --bad so a faction badge never reads
+     as a status message. */
+  --empire: #4fc46a;
+  --alliance: #d8483f;
+  --neutral: #7cc6f5;
+  --unknown: #93a7af;
+  /* An unexplored island's name on the chain map: pale enough to read over
+     a scrimmed painting, kept off white so a charted island still stands out. */
+  --unknown-name: #cdd8dd;
   --good: #4ec98a;
   --bad: #e2504a;
   /* Minimum comfortable touch target (iOS HIG 44pt, Android 48dp). */
   --tap: 44px;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* The status bar's strip, and the home indicator's. A phone's own chrome
+     cannot be hidden by a web app, so the game's chrome keeps clear of it:
+     every bar that touches an edge pads itself by these.
+
+     Bounded, because an inset is a strip of glass and not an opinion: no
+     iPhone reserves more than about 59 points at the top. Anything past that
+     is the browser telling us something we should not believe. */
+  --safe-top: min(env(safe-area-inset-top, 0px), 60px);
+  /*
+   * Zero in a browser, on purpose.
+   *
+   * The home indicator's strip is real, but in a browser tab it is not ours:
+   * Safari's own toolbar is already sitting in it, and `visualViewport.height`
+   * — which is what the app is sized from — already stops above that toolbar.
+   * Padding the tab bar by the inset as well pays for the same strip twice,
+   * and the second payment is drawn as tab-bar wood with nothing on it. That
+   * is the dead band. In standalone there is no toolbar, the strip really is
+   * ours, and the inset goes back on below.
+   */
+  --safe-bottom: 0px;
   color-scheme: dark;
+}
+
+/* Installed to the home screen the page runs edge to edge, under the clock
+   and the battery. Some iPhones report the inset for that strip as zero
+   anyway, and then the title sits under the time — so in standalone the top
+   inset never falls below the short status bar's own height. */
+@media (display-mode: standalone) {
+  :root {
+    --safe-top: clamp(20px, env(safe-area-inset-top, 0px), 60px);
+    /* Installed, the strip under the tab bar is the home indicator's and
+       nobody else's, so keep clear of it. Bounded because an inset is a piece
+       of glass and not an opinion: no iPhone reserves more than 34 points. */
+    --safe-bottom: min(env(safe-area-inset-bottom, 0px), 34px);
+  }
 }
 
 * {
@@ -37,6 +76,23 @@
 }
 
 html, body, #root { height: 100%; }
+/*
+ * The canvas, which is the only thing that can paint below the app.
+ *
+ * There was a fixed, wood-textured backstop here. It could never have
+ * worked: a fixed element is laid out against the *layout viewport*, which
+ * is the short measurement that leaves the strip over in the first place,
+ * so the backstop stopped exactly where the app stopped. Only the canvas
+ * paints under a short page, and the canvas takes its colour from the body.
+ *
+ * These two are `--chrome-2` — the colour the tab bar's gradient ends on —
+ * so the seam between the bottom of the console and the strip below it is
+ * the same colour on both sides. `data-side` is set on the body to match
+ * the app, so the Crown gets its green-black and the Brethren their
+ * rust-black.
+ */
+body { background: #0f2119; }
+body[data-side='alliance'] { background: #24100c; }
 
 html {
   /* Stops Android Chrome's pull-to-refresh, which would otherwise reload the
@@ -45,10 +101,10 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* The rest of the body: type, and never a scrollbar. */
 body {
   margin: 0;
   overflow: hidden;
-  background: var(--bg);
   color: var(--text);
   font: 14px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overscroll-behavior: none;
@@ -71,10 +127,45 @@ button {
 .app {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
-  width: 100%;
-  position: relative;
-  overflow: hidden;
+  /* The app paints its own floor rather than letting the canvas show through,
+     so moving the canvas to the console's dark changes nothing in here. */
+  background: var(--bg);
+  /*
+   * Pinned to the screen, and then told how tall the screen actually is.
+   *
+   * `inset: 0` on a fixed element measures the *layout* viewport, and on an
+   * iPhone that can be most of a hundred points shorter than the glass — the
+   * console ended up floating that far above the bottom with the page showing
+   * under it. `100dvh` is the dynamic viewport: the whole of it, including the
+   * strip the layout viewport leaves out. With top, bottom and height all set
+   * the height wins, so this reads as `inset: 0` on anything too old to know
+   * the unit, and as the real screen everywhere else.
+   */
+  position: fixed;
+  inset: 0;
+  /* Whichever is taller: the unit or the measurement.
+     `max()` rather than an override, because the two disagree in both
+     directions on real phones and only one direction of error shows — too
+     tall hides under `overflow: hidden`, too short is a band of dead page
+     under the console. `--app-h` is the largest of the viewport heights the
+     browser reports (see measureGlass), and 100dvh covers the case where it
+     has not been set yet or is smaller than the unit already knew. Neither
+     can exceed the viewport being laid out, so the console can never be
+     pushed off the bottom of the screen. */
+  height: max(100dvh, var(--app-h, 0px));
+  /*
+   * `clip`, not `hidden`, since 19 September.
+   *
+   * The two paint identically; the difference is that `hidden` makes a scroll
+   * container and `clip` does not. The strip of filler a sheet paints below
+   * itself (see `.sheet::after`) is 160px of content past the bottom of this
+   * box, so under `hidden` the whole app could be scrolled that far — and
+   * anything that scrolls an element into view does it without being asked,
+   * which takes the topbar off the top of the screen and the console off the
+   * bottom. Found by measuring: `.app` reporting `scrollTop: 160` with the
+   * console sitting at -106. `clip` cannot scroll, so it cannot happen.
+   */
+  overflow: clip;
 }
 
 /* Sheets and lists stay readable on a phone held sideways; the map still uses
@@ -89,7 +180,15 @@ button {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
-.screen--map { overflow: hidden; position: relative; }
+.screen--map { overflow: hidden; position: relative; display: flex; flex-direction: column; }
+/* The chart's scroll box. Up and down only, and only when the chart at full
+   width is taller than the room it has; there is still no zoom. */
+.map__scroll {
+  flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  /* Room to scroll the chart's foot out from under the layer strip. */
+  padding-bottom: 60px;
+}
 .pad { padding: 12px; }
 .stack > * + * { margin-top: 8px; }
 
@@ -123,24 +222,200 @@ button {
   background: var(--bg-sunken); border: 1px solid var(--border);
   display: grid; place-items: center; font-size: 15px;
 }
+/* Watching rather than playing. Loud on purpose: it is a developer's switch
+   that takes every order away, and finding out by tapping things is worse
+   than being told. */
+.iconbtn--watching {
+  color: var(--bg); background: var(--metal-hi); border-color: var(--metal-hi);
+}
+/* And a line across the top of the glass while it is on, so it is obvious on
+   a screenshot and from across a desk. */
+.watchbar {
+  /* In the flow above the top bar rather than over it: an overlay covered the
+     side's own name, and a developer's switch should not cost you the thing
+     you are watching. */
+  flex: none; z-index: 6;
+  padding: calc(3px + var(--safe-top)) 10px 3px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--metal); color: var(--bg);
+  font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+  pointer-events: none;
+}
+
+/* ---------- The chrome: wood, brass and rust, one per side ----------
+   The layout is one; the plates swap. The Crown gets green-black oak and
+   brass, the Confederacy red-brown planking and rusted iron with red. All
+   of it is CSS over one tiny wood tile, so it costs nothing to load and
+   the text stays the game's own. */
+.app { --chrome: #1a3428; --chrome-2: #0f2119; --metal: #c9a227; --metal-hi: #f1d77a; --metal-lo: #6f5612; --chrome-text: #e8dcc0; --chrome-muted: #a89f8a; }
+.app[data-side='alliance'] { --chrome: #3d1d16; --chrome-2: #24100c; --metal: #d8533f; --metal-hi: #f59a80; --metal-lo: #7a2a1e; --chrome-text: #efdcc4; --chrome-muted: #b39a86; }
+.wood, .topbar, .tabbar, .layers {
+  background-color: var(--chrome);
+  background-image: url('../art/chrome/wood.webp'), linear-gradient(180deg, var(--chrome), var(--chrome-2));
+  background-blend-mode: soft-light, normal;
+  background-size: 256px 256px, auto;
+}
+.topbar { border-bottom: 1px solid var(--metal-lo); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); padding: 0; }
+.banner {
+  position: relative; display: flex; align-items: center; gap: 8px;
+  padding: calc(var(--safe-top) + 5px) 10px 4px;
+  min-height: 50px; background-size: cover; background-position: center 35%;
+  border-bottom: 1px solid var(--metal-lo);
+}
+.banner__scrim { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(6, 12, 10, 0.94) 0%, rgba(6, 12, 10, 0.86) 55%, rgba(6, 12, 10, 0.45) 100%); }
+.app[data-side='alliance'] .banner__scrim { background: linear-gradient(90deg, rgba(20, 6, 4, 0.94) 0%, rgba(20, 6, 4, 0.86) 55%, rgba(20, 6, 4, 0.45) 100%); }
+.banner > :not(.banner__scrim) { position: relative; }
+/* A phone narrower than an iPhone 12 loses the word on the speed button; the glyph says it. */
+@media (max-width: 374px) { .topbar .speed > span:last-child { display: none; } .topbar .speed { padding: 4px 12px; } }
+.banner__crest { flex: none; filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8)); }
+.banner__text { flex: 1; min-width: 0; }
+.banner__name {
+  font-family: 'Iowan Old Style', Palatino, 'Book Antiqua', Georgia, serif;
+  font-size: 17px; font-weight: 700; letter-spacing: 0.06em; color: var(--metal-hi);
+  text-shadow: 0 1px 0 var(--metal-lo), 0 2px 6px rgba(0, 0, 0, 0.8); line-height: 1.1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* One line, at Sean's word of 19 September: *"The faction tagline in the top
+   header wraps to a second line. Keep it to one line (truncate or shorten)."*
+
+   This reverses the earlier call that a creed cut off mid-virtue was worse
+   than a creed on two lines. It was wrong about which cost more: the second
+   line pushes the whole chrome down on every screen in the game, for a line
+   of flavour nobody reads twice, and the ellipsis is only ever seen by
+   somebody who has already read it once. */
+.banner__creed {
+  font-size: 8px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--chrome-text);
+  opacity: 0.9; margin-top: 2px; line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+/* The day badge wears a ring of how far through the day it is.
+   A day is up to two and a half minutes now, so the date on its own is a
+   clock with no hands: it sits unchanged for longer than anyone will believe
+   the game is still running. The ring fills clockwise from noon and resets on
+   the turn of the day. Driven by --day-progress, which App's clock writes on
+   the root element five times a second — a custom property rather than React
+   state, because re-rendering the chart to move a ring three degrees would be
+   absurd. It holds its place while paused, which is the point of it. */
+.banner__day {
+  position: relative;
+  flex: none; width: 44px; height: 44px; border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  background: radial-gradient(circle at 35% 30%, var(--chrome), var(--chrome-2) 70%);
+  border: 2px solid var(--metal); box-shadow: 0 0 0 2px var(--chrome-2), 0 0 0 3px var(--metal-lo), 0 2px 8px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: var(--metal-hi); font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+}
+.banner__day::after {
+  content: ''; position: absolute; inset: -5px; border-radius: 50%;
+  pointer-events: none;
+  /* From noon, clockwise, the way every clock anybody has ever read goes.
+     conic-gradient's own zero is already noon, so there is no `from` to set. */
+  background: conic-gradient(
+    var(--metal-hi) calc(var(--day-progress, 0) * 360deg),
+    transparent 0
+  );
+  /* Keep only the outer band, so it reads as a ring around the badge rather
+     than a pie chart behind it. */
+  -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  mask: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  opacity: 0.85;
+}
+@media (prefers-reduced-motion: reduce) { .banner__day::after { transition: none; } }
+.banner__daylabel { font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1; color: var(--chrome-text); opacity: 0.8; }
+.banner__day b { font-size: 17px; line-height: 1.05; font-weight: 700; }
+/* Every control reachable, at Sean's word: *"The top bar's last button is cut
+   off on the right edge. Make all buttons fit, or scroll cleanly."*
+
+   Both, in that order. The gap and the plaques give ground first so that on
+   any ordinary phone the row simply fits; if it still cannot — a very narrow
+   screen, a long gold figure — it scrolls rather than hiding the mute button
+   off the edge, and the scroll is horizontal only so it cannot eat a
+   vertical swipe. */
+.console {
+  display: flex; align-items: center; gap: 5px; padding: 5px 8px 6px;
+  overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
+}
+.console::-webkit-scrollbar { display: none; }
+/* The plaques are the only things here that can afford to shrink: a button is
+   a target and a target has a minimum. */
+.console .plaque { min-width: 0; flex: 0 1 auto; }
+@media (max-width: 400px) {
+  .console { gap: 4px; padding-left: 6px; padding-right: 6px; }
+  .topbar .iconbtn { width: 34px; }
+  .topbar .speed { padding: 3px 7px; }
+}
+.plaque {
+  display: flex; align-items: center; gap: 5px; min-height: 36px; padding: 3px 8px 3px 6px; border-radius: 7px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.5));
+  border: 1px solid var(--metal-lo); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 2px rgba(0, 0, 0, 0.5);
+  color: var(--chrome-text); flex: none;
+}
+.plaque__text { display: flex; flex-direction: column; line-height: 1.05; }
+.plaque__label { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--chrome-muted); }
+.plaque b { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--chrome-text); }
+.plaque__net { font-size: 10px; font-weight: 600; color: var(--good); margin-left: 2px; white-space: nowrap; }
+.plaque__net--over { color: var(--bad); }
+.topbar .speed {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.5));
+  border: 1px solid var(--metal-lo); color: var(--chrome-text); min-height: 36px; padding: 3px 9px; border-radius: 7px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  white-space: nowrap; flex: none;
+}
+.topbar .speed--running { border-color: var(--good); color: var(--good); }
+.topbar .iconbtn {
+  width: 38px; height: 36px; border-radius: 7px; color: var(--metal); flex: none;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.5));
+  border: 1px solid var(--metal-lo); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.topbar .iconbtn--on { color: var(--metal-hi); border-color: var(--metal); }
+.map__compass { color: var(--metal); opacity: 0.85; }
+.app[data-side='alliance'] .map__compass { color: #e0a084; }
 
 /* ---------- Tab bar ---------- */
 .tabbar {
   flex: none;
   position: relative;
   z-index: 2;
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  background: var(--bg-raised); border-top: 1px solid var(--border);
+  /* Four and the advisor: the encyclopedia came down off the top rail and the
+     crew tab went on 19 September. Counted from the same list the bar draws,
+     so a slot added or cut never leaves a column behind. */
+  display: grid; grid-template-columns: repeat(4, 1fr) 84px;
+  border-top: 1px solid var(--metal-lo); box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.5);
   padding-bottom: var(--safe-bottom);
+  /* An icon, a label under it, and the padding that separates them. Stated
+     rather than left to the content, because the whole point of the bar is
+     that the labels are legible, and a grid row will give up its height to a
+     short parent without saying so — which is how they came to be clipped. */
+  min-height: calc(62px + var(--safe-bottom));
+  align-content: center;
+  /* The bottom of the bar fades out of its own grain into flat `--chrome-2`
+     — the colour the canvas under a short app is painted. The wood is still
+     wood where you look at it, and the last few pixels are exactly what
+     continues below the app, so a strip left over at the bottom of the glass
+     has no edge to notice. Three layers: the fade, the grain, the base. */
+  background-image:
+    linear-gradient(180deg, transparent calc(100% - 26px), var(--chrome-2) calc(100% - 8px)),
+    url('../art/chrome/wood.webp'),
+    linear-gradient(180deg, var(--chrome) 0%, var(--chrome-2) 72%, var(--chrome-2) 100%);
+  background-size: auto, 256px 256px, auto;
+  background-blend-mode: normal, soft-light, normal;
 }
 .tab {
   min-height: var(--tap);
-  padding: 9px 0 8px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 0 5px; display: flex; flex-direction: column; align-items: center; gap: 1px;
   justify-content: center;
-  color: var(--muted); font-size: 10px; position: relative;
+  color: var(--chrome-muted); font-size: 10px; position: relative;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
 }
-.tab--active { color: var(--text); }
-.tab__glyph { font-size: 17px; line-height: 1; }
+.tab--active { color: var(--metal-hi); }
+.tab--active .tab__icon { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--metal) 60%, transparent)); }
+.tab--active::after {
+  content: ''; position: absolute; top: 0; left: 22%; right: 22%; height: 2px;
+  background: var(--metal); border-radius: 0 0 2px 2px;
+}
+.tab__icon { display: grid; place-items: center; height: 24px; }
+.tab__icon svg { display: block; }
 .tab__badge {
   position: absolute; top: 4px; right: 50%; transform: translateX(20px);
   min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px;
@@ -159,27 +434,48 @@ button {
 }
 
 /* ---------- Map ---------- */
-.map { width: 100%; height: 100%; touch-action: none; display: block; background: var(--water); }
+/* Sizes are in the chart's own 1200-unit space, not pixels. The chart no
+   longer zooms, so they are fixed rather than divided by a scale factor. */
+.map { width: 100%; height: 100%; touch-action: manipulation; display: block; background: var(--water); }
 .map__sector-ring {
-  fill: none; stroke: #16505f; stroke-width: 1.5;
-  stroke-dasharray: 5 7; opacity: 0.5;
+  fill: none; stroke: #16505f; stroke-width: 3;
+  stroke-dasharray: 11 15; opacity: 0.5;
 }
 .map__sector-label {
-  fill: #4c8496; font-size: 15px; text-anchor: middle;
+  fill: #8fbecd; font-size: 36px; text-anchor: middle;
   font-family: 'Iowan Old Style', Palatino, Georgia, serif;
-  font-style: italic; letter-spacing: 0.08em;
+  font-style: italic; letter-spacing: 0.06em;
 }
-.map__system-label {
-  fill: #a8c2cc; font-size: 9px; text-anchor: middle;
-  font-family: 'Iowan Old Style', Palatino, Georgia, serif;
-}
-.map__rhumb { stroke: #10404f; stroke-width: 0.6; opacity: 0.32; fill: none; }
+.map__chain-note { fill: #5f8b9b; font-style: normal; }
+.map__chain-alarm { fill: #d8574c; font-style: normal; }
+.map__rhumb { stroke: #10404f; stroke-width: 2; opacity: 0.32; fill: none; }
 .map__coast { stroke-linejoin: round; }
-.map__hq { fill: none; stroke-width: 2; }
-.map__pick { fill: none; stroke: var(--good); stroke-width: 2; opacity: 0.9; }
+/* A body of water, named the way a chart names one: big, faint, spaced out,
+   and lying under everything. It has to survive a chain label crossing it,
+   which is why it is this pale — at full strength the two fight and at half
+   they read as ink over ink, which is what a real chart looks like. */
+.map__sea {
+  fill: #cfe6ef; opacity: 0.13; font-size: 30px; text-anchor: middle;
+  font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+  font-style: italic; letter-spacing: 0.02em;
+}
+/* Over the painting the label needs its own ground: the painted sea is busy
+   and italic serif at 36px was being eaten by it. */
+.map--painted .map__sector-label { paint-order: stroke fill; stroke: #04121980; stroke-width: 7px; }
+.map__pick { fill: none; stroke: var(--good); stroke-width: 5; opacity: 0.9; }
+/* Covert work, drawn as such: a broken ring, so choosing to stir up an island
+   they hold never looks like choosing to parley. Brass rather than red — red is
+   the rebels' own colour, and a ring in your own colour reads as "mine", which
+   is the opposite of what this ring means. Stroke is set here and not on the
+   element: the rule above would override an attribute. */
+.map__pick--incite { stroke: var(--brass); stroke-dasharray: 12 9; }
+/* Somebody to sign on. Solid brass: it is not covert work — you are walking up
+   to a person on a quay — but it is not the green "an island to work on" ring
+   either, because what you are going for is the person, not the island. */
+.map__pick--recruit { stroke: var(--brass); }
 
 .map__hud {
-  position: absolute; left: 10px; right: 10px; bottom: 10px;
+  position: absolute; left: 10px; right: 10px; bottom: 12px;
   display: flex; gap: 6px; align-items: center; pointer-events: none;
 }
 .map__hud > * { pointer-events: auto; }
@@ -192,12 +488,34 @@ button {
 }
 .chip--action { color: var(--text); }
 .chip--pick { border-color: var(--good); color: var(--good); }
+
+/* ---- Picking a destination -------------------------------------------- */
+/* One sentence saying what is going on, and the two answers as real buttons
+   under it. The sentence used to be the button, with "pick an island" and
+   "cancel" set in the same grey as everything around them, and only the last
+   of the three doing anything at all. */
+.pickbar {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 10px 12px 11px; border-radius: 14px;
+  background: rgba(10, 20, 30, 0.93); border: 1px solid var(--good);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 22px rgba(3, 12, 18, 0.55);
+}
+.pickbar__say { font-size: 12px; line-height: 1.35; color: var(--text); }
+.pickbar__acts { display: flex; gap: 8px; }
+/* Both answers the same width, so neither reads as the safe one — going where
+   they stand is an order, and so is calling it off. */
+.pickbar__btn { flex: 1; min-height: var(--tap); font-size: 13.5px; font-weight: 600; }
 .sheet--stacked { z-index: 23; }
 .scrim--stacked { z-index: 22; }
+/* The encyclopedia's second layer: one entry, opened out of the reference. */
+.sheet--top { z-index: 25; }
+.scrim--top { z-index: 24; }
 
 .chip--toast {
   z-index: 30;
-  bottom: calc(var(--safe-bottom) + 72px);
+  bottom: calc(var(--safe-bottom) + 78px);
 }
 
 .legend { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -212,14 +530,51 @@ button {
 .sheet {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 21;
   max-height: 82%; display: flex; flex-direction: column;
+  /* A sheet with no tabs is one thing and sizes to it: a ship's sheet has as
+     much in it as that ship has, and stretching it to fill the screen would
+     be padding for its own sake. */
   background: var(--bg-raised); border-top: 1px solid var(--border);
   border-radius: 16px 16px 0 0;
   padding-bottom: var(--safe-bottom);
   animation: slide-up 180ms cubic-bezier(0.2, 0.8, 0.3, 1);
 }
+/*
+ * The sheet's own colour, carried on past its bottom edge.
+ *
+ * Sean, 19 September: *"A maroon strip shows below the sheet."* The maroon is
+ * the body — `#24100c`, the Brethren's rust-black — showing through under a
+ * sheet that stops where `.app` stops. `.app` is measured rather than sized
+ * to the viewport (see the glass note at the top of this file), and when that
+ * measurement comes up short the body paints the difference.
+ *
+ * The sheet already pads itself through the safe area; the gap is *below*
+ * that, which no amount of padding reaches. So it paints past its own edge
+ * instead. A hundred and sixty covers any measurement error worth having,
+ * and it cannot be seen unless there is a gap for it to fill.
+ */
+.sheet::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 160px;
+  background: var(--bg-raised); pointer-events: none;
+}
+/*
+ * A sheet with tabs is one height, whatever tab is showing.
+ *
+ * Four tabs about one island, each sizing itself to its own contents, meant
+ * the whole panel jumped up and down the screen as you swiped across it —
+ * Harbor tall, Buildings short, and the tab strip you were aiming at
+ * somewhere different every time. The panel is furniture; what is in it
+ * changes. So the height is fixed and the body scrolls inside it, and the
+ * tabs, the island's name and its painting stay exactly where your thumb
+ * last found them.
+ *
+ * The cost is honest: a sparse tab has room to spare at the bottom. That is
+ * the trade — a still panel over a snug one.
+ *
+ */
+.sheet--tabbed { height: 82%; }
 .sheet__grip { width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 8px auto 4px; }
 .map__rhumb { stroke: #0f3a47; }
-.sheet__head { padding: 4px 14px 10px; border-bottom: 1px solid var(--border); }
+.sheet__head { padding: 4px 14px 10px; border-bottom: 1px solid var(--metal-lo); }
 .sheet__title {
   font-size: 19px; font-weight: 700;
   font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
@@ -231,6 +586,10 @@ button {
   overscroll-behavior: contain;
 }
 .sheet__actions { display: flex; gap: 8px; padding: 10px 14px calc(10px + var(--safe-bottom)); border-top: 1px solid var(--border); }
+/* A footer that is one full-width control rather than a row of buttons: it
+   brings its own edge and its own padding, and the sheet's safe-area padding
+   already sits under it. */
+.sheet__actions--flush { display: block; padding: 0; border-top: 0; }
 
 @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
@@ -251,8 +610,11 @@ button {
 .tiny { font-size: 11px; }
 .section-title {
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
-  color: var(--brass); margin: 14px 0 6px; opacity: 0.85;
+  color: var(--metal); margin: 14px 0 6px; opacity: 0.95;
+  display: flex; align-items: center; gap: 8px;
 }
+/* A hairline off the end of every heading, the way a chart rules its margins. */
+.section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--metal-lo), transparent); opacity: 0.9; }
 .section-title:first-child { margin-top: 0; }
 
 .badge {
@@ -270,6 +632,24 @@ button {
 .bar { height: 6px; border-radius: 3px; background: #0d2f3a; overflow: hidden; }
 .bar__fill { height: 100%; border-radius: 3px; }
 .bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+/* The allegiance bar: segments butted together, the holder first from the left. */
+.bar--tall { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: #0d2f3a; }
+.bar--tall > div { height: 100%; }
+.bar-key {
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  margin-top: 6px; font-size: 11px; color: var(--muted);
+}
+.bar-key span { display: inline-flex; align-items: center; gap: 5px; }
+.bar-key i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+/* The slim allegiance strip, above the island sheet's tabs. Same bar, less of
+   it: this one is paid for on all five tabs, so it costs what it must and no
+   more. One line, never wrapping — two shares always fit. */
+.bar--slim { height: 6px; border-radius: 3px; }
+.bar-key--slim {
+  flex-wrap: nowrap; gap: 12px; margin-top: 4px; font-size: 10px;
+  letter-spacing: 0.01em;
+}
+.bar-key--slim i { width: 7px; height: 7px; }
 
 .btn {
   min-height: var(--tap); padding: 9px 12px; border-radius: 9px; border: 1px solid var(--border);
@@ -277,20 +657,39 @@ button {
   display: flex; align-items: center; justify-content: center; gap: 6px;
 }
 .btn:active:not(:disabled) { background: #113442; }
-.btn--primary { background: #1b3a6b; border-color: #2b5698; }
+/* The action button is the side's metal: brass for the Crown, red for the
+   Confederacy. Dark lettering on it, so it reads as a plaque and not a link. */
+.btn--primary {
+  background: linear-gradient(180deg, var(--metal-hi), var(--metal) 55%, color-mix(in srgb, var(--metal) 80%, #000));
+  border-color: var(--metal-lo); color: #0b1410;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.btn--primary:active:not(:disabled) { background: linear-gradient(180deg, var(--metal), var(--metal-lo)); color: #0b1410; }
 .btn--danger { color: var(--bad); }
 .btn--block { width: 100%; }
 .btn--flex { flex: 1; }
 .btn:disabled { opacity: 0.42; }
 
 .buildgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+/* One thing you can order built, as a button in the grid: the icon, what it
+   is called, and what it costs. Written out once. It used to be three rules
+   in three places in this file — one of them left over from a row layout with
+   a head, an action and a reason that no longer exists — each quietly taking
+   properties off the last. That is the same way the phone's clock ended up on
+   the Crown's name, so it is worth saying plainly: a class is defined in one
+   place, or it is a bug waiting. */
 .build {
-  min-height: var(--tap); border: 1px solid var(--border); border-radius: 9px; padding: 8px 9px;
-  background: var(--bg-sunken); text-align: left;
+  min-height: var(--tap); border: 1px solid var(--border); border-radius: 9px;
+  padding: 10px 12px; background: var(--bg-sunken);
+  display: flex; align-items: center; gap: 10px; text-align: left;
 }
-.build__name { font-size: 12px; font-weight: 600; }
-.build__meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.build__icon { flex: none; color: var(--brass); opacity: 0.85; display: grid; place-items: center; }
+.build__text { min-width: 0; }
+.build__name { display: block; font-size: 14px; font-weight: 600; }
+.build__meta { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
 .build:disabled { opacity: 0.42; }
+.build:disabled .build__icon { opacity: 0.4; }
 
 .ratings { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
 .rating { display: flex; align-items: center; gap: 8px; }
@@ -298,6 +697,8 @@ button {
 .rating__track {
   flex: 1; height: 5px; border-radius: 3px; background: #0d2f3a; overflow: hidden;
 }
+/* Past a hundred. The bar has nowhere left to go, so it says so in brass. */
+.rating__fill--over { background: var(--brass); box-shadow: 0 0 6px rgba(201, 162, 39, 0.55); }
 .rating__fill { display: block; height: 100%; background: var(--brass); border-radius: 3px; }
 .rating__value {
   flex: none; width: 24px; text-align: right;
@@ -306,24 +707,122 @@ button {
 
 .empty { text-align: center; color: var(--muted); padding: 32px 16px; font-size: 13px; }
 
-.event { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); text-align: left; width: 100%; }
+.logday { margin-bottom: 14px; }
+.logday__head {
+  margin: 0 0 4px; font-size: 13px; color: var(--metal); letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 8px;
+}
+.logday__head::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--metal-lo), transparent); }
+.event { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); text-align: left; width: 100%; align-items: flex-start; }
+/* A mark in the margin, coloured by what kind of news it is. */
+.event__kind { flex: none; width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; background: var(--muted); opacity: 0.7; }
+.event--war .event__kind { background: var(--metal); opacity: 1; }
+.event--battle .event__kind { background: var(--bad); opacity: 1; }
+.event--mutiny .event__kind { background: var(--bad); opacity: 1; }
+.event--loss .event__kind { background: var(--bad); opacity: 0.8; }
+.event--flip .event__kind { background: var(--good); opacity: 1; }
+.event--order .event__kind { background: var(--neutral); opacity: 0.9; }
+.event--mission .event__kind { background: var(--metal-hi); opacity: 0.8; }
+.event--unread .event__kind { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18); }
 .event__day {
-  flex: none; width: 42px; font-variant-numeric: tabular-nums;
-  font-size: 11px; color: var(--muted); padding-top: 1px;
+  flex: none; width: 46px; font-variant-numeric: tabular-nums;
+  font-size: 11px; color: var(--metal); padding-top: 2px; opacity: 0.85;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
 }
 .event__text { flex: 1; font-size: 13px; }
 .event--unread .event__text { color: var(--text); }
-.event--unread .event__day::before { content: '•'; color: var(--empire); margin-right: 3px; }
 
-.banner {
+
+/* An order you cannot give yet, and why. A line rather than a dead button:
+   a greyed-out "Land 6 against 2" with no reason attached is a puzzle. */
+.fleet__blocked {
+  padding: 8px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 9px;
+  line-height: 1.35;
+}
+
+/* ---------- The running report ----------
+   What has just gone into the log, over the top of whatever the player is
+   looking at. Pinned under the utility bar rather than laid out in the flow:
+   a strip that pushed the chart down every time a mill finished would move
+   the thing under the player's thumb to deliver the news. */
+.reports-slot { position: relative; z-index: 26; height: 0; }
+.reports {
+  position: absolute;
+  left: 10px; right: 10px; top: 8px;
+  display: flex; flex-direction: column; gap: 6px;
+  /* The strip is a place things appear, not a surface: only the lines in it
+     take a tap, so the chart underneath stays draggable between them. */
+  pointer-events: none;
+}
+.report {
+  pointer-events: auto;
+  /* Top-aligned, so the mark and the arrow stay level with the first line of
+     a report that runs to two. Centring them looked right on one line and
+     adrift on two. */
+  display: flex; align-items: flex-start; gap: 9px;
+  width: 100%; text-align: left;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted);
+  border-radius: 9px;
+  background: var(--bg-raised);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.42);
+  font: inherit; color: var(--text);
+  animation: report-in 220ms ease-out;
+}
+@keyframes report-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .report { animation: none; }
+}
+.report__kind {
+  flex: none; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--muted); margin-top: 5px;
+}
+.report__text {
+  flex: 1; min-width: 0; font-size: 12.5px; line-height: 1.35;
+  /* Two lines at most. A report is a glance; the log is where the whole of it
+     is, and that is one tap away. */
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.report__chev { flex: none; color: var(--muted); font-size: 15px; line-height: 1.1; }
+/* The same colours the log's margin marks use, so a line means the same thing
+   in both places. */
+.report--order { border-left-color: var(--neutral); }
+.report--order .report__kind { background: var(--neutral); }
+.report--mission { border-left-color: var(--metal-hi); }
+.report--mission .report__kind { background: var(--metal-hi); }
+.report--loss { border-left-color: var(--bad); }
+.report--loss .report__kind { background: var(--bad); }
+
+/* The entry the log was opened at, marked until the player looks elsewhere. */
+.event--focus {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  box-shadow: inset 3px 0 0 var(--brass);
+  padding-left: 8px;
+}
+
+/* How the war ended, said once across the top of the chart. It was called
+   `banner` too, and being later in the file it was quietly taking the header
+   banner's padding away with it — including the inset that keeps the Crown's
+   name out from under the phone's clock. Two different things may not share
+   a name. */
+.verdict {
   border-radius: 10px; padding: 10px 12px; font-size: 13px;
   border: 1px solid currentColor;
 }
-.banner--win { color: var(--good); }
-.banner--lose { color: var(--bad); }
+.verdict--win { color: var(--good); }
+.verdict--lose { color: var(--bad); }
 
 /* ---------- Start screen ---------- */
 .start {
+  position: relative;
   height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -333,6 +832,46 @@ button {
     radial-gradient(120% 60% at 50% 0%, #0e2c38 0%, var(--bg) 60%),
     var(--bg);
 }
+/**
+ * The title screen stands on the chart it is about.
+ *
+ * The painting cannot carry text on its own: darkened to a mean luma of 14 its
+ * brightest reef still only gives body text 4.2:1, and the tagline is muted
+ * grey at 13px, which needs more. So the painting is open behind the rose and
+ * the title — large type, and the most striking part of the image — and a
+ * scrim closes over it before the first line of small text. Measured against
+ * the rendered page, not guessed.
+ */
+.start--painted { background: var(--bg); }
+.start--painted::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: var(--backdrop);
+  /* Full width, top-aligned, not `cover`: the page is far taller than 2:3, so
+     cover scaled the painting up until only a narrow vertical strip of it was
+     on screen. At 100% width the whole chart is there and the scrim disposes
+     of the part nobody needs to see. */
+  background-size: 100% auto; background-repeat: no-repeat; background-position: 50% 0;
+}
+.start--painted::after {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(6, 22, 29, 0.10) 0%,
+    rgba(6, 22, 29, 0.28) 15%,
+    rgba(6, 22, 29, 0.78) 29%,
+    rgba(6, 22, 29, 0.95) 41%,
+    var(--bg) 58%
+  );
+}
+.start--painted > * { position: relative; z-index: 1; }
+/* Measured on the rendered page with the text hidden: the brightest patch of
+   backdrop under the tagline is #415856, where muted grey is 2.56:1 against a
+   4.5:1 floor. Lifting it to #cfe0e6 gives 5.6:1. The shadow is belt as well
+   as braces — it darkens the ground locally, which the contrast figure above
+   cannot take credit for. */
+.start--painted .start__tagline { color: #cfe0e6; }
+.start--painted .start__head { text-shadow: 0 1px 7px rgba(4, 18, 25, 0.92); }
+
 .start__head { text-align: center; margin-bottom: 20px; }
 .start__rose { display: flex; justify-content: center; color: var(--brass); margin-bottom: 6px; }
 .start__title { font-size: 27px; line-height: 1.15; margin: 0 0 8px; font-weight: 700; }
@@ -346,7 +885,17 @@ button {
   border: 1px solid var(--border); background: var(--bg-sunken);
 }
 .facard--picked { border-color: var(--brass); background: #102b35; }
+/* Each side's card in its own colours, so the choice reads before the words do. */
+.facard--empire { border-color: rgba(79, 196, 106, 0.35); }
+.facard--alliance { border-color: rgba(216, 72, 63, 0.4); }
+.facard--empire.facard--picked { border-color: #c9a227; background: linear-gradient(180deg, #14301f, #0c2018); box-shadow: 0 0 0 1px #6f5612, 0 0 14px rgba(201, 162, 39, 0.25); }
+.facard--alliance.facard--picked { border-color: #d8533f; background: linear-gradient(180deg, #33151a, #23100d); box-shadow: 0 0 0 1px #7a2a1e, 0 0 14px rgba(216, 83, 63, 0.25); }
+.facard--alliance .facard__creed { color: #e08a72; }
 .facard__name { font-size: 14px; font-weight: 700; line-height: 1.2; }
+.facard__creed {
+  font-size: 8.5px; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--brass); opacity: 0.85; line-height: 1.3; margin: 1px 0 4px;
+}
 .facard__blurb { font-size: 11px; color: var(--muted); line-height: 1.35; }
 
 .start__detail { margin-top: 8px; }
@@ -362,7 +911,7 @@ button {
   flex: 1; min-height: var(--tap); border-radius: 999px; font-size: 13px;
   border: 1px solid var(--border); background: var(--bg-sunken); color: var(--muted);
 }
-.pill--on { border-color: var(--brass); color: var(--text); background: #102b35; }
+.pill--on { border-color: var(--metal); color: var(--metal-hi); background: rgba(0, 0, 0, 0.3); }
 .pill:disabled { opacity: 0.4; }
 .start__note { margin: 8px 0 0; }
 .start__begin { margin-top: 18px; }
@@ -379,10 +928,10 @@ button {
   border-bottom: 2px solid transparent;
   position: relative;
 }
-.tabs__tab--on { color: var(--text); border-bottom-color: var(--brass); }
+.tabs__tab--on { color: var(--metal-hi); border-bottom-color: var(--metal); }
 .tabs__dot {
   position: absolute; top: 11px; right: 50%; transform: translateX(24px);
-  width: 5px; height: 5px; border-radius: 50%; background: var(--brass);
+  width: 5px; height: 5px; border-radius: 50%; background: var(--metal);
 }
 
 .portrait { display: flex; justify-content: center; margin: 2px 0 10px; }
@@ -390,20 +939,26 @@ button {
   margin: 0 0 14px; font-size: 13px; font-style: italic;
   color: var(--muted); text-align: center; line-height: 1.45;
 }
+/* The island's painting between the sheet's header and its tabs, so the place
+   the four tabs are about is on screen whichever one is open. It does not
+   scroll with the body and it takes no side padding: the painting is meant to
+   run edge to edge the way it did at the top of the Harbor tab. */
+.isle-head { flex: none; }
+.isle-head .portrait__note { margin: 6px 14px 8px; }
+/* The allegiance strip sits under the painting and over the tabs, inset to
+   the sheet's own gutter. */
+.isle-head .supportbars--slim { margin: 8px 14px 6px; }
 
 /* ---------- Units, buildings and people ---------- */
+/* The painted band beside a building's name: its own box, so it never sits
+   under the text. */
+.facility__thumb { flex: none; line-height: 0; }
+.facility__thumb .facthumb { display: block; }
 .facility__icon {
   flex: none; width: 34px; height: 34px;
   display: grid; place-items: center;
   color: var(--brass); opacity: 0.9;
 }
-
-.build { display: flex; align-items: center; gap: 8px; text-align: left; }
-.build__icon { flex: none; color: var(--brass); opacity: 0.85; display: grid; place-items: center; }
-.build__text { min-width: 0; }
-.build__name { display: block; font-size: 12px; font-weight: 600; }
-.build__meta { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
-.build:disabled .build__icon { opacity: 0.4; }
 
 .companies {
   display: flex; align-items: flex-end; gap: 4px; flex-wrap: wrap;
@@ -417,7 +972,9 @@ button {
 .isle {
   border: 1px solid var(--border); border-radius: 10px;
   background: var(--bg-sunken); overflow: hidden;
+  display: block; width: 100%; text-align: left; padding: 0;
 }
+.isle:active { background: #0f2c37; }
 .isle__head {
   display: flex; align-items: center; gap: 10px; width: 100%;
   padding: 8px 10px; text-align: left; min-height: var(--tap);
@@ -432,14 +989,13 @@ button {
   background: #0d2f3a; margin-top: 4px; max-width: 120px;
 }
 .isle__bar > span { display: block; height: 100%; }
-
 .isle__cats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--border); }
 .isle__cat {
-  min-height: var(--tap); display: flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px;
   color: var(--muted); position: relative;
 }
 .isle__cat + .isle__cat { border-left: 1px solid var(--border); }
-.isle__cat:active { background: #113442; }
+.isle__cat-label { font-size: 10px; letter-spacing: 0.04em; }
 .isle__count {
   font-size: 13px; font-weight: 700; color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -464,6 +1020,11 @@ button {
   padding: 14px 4px;
   margin: -14px -4px;
 }
+/* The same link sitting inside a running line rather than on its own.
+   The full 14px reach would put the hit area over the title above it in a
+   sheet header, so it is trimmed to what still clears a thumb at this size
+   and no further. */
+.linkish--inline { padding: 8px 2px; margin: -8px -2px; }
 
 /* ---------- Almanac ---------- */
 .almanac__earn { color: var(--good); }
@@ -476,22 +1037,1573 @@ button {
 .glossary dt { font-weight: 700; font-size: 13px; }
 .glossary dd { margin: 3px 0 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
 
-/* ---------- The advisor, sitting on the chart ---------- */
+/* ---------- The advisor, standing on the console ----------
+   Their own slot at the end of the tab bar. The figure is taller than the bar
+   and overflows upward on purpose, so they stand on it rather than sit in it —
+   which is what stops them reading as a fourth tab. */
 .advisor {
-  position: absolute; right: 10px; top: 10px;
-  width: 52px; height: 52px; border-radius: 50%;
-  display: grid; place-items: center;
-  background: rgba(7, 26, 34, 0.85);
-  border: 1px solid var(--border);
-  backdrop-filter: blur(6px);
-  z-index: 3;
+  /* Taller than the bar on purpose: he stands on the console rather than
+     sitting in it, and the bar grew to give him the room. */
+  position: relative;
+  min-width: var(--tap); min-height: 62px;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: none; border: none;
+  border-left: 1px solid var(--metal-lo);
+  filter: drop-shadow(0 1px 4px rgba(3, 13, 18, 0.8));
+  -webkit-touch-callout: none; user-select: none;
 }
-.advisor:active { transform: scale(0.94); }
+.advisor > svg { margin-bottom: 1px; }
+.advisor__figure {
+  position: relative; display: block; margin-bottom: 1px; overflow: hidden;
+  border-radius: 4px 4px 0 0;
+  border: 1px solid rgba(201, 162, 74, 0.55); border-bottom: none;
+  background: #071a22;
+  transform-origin: 50% 100%;
+}
+.advisor__face {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.advisor__face--on { opacity: 1; }
+/* Talking is a gesture, not a mouth: the figure rocks on its feet for as
+   long as the line takes to read. Rebellion's droids did exactly this.
+   The gesture is sized to the mood — grave is a slow, small nod; encouraged
+   is quick and lifted — and to the character: the parrot bobs harder than
+   the Secretary, who barely moves and means it. */
+.advisor__figure, .advisor-frame {
+  --talk-dur: 0.44s; --talk-y: -2px; --talk-rot: 1.1deg; --talk-scale: 1;
+}
+.advisor__figure--grave, .advisor-frame--grave { --talk-dur: 0.72s; --talk-y: -1px; --talk-rot: 0.6deg; }
+.advisor__figure--encouraged, .advisor-frame--encouraged { --talk-dur: 0.36s; --talk-y: -3px; --talk-rot: 1.6deg; }
+.advisor__figure--marlow, .advisor-frame--marlow { --talk-scale: 0.7; }
+.advisor__figure--pennywhistle, .advisor-frame--pennywhistle { --talk-scale: 1.5; }
+.advisor__figure--talking { animation: advisor-talk var(--talk-dur) ease-in-out infinite; }
+.advisor-frame--talking .advisor-frame__still--on,
+.advisor-frame--talking .advisor-frame__clip { animation: advisor-talk var(--talk-dur) ease-in-out infinite; }
+@keyframes advisor-talk {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  30% { transform: translateY(calc(var(--talk-y) * var(--talk-scale))) rotate(calc(var(--talk-rot) * -1 * var(--talk-scale))); }
+  70% { transform: translateY(calc(var(--talk-y) * var(--talk-scale) * 0.5)) rotate(calc(var(--talk-rot) * var(--talk-scale))); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .advisor__figure--talking,
+  .advisor-frame--talking .advisor-frame__still--on,
+  .advisor-frame--talking .advisor-frame__clip { animation: none; }
+}
+.advisor:active { transform: translateY(1px); }
 
 .iconbtn--on { color: var(--brass); border-color: var(--brass); }
 
 .map__sea-label {
-  fill: #6ea8bb; text-anchor: middle;
+  fill: #6ea8bb; font-size: 40px; text-anchor: middle;
   font-family: 'Iowan Old Style', Palatino, Georgia, serif;
   font-style: italic; letter-spacing: 0.12em;
 }
+
+/* ---------- A chain opened out as a chart ---------- */
+.chainmap {
+  display: block; width: 100%; height: auto;
+  background: var(--water); border: 1px solid var(--border); border-radius: 10px;
+  touch-action: manipulation;
+}
+.chainmap__isle { cursor: pointer; }
+/* Where an island had to be moved to make room for its own marks, and where
+   it really lies on the chart. Brass and thin: this is the interface owning
+   up to a compromise, not part of the world. */
+/* How many of the thing an island answering the layer has. Coloured per
+   island, for the same reason as on the chart. */
+.chainmap__lit-n {
+  font-size: 26px; font-weight: 700; text-anchor: middle;
+  paint-order: stroke fill; stroke: #041219cc; stroke-width: 5px;
+}
+.chainmap__tether { stroke: var(--brass); stroke-width: 2.5; stroke-dasharray: 8 6; }
+/* Over the painting a name needs its own ground; the sea under it is busy. */
+.chainmap__name--painted { paint-order: stroke fill; stroke: #041219cc; stroke-width: 6px; }
+.chainmap__tether-end { fill: none; stroke: var(--brass); stroke-width: 2.5; }
+.chainmap__isle:active .chainmap__name { fill: var(--text); }
+.chainmap__name {
+  font-size: 34px; text-anchor: middle;
+  font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+}
+/* Legend. The two bars under every name, said once. */
+.chainmap__key {
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  margin-top: 8px; font-size: 11px; color: var(--muted);
+}
+.chainmap__key span { display: inline-flex; align-items: center; gap: 5px; }
+.key {
+  width: 11px; height: 11px; display: inline-block; flex: none;
+  background: currentColor;
+}
+.key--room { width: 22px; background: linear-gradient(90deg, #f4f7f8 0 50%, #8fa0a8 50% 100%); border-radius: 2px; }
+.key--lean {
+  width: 22px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--empire) 0 45%, var(--neutral) 45% 75%, var(--alliance) 75% 100%);
+}
+.key--ships { clip-path: polygon(45% 0, 55% 0, 55% 55%, 100% 55%, 85% 100%, 15% 100%, 0 55%, 45% 55%); }
+
+/* ---------- Fleets ---------- */
+/* The harbor is a list. A row is a class of hull with how many there are, how
+   much of it is still floating and what it fires — the three things you steer
+   by — and everything else is behind the row. It was a grid of thumbnails over
+   a six-cell table of facts, which is right for a thing you study and wrong
+   for a thing you glance at on the way to giving an order. */
+.shiplist { display: flex; flex-direction: column; margin-top: 8px; }
+.shiprow { display: flex; align-items: stretch; gap: 4px; }
+.shiprow + .shiprow { border-top: 1px solid var(--border); }
+.shiprow__tap {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px;
+  padding: 7px 2px; min-height: 68px; text-align: left; color: var(--text);
+}
+/* The class, in the encyclopedia. A quiet mark at the end of the row rather
+   than a word, because the row is already a hull, a name and two numbers. */
+.shiprow__ask {
+  flex: none; align-self: center;
+  width: 24px; height: 24px; padding: 0; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 12px; font-weight: 700; line-height: 1;
+  color: var(--metal-hi); background: transparent; border: 1px solid var(--border);
+}
+.shiprow__ask:active { background: var(--metal); color: var(--bg); }
+.shiprow__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.shiprow__name { min-width: 0; font-size: 14px; line-height: 1.2; }
+.shiprow__n { margin-right: 4px; font-variant-numeric: tabular-nums; }
+.shiprow__lord { color: var(--brass); }
+.shiprow__stats {
+  font-size: 12px; font-variant-numeric: tabular-nums; color: var(--muted);
+}
+.shiprow__hurt { color: var(--bad); }
+.shiprow__chev { flex: none; color: var(--muted); font-size: 17px; line-height: 1; }
+.shiprow__order { flex: none; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+/* One line for the squadron, under its hulls: what belongs to the fleet
+   rather than to any hull in it. */
+.fleet__line {
+  display: flex; flex-wrap: wrap; gap: 3px 12px; margin-top: 8px;
+  padding-top: 8px; border-top: 1px solid var(--border); color: var(--muted);
+}
+.fleet__line b { color: var(--text); font-variant-numeric: tabular-nums; }
+.fleet__line-bad { color: var(--bad); }
+/* Up and down rather than a drag: a drag on a phone is a fight with the
+   scroll underneath it, and two arrows are a thumb's width each. */
+.orderbtn {
+  width: 30px; height: 21px; display: grid; place-items: center;
+  border: 1px solid var(--border); border-radius: 5px;
+  font-size: 9px; line-height: 1; color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+}
+.orderbtn:disabled { opacity: 0.25; }
+.orderbtn--inline { width: 22px; height: 26px; font-size: 13px; }
+/* How the list is read, as two checkboxes over it. */
+.listopts { display: flex; gap: 6px; flex-wrap: wrap; }
+.listopt {
+  padding: 5px 9px; min-height: 30px; border-radius: 999px;
+  border: 1px solid var(--border); color: var(--muted);
+  background: rgba(255, 255, 255, 0.03);
+}
+.listopt--on { color: var(--text); border-color: var(--brass); }
+.shipsheet__art { display: grid; place-items: center; padding: 6px 0 2px; }
+/* The painting is the way through to the encyclopedia, so it has to look
+   pressable without becoming a button-shaped thing over a picture. */
+.shipsheet__art--tap {
+  width: 100%;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  border-radius: 10px;
+}
+.shipsheet__art--tap:active { transform: scale(0.985); }
+.shipsheet__art--tap:focus-visible { outline: 2px solid var(--brass, #c9a227); outline-offset: 2px; }
+/* A tile with its two arrows under it. Beside would halve the tile — a board
+   is a grid and a tile is about as wide as two arrows. */
+.slot-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 3px; }
+/* On a board the arrows are out of sight until something reaches for them.
+   Sean, 19 September: *"don't need to make group alike and reorder buttons.
+   Always group them and allow me to press and hold to drag and move."* A row
+   of arrows under every tile is the clutter he is describing, and the hold is
+   the gesture he wants — but a hold is not a gesture a keyboard has, so the
+   arrows stay in the page and come back the moment one is focused. Height and
+   opacity rather than `display: none`, because a hidden button cannot be
+   tabbed to and the point of keeping them is that it can. */
+.slot-wrap__order {
+  display: flex; gap: 3px; height: 0; opacity: 0; overflow: hidden;
+  transition: height 90ms ease, opacity 90ms ease;
+}
+.slot-wrap__order:focus-within { height: 21px; opacity: 1; }
+.slot-wrap__order .orderbtn { flex: 1; width: auto; }
+
+/* ---------- Slot boards ----------
+   The original gives personnel, regiments and construction their own framed
+   board and lets the contents fill it. A list that collapses to one line when
+   empty tells you nothing about what could be there; a board does. */
+.board {
+  /* Two across, not three. Sean: *"All the unit images in the game are too
+     small... larger images and less text."* At three columns a tile on a phone
+     is about 100px wide and a painting in it is a stamp; at two it is half the
+     panel and you can see what the thing is. */
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+  padding: 8px; min-height: 132px; align-content: start;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border); border-radius: 10px;
+  /* Three rows, then scroll. Cut just past the third row so a sliver of the
+     fourth shows: a board that ends flush looks finished when it is not. */
+  max-height: 430px; overflow-y: auto;
+  -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+}
+/* On anything wider than a phone the tiles would go the size of playing cards,
+   so a wide board takes a third column back rather than growing the picture. */
+@media (min-width: 560px) { .board { grid-template-columns: repeat(3, 1fr); } }
+.board--bare {
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: 18px 14px; min-height: 96px;
+  color: var(--muted); font-size: 12px; line-height: 1.45;
+  background: var(--bg-sunken);
+  border: 1px dashed var(--border); border-radius: 10px;
+}
+.slot {
+  min-height: 124px; padding: 10px 5px 8px; width: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 5px;
+  background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px;
+  text-align: center; overflow: hidden;
+}
+.slot--tap { cursor: pointer; }
+.slot--tap:active { background: #143643; }
+/* An empty slot has to be visible or the board reads as "six things" rather
+   than "six of ten". Faint, but plainly a socket. */
+.slot--empty {
+  background: rgba(28, 59, 72, 0.22);
+  border-style: dashed; border-color: #24505f;
+}
+.slot--warn { border-color: var(--bad); }
+/* One of the three. The same brass the crew card's Lord border uses and the
+   same the medallion's rim uses, so the three signals are one signal. Quiet on
+   the tile and loud on the rim: a board of Lords should not read as a board of
+   warnings. */
+.slot--lord { border-color: color-mix(in srgb, var(--brass) 55%, transparent); }
+.slot--lord .slot__note {
+  color: var(--brass);
+  opacity: 0.85;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 9.5px;
+  font-weight: 700;
+}
+.slot--dim { opacity: 0.55; }
+/* The picture on a tile. A fixed 68 held every board's rows in step while
+   every icon was a glyph of about that size; a personnel ring is 132 and was
+   simply drawn over the name. A floor rather than a ceiling: the boards that
+   were in step stay in step, and anything taller pushes the name down instead
+   of landing on it. */
+.slot__icon {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 68px; flex: none;
+}
+.slot__name {
+  font-size: 11px; line-height: 1.2; color: var(--text);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.slot__note { font-size: 10px; color: var(--muted); line-height: 1.15; }
+
+/* A tile that already does something, with the encyclopedia on a corner mark.
+   Small, quiet, and away from the middle of the picture, which is where the
+   thumb lands for the tile's own job. */
+.slot-lookup { position: relative; display: flex; }
+.slot-lookup__mark {
+  position: absolute; top: 4px; right: 4px; z-index: 1;
+  width: 21px; height: 21px; padding: 0; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 700; line-height: 1;
+  color: var(--metal-hi); background: rgba(9, 30, 39, 0.78);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(3px);
+}
+.slot-lookup__mark:active { background: var(--metal); color: var(--bg); }
+
+/* ---------- Idle producers ----------
+   The original nags you in red when a construction yard is sitting empty.
+   This is the same idea, always on, and tapping one takes you to it. */
+.idle {
+  /* Above the layer strip's row, not behind it. */
+  position: absolute; left: 8px; right: 8px; bottom: 66px; z-index: 3;
+  display: flex; gap: 6px; justify-content: center; pointer-events: none;
+}
+.idle__item {
+  pointer-events: auto;
+  min-height: var(--tap); padding: 4px 11px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(9, 30, 39, 0.92); border: 1px solid var(--border);
+  color: var(--muted); font-size: 11px;
+  backdrop-filter: blur(6px);
+}
+.idle__item--free { color: var(--brass); border-color: #4a3c14; }
+.idle__item--alarm { color: var(--bad); border-color: #5c2420; }
+.idle__item--alarm:active { background: #3a1b18; }
+.idle__item:disabled { opacity: 0.5; }
+.idle__item--free:active { background: #16323d; }
+.idle__n { font-weight: 700; font-size: 12px; }
+.idle__label { max-width: 78px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board__count { margin: 5px 0 0; text-align: right; }
+
+/* ---------- Dispatches ----------
+   The original stops you with a headline, a painting and one sentence. A card
+   that fills the width and sits above everything, rather than a line in a list
+   you have to go looking for. */
+.dispatch {
+  position: absolute; left: 10px; right: 10px; top: 50%;
+  transform: translateY(-50%);
+  z-index: 26;
+  background: var(--bg-raised);
+  border: 1px solid var(--metal-lo); border-radius: 14px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 18px 48px rgba(2, 10, 14, 0.66);
+  overflow: hidden;
+  box-shadow: 0 18px 48px rgba(2, 10, 14, 0.66);
+}
+.dispatch__head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 8px 10px 14px;
+}
+.dispatch__title {
+  font-size: 15px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--metal-hi); line-height: 1.25;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+}
+.dispatch__text {
+  margin: 0; padding: 12px 14px 4px;
+  font-size: 14px; line-height: 1.5; color: var(--text);
+}
+.dispatch__foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  flex-wrap: wrap; padding: 10px 12px 12px;
+}
+.dispatch__foot .btn { min-width: var(--tap); }
+
+/* Officers serving with a fleet, and the crew ashore who could be. */
+.fleet__officers { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.fleet__officer {
+  min-height: var(--tap); padding: 4px 9px 4px 4px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg-sunken); border: 1px solid var(--border); color: var(--text);
+}
+.fleet__officer--empty { border-style: dashed; color: var(--muted); padding-left: 10px; }
+.fleet__officer-plus { font-size: 15px; line-height: 1; }
+.fleet__officer-name {
+  font-size: 11px; max-width: 92px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fleet__officer:active { background: #143643; }
+
+/* ---------- The contact sheet (?art) ---------- */
+/* Not part of the game. Laid out to be photographed: everything the same
+   distance apart, on the same ground, so the eye compares drawings and not
+   spacing. */
+.artsheet { padding: 16px; padding-bottom: 48px; background: var(--bg); min-height: 100%; }
+.artsheet__head h1 {
+  font-size: 20px; margin: 0 0 4px; letter-spacing: 0.02em;
+}
+.artsheet__head p { margin: 0 0 8px; font-size: 12px; line-height: 1.5; }
+.artsheet__row { margin-top: 22px; }
+.artsheet__label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--brass); margin: 0 0 8px; font-weight: 700;
+}
+.artsheet__note { text-transform: none; letter-spacing: 0; color: var(--muted); font-weight: 400; }
+.artsheet__items { display: flex; flex-wrap: wrap; gap: 10px; }
+.artsheet__item { width: 76px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+/* The ground the art actually sits on in the game, so nothing is judged
+   against a colour it never appears over. */
+.artsheet__stage {
+  width: 76px; height: 76px; border-radius: 8px;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.artsheet__swatch {
+  width: 76px; height: 44px; border-radius: 8px; border: 1px solid var(--border);
+}
+.artsheet__caption {
+  font-size: 9px; color: var(--muted); text-align: center; line-height: 1.25;
+  word-break: break-word;
+}
+.artsheet__scene {
+  /* Full width, and the same height the dispatch card gives it. Scenes are
+     drawn 320x132 and painted with preserveAspectRatio="slice": render them
+     into a narrow box and they crop to a middle band the game never shows,
+     which had this sheet reporting the mission scene as empty when it is not.
+     An instrument that lies is worse than no instrument. */
+  width: 100%; display: flex; flex-direction: column; gap: 4px;
+}
+.artsheet__scene > svg { height: 138px; }
+.artsheet__scene > svg { border-radius: 8px; border: 1px solid var(--border); }
+.artsheet__blurb {
+  font-size: 11px; line-height: 1.5; color: var(--muted); margin: 0 0 10px; max-width: 46em;
+}
+
+/* ---------- Chart layers ---------- */
+/* The view switch, at the foot of the chart where the pick chip lives. It sits
+   above the tab bar rather than inside it: the tab bar says which screen you
+   are on, this says what the screen is about. */
+/* Its own row under the chart, not laid over it: the chart scrolls under
+   nothing, and the chips never sit on an island. */
+.layers {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+  padding: 6px 0 6px;
+  display: flex; flex-direction: column; gap: 5px;
+  border-top: 1px solid var(--metal-lo);
+  /* Over the water, not beside it: the chart keeps the whole screen and the
+     strip floats on its foot, the wood let through just enough to sit on. */
+  background-image: url('../art/chrome/wood.webp'), linear-gradient(180deg, color-mix(in srgb, var(--chrome) 84%, transparent), color-mix(in srgb, var(--chrome-2) 92%, transparent));
+  box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.35);
+}
+/* The same strip inside a sheet: the filter follows you into a Reach and can
+   still be changed there, so zooming in never means losing what you were
+   looking at. */
+.layers--foot {
+  /* In a sheet's footer rather than floating over the chart, and keeping the
+     wood and the rule above it so it reads as the same strip in the same
+     place — the chart's filters do not move house when you zoom into a Reach.
+
+     The strip takes the sheet's safe-area padding off it and pays it itself.
+     A sheet pads its own bottom so no content sits under the home indicator,
+     which is right for content and wrong for chrome: this strip *is* the
+     bottom of the screen, so the padding left thirty-four points of sheet
+     showing under it — a band of panel below the filters, which read as the
+     map coming through the console. Now the wood runs to the edge and the
+     chips keep their clearance. Only visible installed to the home screen,
+     which is the only place `--safe-bottom` is not zero. */
+  position: static;
+  padding: 6px 0 calc(2px + var(--safe-bottom));
+  margin-bottom: calc(-1 * var(--safe-bottom));
+}
+
+.layers__strip {
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+  padding: 0 10px 6px; pointer-events: auto;
+  overscroll-behavior-x: contain;
+}
+.layers__strip::-webkit-scrollbar { display: none; }
+.layers__chip {
+  flex: none; display: inline-flex; align-items: center; gap: 6px;
+  min-height: 40px; padding: 6px 13px; border-radius: 6px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.48));
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  color: var(--chrome-text); font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  white-space: nowrap; position: relative; font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+}
+.layers__chip--on {
+  border-color: var(--metal); color: var(--metal-hi);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--metal) 28%, rgba(0, 0, 0, 0.3)), rgba(0, 0, 0, 0.5));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 0 1px var(--metal-lo), 0 0 8px color-mix(in srgb, var(--metal) 35%, transparent);
+}
+/* The little pennant under the live chip, after the mock-up's shield tab. */
+.layers__chip--on::after {
+  content: ''; position: absolute; left: 50%; bottom: -6px; width: 10px; height: 6px; transform: translateX(-50%);
+  background: var(--metal); clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+/* The tally. A zero is worth showing — on Idle works it is the one number that
+   means nothing of yours is standing about. */
+.layers__n {
+  font-size: 10px; font-variant-numeric: tabular-nums; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 50%; display: inline-grid; place-items: center;
+  background: rgba(0, 0, 0, 0.5); border: 1px solid var(--metal-lo); color: var(--chrome-text);
+}
+.layers__chip--on .layers__n { background: var(--metal); color: var(--chrome-2); border-color: var(--metal-hi); }
+
+/* How many of the thing an island that answers the current layer has.
+   No fill here: the colour is set per island so the number belongs visibly to
+   its dot, and a stylesheet rule would beat that presentation attribute — which
+   has caught us before. */
+/* The pulse behind an idle star. Something of yours is standing idle and the
+   chart is saying so from across the room: a soft disc in the island's own
+   colour, breathing. Opacity only — a growing disc under a still star reads
+   as a ripple, which is a different thing. */
+.map__idle-halo { opacity: 0.32; animation: idle-pulse 1.6s ease-in-out infinite; }
+@keyframes idle-pulse { 0%, 100% { opacity: 0.18; } 50% { opacity: 0.5; } }
+@media (prefers-reduced-motion: reduce) {
+  .map__idle-halo { animation: none; opacity: 0.35; }
+}
+.map__lit-n {
+  font-size: 15px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke fill; stroke: #041219cc; stroke-width: 3.5px;
+}
+
+/* ---------- The card frame (style guide §4) ---------- */
+/* Crest, title, art, quote, type bar. Drawn here so it works identically
+   around a painting and around a drawn cameo, and so a bright painting reads
+   as an object lying on the page rather than a hole cut in it. */
+.tcard {
+  position: relative; display: flex; flex-direction: column;
+  width: 100%; padding: 0; text-align: left; overflow: hidden;
+  background: var(--bg-raised);
+  border: 1px solid var(--card-tint); border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(2, 10, 14, 0.5);
+}
+button.tcard { cursor: pointer; }
+button.tcard:hover { border-color: var(--brass); }
+
+/* Sits over the corner, as the guide has it — half on the frame, half off. */
+.tcard__badge {
+  position: absolute; top: 6px; left: 8px; z-index: 2;
+  display: grid; place-items: center;
+  width: 30px; height: 30px; border-radius: 7px;
+  background: rgba(4, 16, 22, 0.9); border: 1px solid var(--card-tint);
+}
+.tcard__title {
+  padding: 9px 12px 9px 46px;
+  font-size: 14px; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--text); background: var(--bg-sunken);
+  border-bottom: 1px solid var(--border);
+}
+.tcard__art { position: relative; display: block; line-height: 0; background: var(--water-deep); }
+/* A painting at card size: fill the frame, crop the sides rather than letterbox.
+   The subjects are centred in their own tiles, so a centre crop keeps them. */
+/* A framed painting: the frame is a border-image, so it is drawn in the
+   element's own border box and takes no layout room the box did not have. The
+   radius goes — a bitmap frame has square corners and rounding them clips the
+   corner ornament off. */
+/* A frame is laid *over* the painting, not wrapped around a hole in it.
+   The overlay takes the outer 15px of the box as its border, so the picture
+   fills the whole box and the frame sits on its edges. `--frame` is the only
+   part the component supplies: the bundler hashes the filename, so nothing
+   else can know it. */
+.painting--framed { border-radius: 0 !important; overflow: hidden; position: relative; }
+.painting--framed > img { border-radius: 0; }
+.painting--framed::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 15px solid transparent;
+  border-image-source: var(--frame);
+  border-image-slice: 40;
+  border-image-width: 15px;
+  border-image-repeat: stretch;
+  pointer-events: none;
+}
+.painting { position: relative; overflow: hidden; background: var(--water-deep); }
+.painting img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; display: block; }
+.painting__cameo { display: flex; align-items: center; justify-content: center; height: 100%; }
+/* A hull in a list. Cropped to the waterline: the paintings are tall and the
+   sky above the topmast is not what tells one class from another. */
+.shipthumb {
+  display: inline-block; overflow: hidden; border-radius: 5px; flex: none;
+  border: 1px solid var(--border); background: var(--water-deep); line-height: 0;
+}
+.shipthumb img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
+/* Works on an island. Wide, because the paintings are. */
+.facthumb {
+  display: inline-block; overflow: hidden; border-radius: 5px; flex: none;
+  border: 1px solid var(--border); background: var(--water-deep); line-height: 0;
+}
+.facthumb img { width: 100%; height: 100%; object-fit: cover; }
+/* The island, painted, across the head of its panel. */
+.isle-banner {
+  position: relative; overflow: hidden; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--water-deep); margin-bottom: 10px;
+}
+.isle-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.isle-banner__fade {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 38%; pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--bg-raised));
+}
+.tcard__art > svg, .tcard__art > img { display: block; width: 100%; height: auto; }
+/* The subject's own voice, over the foot of the picture. The scrim is what
+   keeps it legible whatever the painting is doing underneath. */
+.tcard__quote {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 22px 12px 9px;
+  font-size: 12px; line-height: 1.4; color: #e8e2d1;
+  background: linear-gradient(to top, rgba(4, 12, 16, 0.92), rgba(4, 12, 16, 0));
+}
+.tcard__type {
+  padding: 7px 12px; font-size: 9.5px; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--muted);
+  background: var(--bg-sunken); border-top: 1px solid var(--border);
+}
+.tcard__dot { color: var(--card-tint); }
+.artsheet__cards { display: flex; gap: 12px; flex-wrap: wrap; }
+.artsheet__cards > * { width: 232px; }
+
+/* ---- The opening lesson ------------------------------------------------
+   A card at the foot of the screen, over the chart's own strip. Everything
+   behind it stays live on purpose: a player who ignores this and starts
+   tapping loses nothing, which is what most people do. */
+.teach {
+  position: fixed; left: 10px; right: 10px; z-index: 60;
+  bottom: calc(var(--safe-bottom) + 68px);
+  background: linear-gradient(180deg, #123240 0%, #0c2531 100%);
+  border: 1px solid var(--metal); border-radius: 14px;
+  padding: 14px 16px 12px; box-shadow: 0 0 0 1px var(--metal-lo), 0 14px 40px rgba(0, 0, 0, 0.55);
+  animation: teach-in 260ms ease-out both;
+}
+.teach--out { animation: teach-out 180ms ease-in both; }
+@keyframes teach-in { from { opacity: 0; transform: translateY(14px); } }
+@keyframes teach-out { to { opacity: 0; transform: translateY(10px); } }
+.teach__pips { display: flex; gap: 5px; margin-bottom: 9px; }
+.teach__pip { width: 16px; height: 3px; border-radius: 2px; background: #2c4c58; }
+.teach__pip--on { background: var(--metal); }
+.teach__title { margin: 0 0 5px; font-size: 18px; color: var(--text); }
+.teach__body { margin: 0 0 12px; font-size: 14px; line-height: 1.45; color: #cfe0e6; }
+.teach__row { display: flex; align-items: center; gap: 10px; }
+.teach__skip {
+  background: none; border: 0; color: var(--muted); font: inherit; font-size: 13px;
+  padding: 8px 4px; min-width: 44px; text-align: left; cursor: pointer;
+}
+.teach__next { margin-left: auto; padding: 9px 18px; }
+@media (prefers-reduced-motion: reduce) {
+  .teach, .teach--out { animation: none; }
+}
+
+/* ---- The crew, as portraits ------------------------------------------- */
+/* The face square itself, which outlived the crew roster it was built for.
+   Sean cut that screen's tab on 19 September; the component is still what the
+   island's Crew tab, the errand sheet and the encyclopedia all draw a person
+   with, so its three rules stay and the two dozen card rules around them are
+   gone. */
+.charface { overflow: hidden; background: var(--water-deep); line-height: 0; }
+.charface img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 28%; display: block; }
+.charface--dim img { filter: saturate(0.5) brightness(0.8); }
+.charface__cameo { display: flex; align-items: center; justify-content: center; height: 100%; }
+
+/* ---- A character's own page ------------------------------------------- */
+.charsheet__epithet { font-size: 16px; color: var(--brass); font-style: italic; }
+.charsheet__roles { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+/* The lore reads as the world talking, not as interface copy: serif, roomy,
+   and the one paragraph on the page allowed to be a paragraph. */
+.charsheet__lore {
+  margin: 10px 0 2px; font-size: 14.5px; line-height: 1.55; color: #d3e3e9;
+  border-left: 2px solid var(--brass); padding-left: 11px;
+}
+
+/* ---------- What is in the water ---------- */
+/* The paintings are wide and quiet, so they crop to a band and fade out at the
+   foot rather than sitting in a frame: this is a rumour on a panel, not a
+   specimen plate. */
+.creature {
+  position: relative; width: 100%; overflow: hidden;
+  border-radius: 10px; background: #0a1a22;
+}
+.creature img {
+  width: 100%; height: 100%; object-fit: cover; object-position: center 42%;
+  display: block; opacity: 0.92;
+}
+.creature__fade {
+  position: absolute; inset: auto 0 0 0; height: 46%;
+  background: linear-gradient(to bottom, transparent, var(--bg-raised));
+  pointer-events: none;
+}
+.waters { margin-top: 14px; }
+.waters__line {
+  margin: 8px 0 0; font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+  font-size: 14px; line-height: 1.5; color: var(--text-dim);
+}
+.waters__name {
+  display: block; font-size: 11px; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--brass); margin-top: 10px;
+}
+.bestiary { display: grid; gap: 18px; }
+.bestiary__entry { border-top: 1px solid var(--rule); padding-top: 14px; }
+.bestiary__name {
+  margin: 10px 0 4px; font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+  font-size: 18px; color: var(--text);
+}
+.bestiary__where {
+  margin: 0 0 8px; font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--brass);
+}
+.bestiary__lore {
+  margin: 0; font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+  font-size: 14px; line-height: 1.62; color: var(--text-dim);
+}
+
+/* ---------- The worth mark, wherever an island is named ---------- */
+.worthmark { display: inline-block; vertical-align: -0.18em; }
+.isle__worth { margin-left: 7px; color: var(--brass); }
+.sheet__worth { margin-left: 9px; vertical-align: -0.12em; }
+
+/* The tutorial's kicker and its way back. */
+.teach__kicker {
+  font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--brass); margin-bottom: 4px;
+}
+.teach__back {
+  background: none; border: 0; color: var(--text-dim); font-size: 14px;
+  padding: 9px 10px; cursor: pointer;
+}
+
+/* A count as the mark itself: bold, haloed, centred on the island. */
+.map__num {
+  font-size: 38px; font-weight: 900; text-anchor: middle; dominant-baseline: central;
+  font-variant-numeric: tabular-nums; paint-order: stroke fill;
+  stroke: #041219; stroke-width: 8px; stroke-linejoin: round;
+}
+.chainmap__num {
+  font-size: 34px; font-weight: 800; text-anchor: middle;
+  font-variant-numeric: tabular-nums; paint-order: stroke fill;
+  stroke: #041219cc; stroke-width: 6px; stroke-linejoin: round;
+}
+
+/* ---------- The advisor's frame ----------
+   A fixed 4:5 rectangle (narrator plan F6). The three mood stills sit
+   stacked and cross-fade; a clip, when one exists, plays over the top of
+   the matching still, so a clip that stalls or 404s leaves the face behind
+   it rather than a hole. The still breathes a little so an advisor with no
+   clip yet is not a photograph. */
+.advisor-frame {
+  position: relative; flex: none; overflow: hidden;
+  border-radius: 6px; border: 1px solid var(--border);
+  background: #071a22;
+  box-shadow: 0 2px 10px rgba(3, 13, 18, 0.6);
+}
+.advisor-frame__still, .advisor-frame__clip {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+.advisor-frame__still {
+  opacity: 0; transition: opacity 0.45s ease;
+  transform-origin: 50% 85%;
+  animation: advisor-breathe 4.6s ease-in-out infinite;
+}
+.advisor-frame__still--on { opacity: 1; }
+.advisor-frame__clip { animation: fade 0.3s ease; }
+@keyframes advisor-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.014); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .advisor-frame__still { animation: none; }
+  .advisor-frame__clip { display: none; }
+}
+
+/* An unexplored island is its mark on the chart, nothing more. */
+.isle-banner--chart { background: #0b2a36; }
+.isle-banner__chart { width: 100%; height: 100%; }
+.isle__chart { flex: none; clip-path: circle(50%); }
+
+/* ---------- Build screen ---------- */
+.seg {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+  padding: 4px; border-radius: 12px;
+  background: var(--bg-sunken); border: 1px solid var(--border);
+}
+.seg__btn {
+  min-height: 40px; border-radius: 9px; font-size: 13px; font-weight: 600;
+  color: var(--muted); background: none; border: none;
+}
+.seg__btn--on { color: var(--text); background: var(--bg-raised); box-shadow: 0 1px 4px rgba(3, 13, 18, 0.5); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip--on { color: var(--brass); border-color: var(--brass); }
+.chips .chip { display: inline-flex; align-items: center; gap: 6px; }
+.btn--sm { min-height: 36px; padding: 0 12px; font-size: 13px; }
+
+/* The build flow: the three-button menu and the order sheet. */
+.buildmenu__btn { justify-content: flex-start; text-align: left; gap: 12px; padding: 12px 14px; }
+.buildmenu__icon { flex: none; width: 40px; height: 40px; display: grid; place-items: center; color: var(--brass); background: var(--bg-sunken); border-radius: 10px; }
+.buildmenu__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.buildmenu__text b { font-size: 14px; }
+.buildmenu__text .tiny { white-space: normal; font-weight: 400; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field__label { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brass); font-weight: 600; }
+.field__select {
+  min-height: var(--tap); padding: 8px 36px 8px 12px; border-radius: 9px;
+  border: 1px solid var(--border); background: var(--bg-sunken); color: var(--text);
+  font: inherit; font-size: 14px; font-weight: 600; width: 100%; appearance: none; -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size: 6px 6px; background-repeat: no-repeat;
+}
+.field__static { min-height: var(--tap); display: flex; align-items: center; padding: 8px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg-sunken); font-weight: 600; }
+/* The picture leads and the words follow, rather than a 96px stamp with three
+   paragraphs beside it. This is the card you are looking at when you decide to
+   spend four hundred gold on a thing, and what the thing looks like is most of
+   what you are deciding about. */
+.unit { margin-top: 10px; padding: 10px; display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+.unit__art {
+  width: 100%; aspect-ratio: 1 / 1; border-radius: 10px; overflow: hidden;
+  background: var(--bg-sunken); display: grid; place-items: center;
+  color: var(--brass); border: 1px solid var(--border);
+}
+.unit__art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* A hull is painted 4:3 and keeps it. A works is shown in the same 16:10 band
+   everywhere it appears — the island board, the encyclopedia and this card —
+   so the crop a player learns a building by is the same crop every time. */
+.unit__art--tall { aspect-ratio: 4 / 3; }
+.unit__art--wide { aspect-ratio: 16 / 10; }
+/* A works card carries its aspect inline, from the painting itself, so a 4:3
+   commission is not squeezed into the band the sliced strips were cut for. */
+.unit__art--paint { width: 100%; }
+/* Nothing painted yet: a glyph in a box that is not the size of a poster. */
+.unit__art:not(.unit__art--tall):not(.unit__art--wide) { width: 110px; height: 110px; aspect-ratio: auto; }
+.unit__body { min-width: 0; }
+.unit__name { font-weight: 700; font-size: 15px; }
+.unit__stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+
+/* The mission menu: one card an errand. */
+.choice { display: flex; gap: 10px; align-items: flex-start; text-align: left; width: 100%; }
+.choice__icon { flex: none; width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; color: var(--metal); background: rgba(0, 0, 0, 0.3); border: 1px solid var(--metal-lo); }
+/* With a painting in it the tile is the painting: bigger, and no inner
+   padding, because a 34px box around a 22px glyph is a frame and a 44px box
+   around a painting is the picture. */
+.choice__icon--art { width: 46px; height: 46px; padding: 0; overflow: hidden; background: none; }
+.choice__icon--art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.choice__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.choice__name { font-size: 14px; }
+.choice__what { white-space: normal; line-height: 1.35; }
+
+/* How a parley or an incitement looks, and what is making it look that way.
+   Words rather than a figure — the brief is explicit that the player judges a
+   situation here, they do not do arithmetic on it — and one line per term, the
+   label left and its pluses right, so the pluses fall into a column the eye
+   can read down. Adding the right person to the boat visibly moves them. */
+.band { font-weight: 600; letter-spacing: 0.02em; white-space: nowrap; }
+.band--very-difficult { color: var(--bad); }
+.band--difficult { color: #e08b52; }
+.band--moderate { color: var(--chrome-muted); }
+.band--favorable { color: #9ed07a; }
+.band--very-favorable { color: var(--good); }
+.factors { display: flex; flex-direction: column; gap: 1px; margin-top: 4px; }
+.factor { display: flex; justify-content: space-between; gap: 8px; font-size: 10px; }
+.factor__label { color: var(--chrome-muted); white-space: normal; }
+.factor__mark { font-weight: 700; letter-spacing: 1px; flex: none; }
+.factor__mark--good { color: var(--good); }
+.factor__mark--bad { color: var(--bad); }
+
+/* The battle summary on a dispatch card: two sides, side by side. */
+/* ---------- The battle sheet ---------- */
+/* Head and foot pinned, the middle scrolls: the assessment and the two buttons
+   stay on the screen however many hulls are in the water. */
+.dispatch--battle { display: flex; flex-direction: column; max-height: 86%; }
+.dispatch--battle .dispatch__head,
+.dispatch--battle .dispatch__foot { flex: none; }
+.battle__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+/* Rebellion's assessment line: two words, big enough to be the first thing
+   read, coloured by how bad it is. Everything under it is the detail. */
+.odds {
+  margin: 9px 14px 4px;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  font-size: 19px; font-weight: 700; letter-spacing: 0.02em;
+  text-align: center; text-transform: uppercase;
+}
+.odds--overwhelming { color: #6fe4a4; }
+.odds--favorable { color: #9ede8a; }
+.odds--even { color: #e8dcc0; }
+.odds--unfavorable { color: #efa46a; }
+.odds--desperate { color: #f0705c; }
+/* A losing sheet should feel like one. Only the bottom band pulses, and
+   slowly: an assessment that flashes every round is a slot machine. */
+.odds--desperate { animation: odds-pulse 1.6s ease-in-out infinite; }
+@keyframes odds-pulse { 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .odds--desperate { animation: none; } }
+
+/* One side's board. Stacked rather than columned: a roster read across two
+   narrow columns on a phone is a roster nobody reads. */
+.battle__side {
+  margin: 8px 14px; padding: 8px 10px; border-radius: 10px;
+  background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border);
+}
+.battle__side--empire { border-color: rgba(79, 196, 106, 0.4); }
+.battle__side--alliance { border-color: rgba(216, 72, 63, 0.45); }
+.battle__side--beast { border-color: #5a4a2a; background: rgba(90, 74, 42, 0.16); }
+.battle__side-head { display: flex; align-items: center; gap: 7px; }
+.battle__side-name {
+  font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text);
+}
+.battle__side-sum { margin-left: auto; font-size: 12px; color: var(--muted); }
+.battle__side-sum b { color: var(--text); }
+.battle__cond { margin: 6px 0 2px; height: 4px; background: #0d2f3a; }
+.battle__side--empire .battle__cond .bar__fill { background: var(--empire); }
+.battle__side--alliance .battle__cond .bar__fill { background: var(--alliance); }
+
+.battle__roster { margin-top: 4px; }
+.battle__hull {
+  display: flex; align-items: center; gap: 8px;
+  padding: 3px 0; font-size: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.battle__hull:first-child { border-top: none; }
+.battle__hull-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.battle__hull-stats { flex: none; font-variant-numeric: tabular-nums; }
+.battle__hurt { color: var(--bad); }
+
+/* The lines under a roster — who is handling it, what is aboard, what the wall
+   is worth. Wrapped rather than stacked: most sides have one or two. */
+.battle__notes { display: flex; flex-wrap: wrap; gap: 3px 12px; margin-top: 5px; }
+.battle__note { color: var(--muted); }
+.battle__note b { color: var(--text); }
+.battle__loss, .battle__loss b { color: var(--bad); }
+.battle__line { margin: 6px 14px 0; }
+.battle__verdict { margin-top: 4px; }
+
+.dispatch--battle .dispatch__foot { gap: 8px; }
+/* The two choices share the width evenly; the single button that dismisses a
+   finished action does not, or it shoulders the date off the edge. */
+.dispatch__foot--choice .btn { flex: 1; }
+
+.tally { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 14px 0; }
+.tally__side {
+  display: flex; gap: 8px; align-items: flex-start; padding: 8px; border-radius: 10px;
+  background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border);
+}
+.tally__side--empire { border-color: rgba(79, 196, 106, 0.4); }
+.tally__side--alliance { border-color: rgba(216, 72, 63, 0.45); }
+.tally__side--beast { border-color: #5a4a2a; background: rgba(90, 74, 42, 0.16); }
+
+/* Somebody of yours is already on this errand at this island. A warning, not
+   a refusal: the sheet says so and the player decides. */
+.choice__doubling { display: block; margin-top: 3px; color: var(--brass); }
+
+/* Someone in the bible the draw did not seat this war. Still a reference
+   entry; just not one of anybody's people. */
+.encmini--absent .encmini__art { opacity: 0.55; filter: saturate(0.4); }
+
+/* Where one of your own crew is, at the top of their entry: the one line on
+   an encyclopedia page that is about today rather than about the world. */
+.encfull__where {
+  font-size: 13px; color: var(--brass); letter-spacing: 0.02em;
+  margin: 0 0 8px; font-variant-numeric: tabular-nums;
+}
+.tally__body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.tally__name { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--chrome-text); }
+.tally__row { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+.tally__row b { color: var(--text); }
+.tally__row--loss { color: var(--bad); }
+.tally__row--loss b { color: var(--bad); }
+.tally__foot { grid-column: 1 / -1; padding: 0 2px; }
+@media (max-width: 359px) { .tally { grid-template-columns: 1fr; } }
+
+/* Short screens — an older iPhone, or one with the browser's bars showing —
+   lose the creed and a little padding rather than any of the chart. */
+@media (max-height: 700px) {
+  .banner__creed { display: none; }
+  .banner { min-height: 44px; padding-bottom: 3px; }
+  .banner__day { width: 40px; height: 40px; }
+  .console { padding: 4px 8px 5px; }
+}
+
+/* The Open Deck's line on her fleet card. */
+.fleet__seat {
+  margin: 6px 0 2px;
+  padding: 6px 8px;
+  border-left: 2px solid var(--metal, #b08a4a);
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Room to build: one pip per berth, pale stone where something stands, a
+   darker socket where the ground is free. Kept clear of the faction colours
+   so it cannot be misread as allegiance.
+   One track, the same length everywhere: thirteen columns, and an island
+   draws a pip in as many of them as it has berths. Six berths reaches
+   halfway; the columns past the end stay empty, so how much ground an
+   island has is the length of its bar. */
+/* The Lore tab's prose. Wider leading than the interface uses, because this
+   is the one page in the game meant to be read rather than scanned. */
+/* Splitting a squadron: a mode the card enters, so it announces itself with a
+   plain full-width control rather than an icon somebody has to learn. */
+.fleet__split-open {
+  display: block; width: 100%; margin-top: 8px; padding: 7px;
+  font-size: 12px; color: var(--muted);
+  border: 1px dashed var(--border); border-radius: 9px; background: none;
+}
+.fleet__split-open:active { background: rgba(255, 255, 255, 0.04); }
+.fleet__split {
+  margin-top: 8px; padding: 8px; border-radius: 10px;
+  border: 1px solid var(--metal-lo); background: rgba(0, 0, 0, 0.22);
+}
+.fleet__split-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+.fleet__split-acts .btn { flex: 1 1 auto; min-width: 104px; font-size: 12px; }
+/* A row that is a choice rather than a door: no chevron, a box instead. */
+.shiprow--pick {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 5px 4px; text-align: left; border-radius: 8px;
+  border: 1px solid transparent;
+}
+.shiprow--picked { border-color: var(--metal); background: rgba(0, 0, 0, 0.25); }
+.shiprow__box { flex: none; width: 18px; font-size: 15px; color: var(--metal-hi); }
+
+.lore__body {
+  margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--text);
+}
+
+.roombar {
+  display: grid; gap: 2px; width: 100%; margin-top: 8px;
+  align-items: center;
+}
+.roombar > span { height: 7px; border-radius: 2px; background: #8fa0a8; }
+.roombar > span.is-built { background: #f4f7f8; }
+/* One track column is narrower than a digit, so the figure is allowed out of
+   its cell. Tabular so it does not jitter as it changes. */
+.roomnum {
+  font-size: 11px; font-weight: 600; line-height: 1;
+  font-variant-numeric: tabular-nums; color: #f4f7f8;
+  margin-left: 4px; white-space: nowrap;
+}
+.roomnum--none { color: #6d8490; font-weight: 500; }
+.roombar--row { margin-top: 4px; max-width: 150px; }
+.roombar--row > span { height: 5px; background: #55707d; }
+.roombar--row > span.is-built { background: #93a7b1; }
+.roombar--row .roomnum { font-size: 10px; color: #93a7b1; background: none; height: auto; }
+.roombar--row .roomnum--none { color: #55707d; }
+/* The same figure on the chain view, where the berth track is drawn in SVG
+   rather than built out of elements. */
+.chainmap__berths {
+  font-size: 15px; font-weight: 700; fill: #f4f7f8;
+  font-variant-numeric: tabular-nums; dominant-baseline: middle;
+}
+.chainmap__berths--none { fill: #6d8490; font-weight: 500; }
+
+/* --- What a works is making, and how far along -------------------------- */
+/* One bar from ordered to arrived. The notch is where the building stops and
+   the sailing starts, so a hull nearly finished with a fortnight's passage
+   ahead of it does not read as nearly delivered. */
+.works__order {
+  margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
+}
+/* The works the chart's Idle-buildings count is about, said on the works
+   itself. Quiet — it is an answer to a question the player asked on the
+   chart, not an alarm. */
+.works__idle {
+  flex: none; padding: 2px 7px; border-radius: 999px;
+  border: 1px solid var(--brass); color: var(--brass);
+  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700;
+}
+.works__crew { color: var(--metal); }
+.workbar {
+  position: relative; height: 6px; border-radius: 3px; overflow: hidden;
+  background: #0d2f3a; margin: 6px 0 5px;
+}
+.workbar > span {
+  display: block; height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--metal-lo), var(--metal-hi));
+  transition: width 240ms ease-out;
+}
+.workbar__mark {
+  position: absolute; top: -1px; bottom: -1px; width: 1px;
+  background: var(--chrome-text); opacity: 0.55;
+}
+.workbar--halted > span { background: #55707d; }
+.works__clock { color: var(--muted); }
+.works__clock b { color: var(--chrome-text); font-weight: 600; }
+.works__dot { margin: 0 5px; opacity: 0.5; }
+.works__to { font-style: italic; }
+.works__halted { color: var(--bad, #d8533f); }
+
+/* --- A unit's numbers, in the encyclopedia ------------------------------ */
+/* Four to eight little figures under a card. A grid rather than a row so a
+   phone wraps them into even columns instead of scrolling sideways. */
+.statgrid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  margin-top: 8px; background: var(--border);
+  border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+}
+.statgrid > span {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 5px 2px; background: var(--card, #10333f);
+}
+.statgrid i { font-style: normal; font-size: 9px; letter-spacing: 0.03em; color: var(--muted); text-align: center; }
+.statgrid b { font-size: 13px; color: var(--chrome-text); }
+@media (max-width: 380px) { .statgrid { grid-template-columns: repeat(2, 1fr); } }
+
+/* --- A figure in gold ---------------------------------------------------- */
+/* "Upkeep: 3◉/day" as one unbreakable run. The coin sits on the baseline with
+   the digits rather than beside them, so the whole thing reads as a quantity. */
+.goldfig { display: inline-flex; align-items: baseline; gap: 1px; white-space: nowrap; }
+.goldfig__label { color: var(--muted); margin-right: 2px; }
+.goldfig b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.goldfig .coin { align-self: center; flex: none; }
+.goldfig__per { color: var(--muted); margin-left: -2px; }
+.goldfig--earn b { color: var(--good, #7fc99a); }
+.goldfig--cost b { color: var(--metal-hi); }
+
+/* --- A painted thing on a board ----------------------------------------- */
+/* The works paintings are wide banners, so they run the full width of the tile
+   with the name under them rather than being squeezed into the 34px square the
+   drawn glyphs sit in. The tile loses its side padding to let the band bleed. */
+.slot--art { padding: 0 0 6px; }
+.slot__art { display: block; width: 100%; line-height: 0; }
+.slot__art .facthumb {
+  display: block; width: 100%; border: 0; border-radius: 7px 7px 0 0;
+}
+/* A crew member is a painting across the top of the tile, like everything
+   else on a board.
+   Sean, 19 September: *"This screen is still showing way too small of images.
+   Cut the frames and just show me the crew please."* They were the one unit
+   kind still drawn as a ringed medallion: a square badge in the middle of the
+   tile with the ornate frame taking most of it and the face a circle inside
+   that. He had already said once that *"we want the image to pop not the
+   frame"* and the answer then was to tuck the face under the ring's bevel,
+   which kept the frame. This cuts it. The rings are still worn where a
+   medallion is the right object — a 44px badge on a fleet row, the art
+   sheet — but not where there is room for the painting. */
+.slot__art .charface {
+  display: block; width: 100% !important; height: auto !important;
+  aspect-ratio: 1 / 1; border: 0; border-radius: 7px 7px 0 0;
+}
+.slot--art .slot__name { padding: 5px 4px 0; }
+.slot--art .slot__note { padding: 0 4px; }
+
+/* A berth with something in the ground: not built, not free. */
+.roombar > span.is-ground { background: #4f7a52; }
+.roombar--row > span.is-ground { background: #3d5f40; }
+
+/* The one destructive order on the island panel, kept off the tiles. */
+.clearline { gap: 10px; align-items: center; margin: 10px 0 2px; }
+
+/* Where a tapped unit landed you in the encyclopedia: a brief brass edge, so
+   the eye finds the entry on a page of a dozen similar cards. */
+.is-landed { box-shadow: 0 0 0 2px var(--metal); border-radius: 10px; }
+
+/* A company's figure in the encyclopedia, at a size you can actually read. */
+/* `.company__thumb` stood here. The encyclopedia was its only caller and it
+   now uses the shared encyclopedia cell like every other unit. */
+
+/* A hull the shipwrights have not reached yet, in the encyclopedia. */
+.enc-craft { color: var(--metal-hi); letter-spacing: 0.02em; }
+
+/* A report's age, above the tabs on the island sheet.
+   Brass and boxed rather than another grey note: everything under this line is
+   what somebody wrote down on a day that has passed, and the commonest way to
+   lose an officer is to act on a month-old count without noticing it is one. */
+.report-age {
+  margin: 0 0 10px;
+  padding: 6px 9px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--brass) 34%, transparent);
+  background: color-mix(in srgb, var(--brass) 8%, transparent);
+  color: var(--muted);
+}
+.report-age b {
+  color: var(--brass);
+}
+
+/* A medallion wearing one of the personnel rings.
+   The face is drawn smaller and centred; the ring is laid over the whole
+   square, its ornaments hanging out past the head the way they do on the
+   painting. Nothing here is a hit target, so the ring never takes a tap
+   meant for the tile under it. */
+.medallion {
+  position: relative;
+  display: block;
+  flex: none;
+}
+.medallion > svg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.medallion__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* Turned down. Sean, on the first cut: *"the borders are a little too
+     intense."* At full strength a board of four is four skulls and a great
+     deal of red before it is four people, which is the wrong way round — the
+     ring is there to say whose they are, not to be the thing you look at.
+     Held back rather than shrunk away: the ornament is still legible at this
+     weight, it has just stopped out-shouting the face it frames. Turned down
+     twice — the second time alongside the face being tucked under the bevel,
+     which is the half of it that actually changed the hierarchy. */
+  opacity: 0.55;
+  filter: saturate(0.8);
+}
+
+/* News running through a Reach: a ring that opens out of the chain and fades.
+   Sean's propagation memo, §20 — the point is to make regional politics read
+   as connected rather than as nine islands that happened to move at once. It
+   runs for a couple of seconds and repeats while the shock is fresh, and the
+   dots changing underneath it are the actual message. */
+.map__shock {
+  fill: none;
+  stroke: var(--metal-hi);
+  stroke-width: 3;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: shockring 1.8s ease-out infinite;
+}
+@keyframes shockring {
+  0% { transform: scale(0.35); opacity: 0; }
+  15% { opacity: 0.85; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No travelling ring for anyone who has asked the system for less movement.
+     The Reach still marks itself, it simply sits still while it does it. */
+  .map__shock { animation: none; opacity: 0.5; }
+}
+
+/* ---------- The outcome report: three screens, not one with three words ----
+   Sean's combat outcome specification. The verdict sets a single custom
+   property and everything downstream reads it, so a defeat is not a victory
+   with a red word — it is a different accent, a different lead, and a
+   different thing drawn large. */
+.outcome { --outcome: var(--metal); display: flex; flex-direction: column; gap: 10px; }
+.outcome--victory { --outcome: var(--good); }
+.outcome--defeat { --outcome: var(--bad); }
+.outcome--draw { --outcome: #c9a227; }
+
+.outcome__head { display: flex; flex-direction: column; gap: 1px; }
+.outcome__op {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--chrome-muted);
+}
+.outcome__where { font-size: 15px; font-weight: 600; }
+
+/* The word. A victory states itself and stops; a defeat is heavier and flatter;
+   a draw is deliberately the quietest of the three, because a loud DRAW reads
+   as a result and a draw is the absence of one. */
+.outcome__verdict {
+  font-size: 26px; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--outcome); text-align: center; padding: 2px 0;
+}
+.outcome--defeat .outcome__verdict { letter-spacing: 0.1em; text-transform: uppercase; font-size: 24px; }
+.outcome--draw .outcome__verdict { font-size: 20px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+
+.outcome__tension {
+  margin: 0; text-align: center; font-size: 13px; line-height: 1.4;
+  color: var(--chrome-text); opacity: 0.85;
+}
+
+.outcome__block { display: flex; flex-direction: column; gap: 5px; }
+/* A draw's first block is its strategic result, and it is boxed so the eye
+   lands there before it lands on any number. */
+.outcome__block--lead {
+  border: 1px solid var(--outcome); border-radius: 10px; padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.outcome__force-name { font-size: 13px; }
+.outcome__force { padding-top: 2px; }
+.outcome__figs { display: flex; gap: 4px; }
+.outcome__fig {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 6px 2px; border-radius: 8px; background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--metal-lo);
+}
+.outcome__fig b { font-size: 17px; }
+.outcome__fig--bad b { color: var(--bad); }
+.outcome__figs--rest .outcome__fig b { font-size: 15px; }
+
+/* The one number a defeat is about. */
+.outcome__hero {
+  display: flex; align-items: baseline; gap: 8px; padding: 4px 2px 2px;
+}
+.outcome__hero b { font-size: 40px; line-height: 1; color: var(--bad); }
+.outcome__hero span { font-size: 12px; color: var(--chrome-muted); }
+
+.outcome__hulls { display: flex; flex-wrap: wrap; gap: 4px; padding-top: 2px; }
+.outcome__hull { position: relative; display: inline-flex; }
+.outcome__hull-n {
+  position: absolute; right: -2px; bottom: -2px; font-size: 9px; font-weight: 700;
+  background: var(--chrome-2); border: 1px solid var(--metal-lo); border-radius: 6px;
+  padding: 0 3px;
+}
+
+.outcome__rows { display: flex; flex-direction: column; gap: 2px; }
+.outcome__row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; }
+.outcome__row--civilian b { color: var(--bad); }
+.outcome__up { color: var(--good); }
+.outcome__down { color: var(--bad); }
+
+/* Somebody taken is not a row in a list. */
+.outcome__gone {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 7px 9px; border-radius: 9px;
+  border: 1px solid var(--bad); background: rgba(226, 80, 74, 0.12);
+}
+.outcome__gone span { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--bad); }
+
+.outcome__control { margin: 0; font-size: 13px; }
+.outcome__bullets { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 3px; }
+.outcome__bullets li { font-size: 12px; line-height: 1.4; color: var(--chrome-text); }
+
+/* The kind of thing a sheet is about, over its name: WORLD MAP, REACH MAP,
+   LOCATION. Sean's word of 17 September — one word per idea, and a screen
+   should say which of the three it is rather than leaving it to be inferred. */
+/* `flex: 1` so the name stays left against the emblem and the close mark
+   stays right. Without it the row spread three items evenly and the title
+   drifted into the middle of the header. */
+.sheet__titles { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+.sheet__eyebrow {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--chrome-muted); line-height: 1;
+}
+
+/* The one-column unit entry stood here and is gone with the list it belonged
+   to. Three passes built it — the crew art grew to answer *"I can barely see
+   their faces"*, came back 40% to answer *"too big now"*, and then every
+   other unit was brought to the same width — and all three are folded into
+   the two layers below: a picture-and-a-name cell, and one entry opened out
+   of it. `.encunit__*` and `.enccrew__*` went with them. */
+
+/* ---- The encyclopedia's two layers -------------------------------------
+
+   Sean, 19 September: *"I feel like on the encyclopedia you're trying to do
+   too much... Within the encyclopedia you can look at pics and scroll. But
+   when you find the entry you want you click it for max info in a single
+   entry. And then in the game panels if you need to learn about something you
+   click it and it pops up the full max entry."*
+
+   So the list stopped being the reference and became the way into it. Every
+   entry had been carrying its whole self — art, stats, hit chances, lore — and
+   twenty-six of those is a document you scroll past rather than a thing you
+   look things up in. The list is pictures and a name now, two to a row, which
+   is what makes it scannable: a dozen hulls on a screen instead of one and a
+   half. Everything that was in the row is still written; it is one tap away
+   in a sheet of its own, and that same sheet is what a game panel opens
+   directly. */
+.encgrid {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+.encmini {
+  display: flex; flex-direction: column; gap: 1px; padding: 0 0 8px;
+  text-align: left; color: inherit; font: inherit; cursor: pointer;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden;
+}
+.encmini:active { background: rgba(0, 0, 0, 0.18); }
+.encmini:focus-visible { outline: 2px solid var(--brass); outline-offset: -2px; }
+.encmini__art { display: block; line-height: 0; width: 100%; }
+/* Each art kind told to fill the cell, the same override the one-column
+   layout needed — the cell is narrower, nothing else changed. */
+.encmini__art .charface { width: 100% !important; height: auto !important; aspect-ratio: 1 / 1; }
+.encmini__art .shipthumb {
+  display: block; width: 100% !important; height: auto !important; aspect-ratio: 4 / 3;
+  border: 0; border-radius: 0;
+}
+.encmini__art .facthumb { display: block; width: 100%; border: 0; border-radius: 0; }
+.encmini__art--figure {
+  display: grid; place-items: center; aspect-ratio: 4 / 3; background: rgba(0, 0, 0, 0.22);
+}
+/* Pushed to the foot of the card, so a row of tiles whose paintings are
+   different shapes still reads as a row. Since 19 September a works keeps its
+   painting's own aspect rather than being cut to one band, which means a 4:3
+   commission stands taller in its cell than a sliced strip; the names line up
+   anyway. */
+.encmini__name {
+  font-size: 13px; font-weight: 600; line-height: 1.2; color: var(--text);
+  padding: 7px 9px 0; margin-top: auto;
+}
+/* One line, and only the fact you would sort or choose by. Everything else is
+   inside. */
+.encmini__line {
+  font-size: 10.5px; color: #8fa6b0; line-height: 1.35; padding: 2px 9px 0;
+  font-variant-numeric: tabular-nums;
+}
+.encmini__tag {
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--brass); opacity: 0.85; padding: 3px 9px 0;
+}
+/* The ℹ️ mark: one line where a paragraph used to be, and a way through to
+   where the paragraph now lives. Sean, 19 September: *"add ℹ️ info that links
+   to encyclopedia or rules or glossary when needed to explain finer points of
+   game."* Quiet, left-aligned and full width, so a row of them reads as a
+   short contents list rather than as buttons competing with the pictures
+   above. */
+.inforow { display: flex; flex-direction: column; gap: 2px; margin: 10px 0 2px; }
+.infolink {
+  display: flex; align-items: baseline; gap: 7px; width: 100%;
+  padding: 7px 2px; text-align: left;
+  font-size: 12.5px; line-height: 1.35; color: var(--brass);
+  background: none; border: 0; cursor: pointer;
+}
+.infolink > span:first-child { font-size: 14px; opacity: 0.85; flex: none; }
+.infolink:active { opacity: 0.6; }
+.infolink:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; border-radius: 6px; }
+/* Beside a section title the mark is the trailing half of one line, so it
+   loses the block layout and keeps only its colour. */
+.row--between > .infolink { width: auto; padding: 0; flex: none; }
+
+/* How to win: the one thing in the game you are actually trying to do, and it
+   was four fifths of the way down the Rules page under a heading the same
+   weight as "Not built yet". Sean, 19 September: *"add at the top of rules in
+   big box 'how to win'."* Big means big — brass rule, larger type, and the
+   two conditions as two paragraphs rather than one sentence apiece buried in
+   a run of prose. */
+.howtowin {
+  border-color: var(--brass); border-width: 2px;
+  background: linear-gradient(180deg, rgba(201, 162, 39, 0.10), rgba(201, 162, 39, 0.02));
+  margin-bottom: 14px;
+}
+.howtowin__title {
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  font-size: 22px; font-weight: 700; color: var(--brass);
+  margin-bottom: 8px;
+}
+.howtowin p { margin: 0 0 8px; font-size: 14px; line-height: 1.5; }
+.howtowin p:last-child { margin-bottom: 0; }
+
+/* The entry itself, on the layer above. The art runs the full width here
+   because there is nothing competing with it any more. */
+/* A hull or a works with no painting yet falls back to a drawn glyph, which
+   carries its own intrinsic size rather than the painting's box — on the
+   Blackfin a third of it hung out below the banner and over the stats
+   scrolling underneath. The banner clips it, but clipping a ship in half is
+   not a drawing; it gets fitted instead. */
+.encfull__art {
+  line-height: 0; border-radius: 10px; overflow: hidden;
+  display: grid; place-items: center;
+  /* The banner is a flex item in the sheet's column and was being squeezed
+     a little narrower than its own contents, which is what put the glyph
+     through the clip. The body below it scrolls, so it is the one that
+     should give. */
+  flex: none;
+}
+.encfull__art > svg { width: auto; height: auto; max-width: 62%; max-height: 190px; }
+.encfull__art .charface { width: 100% !important; height: auto !important; aspect-ratio: 1 / 1; }
+/* The hull the stories give a Pirate Lord, under their story.
+   Sean, 19 September: *"Move the ships of stories section in ship encyclopedia
+   under the character lore in the crew profile."* A picture and a paragraph
+   side by side, because it is a footnote to the person rather than an entry of
+   its own — the three of them are not built, not sailed and not fought, which
+   is exactly why they do not belong on a page of things you build. */
+.encfull__hull {
+  display: flex; gap: 10px; align-items: flex-start; margin-top: 10px;
+  padding: 10px; border: 1px solid var(--border); border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.encfull__hull .shipthumb { flex: none; }
+.encfull__hull > div { flex: 1; min-width: 0; }
+
+.encfull__art .shipthumb {
+  display: block; width: 100% !important; height: auto !important; aspect-ratio: 4 / 3;
+}
+.encfull__art .facthumb { display: block; width: 100%; }
+.encfull__art--figure {
+  display: grid; place-items: center; aspect-ratio: 16 / 9;
+  border: 1px solid var(--border); border-radius: 10px; background: rgba(0, 0, 0, 0.18);
+}
+
+/* The text column is 40% of a phone now, so the header rows that used to run
+   name-left figure-right across a full card have to stack. Done here rather
+   than by rewriting four headers: `row--between` is the right markup and only
+   its width has changed. */
+/* The lore paragraph on an opened entry: a ship's design notes, a person's
+   life, a company's line. Serif-adjacent spacing, because it is the one thing
+   on the sheet that is prose rather than a figure. */
+.encfull__lore { margin: 12px 0 2px; font-size: 13px; line-height: 1.55; color: #c3d6de; }
+
+/* Role tags, which are now the way into the glossary rather than the tail of
+   a grey line. A chip that is a link gets the brass and the border; one the
+   glossary has no word for stays flat, so the difference is visible before
+   you tap rather than after. */
+.roletags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.roletag {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 8px; border-radius: 999px; border: 1px solid transparent;
+  background: rgba(0, 0, 0, 0.22); color: #9db4bd; line-height: 1;
+}
+.roletag--tap {
+  border-color: rgba(198, 160, 74, 0.45); color: var(--brass);
+  cursor: pointer; font-family: inherit;
+}
+.roletag--tap:active { background: rgba(198, 160, 74, 0.18); }
+.roletag--tap:focus-visible { outline: 2px solid var(--brass); outline-offset: 1px; }
+
+/* ---- ?art=paintings: every painting in the game -------------------------
+   Not a game screen. Sean asked for the art somewhere he could look at it
+   whenever he liked; this is that, deployed with the build so it is never a
+   stale second copy. Its own small stylesheet because it shares nothing with
+   the game's chrome and should not start. */
+.pg { padding: 12px 14px 40px; color: var(--text); }
+.pg__bar {
+  position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap;
+  gap: 8px; align-items: center; padding: 10px 0 12px; margin-bottom: 4px;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+}
+.pg__bar > div:first-child { flex: 1 1 260px; }
+.pg__sub { font-size: 11.5px; color: #8fa6b0; margin-top: 2px; }
+.pg__find {
+  flex: 0 1 220px; padding: 7px 10px; border-radius: 8px;
+  border: 1px solid var(--border); background: rgba(0, 0, 0, 0.25);
+  color: inherit; font: inherit; font-size: 13px;
+}
+.pg__size {
+  padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.25); color: var(--brass); font: inherit;
+  font-size: 12px; cursor: pointer;
+}
+.pg__none { color: #8fa6b0; }
+.pg__folder {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--brass); margin: 18px 0 8px;
+}
+.pg__folder span { color: #6f858f; margin-left: 6px; letter-spacing: 0; }
+.pg__grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.pg__grid--wide { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.pg__cell {
+  display: flex; flex-direction: column; gap: 1px; text-decoration: none; color: inherit;
+  background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px; overflow: hidden;
+}
+.pg__cell img { width: 100%; height: auto; display: block; border-radius: 5px; background: var(--water-deep); }
+.pg__cell b { font-size: 12.5px; margin-top: 5px; line-height: 1.25; }
+.pg__meta { font-size: 10.5px; color: #8fa6b0; line-height: 1.35; }
+.pg__meta--dim { color: #6f858f; }
+
+/* The faction sigil on an encyclopedia cell.
+/* The sigil beside the name, not over the picture.
+   Sean, 19 September: *"Move sigils out of the image box and into the text
+   box."* Over the art it needed its own dark disc to stay legible against sky
+   or sea, and it covered the corner of the thing it was labelling. Beside the
+   name it needs neither. */
+.encmini__name--sigil { display: flex; align-items: center; gap: 6px; }
+
+/* ---- The sheet header's emblem and its close mark ----------------------- */
+.sheet__emblem { flex: none; line-height: 0; margin-right: 10px; }
+/* Sean, 19 September: *"Replace the large boxed ✕ with a plain ✕ icon. Keep
+   the drag handle."* It is the least important control on the sheet and the
+   box was giving it the weight of the most. */
+.sheet__x {
+  flex: none; border: 0; background: none; color: #93a3ab;
+  font-size: 22px; line-height: 1; padding: 6px 2px 6px 10px; cursor: pointer;
+}
+.sheet__x:active { color: var(--text); }
+.sheet__x:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; border-radius: 4px; }
+
+/* ---- The ship entry: cost chips and grouped stats ---------------------- */
+.shipcost { display: flex; gap: 8px; margin-top: 4px; }
+.shipcost > div {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;
+  background: rgba(0, 0, 0, 0.22); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 9px;
+}
+.shipcost i {
+  font-style: normal; font-size: 9.5px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: #8fa6b0;
+}
+.shipcost b { font-size: 14px; color: var(--text); font-variant-numeric: tabular-nums; }
+
+.shipstats { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); }
+.shipstat {
+  display: flex; flex-direction: column; gap: 2px;
+  background: rgba(0, 0, 0, 0.18); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 9px 8px;
+}
+.shipstat i {
+  font-style: normal; font-size: 9.5px; letter-spacing: 0.06em; color: #8fa6b0;
+}
+.shipstat b { font-size: 15px; color: var(--text); font-variant-numeric: tabular-nums; }
+/* Scaled against the highest in the game, computed from the roster. A bar on
+   its own says nothing; a bar against the fleet says where this hull sits. */
+.shipstat__bar {
+  display: block; height: 3px; border-radius: 2px; margin-top: 4px;
+  background: rgba(255, 255, 255, 0.09); overflow: hidden;
+}
+.shipstat__bar > span { display: block; height: 100%; background: var(--brass); opacity: 0.75; }
+
+/* A tile picked up. It lifts, brightens at the rim, and stops trying to look
+   like something you are about to tap. */
+.slot--held {
+  transform: scale(1.06);
+  border-color: var(--brass);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55);
+  z-index: 2;
+}
+/* While a tile can be dragged, the browser must not claim the gesture first:
+   without this the board scrolls and the tile never moves. */
+.slot-wrap .slot { touch-action: none; }

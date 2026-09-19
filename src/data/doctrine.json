@@ -1,0 +1,152 @@
+{
+  "_comment": "What the opponent knows about how to win, written down where it can be read, argued with and measured. Sean asked for 'a file on optimal game play for the AI - teaches strategy learned over time and updates as it learns, and AIs can read this for future games. This will also help with difficulties: more advanced AIs can use more advanced tactics.' So: every lesson is a named article with a tier, a rule the opponent's code reads through src/sim/doctrine.ts, and the measurement that earned it. `evidence` is what was found the day the article was written and does not change. `measured` is written by `lab/doctrine.ts`, which plays the same wars with the article and without it and records the difference; run it again whenever the balance moves and the numbers under every claim are current. Nothing here is a hunch. An article with neither evidence nor a measurement has not been earned yet.",
+  "version": 1,
+  "measuredOn": "2026-09-15",
+  "tiers": {
+    "plain": "What anybody would do. An opponent that does only these is a sparring partner: it holds its ground, courts its neighbours and defends itself.",
+    "sharp": "What a decent player does. Reads the ledger, brings the right ships to the right island, and knows what its own principals are for.",
+    "ruthless": "What a good player does once they have stopped being polite. Prices other people's loyalty, hunts officers, and commits to a siege rather than dabbling."
+  },
+  "articles": [
+    {
+      "id": "solvency-first",
+      "tier": "plain",
+      "title": "Earners before everything",
+      "rule": "Never order anything that costs upkeep while the daily surplus cannot carry it with room to spare. When the surplus is thin, the only thing worth building is an earner.",
+      "why": "Every island taken adds a garrison to feed and every hull a crew. A side that wins land while insolvent watches its works fall down behind it.",
+      "evidence": "Before this rule the opponent ran its treasury dry by day 180 on either side, in every game."
+    },
+    {
+      "id": "spend-the-bank",
+      "tier": "sharp",
+      "title": "A treasury is not a ledger",
+      "rule": "Savings count toward what you can afford. Treat gold in hand, spread over a long campaign, as part of the daily surplus.",
+      "why": "Upkeep is paid out of the bank and nothing breaks until the bank is empty, so a deficit the treasury can carry for a year is not worth refusing an order over.",
+      "evidence": "A side holding 172,000 gold with a thin ledger built nothing at all, held 41 islands of 63, and could not afford the two first-rates it needed to open one seawall. The war ran 3,000 days and stopped without ending.",
+      "measured": "Measured over 16 wars an arm: holding 16615 gold and 33.8 hulls at the end, against 17909 gold and 37.8 hulls when savings do not count toward what it can afford. The opponent won 16 of 16 with the article and 16 without it."
+    },
+    {
+      "id": "take-the-free-ground",
+      "tier": "plain",
+      "title": "The outer Reaches are free capital",
+      "rule": "Chart the frontier, then settle it. An island nobody lives on is taken by putting one company on the beach, and finishing anything on it makes it a loyal island of yours.",
+      "why": "Twenty of sixty-three islands start empty and carry four to ten plots apiece. One filled with earners clears something over six gold a day against an opening surplus of five — a colony nearly doubles what a side is making, for one company and a crossing. And it is ground nobody has to be fought for.",
+      "evidence": "Ignored entirely until measured: 23 islands started dark and all 23 ended dark, in every war. With survey and settlement scored, the opponent now charts 77% of the frontier and holds 3.5 colonies and 25 new plots a war."
+    },
+    {
+      "id": "expand-when-the-bill-grows",
+      "tier": "sharp",
+      "title": "Expand harder as maintenance bites",
+      "rule": "Value exploring and settling in inverse proportion to the surplus. Comfortable, expand because land is land; squeezed, cross half the world for a colony.",
+      "why": "Sean's reasoning: as maintenance costs grow, the unexplored areas are where the capital is. A side that only expands when it is rich never expands when it needs to.",
+      "measured": "Measured over 16 wars an arm: 5.0 colonies a war with the frontier priced against the ledger, 3.3 when it is priced the same however tight things are. The opponent won 16 of 16 with the article and 16 without it."
+    },
+    {
+      "id": "one-squadron-not-thirty",
+      "tier": "plain",
+      "title": "Keep the navy in one piece",
+      "rule": "Squadrons of yours lying idle in the same harbor become one squadron.",
+      "why": "A new hull joins whatever fleet is at the island — unless that fleet is at sea when the yard finishes, and then it is a squadron of one. Nothing puts them back together on its own.",
+      "evidence": "One war finished with 44 hulls in 37 squadrons, most a single sloop: nothing that could fight anything or carry a landing."
+    },
+    {
+      "id": "balanced-fleet",
+      "tier": "sharp",
+      "title": "Three kinds of ship, three kinds of problem",
+      "rule": "Build some of each. Frigates take sloops, sloops take ships of the line, ships of the line take frigates — and no weight of sloops opens a fortified harbor.",
+      "why": "A fleet of one kind has a hole in it that the other side can aim at. Measured by the purse: two frigates beat four sloops 89-42, four sloops beat a first-rate 134-5, two first-rates beat three frigates 76-38.",
+      "evidence": "Only the seawall rule keeps ships of the line necessary at all, and only the triangle keeps frigates worth owning.",
+      "measured": "Measured over 16 wars an arm: ends with 3.5/3.0/13.3/12.0 sloops/frigates/first-rates/transports, against 1.5/1.6/13.9/11.3 buying the heaviest hull it can pay for. The opponent won 16 of 16 with the article and 15 without it."
+    },
+    {
+      "id": "weight-before-berths",
+      "tier": "sharp",
+      "title": "Weight of shot before berths",
+      "rule": "While you cannot break the walls of the island you have to take, what you build is a ship of the line — not another transport.",
+      "why": "Berths are no use with nothing to put ashore behind them, and the lift target chases a garrison the other side keeps growing.",
+      "evidence": "Reading lift first left one side with eleven hulls, 165,000 gold and a bombard total of zero, because every hull was a brig.",
+      "measured": "Measured over 16 wars an arm: over the 8 wars it held the Confederacy, its heaviest broadside against a wall was 80 at the end, against 73 when berths are read first. The opponent won 16 of 16 with the article and 16 without it."
+    },
+    {
+      "id": "commit-to-the-siege",
+      "tier": "ruthless",
+      "title": "A siege is a race, so do not dabble",
+      "rule": "Do not open fire unless you can be through the walls in a few days on top of what they patch overnight. Once begun, stay: every day you are not working the walls, they are rebuilding them.",
+      "why": "Walls mend at two per cent a day and a wall beaten to nothing is rubble that does not. A half-finished siege abandoned is worth exactly nothing.",
+      "evidence": "Opening sieges with whatever was to hand sent a lone first-rate against 120 of wall under 40 guns, seven times in eight games, losing her every time without taking a stone off.",
+      "measured": "Measured over 16 wars an arm: holding the Confederacy it spends 48 days a war with its guns on the walls and takes 8 of 8 of those wars; dabbling instead, 26 days and 7 of 8. The opponent won 16 of 16 with the article and 15 without it."
+    },
+    {
+      "id": "walls-let-the-fleet-leave",
+      "tier": "sharp",
+      "title": "Fortify so the fleet can go",
+      "rule": "Put a battery on the ports that matter. A harbor a fleet has to stay moored in to hold is a second garrison, not a fleet.",
+      "why": "Sean's reasoning for walling Highwater and the great island's other port. A wall is what buys a navy its freedom of action.",
+      "evidence": "With two seawalls at Highwater the Crown's navy is away from home on 61% of days, and the capital still falls in eight wars in twenty."
+    },
+    {
+      "id": "never-strip-the-seat",
+      "tier": "plain",
+      "title": "The capital keeps its companies",
+      "rule": "Never let an automatic order take companies off a seat whose fall ends the war, and never leave any island of yours with nobody standing on it.",
+      "why": "A firmly loyal island needs no companies to stay quiet, which is a different question from how many may sail away. An empty harbor is taken by whoever turns up with one company.",
+      "evidence": "The Crown's capital was emptied by its own Home Fleet weighing anchor, sat at a garrison of nought for 23 days with nothing in the log about it, and the war ended on day 36."
+    },
+    {
+      "id": "seat-your-principals",
+      "tier": "sharp",
+      "title": "Put your principals in chairs",
+      "rule": "Powers bought with a posting are worth what the island is worth. Seat the Moot where there is allegiance left to win; seat the Admiral where the guns are. Never seat the one whose power is the passage.",
+      "why": "Two of the three Confederate powers are positions rather than passives, and a power nobody has placed is a power that does nothing.",
+      "evidence": "The opponent took no posting of any kind: commanders held a chair on zero island-days over eight wars and 2,620 days.",
+      "measured": "Measured over 16 wars an arm: 813 island-days with a principal in a chair, 0 without the article. The opponent won 16 of 16 with the article and 16 without it."
+    },
+    {
+      "id": "hunt-the-principals",
+      "tier": "ruthless",
+      "title": "Go after their people",
+      "rule": "An officer of theirs standing on a quay is the cheapest prize in the game. Their harbor is worth sailing into for a principal and nobody else.",
+      "why": "People are scarce and permanent; an island can be worked again next month. And for the Crown it is the whole route to victory.",
+      "evidence": "With their ground closed to abduction the Crown won none of sixteen wars and took no Lord. With it open, every Crown win is three Lords in irons.",
+      "measured": "Measured over 16 wars an arm: 2.3 people lifted off a quay a war and 16 of 16 wars won; 3.2 and 15 of 16 when their quays are left alone. The opponent won 16 of 16 with the article and 15 without it."
+    },
+    {
+      "id": "look-before-you-land",
+      "tier": "sharp",
+      "title": "Count the guns before you send anybody past them",
+      "rule": "Send a spy to an enemy island it has no report on before it sends anybody to work on that island covertly, and price every covert errand off what its own reports say rather than off what is true.",
+      "why": "The watch is the number every quiet errand has to beat, and an island held against you does not tell you what its watch is. Without this the opponent knows every island's strength for nothing and to the digit, which is not a strategy, it is the absence of one. With it, the memo's chain falls out on its own: look, then soften, then raid."
+    },
+    {
+      "id": "shell-only-when-you-must",
+      "tier": "ruthless",
+      "title": "Count the Reach before you shell the town",
+      "rule": "Past the walls, land if you have more companies than they do. Shell the garrison only when you have not, and know that the whole Reach will hear of it and that each further day costs more than the last.",
+      "why": "Shot that goes looking for companies in a town finds the town. It is a price worth paying against a garrison you cannot carry, and a way of losing a Reach you have just taken if you do it out of habit."
+    },
+    {
+      "id": "research-your-own-yards",
+      "tier": "sharp",
+      "title": "A spare officer belongs in your own yards",
+      "rule": "When nothing is urgent, put an officer into a yard of yours on loyal ground.",
+      "why": "Craft compounds and costs nothing but a fortnight of somebody's time.",
+      "evidence": "Unreachable until measured — candidate islands were only ever neutral, enemy, or its own in trouble, and research lives on its own islands doing well. Craft measured exactly zero at the end of every game on both sides.",
+      "measured": "Measured over 16 wars an arm: 25.7 mentions of craft a war, 0.0 without it. The opponent won 16 of 16 with the article and 16 without it."
+    },
+    {
+      "id": "keep-a-chair-warm",
+      "tier": "plain",
+      "title": "Do not walk your own commanders out of the room",
+      "rule": "An officer holding a posting is not available for an errand or a deck. Leaving ends the posting.",
+      "why": "Otherwise the errand pass appoints a commander and then immediately sends them somewhere else."
+    },
+    {
+      "id": "break-off-early",
+      "tier": "sharp",
+      "title": "Leave a bad action on the first broadside",
+      "rule": "Break off while it is cheap. The cost of a retreat is what reaches you on the way out, and that grows with every round you stay.",
+      "why": "Only guns that reach can touch a fleet already going, so early disengagement is nearly free and a first-rate is an expensive thing to have to withdraw late.",
+      "evidence": "A squadron four times your weight with something fast enough to close cannot be broken off from at all — that is the one action you must not sail into."
+    }
+  ]
+}

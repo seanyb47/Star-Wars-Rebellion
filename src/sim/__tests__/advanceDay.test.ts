@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { advanceDay, checkVictory } from '../advanceDay';
-import { YARD_BUILDS } from '../constants';
-import { generateGalaxy } from '../galaxy';
-import { newGame, orderBuild, resolvePendingMission, sendDiplomat, setSpeed } from '../commands';
+import { MISSION_WORK_DAYS, YARD_BUILDS } from '../constants';
+import { generateGalaxy, START_GOLD } from '../galaxy';
+import { newGame, orderBuild, sendCrew, setSpeed } from '../commands';
 import { clearSave, loadGame, saveGame } from '../persist';
-import { getSystem } from '../helpers';
+import { getSystem, setSupport } from '../helpers';
+import { travelDays } from '../missions';
 import type { GameState } from '../types';
 
 /** What a new game starts with; kept here so the test states the intent. */
-const START_GOLD = 150;
 
 function tick(state: GameState, days: number): GameState {
   let next = state;
@@ -43,13 +43,13 @@ describe('advanceDay', () => {
 
   it('survives a long run without throwing or corrupting the galaxy', () => {
     const after = tick(generateGalaxy(404), 400);
-    expect(after.systems).toHaveLength(100);
+    expect(after.systems).toHaveLength(63);
     expect(after.day).toBeGreaterThan(1);
     for (const system of after.systems) {
       expect(system.support.empire).toBeGreaterThanOrEqual(0);
       expect(system.support.empire).toBeLessThanOrEqual(100);
       expect(system.facilities.filter((f) => f.type === 'mine').length).toBeLessThanOrEqual(
-        system.rawSlots,
+        system.slots,
       );
     }
   });
@@ -75,7 +75,7 @@ describe('the opponent AI', () => {
     expect(aiOrders.length).toBeGreaterThan(0);
   });
 
-  it('sends a diplomat out on its mission cycle', () => {
+  it('sends a crew member out on their errand cycle', () => {
     const state = tick(generateGalaxy(407), 11);
     const busy = state.characters.filter((c) => c.faction === 'alliance' && c.mission);
     expect(busy.length).toBeGreaterThan(0);
@@ -91,14 +91,12 @@ describe('the opponent AI', () => {
 });
 
 describe('victory', () => {
-  it('declares a winner at 60% of populated systems', () => {
+  it('declares the Confederacy the winner the day it holds Highwater', () => {
     const state = generateGalaxy(409);
-    const populated = state.systems.filter((s) => s.populated);
-    for (const system of populated.slice(0, Math.ceil(populated.length * 0.6))) {
-      system.control = 'empire';
-    }
+    const capital = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
+    capital.control = 'alliance';
     checkVictory(state);
-    expect(state.winner).toBe('empire');
+    expect(state.winner).toBe('alliance');
     expect(state.speed).toBe('paused');
   });
 
@@ -130,34 +128,91 @@ describe('commands', () => {
 
   it('applies a legal order to a fresh copy', () => {
     const state = newGame(410);
-    const yard = state.systems
-      .flatMap((s) => s.facilities)
-      .find((f) => f.type === 'construction_yard' && f.owner === 'empire')!;
-    const result = orderBuild(state, yard.id, 'mine');
+    const host = state.systems.find((s) =>
+      s.facilities.some((f) => f.type === 'construction_yard' && f.owner === 'empire'),
+    )!;
+    const yard = host.facilities.find(
+      (f) => f.type === 'construction_yard' && f.owner === 'empire',
+    )!;
+    // A wall, because the two earners cost nothing to raise since 17 September
+    // and this is about the treasury being charged on the new state alone.
+    const result = orderBuild(state, yard.id, 'fort');
     expect(result.error).toBeUndefined();
     expect(result.state).not.toBe(state);
     // The order is paid for out of the treasury, and only on the new state.
     expect(state.factions.empire.gold).toBe(START_GOLD);
-    expect(result.state.factions.empire.gold).toBe(START_GOLD - YARD_BUILDS.mine.costGold);
+    expect(result.state.factions.empire.gold).toBe(START_GOLD - YARD_BUILDS.fort.costGold);
   });
 
   it('runs a diplomacy mission end to end through the command layer', () => {
     let state = newGame(411);
     const diplomat = state.characters.find((c) => c.faction === 'empire')!;
     const home = getSystem(state, diplomat.locationSystemId);
-    const target = state.systems.find(
-      (s) => s.sectorId === home.sectorId && s.control === 'neutral',
-    )!;
+    // An island of our own, on purpose: there is no foil risk on ground you
+    // hold, so this exercises the command layer rather than a lucky roll. On a
+    // neutral island the officer can be found out and come home hurt, which is
+    // a perfectly good outcome but not the one this test is about. Any Crown
+    // island will do — the Crown's other holdings are not always in the seat's
+    // own chain — so the clock runs for the real passage plus the work.
+    const target = state.systems.find((s) => s.control === 'empire' && s.id !== home.id)!;
+    // Under the research floor, so the island asks for a parley and not for
+    // its yards to be put to work.
+    target.support.empire = 60;
 
-    const sent = sendDiplomat(state, diplomat.id, target.id);
+    const sent = sendCrew(state, diplomat.id, target.id);
     expect(sent.error).toBeUndefined();
-    state = tick(sent.state, 18);
-    expect(state.pendingDecisions).toHaveLength(1);
+    // Exactly the passage plus the work: the clock pauses on a decision in
+    // play, and a test that runs past it sees the same decision raised again.
+    state = tick(sent.state, travelDays(state, home.id, target.id) + MISSION_WORK_DAYS);
 
-    const resolved = resolvePendingMission(state, diplomat.id, 'return');
-    expect(resolved.error).toBeUndefined();
-    expect(resolved.state.pendingDecisions).toHaveLength(0);
-    const freed = resolved.state.characters.find((c) => c.id === diplomat.id)!;
+    /*
+     * And nobody is asked anything. A parley runs itself until the island is
+     * wholly yours or something stops it — Sean's rule, 17 September — so the
+     * end-to-end test is that the talks carry on by themselves and stop when
+     * there is nobody left to talk round.
+     */
+    expect(state.pendingDecisions).toHaveLength(0);
+    expect(state.characters.find((c) => c.id === diplomat.id)!.mission?.type).toBe('diplomacy');
+
+    /*
+     * Cycle after cycle, unasked.
+     *
+     * The island is put back under the ceiling first, and deliberately. This
+     * used to rely on a parley on your own ground never getting there by
+     * itself — opinion drifts back toward `HELD_SUPPORT_LEVEL` every day, so
+     * it settles into a tug of war in the sixties — which held until the
+     * opening changed underneath it and the draw handed this seed the Lord
+     * Regent, who argues at fifteen points a fortnight and reached a hundred
+     * in three. The talks ending there is the rule working, and it is the
+     * *next* assertion's job. This one is about them not asking.
+     */
+    for (const s of state.systems) if (s.id === target.id) setSupport(s, 'empire', 60);
+    state = tick(state, MISSION_WORK_DAYS * 2);
+    expect(state.pendingDecisions).toHaveLength(0);
+    expect(state.characters.find((c) => c.id === diplomat.id)!.mission?.type).toBe('diplomacy');
+
+    /*
+     * And they stop when there is nobody left to talk round. Set outright
+     * rather than argued up to: on an island you already hold, opinion drifts
+     * back toward `HELD_SUPPORT_LEVEL` every day, so a parley on your own
+     * ground settles into a tug of war in the sixties and never reaches the
+     * ceiling by itself. Reaching it is a thing that happens on a neutral
+     * island being won over, or with the drift beaten by something else — and
+     * either way this is the rule for what happens when it does.
+     */
+    /* Held at the ceiling for the whole window rather than set once. Opinion
+       drifts back toward `HELD_SUPPORT_LEVEL` a quarter-point a day, so a
+       single set is only true on the morning it is made — and whether the
+       cycle happens to end before the drift has eaten a quarter point is a
+       matter of where the day's other business left the dice. The rule under
+       test is "talks end when there is nobody left to talk round", not "they
+       end within one cycle of a number that is already sliding". */
+    for (let day = 0; day < MISSION_WORK_DAYS + 1; day++) {
+      for (const s of state.systems) if (s.id === target.id) setSupport(s, 'empire', 100);
+      state = advanceDay(state);
+    }
+    const freed = state.characters.find((c) => c.id === diplomat.id)!;
+    expect(freed.mission).toBeUndefined();
     expect(freed.status).toBe('available');
   });
 });
@@ -184,7 +239,7 @@ describe('save and load', () => {
     saveGame(state, storage);
     const loaded = loadGame(storage)!;
     expect(loaded.day).toBe(state.day);
-    expect(loaded.systems).toHaveLength(100);
+    expect(loaded.systems).toHaveLength(63);
     expect(JSON.stringify({ ...loaded, speed: state.speed })).toEqual(JSON.stringify(state));
   });
 

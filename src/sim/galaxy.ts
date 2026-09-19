@@ -1,24 +1,100 @@
 import factionData from '../data/factions.json';
 import characterRoster from '../data/characters.json';
 import reachData from '../data/reaches.json';
+import chartData from '../data/chart.json';
 import { createRng, type Rng } from './rng';
+import {
+  CONNECTIVITY_MAX,
+  CONNECTIVITY_MIN,
+  PIRATE_LORDS,
+  RECRUIT_LAST_DAY,
+  RECRUITS_AT_START,
+  RECRUITS_IN_PLAY,
+  rollRating,
+  watchOf,
+  CAPITAL_WALLS,
+  CROWN_PRINCIPAL,
+  HOME_PORT_WALLS,
+  CAPITAL_GARRISON,
+  START_GARRISON_MAX,
+  START_GARRISON_SPARE,
+  FOREST_MIN,
+  FOREST_MAX,
+  FOREST_BY_LOOK,
+  GOLD_ISLAND_CHANCE,
+  GOLD_VEINS_MIN,
+  GOLD_VEINS_MAX,
+  GOLD_BY_LOOK,
+  CLEAR_BERTHS,
+  SETTLED_WORKED_MIN,
+  SETTLED_WORKED_MAX,
+  WORKS_ON,
+} from './constants';
+import { shipClass } from './constants';
+import { creature, creatureFor } from './creatures';
 
 import type {
   Character,
   Facility,
   FacilityType,
+  Faction,
   GameState,
   PlayableFaction,
   Sector,
   System,
+  IslandArchetype,
+  ShipClassId,
+  Deposit,
 } from './types';
 import { recomputeLedger } from './economy';
+import { handOver, requiredGarrison, setSupport } from './helpers';
+
+/**
+ * What each Sea's islands look like.
+ *
+ * The first entry is what a settled island there tends to be; the rest are the
+ * variety. An empty island is bare rock or ice whatever Sea it is in, because
+ * nobody has built anything on it to look at.
+ *
+ * This is the one place the world's character becomes a picture: the Far Sea is
+ * ice and bare crag, the Amber Sea is reef and jungle, the Bone Sea is drowned
+ * temples and water the Tide has reached. Seeded from the island's own name, so
+ * a given island looks the same in every game.
+ */
+const LOOKS: Record<string, IslandArchetype[]> = {
+  // The Crown Sea's ports are the three flagged on the great island; the rest
+  // of the Reach is the country around them.
+  'The Crown Sea': ['jungle-isle', 'rock-isle'],
+  'The Merchant Sea': ['port-city', 'jungle-isle', 'mining-isle'],
+  'The Amber Sea': ['reef-isle', 'jungle-isle', 'port-city'],
+  'The Far Sea': ['ice-isle', 'rock-isle', 'mining-isle'],
+  'The Sea of Storms': ['storm-isle', 'jungle-isle', 'mining-isle'],
+  'The Glass Sea': ['mining-isle', 'drowned-isle', 'rock-isle'],
+  'The Bone Sea': ['drowned-isle', 'tide-isle', 'free-harbor'],
+};
+const BARE: Record<string, IslandArchetype> = {
+  'The Far Sea': 'ice-isle',
+  'The Bone Sea': 'tide-isle',
+  'The Glass Sea': 'rock-isle',
+};
+
+function looksLike(sea: string, populated: boolean, port: boolean, pick: number): IslandArchetype {
+  if (port) return 'port-city';
+  if (!populated) return BARE[sea] ?? 'rock-isle';
+  const set = LOOKS[sea] ?? ['jungle-isle', 'rock-isle'];
+  return set[pick % set.length];
+}
+
+type ReachRole = 'home' | 'contested' | 'open' | 'frontier';
+const roleOf = (reach: { role: string }) => reach.role as ReachRole;
 
 const INNER_REACHES = reachData.reaches.filter((r) => r.tier === 'inner');
 const OUTER_REACHES = reachData.reaches.filter((r) => r.tier === 'outer');
 const CORE_SECTOR_COUNT = INNER_REACHES.length;
 const RIM_SECTOR_COUNT = OUTER_REACHES.length;
-const SYSTEMS_PER_SECTOR = 10;
+/** How many islands a Reach holds is the Reach's own business now. The small
+ *  map runs from seven to ten, set by how many clearly separated islands each
+ *  one's painted cluster can actually carry — see scripts/chart_positions.py. */
 
 /** Galaxy coordinate space is a square box; sectors sit on two concentric rings. */
 export const GALAXY_SIZE = 1200;
@@ -31,16 +107,235 @@ const RIM_RING_RADIUS = 460;
 const SECTOR_RADIUS = 105;
 const MIN_SYSTEM_SEPARATION = 38;
 
-/** Starting holdings per side (spec 4.1). */
-const START_SYSTEMS_PER_SIDE = 4;
-const START_MINES = 8;
-const START_REFINERIES = 8;
+/**
+ * The opening, Rebellion's shape (docs/opening.md).
+ *
+ * Every Reach has a role. The Crown's home Reach holds the seat and the three
+ * port cities of the great island; the Crown opens with the seat, one of the
+ * other two ports and one more island there, and the Confederacy with one or
+ * two. Three contested Reaches open with two islands a side and the rest
+ * settled and nobody's — garrisoned, so taking them is a landing, not a
+ * stroll. Three frontier Reaches — Rime, Salt and now Coral — start
+ * unexplored by everyone, a quarter of their islands settled behind the fog,
+ * and Freeport, where the Lords signed the articles, is one island in one of
+ * the three. Coral joined them at Sean's word: the spiral atoll is far enough
+ * south that the war has not charted it, which makes it a third place the
+ * Confederacy might have been founded rather than the one open Reach nobody
+ * had a reason to sail to.
+ */
+const START_CONTESTED_PER_SIDE = 2;
+const START_HOME_CONFEDERACY: [number, number] = [1, 2];
+const FRONTIER_SETTLED_CHANCE = 0.25;
+/**
+ * How many islands of the unexplored Reaches have something in the water.
+ *
+ * Only those Reaches, and only some of them. A creature everywhere is a
+ * creature nowhere, and one you can read about before you have sailed anywhere
+ * is scenery — the whole value of the thing is that the boats find it.
+ *
+ * A quarter, at Sean's word: "monsters should start small". They are not meant
+ * to be a feature of the frontier, they are meant to be the thing you did not
+ * expect out there — and later in the war they stop staying put, which is
+ * worth more than there being lots of them to begin with (see stirBeasts).
+ */
+const FRONTIER_BEAST_CHANCE = 0.25;
+/** The least room an island a side opens holding is allowed to have. Above it
+ *  the roll runs to ROOM_MAX, so a starting island is 8 to 12 berths whatever
+ *  the painting made of its coastline. */
+const START_ROOM_MIN = 8;
+/** Companies a settled island that is nobody's opens with, by how far out it is. */
+const NEUTRAL_GARRISON: Record<ReachRole, [number, number]> = {
+  home: [1, 3],
+  contested: [1, 3],
+  open: [1, 2],
+  frontier: [2, 4],
+};
+/**
+ * Earners per side. Nine islands a side now, each with a garrison to feed, so
+ * more than the old six-and-four opening carried. Measured across seeds to
+ * leave both sides a clear surplus on day one and free ground everywhere.
+ *
+ * The Crown's went up on 18 September, and only because its navy did. Two
+ * squadrons instead of one is thirteen gold a day more in upkeep, and the
+ * Crown's opening ledger had about five in it — so Sean's *"powerful fleet on
+ * Highwater and a medium fleet on another inner reach"*, dropped in on its own,
+ * opened the war at minus eight a day against a hundred and fifty in the bank.
+ * Broke in nineteen days, before the player had done anything wrong.
+ *
+ * A vein and five more mills puts it back where it was and no further:
+ * measured over three seeds, plus three to plus eight a day against the plus
+ * five it averaged before the second squadron existed. The fleet is the
+ * change; this is what the fleet costs.
+ *
+ * It is not the balance dial, which is worth knowing before anybody reaches
+ * for it. Three mills either way — a whole point of surplus a day — moved
+ * forty measured wars by one: Crown 23-14 at twenty-four mills, Crown 23-13 at
+ * twenty-three. What moved the war was the second squadron.
+ *
+ * The gap to the Confederacy's twenty-odd a day is not new and is not this
+ * change's to close. The Crown pays for Highwater's ancient walls and a seat's
+ * garrison, which is real and which the Confederacy has no equivalent of.
+ */
+/**
+ * The earners a side opens the war with.
+ *
+ * Almost all timber, and two veins apiece. A gold mine is worth four mills a
+ * day now, so dealing out fifteen of them made the opening flush — 126 gold a
+ * day against the old 63 — and a side that begins rich never has to make any
+ * of the decisions the rest of the economy is about. Two is a prize to defend
+ * and not a living.
+ */
+/**
+ * How many earners each side *ends up with*, not how many it is handed.
+ *
+ * A side's opening islands are settled islands, so a third to two thirds of
+ * their ground is already a mill or a mine before anybody deals anything —
+ * and until 16 September those works flew nobody's colours and earned nobody
+ * anything, so this list made up the whole opening income by itself. Now that
+ * a dealt island comes with its works, dealing the same number on top of them
+ * opened both sides twice as rich as they were tuned to be.
+ *
+ * So the deal fills a gap instead: whatever the ground is already working is
+ * counted, and the difference is dealt. The opening is then the same size in
+ * every world — which is what it has to be, because a world where the dice
+ * left a side four mills short of its upkeep opens it insolvent.
+ */
+const START_EARNERS: Record<PlayableFaction, { mines: number; refineries: number }> = {
+  empire: { mines: 3, refineries: 23 },
+  alliance: { mines: 2, refineries: 17 },
+};
 const START_YARDS = 2;
-const START_TRAINING = 1;
-const START_GARRISON = 2;
-const START_CHARACTERS = 7;
-/** Enough to lay down a camp or two before the first income arrives. */
-const START_GOLD = 150;
+const START_TRAINING = 2;
+/** A yard for hulls, so a slipway is not the first thing you have to build. */
+const START_SHIPYARDS = 2;
+/**
+ * The squadrons each side already has on the water, and where they lie.
+ *
+ * The board used to open with none at all, which meant the whole naval half of
+ * the game was twenty-two days away — the time to build a slipway and then a
+ * hull — and the first three weeks were a menu. Rebellion hands you a navy on
+ * turn one and lets you find out what it is for.
+ *
+ * Sean's shape, 18 September: *"Imperium should start with a powerful fleet on
+ * Highwater and a medium fleet on another inner reach. Confederacy fleet is its
+ * Freeport only and it's medium sized. Should rival the medium fleet from
+ * imperium."*
+ *
+ * Which is Rebellion's opening properly, and not only in weight. The Empire
+ * begins with a navy in two places and a coastline to answer for; the Rebels
+ * begin with one squadron in one harbor and nothing at all anywhere else. The
+ * asymmetry is not that the Crown's hulls are better — it is that the Crown has
+ * to be in two seas at once and the Confederacy does not. Sending the Home
+ * Fleet out to hunt is a decision with a cost now, because the second squadron
+ * is the only other thing on the water.
+ *
+ * The two mediums are deliberately matched and deliberately different: the
+ * Crown's is two heavy frigates and a scout, the Confederacy's is a pack of
+ * sloops around one bulk cruiser. Near enough the same weight of shot, and a
+ * quite different thing to fight.
+ */
+interface StartSquadron {
+  name: string;
+  ships: ShipClassId[];
+  /** Companies aboard, ready to take somewhere. */
+  troops: number;
+  /** Where she lies: the side's seat, or a holding out in a contested Reach. */
+  berth: 'seat' | 'forward';
+}
+const START_FLEETS: Record<PlayableFaction, StartSquadron[]> = {
+  empire: [
+    // Powerful, and at Highwater: a ship of the line, three heavy frigates, a
+    // scout and a transport. Eighty-nine guns.
+    {
+      name: 'Home Fleet',
+      ships: ['sovereign', 'razorback', 'razorback', 'razorback', 'kestrel', 'fluyt'],
+      troops: 2,
+      berth: 'seat',
+    },
+    // And a medium one forward, in a Reach the Crown does not own outright.
+    // Forty-two guns, no ship of the line: enough to take an island off
+    // somebody and not enough to fight the Confederacy's whole navy.
+    {
+      name: 'Windward Squadron',
+      ships: ['razorback', 'razorback', 'kestrel', 'fluyt'],
+      troops: 2,
+      berth: 'forward',
+    },
+  ],
+  alliance: [
+    // Freeport, and nowhere else. Forty-nine guns against the Windward's
+    // forty-two — the Confederacy's whole navy rivals the Crown's second
+    // squadron, and would not last a morning against its first.
+    {
+      name: 'Home Fleet',
+      ships: ['swift', 'swift', 'swift', 'swift', 'tempest', 'brig'],
+      troops: 2,
+      berth: 'seat',
+    },
+  ],
+};
+
+/**
+ * The garrison an island opens with: what its allegiance needs, plus a
+ * margin, capped. Read off the same rule the uprising check uses, so the
+ * opening is consistent with the game that follows — a sullen holding starts
+ * with the companies that are actually keeping it, not a token two.
+ */
+function startGarrison(support: number, capital: boolean): number {
+  const needed = requiredGarrison(support) + START_GARRISON_SPARE + (capital ? 1 : 0);
+  return Math.min(START_GARRISON_MAX, Math.max(1, needed));
+}
+/**
+ * Who is in the war on day one.
+ *
+ * Sean's numbers, 15 September: four for the Crown, five for the Confederacy —
+ * its three Lords and two others. It had been the whole roster, seven a side,
+ * which made the opening cast the same cast every game and left nothing for
+ * recruiting to be *for*.
+ *
+ * The three Lords are not optional and never drawn: they are the Confederacy's
+ * losing condition and three of its hulls at once, so a war missing one is a
+ * different game rather than a varied one. Everyone else on both sides is
+ * drawn, which is where the variety goes now that the principals' ratings are
+ * fixed — you always know exactly what Hale is worth, and not whether you have
+ * her.
+ */
+export const START_CHARACTERS: Record<PlayableFaction, number> = { empire: 4, alliance: 5 };
+
+function openingCast(faction: PlayableFaction, rng: Rng) {
+  const roster = characterRoster[faction];
+  // Who is in every war on this side: the three Lords for the Confederacy, the
+  // Regent for the Crown. Knowing your cast is knowledge worth having, and it
+  // only is if the cast is actually there.
+  const bound = roster.filter(
+    (e) => PIRATE_LORDS.some((l) => l.name === e.name) || e.name === CROWN_PRINCIPAL,
+  );
+  const rest = roster.filter((e) => !bound.includes(e));
+  const drawn = rng.shuffle(rest).slice(0, Math.max(0, START_CHARACTERS[faction] - bound.length));
+  const taken = new Set([...bound, ...drawn].map((e) => e.name));
+  // Back into the bible's order afterwards, so the crew list reads as a roster
+  // and not as the order they happened to come out of the bag.
+  return roster.filter((e) => taken.has(e.name));
+}
+/**
+ * Enough to set every works you own to work on the first morning.
+ *
+ * Sean, 17 September: *"I should have enough starting gold to build in each of
+ * my available facilities... early game, shouldn't be terribly constrained by
+ * gold."* At 150 it was: measured across eight worlds, giving each opening
+ * works even its *cheapest* legal job costs 140 to 220, so a Crown opening in
+ * the wrong seed could not fill its own yards on day one, and a player's first
+ * decision was which of their buildings to leave idle. That is the wrong first
+ * decision. Sean's list of what early game should be waiting on is explicit —
+ * things building, officers finishing errands, islands coming over — and coin
+ * is on none of it.
+ *
+ * 450 is measured rather than picked: a *middling* job in every works costs
+ * 420 to 440 across the same eight worlds. So the opening covers a real job
+ * everywhere with a little to spare, and still does not cover the dearest job
+ * everywhere (650), which is where the choosing starts.
+ */
+export const START_GOLD = 450;
 
 /** Scatter points inside the sector disc, rejecting anything too close. */
 function scatterSystems(rng: Rng, count: number): Array<{ x: number; y: number }> {
@@ -71,18 +366,143 @@ function scatterSystems(rng: Rng, count: number): Array<{ x: number; y: number }
   return points;
 }
 
-function makeFacility(id: string, type: FacilityType, owner: PlayableFaction): Facility {
+/**
+ * `owner` is a `Faction` rather than a side, because an unaligned island's own
+ * works belong to the unaligned island. They change hands with it the day
+ * somebody wins it over.
+ */
+function makeFacility(id: string, type: FacilityType, owner: Faction): Facility {
   return { id, type, owner };
 }
 
 /**
- * Build a fresh 100-system galaxy: 10 sectors of 10 systems, 4 core sectors
- * ringed by 6 rim sectors (spec 4.1).
+ * Build a fresh archipelago: seven Reaches, one for each Sea, three inner and
+ * four outer, holding sixty-three islands between them.
+ *
+ * It used to be ten Reaches of ten. The cut is not a simplification for its own
+ * sake — the chart is a painting now, and three of the ten sat on clusters the
+ * painting could not chart clearly: two crowded against a neighbour and one
+ * drawn on islets too small to hit. Each of the three shared a Sea with a Reach
+ * that survives, so nothing about the world is lost; they are held back for the
+ * larger maps beside Scrap Reach, exactly as the bible already holds that one.
+ *
+ * A Sea and a Reach are therefore the same thing at this size, which is why the
+ * chart can name the Seas and the panels can name the Reaches without either
+ * one lying.
  */
+/**
+ * How much of the chart around each island's mark is painted land, 0 to 1,
+ * measured by scripts/chart_positions.py. Room follows the look of the chart:
+ * a rock in open water has nowhere to build, a harbor with the great island
+ * at its back has room for a city.
+ */
+const LAND_ON_THE_CHART = new Map<string, number>(
+  chartData.reaches.flatMap((r) => r.islands.map((i) => [i.name, i.land] as const)),
+);
+
+/** The most an island can hold. */
+export const ROOM_MAX = 12;
+/** The least: a rock with a jetty and room to put something on it. Sean
+ *  raised this from three on 15 September — a three-berth island was a place
+ *  you built one thing on and never opened again. */
+export const ROOM_MIN = 4;
+/**
+ * The length every room bar is drawn against, so that a bar is a quantity
+ * and not a ratio: twelve berths fills it, six fills half of it, and three
+ * fills a quarter. Thirteen because the three port cities on the great
+ * island get the flagged port's extra berth on top of the chart's twelve.
+ */
+export const ROOM_TRACK = ROOM_MAX + 1;
+
+/**
+ * An island's room, from the land around its mark. Square-rooted so a
+ * quarter-land coast is not a quarter of a city: 4 on a bare rock, 6 or 7
+ * on an ordinary island, 12 where the great island fills the frame.
+ */
+/**
+ * What is in an island's ground, rolled once and never again.
+ *
+ * Forests two to five, nudged by what the island looks like; gold on one
+ * island in four, nudged the same way, and one or two veins where there is
+ * any. Capped so `CLEAR_BERTHS` plots always stay open — an island that rolled
+ * itself solid could never raise the works that would cut its own trees.
+ *
+ * Taken for every island, settled or empty, at the same odds. Sean's call, 16
+ * September: the frontier is not leftovers, and a colony is worth what the
+ * dice say it is worth.
+ */
+function groundOf(
+  rng: Rng,
+  archetype: IslandArchetype,
+  slots: number,
+  makeId: (prefix: string) => string,
+): Deposit[] {
+  const out: Deposit[] = [];
+  const trees = Math.max(
+    0,
+    rng.range(FOREST_MIN, FOREST_MAX) + (FOREST_BY_LOOK[archetype] ?? 0),
+  );
+  for (let i = 0; i < trees; i++) out.push({ id: makeId('dep'), type: 'forest' });
+  if (rng.chance(Math.max(0, GOLD_ISLAND_CHANCE + (GOLD_BY_LOOK[archetype] ?? 0)))) {
+    const veins = rng.range(GOLD_VEINS_MIN, GOLD_VEINS_MAX);
+    for (let i = 0; i < veins; i++) out.push({ id: makeId('dep'), type: 'gold' });
+  }
+  // Gold first if anything has to go: a vein is the rarer thing and the one
+  // worth keeping when an island is too small to hold all of what it rolled.
+  const room = Math.max(0, slots - CLEAR_BERTHS);
+  if (out.length <= room) return out;
+  const gold = out.filter((d) => d.type === 'gold').slice(0, room);
+  return [...gold, ...out.filter((d) => d.type === 'forest')].slice(0, room);
+}
+
+/**
+ * A settled island's ground, part of it already worked.
+ *
+ * The two sides' own islands are dealt their opening works by `seedHoldings`
+ * and are skipped here; this is for everywhere else that has people on it —
+ * the unaligned islands, which used to open as bare ground with a population
+ * on it and nothing else. Courting one now brings in a working island rather
+ * than an empty one, which is what a settled island ought to be worth.
+ */
+function workTheGround(
+  system: System,
+  rng: Rng,
+  makeId: (prefix: string) => string,
+): void {
+  const ground = system.deposits ?? [];
+  if (ground.length === 0) return;
+  const share = SETTLED_WORKED_MIN + rng.next() * (SETTLED_WORKED_MAX - SETTLED_WORKED_MIN);
+  // At least one, never all: a settled island is working and unfinished.
+  const take = Math.min(ground.length - 1, Math.max(1, Math.round(ground.length * share)));
+  if (take < 1) return;
+  const worked = ground.slice(0, take);
+  system.deposits = ground.slice(take);
+  for (const deposit of worked) {
+    system.facilities.push(
+      makeFacility(makeId('fac'), deposit.type === 'gold' ? 'mine' : 'refinery', system.control),
+    );
+  }
+}
+
+export function roomFor(name: string): number {
+  const land = LAND_ON_THE_CHART.get(name) ?? 0.2;
+  return Math.max(ROOM_MIN, Math.min(ROOM_MAX, Math.round(1 + 11 * Math.sqrt(land))));
+}
+
 export function generateGalaxy(seed: number, player: PlayableFaction = 'empire'): GameState {
   const rng = createRng(seed);
 
   const sectors: Sector[] = [];
+  /*
+   * A stream of its own for the Reaches' political temperaments.
+   *
+   * Drawn from the same seed and therefore just as reproducible, but kept off
+   * the main worldgen stream on purpose: taking seven draws out of `rng` in
+   * the middle of laying out the map moved every island, deposit and garrison
+   * rolled after them, and a world is a thing players share by its number. A
+   * feature added on Tuesday should not reshuffle Monday's world.
+   */
+  const politics = createRng(seed * 31 + 7);
   const systems: System[] = [];
   let idCounter = 0;
   const makeId = (prefix: string) => `${prefix}-${++idCounter}`;
@@ -110,10 +530,16 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
 
     // Islands take the positions in the order the bible lists them, so a
     // named island always sits in its own Reach.
-    const points = scatterSystems(rng, SYSTEMS_PER_SECTOR);
-    for (let i = 0; i < SYSTEMS_PER_SECTOR; i++) {
+    const count = reach.islands.length;
+    const points = scatterSystems(rng, count);
+    for (let i = 0; i < count; i++) {
       const island = reach.islands[i];
-      const populated = isCoreSector ? true : rng.chance(0.3);
+      const role = roleOf(reach);
+      // Frontier islands are settled a quarter of the time, and nobody knows
+      // which until somebody lands. Everywhere else is settled and charted.
+      const populated = role === 'frontier' ? rng.chance(FRONTIER_SETTLED_CHANCE) : true;
+      const charted = role !== 'frontier';
+      const port = 'port' in island && Boolean(island.port);
       const system: System = {
         id: makeId('sys'),
         name: island.name,
@@ -121,25 +547,62 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         sectorId: sector.id,
         x: points[i].x,
         y: points[i].y,
-        explored: { empire: isCoreSector, alliance: isCoreSector },
+        explored: { empire: charted, alliance: charted },
+        archetype: looksLike(
+          sector.sea,
+          populated,
+          port,
+          // Seeded from the name so an island looks the same in every game.
+          [...island.name].reduce((n, c) => n + c.charCodeAt(0), 0),
+        ),
         populated,
         isCore: isCoreSector,
         control: 'none',
         support: { empire: 0, alliance: 0 },
-        rawSlots: isCoreSector ? rng.range(2, 4) : rng.range(0, 5),
-        energySlots: isCoreSector ? rng.range(3, 6) : rng.range(0, 4),
+        // Room follows the painting, not the dice: the same island has the
+        // same room in every game. A port keeps one berth more.
+        slots: roomFor(island.name) + (port ? 1 : 0),
         facilities: [],
+        deposits: [],
         garrison: 0,
         uprising: false,
+        blockaded: false,
+        beastSeen: { empire: false, alliance: false },
       };
+      // What is under it. Before anything is placed, because the starting
+      // works are put *on* deposits rather than beside them.
+      system.deposits = groundOf(rng, system.archetype, system.slots, makeId);
+      // Something in the water, and only out where nobody has been. The roll
+      // is taken for every frontier island so the RNG stream does not depend
+      // on what the archetype happened to be.
+      if (role === 'frontier' && rng.chance(FRONTIER_BEAST_CHANCE)) {
+        system.beast = creatureFor(system)?.slug;
+      }
       if (populated) {
-        // Any inhabited world that has not picked a side is neutral, and can be
-        // courted. Core worlds are closer to the war and more polarised than
-        // the scattered settlements out on the rim.
+        // Any inhabited island that has not picked a side is neutral, and can
+        // be courted. The home and contested Reaches are closer to the war and
+        // more polarised than the settlements out on the open sea and beyond.
         system.control = 'neutral';
-        system.support = isCoreSector
-          ? { empire: rng.range(15, 45), alliance: rng.range(10, 40) }
-          : { empire: rng.range(0, 20), alliance: rng.range(0, 20) };
+        // Which way it leans, and how far. Near the war an island has heard
+        // the arguments and has opinions; out on the open sea and beyond it
+        // is barely off level. Never far enough to come over on its own.
+        setSupport(
+          system,
+          'empire',
+          role === 'home' || role === 'contested' ? rng.range(40, 60) : rng.range(45, 55),
+        );
+        // Settled and nobody's means somebody is holding it. A landing has to
+        // beat these companies; a parley has to win them over.
+        const [lo, hi] = NEUTRAL_GARRISON[role];
+        system.garrison = rng.range(lo, hi);
+        // And part of its ground already worked, which is what makes it a
+        // settled island rather than a populated rock. The two sides' own
+        // holdings are dealt theirs below and are not touched here.
+        workTheGround(system, rng, makeId);
+        system.slots = Math.max(
+          system.slots,
+          system.facilities.length + (system.deposits?.length ?? 0),
+        );
       }
       sector.systemIds.push(system.id);
       systems.push(system);
@@ -147,103 +610,356 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     sectors.push(sector);
   }
 
-  const byId = new Map(systems.map((s) => [s.id, s] as const));
-  const coreSectors = sectors.slice(0, CORE_SECTOR_COUNT);
-  const rimSectors = sectors.slice(CORE_SECTOR_COUNT);
-
-  // --- Imperium capital: the island the world bible marks as the seat. ---
-  const capital =
-    systems.find((system) => system.name === factionData.empire.capitalIslandName) ??
-    byId.get(coreSectors[0].systemIds[0])!;
-  capital.control = 'empire';
-  capital.support = { empire: 100, alliance: 0 };
-
-  // --- Alliance HQ: a random rim world, hidden out on the fringe. ---
-  const hqSector = rng.pick(rimSectors);
-  const allianceHq = byId.get(rng.pick(hqSector.systemIds))!;
-  allianceHq.control = 'alliance';
-  allianceHq.populated = true;
-  allianceHq.support = { empire: 0, alliance: 100 };
-
-  // --- Starting holdings. ---
-  const empireSystems: System[] = [capital];
-  const otherCore = rng
-    .shuffle(
-      systems.filter((s) => s.isCore && s.id !== capital.id && s.control === 'neutral'),
-    )
-    .slice(0, START_SYSTEMS_PER_SIDE - 1);
-  for (const system of otherCore) {
-    system.control = 'empire';
-    system.support = { empire: rng.range(65, 85), alliance: rng.range(5, 15) };
-    empireSystems.push(system);
+  /*
+   * And how much each chain talks to itself.
+   *
+   * Sean's propagation memo, §9: *"this gives different parts of the world
+   * distinct political personalities."* Rolled once, never touched again, so
+   * it is a fact about the world a player can learn — a Reach where one
+   * defection is felt down the whole chain is worth a diplomat that a Reach of
+   * nine strangers is not.
+   */
+  for (const sector of sectors) {
+    sector.connectivity =
+      CONNECTIVITY_MIN + politics.next() * (CONNECTIVITY_MAX - CONNECTIVITY_MIN);
   }
 
-  const allianceSystems: System[] = [allianceHq];
-  const otherRim = rng
-    .shuffle(hqSector.systemIds.filter((id) => id !== allianceHq.id))
-    .slice(0, START_SYSTEMS_PER_SIDE - 1)
-    .map((id) => byId.get(id)!);
-  for (const system of otherRim) {
-    system.control = 'alliance';
+  const byId = new Map(systems.map((s) => [s.id, s] as const));
+  const reachOf = (sector: Sector) => reaches.find((r) => r.name === sector.name)!;
+  const islandsOf = (sector: Sector) => sector.systemIds.map((id) => byId.get(id)!);
+  const homeSector = sectors.find((sec) => roleOf(reachOf(sec)) === 'home')!;
+  const contestedSectors = sectors.filter((sec) => roleOf(reachOf(sec)) === 'contested');
+  const frontierSectors = sectors.filter((sec) => roleOf(reachOf(sec)) === 'frontier');
+
+  // Allegiance is a balance: an island's regard for its holder is the only
+  // number an opening needs to state, and the other side has the rest.
+  const hold = (system: System, owner: PlayableFaction, support: number) => {
+    system.control = owner;
     system.populated = true;
-    system.support = { empire: rng.range(5, 15), alliance: rng.range(65, 85) };
+    setSupport(system, owner, support);
+    // And what already stands here comes with it.
+    //
+    // A settled island has some of its ground worked before anybody deals it
+    // to a side, and those works were being left flying nobody's colours — so
+    // both capitals opened with three mills that earned their holder nothing
+    // and sat on the board as a second, greyed-out group of the same building.
+    // Taking an island in play has always meant taking what is on it; the
+    // opening has to mean the same thing.
+    handOver(system, owner);
+  };
+  const loyal = () => rng.range(65, 85);
+
+  // --- The Crown's seat: Highwater, the port city the world bible marks. ---
+  const capital =
+    systems.find((system) => system.name === factionData.empire.capitalIslandName) ??
+    byId.get(homeSector.systemIds[0])!;
+  hold(capital, 'empire', 100);
+
+  // --- Home Reach: the seat, one of the other two ports, one more island. ---
+  const empireSystems: System[] = [capital];
+  const homeIslands = islandsOf(homeSector).filter((s) => s.id !== capital.id);
+  const flaggedPorts = new Set(
+    reachOf(homeSector)
+      .islands.filter((i) => 'port' in i && Boolean(i.port))
+      .map((i) => i.name),
+  );
+  const otherPorts = homeIslands.filter((s) => flaggedPorts.has(s.name));
+  const secondPort = rng.pick(otherPorts.length > 0 ? otherPorts : homeIslands);
+  hold(secondPort, 'empire', loyal());
+  empireSystems.push(secondPort);
+  const third = rng.pick(homeIslands.filter((s) => s.id !== secondPort.id));
+  // Held, not loved: allegiance in the thirties and forties, above the
+  // uprising line and under the garrison's boot. The island the Confederacy
+  // will come for first, which is the point.
+  hold(third, 'empire', rng.range(32, 45));
+  empireSystems.push(third);
+
+  // The Confederacy has a foothold in the Crown's own Reach: one island, or
+  // two — never on the great island itself. Its three ports are the Crown's
+  // ground whoever holds them at the start; the rebels begin on an outlying
+  // island of the chain.
+  const allianceSystems: System[] = [];
+  const homeLeft = rng.shuffle(
+    homeIslands.filter((s) => s.control === 'neutral' && !flaggedPorts.has(s.name)),
+  );
+  for (const system of homeLeft.slice(0, rng.range(...START_HOME_CONFEDERACY))) {
+    hold(system, 'alliance', loyal());
     allianceSystems.push(system);
   }
 
-  const countOf = (system: System, mines: boolean) =>
-    system.facilities.filter((f) => (f.type === 'mine') === mines).length;
+  // --- Contested Reaches: two islands a side, the rest nobody's. ---
+  for (const sector of contestedSectors) {
+    const picks = rng.shuffle(islandsOf(sector)).slice(0, START_CONTESTED_PER_SIDE * 2);
+    for (const [index, system] of picks.entries()) {
+      const owner: PlayableFaction = index < START_CONTESTED_PER_SIDE ? 'empire' : 'alliance';
+      hold(system, owner, loyal());
+      (owner === 'empire' ? empireSystems : allianceSystems).push(system);
+    }
+  }
+
+  // --- Freeport: where the articles were signed. ---
+  //
+  // Still not a base: losing it loses nothing, because the Crown wins by
+  // taking the three Lords and nothing else. But it is the island the
+  // Confederacy was declared on, and it answers to the Confederacy the way
+  // Highwater answers to the Crown — a hundred to nothing on day one, by
+  // Sean's rule of 15 September. It could not have been left merely fond of
+  // them: anything over eighty runs up a neutral island's colours on the next
+  // tick, so a warm Freeport would have flipped on day one anyway and
+  // announced it in the log as news. It is a different island every game —
+  // one out in the unexplored Reaches takes the name, keeping the position,
+  // the outline and the room the painting gave it.
+  const baseSector = rng.pick(frontierSectors);
+  const allianceHq = rng.pick(islandsOf(baseSector));
+  allianceHq.chartName = allianceHq.name;
+  allianceHq.name = 'Freeport';
+  allianceHq.archetype = 'free-harbor';
+  allianceHq.note =
+    'Where the articles were signed: three Lords, one table, and no Crown within three hundred miles.';
+  hold(allianceHq, 'alliance', 100);
+  // A seat's garrison, the same as Highwater's: firm islands ask for none at
+  // all, so both of these are the spare company that keeps the harbor plus
+  // the one a seat is worth. It is not dealt any of the opening's camps,
+  // mills or yards, though — the articles were signed on it a week ago, not
+  // settled on.
+  allianceHq.garrison = startGarrison(100, true);
+  // A seat gets a seat's room, like every other island a side opens holding.
+  allianceHq.slots = Math.max(allianceHq.slots, rng.range(START_ROOM_MIN, ROOM_MAX));
 
   const seedHoldings = (owner: PlayableFaction, owned: System[]) => {
     for (const [index, system] of owned.entries()) {
-      const generous = index === 0;
-      system.rawSlots = Math.max(system.rawSlots, generous ? 4 : 3);
-      system.energySlots = Math.max(system.energySlots, generous ? 6 : 5);
-      system.garrison = START_GARRISON;
+      // Room is the painting's to give, not the opening's: a starting island
+      // keeps the ground the chart shows it. The deal below only ever widens
+      // an island by the one spare slot that lets it build on day one.
+      system.garrison = startGarrison(system.support[owner], owner === 'empire' && index === 0);
       system.explored[owner] = true;
+      // Sean's rule, 15 September: an island you open the war holding has
+      // room to make something of. The chart still decides every other
+      // island, and it still decides this one where it was already more
+      // generous — a port city does not shrink to twelve because the dice
+      // said so.
+      system.slots = Math.max(system.slots, rng.range(START_ROOM_MIN, ROOM_MAX));
     }
+    // What the side's ground is already working, which counts against the
+    // target rather than adding to it.
+    const already = (type: FacilityType) =>
+      owned.reduce((n, s) => n + s.facilities.filter((f) => f.type === type).length, 0);
+    const short = (type: FacilityType, want: number) => Math.max(0, want - already(type));
     const plan: FacilityType[] = [
-      ...Array<FacilityType>(START_MINES).fill('mine'),
-      ...Array<FacilityType>(START_REFINERIES).fill('refinery'),
+      ...Array<FacilityType>(short('mine', START_EARNERS[owner].mines)).fill('mine'),
+      ...Array<FacilityType>(short('refinery', START_EARNERS[owner].refineries)).fill('refinery'),
       ...Array<FacilityType>(START_YARDS).fill('construction_yard'),
       ...Array<FacilityType>(START_TRAINING).fill('training_facility'),
+      ...Array<FacilityType>(START_SHIPYARDS).fill('shipyard'),
     ];
+    // Sean's rule, 14 September: two of each maker a side, dealt at random
+    // across the side's starting islands — doubling up on one island is
+    // fine. Earners still go round the table.
     for (const [index, type] of plan.entries()) {
-      const system = owned[index % owned.length];
-      if (type === 'mine') system.rawSlots = Math.max(system.rawSlots, countOf(system, true) + 1);
-      else system.energySlots = Math.max(system.energySlots, countOf(system, false) + 1);
+      const maker = type === 'construction_yard' || type === 'training_facility' || type === 'shipyard';
+      // An earner goes where the ground will carry it. A mill wants a forest
+      // and a mine wants a vein, and the island that has one takes the works
+      // — going round the table only among the islands that can hold it.
+      const want = WORKS_ON[type];
+      const able = want ? owned.filter((s) => (s.deposits ?? []).some((d) => d.type === want)) : owned;
+      const system = maker
+        ? rng.pick(owned)
+        : able.length > 0
+          ? able[index % able.length]
+          : owned[index % owned.length];
+      // The works stands on the deposit and takes its berth, so the island
+      // needs no extra room for it. Where the side rolled no ground of that
+      // kind at all, the war still opens with what it is meant to open with
+      // and the island is given the deposit to stand it on.
+      if (want) {
+        const held = system.deposits ?? [];
+        const at = held.findIndex((d) => d.type === want);
+        if (at >= 0) held.splice(at, 1);
+        else system.slots = Math.max(system.slots, system.facilities.length + (system.deposits?.length ?? 0) + 1);
+        system.deposits = held;
+      } else {
+        system.slots = Math.max(system.slots, system.facilities.length + (system.deposits?.length ?? 0) + 1);
+      }
       system.facilities.push(makeFacility(makeId('fac'), type, owner));
+    }
+    // One spare berth on every starting island. An opening with no room left
+    // is a worse opening than a thin surplus, because the answer to a thin
+    // surplus is to build.
+    for (const system of owned) {
+      system.slots = Math.max(
+        system.slots,
+        system.facilities.length + (system.deposits?.length ?? 0) + 1,
+      );
     }
   };
   seedHoldings('empire', empireSystems);
   seedHoldings('alliance', allianceSystems);
 
-  // The Alliance knows its own corner of the rim; the Empire does not.
-  for (const id of hqSector.systemIds) byId.get(id)!.explored.alliance = true;
+  /**
+   * The seawalls of Highwater, which are older than the Imperium.
+   *
+   * The world bible says so and the map did not: measured over forty worlds
+   * the Crown's capital opened with two companies and no wall in every single
+   * one, and a played Crown that moved its Home Fleet lost the war on day
+   * forty-eight to one squadron with three companies aboard.
+   *
+   * With the siege rules it is the one island that must open fortified. A
+   * capital whose fall ends the war is a siege, not a gift — you beat the
+   * walls down over days under their guns, and only then do the boats go in.
+   */
+  const seat = capital;
+  seat.slots = Math.max(seat.slots, seat.facilities.length + (seat.deposits?.length ?? 0) + CAPITAL_WALLS + 1);
+  for (let i = 0; i < CAPITAL_WALLS; i++) {
+    seat.facilities.push({ ...makeFacility(makeId('fac'), 'fort', 'empire'), ancient: true });
+  }
+  // And a garrison worth landing against once they are down.
+  seat.garrison = Math.max(seat.garrison, CAPITAL_GARRISON);
 
-  // --- Characters: the world bible's seven majors per side, all at HQ. ---
+  // The great island's other Crown port gets a battery of its own, so the
+  // Home Fleet is not the only thing standing between the Reach and whoever
+  // sails into it. A fleet that has to stay moored to hold the ground it is
+  // moored on is not a fleet, it is a second garrison.
+  for (const port of systems) {
+    if (port.id === seat.id) continue;
+    if (port.sectorId !== seat.sectorId) continue;
+    if (port.control !== 'empire' || port.archetype !== 'port-city') continue;
+    port.slots = Math.max(port.slots, port.facilities.length + (port.deposits?.length ?? 0) + HOME_PORT_WALLS + 1);
+    for (let i = 0; i < HOME_PORT_WALLS; i++) {
+      port.facilities.push({ ...makeFacility(makeId('fac'), 'fort', 'empire'), ancient: true });
+    }
+  }
+
+  // The Confederacy knows the island it met on and nothing else out here;
+  // the frontier Reaches are otherwise a blank to both sides.
+  allianceHq.explored.alliance = true;
+  // Freeport is renamed and re-painted above, and the creature was picked off
+  // the name and the painting this island had before all that — so ask again
+  // now the island is what it is going to be, or a kraken ends up hanging
+  // about a free harbor. Whether it has one at all does not change.
+  if (allianceHq.beast) allianceHq.beast = creatureFor(allianceHq)?.slug;
+  // And nothing dangerous: they chose this island to meet on and they are
+  // moored in it on the morning of day one. A side losing hulls to a kraken
+  // in its own birthplace before it has given an order is not an opening, it
+  // is a coin toss. A harmless one can stay — a free harbor full of cats is
+  // exactly right.
+  if (allianceHq.beast && (creature(allianceHq.beast)?.guns ?? 0) > 0) {
+    allianceHq.beast = undefined;
+  }
+  // They signed the articles standing on it, so whatever is in its water is
+  // not news to them. It is still news to the Crown.
+  if (allianceHq.beastSeen) allianceHq.beastSeen.alliance = true;
+
+  // --- Characters: the world bible's seven majors per side, spread about. ---
+  //
+  // They used to start in one heap on one island, which made the first move of
+  // every game the same move: open the seat, pick a name, send them. Scattered
+  // over the side's own holdings, who is near what becomes a question, and the
+  // crew screen is a map rather than a list.
   const characters: Character[] = [];
-  const makeCharacters = (faction: PlayableFaction, hqId: string) => {
+  const makeCharacters = (
+    faction: PlayableFaction,
+    where: (name: string, index: number) => string,
+  ) => {
     // Each rating is rolled inside that character's band, so Hale is always a
     // formidable negotiator and Torvik is always the one you send aboard,
     // while no two games give quite the same numbers.
-    for (const entry of characterRoster[faction].slice(0, START_CHARACTERS)) {
-      const roll = (band: number[]) => rng.range(band[0], band[1]);
+    for (const [index, entry] of openingCast(faction, rng).entries()) {
+      const roll = (base: number) => rollRating(rng, base, entry.major);
       characters.push({
         id: makeId('chr'),
         name: entry.name,
         people: entry.people,
+        blurb: 'bio' in entry ? (entry.bio as string) : undefined,
+        epithet: 'epithet' in entry ? (entry.epithet as string) : undefined,
+        roles: 'roles' in entry ? (entry.roles as string[]) : undefined,
         faction,
         diplomacy: roll(entry.ratings.diplomacy),
         espionage: roll(entry.ratings.espionage),
         combat: roll(entry.ratings.combat),
         leadership: roll(entry.ratings.leadership),
-        locationSystemId: hqId,
+        // The fifth rating follows from the four above unless the bible names
+        // one, so nobody has to keep a second set of numbers in step.
+        watch: watchOf({
+          espionage: roll(entry.ratings.espionage),
+          combat: roll(entry.ratings.combat),
+          leadership: roll(entry.ratings.leadership),
+          watch: (entry.ratings as { watch?: number }).watch,
+        }),
+        locationSystemId: where(entry.name, index),
         status: 'available',
       });
     }
   };
-  makeCharacters('empire', capital.id);
-  makeCharacters('alliance', allianceHq.id);
+  // The Regent has not left the citadel in eleven years; the rest of the
+  // Admiralty is posted about the Crown's holdings.
+  makeCharacters('empire', (_name, index) => (index === 0 ? capital.id : rng.pick(empireSystems).id));
+  // The three Lords are at Freeport where they signed, and one or two of the
+  // others are there with them. The rest are out on the islands that have
+  // already declared.
+  const atFreeport = rng.range(1, 2);
+  let ashore = 0;
+  makeCharacters('alliance', (name) => {
+    // A Lord is at the table where the articles were signed.
+    if (PIRATE_LORDS.some((l) => l.name === name)) return allianceHq.id;
+    ashore += 1;
+    return ashore <= atFreeport || allianceSystems.length === 0
+      ? allianceHq.id
+      : rng.pick(allianceSystems).id;
+  });
+
+  // --- The unaligned: people the war has not claimed yet. ---
+  // Scattered over settled islands that are not anybody's seat, so signing
+  // someone on is a reason to sail somewhere you had no other reason to go.
+  // Which of the pool turn up, and where, changes with the seed.
+  const openIslands = rng.shuffle(
+    systems.filter(
+      (s) => s.populated && s.id !== capital.id && s.id !== allianceHq.id && s.control !== 'alliance',
+    ),
+  );
+  const inPlay = Math.min(RECRUITS_IN_PLAY, openIslands.length);
+  for (const [index, entry] of rng
+    .shuffle(characterRoster.recruits)
+    .slice(0, inPlay)
+    .entries()) {
+    const roll = (base: number) => rollRating(rng, base, entry.major);
+    // A couple are ashore on day one so the errand is discoverable; the rest
+    // are spread over the war, evenly with a little jitter so they do not
+    // arrive on a drumbeat.
+    const later = index - RECRUITS_AT_START;
+    const spread = Math.max(1, inPlay - RECRUITS_AT_START);
+    characters.push({
+      id: makeId('chr'),
+      name: entry.name,
+      people: entry.people,
+      // The same field the named cast reads. The unaligned used to carry a
+      // one-line pitch here instead, which read as a caption on a page the
+      // game gives a whole panel to.
+      blurb: entry.bio,
+      epithet: entry.epithet,
+      // Carried over like the named cast's, because `roles` is a rule now and
+      // not a caption: a stranger you sign on can only be posted to hold an
+      // island if they are a Leader or a General, and the field was being
+      // dropped on the way in.
+      roles: 'roles' in entry ? (entry.roles as string[]) : undefined,
+      faction: 'neutral',
+      diplomacy: roll(entry.ratings.diplomacy),
+      espionage: roll(entry.ratings.espionage),
+      combat: roll(entry.ratings.combat),
+      leadership: roll(entry.ratings.leadership),
+      watch: watchOf({
+        espionage: roll(entry.ratings.espionage),
+        combat: roll(entry.ratings.combat),
+        leadership: roll(entry.ratings.leadership),
+        watch: (entry.ratings as { watch?: number }).watch,
+      }),
+      locationSystemId: openIslands[index].id,
+      status: 'available',
+      appearsOnDay:
+        index < RECRUITS_AT_START
+          ? 1
+          : Math.round((later + 1) * (RECRUIT_LAST_DAY / spread)) + rng.range(-12, 12),
+    });
+  }
 
   const state: GameState = {
     day: 1,
@@ -252,9 +968,10 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     sectors,
     systems,
     characters,
+    fleets: [],
     factions: {
-      empire: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: capital.id },
-      alliance: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: allianceHq.id },
+      empire: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: capital.id, craft: 0 },
+      alliance: { gold: START_GOLD, income: 0, upkeep: 0, hqSystemId: allianceHq.id, craft: 0 },
     },
     events: [],
     pendingDecisions: [],
@@ -262,12 +979,77 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     nextId: idCounter,
   };
 
+  // --- The fleet already at sea. ---
+  //
+  // Built here rather than through addShip because that lives in fleets.ts and
+  // would import back into this file; the shape is small enough to write out.
+  //
+  // A forward berth is a holding of that side's out in a contested Reach — not
+  // the seat, and not the seat's own Reach. Drawn rather than fixed, so the
+  // Crown's second squadron is somewhere different every war and the
+  // Confederacy has to find it; it falls back to the seat on the impossible
+  // world where the side holds nothing outside its own water.
+  const berthFor = (faction: PlayableFaction, kind: StartSquadron['berth']) => {
+    const seat = faction === 'empire' ? capital : allianceHq;
+    if (kind === 'seat') return seat;
+    const forward = (faction === 'empire' ? empireSystems : allianceSystems).filter(
+      (sys) => sys.sectorId !== seat.sectorId && sys.control === faction,
+    );
+    return forward.length > 0 ? rng.pick(forward) : seat;
+  };
+  for (const [faction, squadrons] of Object.entries(START_FLEETS) as Array<
+    [PlayableFaction, StartSquadron[]]
+  >) {
+    for (const squadron of squadrons) {
+      state.fleets.push({
+        id: `flt-${++state.nextId}`,
+        name: squadron.name,
+        faction,
+        systemId: berthFor(faction, squadron.berth).id,
+        ships: squadron.ships.map((classId) => ({
+          id: `shp-${++state.nextId}`,
+          classId,
+          damage: 0,
+        })),
+        troops: squadron.troops,
+        officerIds: [],
+      });
+    }
+  }
+  // No Lord's ship goes on the water. The three of them are people standing
+  // at Freeport with the rest of the Brethren, and their ships live in their
+  // bios — which is Sean's call, 15 September: a thing that is a person and a
+  // hull at once is a thing no rule can reason about.
+
   recomputeLedger(state);
+  const meeting = allianceHq.name;
+  const lordLine = PIRATE_LORDS.map((l) => `${l.name} of the ${shipClass(l.ship).name}`).join(', ');
+  /**
+   * The first card of the war, and the only warning either side gets.
+   *
+   * Sean, on the Confederate opening: *"kinda like how in SW Rebellion the
+   * rebels all start on Yavin 4 but the game tells you the empire will be
+   * looking for you."* The three Lords sign the articles standing in the same
+   * harbor, and the Crown wins by holding all three at once — so on day one
+   * the entire Confederate victory condition is on one quay, and one landing
+   * there ends the war in an afternoon. Measured over a hundred wars with
+   * both sides played by the machine, two of them ended before day ninety
+   * exactly that way: the Home Fleet found the meeting place and stormed it
+   * with all three Lords ashore.
+   *
+   * That is a fine way to lose a game you were told about and a miserable way
+   * to lose one you were not. So the card says it plainly, and says what to do
+   * about it — the answer is the player's to carry out, not the game's.
+   */
   state.events.push({
     id: `evt-${++state.nextId}`,
     day: 1,
     kind: 'war',
-      text: `The ${factionData.alliance.name} declares against the ${factionData.empire.name}. The war for the Seven Seas begins.`,
+    text:
+      player === 'alliance'
+        ? `The ${factionData.alliance.name} is formed at ${meeting}, beyond the Crown's charts, under three Pirate Lords: ${lordLine}. Several islands have already declared for it. Take ${capital.name} and the Crown falls. Let the Crown hold all three Lords at the same time and the cause dies with them — and all three are standing on this one quay tonight. The Imperium will come looking for ${meeting}. Get them to sea, and keep them apart.`
+        : `Word reaches ${capital.name}: a meeting has taken place in uncharted waters, and the ${factionData.alliance.name} has been formed under three Pirate Lords. Several islands have openly declared for it. Find where they met, take all three of them alive and hold them at the same time, and the rebellion is over — and hold ${capital.name}, whatever else.`,
+    systemId: player === 'alliance' ? allianceHq.id : capital.id,
   });
   return state;
 }

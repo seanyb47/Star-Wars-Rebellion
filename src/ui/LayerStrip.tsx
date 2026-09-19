@@ -1,0 +1,129 @@
+import { useEffect, useMemo, useRef } from 'react';
+import { CHART_LAYERS, layerTally, type ChartLayer, type GameState, type PlayableFaction } from '../sim';
+import { orderedLayers, usePrefs } from './prefs';
+
+/** The strip in this player's order — theirs to set, in the menu. */
+export function useChartLayers() {
+  const [prefs] = usePrefs();
+  return useMemo(() => orderedLayers(CHART_LAYERS, prefs.layerOrder), [prefs.layerOrder]);
+}
+
+/**
+ * The chart's view switch, after the original's view menu — but swipeable,
+ * because a menu on a phone is two taps and a decision, and a swipe is a
+ * thumb.
+ *
+ * It sits where the pick chip sits, at the foot of the chart, and it shows the
+ * tally beside each name so you can see there is something to look at before
+ * you go and look. A zero on Idle works is the one number in the game that
+ * means you are wasting nothing, so it is shown rather than hidden.
+ *
+ * There used to be a line of explanation under the chips, one per layer. It
+ * was cut: the chip's name and its tally say what it is, the stars on the
+ * chart say the rest, and the Almanac has the long form for anyone who wants
+ * it. A sentence under the chart on every view was a caption on a picture
+ * that did not need one.
+ */
+export function LayerStrip({
+  state,
+  layer,
+  onChange,
+  viewer,
+  foot = false,
+}: {
+  state: GameState;
+  layer: ChartLayer;
+  onChange: (layer: ChartLayer) => void;
+  viewer: PlayableFaction;
+  /** Pinned to the foot of a sheet rather than floating on the chart. Same
+   *  wood, same chips, same place on the screen — a Reach is still the chart,
+   *  so its filters are not a different control in a different corner. */
+  foot?: boolean;
+}) {
+  const strip = useRef<HTMLDivElement>(null);
+  const layers = useChartLayers();
+
+  // Keep the live chip in view when the layer changes by swipe rather than tap.
+  useEffect(() => {
+    const el = strip.current?.querySelector('[aria-pressed="true"]');
+    el?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  }, [layer]);
+
+  return (
+    <div className={`layers${foot ? ' layers--foot' : ''}`}>
+      <div className="layers__strip" ref={strip} role="tablist" aria-label="Chart layer">
+        {layers.map((l) => {
+          const n = l.id === 'allegiance' || l.id === 'none' ? null : layerTally(state, l.id, viewer);
+          return (
+            <button
+              key={l.id}
+              role="tab"
+              className={`layers__chip${l.id === layer ? ' layers__chip--on' : ''}`}
+              aria-pressed={l.id === layer}
+              onClick={() => onChange(l.id)}
+            >
+              {l.label}
+              {n !== null && <span className="layers__n">{n}</span>}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Left and right across the chart moves between layers.
+ *
+ * The chart has no pan and no zoom, so a horizontal drag was doing nothing at
+ * all — which is what makes this the right gesture rather than an overloaded
+ * one. Vertical movement is left alone so the page still scrolls.
+ */
+export function useLayerSwipe(
+  layer: ChartLayer,
+  onChange: (layer: ChartLayer) => void,
+): SwipeHandlers {
+  // The swipe walks the player's order, not the build's, or the gesture and
+  // the strip would disagree about what comes next.
+  const layers = useChartLayers();
+  return useSideSwipe((step) => {
+    const at = layers.findIndex((l) => l.id === layer);
+    const next = at + step;
+    if (next < 0 || next >= layers.length) return;
+    onChange(layers[next].id);
+  });
+}
+
+export interface SwipeHandlers {
+  onTouchStart: (e: React.TouchEvent) => void;
+  onTouchEnd: (e: React.TouchEvent) => void;
+}
+
+/**
+ * A sideways drag, anywhere it would otherwise do nothing: +1 for a drag to
+ * the left, -1 for one to the right. Used by the chart for its layers and by
+ * an island's panel for its tabs, which are both rows of things a thumb wants
+ * to move along rather than aim at.
+ */
+export function useSideSwipe(onStep: (step: 1 | -1) => void): SwipeHandlers {
+  const from = useRef<{ x: number; y: number } | null>(null);
+
+  return {
+    onTouchStart: (e) => {
+      const t = e.changedTouches[0];
+      from.current = { x: t.clientX, y: t.clientY };
+    },
+    onTouchEnd: (e) => {
+      const start = from.current;
+      from.current = null;
+      if (!start) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - start.x;
+      const dy = t.clientY - start.y;
+      // Far enough to be meant, and more sideways than up: a thumb travelling
+      // down the page is scrolling, not switching views.
+      if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+      onStep(dx < 0 ? 1 : -1);
+    },
+  };
+}

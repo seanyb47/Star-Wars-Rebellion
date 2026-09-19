@@ -1,6 +1,9 @@
 import { useRef } from 'react';
+import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import { SPEED_LABEL, SPEED_ORDER, type GameState, type Speed } from '../sim';
+import { FactionCrest } from './art';
+import { paintedIsland } from './painted';
 
 const RUNNING_SPEEDS: Speed[] = SPEED_ORDER.filter((s) => s !== 'paused');
 
@@ -10,12 +13,103 @@ function speedDots(speed: Speed): string {
   return index < 0 ? '॥' : '▸'.repeat(index + 1);
 }
 
+/** The painting behind each side's banner: the Crown's seat, the rebels' harbor. */
+const BANNER: Record<'empire' | 'alliance', string> = {
+  empire: 'port-city',
+  alliance: 'free-harbor',
+};
+
+function CoinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" fill="var(--metal)" stroke="var(--metal-lo)" strokeWidth="1.2" />
+      <circle cx="12" cy="12" r="6" fill="none" stroke="var(--metal-lo)" strokeWidth="0.9" opacity="0.7" />
+      <path d="M12 7.5v9M9.6 10.2c0-1.3 1-2 2.4-2s2.4.7 2.4 1.8c0 2.2-4.8 1.6-4.8 3.9 0 1.2 1 1.9 2.4 1.9s2.4-.7 2.4-2" fill="none" stroke="var(--metal-lo)" strokeWidth="1.1" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function LedgerIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path d="M6 4h10a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2z" fill="#3b2a1a" stroke="var(--metal)" strokeWidth="1.2" />
+      <path d="M8 4v14" stroke="var(--metal)" strokeWidth="1" opacity="0.7" />
+      <path d="M10.5 9h5M10.5 12h5M10.5 15h3" stroke="var(--metal-hi)" strokeWidth="1" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function GearIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round">
+      <path d="M12 3.5l1.6 2.2 2.6-.7.7 2.6 2.2 1.6-1.4 2.3 1.4 2.3-2.2 1.6-.7 2.6-2.6-.7L12 20.5l-1.6-2.2-2.6.7-.7-2.6-2.2-1.6 1.4-2.3-1.4-2.3 2.2-1.6.7-2.6 2.6.7z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+/**
+ * The encyclopedia, on the rail beside the clock.
+ *
+ * Sean: *"add to the utility panel an encyclopedia that has info and stats on
+ * all units... so a player can pause the game if they want and research."* It
+ * was reachable only through the menu, which is where you go to quit, not to
+ * look something up mid-war.
+ */
+/**
+ * Two bars, or a triangle.
+ *
+ * Sean, 17 September: *"How do I pause game? I see speed but we need a pause
+ * button next to it."* Pausing was a 450ms hold on the speed button and had
+ * been since the clock was built — which is a gesture nobody discovers, and
+ * the one control a strategy game must never hide. The speed button still
+ * cycles and still holds to pause; this is the same thing said out loud.
+ */
+function PauseIcon({ paused }: { paused: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="currentColor">
+      {paused ? (
+        <path d="M8 5.5v13l11-6.5z" />
+      ) : (
+        <>
+          <rect x="7.5" y="5.5" width="3.6" height="13" rx="1" />
+          <rect x="12.9" y="5.5" width="3.6" height="13" rx="1" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+/** An eye: shut while you are playing, open while you are watching. */
+function EyeIcon({ open }: { open: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+      {open ? (
+        <circle cx="12" cy="12" r="3" fill="currentColor" fillOpacity="0.3" />
+      ) : (
+        <path d="M4 4l16 16" />
+      )}
+    </svg>
+  );
+}
+
+function SoundIcon({ on }: { on: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z" fill="currentColor" fillOpacity="0.25" />
+      {on ? <path d="M15 9.2a4 4 0 0 1 0 5.6M17.6 6.8a7.5 7.5 0 0 1 0 10.4" /> : <path d="M15 9l5 6M20 9l-5 6" />}
+    </svg>
+  );
+}
+
 export function TopBar({
   state,
   autoPaused,
   soundOn,
   onToggleSound,
   onSetSpeed,
+  onToggleObserving,
   onOpenMenu,
 }: {
   state: GameState;
@@ -23,12 +117,20 @@ export function TopBar({
   soundOn: boolean;
   onToggleSound: () => void;
   onSetSpeed: (speed: Speed) => void;
+  /** Hand your side to the opponent, or take it back. */
+  onToggleObserving: () => void;
   onOpenMenu: () => void;
 }) {
   const longPress = useRef<{ timer: number; fired: boolean }>({ timer: 0, fired: false });
-  const last = useRef<Speed>('slow');
+  /* What the first tap on a paused clock starts at, and what a hold-to-pause
+     comes back to. Medium, not Slow: a day is thirty seconds there against
+     seventy-five, and the first minute of a new game should not be spent
+     watching a date that has not changed yet. */
+  const last = useRef<Speed>('medium');
   const faction = state.factions[state.player];
+  const side = factionData[state.player];
   const net = faction.income - faction.upkeep;
+  const banner = paintedIsland(BANNER[state.player]);
 
   const cycle = () => {
     if (state.speed === 'paused') {
@@ -54,11 +156,46 @@ export function TopBar({
   };
 
   const running = state.speed !== 'paused' && !autoPaused && !state.winner;
+  const observing = Boolean(state.observing);
 
   return (
     <header className="topbar">
-      <div className="topbar__row">
-        <div className="topbar__day">Day {state.day}</div>
+      {/* The banner: the side's painting, crest, name and creed, and the day. */}
+      <div className="banner" style={banner ? { backgroundImage: `url(${banner})` } : undefined}>
+        <div className="banner__scrim" />
+        <div className="banner__crest">
+          <FactionCrest faction={state.player} size={40} />
+        </div>
+        <div className="banner__text">
+          <div className="banner__name">{side.name}</div>
+          <div className="banner__creed">{side.creed}</div>
+        </div>
+        <div className="banner__day" aria-label={`Day ${state.day}`}>
+          <span className="banner__daylabel">Day</span>
+          <b>{state.day}</b>
+        </div>
+      </div>
+
+      {/* The console: the ledger and the clock, on a wooden rail. */}
+      <div className="console">
+        <div className="plaque plaque--gold">
+          <CoinIcon />
+          <span className="plaque__text">
+            <span className="plaque__label">{terms.gold}</span>
+            <b>{Math.floor(faction.gold)}</b>
+          </span>
+          <span className={`plaque__net${net < 0 ? ' plaque__net--over' : ''}`}>
+            {net >= 0 ? '▲' : '▼'} {net >= 0 ? '+' : '−'}
+            {Math.abs(net).toFixed(1)}
+          </span>
+        </div>
+        <div className="plaque">
+          <LedgerIcon />
+          <span className="plaque__text">
+            <span className="plaque__label">{terms.upkeep}</span>
+            <b>{faction.upkeep}</b>
+          </span>
+        </div>
         <span className="topbar__spacer" />
         <button
           className={`speed${running ? ' speed--running' : ''}`}
@@ -71,33 +208,49 @@ export function TopBar({
           <span className="speed__dots">{speedDots(state.speed)}</span>
           <span>{autoPaused && state.speed !== 'paused' ? 'Held' : SPEED_LABEL[state.speed]}</span>
         </button>
+        {/* And the pause, its own button, right of the clock. It shows what
+            the next tap does rather than what the clock is doing: two bars
+            while the day is moving, a triangle while it is not. Coming off a
+            pause returns to the speed you were last running at, which is the
+            same memory the hold-to-pause gesture uses. */}
+        <button
+          className={`iconbtn${state.speed === 'paused' ? ' iconbtn--on' : ''}`}
+          onClick={() => {
+            if (state.speed === 'paused') {
+              onSetSpeed(last.current);
+              return;
+            }
+            last.current = state.speed;
+            onSetSpeed('paused');
+          }}
+          aria-pressed={state.speed === 'paused'}
+          aria-label={state.speed === 'paused' ? 'Start the clock' : 'Pause the clock'}
+          title={state.speed === 'paused' ? 'Start the clock' : 'Pause'}
+        >
+          <PauseIcon paused={state.speed === 'paused'} />
+        </button>
+        {/* Right of the clock, as asked. The one control that is still yours
+            while observing is the clock, so the switch belongs beside it. */}
+        <button
+          className={`iconbtn${observing ? ' iconbtn--watching' : ''}`}
+          onClick={onToggleObserving}
+          aria-pressed={observing}
+          aria-label={observing ? 'Take your side back' : 'Watch the machine play both sides'}
+          title={observing ? 'Take your side back' : 'Observe: hand your side over and watch'}
+        >
+          <EyeIcon open={observing} />
+        </button>
         <button
           className={`iconbtn${soundOn ? ' iconbtn--on' : ''}`}
           onClick={onToggleSound}
           aria-pressed={soundOn}
           aria-label={soundOn ? 'Turn sound off' : 'Turn sound on'}
         >
-          {soundOn ? '♪' : '⌀'}
+          <SoundIcon on={soundOn} />
         </button>
         <button className="iconbtn" onClick={onOpenMenu} aria-label="Menu">
-          ⋯
+          <GearIcon />
         </button>
-      </div>
-      <div className="topbar__stats">
-        <span className="topbar__stat">
-          {terms.gold} <b>{Math.floor(faction.gold)}</b>
-        </span>
-        <span className={`topbar__stat${net < 0 ? ' topbar__stat--over' : ''}`}>
-          {net >= 0 ? '▲' : '▼'}{' '}
-          <b>
-            {net >= 0 ? '+' : '−'}
-            {Math.abs(net).toFixed(1)}
-          </b>{' '}
-          a day
-        </span>
-        <span className="topbar__stat">
-          {terms.upkeep} <b>{faction.upkeep}</b>
-        </span>
       </div>
     </header>
   );

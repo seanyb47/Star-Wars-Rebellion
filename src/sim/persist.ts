@@ -2,9 +2,24 @@ import type { GameState } from './types';
 
 /**
  * Bumped when the shape of a saved game changes. v2 replaced the two-resource
- * economy with gold, so a v1 save cannot be read and is simply not offered.
+ * economy with gold; v3 replaced the Confederacy's base with the three Pirate
+ * Lords and their ships; v4 made an island's room one pool instead of two; v5
+ * took the Lords off the water and made them personnel, which leaves a v4 save
+ * carrying three hulls of classes that no longer have numbers; v6 gave the
+ * land a say — walls with a condition, bombardment, and hull damage that mends
+ * — so a v5 save has an unwalled capital and a war that cannot be fought the
+ * way this one is; v7 made a build order a job in works-days with the passage
+ * kept separate, so a v6 save's orders count down a number that no longer
+ * exists and every yard on it would sit at work forever; v8 put raw resources
+ * in the ground and made the two earners need them, so a v7 save is a world of
+ * barren islands on which no mill or mine could ever be raised again.
+ * An older save cannot be read and is not offered.
+ *
+ * The Boom's removal is deliberately *not* a version bump. It takes something
+ * away rather than changing the shape of anything, so a v8 save still loads
+ * and simply comes back without its chains — see `loadGame`.
  */
-export const SAVE_KEY = 'seven-seas.save.v2';
+export const SAVE_KEY = 'seven-seas.save.v8';
 
 /** Saving is just `JSON.stringify` — the whole game is one plain object. */
 export function saveGame(state: GameState, storage: Storage | undefined = globalThis.localStorage): void {
@@ -24,8 +39,35 @@ export function loadGame(storage: Storage | undefined = globalThis.localStorage)
     const parsed = JSON.parse(raw) as GameState;
     if (!parsed || !Array.isArray(parsed.systems) || parsed.systems.length === 0) return null;
     if (typeof parsed.factions?.empire?.gold !== 'number') return null;
+    // Fleets arrived after this save version. Rather than throw away a game in
+    // progress over an additive change, a save without them is a game with no
+    // ships in the water, which is exactly what it is.
+    const fleets = (Array.isArray(parsed.fleets) ? parsed.fleets : []).map((f) => ({
+      ...f,
+      officerIds: Array.isArray(f.officerIds) ? f.officerIds : [],
+    }));
+    const systems = parsed.systems.map((s) => ({
+      ...s,
+      blockaded: !!s.blockaded,
+      // Creatures moved out to the frontier after this save version. A game
+      // from before it has nothing in any water, which is a duller world than
+      // the one it was saved from but not a broken one.
+      beastSeen: s.beastSeen ?? { empire: false, alliance: false },
+      // The Boom was cut on 16 September, and a v8 save from that morning can
+      // still have chains across its harbors. They come out on load rather
+      // than costing somebody a war in progress: a facility of a type nothing
+      // in the game knows about any more has no name, no picture and no rule,
+      // and would sit on an island's board as a blank tile for ever.
+      facilities: s.facilities.filter((f) => (f.type as string) !== 'boom'),
+    }));
+    // Craft arrived the same way fleets did. A save from before it is a side
+    // that has researched nothing, which is true.
+    const factions = {
+      empire: { ...parsed.factions.empire, craft: parsed.factions.empire.craft ?? 0 },
+      alliance: { ...parsed.factions.alliance, craft: parsed.factions.alliance.craft ?? 0 },
+    };
     // A restored game always comes back paused.
-    return { ...parsed, speed: 'paused' };
+    return { ...parsed, fleets, systems, factions, speed: 'paused' };
   } catch {
     return null;
   }

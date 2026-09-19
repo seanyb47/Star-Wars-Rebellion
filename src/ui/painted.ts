@@ -1,0 +1,279 @@
+/**
+ * Painted art, where it exists.
+ *
+ * The game draws everything in code and always has, which is why it is 95KB
+ * and why an island's shape comes out of its own name. Painted illustration is
+ * a different pipeline entirely: raster files, one per subject, made outside
+ * the repo and dropped in.
+ *
+ * Rather than choose, this lets both run at once. Drop a file into
+ * `src/art/portraits/` named after the character and that character is painted
+ * from then on; every character without one keeps the drawn cameo. Nothing
+ * needs registering — the glob below finds whatever is there at build time —
+ * so the art can arrive one piece at a time and the game is never broken or
+ * half-finished in between.
+ *
+ * File names are slugs of the subject: `admiral-corvus-blackwater.webp`.
+ */
+
+/** Vite inlines these at build time; a missing folder yields an empty object. */
+const PORTRAITS = import.meta.glob('../art/portraits/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+const SHIPS = import.meta.glob('../art/ships/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+const ISLANDS = import.meta.glob('../art/islands/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+const ISLES = import.meta.glob('../art/isles/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+const SCENES = import.meta.glob('../art/scenes/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+/** The head, cropped square out of the portrait. What the medallion wants: a
+ *  three-quarter figure shrunk into a 44px circle is a smudge. */
+const FACES = import.meta.glob('../art/faces/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+/** The two crests, painted: Sean's, over the drawn ones. */
+const CRESTS = import.meta.glob('../art/crests/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+/** One painting per building type: the works, the slipway, the fort. */
+const BUILDINGS = import.meta.glob('../art/buildings/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+/**
+ * One painting per errand: the glass, the sealed letter, the lit fuse.
+ *
+ * Sean's own contact sheet, 17 September. The errand sheet drew the same
+ * generic envelope beside all nine choices, which told a player nothing about
+ * which of them they were about to send somebody on.
+ */
+const MISSIONS = import.meta.glob('../art/missions/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+/**
+ * A frame per side: the Crown's brass corners, the Brethren's weathered
+ * timber, and rope for anything neither of them holds.
+ *
+ * Sean's frame sheet, 17 September. These are borders rather than pictures —
+ * shipped square so the nine slices come out symmetric, and cut from the
+ * sheet's plainest frames on purpose, because a `border-image` stretches each
+ * edge and only a uniform edge survives that. The ones with a crest or a
+ * skull over the top bar cannot be stretched and are not here.
+ */
+/**
+ * The personnel rings: a hole with ornament round it, hung over a medallion.
+ *
+ * Not a `border-image` like `frames/`, and the difference is the point — an
+ * edge can be stretched and a crown cannot. These are square paintings with
+ * alpha inside and out, centred on their opening, so the only thing the UI
+ * needs to know is how much of the square the opening takes up.
+ */
+const RINGS = import.meta.glob('../art/rings/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+const FRAMES = import.meta.glob('../art/frames/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+/** One painting per garrison company type: the Marines, the Reef Guard. */
+const TROOPS = import.meta.glob('../art/troops/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+const CREATURES = import.meta.glob('../art/creatures/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+/** The chart's own ground. One file, but it goes through the same door as the
+ *  rest so the chart keeps working before it arrives. */
+const CHART = import.meta.glob('../art/chart/*.{webp,png,jpg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+/**
+ * A file name from a subject's name. Quotes and punctuation go, because a
+ * nickname in quotes should not decide whether a painting is found:
+ * `Anselm "Big" Torvik` and `Anselm Big Torvik` are the same person.
+ */
+export function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/["'’.]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/** Index a glob result by slug, ignoring folder and extension. */
+function bySlug(files: Record<string, string>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [path, url] of Object.entries(files)) {
+    const base = path.split('/').pop()!.replace(/\.[^.]+$/, '');
+    out[slugify(base)] = url;
+  }
+  return out;
+}
+
+const PORTRAIT_URLS = bySlug(PORTRAITS);
+const SHIP_URLS = bySlug(SHIPS);
+const ISLAND_URLS = bySlug(ISLANDS);
+const SCENE_URLS = bySlug(SCENES);
+const CHART_URLS = bySlug(CHART);
+const FACE_URLS = bySlug(FACES);
+const ISLE_URLS = bySlug(ISLES);
+const CREATURE_URLS = bySlug(CREATURES);
+const BUILDING_URLS = bySlug(BUILDINGS);
+const FRAME_URLS = bySlug(FRAMES);
+const RING_URLS = bySlug(RINGS);
+const MISSION_URLS = bySlug(MISSIONS);
+const TROOP_URLS = bySlug(TROOPS);
+const CREST_URLS = bySlug(CRESTS);
+
+export function paintedPortrait(name: string): string | undefined {
+  return PORTRAIT_URLS[slugify(name)];
+}
+
+export function paintedShip(role: string): string | undefined {
+  return SHIP_URLS[slugify(role)];
+}
+
+/**
+ * Islands are painted by archetype, not one apiece: a hundred of them cannot
+ * each have their own painting, and they do not need one. An island names its
+ * archetype and shares that painting with every other island like it.
+ */
+/** An island's own painting, by name. Wins over its type's when it exists. */
+export function paintedIsle(name: string): string | undefined {
+  return ISLE_URLS[slugify(name)];
+}
+
+export function paintedIsland(archetype: string): string | undefined {
+  return ISLAND_URLS[slugify(archetype)];
+}
+
+export function paintedScene(kind: string): string | undefined {
+  return SCENE_URLS[slugify(kind)];
+}
+
+export function paintedChart(name: string): string | undefined {
+  return CHART_URLS[slugify(name)];
+}
+
+/** The head alone. Falls through to the full portrait so a character with one
+ *  and not the other still shows a painting rather than a drawn cameo. */
+export function paintedFace(name: string): string | undefined {
+  return FACE_URLS[slugify(name)] ?? PORTRAIT_URLS[slugify(name)];
+}
+
+/** A side's crest, painted, by the side's short name (`imperium`, `confederacy`). */
+export function paintedCrest(faction: 'empire' | 'alliance'): string | undefined {
+  return CREST_URLS[faction === 'empire' ? 'imperium' : 'confederacy'];
+}
+
+/** A building's painting, by its type name (`training-facility`, `fort`). */
+export function paintedBuilding(type: string): string | undefined {
+  return BUILDING_URLS[slugify(type.replace(/_/g, ' '))];
+}
+
+/**
+ * An errand's painting, by its type. `diplomacy` and `survey` are the two
+ * whose file is named for what the game calls them rather than for the type:
+ * Sean, 17 September — *"our game will call Reconnaissance = explore and
+ * diplomacy = parley"* — so the paintings are `parley` and `explore`.
+ */
+const MISSION_ART: Record<string, string> = { diplomacy: 'parley', survey: 'explore' };
+export function paintedMission(type: string): string | undefined {
+  return MISSION_URLS[slugify(MISSION_ART[type] ?? type)];
+}
+
+/**
+ * What fraction of each ring's square its opening is, measured off the art.
+ *
+ * Every ring is centred on its opening, so a face drawn at `size × opening`
+ * in the middle of a `size` square lands in the hole whichever ring is used.
+ * The five differ because the ornaments do: a plain ring is nearly all
+ * opening, and the Brethren's ornate one spends a third of its square on a
+ * skull, two sabres and a lot of torn cloth.
+ */
+export const RING_OPENING: Record<string, number> = {
+  'crown-ornate': 0.438,
+  'brethren-ornate': 0.373,
+  'crown-plain': 0.469,
+  'brethren-plain': 0.466,
+  'free-plain': 0.513,
+};
+
+/** One of the five personnel rings, by slug. */
+export function paintedRing(slug: string): string | undefined {
+  return RING_URLS[slugify(slug)];
+}
+
+/** The frame for a side, or for nobody's ground. */
+export function paintedFrame(side: string): string | undefined {
+  return FRAME_URLS[slugify(side === 'empire' || side === 'alliance' ? side : 'neutral')];
+}
+
+/** A company type's painting, by its id (`crown-marines`, `reef-guard`). */
+export function paintedTroop(id: string): string | undefined {
+  return TROOP_URLS[slugify(id)];
+}
+
+export function paintedCreature(name: string): string | undefined {
+  return CREATURE_URLS[slugify(name)];
+}
+
+/** What has arrived so far, for the contact sheet to report honestly. */
+export function paintedCounts() {
+  return {
+    portraits: Object.keys(PORTRAIT_URLS).length,
+    ships: Object.keys(SHIP_URLS).length,
+    islands: Object.keys(ISLAND_URLS).length,
+    isles: Object.keys(ISLE_URLS).length,
+    scenes: Object.keys(SCENE_URLS).length,
+    chart: Object.keys(CHART_URLS).length,
+    faces: Object.keys(FACE_URLS).length,
+    creatures: Object.keys(CREATURE_URLS).length,
+    troops: Object.keys(TROOP_URLS).length,
+  };
+}

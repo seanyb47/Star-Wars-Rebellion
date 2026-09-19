@@ -8,6 +8,13 @@
     />
     <meta name="theme-color" content="#070b14" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- black-translucent, with viewport-fit=cover above: the page runs the
+         full height of the screen and iOS reports a real safe-area inset for
+         the status bar, which the chrome pads itself by. With "black" the
+         inset came back as zero on a full-bleed view and the clock landed on
+         top of the Crown's name. A web app cannot hide the status bar — only
+         a native one can — so the next best thing is that it sits on the
+         banner's own painting rather than on a black strip. -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Seven Seas" />
     <link rel="manifest" href="/manifest.webmanifest" />
