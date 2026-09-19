@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { subjectFor, slugOf } from '../Almanac';
 import { ROSTER } from '../../sim/shipdefs';
-import { TROOP_TYPES, YARD_BUILDABLE } from '../../sim';
+import { CHART_LAYERS, TROOP_TYPES, YARD_BUILDABLE } from '../../sim';
+import { orderedLayers } from '../prefs';
 import characterRoster from '../../data/characters.json';
 
 /**
@@ -85,6 +86,49 @@ describe('resolving a lookup to an entry', () => {
         expect(first, `${id} is in two id spaces`).toBeUndefined();
         seen.set(id, i);
       }
+    }
+  });
+});
+
+/**
+ * The filter strip in the player's order.
+ *
+ * Sean, 19 September: *"Add in settings ability to change default order of
+ * game filters."* The saved order is ids on the device and the specs belong
+ * to the build, so the two have to be reconciled every read — and the cases
+ * that matter are the ones that happen between versions, when a filter has
+ * been added or taken away since the order was saved.
+ */
+describe('the filter strip in the order the player set', () => {
+  const build = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+
+  it('leaves the build order alone when nothing is saved', () => {
+    expect(orderedLayers(build, []).map((l) => l.id)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('honours a saved order', () => {
+    expect(orderedLayers(build, ['c', 'a', 'b']).map((l) => l.id)).toEqual(['c', 'a', 'b']);
+  });
+
+  it('puts a filter the saved order has never heard of at the end', () => {
+    // The version that saved this order did not have `c`. It must appear
+    // rather than vanish, and it must not displace what the player chose.
+    expect(orderedLayers(build, ['b', 'a']).map((l) => l.id)).toEqual(['b', 'a', 'c']);
+  });
+
+  it('drops a filter the build no longer has', () => {
+    expect(orderedLayers(build, ['c', 'gone', 'a', 'b']).map((l) => l.id)).toEqual(['c', 'a', 'b']);
+  });
+
+  it('survives a saved order with a repeat in it', () => {
+    expect(orderedLayers(build, ['a', 'a', 'b']).map((l) => l.id)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('always gives back every filter exactly once, whatever it is handed', () => {
+    for (const saved of [[], ['room'], ['nope'], CHART_LAYERS.map((l) => l.id).reverse()]) {
+      const got = orderedLayers(CHART_LAYERS, saved);
+      expect(got).toHaveLength(CHART_LAYERS.length);
+      expect(new Set(got.map((l) => l.id)).size).toBe(CHART_LAYERS.length);
     }
   });
 });

@@ -51,7 +51,7 @@ export const FACILITY_ORDER: FacilityType[] = YARD_BUILDABLE;
 
 export const KIND_LABEL: Record<BuildKind, string> = {
   facilities: 'Build Facilities',
-  troops: `Build ${terms.troop === 'Company' ? 'Companies' : terms.troop + 's'}`,
+  troops: `Build ${terms.troop === 'Troop' ? 'Troops' : terms.troop + 's'}`,
   ships: 'Build Ships',
 };
 
@@ -299,7 +299,7 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
             <GoldFig n={plan.costGold} per={null} /> · {plan.days} days · {upkeepLine}
           </div>
           <p className="tiny muted" style={{ margin: '6px 0 0' }}>
-            Marines and militia. A company holds an island quiet when its allegiance falls, is the
+            Marines and militia. A troop holds an island quiet when its allegiance falls, is the
             only thing that holds an empty island at all, and is what a landing is made of.
           </p>
         </div>

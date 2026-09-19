@@ -1,5 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { CHART_LAYERS, layerTally, type ChartLayer, type GameState, type PlayableFaction } from '../sim';
+import { orderedLayers, usePrefs } from './prefs';
+
+/** The strip in this player's order — theirs to set, in the menu. */
+export function useChartLayers() {
+  const [prefs] = usePrefs();
+  return useMemo(() => orderedLayers(CHART_LAYERS, prefs.layerOrder), [prefs.layerOrder]);
+}
 
 /**
  * The chart's view switch, after the original's view menu — but swipeable,
@@ -34,6 +41,7 @@ export function LayerStrip({
   foot?: boolean;
 }) {
   const strip = useRef<HTMLDivElement>(null);
+  const layers = useChartLayers();
 
   // Keep the live chip in view when the layer changes by swipe rather than tap.
   useEffect(() => {
@@ -44,7 +52,7 @@ export function LayerStrip({
   return (
     <div className={`layers${foot ? ' layers--foot' : ''}`}>
       <div className="layers__strip" ref={strip} role="tablist" aria-label="Chart layer">
-        {CHART_LAYERS.map((l) => {
+        {layers.map((l) => {
           const n = l.id === 'allegiance' || l.id === 'none' ? null : layerTally(state, l.id, viewer);
           return (
             <button
@@ -75,11 +83,14 @@ export function useLayerSwipe(
   layer: ChartLayer,
   onChange: (layer: ChartLayer) => void,
 ): SwipeHandlers {
+  // The swipe walks the player's order, not the build's, or the gesture and
+  // the strip would disagree about what comes next.
+  const layers = useChartLayers();
   return useSideSwipe((step) => {
-    const at = CHART_LAYERS.findIndex((l) => l.id === layer);
+    const at = layers.findIndex((l) => l.id === layer);
     const next = at + step;
-    if (next < 0 || next >= CHART_LAYERS.length) return;
-    onChange(CHART_LAYERS[next].id);
+    if (next < 0 || next >= layers.length) return;
+    onChange(layers[next].id);
   });
 }
 

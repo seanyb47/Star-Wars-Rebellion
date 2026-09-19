@@ -2223,9 +2223,9 @@ function espionageOutcome(
 
 /** The one line a report is worth in the log; the sheet carries the rest. */
 function countOf(system: System): string {
-  const companies = system.garrison;
+  const troops = system.garrison;
   const works = system.facilities.filter((f) => !f.building).length;
-  return `${companies} ${companies === 1 ? 'company' : 'companies'} and ${works} ${works === 1 ? 'works' : 'works'}`;
+  return `${troops} ${troops === 1 ? 'troop' : 'troops'} and ${works} ${works === 1 ? 'works' : 'works'}`;
 }
 
 /**

@@ -232,6 +232,12 @@ const ISLAND_RADIUS = 16;
 const DOT_SMALL = 10;
 const DOT_MEDIUM = ISLAND_RADIUS;
 const DOT_LARGE = 26;
+/**
+ * The same three grades, for a layer that draws a number instead of a dot.
+ * Tuned off the dot radii rather than invented: a numeral at these sizes sits
+ * inside the circle it replaced.
+ */
+const NUMERAL: Record<MarkSize, number> = { small: 20, medium: 28, large: 38 };
 const DOT: Record<MarkSize, number> = {
   small: DOT_SMALL,
   medium: DOT_MEDIUM,
@@ -754,9 +760,24 @@ export function GalaxyMap({
                                 strokeLinejoin: 'round' as const,
                               };
                           // The count as the mark, or the filter's star.
+                          //
+                          // Where the layer grades as well as counts — a
+                          // garrison, open ground — the numeral takes the
+                          // grade's size. Otherwise adding the number to
+                          // those two would have thrown their band away: the
+                          // numeral replaces the dot, and a dot is the only
+                          // thing that was carrying *small, medium, large*.
+                          // Read the size from across the chart, read the
+                          // figure up close.
                           if (numeral !== null) {
                             return (
-                              <text className="map__num" x={ax} y={ay} fill={tint}>
+                              <text
+                                className="map__num"
+                                x={ax}
+                                y={ay}
+                                fill={tint}
+                                style={mark.size ? { fontSize: NUMERAL[mark.size] } : undefined}
+                              >
                                 {numeral}
                               </text>
                             );

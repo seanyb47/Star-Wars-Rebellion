@@ -60,12 +60,12 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: `One ${terms.island}`,
     body: () =>
-      'Inside a chain, tap an island for its panel: Harbor for the ships lying there, Crew for yours ashore, Garrison for companies ashore, Buildings for what stands and what you can order, Log for what has happened.',
+      'Inside a chain, tap an island for its panel: Harbor for the ships lying there, Crew for yours ashore, Garrison for troops ashore, Buildings for what stands and what you can order, Log for what has happened.',
   },
   {
     title: 'Allegiance',
     body: () =>
-      'Every island has people, and they lean. The bar on its panel shows how far. Under 30 with too few companies ashore, an island rises against you and earns nothing. Talking to people raises it; a garrison holds it.',
+      'Every island has people, and they lean. The bar on its panel shows how far. Under 30 with too few troops ashore, an island rises against you and earns nothing. Talking to people raises it; a garrison holds it.',
   },
   {
     title: 'Your crew',
@@ -75,22 +75,22 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'Gold',
     body: () =>
-      'Camps and Mills earn it, more on loyal islands than sullen ones. Construction Yards, Shipyards, companies and hulls cost it every day. The number at the top is what you make a day after paying for everything. Keep it above nothing.',
+      'Camps and Mills earn it, more on loyal islands than sullen ones. Construction Yards, Shipyards, troops and hulls cost it every day. The number at the top is what you make a day after paying for everything. Keep it above nothing.',
   },
   {
     title: 'Building',
     body: () =>
-      'A Construction Yard builds everything. A Training Facility raises companies. A Shipyard lays down hulls. A Fort is guns on the harbor wall; a Boom is a chain across its mouth. Camps take ground, everything else takes water, and every island has only so much of each.',
+      'A Construction Yard builds everything. A Training Facility raises troops. A Shipyard lays down hulls. A Fort is guns on the harbor wall; a Boom is a chain across its mouth. Camps take ground, everything else takes water, and every island has only so much of each.',
   },
   {
     title: 'Your fleet',
     body: (side) =>
-      `A fleet already lies at ${factionData[side].hqLabel}. It can sail to another island, lie off an enemy harbor and shut its trade, or put companies ashore to take it. Big ships hit hard and sail slow; sloops arrive first and sink first.`,
+      `A fleet already lies at ${factionData[side].hqLabel}. It can sail to another island, lie off an enemy harbor and shut its trade, or put troops ashore to take it. Big ships hit hard and sail slow; sloops arrive first and sink first.`,
   },
   {
     title: 'The filters',
     body: () =>
-      'The strip under the chart. Every island stays on the chart in its own colour, whatever you pick; the ones that answer the filter turn into stars, or into a number where a number is the answer — companies under Garrisons, gold a day under Production. The idle filters are the ones to check often: a construction yard, training facility or shipyard building nothing is gold you are not making.',
+      'The strip under the chart. Every island stays on the chart in its own colour, whatever you pick; the ones that answer the filter turn into stars, or into a number where a number is the answer — troops under Garrisons, gold a day under Production. The idle filters are the ones to check often: a construction yard, training facility or shipyard building nothing is gold you are not making.',
   },
   {
     title: 'The clock',

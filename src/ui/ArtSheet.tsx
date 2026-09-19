@@ -155,7 +155,7 @@ export function ArtSheet() {
         )}
       </Row>
 
-      <Row label="Companies" note="one figure, and the row that counts them">
+      <Row label="Troops" note="one figure, and the row that counts them">
         <Item caption="icon 30">
           <CompanyIcon size={30} />
         </Item>

@@ -1513,12 +1513,22 @@ export function garrisonBand(companies: number): MarkSize {
 }
 
 /**
- * Open ground, in the same three bands. Two or three free berths is a place
- * with a plan left in it; five or more is somewhere a side can build a whole
- * new industry without asking anybody's leave.
+ * Open ground, in the same three bands — and, since 19 September, literally
+ * the same numbers.
+ *
+ * Sean: *"Change filter dot size to <3 small, 3-5 medium, 6+ large."* That is
+ * already exactly what a garrison does and has since his ladder of 14
+ * September, so the thing he was asking to change is the other filter that
+ * sizes a dot by a count: open ground was 2 and 5. It is 3 and 6 now, which
+ * makes one rule for both — under three is small, three to five is medium,
+ * six and up is large — and one rule is easier to hold than two.
+ *
+ * It moves a few islands down a band: three or four free berths used to read
+ * as roomy and now reads as ordinary, which is fairer. Five is still a place
+ * you can put a whole industry; it just is not the threshold any more.
  */
-export const ROOM_FAIR = 2;
-export const ROOM_AMPLE = 5;
+export const ROOM_FAIR = GARRISON_FAIR;
+export const ROOM_AMPLE = GARRISON_STRONG;
 
 export function roomBand(free: number): MarkSize {
   if (free >= ROOM_AMPLE) return 'large';
@@ -1961,7 +1971,7 @@ export function buildLabel(item: BuildItem): string {
 }
 
 export function buildBlurb(item: BuildItem): string {
-  if (item === 'troop') return 'A company of marines, drilled and put ashore.';
+  if (item === 'troop') return 'A troop of marines, drilled and put ashore.';
   if (isShipClass(item)) return shipClass(item).blurb;
   return FACILITY_BLURB[item];
 }

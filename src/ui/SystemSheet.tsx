@@ -557,7 +557,7 @@ function NoReport({
     >
       <p className="muted small" style={{ textAlign: 'center', margin: '4px 0 0' }}>
         No report. {holder ? factionData[holder].shortName : 'Somebody'} holds it and nobody of
-        yours has been ashore to count what is on it — not its companies, not who has the chair,
+        yours has been ashore to count what is on it — not its troops, not who has the chair,
         not what stands in its yards, and not what a quiet errand against it would have to get
         past.
       </p>
@@ -833,7 +833,7 @@ export function SystemSheet({
           />
           {/* Allegiance, up here with the painting rather than inside the
               Garrison tab. It is the number the rest of the island is read
-              off — what it earns you, how many companies hold it quiet, how
+              off — what it earns you, how many troops hold it quiet, how
               much goes out the back — so asking for it meant a tab change
               from wherever you happened to be. Slim, because everything above
               the tabs is paid for out of every tab's height. */}
@@ -1081,11 +1081,11 @@ export function SystemSheet({
 
             Sean, 17 September: *"How do I see my garrisons aboard a fleet when
             it's stationed in an enemy harbor?"* You could not, on this tab.
-            Companies aboard were a line inside the Harbor tab's fleet card,
+            Troops aboard were a line inside the Harbor tab's fleet card,
             which is the right place to load and unload them and the wrong
             place to go looking — a player about to storm an island opens the
             Garrison tab, because that is the tab about who holds the ground,
-            and read the enemy's companies with no sight of their own landing
+            and read the enemy's troops with no sight of their own landing
             force to set against them. So the two numbers now sit on the same
             screen: what is ashore, and what you have brought to take it off
             them. Only your own, only fleets actually lying here, and the block
@@ -1103,7 +1103,7 @@ export function SystemSheet({
               <div className="card small" style={{ marginBottom: 10 }}>
                 <div className="row row--between">
                   <b>
-                    {aboard} {aboard === 1 ? 'company' : 'companies'} aboard, off this island
+                    {aboard} {aboard === 1 ? 'troop' : 'troops'} aboard, off this island
                   </b>
                   <span className="tiny muted">
                     {riding.length === 1 ? riding[0].name : `${riding.length} squadrons`}
@@ -1113,14 +1113,14 @@ export function SystemSheet({
                   {system.control === state.player
                     ? 'Yours already — land them from the Harbor tab whenever you want them ashore.'
                     : theirs > 0
-                      ? `${theirs} ${theirs === 1 ? 'company holds' : 'companies hold'} the island${report ? ', the day it was counted' : ''}. The landing is ordered from the Harbor tab.`
+                      ? `${theirs} ${theirs === 1 ? 'troop holds' : 'troops hold'} the island${report ? ', the day it was counted' : ''}. The landing is ordered from the Harbor tab.`
                       : `Nothing of theirs is standing ashore${report ? ', the day it was counted' : ''}. The landing is ordered from the Harbor tab.`}
                 </p>
               </div>
             );
           })()}
           {/* What the island thinks of its holder, where it belongs: how many
-              companies it asks for and how much of its trade goes out the back
+              troops it asks for and how much of its trade goes out the back
               are both read off this number. */}
           {system.populated ? (
             /* The bar itself is above the tabs now; what stays here is the
@@ -1130,14 +1130,14 @@ export function SystemSheet({
             </div>
           ) : (
             <p className="muted small" style={{ margin: '0 0 10px' }}>
-              Nobody lives here. Held only while a company remains ashore; finish any building and
+              Nobody lives here. Held only while a troop remains ashore; finish any building and
               the island settles under your flag.
             </p>
           )}
           {/*
             What the island sees.
             
-            Sean's rule, 17 September: companies, officers standing idle, a
+            Sean's rule, 17 September: troops, officers standing idle, a
             commander in the chair and the island's own loyalty all add up to
             one number, and that number is what every quiet errand against this
             island has to get past. It is read off the island rather than
@@ -1168,7 +1168,7 @@ export function SystemSheet({
             if (report) {
               return (
                 <p className="tiny muted" style={{ margin: '0 0 8px' }}>
-                  <b>The watch was {report.watch}.</b> Companies, officers ashore, whoever had
+                  <b>The watch was {report.watch}.</b> Troops, officers ashore, whoever had
                   the chair, and how the island felt about them — as of the report. Get past it
                   with Espionage, or bring it down first by stirring the island up.
                 </p>
@@ -1176,7 +1176,7 @@ export function SystemSheet({
             }
             if (seen.total === 0) return null;
             const parts = [
-              seen.garrison > 0 && `${seen.garrison} from the companies`,
+              seen.garrison > 0 && `${seen.garrison} from the troops`,
               seen.people > 0 && `${seen.people} from its people`,
               seen.commander > 0 && `${seen.commander} from the chair`,
               seen.idle > 0 && `${seen.idle} from crew standing idle ashore`,
@@ -1202,22 +1202,22 @@ export function SystemSheet({
               <span className="badge badge--good">Held</span>
             )}
           </div>
-          {/* Empty slots here are the shortfall: companies the island wants
+          {/* Empty slots here are the shortfall: troops the island wants
               and has not got. That is worth drawing.
 
-              Every company now says what it is. A garrison used to be ten
+              Every troop now says what it is. A garrison used to be ten
               identical pike figures, which answered "how many" and nothing
               else — and who is standing there is the more interesting half:
-              the Reef Guard are the reef island, and an Urskin company on the
+              the Reef Guard are the reef island, and an Urskin troop on the
               ice is who lives on the ice. */}
           <ListOpts />
-          {/* Grouped, a kind of company is one tile with a count; ungrouped,
-              every company is its own. The kinds can be put in an order —
-              a company has no identity of its own to move, so what is
+          {/* Grouped, a kind of troop is one tile with a count; ungrouped,
+              every troop is its own. The kinds can be put in an order —
+              a troop has no identity of its own to move, so what is
               remembered is which kind comes first. */}
           <SlotBoard
             ghosts={Math.max(0, needed - system.garrison)}
-            empty={`No companies are ashore on ${system.name}.`}
+            empty={`No troops are ashore on ${system.name}.`}
           >
             {(prefs.group
               ? garrison.map((e) => ({ ...e, key: e.type.id }))
@@ -1258,13 +1258,13 @@ export function SystemSheet({
           </SlotBoard>
           {roster.length > 0 && (
             <p className="tiny muted" style={{ marginTop: 6 }}>
-              Tap a company to read what it is.
+              Tap a troop to read what it is.
             </p>
           )}
           <p className="tiny muted" style={{ marginTop: 8 }}>
             {needed > 0
-              ? `Allegiance here is low enough that ${needed} ${needed === 1 ? 'company holds' : 'companies hold'} the island quiet. Fewer and it rises.`
-              : 'Allegiance is high enough that no companies are needed to keep order.'}
+              ? `Allegiance here is low enough that ${needed} ${needed === 1 ? 'troop holds' : 'troops hold'} the island quiet. Fewer and it rises.`
+              : 'Allegiance is high enough that no troops are needed to keep order.'}
           </p>
         </>
       )}

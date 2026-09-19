@@ -443,7 +443,7 @@ export function FacilityIcon({
  * Companies ashore
  * ------------------------------------------------------------------ */
 
-/** A single company: a pike and a hat, small enough to repeat in a row. */
+/** A single troop: a pike and a hat, small enough to repeat in a row. */
 function CompanyFigure({ dim }: { dim?: boolean }) {
   return (
     <svg viewBox="0 0 14 26" width="14" height="26" aria-hidden="true" opacity={dim ? 0.3 : 1}>
@@ -591,7 +591,7 @@ const TROOP_FIGURE: Record<string, ReactNode> = {
   ),
 };
 
-/** Which figure a company type wears. */
+/** Which figure a troop type wears. */
 function figureFor(id?: string): ReactNode {
   switch (id) {
     case 'crown-ships-company':
@@ -616,7 +616,7 @@ function figureFor(id?: string): ReactNode {
   }
 }
 
-/** One company, at slot size: the figure for its type, painted where painted. */
+/** One troop, at slot size: the figure for its type, painted where painted. */
 /**
  * What is in an island's ground, drawn.
  *

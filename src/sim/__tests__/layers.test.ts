@@ -52,19 +52,24 @@ describe('chart layers', () => {
       (f) => f.owner === 'empire' && f.type === 'construction_yard' && !f.building && buildMenu(f, 3).length > 0,
     )!;
     expect(yard).toBeDefined();
-    const before = layerMark(state, mine, 'idleYards', 'empire').count ?? 0;
+    const before = layerMark(state, mine, 'idleBuildings', 'empire').count ?? 0;
     expect(before).toBeGreaterThan(0);
 
-    // Busy is not idle — and one job puts every yard on the island to work,
-    // so an island with an order on it has no idle hands at all.
+    // Busy is not idle — and one job puts every yard of that kind on the
+    // island to work. Since 19 September the filter is all three kinds at
+    // once, so setting the yards going drops the count by exactly the yards
+    // and leaves any idle drill hall or slipway still standing.
+    const yards = mine.facilities.filter(
+      (f) => f.owner === 'empire' && f.type === 'construction_yard' && !f.building,
+    ).length;
     yard.building = { item: 'mine', work: 4, workLeft: 4, travel: 0, travelLeft: 0, costGold: 40 };
-    expect(layerMark(state, mine, 'idleYards', 'empire').lit).toBe(false);
+    expect(layerMark(state, mine, 'idleBuildings', 'empire').count ?? 0).toBe(before - yards);
     yard.building = undefined;
-    expect(layerMark(state, mine, 'idleYards', 'empire').count ?? 0).toBe(before);
+    expect(layerMark(state, mine, 'idleBuildings', 'empire').count ?? 0).toBe(before);
 
     // Nor is an island in revolt: nothing is being worked there at all.
     mine.uprising = true;
-    expect(layerMark(state, mine, 'idleYards', 'empire').lit).toBe(false);
+    expect(layerMark(state, mine, 'idleBuildings', 'empire').lit).toBe(false);
   });
 
   it('lights islands where a crew member is ashore with nothing to do', () => {
@@ -167,8 +172,11 @@ describe('garrisons answer in three sizes', () => {
     expect(layerMark(state, island, 'garrisons', 'alliance').lit).toBe(false);
   });
 
-  it('says it with the dot and not with a numeral as well', () => {
-    expect(showsNumber('garrisons')).toBe(false);
+  it('says it with the dot and with the numeral', () => {
+    // Sean, 19 September: *"Display # on garrison filter."* The size is still
+    // the thing you read from across the chart; the number is what saves
+    // opening the island to find out whether medium was three or five.
+    expect(showsNumber('garrisons')).toBe(true);
   });
 });
 
@@ -214,22 +222,27 @@ describe('available land', () => {
     expect(layerMark(state, island, 'room', 'empire').lit).toBe(false);
   });
 
-  it('answers in sizes, not numerals: the chart keeps its one dot', () => {
-    expect(showsNumber('room')).toBe(false);
-    expect(CHART_LAYERS.map((l) => l.id)).toContain('room');
+  it('answers in a size and a number, and comes last in the strip', () => {
+    expect(showsNumber('room')).toBe(true);
     expect(CHART_LAYERS.find((l) => l.id === 'room')!.label).toBe('Available land');
+    // *"Move idle land to last."* Pinned, because the order of this array is
+    // the swipe order and nothing else says so.
+    expect(CHART_LAYERS[CHART_LAYERS.length - 1].id).toBe('room');
   });
 });
 
 describe('which layers count and which grade', () => {
   it('puts a number on every idle layer and on Production', () => {
-    for (const layer of ['idleCrew', 'idleYards', 'idleDrills', 'idleSlips', 'worth'] as const) {
+    for (const layer of ['idleCrew', 'idleBuildings', 'worth'] as const) {
       expect(showsNumber(layer), layer).toBe(true);
     }
   });
 
-  it('grades the rest by dot size instead', () => {
-    for (const layer of ['allegiance', 'none', 'garrisons', 'room', 'fleets', 'missions'] as const) {
+  it('counts the two that were graded only, and leaves the rest', () => {
+    for (const layer of ['garrisons', 'room'] as const) {
+      expect(showsNumber(layer), layer).toBe(true);
+    }
+    for (const layer of ['allegiance', 'none', 'fleets', 'missions'] as const) {
       expect(showsNumber(layer), layer).toBe(false);
     }
   });
@@ -240,10 +253,15 @@ describe('which layers count and which grade', () => {
       (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'construction_yard'),
     )!;
     yard.uprising = false;
-    const mark = layerMark(state, yard, 'idleYards', 'empire');
+    const mark = layerMark(state, yard, 'idleBuildings', 'empire');
     expect(mark.lit).toBe(true);
     expect(mark.count).toBe(
-      yard.facilities.filter((f) => f.type === 'construction_yard' && !f.building).length,
+      yard.facilities.filter(
+        (f) =>
+          ['construction_yard', 'training_facility', 'shipyard'].includes(f.type) &&
+          !f.building &&
+          !f.founding,
+      ).length,
     );
     expect(mark.count).toBeGreaterThan(0);
     // A number, not a size: the two never appear on the same mark.

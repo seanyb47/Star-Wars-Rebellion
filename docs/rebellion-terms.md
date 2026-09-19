@@ -6,11 +6,11 @@ should note from a dev perspective which ones mean same thing."*
 
 So this file is for me, not for the player. Two jobs:
 
-1. **Understand him.** When he says "regiment" he means a Company, and the
-   right response is to do the Company thing, not to ask which he means.
+1. **Understand him.** When he says "regiment" he means a Troop, and the
+   right response is to do the Troop thing, not to ask which he means.
 2. **Correct him, lightly.** He asked to be corrected when he uses a word the
    game no longer uses. One clause, in passing, and then get on with the work
-   — *"(that's a Company now)"* — never a lecture and never a blocked answer.
+   — *"(that's a Troop now)"* — never a lecture and never a blocked answer.
 
 Nothing in this table is allowed anywhere a player can see it. The left column
 is somebody else's trademarked game.
@@ -58,7 +58,7 @@ is somebody else's trademarked game.
 
 | Rebellion | Here | Note |
 |---|---|---|
-| Regiment / troops | **Company** | The garrison is the companies on an island |
+| Regiment / company | **Troop** | The garrison is the troops on an island. Company was the word from 17 to 19 September and is retired |
 | Garrison | **Garrison** | Kept |
 | Capital ship | **Hull**, a ship; large hulls are ships of the line | |
 | Fighter squadron | — | Does not exist here |

@@ -2,6 +2,7 @@ import {
   GARRISON_FAIR,
   GARRISON_STRONG,
   ROOM_AMPLE,
+  ROOM_FAIR,
   garrisonBand,
   roomBand,
   type MarkSize,
@@ -31,9 +32,7 @@ export type ChartLayer =
   | 'none'
   | 'allegiance'
   | 'idleCrew'
-  | 'idleYards'
-  | 'idleDrills'
-  | 'idleSlips'
+  | 'idleBuildings'
   | 'room'
   | 'fleets'
   | 'garrisons'
@@ -67,14 +66,28 @@ export const CHART_LAYERS: LayerSpec[] = [
    * particular quay: you keep an open table at a loyal harbor of your own and
    * see who comes. There is nothing left on the chart to point at.
    */
-  { id: 'idleYards', label: 'Idle yards', hint: `Islands where your ${terms.facilities.construction_yard.toLowerCase()}s have no order on them, numbered by how many are standing — three means a job here takes a third the days.` },
-  { id: 'idleDrills', label: 'Idle training', hint: `Islands where your ${terms.facilities.training_facility.toLowerCase()}s are drilling nobody, numbered by how many would fall on the next company.` },
-  { id: 'idleSlips', label: 'Idle shipyards', hint: `Islands where your ${terms.facilities.shipyard.toLowerCase()}s have nothing on the stocks, numbered by how many would work the next hull together.` },
-  { id: 'room', label: 'Available land', hint: `Islands of yours with berths still open, sized by how many: big is ${ROOM_AMPLE} or more, small is one.` },
+  /*
+   * One filter for all three yards, at Sean's word of 19 September:
+   * *"Consolidate idle yards, training, shipyards into 'Idle Buildings'."*
+   *
+   * Three filters asking the same question — what of mine is standing about —
+   * meant three swipes to find out, and the answer a player acts on is the
+   * same either way: go to that island and give something an order. The
+   * number is every idle works of yours on it, whatever kind, and the
+   * Buildings tab it opens on says which.
+   */
+  { id: 'idleBuildings', label: 'Idle buildings', hint: `Islands where works of yours have no order on them — ${terms.facilities.construction_yard.toLowerCase()}s, ${terms.facilities.training_facility.toLowerCase()}s or ${terms.facilities.shipyard.toLowerCase()}s — numbered by how many are standing.` },
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
-  { id: 'garrisons', label: 'Garrisons', hint: `Islands of yours holding companies ashore, sized by how many: big is ${GARRISON_STRONG} or more, small is under ${GARRISON_FAIR}.` },
+  { id: 'garrisons', label: 'Garrisons', hint: `Islands of yours holding ${terms.troops.toLowerCase()} ashore, numbered, and sized by how many: big is ${GARRISON_STRONG} or more, small is under ${GARRISON_FAIR}.` },
   { id: 'missions', label: 'Missions', hint: 'Islands your crew are working on, or sailing for.' },
   { id: 'worth', label: 'Production', hint: 'What each island earns its holder in gold a day, right now.' },
+  /*
+   * Last, at Sean's word: *"Move idle land to last."* It is the only filter
+   * here answering a planning question rather than a this-morning one — where
+   * could I build, rather than what needs an order now — so it is the one you
+   * swipe to deliberately.
+   */
+  { id: 'room', label: 'Available land', hint: `Islands of yours with berths still open, numbered, and sized by how many: big is ${ROOM_AMPLE} or more, small is under ${ROOM_FAIR}.` },
 ];
 
 /**
@@ -131,9 +144,14 @@ export function showsNumber(layer: ChartLayer): boolean {
   return (
     layer === 'worth' ||
     layer === 'idleCrew' ||
-    layer === 'idleYards' ||
-    layer === 'idleDrills' ||
-    layer === 'idleSlips'
+    layer === 'idleBuildings' ||
+    // Garrisons and Available land show their number now as well as their
+    // size, at Sean's word of 19 September: *"Display # on garrison filter."*
+    // Size still answers *how hard is this held* from across the chart; the
+    // numeral answers *how hard exactly* without opening the island. They do
+    // not compete, because one is read at a distance and the other close up.
+    layer === 'garrisons' ||
+    layer === 'room'
   );
 }
 
@@ -146,13 +164,7 @@ export function showsNumber(layer: ChartLayer): boolean {
  * not enough to find a squadron by.
  */
 export function isLoudLayer(layer: ChartLayer): boolean {
-  return (
-    layer === 'idleYards' ||
-    layer === 'idleDrills' ||
-    layer === 'idleSlips' ||
-    layer === 'idleCrew' ||
-    layer === 'fleets'
-  );
+  return layer === 'idleBuildings' || layer === 'idleCrew' || layer === 'fleets';
 }
 
 /** What a lit island is worth saying about itself, under this layer. */
@@ -214,16 +226,15 @@ export function layerMark(
   if (!system.explored[faction]) return DARK;
 
   switch (layer) {
-    case 'idleYards': {
-      const n = idleFacilities(system, faction, 'construction_yard');
-      return n > 0 ? { lit: true, count: n } : DARK;
-    }
-    case 'idleDrills': {
-      const n = idleFacilities(system, faction, 'training_facility');
-      return n > 0 ? { lit: true, count: n } : DARK;
-    }
-    case 'idleSlips': {
-      const n = idleFacilities(system, faction, 'shipyard');
+    case 'idleBuildings': {
+      // Summed across the three kinds rather than asked three times. Each
+      // kind still answers on its own terms — one order at a time per kind
+      // per island — so two idle yards and one idle slipway is three works
+      // with nothing to do, which is the number worth showing.
+      const n =
+        idleFacilities(system, faction, 'construction_yard') +
+        idleFacilities(system, faction, 'training_facility') +
+        idleFacilities(system, faction, 'shipyard');
       return n > 0 ? { lit: true, count: n } : DARK;
     }
     case 'idleCrew': {

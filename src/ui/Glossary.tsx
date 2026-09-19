@@ -125,7 +125,7 @@ function groups(): Group[] {
         ],
         [
           'Drill Research',
-          'The same for companies — who knows how a landing party should be trained. A label rather than a rule, like Ship Design.',
+          'The same for troops — who knows how a landing party should be trained. A label rather than a rule, like Ship Design.',
         ],
         [
           'Deep-touched',
@@ -174,7 +174,7 @@ function groups(): Group[] {
         ],
         [
           terms.sabotage,
-          'Burning what they have built. Dangerous, settled by Espionage, and the only way to take a works down without landing companies.',
+          'Burning what they have built. Dangerous, settled by Espionage, and the only way to take a works down without landing troops.',
         ],
         [
           'Research',
@@ -215,7 +215,7 @@ function groups(): Group[] {
         ],
         [
           terms.mutiny,
-          `An island can rise against you once its allegiance falls under ${UPRISING_SUPPORT} — not on any particular morning, and never while there are companies enough in the square. It earns nothing and builds nothing until allegiance climbs back to ${UPRISING_END_SUPPORT}.`,
+          `An island can rise against you once its allegiance falls under ${UPRISING_SUPPORT} — not on any particular morning, and never while there are troops enough in the square. It earns nothing and builds nothing until allegiance climbs back to ${UPRISING_END_SUPPORT}.`,
         ],
         [
           'Smuggling',
@@ -246,7 +246,7 @@ function groups(): Group[] {
         ],
         [
           terms.space,
-          'Berths to build on. Every building takes one and an island has only so many; companies and hulls take none.',
+          'Berths to build on. Every building takes one and an island has only so many; troops and hulls take none.',
         ],
         [
           'Works',
@@ -263,11 +263,11 @@ function groups(): Group[] {
       entries: [
         [
           terms.troop,
-          'The ground unit. Companies hold what you have taken, storm what you have not, and are raised at a Training Facility.',
+          'The ground unit. Troops hold what you have taken, storm what you have not, and are raised at a Training Facility.',
         ],
         [
           terms.garrison,
-          `The companies standing on an island. They do not make anybody love you — they make it harder for anybody to act against you, and they hold down a ${terms.mutiny.toLowerCase()}. A firm island needs none; a thin one wants ${GARRISON_FOR_BAND.thin}.`,
+          `The troops standing on an island. They do not make anybody love you — they make it harder for anybody to act against you, and they hold down a ${terms.mutiny.toLowerCase()}. A firm island needs none; a thin one wants ${GARRISON_FOR_BAND.thin}.`,
         ],
         [
           'Blockade',
@@ -279,7 +279,7 @@ function groups(): Group[] {
         ],
         [
           'Landing',
-          'Putting companies ashore to take an island. No landing can be made while a Fortress still stands. Taking a place is not the same as winning it: an island carried by storm is occupied and hostile.',
+          'Putting troops ashore to take an island. No landing can be made while a Fortress still stands. Taking a place is not the same as winning it: an island carried by storm is occupied and hostile.',
         ],
         [
           'Long guns',

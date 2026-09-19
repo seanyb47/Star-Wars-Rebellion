@@ -8,6 +8,11 @@ it is one. The file is `src/data/terms.json` and
 `src/ui/__tests__/vocabulary.test.ts` fails the build if a retired word reaches
 the player.
 
+Sean reversed one of these on 19 September: a ground unit was a **Company**
+and *troops* was retired; it is a **Troop** now and *company* is the retired
+word. The one survivor is **Ship's Company**, which is a unit's proper name
+and a real naval idiom rather than the category.
+
 | Idea | The word | Retired |
 |---|---|---|
 | A person of yours | **Crew**, a *crew member* | officer, personnel |
@@ -16,7 +21,7 @@ the player.
 | The whole archipelago | **World Map** | the chart, the Seas |
 | One chain, opened | **Reach Map** | the chain view |
 | One island, opened | **Location** | port, harbor (as a screen name) |
-| A ground unit | **Company** | regiment, troops |
+| A ground unit | **Troop**, plural *troops* | regiment, **company** |
 | What is built | **Buildings** (in prose, *works*) | facilities |
 | A thing a crew member is sent to do | **Errand** | mission |
 
@@ -27,7 +32,7 @@ Rebellion terms. So you should note from a dev perspective which ones mean same
 thing."* `docs/rebellion-terms.md` is the translation table.
 
 So: **understand him first, then correct in passing.** When he says "regiment",
-do the Company thing and note the word in a clause — *"(Company now)"* — never a
+do the Troop thing and note the word in a clause — *"(Troop now)"* — never a
 lecture, never a question he has to answer before getting his work.
 
 ## Build rates

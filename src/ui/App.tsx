@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import {
+  CHART_LAYERS,
   CLOCK_TICK_MS,
   SPEED_MS,
   advanceDay,
@@ -69,6 +70,7 @@ import { TopBar } from './TopBar';
 import { useAudio } from './useAudio';
 import { FactionCrest } from './art';
 import { ControlBadge, Sheet, Stat } from './components';
+import { orderedLayers, usePrefs } from './prefs';
 
 const SEEN_KEY = 'galactic-rebellion.lastSeenEvent.v1';
 
@@ -416,7 +418,7 @@ export function App() {
    * From the chain chart or a Reach's island list: open one of its islands — or, if a
    * crew member is waiting for a destination, send them there instead.
    *
-   * Which tab it opens on is the filter's to say: with Idle yards on, a lit
+   * Which tab it opens on is the filter's to say: with Idle buildings on, a lit
    * island is a yard standing about, so the island opens on its Buildings.
    * With no filter it opens on the Harbor, as it always did, and the tabs
    * swipe from wherever it landed.
@@ -1083,6 +1085,78 @@ function MissionDecisionSheet({
 }
 
 
+/**
+ * The chart's filters, in the order this player wants them.
+ *
+ * Sean, 19 September: *"Add in settings ability to change default order of
+ * game filters. That would be cool."*
+ *
+ * The same up-and-down arrows the harbor and the garrison already use, for
+ * the same reason and with the same shape, so it is a control the player has
+ * met rather than a new one. Loyalty and None are in the list like everything
+ * else: somebody who never uses None should be able to push it to the end.
+ *
+ * Saved to the device rather than the game — see `Prefs`. Reset puts the
+ * build's own order back, which is the order the strip ships in and the one
+ * every hint and tutorial card assumes.
+ */
+function FilterOrder() {
+  const [prefs, setPrefs] = usePrefs();
+  const layers = orderedLayers(CHART_LAYERS, prefs.layerOrder);
+  const move = (at: number, step: number) => {
+    const next = at + step;
+    if (next < 0 || next >= layers.length) return;
+    const ids = layers.map((l) => l.id);
+    [ids[at], ids[next]] = [ids[next], ids[at]];
+    setPrefs({ layerOrder: ids });
+  };
+  return (
+    <>
+      <div className="section-title">Filter order</div>
+      <p className="tiny muted" style={{ margin: '0 0 8px' }}>
+        The strip under the chart, and the order a sideways swipe moves through
+        it. Kept on this device, so it holds across every war you start.
+      </p>
+      <div className="stack">
+        {layers.map((l, i) => (
+          <div key={l.id} className="card row row--between small" style={{ gap: 8 }}>
+            <span style={{ minWidth: 0 }}>{l.label}</span>
+            {/* The same arrows the harbor and the garrison use, so this is
+                a control the player has already met. */}
+            <span className="shiprow__order">
+              <button
+                className="orderbtn"
+                onClick={() => move(i, -1)}
+                disabled={i === 0}
+                aria-label={`Move ${l.label} up`}
+              >
+                ▲
+              </button>
+              <button
+                className="orderbtn"
+                onClick={() => move(i, 1)}
+                disabled={i === layers.length - 1}
+                aria-label={`Move ${l.label} down`}
+              >
+                ▼
+              </button>
+            </span>
+          </div>
+        ))}
+      </div>
+      {prefs.layerOrder.length > 0 && (
+        <button
+          className="btn btn--block"
+          style={{ marginTop: 8 }}
+          onClick={() => setPrefs({ layerOrder: [] })}
+        >
+          Back to the default order
+        </button>
+      )}
+    </>
+  );
+}
+
 function MenuSheet({
   state,
   onClose,
@@ -1120,6 +1194,8 @@ function MenuSheet({
         Highwater falling ends the Crown. All three Pirate Lords in irons at once ends the
         Confederacy.
       </p>
+
+      <FilterOrder />
 
       <div className="section-title">Game</div>
       <div className="stack">

@@ -16,13 +16,27 @@ import { useCallback, useEffect, useState } from 'react';
 const KEY = 'seven-seas.prefs.v1';
 
 export interface Prefs {
-  /** Fold identical hulls and companies into one line with a count. */
+  /** Fold identical hulls and troops into one line with a count. */
   group: boolean;
   /** Show the up and down arrows that put lists in order. */
   reorder: boolean;
+  /**
+   * The chart filters, in the order this player wants to swipe through them.
+   *
+   * Sean, 19 September: *"Add in settings ability to change default order of
+   * game filters."* Which filters matter is a question about how somebody
+   * plays rather than about the game, so it belongs here with grouping rather
+   * than in the save: a player who lives on Idle buildings wants it first in
+   * every war they start, not just this one.
+   *
+   * Stored as ids and deliberately not validated on write. A build that adds
+   * a filter, or drops one, must not strand somebody with a saved order that
+   * no longer matches — `orderedLayers` reconciles it at read time instead.
+   */
+  layerOrder: string[];
 }
 
-const DEFAULTS: Prefs = { group: true, reorder: false };
+const DEFAULTS: Prefs = { group: true, reorder: false, layerOrder: [] };
 
 function read(): Prefs {
   try {
@@ -58,4 +72,28 @@ export function usePrefs(): [Prefs, (patch: Partial<Prefs>) => void] {
     for (const listener of listeners) listener(current);
   }, []);
   return [prefs, update];
+}
+
+/**
+ * The filter strip in this player's order, reconciled with the build's.
+ *
+ * Three things can have happened since the order was saved: a filter was
+ * added, a filter was removed, or neither. All three are the same operation —
+ * take the saved ids that still exist, then append anything the build has
+ * that the saved order does not, in the build's own order. A new filter
+ * appears at the end rather than vanishing, and a retired one is dropped
+ * without comment.
+ *
+ * That is why the preference stores ids and not specs: the spec is the
+ * build's to own, and only the sequence is the player's.
+ */
+export function orderedLayers<T extends { id: string }>(all: readonly T[], order: string[]): T[] {
+  const byId = new Map(all.map((l) => [l.id, l]));
+  const out: T[] = [];
+  for (const id of order) {
+    const found = byId.get(id);
+    if (found && !out.includes(found)) out.push(found);
+  }
+  for (const l of all) if (!out.includes(l)) out.push(l);
+  return out;
 }

@@ -19,9 +19,7 @@ export type IslandTab = 'harbor' | 'crew' | 'garrison' | 'buildings' | 'lore';
  */
 export function tabForLayer(layer: ChartLayer | undefined): IslandTab {
   switch (layer) {
-    case 'idleYards':
-    case 'idleDrills':
-    case 'idleSlips':
+    case 'idleBuildings':
     case 'room':
     case 'worth':
       return 'buildings';

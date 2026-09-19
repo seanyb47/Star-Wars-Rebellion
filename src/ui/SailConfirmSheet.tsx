@@ -89,7 +89,7 @@ export function SailConfirmSheet({
       <div className="card row" style={{ gap: 18 }}>
         <Stat label="Days at sea" value={days} />
         <Stat label="Hulls" value={fleet.ships.length} />
-        <Stat label="Companies aboard" value={fleet.troops} />
+        <Stat label="Troops aboard" value={fleet.troops} />
         <Stat label="Crew aboard" value={crew.length} />
       </div>
 
@@ -116,8 +116,8 @@ export function SailConfirmSheet({
         <p className="tiny" style={{ color: 'var(--bad)', marginTop: 10 }}>
           {target.name} is held by the {factionData[enemy].shortName}.{' '}
           {landing
-            ? `Arriving with ${fleet.troops} ${fleet.troops === 1 ? 'company' : 'companies'} aboard, you can put them ashore.`
-            : 'With no companies aboard you can blockade it, but you cannot take the island.'}
+            ? `Arriving with ${fleet.troops} ${fleet.troops === 1 ? 'troop' : 'troops'} aboard, you can put them ashore.`
+            : 'With no troops aboard you can blockade it, but you cannot take the island.'}
         </p>
       )}
     </Sheet>

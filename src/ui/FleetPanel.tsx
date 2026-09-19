@@ -261,9 +261,9 @@ export function FleetCard({
         {fleet.faction !== state.player && <ControlBadge faction={fleet.faction} />}
       </div>
 
-      {/* There was a stepper here — companies aboard, with a plus and a minus
+      {/* There was a stepper here — troops aboard, with a plus and a minus
           — and Sean cut it: "cut this ashore / aboard thing." He is right that
-          it was never a decision. Nobody leaves companies standing on a quiet
+          it was never a decision. Nobody leaves troops standing on a quiet
           island when the hulls going somewhere have room, and nobody carries
           them past an island of theirs that could use them, so both ends of
           the control only ever had one sensible answer, and a control with one
@@ -425,7 +425,7 @@ export function FleetCard({
         </span>
         {damaged > 0 && <span className="fleet__line-bad">{damaged} damaged</span>}
         <span>
-          <b>{fleet.troops}</b>/{capacity} companies
+          <b>{fleet.troops}</b>/{capacity} troops
         </span>
         {scouting > 0 && <span>+{scouting} charted a landfall</span>}
         {officers.length > 0 && (

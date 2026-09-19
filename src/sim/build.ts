@@ -636,8 +636,8 @@ function completeBuild(
     pushEvent(state, {
       kind: 'order',
       text: shipped
-        ? `A company drilled on ${madeOn.name} has landed on ${system.name}.`
-        : `A company has finished its drill on ${system.name}.`,
+        ? `A troop drilled on ${madeOn.name} has landed on ${system.name}.`
+        : `A troop has finished its drill on ${system.name}.`,
       systemId: system.id,
     });
     return;

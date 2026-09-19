@@ -71,7 +71,7 @@ export function resolveControlAndUnrest(state: GameState, rng?: Rng): void {
       if (isPlayable(system.control) && system.garrison < 1) {
         pushEvent(state, {
           kind: 'loss',
-      text: `${system.name} has been abandoned; the last company has sailed.`,
+      text: `${system.name} has been abandoned; the last troop has sailed.`,
           systemId: system.id,
         });
         system.control = 'none';
@@ -158,7 +158,7 @@ export function resolveControlAndUnrest(state: GameState, rng?: Rng): void {
         pushEvent(state, {
           kind: 'order',
           text: enough && support < UPRISING_END_SUPPORT
-            ? `${system.name} is quiet again: ${system.garrison} companies in the square, and nobody arguing with them.`
+            ? `${system.name} is quiet again: ${system.garrison} troops in the square, and nobody arguing with them.`
             : `The mutiny on ${system.name} has been put down.`,
           systemId: system.id,
         });

@@ -255,7 +255,7 @@ export function inciteStanding(
     factors: [
       { label: party.length > 1 ? 'Your agitators' : 'Your agitator', weight: mark(pull - 50, 18) },
       { label: 'Their hold on the people', weight: mark(40 - loyalty, 12) },
-      { label: 'Companies ashore', weight: -mark(garrisonRoster(system).length * SECURITY_PER_COMPANY, 8) },
+      { label: 'Troops ashore', weight: -mark(garrisonRoster(system).length * SECURITY_PER_COMPANY, 8) },
       ...(system.commanderId ? [{ label: 'Their crew in the chair', weight: -2 }] : []),
       ...(momentum !== 0 ? [{ label: 'Recent unrest here', weight: mark(momentum, 4) }] : []),
     ],

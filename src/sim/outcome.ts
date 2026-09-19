@@ -253,7 +253,7 @@ export function bombardStrategic(input: {
   return [
     `${wallsDown > 0 ? `${wallsDown} down, ` : ''}${wallsLeft} still standing at ${where}.`,
     'The harbor is not silenced, so no landing can be made.',
-    ...(companies > 0 ? [`${companies} of their companies broken in the town.`] : []),
+    ...(companies > 0 ? [`${companies} of their troops broken in the town.`] : []),
     ...(civilian > 0
       ? ['Shot went past the walls and into the town, and that will be remembered.']
       : []),
@@ -280,7 +280,7 @@ export function assaultStrategic(input: {
   const { verdict, where, holder, aboard, allegiance } = input;
   if (verdict === 'victory') {
     return [
-      `${where} is carried, and the companies that took it are holding it.`,
+      `${where} is carried, and the troops that took it are holding it.`,
       allegiance < 50
         ? 'Occupied, and politically hostile: the people did not want this and have not changed their minds.'
         : 'The harbor is content enough to be held without a struggle.',
@@ -297,7 +297,7 @@ export function assaultStrategic(input: {
   return [
     'The landing did not carry the place, and was not destroyed either.',
     `${holder} keeps ${where} for now.`,
-    `${aboard} ${aboard === 1 ? 'company is' : 'companies are'} still aboard and able to go again.`,
+    `${aboard} ${aboard === 1 ? 'troop is' : 'troops are'} still aboard and able to go again.`,
     'Both forces are still capable of continuing.',
   ];
 }

@@ -147,7 +147,7 @@ describe('building a hull', () => {
     expect(() => queueBuild(state, 'yard-test', 'kestrel')).not.toThrow();
   });
 
-  it('charges upkeep for hulls and for the companies aboard them', () => {
+  it('charges upkeep for hulls and for the troops aboard them', () => {
     const { state, home } = setup();
     const before = totalUpkeep(state, 'empire');
     const fleet = put(state, home, 'empire', ['sovereign']);
@@ -305,11 +305,11 @@ describe('embarking', () => {
     expect(home.garrison).toBe(10 - room);
   });
 
-  it('will not load companies that are not there', () => {
+  it('will not load troops that are not there', () => {
     const { state, home } = setup();
     const fleet = put(state, home, 'empire', ['fluyt']);
     home.garrison = 0;
-    expect(embarkError(state, fleet.id, 1, 'empire')).toBe('Not enough companies ashore.');
+    expect(embarkError(state, fleet.id, 1, 'empire')).toBe('Not enough troops ashore.');
   });
 
   it('puts them back ashore again', () => {
@@ -324,10 +324,10 @@ describe('embarking', () => {
 });
 
 describe('assault', () => {
-  it('needs companies aboard, and an island that is not already yours', () => {
+  it('needs troops aboard, and an island that is not already yours', () => {
     const { state, home } = setup();
     const fleet = put(state, home, 'empire', ['fluyt']);
-    expect(assaultError(state, fleet.id, 'empire')).toBe('No companies aboard.');
+    expect(assaultError(state, fleet.id, 'empire')).toBe('No troops aboard.');
     fleet.troops = 2;
     expect(assaultError(state, fleet.id, 'empire')).toBe('The island is already yours.');
   });

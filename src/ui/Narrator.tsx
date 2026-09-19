@@ -136,7 +136,7 @@ function buildAnswers(state: GameState): Answer[] {
             : 'Nothing! Quiet as a chapel. Enjoy it.'
           : voice
             ? `${restless.length} islands in mutiny, or too thinly held to prevent one. I would attend to those before luncheon.`
-            : `${restless.length} islands about to go up, or already have. Land some companies, General.`,
+            : `${restless.length} islands about to go up, or already have. Land some troops, General.`,
       mood: restless.length === 0 ? 'neutral' : 'grave',
       islands: restless,
     },
@@ -190,8 +190,8 @@ function buildAnswers(state: GameState): Answer[] {
       id: 'garrisons',
       question: `What are ${terms.garrison.toLowerCase()}s for?`,
       reply: voice
-        ? `Order, and the customs books. A firm island needs nobody; a steady one wants ${GARRISON_FOR_BAND.steady}; a thin one wants ${GARRISON_FOR_BAND.thin} or it will rise; ${GARRISON_FOR_BAND.uprising} companies will face down a ${terms.mutiny.toLowerCase()} whatever the island thinks of us. And every company ashore takes a twentieth off what the smugglers move, which is a hand on it rather than a cure. These are short of what they are asking for.`
-        : `Keeping the peace and watching the wharf. Firm island, nobody. Steady, ${GARRISON_FOR_BAND.steady}. Thin, ${GARRISON_FOR_BAND.thin} or it goes up. ${GARRISON_FOR_BAND.uprising} will sit on a ${terms.mutiny.toLowerCase()} till it stops shouting. Every company takes a twentieth off the smugglers too — it helps, it doesn't fix it. These are undermanned, General.`,
+        ? `Order, and the customs books. A firm island needs nobody; a steady one wants ${GARRISON_FOR_BAND.steady}; a thin one wants ${GARRISON_FOR_BAND.thin} or it will rise; ${GARRISON_FOR_BAND.uprising} troops will face down a ${terms.mutiny.toLowerCase()} whatever the island thinks of us. And every troop ashore takes a twentieth off what the smugglers move, which is a hand on it rather than a cure. These are short of what they are asking for.`
+        : `Keeping the peace and watching the wharf. Firm island, nobody. Steady, ${GARRISON_FOR_BAND.steady}. Thin, ${GARRISON_FOR_BAND.thin} or it goes up. ${GARRISON_FOR_BAND.uprising} will sit on a ${terms.mutiny.toLowerCase()} till it stops shouting. Every troop takes a twentieth off the smugglers too — it helps, it doesn't fix it. These are undermanned, General.`,
       mood: short.length > 2 ? 'grave' : short.length > 0 ? 'neutral' : 'encouraged',
       islands: short,
     },

@@ -1,5 +1,5 @@
 {
-  "_comment": "Player-facing vocabulary. World bible sections 1, 9 and 10. Change a word here and it changes everywhere. One word per idea, at Sean's word of 17 September: a person of yours is CREW and never an officer or personnel; talking a place round is a PARLEY and never diplomacy; and the three things you can be looking at are the WORLD MAP, a REACH MAP and a LOCATION. In prose a location is still an island, because in this world it is one - what is forbidden is a second word for the same idea in a label.",
+  "_comment": "Player-facing vocabulary. World bible sections 1, 9 and 10. Change a word here and it changes everywhere. One word per idea, at Sean's word of 17 September: a person of yours is CREW and never an officer or personnel; talking a place round is a PARLEY and never diplomacy; and the three things you can be looking at are the WORLD MAP, a REACH MAP and a LOCATION. In prose a location is still an island, because in this world it is one - what is forbidden is a second word for the same idea in a label. A ground unit is a TROOP, plural TROOPS, at Sean's word of 19 September - \"rename 'company' to 'troop(s)' through game when talking about ground units\" - which reverses the 17 September ruling that made it COMPANY and retired troops. Company is the retired word now.",
   "gold": "Gold",
   "income": "Income",
   "upkeep": "Upkeep",
@@ -37,7 +37,8 @@
     "fort": "Fortress",
     "heavy_fort": "Heavy Fortress"
   },
-  "troop": "Company",
+  "troop": "Troop",
+  "troops": "Troops",
   "facilityBlurbs": {
     "mine": "Sinks a shaft on a vein of gold. Nothing else in the Seven Seas earns like it, and few islands have the ground for one.",
     "refinery": "Cuts and works the standing timber. Wants a forest under it, and most islands have a few.",

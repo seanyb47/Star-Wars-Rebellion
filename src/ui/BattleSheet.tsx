@@ -212,7 +212,7 @@ function Side({
         )}
         {side.troops > 0 && (
           <span className="tiny battle__note">
-            <b>{side.troops}</b> {side.troops === 1 ? 'company' : 'companies'} aboard
+            <b>{side.troops}</b> {side.troops === 1 ? 'troop' : 'troops'} aboard
           </span>
         )}
         {lost > 0 && (

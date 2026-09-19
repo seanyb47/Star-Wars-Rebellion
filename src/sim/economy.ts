@@ -176,7 +176,7 @@ function breakSomethingDown(state: GameState, faction: PlayableFaction, rng: Rng
     picked.system.garrison = Math.max(0, picked.system.garrison - 1);
     pushEvent(state, {
       kind: 'loss',
-      text: `Unpaid and unfed, a company on ${picked.system.name} has melted away.`,
+      text: `Unpaid and unfed, a troop on ${picked.system.name} has melted away.`,
       systemId: picked.system.id,
     });
     return;

@@ -478,7 +478,7 @@ function EntrySheet({
                   <>
                     <br />
                     <br />
-                    <b>Not yet built.</b> This company has no way into the game until the
+                    <b>Not yet built.</b> This troop has no way into the game until the
                     research that opens it is in.
                   </>
                 )}
@@ -516,7 +516,7 @@ function EntrySheet({
               <p className="encfull__lore">{terms.facilityBlurbs[type]}</p>
               <div className="card small">
                 <b>It takes a berth.</b> Every building takes one of the island's plots,
-                whatever it is, and an island has only so many. Companies and hulls take none.
+                whatever it is, and an island has only so many. Troops and hulls take none.
                 <br />
                 <br />
                 <b>Several of a kind work together.</b> Three of these on one island finish a
@@ -570,7 +570,8 @@ function EntrySheet({
  */
 const PAGES = [
   { id: 'people', label: 'Crew' },
-  { id: 'companies', label: 'Companies' },
+  // The id is a route and half the game passes it; only the word changes.
+  { id: 'companies', label: terms.troops },
   { id: 'works', label: 'Buildings' },
   { id: 'ships', label: 'Ships' },
   { id: 'islands', label: terms.islands },
@@ -703,7 +704,7 @@ export function Almanac({
         takes one free berth on the island, whatever it is.
         Buildings are raised by a {FACILITY_LABEL.construction_yard} — the island's own, or
         whichever of yours would have it there soonest, whose builders sail over and add the
-        passage after the work. Companies and hulls are sent the same way: drilled or laid down
+        passage after the work. Troops and hulls are sent the same way: drilled or laid down
         where you have the ground for it, and delivered where you asked.
       </p>
       <div className="encgrid">
@@ -798,7 +799,7 @@ export function Almanac({
       <div className="card small">
         <b>One job of a kind at a time, per island.</b> A {FACILITY_LABEL.construction_yard.toLowerCase()}{' '}
         raises structures, a {FACILITY_LABEL.shipyard.toLowerCase()} lays down hulls, a{' '}
-        {FACILITY_LABEL.training_facility.toLowerCase()} drills companies — so an island with all
+        {FACILITY_LABEL.training_facility.toLowerCase()} drills troops — so an island with all
         three can have three things on the go at once, and never a fourth.
         <br />
         <br />
@@ -850,7 +851,7 @@ export function Almanac({
 
       {page === 'companies' && (
         <>
-      <div className="section-title">Companies</div>
+      <div className="section-title">Troops</div>
       <div className="card">
         <div className="row row--between">
           <b>{TROOP_BUILD.label}</b>
@@ -865,17 +866,17 @@ export function Almanac({
           <CompanyRow present={3} />
         </div>
         <p className="tiny muted" style={{ margin: 0 }}>
-          Drilled at a {FACILITY_LABEL.training_facility}. Companies hold an island quiet when its
+          Drilled at a {FACILITY_LABEL.training_facility}. Troops hold an island quiet when its
           allegiance falls, and are the only thing that holds an uninhabited island at all.
         </p>
       </div>
 
-      {/* Who those companies are. One line each, three numbers each, the way
+      {/* Who those troops are. One line each, three numbers each, the way
           the original does a regiment: what it is worth landing, what it is
           worth holding, and how much it sees. */}
       <p className="tiny muted" style={{ margin: '10px 0 6px' }}>
-        A company is one of these. Which you get is the island: the line
-        companies are everywhere, sailors come ashore where hulls are built, and
+        A troop is one of these. Which you get is the island: the line
+        troops are everywhere, sailors come ashore where hulls are built, and
         the rest are a people rather than a purchase — they are on their own
         islands and nowhere else.
       </p>
@@ -907,14 +908,14 @@ export function Almanac({
       </div>
       ))}
       <p className="tiny muted" style={{ marginTop: 6 }}>
-        Attack / hold / watch. A landing is still settled on how many companies
+        Attack / hold / watch. A landing is still settled on how many troops
         are ashore, not on these — they say who is standing there, and what they
         will be worth when a landing counts them properly.
       </p>
 
-      <div className="section-title">What companies ashore do</div>
+      <div className="section-title">What troops ashore do</div>
       <div className="card small">
-        <b>They hold the island.</b> One company is enough to hold any island against its own
+        <b>They hold the island.</b> One troop is enough to hold any island against its own
         opinion; an empty harbor is taken by whoever turns up with one. That is the first thing a
         garrison is for and the reason a capital never sends its last one away.
         <br />
@@ -926,14 +927,14 @@ export function Almanac({
         the island thinks of you.
         <br />
         <br />
-        <b>They watch the back door.</b> Every company takes a twentieth off what the smugglers are
-        running. A hand on the problem, never an answer to it — twenty companies would close a
+        <b>They watch the back door.</b> Every troop takes a twentieth off what the smugglers are
+        running. A hand on the problem, never an answer to it — twenty troops would close a
         harbor and nobody will ever keep twenty on one island.
         <br />
         <br />
         <b>They are the landing party.</b> Aboard a fleet they cost the same {UPKEEP_PER_DAY.troop}{' '}
         a day and go down with the hull carrying them, which is what makes a loaded transport worth
-        escorting and worth sinking. A landing needs more companies than are holding the island,
+        escorting and worth sinking. A landing needs more troops than are holding the island,
         and no landing at all is possible while a seawall stands.
       </div>
 
@@ -1035,16 +1036,16 @@ export function Almanac({
         <b>{ISLAND_COUNT} of them, and every one is the same four questions.</b> Who holds it. What it
         thinks of you, out of a hundred — and the two sides' shares always add to a hundred, so a
         point you win is a point they lose. How much room it has to build on. And how many
-        companies are standing on it.
+        troops are standing on it.
         <br />
         <br />
         <b>Room is one pool.</b> Between four and twelve berths; every building takes one, and
-        companies and hulls take none. A starting island opens with eight to twelve. What is built
+        troops and hulls take none. A starting island opens with eight to twelve. What is built
         is what the island is worth: two earners and a yard is a going concern, and an island with
         one berth left is a decision.
         <br />
         <br />
-        <b>Control is the garrison first.</b> One company ashore holds an island whatever it thinks
+        <b>Control is the garrison first.</b> One troop ashore holds an island whatever it thinks
         of you. Allegiance only decides who holds it when nobody is standing there — an island of
         yours with an empty harbor and the enemy at {FLIP_SUPPORT_MIN} regard declares for them,
         and nobody argues.
@@ -1053,12 +1054,12 @@ export function Almanac({
       <div className="section-title">Settled, empty, and dark</div>
       <div className="card small">
         <b>A settled island</b> has people on it who have an opinion. It earns, it can rise, and it
-        is taken by landing more companies than are holding it — or by talking it round, if nobody
+        is taken by landing more troops than are holding it — or by talking it round, if nobody
         has chosen a side.
         <br />
         <br />
         <b>An empty island</b> has nobody on it and belongs to nobody. There is nothing there to
-        fight: put one company on the beach and it is yours. Finish anything on it and it is
+        fight: put one troop on the beach and it is yours. Finish anything on it and it is
         settled, loyal to you outright, and worth its four to ten berths — which makes the frontier
         the cheapest capital in the game.
         <br />
@@ -1099,7 +1100,7 @@ export function Almanac({
         {(
           [
             ['missions', 'Crew', 'Your crew standing on it, or sailing to it.'],
-            ['military', 'Ashore', 'Companies ashore, whoever holds the island.'],
+            ['military', 'Ashore', 'Troops ashore, whoever holds the island.'],
             ['facilities', 'Built', 'What is built there, and what you can raise.'],
           ] as const
         ).map(([kind, label, text]) => (
@@ -1393,9 +1394,9 @@ export function Almanac({
         <br />
         Shot goes at the walls while any stand; only when none do can it reach
         the garrison, and it takes {BOMBARD_PER_COMPANY} of weight to break one
-        company. The wall answers a bombardment at its full weight the whole
+        troop. The wall answers a bombardment at its full weight the whole
         time, which is what makes the first day of a siege the expensive one.
-        Shot that goes looking for companies in a town finds the town: the
+        Shot that goes looking for troops in a town finds the town: the
         island's regard falls {CIVILIAN_LOYALTY_HIT} a day, every island in the
         Reach hears of it, and each further day costs more than the last.
       </div>
@@ -1437,7 +1438,7 @@ export function Almanac({
         <br />
         At rest, on Loyalty, the size is how firmly the island is held. Under a filter it is the
         answer: large if the island answers, small if it does not. Garrisons has three sizes of its
-        own — {GARRISON_STRONG} companies or more is large, {GARRISON_FAIR} to{' '}
+        own — {GARRISON_STRONG} troops or more is large, {GARRISON_FAIR} to{' '}
         {GARRISON_STRONG - 1} medium, under {GARRISON_FAIR} small.
       </div>
 
@@ -1452,13 +1453,13 @@ export function Almanac({
         {Math.round(SMUGGLED_SHARE.uprising * 100)}%. Every coin the smugglers take is a coin the
         other side banks, so a Reach you have let go sour is paying for their fleet. A thin island
         talks, too: sooner or later it turns up on their charts with everything on it — its
-        buildings, its companies, and any island of yours in the same chain they had not found.
+        buildings, its troops, and any island of yours in the same chain they had not found.
         <br />
         <br />
-        <b>Companies ashore answer both.</b> A firm island needs none; a steady one asks for{' '}
+        <b>Troops ashore answer both.</b> A firm island needs none; a steady one asks for{' '}
         {GARRISON_FOR_BAND.steady}; a thin one for {GARRISON_FOR_BAND.thin}, and under that it will
         rise; {GARRISON_FOR_BAND.uprising} will face down a {terms.mutiny.toLowerCase()} whatever
-        the island still thinks of you. Every company also takes a twentieth off what the
+        the island still thinks of you. Every troop also takes a twentieth off what the
         smugglers move — a hand on the problem, not an answer to it.
       </div>
 

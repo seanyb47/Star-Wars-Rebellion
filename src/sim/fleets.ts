@@ -474,7 +474,7 @@ export function embarkError(
   const system = getSystem(state, fleet.systemId);
   if (system.control !== fleet.faction) return 'You do not hold this island.';
   if (companies > 0) {
-    if (system.garrison < companies) return 'Not enough companies ashore.';
+    if (system.garrison < companies) return 'Not enough troops ashore.';
     if (fleet.troops + companies > fleetCapacity(fleet)) return 'No room aboard.';
   } else if (fleet.troops < -companies) {
     return 'Not that many aboard.';
@@ -569,7 +569,7 @@ export function assaultError(
   if (!fleet) return 'No such fleet.';
   if (fleet.faction !== actor) return 'That fleet is not yours.';
   if (isAtSea(fleet)) return 'The fleet is at sea.';
-  if (fleet.troops === 0) return 'No companies aboard.';
+  if (fleet.troops === 0) return 'No troops aboard.';
   const system = getSystem(state, fleet.systemId);
   if (system.control === fleet.faction) return 'The island is already yours.';
   if (fleetsAt(state, system.id).some((f) => f.faction !== fleet.faction && fleetGuns(f) > 0)) {
@@ -671,7 +671,7 @@ export function clearWrecks(state: GameState): void {
     fleet.troops = berths;
     pushEvent(state, {
       kind: 'loss',
-      text: `${drowned} ${drowned === 1 ? 'company goes' : 'companies go'} down with the hulls ${
+      text: `${drowned} ${drowned === 1 ? 'troop goes' : 'troops go'} down with the hulls ${
         fleet.name
       } lost.`,
       systemId: fleet.systemId,
@@ -686,7 +686,7 @@ export function clearWrecks(state: GameState): void {
     if (fleet.troops > 0) {
       pushEvent(state, {
         kind: 'loss',
-        text: `${fleet.troops} ${fleet.troops === 1 ? 'company goes' : 'companies go'} down with the last of ${fleet.name}.`,
+        text: `${fleet.troops} ${fleet.troops === 1 ? 'troop goes' : 'troops go'} down with the last of ${fleet.name}.`,
         systemId: fleet.systemId,
       });
       fleet.troops = 0;
@@ -1253,7 +1253,7 @@ function bombardReport(
     damage: [
       { label: 'Batteries beaten down', value: wallsDown },
       { label: 'Batteries still standing', value: wallsLeft },
-      { label: 'Defending companies broken', value: companies },
+      { label: 'Defending troops broken', value: companies },
       { label: 'Shot into the town', value: civilian, civilian: true },
     ],
     control: isPlayable(system.control)
@@ -1334,10 +1334,10 @@ function shellTheTown(
       text: system.populated
         ? `${fleet.name} shells ${system.name} itself. ${
             broken > 0
-              ? `${broken} ${broken === 1 ? 'company is' : 'companies are'} broken`
+              ? `${broken} ${broken === 1 ? 'troop is' : 'troops are'} broken`
               : 'The garrison holds'
           }, the quarter behind the quay is burning, and word of it is running through the Reach.`
-        : `${fleet.name} works over ${system.name}. ${broken} ${broken === 1 ? 'company is' : 'companies are'} broken.`,
+        : `${fleet.name} works over ${system.name}. ${broken} ${broken === 1 ? 'troop is' : 'troops are'} broken.`,
       systemId: system.id,
     });
   }
@@ -1702,7 +1702,7 @@ function sinkAndDrown(state: GameState, fleet: Fleet): void {
     fleet.troops = room;
     pushEvent(state, {
       kind: 'loss',
-      text: `${lost} ${lost === 1 ? 'company goes' : 'companies go'} down with ${fleet.name}.`,
+      text: `${lost} ${lost === 1 ? 'troop goes' : 'troops go'} down with ${fleet.name}.`,
     });
   }
 }
@@ -1882,7 +1882,7 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
 
   pushEvent(state, {
     kind: 'flip',
-    text: `${system.name} is carried by storm. ${holding} ${holding === 1 ? 'company holds' : 'companies hold'} it${
+    text: `${system.name} is carried by storm. ${holding} ${holding === 1 ? 'troop holds' : 'troops hold'} it${
       fleet.troops > 0 ? `, ${fleet.troops} more stay aboard` : ''
     }, and the people are sullen.`,
     systemId: system.id,
@@ -1965,8 +1965,8 @@ function assaultReport(
     },
     people: [],
     damage: [
-      { label: 'Companies ashore, holding', value: ashore },
-      { label: 'Companies still aboard', value: aboard },
+      { label: 'Troops ashore, holding', value: ashore },
+      { label: 'Troops still aboard', value: aboard },
     ],
     control: `${holder} holds ${system.name}`,
     strategic: assaultStrategic({

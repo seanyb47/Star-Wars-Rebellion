@@ -4528,3 +4528,84 @@ That is the second one this week in the same few lines — the first was lookups
 from inside an already-open encyclopedia doing nothing at all. Both were
 invisible because the failure mode of a broken lookup is a page that opens
 anyway, just not where you wanted it.
+
+## Troops, one idle filter, and an order the player sets
+
+Six notes, 19 September.
+
+### A ground unit is a Troop
+
+*"Rename 'company' to 'troop(s)' through game when talking about ground
+units."* This **reverses the 17 September ruling** that made it a Company and
+retired *troops*, so the vocabulary table in `CLAUDE.md` and
+`docs/rebellion-terms.md` are turned round with it rather than left saying the
+opposite of the game.
+
+`terms.troop` was already the single source for the label, so the flip is one
+line; the work was the hundred-odd places that had spelled it out instead. 62
+player-facing string literals and 48 stretches of raw JSX text.
+
+**One exemption, and it is a name rather than the category.** The unit sailors
+ashore are called is a **Ship's Company**, which is a real naval idiom for the
+crew of a vessel. Renaming it would have invented a unit name nobody asked
+for, so it stands, and the guard exempts it by name.
+
+Ids did not move. `crown-ships-company` is a troop type's key and the name of
+its painting on disk; the encyclopedia route `'companies'` and the entry kind
+`'company'` are passed around by half the game. Renaming those would have been
+renaming files for a word nobody reads.
+
+### The guard had a hole, and this is what found it
+
+`vocabulary.test.ts` only ever read **quoted strings**. Every retired word —
+officer, personnel, diplomat — has been checked against half the interface
+since the pass was written, because the text *between* the tags was invisible
+to it. That is where 48 of the company occurrences were: whole paragraphs of
+the encyclopedia and the island panel.
+
+`jsxText` closes it, and the company rule runs against both. Worth more than
+the rename that turned it up.
+
+### One filter for the three yards
+
+*"Consolidate idle yards, training, shipyards into 'Idle Buildings'."* Three
+filters asking the same question — what of mine is standing about — meant
+three swipes to find out, and the answer a player acts on is identical either
+way: go there and give something an order. The count is every idle works on
+the island whatever kind, and the Buildings tab it opens on says which.
+
+*"Move idle land to last."* Done, and pinned by a test, because the order of
+`CHART_LAYERS` **is** the swipe order and nothing else says so.
+
+### Numbers on two filters that only had sizes
+
+*"Display # on garrison filter."* Garrisons and Available land were graded by
+dot size and nothing else; both show their figure now.
+
+That needed one more thing than it looks. A numeral **replaces** the dot, so
+adding the number to those two would have thrown away the very banding Sean
+asked about in the same message. The numeral takes the band's size instead —
+read the size from across the chart, read the figure up close.
+
+### The dot ladder, and a correction
+
+*"Change filter dot size to <3 small, 3-5 medium, 6+ large."* A garrison has
+done exactly that since his own ladder of **14 September** — `GARRISON_FAIR`
+3, `GARRISON_STRONG` 6. So the filter he was asking to change is the other one
+that sizes by a count: open ground was 2 and 5. It is 3 and 6 now, literally
+`GARRISON_FAIR` and `GARRISON_STRONG`, so there is one rule for both rather
+than two that nearly agree.
+
+### The strip in the player's own order
+
+*"Add in settings ability to change default order of game filters. That would
+be cool."* Up and down arrows in the menu, the same ones the harbor and the
+garrison already use.
+
+Saved to the device rather than the game, with grouping and reordering, on the
+same reasoning: which filters matter is a fact about how somebody plays, not
+about this war. Stored as **ids**, with the specs left to the build, and
+reconciled at read time — a filter the saved order has never heard of appears
+at the end rather than vanishing, and a retired one is dropped. Five tests on
+that reconciliation, because it is the part that breaks silently between
+versions.
