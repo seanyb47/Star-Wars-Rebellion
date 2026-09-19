@@ -3984,6 +3984,33 @@
         "sha1": "2c0db8b442b62c82"
       }
     },
+    "ships/justiciar": {
+      "folder": "ships",
+      "slug": "justiciar",
+      "version": 1,
+      "added": "2026-09-19",
+      "updated": "2026-09-19",
+      "title": "Justiciar",
+      "source": "Sean, 19 September \u2014 production painting",
+      "notes": "Her first painting; unpainted since the roster landed. Crown R6 large: 24 guns across three kinds and no troop capacity, which is the picture \u2014 a full broadside going off and not a landing party aboard.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/justiciar.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 675884,
+        "sha1": "021aa8bbfa83bf2f"
+      },
+      "shipped": {
+        "file": "src/art/ships/justiciar.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 79810,
+        "sha1": "c3627cb9b0e58801"
+      }
+    },
     "ships/kestrel": {
       "folder": "ships",
       "slug": "kestrel",

@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**137 of 150 painted.** 4905KB shipped, 18.3MB of masters kept back.
+**138 of 151 painted.** 4983KB shipped, 18.9MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -77,7 +77,7 @@ the head, cropped square out of the portrait; the medallion. 26 of 26.
 
 ## ships — 640×480
 
-three-quarter view, whole vessel, masts and waterline both in frame. 29 of 37.
+three-quarter view, whole vessel, masts and waterline both in frame. 30 of 38.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
@@ -90,6 +90,7 @@ three-quarter view, whole vessel, masts and waterline both in frame. 29 of 37.
 | fluyt-ii | `fluyt-ii` | 1 | 32KB | 234×174, 23KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | freebooter | `freebooter` | 1 | 36KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Open Deck | `harbor` | 1 | 35KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| Justiciar | `justiciar` | 1 | 77KB | 1448×1086, 660KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
 | kestrel | `kestrel` | 1 | 35KB | 234×174, 24KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | kestrel-ii | `kestrel-ii` | 1 | 34KB | 233×174, 23KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | majestic | `majestic` | 2 (+1 retired) | 84KB | 1448×1086, 671KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
@@ -338,6 +339,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/fluyt-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/freebooter** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/harbor** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands. Refiled from ships/free-harbor to ships/harbor on 18 September: the ship was renamed Open Deck on 17 September and her class id is `harbor`, so the painting no longer matched the slug the game looks her up by and she drew as a placeholder. The island archetype `free-harbor` is a different thing and keeps its name.
+- **ships/justiciar** — Her first painting; unpainted since the roster landed. Crown R6 large: 24 guns across three kinds and no troop capacity, which is the picture — a full broadside going off and not a landing party aboard.
 - **ships/kestrel** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/kestrel-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/majestic** — Replaces the 234×174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered 1448×1086, exactly 4:3, so the whole painting ships with no crop.

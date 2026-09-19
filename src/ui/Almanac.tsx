@@ -78,6 +78,7 @@ const ART_SLUG: Record<string, string> = {
   'CWN-WAY-S01': 'wayfinder',
   'CWN-MOR-S03': 'morningstar',
   'CWN-RES-R2-01': 'resolute',
+  'CWN-JUS-R6-01': 'justiciar',
   'CWN-SOV-S04': 'sovereign',
   'CWN-SOV-R7-02': 'sovereign-ii',
   'CWN-MAJ-R8-01': 'majestic',
