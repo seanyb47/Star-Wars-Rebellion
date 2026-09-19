@@ -3,6 +3,7 @@ import terms from '../data/terms.json';
 import characterRoster from '../data/characters.json';
 import factionData from '../data/factions.json';
 import shipFlavourData from '../data/ship-flavour.json';
+import shipLoreData from '../data/ship-lore.json';
 import reachData from '../data/reaches.json';
 import { GlossaryPage, glossaryAnchor, glossaryWords } from './Glossary';
 import { IslandLore } from './IslandLore';
@@ -367,6 +368,22 @@ function GoldLine({ type }: { type: FacilityType }) {
  * which is what was shown before, so a hull added to the sheet without a line
  * still says something.
  */
+/**
+ * The encyclopedia entry for a hull: what she *is*, rather than what she beats.
+ *
+ * Part 4 of the combat master, which never reached the repo — the Drive
+ * cleanup of 19 September trashed the Ship Lore & Visual Identity tab before
+ * its replacement was uploaded. Written here at Sean's direction and **awaiting
+ * his approval**; the real tab supersedes it the day it turns up.
+ *
+ * Empty string for a hull with no entry, so the sheet simply does not draw the
+ * paragraph rather than drawing an empty one.
+ */
+export function shipLore(id: string): string {
+  const written = (shipLoreData.lore as Record<string, { entry: string }>)[id];
+  return written?.entry ?? '';
+}
+
 export function shipFlavour(id: string): string {
   const written = (shipFlavourData.flavour as Record<string, string>)[id];
   return written ?? ROSTER.byId.get(id)?.designNotes ?? '';
@@ -784,6 +801,13 @@ function EntrySheet({
                 back. The roster's own Design Notes said *"Heavy Armor 22; 400
                 Hull; 7 Long..."*, which is the grid above in a sentence.
               */}
+              {/*
+                Two paragraphs, and they answer different questions. The entry
+                says what she is and who builds her; the flavour line says what
+                she beats and what beats her. Neither repeats the stat grid,
+                which is the thing Sean cut on 19 September.
+              */}
+              {shipLore(cls.id) && <p className="encfull__lore">{shipLore(cls.id)}</p>}
               <p className="encfull__lore">{shipFlavour(cls.id)}</p>
             </>
           ),
