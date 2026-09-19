@@ -2294,20 +2294,11 @@ button.tcard:hover { border-color: var(--brass); }
    only ever about a third of the frame — and any fixed height crops with
    `object-fit: cover`, which was cutting into the third that matters.
 
-   So the box takes the painting's own 480:436 instead of a height, and
-   nothing is cropped at all. On a phone that is about 400x363: the whole
-   person, and a face around 130px against the 63px the ringed medallion this
-   replaces could show through its opening. */
+   It now shows the head crop rather than the three-quarter figure, square and
+   the card's full width — about 400x400 on a phone, and a face around 340px
+   against the 63px the ringed medallion it started as could show. */
 .enccrew { padding: 0; overflow: hidden; }
 .enccrew > div:not(.enccrew__art) { padding: 0 12px 12px; }
 .enccrew .statgrid { margin: 0 12px 12px; }
 .enccrew__art { line-height: 0; }
-.enccrew__art .painting {
-  border-radius: 0;
-  width: 100%;
-  height: auto !important;
-  aspect-ratio: 480 / 436;
-}
-/* Nothing is being cropped now, so the anchor only matters for the fallback
-   cameo; centre it rather than leaving it at the portrait's 42%. */
-.enccrew__art .painting img { object-fit: cover; object-position: 50% 50%; }
+.enccrew__art .charface { width: 100% !important; height: auto !important; aspect-ratio: 1 / 1; }

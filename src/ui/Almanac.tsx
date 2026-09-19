@@ -129,7 +129,7 @@ import {
 } from '../sim';
 import {
   CategoryIcon,
-  CharacterPainting,
+  CharacterFace,
   FacilityThumb,
   ResourceThumb,
   CompanyIcon,
@@ -566,24 +566,24 @@ export function Almanac({
         {people.map((entry) => (
           <div key={entry.name} id={`enc-${slugOf(entry.name)}`} className="card enccrew">
             {/*
-              The painting, full width and large, above the words rather than
-              beside them.
+              The face, square and the full width of the card.
 
-              Two things were wrong with the 84px thumbnail this replaces.
-              It was the *drawn* cameo — the fallback for a face nobody has
-              painted — so the encyclopedia was the one screen in the game that
-              never showed a crew member's actual portrait, though all
-              twenty-six exist. And at 84px beside a paragraph there was no
-              room to make it bigger without squeezing the bio into a column an
-              inch wide. Stacked, it can have the whole width.
+              Three passes to get here. The 84px ringed medallion showed about
+              63px of face through its opening; the full-width figure painting
+              that replaced it showed the whole person but a head is only a
+              third of a three-quarter portrait, so the face was still around
+              200px. Sean: *"Make encyclopedia images much larger for crew."*
+              The only dial left was to stop showing the figure and show the
+              head, which is what `art/faces` is cut for — about 340px of face
+              at a phone's width, and the same square treatment the crew card
+              wears so the two screens agree.
+
+              The three-quarter paintings are not orphaned by this: they are
+              still what `CharacterSheet` opens with, which is the one screen
+              with room to look at a whole person.
             */}
             <div className="enccrew__art">
-              <CharacterPainting
-                name={entry.name}
-                faction={art}
-                people={entry.people}
-                height={260}
-              />
+              <CharacterFace name={entry.name} faction={art} people={entry.people} />
             </div>
             <div style={{ minWidth: 0 }}>
               {/* The same quiet rank the crew screen wears, for the same
