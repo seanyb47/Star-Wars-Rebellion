@@ -930,26 +930,39 @@ export const HELD_SUPPORT_LEVEL = 65;
 /*
  * How long it takes to get anywhere.
  *
- * It used to be two numbers — three days inside a Reach, ten to leave it — and
- * that made the chart a diagram rather than a map. Every island in a Reach was
- * equally close, and the far side of the world was only three days further
- * than the next Sea over. Distance is measured now, in the galaxy's own 1200
- * units, so a long haul reads as a long haul.
+ * Sean, 19 September: *"Travel time is still way too fast. Traveling to island
+ * should be proportional to their distance on map with 200 days being longest
+ * travel distance."* So this is one line of arithmetic now: how far apart the
+ * two islands are, as a fraction of the width of the world, times two hundred.
  *
- * `TRAVEL_LEAGUE` is how far a ship makes in a day, `TRAVEL_CAST_OFF` the days
- * that go on any passage at all however short, and `TRAVEL_OPEN_SEA` the toll
- * for leaving your own Sea: the water between the Reaches is open ocean, and
- * crossing it is worse than the same distance among known islands.
+ * It replaces three numbers that together made a crossing of the whole world
+ * take a month — a day for every 36 units of water, two days to cast off at
+ * all, and a four-day toll for leaving your own Sea. Measured before changing
+ * it, over 9,765 island pairs across five seeds: the longest passage in the
+ * game was 37 days and the median 19. Against a war that runs for years that
+ * is a fleet being everywhere at once, which is what he is describing.
  *
- * What that works out to: a hop between neighbours in a Reach is 3 or 4 days,
- * the length of a Reach 7 or 8, the next Sea over about a fortnight, and the
- * far corner of the world a month. A fleet is slower or quicker than that by
- * its pace (see `fleetPace`), so a ship of the line crossing the world is
- * closer to six weeks and a sloop closer to three.
+ * Both of the old extras are gone rather than added on top, because either
+ * would put the longest voyage past the two hundred he asked for. The
+ * open-sea toll is the loss worth noting: crossing between Reaches used to
+ * cost more than the same distance inside one, and now it costs the same.
+ *
+ * `TRAVEL_WORLD_SPAN` is the distance that takes the full two hundred days.
+ * Fixed rather than measured per map, so the same two islands are the same
+ * distance apart in every game: across 120 seeds the farthest pair the
+ * generator places ranges from 1054 to 1121 units, so 1100 puts a genuine
+ * corner-to-corner haul within a few days of the ceiling either way, and the
+ * clamp catches the rest.
+ *
+ * What it works out to: neighbours in a Reach 6 or 7 days, the length of a
+ * Reach a fortnight, the next Sea over five or six weeks, the far corner of
+ * the world the full two hundred. A fleet is slower or quicker than that by
+ * its pace (see `fleetPace`) — the ceiling is on the distance, not on the
+ * voyage, so a ship of the line crossing the world is longer still and a
+ * sloop appreciably shorter.
  */
-export const TRAVEL_LEAGUE = 36;
-export const TRAVEL_CAST_OFF = 2;
-export const TRAVEL_OPEN_SEA = 4;
+export const TRAVEL_MAX_DAYS = 200;
+export const TRAVEL_WORLD_SPAN = 1100;
 export const MISSION_WORK_DAYS = 15;
 /**
  * How many can go on one errand, the officer leading it included. Sean's rule,

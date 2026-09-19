@@ -5,6 +5,7 @@ import {
   GARRISON_FOR_BAND,
   LONG_GUN_SHARE,
   MISSION_WORK_DAYS,
+  TRAVEL_MAX_DAYS,
   MOMENTUM_CAP,
   UPRISING_END_SUPPORT,
   UPRISING_SUPPORT,
@@ -158,7 +159,7 @@ function groups(): Group[] {
       entries: [
         [
           'Errand',
-          `Anything you send a ${terms.crewOne} to do. The sail is as long as the distance — a few days inside a ${terms.reach}, a fortnight or more across open water — and then ${MISSION_WORK_DAYS} days' work ashore before they report.`,
+          `Anything you send a ${terms.crewOne} to do. The sail is as long as the distance — a week to the next island, a fortnight the length of a ${terms.reach}, months across open water and ${TRAVEL_MAX_DAYS} days corner to corner — and then ${MISSION_WORK_DAYS} days' work ashore before they report.`,
         ],
         [
           terms.parley,

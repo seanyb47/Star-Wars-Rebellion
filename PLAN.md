@@ -4799,3 +4799,94 @@ I also raised `.sheet--tabbed` from 82% to 94% on the strength of the dead
 space, and then put it back when the measurement turned out to be the scroll
 and not the layout. At 82% the sheet already reaches the bottom of the glass
 and leaves the island's header showing above it, which is the design.
+
+## Distance costs what distance should (19 September)
+
+*"Travel time is still way too fast. Traveling to island should be
+proportional to their distance on map with 200 days being longest travel
+distance."*
+
+### What it was
+
+Measured first, over 9,765 island pairs across five seeds. The longest passage
+anywhere in the game was **37 days** and the median **19**. Against a war that
+runs a year and a half, a fleet could be anywhere it liked within a month, so
+where a fleet *was* barely constrained what it could do next.
+
+Three numbers produced that: a day for every 36 units of water, two days to
+cast off at all, and a four-day toll for leaving your own Sea.
+
+### What it is
+
+One line. How far apart the two islands are, as a fraction of the width of the
+world, times two hundred — clamped at both ends, because a voyage of no days
+is a teleport and the promise of two hundred should be exactly true.
+
+`TRAVEL_WORLD_SPAN` is 1100 and fixed rather than measured per map, so the same
+two islands are the same distance apart in every game. Across 120 seeds the
+farthest pair the generator places ranges 1054–1121 units, so a genuine
+corner-to-corner haul lands within a few days of the ceiling and the clamp
+catches the overshoot.
+
+Both of the old extras are gone rather than added on top, since either would
+put the longest voyage past the two hundred he asked for. **The open-sea toll
+is the loss worth naming:** crossing between Reaches used to cost more than the
+same distance inside one, and now it costs the same. If that rule is wanted
+back it has to be a multiplier on distance rather than a flat addition, or the
+ceiling stops being true.
+
+What it works out to, measured:
+
+| | before | after |
+|---|---|---|
+| nearest neighbour | 3 | 7–9 |
+| within a Reach (median) | 7 | 19 |
+| Reach to Reach (median) | 14 | 111 |
+| corner to corner | 37 | **200** |
+
+The ceiling is on the *distance*, not on the voyage: `fleetPace` still applies,
+so a ship of the line crossing the world is longer than two hundred days and a
+sloop appreciably shorter.
+
+### What it cost, measured
+
+Twelve seeds, machine played on both sides, 3,000-day cap:
+
+| | settled | median | range |
+|---|---|---|---|
+| before | 12 / 12 | 527 | 299–803 |
+| after | **10 / 12** | 659 | 527–827 |
+
+Wars run about a quarter longer, which is the point. **Two seeds now never
+settle at all** — seed 2 does not finish at nine thousand days either. The
+mechanism is visible in the end state: the idle Crown sits on 42 islands to the
+Confederacy's 1, because the machine-played Confederacy will not commit a fleet
+to a six-month passage and so never comes for Highwater, while an unplayed
+Crown quietly eats everything within a fortnight's sail of itself.
+
+That is a real cost and it is in the open rather than papered over. The
+victory-condition test moved from seed 2 to seed 1 with the finding written
+into it, and the sibling test that already tolerates two exceptions in six now
+uses both of them.
+
+**What I have not done, because it is a separate decision:** the opponent's
+planner discounts a target by `travelDays × 2` and picks the nearest eligible
+island. At the old scale that was a mild preference; at this one it is close to
+a prohibition on ever leaving home. Making the AI willing to mount a long
+offensive is the fix for the two stalled seeds, and it is a tuning change to
+take deliberately rather than smuggle in with a rescaling.
+
+### Fallout in the tests
+
+Four tests failed on horizon rather than on behaviour — a fixed budget of forty
+days that a voyage now outruns. Each derives its budget from the actual passage
+now, so the next rescaling will not break them.
+
+One failed on behaviour, correctly: *"sends the order to the quickest island,
+not the nearest"* put eight yards on the farthest island of the map and
+expected the plan to use them. Eight yards save 36 days of building and no
+number of yards saves 150 days of sailing, so the near island genuinely wins
+now. The rule is still right and still tested — the many yards moved to an
+island where the extra passage is worth paying for, and the sums are worked out
+in the test rather than assumed — and its other half got a test of its own:
+a yard on the far side of the world is not a yard you can use.

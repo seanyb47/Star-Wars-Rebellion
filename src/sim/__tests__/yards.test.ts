@@ -156,12 +156,65 @@ describe('the plan the player is shown before ordering', () => {
     state.factions.empire.gold = 5000;
     const held = state.systems.filter((s) => s.control === 'empire' && !s.uprising);
     const target = held[0];
-    // Strip every yard, then give a distant island a great many of them.
+    // Strip every yard, then give a further island a great many of them.
     for (const s of held) s.facilities = s.facilities.filter((f) => f.type !== 'construction_yard');
-    const near = held.find((s) => s.id !== target.id)!;
-    const far = [...held]
-      .filter((s) => s.id !== target.id && s.id !== near.id)
-      .sort((a, b) => travelDays(state, b.id, target.id) - travelDays(state, a.id, target.id))[0];
+    const others = [...held]
+      .filter((s) => s.id !== target.id)
+      .sort((a, b) => travelDays(state, a.id, target.id) - travelDays(state, b.id, target.id));
+    const near = others[0];
+    /*
+     * Further, but not the ends of the earth.
+     *
+     * This used to pick the farthest island of the lot, and that stopped
+     * working on 19 September when a crossing of the world went from about
+     * five weeks to two hundred days: eight yards save 36 days of building
+     * and no number of yards saves 150 days of sailing, so the near island
+     * genuinely wins now and the plan is right to say so. The rule under test
+     * is *quickest, not nearest*, and to test it the two have to be able to
+     * disagree — so the many yards go somewhere the extra passage is worth
+     * paying for, and the sum is worked out here rather than assumed.
+     */
+    const far = others[1];
+    near.facilities.push({ id: 'near-1', type: 'construction_yard', owner: 'empire' });
+    for (let i = 0; i < 8; i++) {
+      far.facilities.push({ id: `far-${i}`, type: 'construction_yard', owner: 'empire' });
+    }
+
+    const build = YARD_BUILDS.shipyard.days;
+    const nearTotal = build + travelDays(state, near.id, target.id);
+    const farTotal = Math.ceil(build / 8) + travelDays(state, far.id, target.id);
+    // The setup is only a test of the rule while the further island is
+    // genuinely the quicker one.
+    expect(farTotal).toBeLessThan(nearTotal);
+    expect(travelDays(state, far.id, target.id)).toBeGreaterThan(
+      travelDays(state, near.id, target.id),
+    );
+
+    const plan = planBuild(state, 'empire', 'shipyard', target.id);
+    expect(plan.error).toBeNull();
+    expect(plan.fromSystemId).toBe(far.id);
+    expect(plan.days).toBe(Math.ceil(build / 8));
+  });
+
+  it('will not cross the world to save a month of building', () => {
+    // The other half of the same rule, and the half the rescaling created.
+    // Sean, 19 September: *"Travel time is still way too fast."* Now that it
+    // is not, a yard on the far side of the world is not a yard you can use:
+    // whatever it saves in building it loses many times over in passage, and
+    // the plan has to prefer the one lonely yard next door.
+    const state = generateGalaxy(707, 'empire');
+    state.factions.empire.gold = 5000;
+    const held = state.systems.filter((s) => s.control === 'empire' && !s.uprising);
+    const target = held[0];
+    for (const s of held) s.facilities = s.facilities.filter((f) => f.type !== 'construction_yard');
+    const others = [...held]
+      .filter((s) => s.id !== target.id)
+      .sort((a, b) => travelDays(state, a.id, target.id) - travelDays(state, b.id, target.id));
+    const near = others[0];
+    const far = others[others.length - 1];
+    expect(travelDays(state, far.id, target.id)).toBeGreaterThan(
+      travelDays(state, near.id, target.id) + YARD_BUILDS.shipyard.days,
+    );
     near.facilities.push({ id: 'near-1', type: 'construction_yard', owner: 'empire' });
     for (let i = 0; i < 8; i++) {
       far.facilities.push({ id: `far-${i}`, type: 'construction_yard', owner: 'empire' });
@@ -169,8 +222,7 @@ describe('the plan the player is shown before ordering', () => {
 
     const plan = planBuild(state, 'empire', 'shipyard', target.id);
     expect(plan.error).toBeNull();
-    expect(plan.fromSystemId).toBe(far.id);
-    expect(plan.days).toBe(Math.ceil(YARD_BUILDS.shipyard.days / 8));
+    expect(plan.fromSystemId).toBe(near.id);
   });
 
   it('quotes the days that island will actually take', () => {

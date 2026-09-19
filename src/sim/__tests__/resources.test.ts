@@ -11,7 +11,7 @@ import {
 } from '../build';
 import { islandIncome } from '../economy';
 import { depositsLeft, freeSlots, getSystem, handOver, returnDeposit } from '../helpers';
-import { advanceMissions, startMission } from '../missions';
+import { advanceMissions, startMission, travelDays } from '../missions';
 import { createRng } from '../rng';
 import { CLEAR_BERTHS, GOLD_PER_DAY, YARD_BUILDS } from '../constants';
 import type { GameState, System } from '../types';
@@ -195,7 +195,7 @@ describe('an earner needs ground under it', () => {
     const plan = planBuild(state, 'empire', 'mine', there.id);
     expect(plan.error).toBeNull();
     queueBuild(state, plan.facilityId!, 'mine', there.id);
-    const total = YARD_BUILDS.mine.days + 40;
+    const total = YARD_BUILDS.mine.days + travelDays(state, island.id, there.id) + 10;
     for (let d = 0; d < total; d++) advanceBuilds(state);
     expect(getSystem(state, there.id).facilities.some((f) => f.type === 'mine')).toBe(true);
     expect(depositsLeft(getSystem(state, there.id), 'gold')).toBe(0);

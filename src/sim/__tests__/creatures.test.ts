@@ -101,7 +101,11 @@ describe('what is in the water', () => {
     // the island has to be looked up again each morning.
     let world = state;
     const arrived = () => world.systems.find((s) => s.id === target.id)!;
-    for (let i = 0; i < 40 && !beastOf(arrived(), 'empire'); i++) world = advanceDay(world);
+    // As long as the passage actually takes, plus a few days' slack. A fixed
+    // budget was fine while nothing was more than five weeks away; since the
+    // 19 September rescaling a crossing can be two hundred days.
+    const passage = (state.fleets.find((f) => f.id === fleet.id)!.voyage?.daysRemaining ?? 0) + 5;
+    for (let i = 0; i < passage && !beastOf(arrived(), 'empire'); i++) world = advanceDay(world);
     const beast = beastOf(arrived(), 'empire');
     expect(beast).toBeDefined();
     expect(

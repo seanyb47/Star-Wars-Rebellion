@@ -41,9 +41,8 @@ import {
   SURVEY_PER_ISLAND,
   MISSION_PARTY_MAX,
   MISSION_WORK_DAYS,
-  TRAVEL_CAST_OFF,
-  TRAVEL_LEAGUE,
-  TRAVEL_OPEN_SEA,
+  TRAVEL_MAX_DAYS,
+  TRAVEL_WORLD_SPAN,
   RESCUE_BASE,
   PARLEY_SWING_MAX,
   ESPIONAGE_BASE,
@@ -93,9 +92,12 @@ import type {
  * islands in different Reaches would still come out a plausible distance
  * apart, just the wrong one.
  *
- * Then: a fixed cost to cast off at all, a day for every league of open water,
- * and a toll on top for leaving your own Sea. Never less than one day, because
- * a voyage that takes no time is a teleport.
+ * Then the distance is the whole of it: what fraction of the width of the
+ * world lies between them, times the two hundred days a crossing of the whole
+ * of it takes. Never less than one day, because a voyage that takes no time is
+ * a teleport, and never more than two hundred, because that is the ceiling —
+ * the generator can place two islands a little past `TRAVEL_WORLD_SPAN` apart
+ * and the clamp is what makes the promise true rather than nearly true.
  */
 export function travelDays(state: GameState, fromSystemId: string, toSystemId: string): number {
   if (fromSystemId === toSystemId) return 0;
@@ -103,9 +105,8 @@ export function travelDays(state: GameState, fromSystemId: string, toSystemId: s
   const to = getSystem(state, toSystemId);
   const a = worldPlace(state, from);
   const b = worldPlace(state, to);
-  const leagues = Math.hypot(a.x - b.x, a.y - b.y) / TRAVEL_LEAGUE;
-  const crossing = from.sectorId === to.sectorId ? 0 : TRAVEL_OPEN_SEA;
-  return Math.max(1, Math.round(TRAVEL_CAST_OFF + leagues + crossing));
+  const across = Math.hypot(a.x - b.x, a.y - b.y) / TRAVEL_WORLD_SPAN;
+  return Math.min(TRAVEL_MAX_DAYS, Math.max(1, Math.round(across * TRAVEL_MAX_DAYS)));
 }
 
 /** An island's place in the world: its Reach's centre, plus its own offset. */

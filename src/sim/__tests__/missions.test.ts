@@ -787,7 +787,8 @@ describe('survey', () => {
       startMission(state, agent.id, dark.id);
       expect(getCharacter(state, agent.id).mission!.type).toBe('survey');
       const rng = createRng(4);
-      for (let day = 0; day < 60 && !dark.explored.empire; day++) advanceMissions(state, rng);
+      const runs = travelDays(state, agent.locationSystemId, dark.id) + MISSION_WORK_DAYS + 10;
+      for (let day = 0; day < runs && !dark.explored.empire; day++) advanceMissions(state, rng);
       return state.systems.filter((s) => s.sectorId === dark.sectorId && s.explored.empire).length;
     };
     const poor = run(10);

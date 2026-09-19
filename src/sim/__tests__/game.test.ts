@@ -66,8 +66,27 @@ describe('a full game', () => {
     expect(state.winner).toBe('empire');
   });
 
+  /**
+   * The victory condition, end to end: an idle Crown loses its capital.
+   *
+   * Seed 1 rather than seed 2 since 19 September, and the swap is the finding
+   * rather than a detail. Rescaling travel so a crossing of the world takes
+   * two hundred days instead of thirty-seven cost the Confederacy its long
+   * offensive on some maps: measured over seeds 1–12, before the change every
+   * one settled (median day 527, range 299–803) and after it ten of twelve do
+   * (median 659, range 527–827). Seeds 2 and 9 are the two that no longer
+   * finish, and seed 2 does not finish at nine thousand days either — the
+   * machine-played Confederacy sits on its own Reach rather than committing a
+   * fleet to a six-month passage, and the idle Crown quietly eats the map.
+   *
+   * That is a real cost of the rescaling and it belongs in the open, not
+   * papered over with a bigger day cap. What is being tested here is the
+   * *condition* — take Highwater and the war ends — and seed 1 demonstrates
+   * it. How often the opponent can get there is the sibling test above, which
+   * already tolerates two exceptions in six and now uses both of them.
+   */
   it('ends the way the rules say: Highwater fallen, or every Lord in irons', () => {
-    const state = playOut(2, 'empire');
+    const state = playOut(1, 'empire');
     expect(state.winner).toBe('alliance');
     const capital = getSystem(state, state.factions.empire.hqSystemId);
     expect(capital.control).toBe('alliance');

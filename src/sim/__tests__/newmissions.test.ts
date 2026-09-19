@@ -318,7 +318,10 @@ describe('rescue', () => {
       startMission(trial, who.id, empireHq.id, 'rescue');
       expect(who.mission?.type).toBe('rescue');
       const rng = createRng(seed);
-      for (let d = 0; d < 40 && them.status === 'captured'; d++) advanceMissions(trial, rng);
+      // The errand carries its own length — passage there and the work — so
+      // the loop asks it rather than guessing at forty days.
+      const runs = (who.mission?.daysRemaining ?? 0) + MISSION_WORK_DAYS + 5;
+      for (let d = 0; d < runs && them.status === 'captured'; d++) advanceMissions(trial, rng);
       if (them.status === 'available') {
         freed = true;
         // Home, not standing on the enemy quay.
