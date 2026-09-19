@@ -924,6 +924,50 @@ function hairPath(r: number, kind: number): string {
 }
 
 /**
+ * A face, square, in no frame at all.
+ *
+ * Sean, 19 September: *"Cut the fancy frames and put in a square one. Just
+ * show me face, stats, and role tag."* So this is the plainest possible thing
+ * — the head crop from `art/faces`, filling a square — and everything the
+ * ringed medallion did is gone: no brass, no bevel, no Lord's frame, and none
+ * of the geometry that made the opening smaller than the box it sat in.
+ *
+ * Falls through to the drawn cameo for a face nobody has painted, below the
+ * size at which `CharacterPortrait` would hang a ring on it.
+ */
+export function CharacterFace({
+  name,
+  faction,
+  people,
+  size = 120,
+  dim,
+}: {
+  name: string;
+  faction: 'empire' | 'alliance' | 'neutral' | 'none';
+  people?: string;
+  size?: number;
+  dim?: boolean;
+}) {
+  const [holder, near] = useInView<HTMLDivElement>();
+  const painted = near ? paintedFace(name) : undefined;
+  return (
+    <div
+      ref={holder}
+      className={`charface${dim ? ' charface--dim' : ''}`}
+      style={{ width: size, height: size }}
+    >
+      {painted ? (
+        <img src={painted} alt="" loading="lazy" />
+      ) : (
+        <div className="charface__cameo">
+          <CharacterPortrait name={name} faction={faction} people={people} size={Math.min(size, RING_MIN - 4)} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
  * A portrait, in the near register: heavy outline, two flat fills, and the
  * faction's colour in the coat rather than in a ring around it, so allegiance
  * reads before anything else does.

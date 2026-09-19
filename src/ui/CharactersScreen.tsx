@@ -1,45 +1,19 @@
 import terms from '../data/terms.json';
-import { MISSION_LABEL, isLord } from '../sim';
-import type { Character, GameState } from '../sim';
-import { CharacterPainting } from './art';
+import { isLord } from '../sim';
+import type { GameState } from '../sim';
+import { CharacterFace } from './art';
+import { useLookUp } from './lookup';
+import { slugOf } from './Almanac';
 import { statusBadge } from './CharacterSheet';
 
-/** "Aboard the Home Fleet, at Rime Island" for anyone serving with a fleet. */
-/**
- * Where somebody is. There are two answers and no others: on a fleet, or on
- * an island. A fleet lying at an island is still a fleet, so the line names
- * the ship and then where she is — it does not invent a harbor to stand in.
+/*
+ * `aboardLine` and `missionLine` stood here and are gone with the line they
+ * fed. The card showed where somebody was under their name; Sean's crew card
+ * of 19 September is the face, the role and the four numbers, and nothing
+ * else. Whether they are busy is still said — by the badge over the face and
+ * by the card dimming — and *where* they are is a question `CharacterSheet`
+ * answers, one tap away behind Orders.
  */
-function aboardLine(state: GameState, character: Character): string | null {
-  const ship = state.fleets.find((f) => f.officerIds.includes(character.id));
-  if (!ship) return null;
-  const here = state.systems.find((s) => s.id === ship.systemId);
-  return ship.voyage
-    ? `On the ${ship.name}, at sea`
-    : `On the ${ship.name}, at ${here?.name ?? 'unknown'}`;
-}
-
-function missionLine(state: GameState, character: Character): string | null {
-  // Somebody along on another officer's errand carries no errand of their own,
-  // so read it off whoever is leading them. Without this a companion's card
-  // wore the badge for being away and a line saying they were still at home.
-  if (character.escorting) {
-    const leader = state.characters.find((c) => c.id === character.escorting);
-    const line = leader ? missionLine(state, leader) : null;
-    if (leader && line) return `${line}, with ${leader.name.split(' ').slice(-1)[0]}`;
-  }
-  const mission = character.mission;
-  if (!mission) return null;
-  const target = state.systems.find((s) => s.id === mission.targetSystemId);
-  const where = target?.name ?? 'an unknown island';
-  return mission.phase === 'travelling'
-    ? `At sea for ${where} — ${mission.daysRemaining}d`
-    : `${
-        mission.type === 'incite' ? terms.incite
-        : mission.type === 'diplomacy' ? terms.parley
-        : MISSION_LABEL[mission.type]
-      } on ${where} — ${mission.daysRemaining}d to report`;
-}
 
 /**
  * Your crew, as portraits.
@@ -55,6 +29,9 @@ function missionLine(state: GameState, character: Character): string | null {
  * no longer shouting. Two to a row, because seven officers then fit in a screen
  * and a half and each face is two hundred pixels rather than forty-six.
  */
+/** The square the face fills. One a row on a phone, so it is the column. */
+const FACE = 300;
+
 export function CharactersScreen({
   state,
   onOpen,
@@ -62,6 +39,7 @@ export function CharactersScreen({
   state: GameState;
   onOpen: (characterId: string) => void;
 }) {
+  const lookUp = useLookUp();
   const crew = state.characters.filter((c) => c.faction === state.player);
   const inIrons = crew.some((c) => c.status === 'captured');
 
@@ -69,7 +47,6 @@ export function CharactersScreen({
     <>
     <div className="pad crewgrid">
       {crew.map((character) => {
-        const location = state.systems.find((s) => s.id === character.locationSystemId);
         const idle = character.status === 'available';
         /**
          * Three of these cards are a third of the war each.
@@ -82,40 +59,71 @@ export function CharactersScreen({
          */
         const lord = isLord(character);
         return (
-          <button
+          <div
             key={character.id}
-            className={`crewcard${idle ? '' : ' crewcard--busy'}${lord ? ' crewcard--lord' : ''}`}
-            onClick={() => onOpen(character.id)}
+            className={`crewcard${idle ? '' : ' crewcard--busy'}`}
           >
-            <span className="crewcard__art">
-              {/* One to a row on a phone, so the painting gets the whole
-                  width and the face is a face rather than a crop. See
-                  `.crewgrid`. */}
-              <CharacterPainting
-                name={character.name}
-                faction={character.faction === 'empire' || character.faction === 'alliance' ? character.faction : 'neutral'}
-                people={character.people}
-                height={420}
-              />
-              {/* Only when they are not free. "Available" on all seven cards
-                  said nothing and covered seven faces to say it; what you
-                  actually scan this screen for is who is already busy. */}
-              {!idle && <span className="crewcard__badge">{statusBadge(character)}</span>}
-            </span>
-            {lord && <span className="crewcard__rank">{terms.lord}</span>}
-            <span className="crewcard__name">{character.name}</span>
-            <span className="crewcard__where">
-              {missionLine(state, character) ??
-                (character.status === 'captured'
-                  ? `In irons at ${location?.name ?? 'unknown'}`
-                  : aboardLine(state, character) ?? `On ${location?.name ?? 'unknown'}`)}
-            </span>
-            {/* All four, exact, and quiet. */}
-            <span className="crewcard__stats">
-              <b>D</b>{character.diplomacy} <b>E</b>{character.espionage}{' '}
-              <b>C</b>{character.combat} <b>L</b>{character.leadership}
-            </span>
-          </button>
+            {/*
+              The card is the face and three facts, and tapping it goes to the
+              encyclopedia.
+
+              Sean, 19 September: *"Cut the fancy frames and put in a square
+              one. Just show me face, stats, and role tag. Click for
+              encyclopedia entry."* So the brass Lord frame is gone, the ringed
+              medallion is gone, and what is left is a square crop of the face
+              filling the card's width.
+
+              The name stays, which is the one thing on his list I did not
+              take him literally on: a roster you scan to find a particular
+              person is unusable without it, and it is identity rather than
+              decoration. Everything else went — the location line, the
+              three-quarter figure, the frames.
+            */}
+            <button
+              className="crewcard__tap"
+              onClick={() => lookUp?.('people', slugOf(character.name))}
+              aria-label={`${character.name} — what they are`}
+            >
+              <span className="crewcard__art">
+                <CharacterFace
+                  name={character.name}
+                  faction={character.faction === 'empire' || character.faction === 'alliance' ? character.faction : 'neutral'}
+                  people={character.people}
+                  size={FACE}
+                />
+                {/* Only when they are not free. What you scan this screen for
+                    is who is already busy. */}
+                {!idle && <span className="crewcard__badge">{statusBadge(character)}</span>}
+              </span>
+              <span className="crewcard__name">
+                {character.name}
+                {lord && <span className="crewcard__lordmark"> · {terms.lord}</span>}
+              </span>
+              {/* The role tag. First role only: it is what they are for, and
+                  five of them in a row is a paragraph again. */}
+              <span className="crewcard__role">{character.roles?.[0] ?? '—'}</span>
+              <span className="crewcard__stats">
+                <b>D</b>{character.diplomacy} <b>E</b>{character.espionage}{' '}
+                <b>C</b>{character.combat} <b>L</b>{character.leadership}
+              </span>
+            </button>
+            {/*
+              And the orders.
+
+              Sending somebody on an errand lives behind `CharacterSheet`, and
+              this card was the way to it — so pointing the card at the
+              encyclopedia would have made "Send on mission" unreachable from
+              the one screen the crew are on. A second, explicit control keeps
+              the loop, and is one tap shorter than it used to be.
+            */}
+            <button
+              className="crewcard__orders"
+              onClick={() => onOpen(character.id)}
+              aria-label={`Orders for ${character.name}`}
+            >
+              Orders
+            </button>
+          </div>
         );
       })}
     </div>
