@@ -26,7 +26,7 @@ import {
   type Ship,
 } from '../sim';
 import { CharacterPortrait, CreaturePainting, FacilityIcon, ShipThumb } from './art';
-import { useLookUp } from './lookup';
+import { encyclopediaShip, useLookUp } from './lookup';
 import { usePrefs } from './prefs';
 import { ControlBadge, ListOpts } from './components';
 
@@ -126,13 +126,15 @@ function ShipRow({
             {grouped && ships.length > 1 && <b className="shiprow__n">{ships.length}×</b>}
             {cls.name}
           </span>
+          {/* Condition only. What the class *is* — her guns, her armour, what
+              can hit her — is a tap away in the encyclopedia, and a gameplay
+              screen wants the picture and the state of this hull, not a
+              spec sheet. */}
           <span className="shiprow__stats">
             <span className={hurt > 0 ? 'shiprow__hurt' : undefined}>
               {whole - hurt}/{whole}
             </span>
-            <span className="muted"> hull · </span>
-            {spec.guns * ships.length}
-            <span className="muted"> guns</span>
+            <span className="muted"> hull</span>
           </span>
         </span>
         <span className="shiprow__chev" aria-hidden="true">›</span>
@@ -142,7 +144,7 @@ function ShipRow({
       {lookUp && (
         <button
           className="shiprow__ask"
-          onClick={() => lookUp('ships', cls.id)}
+          onClick={() => lookUp('ships', encyclopediaShip(cls.id))}
           aria-label={`What is a ${cls.name}?`}
           title={`What is a ${cls.name}?`}
         >

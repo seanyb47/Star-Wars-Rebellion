@@ -1141,6 +1141,19 @@ button {
 }
 .listopt--on { color: var(--text); border-color: var(--brass); }
 .shipsheet__art { display: grid; place-items: center; padding: 6px 0 2px; }
+/* The painting is the way through to the encyclopedia, so it has to look
+   pressable without becoming a button-shaped thing over a picture. */
+.shipsheet__art--tap {
+  width: 100%;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  border-radius: 10px;
+}
+.shipsheet__art--tap:active { transform: scale(0.985); }
+.shipsheet__art--tap:focus-visible { outline: 2px solid var(--brass, #c9a227); outline-offset: 2px; }
 /* A tile with its two arrows under it. Beside would halve the tile — a board
    is a grid and a tile is about as wide as two arrows. */
 .slot-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 3px; }

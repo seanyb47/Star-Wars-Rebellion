@@ -1,4 +1,3 @@
-import terms from '../data/terms.json';
 import {
   shipClass,
   shipSpec,
@@ -7,19 +6,27 @@ import {
   type Ship,
 } from '../sim';
 import { ShipThumb } from './art';
-import { GoldFig, Sheet, Stat } from './components';
+import { Sheet } from './components';
+import { encyclopediaShip, useLookUp } from './lookup';
 
 /**
- * One class of hull, in full.
+ * One hull in your harbor: her picture, where she is, and what state she is in.
  *
- * The harbor is a list now — a line per class with how many, how much hull is
- * left and how many guns — and everything a line cannot carry is here. Which
- * is most of what a ship is: what she was built for, how fast she is, and what
- * she can lift.
+ * Deliberately not a spec sheet. Sean, on the fleet screen: *"doesn't need to
+ * show stats just clickable to encyclopedia"* — which is the rule he set when
+ * the unit art went in and this screen had drifted off it: *"We want image and
+ * minimal possible text in gameplay screens. Click on them for stats, lore, an
+ * even larger picture."*
  *
- * The sheet is about the class rather than one hull, because that is what the
- * player tapped: nobody wants four sheets for four Kestrels. Where the hulls
- * differ — damage — the sheet says so hull by hull.
+ * So the split is by what the thing belongs to. Hull, guns, armour, what she
+ * carries, what she costs, what can hit her — those describe the **class**,
+ * they are the same for every one ever built, and they live in the
+ * encyclopedia where there is room to lay them out. Her **condition** is this
+ * hull's alone and belongs nowhere else, so it is what this sheet is for.
+ *
+ * The lore went with the stats for the same reason: it is about the class, it
+ * is the same paragraph on every Tempest, and it reads better under a large
+ * painting than squeezed under a small one.
  */
 export function ShipSheet({
   state,
@@ -32,12 +39,14 @@ export function ShipSheet({
   shipId: string;
   onClose: () => void;
 }) {
+  const lookUp = useLookUp();
   const ship = fleet.ships.find((s) => s.id === shipId);
   if (!ship) return null;
   const cls = shipClass(ship.classId);
   const spec = shipSpec(ship.classId);
   const sisters: Ship[] = fleet.ships.filter((s) => s.classId === ship.classId);
   const island = state.systems.find((s) => s.id === fleet.systemId);
+  const look = lookUp ? () => lookUp('ships', encyclopediaShip(cls.id)) : undefined;
 
   return (
     <Sheet
@@ -52,34 +61,20 @@ export function ShipSheet({
       onClose={onClose}
       stacked
       banner={
-        <div className="shipsheet__art">
-          <ShipThumb faction={fleet.faction} role={cls.role} cls={cls.id} size={132} />
-        </div>
+        /* The painting is the sheet, and it is also the way through to the
+           bigger one. Tapping a ship to learn what she is should not require
+           finding a button first. */
+        look ? (
+          <button className="shipsheet__art shipsheet__art--tap" onClick={look}>
+            <ShipThumb faction={fleet.faction} role={cls.role} cls={cls.id} size={132} />
+          </button>
+        ) : (
+          <div className="shipsheet__art">
+            <ShipThumb faction={fleet.faction} role={cls.role} cls={cls.id} size={132} />
+          </div>
+        )
       }
     >
-      <div className="card row" style={{ gap: 16, flexWrap: 'wrap' }}>
-        <Stat label="Hull" value={spec.hull} />
-        <Stat label="Guns" value={spec.guns} />
-        <Stat label="Carries" value={spec.carries === 0 ? '—' : `${spec.carries} co.`} />
-        {/* `pace` multiplies a crossing's length, so a smaller number is a
-            faster ship — which is exactly backwards to read as a figure. The
-            word says it instead, and the fleet sails at its slowest hull's. */}
-        <Stat
-          label="Pace"
-          value={spec.pace < 1 ? 'Fast' : spec.pace > 1 ? 'Slow' : 'Steady'}
-        />
-        <Stat label={terms.upkeep} value={<GoldFig n={spec.upkeep} tone="cost" />} />
-      </div>
-
-      {/* Under its own heading, as on the island's Lore tab. A ship sheet is
-          one screen and does not need tabs, but the lore should announce
-          itself the same way wherever it is: a heading, then prose that is
-          meant to be read rather than scanned. */}
-      <div className="section-title">Lore</div>
-      <p className="charsheet__lore serif" style={{ marginTop: 0 }}>
-        {cls.blurb}
-      </p>
-
       {/* Damage is the one thing the sisters do not share, so it is the one
           thing listed hull by hull rather than once for the class. */}
       <div className="section-title">
@@ -108,6 +103,12 @@ export function ShipSheet({
         carries what was done to it until it stops fighting. At anchor she comes back a hundredth
         of herself a day, twice that at an island of yours with a yard on it that is not shut in.
       </p>
+
+      {look && (
+        <button className="btn btn--block" style={{ marginTop: 12 }} onClick={look}>
+          What is a {cls.name}?
+        </button>
+      )}
     </Sheet>
   );
 }
