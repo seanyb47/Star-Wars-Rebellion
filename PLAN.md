@@ -4978,3 +4978,83 @@ guarding anything — and it checks the blockade case in the same breath.
 
 Verified non-vacuous by deleting the `if (ofKind.some((f) => f.building))` line
 and confirming the suite goes red.
+
+## The reference stops being a manual (19 September)
+
+*"Move all the ship game info stuff to glossary and rules sections. Goal is to
+keep game clean and minimize text blocks but add ℹ️ info that links to
+encyclopedia or rules or glossary when needed."*
+
+### Thirteen sections moved
+
+Seven off the Ships page — the three cannon, armor, size and speed, an action
+at sea, choosing a target, breaking off, bombardment — and six off Locations.
+Both pages are a shelf of pictures you scroll until you find the thing you came
+for, and a manual between the pictures and the reader is a manual with a
+gallery in it. The rules did not get worse by moving; they got findable, and
+the pages they left are now the length of what they list. **Ships is a grid and
+nothing else. Locations is a grid and nothing else** — *"Keep this just a list
+of all locations. And thumbnail image."*
+
+The unit entries needed no change: the ship sheet was already stats and a
+flavour line, with the stat-repeating prose cut two batches ago.
+
+### ℹ️ where the paragraph used to be
+
+One line, not a block, and it carries a label rather than a bare glyph — a lone
+ℹ️ says there is something to read and not what about. Ships has two, Locations
+three, and the three stat groups on a ship's entry each point at the rule that
+explains them.
+
+**It did not work when I added it, and the reason was old.** A lookup at a
+particular entry only scrolled on the four unit pages; every other page bailed
+out before looking. So the role tags on a crew member — which have called
+`lookUp('glossary', glossaryAnchor(role))` since they were built, against a
+Glossary that puts `enc-<anchor>` on every row to receive them — have been
+landing at the top of a long page for their whole life. Fixed first, because
+the ℹ️ marks go the same way and were not worth adding over a broken landing.
+
+### How to win, first and large
+
+*"Add at the top of rules in big box 'how to win'."* It was four fifths of the
+way down the page under a heading the same weight as "Not built yet", which is
+a strange place for the only thing in the game you are trying to do. Brass
+border, larger type, and **your own side first** whichever you are playing: the
+first line is what you are doing and the second is what to stop.
+
+### Reef-folk will not sign Crown articles
+
+*"Move all reef folk and urskin to confederacy only crew."* The Urskin already
+were. The Reef-folk were the gap, and the bible had been saying otherwise for a
+week — §3 calls them the Confederacy's best admirals and says the Crown held
+them on oar-benches under an indenture it has never apologised for, while the
+rule let a Crown recruiter sign Maren Quist straight out of the pool. Lore the
+code does not enforce is decoration.
+
+**Noticed and not changed:** §3 also says the Hushed are *"bound to the Crown by
+an old bargain"* and `PEOPLE_ALLEGIANCE` does not say so, so Sable can sign
+either way. Same class of gap; not asked for, so it is named here rather than
+fixed quietly.
+
+### Garrisons counts, and grades nothing
+
+*"Change garrison filter to be more like production. Just tell me the number
+all in same size font. No dots."* It carried a size band as well — his own
+ladder of 14 September — and the ladder was right while the mark was only a
+dot. Once the numeral arrived, on the same day, the band was saying in a second
+and vaguer channel the thing the numeral said exactly: a big 4 and a small 2
+are a 4 and a 2. `garrisonBand` stays, because the island panels still grade a
+garrison in words; only the chart has stopped.
+
+**Available land still bands**, because he named Garrisons and only Garrisons.
+It is now the one counted layer that does, which is either a deliberate
+distinction or the next thing to cut.
+
+### A tutorial that teaches the loop
+
+*"Doesn't need to be rules crazy. Just show a newbie how to play."* Twelve
+cards down to seven. The twelve were teaching the game — allegiance bands, what
+each filter draws, a Fort against a Boom — which is a manual, and the game now
+has one. These teach the loop and nothing else: open an island, send somebody,
+build something, start the clock, read the Log. The last card says where the
+rest is rather than being it.

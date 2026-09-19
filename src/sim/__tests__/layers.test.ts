@@ -212,20 +212,34 @@ describe('chart layers', () => {
   });
 });
 
-describe('garrisons answer in three sizes', () => {
-  it('draws under three companies small, three to five medium, six and up large', () => {
+describe('garrisons answer with a number and nothing else', () => {
+  /**
+   * The size band is gone from the chart.
+   *
+   * Sean, 19 September: *"Change garrison filter to be more like production.
+   * Just tell me the number all in same size font. No dots."* This test used
+   * to pin three sizes — his own ladder of 14 September — and the ladder was
+   * right while the mark was only a dot. Once the numeral arrived on the same
+   * day, the band was saying in a second and vaguer channel the thing the
+   * numeral said exactly, so a big 4 and a small 2 were a 4 and a 2 twice
+   * over. Production never had a band and is the model.
+   */
+  it('counts the troops ashore and grades nothing', () => {
     const { state } = setup();
     const island = state.systems.find((s) => s.control === 'empire')!;
-    const sizeAt = (companies: number) => {
-      island.garrison = companies;
-      return layerMark(state, island, 'garrisons', 'empire').size;
+    const markAt = (troops: number) => {
+      island.garrison = troops;
+      return layerMark(state, island, 'garrisons', 'empire');
     };
-    expect(sizeAt(1)).toBe('small');
-    expect(sizeAt(GARRISON_FAIR - 1)).toBe('small');
-    expect(sizeAt(GARRISON_FAIR)).toBe('medium');
-    expect(sizeAt(GARRISON_STRONG - 1)).toBe('medium');
-    expect(sizeAt(GARRISON_STRONG)).toBe('large');
-    expect(sizeAt(9)).toBe('large');
+    for (const n of [1, GARRISON_FAIR - 1, GARRISON_FAIR, GARRISON_STRONG, 9]) {
+      expect(markAt(n).count, `${n} ashore`).toBe(n);
+      expect(markAt(n).size, `${n} ashore`).toBeUndefined();
+    }
+    // Which is exactly what Production does, and the reason it is the model.
+    const earner = state.systems.find(
+      (s) => s.explored.empire && s.control === 'empire' && islandIncome(s, 'empire') > 0,
+    )!;
+    expect(layerMark(state, earner, 'worth', 'empire').size).toBeUndefined();
 
     // An island holding nobody is not an answer at all, and an island of
     // theirs never is.
@@ -235,10 +249,7 @@ describe('garrisons answer in three sizes', () => {
     expect(layerMark(state, island, 'garrisons', 'alliance').lit).toBe(false);
   });
 
-  it('says it with the dot and with the numeral', () => {
-    // Sean, 19 September: *"Display # on garrison filter."* The size is still
-    // the thing you read from across the chart; the number is what saves
-    // opening the island to find out whether medium was three or five.
+  it('still says it with the numeral', () => {
     expect(showsNumber('garrisons')).toBe(true);
   });
 });

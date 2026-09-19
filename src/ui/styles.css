@@ -2458,6 +2458,45 @@ button.tcard:hover { border-color: var(--brass); }
   font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--brass); opacity: 0.85; padding: 3px 9px 0;
 }
+/* The ℹ️ mark: one line where a paragraph used to be, and a way through to
+   where the paragraph now lives. Sean, 19 September: *"add ℹ️ info that links
+   to encyclopedia or rules or glossary when needed to explain finer points of
+   game."* Quiet, left-aligned and full width, so a row of them reads as a
+   short contents list rather than as buttons competing with the pictures
+   above. */
+.inforow { display: flex; flex-direction: column; gap: 2px; margin: 10px 0 2px; }
+.infolink {
+  display: flex; align-items: baseline; gap: 7px; width: 100%;
+  padding: 7px 2px; text-align: left;
+  font-size: 12.5px; line-height: 1.35; color: var(--brass);
+  background: none; border: 0; cursor: pointer;
+}
+.infolink > span:first-child { font-size: 14px; opacity: 0.85; flex: none; }
+.infolink:active { opacity: 0.6; }
+.infolink:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; border-radius: 6px; }
+/* Beside a section title the mark is the trailing half of one line, so it
+   loses the block layout and keeps only its colour. */
+.row--between > .infolink { width: auto; padding: 0; flex: none; }
+
+/* How to win: the one thing in the game you are actually trying to do, and it
+   was four fifths of the way down the Rules page under a heading the same
+   weight as "Not built yet". Sean, 19 September: *"add at the top of rules in
+   big box 'how to win'."* Big means big — brass rule, larger type, and the
+   two conditions as two paragraphs rather than one sentence apiece buried in
+   a run of prose. */
+.howtowin {
+  border-color: var(--brass); border-width: 2px;
+  background: linear-gradient(180deg, rgba(201, 162, 39, 0.10), rgba(201, 162, 39, 0.02));
+  margin-bottom: 14px;
+}
+.howtowin__title {
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  font-size: 22px; font-weight: 700; color: var(--brass);
+  margin-bottom: 8px;
+}
+.howtowin p { margin: 0 0 8px; font-size: 14px; line-height: 1.5; }
+.howtowin p:last-child { margin-bottom: 0; }
+
 /* The entry itself, on the layer above. The art runs the full width here
    because there is nothing competing with it any more. */
 /* A hull or a works with no painting yet falls back to a drawn glyph, which

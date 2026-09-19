@@ -1,9 +1,6 @@
 import {
-  GARRISON_FAIR,
-  GARRISON_STRONG,
   ROOM_AMPLE,
   ROOM_FAIR,
-  garrisonBand,
   roomBand,
   type MarkSize,
 } from './constants';
@@ -78,7 +75,7 @@ export const CHART_LAYERS: LayerSpec[] = [
    */
   { id: 'idleBuildings', label: 'Idle buildings', hint: `Islands where works of yours have no order on them — ${terms.facilities.construction_yard.toLowerCase()}s, ${terms.facilities.training_facility.toLowerCase()}s or ${terms.facilities.shipyard.toLowerCase()}s — numbered by how many are standing.` },
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
-  { id: 'garrisons', label: 'Garrisons', hint: `Islands of yours holding ${terms.troops.toLowerCase()} ashore, numbered, and sized by how many: big is ${GARRISON_STRONG} or more, small is under ${GARRISON_FAIR}.` },
+  { id: 'garrisons', label: 'Garrisons', hint: `How many ${terms.troops.toLowerCase()} are ashore on each island of yours.` },
   { id: 'missions', label: 'Missions', hint: 'Islands your crew are working on, or sailing for.' },
   { id: 'worth', label: 'Production', hint: 'What each island earns its holder in gold a day, right now.' },
   /*
@@ -263,8 +260,21 @@ export function layerMark(
       return hulls > 0 ? { lit: true, count: hulls } : DARK;
     }
     case 'garrisons': {
+      /*
+       * The number, at one size, like Production.
+       *
+       * Sean, 19 September: *"Change garrison filter to be more like
+       * production. Just tell me the number all in same size font. No dots."*
+       * It carried a size band as well — under three small, three to five
+       * medium, six and up large — which was his own ladder of 14 September
+       * and made sense while the mark was only a dot. Since the numeral
+       * arrived the band was saying, in a second channel and less precisely,
+       * the thing the numeral already said exactly: a big 4 and a small 2 are
+       * a 4 and a 2. `garrisonBand` is kept because the island panels still
+       * grade a garrison in words; only the chart has stopped.
+       */
       if (system.control !== faction || system.garrison < 1) return DARK;
-      return { lit: true, count: system.garrison, size: garrisonBand(system.garrison) };
+      return { lit: true, count: system.garrison };
     }
     case 'missions': {
       const n = state.characters.filter(

@@ -22,20 +22,36 @@ const everyone = [
 ];
 
 describe('the peoples who will only serve one side', () => {
-  it('names the two, and only the two', () => {
-    expect(PEOPLE_ALLEGIANCE).toEqual({ 'Bog-folk': 'empire', Urskin: 'alliance' });
+  /**
+   * Three now, not two.
+   *
+   * Sean, 19 September: *"Move all reef folk and urskin to confederacy only
+   * crew."* The Urskin already were. The Reef-folk were the gap, and the
+   * bible had been saying otherwise for a week — §3 calls them the
+   * Confederacy's best admirals and says the Crown held them on oar-benches
+   * under an indenture it has never apologised for, while the rule happily
+   * let a Crown recruiter sign Maren Quist out of the pool.
+   */
+  it('names the three, and only the three', () => {
+    expect(PEOPLE_ALLEGIANCE).toEqual({
+      'Bog-folk': 'empire',
+      Urskin: 'alliance',
+      'Reef-folk': 'alliance',
+    });
   });
 
   it('lets anybody else serve either side', () => {
     expect(mayServe('Human', 'empire')).toBe(true);
     expect(mayServe('Human', 'alliance')).toBe(true);
-    expect(mayServe('Reef-folk', 'empire')).toBe(true);
+    expect(mayServe('Shoal-folk', 'empire')).toBe(true);
     expect(mayServe(undefined, 'empire')).toBe(true);
   });
 
-  it('will not let an Urskin sign Crown articles, or a Bog-folk Confederate ones', () => {
+  it('will not let an Urskin or a Reef-folk sign Crown articles, or a Bog-folk Confederate ones', () => {
     expect(mayServe('Urskin', 'alliance')).toBe(true);
     expect(mayServe('Urskin', 'empire')).toBe(false);
+    expect(mayServe('Reef-folk', 'alliance')).toBe(true);
+    expect(mayServe('Reef-folk', 'empire')).toBe(false);
     expect(mayServe('Bog-folk', 'empire')).toBe(true);
     expect(mayServe('Bog-folk', 'alliance')).toBe(false);
   });
@@ -56,6 +72,7 @@ describe('the recruit pool reads the rule', () => {
     const crown = recruitPool(state, 'empire');
     const brethren = recruitPool(state, 'alliance');
     expect(crown.every((c) => c.people !== 'Urskin')).toBe(true);
+    expect(crown.every((c) => c.people !== 'Reef-folk')).toBe(true);
     expect(brethren.every((c) => c.people !== 'Bog-folk')).toBe(true);
     // And the rule only removes the sworn: everyone else is on both lists.
     const unsworn = (n: string) => !PEOPLE_ALLEGIANCE[n];

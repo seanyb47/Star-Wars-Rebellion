@@ -20,19 +20,20 @@ export function alreadyTaught(): boolean {
  * How to play, in the shape of the original's manual: what this is, how it
  * ends, and then the handful of things on screen and what each is for.
  *
- * Twelve short cards rather than six, because the six assumed a player who
- * had played Rebellion and only needed a first move. Most have not, and what
- * they lack is the frame — that islands have people who lean, that officers
- * are how the map changes, that the clock is the enemy. Each card still names
- * one thing and gets out of the way; there are just enough of them now to
- * cover the game.
+ * Seven short cards, down from twelve on 19 September. Sean: *"Update tutorial
+ * also when you have time. Doesn't need to be rules crazy. Just show a newbie
+ * how to play."* The twelve were trying to teach the game — allegiance bands,
+ * what each filter draws, what a Fort is against a Boom — which is a manual,
+ * and the game now has one: the Book holds every unit, a Rules page opening
+ * with how to win, and a Glossary. So these teach the *loop* and nothing else.
+ * Open an island, send somebody, build something, start the clock, read the
+ * Log — and the last card says where the rest is rather than being it.
  *
  * It never blocks the game. The card sits over the chart's own strip, the rest
  * of the interface stays live, and Skip is always there. It can be reopened
  * from the menu as "How to play".
  */
 const ISLANDS = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
-const REACHES = reachData.reaches.length;
 
 const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> = [
   {
@@ -40,69 +41,40 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
     body: (side) => {
       const you = factionData[side];
       const them = factionData[side === 'empire' ? 'alliance' : 'empire'];
-      return `A war for the Seven Seas: ${numberWord(ISLANDS)} islands in ${numberWord(REACHES)} chains. You are the ${you.name}'s ${you.playerTitle} — the highest rank it has, and every admiral and captain answers to you. ${them.name} is out there with ships, crew and islands of its own, and it wants what you have.`;
+      return `A war for ${numberWord(ISLANDS)} islands. You command the ${you.name}; ${them.name} wants what you have. You give orders and the days pass — nobody moves faster than a ship can sail.`;
     },
   },
   {
     title: 'How you win',
-    body: (side) => {
-      const lords = PIRATE_LORDS.map((l) => l.name).join(', ');
-      return side === 'empire'
-        ? `Hunt down the three Pirate Lords — ${lords}. They are people, not ships: find where one is standing and carry them off a quay. Hold all three in irons at once and the Confederacy is finished. Nobody is released for nothing — a prisoner stays in the cells until their own side sends somebody to break them out. And hold Highwater: the day it falls, the Crown falls.`
-        : `Take Highwater. The day the Confederacy holds it, the Crown is finished. You lose the day all three Pirate Lords — ${lords} — are in the Crown's irons at once, and this morning all three of them are standing in the same harbor. They can be carried off a quay like anyone else, and the Imperium will come looking for the meeting place: get them to sea, keep them apart, and send somebody after any you lose, because nobody comes home on their own.`;
-    },
-  },
-  {
-    title: `The ${terms.worldMap}`,
-    body: () =>
-      'Every island is a dot in the colour of who holds it: green the Crown, red the Confederacy, blue settled but nobody\'s, grey unexplored or empty. How big the dot is says how firmly it is held — a big one is loyal, a small one is thin and running a quarter of its trade to the other side. A filter draws what it points at big and everything else small. The star is the thing to watch: it marks Highwater, and wherever a Pirate Lord is standing. Tap a chain to zoom in.',
-  },
-  {
-    title: `One ${terms.island}`,
-    body: () =>
-      'Inside a chain, tap an island for its panel: Harbor for the ships lying there, Crew for yours ashore, Garrison for troops ashore, Buildings for what stands and what you can order, Log for what has happened.',
-  },
-  {
-    title: 'Allegiance',
-    body: () =>
-      'Every island has people, and they lean. The bar on its panel shows how far. Under 30 with too few troops ashore, an island rises against you and earns nothing. Talking to people raises it; a garrison holds it.',
-  },
-  {
-    title: 'Your crew',
-    body: () =>
-      'Your crew, each rated for Parley, Espionage, Combat and Leadership. Send one to an island and the island offers the errand: parley with the undecided, stir up trouble on theirs, keep an open table somewhere loyal of your own and sign somebody on, chart the unknown, burn their yards, carry off one of their crew, break one of yours out of their cells, restore order on yours. Where it offers more than one, you choose.',
-  },
-  {
-    title: 'Gold',
-    body: () =>
-      'Camps and Mills earn it, more on loyal islands than sullen ones. Construction Yards, Shipyards, troops and hulls cost it every day. The number at the top is what you make a day after paying for everything. Keep it above nothing.',
-  },
-  {
-    title: 'Building',
-    body: () =>
-      'A Construction Yard builds everything. A Training Facility raises troops. A Shipyard lays down hulls. A Fort is guns on the harbor wall; a Boom is a chain across its mouth. Camps take ground, everything else takes water, and every island has only so much of each.',
-  },
-  {
-    title: 'Your fleet',
-    body: (side) =>
-      `A fleet already lies at ${factionData[side].hqLabel}. It can sail to another island, lie off an enemy harbor and shut its trade, or put troops ashore to take it. Big ships hit hard and sail slow; sloops arrive first and sink first.`,
-  },
-  {
-    title: 'The filters',
-    body: () =>
-      'The strip under the chart. Every island stays on the chart in its own colour, whatever you pick; the ones that answer the filter turn into stars, or into a number where a number is the answer — troops under Garrisons, gold a day under Production. The idle filters are the ones to check often: a construction yard, training facility or shipyard building nothing is gold you are not making.',
-  },
-  {
-    title: 'The clock',
-    body: () =>
-      'Nothing moves while it says Paused. Start it and the ring round the date fills, and at the turn of it a day has gone by — half a minute at Medium, two and a half at Very Slow. Tap to change the pace, hold to stop. Passages take weeks and a crossing of the world takes the better part of a year, errands take a fortnight ashore on top of the sail, hulls take months, so this is a war to leave running and come back to. The Log at the foot tells you what happened while you looked away.',
-  },
-  {
-    title: 'A first move',
     body: (side) =>
       side === 'empire'
-        ? 'Two of your islands are sullen and held by garrison alone. Send a negotiator to one of them before the Confederacy sends theirs. Then start the hunt: the three Lords are ashore on islands in the outer Reaches you have not charted, and they move. Explore the frontier, and watch for the star.'
-        : 'Your three Lords are at the meeting place beyond the Crown\'s charts, with the rest of your people. Each brings one thing nobody else can — read their sheets. Two of the three want a posting to work, so put them in command of an island where it will do something, and send your best negotiator to a neutral island in your own chain. Put Wyatt Ansell on the Shipyard. And keep the Lords apart: the Crown needs all three at once.',
+        ? `Have all three Pirate Lords — ${PIRATE_LORDS.map((l) => l.name).join(', ')} — in irons at the same time. They are people, so you take one by carrying them off a quay. Lose Highwater and you lose the war that day.`
+        : `Take Highwater, the Crown's capital, and the war is over that day. You lose if the Crown gets all three of your Pirate Lords in irons at once — so keep them apart.`,
+  },
+  {
+    title: 'Tap an island',
+    body: () =>
+      `The ${terms.worldMap} shows the chains. Tap one to open it, tap an island inside it to open the ${terms.island.toLowerCase()}. Everything you can do to a place is on the tabs there: who is in the harbor, who is ashore, what is built, and how many ${terms.troops.toLowerCase()} hold it.`,
+  },
+  {
+    title: 'Send your crew',
+    body: () =>
+      `${terms.crew} are how the map changes. Open one from the Crew tab at the foot, press Send on mission, choose an island, and it offers what can be done there — talk the island round, recruit, chart the unknown, spy, or take command. Then they sail, and it takes as long as the distance.`,
+  },
+  {
+    title: 'Build and earn',
+    body: () =>
+      'A Construction Yard raises everything else. A Shipyard lays down hulls, a Training Facility raises troops, a Gold Mine and a Lumber Mill pay for it. The gold at the top is what you make a day after upkeep — keep it above nothing, and keep your yards working.',
+  },
+  {
+    title: 'Start the clock',
+    body: () =>
+      'Nothing happens while it says Paused. Start it and the days turn on their own. Passages take weeks, errands a fortnight ashore, hulls months — so set things going, let it run, and read the Log to find out what happened while you were away.',
+  },
+  {
+    title: 'The rest is in the Book',
+    body: () =>
+      'Nothing here is hidden. The Book at the foot holds every ship, crew member, troop, building and island in the game, a Rules page that opens with how to win, and a Glossary for any word you have not met. Wherever a screen could use a footnote it shows a small \u2139 that takes you straight to it.',
   },
 ];
 

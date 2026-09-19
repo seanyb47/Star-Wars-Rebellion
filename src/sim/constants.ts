@@ -757,13 +757,21 @@ export interface PirateLord {
 export const PEOPLE_ALLEGIANCE: Record<string, PlayableFaction> = {
   'Bog-folk': 'empire',
   Urskin: 'alliance',
+  // Sean, 19 September: *"Move all reef folk and urskin to confederacy only
+  // crew."* The Urskin already were. The Reef-folk were the gap, and a loud
+  // one — §3 of the bible calls them *"the Confederacy's best admirals"* and
+  // says the Crown held them on oar-benches under an indenture it has never
+  // apologised for, and the rule still let a Crown recruiter sign Maren Quist
+  // out of the pool. Lore that the code does not enforce is decoration.
+  'Reef-folk': 'alliance',
 };
 
 /**
  * Whether this side could ever have somebody of these people on its books.
  *
- * The one rule: an Urskin will not sign Crown articles and a Bog-folk will not
- * sign Confederate ones, however good the offer and however loyal the island.
+ * The rule: an Urskin or a Reef-folk will not sign Crown articles and a
+ * Bog-folk will not sign Confederate ones, however good the offer and however
+ * loyal the island.
  */
 export function mayServe(people: string | undefined, faction: PlayableFaction): boolean {
   const sworn = people ? PEOPLE_ALLEGIANCE[people] : undefined;

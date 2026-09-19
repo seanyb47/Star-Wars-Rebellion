@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import terms from '../data/terms.json';
 import characterRoster from '../data/characters.json';
 import factionData from '../data/factions.json';
@@ -140,7 +140,7 @@ import {
 import type { PlayableFaction } from '../sim';
 import { GoldFig, Sheet } from './components';
 import { useSideSwipe } from './LayerStrip';
-import { useLookUp } from './lookup';
+import { useLookUp, type EncPage } from './lookup';
 
 /** The same rule `painted.ts` uses, so an id and an anchor are the same word. */
 export function slugOf(name: string): string {
@@ -190,6 +190,30 @@ const byName = (a: { name: string }, b: { name: string }) => collate(a.name, b.n
  * simulation runs on — so it cannot quietly go out of date the way a
  * hand-written manual would.
  */
+/**
+ * A mark that says "there is more about this, and it is over there".
+ *
+ * Sean, 19 September: *"Goal is to keep game clean and minimize text blocks
+ * but add ℹ️ info that links to encyclopedia or rules or glossary when needed
+ * to explain finer points of game."*
+ *
+ * The whole point is that it costs a line and not a paragraph. Where a page
+ * used to carry the explanation it carries one of these instead, and the
+ * explanation lives once, on the Rules page, where somebody who wants it goes
+ * looking. A label rather than a bare glyph, because a lone ℹ️ tells you there
+ * is something to read and not what about.
+ */
+function Info({ to, at, children }: { to: EncPage; at?: string; children: ReactNode }) {
+  const lookUp = useLookUp();
+  if (!lookUp) return null;
+  return (
+    <button className="infolink" onClick={() => lookUp(to, at)}>
+      <span aria-hidden="true">&#8505;</span>
+      <span>{children}</span>
+    </button>
+  );
+}
+
 /**
  * The hull a Pirate Lord's stories are about, if this person is one.
  *
@@ -531,7 +555,10 @@ function EntrySheet({
                 no value is left out of its group instead, and a group with
                 nothing in it does not appear.
               */}
-              <div className="section-title">Defense</div>
+              <div className="row row--between">
+                <div className="section-title">Defense</div>
+                <Info to="rules" at="armor">What armor stops</Info>
+              </div>
               <div className="shipstats">
                 <Stat label="Hull" value={cls.hull} share={cls.hull / STAT_MAX.hull} />
                 {cls.armor > 0 && (
@@ -544,7 +571,10 @@ function EntrySheet({
                 />
               </div>
 
-              <div className="section-title">Handling</div>
+              <div className="row row--between">
+                <div className="section-title">Handling</div>
+                <Info to="rules" at="size-speed">What size and speed do</Info>
+              </div>
               <div className="shipstats">
                 <Stat
                   label="Size"
@@ -567,7 +597,10 @@ function EntrySheet({
 
               {total > 0 && (
                 <>
-                  <div className="section-title">Firepower</div>
+                  <div className="row row--between">
+                <div className="section-title">Firepower</div>
+                <Info to="rules" at="cannon">The three cannon</Info>
+              </div>
                   <div className="shipstats">
                     {cls.guns.longGuns > 0 && (
                       <Stat
@@ -844,9 +877,23 @@ export function Almanac({
    * they cannot drift apart again.
    */
   useEffect(() => {
+    /*
+     * A unit page resolves its slug through `subjectFor`; every other page
+     * takes the slug as the anchor.
+     *
+     * The second half is new on 19 September and fixes something that had
+     * never worked: the role tags on a crew member have called
+     * `lookUp('glossary', glossaryAnchor(role))` since they were built, the
+     * Glossary has put `enc-<anchor>` on every row to receive them, and this
+     * effect bailed out before looking because `glossary` is not in
+     * `UNIT_PAGES`. Every one of those taps opened the Glossary at the top of
+     * a long page. The ℹ️ marks added today go to the Rules page the same way,
+     * so it had to work before they were worth adding.
+     */
     const subject = UNIT_PAGES.includes(page) ? subjectFor(entry) : null;
-    if (!subject) return;
-    const found = document.getElementById(anchorOf(subject));
+    const id = subject ? anchorOf(subject) : entry ? `enc-${entry}` : undefined;
+    if (!id) return;
+    const found = document.getElementById(id);
     if (!found) return;
     found.scrollIntoView({ block: 'center' });
     found.classList.add('is-landed');
@@ -1192,44 +1239,6 @@ export function Almanac({
 
       {page === 'islands' && (
         <>
-      <div className="section-title">What an island is</div>
-      <div className="card small">
-        <b>{ISLAND_COUNT} of them, and every one is the same four questions.</b> Who holds it. What it
-        thinks of you, out of a hundred — and the two sides' shares always add to a hundred, so a
-        point you win is a point they lose. How much room it has to build on. And how many
-        troops are standing on it.
-        <br />
-        <br />
-        <b>Room is one pool.</b> Between four and twelve berths; every building takes one, and
-        troops and hulls take none. A starting island opens with eight to twelve. What is built
-        is what the island is worth: two earners and a yard is a going concern, and an island with
-        one berth left is a decision.
-        <br />
-        <br />
-        <b>Control is the garrison first.</b> One troop ashore holds an island whatever it thinks
-        of you. Allegiance only decides who holds it when nobody is standing there — an island of
-        yours with an empty harbor and the enemy at {FLIP_SUPPORT_MIN} regard declares for them,
-        and nobody argues.
-      </div>
-
-      <div className="section-title">Settled, empty, and dark</div>
-      <div className="card small">
-        <b>A settled island</b> has people on it who have an opinion. It earns, it can rise, and it
-        is taken by landing more troops than are holding it — or by talking it round, if nobody
-        has chosen a side.
-        <br />
-        <br />
-        <b>An empty island</b> has nobody on it and belongs to nobody. There is nothing there to
-        fight: put one troop on the beach and it is yours. Finish anything on it and it is
-        settled, loyal to you outright, and worth its four to ten berths — which makes the frontier
-        the cheapest capital in the game.
-        <br />
-        <br />
-        <b>A dark island</b> is one your charts do not have. You cannot send anyone to it, or sail
-        at it, until somebody has explored it. Three of the seven Reaches start dark, and what is
-        in their water starts dark with them.
-      </div>
-
       {/*
         Every island you have charted, and its lore behind it.
 
@@ -1279,53 +1288,12 @@ export function Almanac({
             );
           })}
       </div>
-
-      <div className="section-title">The seven Reaches</div>
-      <p className="tiny muted" style={{ marginTop: 0 }}>
-        A chain of islands in one Sea. Allegiance won on one spills a fifth onto the rest of its
-        chain, so a Reach is the unit a war is actually fought in.
-      </p>
-      <div className="stack">
-        {[...reachData.reaches].sort(byName).map((reach) => (
-          <div key={reach.name} className="card row row--between small">
-            <span>
-              <b>{reach.name}</b>
-              <span className="tiny muted"> · {reach.sea}</span>
-            </span>
-            <span className="tiny muted">
-              {reach.islands.length} {terms.islands.toLowerCase()} ·{' '}
-              {reach.role === 'home'
-                ? "the Crown's"
-                : reach.role === 'contested'
-                  ? 'two a side'
-                  : reach.role === 'frontier'
-                    ? 'uncharted'
-                    : 'nobody\u2019s'}
-            </span>
-          </div>
-        ))}
+      <div className="inforow">
+        <Info to="rules" at="island">What an island is, and what it is worth</Info>
+        <Info to="rules" at="chart">Reading the chart</Info>
+        <Info to="rules" at="reaches">The seven {terms.reach}es</Info>
       </div>
 
-      <div className="section-title">The three faces of an island</div>
-      <div className="stack">
-        {(
-          [
-            ['missions', 'Crew', 'Your crew standing on it, or sailing to it.'],
-            ['military', 'Ashore', 'Troops ashore, whoever holds the island.'],
-            ['facilities', 'Built', 'What is built there, and what you can raise.'],
-          ] as const
-        ).map(([kind, label, text]) => (
-          <div key={kind} className="card row" style={{ gap: 10 }}>
-            <span className="facility__icon">
-              <CategoryIcon kind={kind} size={22} />
-            </span>
-            <div style={{ flex: 1 }}>
-              <b className="small">{label}</b>
-              <div className="tiny muted">{text}</div>
-            </div>
-          </div>
-        ))}
-      </div>
 
         </>
       )}
@@ -1334,6 +1302,38 @@ export function Almanac({
 
       {page === 'rules' && (
         <>
+      {/*
+        How to win, first and large.
+        Sean, 19 September: *"add at the top of rules in big box 'how to win'."*
+        It was four fifths of the way down the page under a heading the same
+        weight as "Not built yet", which is a strange place to keep the only
+        thing in the game you are actually trying to do.
+      */}
+      <div className="card howtowin">
+        <div className="howtowin__title">How to win</div>
+        {/* Your own side first, whichever it is: the first line of the box is
+            what you are trying to do, and the second is what to stop. */}
+        {(you === 'empire'
+          ? (['empire', 'alliance'] as const)
+          : (['alliance', 'empire'] as const)
+        ).map((side) => (
+          <p key={side}>
+            <b>{factionData[side].name}{side === you ? ' — you' : ''}:</b>{' '}
+            {side === 'alliance' ? (
+              <>hold Highwater. Take the Crown's capital and the war is over that day.</>
+            ) : (
+              <>
+                have all three Pirate Lords — {PIRATE_LORDS.map((l) => l.name).join(', ')} — in
+                irons at the same time. They are people, not ships, so you take one by carrying
+                them off a quay the way anybody is taken. Nobody is let go for nothing, so this is
+                a window rather than a list: hold two and go for the third before the first is
+                broken out.
+              </>
+            )}
+          </p>
+        ))}
+      </div>
+
 
       <div className="section-title">What is in the water</div>
       {(() => {
@@ -1439,8 +1439,36 @@ export function Almanac({
           );
         })}
       </div>
+      <div className="inforow">
+        <Info to="rules" at="cannon">
+          How guns, armor and speed decide an action
+        </Info>
+        <Info to="rules" at="bombardment">
+          Bombarding an island
+        </Info>
+      </div>
 
-      <div className="section-title">The three cannon</div>
+
+        </>
+      )}
+
+
+      {page === 'rules' && (
+        <>
+      {/* The three powers as rules, because they are rules. They used to live
+          on three ship sheets, where a Crown player never saw them and a
+          Confederate player only saw them by tapping a hull. */}
+      {/*
+        Everything below came off the Ships and Locations pages on 19
+        September. Sean: *"Move all the ship game info stuff to glossary and
+        rules sections... In locations in encyclopedia, same thing, cut all
+        the rules text."* Those two pages are a shelf of pictures you scroll
+        until you find the thing you came for; thirteen sections of rules
+        between the pictures and the reader is a manual with a gallery in
+        it. The rules did not get worse by moving — they got findable, and
+        the pages they left are now the length of what they list.
+      */}
+      <div className="section-title" id="enc-cannon">The three cannon</div>
       <div className="card small">
         <b>A gun is the thing that acts, not a ship.</b> There is no single
         number for how hard a hull hits. Every individual cannon aboard her
@@ -1466,7 +1494,7 @@ export function Almanac({
         reaches a fleet already running.
       </div>
 
-      <div className="section-title">Armor</div>
+      <div className="section-title" id="enc-armor">Armor</div>
       <div className="card small">
         <b>It is subtracted, not a chance to shrug.</b> A gun rolls its damage,
         the armor in front of it comes off the top, and what is left goes into
@@ -1484,7 +1512,7 @@ export function Almanac({
         Light guns cannot open a first-rate however many of them you bring.
       </div>
 
-      <div className="section-title">Size, speed, and what can hit you</div>
+      <div className="section-title" id="enc-size-speed">Size, speed, and what can hit you</div>
       <div className="card small">
         <b>Size and speed change accuracy and nothing else.</b> A heavy gun
         firing at a sloop is not doing less damage — it is <i>missing</i>. The
@@ -1536,7 +1564,7 @@ export function Almanac({
         </div>
       </div>
 
-      <div className="section-title">An action at sea</div>
+      <div className="section-title" id="enc-action">An action at sea</div>
       <div className="card small">
         <b>Where it happens.</b> Wherever your hulls and theirs lie in the same
         water — nobody manoeuvres and there is no open sea to meet in. A
@@ -1566,7 +1594,7 @@ export function Almanac({
         ends, until she is repaired somewhere quiet.
       </div>
 
-      <div className="section-title">Choosing a target</div>
+      <div className="section-title" id="enc-targeting">Choosing a target</div>
       <div className="card small">
         <b>Guns are laid before dice are rolled.</b> Each cannon is pointed at
         whichever enemy removes the most threat per shot it would take to
@@ -1585,7 +1613,7 @@ export function Almanac({
         left.
       </div>
 
-      <div className="section-title">Breaking off</div>
+      <div className="section-title" id="enc-breaking-off">Breaking off</div>
       <div className="card small">
         <b>It always works.</b> There is no roll that keeps you in a fight you
         have decided to leave, and no further round once you have left.
@@ -1598,7 +1626,7 @@ export function Almanac({
         reason to build them.
       </div>
 
-      <div className="section-title">Bombardment</div>
+      <div className="section-title" id="enc-bombardment">Bombardment</div>
       <div className="card small">
         <b>Against stone, never against ships.</b> Bombardment is its own
         rating and it contributes nothing to a fleet action — a hull can carry
@@ -1614,13 +1642,91 @@ export function Almanac({
         island's regard falls {CIVILIAN_LOYALTY_HIT} a day, every island in the
         Reach hears of it, and each further day costs more than the last.
       </div>
+      <div className="section-title" id="enc-island">What an island is</div>
+      <div className="card small">
+        <b>{ISLAND_COUNT} of them, and every one is the same four questions.</b> Who holds it. What it
+        thinks of you, out of a hundred — and the two sides' shares always add to a hundred, so a
+        point you win is a point they lose. How much room it has to build on. And how many
+        troops are standing on it.
+        <br />
+        <br />
+        <b>Room is one pool.</b> Between four and twelve berths; every building takes one, and
+        troops and hulls take none. A starting island opens with eight to twelve. What is built
+        is what the island is worth: two earners and a yard is a going concern, and an island with
+        one berth left is a decision.
+        <br />
+        <br />
+        <b>Control is the garrison first.</b> One troop ashore holds an island whatever it thinks
+        of you. Allegiance only decides who holds it when nobody is standing there — an island of
+        yours with an empty harbor and the enemy at {FLIP_SUPPORT_MIN} regard declares for them,
+        and nobody argues.
+      </div>
 
-        </>
-      )}
+      <div className="section-title" id="enc-settled">Settled, empty, and dark</div>
+      <div className="card small">
+        <b>A settled island</b> has people on it who have an opinion. It earns, it can rise, and it
+        is taken by landing more troops than are holding it — or by talking it round, if nobody
+        has chosen a side.
+        <br />
+        <br />
+        <b>An empty island</b> has nobody on it and belongs to nobody. There is nothing there to
+        fight: put one troop on the beach and it is yours. Finish anything on it and it is
+        settled, loyal to you outright, and worth its four to ten berths — which makes the frontier
+        the cheapest capital in the game.
+        <br />
+        <br />
+        <b>A dark island</b> is one your charts do not have. You cannot send anyone to it, or sail
+        at it, until somebody has explored it. Three of the seven Reaches start dark, and what is
+        in their water starts dark with them.
+      </div>
 
-      {page === 'islands' && (
-        <>
-      <div className="section-title">Reading the chart</div>
+      <div className="section-title" id="enc-reaches">The seven Reaches</div>
+      <p className="tiny muted" style={{ marginTop: 0 }}>
+        A chain of islands in one Sea. Allegiance won on one spills a fifth onto the rest of its
+        chain, so a Reach is the unit a war is actually fought in.
+      </p>
+      <div className="stack">
+        {[...reachData.reaches].sort(byName).map((reach) => (
+          <div key={reach.name} className="card row row--between small">
+            <span>
+              <b>{reach.name}</b>
+              <span className="tiny muted"> · {reach.sea}</span>
+            </span>
+            <span className="tiny muted">
+              {reach.islands.length} {terms.islands.toLowerCase()} ·{' '}
+              {reach.role === 'home'
+                ? "the Crown's"
+                : reach.role === 'contested'
+                  ? 'two a side'
+                  : reach.role === 'frontier'
+                    ? 'uncharted'
+                    : 'nobody\u2019s'}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="section-title" id="enc-island-faces">The three faces of an island</div>
+      <div className="stack">
+        {(
+          [
+            ['missions', 'Crew', 'Your crew standing on it, or sailing to it.'],
+            ['military', 'Ashore', 'Troops ashore, whoever holds the island.'],
+            ['facilities', 'Built', 'What is built there, and what you can raise.'],
+          ] as const
+        ).map(([kind, label, text]) => (
+          <div key={kind} className="card row" style={{ gap: 10 }}>
+            <span className="facility__icon">
+              <CategoryIcon kind={kind} size={22} />
+            </span>
+            <div style={{ flex: 1 }}>
+              <b className="small">{label}</b>
+              <div className="tiny muted">{text}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="section-title" id="enc-chart">Reading the chart</div>
       <div className="card small">
         <b>One mark, three sizes.</b> Every island is a dot in the colour of whoever holds it, and
         the chart speaks by making that dot bigger or smaller — never by changing what it is. Two
@@ -1635,7 +1741,7 @@ export function Almanac({
         {GARRISON_STRONG - 1} medium, under {GARRISON_FAIR} small.
       </div>
 
-      <div className="section-title">What loyalty is worth</div>
+      <div className="section-title" id="enc-loyalty">What loyalty is worth</div>
       <div className="card small">
         <b>Three bands, and the chart draws them.</b> An island firmly yours — {SUPPORT_FIRM} and
         up — is a large dot and ships everything it makes to you. Steady, from {SUPPORT_STEADY},
@@ -1656,23 +1762,6 @@ export function Almanac({
         smugglers move — a hand on the problem, not an answer to it.
       </div>
 
-        </>
-      )}
-
-      {page === 'rules' && (
-        <>
-      <div className="section-title">How the war is won</div>
-      <div className="card small">
-        <b>One way each.</b> The Confederacy wins the day it holds Highwater. The Crown wins the
-        day all three Pirate Lords — {PIRATE_LORDS.map((l) => l.name).join(', ')} — are in irons
-        at once. They are people, not ships: you take one by carrying them off a quay, the same
-        way anyone is taken. Nobody is let go for nothing, so the Crown's is a
-        window, not a list.
-      </div>
-
-      {/* The three powers as rules, because they are rules. They used to live
-          on three ship sheets, where a Crown player never saw them and a
-          Confederate player only saw them by tapping a hull. */}
         </>
       )}
 
