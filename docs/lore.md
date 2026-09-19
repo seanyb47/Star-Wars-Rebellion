@@ -112,12 +112,17 @@ What he learned aboard her he teaches to whatever squadron is lying where he is.
 - **Human** (Everywhere). Default
 - **Reef-folk** (Coralhome (Amber Sea)). Amphibious. Gill-slits at the throat, luminous eyes, skin that shifts color with mood. Grow their ships from living coral over years. The Confederacy's best admirals. Once bound to Imperium oar-benches under an old indenture the Crown quietly stopped enforcing and has never apologised for.
 - **Shoal-folk** (The Shoals (Amber Sea)). Small, webbed, night-eyed, chattering. Can hear a ship's hull creak a mile off. Best watchers in the world; cheap to arm because they arm themselves.
-- **Urskin** (Northreach (Far Sea)). Huge, shaggy, tusked sea-bear folk. Harpooners and whalers. Loyal to death, slow to anger, terrifying past it. Torvik is Urskin.
+- **Urskin** (Northreach (Far Sea)). Huge, shaggy, tusked sea-bear folk. Harpooners and whalers. Loyal to death, slow to anger, terrifying past it. Torvik is Urskin. **Confederacy, always** — the whaling fleets are named in the articles and no Urskin has ever signed Crown ones.
 - **The Rumor Guild** (human)** (Bothaway (Amber Sea)). A guild, not a people. Ink-stained, sharp, sells to both sides.
 - **The Hushed** (The Drowned Reach (Bone Sea)). Pale, eel-thin, silent folk from half-drowned islands. Bound to the Crown by an old bargain. Nobody hears them coming.
 - **The Fatmouths** (Fatmouth & Blackreef). Bloated harbor-kings who own the wharves, the warehouses and most of the debts. Nobody has seen Jubal's legs; there is a rumor he doesn't have any.
 - **Tidewrought** (Imperium yards). Brass-and-iron automata built by Lemmick, animated by a bound sliver of the Deep. Walk the seabed. See poorly. Never tire.
-- **Bog-folk** (Sea of Storms swamps). Wrinkled, patient, amphibious guerrillas
+- **Bog-folk** (Sea of Storms swamps). Wrinkled, patient, amphibious irregulars
+  who fight at night and from cover and have never once been beaten in their
+  own water. **Imperium, always.** The swamps were Crown ground before the
+  Corsair Wars and the Bog-folk held them through it; the Admiralty pays for
+  that in silence and latitude, and gets a people who can take an island back
+  without ever forming a line.
 - **Outlander** (Beyond the Black Tide). Thorne came from *past* the Tide, where no chart goes. Blue-grey skin, red eyes. Nobody knows what's out there. He won't say.
 
 ## 4. The Deep
@@ -258,7 +263,7 @@ Young cutter-captain and self-taught shipwright, learning to grow coral hulls fr
 - **Mace Ruckley** — Human; SPEC OPS. Wrecker from the Scrap Reach; blows things up for a living.
 - **Marisol Shay** — Human; SPEC OPS. Knife-thrower and infiltrator from the Bone Sea havens.
 - **Arlen Nash** — Human; LEADER (commander). Veteran wing-captain of the cutter squadrons; Ansell's mentor.
-- **Orrin Marsh** — Bog-folk; SPEC OPS. Fought the Imperium from the swamps of his home island for a decade.
+- **Orrin Marsh** — Bog-folk; SPEC OPS. Held the swamps of his home island for the Imperium for a decade, against people who knew them nearly as well.
 - **Roger Jarvis** — Human; SPEC OPS. Ex-harbor-watch captain who knows how the Crown's watches think.
 - **Serena Virgil** — Human; LEADER (admiral). Young line-captain, aggressive, wins or sinks.
 - **Sybil Nunn** — Shoal-folk; LEADER (commander). Scout-captain of the Reefwalker cutters; hears ships through fog.
@@ -279,7 +284,7 @@ _Ashore somewhere in the Reaches, waiting for whichever side asks first._
 - **Doctor Ambrose Kell** “the Tide Doctor” — Human. Surgeon and scholar, and the only man on his island who will say out loud that the Tide can be studied rather than merely survived. It has cost him a licence, a post and most of his friends. Runs a surgery from whatever port will have him, takes payment in passage, and is the one person in three Seas that both fleets will pass through a blockade.
 - **Captain Isolde Marrow** “the Even Hand” — Human. Sails under a letter of marque nobody at the Admiralty will admit to signing, which suits everyone until it does not. Took a merchantman back off a boarding party with eleven crew and a signal gun, then put the boarders ashore alive because war had not been declared that week. Keeps her crew and keeps her word, in that order, and has resigned from both sides in writing.
 - **The Widow Ashgrave** “the Widow” — Human. Buried a shipowner, a governor and a Moot councillor, in that order, and inherited from all three. Brokers passage, marriages and truces out of a witch-island nobody charts twice, and holds the paper on half the yards in the Glass Sea. What she is owed is not really the point. Being owed is the point.
-- **Tobias Renn** “the Swampcat” — Bog-folk. Fought an Imperium garrison of four hundred to a standstill in the Storm swamps with eleven men and the weather, over eleven years, and never once in the open. Patient well past the point most people mean by the word. Considers a battle fought in daylight to be a battle somebody else arranged.
+- **Tobias Renn** “the Swampcat” — Bog-folk. Held the Storm swamps for the Imperium against four hundred insurgents, with eleven men and the weather, over eleven years, and never once in the open. Patient well past the point most people mean by the word. Considers a battle fought in daylight to be a battle somebody else arranged.
 - **Silvaine Crow** “the Quiet Hand” — Human. Deep-touched, and trained by nobody the Crown ever licensed, which in the Crown Sea is a charge rather than a description. Was a governor's secretary for nine years, which is how she knows where everything is written down; she left on a morning nobody can quite reconstruct, with three ledgers and a seal. Knows a lie by its echo, and does not always say so.
 - **Jory Halloran** “the Understudy” — Human. Nineteen, quick, and desperate to be off the island by any hull that will take him. Has crewed a revenue cutter, kept books for a chandler, and spent a fortnight in a gaol over a misunderstanding about the books. Adequate at all of it, remarkable at none, and perfectly aware that this is the problem. Somebody is going to make something of him.
 

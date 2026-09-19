@@ -737,6 +737,39 @@ export interface PirateLord {
  * one. Now the opening is one fixed and three drawn on that side, and three
  * fixed and two drawn on the other.
  */
+/**
+ * Peoples who will only ever serve one side.
+ *
+ * Sean, 19 September: *"The bog folk are exclusively crown imperium and the
+ * urskin are exclusively confederacy."*
+ *
+ * Half of that was already true — Torvik is Urskin and the Confederacy's own
+ * compact is written as *"pirate captains, smugglers, exiled nobles, Reef-folk
+ * clans, Urskin whaling fleets"*. The other half is a reversal, and a
+ * deliberate one: the Bog-folk were amphibious guerrillas who fought the
+ * Imperium out of the Storm swamps, and they are the Crown's now. It is the
+ * better roster for it. The Crown was the only faction in the game with no
+ * people but Human, which made the Confederacy the side with all the texture
+ * and the Imperium a wall of naval officers.
+ *
+ * A people not named here serves whoever signs them.
+ */
+export const PEOPLE_ALLEGIANCE: Record<string, PlayableFaction> = {
+  'Bog-folk': 'empire',
+  Urskin: 'alliance',
+};
+
+/**
+ * Whether this side could ever have somebody of these people on its books.
+ *
+ * The one rule: an Urskin will not sign Crown articles and a Bog-folk will not
+ * sign Confederate ones, however good the offer and however loyal the island.
+ */
+export function mayServe(people: string | undefined, faction: PlayableFaction): boolean {
+  const sworn = people ? PEOPLE_ALLEGIANCE[people] : undefined;
+  return sworn === undefined || sworn === faction;
+}
+
 export const CROWN_PRINCIPAL = 'Lord Regent Halvard Corvane';
 
 export const PIRATE_LORDS: PirateLord[] = [

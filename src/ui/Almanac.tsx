@@ -101,6 +101,7 @@ import {
   GARRISON_FAIR,
   GARRISON_FOR_BAND,
   GARRISON_STRONG,
+  PEOPLE_ALLEGIANCE,
   PIRATE_LORDS,
   LORD_POWER_TEXT,
   SMUGGLED_SHARE,
@@ -599,6 +600,17 @@ export function Almanac({
               <div className="tiny muted" style={{ marginTop: 1 }}>
                 {entry.people} · {entry.roles.join(', ')}
               </div>
+              {/* A sworn people. Worth saying on the Unaligned list above all:
+                  an Urskin standing on one of your islands is somebody the
+                  Crown can never sign, and a recruiter sent for them is a
+                  wasted voyage. */}
+              {PEOPLE_ALLEGIANCE[entry.people] && (
+                <div className="crewcard__role" style={{ padding: '2px 0 0' }}>
+                  {PEOPLE_ALLEGIANCE[entry.people] === you
+                    ? 'Will only serve you'
+                    : `Will only serve the ${factionData[PEOPLE_ALLEGIANCE[entry.people]!].shortName}`}
+                </div>
+              )}
               <div className="tiny muted" style={{ marginTop: 4 }}>
                 {entry.bio}
               </div>

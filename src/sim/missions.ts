@@ -51,6 +51,7 @@ import {
   ESPIONAGE_SECOND_ISLAND,
   ASSUMED_WATCH,
   WORKS_ON,
+  mayServe,
 } from './constants';
 import {
   applyLocalSupport,
@@ -150,8 +151,18 @@ export function isInciteTarget(system: System, faction: PlayableFaction): boolea
  * there. Whose island it is does not matter — an unaligned harpooner on their
  * ground can still be talked onto your books, it is only far riskier.
  */
-export function recruitPool(state: GameState): Character[] {
-  return state.characters.filter((c) => c.faction === 'neutral' && hasArrived(state, c));
+export function recruitPool(state: GameState, faction?: PlayableFaction): Character[] {
+  return state.characters.filter(
+    (c) =>
+      c.faction === 'neutral' &&
+      hasArrived(state, c) &&
+      // Sworn peoples. An Urskin will not sign Crown articles and a Bog-folk
+      // will not sign Confederate ones, so each side's pool is smaller than
+      // the roster and they are not the same pool. Omitting `faction` asks
+      // the old question — who is unclaimed at all — which is what the
+      // "nobody left to sign" notice wants.
+      (faction === undefined || mayServe(c.people, faction)),
+  );
 }
 
 /**
@@ -186,7 +197,7 @@ export function canRecruitAt(
     system.populated &&
     !system.uprising &&
     system.support[faction] >= RECRUIT_MIN_SUPPORT &&
-    recruitPool(state).length > 0
+    recruitPool(state, faction).length > 0
   );
 }
 
@@ -1435,7 +1446,7 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
   } else if (mission.type === 'recruit') {
     // The pool is read again now, not remembered from the order: the other
     // side may have signed the last of them on while this officer was at sea.
-    const pool = recruitPool(state);
+    const pool = recruitPool(state, faction);
     success = pool.length > 0 && rng.chance(recruitChance(character, system, faction));
     recruitOutcome(
       state,
