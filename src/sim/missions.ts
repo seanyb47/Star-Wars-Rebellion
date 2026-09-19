@@ -1035,7 +1035,11 @@ export function startMission(
  * about came out as "parley", which is a lie rather than a gap.
  */
 export const MISSION_LABEL: Record<MissionType, string> = {
-  recruit: 'Signing on',
+  // Sean, 19 September, renaming the four on the errand sheet: *"Recruit."*
+  // It was "Signing on", which is the in-world phrase for the thing and reads
+  // well in a sentence — but this is a label on a button beside Espionage and
+  // Command, and a label wants the word for the job.
+  recruit: 'Recruit',
   diplomacy: 'Parley',
   incite: 'Stirring up trouble',
   sabotage: 'Sabotage',

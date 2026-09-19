@@ -1701,7 +1701,7 @@ export function Almanac({
       <div className="card small muted">
         Tidecraft, the Leviathan, and a research tree with things in it are designed but not in the
         game. Everything else the original had is: fleets and sea battles, and eight kinds of errand
-        — {terms.parley.toLowerCase()}, stirring up trouble, signing on, {terms.survey.toLowerCase()},
+        — {terms.parley.toLowerCase()}, stirring up trouble, recruiting, {terms.survey.toLowerCase()},
         {' '}{terms.sabotage.toLowerCase()}, abduction, command of an island in revolt, and the yards.
         You never pick one; the island decides.
       </div>

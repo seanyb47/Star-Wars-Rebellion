@@ -1345,7 +1345,7 @@ export function SystemSheet({
             const loyalty = Math.round(system.support[state.player]);
             return (
               <>
-                <div className="section-title">Signing on</div>
+                <div className="section-title">{MISSION_LABEL.recruit}</div>
                 <p className="muted tiny" style={{ margin: '0 0 10px' }}>
                   {pool === 0 ? (
                     <>

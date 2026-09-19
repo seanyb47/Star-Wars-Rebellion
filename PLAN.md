@@ -4890,3 +4890,36 @@ now. The rule is still right and still tested — the many yards moved to an
 island where the extra passage is worth paying for, and the sums are worked out
 in the test rather than assumed — and its other half got a test of its own:
 a yard on the far side of the world is not a yard you can use.
+
+## Four errands, named for what they are (19 September)
+
+*"Rename these missions as follows: Recruit / Command [location] / Command
+[Fleet1, Fleet 2, Fleet 3, etc for each fleet on location] / Espionage. Cut %
+chance."*
+
+**Recruit**, not "Signing on". The in-world phrase reads well in a sentence and
+stays there — an island still keeps an open table and people still sign the
+articles — but this is a label on a button beside Espionage and Command, and a
+label wants the word for the job. Renamed in `MISSION_LABEL`, so the log, the
+crew card and the island's own section all moved with it rather than three
+screens disagreeing.
+
+**Command Freeport**, not "Command the island". The line under it already named
+the fleet, and two postings that read differently for no reason are two things
+to work out instead of one. The fleet lines lost their article to match:
+*Command Home Fleet*. One per squadron lying in the harbor was already how it
+worked — the screenshot showed one because there was one.
+
+**Cut % chance.** The line used to carry two figures: the odds of getting
+through the island's watch unseen, and the odds of the work coming off once
+nobody had. The reasoning for showing both still holds — a raid on a loyal
+capital is a bad idea because of the getting in and out, not because of the
+work — but that is a rule to feel, not a pair of numbers to read off before
+spending a crew member.
+
+The parley bands stay. A band is a judgement rather than a percentage, and it
+is the one thing on the sheet that says which island will actually listen. The
+sim is untouched: `missionOdds` and `foilChance` still settle every errand and
+the espionage report still says what happened. This is only what is shown
+beforehand — and with it went `bestOf`, the whole reason the sheet was
+recomputing the party's best hand on every tick of a checkbox.

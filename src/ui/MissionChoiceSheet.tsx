@@ -1,6 +1,5 @@
 import { Fragment, useState } from 'react';
 import {
-  bestOf,
   companionsFor,
   fleetsToCommand,
   MISSION_LABEL,
@@ -8,9 +7,6 @@ import {
   abductOn,
   captiveOn,
   missionsOffered,
-  foilChance,
-  isCovert,
-  missionOdds,
   inciteStanding,
   parleyStanding,
   joinChance,
@@ -132,10 +128,7 @@ export function MissionChoiceSheet({
     setTaking((was) =>
       was.includes(id) ? was.filter((x) => x !== id) : full ? was : [...was, id],
     );
-  // The odds on each card are the boat's, not the officer's, so adding the
-  // right person visibly moves them before you commit to anything.
   const party = [character, ...mates.filter((m) => taking.includes(m.id))];
-  const boat = bestOf(party);
   /*
    * Talking is the one thing a whole boat does together.
    *
@@ -195,24 +188,24 @@ export function MissionChoiceSheet({
 
       <div className="stack">
         {offered.map((type) => {
-          /**
-           * Two numbers, because there are two stages.
+          /*
+           * No percentages on the errand sheet.
            *
-           * Getting through the island's watch unseen, and then doing the job
-           * once nobody has. One figure could not say why a raid on a loyal
-           * capital is a bad idea — the work is as likely to come off there as
-           * anywhere; it is the getting in and out that kills you — and that
-           * is the thing a player most needs to see before spending an
-           * officer. Only for covert work: nobody hides a parley.
+           * Sean, 19 September: *"Cut % chance."* This line used to carry two
+           * of them — the odds of getting through the island's watch unseen,
+           * and the odds of the work coming off once nobody had. The reasoning
+           * for showing both still holds (a raid on a loyal capital is a bad
+           * idea because of the getting in and out, not because of the work),
+           * but it is a rule to feel rather than a pair of numbers to read off
+           * before spending a crew member. The parley bands stay: a band is a
+           * judgement, not a percentage, and it is the one thing on this sheet
+           * that says which island will actually listen.
+           *
+           * The sim still computes both — `missionOdds` and `foilChance` are
+           * what settle the errand — and the espionage sheet after the fact
+           * still reports what happened. This is only what is shown before.
            */
           const standing = standingFor(type);
-          const odds =
-            type === 'recruit' || standing
-              ? null
-              : Math.round(missionOdds(state, boat, island, faction, type) * 100);
-          const unseen = isCovert(type)
-            ? Math.round((1 - foilChance(state, island, faction, boat, type)) * 100)
-            : null;
           const what =
             type === 'abduct' && captive
               ? `Carry off ${captive.name} and hold them at your seat.`
@@ -225,21 +218,18 @@ export function MissionChoiceSheet({
                 <MissionTile type={type} />
                 <span className="choice__body">
                   <span className="row row--between">
+                    {/* Sean, 19 September: *"Command [location]."* The island
+                        is named rather than called "the island", because the
+                        line below it about a fleet names the fleet, and two
+                        postings that read differently for no reason is two
+                        things to work out instead of one. */}
                     <b className="choice__name">
-                      {type === 'command' ? 'Command the island' : MISSION_LABEL[type]}
+                      {type === 'command' ? `Command ${island.name}` : MISSION_LABEL[type]}
                     </b>
-                    {standing ? (
+                    {standing && (
                       <span className={`tiny band band--${standing.band}`}>
                         {BAND_LABEL[standing.band]}
                       </span>
-                    ) : (
-                      odds !== null &&
-                      type !== 'command' && (
-                        <span className="tiny muted">
-                          {unseen !== null && <>{unseen}% unseen · </>}
-                          {odds}% to land it
-                        </span>
-                      )
                     )}
                   </span>
                   <span className="tiny muted choice__what">
@@ -264,7 +254,7 @@ export function MissionChoiceSheet({
                     <MissionTile type="command" />
                     <span className="choice__body">
                       <span className="row row--between">
-                        <b className="choice__name">Command the {fleet.name}</b>
+                        <b className="choice__name">Command {fleet.name}</b>
                         <span className="tiny muted">
                           {fleet.ships.length} {fleet.ships.length === 1 ? 'hull' : 'hulls'}
                         </span>

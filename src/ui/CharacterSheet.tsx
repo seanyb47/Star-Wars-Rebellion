@@ -1,5 +1,6 @@
 import terms from '../data/terms.json';
 import {
+  MISSION_LABEL,
   MISSION_WORK_DAYS,
   inciteLoss,
   parleyGain,
@@ -289,7 +290,7 @@ export function CharacterSheet({
           </b>
         </div>
         <div className="row row--between">
-          <span className="muted">Signing on · somewhere loyal of your own</span>
+          <span className="muted">{MISSION_LABEL.recruit} · somewhere loyal of your own</span>
           {/* A range, because it depends on the harbor: the numbers are for a
               port that will just about hold a table and for one that adores
               you. Only a Recruiter may lead one at all, so anybody else reads
