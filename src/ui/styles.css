@@ -153,7 +153,19 @@ button {
      can exceed the viewport being laid out, so the console can never be
      pushed off the bottom of the screen. */
   height: max(100dvh, var(--app-h, 0px));
-  overflow: hidden;
+  /*
+   * `clip`, not `hidden`, since 19 September.
+   *
+   * The two paint identically; the difference is that `hidden` makes a scroll
+   * container and `clip` does not. The strip of filler a sheet paints below
+   * itself (see `.sheet::after`) is 160px of content past the bottom of this
+   * box, so under `hidden` the whole app could be scrolled that far — and
+   * anything that scrolls an element into view does it without being asked,
+   * which takes the topbar off the top of the screen and the console off the
+   * bottom. Found by measuring: `.app` reporting `scrollTop: 160` with the
+   * console sitting at -106. `clip` cannot scroll, so it cannot happen.
+   */
+  overflow: clip;
 }
 
 /* Sheets and lists stay readable on a phone held sideways; the map still uses
@@ -555,6 +567,7 @@ button {
  *
  * The cost is honest: a sparse tab has room to spare at the bottom. That is
  * the trade — a still panel over a snug one.
+ *
  */
 .sheet--tabbed { height: 82%; }
 .sheet__grip { width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 8px auto 4px; }
@@ -2163,6 +2176,21 @@ button.tcard:hover { border-color: var(--brass); }
 .slot__art { display: block; width: 100%; line-height: 0; }
 .slot__art .facthumb {
   display: block; width: 100%; border: 0; border-radius: 7px 7px 0 0;
+}
+/* A crew member is a painting across the top of the tile, like everything
+   else on a board.
+   Sean, 19 September: *"This screen is still showing way too small of images.
+   Cut the frames and just show me the crew please."* They were the one unit
+   kind still drawn as a ringed medallion: a square badge in the middle of the
+   tile with the ornate frame taking most of it and the face a circle inside
+   that. He had already said once that *"we want the image to pop not the
+   frame"* and the answer then was to tuck the face under the ring's bevel,
+   which kept the frame. This cuts it. The rings are still worn where a
+   medallion is the right object — a 44px badge on a fleet row, the art
+   sheet — but not where there is room for the painting. */
+.slot__art .charface {
+  display: block; width: 100% !important; height: auto !important;
+  aspect-ratio: 1 / 1; border: 0; border-radius: 7px 7px 0 0;
 }
 .slot--art .slot__name { padding: 5px 4px 0; }
 .slot--art .slot__note { padding: 0 4px; }

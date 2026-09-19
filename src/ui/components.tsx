@@ -348,7 +348,14 @@ export function Slot({
   label,
   order,
 }: {
-  icon: ReactNode;
+  /**
+   * The drawn glyph, for a thing with no painting. Optional since 19
+   * September: `art` that carries its own fallback — a crew member's face
+   * falls back to the drawn cameo inside `CharacterFace` — has nothing to put
+   * here, and a second fallback that can never fire is just a lie about what
+   * the tile does.
+   */
+  icon?: ReactNode;
   /**
    * A painting of the thing, run full width across the top of the tile in
    * place of the drawn glyph.

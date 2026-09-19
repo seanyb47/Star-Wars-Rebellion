@@ -59,7 +59,7 @@ import {
   type PlayableFaction,
 } from '../sim';
 import {
-  CharacterPortrait,
+  CharacterFace,
   CompanyIcon,
   CreaturePainting,
   FacilityIcon,
@@ -430,12 +430,12 @@ function TheirsAshore({
           {named.map((character) => (
             <Slot
               key={character.id}
-              icon={
-                <CharacterPortrait
+              art={
+                <CharacterFace
                   name={character.name}
                   faction={character.faction}
                   people={character.people}
-                  size={140}
+                  size={176}
                 />
               }
               name={character.name}
@@ -1391,12 +1391,12 @@ export function SystemSheet({
             {crew.map((character, i) => (
               <Slot
                 key={character.id}
-                icon={
-                  <CharacterPortrait
+                art={
+                  <CharacterFace
                     name={character.name}
                     faction={character.faction}
                     people={character.people}
-                    size={140}
+                    size={176}
                     dim={character.status !== 'available'}
                   />
                 }
@@ -1453,12 +1453,12 @@ export function SystemSheet({
             {inbound.map((character) => (
               <Slot
                 key={character.id}
-                icon={
-                  <CharacterPortrait
+                art={
+                  <CharacterFace
                     name={character.name}
                     faction={character.faction}
                     people={character.people}
-                    size={140}
+                    size={176}
                   />
                 }
                 name={character.name}

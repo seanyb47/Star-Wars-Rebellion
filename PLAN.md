@@ -4749,3 +4749,53 @@ no longer true, in fourteen prompts.
 The earlier pass moved `MAX_ARMOUR` and stopped. The Rules page still said
 *armour* in eight places a player reads, and a hull blurb said *armoured*. One
 spelling now, through the UI, the data and the docs.
+
+## Cut the frames (19 September)
+
+*"This screen is still showing way too small of images. Cut the frames and
+just show me the crew please."*
+
+Crew were the last unit kind still drawn as a ringed medallion on the Location
+board: a square badge in the middle of the tile, an ornate frame taking most
+of it, the face a circle inside that. Everything else on a board — a hull, a
+troop, a works — is a painting run full width across the top of the tile. Crew
+now are too, at 166px against the 50-odd the ring's opening allowed.
+
+This is the second run at the same complaint. In September he said *"we want
+the image to pop not the frame"* and the answer then was to tuck the face
+under the ring's inner bevel so it read as a band around a portrait rather
+than a portrait inside a frame. That made the face bigger and kept the frame.
+He has now said which of the two he wanted.
+
+The rings are not deleted. They are still worn where a medallion is the right
+object and there is no room for a painting — and, as it turns out, that is now
+nowhere in the game: `RING_MIN` is 80px, every remaining `CharacterPortrait`
+in play is 44, and the only callers above the threshold are the art gallery
+and the style gallery. Worth saying out loud, since the five rings were
+commissioned for this.
+
+`Slot`'s `icon` became optional in the process. `CharacterFace` carries its own
+fallback — the drawn cameo, when a character has no painting — so there was
+nothing to put there, and a second fallback that can never fire is a lie about
+what the tile does.
+
+### And an app that could be scrolled
+
+Found while measuring the above, not by looking for it. The board seemed to
+stop a sixth of the way up the screen with dead space under it; the sheet
+measured `-109` to `684` in an 844 viewport, with the topbar off the top and
+the console off the bottom.
+
+The cause was **my own maroon-strip fix**. `.sheet::after` paints 160px of
+filler below the sheet to cover the gap where `.app` measures short, and
+`.app` was `overflow: hidden` — which clips the paint but still makes a scroll
+container. So the whole app could be scrolled 160px, and anything that scrolls
+an element into view did it unasked. `.app` reported `scrollTop: 160`.
+
+`overflow: clip` paints identically and makes no scroll container, so it
+cannot happen. The filler stays; it was never the problem.
+
+I also raised `.sheet--tabbed` from 82% to 94% on the strength of the dead
+space, and then put it back when the measurement turned out to be the scroll
+and not the layout. At 82% the sheet already reaches the bottom of the glass
+and leaves the island's header showing above it, which is the design.
