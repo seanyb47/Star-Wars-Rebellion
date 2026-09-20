@@ -873,9 +873,20 @@ const NO_SHIP_INCOME = Object.fromEntries(
 ) as Record<ShipClassId, number>;
 
 export const GOLD_PER_DAY: Record<BuildItem, number> = {
-  // Gold against timber. A vein pays better than two mills and there are
-  // nothing like two mills' worth of veins in the world.
-  mine: 9,
+  /*
+   * Gold against timber, and the ratio is Sean's.
+   *
+   * 20 September: *"if the place happens to have gold, it produces
+   * significantly more. Let's say it produces like, you know, 3x the amount,
+   * uh, let's just say 2x the amount."* Taken as the correction it is: a vein
+   * pays **double** a mill, not triple. It was nine against three, which was
+   * priced for a world with twelve veins in it; there are four times as many
+   * now, so the multiple comes down as the count goes up.
+   *
+   * Both still cost nothing to build and nothing to keep — a worked deposit
+   * is a well, not a business.
+   */
+  mine: 6,
   refinery: 3,
   construction_yard: 0,
   training_facility: 0,
@@ -1877,11 +1888,50 @@ export const YARD_BUILDABLE: FacilityType[] = [
  * trees and an ice floe with five would make the paintings liars — it is still
  * a roll, taken within the island's character.
  */
-export const FOREST_MIN = 3;
-export const FOREST_MAX = 6;
-export const GOLD_ISLAND_CHANCE = 0.25;
-export const GOLD_VEINS_MIN = 1;
-export const GOLD_VEINS_MAX = 2;
+/**
+ * How much of an island is ground worth working.
+ *
+ * Sean, 20 September, after the economy measurement: *"on average 50% of
+ * available land should be either gold mines or trees slash coral. And I'd
+ * say of that 50%, 40% should be trees and 10% should be gold mines. So mills
+ * will be super common. You'll make a lot of mills. And if the place happens
+ * to have gold, it produces significantly more."*
+ *
+ * These are **shares of the island's slots**, not flat counts, and that is the
+ * whole change. It used to be three to six trees whatever the island's size
+ * and a one-in-four chance of a vein, which put twelve veins in a world of
+ * sixty-three islands and ran both sides out of unworked ground by day two
+ * hundred — see `lab/hoard.ts`. A big island is now worth taking because it
+ * is big.
+ *
+ * The two shares are of the whole, and they add to his fifty: four plots in
+ * ten carry timber, one in ten carries gold, and the other half of the island
+ * is yours to build on. `VARIANCE` is how far one island may stray from its
+ * share, so a roll can still come up rich or bare — the averages hold across
+ * a world, not on every rock.
+ */
+export const TIMBER_SHARE = 0.4;
+export const GOLD_SHARE = 0.1;
+export const DEPOSIT_VARIANCE = 0.5;
+/**
+ * And a thumb on the scale, because the shares above are the target rather
+ * than the result.
+ *
+ * Two things eat into them after `groundOf` has rolled. An island is capped
+ * at the room it has, which clips a rich roll and never compensates for it;
+ * and every island a side opens holding is **widened afterwards** — a seat to
+ * thirteen plots, a starting island to at least eight — so the share was
+ * taken against a smaller island than the one that ends up on the chart.
+ *
+ * Measured at the stated shares over twenty worlds, 1,260 islands and 9,379
+ * plots: timber came out 33.5% against the 40% asked for and gold 8.9%
+ * against 10%. The honest fix is to roll the ground after the widening, which
+ * moves deposit generation to the far side of `seedHoldings` and changes
+ * every seed in the game; the cheap fix is one number here, measured and
+ * said out loud. This is the cheap fix, and it is in one place so the honest
+ * one can replace it.
+ */
+export const DEPOSIT_UPLIFT = 1.19;
 /**
  * Berths kept clear of deposits whatever the roll.
  *
@@ -1931,7 +1981,16 @@ export const FOREST_BY_LOOK: Partial<Record<IslandArchetype, number>> = {
   'drowned-isle': -1,
 };
 
-/** And where a vein is likelier than one island in four, or less likely. */
+/**
+ * And where the ground runs to gold, or does not.
+ *
+ * These were odds — added to a flat one-in-four chance that an island had any
+ * vein at all. Since 20 September they are **expected extra veins**, added to
+ * the island's share of its own slots, which is why they are still fractions:
+ * a mining isle's 0.45 is very nearly half a vein more than its size would
+ * give it, and lands as one extra vein on nearly half of them. `FOREST_BY_LOOK`
+ * above is whole plots because timber comes in stands rather than seams.
+ */
 export const GOLD_BY_LOOK: Partial<Record<IslandArchetype, number>> = {
   'mining-isle': 0.45,
   'rock-isle': 0.1,

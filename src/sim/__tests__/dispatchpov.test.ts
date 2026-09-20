@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { advanceBuilds, queueBuild } from '../build';
-import { beastAlive, sightBeast } from '../creatures';
+import { beastAlive, creature, sightBeast } from '../creatures';
 import { addShip, resolveBattles } from '../fleets';
 import { leakInformation } from '../support';
 import { createRng, type Rng } from '../rng';
@@ -101,7 +101,18 @@ describe('a dispatch knows whose news it is', () => {
 
   it('names the creature in an action fought against one alone', () => {
     const state = generateGalaxy(501, 'empire');
-    const target = state.systems.find((s) => beastAlive(s))!;
+    // The heaviest beast in the world, and it has to be one with guns.
+    //
+    // This took the first living creature it found, which made the test
+    // depend on which sort the seed put first. The ground going proportional
+    // on 20 September reshuffled that: seed 501 came up with a ghost-ship of
+    // eleven guns where it used to find a sea-dragon of sixteen, and eleven
+    // guns against six hulls sinks nothing — so the action was reported as a
+    // line without a tally, and the tally is the whole of what this checks.
+    const target = state.systems
+      .filter((s) => beastAlive(s) && (creature(s.beast!)?.guns ?? 0) > 0)
+      .sort((a, b) => (creature(b.beast!)?.guns ?? 0) - (creature(a.beast!)?.guns ?? 0))[0];
+    expect(target, 'no fighting creature in this world').toBeTruthy();
     const fleet = state.fleets.filter((f) => f.faction === 'empire')[1];
     fleet.systemId = target.id;
     fleet.voyage = undefined;

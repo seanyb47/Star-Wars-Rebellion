@@ -6588,3 +6588,60 @@ already finds and the five moves are dropped.
 - Part A 2 (Coralhome starts Crown-held) and Part A 3 (coral beds, a slipway
   on a bed unlocking the reef hulls) are untouched. Neither depends on the
   painting; both are real mechanics rather than data.
+
+---
+
+## The ground, by share instead of by count (20 September)
+
+Sean, after reading `lab/hoard.ts`: *"on average 50% of available land should
+be either gold mines or trees slash coral... 40% trees and 10% gold mines. So
+mills will be super common... and if the place happens to have gold, it
+produces significantly more. Let's say 3x — uh, let's just say 2x."*
+
+Deposits were a flat three-to-six trees whatever the island's size, plus a
+one-in-four chance of a vein. That put **twelve gold veins in a world of
+sixty-three islands** and ran both sides out of unworked ground by day two
+hundred. They are now a **share of the island's slots**, so a big island is
+worth taking because it is big.
+
+Measured over twenty worlds, 1,260 islands, 9,469 plots: timber **38.6%** of
+land against the 40% asked for, gold **10.4%** against 10%, both together
+**49.0%** against 50%. `DEPOSIT_UPLIFT` is the one number that gets it there —
+the room cap clips rich rolls and starting islands are widened *after* the
+ground is rolled, which cost six points before it was compensated for. It is
+documented as the cheap fix it is.
+
+A settled island is now floored at one deposit. Three of them opened with
+nothing at all once the share model let a small island roll zero, and a town
+you can parley for and get no reason to want is worse than a bare rock.
+
+### What it did
+
+| | 1 yard, random | 2 yards, 1 on seat | **+ ground by share** |
+|---|---|---|---|
+| Crown — Confederacy | 20 — 19 | 20 — 18 | **23 — 16** |
+| median length | 731 | 1248 | **1512** |
+| Crown at the end | 21.5 islands | 22.1 | **29.2** |
+
+And on the treadmill itself, four wars deep: income roughly doubled — 333,
+434, 353 and 542 a day against the 215–250 the old ground allowed — and, for
+the first time, **the side that is winning has money to spend**: spare of +99,
++47 and +88 where every side used to sit at zero. The 72% "thin" figure is
+*worse* than the old 65%, and that is the losing side dragging it down: a
+Confederacy reduced to one island with no income is thin every day until it
+dies.
+
+### Two things this did not fix, and one it made worse
+
+- **The winners still have 37 to 39 idle works** against 83 to 93 free
+  berths. That is not the ground any more; it is the surplus gate in
+  `aiBuild` and the six-orders-a-tick cadence. Sean's fortnight settlement,
+  scrap and shortfall are the next three pieces and all of them bear on it.
+- **The war is longer again**: 1,512 days against this morning's 731. Richer
+  ground means more walls and more garrisons on both sides, and nothing in the
+  game yet destroys anything a side owns except battle. Scrap and maintenance
+  shortfall are exactly that missing pressure, so this number should not be
+  judged until they land.
+- **The Crown is drifting ahead**, 23–16 against 20–18. Within noise at forty
+  samples, and worth watching: the Crown ends on 29.2 islands where it used to
+  end on 22, so it is the side that gains most from ground being worth taking.

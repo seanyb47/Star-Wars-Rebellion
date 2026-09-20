@@ -413,7 +413,11 @@ export function stirBeasts(state: GameState, rng: Rng): void {
       const beast = beastAt(system)!;
       pushEvent(state, {
         kind: 'battle',
-        text: `Rumours of ${beast.name} are spreading in ${inProse(seaOf(state, system) ?? 'the Reaches')}.`,
+        // `inProse` on the beast as well as the sea. A creature whose name
+        // starts with an article — the Derelict, the Kraken — reads as
+        // "Rumours of The Derelict" without it, and this is the one line of
+        // the six that puts a creature anywhere but the start of a sentence.
+        text: `Rumours of ${inProse(beast.name)} are spreading in ${inProse(seaOf(state, system) ?? 'the Reaches')}.`,
         systemId: system.id,
       });
       continue;

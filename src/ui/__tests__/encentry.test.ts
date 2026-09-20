@@ -246,9 +246,12 @@ describe('what a works earns is read and never retyped', () => {
   });
 
   it('agrees with the table for the two works that earn', () => {
-    expect(GOLD_PER_DAY.mine).toBe(9);
+    // Six and three since 20 September, when Sean set a vein at double a
+    // stand rather than triple: *"let's just say 2x the amount."* Pinned as
+    // the ratio as well as the pair, because the ratio is the rule and the
+    // numbers are only where it currently sits.
+    expect(GOLD_PER_DAY.mine).toBe(6);
     expect(GOLD_PER_DAY.refinery).toBe(3);
-    // And the table is the only place either number is stated.
-    expect(GOLD_PER_DAY.mine).toBeGreaterThan(GOLD_PER_DAY.refinery);
+    expect(GOLD_PER_DAY.mine).toBe(GOLD_PER_DAY.refinery * 2);
   });
 });

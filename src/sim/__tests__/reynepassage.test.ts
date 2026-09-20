@@ -29,9 +29,19 @@ describe('what the errand sheet quotes', () => {
     for (const seed of [3, 11, 55, 101]) {
       const state = generateGalaxy(seed, 'alliance');
       const crew = state.characters.filter((c) => c.faction === 'alliance');
+      // Somewhere a parley is actually on offer: explored, settled, and not
+      // already the Confederacy's. This asked only for explored and settled
+      // until 20 September, and then picked an island the side already held
+      // at a hundred — where there is nothing left to talk about, so the
+      // order was refused and the test read the refusal as a mismatch.
       const target = state.systems.find(
-        (s) => s.explored.alliance && s.populated && s.id !== crew[0].locationSystemId,
+        (s) =>
+          s.explored.alliance &&
+          s.populated &&
+          s.control === 'neutral' &&
+          s.id !== crew[0].locationSystemId,
       )!;
+      expect(target, `seed ${seed}: nowhere to parley`).toBeTruthy();
       for (const who of crew) {
         if (who.locationSystemId === target.id) continue;
         const { quoted, booked, phase } = pair(state, who.name, target.id);

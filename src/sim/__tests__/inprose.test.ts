@@ -56,7 +56,17 @@ describe('an island name inside a sentence', () => {
    */
   it('never leaves a capital article mid-sentence anywhere in a war', () => {
     const article = /[^.!?"'(\u2014\u2013-]\s(The [A-Z])/;
-    for (const seed of [3, 17]) {
+    // Six seeds rather than two.
+    //
+    // Two was enough to catch the island names this was written for, and not
+    // enough to catch a *creature* named "the Derelict": on 20 September the
+    // ground went proportional, the worlds behind seeds 3 and 17 changed, and
+    // seed 3 promptly turned up "Rumours of The Derelict are spreading in the
+    // Far Sea." The bug was a year old in everything but discovery — one line
+    // of `creatures.ts` out of six puts a beast anywhere but the start of a
+    // sentence, and it was the one without `inProse` on it. More seeds is the
+    // cheap half of not relying on luck twice.
+    for (const seed of [3, 11, 17, 23, 29, 31]) {
       let state = generateGalaxy(seed, seed % 2 ? 'empire' : 'alliance');
       const seen = new Set<string>();
       const caught: string[] = [];

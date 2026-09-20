@@ -163,8 +163,14 @@ describe('the generated world matches the bible', () => {
   it('carries the bible notes through onto the islands that have them', () => {
     const aldermain = state.systems.find((s) => s.name === 'The Aldermain')!;
     expect(aldermain.note).toMatch(/seawalls/i);
-    const plain = state.systems.find((s) => s.name === 'Avermere')!;
-    expect(plain.note).toBeUndefined();
+    // And an island the data gives no note to still has none. Named by the
+    // data rather than by hand: this was Avermere until 20 September, when
+    // the lore package gave Avermere a note and the negative case with it.
+    const bare = reachData.reaches
+      .flatMap((r) => r.islands)
+      .find((i) => !('note' in i) || !i.note)!;
+    expect(bare, 'every island in the data now has a note').toBeTruthy();
+    expect(state.systems.find((s) => s.name === bare.name)!.note).toBeUndefined();
   });
 
   it('fields a draw from the bible, each at exactly their base', () => {

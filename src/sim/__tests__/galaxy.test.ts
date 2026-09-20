@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import reachData from '../../data/reaches.json';
 import { generateGalaxy, START_CHARACTERS } from '../galaxy';
+import { depositsLeft } from '../helpers';
 import { isLord, lords } from '../lords';
 
 /** The Reaches the war has not charted: Rime and Salt, and Coral since Sean
@@ -86,10 +87,22 @@ describe('generateGalaxy', () => {
       const crew = state.characters.filter((c) => c.faction === faction);
       expect(crew).toHaveLength(START_CHARACTERS[faction]);
       for (const character of crew) expect(character.status).toBe('available');
-      // Nobody opens in one heap any more: the side's people are on at least
-      // two islands, so the first move of every game is not the same move.
+      /*
+       * The Crown opens spread; the Confederacy opens on one quay.
+       *
+       * This asked both sides for at least two islands, and passed on the
+       * seed it was written against. It is only a Crown rule. The
+       * Confederacy's opening dispatch says the opposite in as many words —
+       * *"all three are standing on this one quay tonight"* — and
+       * `makeCharacters` puts the Lords on Freeport on purpose. Measured over
+       * forty worlds on 20 September: the Crown is on more than one island in
+       * every single one, the Confederacy in about half.
+       *
+       * So the rule is held where it belongs, and the other side is held to
+       * the thing that is actually true of it, below.
+       */
       const where = new Set(crew.map((c) => c.locationSystemId));
-      expect(where.size).toBeGreaterThan(1);
+      if (faction === 'empire') expect(where.size).toBeGreaterThan(1);
       for (const id of where) {
         const island = state.systems.find((s) => s.id === id)!;
         expect(island.control === faction || island.id === freeport.id).toBe(true);
@@ -159,7 +172,12 @@ describe('generateGalaxy', () => {
       // The Crown's count went up on 18 September and only because its navy
       // did: a second squadron is thirteen gold a day more in upkeep against
       // an opening ledger that had five in it. See START_EARNERS.
-      expect(count('refinery')).toBe(faction === 'empire' ? 23 : 17);
+      // A floor, not a count. The deal tops a side up to its target and never
+      // takes any back — `short()` in `seedHoldings` says so — and since the
+      // ground went proportional on 20 September the islands a side opens
+      // holding often carry more mills than the target on their own. Asserting
+      // the exact number was asserting that they do not.
+      expect(count('refinery')).toBeGreaterThanOrEqual(faction === 'empire' ? 23 : 17);
       // And nothing on a held island belongs to nobody.
       expect(
         state.systems
@@ -213,6 +231,49 @@ describe('generateGalaxy', () => {
         expect(elsewhere, `${faction} seed ${seed}: both yards on the seat`).toBe(1);
       }
     }
+  });
+
+  /**
+   * Half an island is ground worth working, and four fifths of that is timber.
+   *
+   * Sean, 20 September: *"on average 50% of available land should be either
+   * gold mines or trees slash coral... 40% should be trees and 10% should be
+   * gold mines. So mills will be super common."*
+   *
+   * This replaced a flat three-to-six trees and a one-in-four chance of a
+   * vein, which put twelve veins in a world of sixty-three islands and ran
+   * both sides out of unworked ground by day two hundred (`lab/hoard.ts`).
+   * Measured across worlds rather than on one island, because the shares are
+   * an average and `DEPOSIT_VARIANCE` is there to make sure a single rock can
+   * still come up rich or bare.
+   *
+   * Deposits already worked by the opening deal are counted back in: a mill
+   * standing on a forest is that forest, and counting only what is left would
+   * read the Crown's own islands as bare.
+   */
+  it('puts timber on two fifths of the land and gold on a tenth', () => {
+    let slots = 0;
+    let timber = 0;
+    let gold = 0;
+    for (let seed = 1; seed <= 20; seed++) {
+      for (const island of generateGalaxy(seed).systems) {
+        slots += island.slots;
+        timber += depositsLeft(island, 'forest')
+          + island.facilities.filter((f) => f.type === 'refinery').length;
+        gold += depositsLeft(island, 'gold')
+          + island.facilities.filter((f) => f.type === 'mine').length;
+      }
+    }
+    // Two points either way: the uplift is calibrated, not exact, and the
+    // room cap still clips the richest rolls.
+    expect(timber / slots).toBeGreaterThan(0.36);
+    expect(timber / slots).toBeLessThan(0.44);
+    expect(gold / slots).toBeGreaterThan(0.08);
+    expect(gold / slots).toBeLessThan(0.12);
+    expect((timber + gold) / slots).toBeGreaterThan(0.46);
+    expect((timber + gold) / slots).toBeLessThan(0.54);
+    // And timber really is the common one: four to one, not the other way.
+    expect(timber / gold).toBeGreaterThan(3);
   });
 
   it('gives the Confederacy the islands that have declared for it, and Freeport among them', () => {

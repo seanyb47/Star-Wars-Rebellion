@@ -18,12 +18,11 @@ import {
   CAPITAL_GARRISON,
   START_GARRISON_MAX,
   START_GARRISON_SPARE,
-  FOREST_MIN,
-  FOREST_MAX,
+  TIMBER_SHARE,
+  GOLD_SHARE,
+  DEPOSIT_VARIANCE,
+  DEPOSIT_UPLIFT,
   FOREST_BY_LOOK,
-  GOLD_ISLAND_CHANCE,
-  GOLD_VEINS_MIN,
-  GOLD_VEINS_MAX,
   GOLD_BY_LOOK,
   CLEAR_BERTHS,
   NEUTRAL_WORKS,
@@ -477,17 +476,44 @@ function groundOf(
   archetype: IslandArchetype,
   slots: number,
   makeId: (prefix: string) => string,
+  /**
+   * A place people live has something worth working.
+   *
+   * Flat counts used to guarantee it — every island rolled three trees at
+   * least — and the share model of 20 September does not: four tenths of a
+   * four-slot island, taken with `DEPOSIT_VARIANCE`, can come up nothing at
+   * all. Measured over eight worlds, three settled islands opened bare, which
+   * is an island you can parley for and get a garrison and no reason. A rock
+   * nobody lives on may be bare; a town may not.
+   */
+  populated = false,
 ): Deposit[] {
   const out: Deposit[] = [];
-  const trees = Math.max(
-    0,
-    rng.range(FOREST_MIN, FOREST_MAX) + (FOREST_BY_LOOK[archetype] ?? 0),
-  );
+  /*
+   * A share of the island, rolled so the average comes out right.
+   *
+   * `want` is a fraction of a plot as often as not — four tenths of a
+   * seven-slot island is 2.8 — and rounding it would bias every island the
+   * same way. Taking the whole part and then one more on the fraction's own
+   * odds makes the expectation exact, which is what "on average 50%" asks
+   * for. `DEPOSIT_VARIANCE` is applied before that, so a rich island and a
+   * bare one are both still possible and neither is the rule.
+   */
+  const roll = (share: number, nudge: number): number => {
+    const want = Math.max(
+      0,
+      slots * share * DEPOSIT_UPLIFT * (1 + (rng.next() * 2 - 1) * DEPOSIT_VARIANCE) + nudge,
+    );
+    const whole = Math.floor(want);
+    return whole + (rng.next() < want - whole ? 1 : 0);
+  };
+  // The look of an island still tilts it: a jungle carries more timber than
+  // an icefield, and the tilt is a plot either way rather than a share.
+  const trees = roll(TIMBER_SHARE, FOREST_BY_LOOK[archetype] ?? 0);
   for (let i = 0; i < trees; i++) out.push({ id: makeId('dep'), type: 'forest' });
-  if (rng.chance(Math.max(0, GOLD_ISLAND_CHANCE + (GOLD_BY_LOOK[archetype] ?? 0)))) {
-    const veins = rng.range(GOLD_VEINS_MIN, GOLD_VEINS_MAX);
-    for (let i = 0; i < veins; i++) out.push({ id: makeId('dep'), type: 'gold' });
-  }
+  const veins = roll(GOLD_SHARE, GOLD_BY_LOOK[archetype] ?? 0);
+  for (let i = 0; i < veins; i++) out.push({ id: makeId('dep'), type: 'gold' });
+  if (populated && out.length === 0) out.push({ id: makeId('dep'), type: 'forest' });
   // Gold first if anything has to go: a vein is the rarer thing and the one
   // worth keeping when an island is too small to hold all of what it rolled.
   const room = Math.max(0, slots - CLEAR_BERTHS);
@@ -695,7 +721,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       };
       // What is under it. Before anything is placed, because the starting
       // works are put *on* deposits rather than beside them.
-      system.deposits = groundOf(rng, system.archetype, system.slots, makeId);
+      system.deposits = groundOf(rng, system.archetype, system.slots, makeId, populated);
       // Something in the water, and only out where nobody has been. The roll
       // is taken for every frontier island so the RNG stream does not depend
       // on what the archetype happened to be.

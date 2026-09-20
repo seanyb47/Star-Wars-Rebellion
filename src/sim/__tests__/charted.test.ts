@@ -15,7 +15,12 @@ import type { GameState, PlayableFaction } from '../types';
 function darkReach(state: GameState, faction: PlayableFaction) {
   return state.sectors.find((sector) => {
     const here = state.systems.filter((s) => s.sectorId === sector.id);
-    return here.length > 1 && here.some((s) => !s.explored[faction]);
+    // And one of those dark islands has to belong in a count when it is
+    // charted. An unsettled rock has `control: 'none'`, which is none of
+    // held, enemy-held or unaligned, so charting one moves the uncharted
+    // figure and nothing else — and the half of the test below that watches a
+    // count go up would be watching a number that cannot move.
+    return here.length > 1 && here.some((s) => !s.explored[faction] && s.control !== 'none');
   })!;
 }
 
@@ -31,8 +36,9 @@ describe('a Reach summary is what has been charted', () => {
     expect(summary.uncharted).toBe(dark.length);
     expect(summary.held + summary.enemyHeld + summary.unaligned).toBe(here.length - dark.length);
 
-    // Chart one of them and it joins whichever count it belongs in.
-    const found = dark[0];
+    // Chart one of them and it joins whichever count it belongs in — one that
+    // somebody holds, for the reason in `darkReach` above.
+    const found = dark.find((s) => s.control !== 'none')!;
     const was = summary;
     found.explored.alliance = true;
     const now = summariseReach(state, sector.id, 'alliance');

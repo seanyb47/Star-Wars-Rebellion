@@ -53,7 +53,24 @@ describe('what is in the ground', () => {
     }
   });
 
-  it('makes timber common and gold scarce', () => {
+  /**
+   * Timber is common and gold is the *smaller share*, which is not the same
+   * as scarce.
+   *
+   * This test asked for gold on about one island in four until 20 September,
+   * when Sean set the ground by share instead of by flat count — *"on average
+   * 50% of available land should be either gold mines or trees slash coral...
+   * 40% trees and 10% gold mines"*. Ten per cent of a nine-plot island is
+   * about one vein, so **most islands now have some gold** and what makes it
+   * the lesser resource is how much of the island it is, not how many islands
+   * it is on. The old bound said the opposite and would have failed the new
+   * rule for being the new rule.
+   *
+   * The proportions themselves are measured in `galaxy.test.ts`, against
+   * plots rather than islands. What is held here is the shape: timber four to
+   * one over gold, and gold on most islands but never much of one.
+   */
+  it('makes timber the common ground and gold the lesser share', () => {
     // Counting the ground an island was *given*, worked or not: a settled
     // island opens with some of it already turned into mills, so raw deposits
     // alone would undercount what the roll actually handed out.
@@ -70,9 +87,9 @@ describe('what is in the ground', () => {
       }
     }
     expect(timber / isles).toBeGreaterThan(2);
-    // About one island in four, and nothing like every island.
-    expect(withGold / isles).toBeGreaterThan(0.12);
-    expect(withGold / isles).toBeLessThan(0.45);
+    // On most islands, and not on all of them.
+    expect(withGold / isles).toBeGreaterThan(0.5);
+    expect(withGold / isles).toBeLessThan(0.9);
   });
 
   it('opens a settled island part-worked and an empty one untouched', () => {
@@ -87,7 +104,14 @@ describe('what is in the ground', () => {
           (f) => f.type === 'mine' || f.type === 'refinery',
         ).length;
         if (!s.populated) {
-          emptyWorked += worked;
+          // Nobody's, and nobody on it. A side's *own* starting island can be
+          // an uninhabited rock, and since 20 September those carry timber
+          // like anywhere else, so the opening deal will put a mill on one —
+          // which earns, because `isProductive` asks who holds an island
+          // rather than who lives on it. That is a holder working their own
+          // ground, not the generator touching the frontier, and counting it
+          // here made this read as three untouched islands touched.
+          if (s.control === 'neutral') emptyWorked += worked;
           continue;
         }
         if (s.control !== 'neutral') continue;
@@ -102,7 +126,8 @@ describe('what is in the ground', () => {
     expect(settledWorked / settled).toBeGreaterThan(1);
     expect(settledRaw / settled).toBeGreaterThan(1);
     expect(settledBare).toBe(0);
-    // And nobody has touched the frontier.
+    // And nobody has touched the frontier: an island with no people on it has
+    // nobody to work its ground, however much of it there now is.
     expect(emptyWorked).toBe(0);
   });
 
@@ -113,8 +138,12 @@ describe('what is in the ground', () => {
    * lever and it is gone, because the early game is meant to be short of
    * time and ground rather than of coin.
    */
-  it('prices a vein well above a stand of timber, in earnings and in days', () => {
-    expect(GOLD_PER_DAY.mine).toBeGreaterThan(GOLD_PER_DAY.refinery * 2);
+  it('prices a vein above a stand of timber, in earnings and in days', () => {
+    // Double, exactly, since 20 September. Sean: *"it produces like, you
+    // know, 3x the amount, uh, let's just say 2x the amount."* It was three
+    // times, which was priced for a world holding twelve veins; there are
+    // four times as many now, so the multiple came down as the count went up.
+    expect(GOLD_PER_DAY.mine).toBe(GOLD_PER_DAY.refinery * 2);
     expect(YARD_BUILDS.mine.days).toBeGreaterThan(YARD_BUILDS.refinery.days);
     expect(YARD_BUILDS.mine.costGold).toBe(0);
     expect(YARD_BUILDS.refinery.costGold).toBe(0);
