@@ -625,6 +625,50 @@ button {
    already pads itself by the safe area; this is the reading margin on top. */
 .sheet--flow .sheet__body { padding-bottom: 28px; }
 .sheet--flow .sheet__head { padding-top: 0; }
+/* The class mark, back in the header and brass rather than red. Sean's
+   mockup of 20 September has it there, and his instruction that morning gave
+   the reason it can be: it is a *class* emblem off his own symbol sheet, not
+   a faction crest, so it shares neither the colour nor the shape of the ✕. */
+.sheet__class { color: var(--brass); opacity: 0.9; }
+.sheet--flow .sheet__emblem { margin-right: 11px; pointer-events: none; }
+.sheet--flow .sheet__x { color: #d9736a; }
+
+/*
+ * The art, edge to edge.
+ *
+ * In the mockup the painting runs the full width of the sheet with no gutter
+ * and no rounded corners, which is what makes it read as a plate rather than
+ * a thumbnail sitting in a card. The body's own 14px of side padding is
+ * cancelled rather than removed, so everything else on the sheet keeps it.
+ */
+.sheet--flow .encfull__art--plate {
+  margin: 0 -14px; border-radius: 0;
+  border-bottom: 1px solid var(--metal-lo);
+}
+
+/*
+ * The line under the plate: a rule, a compass mark, a rule, and then what she
+ * is and what she is for. Small caps and wide letters, centred — the one
+ * place on the sheet that is typography rather than furniture.
+ */
+.epithet { display: flex; align-items: center; gap: 10px; margin: 14px 0 0; color: var(--brass); }
+/* A four-point compass star, drawn rather than fetched: two crossed
+   needles tapered to nothing, which is the mark the rest of the chart uses. */
+.epithet__star {
+  flex: none; width: 9px; height: 9px; background: currentColor;
+  clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+}
+.epithet__rule {
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.5), transparent);
+}
+.epithet__words {
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  flex-wrap: wrap; margin: 7px 0 2px;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #cdd9de; text-align: center;
+}
+.epithet__words b { color: var(--brass); font-weight: 400; }
 .sheet__actions { display: flex; gap: 8px; padding: 10px 14px calc(10px + var(--safe-bottom)); border-top: 1px solid var(--border); }
 /* A footer that is one full-width control rather than a row of buttons: it
    brings its own edge and its own padding, and the sheet's safe-area padding
@@ -659,13 +703,17 @@ button {
    Small, round, and ahead of the rule, so the heading still reads as one
    thing and the rule still runs to the edge. 28px of touch target from the
    padding without 28px of ink. */
+.section-title__mark { color: var(--brass); opacity: 0.8; flex: none; margin-right: 1px; }
 .infodot {
-  flex: none; order: 1;
-  width: 18px; height: 18px; margin: 0 2px 0 6px; padding: 0;
+  flex: none;
+  /* Past the rule, at the end of the line: the mockup puts it hard right,
+     where it is out of the way of the word it belongs to. */
+  order: 3;
+  width: 19px; height: 19px; margin: 0 2px 0 8px; padding: 0;
   display: inline-grid; place-items: center;
-  font-size: 12px; line-height: 1;
-  color: var(--brass); background: rgba(201, 162, 39, 0.12);
-  border: 1px solid rgba(201, 162, 39, 0.4); border-radius: 50%;
+  line-height: 0;
+  color: var(--brass); background: transparent;
+  border: 0; border-radius: 50%;
   position: relative;
 }
 /* The target, without the box. */
@@ -675,6 +723,7 @@ button {
 .infodot:active { opacity: 0.6; }
 .infodot:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
 .section-title::after { order: 2; }
+.section-title__mark { order: 0; }
 .section-title:first-child { margin-top: 0; }
 
 .badge {
@@ -2657,7 +2706,9 @@ button.tcard:hover { border-color: var(--brass); }
   background: rgba(0, 0, 0, 0.22); border: 1px solid var(--border);
   border-radius: 8px; padding: 7px 9px;
 }
+.shipcost i .icon { color: var(--brass); opacity: 0.85; flex: none; }
 .shipcost i {
+  display: flex; align-items: center; gap: 5px;
   font-style: normal; font-size: 9.5px; font-weight: 700;
   letter-spacing: 0.12em; text-transform: uppercase; color: #8fa6b0;
 }
@@ -2676,9 +2727,11 @@ button.tcard:hover { border-color: var(--brass); }
   border-radius: 8px; padding: 7px 9px 8px;
 }
 .shipstat i {
-  font-style: normal; font-size: 9.5px; letter-spacing: 0.06em; color: #8fa6b0;
+  font-style: normal; font-size: 10px; letter-spacing: 0.04em; color: #9fb4bd;
+  display: flex; align-items: center; gap: 5px; min-width: 0;
 }
-.shipstat b { font-size: 15px; color: var(--text); font-variant-numeric: tabular-nums; }
+.shipstat i .icon { color: var(--brass); opacity: 0.85; flex: none; }
+.shipstat b { font-size: 17px; color: var(--text); font-variant-numeric: tabular-nums; }
 /* Scaled against the highest in the game, computed from the roster. A bar on
    its own says nothing; a bar against the fleet says where this hull sits. */
 .shipstat__bar {

@@ -21,6 +21,7 @@ import {
   NAVY_FACTION_TO_PLAYABLE,
   ROSTER,
   SHIP_SIZES,
+  type ShipDefinition,
   type ShipSize,
 } from '../sim/shipdefs';
 
@@ -157,6 +158,7 @@ import {
 } from './art';
 import type { PlayableFaction } from '../sim';
 import { GoldFig, Sheet } from './components';
+import { Icon, type IconName } from './icons';
 import { useSideSwipe } from './LayerStrip';
 import { useLookUp, type EncPage } from './lookup';
 
@@ -253,7 +255,7 @@ function SectionHead({
           aria-label={help}
           title={help}
         >
-          &#8505;
+          <Icon name="info" size={17} />
         </button>
       )}
     </div>
@@ -434,36 +436,51 @@ export function shipFlavour(id: string): string {
 }
 
 /**
- * The highest anybody carries, per stat, read off the roster.
+ * The line under the art: what she is, and what she is for.
  *
- * The bars under the numbers are *relative* — a hull's armor means little
- * until you know somebody out there has thirty — so the scale has to be the
- * fleet's own and has to move when the fleet does. Computed once, from the
- * data, rather than typed in and left to rot the next time Sean rewrites the
- * sheet.
+ * Sean's mockup of 20 September puts *ARMORED CORVETTE · HEAVY-GUN HUNTER*
+ * under the Cutlass's painting. That is one data point and there are
+ * twenty-eight hulls, so it is derived from each ship's own numbers rather
+ * than written out twenty-eight times — which also means it can never drift
+ * from the stats printed an inch below it, the way a hand-written line would
+ * the first time a gun count moved.
+ *
+ * **What she is** is her armor and her rate. **What she is for** is read off
+ * her armament by weight of shot rather than by count, and that distinction
+ * is the whole of why this works: the Cutlass carries six heavy guns against
+ * fourteen light, so counting barrels makes her a close-quarters raider, and
+ * she is not one — her own entry says *"enough heavy guns to threaten
+ * something larger"*. A heavy throws twice what a light throws, by the combat
+ * master's own damage table, and weighting by that lands her on heavy-gun
+ * hunter exactly as the mockup has her.
+ *
+ * The two overrides are roles that describe themselves: a survey ship is a
+ * scout whatever it is carrying, and a razee siege ship is a siege ship at
+ * eight bombardment where a second rate at eight is still a gun platform.
  */
-const STAT_MAX = {
-  hull: Math.max(...ROSTER.ships.map((s) => s.hull)),
-  armor: Math.max(...ROSTER.ships.map((s) => s.armor)),
-  repair: Math.max(...ROSTER.ships.map((s) => s.repairRatePerDay)),
-  longGuns: Math.max(...ROSTER.ships.map((s) => s.guns.longGuns)),
-  heavyGuns: Math.max(...ROSTER.ships.map((s) => s.guns.heavyGuns)),
-  lightGuns: Math.max(...ROSTER.ships.map((s) => s.guns.lightGuns)),
-  bombardment: Math.max(...ROSTER.ships.map((s) => s.bombardment)),
-  troopCapacity: Math.max(...ROSTER.ships.map((s) => s.troopCapacity)),
-  size: SHIP_SIZES.length - 1,
-  speed: SPEED_ORDER.length - 1,
-};
+const ARMOR_WORD = (armor: number): string =>
+  armor === 0 ? 'Unarmored' : armor < 20 ? 'Armored' : 'Heavily armored';
 
-/**
- * One stat: its name, its figure, and a bar of how that figure sits against
- * the biggest in the game.
- *
- * `share` is separate from the text because two of these are words rather
- * than numbers — Size and Speed are ordered categories, so they get a bar off
- * their position in the order and a name in the figure. A stat with no bar to
- * draw (`share` left out) just prints.
- */
+function shipNiche(cls: ShipDefinition): string {
+  const { longGuns, heavyGuns, lightGuns } = cls.guns;
+  const role = cls.role.toLowerCase();
+  if (longGuns + heavyGuns + lightGuns === 0) {
+    return cls.troopCapacity >= 3 ? 'Troop carrier' : 'Fleet auxiliary';
+  }
+  if (role.includes('survey')) return 'Scout';
+  if (cls.bombardment >= 10 || role.includes('siege')) return 'Siege ship';
+  // Weight of shot, not number of barrels: a heavy throws twice a light.
+  const throwWeight = 2 * heavyGuns + longGuns + lightGuns;
+  if (2 * heavyGuns >= 0.4 * throwWeight) return 'Heavy-gun hunter';
+  if (longGuns >= 0.35 * throwWeight) return 'Long-gun skirmisher';
+  if (cls.troopCapacity >= 6) return 'Boarding ship';
+  return cls.size === 'Small' ? 'Close-quarters raider' : 'Close-quarters brawler';
+}
+
+export function shipEpithet(cls: ShipDefinition): [string, string] {
+  return [`${ARMOR_WORD(cls.armor)} ${cls.role.toLowerCase()}`, shipNiche(cls)];
+}
+
 /**
  * A zero is a fact about the ship, not an absence of one.
  *
@@ -476,20 +493,26 @@ function figure(value: string | number): string | number {
   return value === 0 ? 'None' : value;
 }
 
-function Stat({ label, value, share }: { label: string; value: string | number; share?: number }) {
+/**
+ * One figure in a group, under its own symbol.
+ *
+ * The bars are gone, and Sean's mockup of 20 September is the reason: there
+ * are none under Hull or Armor in it, where the sheet had drawn one for every
+ * numeric stat scaled against the highest in the game. His instruction that
+ * morning had been the narrower *"remove decorative progress bars from
+ * categorical stats"*, which took them off Repairs, Size and Speed; the
+ * mockup takes the rest. It loses one real thing — where this hull sits in
+ * the fleet, at a glance — and buys a tile that is a symbol, a name and a
+ * number, which is what a reference entry is.
+ */
+function Stat({ label, icon, value }: { label: string; icon: IconName; value: string | number }) {
   return (
     <div className="shipstat">
-      <i>{label}</i>
+      <i>
+        <Icon name={icon} size={15} />
+        {label}
+      </i>
       <b>{figure(value)}</b>
-      {share !== undefined && (
-        <span className="shipstat__bar">
-          {/* Empty is empty: the 2% floor is there so a small-but-real value
-              still shows a sliver, and a genuine nothing must not borrow it.
-              The bar itself is always drawn, so every tile is the same height
-              and the groups line up across every card in the book. */}
-          <span style={{ width: `${share <= 0 ? 0 : Math.max(2, Math.min(100, share * 100))}%` }} />
-        </span>
-      )}
     </div>
   );
 }
@@ -729,7 +752,14 @@ function EntrySheet({
           // in `Sheet` about a crossed-cutlass sigil reading as a second close
           // button. It costs one word and reads without decoding.
           subtitle: `${cls.role} · ${factionData[side].shortName}`,
-          emblem: <FactionSigil faction={side} size={26} />,
+          // Back in the header, and this time as what Sean asked for on 20
+          // September: *"render it as a noninteractive ship-class emblem"*.
+          // The faction crest was the thing that read as a second close
+          // button, because the Confederacy's is crossed cutlasses. This is
+          // the class mark off his own symbol sheet — brass, line-drawn,
+          // nothing like the ✕ beside it, and it says the same thing the
+          // subtitle says rather than something only a crest could.
+          emblem: <Icon name="class" size={26} className="sheet__class" />,
           art: (
             // `--plate` is the cinematic crop: a fixed share of the screen
             // rather than a fixed ratio. Only the hulls take it — a crew
@@ -759,11 +789,34 @@ function EntrySheet({
                 learn it by playing."* The ladder still exists and still gates
                 the yards; the reference no longer recites it.
               */}
-              <SectionHead title="Economy" />
+              {/* What she is, and what she is for, under the painting — the
+                  line Sean's mockup puts there. A compass rose splits the
+                  rules either side of it, which is the chart furniture the
+                  rest of the game is drawn in. */}
+              <div className="epithet">
+                <span className="epithet__rule" />
+                <span className="epithet__star" aria-hidden="true" />
+                <span className="epithet__rule" />
+              </div>
+              <div className="epithet__words">
+                <span>{shipEpithet(cls)[0]}</span>
+                <b aria-hidden="true">·</b>
+                <span>{shipEpithet(cls)[1]}</span>
+              </div>
+
               <div className="shipcost">
-                <div><i>Cost</i><b><GoldFig n={cls.goldToBuild} per={null} /></b></div>
-                <div><i>Build</i><b>{cls.daysToBuild} days</b></div>
-                <div><i>{terms.upkeep}</i><b><GoldFig n={cls.goldPerDayMaintenance} per="day" /></b></div>
+                <div>
+                  <i><Icon name="cost" size={15} />Cost</i>
+                  <b><GoldFig n={cls.goldToBuild} per={null} /></b>
+                </div>
+                <div>
+                  <i><Icon name="build" size={15} />Build</i>
+                  <b>{cls.daysToBuild} days</b>
+                </div>
+                <div>
+                  <i><Icon name="upkeep" size={15} />{terms.upkeep}</i>
+                  <b><GoldFig n={cls.goldPerDayMaintenance} per="day" /></b>
+                </div>
               </div>
 
               {/*
@@ -783,8 +836,8 @@ function EntrySheet({
               */}
               <SectionHead title="Defense" to="rules" at="armor" help="What armor stops" />
               <div className="shipstats">
-                <Stat label="Hull" value={cls.hull} share={cls.hull / STAT_MAX.hull} />
-                <Stat label="Armor" value={cls.armor} share={cls.armor / STAT_MAX.armor} />
+                <Stat label="Hull" icon="hull" value={cls.hull} />
+                <Stat label="Armor" icon="armor" value={cls.armor} />
                 {/* A word, never a percentage. v3 of the roster sheet:
                     *"Repair is a BETWEEN-BATTLES stat (never during combat)
                     and displays to players as Slow/Normal/Fast/Very Fast,
@@ -800,7 +853,7 @@ function EntrySheet({
                     beside it was measuring something the player is never
                     shown, and inviting them to compare its length against
                     Hull's, which is a different quantity entirely. */}
-                <Stat label="Repairs" value={cls.repairDisplay} />
+                <Stat label="Repairs" icon="repairs" value={cls.repairDisplay} />
               </div>
 
               <SectionHead title="Handling" to="rules" at="size-speed" help="What size and speed do" />
@@ -809,42 +862,22 @@ function EntrySheet({
                     bar under them was an index into a list dressed up as a
                     measurement — Gigantic is not four times Small. Same rule
                     as Repairs above. */}
-                <Stat label="Size" value={cls.size} />
-                <Stat label="Speed" value={cls.speed} />
-                <Stat
-                  label="Carries"
-                  value={cls.troopCapacity}
-                  share={cls.troopCapacity / STAT_MAX.troopCapacity}
-                />
+                <Stat label="Size" icon="size" value={cls.size} />
+                <Stat label="Speed" icon="speed" value={cls.speed} />
+                <Stat label="Carries" icon="carries" value={cls.troopCapacity} />
               </div>
 
               <SectionHead title="Firepower" to="rules" at="cannon" help="The three cannon" />
               <div className="shipstats">
-                <Stat
-                  label="Long guns"
-                  value={cls.guns.longGuns}
-                  share={cls.guns.longGuns / STAT_MAX.longGuns}
-                />
-                <Stat
-                  label="Heavy guns"
-                  value={cls.guns.heavyGuns}
-                  share={cls.guns.heavyGuns / STAT_MAX.heavyGuns}
-                />
-                <Stat
-                  label="Light guns"
-                  value={cls.guns.lightGuns}
-                  share={cls.guns.lightGuns / STAT_MAX.lightGuns}
-                />
+                <Stat label="Long guns" icon="long-guns" value={cls.guns.longGuns} />
+                <Stat label="Heavy guns" icon="heavy-guns" value={cls.guns.heavyGuns} />
+                <Stat label="Light guns" icon="light-guns" value={cls.guns.lightGuns} />
                 {/* Bombardment sits with the guns because that is where a
                     player looks for it, and it is the one number here that is
                     not a gun at all: the master is explicit that it *"NEVER
                     contributes to ship-to-ship damage"* and only tells against
                     fortifications. */}
-                <Stat
-                  label="Bombardment"
-                  value={cls.bombardment}
-                  share={cls.bombardment / STAT_MAX.bombardment}
-                />
+                <Stat label="Bombardment" icon="bombardment" value={cls.bombardment} />
               </div>
 
               {/*

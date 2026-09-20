@@ -111,7 +111,7 @@ export function Sheet(props: {
   const head = (
     <div className="sheet__head">
       <div className="row row--between">
-        {/* No crest on an entry, and the reason is worth writing down.
+        {/* A class mark, never a faction crest, on an entry.
             Sean, 20 September: *"Remove the redundant close-like crossed-swords
             control from the header, or render it as a noninteractive ship-class
             emblem. The × should be the only close control."* He is describing
@@ -120,13 +120,16 @@ export function Sheet(props: {
             row from a grey ✕, it reads as the brighter of two close buttons.
             It never was a button, which is not the point — nobody tries a
             control to find out what it does.
-            Shrinking and dimming it was tried first and did not work, because
-            the mark is two crossed strokes at any size. So the entry says
-            whose she is in words, in the subtitle, and the ✕ is the only mark
-            in the header. Every in-game sheet keeps its crest: the rule of 19
-            September is about knowing whose thing you are looking at, and a
-            sheet that says it in the subtitle instead has not broken it. */}
-        {props.emblem && !flow && (
+            Shrinking and dimming it was tried first and did not work,
+            because the mark is two crossed strokes at any size. So the entry
+            says whose she is in words, in the subtitle, and what it puts here
+            instead is the other half of his sentence — a **ship-class**
+            emblem, off the symbol sheet he sent with the mockup. Brass where
+            the ✕ is red, a line drawing where the ✕ is a stroke, and it
+            answers a different question, so the two cannot be confused.
+            Every in-game sheet keeps its faction crest, which is what the
+            rule of 19 September was about. */}
+        {props.emblem && (
           <span className="sheet__emblem" aria-hidden="true">
             {props.emblem}
           </span>

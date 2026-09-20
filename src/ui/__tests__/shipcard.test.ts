@@ -46,9 +46,37 @@ describe('the ship card is the same shape on every hull', () => {
 
   it('writes None for a zero rather than leaving a gap', () => {
     expect(SOURCE).toContain("return value === 0 ? 'None' : value;");
-    // And the bar for a genuine nothing is genuinely empty, not the 2% floor
-    // that keeps a small real value visible.
-    expect(SOURCE).toContain('share <= 0 ? 0 : Math.max(2');
+  });
+
+  /**
+   * And the bars are gone.
+   *
+   * They were scaled against the highest in the game and drawn under every
+   * numeric stat. Sean's instruction on the morning of 20 September took them
+   * off the categorical ones — *"remove decorative progress bars from
+   * categorical stats"* — and the mockup he sent that afternoon has none
+   * under Hull or Armor either. Asserted rather than assumed, because a bar
+   * is the kind of thing that creeps back one stat at a time.
+   */
+  it('draws no bars at all', () => {
+    expect(SOURCE).not.toContain('shipstat__bar');
+    expect(SOURCE).not.toContain('share=');
+  });
+
+  /**
+   * Every tile carries a symbol from the sheet Sean sent with the mockup, and
+   * each is the one that belongs to that stat rather than whatever was
+   * nearest to hand.
+   */
+  it('gives each stat its own symbol', () => {
+    for (const [label, icon] of [
+      ['Hull', 'hull'], ['Armor', 'armor'], ['Repairs', 'repairs'],
+      ['Size', 'size'], ['Speed', 'speed'], ['Carries', 'carries'],
+      ['Long guns', 'long-guns'], ['Heavy guns', 'heavy-guns'],
+      ['Light guns', 'light-guns'], ['Bombardment', 'bombardment'],
+    ] as const) {
+      expect(SOURCE, `${label} has no symbol`).toContain(`label="${label}" icon="${icon}"`);
+    }
   });
 
   /**

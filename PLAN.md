@@ -6141,3 +6141,69 @@ so nothing is reserved or left behind. The collapsed bar is up, `window.scrollY`
 is still 0, the sheet's own rectangle is unchanged from where it started, and
 the last lore paragraph ends 30px clear of the bottom edge. The measure comes
 out at about 52 characters.
+
+## The ship entry, built to the mockup
+
+Sean sent a rendering of the Cutlass and a contact sheet of eighteen line
+symbols. The entry is now that rendering.
+
+**The symbols** are redrawn as inline SVG in `src/ui/icons.tsx`, to the
+sheet's own stated spec — a 24×24 box, `currentColor` stroke, round caps and
+joins, nothing filled. They came as a picture rather than as files, so there
+was nothing to import. Taking their colour from the text they sit in is what
+lets one icon serve the brass of a stat tile and the red of a section rule
+without a second copy, and it is why they are line drawings and stay line
+drawings: the game already has paintings and drawn glyphs, and a third
+picture language that competed with either would make a stat tile look like a
+unit.
+
+**The plate runs edge to edge.** The body's 14px of side padding is cancelled
+on the art rather than removed from the body, so everything else keeps it.
+That is the whole difference between a plate and a thumbnail sitting in a
+card.
+
+### The line under the painting
+
+The mockup reads *ARMORED CORVETTE · HEAVY-GUN HUNTER*. That is one hull out
+of twenty-eight, so the line is **derived** rather than written out — which
+also means it cannot drift from the stats printed an inch below it the first
+time a gun count moves.
+
+What she is: her armor and her rate. What she is for: read off her armament.
+And the reading is by **weight of shot, not number of barrels**, which is the
+whole of why it works. The Cutlass carries six heavy guns against fourteen
+light. Counting barrels makes her a close-quarters raider. She is not one —
+her own encyclopedia entry says *"enough heavy guns to threaten something
+larger"*. A heavy throws twice what a light throws, by the combat master's own
+damage table, and weighting by that lands her on heavy-gun hunter exactly as
+Sean has her.
+
+Two roles describe themselves and override the arithmetic: a survey ship is a
+scout whatever she is carrying, and a razee *siege ship* is a siege ship at
+eight bombardment where a second rate at eight is still a gun platform.
+
+All twenty-eight were read before shipping. The test pins the Cutlass to the
+mockup, and pins the non-vacuity of that pin — her lights outnumber her
+heavies better than two to one, so a naive rule could not agree by accident.
+
+### What else the mockup settled
+
+- **The bars are gone.** The morning's instruction took them off the
+  categorical stats; the mockup has none under Hull or Armor either. It loses
+  one real thing — where a hull sits against the fleet, at a glance — and buys
+  a tile that is a symbol, a name and a number. The test asserts `share=` and
+  `shipstat__bar` are absent, because a bar is the kind of thing that creeps
+  back one stat at a time.
+- **The help mark moves to the far right** of its rule, past the heading, via
+  flex `order` rather than by reordering the markup.
+- **The crest comes back, as a class emblem** — the other half of his earlier
+  sentence, *"or render it as a noninteractive ship-class emblem"*. Brass
+  where the ✕ is red, a line drawing where the ✕ is a stroke, and it answers
+  *what kind of ship is this* rather than *whose*. The crossed-cutlass faction
+  sigil could not be made to stop reading as a second close button; a class
+  mark never did.
+
+One deliberate departure from the mockup: the subtitle keeps *· Confederacy*.
+The mockup shows the class alone, but the emblem beside it is now a class mark
+rather than a flag, so without the word the entry would not name the navy
+anywhere above the lore. One word, and it costs nothing.
