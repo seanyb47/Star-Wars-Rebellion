@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**174 of 187 painted.** 7057KB shipped, 45.2MB of masters kept back.
+**174 of 187 painted.** 7101KB shipped, 45.8MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -112,7 +112,7 @@ three-quarter view, whole vessel, masts and waterline both in frame. 34 of 42.
 | Tidestalker | `tidestalker` | 2 (+1 retired) | 84KB | 1448×1086, 609KB | whole frame | 2026-09-19 | Sean, 19 September |
 | Urskin Goliath | `urskin-goliath` | 1 | 92KB | 1448×1086, 655KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
 | Urskin Whaler | `urskin-whaler` | 3 (+2 retired) | 78KB | 1448×1086, 625KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
-| vanguard | `vanguard` | 1 | 34KB | 234×174, 23KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| Vanguard | `vanguard` | 2 (+1 retired) | 78KB | 1448×1086, 604KB | whole frame | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Vanguard II | `vanguard-ii` | 2 (+1 retired) | 80KB | 1448×1086, 642KB | whole frame | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Wayfinder | `wayfinder` | 1 | 96KB | 1448×1086, 699KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
 
@@ -436,7 +436,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/tidestalker** — Replacement commission, 20 September 2026. Delivered 1448x1086, the 4:3 the ship card wants, so no crop. Matches Part 4 of the combat master closely: blood-red, ivory and dark reef coral armor, swept-back ridges concealing a row of gunports, submerged fin-like keels, no sails or masts, half-hidden beside a bright reef at midday.
 - **ships/urskin-goliath** — The colossal invasion dreadnaught, renamed from Urskin Whaler on 19 September. Shipped at ships/urskin-whaler for a few hours on the same day, before the name moved; that copy is retired under the old slug.
 - **ships/urskin-whaler** — The Urskin Whaler proper: a bone-framed working whaler with a harpoon over the bow, not the dreadnaught. Replaces the Goliath painting that briefly held this slug on 19 September, and the contact-sheet placeholder before it.
-- **ships/vanguard** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/vanguard** — Commission of 20 September 2026, captioned 'vanguard 1' and it is one. Matches Part 4: long low two-decker with a clean sheer line, modest stern, three evenly spaced masts, uncluttered gun deck, standardized oak with flush black-iron reinforcement over mature copper. Rig is the master's exactly - ivory sails with disciplined green accents and a single medium Crown emblem, against the II's green canvas and two. Signature detail present: the gold-painted measuring line running arrow-straight from bow to stern just below the rail. Pairs with the new Vanguard II, same hull and same headland, which is what that family's guardrail asks for. Two small divergences recorded, not corrected: the Crown emblem sits on the fore rather than centered on the mainsail, and she sails alone where the master's scene has her leading a small line of battle. Delivered 1448x1086, 4:3, no crop.
 - **ships/vanguard-ii** — Commission of 20 September 2026, captioned 'vanguard 2' and it is one. Matches Part 4: the Vanguard's long low two-decker silhouette with a finer bow and a taller balanced rig, deep botanical-green sails with antique-gold edging, exactly two Crown emblems, bright maintained copper and brass-and-black-iron detailing, cutting through rougher water at speed. Signature detail present - the narrow gold chevron repeated at bow and stern that marks the second-generation frame. Not the Sovereign II, which is a four-masted three-decker whose own signature is nine recessed assault launches; neither is here. The family guardrail also checks out against the shipped Vanguard I: same three-masted two-decker and the same black-and-gold hull, with the upgrade carried by the rig. Delivered 1448x1086, 4:3, no crop.
 - **ships/wayfinder** — Her own painting, under her own name. The Wayfinder is new with the Fleet Roster of 18 September and had been borrowing the Fluyt's, the Crown transport she replaces. Delivered at 1448x1086, exactly 4:3, so the whole painting ships with no crop.
 

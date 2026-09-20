@@ -5783,34 +5783,44 @@
     "ships/vanguard": {
       "folder": "ships",
       "slug": "vanguard",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
-      "title": "vanguard",
+      "updated": "2026-09-20",
+      "title": "Vanguard",
       "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
-      "crop": {
-        "x": 1,
-        "y": 0,
-        "w": 232,
-        "h": 174
-      },
+      "notes": "Commission of 20 September 2026, captioned 'vanguard 1' and it is one. Matches Part 4: long low two-decker with a clean sheer line, modest stern, three evenly spaced masts, uncluttered gun deck, standardized oak with flush black-iron reinforcement over mature copper. Rig is the master's exactly - ivory sails with disciplined green accents and a single medium Crown emblem, against the II's green canvas and two. Signature detail present: the gold-painted measuring line running arrow-straight from bow to stern just below the rail. Pairs with the new Vanguard II, same hull and same headland, which is what that family's guardrail asks for. Two small divergences recorded, not corrected: the Crown emblem sits on the fore rather than centered on the mainsail, and she sails alone where the master's scene has her leading a small line of battle. Delivered 1448x1086, 4:3, no crop.",
+      "crop": null,
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/ships/vanguard.webp",
-        "w": 234,
-        "h": 174,
-        "bytes": 24356,
-        "sha1": "b5a6e8c0dd71cf12"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 619088,
+        "sha1": "f56e6d44eda48e6a"
       },
       "shipped": {
         "file": "src/art/ships/vanguard.webp",
         "w": 640,
         "h": 480,
-        "bytes": 35426,
-        "sha1": "da6b31b58560a45c"
-      }
+        "bytes": 80304,
+        "sha1": "1016e6dac3871615"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/vanguard.v1.webp",
+          "crop": {
+            "x": 1,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
     },
     "ships/vanguard-ii": {
       "folder": "ships",

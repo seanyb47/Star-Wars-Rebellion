@@ -121,6 +121,10 @@ this page is generated from it.
 
 *Large, Normal. CWN-VAN-R1-01, research R1.*
 
+**PAINTED** — `src/art/ships/vanguard.webp`. Reads as one family with the
+Vanguard II, which is what her guardrail asks for: same hull, same headland,
+the generation carried entirely by the rig.
+
 **Encyclopedia** *(shown in game)* — The Vanguard was the first Crown design to ask what a warship needed rather than what tradition expected it to carry. Shipwrights lowered the stern, simplified the galleries and put every saved ton into useful guns and stronger frames. Older admirals called it plain. Younger captains called it the first ship that answered the helm exactly as drawn. It became the standard by which later Imperial fighting ships were measured.
 
 **Visual identity** — The Crown's first modern general-purpose gunship: balanced, efficient and almost austere.
