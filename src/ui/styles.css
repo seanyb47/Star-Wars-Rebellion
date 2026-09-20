@@ -2578,7 +2578,13 @@ button.tcard:hover { border-color: var(--brass); }
 }
 .shipcost b { font-size: 14px; color: var(--text); font-variant-numeric: tabular-nums; }
 
-.shipstats { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); }
+/* Three columns, fixed, on every group of every ship card. It was
+   `auto-fit`, which sized itself to how many stats a hull happened to have —
+   so Defense sat in three columns, Firepower in two or four, and no two cards
+   in the book put the same number in the same place. Sean, 20 September:
+   *"the outline of the cards should be identical."* Firepower's fourth tile,
+   Bombardment, wraps to a second row, and it wraps on every card. */
+.shipstats { display: grid; gap: 8px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .shipstat {
   display: flex; flex-direction: column; gap: 2px;
   background: rgba(0, 0, 0, 0.18); border: 1px solid var(--border);

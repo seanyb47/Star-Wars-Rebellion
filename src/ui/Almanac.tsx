@@ -420,14 +420,30 @@ const STAT_MAX = {
  * their position in the order and a name in the figure. A stat with no bar to
  * draw (`share` left out) just prints.
  */
+/**
+ * A zero is a fact about the ship, not an absence of one.
+ *
+ * Sean, 20 September: *"we're hiding some stats when the answer is none. Just
+ * write none, and keep the stat cards identical so everything is displayed."*
+ * A Swift carries no guns at all and an Ironback carries no light ones, and
+ * both of those tell you more about the hull than a missing row does.
+ */
+function figure(value: string | number): string | number {
+  return value === 0 ? 'None' : value;
+}
+
 function Stat({ label, value, share }: { label: string; value: string | number; share?: number }) {
   return (
     <div className="shipstat">
       <i>{label}</i>
-      <b>{value}</b>
+      <b>{figure(value)}</b>
       {share !== undefined && (
         <span className="shipstat__bar">
-          <span style={{ width: `${Math.max(2, Math.min(100, share * 100))}%` }} />
+          {/* Empty is empty: the 2% floor is there so a small-but-real value
+              still shows a sliver, and a genuine nothing must not borrow it.
+              The bar itself is always drawn, so every tile is the same height
+              and the groups line up across every card in the book. */}
+          <span style={{ width: `${share <= 0 ? 0 : Math.max(2, Math.min(100, share * 100))}%` }} />
         </span>
       )}
     </div>
@@ -661,7 +677,6 @@ function EntrySheet({
       case 'ship': {
         const cls = ROSTER.byId.get(subject.id);
         if (!cls) return null;
-        const total = cls.guns.longGuns + cls.guns.heavyGuns + cls.guns.lightGuns;
         const side = NAVY_FACTION_TO_PLAYABLE[cls.faction];
         return {
           title: cls.name,
@@ -700,14 +715,19 @@ function EntrySheet({
               </div>
 
               {/*
-                Three groups rather than one grid of ten.
+                Three groups rather than one grid of ten: Defense, Handling,
+                Firepower, which is how you think about a hull when you are
+                deciding whether to build her.
 
-                Defence, Handling, Firepower — which is how you think about a
-                hull when you are deciding whether to build her, and which
-                also fixes the empty cells: a flat ten-cell grid had to show
-                `Carries —` on every warship that carries nobody. A stat with
-                no value is left out of its group instead, and a group with
-                nothing in it does not appear.
+                **Every slot is always drawn.** The groups used to hide a stat
+                whose value was zero, and hide Firepower entirely on a ship
+                with no guns, which meant no two cards had their numbers in
+                the same place — Sean, 20 September: *"The ship cards all have
+                different stats in different places, and we're hiding some
+                stats when the answer is none. Just write none, and keep the
+                stat cards identical so everything is displayed… the outline of
+                the cards should be identical."* So the shape is fixed at
+                three, three and four, and a zero reads **None**.
               */}
               <div className="row row--between">
                 <div className="section-title">Defense</div>
@@ -715,9 +735,7 @@ function EntrySheet({
               </div>
               <div className="shipstats">
                 <Stat label="Hull" value={cls.hull} share={cls.hull / STAT_MAX.hull} />
-                {cls.armor > 0 && (
-                  <Stat label="Armor" value={cls.armor} share={cls.armor / STAT_MAX.armor} />
-                )}
+                <Stat label="Armor" value={cls.armor} share={cls.armor / STAT_MAX.armor} />
                 {/* A word, never a percentage. v3 of the roster sheet:
                     *"Repair is a BETWEEN-BATTLES stat (never during combat)
                     and displays to players as Slow/Normal/Fast/Very Fast,
@@ -748,53 +766,44 @@ function EntrySheet({
                   value={cls.speed}
                   share={(SPEED_ORDER.indexOf(cls.speed as (typeof SPEED_ORDER)[number]) + 1) / (STAT_MAX.speed + 1)}
                 />
-                {cls.troopCapacity > 0 && (
-                  <Stat
-                    label="Carries"
-                    value={cls.troopCapacity}
-                    share={cls.troopCapacity / STAT_MAX.troopCapacity}
-                  />
-                )}
+                <Stat
+                  label="Carries"
+                  value={cls.troopCapacity}
+                  share={cls.troopCapacity / STAT_MAX.troopCapacity}
+                />
               </div>
 
-              {total > 0 && (
-                <>
-                  <div className="row row--between">
+              <div className="row row--between">
                 <div className="section-title">Firepower</div>
                 <Info to="rules" at="cannon">The three cannon</Info>
               </div>
-                  <div className="shipstats">
-                    {cls.guns.longGuns > 0 && (
-                      <Stat
-                        label="Long guns"
-                        value={cls.guns.longGuns}
-                        share={cls.guns.longGuns / STAT_MAX.longGuns}
-                      />
-                    )}
-                    {cls.guns.heavyGuns > 0 && (
-                      <Stat
-                        label="Heavy guns"
-                        value={cls.guns.heavyGuns}
-                        share={cls.guns.heavyGuns / STAT_MAX.heavyGuns}
-                      />
-                    )}
-                    {cls.guns.lightGuns > 0 && (
-                      <Stat
-                        label="Light guns"
-                        value={cls.guns.lightGuns}
-                        share={cls.guns.lightGuns / STAT_MAX.lightGuns}
-                      />
-                    )}
-                    {cls.bombardment > 0 && (
-                      <Stat
-                        label="Bombardment"
-                        value={cls.bombardment}
-                        share={cls.bombardment / STAT_MAX.bombardment}
-                      />
-                    )}
-                  </div>
-                </>
-              )}
+              <div className="shipstats">
+                <Stat
+                  label="Long guns"
+                  value={cls.guns.longGuns}
+                  share={cls.guns.longGuns / STAT_MAX.longGuns}
+                />
+                <Stat
+                  label="Heavy guns"
+                  value={cls.guns.heavyGuns}
+                  share={cls.guns.heavyGuns / STAT_MAX.heavyGuns}
+                />
+                <Stat
+                  label="Light guns"
+                  value={cls.guns.lightGuns}
+                  share={cls.guns.lightGuns / STAT_MAX.lightGuns}
+                />
+                {/* Bombardment sits with the guns because that is where a
+                    player looks for it, and it is the one number here that is
+                    not a gun at all: the master is explicit that it *"NEVER
+                    contributes to ship-to-ship damage"* and only tells against
+                    fortifications. */}
+                <Stat
+                  label="Bombardment"
+                  value={cls.bombardment}
+                  share={cls.bombardment / STAT_MAX.bombardment}
+                />
+              </div>
 
               {/*
                 What she is good and bad against, rather than her stats read
