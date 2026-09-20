@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**174 of 187 painted.** 7101KB shipped, 45.8MB of masters kept back.
+**174 of 187 painted.** 7180KB shipped, 46.9MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -104,8 +104,8 @@ three-quarter view, whole vessel, masts and waterline both in frame. 34 of 42.
 | reef-class | `reef-class` | 1 | 42KB | 234×174, 26KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Reefwarden | `reefwalker` | 2 (+1 retired) | 92KB | 1448×1086, 697KB | whole frame | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Resolute | `resolute` | 1 | 79KB | 1448×1086, 643KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
-| sovereign | `sovereign` | 1 | 33KB | 233×174, 23KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
-| sovereign-ii | `sovereign-ii` | 1 | 35KB | 234×174, 23KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| Sovereign | `sovereign` | 2 (+1 retired) | 74KB | 1448×1086, 602KB | whole frame | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| Sovereign II | `sovereign-ii` | 2 (+1 retired) | 73KB | 1448×1086, 624KB | whole frame | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | swallowtail | `swallowtail` | 1 | 31KB | 234×174, 22KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Swift | `swift` | 2 (+1 retired) | 75KB | 1448×1086, 543KB | whole frame | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | tempest | `tempest` | 2 (+1 retired) | 91KB | 1448×1086, 722KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
@@ -428,8 +428,8 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/reef-class** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/reefwalker** — Replacement commission, 19 September 2026. Delivered 1448x1086, exactly the 4:3 the ship card wants, so no crop. Retires a 234x174 master that was never a real master. The slug stays 'reefwalker': the hull was renamed Reefwarden in the v3 roster and the painting's filename did not follow, which is a rename of art files rather than of a name anybody reads.
 - **ships/resolute** — Her first painting; she had been falling through to the drawn silhouette since the roster landed. Crown R2 medium: one heavy bow chaser over a deck of light guns, which is what the roster gives her.
-- **ships/sovereign** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
-- **ships/sovereign-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/sovereign** — Commission of 20 September 2026, the first of the pair captioned 'sovereign 1 and 2'. Matches Part 4: gigantic three-decker, tall tiered stern, broad forecastle, three powerful masts, warm-ivory sail plan with deep-green panels and not an elite all-green rig, marines mustering on deck, a fortified harbor in warm light. Guardrail holds - taller stern and heavier, more administrative bearing than Majestic, not more elegant. Two divergences recorded: three Crown emblems on the sails where the master asks for one prominent emblem, and the ship's own rack of green-and-ivory landing boats along the quarters is not clearly read, the boats being in the water instead. Delivered 1448x1086, 4:3, no crop.
+- **ships/sovereign-ii** — Commission of 20 September 2026, the second of the pair. Matches Part 4 closely: gigantic three-decker with the Sovereign's broad shoulders, a streamlined stern, longer bow and four balanced masts; deep botanical-green elite sails with gold edges and exactly two Crown emblems; leading an amphibious landing at golden hour while still under full sail. The signature detail is present and unmistakable - the assault launches recessed behind flush green-and-gold side doors, standing open along the hull. Guardrail holds: she keeps the family's troop-carrying identity and does not read larger than Majestic. Delivered 1448x1086, 4:3, no crop.
 - **ships/swallowtail** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/swift** — Replacement commission, 20 September 2026. Delivered 1448x1086, 4:3, no crop. Matches Part 4 closely: narrow hull with lateral outriggers, one canted mast and a tall crab-claw sail, cream and faded crimson, rope lashings and shell fittings, no guns and no armor, skimming reef water with spray off the outriggers. The signature detail is there too - the Shoal-folk navigators' shell wind-chimes, strung from the mast. One divergence recorded rather than fixed: the figure aboard is human-proportioned, where the Swift is Shoal-folk designed and crewed.
 - **ships/tempest** — Replaces the 234x174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered at 1448x1086, exactly 4:3, so the whole painting ships with no crop.

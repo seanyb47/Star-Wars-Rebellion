@@ -101,6 +101,8 @@ this page is generated from it.
 
 *Gigantic, Slow. CWN-SOV-S04, research S04.*
 
+**PAINTED** — `src/art/ships/sovereign.webp`.
+
 **Encyclopedia** *(shown in game)* — A Sovereign is less a ship than a moving piece of government. Its troop decks carry marines, magistrates and enough stores to occupy a harbor before the ink on its surrender dries. Its high stern houses a chapel, signal room and the clerks who record every shell fired in the Crown's name. Islanders fear its guns, but it is the rows of identical landing boats that tell them the Imperium intends to stay.
 
 **Visual identity** — A ceremonial assault capital whose imposing symmetry turns conquest into administration.
@@ -254,6 +256,9 @@ One command to move it if that reading is wrong.
 ### Sovereign II — 2nd rate (90)
 
 *Gigantic, Normal. CWN-SOV-R7-02, research R7.*
+
+**PAINTED** — `src/art/ships/sovereign-ii.webp`. The assault launches are
+visible behind their open side doors, which is her signature detail.
 
 **Encyclopedia** *(shown in game)* — The second Sovereign preserves the first class's ability to carry an invasion, but abandons the towering architecture that made its ancestor slow. Its stern is lower, its run longer and its internal administration hidden behind armored bulkheads. It can arrive with the line rather than after it. Admiralty pamphlets call it proof that order can learn; old Sovereign captains call it a palace taught to hunt.
 

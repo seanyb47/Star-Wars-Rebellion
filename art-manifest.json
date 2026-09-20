@@ -5489,66 +5489,86 @@
     "ships/sovereign": {
       "folder": "ships",
       "slug": "sovereign",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
-      "title": "sovereign",
+      "updated": "2026-09-20",
+      "title": "Sovereign",
       "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
-      "crop": {
-        "x": 0,
-        "y": 0,
-        "w": 232,
-        "h": 174
-      },
+      "notes": "Commission of 20 September 2026, the first of the pair captioned 'sovereign 1 and 2'. Matches Part 4: gigantic three-decker, tall tiered stern, broad forecastle, three powerful masts, warm-ivory sail plan with deep-green panels and not an elite all-green rig, marines mustering on deck, a fortified harbor in warm light. Guardrail holds - taller stern and heavier, more administrative bearing than Majestic, not more elegant. Two divergences recorded: three Crown emblems on the sails where the master asks for one prominent emblem, and the ship's own rack of green-and-ivory landing boats along the quarters is not clearly read, the boats being in the water instead. Delivered 1448x1086, 4:3, no crop.",
+      "crop": null,
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/ships/sovereign.webp",
-        "w": 233,
-        "h": 174,
-        "bytes": 24404,
-        "sha1": "8577b293530a036d"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 616664,
+        "sha1": "06579e120bf4671b"
       },
       "shipped": {
         "file": "src/art/ships/sovereign.webp",
         "w": 640,
         "h": 480,
-        "bytes": 34784,
-        "sha1": "3fc0bc565f7446a8"
-      }
+        "bytes": 76690,
+        "sha1": "77d9fdf9f652bd81"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/sovereign.v1.webp",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
     },
     "ships/sovereign-ii": {
       "folder": "ships",
       "slug": "sovereign-ii",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
-      "title": "sovereign-ii",
+      "updated": "2026-09-20",
+      "title": "Sovereign II",
       "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
-      "crop": {
-        "x": 1,
-        "y": 0,
-        "w": 232,
-        "h": 174
-      },
+      "notes": "Commission of 20 September 2026, the second of the pair. Matches Part 4 closely: gigantic three-decker with the Sovereign's broad shoulders, a streamlined stern, longer bow and four balanced masts; deep botanical-green elite sails with gold edges and exactly two Crown emblems; leading an amphibious landing at golden hour while still under full sail. The signature detail is present and unmistakable - the assault launches recessed behind flush green-and-gold side doors, standing open along the hull. Guardrail holds: she keeps the family's troop-carrying identity and does not read larger than Majestic. Delivered 1448x1086, 4:3, no crop.",
+      "crop": null,
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/ships/sovereign-ii.webp",
-        "w": 234,
-        "h": 174,
-        "bytes": 24514,
-        "sha1": "f6fb381ce776d1fb"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 639660,
+        "sha1": "9008d7b6bfeb77bc"
       },
       "shipped": {
         "file": "src/art/ships/sovereign-ii.webp",
         "w": 640,
         "h": 480,
-        "bytes": 36402,
-        "sha1": "2f04d3b49a363630"
-      }
+        "bytes": 74822,
+        "sha1": "ff441dbb5e078c52"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/sovereign-ii.v1.webp",
+          "crop": {
+            "x": 1,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
     },
     "ships/swallowtail": {
       "folder": "ships",
