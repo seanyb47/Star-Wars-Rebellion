@@ -7,7 +7,6 @@
       "epithet": "the Old Tide",
       "people": "Human",
       "roles": [
-        "Tidemaster",
         "Leader",
         "Recruiter"
       ],
@@ -24,9 +23,8 @@
       "id": "blackwater",
       "name": "Admiral Corvus Blackwater",
       "epithet": "the Drowned Admiral",
-      "people": "Human (once)",
+      "people": "Human",
       "roles": [
-        "Tidemaster",
         "Leader",
         "Recruiter",
         "Spec Ops",
@@ -158,7 +156,6 @@
       "epithet": "the Fisher's Boy",
       "people": "Human",
       "roles": [
-        "Deep-touched",
         "Spec Ops",
         "Leader",
         "Recruiter"
@@ -179,8 +176,7 @@
       "people": "Human",
       "roles": [
         "Negotiator",
-        "Recruiter",
-        "Latent Deep-touched"
+        "Recruiter"
       ],
       "bio": "Heir of the island of Carrow, which was lost while an Imperium fleet held position a day's sail away. The Confederacy's best negotiator: tireless, sharp, running on grief.",
       "major": true,

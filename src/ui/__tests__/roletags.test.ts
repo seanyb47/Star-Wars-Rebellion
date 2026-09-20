@@ -32,7 +32,21 @@ function everyRole(): string[] {
 describe('crew role tags', () => {
   it('has the cast it thinks it has', () => {
     expect(everyone).toHaveLength(26);
-    expect(everyRole()).toHaveLength(11);
+    // Eight tags, down from eleven on 20 September when the lore package
+    // retired the Deep as a system and its three ranks — Deep-touched, Latent
+    // Deep-touched and Tidemaster — came off the four people who wore them.
+    // Named rather than counted alone, because the number moving is the whole
+    // point and a bare 8 says nothing about which eight.
+    expect(everyRole()).toEqual([
+      'Drill Research',
+      'General',
+      'Leader',
+      'Negotiator',
+      'Recruiter',
+      'Ship Design',
+      'Spec Ops',
+      'Wing-Captain',
+    ]);
   });
 
   it('gives every tag anybody wears a glossary entry to open', () => {
@@ -47,7 +61,13 @@ describe('crew role tags', () => {
     // and a hyphen both have to survive the trip or the tag scrolls nowhere.
     expect(glossaryAnchor('Spec Ops')).toBe('spec-ops');
     expect(glossaryAnchor('Wing-Captain')).toBe('wing-captain');
-    expect(glossaryAnchor('Latent Deep-touched')).toBe('latent-deep-touched');
+    // And both at once. This was 'Latent Deep-touched' until 20 September,
+    // when the Deep was retired as a system and its three tags came off every
+    // sheet; no tag anybody wears now has a space *and* a hyphen in it. The
+    // case is still worth holding, so it is checked against a made-up string
+    // rather than dropped — and it is labelled as made up, because a reader
+    // who takes it for a live tag will go looking for somebody wearing it.
+    expect(glossaryAnchor('Latent Storm-reader')).toBe('latent-storm-reader');
   });
 });
 

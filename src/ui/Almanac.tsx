@@ -2122,7 +2122,10 @@ export function Almanac({
         <>
       <div className="section-title">Not built yet</div>
       <div className="card small muted">
-        Tidecraft, the Leviathan, and a research tree with things in it are designed but not in the
+        {/* Tidecraft came off this list on 20 September with the rest of the
+            Deep. It is not a system waiting to be built: it is the word for
+            the vanes under a Reef-folk hull, and those sail already. */}
+        The Leviathan and a research tree with things in it are designed but not in the
         game. Everything else the original had is: fleets and sea battles, and eight kinds of errand
         — {terms.parley.toLowerCase()}, stirring up trouble, recruiting, {terms.survey.toLowerCase()},
         {' '}{terms.sabotage.toLowerCase()}, abduction, command of an island in revolt, and the yards.

@@ -23,7 +23,7 @@ const everyone = [
 
 describe('the peoples who will only serve one side', () => {
   /**
-   * Three now, not two.
+   * Five now.
    *
    * Sean, 19 September: *"Move all reef folk and urskin to confederacy only
    * crew."* The Urskin already were. The Reef-folk were the gap, and the
@@ -31,20 +31,35 @@ describe('the peoples who will only serve one side', () => {
    * Confederacy's best admirals and says the Crown held them on oar-benches
    * under an indenture it has never apologised for, while the rule happily
    * let a Crown recruiter sign Maren Quist out of the pool.
+   *
+   * The lore package of 20 September adds two more: **The Hushed** are the
+   * Crown's, bound by an old bargain whose terms are still undecided, and the
+   * **Shoal-folk** are the Confederacy's. Both were unnamed here, which meant
+   * either side could sign them — the same defect the Reef-folk line closed.
    */
-  it('names the three, and only the three', () => {
+  it('names the five, and only the five', () => {
     expect(PEOPLE_ALLEGIANCE).toEqual({
       'Bog-folk': 'empire',
       Urskin: 'alliance',
       'Reef-folk': 'alliance',
+      'The Hushed': 'empire',
+      'Shoal-folk': 'alliance',
     });
   });
 
   it('lets anybody else serve either side', () => {
     expect(mayServe('Human', 'empire')).toBe(true);
     expect(mayServe('Human', 'alliance')).toBe(true);
-    expect(mayServe('Shoal-folk', 'empire')).toBe(true);
+    // A people nobody has sworn. Shoal-folk stood here until 20 September.
+    expect(mayServe('Rumor Guild', 'empire')).toBe(true);
     expect(mayServe(undefined, 'empire')).toBe(true);
+  });
+
+  it('will not let the Hushed sign Confederate articles, or a Shoal-folk Crown ones', () => {
+    expect(mayServe('The Hushed', 'empire')).toBe(true);
+    expect(mayServe('The Hushed', 'alliance')).toBe(false);
+    expect(mayServe('Shoal-folk', 'alliance')).toBe(true);
+    expect(mayServe('Shoal-folk', 'empire')).toBe(false);
   });
 
   it('will not let an Urskin or a Reef-folk sign Crown articles, or a Bog-folk Confederate ones', () => {

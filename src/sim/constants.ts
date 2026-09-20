@@ -764,6 +764,18 @@ export const PEOPLE_ALLEGIANCE: Record<string, PlayableFaction> = {
   // apologised for, and the rule still let a Crown recruiter sign Maren Quist
   // out of the pool. Lore that the code does not enforce is decoration.
   'Reef-folk': 'alliance',
+  /*
+   * And two more, from the lore package of 20 September.
+   *
+   * **The Hushed** are bound to the Crown by an old bargain — whose terms are
+   * still undecided, and are not invented here. **Shoal-folk** are the
+   * Confederacy's, a Windward Reach people and the best watchers alive.
+   * Neither was named in the map before, so both could be signed by either
+   * side, which is the same defect the Reef-folk line above was written to
+   * close: lore the code does not enforce is decoration.
+   */
+  'The Hushed': 'empire',
+  'Shoal-folk': 'alliance',
 };
 
 /**

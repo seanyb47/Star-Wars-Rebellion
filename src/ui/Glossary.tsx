@@ -128,18 +128,19 @@ function groups(): Group[] {
           'Drill Research',
           'The same for troops — who knows how a landing party should be trained. A label rather than a rule, like Ship Design.',
         ],
-        [
-          'Deep-touched',
-          'Born hearing the sea: weather felt before it breaks, a lie known by its echo. Lore for now — nothing in the sim reads it.',
-        ],
-        [
-          'Latent Deep-touched',
-          'The gift, untrained and possibly unknown to its owner. Exactly one person in the game carries it, and it does nothing yet.',
-        ],
-        [
-          'Tidemaster',
-          'The trained gift at its highest rank — able to becalm a strait or raise a wave across a harbor mouth. Two people in the game hold it, and like the rest of the Deep it is lore rather than a rule so far.',
-        ],
+        /*
+         * Deep-touched, Latent Deep-touched and Tidemaster stood here until
+         * 20 September, when the lore package retired the Deep as a system:
+         * *"No hard system, no ranks, no schools. Mystical, natural, almost
+         * shamanistic... Not harnessed; no wizards casting spells. Largely
+         * absent from the Imperium."* Three ranks of a trained gift, two of
+         * them worn by Crown officers, were the system the canon says does
+         * not exist. The role tags went with them.
+         *
+         * `Tidecraft` survives, but only as the ship-lore word for the
+         * Reef-folk's coral vanes, which is a thing a hull has rather than a
+         * rank a person holds.
+         */
         [
           'Wing-Captain',
           'Commands the small craft that work off a larger hull. One person in the game holds the tag, and nothing reads it yet.',
