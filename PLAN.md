@@ -6061,3 +6061,83 @@ Checked against the unfixed code before committing: three failures, the first
 being the Crown's entire six-hull Home Fleet readable at the Aldermain on day
 one. One fix covers both map screens, since `GalaxyMap` and `ChainMap` share
 `layerMark`.
+
+## The encyclopedia entry becomes one scroll
+
+Sean, 20 September: *"In encyclopedia when I scroll down for more, the image
+should scroll not stay static. The large image thumbnail is good but if I
+scroll down I want it to scroll with me."*
+
+`Sheet` renders header, banner, tabs and body as four siblings in a flex
+column, and only the body scrolls. That is deliberate and stays: an island
+sheet has four tabs about one place, and a banner that scrolled away meant
+looking at a garrison with no idea whose garrison it was. An encyclopedia
+entry has no tabs and is read top to bottom, so the same rule reads as a
+picture that will not get out of the way.
+
+So `Sheet` gains a **`flow`** mode rather than changing for everybody. In flow
+the header and the banner render *inside* `sheet__body` — one column, one
+scrollbar, the art off the screen entirely and no spacer behind it.
+
+**The collapsed header** is absolutely placed over the top of the body, not
+stacked above it, so it reserves no height and nothing jumps when it arrives.
+It carries the name, the class and the close, and it is driven by an
+IntersectionObserver on a one-pixel marker sitting between the header and the
+art — not by a scroll handler, because the question is only ever "has this
+gone past", the browser answers it off the main thread, and a scroll listener
+on a long list is the one thing guaranteed to make the scrolling being
+complained about feel worse. The marker sits under the *header* rather than
+under the art, so the bar arrives as the name goes and the picture then
+scrolls away underneath it.
+
+**The plate** is `height: 40vh` with `object-fit: cover`, phone widths only,
+and scoped to `--plate` so only hulls take it. That scoping is load-bearing: a
+first cut applied the height to every entry's art and would have cropped a
+crew portrait, which is square, to two fifths of a phone.
+
+**The sections** are Economy · Defense · Handling · Firepower · Lore. Each
+heading carries its own help as a small round info button, where it used to be
+a full sentence of link beside the heading — *Defense · What armor stops* —
+which put a longer, brighter thing on the line whose job was to name the
+section. The sentence survives as the button's label.
+
+**The bars come off the categorical stats.** Repairs, Size and Speed are names
+of bands; a bar under them was an index into a list dressed up as a
+measurement, and it invited a comparison against Hull's bar, which is a
+different quantity. Hull, Armor, Carries and the four gun figures keep theirs,
+because those are counts against the highest in the game. The ten tiles and
+their order do not change, so Sean's rule of the morning — every card the same
+outline — still holds.
+
+### The crest that read as a close button
+
+*"Remove the redundant close-like crossed-swords control from the header, or
+render it as a noninteractive ship-class emblem. The × should be the only
+close control."*
+
+He is describing the Free Confederacy's sigil. It is crossed cutlasses, and at
+header size, in the faction's red, sitting in its own slot at the opposite end
+of the row from a grey ✕, it reads as the brighter and more important of two
+close buttons. It never was a button — which is not the point, because nobody
+tries a control to find out what it does.
+
+Both of his options were tried in that order. Shrinking it to two thirds and
+half the ink, hard against the title, was photographed at 393×852 and is still
+plainly two crossed strokes beside a ✕. So the other branch: the crest comes
+out of the entry header and the subtitle says whose she is instead —
+*Conjure sloop · Confederacy*. That inverts a note from 19 September which read
+*"the crest says whose she is, so the subtitle does not have to"*; it now says
+the opposite, for the same reason. Every in-game sheet keeps its crest, because
+the rule that put it there is about knowing whose thing you are looking at, and
+a sheet that says it in words has not broken it.
+
+### Verified at 393×852
+
+Measured rather than eyeballed: art 341px on an 852px viewport, which is
+exactly 40vh; sections in the order asked for; three info buttons, ten stat
+tiles, seven bars; one crest, which is none. Scrolled to the end, the art sits
+at `bottom: -167` and the header at `bottom: -509` — both fully above the body,
+so nothing is reserved or left behind. The collapsed bar is up, `window.scrollY`
+is still 0, the sheet's own rectangle is unchanged from where it started, and
+the last lore paragraph ends 30px clear of the bottom edge. The measure comes
+out at about 52 characters.

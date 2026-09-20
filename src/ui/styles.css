@@ -585,6 +585,46 @@ button {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
+
+/* ---------- A sheet read top to bottom ----------
+   Sean, 20 September, on the encyclopedia: *"when I scroll down for more, the
+   image should scroll not stay static."* In flow mode the header and the
+   banner are inside `sheet__body`, so there is one column, one scrollbar and
+   nothing left behind when the art goes. Taller than a normal sheet because
+   an entry is a whole page rather than a panel, and the art is now paying for
+   two fifths of it. */
+.sheet--flow { height: 90%; max-height: 90%; }
+/* One pixel with no ink: what the collapsed bar watches for. */
+.sheet__mark { height: 1px; margin: 0; }
+/* The collapsed header. Laid over the top of the body rather than above it,
+   so it takes no room in the column and nothing shifts when it arrives. */
+.sheet__fold {
+  position: absolute; left: 0; right: 0; top: 0; z-index: 2;
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px calc(9px + env(safe-area-inset-top, 0px));
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--metal-lo);
+  border-radius: 16px 16px 0 0;
+  transform: translateY(-101%);
+  opacity: 0;
+  transition: transform 140ms ease, opacity 140ms ease;
+  pointer-events: none;
+}
+.sheet__fold--on { transform: translateY(0); opacity: 1; pointer-events: auto; }
+.sheet__fold-titles { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; }
+.sheet__fold-title {
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  font-size: 15px; font-weight: 700; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sheet__fold-sub {
+  font-size: 11px; color: var(--muted); flex: none;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45%;
+}
+/* Room under the last paragraph, and clear of the home indicator. The sheet
+   already pads itself by the safe area; this is the reading margin on top. */
+.sheet--flow .sheet__body { padding-bottom: 28px; }
+.sheet--flow .sheet__head { padding-top: 0; }
 .sheet__actions { display: flex; gap: 8px; padding: 10px 14px calc(10px + var(--safe-bottom)); border-top: 1px solid var(--border); }
 /* A footer that is one full-width control rather than a row of buttons: it
    brings its own edge and its own padding, and the sheet's safe-area padding
@@ -615,6 +655,26 @@ button {
 }
 /* A hairline off the end of every heading, the way a chart rules its margins. */
 .section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--metal-lo), transparent); opacity: 0.9; }
+/* The help that belongs to a section, sitting in its heading.
+   Small, round, and ahead of the rule, so the heading still reads as one
+   thing and the rule still runs to the edge. 28px of touch target from the
+   padding without 28px of ink. */
+.infodot {
+  flex: none; order: 1;
+  width: 18px; height: 18px; margin: 0 2px 0 6px; padding: 0;
+  display: inline-grid; place-items: center;
+  font-size: 12px; line-height: 1;
+  color: var(--brass); background: rgba(201, 162, 39, 0.12);
+  border: 1px solid rgba(201, 162, 39, 0.4); border-radius: 50%;
+  position: relative;
+}
+/* The target, without the box. */
+.infodot::before {
+  content: ''; position: absolute; inset: -7px;
+}
+.infodot:active { opacity: 0.6; }
+.infodot:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+.section-title::after { order: 2; }
 .section-title:first-child { margin-top: 0; }
 
 .badge {
@@ -2454,6 +2514,21 @@ button.tcard:hover { border-color: var(--brass); }
   flex: none;
 }
 .encfull__art > svg { width: auto; height: auto; max-width: 62%; max-height: 190px; }
+/*
+ * The cinematic plate, at Sean's size: *"size it to approximately 38-42vh on
+ * mobile using its natural 4:3 ratio and object-fit: cover."*
+ *
+ * A height rather than an aspect ratio, because the point of the number is
+ * how much of the screen the picture gets — and a 4:3 painting in a box that
+ * is nearly square has to crop rather than letterbox, which is what `cover`
+ * below is for. Above phone width it goes back to its own 4:3, where there is
+ * room for the whole hull.
+ */
+@media (max-width: 560px) {
+  .sheet--flow .encfull__art--plate { height: 40vh; min-height: 190px; }
+  .sheet--flow .encfull__art--plate .shipthumb { height: 100% !important; aspect-ratio: auto; }
+  .sheet--flow .encfull__art--plate .shipthumb img { object-position: 50% 42%; }
+}
 .encfull__art .charface { width: 100% !important; height: auto !important; aspect-ratio: 1 / 1; }
 /* The hull the stories give a Pirate Lord, under their story.
    Sean, 19 September: *"Move the ships of stories section in ship encyclopedia
@@ -2485,7 +2560,17 @@ button.tcard:hover { border-color: var(--brass); }
 /* The lore paragraph on an opened entry: a ship's design notes, a person's
    life, a company's line. Serif-adjacent spacing, because it is the one thing
    on the sheet that is prose rather than a figure. */
-.encfull__lore { margin: 12px 0 2px; font-size: 13px; line-height: 1.55; color: #c3d6de; }
+/* Sean, 20 September: *"improve paragraph spacing and line length."* A
+   measure rather than the full width of the sheet — prose set edge to edge on
+   a phone in landscape runs to ninety characters and reads like a licence
+   agreement — and the gap between two paragraphs is now bigger than the gap
+   inside one, which is the whole of what makes them read as two. */
+.encfull__lore {
+  margin: 0 0 12px; font-size: 13px; line-height: 1.62; color: #c3d6de;
+  max-width: 62ch;
+}
+.encfull__lore + .encfull__lore { margin-top: 12px; }
+.encfull__lore:last-child { margin-bottom: 2px; }
 
 /* Role tags, which are now the way into the glossary rather than the tail of
    a grey line. A chip that is a link gets the brass and the border; one the

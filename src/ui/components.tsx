@@ -47,6 +47,25 @@ export function Sheet(props: {
    * them. Up here it does not scroll away and it does not belong to a tab.
    */
   banner?: ReactNode;
+  /**
+   * One continuous scroll: the header and the banner travel with the content.
+   *
+   * Sean, 20 September, on the encyclopedia: *"when I scroll down for more,
+   * the image should scroll not stay static… if I scroll down I want it to
+   * scroll with me."* The banner sits outside the scrolling body by default
+   * and is pinned there on purpose — an island sheet has four tabs about one
+   * place, and letting the place scroll away meant looking at a garrison with
+   * no idea whose garrison it was. An encyclopedia entry has no tabs and is
+   * read top to bottom, so the same rule reads as a picture that will not get
+   * out of the way.
+   *
+   * In flow mode the header and the banner move inside `sheet__body`, so
+   * everything is one column with one scrollbar and the art leaves the screen
+   * entirely, spacer and all. What stays is a compact bar — name, class,
+   * close — that fades in once the full header has gone past, so there is
+   * always a way out and always a label on what you are reading.
+   */
+  flow?: boolean;
   /** Raise this sheet above one already open, rather than behind it. */
   stacked?: boolean;
   /**
@@ -62,6 +81,75 @@ export function Sheet(props: {
   onTouchStart?: (e: React.TouchEvent) => void;
   onTouchEnd?: (e: React.TouchEvent) => void;
 }) {
+  /**
+   * Whether the full header has scrolled out of the body, in flow mode.
+   *
+   * Watched with an observer on a one-pixel marker under the header rather
+   * than by reading `scrollTop` on every frame: the question is only ever
+   * "has this gone past", the browser answers it off the main thread, and a
+   * scroll handler on a list this long is the one thing guaranteed to make
+   * the scrolling Sean is complaining about feel worse.
+   */
+  const [folded, setFolded] = useState(false);
+  const body = useRef<HTMLDivElement | null>(null);
+  const mark = useRef<HTMLDivElement | null>(null);
+  const flow = props.flow === true;
+
+  useEffect(() => {
+    if (!flow) return;
+    const root = body.current;
+    const target = mark.current;
+    if (!root || !target) return;
+    const watch = new IntersectionObserver(
+      ([entry]) => setFolded(!entry.isIntersecting),
+      { root, threshold: 0 },
+    );
+    watch.observe(target);
+    return () => watch.disconnect();
+  }, [flow]);
+
+  const head = (
+    <div className="sheet__head">
+      <div className="row row--between">
+        {/* No crest on an entry, and the reason is worth writing down.
+            Sean, 20 September: *"Remove the redundant close-like crossed-swords
+            control from the header, or render it as a noninteractive ship-class
+            emblem. The × should be the only close control."* He is describing
+            the Free Confederacy's sigil, which is crossed cutlasses: at header
+            size, in the faction's red, in its own slot at the far end of the
+            row from a grey ✕, it reads as the brighter of two close buttons.
+            It never was a button, which is not the point — nobody tries a
+            control to find out what it does.
+            Shrinking and dimming it was tried first and did not work, because
+            the mark is two crossed strokes at any size. So the entry says
+            whose she is in words, in the subtitle, and the ✕ is the only mark
+            in the header. Every in-game sheet keeps its crest: the rule of 19
+            September is about knowing whose thing you are looking at, and a
+            sheet that says it in the subtitle instead has not broken it. */}
+        {props.emblem && !flow && (
+          <span className="sheet__emblem" aria-hidden="true">
+            {props.emblem}
+          </span>
+        )}
+        <div className="sheet__titles">
+          {props.eyebrow && <div className="sheet__eyebrow">{props.eyebrow}</div>}
+          <div className="sheet__title">
+            {props.title}
+            {props.titleMark}
+          </div>
+        </div>
+        {/* A plain mark, not a boxed one: it is the least important
+            control on the sheet and the box was giving it the weight of
+            the most. The grip above still says the sheet can be dragged
+            away, which is how most people close it anyway. */}
+        <button className="sheet__x" onClick={props.onClose} aria-label="Close">
+          ✕
+        </button>
+      </div>
+      {props.subtitle && <div className="sheet__sub">{props.subtitle}</div>}
+    </div>
+  );
+
   return (
     <>
       <div
@@ -71,38 +159,46 @@ export function Sheet(props: {
       <div
         className={`sheet${props.top ? ' sheet--top' : props.stacked ? ' sheet--stacked' : ''}${
           props.tabs ? ' sheet--tabbed' : ''
-        }`}
+        }${flow ? ' sheet--flow' : ''}`}
         role="dialog"
         aria-label={props.title}
       >
         <div className="sheet__grip" />
-        <div className="sheet__head">
-          <div className="row row--between">
-            {props.emblem && <span className="sheet__emblem">{props.emblem}</span>}
-            <div className="sheet__titles">
-              {props.eyebrow && <div className="sheet__eyebrow">{props.eyebrow}</div>}
-              <div className="sheet__title">
-                {props.title}
-                {props.titleMark}
-              </div>
+        {/* The collapsed header. Absolutely placed over the top of the body so
+            it reserves no room and nothing jumps when it arrives, and shown
+            only once the full one has gone past. */}
+        {flow && (
+          <div className={`sheet__fold${folded ? ' sheet__fold--on' : ''}`} aria-hidden={!folded}>
+            <div className="sheet__fold-titles">
+              <span className="sheet__fold-title">{props.title}</span>
+              {props.subtitle && <span className="sheet__fold-sub">{props.subtitle}</span>}
             </div>
-            {/* A plain mark, not a boxed one: it is the least important
-                control on the sheet and the box was giving it the weight of
-                the most. The grip above still says the sheet can be dragged
-                away, which is how most people close it anyway. */}
-            <button className="sheet__x" onClick={props.onClose} aria-label="Close">
+            <button
+              className="sheet__x"
+              onClick={props.onClose}
+              aria-label="Close"
+              tabIndex={folded ? 0 : -1}
+            >
               ✕
             </button>
           </div>
-          {props.subtitle && <div className="sheet__sub">{props.subtitle}</div>}
-        </div>
-        {props.banner}
+        )}
+        {!flow && head}
+        {!flow && props.banner}
         {props.tabs}
         <div
           className="sheet__body"
+          ref={body}
           onTouchStart={props.onTouchStart}
           onTouchEnd={props.onTouchEnd}
         >
+          {flow && head}
+          {/* The marker the collapsed bar watches, between the header and the
+              art rather than below both: the bar is meant to replace the
+              *header*, so it arrives as the name goes and the picture then
+              scrolls away underneath it. */}
+          {flow && <div className="sheet__mark" ref={mark} />}
+          {flow && props.banner}
           {props.children}
         </div>
         {props.actions && (

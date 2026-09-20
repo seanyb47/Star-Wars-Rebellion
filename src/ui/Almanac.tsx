@@ -221,6 +221,45 @@ const byName = (a: { name: string }, b: { name: string }) => collate(a.name, b.n
  * looking. A label rather than a bare glyph, because a lone ℹ️ tells you there
  * is something to read and not what about.
  */
+/**
+ * A section heading, with its help folded into it.
+ *
+ * Sean, 20 September: *"Integrate each help link into its section heading as a
+ * small info button."* The five sections each carried a full sentence of link
+ * beside the heading — *Defense · What armor stops* — which put a second,
+ * longer, brighter thing on the line whose job was to name the section. The
+ * sentence survives as the button's label, where a screen reader and a long
+ * press still find it; on the page it is one mark.
+ */
+function SectionHead({
+  title,
+  to,
+  at,
+  help,
+}: {
+  title: string;
+  to?: EncPage;
+  at?: string;
+  help?: string;
+}) {
+  const lookUp = useLookUp();
+  return (
+    <div className="section-title">
+      {title}
+      {to && help && lookUp && (
+        <button
+          className="infodot"
+          onClick={() => lookUp(to, at)}
+          aria-label={help}
+          title={help}
+        >
+          &#8505;
+        </button>
+      )}
+    </div>
+  );
+}
+
 function Info({ to, at, children }: { to: EncPage; at?: string; children: ReactNode }) {
   const lookUp = useLookUp();
   if (!lookUp) return null;
@@ -597,9 +636,9 @@ function EntrySheet({
         const where = whereabouts(state, who.name);
         return {
           title: who.name,
-          subtitle: `${who.people}${lord ? ` · ${terms.lord}` : ''}${
-            inPlay ? '' : ' · not in this war'
-          }`,
+          subtitle: `${inPlay ? `${factionData[who.side].shortName} · ` : ''}${who.people}${
+            lord ? ` · ${terms.lord}` : ''
+          }${inPlay ? '' : ' · not in this war'}`,
           emblem: inPlay ? <FactionSigil faction={who.side} size={26} /> : undefined,
           art: (
             <div className="encfull__art">
@@ -685,11 +724,18 @@ function EntrySheet({
         const side = NAVY_FACTION_TO_PLAYABLE[cls.faction];
         return {
           title: cls.name,
-          // The crest says whose she is, so the subtitle does not have to.
-          subtitle: cls.role,
+          // And the other way round since 20 September: the subtitle says
+          // whose she is, so the header does not need a crest — see the note
+          // in `Sheet` about a crossed-cutlass sigil reading as a second close
+          // button. It costs one word and reads without decoding.
+          subtitle: `${cls.role} · ${factionData[side].shortName}`,
           emblem: <FactionSigil faction={side} size={26} />,
           art: (
-            <div className="encfull__art">
+            // `--plate` is the cinematic crop: a fixed share of the screen
+            // rather than a fixed ratio. Only the hulls take it — a crew
+            // member's portrait is square and a works' painting is wide, and
+            // forcing either into two fifths of a phone would crop a face.
+            <div className="encfull__art encfull__art--plate">
               <ShipThumb
                 faction={side}
                 role={LEGACY_ROLE[cls.size]}
@@ -713,6 +759,7 @@ function EntrySheet({
                 learn it by playing."* The ladder still exists and still gates
                 the yards; the reference no longer recites it.
               */}
+              <SectionHead title="Economy" />
               <div className="shipcost">
                 <div><i>Cost</i><b><GoldFig n={cls.goldToBuild} per={null} /></b></div>
                 <div><i>Build</i><b>{cls.daysToBuild} days</b></div>
@@ -734,10 +781,7 @@ function EntrySheet({
                 the cards should be identical."* So the shape is fixed at
                 three, three and four, and a zero reads **None**.
               */}
-              <div className="row row--between">
-                <div className="section-title">Defense</div>
-                <Info to="rules" at="armor">What armor stops</Info>
-              </div>
+              <SectionHead title="Defense" to="rules" at="armor" help="What armor stops" />
               <div className="shipstats">
                 <Stat label="Hull" value={cls.hull} share={cls.hull / STAT_MAX.hull} />
                 <Stat label="Armor" value={cls.armor} share={cls.armor / STAT_MAX.armor} />
@@ -749,28 +793,24 @@ function EntrySheet({
                     pricing are all hidden — and this was the one number that
                     had leaked out. The bar still moves with the fraction, so
                     the ordering a player sees is the real ordering. */}
-                <Stat
-                  label="Repairs"
-                  value={cls.repairDisplay}
-                  share={cls.repairRatePerDay / STAT_MAX.repair}
-                />
+                {/* No bar. Sean, 20 September: *"Remove decorative progress
+                    bars from categorical stats unless every value uses a
+                    defined and comparable scale."* Repairs reads as a word by
+                    the roster's own rule — Slow, Normal, Fast — so a bar
+                    beside it was measuring something the player is never
+                    shown, and inviting them to compare its length against
+                    Hull's, which is a different quantity entirely. */}
+                <Stat label="Repairs" value={cls.repairDisplay} />
               </div>
 
-              <div className="row row--between">
-                <div className="section-title">Handling</div>
-                <Info to="rules" at="size-speed">What size and speed do</Info>
-              </div>
+              <SectionHead title="Handling" to="rules" at="size-speed" help="What size and speed do" />
               <div className="shipstats">
-                <Stat
-                  label="Size"
-                  value={cls.size}
-                  share={(SIZE_ORDER.indexOf(cls.size) + 1) / (STAT_MAX.size + 1)}
-                />
-                <Stat
-                  label="Speed"
-                  value={cls.speed}
-                  share={(SPEED_ORDER.indexOf(cls.speed as (typeof SPEED_ORDER)[number]) + 1) / (STAT_MAX.speed + 1)}
-                />
+                {/* Size and Speed are names of bands, not amounts, and the
+                    bar under them was an index into a list dressed up as a
+                    measurement — Gigantic is not four times Small. Same rule
+                    as Repairs above. */}
+                <Stat label="Size" value={cls.size} />
+                <Stat label="Speed" value={cls.speed} />
                 <Stat
                   label="Carries"
                   value={cls.troopCapacity}
@@ -778,10 +818,7 @@ function EntrySheet({
                 />
               </div>
 
-              <div className="row row--between">
-                <div className="section-title">Firepower</div>
-                <Info to="rules" at="cannon">The three cannon</Info>
-              </div>
+              <SectionHead title="Firepower" to="rules" at="cannon" help="The three cannon" />
               <div className="shipstats">
                 <Stat
                   label="Long guns"
@@ -821,6 +858,7 @@ function EntrySheet({
                 she beats and what beats her. Neither repeats the stat grid,
                 which is the thing Sean cut on 19 September.
               */}
+              <SectionHead title="Lore" />
               {shipLore(cls.id) && <p className="encfull__lore">{shipLore(cls.id)}</p>}
               <p className="encfull__lore">{shipFlavour(cls.id)}</p>
             </>
@@ -964,6 +1002,7 @@ function EntrySheet({
       emblem={'emblem' in body ? body.emblem : undefined}
       onClose={onClose}
       top
+      flow
       banner={body.art}
     >
       {body.content}
