@@ -67,9 +67,9 @@ describe('observing', () => {
   it('refuses every order, and says why', () => {
     const state = setObserving(generateGalaxy(501, 'empire'), true);
     const island = state.systems.find(
-      (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'construction_yard'),
+      (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'training_facility'),
     )!;
-    const yard = island.facilities.find((f) => f.type === 'construction_yard')!;
+    const yard = island.facilities.find((f) => f.type === 'training_facility')!;
     const built = orderBuild(state, yard.id, 'fort');
     expect(built.error).toMatch(/observing/i);
     expect(built.state).toBe(state);

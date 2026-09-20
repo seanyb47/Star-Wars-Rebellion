@@ -109,20 +109,37 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
   // island is worth what it is worth, and measured, the opponent ended wars
   // sitting on thirteen thousand gold with two forests an island still
   // standing. Felling trees is not building a slipway.
-  mine: { costGold: 0, days: 20, label: terms.facilities.mine },
+  /*
+   * Twice as long as they were, all of them, because Sean cut the construction
+   * yard on 20 September: *"Cut construction yards completely. Anyone can
+   * build on any available land... just increase their time to build. So gold
+   * becomes building constraint not the yard."*
+   *
+   * The yard was the divider — build time was the spec divided by how many
+   * yards stood on the island — so with it gone every building runs at one
+   * pace, and that pace has to carry the weight the divider used to.
+   *
+   * Twice, rather than some other number, because it makes a sentence a player
+   * can hold: **a newly taken island gets its first wall in about the time it
+   * used to take to get a yard and then a wall.** Sixty days now against 34
+   * for the yard plus 30 for the wall, and 100 gold against 220. Where it is
+   * genuinely slower is the island that already had three yards on it and
+   * built in a third of the time — and that divider is the thing Sean cut, so
+   * losing it is the change rather than a side effect of it.
+   */
+  mine: { costGold: 0, days: 40, label: terms.facilities.mine },
   // Between the two, as the yield is: a shaft is a shaft, and a shallower one.
-  silver_mine: { costGold: 0, days: 16, label: terms.facilities.silver_mine },
-  refinery: { costGold: 0, days: 12, label: terms.facilities.refinery },
-  coral_kiln: { costGold: 0, days: 12, label: terms.facilities.coral_kiln },
-  construction_yard: { costGold: 120, days: 34, label: terms.facilities.construction_yard },
-  training_facility: { costGold: 80, days: 28, label: terms.facilities.training_facility },
-  shipyard: { costGold: 150, days: 42, label: terms.facilities.shipyard },
-  fort: { costGold: 100, days: 30, label: terms.facilities.fort },
+  silver_mine: { costGold: 0, days: 32, label: terms.facilities.silver_mine },
+  refinery: { costGold: 0, days: 24, label: terms.facilities.refinery },
+  coral_kiln: { costGold: 0, days: 24, label: terms.facilities.coral_kiln },
+  training_facility: { costGold: 80, days: 56, label: terms.facilities.training_facility },
+  shipyard: { costGold: 150, days: 84, label: terms.facilities.shipyard },
+  fort: { costGold: 100, days: 60, label: terms.facilities.fort },
   // Two and a half Fortresses' worth of stone and a bit over twice the guns,
   // for two and a half times the gold and not quite twice the time — on one
   // plot. Slightly worse per gun than building two Fortresses, and the only
   // thing you can do with a single berth on an island that has no more.
-  heavy_fort: { costGold: 250, days: 54, label: terms.facilities.heavy_fort },
+  heavy_fort: { costGold: 250, days: 108, label: terms.facilities.heavy_fort },
 };
 
 /**
@@ -928,7 +945,6 @@ export const GOLD_PER_DAY: Record<BuildItem, number> = {
   // The same rung as a mill, because it is the same rung: Sean's math puts
   // timber and living coral in one bucket, and Coral Reach has no timber.
   coral_kiln: 3,
-  construction_yard: 0,
   training_facility: 0,
   shipyard: 0,
   fort: 0,
@@ -946,7 +962,6 @@ export const UPKEEP_PER_DAY: Record<BuildItem, number> = {
   silver_mine: 0,
   refinery: 0,
   coral_kiln: 0,
-  construction_yard: 3,
   training_facility: 2,
   shipyard: 4,
   fort: 2,
@@ -1201,7 +1216,6 @@ export const CRAFT_DAYS_STEP = 0.13;
  */
 export const SABOTAGE_PRIORITY = [
   'shipyard',
-  'construction_yard',
   'training_facility',
   'refinery',
   'mine',
@@ -1907,13 +1921,12 @@ export const SURVEY_PER_ISLAND = 34;
  */
 export const FACILITY_CRAFT: Partial<Record<FacilityType, number>> = { heavy_fort: 1 };
 
-/** Facility types that a construction yard is allowed to queue. */
+/** Every building that can be raised on an island. */
 export const YARD_BUILDABLE: FacilityType[] = [
   'mine',
   'silver_mine',
   'refinery',
   'coral_kiln',
-  'construction_yard',
   'training_facility',
   'shipyard',
   'fort',
@@ -2045,7 +2058,6 @@ export const CLEAR_BERTHS = 1;
  * research errand, which is the line Sean drew: *"non research dependent"*.
  */
 export const NEUTRAL_WORKS: FacilityType[] = [
-  'construction_yard',
   'training_facility',
   'shipyard',
   'fort',
@@ -2135,7 +2147,6 @@ export function needsResource(item: BuildItem): ResourceType | undefined {
 export const BUILDING_ORDER: FacilityType[] = [
   'shipyard',
   'training_facility',
-  'construction_yard',
   'heavy_fort',
   'fort',
   'refinery',

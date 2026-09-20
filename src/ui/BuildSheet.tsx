@@ -85,11 +85,11 @@ export function BuildMenuSheet({
       <div className="stack buildmenu">
         <button className="btn btn--block buildmenu__btn" onClick={() => onPick('facilities')}>
           <span className="buildmenu__icon">
-            <FacilityIcon type="construction_yard" size={26} />
+            <FacilityIcon type="fort" size={26} />
           </span>
           <span className="buildmenu__text">
             <b>{KIND_LABEL.facilities}</b>
-            <span className="tiny muted">Camps and mills that earn, construction yards that make, fortresses that hold.</span>
+            <span className="tiny muted">Mines and mills that earn, drill grounds and slipways that make, fortresses that hold.</span>
           </span>
         </button>
         <button className="btn btn--block buildmenu__btn" onClick={() => onPick('troops')}>
@@ -121,6 +121,7 @@ export function BuildOrderSheet({
   onChange,
   onChooseOnChart,
   onBuild,
+  onRaise,
   onClose,
 }: {
   state: GameState;
@@ -128,6 +129,8 @@ export function BuildOrderSheet({
   onChange: (draft: BuildDraft) => void;
   onChooseOnChart: () => void;
   onBuild: (facilityId: string, item: BuildItem, destinationId: string) => void;
+  /** Buildings have no maker to give the order to: the island takes it. */
+  onRaise: (systemId: string, type: FacilityType) => void;
   onClose: () => void;
 }) {
   const you = state.player;
@@ -159,8 +162,14 @@ export function BuildOrderSheet({
           <button
             className="btn btn--primary"
             style={{ flex: 2 }}
-            disabled={!plan || plan.error !== null || !plan.facilityId}
-            onClick={() => plan?.facilityId && destination && onBuild(plan.facilityId, item, destination.id)}
+            /* A building is raised on the island itself and has no
+               `facilityId`; a hull or a company still goes to a works. */
+            disabled={!plan || plan.error !== null || !destination || (kind !== 'facilities' && !plan.facilityId)}
+            onClick={() => {
+              if (!destination || !plan || plan.error) return;
+              if (kind === 'facilities') onRaise(destination.id, item as FacilityType);
+              else if (plan.facilityId) onBuild(plan.facilityId, item, destination.id);
+            }}
           >
             Build · <GoldFig n={plan?.costGold ?? 0} per={null} />
           </button>

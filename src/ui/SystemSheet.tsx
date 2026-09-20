@@ -37,8 +37,9 @@ import {
   buildLabel,
   idleFacilities,
   buildMenu,
-  foundWorksError,
+  raiseWorksError,
   YARD_BUILDS,
+  YARD_BUILDABLE,
   buildSpec,
   effectiveSpec,
   isShipClass,
@@ -82,6 +83,7 @@ import { useLookUp } from './lookup';
 import {
   ControlBadge,
   GoldFig,
+  Coin,
   RoomBar,
   Sheet,
   Slot,
@@ -695,7 +697,7 @@ export function SystemSheet({
   onClose,
   onBuild,
   onCancel,
-  onFound,
+  onRaise,
   onClear,
   onBreakUp,
   onOpenCharacter,
@@ -718,7 +720,8 @@ export function SystemSheet({
   onClose: () => void;
   onBuild: (facilityId: string, item: BuildItem) => void;
   onCancel: (facilityId: string) => void;
-  onFound: (systemId: string) => void;
+  /** Raise a building on this island. No maker, no passage. */
+  onRaise: (systemId: string, type: FacilityType) => void;
   /** Fell a forest to open its plot. Destroys it. */
   onClear: (systemId: string) => void;
   /** Open the list of things on this island that could be broken up. */
@@ -1186,50 +1189,60 @@ export function SystemSheet({
               />
             ))}
           </div>
-          {system.control === state.player && producers.length === 0 && (
+          {/*
+            * Raise a building. Since Sean cut the construction yard on 20
+            * September this is how every building is built: pick it here, on
+            * the island that is getting it. No maker to own first, nothing
+            * crossing water, and the price is the whole of the gate —
+            * *"gold becomes building constraint not the yard."*
+            */}
+          {system.control === state.player && (
             <>
-              <div className="section-title">Nothing to build with</div>
-              {(() => {
-                const founding = system.facilities.find(
-                  (f) => f.owner === state.player && f.founding,
-                );
-                if (founding) {
-                  return (
-                    <div className="row" style={{ gap: 8, alignItems: 'center' }}>
-                      <p className="muted tiny" style={{ margin: 0, flex: 1 }}>
-                        A {terms.facilities.construction_yard.toLowerCase()} is being laid down —{' '}
-                        {daysToDeliver(system, founding)} days to go.
-                      </p>
-                      <button className="tiny btn--danger" onClick={() => onCancel(founding.id)}>
-                        Cancel
-                      </button>
-                    </div>
+              <div className="section-title">Raise a building</div>
+              <div className="stack">
+                {YARD_BUILDABLE.map((type) => {
+                  const why = raiseWorksError(state, system.id, type, state.player);
+                  const spec = YARD_BUILDS[type];
+                  const coming = system.facilities.filter(
+                    (f) => f.owner === state.player && f.founding && f.type === type,
                   );
-                }
-                const why = foundWorksError(state, system.id, state.player);
-                return (
-                  <>
-                    <p className="muted tiny" style={{ margin: '0 0 8px' }}>
-                      Everything is raised by a {terms.facilities.construction_yard.toLowerCase()}{' '}
-                      standing on the same island. Lay one down and this island can build.
-                    </p>
+                  return (
                     <button
-                      className="btn btn--block btn--primary"
+                      key={type}
+                      className="card row row--between raiserow"
                       disabled={why !== null}
-                      onClick={() => onFound(system.id)}
+                      title={why ?? undefined}
+                      onClick={() => onRaise(system.id, type)}
                     >
-                      Lay down a {terms.facilities.construction_yard.toLowerCase()} ·{' '}
-                      {YARD_BUILDS.construction_yard.costGold} gold ·{' '}
-                      {YARD_BUILDS.construction_yard.days} days
+                      <span className="row raiserow__who">
+                        {facilityPainting(type, state.player) ? (
+                          <FacilityThumb type={type} owner={state.player} width={44} />
+                        ) : (
+                          <FacilityIcon type={type} size={36} />
+                        )}
+                        <span className="raiserow__text">
+                          <b>{FACILITY_LABEL[type]}</b>
+                          <span className="tiny muted">
+                            {why
+                              ? why
+                              : coming.length > 0
+                                ? `${spec.days} days · ${coming.length} already going up`
+                                : `${spec.days} days${
+                                    UPKEEP_PER_DAY[type] > 0
+                                      ? ` · ${UPKEEP_PER_DAY[type]}/day to keep`
+                                      : ' · costs nothing to keep'
+                                  }`}
+                          </span>
+                        </span>
+                      </span>
+                      <span className={`raiserow__cost${spec.costGold === 0 ? ' muted' : ''}`}>
+                        {spec.costGold}
+                        <Coin />
+                      </span>
                     </button>
-                    {why && (
-                      <p className="muted tiny" style={{ marginTop: 6 }}>
-                        {why}
-                      </p>
-                    )}
-                  </>
-                );
-              })()}
+                  );
+                })}
+              </div>
             </>
           )}
         </>

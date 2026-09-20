@@ -48,11 +48,10 @@ import {
   canQueueBuild,
   clearError,
   clearForest,
-  foundWorks,
-  foundWorksError,
   gradeOf,
   openDeposits,
-  planBuild,
+  raiseWorks,
+  raiseWorksError,
   queueBuild,
 } from './build';
 import { follows } from './doctrine';
@@ -424,7 +423,7 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
     if (thin || gold < YARD_BUILDS[item].costGold || !canCarry(item)) continue;
     const spot = bestSpotFor(state, ai, item);
     if (spot) {
-      queueBuild(state, spot, item);
+      raiseWorks(state, spot, item, ai);
       return true;
     }
     // Nowhere with an open plot, and it wants this thing. Timber can be felled
@@ -441,22 +440,18 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
     }
   }
 
-  // 3. Otherwise grow the economy — but the ground decides now, not the
-  //    ledger. An earner can only go on a deposit, so the question is no
-  //    longer "which of the two am I short of" but "where is there ground
-  //    still standing", and gold outearns timber well over two to one, so a
-  //    vein is taken the moment one is open.
+  // 3. Otherwise grow the economy — and the ground decides, not the ledger.
+  //    An earner can only go on a deposit, so the question is not "which of
+  //    the four am I short of" but "where is there ground still standing".
   //
-  //    Builders are *sent* now. `bestSpotFor` only ever finds a works on the
-  //    island it is building for, which was fine when any berth would do and
-  //    is useless when the value is in the ground: measured, the opponent
-  //    finished wars sitting on eleven thousand gold with two forests an
-  //    island still standing, because most of the islands it had taken had no
-  //    yard of their own and it never thought to ship anybody. `planBuild`
-  //    already picks the quickest works in the whole faction and counts the
-  //    passage, which is exactly the question.
-  // Richest first, so a yard that can only take one job this tick takes the
-  // one worth most. Three rungs now rather than two.
+  //    This used to route through `planBuild` to find the quickest yard in
+  //    the faction and ship builders to the island, because most islands the
+  //    opponent took had no yard of their own and it never thought to send
+  //    anybody — measured, it finished wars on eleven thousand gold with two
+  //    forests an island still standing. The yard is cut, so there is nobody
+  //    to send: the island raises its own.
+  //
+  //    Richest first, so the gold that is there goes on the best rung open.
   const earners: FacilityType[] = ['mine', 'silver_mine', 'refinery', 'coral_kiln'];
   for (const item of earners) {
     if (gold < YARD_BUILDS[item].costGold) continue;
@@ -465,30 +460,21 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
       .filter((s) => openDeposits(state, s, want) > 0)
       .sort((a, b) => openDeposits(state, b, want) - openDeposits(state, a, want));
     for (const island of ground) {
-      const plan = planBuild(state, ai, item, island.id);
-      if (plan.error !== null || !plan.facilityId) continue;
-      queueBuild(state, plan.facilityId, item, island.id);
+      if (raiseWorksError(state, island.id, item, ai) !== null) continue;
+      raiseWorks(state, island.id, item, ai);
       return true;
     }
   }
 
-  // 4. No works with ground left beside it: lay one down on the held island
-  //    with the most room, so the next earner has somewhere to go. This is
-  //    what used to stop the opponent dead the day its starting islands
-  //    filled — every island it took after that was a garrison bill and
-  //    nothing else.
-  if (gold < YARD_BUILDS.construction_yard.costGold || !canCarry('construction_yard')) return false;
-  const open = held
-    .filter((s) => foundWorksError(state, s.id, ai) === null)
-    .sort((a, b) => freeSlots(b) - freeSlots(a));
-  // One open berth is enough: a yard in it can work every deposit on the
-  // island afterwards, because a mill stands on the forest's own ground. The
-  // old threshold of three berths meant a forested island — which is to say
-  // most of the good ones — never got a yard at all.
-  if (open.length > 0 && freeSlots(open[0]) >= 1) {
-    foundWorks(state, open[0].id, ai);
-    return true;
-  }
+  /*
+   * 4. was: lay a construction yard down on the emptiest island, because an
+   *    island with no yard could never build anything and every island taken
+   *    after the starting ones was a garrison bill and nothing else.
+   *
+   *    Sean cut the yard on 20 September, so the dead end it existed to
+   *    unblock is gone with it: every island of yours can raise anything the
+   *    moment you hold it. There is nothing left to do here.
+   */
   return false;
 }
 
@@ -534,20 +520,23 @@ function bestSpotFor(
   ai: PlayableFaction,
   item: FacilityType,
 ): string | undefined {
+  /*
+   * An **island**, not a works on one. Since the construction yard was cut a
+   * building is raised in place, so there is no builder to find and no
+   * passage to count — the only question is which of your islands the thing
+   * is worth most on, and that is the ground: open deposits for an earner,
+   * open plots for anything else.
+   */
   const wants = needsResource(item);
-  let best: { facilityId: string; worth: number } | undefined;
+  let best: { systemId: string; worth: number } | undefined;
   for (const system of state.systems) {
     if (system.control !== ai || system.uprising) continue;
     const worth = wants ? openDeposits(state, system, wants) : freeSlots(system);
     if (worth < 1) continue;
-    for (const facility of system.facilities) {
-      if (facility.owner !== ai || facility.building) continue;
-      if (!buildMenu(facility, gradeOf(state, ai)).includes(item)) continue;
-      if (!canQueueBuild(state, facility.id, item)) continue;
-      if (!best || worth > best.worth) best = { facilityId: facility.id, worth };
-    }
+    if (raiseWorksError(state, system.id, item, ai) !== null) continue;
+    if (!best || worth > best.worth) best = { systemId: system.id, worth };
   }
-  return best?.facilityId;
+  return best?.systemId;
 }
 
 /**

@@ -13,6 +13,7 @@ import {
   FACILITY_LABEL,
   RESOURCE_LABEL,
   needsResource,
+  WORKS_ON,
   CRAFT_COST_STEP,
   CRAFT_DAYS_STEP,
   UPKEEP_PER_DAY,
@@ -21,10 +22,12 @@ import { craftGrade, travelDays } from './missions';
 import { addShip } from './fleets';
 import {
   depositsLeft,
+  depositsOf,
   freeSlots,
   isPlayable,
   nextId,
   pushEvent,
+  returnDeposit,
   setSupport,
   inProse,
 } from './helpers';
@@ -72,11 +75,19 @@ export function crewOn(system: System, type: FacilityType, owner: Faction): numb
   return Math.max(1, hands);
 }
 
-/** Which kind of works does this job: the one whose menu offers it. */
-export function makerFor(item: BuildItem): FacilityType {
+/**
+ * Which kind of works does this job, or nothing when the island does it itself.
+ *
+ * Sean cut the construction yard on 20 September — *"Anyone can build on any
+ * available land"* — so a **building** has no maker: it is raised in place on
+ * the island that is getting it, by `raiseWorks`. Companies and hulls still
+ * come off a floor and a slipway, because a drill ground and a shipyard are
+ * things you decide to have, not tolls on owning ground.
+ */
+export function makerFor(item: BuildItem): FacilityType | undefined {
   if (item === 'troop') return 'training_facility';
   if (isShipClass(item)) return 'shipyard';
-  return 'construction_yard';
+  return undefined;
 }
 
 /**
@@ -132,9 +143,6 @@ export function busyAt(
 export function buildMenu(facility: Facility, grade: ShipGrade): BuildItem[] {
   // A works waits on the shipwrights too now, for exactly one building: see
   // `FACILITY_CRAFT`. Everything else a yard has always been able to raise.
-  if (facility.type === 'construction_yard') {
-    return YARD_BUILDABLE.filter((type) => (FACILITY_CRAFT[type] ?? 0) <= grade);
-  }
   if (facility.type === 'training_facility') return ['troop'];
   if (facility.type === 'shipyard' && isPlayable(facility.owner)) {
     return shipsAt(facility.owner, grade).map((c) => c.id);
@@ -400,6 +408,22 @@ export function planBuild(
   const spec = effectiveSpec(state, faction, item);
   const upkeep = UPKEEP_PER_DAY[item];
   const type = makerFor(item);
+  if (!type) {
+    /*
+     * A building. Nothing to choose between and nowhere to sail: since the
+     * construction yard was cut it is raised in place, so the only question
+     * left is whether the island will take it.
+     */
+    return {
+      facilityId: null,
+      fromSystemId: destinationId,
+      days: spec.days,
+      travel: 0,
+      costGold: spec.costGold,
+      upkeep,
+      error: raiseWorksError(state, destinationId, item as FacilityType, faction),
+    };
+  }
   // One works of each kind speaks for its island: the rest of them are the
   // crew, not separate offers. Taking the first keeps the order somewhere
   // stable, and `crewOn` counts the others.
@@ -497,55 +521,112 @@ export function clearForest(state: GameState, systemId: string, actor: PlayableF
 export function cancelBuild(state: GameState, facilityId: string): void {
   const found = findFacility(state, facilityId);
   if (!found?.facility.building) return;
-  // A works that was only ever an order comes down with it.
+  // A works that was only ever an order comes down with it — and the ground it
+  // was standing on goes back, since `raiseWorks` took it up front.
   if (found.facility.founding) {
     found.system.facilities = found.system.facilities.filter((f) => f.id !== facilityId);
+    const ground = WORKS_ON[found.facility.type];
+    if (ground) returnDeposit(state, found.system, ground);
     return;
   }
   found.facility.building = undefined;
 }
 
 /**
- * Lay down a works on a held island that has none.
+ * Raise a building on an island you hold. The only way buildings are built.
  *
- * Everything else is raised by a works standing on the same island, which
- * left an island taken in the war a dead end: nothing could ever be built on
- * it, by the player or the opponent, and both economies stalled the day their
- * starting islands filled. This is the one order that needs no builder. It
- * costs what a works costs and takes as long; the works stands in its slot
- * from the day it is ordered so nothing else can take the ground.
+ * Sean, 20 September: *"Cut construction yards completely. Anyone can build on
+ * any available land... That way buildings are never traveling... So gold
+ * becomes building constraint not the yard."*
+ *
+ * This was `foundWorks`, the one order that needed no builder, kept for
+ * islands taken in the war that had no yard and could therefore never have
+ * anything. It is now the general case and the special case is gone with the
+ * yard itself. Three things follow, and all three are the point:
+ *
+ *  - **Nothing travels.** A building is raised where it is going. The old
+ *    path let a yard on one island build for another and ship the result, so
+ *    an order carried a passage and could arrive somewhere that had since
+ *    changed hands.
+ *  - **Gold is the brake.** Not the 120 and the 34 days a yard cost before
+ *    anything else could begin on newly taken ground.
+ *  - **The works stands in its plot from the day it is ordered**, so the
+ *    ground cannot be promised twice and the player can see what is coming.
  */
-export function foundWorksError(
+export function raiseWorksError(
   state: GameState,
   systemId: string,
+  type: FacilityType,
   owner: PlayableFaction,
 ): string | null {
   const system = state.systems.find((s) => s.id === systemId);
   if (!system) return 'No such island.';
   if (system.control !== owner) return 'You do not hold this island.';
   if (system.uprising) return 'The island is in mutiny.';
-  if (system.facilities.some((f) => f.owner === owner && f.type === 'construction_yard')) {
-    return `There is already a ${terms.facilities.construction_yard.toLowerCase()} here.`;
+
+  const wantsCraft = FACILITY_CRAFT[type] ?? 0;
+  if (wantsCraft > gradeOf(state, owner)) {
+    return `${FACILITY_LABEL[type]} needs ${wantsCraft} ${wantsCraft === 1 ? 'grade' : 'grades'} of shipwright craft.`;
   }
-  if (freeSlots(system) < 1) return 'No room left on this island.';
-  const cost = YARD_BUILDS.construction_yard.costGold;
-  if (state.factions[owner].gold < cost) return `Needs ${cost} gold.`;
+
+  const cost = YARD_BUILDS[type].costGold;
+  if (state.factions[owner].gold < cost) {
+    return `Needs ${cost} ${terms.gold.toLowerCase()}.`;
+  }
+
+  // An earner goes on its own ground and takes that plot; everything else
+  // wants a plot of its own. Sean's rule of 16 September either way.
+  const wants = WORKS_ON[type];
+  if (wants) {
+    if (openDeposits(state, system, wants) < 1) {
+      return depositsLeft(system, wants) > 0
+        ? `Every ${RESOURCE_LABEL[wants].toLowerCase()} on ${inProse(system.name)} is spoken for.`
+        : `No ${RESOURCE_LABEL[wants].toLowerCase()} on ${inProse(system.name)}.`;
+    }
+    return null;
+  }
+  if (freeSlots(system) - reservedSlots(state, system.id) < 1) {
+    return `No room left on ${inProse(system.name)}.`;
+  }
   return null;
 }
 
-export function foundWorks(state: GameState, systemId: string, owner: PlayableFaction): void {
-  const error = foundWorksError(state, systemId, owner);
+export function raiseWorks(
+  state: GameState,
+  systemId: string,
+  type: FacilityType,
+  owner: PlayableFaction,
+): void {
+  const error = raiseWorksError(state, systemId, type, owner);
   if (error) throw new Error(error);
   const system = state.systems.find((s) => s.id === systemId)!;
-  const spec = YARD_BUILDS.construction_yard;
+  const spec = YARD_BUILDS[type];
   state.factions[owner].gold -= spec.costGold;
+  /*
+   * An earner takes its ground the day it is ordered, not the day it opens.
+   *
+   * Measured the hard way: without this the island counts the half-built
+   * works *and* the deposit under it, so it goes over its own plot count —
+   * and worse, the vein still reads as open, so the opponent orders another
+   * mine onto it every tick. Twelve wars came back with thirty-five thousand
+   * over-built islands and a treasury of 2.8 million.
+   *
+   * Taking it up front is also just what the rest of the rule says: the works
+   * stands in its plot from the day it is ordered so the ground cannot be
+   * promised twice. A cancelled order puts it back.
+   */
+  const ground = WORKS_ON[type];
+  if (ground) {
+    const at = depositsOf(system).findIndex((d) => d.type === ground);
+    if (at >= 0) system.deposits = depositsOf(system).filter((_, i) => i !== at);
+  }
   system.facilities.push({
     id: `fac-${++state.nextId}`,
-    type: 'construction_yard',
+    type,
     owner,
     founding: true,
     building: {
-      item: 'construction_yard',
+      item: type,
       work: spec.days,
       workLeft: spec.days,
       travel: 0,
@@ -569,7 +650,17 @@ export function advanceBuilds(state: GameState): void {
       // so a hull bound across the world is finished on the day the yard says
       // and at sea from the morning after.
       if (order.workLeft > 0) {
-        order.workLeft = Math.max(0, order.workLeft - crewOn(system, facility.type, facility.owner));
+        /*
+         * A works being laid down is building *itself*, so there is no crew of
+         * others to divide the job between — one day's work a day, flat. That
+         * was already true of the only founding order there used to be; since
+         * the construction yard was cut it is true of every building, which is
+         * the whole reason their times went up (see `YARD_BUILDS`).
+         */
+        const hands = facility.founding
+          ? 1
+          : crewOn(system, facility.type, facility.owner);
+        order.workLeft = Math.max(0, order.workLeft - hands);
         if (order.workLeft > 0) continue;
         // Finished today. Anything with a crossing ahead of it sets out
         // tomorrow; anything made here is done now.
@@ -602,8 +693,17 @@ export function advanceBuilds(state: GameState): void {
       // holder's already at work — the new holder's yard filled the last plot
       // and the old order landed on top of it. Anything that finds no room
       // waits on the quay; the order can be cancelled if it never comes.
+      //
+      // A **founding** works is exempt from both, and has to be: it has stood
+      // in its own plot since the day it was ordered and an earner took its
+      // deposit then too, so asking again finds the plot full and the ground
+      // gone and the works can never finish. That is not a hypothetical — it
+      // held every raised mine at nought days left for ever, and the only
+      // thing that showed it was a dispatch that never arrived.
       const wants = needsResource(order.item);
-      if (wants) {
+      if (facility.founding) {
+        // Nothing to check. The ground and the plot were taken up front.
+      } else if (wants) {
         // An earner stands on its deposit, so it needs ground rather than a
         // plot — and the ground can be gone if the island changed hands and
         // somebody else worked it while these builders were at sea.
@@ -618,9 +718,11 @@ export function advanceBuilds(state: GameState): void {
         delete facility.founding;
         pushEvent(state, {
           kind: 'order',
-          text: `A ${terms.facilities.construction_yard.toLowerCase()} now stands on ${inProse(system.name)}. Anything can be raised here.`,
+          text: `A ${FACILITY_LABEL[facility.type].toLowerCase()} now stands on ${inProse(system.name)}.`,
           systemId: system.id,
         });
+        // And a rock with something finished on it is a rock no longer.
+        settleOnCompletion(state, system, facility.owner as PlayableFaction);
         continue;
       }
       completeBuild(state, landing, facility.owner as PlayableFaction, order.item, system);
@@ -678,7 +780,19 @@ function completeBuild(
     systemId: system.id,
   });
 
-  // Finishing anything on an empty island settles it (spec 4.3).
+  settleOnCompletion(state, system, owner);
+}
+
+/**
+ * Finishing anything on an empty island settles it (spec 4.3).
+ *
+ * Its own function because there are two ways a building finishes now. A hull
+ * or a company still comes off a works and lands through `completeBuild`; a
+ * **building** is raised in place and finishes where it stands, which skips
+ * that path entirely — and took the settling with it until this was pulled
+ * out. Measured by a test that asked whether the dispatch appeared at all.
+ */
+function settleOnCompletion(state: GameState, system: System, owner: PlayableFaction): void {
   if (!system.populated) {
     system.populated = true;
     setSupport(system, owner, 100);

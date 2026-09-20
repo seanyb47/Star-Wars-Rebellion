@@ -9,7 +9,7 @@ import {
   wallCondition,
 } from '../fleets';
 import { advanceDay } from '../advanceDay';
-import { buildError, buildMenu } from '../build';
+import { raiseWorksError } from '../build';
 import {
   FORT_GUNS,
   FORT_STRENGTH,
@@ -77,7 +77,7 @@ describe('the Heavy Fortress, as a second tier', () => {
   it('answers the three wall questions for both kinds and nothing else', () => {
     expect(isWall('fort')).toBe(true);
     expect(isWall('heavy_fort')).toBe(true);
-    for (const type of ['mine', 'refinery', 'shipyard', 'construction_yard'] as FacilityType[]) {
+    for (const type of ['mine', 'refinery', 'shipyard', 'training_facility'] as FacilityType[]) {
       expect(isWall(type), type).toBe(false);
     }
     expect(wallGuns('fort')).toBe(FORT_GUNS);
@@ -157,7 +157,7 @@ describe('the Heavy Fortress, as a second tier', () => {
     const port = state.systems.find(
       (s) =>
         s.control === 'empire' &&
-        s.facilities.some((f) => f.type === 'construction_yard' && f.owner === 'empire'),
+        s.facilities.some((f) => f.type === 'training_facility' && f.owner === 'empire'),
     )!;
     port.slots = port.facilities.length + (port.deposits?.length ?? 0) + 2;
     state.factions.empire.gold = 5000;
@@ -165,11 +165,13 @@ describe('the Heavy Fortress, as a second tier', () => {
     // craft, which is a fortnight or two of somebody's time in your own yards.
     state.factions.empire.craft = CRAFT_GRADES[0];
     const yard = port.facilities.find(
-      (f) => f.type === 'construction_yard' && f.owner === 'empire' && !f.building,
+      (f) => f.type === 'training_facility' && f.owner === 'empire' && !f.building,
     )!;
-    expect(buildMenu(yard, 3)).toContain('heavy_fort');
-    // A wall needs no forest and no vein under it, unlike the earners.
-    expect(buildError(state, yard.id, 'heavy_fort')).toBeNull();
+    // A wall needs no forest and no vein under it, unlike the earners — and
+    // since the construction yard was cut it needs no works either, only the
+    // island, the ground and the craft.
+    void yard;
+    expect(raiseWorksError(state, port.id, 'heavy_fort', 'empire')).toBeNull();
   });
 
   /**
@@ -182,24 +184,24 @@ describe('the Heavy Fortress, as a second tier', () => {
     const port = state.systems.find(
       (s) =>
         s.control === 'empire' &&
-        s.facilities.some((f) => f.type === 'construction_yard' && f.owner === 'empire'),
+        s.facilities.some((f) => f.type === 'training_facility' && f.owner === 'empire'),
     )!;
     port.slots = port.facilities.length + (port.deposits?.length ?? 0) + 2;
     state.factions.empire.gold = 5000;
     state.factions.empire.craft = 0;
     const yard = port.facilities.find(
-      (f) => f.type === 'construction_yard' && f.owner === 'empire' && !f.building,
+      (f) => f.type === 'training_facility' && f.owner === 'empire' && !f.building,
     )!;
-    expect(buildMenu(yard, 0)).not.toContain('heavy_fort');
-    // And it says so in a way the player can act on, rather than refusing.
-    expect(buildError(state, yard.id, 'heavy_fort')).toMatch(/shipwright craft/);
+    void yard;
+    // It says so in a way the player can act on, rather than refusing flatly.
+    expect(raiseWorksError(state, port.id, 'heavy_fort', 'empire')).toMatch(/shipwright craft/);
     // The plain Fortress is untouched: a wall you can always throw up.
-    expect(buildMenu(yard, 0)).toContain('fort');
+    expect(raiseWorksError(state, port.id, 'fort', 'empire')).toBeNull();
     expect(FACILITY_CRAFT.fort ?? 0).toBe(0);
 
-    // One grade, and it is on the menu.
+    // One grade, and it can be raised.
     state.factions.empire.craft = CRAFT_GRADES[0];
-    expect(buildError(state, yard.id, 'heavy_fort')).toBeNull();
+    expect(raiseWorksError(state, port.id, 'heavy_fort', 'empire')).toBeNull();
   });
 
   it('is named, and stands beside its lighter sibling on the board', () => {

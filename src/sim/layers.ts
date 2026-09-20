@@ -74,7 +74,7 @@ export const CHART_LAYERS: LayerSpec[] = [
    * number is every idle works of yours on it, whatever kind, and the
    * Buildings tab it opens on says which.
    */
-  { id: 'idleBuildings', label: 'Idle buildings', hint: `Islands where works of yours have no order on them — ${terms.facilities.construction_yard.toLowerCase()}s, ${terms.facilities.training_facility.toLowerCase()}s or ${terms.facilities.shipyard.toLowerCase()}s — numbered by how many are standing.` },
+  { id: 'idleBuildings', label: 'Idle buildings', hint: `Islands where works of yours have no order on them — ${terms.facilities.training_facility.toLowerCase()}s or ${terms.facilities.shipyard.toLowerCase()}s — numbered by how many are standing.` },
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them, and where yours are sailing — theirs only as far as you know.' },
   { id: 'garrisons', label: 'Garrisons', hint: `How many ${terms.troops.toLowerCase()} are ashore on each island of yours.` },
   { id: 'missions', label: terms.errands, hint: `Islands your ${terms.crew.toLowerCase()} are working on, or sailing for.` },
@@ -260,12 +260,13 @@ export function layerMark(
 
   switch (layer) {
     case 'idleBuildings': {
-      // Summed across the three kinds rather than asked three times. Each
-      // kind still answers on its own terms — one order at a time per kind
-      // per island — so two idle yards and one idle slipway is three works
-      // with nothing to do, which is the number worth showing.
+      // Summed across the two kinds rather than asked twice. Each kind still
+      // answers on its own terms — one order at a time per kind per island —
+      // so an idle drill ground and an idle slipway is two works with nothing
+      // to do, which is the number worth showing. It was three kinds until
+      // the construction yard was cut; buildings need no works to raise them
+      // now, so a yard can no longer be idle at you.
       const n =
-        idleFacilities(system, faction, 'construction_yard') +
         idleFacilities(system, faction, 'training_facility') +
         idleFacilities(system, faction, 'shipyard');
       return n > 0 ? { lit: true, count: n } : DARK;

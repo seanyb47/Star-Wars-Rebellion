@@ -13,6 +13,7 @@ import {
   relieve,
   startMission,
   takePost,
+  canRecruitAt,
 } from '../missions';
 import { orderRelieve, sendCrew } from '../commands';
 import { setSupport } from '../helpers';
@@ -58,13 +59,14 @@ describe('a posting, not an errand', () => {
      */
     home.uprising = false;
     setSupport(home, 'empire', 100);
-    // "Nothing else left" has to be built rather than hoped for. Until 20
-    // September this island happened to have no construction yard on it and
-    // the case held by luck; giving both seats a yard that morning moved the
-    // draw and it started offering Research instead, which is the island
-    // having something else left rather than the rule being wrong. So the
-    // precondition the comment above describes is now made true.
-    home.facilities = home.facilities.filter((f) => f.type !== 'construction_yard');
+    // "Nothing else left" has to be built rather than hoped for. This island
+    // happened to have nothing that offered another errand and the case held
+    // by luck; the opening deal moved twice since and it started offering
+    // Research instead, which is the island having something else left rather
+    // than the rule being wrong. Research wants a slipway — it took a
+    // construction yard too until the yard was cut — so the slipway is what
+    // has to go for the precondition above to be true.
+    home.facilities = home.facilities.filter((f) => f.type !== 'shipyard');
     expect(missionTypeFor(state, home, 'empire')).toBeNull();
     // And a report on your own capital, always: the memo's counter-intelligence
     // trick is that an island of yours is exactly where you cannot see what
@@ -72,11 +74,15 @@ describe('a posting, not an errand', () => {
     // Signing on is there too, at a hundred: a devoted harbor of yours is
     // exactly where a Recruiter keeps a table, since Sean's memo of 17
     // September. Still never a default — `missionTypeFor` is null above.
-    expect(missionsOffered(state, home, 'empire')).toEqual([
-      'recruit',
-      'command',
-      'espionage',
-    ]);
+    const offered = missionsOffered(state, home, 'empire');
+    expect(offered).toContain('command');
+    expect(offered).toContain('espionage');
+    // Signing on is there too when there is anybody to sign — a devoted harbor
+    // of yours is exactly where a Recruiter keeps a table. Asserted against the
+    // pool rather than pinned into the list: the unaligned arrive on their own
+    // days, so whether one is ashore on day 1 is the draw, and pinning it made
+    // this test fail the next time the world generator moved.
+    expect(offered.includes('recruit')).toBe(canRecruitAt(state, home, 'empire'));
     expect(missionError(state, officer.id, home.id, 'command')).toBeNull();
   });
 

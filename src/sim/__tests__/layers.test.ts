@@ -25,7 +25,7 @@ function setup(seed = 501) {
   const mine = state.systems.find(
     (s) =>
       s.control === 'empire' &&
-      s.facilities.some((f) => f.owner === 'empire' && f.type === 'construction_yard' && buildMenu(f, 3).length > 0),
+      s.facilities.some((f) => f.owner === 'empire' && f.type === 'training_facility' && buildMenu(f, 3).length > 0),
   )!;
   return { state, mine };
 }
@@ -57,7 +57,7 @@ describe('chart layers', () => {
     // is testing nothing: a yard with an empty build menu is not idle, it is
     // finished, and setting it to work changes no count.
     const yard = mine.facilities.find(
-      (f) => f.owner === 'empire' && f.type === 'construction_yard' && !f.building && buildMenu(f, 3).length > 0,
+      (f) => f.owner === 'empire' && f.type === 'training_facility' && !f.building && buildMenu(f, 3).length > 0,
     )!;
     expect(yard).toBeDefined();
     const before = layerMark(state, mine, 'idleBuildings', 'empire').count ?? 0;
@@ -68,7 +68,7 @@ describe('chart layers', () => {
     // once, so setting the yards going drops the count by exactly the yards
     // and leaves any idle drill hall or slipway still standing.
     const yards = mine.facilities.filter(
-      (f) => f.owner === 'empire' && f.type === 'construction_yard' && !f.building,
+      (f) => f.owner === 'empire' && f.type === 'training_facility' && !f.building,
     ).length;
     yard.building = { item: 'mine', work: 4, workLeft: 4, travel: 0, travelLeft: 0, costGold: 40 };
     expect(layerMark(state, mine, 'idleBuildings', 'empire').count ?? 0).toBe(before - yards);
@@ -106,17 +106,17 @@ describe('chart layers', () => {
         (s) =>
           s.control === 'empire' &&
           !s.uprising &&
-          s.facilities.some((f) => f.owner === 'empire' && f.type === 'construction_yard') &&
+          s.facilities.some((f) => f.owner === 'empire' && f.type === 'training_facility') &&
           s.facilities.some((f) => f.owner === 'empire' && f.type === 'shipyard'),
       );
     }
     expect(island, 'no island in forty seeds holds both a yard and a slipway').toBeDefined();
     island = island!;
     const yard = island.facilities.find(
-      (f) => f.owner === 'empire' && f.type === 'construction_yard',
+      (f) => f.owner === 'empire' && f.type === 'training_facility',
     )!;
 
-    const yards = () => idleFacilities(island, 'empire', 'construction_yard');
+    const yards = () => idleFacilities(island, 'empire', 'training_facility');
     const slips = () => idleFacilities(island, 'empire', 'shipyard');
     expect(yards()).toBeGreaterThan(0);
     expect(slips()).toBeGreaterThan(0);
@@ -341,7 +341,7 @@ describe('which layers count and which grade', () => {
   it('gives the idle layers a count to draw, one per thing waiting for an order', () => {
     const state = generateGalaxy(61, 'empire');
     const yard = state.systems.find(
-      (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'construction_yard'),
+      (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'training_facility'),
     )!;
     yard.uprising = false;
     const mark = layerMark(state, yard, 'idleBuildings', 'empire');
@@ -349,7 +349,7 @@ describe('which layers count and which grade', () => {
     expect(mark.count).toBe(
       yard.facilities.filter(
         (f) =>
-          ['construction_yard', 'training_facility', 'shipyard'].includes(f.type) &&
+          ['training_facility', 'training_facility', 'shipyard'].includes(f.type) &&
           !f.building &&
           !f.founding,
       ).length,

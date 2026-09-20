@@ -1829,7 +1829,7 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   system.control = fleet.faction;
   // And everything standing on it. What was being built when the boats came
   // in is lost with the old holder.
-  handOver(system, fleet.faction);
+  handOver(state, system, fleet.faction);
 
   /**
    * And everyone standing on it.

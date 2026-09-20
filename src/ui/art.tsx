@@ -356,7 +356,7 @@ export function IslandPortrait({
     return {
       x: Math.cos(angle) * radius,
       y: Math.sin(angle) * radius,
-      tall: type === 'construction_yard' || type === 'shipyard' || type === 'training_facility',
+      tall: type === 'shipyard' || type === 'training_facility',
     };
   });
 
@@ -455,16 +455,6 @@ export function FacilityIcon({
           <circle cx="14" cy="15" r="8.5" />
           <path d="M14 6.5 V23.5 M5.5 15 H22.5 M8 9 L20 21 M20 9 L8 21" strokeWidth="1.3" />
           <path d="M3 28 Q10 25 16 28 T29 28" />
-        </g>
-      )}
-      {type === 'construction_yard' && (
-        <g {...common}>
-          {/* Shear-legs crane with its hook. */}
-          <path d="M8 28 L16 5 L24 28" />
-          <path d="M16 5 L27 11" />
-          <path d="M27 11 V17" />
-          <path d="M24.5 17 H29.5 L27 21 Z" />
-          <path d="M4 28 H28" />
         </g>
       )}
       {type === 'training_facility' && (

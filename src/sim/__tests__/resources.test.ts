@@ -2,16 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import {
   advanceBuilds,
-  buildError,
   clearError,
   clearForest,
-  openDeposits,
   planBuild,
-  queueBuild,
+  raiseWorks,
+  raiseWorksError,
 } from '../build';
 import { islandIncome } from '../economy';
 import { depositsLeft, freeSlots, getSystem, handOver, returnDeposit } from '../helpers';
-import { advanceMissions, startMission, travelDays } from '../missions';
+import { advanceMissions, startMission } from '../missions';
 import { createRng } from '../rng';
 import { CLEAR_BERTHS, GOLD_PER_DAY, WORKS_ON, YARD_BUILDS } from '../constants';
 import type { GameState, System } from '../types';
@@ -30,12 +29,12 @@ import type { GameState, System } from '../types';
 function staged(seed: number, ground: Array<'forest' | 'gold'>) {
   const state = generateGalaxy(seed, 'empire');
   const island = state.systems.find(
-    (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'construction_yard'),
+    (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'training_facility'),
   )!;
   island.deposits = ground.map((type, i) => ({ id: `dep-${i}`, type }));
   island.slots = Math.max(island.slots, island.facilities.length + ground.length + 2);
   state.factions.empire.gold = 5000;
-  const yard = island.facilities.find((f) => f.type === 'construction_yard')!;
+  const yard = island.facilities.find((f) => f.type === 'training_facility')!;
   return { state, island, yard };
 }
 
@@ -170,27 +169,25 @@ describe('what is in the ground', () => {
 
 describe('an earner needs ground under it', () => {
   it('refuses a mill where there is no forest, and a mine where there is no vein', () => {
-    const { state, yard } = staged(801, ['forest']);
-    expect(buildError(state, yard.id, 'refinery')).toBeNull();
-    expect(buildError(state, yard.id, 'mine')).toMatch(/No gold vein/);
+    const { state, island } = staged(801, ['forest']);
+    expect(raiseWorksError(state, island.id, 'refinery', 'empire')).toBeNull();
+    expect(raiseWorksError(state, island.id, 'mine', 'empire')).toMatch(/No gold vein/);
   });
 
   it('refuses a second order against the same single deposit', () => {
-    const { state, island, yard } = staged(802, ['gold']);
-    expect(buildError(state, yard.id, 'mine')).toBeNull();
-    queueBuild(state, yard.id, 'mine');
-    expect(openDeposits(state, island, 'gold')).toBe(0);
-    const other = state.systems
-      .flatMap((s) => s.facilities)
-      .find((f) => f.type === 'construction_yard' && f.owner === 'empire' && !f.building);
-    if (other) expect(buildError(state, other.id, 'mine', island.id)).toMatch(/spoken for/);
+    const { state, island } = staged(802, ['gold']);
+    expect(raiseWorksError(state, island.id, 'mine', 'empire')).toBeNull();
+    raiseWorks(state, island.id, 'mine', 'empire');
+    // The vein is taken the day it is ordered, not the day the shaft opens.
+    expect(depositsLeft(island, 'gold')).toBe(0);
+    expect(raiseWorksError(state, island.id, 'mine', 'empire')).toMatch(/No gold vein/);
   });
 
   it('takes the deposit when the works finishes, and no berth beside it', () => {
-    const { state, island, yard } = staged(803, ['forest', 'forest']);
+    const { state, island } = staged(803, ['forest', 'forest']);
     const room = freeSlots(island);
     const built = island.facilities.length;
-    queueBuild(state, yard.id, 'refinery');
+    raiseWorks(state, island.id, 'refinery', 'empire');
     for (let d = 0; d < YARD_BUILDS.refinery.days + 1; d++) advanceBuilds(state);
     const after = getSystem(state, island.id);
     expect(after.facilities).toHaveLength(built + 1);
@@ -229,32 +226,46 @@ describe('an earner needs ground under it', () => {
     expect(burnt).toBe(true);
   });
 
-  it('lets a yard send builders to ground on another island', () => {
-    const { state, island, yard } = staged(805, []);
+  it('never sends builders anywhere, because a works is raised where it goes', () => {
+    /*
+     * This used to be the opposite test. A yard on one island could take an
+     * order for ground on another and ship the builders over, which is what
+     * kept the opponent from stalling on islands with no yard of their own.
+     *
+     * Sean cut the yard on 20 September — *"That way buildings are never
+     * traveling"* — so the answer to "who builds on that island" is now "that
+     * island", and the passage is gone with the question.
+     */
+    const { state, island } = staged(805, []);
     const there = state.systems.find(
       (s) => s.control === 'empire' && s.id !== island.id && !s.uprising,
     )!;
     there.deposits = [{ id: 'dep-far', type: 'gold' }];
     there.slots = Math.max(there.slots, there.facilities.length + 2);
-    expect(buildError(state, yard.id, 'mine')).toMatch(/No gold vein/);
-    expect(buildError(state, yard.id, 'mine', there.id)).toBeNull();
+
+    // The island with no vein cannot have a mine; the one with the vein can,
+    // and neither answer involves the other island at all.
+    expect(raiseWorksError(state, island.id, 'mine', 'empire')).toMatch(/No gold vein/);
+    expect(raiseWorksError(state, there.id, 'mine', 'empire')).toBeNull();
 
     const plan = planBuild(state, 'empire', 'mine', there.id);
     expect(plan.error).toBeNull();
-    queueBuild(state, plan.facilityId!, 'mine', there.id);
-    const total = YARD_BUILDS.mine.days + travelDays(state, island.id, there.id) + 10;
-    for (let d = 0; d < total; d++) advanceBuilds(state);
+    expect(plan.travel).toBe(0);
+    expect(plan.fromSystemId).toBe(there.id);
+
+    raiseWorks(state, there.id, 'mine', 'empire');
+    for (let d = 0; d < YARD_BUILDS.mine.days + 1; d++) advanceBuilds(state);
     expect(getSystem(state, there.id).facilities.some((f) => f.type === 'mine')).toBe(true);
     expect(depositsLeft(getSystem(state, there.id), 'gold')).toBe(0);
   });
 
   it('a full island can still work ground it has', () => {
-    const { state, island, yard } = staged(806, ['forest']);
+    const { state, island } = staged(806, ['forest']);
     // Not one open plot, and one forest standing.
     island.slots = island.facilities.length + 1;
     expect(freeSlots(island)).toBe(0);
-    expect(buildError(state, yard.id, 'shipyard')).toMatch(/No room left/);
-    expect(buildError(state, yard.id, 'refinery')).toBeNull();
+    expect(raiseWorksError(state, island.id, 'shipyard', 'empire')).toMatch(/No room left/);
+    expect(raiseWorksError(state, island.id, 'refinery', 'empire')).toBeNull();
   });
 });
 
@@ -274,21 +285,22 @@ describe('felling timber', () => {
   });
 
   it('makes room for something that is not a mill', () => {
-    const { state, island, yard } = staged(811, ['forest', 'forest']);
+    const { state, island } = staged(811, ['forest', 'forest']);
     island.slots = island.facilities.length + 2;
-    expect(buildError(state, yard.id, 'shipyard')).toMatch(/No room left/);
+    expect(raiseWorksError(state, island.id, 'shipyard', 'empire')).toMatch(/No room left/);
     clearForest(state, island.id, 'empire');
-    expect(buildError(state, yard.id, 'shipyard')).toBeNull();
+    expect(raiseWorksError(state, island.id, 'shipyard', 'empire')).toBeNull();
   });
 
   it('will not fell a vein, or a forest an order is already sailing for', () => {
-    const { state, island, yard } = staged(812, ['gold']);
+    const { state, island } = staged(812, ['gold']);
     expect(clearError(state, island.id, 'empire')).toMatch(/no forest/i);
 
+    // And a stand a mill is already going up on is gone from the ground the
+    // day the order is placed, so there is nothing left to fell.
     const one = staged(813, ['forest']);
-    queueBuild(one.state, one.yard.id, 'refinery');
-    expect(clearError(one.state, one.island.id, 'empire')).toMatch(/spoken for/);
-    void yard;
+    raiseWorks(one.state, one.island.id, 'refinery', 'empire');
+    expect(clearError(one.state, one.island.id, 'empire')).toMatch(/no forest/i);
   });
 
   it('is refused on ground that is not yours, or in revolt', () => {
@@ -303,30 +315,30 @@ describe('felling timber', () => {
 
 describe('an island changes hands with what is on it', () => {
   it('hands the works to whoever takes the island', () => {
-    const { island } = staged(815, ['forest']);
+    const { state, island } = staged(815, ['forest']);
     const mill = { id: 'f-mill', type: 'refinery' as const, owner: 'empire' as const };
     island.facilities.push(mill);
-    handOver(island, 'alliance');
+    handOver(state, island, 'alliance');
     expect(island.facilities.every((f) => f.owner === 'alliance')).toBe(true);
   });
 
   it('but not what was still being built', () => {
-    const { state, island, yard } = staged(816, ['forest']);
-    queueBuild(state, yard.id, 'refinery');
-    const built = island.facilities.length;
-    handOver(island, 'alliance');
-    // The yard stands and changes hands; its order does not.
-    expect(island.facilities).toHaveLength(built);
+    const { state, island } = staged(816, ['forest']);
+    const standing = island.facilities.length;
+    raiseWorks(state, island.id, 'refinery', 'empire');
+    handOver(state, island, 'alliance');
+    // What was finished changes hands; a works half raised does not — it comes
+    // down, and the ground it had taken goes back for the new holder.
+    expect(island.facilities).toHaveLength(standing);
     expect(island.facilities.every((f) => f.building === undefined)).toBe(true);
-    // And the forest it was going to cut is still there for the new holder.
     expect(depositsLeft(island, 'forest')).toBe(1);
   });
 });
 
 describe('resources never run out', () => {
   it('a worked deposit keeps earning for ever', () => {
-    const { state, island, yard } = staged(817, ['forest']);
-    queueBuild(state, yard.id, 'refinery');
+    const { state, island } = staged(817, ['forest']);
+    raiseWorks(state, island.id, 'refinery', 'empire');
     for (let d = 0; d < YARD_BUILDS.refinery.days + 1; d++) advanceBuilds(state);
     const live = getSystem(state, island.id);
     const mill = live.facilities.find((f) => f.type === 'refinery')!;

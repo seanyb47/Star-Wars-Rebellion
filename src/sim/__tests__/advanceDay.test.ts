@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { advanceDay, checkVictory } from '../advanceDay';
 import { MISSION_WORK_DAYS, YARD_BUILDS } from '../constants';
 import { generateGalaxy, START_GOLD } from '../galaxy';
-import { newGame, orderBuild, sendCrew, setSpeed } from '../commands';
+import { newGame, orderBuild, orderRaiseWorks, sendCrew, setSpeed } from '../commands';
 import { clearSave, loadGame, saveGame } from '../persist';
+import { freeSlots } from '../helpers';
 import { getSystem, setSupport } from '../helpers';
 import { travelDays } from '../missions';
 import type { GameState } from '../types';
@@ -119,7 +120,7 @@ describe('commands', () => {
     const state = newGame(410);
     const yard = state.systems
       .flatMap((s) => s.facilities)
-      .find((f) => f.type === 'construction_yard' && f.owner === 'empire')!;
+      .find((f) => f.type === 'training_facility' && f.owner === 'empire')!;
     state.factions.empire.gold = 0;
     const result = orderBuild(state, yard.id, 'shipyard');
     expect(result.error).toBeTruthy();
@@ -128,18 +129,16 @@ describe('commands', () => {
 
   it('applies a legal order to a fresh copy', () => {
     const state = newGame(410);
-    const host = state.systems.find((s) =>
-      s.facilities.some((f) => f.type === 'construction_yard' && f.owner === 'empire'),
+    // A wall, on an island, because since the construction yard was cut a
+    // building is raised in place and there is no works to give the order to.
+    // The two earners cost nothing to raise, so a wall is what tests that the
+    // treasury is charged — and charged on the new state alone.
+    const where = state.systems.find(
+      (s) => s.control === 'empire' && !s.uprising && freeSlots(s) > 0,
     )!;
-    const yard = host.facilities.find(
-      (f) => f.type === 'construction_yard' && f.owner === 'empire',
-    )!;
-    // A wall, because the two earners cost nothing to raise since 17 September
-    // and this is about the treasury being charged on the new state alone.
-    const result = orderBuild(state, yard.id, 'fort');
+    const result = orderRaiseWorks(state, where.id, 'fort');
     expect(result.error).toBeUndefined();
     expect(result.state).not.toBe(state);
-    // The order is paid for out of the treasury, and only on the new state.
     expect(state.factions.empire.gold).toBe(START_GOLD);
     expect(result.state.factions.empire.gold).toBe(START_GOLD - YARD_BUILDS.fort.costGold);
   });

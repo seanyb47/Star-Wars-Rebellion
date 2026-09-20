@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
-import { advanceBuilds, queueBuild } from '../build';
+import { advanceBuilds, raiseWorks } from '../build';
 import { beastAlive, creature, sightBeast } from '../creatures';
 import { addShip, resolveBattles } from '../fleets';
 import { leakInformation } from '../support';
@@ -38,14 +38,17 @@ function outpost(state: GameState, owner: PlayableFaction) {
   empty.control = owner;
   empty.garrison = 1;
   empty.slots = 8;
-  empty.facilities = [{ id: 'fac-test', type: 'construction_yard', owner }];
+  empty.facilities = [{ id: 'fac-test', type: 'training_facility', owner }];
   empty.deposits = [{ id: 'dep-test', type: 'gold' }];
   state.factions[owner].gold = 500;
   return empty;
 }
 
-function settle(state: GameState) {
-  queueBuild(state, 'fac-test', 'mine');
+function settle(state: GameState, owner: PlayableFaction = 'empire') {
+  // Raised on the island rather than ordered from a works: since Sean cut the
+  // construction yard a building has no maker to give the order to.
+  const island = state.systems.find((s) => s.facilities.some((f) => f.id === 'fac-test'))!;
+  raiseWorks(state, island.id, 'mine', owner);
   for (let day = 0; day < YARD_BUILDS.mine.days; day++) advanceBuilds(state);
   return state.events.filter((e) => e.text.includes('has been settled'));
 }

@@ -41,7 +41,7 @@ describe('what buildings do', () => {
     expect(UPKEEP_PER_DAY.mine).toBe(0);
     expect(UPKEEP_PER_DAY.refinery).toBe(0);
 
-    for (const type of ['construction_yard', 'training_facility', 'shipyard'] as const) {
+    for (const type of ['training_facility', 'shipyard'] as const) {
       expect(GOLD_PER_DAY[type]).toBe(0);
       expect(UPKEEP_PER_DAY[type]).toBeGreaterThan(0);
     }
@@ -81,7 +81,7 @@ describe('income', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
     island.facilities = [
-      { id: 'f1', type: 'construction_yard', owner: 'empire' },
+      { id: 'f1', type: 'shipyard', owner: 'empire' },
       { id: 'f2', type: 'training_facility', owner: 'empire' },
       { id: 'f3', type: 'shipyard', owner: 'empire' },
     ];
@@ -185,22 +185,22 @@ describe('upkeep', () => {
     const island = isolate(state, 'empire');
     island.facilities = [
       { id: 'f1', type: 'mine', owner: 'empire' },
-      { id: 'f2', type: 'construction_yard', owner: 'empire' },
+      { id: 'f2', type: 'shipyard', owner: 'empire' },
       { id: 'f3', type: 'shipyard', owner: 'empire' },
     ];
     island.garrison = 3;
     expect(totalUpkeep(state, 'empire')).toBe(
-      UPKEEP_PER_DAY.construction_yard + UPKEEP_PER_DAY.shipyard + 3 * UPKEEP_PER_DAY.troop,
+      UPKEEP_PER_DAY.shipyard + UPKEEP_PER_DAY.shipyard + 3 * UPKEEP_PER_DAY.troop,
     );
   });
 
   it('takes the day’s upkeep out of the treasury', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
-    island.facilities = [{ id: 'f1', type: 'construction_yard', owner: 'empire' }];
+    island.facilities = [{ id: 'f1', type: 'shipyard', owner: 'empire' }];
     state.factions.empire.gold = 1000;
     settleOnce(state);
-    expect(state.factions.empire.gold).toBe(1000 - UPKEEP_PER_DAY.construction_yard * FORTNIGHT);
+    expect(state.factions.empire.gold).toBe(1000 - UPKEEP_PER_DAY.shipyard * FORTNIGHT);
   });
 
   it('reports income and upkeep for the top bar without moving money', () => {
@@ -208,14 +208,14 @@ describe('upkeep', () => {
     const island = isolate(state, 'empire');
     island.facilities = [
       { id: 'f1', type: 'mine', owner: 'empire' },
-      { id: 'f2', type: 'construction_yard', owner: 'empire' },
+      { id: 'f2', type: 'shipyard', owner: 'empire' },
     ];
     island.support.empire = 100;
     state.factions.empire.gold = 500;
     recomputeLedger(state);
     expect(state.factions.empire.gold).toBe(500);
     expect(state.factions.empire.income).toBeCloseTo(GOLD_PER_DAY.mine);
-    expect(state.factions.empire.upkeep).toBe(UPKEEP_PER_DAY.construction_yard);
+    expect(state.factions.empire.upkeep).toBe(UPKEEP_PER_DAY.shipyard);
   });
 });
 
@@ -226,7 +226,7 @@ describe('going broke', () => {
     island.slots = 12;
     island.facilities = Array.from({ length: 6 }, (_, i) => ({
       id: `f${i}`,
-      type: 'construction_yard' as const,
+      type: 'shipyard' as const,
       owner: 'empire' as const,
     }));
     state.factions.empire.gold = 0; // nothing coming in, nothing saved
@@ -249,7 +249,7 @@ describe('going broke', () => {
       { id: 'm1', type: 'mine', owner: 'empire' },
       ...Array.from({ length: 8 }, (_, i) => ({
         id: `y${i}`,
-        type: 'construction_yard' as const,
+        type: 'shipyard' as const,
         owner: 'empire' as const,
       })),
     ];
@@ -273,7 +273,7 @@ describe('going broke', () => {
     const island = isolate(state, 'empire');
     island.facilities = [
       { id: 'f1', type: 'mine', owner: 'empire' },
-      { id: 'f2', type: 'construction_yard', owner: 'empire' },
+      { id: 'f2', type: 'shipyard', owner: 'empire' },
     ];
     island.garrison = 2;
     state.factions.empire.gold = 10000;
@@ -314,7 +314,7 @@ describe('going broke', () => {
  */
 describe('scrapping', () => {
   it('gives back half of what a thing cost', () => {
-    expect(scrapValue('construction_yard')).toBe(Math.floor(YARD_BUILDS.construction_yard.costGold / 2));
+    expect(scrapValue('shipyard')).toBe(Math.floor(YARD_BUILDS.shipyard.costGold / 2));
     expect(scrapValue('troop')).toBe(Math.floor(TROOP_BUILD.costGold / 2));
     // An earner is free to raise, so half of nothing is nothing. The reason to
     // pull a mill down was never the coin — it is the plot it stands on.
@@ -325,18 +325,18 @@ describe('scrapping', () => {
   it('takes the building off the island, the upkeep off the books, and puts the ground back', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
-    island.facilities = [{ id: 'f1', type: 'construction_yard', owner: 'empire' }];
+    island.facilities = [{ id: 'f1', type: 'shipyard', owner: 'empire' }];
     island.deposits = [];
     state.factions.empire.gold = 0;
     const before = totalUpkeep(state, 'empire');
-    expect(before).toBe(UPKEEP_PER_DAY.construction_yard);
+    expect(before).toBe(UPKEEP_PER_DAY.shipyard);
 
     const got = scrap(state, 'empire', {
       kind: 'facility',
       systemId: island.id,
       facilityId: 'f1',
     });
-    expect(got).toBe(scrapValue('construction_yard'));
+    expect(got).toBe(scrapValue('shipyard'));
     expect(state.factions.empire.gold).toBe(got);
     expect(island.facilities).toHaveLength(0);
     expect(totalUpkeep(state, 'empire')).toBe(0);
@@ -365,7 +365,7 @@ describe('scrapping', () => {
     island.slots = 30;
     island.facilities = Array.from({ length: 10 }, (_, i) => ({
       id: `y${i}`,
-      type: 'construction_yard' as const,
+      type: 'shipyard' as const,
       owner: 'empire' as const,
     }));
     state.factions.empire.gold = 0;
@@ -429,7 +429,7 @@ describe('scrapping', () => {
     const island = isolate(state, 'empire');
     island.facilities = [
       { id: 'f1', type: 'fort', owner: 'empire', ancient: true },
-      { id: 'f2', type: 'construction_yard', owner: 'empire' },
+      { id: 'f2', type: 'shipyard', owner: 'empire' },
       { id: 'f3', type: 'shipyard', owner: 'empire', founding: true },
     ];
     const at = (facilityId: string) =>
@@ -472,7 +472,7 @@ describe('scrapping', () => {
     const island = isolate(state, 'empire');
     island.facilities = [
       { id: 'f1', type: 'mine', owner: 'empire' },
-      { id: 'f2', type: 'construction_yard', owner: 'empire' },
+      { id: 'f2', type: 'shipyard', owner: 'empire' },
     ];
     island.garrison = 2;
     state.factions.empire.gold = 10_000;

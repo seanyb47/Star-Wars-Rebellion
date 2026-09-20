@@ -43,8 +43,9 @@ import {
   orderClearForest,
   orderScrap,
   scrapReturn,
+  type FacilityType,
   type ScrapTarget,
-  orderFoundWorks,
+  orderRaiseWorks,
   type MissionType,
   inProse,
 } from '../sim';
@@ -422,8 +423,8 @@ export function App() {
     setState(result.state);
   };
 
-  const handleFound = (systemId: string) => {
-    const result = orderFoundWorks(state, systemId);
+  const handleRaise = (systemId: string, type: FacilityType) => {
+    const result = orderRaiseWorks(state, systemId, type);
     if (result.error) flash(result.error);
     setState(result.state);
   };
@@ -915,7 +916,7 @@ export function App() {
           }}
           onBuild={handleBuild}
           onCancel={handleCancel}
-          onFound={handleFound}
+          onRaise={handleRaise}
           onClear={handleClear}
           onBreakUp={setScrapFor}
           onSail={handleSail}
@@ -1054,6 +1055,11 @@ export function App() {
           onBuild={(facilityId, item, destinationId) => {
             handleBuild(facilityId, item, destinationId);
             setOrderOpen(false);
+          }}
+          onRaise={(systemId, type) => {
+            handleRaise(systemId, type);
+            setOrderOpen(false);
+            setDraft(null);
           }}
           onClose={() => setOrderOpen(false)}
         />

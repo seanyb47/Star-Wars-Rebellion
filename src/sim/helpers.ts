@@ -1,4 +1,5 @@
 import { GARRISON_FOR_BAND, SUPPORT_MAX, loyaltyBand } from './constants';
+import { WORKS_ON } from './constants';
 import type {
   Character,
   Deposit,
@@ -88,7 +89,22 @@ export function freeSlots(system: System): number {
  * losing it. A works that exists only as an order — a yard being laid down on
  * bare ground — goes with it.
  */
-export function handOver(system: System, to: Faction): void {
+export function handOver(state: GameState, system: System, to: Faction): void {
+  /*
+   * A works half raised comes down with the flag, and its ground goes back.
+   *
+   * The second half is new and is not optional. A founding works used to be a
+   * construction yard and nothing else, standing on a bare plot, so dropping
+   * it cost the world nothing. Since the yard was cut every building is raised
+   * this way — and an earner **takes its deposit the day it is ordered** — so
+   * an island that changed hands mid-build was quietly eating the forest or
+   * the vein the mill had been started on, for good.
+   */
+  for (const facility of system.facilities) {
+    if (!facility.founding) continue;
+    const ground = WORKS_ON[facility.type];
+    if (ground) returnDeposit(state, system, ground);
+  }
   system.facilities = system.facilities
     .filter((facility) => !facility.founding)
     .map((facility) => (facility.building ? { ...facility, building: undefined } : facility))

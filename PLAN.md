@@ -7300,3 +7300,118 @@ down.
 The **Coral Kiln** is the last works drawing a placeholder. Every other
 building on that page is now a painting, which makes the one line drawing
 conspicuous in a way it was not when there were two.
+
+## Cutting the construction yard
+
+Sean, 20 September, first as a question and then as a ruling:
+
+> *"I want to cut construction yards from the game. Instead you just build shit
+> anywhere you want. What do you think?"*
+>
+> *"Just cut the construction yards. Can just build anywhere / That way
+> buildings are never traveling / Well just increase their time to build / Cut
+> construction yards completely. Anyone can build on any available land. / So
+> gold becomes building constraint not the yard."*
+
+He is right, and the second message says why better than the first: **buildings
+are never travelling.** A building ordered at a yard on one island and shipped
+to another was the strangest object in the simulation — a fort in transit, a
+mine on a boat — and every screen that had to describe one was describing
+something nobody could picture. Cutting the yard does not just remove a
+building, it removes a *state*.
+
+### What replaced it
+
+`makerFor` now answers for two items only: a troop comes off a Training
+Facility floor, a hull off a Shipyard slip. Everything else has no maker, and
+`raiseWorks(state, systemId, type, owner)` puts it straight onto the island with
+a `founding: true` flag. `raiseWorksError` is the gate — island is yours, not in
+mutiny, a berth free, the ground under it if the works needs ground, the gold in
+the treasury, the craft grade if it wants one. The Buildings tab lists all eight
+works with the reason each cannot be raised, where it used to say "NOTHING TO
+BUILD WITH" and stop.
+
+A founding works builds with one pair of hands rather than a crew (`const hands
+= facility.founding ? 1 : crewOn(...)`), which is what makes the second half of
+Sean's ruling land: *"just increase their time to build"*. Every build time is
+**doubled** — mine 40, silver mine 32, refinery 24, coral kiln 24, fort 60,
+training facility 56, shipyard 84, heavy fort 108. The ×2 is measured, not
+picked; see below.
+
+### Three real bugs, and only one of them showed
+
+Measurement found all three, which is the argument for measuring.
+
+1. **`over-built x35685`, and 2.8 million gold.** A founding earner did not
+   consume its deposit, so an island with one gold vein could be given a mine,
+   and another, and another. The duel audit caught it as an island count; the
+   treasury caught it as a number no war has ever produced. Fixed by taking the
+   deposit **at order time** rather than on completion, which is also the honest
+   rule — the plot is spoken for the day you start digging.
+2. **`handOver` ate the ground.** An island changing hands dropped its founding
+   works without returning the deposit under them, so ground leaked out of the
+   world one conquest at a time. `handOver` now hands it back.
+3. **Raised earners froze at zero days left.** Completion re-checked
+   `depositsLeft < 1` — which `raiseWorks` had just made false by taking the
+   deposit at order time, per fix 1. So the works sat finished and never
+   finished. This one **only surfaced via a dispatch that never arrived**: a
+   settlement test asked for the "has been settled" line and got an empty array.
+   No audit rule covers it, no balance number moves, and a player would have
+   read it as the building simply being slow. Founding works are now exempt from
+   the completion re-checks, because the checks were already made when the order
+   was given.
+
+### What it did to the war
+
+Forty machine-played wars, seeds 9000+, both sides played by the AI:
+
+| | before | after |
+|---|---|---|
+| Crown — Confederacy | 20 — 18 | **16 — 24** |
+| median length | 1210 | **672** |
+| unfinished | 2 | **0** |
+| audit | clean | clean |
+| Lords taken | — | 1.30 of 3 |
+
+Halving the war's length and clearing the last two stalls is the win here. The
+balance shift is real and it is **not** a tuning accident, so it goes on the
+record with its diagnosis rather than being tuned away:
+
+**The Confederacy wins by taking Highwater. The Crown must hold all three Lords
+at once.** Cutting the yard removed 26% of all upkeep from the game — that is
+what a whole category of building costing nothing to keep amounts to — and for
+the Confederacy that was the missing money: it could finally afford the strike
+fleet it spent whole wars saving for and never launching. The Crown got no
+equivalent gain, because **its win condition is not purchasable.** Three Lords
+scattered across an unexplored chart are found by errands and luck, not bought.
+Cheaper building buys the Crown more of a ground war it already wins — 19.8
+islands to 8.6 — and then it loses anyway.
+
+Build time is a **weak lever** against this. ×1.5 gave 11—29; ×2 gives 16—24;
+×2.5 gives 7—13 of 20, which is noise in the same place. Moving the multiplier
+moves the length of the war much more than it moves who wins it, which is what
+you would expect if the deciding factor is a manhunt rather than an economy. ×2
+is kept because it is the value where the median war is shortest with nothing
+unfinished.
+
+So the next fix is **#125, the three-Lord manhunt**, not more time tuning. The
+Crown needs a way to *find* Lords that scales with effort the way building
+scales with gold; until it has one, every economic change will read as a Crown
+nerf whether or not it is one.
+
+### Tried and cut
+
+- **×1.5 build time** — 11—29 over forty wars, median 564. Too fast: the yard's
+  cost came out and nothing came in to replace it.
+- **×2.5 build time** — 7—13 of twenty wars, median 672. No better balanced than
+  ×2 and slower to reach; the lever had stopped moving.
+
+Both are recorded in `src/sim/constants.ts` beside the table they would have
+changed.
+
+### Loose ends
+
+The **Construction Yard art** is now orphaned — six of seven buildings had just
+been repainted and the yard was the last one carrying a faction banner, which is
+a problem that has solved itself. Its masters and manifest entries want
+retiring. The **Coral Kiln** is still the one works drawing a placeholder glyph.

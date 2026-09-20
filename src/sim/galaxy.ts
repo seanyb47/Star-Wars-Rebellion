@@ -48,7 +48,7 @@ import type {
   ResourceType,
 } from './types';
 import { recomputeLedger } from './economy';
-import { handOver, inProse, requiredGarrison, setSupport } from './helpers';
+import { inProse, requiredGarrison, setSupport } from './helpers';
 
 /**
  * What each Sea's islands look like.
@@ -216,26 +216,6 @@ const START_EARNERS: Record<PlayableFaction, { mines: number; refineries: number
  * build-rate rule was written for, since a second slipway on the same island
  * halves the time on the hull already on the stocks.
  */
-/**
- * Two construction yards, and the first one is not dealt at random.
- *
- * Sean, 20 September, after a playtest opened Freeport and found its Buildings
- * tab reading *"NOTHING TO BUILD WITH"*: *"I think Freeport and Highwater
- * should have construction yards at start. And maybe you're right we should
- * start with 2 construction yards. 1 at home base and 1 randomly on their
- * other starting locations. Keep shipyards and troop training to 1."*
- *
- * Both halves matter. A seat that cannot build on day one is a bad first
- * screen — everything else on the island sheet says *this is your capital* and
- * the one tab that says what to do with it says nothing can be done. And one
- * yard for a whole side, dealt at random, meant the side's only builder was as
- * likely as not to be on a backwater while the seat stood idle.
- *
- * So the seat takes one by name and the second goes round the table among the
- * side's other starting islands, which keeps the 14 September rule — makers
- * dealt at random — for every yard after the first.
- */
-const START_YARDS = 2;
 const START_TRAINING = 1;
 /** A yard for hulls, so a slipway is not the first thing you have to build. */
 const START_SHIPYARDS = 1;
@@ -808,7 +788,12 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     // and sat on the board as a second, greyed-out group of the same building.
     // Taking an island in play has always meant taking what is on it; the
     // opening has to mean the same thing.
-    handOver(system, owner);
+    //
+    // Written out rather than calling `handOver`, which now needs the state to
+    // put a half-built works's ground back — and the state does not exist yet
+    // when the opening is dealt. Nothing is half-built at the opening either,
+    // so the two halves of `handOver` that matter here are the two below.
+    system.facilities = system.facilities.map((facility) => ({ ...facility, owner }));
   };
   const loyal = () => rng.range(65, 85);
 
@@ -920,7 +905,6 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     const plan: FacilityType[] = [
       ...Array<FacilityType>(short('mine', START_EARNERS[owner].mines)).fill('mine'),
       ...Array<FacilityType>(short('refinery', START_EARNERS[owner].refineries)).fill('refinery'),
-      ...Array<FacilityType>(START_YARDS).fill('construction_yard'),
       ...Array<FacilityType>(START_TRAINING).fill('training_facility'),
       ...Array<FacilityType>(START_SHIPYARDS).fill('shipyard'),
     ];
@@ -934,27 +918,11 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         system.facilities.length + (system.deposits?.length ?? 0) + 1,
       );
     };
-    // The seat's yard, first and by name. Everything after it is dealt.
-    if (START_YARDS > 0) {
-      clearBerth(seat);
-      seat.facilities.push(makeFacility(makeId('fac'), 'construction_yard', owner));
-    }
-    // And the rest of the side's yards go round the table among its *other*
-    // starting islands, so the second one is somewhere the first is not.
-    const elsewhere = owned.filter((s) => s.id !== seat.id);
-    let yardsDealt = 1;
+    // The seat used to be given a construction yard here, by name and before
+    // anything else, because nothing could be built on an island without one.
+    // The yard is cut, so the seat is no longer a special case.
     for (const [index, type] of plan.entries()) {
-      const maker = type === 'construction_yard' || type === 'training_facility' || type === 'shipyard';
-      if (type === 'construction_yard') {
-        // The seat already took one.
-        if (yardsDealt >= START_YARDS) continue;
-        yardsDealt += 1;
-        // A side whose only island is its seat has nowhere else to put it.
-        const where = elsewhere.length > 0 ? rng.pick(elsewhere) : seat;
-        clearBerth(where);
-        where.facilities.push(makeFacility(makeId('fac'), type, owner));
-        continue;
-      }
+      const maker = type === 'training_facility' || type === 'shipyard';
       // An earner goes where the ground will carry it. A mill wants a forest
       // and a mine wants a vein, and the island that has one takes the works
       // — going round the table only among the islands that can hold it.

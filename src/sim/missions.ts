@@ -613,9 +613,10 @@ export function researchStillPossible(
    */
   if (craftGrade(state.factions[faction].craft) >= CRAFT_GRADES.length) return false;
   if (!system.explored[faction] || system.control !== faction || system.uprising) return false;
-  return system.facilities.some(
-    (f) => f.owner === faction && (f.type === 'shipyard' || f.type === 'construction_yard'),
-  );
+  // A slipway, and only a slipway. It used to accept a construction yard too,
+  // which was the wider net while the yard was the thing every island had;
+  // shipwright craft was always the shipyard's business.
+  return system.facilities.some((f) => f.owner === faction && f.type === 'shipyard');
 }
 
 /**
@@ -2596,7 +2597,7 @@ function parleyOutcome(
   if (rng.chance(joinChance(system, faction))) {
     const order = orderFor(state, system);
     system.control = faction;
-    handOver(system, faction);
+    handOver(state, system, faction);
     system.uprising = false;
     delete system.momentum;
     pushEvent(state, {

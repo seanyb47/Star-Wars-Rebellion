@@ -230,7 +230,7 @@ describe('research', () => {
     const yard = state.systems.find(
       (s) =>
         s.control === 'empire' &&
-        s.facilities.some((f) => f.type === 'shipyard' || f.type === 'construction_yard'),
+        s.facilities.some((f) => f.type === 'shipyard' || f.type === 'training_facility'),
     )!;
     yard.support.empire = RESEARCH_MIN_SUPPORT - 10;
     expect(isResearchTarget(state, yard, 'empire')).toBe(false);
@@ -279,7 +279,7 @@ describe('research', () => {
     const yard = state.systems.find(
       (s) =>
         s.control === 'empire' &&
-        s.facilities.some((f) => f.type === 'shipyard' || f.type === 'construction_yard'),
+        s.facilities.some((f) => f.type === 'shipyard' || f.type === 'training_facility'),
     )!;
     yard.support.empire = RESEARCH_MIN_SUPPORT + 5;
     expect(isResearchTarget(state, yard, 'empire')).toBe(true);
@@ -301,7 +301,7 @@ describe('research', () => {
     yard.control = 'empire';
 
     const yards = yard.facilities.filter(
-      (f) => f.type === 'shipyard' || f.type === 'construction_yard',
+      (f) => f.type === 'shipyard' || f.type === 'training_facility',
     );
     yard.facilities = yard.facilities.filter((f) => !yards.includes(f));
     expect(stillWorthDoing(state, yard, 'empire', 'research')).toBe(false);

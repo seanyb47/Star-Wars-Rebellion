@@ -145,7 +145,7 @@ export function ArtSheet() {
       </Row>
 
       <Row label="Buildings" note="at 30, which is where they have to work">
-        {(['mine', 'refinery', 'construction_yard', 'training_facility', 'shipyard'] as const).map(
+        {(['mine', 'refinery', 'training_facility', 'shipyard'] as const).map(
           (type) =>
             [30, 44].map((size) => (
               <Item key={`${type}-${size}`} caption={`${type.replace(/_/g, ' ')} ${size}`}>

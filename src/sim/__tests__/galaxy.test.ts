@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import reachData from '../../data/reaches.json';
+import { raiseWorksError } from '../build';
+import { YARD_BUILDABLE } from '../constants';
 import { generateGalaxy, START_CHARACTERS } from '../galaxy';
 import { depositsLeft } from '../helpers';
 import { isLord, lords } from '../lords';
@@ -185,50 +187,52 @@ describe('generateGalaxy', () => {
           .flatMap((s) => s.facilities)
           .filter((f) => f.owner !== faction),
       ).toHaveLength(0);
-      // Two construction yards, one drill ground, one slipway.
+      // One drill ground and one slipway, and no third maker.
       //
       // Sean's word of 20 September cut all three to one apiece — *"only 1 of
-      // each type of construction facility instead of 2 each"* — and he
-      // revised the yard later the same day, after a playtest opened Freeport
-      // and found its Buildings tab reading *"NOTHING TO BUILD WITH"*: *"I
-      // think Freeport and Highwater should have construction yards at start.
-      // And maybe you're right we should start with 2 construction yards. 1 at
-      // home base and 1 randomly on their other starting locations. Keep
-      // shipyards and troop training to 1."*
-      expect(count('construction_yard')).toBe(2);
+      // each type of construction facility instead of 2 each"* — then gave the
+      // construction yard a second back the same day so a seat could build,
+      // and then cut the yard out of the game entirely: *"Cut construction
+      // yards completely. Anyone can build on any available land."* So the
+      // count that used to be two is no count at all.
       expect(count('training_facility')).toBe(1);
       expect(count('shipyard')).toBe(1);
     }
   });
 
   /**
-   * The seat builds on day one.
+   * Every island builds, from the day you hold it.
    *
-   * A count of two yards a side says nothing about *where*, and where is the
-   * whole of what Sean asked for: a playtest on 20 September opened Freeport —
-   * the island the Confederacy was declared on, with the three Lords standing
-   * on its quay — and its Buildings tab read *"NOTHING TO BUILD WITH.
-   * Everything is raised by a construction yard standing on the same island."*
-   * Every other tab on that sheet says *this is your capital*.
+   * This used to test that both seats opened with a construction yard on them,
+   * after a playtest on 20 September opened Freeport — the island the
+   * Confederacy was declared on, with the three Lords standing on its quay —
+   * and found its Buildings tab reading *"NOTHING TO BUILD WITH. Everything is
+   * raised by a construction yard standing on the same island."*
    *
-   * Freeport is the harder half and the reason this is a test rather than a
-   * constant: it is not in `allianceSystems` at all, because it is dealt none
-   * of the opening's camps or mills. The yard is now the one exception, handed
-   * over by name before the deal starts.
+   * Sean's answer that morning was two yards, one of them dealt to the seat by
+   * name. His answer that afternoon was better: cut the yard. So the rule is
+   * no longer *which islands were given a builder* but that **there is nothing
+   * to give** — every island a side holds can raise something the moment it
+   * holds it, seats and backwaters alike, and no island can ever read
+   * "nothing to build with" again.
    */
-  it('puts a construction yard on both seats, and the second yard somewhere else', () => {
+  it('lets every island a side holds raise something on day one', () => {
     for (let seed = 1; seed <= 20; seed++) {
       const state = generateGalaxy(seed);
       for (const faction of ['empire', 'alliance'] as const) {
-        const held = state.systems.filter((s) => s.control === faction);
+        state.factions[faction].gold = 100_000;
         const seat = state.systems.find((s) => s.id === state.factions[faction].hqSystemId)!;
-        const yardsOn = (s: (typeof held)[number]) =>
-          s.facilities.filter((f) => f.owner === faction && f.type === 'construction_yard').length;
-        expect(yardsOn(seat), `${faction} seed ${seed}: ${seat.name} cannot build`).toBeGreaterThanOrEqual(1);
-        // And the second is a second island, not a second berth on the seat:
-        // "1 randomly on their other starting locations".
-        const elsewhere = held.filter((s) => s.id !== seat.id).reduce((n, s) => n + yardsOn(s), 0);
-        expect(elsewhere, `${faction} seed ${seed}: both yards on the seat`).toBe(1);
+        const held = state.systems.filter((s) => s.control === faction && !s.uprising);
+        expect(held.some((s) => s.id === seat.id) || seat.control === faction).toBe(true);
+        for (const island of [...held, seat]) {
+          const offered = YARD_BUILDABLE.filter(
+            (type) => raiseWorksError(state, island.id, type, faction) === null,
+          );
+          expect(
+            offered.length,
+            `${faction} seed ${seed}: ${island.name} can raise nothing`,
+          ).toBeGreaterThan(0);
+        }
       }
     }
   });

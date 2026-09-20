@@ -2289,6 +2289,16 @@ button.tcard:hover { border-color: var(--brass); }
    a <button> brings its own font, alignment and background and loses all
    three. The picture is a fixed column so the names line up down the list
    whether or not a thing has a painting yet. */
+/* Raise a building: the same row as the break-up list and deliberately so —
+   the two are the same gesture in opposite directions, and an island's
+   Buildings tab now ends with both. */
+.raiserow { width: 100%; font: inherit; text-align: left; cursor: pointer; }
+.raiserow:disabled { opacity: 0.45; cursor: default; }
+.raiserow__who { gap: 10px; align-items: center; min-width: 0; }
+.raiserow__who > :first-child { flex: none; width: 44px; display: flex; justify-content: center; }
+.raiserow__text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.raiserow__cost { flex: none; display: inline-flex; align-items: center; gap: 3px; font-weight: 700; }
+
 .scraprow { width: 100%; font: inherit; text-align: left; cursor: pointer; }
 .scraprow:disabled { opacity: 0.5; cursor: default; }
 .scraprow__who { gap: 10px; align-items: center; min-width: 0; }

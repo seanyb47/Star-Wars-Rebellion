@@ -274,7 +274,9 @@ describe('terminology', () => {
     expect(FACILITY_LABEL.mine).toBe('Gold Mine');
     expect(FACILITY_LABEL.refinery).toBe('Lumber Mill');
     // Sean's call, 14 September: the makers keep the original's plain names.
-    expect(FACILITY_LABEL.construction_yard).toBe('Construction Yard');
+    // The Construction Yard stood here until 20 September, when Sean cut it:
+    // *"Cut construction yards completely. Anyone can build on any available
+    // land."* Two makers left, and they keep the original's plain names.
     expect(FACILITY_LABEL.training_facility).toBe('Training Facility');
     expect(FACILITY_LABEL.shipyard).toBe('Shipyard');
     expect(YARD_BUILDS.shipyard.label).toBe(terms.facilities.shipyard);

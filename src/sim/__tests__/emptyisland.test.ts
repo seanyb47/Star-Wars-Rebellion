@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
 import { addShip, assault, assaultError } from '../fleets';
-import { buildError } from '../build';
+import { raiseWorksError } from '../build';
 import { getSystem } from '../helpers';
 import type { GameState, PlayableFaction, System } from '../types';
 
@@ -60,14 +60,14 @@ describe('an island with nobody on it', () => {
     const island = rock(state);
     landOn(state, island, 'alliance', 1);
 
-    // A yard somewhere else of theirs, ordering a wall onto the new rock.
-    const yard = state.systems
-      .flatMap((s) => s.facilities.map((f) => ({ s, f })))
-      .find(({ s, f }) => s.control === 'alliance' && f.owner === 'alliance' && f.type === 'construction_yard')!;
+    // A wall, raised on the rock itself. It used to need a works somewhere
+    // else of theirs to order it and then ship the builders over; since the
+    // construction yard was cut the island raises its own, which is the whole
+    // point of the change — a rock you have just taken is not a dead end.
     state.factions.alliance.gold = 2000;
     const after = getSystem(state, island.id);
     after.slots = Math.max(after.slots, 4);
-    expect(buildError(state, yard.f.id, 'fort', after.id)).toBeNull();
+    expect(raiseWorksError(state, after.id, 'fort', 'alliance')).toBeNull();
   });
 
   it('does not tell the player what its people think of the landing', () => {

@@ -96,7 +96,7 @@ export function resolveControlAndUnrest(state: GameState, rng?: Rng): void {
       const taker = otherFaction(system.control);
       const order = orderFor(state, system);
       system.control = taker;
-      handOver(system, taker);
+      handOver(state, system, taker);
       system.uprising = false;
       pushEvent(state, {
         kind: 'flip',

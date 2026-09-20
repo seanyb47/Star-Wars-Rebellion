@@ -231,7 +231,6 @@ export type FacilityType =
   | 'refinery'
   /** The mill's twin on a reef: the bottom rung where no timber grows. */
   | 'coral_kiln'
-  | 'construction_yard'
   | 'training_facility'
   | 'shipyard'
   /** A fixed gun in the harbor: a warship that cannot weigh anchor. */

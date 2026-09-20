@@ -1332,10 +1332,13 @@ export function Almanac({
 
       <div className="section-title">How a thing gets built</div>
       <div className="card small">
-        <b>One job of a kind at a time, per island.</b> A {FACILITY_LABEL.construction_yard.toLowerCase()}{' '}
-        raises structures, a {FACILITY_LABEL.shipyard.toLowerCase()} lays down hulls, a{' '}
-        {FACILITY_LABEL.training_facility.toLowerCase()} drills troops — so an island with all
-        three can have three things on the go at once, and never a fourth.
+        <b>A building is raised on the island that is getting it.</b> Any island you hold, any
+        open plot, no works needed first and nothing crossing water to reach it — what stops you
+        is the price and the ground. Hulls and {terms.troops.toLowerCase()} are different: a{' '}
+        {FACILITY_LABEL.shipyard.toLowerCase()} lays down hulls and a{' '}
+        {FACILITY_LABEL.training_facility.toLowerCase()} drills {terms.troops.toLowerCase()}, one
+        job of a kind at a time per island, and the more of that kind stand there the faster the
+        job goes.
         <br />
         <br />
         <b>More of a kind is speed, not volume.</b> Every works of that kind on the island puts its

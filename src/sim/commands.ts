@@ -3,7 +3,7 @@
  * new state, and never throws: failures come back as `error` so a mistimed tap
  * can never crash the game.
  */
-import { cancelBuild, clearForest, foundWorks, queueBuild } from './build';
+import { cancelBuild, clearForest, queueBuild, raiseWorks } from './build';
 import { recomputeLedger, scrap, scrapError, type ScrapTarget } from './economy';
 import {
   bombardError,
@@ -24,7 +24,7 @@ import { garrisonRoster } from './troops';
 import { continueMission, endMission, relieve, startMission } from './missions';
 import { resolveControlAndUnrest } from './support';
 import { syncHome } from './lords';
-import type { BuildItem, GameState, MissionType, PlayableFaction, Speed } from './types';
+import type { BuildItem, FacilityType, GameState, MissionType, PlayableFaction, Speed } from './types';
 
 export interface CommandResult {
   state: GameState;
@@ -99,7 +99,6 @@ export function orderBuild(
   return run(state, (draft) => queueBuild(draft, facilityId, item, destinationId));
 }
 
-/** Lay down a works on a held island with none; see foundWorks. */
 /**
  * Fell a forest to make room for something that is not a mill.
  *
@@ -126,8 +125,18 @@ export function orderScrap(state: GameState, what: ScrapTarget): CommandResult {
   });
 }
 
-export function orderFoundWorks(state: GameState, systemId: string): CommandResult {
-  return run(state, (draft) => foundWorks(draft, systemId, draft.player));
+/**
+ * Raise a building on an island you hold.
+ *
+ * The only way a building is built since Sean cut the construction yard: no
+ * maker to pick, no passage, and the island itself is the order's address.
+ */
+export function orderRaiseWorks(
+  state: GameState,
+  systemId: string,
+  type: FacilityType,
+): CommandResult {
+  return run(state, (draft) => raiseWorks(draft, systemId, type, draft.player));
 }
 
 export function cancelOrder(state: GameState, facilityId: string): CommandResult {
