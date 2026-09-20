@@ -61,6 +61,10 @@ this page is generated from it.
 
 *Small, Very Fast. CWN-INT-S02, research S02.*
 
+**PAINTED** — `src/art/ships/kestrel.webp`. Sent captioned *"swift 1"*,
+filed here for the same reason *"swift 2"* went to the Interceptor II.
+Pairs with it: ivory canvas and one pennant against the II's green rig.
+
 **Encyclopedia** *(shown in game)* — The Interceptor began as an Admiralty answer to smugglers that could outrun every ship sent after them: remove everything that does not help the chase, then train crews to accept what remains. It carries no armor and almost no comfort. Hammocks are struck before action, meals are taken on deck, and the ship's carpenters joke that the rigging is the strongest part of the hull. What it catches, it can harry; what catches it usually destroys it.
 
 **Visual identity** — A regulation pursuit cutter pushed to the edge of safety—clean, elegant and visibly fragile.

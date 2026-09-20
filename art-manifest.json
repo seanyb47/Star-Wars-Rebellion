@@ -5139,34 +5139,44 @@
     "ships/kestrel": {
       "folder": "ships",
       "slug": "kestrel",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
-      "title": "kestrel",
+      "updated": "2026-09-20",
+      "title": "Interceptor I",
       "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
-      "crop": {
-        "x": 1,
-        "y": 0,
-        "w": 232,
-        "h": 174
-      },
+      "notes": "Commission of 20 September 2026, captioned 'swift 1'. Filed as Interceptor I, on the same reading that put 'swift 2' on the Interceptor II: the Swift is a Confederate Shoal-folk outrigger with no gun aboard, and this is a Crown cutter with a green pursuit pennant and a green-coated crew. Matches Part 4: knife-thin low hull, sharply raked bow, two raked masts and an outsized spread of fore-and-aft canvas, light timber with minimal bulwarks over a narrow copper strip at the waterline, ivory canvas with one green pennant and a small Crown emblem and pointedly no elite green sails, heeled hard in bright wind with a distant sail to run down. The guardrail holds - she is not bulked up and carries nothing heavier than a light gun. Slug is kestrel, the Interceptor I's art filename from before the v3 rename. Delivered 1448x1086, 4:3, no crop.",
+      "crop": null,
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/ships/kestrel.webp",
-        "w": 234,
-        "h": 174,
-        "bytes": 24972,
-        "sha1": "58e4337848b55141"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 556964,
+        "sha1": "3b116bf5b26e456d"
       },
       "shipped": {
         "file": "src/art/ships/kestrel.webp",
         "w": 640,
         "h": 480,
-        "bytes": 36146,
-        "sha1": "08d62630ae004eaf"
-      }
+        "bytes": 74386,
+        "sha1": "14ef3d2fa61a1cb8"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/kestrel.v1.webp",
+          "crop": {
+            "x": 1,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
     },
     "ships/kestrel-ii": {
       "folder": "ships",
