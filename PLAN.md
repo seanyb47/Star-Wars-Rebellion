@@ -7248,3 +7248,30 @@ Five of the seven are Sean's new paintings now. Construction Yard and Training
 Facility are the two left from the original contact sheet, and they are also
 the two that still carry faction banners in the art — which is now the odd
 thing rather than the normal one.
+
+## The Training Facility, repainted
+
+Sean, 20 September: *"Training facility."* A drill yard — three straw pells on
+their stands, three men working a musket through the drill, the armoury behind
+them, and a rack of muskets and a target at the right.
+
+The whole width is the crop, `0,430,1448,385`, and for once the natural one was
+also the best: six boxes rendered at both windows and none of the tighter ones
+beat it. The band holds the entire scene, the slot tile holds pells and men,
+and the card holds a pell with two men in the drill stance — which is the thing
+the building does, with a person doing it.
+
+Worth noting against the last five: every other new painting needed the subject
+hunted down and centred, because the subject was one object in a tall frame.
+This one is a *yard*, laid out left to right, and a 3.76:1 band is the shape a
+yard already is. Composition that suits the band needs no rescuing from it.
+
+### Six of seven
+
+Only the **Construction Yard** is left from the original contact sheet, and it
+is now the last building whose art carries a painted faction banner — every
+other works looks the same whoever holds it. That is a consistent rule now,
+just not the one the set started with.
+
+Still unpainted and still drawing their glyphs: the **Silver Mine** and the
+**Coral Kiln**, the two works added today.

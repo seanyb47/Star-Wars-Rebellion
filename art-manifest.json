@@ -1971,66 +1971,96 @@
     "islands/facility-training-facility-alliance": {
       "folder": "islands",
       "slug": "facility-training-facility-alliance",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
-      "title": "Facility Training Facility Alliance",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "updated": "2026-09-20",
+      "title": "Training Facility \u2014 alliance",
+      "source": "Sean, 20 September: training facility new art",
+      "notes": "One painting for both sides; the delivery carries no faction marks.",
       "crop": {
-        "x": 11,
-        "y": 0,
-        "w": 742,
-        "h": 197
+        "x": 0,
+        "y": 430,
+        "w": 1448,
+        "h": 385
       },
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/islands/facility-training-facility-alliance.webp",
-        "w": 765,
-        "h": 197,
-        "bytes": 83142,
-        "sha1": "943826ffd26ca34c"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 637806,
+        "sha1": "c7210b3caa521c2e"
       },
       "shipped": {
         "file": "src/art/islands/facility-training-facility-alliance.webp",
         "w": 768,
         "h": 204,
-        "bytes": 41688,
-        "sha1": "62a4683a442848f8"
-      }
+        "bytes": 44376,
+        "sha1": "4b44b326e42a6ad8"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/islands/facility-training-facility-alliance.v1.webp",
+          "crop": {
+            "x": 11,
+            "y": 0,
+            "w": 742,
+            "h": 197
+          },
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "islands/facility-training-facility-empire": {
       "folder": "islands",
       "slug": "facility-training-facility-empire",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
-      "title": "Facility Training Facility Empire",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "updated": "2026-09-20",
+      "title": "Training Facility \u2014 empire",
+      "source": "Sean, 20 September: training facility new art",
+      "notes": "One painting for both sides; the delivery carries no faction marks.",
       "crop": {
-        "x": 10,
-        "y": 0,
-        "w": 742,
-        "h": 197
+        "x": 0,
+        "y": 430,
+        "w": 1448,
+        "h": 385
       },
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/islands/facility-training-facility-empire.webp",
-        "w": 763,
-        "h": 197,
-        "bytes": 94726,
-        "sha1": "0305f80466b36a35"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 637806,
+        "sha1": "c7210b3caa521c2e"
       },
       "shipped": {
         "file": "src/art/islands/facility-training-facility-empire.webp",
         "w": 768,
         "h": 204,
-        "bytes": 51620,
-        "sha1": "bb71d6da0a424519"
-      }
+        "bytes": 44376,
+        "sha1": "4b44b326e42a6ad8"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/islands/facility-training-facility-empire.v1.webp",
+          "crop": {
+            "x": 10,
+            "y": 0,
+            "w": 742,
+            "h": 197
+          },
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "islands/free-harbor": {
       "folder": "islands",

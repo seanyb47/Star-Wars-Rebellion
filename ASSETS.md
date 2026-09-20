@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**181 of 194 painted.** 7489KB shipped, 54.4MB of masters kept back.
+**181 of 194 painted.** 7485KB shipped, 55.5MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -136,8 +136,8 @@ low approach, as if from a boat; a banner on the island panel. 24 of 29.
 | Lumber Mill — Crown Imperium | `facility-refinery-empire` | 2 (+1 retired) | 35KB | 1448×1086, 619KB | 888×236 @ 560,600 | 2026-09-12 | Sean, 20 September: lumber mill new art |
 | Shipyard — Free Confederacy | `facility-shipyard-alliance` | 2 (+1 retired) | 35KB | 1448×1086, 572KB | 1200×319 @ 140,250 | 2026-09-12 | Sean, 20 September: shipyard new art |
 | Shipyard — Crown Imperium | `facility-shipyard-empire` | 2 (+1 retired) | 35KB | 1448×1086, 572KB | 1200×319 @ 140,250 | 2026-09-12 | Sean, 20 September: shipyard new art |
-| Facility Training Facility Alliance | `facility-training-facility-alliance` | 1 | 40KB | 765×197, 81KB | 742×197 @ 11,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Facility Training Facility Empire | `facility-training-facility-empire` | 1 | 50KB | 763×197, 92KB | 742×197 @ 10,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Training Facility — alliance | `facility-training-facility-alliance` | 2 (+1 retired) | 43KB | 1448×1086, 622KB | 1448×385 @ 0,430 | 2026-09-12 | Sean, 20 September: training facility new art |
+| Training Facility — empire | `facility-training-facility-empire` | 2 (+1 retired) | 43KB | 1448×1086, 622KB | 1448×385 @ 0,430 | 2026-09-12 | Sean, 20 September: training facility new art |
 | Free Harbor | `free-harbor` | 1 | 38KB | 765×208, 79KB | 765×203 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Ice Isle | `ice-isle` | 1 | 33KB | 765×200, 69KB | 753×200 @ 6,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Jungle Isle | `jungle-isle` | 1 | 39KB | 763×200, 76KB | 753×200 @ 5,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
@@ -329,8 +329,8 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **islands/facility-refinery-empire** — One painting for both sides; the delivery carries no faction marks.
 - **islands/facility-shipyard-alliance** — Same painting as the Crown's; the delivery carries no faction marks.
 - **islands/facility-shipyard-empire** — One painting for both sides; the delivery carries no faction marks.
-- **islands/facility-training-facility-alliance** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
-- **islands/facility-training-facility-empire** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/facility-training-facility-alliance** — One painting for both sides; the delivery carries no faction marks.
+- **islands/facility-training-facility-empire** — One painting for both sides; the delivery carries no faction marks.
 - **islands/free-harbor** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/ice-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/jungle-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
