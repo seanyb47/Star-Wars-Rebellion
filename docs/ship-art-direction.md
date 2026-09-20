@@ -1,6 +1,6 @@
 # Ship art direction — all 28 hulls
 
-**Canon.** This is Part 4 of [`COMBAT-MASTER-v4.md`](../COMBAT-MASTER-v4.md),
+**Canon.** This is Part 4 of [`COMBAT-MASTER-v4.2.md`](../COMBAT-MASTER-v4.2.md),
 the Lore & Visual Identity tab, reproduced per ship beside its Part 3 stats.
 v4 arrived on 20 September 2026: three more hulls, and the Blackfin rewritten
 to the twin-hulled war canoe her painting turned out to be.
@@ -376,7 +376,7 @@ visible behind their open side doors, which is her signature detail.
 
 *Gigantic, Slow. CWN-MAJ-R8-01, research R8.*
 
-**PAINTED** — `src/art/ships/majestic.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
+**PAINTED** — `src/art/ships/majestic.webp` (v3). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — Majestic is the Admiralty's final argument made timber, iron and canvas: fortress, flagship, invasion carrier and national ceremony in a single immense hull. Its rare pale-golden masts are bound with gilded iron and carry Crowned Imperial Battle Sails found on no other vessel—luminous ivory canvas framed in botanical green, stitched with restrained gold and bearing only two small seals of authority. The rig is opulent because it is perfectly made, not because it abandons naval physics. Decks broad enough for formal parade conceal magazines, assault launches and batteries capable of erasing a harbor. Yet Majestic is not a floating palace. Every gallery, mast and ornament serves the ship, making overwhelming power look like the inevitable achievement of civilization.
 
@@ -425,7 +425,7 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 *Medium, Fast. CFS-BRI-S02, research S02.*
 
-**PAINTED** — `src/art/ships/brig.webp` (v1). Mirrored from the register, which is the authority; see the note at the head of this file.
+**PAINTED** — `src/art/ships/brig.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — Most Brigantines began as honest merchant vessels, although their captains disagree about when honesty ended. Cargo partitions have become troop berths, concealed ports hold a pair of light guns and every spare beam carries a pulley for loading whatever the next island needs. They are the Confederacy's connective tissue: not heroic, rarely famous, and present at every uprising before the songs arrive.
 
@@ -513,7 +513,7 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 *Small, Normal. CFS-CUT-R2-01, research R2.*
 
-**PAINTED** — `src/art/ships/cutlass.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
+**PAINTED** — `src/art/ships/cutlass.webp` (v3). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — The Cutlass is the closest thing the Confederacy has to a conventional fleet ship, which is why no two look entirely alike. The basic plan is simple enough to copy in small island yards: compact hull, useful armor and enough heavy guns to threaten something larger. Captains personalize the rig, but the rising curve of the bow remains. Seen in profile it resembles the guard of the weapon that gave the class its name.
 
@@ -565,7 +565,7 @@ so the painting stands.
 
 *Medium, Fast. CFS-TEM-R3-01, research R3.*
 
-**PAINTED** — `src/art/ships/tempest.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
+**PAINTED** — `src/art/ships/tempest.webp` (v3). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — Tempests come from the Sea of Storms, where captains learned to carry sail in weather that sends other ships searching for shelter. Their hybrid rig can shift from long reaching canvas to tight storm triangles without striking a mast. Long guns open the fight before the ship races close enough to land troops beneath the squall. A Tempest is rarely painted against a calm horizon because nobody remembers seeing one there.
 

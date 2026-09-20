@@ -4797,34 +4797,44 @@
     "ships/brig": {
       "folder": "ships",
       "slug": "brig",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
-      "title": "brig",
+      "updated": "2026-09-20",
+      "title": "Brigantine",
       "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
-      "crop": {
-        "x": 1,
-        "y": 0,
-        "w": 232,
-        "h": 174
-      },
+      "notes": "Gun-brig (6), Free Confederacy. Replaces v1, which was a 234x174 slice off the original contact sheet and the last hull in the game still showing one - which is why she looked wrong beside twenty-seven commissions. A round-bellied twin-mast brig with mismatched patched canvas in cream, faded crimson and sun-bleached tan, a crowded working deck, cargo under an awning aft and a gun run out amidships with the smoke still on it. Dependable, adaptable and visibly lived in rather than sleek or derelict, which is her guardrail exactly. She flies the Confederacy's own skull-and-cutlasses, which is their sigil rather than a jolly roger.",
+      "crop": null,
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/ships/brig.webp",
-        "w": 234,
-        "h": 174,
-        "bytes": 22046,
-        "sha1": "35f10945e4465c39"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 682162,
+        "sha1": "4a725fd0faa851b6"
       },
       "shipped": {
         "file": "src/art/ships/brig.webp",
         "w": 640,
         "h": 480,
-        "bytes": 31820,
-        "sha1": "725dc9e9d29de2a0"
-      }
+        "bytes": 86298,
+        "sha1": "11fa344328a1e725"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/brig.v1.webp",
+          "crop": {
+            "x": 1,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
     },
     "ships/bulwark": {
       "folder": "ships",
@@ -4935,12 +4945,12 @@
     "ships/cutlass": {
       "folder": "ships",
       "slug": "cutlass",
-      "version": 2,
+      "version": 3,
       "added": "2026-09-16",
-      "updated": "2026-09-19",
-      "title": "cutlass",
+      "updated": "2026-09-20",
+      "title": "Cutlass",
       "source": "Sean, 19 September \u2014 production painting",
-      "notes": "The Cutlass proper, replacing the 234x174 contact-sheet slice that had been standing in since 16 September. A small corvette with iron banding bolted along her side, a row of light guns and a bow chaser, red-striped main and the Confederacy's own crest on the mizzen, running out past sea stacks at first light.",
+      "notes": "Corvette (20), Free Confederacy. Replaces v2. Her signature reads: the pronounced rising bow curve the sheet asks for is the loudest line in the painting, echoing a cutlass guard without being a sword prow, and a heavy piece is run out over it threatening something larger - which is the class's whole argument. Compact full-bodied hull, crimson lateen canvas, a small white foresail. One divergence recorded: the sheet asks for LIGHT salvaged armor with brass edging and cream-and-crimson divided sails, and this is plated bow to stern in iron and reads considerably heavier than a compact corsair fighter - closer to a razee than to the Confederacy's conventional small warship.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -4948,15 +4958,15 @@
         "file": "art-masters/ships/cutlass.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 602012,
-        "sha1": "ec13a242577b49b4"
+        "bytes": 610338,
+        "sha1": "a7142880c5162145"
       },
       "shipped": {
         "file": "src/art/ships/cutlass.webp",
         "w": 640,
         "h": 480,
-        "bytes": 77990,
-        "sha1": "bb7c7f25f9ed2f55"
+        "bytes": 68866,
+        "sha1": "aa016b9490effcf9"
       },
       "history": [
         {
@@ -4971,6 +4981,14 @@
           },
           "tone": null,
           "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        },
+        {
+          "version": 2,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/cutlass.v2.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean, 19 September \u2014 production painting"
         }
       ]
     },
@@ -5270,12 +5288,12 @@
     "ships/majestic": {
       "folder": "ships",
       "slug": "majestic",
-      "version": 2,
+      "version": 3,
       "added": "2026-09-16",
-      "updated": "2026-09-19",
-      "title": "majestic",
+      "updated": "2026-09-20",
+      "title": "Majestic",
       "source": "Sean, 19 September \u2014 production painting",
-      "notes": "Replaces the 234\u00d7174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered 1448\u00d71086, exactly 4:3, so the whole painting ships with no crop.",
+      "notes": "1st rate (104), Crown Imperium. Replaces v2. Wins the way her guardrail says she should - through scale, proportion and discipline, and not through menace. Three tiers of gunports the length of an enormous gilded hull, a crowned lion figurehead, green-and-cream canvas carrying the Crown's crowned anchor-and-compass, and crew lining every yard and gallery in ranks. Nothing sinister, nothing coral-grown, nothing steampunk, and she reads as a ship that could float. The ARMOR CROWN of the fleet looks like the most expensive object in the world, which is what 2,610 gold and 1,045 days is meant to buy.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -5283,15 +5301,15 @@
         "file": "art-masters/ships/majestic.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 688048,
-        "sha1": "ede3b5ae8b079887"
+        "bytes": 715750,
+        "sha1": "cc2974360d84cadc"
       },
       "shipped": {
         "file": "src/art/ships/majestic.webp",
         "w": 640,
         "h": 480,
-        "bytes": 86156,
-        "sha1": "d6305a8258396cc0"
+        "bytes": 104438,
+        "sha1": "e558c8e746a7824b"
       },
       "history": [
         {
@@ -5306,6 +5324,14 @@
           },
           "tone": null,
           "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        },
+        {
+          "version": 2,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/majestic.v2.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean, 19 September \u2014 production painting"
         }
       ]
     },
@@ -5712,12 +5738,12 @@
     "ships/tempest": {
       "folder": "ships",
       "slug": "tempest",
-      "version": 2,
+      "version": 3,
       "added": "2026-09-16",
-      "updated": "2026-09-19",
-      "title": "tempest",
+      "updated": "2026-09-20",
+      "title": "Tempest",
       "source": "Sean, 19 September \u2014 production painting",
-      "notes": "Replaces the 234x174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered at 1448x1086, exactly 4:3, so the whole painting ships with no crop.",
+      "notes": "Light frigate (26), Free Confederacy. Replaces v2. The scene is hers and nothing else in the fleet could stand in for it: carrying sail in weather that sends other ships looking for shelter, lightning behind and a torn sunset ahead, which is the one thing her entry insists on - a Tempest is rarely painted against a calm horizon because nobody remembers seeing one there. Black canvas edged in crimson, the Confederacy's own skull-and-cutlasses on the mainsail and at the masthead, an eagle-headed beak over a rising sea. Two divergences recorded: the sheet asks for a xebec-like medium hull, very long and low, with three raked masts carrying rust-crimson lateens mixed with small cream square topsails, and this is a conventional square-rigged ship of some freeboard in near-black canvas.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -5725,15 +5751,15 @@
         "file": "art-masters/ships/tempest.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 740212,
-        "sha1": "68a4e423978daa6c"
+        "bytes": 697596,
+        "sha1": "dfe9717f7d4da588"
       },
       "shipped": {
         "file": "src/art/ships/tempest.webp",
         "w": 640,
         "h": 480,
-        "bytes": 93962,
-        "sha1": "2c4ba32c5b6ee408"
+        "bytes": 80920,
+        "sha1": "0bb3d1bd8d694fbc"
       },
       "history": [
         {
@@ -5748,6 +5774,14 @@
           },
           "tone": null,
           "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        },
+        {
+          "version": 2,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/tempest.v2.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean, 19 September \u2014 production painting"
         }
       ]
     },

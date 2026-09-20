@@ -94,8 +94,14 @@ describe('the ship card is the same shape on every hull', () => {
   it('counts what Carries carries, and gets the singular right', () => {
     expect(SOURCE).toMatch(/unit=\{\[terms\.troop\.toLowerCase\(\), terms\.troops\.toLowerCase\(\)\]\}/);
     expect(SOURCE).toContain('value === 1 ? unit[0] : unit[1]');
-    // Non-vacuity for the singular: at least one hull carries exactly one.
-    expect(SHIPS.filter((s) => Number(s['Troop Capacity']) === 1).length).toBeGreaterThan(0);
+    // No hull carries exactly one any more — v4.2 took the Resolute from 1 to
+    // 3 and she was the last. The branch stays, and is asserted above rather
+    // than exercised here, because troop capacity is data: the next roster
+    // revision can put a 1 back and nobody will remember to look. What this
+    // checks is that the pair is real and the data has not quietly gone all
+    // one way, which would make the plural the only thing anyone ever sees.
+    const carried = SHIPS.map((s) => Number(s['Troop Capacity']));
+    expect(new Set(carried).size, 'every hull carries the same number').toBeGreaterThan(2);
     // And a zero still reads None rather than "None troops".
     expect(SOURCE).toContain('typeof value === \'number\' && value > 0');
   });

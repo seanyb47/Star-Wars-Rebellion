@@ -193,7 +193,7 @@ Two advisor characters, one per faction, each at their faction's end of the tab 
 
 ## 10. CANONICAL SOURCES (live documents — canon without duplication here)
 
-> **Combat canon is [`COMBAT-MASTER-v4.md`](COMBAT-MASTER-v4.md), in this repo.**
+> **Combat canon is [`COMBAT-MASTER-v4.2.md`](COMBAT-MASTER-v4.2.md), in this repo.**
 > Sean supplied it on 20 September 2026 and it says so itself: *"THE single
 > authoritative reference for the entire naval combat system… Supersedes v3
 > (19 Sep 2026) and all prior roster sheets, combat docs, and the v2.4 JSON."* It folds sources 1–3

@@ -1,5 +1,5 @@
-MASTER OF THE SEVEN SEAS — COMBAT MASTER FILE (v4)
-20 Sep 2026. THE single authoritative reference for the entire naval combat system: rules, formulas, pricing system, full ship roster, derived combat stats, encyclopedia and art direction, and simulation results. Supersedes v3 (19 Sep 2026) and all prior roster sheets, combat docs, and the v2.4 JSON. Roster is 28 ships: 14 Crown Imperium, 14 Free Confederacy. Everything below is locked and calibrated against a 5,000-trial Monte Carlo engine (full 28x28 matchup matrix plus fleet, swarm, and retreat scenarios). Spelling is "Armor" throughout.
+MASTER OF THE SEVEN SEAS — COMBAT MASTER FILE (v4.2)
+20 Sep 2026. THE single authoritative reference for the entire naval combat system: rules, formulas, pricing system, full ship roster, derived combat stats, encyclopedia and art direction, and simulation results. Supersedes v3 (19 Sep 2026) and all prior roster sheets, combat docs, and the v2.4 JSON. v4.1 tuning (20 Sep 2026, from the 351-matchup equal-gold battery): Urskin Goliath upkeep 16 -> 28/day (valve); Blackfin repriced 500 -> 375 gold (C -> B); Resolute Troops 1 -> 3. v4.2 (20 Sep 2026): Coral-Class build 900 -> 1,300 days (longest build in the game); Majestic Repair 1.0 -> 0.8%/day (displays: Slow); Tidestalker maintenance 3.5 -> 2.5/day; Part 2B Economy Doctrine added. v4.2 lore amendment (Sean, 20 Sep 2026): "I know the reef stuff is sung into existence but these ships are still made in shipyards and require them. The coral is part of them. It's a mix of ship making and magic." Reef hulls are LAID DOWN IN YARDS and then sung up over a framed timber spine — the coral is part of the ship, not instead of it. Corrected wherever the text read grown-not-built: Part 2B rule 1, Tidestalker, Reefwarden, Coral-Class. Roster is 28 ships: 14 Crown Imperium, 14 Free Confederacy. Everything below is locked and calibrated against a 5,000-trial Monte Carlo engine (full 28x28 matchup matrix plus fleet, swarm, and retreat scenarios). Spelling is "Armor" throughout.
 
 ================================================================================
 PART 1 — COMBAT SYSTEM RULES AND FORMULAS
@@ -40,7 +40,7 @@ FLEE never fails, and only enemy LONG GUNS fire on a fleeing fleet, in up to fou
 - Volley 3 -> resolve -> update -> surviving Normal ships escape.
 - Volley 4 -> resolve -> update -> surviving Slow ships escape.
 Every surviving pursuing Long Gun fires in each volley; targets re-assigned among still-exposed ships each volley; normal Long Gun accuracy vs Size/Speed applies.
-STERN RAKE: retreat attacks IGNORE ARMOR (100% penetration) — raking fire down the exposed stern. Simmed v3 costs: early game 0% (no Long Guns yet); mid-game fleet ~16% of fleet hull; late-game slow fleet ~15%; a lone fleeing Majestic ~41%. Fallback dial if playtests show retreat too punishing: 50% penetration on retreat fire instead of 100%.
+STERN RAKE: retreat attacks IGNORE ARMOR (100% penetration) — raking fire down the exposed stern. Simmed v4 costs: early game 0% (no Long Guns yet); mid-game mixed fleet ~25% of fleet hull (fast ships escape early — a fleeing Witchlight eats one volley and is gone); late-game slow fleet ~21%; a lone fleeing Majestic ~27%. At v4 hulls, retreat costs hull, not ships — outright sinkings during a retreat are rare. Fallback dial if playtests show retreat too punishing: 50% penetration on retreat fire instead of 100%.
 Component-damage hook: the "update status" step is where component damage will land — a ship knocked down a Speed class mid-retreat is caught by additional volleys. Component damage itself is outside the current model.
 
 6. REPAIR
@@ -83,9 +83,23 @@ PRICING PROCESS:
 3. Subtract automatic weaknesses (cap -25%): Glass hull -15% (no Armor + T1 Hull); Slow without reach -10% (Slow + no Long Guns); Unscreened heavy hull -5% (T3+ Armor or Hull + no Light Guns); Poor recovery -10% (below-rate Repair on T3+ Armor or Hull). A zero stat alone is never a discount.
 4. Capital scaling on UNWEIGHTED points: +20% at 30-39, +40% at 40-49, +60% at 50+. Round to nearest 5 gold.
 5. Price Ratio = Actual Build Cost / Scaled Reference Cost. Ratings: S (Value Monster) <55% / A 55-74% / B 75-89% / C 90-110% / D 111-135% / F >135%.
-Every ship keeps its confirmed v2 purchase-value letter by design; each S-tier carries a control valve (e.g. Marauder pays ~200% baseline upkeep).
+Every ship keeps its confirmed v2 purchase-value letter by design (v4.1 exception by explicit call: Blackfin C -> B); each S-tier carries a control valve (e.g. Marauder pays ~200% baseline upkeep).
 
 ECONOMY BASELINES: Maintenance on-rate = ceil(1% of build gold) per day (maintenance controls fleet quantity). Build time on-rate = 1 day per gold. Gun sanity check: raw gun count x 50 gold remains a secondary armament-density check only.
+
+================================================================================
+PART 2B — ECONOMY DOCTRINE (rules of thumb — price every future ship by these)
+================================================================================
+
+Benchmarks: build on-rate = 1 day per gold; maintenance on-rate = 1% of build gold per day; repair on-rate = 1.0% of hull per day (days back to full = 100 / repair%).
+
+1. BUILD TIME — "Gold buys timber; time grows hulls." Absolute days track the size of the bill (Majestic 1,045; Coral-Class 1,300). The RATE — days per gold of capability — tracks who does the building: standardized yards and self-building crews run fast (Justiciar, Vanguard II, Marauder, Resolute); grown, salvaged, and secret hulls run slow for their price (Tidestalker, Reefwarden, Chimera, Wraith). A dreadnaught is laid down like any other capital ship and then WOKEN — the yard frames her, the singers bring the coral up over the frame, and between the slipway and the waking it takes four years: the Coral-Class is the longest build in the game. No reef hull escapes needing a yard; the magic is in what grows on the frame, not in the absence of one.
+
+2. BUILD COST — "Full rate for iron, armor, and magic; discounts only when someone works free." Every bargain (S-tier) is a ship where labor is donated: crews building their own hulls, yards on their thousandth copy. Full price buys armor plate (Bulwark, Morningstar), prestige (Sovereign), and magic (Witchlight, Goliath) — reef singers and conjure-folk do not discount.
+
+3. MAINTENANCE — "Upkeep is crew and iron, and no bargain stays cheap." Every below-rate purchase pays above-rate upkeep — that is the valve (Interceptor II 4.6%/day of cost, Vanguard 3.3%, Cutlass 2.9%, Tempest 2.7%, Marauder ~200% of rate). Rusting iron and big crews eat gold (Morningstar 3.0%, Ironback 2.8%, Bulwark 3.2%, Goliath's clan at 1.75%); living hulls feed themselves (Reefwarden 0.7%, Coral-Class 0.8%, Tidestalker 0.86%); honest small crews cost almost nothing (Swift and Brigantine ~0.4%).
+
+4. REPAIR — "The Crown repairs by standardization; the Confederacy repairs by regeneration; everyone else waits." Fast repair is interchangeable parts (the Vanguard family, Resolute, Justiciar) or living coral (Tidestalker and Coral-Class 4.0%, Reefwarden 2.5%). Slow repair is rushed construction (Morningstar), salvage or captured hulls with no parts chain (Chimera, Ironback), armor slabs that need a dry dock (Bulwark) — and gilded one-off work: Majestic repairs Slow (0.8%) because only the royal dockyard at Yarrow Minor can mend her.
 
 ================================================================================
 PART 3 — SHIP ROSTER (v4): STATS, ECONOMY, RATINGS, SIM PERFORMANCE
@@ -144,10 +158,10 @@ Design note: 12-gun flat-bottomed swamp raider poled and rowed by Bog-folk clans
 --- RESOLUTE (CWN-RES-R2-01) ---
 Crown Imperium | Research R2 | Sloop-of-war (18)
 Speed Fast | Size Medium | Guns: 0 Long / 4 Heavy / 14 Light = 18 total | Armor 8 | Hull 1100
-Bombardment 1 | Troops 1 | Repair 2.0% (displays: Fast) | Avg raw volley 462
-Economy: 350 gold | 50 days to build | 8.2 gold/day maintenance | Reference cost 540 | Price ratio 64.8% | Rating A — Very Above Rate
+Bombardment 1 | Troops 3 | Repair 2.0% (displays: Fast) | Avg raw volley 462
+Economy: 350 gold | 50 days to build | 8.2 gold/day maintenance | Reference cost 620 | Price ratio 56.5% | Rating A — Very Above Rate
 Sim: mean 1v1 win rate 34.7% across the roster
-Design note: 18-gun sloop-of-war. Fast multirole workhorse with rapid construction and inefficient upkeep.
+Design note: 18-gun sloop-of-war. Fast multirole workhorse with rapid construction and inefficient upkeep. v4.1: Troops 1 -> 3 — the Crown's fast early trooper, a job Vanguard cannot do (Vanguard otherwise dominates it gold-for-gold).
 
 --- BULWARK (CWN-BUL-R3-01) ---
 Crown Imperium | Research R3 | 4th rate (50)
@@ -200,10 +214,10 @@ Design note: 90-gun second rate carrying the game's largest heavy battery (52); 
 --- MAJESTIC (CWN-MAJ-R8-01) ---
 Crown Imperium | Research R8 | 1st rate (104)
 Speed Slow | Size Gigantic | Guns: 30 Long / 46 Heavy / 28 Light = 104 total | Armor 30 | Hull 13900
-Bombardment 12 | Troops 12 | Repair 1.0% (displays: Normal) | Avg raw volley 3150
-Economy: 2610 gold | 1045 days to build | 52.2 gold/day maintenance | Reference cost 4215 | Price ratio 61.9% | Rating A — Very Above Rate
+Bombardment 12 | Troops 12 | Repair 0.8% (displays: Slow) | Avg raw volley 3150
+Economy: 2610 gold | 1045 days to build | 52.2 gold/day maintenance | Reference cost 3880 | Price ratio 67.3% | Rating A — Very Above Rate
 Sim: mean 1v1 win rate 99.4% across the roster
-Design note: 104-gun first rate — ARMOR CROWN (Maximum 30, unique) and largest long-gun battery (30). Strongest single ship; any pair of Confederate capitals sinks it. 1,045 days and ruinous upkeep.
+Design note: 104-gun first rate — ARMOR CROWN (Maximum 30, unique) and largest long-gun battery (30). Strongest single ship; any pair of Confederate capitals sinks it. 1,045 days and ruinous upkeep. v4.2: Repair now Slow (0.8%) — gilded one-off fittings only the royal dockyard at Yarrow Minor can make; a wounded flagship is out for four months, so risking her costs something even in victory.
 
 --- SWIFT (CFS-SWI-S01) ---
 Free Confederacy | Research S01 | Dispatch schooner (0)
@@ -233,7 +247,7 @@ Design note: 20-gun improvised sixth rate from salvage: 6 heavy, 14 light, Mediu
 Free Confederacy | Research S04 | Sloop-of-war (18)
 Speed Normal | Size Medium | Guns: 0 Long / 0 Heavy / 18 Light = 18 total | Armor 6 | Hull 1400
 Bombardment 0 | Troops 0 | Repair 4.0% (displays: Very Fast) | Avg raw volley 378
-Economy: 290 gold | 290 days to build | 3.5 gold/day maintenance | Reference cost 385 | Price ratio 75.3% | Rating B — Above Rate
+Economy: 290 gold | 290 days to build | 2.5 gold/day maintenance | Reference cost 385 | Price ratio 75.3% | Rating B — Above Rate
 Sim: mean 1v1 win rate 30.2% across the roster
 Design note: 18-gun living-coral sloop, 4% regeneration. Wins by still being whole next fortnight.
 
@@ -297,25 +311,25 @@ Design note: Razee siege ship: 26 long guns on a cut-down captured two-decker, B
 Free Confederacy | Research R6 | Carronade corvette (29)
 Speed Fast | Size Medium | Guns: 0 Long / 0 Heavy / 29 Light = 29 total | Armor 5 | Hull 1400
 Bombardment 0 | Troops 0 | Repair 1.5% (displays: Fast) | Avg raw volley 609
-Economy: 500 gold | 80 days to build | 5.0 gold/day maintenance | Reference cost 480 | Price ratio 104.2% | Rating C — On Rate
+Economy: 375 gold | 80 days to build | 5.0 gold/day maintenance | Reference cost 480 | Price ratio 78.1% | Rating B — Above Rate
 Sim: mean 1v1 win rate 40.9% across the roster
-Design note: 29-gun carronade corvette — LIGHT-GUN CROWN. One-rounds raiders and scouts; harmless against Heavy armor. Signature: the tall black mainsail.
+Design note: 29-gun carronade corvette — LIGHT-GUN CROWN. One-rounds raiders and scouts; harmless against Heavy armor. Signature: the tall black mainsail. v4.1: repriced 500 -> 375. A lone Blackfin still loses to raider PACKS at equal gold (focus fire; armor buffs were tested and rejected — they break the Interceptor II contract). The price now says what she is: a specialist gun platform, not a wall.
 
 --- URSKIN GOLIATH (CFS-URG-R7-01) ---
 Free Confederacy | Research R7 | Leviathan conversion (64)
 Speed Slow | Size Gigantic | Guns: 24 Long / 40 Heavy / 0 Light = 64 total | Armor 25 | Hull 14000
 Bombardment 6 | Troops 9 | Repair 1.0% (displays: Normal) | Avg raw volley 2184
-Economy: 1600 gold | 600 days to build | 16.0 gold/day maintenance | Reference cost 1640 | Price ratio 97.6% | Rating C — On Rate
+Economy: 1600 gold | 600 days to build | 28.0 gold/day maintenance (UPKEEP VALVE, 175% of rate — a clan afloat eats like a town) | Reference cost 1640 | Price ratio 97.6% | Rating C — On Rate
 Sim: mean 1v1 win rate 92.6% across the roster
-Design note: 64-gun leviathan conversion on the game's LARGEST HULL (14,000): 24 long, 40 heavy, 9 troops, Bombardment 6. The Confederate brawler; no lights — screen it.
+Design note: 64-gun leviathan conversion on the game's LARGEST HULL (14,000): 24 long, 40 heavy, 9 troops, Bombardment 6. The Confederate brawler; no lights — screen it. v4.1: upkeep valve added — gold-for-gold the strongest ship in the game (96% win rate across 351 equal-gold matchups); the valve keeps 'buy Goliaths' from being the only Confederate answer.
 
 --- CORAL-CLASS DREADNAUGHT (CFS-COR-R8-01) ---
 Free Confederacy | Research R8 | Living dreadnaught (102)
 Speed Normal | Size Gigantic | Guns: 25 Long / 50 Heavy / 27 Light = 102 total | Armor 29 | Hull 11700
 Bombardment 6 | Troops 4 | Repair 4.0% (displays: Very Fast) | Avg raw volley 3192
-Economy: 2200 gold | 900 days to build | 18.0 gold/day maintenance | Reference cost 3165 | Price ratio 69.5% | Rating A — Very Above Rate
+Economy: 2200 gold | 1300 days to build | 18.0 gold/day maintenance | Reference cost 3165 | Price ratio 69.5% | Rating A — Very Above Rate
 Sim: mean 1v1 win rate 96.3% across the roster
-Design note: 102-gun living dreadnought — FIREPOWER CROWN (broadside 3,192, leading no category): 25 long, 50 heavy, 27 light, Armor 29, 4% regeneration, Normal speed. Beats Goliath 100-0; loses to Majestic; back to full in ~25 days.
+Design note: 102-gun living dreadnought — FIREPOWER CROWN (broadside 3,192, leading no category): 25 long, 50 heavy, 27 light, Armor 29, 4% regeneration, Normal speed. Beats Goliath 100-0; loses to Majestic; back to full in ~25 days. v4.2: build 900 -> 1,300 days — the LONGEST BUILD IN THE GAME. The reef is ancient, but the waking takes four years: start the endgame early and guard the lagoon.
 
 ================================================================================
 PART 4 — ENCYCLOPEDIA & ART DIRECTION (verbatim from the Lore & Visual Identity tab)
@@ -499,8 +513,8 @@ Preferred art scene: In a sheltered cove undergoing one more ingenious repair wh
 Distinctness guardrail: Do not twist the hull, add multiple bows or make it accidental junk; the geometry must remain seaworthy and intentional.
 
 --- TIDESTALKER ---
-Encyclopedia: Tidestalkers are sung into shape in shallow Reef-folk nurseries, then taught the deeper water as they grow. Their living hulls flex rather than creak and close small wounds with pale new growth between voyages. They hunt close to reefs, where their low profiles vanish against broken water. Below the surface, living coral keels and rhythmic reef vanes drive them silently against wind and current.
-Visual identity: A sleek, windless living-coral ambush ship: quiet, watchful and unmistakably grown rather than built.
+Encyclopedia: Tidestalkers are laid down in shallow Reef-folk yards — shipwrights frame the spine and the singers bring the coral up over it — then taught the deeper water as they grow. Their living hulls flex rather than creak and close small wounds with pale new growth between voyages. They hunt close to reefs, where their low profiles vanish against broken water. Below the surface, living coral keels and rhythmic reef vanes drive them silently against wind and current.
+Visual identity: A sleek, windless living-coral ambush ship: quiet, watchful, and unmistakably framed by shipwrights and finished by growth.
 Silhouette signature: Medium low narrow hull with swept-back coral armor ridges, shallow draft, concealed gunports and submerged living propulsion vanes. No sails, masts or rigging.
 Construction & materials: Smooth overlapping blood-red, muted ivory and dark reef coral armor over a minimal timber spine, with shell fittings and rope grown into natural channels.
 Sail plan & palette: No sails or masts. Tidecraft propulsion comes from submerged fin-like coral keels and living reef vanes. One small Confederate pennant may be mounted directly to the hull.
@@ -531,9 +545,9 @@ Distinctness guardrail: Do not make it as skeletal as Marauder or as fast-lookin
 --- WITCHLIGHT ---
 Encyclopedia: When the Crown broke the slavers who had raided the swamps for generations, the Bog-folk clans paid their debt the only way that people knows how: fully, and forever. But not all of them followed the clans into the Admiralty's service. The conjure-women — the root-workers, the charm-makers, the keepers of the old ways — looked at a Crown that charts every channel and licenses every trade, and knew there would be no place in that world for what they carry. They took their lanterns, their skulls and their bottle-charms, and went to the free isles. A Witchlight is what they sail: a small black sloop of ancient bog-oak that harbors swear was never seen arriving. Her guns glow with a cold violet blessing her crew never explains, an alligator skull rides her bowsprit with its jaws bound shut, and the offerings on her stern altar are always fresh. Crown patrols report her in two Reaches on the same tide; the Admiralty lists this as clerical error. Bog-folk crews aboard Crown Fenrunners make a quiet sign when she passes, and will not fire the first shot at their cousins.
 Visual identity: A small Cajun conjure-sloop — a floating shrine built for speed, strange by dressing rather than carpentry.
-Silhouette signature: Low, lean single-masted sloop in purple-black bog-oak; a bound-jawed alligator skull for a figurehead; one tall, badly tattered crimson mainsail carrying a dripping hand-painted bone-white conjure sigil.
-Construction & materials: Ancient black bog-oak with a wet purple sheen, rope and leather fittings, no armor; rigging strung with bottle-charms, bead cords, feathers, carved fetishes, real animal skulls and grey moss.
-Sail plan & palette: Ragged faded-crimson gaff mainsail, torn and patched, the sigil painted across the tears; plain small Confederate pennant. Palette: purple-black, faded crimson, bone white, cold violet flame, silver mist.
+Silhouette signature: Low, lean single-masted sloop in charcoal-black bog-oak; a bound-jawed alligator skull for a figurehead; one tall, badly tattered deep purple-black mainsail carrying a dripping hand-painted bone-white conjure sigil.
+Construction & materials: Ancient bog-oak weathered charcoal grey-black, rope and leather fittings, no armor; rigging strung with bottle-charms, bead cords, feathers, carved fetishes, real animal skulls and grey moss.
+Sail plan & palette: Ragged deep purple-black gaff mainsail, torn and patched, the sigil painted across the tears; one plain small crimson pennant. Palette: charcoal-black hull, deep purple sail, faded crimson, bone white, cold violet flame, silver mist.
 Signature detail: Deck guns etched with charm lines that burn cold violet — the glow is in the blessing, not the ballistics — and a stern altar of candles, coins and one flower-crowned skull.
 Preferred art scene: Slipping out of trailing mist at dusk on dark green water, lanterns burning blue-violet, her crew calm and unhurried.
 Distinctness guardrail: No skull-and-crossbones flag or emblem anywhere — her skulls are real conjure objects, never iconography. No ghost-ship transparency, floating runes or spell effects; she is a plausible wooden sloop made strange by what her crew hung on her. Do not confuse her clutter with Marauder's scavenge or Chimera's salvage: everything aboard a Witchlight was placed with intent.
@@ -559,7 +573,7 @@ Preferred art scene: Crossing cold blue water between distant icebergs beneath a
 Distinctness guardrail: Do not make it a miniature Goliath, pirate caricature or fantasy monster. It is a believable medium Age-of-Sail whaler retrofitted with armor and guns; every bone, oar and weapon must have a practical mounting.
 
 --- REEFWARDEN ---
-Encyclopedia: Reefwardens were grown after Confederate captains learned that Imperial capital ships could not simply be outsailed forever. Their coral carapaces are thickest around the forward battery, allowing them to close with ships that would crush lighter raiders. Reef-folk marines shelter in cool chambers within the living hull until the moment of boarding. Submerged Tidecraft vanes drive the ship directly into the wind, giving its prey no safe angle of escape.
+Encyclopedia: Reefwardens were laid down after Confederate captains learned that Imperial capital ships could not simply be outsailed forever, and the coral was sung up over their frames for the weight no free yard could otherwise afford. Their coral carapaces are thickest around the forward battery, allowing them to close with ships that would crush lighter raiders. Reef-folk marines shelter in cool chambers within the living hull until the moment of boarding. Submerged Tidecraft vanes drive the ship directly into the wind, giving its prey no safe angle of escape.
 Visual identity: A windless coral-armored capital hunter with the blunt confidence of a reef predator.
 Silhouette signature: Large broad-shouldered single-centerline hull, thick layered coral carapace, heavy wedge bow, jaw-like forward battery and submerged Tidecraft fins. No sails, masts or rigging.
 Construction & materials: Dense ochre, blood-red and bone-white coral armor wrapped over a robust wooden frame, with brass fittings embedded into the living plates.
@@ -581,7 +595,7 @@ Distinctness guardrail: Do not redesign the bones as a native pirate ship or add
 --- BLACKFIN ---
 Encyclopedia: Blackfins are built around a simple Shoal-folk observation: a large gun is useless if it cannot turn quickly enough to find its target. Their decks bristle with small pieces on swivels and sliding carriages, each served by crews who communicate in whistles across the rigging. The tall black mainsail earned the class its name. Against capitals it is a nuisance; against small fast craft it is the thing waiting at the end of every escape route.
 Visual identity: A fast anti-small combatant — a Polynesian-style double-hulled war canoe defined by a shark-fin black sail and an improbable density of nimble light guns.
-Silhouette signature: Two narrow shallow hulls joined by a lashed fighting deck, a towering triangular black crab-claw mainsail with a crimson lower edge, and a deck ringed with small swivel guns.
+Silhouette signature: Two FRIGATE-LENGTH hulls joined by a broad lashed fighting platform — drua scale, never beach-canoe scale: the deck carries 29 swivel guns and a large crew, and the towering triangular black crab-claw mainsail (crimson lower edge) stands as tall as a first-rate's mainmast.
 Construction & materials: Dark oiled lashed timber, shell fittings, brass swivel tracks, flexible rope-and-leather gun mounts and strings of shell wind-chimes; no deep keel and no coral.
 Sail plan & palette: Squid-ink black crab-claw mainsail with a crimson lower edge and smaller cream foresails; a small Confederate pennant only — no emblem, no skull, no jolly roger.
 Signature detail: Small brass swivel-gun muzzles ring the lashed deck in a bright dotted line between the two black hulls.
@@ -599,7 +613,7 @@ Preferred art scene: Pushing through broken northern ice under rose-gold low sun
 Distinctness guardrail: Build it as a plausible northern great galley scaled for giants. Do not make it sleek, coral-grown, cartoonish, skeletal or a monster; every bone and oar must have a clear structural or naval function.
 
 --- CORAL-CLASS DREADNAUGHT ---
-Encyclopedia: A Coral-Class Dreadnaught is not launched. Reef singers wake it beneath a guarded lagoon, and the armored hull rises only as far as battle requires. Most of its enormous hardwood keel and living coral mass travels below the surface, where coordinated Tidecraft vanes propel and steer it against wind and current. In action, waves wash over the low dorsal armor while gun apertures open just above the waterline. It is not a submarine or sea creature, but a warship deliberately grown to offer the enemy almost nothing to hit.
+Encyclopedia: A Coral-Class Dreadnaught is laid down in a lagoon yard like any other capital ship — an enormous hardwood keel framed by shipwrights over four years, with reef singers bringing the living coral up over it as the work goes. What is different is the launching: she is not floated out, she is woken, and the armored hull rises only as far as battle requires. Most of its enormous hardwood keel and living coral mass travels below the surface, where coordinated Tidecraft vanes propel and steer it against wind and current. In action, waves wash over the low dorsal armor while gun apertures open just above the waterline. It is not a submarine or sea creature, but a warship — built and grown together — deliberately shaped to offer the enemy almost nothing to hit.
 Visual identity: The ultimate semi-submerged coral dreadnaught: immense below the waterline, low and fierce above it, and armored like a living reef turned toward war.
 Silhouette signature: Enormous broad single-centerline displacement hull with roughly two-thirds of its mass below water, a long low dorsal armor ridge, recessed waterline battery, small protected command hollow and colossal wedge-shaped reef ram. No sails, masts or towers.
 Construction & materials: Dense hydrodynamic plates of blood-red, burgundy and bone-white living coral over deep hardwood keels, black sealable gun apertures, shell, brass and captured heavy guns.
@@ -609,7 +623,7 @@ Preferred art scene: Running semi-submerged out of a bright lagoon against the w
 Distinctness guardrail: Do not depict a modern submarine, whale, monster, island, palace or shapeless reef. Preserve a clear bow, stern, keel and displacement hull while keeping the battle profile exceptionally low.
 
 ================================================================================
-PART 5 — KEY SIMULATION RESULTS AND DOCTRINE (v3, 5,000 trials per matchup)
+PART 5 — KEY SIMULATION RESULTS AND DOCTRINE (v4, 5,000 trials per matchup)
 ================================================================================
 
 ENDGAME CONTRACT (verified): Majestic beats a lone Urskin Goliath 100/0 and a lone Coral-Class 85/1 (14% mutual). Coral-Class beats Goliath 100/0. Any pair of Confederate capitals defeats Majestic 100%.
@@ -617,5 +631,6 @@ RATE DECIDES: a 74 beats any frigate 100-0 (Sovereign > Justiciar > Vanguard II 
 SWARMS: light guns cannot crack Armor 21+ — 14 Marauders lose 100-0 to one Sovereign at equal gold. Swarms rule trade lanes and the early game; the counter to a battle line is a battle line.
 SPECIALISTS (verified): Reefwarden beats Vanguard II 100-0 (the Confederate answer to Crown frigates). Interceptor II beats Blackfin 83/4. Blackfin one-rounds raiders and scouts (100-0 vs Marauder) and is harmless against Heavy armor. Ironback loses 100-0 to Bulwark at sea — a pure siege tax whose value is fortress-cracking Bombardment 8. NEW IN v4: Wraith takes raiders and brigs 100-0 and avoids real warships (capture lives at the strategic layer). Witchlight hunts scouts (100-0 vs Swift, 63/7 vs Interceptor I), moves the map unseen, and is the only Very Fast armed Confederate hull; Fenrunner clears scouts and brigs but loses the fair fight to Marauder (0/79). Fenrunner beats Witchlight 67/5 — the clans win the stand-up fight; the witches never offer one.
 PACING: mirror duels average ~8 internal rounds; capital duels 7-10 rounds; mirror mutual destruction ~50% is structural to simultaneous fire at ~100 guns a side (lever if ever needed: initiative, never stats).
-RETREAT COSTS (Stern Rake): early game 0%; mid-game fleet ~16% of fleet hull with escapes for the fast; late slow fleet ~15%; a lone fleeing Majestic ~41%.
+RETREAT COSTS (Stern Rake, v4 sims): early game 0%; mid-game mixed fleet (Reefwarden/Tempest/Marauder/Witchlight fleeing Justiciar+Bulwark) ~25% of fleet hull; late slow fleet (Goliath+Ironback fleeing Majestic+Sovereign II) ~21%; a lone fleeing Majestic ~27%; a lone Witchlight ~34% of her small hull, escaping after volley 1; a lone Marauder fleeing pursuit corvettes ~63%. Outright sinkings during retreat are rare at v4 hulls — the price of fleeing is hull, not ships. PACK DOCTRINE: Wraith loses 0/100 to a PAIR of Marauders (raiders hunt in packs — escort her; with an Interceptor II alongside she takes four Marauders 57/35). Witchlight plus two Marauders beat a Resolute-and-Wayfinder convoy 69/23 — the raid economy works.
+EQUAL-GOLD DOCTRINE (v4.1, 351 matched-budget fleet matchups): at equal gold the Crown wins the early era 100-0 and the mid era 91-8; the Confederacy wins the late era 91-5 — empire strong early, rebellion peaks late, by the numbers. Top equal-gold values: Goliath 96 (now valved), Vanguard II 89, Justiciar 88, Sovereign II 84, Coral-Class 82. Marauder packs beat any lone mid-priced ship at matched budgets — raiders rule the margins, and the counter to a swarm is a line, never a duelist.
 MEAN 1v1 WIN RATES (class hierarchy): Majestic 99.4, Coral-Class 96.3, Goliath 92.6, Sovereign II 88.9, Sovereign 85.0, Bulwark 78.9, Justiciar 77.5, Reefwarden 73.7, Morningstar 70.3, Vanguard II 66.7, Ironback 63.0, Vanguard 57.4, Tempest 56.2, Urskin Whaler 51.6, Chimera 48.1, Interceptor II 43.8, Blackfin 40.9, Resolute 34.7, Tidestalker 30.2, Cutlass 28.6, Wraith 26.5, Marauder 19.9, Wayfinder 17.6, Fenrunner 12.9, Witchlight 7.9, Brigantine 7.0, Interceptor I 4.4, Swift 0.0.

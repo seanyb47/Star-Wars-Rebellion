@@ -6245,3 +6245,75 @@ Whaler, Ironback, Urskin Goliath and the Coral-Class Dreadnaught.
 
 Both new paintings are v2 and both v1 masters are retired rather than deleted,
 so either can be brought back.
+
+## COMBAT MASTER v4.2
+
+The re-import produced exactly the six changes v4.2's own header lists and
+nothing else, which is the check that matters on a generated file: Resolute
+Troops 1 → 3, Majestic Repair 1.0 → 0.8% (now displays **Slow**), Tidestalker
+upkeep 3.5 → 2.5, Blackfin 500 → 375 gold and C → B, Goliath upkeep 16 → 28,
+Coral-Class build 900 → 1,300 days. Part 2B, an Economy Doctrine, is new.
+
+One test fell, and it was the right one to fall: my `shipcard` non-vacuity
+asserted that some hull carries exactly one troop, so the singular in *"1
+troop"* was exercised by real data. v4.2 took the Resolute from 1 to 3 and she
+was the last. The branch stays and is asserted in the source; the roster check
+becomes "the capacities have not all gone one way", because capacity is data
+and the next revision can put a 1 back when nobody is watching.
+
+### The reef ships are built, not merely grown
+
+Sean: *"I know the reef stuff is 'sung into existence' but these ships are
+still made in shipyards and require them. The coral is part of them. It's a
+mix of ship making and magic."*
+
+Corrected in the master rather than in the JSON, per the rule at the top of
+the art-direction page, in the four places the text read grown-not-built:
+
+- **Part 2B rule 1** said *"a dreadnaught is not grown to order — it is
+  WOKEN"*. It now says she is laid down like any other capital ship and then
+  woken: the yard frames her, the singers bring the coral up over the frame,
+  and the magic is in what grows on the frame rather than in the absence of
+  one.
+- **Tidestalker** was *"sung into shape in shallow Reef-folk nurseries"* and
+  *"unmistakably grown rather than built"* — now laid down in Reef-folk yards
+  with shipwrights framing the spine, and *framed by shipwrights and finished
+  by growth*.
+- **Reefwarden** was *"grown after Confederate captains learned…"* — now laid
+  down, with the coral sung up over the frames for weight no free yard could
+  otherwise afford.
+- **Coral-Class** was *"not launched"* — now laid down in a lagoon yard over
+  four years, with the singers working as the framing goes. What stays
+  different is the *launching*: she is not floated out, she is woken.
+
+This also closes a gap between fiction and mechanics that had been open the
+whole time: a Coral-Class has always needed a Slipway in the game.
+
+### The Stern Rake check stops guessing
+
+v3 published the four retreat costs and not the scenarios. On 19 September I
+searched for pursuits that reproduced them and found four, and said plainly in
+the note that hitting the numbers was evidence the engine matched the sim, not
+proof those were the pursuits.
+
+v4.2 publishes the fleets. Four of six are now the sheet's own:
+
+| | ours | sheet |
+|---|---|---|
+| early game (no Long Guns) | 0.0% | ~0% |
+| mid-game mixed fleet | 24.7% | ~25% |
+| late slow fleet | 21.2% | ~21% |
+| a lone fleeing Majestic | **26.6%** | **~27%** |
+
+That last row settles an argument the old note had with itself. The earlier
+two-pursuer scenario produced 26.6% and was "corrected" by adding a third
+pursuer to reach v3's 41%. The two-pursuer version was right all along — 41%
+came off v3 hulls, and the hulls changed underneath it.
+
+The two rows v4.2 leaves without a named pursuit share one, and that is the
+argument for it: the sheet names chasers once, in the Marauder's clause
+(*"fleeing pursuit corvettes"*), and the Witchlight sits in the same sentence
+with none of her own. Three Interceptor IIs — the Crown's pursuit corvette —
+put the Marauder on 62.9 against ~63 and the Witchlight on 33.5 against ~34.
+One squadron, two figures, both landed, which is better evidence than two
+separately-fitted pursuits would have been.

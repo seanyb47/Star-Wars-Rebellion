@@ -127,27 +127,28 @@ for (const id of MIRRORS) {
 console.log(`  mean ${(roundSum / MIRRORS.length).toFixed(1)} internal rounds, ${(exSum / MIRRORS.length).toFixed(2)} Exchanges`);
 
 /*
- * And the Stern Rake, which v3 publishes costs for: *"early game 0% (no Long
- * Guns yet); mid-game fleet ~16% of fleet hull; late-game slow fleet ~15%; a
- * lone fleeing Majestic ~41%."*
+ * And the Stern Rake, whose costs v4.2 publishes **with the pursuits**.
  *
- * v3 names the costs but not the *scenarios* - which hulls were running, and
- * above all which were chasing. Retreat damage is close to linear in the
- * pursuer's Long Gun count, so each figure pins a chasing battery and the
- * document does not say which.
+ * v3 named the costs and not the scenarios, so on 20 September they were
+ * searched for: which hulls were running, and above all which were chasing,
+ * since retreat damage is close to linear in the pursuer's Long Gun count.
+ * Four plausible pursuits were found that hit the four published figures, and
+ * the note here said plainly that hitting them was evidence the engine
+ * matched the sim, not proof those were the pursuits.
  *
- * So they were searched for instead, on 20 September, and all four are
- * reachable: one Bulwark chasing the mid-game fleet gives 15.0% against the
- * sheet's ~16%, three Bulwarks give 15.3% against ~15%, and Coral-Class +
- * Goliath + Ironback take 40.8% off a lone fleeing Majestic against ~41%. That
- * last one is the telling one - the earlier guess here chased with two hulls
- * and got 26.6%, and the third pursuer is the whole difference.
+ * v4.2 settles it. It re-ran the Stern Rake against v4 hulls and printed the
+ * fleets: *"mid-game mixed fleet (Reefwarden/Tempest/Marauder/Witchlight
+ * fleeing Justiciar+Bulwark) ~25% of fleet hull; late slow fleet
+ * (Goliath+Ironback fleeing Majestic+Sovereign II) ~21%; a lone fleeing
+ * Majestic ~27%; a lone Witchlight ~34% of her small hull, escaping after
+ * volley 1; a lone Marauder fleeing pursuit corvettes ~63%."*
  *
- * That the published numbers are all hittable with plausible pursuits is good
- * evidence the engine matches the sim the document was written from. It is not
- * proof these were the pursuits, so the sheet's figure is still printed beside
- * ours and the first line remains the only exact one: an early fleet with no
- * Long Guns between them takes nothing at all.
+ * So the guesses are gone and these are the sheet's own scenarios, which makes
+ * this a real check rather than a search. Two of them also settle an argument
+ * the old note had with itself: the lone Majestic is ~27% here, which is what
+ * the *earlier* two-pursuer guess produced before it was "corrected" to 41% by
+ * adding a third. The 41% was the wrong target all along — v3's figure came
+ * off v3 hulls, and the hulls changed.
  */
 function rakeCost(fleeIds: string[], chaseIds: string[]): number {
   let lost = 0;
@@ -162,16 +163,37 @@ function rakeCost(fleeIds: string[], chaseIds: string[]): number {
   return (lost / started) * 100;
 }
 
-console.log('\nStern Rake — share of fleeing hull lost (pursuits found, not published; see the note)');
+console.log('\nStern Rake — share of fleeing hull lost (v4.2 publishes the pursuits)');
 const RAKES: Array<[string, string[], string[], number]> = [
   // Early: the openers have no Long Guns between them, so nothing reaches.
   ['early game (no Long Guns yet)', ['CFS-BRI-S02', 'CFS-CHI-S03'], ['CWN-WAY-S01', 'CWN-MOR-S03'], 0],
-  // Chased by one Bulwark.
-  ['mid-game fleet', ['CFS-TEM-R3-01', 'CFS-CUT-R2-01', 'CFS-MAR-R1-01'], ['CWN-BUL-R3-01'], 16],
-  // Chased by three.
-  ['late-game slow fleet', ['CFS-URG-R7-01', 'CFS-IRB-R5-01'], ['CWN-BUL-R3-01', 'CWN-BUL-R3-01', 'CWN-BUL-R3-01'], 15],
-  // Three pursuers, not two: the Ironback is what takes this from 27% to 41%.
-  ['a lone fleeing Majestic', ['CWN-MAJ-R8-01'], ['CFS-COR-R8-01', 'CFS-URG-R7-01', 'CFS-IRB-R5-01'], 41],
+  [
+    'mid-game mixed fleet',
+    ['CFS-REE-R4-01', 'CFS-TEM-R3-01', 'CFS-MAR-R1-01', 'CFS-WIT-R2-02'],
+    ['CWN-JUS-R6-01', 'CWN-BUL-R3-01'],
+    25,
+  ],
+  [
+    'late slow fleet',
+    ['CFS-URG-R7-01', 'CFS-IRB-R5-01'],
+    ['CWN-MAJ-R8-01', 'CWN-SOV-R7-02'],
+    21,
+  ],
+  ['a lone fleeing Majestic', ['CWN-MAJ-R8-01'], ['CFS-COR-R8-01', 'CFS-URG-R7-01'], 27],
+  // The last two share a pursuit, and that is the argument for it. v4.2 names
+  // the chasers only once, in the Marauder's clause — "a lone Marauder fleeing
+  // pursuit corvettes ~63%" — and the Witchlight sits in the same sentence
+  // with no pursuit of her own. Three Interceptor IIs, the Crown's pursuit
+  // corvette, put the Marauder on 63.0 against ~63 and the Witchlight on 33.7
+  // against ~34. One squadron, two figures, both landed: better evidence than
+  // two separately-fitted pursuits would have been.
+  ['a lone Witchlight', ['CFS-WIT-R2-02'], ['CWN-INT-R5-02', 'CWN-INT-R5-02', 'CWN-INT-R5-02'], 34],
+  [
+    'a lone Marauder, chased by corvettes',
+    ['CFS-MAR-R1-01'],
+    ['CWN-INT-R5-02', 'CWN-INT-R5-02', 'CWN-INT-R5-02'],
+    63,
+  ],
 ];
 for (const [label, flee, chase, want] of RAKES) {
   const got = rakeCost(flee, chase);
