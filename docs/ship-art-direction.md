@@ -183,6 +183,8 @@ this page is generated from it.
 
 *Large, Normal. CWN-VAN-R4-02, research R4.*
 
+**PAINTED** — `src/art/ships/vanguard-ii.webp`.
+
 **Encyclopedia** *(shown in game)* — The second Vanguard keeps the proportions that made the original successful and replaces every compromise the first design accepted. The gun deck is stronger, the armor better fitted and the rig tuned by a generation of captains' reports. To the public, its green sails announce progress. To a shipwright, the family resemblance is clearer in the unchanged run of the hull: the Admiralty improving a trusted answer rather than chasing novelty.
 
 **Visual identity** — A visibly evolved Vanguard—same disciplined bones, now armored, elite and confidently refined.
