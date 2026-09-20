@@ -1617,66 +1617,96 @@
     "islands/facility-mine-alliance": {
       "folder": "islands",
       "slug": "facility-mine-alliance",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
-      "title": "Camp \u2014 Free Confederacy",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "updated": "2026-09-20",
+      "title": "Gold Mine \u2014 Free Confederacy",
+      "source": "Sean, 20 September: gold mine new art",
+      "notes": "Same painting as the Crown's; the delivery carries no faction marks.",
       "crop": {
-        "x": 6,
-        "y": 0,
-        "w": 753,
-        "h": 200
+        "x": 0,
+        "y": 430,
+        "w": 1050,
+        "h": 279
       },
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/islands/facility-mine-alliance.webp",
-        "w": 765,
-        "h": 200,
-        "bytes": 90556,
-        "sha1": "e0ff39b6ea81e79d"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 654214,
+        "sha1": "e25a60e7a0c18bdc"
       },
       "shipped": {
         "file": "src/art/islands/facility-mine-alliance.webp",
         "w": 768,
         "h": 204,
-        "bytes": 47488,
-        "sha1": "2427a9e9d5472789"
-      }
+        "bytes": 28124,
+        "sha1": "5994789f2912c936"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/islands/facility-mine-alliance.v1.webp",
+          "crop": {
+            "x": 6,
+            "y": 0,
+            "w": 753,
+            "h": 200
+          },
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "islands/facility-mine-empire": {
       "folder": "islands",
       "slug": "facility-mine-empire",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
-      "title": "Camp \u2014 Crown Imperium",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "updated": "2026-09-20",
+      "title": "Gold Mine \u2014 Crown Imperium",
+      "source": "Sean, 20 September: gold mine new art",
+      "notes": "One painting for both sides; the delivery carries no faction marks.",
       "crop": {
-        "x": 5,
-        "y": 0,
-        "w": 753,
-        "h": 200
+        "x": 0,
+        "y": 430,
+        "w": 1050,
+        "h": 279
       },
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/islands/facility-mine-empire.webp",
-        "w": 763,
-        "h": 200,
-        "bytes": 93928,
-        "sha1": "5dcb6cdaa12a35b7"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 654214,
+        "sha1": "e25a60e7a0c18bdc"
       },
       "shipped": {
         "file": "src/art/islands/facility-mine-empire.webp",
         "w": 768,
         "h": 204,
-        "bytes": 51168,
-        "sha1": "b0001c57fb0bc156"
-      }
+        "bytes": 28124,
+        "sha1": "5994789f2912c936"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/islands/facility-mine-empire.v1.webp",
+          "crop": {
+            "x": 5,
+            "y": 0,
+            "w": 753,
+            "h": 200
+          },
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "islands/facility-refinery-alliance": {
       "folder": "islands",

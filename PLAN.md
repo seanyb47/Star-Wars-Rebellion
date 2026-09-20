@@ -7087,3 +7087,38 @@ happened not to be that island. A new world generator made them the same place.
 `dispatchpov.test.ts` asserted a battle line contained `beast.name` — "The
 Kraken" — which the `inProse` fix two commits ago correctly made "the Kraken".
 The test had been quietly requiring the sentence to be wrong.
+
+## The Gold Mine, repainted
+
+Sean, 20 September: *"Gold mine new art."* A timber mine head with a winch
+drum, an ore cart heaped with gold, and gold running through the rock face.
+
+The old pair were wide quarry scenes full of figures, one flying crown banners
+and one flying skull-and-crossbones, and they read as *white stone quarries* —
+the one thing a Gold Mine should never be mistaken for.
+
+### The crop is a close-up, on purpose
+
+The painting is 4:3 and vertical in composition; the islands band is 3.76:1.
+Worse, a slot board shows only the **middle 64%** of the band, and the middle of
+this painting is the dark tunnel mouth between two posts. The honest auto-crop
+ships a tile that reads as "dark timber".
+
+Six boxes were tried and rendered as the tile actually draws them. The one that
+ships is `0,430,1050,279` — the ore cart, heaped, with the mine's timbers
+behind it and the tunnel at the right edge. It is the only family of crops
+where the tile says *gold mine* at a glance.
+
+The cost is a change of register: every other building card is a wide
+establishing shot and this one is a close-up. It is the better trade — a card
+you can read beats a card that matches — but it is a trade, and the wider crop
+is one `scripts/art.py recrop` away if Sean would rather have the set consistent.
+
+### One painting, two sides
+
+Every other works has a Crown version and a Confederate one, distinguished by
+the flag over it. This delivery carries no faction marks, so it ships to both
+slugs and the Gold Mine is now the one building that looks the same whoever
+holds it. The owner is still named by the emblem in the sheet header, which is
+where Sean put faction identity on 19 September. Both old masters are retired
+rather than deleted, so the flagged pair comes back with one command.

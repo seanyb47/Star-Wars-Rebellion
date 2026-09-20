@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**179 of 192 painted.** 7500KB shipped, 50.4MB of masters kept back.
+**179 of 192 painted.** 7459KB shipped, 51.5MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -130,8 +130,8 @@ low approach, as if from a boat; a banner on the island panel. 24 of 29.
 | Drowned Isle | `drowned-isle` | 1 | 33KB | 763×227, 77KB | 763×203 @ 0,12, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Facility Construction Yard Alliance | `facility-construction-yard-alliance` | 1 | 44KB | 765×196, 85KB | 738×196 @ 13,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Facility Construction Yard Empire | `facility-construction-yard-empire` | 1 | 47KB | 763×196, 89KB | 738×196 @ 12,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Camp — Free Confederacy | `facility-mine-alliance` | 1 | 46KB | 765×200, 88KB | 753×200 @ 6,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Camp — Crown Imperium | `facility-mine-empire` | 1 | 49KB | 763×200, 91KB | 753×200 @ 5,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Gold Mine — Free Confederacy | `facility-mine-alliance` | 2 (+1 retired) | 27KB | 1448×1086, 638KB | 1050×279 @ 0,430 | 2026-09-12 | Sean, 20 September: gold mine new art |
+| Gold Mine — Crown Imperium | `facility-mine-empire` | 2 (+1 retired) | 27KB | 1448×1086, 638KB | 1050×279 @ 0,430 | 2026-09-12 | Sean, 20 September: gold mine new art |
 | Mill — Free Confederacy | `facility-refinery-alliance` | 1 | 46KB | 765×201, 88KB | 757×201 @ 4,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Mill — Crown Imperium | `facility-refinery-empire` | 1 | 50KB | 763×201, 92KB | 757×201 @ 3,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Slipway — Free Confederacy | `facility-shipyard-alliance` | 1 | 50KB | 765×230, 106KB | 765×203 @ 0,13, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
@@ -319,8 +319,8 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **islands/drowned-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/facility-construction-yard-alliance** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/facility-construction-yard-empire** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
-- **islands/facility-mine-alliance** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
-- **islands/facility-mine-empire** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/facility-mine-alliance** — Same painting as the Crown's; the delivery carries no faction marks.
+- **islands/facility-mine-empire** — One painting for both sides; the delivery carries no faction marks.
 - **islands/facility-refinery-alliance** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/facility-refinery-empire** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/facility-shipyard-alliance** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
