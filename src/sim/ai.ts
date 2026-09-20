@@ -167,6 +167,52 @@ function surplus(state: GameState, ai: PlayableFaction): number {
 }
 /** Kept clear over and above whatever the next order will cost to run. */
 const AI_SURPLUS_MARGIN = 3;
+/**
+ * And what it keeps clear instead while it is saving for the war's last act.
+ *
+ * Wide enough that nothing with a wage gets ordered until the ledger is
+ * genuinely in the black, which is the only way a side at equilibrium ever
+ * accumulates anything.
+ */
+const AI_WARCHEST_MARGIN = 12;
+
+/**
+ * Whether this side cannot yet storm the island that would end the war.
+ *
+ * The deadlock this exists to break, measured on seed 1 after the ground went
+ * to three rungs: the Confederacy holds **forty islands, income 347, upkeep
+ * 347, ninety-one gold**, and stays there for fifteen hundred days. Its strike
+ * fleet is stuck at 113 guns against Highwater's bar of 165, and it cannot buy
+ * the hulls to close the gap because it has no surplus, and it has no surplus
+ * because it spent every penny of income on garrisons, drill grounds and walls
+ * across forty islands. Forty-two of sixty-three islands and the war cannot be
+ * finished.
+ *
+ * This is the same failure the `spend-the-bank` doctrine was written for — the
+ * note on `surplus` describes a side that banked 172,000 and still could not
+ * afford two first-rates — except from the other side of the ledger. That one
+ * could not see its savings; this one has none to see, because nothing ever
+ * told it to stop spending.
+ *
+ * So: a side that cannot win the war it is in stops building post offices. It
+ * keeps raising earners, which cost nothing and are how the surplus comes
+ * back, and it keeps buying hulls, which is the thing it is short of. Anything
+ * with a wage that is neither waits.
+ */
+function savingForTheStrike(state: GameState, ai: PlayableFaction): boolean {
+  const enemy = otherFaction(ai);
+  const capital = state.systems.find((s) => s.id === state.factions[enemy].hqSystemId);
+  if (!capital || capital.control !== enemy) return false;
+  // The same bar `aiStrikeCapital` will hold the fleet to when it comes to
+  // sail, read here so the build order is working towards the same number
+  // rather than towards a different idea of "enough".
+  const guarded = fleetsAt(state, capital.id)
+    .filter((f) => f.faction === enemy)
+    .reduce((n, f) => n + fleetGuns(f), 0);
+  const wall = (guarded + fortGuns(capital)) * 1.25;
+  const best = Math.max(0, ...fleetsOf(state, ai).map(fleetGuns));
+  return best < wall;
+}
 /** Orders the opponent may place in one build tick, gold permitting. */
 /**
  * Orders the opponent may place in one build tick, gold permitting.
@@ -249,8 +295,11 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
   const gold = state.factions[ai].gold;
   const held = state.systems.filter((s) => s.control === ai && !s.uprising);
   const spare = surplus(state, ai);
+  // Hulls are exempt: they are bought further down against the plain margin,
+  // because they are the one thing this side of the rule is saving *for*.
+  const margin = savingForTheStrike(state, ai) ? AI_WARCHEST_MARGIN : AI_SURPLUS_MARGIN;
   const canCarry = (item: FacilityType | 'troop') =>
-    spare - UPKEEP_PER_DAY[item] >= AI_SURPLUS_MARGIN;
+    spare - UPKEEP_PER_DAY[item] >= margin;
   // A thin surplus is spent on earners before anything that eats: islands
   // taken and won over keep adding garrisons to the bill, and the only
   // answer to that is income.
@@ -406,7 +455,9 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
   //    yard of their own and it never thought to ship anybody. `planBuild`
   //    already picks the quickest works in the whole faction and counts the
   //    passage, which is exactly the question.
-  const earners: FacilityType[] = ['mine', 'refinery'];
+  // Richest first, so a yard that can only take one job this tick takes the
+  // one worth most. Three rungs now rather than two.
+  const earners: FacilityType[] = ['mine', 'silver_mine', 'refinery'];
   for (const item of earners) {
     if (gold < YARD_BUILDS[item].costGold) continue;
     const want = needsResource(item)!;

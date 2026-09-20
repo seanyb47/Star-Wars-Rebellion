@@ -245,13 +245,15 @@ describe('what a works earns is read and never retyped', () => {
     }
   });
 
-  it('agrees with the table for the two works that earn', () => {
-    // Six and three since 20 September, when Sean set a vein at double a
-    // stand rather than triple: *"let's just say 2x the amount."* Pinned as
-    // the ratio as well as the pair, because the ratio is the rule and the
-    // numbers are only where it currently sits.
-    expect(GOLD_PER_DAY.mine).toBe(6);
+  it('agrees with the table for the three works that earn', () => {
+    // One, two, three since Sean set the ladder: *"Gold vein >> 3x, Silver
+    // vein >> 2x, Forrest >> mill 1x."* Pinned as the ratios as well as the
+    // numbers, because the ratios are the rule and the numbers are only where
+    // it currently sits.
     expect(GOLD_PER_DAY.refinery).toBe(3);
-    expect(GOLD_PER_DAY.mine).toBe(GOLD_PER_DAY.refinery * 2);
+    expect(GOLD_PER_DAY.silver_mine).toBe(6);
+    expect(GOLD_PER_DAY.mine).toBe(9);
+    expect(GOLD_PER_DAY.silver_mine).toBe(GOLD_PER_DAY.refinery * 2);
+    expect(GOLD_PER_DAY.mine).toBe(GOLD_PER_DAY.refinery * 3);
   });
 });

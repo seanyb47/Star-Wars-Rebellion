@@ -6821,3 +6821,129 @@ The lesson is the cheap one: this was invisible to the build, to the type
 check, to every render test, and to reading the file top to bottom. It took
 `getBoundingClientRect` on a running page. Anything laid out for a specific
 width should be measured at that width rather than looked at.
+
+## Three rungs: gold, silver, timber
+
+Sean, 20 September, correcting his own correction of the same morning:
+
+> Gold vein >> 3x
+> Silver vein >> 2x
+> Forrest >> mill 1x
+
+His first pass had said *"3x the amount, uh, let's just say 2x"* and I took the
+2x as the correction it sounded like. This puts the 3x back and adds the rung
+between, which is better than either version was: a mill is what most ground
+gives you, silver is the find worth rerouting a yard for, and gold is the
+island you go to war over. Three rungs also make the **plot** the decision it
+is supposed to be, because now there is something to give up as well as
+something to gain.
+
+### Where the silver comes from
+
+Sean set the ground rule earlier the same day and has not changed it — half an
+island's plots are deposits, four parts timber to one part metal. So the ladder
+is cut **out of** the metal rather than added beside it: the tenth that was all
+gold is now seven parts silver and three parts gold. Gold pays triple, so gold
+is the scarce one.
+
+He did not say how to split it. That is my number, and it is chosen to be
+near-neutral on what the world is worth so the measurement reads the *shape* of
+the change and not a change in wealth. Measured over twenty worlds and 9,479
+plots:
+
+| | before | after |
+|---|---|---|
+| timber | 38.9% of plots | 38.1% |
+| silver | — | 7.8% |
+| gold | 10.3% | 3.8% |
+| all deposits | 49.2% | **49.7%** |
+| worth, fully worked | 1.79 a plot | **1.95 a plot** |
+
+Sean's half of the ground is intact and the world is nine per cent richer, all
+of it in where the money lands rather than how much there is. Say the word and
+the split moves; nothing else has to.
+
+### Four bugs of one shape, and the test that ends them
+
+Adding a member to `FacilityType` and a member to `ResourceType` found four
+bugs, none of which was a type error:
+
+- `YARD_BUILDABLE` is a hand-written `FacilityType[]`, so the Silver Mine could
+  not be ordered at all and the Build sheet did not mention it. Found by
+  opening the sheet in a browser, not by any test.
+- The Buildings board and the encyclopedia each wrote `['forest', 'gold'] as
+  const`, so both drew two kinds of ground out of three.
+- `resources.test.ts` counted earners as `type === 'mine' || type ===
+  'refinery'` and duly reported five settled islands as bare — they were
+  working silver and the filter could not see it.
+
+A `Record<FacilityType, …>` is checked by the compiler and cannot go stale; a
+`FacilityType[]` is just an array and will be short by one forever. So
+`complete.test.ts` now checks every hand-written list against the records,
+which are the only runtime enumeration of the unions there is, and asserts the
+ladder is a ladder: one works per kind of ground, each earning, each rung
+strictly above the last. It fails on the `YARD_BUILDABLE` omission.
+
+`RESOURCE_TYPES` replaces the scattered literals.
+
+### The deadlock this uncovered, and the war chest
+
+The suite came back with one failure that was not a fixture: *"mostly loses the
+war for a player who gives no orders"* went from five idle Crowns beaten out of
+six to **one**.
+
+Not a balance wobble. Traced on seed 1: the idle Crown collapses from 26
+islands to 9, exactly as it should, and then the war simply stops. The
+Confederacy takes forty islands and sits there for fifteen hundred days.
+
+    alliance: 40 islands  income 347  upkeep 347  surplus -0.5  gold 91
+    strike fleet: 113 guns against Highwater's bar of 165
+
+It cannot buy the hulls to close the gap, because it has no surplus; it has no
+surplus because it spent every penny of income on garrisons, drill grounds and
+walls across forty islands; and the fortnightly settlement keeps the treasury
+at zero, so it never accumulates the price of a first-rate either. The baseline
+cleared the bar at 182 guns — by ten per cent — and that was the whole margin
+the test was passing on.
+
+This is the same failure the `spend-the-bank` doctrine was written for. The
+note on `surplus` describes a side that banked 172,000 and still could not
+afford the two first-rates it needed. That one could not see its savings; this
+one has none to see, because nothing ever told it to stop spending. The ladder
+did not create the defect, it removed the ten per cent of slack that was hiding
+it.
+
+So: **a side that cannot win the war it is in stops building post offices.**
+While its best fleet cannot outgun the enemy capital, the margin it demands
+before ordering anything with a wage goes from 3 to 12. Earners are untouched —
+they cost nothing and are how the surplus comes back — and hulls are untouched,
+because they are what it is saving for.
+
+Idle Crowns beaten: **1 of 6 → 5 of 6.** Seed 1 remains the exception the
+test's own comment has always named.
+
+### What forty wars say
+
+| | after the fortnight | **+ the ladder and the war chest** |
+|---|---|---|
+| Crown — Confederacy | 18 — 21 | **15 — 22** |
+| median length | 1380 | **1020** |
+| never ended | 1 | **3** |
+| Confederacy gold at the end | 2737 | **1548** |
+
+Audit clean. Wars are a third shorter and the Confederacy's hoard is down by
+nearly half — the war chest is being spent on hulls, which is the point, and it
+is real progress on the thing the ticket was actually about.
+
+**Three wars in forty still do not end**, against one before, and it is a
+different stall: the Crown ahead on 25 to 27 islands with two of three Lords
+taken and unable to find the last. That is the manhunt, not the economy, and it
+is the next thing worth measuring.
+
+### Still to come
+
+The silver vein and the Silver Mine draw with generated glyphs — the vein is
+the gold vein's cut rock with two thin pale seams instead of one heavy bright
+one, the mine is a shaft head rather than a cut hillside, so the two tell each
+other apart at 30px on either faction's palette. Both fall back cleanly the
+moment Sean's silver set arrives: *"I'll get to silver vein set."*

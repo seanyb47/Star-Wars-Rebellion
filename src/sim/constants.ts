@@ -110,6 +110,8 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
   // sitting on thirteen thousand gold with two forests an island still
   // standing. Felling trees is not building a slipway.
   mine: { costGold: 0, days: 20, label: terms.facilities.mine },
+  // Between the two, as the yield is: a shaft is a shaft, and a shallower one.
+  silver_mine: { costGold: 0, days: 16, label: terms.facilities.silver_mine },
   refinery: { costGold: 0, days: 12, label: terms.facilities.refinery },
   construction_yard: { costGold: 120, days: 34, label: terms.facilities.construction_yard },
   training_facility: { costGold: 80, days: 28, label: terms.facilities.training_facility },
@@ -901,19 +903,26 @@ const NO_SHIP_INCOME = Object.fromEntries(
 
 export const GOLD_PER_DAY: Record<BuildItem, number> = {
   /*
-   * Gold against timber, and the ratio is Sean's.
+   * One, two, three, and Sean set it that way round later the same day:
+   * *"Gold vein >> 3x, Silver vein >> 2x, Forrest >> mill 1x."*
    *
-   * 20 September: *"if the place happens to have gold, it produces
-   * significantly more. Let's say it produces like, you know, 3x the amount,
-   * uh, let's just say 2x the amount."* Taken as the correction it is: a vein
-   * pays **double** a mill, not triple. It was nine against three, which was
-   * priced for a world with twelve veins in it; there are four times as many
-   * now, so the multiple comes down as the count goes up.
+   * His first pass had gold correcting itself out loud — *"3x the amount, uh,
+   * let's just say 2x"* — and it was taken as the correction, which left one
+   * staple and one prize and nothing between them. The ladder is better than
+   * the pair: a mill is what most ground gives you, silver is the find worth
+   * rerouting a yard for, and gold is the island you go to war over. Three
+   * rungs also make the **plot** the decision it is meant to be, because now
+   * there is something to give up rather than only something to gain.
    *
-   * Both still cost nothing to build and nothing to keep — a worked deposit
-   * is a well, not a business.
+   * Gold going back to triple is paid for by gold getting rarer — see
+   * `GOLD_SHARE` and `SILVER_SHARE`, which keep the old 50% of ground and
+   * split the tenth that was all gold into seven parts silver and three gold.
+   *
+   * All three still cost nothing to build and nothing to keep — a worked
+   * deposit is a well, not a business.
    */
-  mine: 6,
+  mine: 9,
+  silver_mine: 6,
   refinery: 3,
   construction_yard: 0,
   training_facility: 0,
@@ -930,6 +939,7 @@ const SHIP_UPKEEP = Object.fromEntries(
 
 export const UPKEEP_PER_DAY: Record<BuildItem, number> = {
   mine: 0,
+  silver_mine: 0,
   refinery: 0,
   construction_yard: 3,
   training_facility: 2,
@@ -1895,6 +1905,7 @@ export const FACILITY_CRAFT: Partial<Record<FacilityType, number>> = { heavy_for
 /** Facility types that a construction yard is allowed to queue. */
 export const YARD_BUILDABLE: FacilityType[] = [
   'mine',
+  'silver_mine',
   'refinery',
   'construction_yard',
   'training_facility',
@@ -1938,7 +1949,23 @@ export const YARD_BUILDABLE: FacilityType[] = [
  * a world, not on every rock.
  */
 export const TIMBER_SHARE = 0.4;
-export const GOLD_SHARE = 0.1;
+/**
+ * The tenth that used to be all gold, split seven to three.
+ *
+ * Sean's ground rule of 20 September is untouched — half an island's plots are
+ * deposits, four parts timber to one part metal — and the ladder is cut out of
+ * the metal rather than added beside it. Gold pays triple now, so gold is the
+ * scarce one: three plots in a hundred rather than ten, and silver takes the
+ * other seven at double.
+ *
+ * Deliberately near-neutral on what the world is worth, so a measurement reads
+ * the *shape* of the change rather than a change in wealth. Measured over
+ * twenty worlds and 9,479 plots: deposits still cover 49.7% of the ground, and
+ * if every one of them were worked the world would pay 1.95 a plot against the
+ * old 1.79 — nine per cent, and all of it in where the money lands.
+ */
+export const SILVER_SHARE = 0.07;
+export const GOLD_SHARE = 0.03;
 export const DEPOSIT_VARIANCE = 0.5;
 /**
  * And a thumb on the scale, because the shares above are the target rather
@@ -2028,6 +2055,22 @@ export const GOLD_BY_LOOK: Partial<Record<IslandArchetype, number>> = {
 };
 
 /**
+ * And silver, which is the same rock read one tier down.
+ *
+ * Same signs as gold, because the ground that carries one carries the other,
+ * and larger numbers because there is more of it about: a mining isle is a
+ * mining isle, and what it mostly turns up is silver.
+ */
+export const SILVER_BY_LOOK: Partial<Record<IslandArchetype, number>> = {
+  'mining-isle': 0.7,
+  'rock-isle': 0.2,
+  'ice-isle': -0.1,
+  'drowned-isle': -0.2,
+  'free-harbor': -0.2,
+  'port-city': -0.2,
+};
+
+/**
  * How much of a settled island's ground is already worked when the war opens.
  *
  * Sean, 16 September: *"The difference between settled and unsettled will be
@@ -2054,20 +2097,33 @@ export const AI_KEEP_TIMBER = 2;
 export const SETTLED_WORKED_MIN = 0.3;
 export const SETTLED_WORKED_MAX = 0.7;
 
+/**
+ * The three kinds of ground, poorest first.
+ *
+ * A list rather than three literals scattered through the UI: the pair used to
+ * be written out as `['forest', 'gold'] as const` in four places, which is
+ * exactly the shape that silently keeps drawing two of three.
+ */
+export const RESOURCE_TYPES: ResourceType[] = ['forest', 'silver', 'gold'];
+
 export const RESOURCE_LABEL: Record<ResourceType, string> = {
   forest: 'Forest',
+  silver: 'Silver vein',
   gold: 'Gold vein',
 };
 
 export const RESOURCE_BLURB: Record<ResourceType, string> = {
   forest:
     'Standing timber. A Lumber Mill can be raised on it and nowhere else, and the mill takes its ground.',
-  gold: 'A vein in the rock. A Gold Mine can be raised on it and nowhere else. Few islands have one.',
+  silver:
+    'A shallower seam, and a commoner one. A Silver Mine can be raised on it and nowhere else, and earns twice what a mill does.',
+  gold: 'A vein in the rock. A Gold Mine can be raised on it and nowhere else. Few islands have one, and nothing else earns like it.',
 };
 
 /** Which works a deposit can carry, and which deposit a works needs. */
 export const WORKS_ON: Partial<Record<FacilityType, ResourceType>> = {
   refinery: 'forest',
+  silver_mine: 'silver',
   mine: 'gold',
 };
 
@@ -2096,6 +2152,7 @@ export const BUILDING_ORDER: FacilityType[] = [
   'heavy_fort',
   'fort',
   'refinery',
+  'silver_mine',
   'mine',
 ];
 

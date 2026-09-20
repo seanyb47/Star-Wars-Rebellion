@@ -30,6 +30,7 @@ import {
   clearError,
   depositsLeft,
   RESOURCE_LABEL,
+  RESOURCE_TYPES,
   crewOn,
   daysToFinish,
   daysToDeliver,
@@ -870,8 +871,8 @@ export function SystemSheet({
   })();
   // Who is actually ashore, company by company. Same length as the garrison
   // count the rest of the game runs on; this only says what they are.
-  // The ground, folded by kind. Two rows at most, and usually one.
-  const ground = (['forest', 'gold'] as const)
+  // The ground, folded by kind. Three rows at most, and usually one.
+  const ground = RESOURCE_TYPES
     .map((type) => ({ type, count: depositsLeft(system, type) }))
     .filter((entry) => entry.count > 0);
   const inTheGround = ground.reduce((n, entry) => n + entry.count, 0);

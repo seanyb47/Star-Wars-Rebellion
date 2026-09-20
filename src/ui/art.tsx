@@ -9,6 +9,7 @@ import type { CSSProperties } from 'react';
  */
 
 import { useState, type ReactNode } from 'react';
+import type { FacilityType, ResourceType } from '../sim';
 import { narratorIdFor, tabUrl } from './narrator/assets';
 import { NARRATOR_MOODS, type NarratorMood } from './narrator/mood';
 
@@ -403,14 +404,7 @@ export function FacilityIcon({
   type,
   size = 30,
 }: {
-  type:
-    | 'mine'
-    | 'refinery'
-    | 'construction_yard'
-    | 'training_facility'
-    | 'shipyard'
-    | 'fort'
-    | 'heavy_fort';
+  type: FacilityType;
   size?: number;
 }) {
   const common = {
@@ -428,6 +422,19 @@ export function FacilityIcon({
           <path d="M3 25 L12 12 L21 25" />
           <path d="M18 8 L26 18" />
           <path d="M14 9 Q20 4 26 9" />
+          <path d="M3 28 H29" />
+        </g>
+      )}
+      {type === 'silver_mine' && (
+        <g {...common}>
+          {/* A shaft head rather than a cut hillside: winding gear over a
+              mouth in the ground. The gold mine is worked from the outside
+              and this one from the inside, which is the only way two mines
+              tell each other apart at the size a slot board draws them. */}
+          <path d="M6 28 L16 9 L26 28" />
+          <path d="M16 9 V4" />
+          <path d="M11 17 H21" />
+          <path d="M12.5 28 V22 H19.5 V28" />
           <path d="M3 28 H29" />
         </g>
       )}
@@ -678,7 +685,7 @@ function figureFor(id?: string): ReactNode {
  * Deliberately unbuilt-looking — a deposit is ground nobody has worked yet,
  * and it must not read as a building the island already has.
  */
-export function ResourceIcon({ type, size = 30 }: { type: 'forest' | 'gold'; size?: number }) {
+export function ResourceIcon({ type, size = 30 }: { type: ResourceType; size?: number }) {
   if (type === 'forest') {
     return (
       <svg
@@ -712,15 +719,28 @@ export function ResourceIcon({ type, size = 30 }: { type: 'forest' | 'gold'; siz
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      {/* A seam running through cut rock, with the metal showing. */}
+      {/* A seam running through cut rock, with the metal showing. Silver is
+          the same rock read one tier down: two thin seams in pale steel
+          against gold's one heavy one, which is the pair of differences —
+          count and colour — that survives being drawn at 30px. The colour is
+          literal rather than `--metal`, because `--metal` is the faction's
+          own accent and turns red on the Confederacy's side; two veins that
+          are told apart by warmth cannot both be themed. */}
       <path d="M3.5 18.5l4-11h9l4 11z" />
-      <path d="M7.2 13.2l3.4 1.4 2.6-2.2 4 1.6" stroke="var(--metal)" strokeWidth="2.1" />
+      {type === 'gold' ? (
+        <path d="M7.2 13.2l3.4 1.4 2.6-2.2 4 1.6" stroke="var(--metal)" strokeWidth="2.1" />
+      ) : (
+        <g stroke="#c8d2da" strokeWidth="1.3">
+          <path d="M7 12.4l3.2 1.2 2.4-1.8 3.6 1.4" />
+          <path d="M6.8 16.1l3.4 1.1 2.4-1.6 3.4 1.3" />
+        </g>
+      )}
     </svg>
   );
 }
 
 /** The painting of what is in the ground, if one has arrived. */
-export function resourcePainting(type: 'forest' | 'gold'): string | undefined {
+export function resourcePainting(type: ResourceType): string | undefined {
   return paintedIsland(`resource-${type}`);
 }
 
@@ -736,7 +756,7 @@ export function ResourceThumb({
   width = 96,
   fill,
 }: {
-  type: 'forest' | 'gold';
+  type: ResourceType;
   width?: number;
   fill?: boolean;
 }) {

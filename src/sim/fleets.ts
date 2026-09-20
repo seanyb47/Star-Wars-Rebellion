@@ -1534,7 +1534,11 @@ function reportRound(
   }
   const tally = (n: number) => `${n} ${n === 1 ? 'hull' : 'hulls'}`;
   const alive = beast !== undefined && beastAlive(system);
-  const against = alive ? ` against ${beast!.name}` : '';
+  // Mid-sentence, so the creature's article goes lowercase: "against the
+  // Derelict", not "against The Derelict". Same rule and the same miss as the
+  // rumour line in `creatures.ts` — a name with a definite article in it needs
+  // `inProse` everywhere it is not the first word.
+  const against = alive ? ` against ${inProse(beast!.name)}` : '';
   // Only the sides that were actually in the water get named. A squadron
   // alone with a creature is one faction and a monster, and saying "the
   // Confederacy loses 0 hulls" about a side that never sailed reads as an

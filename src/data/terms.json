@@ -29,6 +29,7 @@
   },
   "facilities": {
     "mine": "Gold Mine",
+    "silver_mine": "Silver Mine",
     "refinery": "Lumber Mill",
     "construction_yard": "Construction Yard",
     "training_facility": "Training Facility",
@@ -40,6 +41,7 @@
   "troops": "Troops",
   "facilityBlurbs": {
     "mine": "Sinks a shaft on a vein of gold. Nothing else in the Seven Seas earns like it, and few islands have the ground for one.",
+    "silver_mine": "Sinks a shaft on a seam of silver. Twice what a mill earns, and there is a good deal more silver about than gold.",
     "refinery": "Cuts and works the standing timber. Wants a forest under it, and most islands have a few.",
     "construction_yard": "Builds everything else on this island. Every yard here works the same job together.",
     "training_facility": "Drills marines and militia. Every troop you raise comes off this floor.",

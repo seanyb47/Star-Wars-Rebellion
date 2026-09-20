@@ -13,7 +13,7 @@ import { islandIncome } from '../economy';
 import { depositsLeft, freeSlots, getSystem, handOver, returnDeposit } from '../helpers';
 import { advanceMissions, startMission, travelDays } from '../missions';
 import { createRng } from '../rng';
-import { CLEAR_BERTHS, GOLD_PER_DAY, YARD_BUILDS } from '../constants';
+import { CLEAR_BERTHS, GOLD_PER_DAY, WORKS_ON, YARD_BUILDS } from '../constants';
 import type { GameState, System } from '../types';
 
 /**
@@ -60,36 +60,45 @@ describe('what is in the ground', () => {
    * This test asked for gold on about one island in four until 20 September,
    * when Sean set the ground by share instead of by flat count — *"on average
    * 50% of available land should be either gold mines or trees slash coral...
-   * 40% trees and 10% gold mines"*. Ten per cent of a nine-plot island is
-   * about one vein, so **most islands now have some gold** and what makes it
-   * the lesser resource is how much of the island it is, not how many islands
-   * it is on. The old bound said the opposite and would have failed the new
-   * rule for being the new rule.
+   * 40% trees and 10% gold mines"* — and then set the ladder later the same
+   * day: *"Gold vein >> 3x, Silver vein >> 2x, Forrest >> mill 1x."*
+   *
+   * The tenth is still a tenth; it is now split seven parts silver to three
+   * gold. So **most islands have some metal** and what makes gold the prize
+   * is that most of them do not have *that* — which is the shape the yields
+   * ask for, since gold pays triple and silver double.
    *
    * The proportions themselves are measured in `galaxy.test.ts`, against
-   * plots rather than islands. What is held here is the shape: timber four to
-   * one over gold, and gold on most islands but never much of one.
+   * plots rather than islands. What is held here is the shape: timber far and
+   * away the common ground, metal on most islands, gold on a minority.
    */
-  it('makes timber the common ground and gold the lesser share', () => {
+  it('makes timber the common ground and gold the rare one', () => {
     // Counting the ground an island was *given*, worked or not: a settled
     // island opens with some of it already turned into mills, so raw deposits
     // alone would undercount what the roll actually handed out.
     let isles = 0;
     let timber = 0;
+    let withMetal = 0;
     let withGold = 0;
     for (let seed = 1; seed <= 12; seed++) {
       for (const s of generateGalaxy(seed, 'empire').systems) {
         isles += 1;
         timber += depositsLeft(s, 'forest') + s.facilities.filter((f) => f.type === 'refinery').length;
+        const seams =
+          depositsLeft(s, 'silver') + s.facilities.filter((f) => f.type === 'silver_mine').length;
         const veins =
           depositsLeft(s, 'gold') + s.facilities.filter((f) => f.type === 'mine').length;
+        if (seams + veins > 0) withMetal += 1;
         if (veins > 0) withGold += 1;
       }
     }
     expect(timber / isles).toBeGreaterThan(2);
-    // On most islands, and not on all of them.
-    expect(withGold / isles).toBeGreaterThan(0.5);
-    expect(withGold / isles).toBeLessThan(0.9);
+    // Metal on most islands, and not on all of them.
+    expect(withMetal / isles).toBeGreaterThan(0.5);
+    expect(withMetal / isles).toBeLessThan(0.9);
+    // Gold on a minority of them, which is what makes it worth sailing for.
+    expect(withGold / isles).toBeLessThan(0.45);
+    expect(withGold).toBeLessThan(withMetal);
   });
 
   it('opens a settled island part-worked and an empty one untouched', () => {
@@ -100,9 +109,11 @@ describe('what is in the ground', () => {
     let emptyWorked = 0;
     for (let seed = 1; seed <= 8; seed++) {
       for (const s of generateGalaxy(seed, 'empire').systems) {
-        const worked = s.facilities.filter(
-          (f) => f.type === 'mine' || f.type === 'refinery',
-        ).length;
+        // By what a works *is*, not by naming the two that existed when this
+        // was written. Naming them is how this test came to report five bare
+        // settled islands the day a third earner was added: the islands were
+        // working silver, and the filter could not see a silver mine.
+        const worked = s.facilities.filter((f) => WORKS_ON[f.type] !== undefined).length;
         if (!s.populated) {
           // Nobody's, and nobody on it. A side's *own* starting island can be
           // an uninhabited rock, and since 20 September those carry timber
@@ -138,14 +149,21 @@ describe('what is in the ground', () => {
    * lever and it is gone, because the early game is meant to be short of
    * time and ground rather than of coin.
    */
-  it('prices a vein above a stand of timber, in earnings and in days', () => {
-    // Double, exactly, since 20 September. Sean: *"it produces like, you
-    // know, 3x the amount, uh, let's just say 2x the amount."* It was three
-    // times, which was priced for a world holding twelve veins; there are
-    // four times as many now, so the multiple came down as the count went up.
-    expect(GOLD_PER_DAY.mine).toBe(GOLD_PER_DAY.refinery * 2);
-    expect(YARD_BUILDS.mine.days).toBeGreaterThan(YARD_BUILDS.refinery.days);
+  it('prices the three rungs apart, in earnings and in days', () => {
+    // Sean's ladder of 20 September: *"Gold vein >> 3x, Silver vein >> 2x,
+    // Forrest >> mill 1x."* His first pass on gold had corrected itself out
+    // loud — *"3x the amount, uh, let's just say 2x"* — and was taken as a
+    // correction; this puts the 3x back and pays for it by making gold the
+    // scarce rung rather than the common one.
+    expect(GOLD_PER_DAY.silver_mine).toBe(GOLD_PER_DAY.refinery * 2);
+    expect(GOLD_PER_DAY.mine).toBe(GOLD_PER_DAY.refinery * 3);
+    // Deeper ground takes longer to open, in the same order.
+    expect(YARD_BUILDS.mine.days).toBeGreaterThan(YARD_BUILDS.silver_mine.days);
+    expect(YARD_BUILDS.silver_mine.days).toBeGreaterThan(YARD_BUILDS.refinery.days);
+    // And none of the three costs a coin, which is Sean's rule of 17
+    // September and the reason the plot is the price.
     expect(YARD_BUILDS.mine.costGold).toBe(0);
+    expect(YARD_BUILDS.silver_mine.costGold).toBe(0);
     expect(YARD_BUILDS.refinery.costGold).toBe(0);
   });
 });

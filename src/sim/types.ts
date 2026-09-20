@@ -203,7 +203,14 @@ export interface System {
  * is what an ordinary island is worth, and a vein of gold is a thing worth
  * sailing a war across.
  */
-export type ResourceType = 'forest' | 'gold';
+/**
+ * What is in the ground, in the order it is worth.
+ *
+ * Three tiers since Sean's word of 20 September — *"Gold vein >> 3x, Silver
+ * vein >> 2x, Forest >> mill 1x"* — which turns one rare prize and one common
+ * staple into a ladder with a rung in the middle.
+ */
+export type ResourceType = 'forest' | 'silver' | 'gold';
 
 /**
  * One deposit, standing in a berth of its own.
@@ -219,6 +226,8 @@ export interface Deposit {
 
 export type FacilityType =
   | 'mine'
+  /** The middle rung: a shaft on a silver vein, worth twice a mill. */
+  | 'silver_mine'
   | 'refinery'
   | 'construction_yard'
   | 'training_facility'

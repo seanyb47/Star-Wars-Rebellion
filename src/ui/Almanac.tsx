@@ -131,6 +131,7 @@ import {
   TROOP_TYPES,
   FORT_GUNS,
   RESOURCE_LABEL,
+  RESOURCE_TYPES,
   RESOURCE_BLURB,
   FORT_STRENGTH,
   FORT_REPAIR_PER_DAY,
@@ -156,7 +157,7 @@ import {
   IslandBanner,
   FactionSigil,
 } from './art';
-import type { PlayableFaction } from '../sim';
+import type { PlayableFaction, ResourceType } from '../sim';
 import { GoldFig, Sheet } from './components';
 import { Icon, type IconName } from './icons';
 import { useSideSwipe } from './LayerStrip';
@@ -345,8 +346,15 @@ export type Subject =
   | { kind: 'ship'; id: string }
   | { kind: 'company'; id: string }
   | { kind: 'works'; id: FacilityType }
-  | { kind: 'resource'; id: 'forest' | 'gold' }
+  | { kind: 'resource'; id: ResourceType }
   | { kind: 'island'; id: string };
+
+/** Which works belongs on which ground — the inverse of the sim's `WORKS_ON`. */
+const WORKS_FOR_RESOURCE: Record<ResourceType, FacilityType> = {
+  forest: 'refinery',
+  silver: 'silver_mine',
+  gold: 'mine',
+};
 
 /** The anchor a list cell carries, so closing an entry lands you back on it. */
 function anchorOf(s: Subject): string {
@@ -364,7 +372,7 @@ function anchorOf(s: Subject): string {
 export function subjectFor(entry: string | undefined): Subject | null {
   if (!entry) return null;
   if (ROSTER.byId.has(entry)) return { kind: 'ship', id: entry };
-  if (entry === 'forest' || entry === 'gold') return { kind: 'resource', id: entry };
+  if ((RESOURCE_TYPES as string[]).includes(entry)) return { kind: 'resource', id: entry as ResourceType };
   if (YARD_BUILDABLE.includes(entry as FacilityType)) return { kind: 'works', id: entry as FacilityType };
   if (TROOP_TYPES.some((t) => t.id === entry)) return { kind: 'company', id: entry };
   if (everyone().some((c) => slugOf(c.name) === slugOf(entry))) return { kind: 'person', id: slugOf(entry) };
@@ -1052,7 +1060,7 @@ function EntrySheet({
               <p className="encfull__lore">{RESOURCE_BLURB[type]}</p>
               <div className="card small">
                 <b>It is rolled when the world is made and never changes.</b> A{' '}
-                {type === 'forest' ? FACILITY_LABEL.refinery : FACILITY_LABEL.mine} can only be
+                {FACILITY_LABEL[WORKS_FOR_RESOURCE[type]]} can only be
                 raised on one, and the works takes the deposit's own plot — so working ground you
                 already have costs no room, and a full island can still work what is under it.
               </div>
@@ -1258,7 +1266,7 @@ export function Almanac({
       {/* The rule that decides where half of these can go at all. */}
       <div className="section-title">What is in the ground</div>
       <div className="encgrid" style={{ marginBottom: 10 }}>
-        {(['forest', 'gold'] as const).map((type) => {
+        {RESOURCE_TYPES.map((type) => {
           const subject: Subject = { kind: 'resource', id: type };
           return (
             <button

@@ -24,6 +24,8 @@ import {
   DEPOSIT_UPLIFT,
   FOREST_BY_LOOK,
   GOLD_BY_LOOK,
+  SILVER_SHARE,
+  SILVER_BY_LOOK,
   CLEAR_BERTHS,
   NEUTRAL_WORKS,
   NEUTRAL_WORKS_ONE,
@@ -47,6 +49,7 @@ import type {
   IslandArchetype,
   ShipClassId,
   Deposit,
+  ResourceType,
 } from './types';
 import { recomputeLedger } from './economy';
 import { handOver, inProse, requiredGarrison, setSupport } from './helpers';
@@ -511,15 +514,18 @@ function groundOf(
   // an icefield, and the tilt is a plot either way rather than a share.
   const trees = roll(TIMBER_SHARE, FOREST_BY_LOOK[archetype] ?? 0);
   for (let i = 0; i < trees; i++) out.push({ id: makeId('dep'), type: 'forest' });
+  const seams = roll(SILVER_SHARE, SILVER_BY_LOOK[archetype] ?? 0);
+  for (let i = 0; i < seams; i++) out.push({ id: makeId('dep'), type: 'silver' });
   const veins = roll(GOLD_SHARE, GOLD_BY_LOOK[archetype] ?? 0);
   for (let i = 0; i < veins; i++) out.push({ id: makeId('dep'), type: 'gold' });
   if (populated && out.length === 0) out.push({ id: makeId('dep'), type: 'forest' });
-  // Gold first if anything has to go: a vein is the rarer thing and the one
-  // worth keeping when an island is too small to hold all of what it rolled.
+  // Richest first if anything has to go, which is now a ladder rather than a
+  // pair: an island too small to hold what it rolled keeps its gold, then its
+  // silver, and loses timber, because timber is the thing there is most of.
   const room = Math.max(0, slots - CLEAR_BERTHS);
   if (out.length <= room) return out;
-  const gold = out.filter((d) => d.type === 'gold').slice(0, room);
-  return [...gold, ...out.filter((d) => d.type === 'forest')].slice(0, room);
+  const byWorth = (type: ResourceType) => out.filter((d) => d.type === type);
+  return [...byWorth('gold'), ...byWorth('silver'), ...byWorth('forest')].slice(0, room);
 }
 
 /**
@@ -531,6 +537,13 @@ function groundOf(
  * on it and nothing else. Courting one now brings in a working island rather
  * than an empty one, which is what a settled island ought to be worth.
  */
+/** The works that belongs on each kind of ground — the inverse of `WORKS_ON`. */
+const WORKS_FOR: Record<ResourceType, FacilityType> = {
+  forest: 'refinery',
+  silver: 'silver_mine',
+  gold: 'mine',
+};
+
 function workTheGround(
   system: System,
   rng: Rng,
@@ -556,7 +569,7 @@ function workTheGround(
   system.deposits = ground.slice(take);
   for (const deposit of worked) {
     system.facilities.push(
-      makeFacility(makeId('fac'), deposit.type === 'gold' ? 'mine' : 'refinery', system.control),
+      makeFacility(makeId('fac'), WORKS_FOR[deposit.type], system.control),
     );
   }
 }
