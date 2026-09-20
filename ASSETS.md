@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**176 of 189 painted.** 7334KB shipped, 48.2MB of masters kept back.
+**177 of 190 painted.** 7407KB shipped, 48.9MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -77,7 +77,7 @@ the head, cropped square out of the portrait; the medallion. 26 of 26.
 
 ## ships — 640×480
 
-three-quarter view, whole vessel, masts and waterline both in frame. 36 of 44.
+three-quarter view, whole vessel, masts and waterline both in frame. 37 of 45.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
@@ -88,6 +88,7 @@ three-quarter view, whole vessel, masts and waterline both in frame. 36 of 44.
 | Chimera | `chimera` | 1 | 89KB | 1448×1086, 764KB | whole frame | 2026-09-19 | Sean, 19 September |
 | Coral Class | `coral-class` | 1 | 105KB | 1448×1086, 802KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
 | cutlass | `cutlass` | 2 (+1 retired) | 76KB | 1448×1086, 587KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
+| Fenrunner | `fenrunner` | 1 | 72KB | 1448×1086, 631KB | whole frame | 2026-09-20 | unrecorded |
 | fluyt | `fluyt` | 1 | 32KB | 233×174, 22KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | fluyt-ii | `fluyt-ii` | 1 | 32KB | 234×174, 23KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | freebooter | `freebooter` | 1 | 36KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
@@ -414,6 +415,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/chimera** — The Chimera: a retrofit with three colours of timber in her, a great crimson skull-and-cutlasses course, and a Confederate anchorage of stilt-huts and half-built hulls behind her. Well plated for her size and cheap to keep, which is the hull's whole argument.
 - **ships/coral-class** — Her own painting at last; she had been borrowing the Reef-class's, the hull she grew out of. Mastless on purpose — the Coral-Class is grown rather than built — so the folder's 'masts and waterline both in frame' is met by the waterline alone. Delivered at 1448x1086, exactly 4:3, shipped uncropped.
 - **ships/cutlass** — The Cutlass proper, replacing the 234x174 contact-sheet slice that had been standing in since 16 September. A small corvette with iron banding bolted along her side, a row of light guns and a bow chaser, red-striped main and the Confederacy's own crest on the mizzen, running out past sea stacks at first light.
+- **ships/fenrunner** — Swamp raider (12), Crown Imperium. The brief delivered whole: long low flat-bottomed cypress hull with minimal freeboard, one short mast carrying a small warm-ivory lug sail edged in botanical green with a modest Crown emblem, a green Crown pennant at the masthead, poles and sweeps worked along both rails, light guns only, and reed and vine camouflage bundles lashed along the hull. Polished Admiralty brass on the lanterns and fittings is her signature detail and the one thing aboard that is not built to vanish. Preferred scene as written: poling a reed channel in misty morning light with half the crew watching the trees. Reads as a patient shallow-water raider, not a gunboat, a barge or a Marauder.
 - **ships/fluyt** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/fluyt-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/freebooter** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.

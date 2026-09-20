@@ -4964,6 +4964,33 @@
         }
       ]
     },
+    "ships/fenrunner": {
+      "folder": "ships",
+      "slug": "fenrunner",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Fenrunner",
+      "source": "unrecorded",
+      "notes": "Swamp raider (12), Crown Imperium. The brief delivered whole: long low flat-bottomed cypress hull with minimal freeboard, one short mast carrying a small warm-ivory lug sail edged in botanical green with a modest Crown emblem, a green Crown pennant at the masthead, poles and sweeps worked along both rails, light guns only, and reed and vine camouflage bundles lashed along the hull. Polished Admiralty brass on the lanterns and fittings is her signature detail and the one thing aboard that is not built to vanish. Preferred scene as written: poling a reed channel in misty morning light with half the crew watching the trees. Reads as a patient shallow-water raider, not a gunboat, a barge or a Marauder.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/fenrunner.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 647142,
+        "sha1": "4938bc0dd8b2d68b"
+      },
+      "shipped": {
+        "file": "src/art/ships/fenrunner.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 74600,
+        "sha1": "26b7a791f40fb3c1"
+      }
+    },
     "ships/fluyt": {
       "folder": "ships",
       "slug": "fluyt",

@@ -164,6 +164,16 @@ the generation carried entirely by the rig.
 
 *Small, Fast. CWN-FEN-R1-02, research R1.*
 
+**PAINTED** — `src/art/ships/fenrunner.webp`. The brief delivered whole:
+flat-bottomed cypress hull with almost no freeboard, one short mast with a
+small warm-ivory lug sail edged in botanical green under a modest Crown
+emblem, a green Crown pennant at the masthead, poles and sweeps worked
+along both rails, light guns only, and reed and vine bundles lashed the
+length of the hull. The polished Admiralty brass on her lanterns and
+fittings is the signature detail — the one thing aboard not built to
+vanish. Scene as written: poling a reed channel in misty morning light
+with half the crew watching the trees.
+
 **Encyclopedia** *(shown in game)** — The Crown never asked the Bog-folk to love it; it asked them to remember. When Admiralty squadrons broke the slaver fleets that had raided the swamps for galley rowers, the clans reckoned the debt in the only currency they keep — service, paid fully and forever. A Fenrunner is that service made timber: a long, low, flat-bottomed raider poled and rowed through channels no chart records, crewed by patient people who consider a battle fought in daylight to be a battle somebody else arranged. Crown officers who ride along come back quieter. The clans' conjure-women did not follow them into the Crown's service, and a Fenrunner crew makes a quiet sign when a Witchlight passes; they will not fire the first shot at their cousins.
 
 **Visual identity** — A regulation swamp raider built by irregulars: long, low, mud-colored and half-invisible against any shoreline, with just enough Admiralty brass to show whose pennant she poles under.
