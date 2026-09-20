@@ -5897,12 +5897,12 @@
     "ships/wayfinder": {
       "folder": "ships",
       "slug": "wayfinder",
-      "version": 2,
+      "version": 3,
       "added": "2026-09-19",
       "updated": "2026-09-20",
       "title": "Wayfinder",
       "source": "Sean, 19 September \u2014 production painting",
-      "notes": "Commission of 20 September 2026. The closest match to Part 4 of any hull so far, and the only one where both halves of the signature detail arrived: the paired brass survey lanterns are on the stern quarter and the stern gallery is glazed like a chart cabinet. Everything else is the master's too - broad high-sided three-masted packet, long covered waist under an awning, square stern, paired boat cranes with launches swung in them, a relatively small battery, refined oak over bright copper, warm-ivory square sails with narrow botanical-green edge bands and one clear Crown emblem on the main, approaching an uncharted island over calm turquoise water in clear light with no battle anywhere. Guardrail holds: neither a war galleon nor a merchant tub, but organized exploration with troops aboard. Delivered 1448x1086, 4:3, no crop.",
+      "notes": "Revision of the 20 September commission, same day: the earlier painting with a full bank of sweeps run out along both sides. Everything that matched Part 4 before still does - paired brass survey lanterns, chart-cabinet stern gallery, long covered waist, paired boat cranes, small battery, ivory sails with green edge bands and one Crown emblem, calm water off an uncharted island. The oars are an addition rather than a conflict: the master does not mention them and does not forbid them, and sweeps are exactly what a survey ship wants for working into a windless bay to take soundings, which is the job her entry describes. Recorded for the avoidance of doubt: oars are not galley slavery, and CANON v4.0 section 4 is explicit that the Crown keeps none - the oarsmen here are her own crew.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -5910,21 +5910,29 @@
         "file": "art-masters/ships/wayfinder.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 616678,
-        "sha1": "e6035ef44877eb1d"
+        "bytes": 612072,
+        "sha1": "2737822cb4d31712"
       },
       "shipped": {
         "file": "src/art/ships/wayfinder.webp",
         "w": 640,
         "h": 480,
-        "bytes": 83568,
-        "sha1": "67d8f896b69775b3"
+        "bytes": 88802,
+        "sha1": "850bbbda2a2d3aba"
       },
       "history": [
         {
           "version": 1,
           "retired": "2026-09-20",
           "master": "art-masters/_retired/ships/wayfinder.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean, 19 September \u2014 production painting"
+        },
+        {
+          "version": 2,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/wayfinder.v2.webp",
           "crop": null,
           "tone": null,
           "source": "Sean, 19 September \u2014 production painting"

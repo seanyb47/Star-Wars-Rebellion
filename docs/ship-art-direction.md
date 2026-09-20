@@ -41,9 +41,13 @@ this page is generated from it.
 
 *Medium, Normal. CWN-WAY-S01, research S01.*
 
-**PAINTED** — `src/art/ships/wayfinder.webp`. Both halves of the signature
-detail arrived: the paired brass survey lanterns, and a stern gallery glazed
-like a chart cabinet.
+**PAINTED** — `src/art/ships/wayfinder.webp` (v3). Both halves of the
+signature detail arrived: the paired brass survey lanterns, and a stern
+gallery glazed like a chart cabinet. The v3 revision adds a full bank of
+sweeps, which the master neither asks for nor forbids and which suits a ship
+whose job is working into windless bays to take soundings. Oars are not
+galley slavery: `CANON.md` §4 is explicit that the Crown keeps no slaves, so
+any Crown sweeps are pulled by her own crew.
 
 **Encyclopedia** *(shown in game)* — Wayfinders carry the people who make an Imperial claim real: chartmakers, engineers, clerks, marines and the brass-bound survey chests from which new harbors are measured. They are not glamorous ships, but an island that sees one at anchor knows that roads, tariffs and seawalls will follow. Their captains are chosen for patience rather than daring, and a Wayfinder's broad decks often become the first orderly ground in an unfamiliar Reach.
 
