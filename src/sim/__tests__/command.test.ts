@@ -58,6 +58,13 @@ describe('a posting, not an errand', () => {
      */
     home.uprising = false;
     setSupport(home, 'empire', 100);
+    // "Nothing else left" has to be built rather than hoped for. Until 20
+    // September this island happened to have no construction yard on it and
+    // the case held by luck; giving both seats a yard that morning moved the
+    // draw and it started offering Research instead, which is the island
+    // having something else left rather than the rule being wrong. So the
+    // precondition the comment above describes is now made true.
+    home.facilities = home.facilities.filter((f) => f.type !== 'construction_yard');
     expect(missionTypeFor(state, home, 'empire')).toBeNull();
     // And a report on your own capital, always: the memo's counter-intelligence
     // trick is that an island of yours is exactly where you cannot see what

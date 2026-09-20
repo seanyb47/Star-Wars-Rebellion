@@ -218,7 +218,26 @@ const START_EARNERS: Record<PlayableFaction, { mines: number; refineries: number
  * build-rate rule was written for, since a second slipway on the same island
  * halves the time on the hull already on the stocks.
  */
-const START_YARDS = 1;
+/**
+ * Two construction yards, and the first one is not dealt at random.
+ *
+ * Sean, 20 September, after a playtest opened Freeport and found its Buildings
+ * tab reading *"NOTHING TO BUILD WITH"*: *"I think Freeport and Highwater
+ * should have construction yards at start. And maybe you're right we should
+ * start with 2 construction yards. 1 at home base and 1 randomly on their
+ * other starting locations. Keep shipyards and troop training to 1."*
+ *
+ * Both halves matter. A seat that cannot build on day one is a bad first
+ * screen — everything else on the island sheet says *this is your capital* and
+ * the one tab that says what to do with it says nothing can be done. And one
+ * yard for a whole side, dealt at random, meant the side's only builder was as
+ * likely as not to be on a backwater while the seat stood idle.
+ *
+ * So the seat takes one by name and the second goes round the table among the
+ * side's other starting islands, which keeps the 14 September rule — makers
+ * dealt at random — for every yard after the first.
+ */
+const START_YARDS = 2;
 const START_TRAINING = 1;
 /** A yard for hulls, so a slipway is not the first thing you have to build. */
 const START_SHIPYARDS = 1;
@@ -824,14 +843,23 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   hold(allianceHq, 'alliance', 100);
   // A seat's garrison, the same as Highwater's: firm islands ask for none at
   // all, so both of these are the spare company that keeps the harbor plus
-  // the one a seat is worth. It is not dealt any of the opening's camps,
-  // mills or yards, though — the articles were signed on it a week ago, not
-  // settled on.
+  // the one a seat is worth. It is still dealt none of the opening's camps or
+  // mills — the articles were signed on it a week ago, not settled on — but
+  // since 20 September it is dealt a construction yard, by name, like
+  // Highwater: a seat that cannot build on day one is a bad first screen.
   allianceHq.garrison = startGarrison(100, true);
   // A seat gets a seat's room, like every other island a side opens holding.
   allianceHq.slots = Math.max(allianceHq.slots, rng.range(START_ROOM_MIN, ROOM_MAX));
 
-  const seedHoldings = (owner: PlayableFaction, owned: System[]) => {
+  /**
+   * `seat` is the side's capital, and it is handed the first construction
+   * yard by name rather than taking its chances in the deal. For the Crown
+   * that is `owned[0]`; for the Confederacy it is Freeport, which is not in
+   * `owned` at all — it is dealt none of the opening's camps or mills, because
+   * the articles were signed on it a week ago rather than settled on. A yard
+   * is the one exception now, so the side can build where it stands.
+   */
+  const seedHoldings = (owner: PlayableFaction, owned: System[], seat: System) => {
     for (const [index, system] of owned.entries()) {
       // Room is the painting's to give, not the opening's: a starting island
       // keeps the ground the chart shows it. The deal below only ever widens
@@ -860,8 +888,34 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     // Sean's rule, 14 September: two of each maker a side, dealt at random
     // across the side's starting islands — doubling up on one island is
     // fine. Earners still go round the table.
+    /** Make sure an island has a spare berth for a works that stands on no deposit. */
+    const clearBerth = (system: System) => {
+      system.slots = Math.max(
+        system.slots,
+        system.facilities.length + (system.deposits?.length ?? 0) + 1,
+      );
+    };
+    // The seat's yard, first and by name. Everything after it is dealt.
+    if (START_YARDS > 0) {
+      clearBerth(seat);
+      seat.facilities.push(makeFacility(makeId('fac'), 'construction_yard', owner));
+    }
+    // And the rest of the side's yards go round the table among its *other*
+    // starting islands, so the second one is somewhere the first is not.
+    const elsewhere = owned.filter((s) => s.id !== seat.id);
+    let yardsDealt = 1;
     for (const [index, type] of plan.entries()) {
       const maker = type === 'construction_yard' || type === 'training_facility' || type === 'shipyard';
+      if (type === 'construction_yard') {
+        // The seat already took one.
+        if (yardsDealt >= START_YARDS) continue;
+        yardsDealt += 1;
+        // A side whose only island is its seat has nowhere else to put it.
+        const where = elsewhere.length > 0 ? rng.pick(elsewhere) : seat;
+        clearBerth(where);
+        where.facilities.push(makeFacility(makeId('fac'), type, owner));
+        continue;
+      }
       // An earner goes where the ground will carry it. A mill wants a forest
       // and a mine wants a vein, and the island that has one takes the works
       // — going round the table only among the islands that can hold it.
@@ -880,25 +934,20 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
         const held = system.deposits ?? [];
         const at = held.findIndex((d) => d.type === want);
         if (at >= 0) held.splice(at, 1);
-        else system.slots = Math.max(system.slots, system.facilities.length + (system.deposits?.length ?? 0) + 1);
+        else clearBerth(system);
         system.deposits = held;
       } else {
-        system.slots = Math.max(system.slots, system.facilities.length + (system.deposits?.length ?? 0) + 1);
+        clearBerth(system);
       }
       system.facilities.push(makeFacility(makeId('fac'), type, owner));
     }
     // One spare berth on every starting island. An opening with no room left
     // is a worse opening than a thin surplus, because the answer to a thin
     // surplus is to build.
-    for (const system of owned) {
-      system.slots = Math.max(
-        system.slots,
-        system.facilities.length + (system.deposits?.length ?? 0) + 1,
-      );
-    }
+    for (const system of [...owned, seat]) clearBerth(system);
   };
-  seedHoldings('empire', empireSystems);
-  seedHoldings('alliance', allianceSystems);
+  seedHoldings('empire', empireSystems, capital);
+  seedHoldings('alliance', allianceSystems, allianceHq);
 
   // And what the islands nobody took have built for themselves.
   //

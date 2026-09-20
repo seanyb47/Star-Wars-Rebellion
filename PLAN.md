@@ -6473,3 +6473,55 @@ outcome *screens* built in task 95 are battle outcomes, not the war's.
 
 - **Escape closes nothing.** No sheet listens for it; only the tutorial does.
   Irrelevant on a phone, wrong on a desktop.
+
+---
+
+## A construction yard on both seats (20 September)
+
+Sean, after the playtest opened Freeport and found its Buildings tab reading
+*"NOTHING TO BUILD WITH"*: *"I think Freeport and Highwater should have
+construction yards at start. And maybe you're right we should start with 2
+construction yards. 1 at home base and 1 randomly on their other starting
+locations. Keep shipyards and troop training to 1."*
+
+Freeport was the harder half. It is not in `allianceSystems` at all — it is
+dealt none of the opening's camps or mills, on the rule that the articles were
+signed on it a week ago rather than settled on — so a count of yards a side
+would never have put one there. The seat now takes its yard by name, before
+the deal starts, and the second goes round the table among the side's *other*
+starting islands.
+
+### What it cost, measured over the same forty worlds
+
+| | 1 yard, dealt at random | 1 yard, on the seat | **2 yards, 1 on the seat** |
+|---|---|---|---|
+| Crown — Confederacy | 20 — 19 | 19 — 21 | **20 — 18** |
+| never ended | 1 | 0 | 2 |
+| median length | **731** | 1116 | **1248** |
+| range | 440–1968 | 444–2760 | 551–2928 |
+| Crown at the end | 21.5 isles, 17.6 hulls, 780g | 22.4, 21.6, 487g | 22.1, 20.6, 589g |
+| Confederacy at the end | 8.3 isles, 9.9 hulls, 588g | 9.9, 10.7, 798g | 10.9, 10.9, 980g |
+
+**Balance is untouched** — 20–19, 19–21, 20–18 is one number three times at
+forty samples. What moved is the length, and it moved a long way: the median
+war is **517 days longer**.
+
+And the interesting part is *where* that came from. Adding the second yard
+costs 132 days. **Moving the first one onto the seat costs 385.** The capital
+is the roomiest, most loyal, best-defended island a side owns — thirteen
+berths at the Aldermain, twelve at Freeport — so a yard standing there builds
+continuously and builds walls and garrisons at the one island the war is
+decided at. Both seats get harder to take at once, and the war that has to end
+by taking one of them drags.
+
+That is not an argument against the change: the first screen of the game
+should not tell you your capital cannot build. It is an argument that **war
+length is an economy problem rather than an opening one**, which is what
+`lab/hoard.ts` found the same morning — neither side can ever build its way to
+a finish, so anything that makes both sides tougher makes the stalemate
+longer. The 517 days are recorded here so that whatever is done about the
+economy is measured against them.
+
+The random stream moved when the deal changed, so seed 9000 is a different
+world than it was; all three columns above were run on the new stream, which
+is why the before column is 731 rather than the 756 recorded on 19 September.
