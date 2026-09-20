@@ -8,6 +8,7 @@ import { ANY_GRADE, buildMenu } from './build';
 import { islandIncome } from './economy';
 import { ashoreAt, freeSlots } from './helpers';
 import { fleetsAt, isAtSea } from './fleets';
+import { knownIsland, reportOn, sightOf } from './missions';
 import terms from '../data/terms.json';
 import type { FacilityType, GameState, PlayableFaction, System } from './types';
 
@@ -253,9 +254,42 @@ export function layerMark(
       return free > 0 ? { lit: true, count: free, size: roomBand(free) } : DARK;
     }
     case 'fleets': {
-      const hulls = fleetsAt(state, system.id)
-        .filter((f) => !isAtSea(f))
+      /*
+       * Yours always; theirs only as far as you can actually know it.
+       *
+       * Sean, 20 September, with a screenshot: *"When I look at map it says
+       * imperium fleet in the wreckers reach but when I click on the island it
+       * says no reports."* Both were telling the truth about their own source,
+       * which is the tell — this layer counted every hull lying off every
+       * island, live, for both sides, while the island sheet had been going
+       * dark on unreported enemy ground since the watch went in. The chart was
+       * handing back for free the exact thing espionage exists to buy, and it
+       * is the second time that has happened in the same way: `knownIsland`
+       * was written for the Reach list when it counted companies off the live
+       * world, and carries the note that it is *"the one call anything outside
+       * the island sheet should be making"*. The chart was never wired to it.
+       *
+       * Your own hulls are never hidden — they are yours, and a squadron of
+       * yours lying at an enemy island is also what makes that island `eyes`.
+       */
+      const here = fleetsAt(state, system.id).filter((f) => !isAtSea(f));
+      const mine = here
+        .filter((f) => f.faction === faction)
         .reduce((n, f) => n + f.ships.length, 0);
+      const sight = sightOf(state, system, faction);
+      let theirs = 0;
+      if (sight === 'eyes') {
+        theirs = here
+          .filter((f) => f.faction !== faction)
+          .reduce((n, f) => n + f.ships.length, 0);
+      } else if (sight === 'report') {
+        // What lay in the harbor the day the report was written, not what
+        // lies there now, and not what was still at sea for it.
+        theirs = (reportOn(state, system, faction)?.harbor ?? [])
+          .filter((h) => h.faction !== faction && h.inbound === undefined)
+          .reduce((n, h) => n + h.ships, 0);
+      }
+      const hulls = mine + theirs;
       return hulls > 0 ? { lit: true, count: hulls } : DARK;
     }
     case 'garrisons': {
@@ -287,8 +321,18 @@ export function layerMark(
       // graded into three shapes; capacity is still what the panels' worth
       // mark shows, but the chart is better used telling you what the war is
       // actually paying out, island by island, this morning.
+      //
+      // And only as far as you know it, the same as Fleets above. This one was
+      // not reported but it is the same leak: an island earns what its works
+      // earn, works are the first thing the island sheet stops showing on
+      // unreported enemy ground, and a number on the chart saying what they
+      // add up to gives the answer away without the errand. Whose flag flies
+      // is public, so the gate is the live control; what stands on it is not,
+      // so the sum is taken off the island as you know it.
       if (system.control !== 'empire' && system.control !== 'alliance') return DARK;
-      const gold = Math.round(islandIncome(system, system.control));
+      const known = knownIsland(state, system, faction);
+      if (!known) return DARK;
+      const gold = Math.round(islandIncome(known, system.control));
       return gold > 0 ? { lit: true, count: gold } : DARK;
     }
     default:

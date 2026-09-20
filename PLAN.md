@@ -6006,3 +6006,58 @@ a leading "The " for mid-sentence use and had been applied in about six places
 out of a hundred and eight. It was passing on the luck of the draw. All 102
 remaining sites now use it, restricted to variables that genuinely hold a
 System.
+
+## The chart knew more than the island sheet
+
+Sean, 20 September, with a screenshot of the World Map under the Fleets filter:
+*"When I look at map it says imperium fleet in the wreckers reach but when I
+click on the island it says no reports."*
+
+Both screens were telling the truth about their own source, which is the tell.
+`layers.ts` had:
+
+```ts
+case 'fleets': {
+  const hulls = fleetsAt(state, system.id)
+    .filter((f) => !isAtSea(f))
+    .reduce((n, f) => n + f.ships.length, 0);
+  return hulls > 0 ? { lit: true, count: hulls } : DARK;
+}
+```
+
+Every hull, both sides, live, on any charted island. The island sheet has read
+enemy ground through `sightOf` since the watch went in; the chart never did. So
+the Crown's Windward Squadron was legible on the World Map from day one and the
+whole point of an espionage errand was available for free, on the map, in a
+numeral.
+
+The rule now matches the sheet exactly:
+
+- **yours** — always, and a squadron of yours lying at an enemy island is also
+  what makes that island `eyes` in the first place;
+- **theirs, `eyes`** — live;
+- **theirs, `report`** — what `Intel.harbor` recorded, at anchor rather than
+  inbound, and it does *not* update: a squadron that has since sailed is still
+  shown lying there until somebody looks again, which is what a dated report
+  means;
+- **theirs, `none`** — nothing.
+
+**Production leaked the same way** and was not reported. An island earns what
+its works earn; works are the first thing the sheet stops showing on unreported
+enemy ground; so a number on the chart adding them up answers the question the
+errand is for. Whose flag flies is public and stays the gate; the sum is now
+taken off `knownIsland`.
+
+That function already existed, written when the Reach list was counting
+companies off the live world, and carries the note that it is *"the one call
+anything outside the island sheet should be making about an enemy island's
+contents."* The chart had never been wired to it. Second time this exact leak
+has been found in a different screen, which is why the test is written as the
+general rule — *no layer lights an island with something `sightOf` says this
+side cannot see* — rather than as "the Fleets layer hides the Crown". A layer
+added later is covered by it.
+
+Checked against the unfixed code before committing: three failures, the first
+being the Crown's entire six-hull Home Fleet readable at the Aldermain on day
+one. One fix covers both map screens, since `GalaxyMap` and `ChainMap` share
+`layerMark`.
