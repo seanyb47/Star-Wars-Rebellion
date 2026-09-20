@@ -5897,12 +5897,12 @@
     "ships/wayfinder": {
       "folder": "ships",
       "slug": "wayfinder",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-19",
-      "updated": "2026-09-19",
+      "updated": "2026-09-20",
       "title": "Wayfinder",
       "source": "Sean, 19 September \u2014 production painting",
-      "notes": "Her own painting, under her own name. The Wayfinder is new with the Fleet Roster of 18 September and had been borrowing the Fluyt's, the Crown transport she replaces. Delivered at 1448x1086, exactly 4:3, so the whole painting ships with no crop.",
+      "notes": "Commission of 20 September 2026. The closest match to Part 4 of any hull so far, and the only one where both halves of the signature detail arrived: the paired brass survey lanterns are on the stern quarter and the stern gallery is glazed like a chart cabinet. Everything else is the master's too - broad high-sided three-masted packet, long covered waist under an awning, square stern, paired boat cranes with launches swung in them, a relatively small battery, refined oak over bright copper, warm-ivory square sails with narrow botanical-green edge bands and one clear Crown emblem on the main, approaching an uncharted island over calm turquoise water in clear light with no battle anywhere. Guardrail holds: neither a war galleon nor a merchant tub, but organized exploration with troops aboard. Delivered 1448x1086, 4:3, no crop.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -5910,16 +5910,26 @@
         "file": "art-masters/ships/wayfinder.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 716798,
-        "sha1": "69dc6d95c0dfdb91"
+        "bytes": 616678,
+        "sha1": "e6035ef44877eb1d"
       },
       "shipped": {
         "file": "src/art/ships/wayfinder.webp",
         "w": 640,
         "h": 480,
-        "bytes": 98544,
-        "sha1": "303f3bb029a8d0d7"
-      }
+        "bytes": 83568,
+        "sha1": "67d8f896b69775b3"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/wayfinder.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean, 19 September \u2014 production painting"
+        }
+      ]
     }
   }
 }

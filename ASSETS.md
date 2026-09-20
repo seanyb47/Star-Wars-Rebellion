@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**174 of 187 painted.** 7217KB shipped, 47.4MB of masters kept back.
+**174 of 187 painted.** 7202KB shipped, 47.3MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -114,7 +114,7 @@ three-quarter view, whole vessel, masts and waterline both in frame. 34 of 42.
 | Urskin Whaler | `urskin-whaler` | 3 (+2 retired) | 78KB | 1448×1086, 625KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
 | Vanguard | `vanguard` | 2 (+1 retired) | 78KB | 1448×1086, 604KB | whole frame | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Vanguard II | `vanguard-ii` | 2 (+1 retired) | 80KB | 1448×1086, 642KB | whole frame | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
-| Wayfinder | `wayfinder` | 1 | 96KB | 1448×1086, 699KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
+| Wayfinder | `wayfinder` | 2 (+1 retired) | 81KB | 1448×1086, 602KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
 
 **Still owed (8):** `alliance-large`, `alliance-medium`, `alliance-small`, `alliance-transport`, `empire-large`, `empire-medium`, `empire-small`, `empire-transport`
 
@@ -438,7 +438,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/urskin-whaler** — The Urskin Whaler proper: a bone-framed working whaler with a harpoon over the bow, not the dreadnaught. Replaces the Goliath painting that briefly held this slug on 19 September, and the contact-sheet placeholder before it.
 - **ships/vanguard** — Commission of 20 September 2026, captioned 'vanguard 1' and it is one. Matches Part 4: long low two-decker with a clean sheer line, modest stern, three evenly spaced masts, uncluttered gun deck, standardized oak with flush black-iron reinforcement over mature copper. Rig is the master's exactly - ivory sails with disciplined green accents and a single medium Crown emblem, against the II's green canvas and two. Signature detail present: the gold-painted measuring line running arrow-straight from bow to stern just below the rail. Pairs with the new Vanguard II, same hull and same headland, which is what that family's guardrail asks for. Two small divergences recorded, not corrected: the Crown emblem sits on the fore rather than centered on the mainsail, and she sails alone where the master's scene has her leading a small line of battle. Delivered 1448x1086, 4:3, no crop.
 - **ships/vanguard-ii** — Commission of 20 September 2026, captioned 'vanguard 2' and it is one. Matches Part 4: the Vanguard's long low two-decker silhouette with a finer bow and a taller balanced rig, deep botanical-green sails with antique-gold edging, exactly two Crown emblems, bright maintained copper and brass-and-black-iron detailing, cutting through rougher water at speed. Signature detail present - the narrow gold chevron repeated at bow and stern that marks the second-generation frame. Not the Sovereign II, which is a four-masted three-decker whose own signature is nine recessed assault launches; neither is here. The family guardrail also checks out against the shipped Vanguard I: same three-masted two-decker and the same black-and-gold hull, with the upgrade carried by the rig. Delivered 1448x1086, 4:3, no crop.
-- **ships/wayfinder** — Her own painting, under her own name. The Wayfinder is new with the Fleet Roster of 18 September and had been borrowing the Fluyt's, the Crown transport she replaces. Delivered at 1448x1086, exactly 4:3, so the whole painting ships with no crop.
+- **ships/wayfinder** — Commission of 20 September 2026. The closest match to Part 4 of any hull so far, and the only one where both halves of the signature detail arrived: the paired brass survey lanterns are on the stern quarter and the stern gallery is glazed like a chart cabinet. Everything else is the master's too - broad high-sided three-masted packet, long covered waist under an awning, square stern, paired boat cranes with launches swung in them, a relatively small battery, refined oak over bright copper, warm-ivory square sails with narrow botanical-green edge bands and one clear Crown emblem on the main, approaching an uncharted island over calm turquoise water in clear light with no battle anywhere. Guardrail holds: neither a war galleon nor a merchant tub, but organized exploration with troops aboard. Delivered 1448x1086, 4:3, no crop.
 
 ## Changing one
 
