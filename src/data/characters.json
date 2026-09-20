@@ -32,7 +32,7 @@
         "Spec Ops",
         "Negotiator"
       ],
-      "bio": "Burned and drowned at the Broken Chain, pulled from the Black Tide by the Regent's surgeons and rebuilt with brass lungs and a black leather mask. Keeps every promise, even to enemies. Executes captains for failure and feels nothing.",
+      "bio": "Burned and drowned at the Broken Chain, pulled out of the water by the Regent’s surgeons and rebuilt with brass lungs and a black leather mask. Keeps every promise, even to enemies. Executes captains for failure and feels nothing.",
       "major": true,
       "ratings": {
         "diplomacy": 60,
@@ -182,7 +182,7 @@
         "Recruiter",
         "Latent Deep-touched"
       ],
-      "bio": "Heir of the island of Carrow, which the Black Tide took while an Imperium fleet held position a day's sail away. The Confederacy's best negotiator: tireless, sharp, running on grief.",
+      "bio": "Heir of the island of Carrow, which was lost while an Imperium fleet held position a day's sail away. The Confederacy's best negotiator: tireless, sharp, running on grief.",
       "major": true,
       "ratings": {
         "diplomacy": 88,
@@ -305,7 +305,7 @@
       "name": "Sable",
       "epithet": "no other name",
       "people": "The Hushed",
-      "bio": "Hushed, out of the Drowned Reach, and listed on no roll in either fleet. The old bargain that binds her people to the Crown does not appear to bind her, and nobody has worked out what does. She is not heard arriving. Twice now a thing that was certainly going to happen has simply not happened, and both times somebody remembers a door standing open.",
+      "bio": "Hushed, and listed on no roll in either fleet. The old bargain that binds her people to the Crown does not appear to bind her, and nobody has worked out what does. She is not heard arriving. Twice now a thing that was certainly going to happen has simply not happened, and both times somebody remembers a door standing open.",
       "major": false,
       "ratings": {
         "diplomacy": 28,

@@ -48,6 +48,7 @@ import {
   type BuildItem,
   type Facility,
   type FacilityType,
+  type Character,
   type Intel,
   type GameState,
   type Sector,
@@ -405,17 +406,32 @@ function WorksCard({
  * your own ground it takes a report like anywhere else: an island of yours is
  * exactly the place you cannot see what somebody else has got working on it.
  */
-function TheirsAshore({
-  state,
-  system,
-  report,
-  sight,
-}: {
-  state: GameState;
-  system: System;
-  report?: Intel;
-  sight: Sight;
-}) {
+/**
+ * Who of theirs this island can be said to be carrying, and what they are up
+ * to — live where you can see, off the report where you have one, nothing
+ * where you have neither.
+ *
+ * Split out of `TheirsAshore` on 20 September so the tab strip can ask the
+ * same question the component answers. A playtest found the Crew tab drawing
+ * itself completely blank — no board, no sentence, nothing — on a neutral
+ * island with nobody standing on it, because the tab was shown whenever the
+ * island was not yours while every block inside it required the island to be
+ * yours or the enemy's. A tab is the union of what it can say; working that
+ * out from one negated case is how you get an empty one.
+ */
+interface TheirsHere {
+  named: Character[];
+  errands: Array<{ type: MissionType; byName: string; daysRemaining: number }>;
+  /** True where this is a remembered report rather than something you can see. */
+  fromReport: boolean;
+}
+
+function theirsHere(
+  state: GameState,
+  system: System,
+  report: Intel | undefined,
+  sight: Sight,
+): TheirsHere {
   const theirs = otherFaction(state.player);
   // On your own island there is no `sight` gate to pass — it is always 'eyes',
   // because it is yours — so what shows there is the report or nothing. On
@@ -441,8 +457,33 @@ function TheirsAshore({
         .map((c) => ({ type: c.mission!.type, byName: c.name, daysRemaining: c.mission!.daysRemaining }))
     : report?.errands;
 
-  const named = (people ?? []).filter((c): c is NonNullable<typeof c> => Boolean(c));
-  if (named.length === 0 && (errands ?? []).length === 0) return null;
+  return {
+    named: (people ?? []).filter((c): c is NonNullable<typeof c> => Boolean(c)),
+    errands: errands ?? [],
+    fromReport: live === undefined,
+  };
+}
+
+/** Whether the Crew tab would have anything of theirs to draw. */
+function hasTheirs(state: GameState, system: System, report: Intel | undefined, sight: Sight): boolean {
+  const { named, errands } = theirsHere(state, system, report, sight);
+  return named.length > 0 || errands.length > 0;
+}
+
+function TheirsAshore({
+  state,
+  system,
+  report,
+  sight,
+}: {
+  state: GameState;
+  system: System;
+  report?: Intel;
+  sight: Sight;
+}) {
+  const { named, errands, fromReport } = theirsHere(state, system, report, sight);
+  if (named.length === 0 && errands.length === 0) return null;
+  const mine = system.control === state.player;
 
   return (
     <>
@@ -466,10 +507,10 @@ function TheirsAshore({
           ))}
         </SlotBoard>
       )}
-      {(errands ?? []).length > 0 && (
+      {errands.length > 0 && (
         <p className="tiny muted" style={{ margin: '6px 0 10px' }}>
-          <b>Against this island{live ? '' : `, as of day ${report!.day}`}:</b>{' '}
-          {(errands ?? [])
+          <b>Against this island{fromReport ? `, as of day ${report!.day}` : ''}:</b>{' '}
+          {errands
             .map((e) => `${e.byName}, ${errandName(e.type)}, ${e.daysRemaining}d`)
             .join(' · ')}
           .{' '}
@@ -784,7 +825,14 @@ export function SystemSheet({
   const hullsHere = fleetsAt(state, live.id).length > 0;
   const hullsBound = state.fleets.some((f) => isAtSea(f) && f.voyage?.targetSystemId === live.id);
   const hasHarbor = !mine || hullsHere || hullsBound;
-  const hasCrew = !mine || crew.length > 0 || inbound.length > 0;
+  const hasCrew =
+    crew.length > 0 ||
+    inbound.length > 0 ||
+    // Your own settled island: the recruiting card has something to say about
+    // whether you could keep an open table here.
+    (mine && live.populated) ||
+    // Theirs: whoever you can see or have been told about.
+    hasTheirs(state, live, filed, sight);
   const tabs = TABS.filter(
     (entry) =>
       (entry.id !== 'harbor' || hasHarbor) && (entry.id !== 'crew' || hasCrew),

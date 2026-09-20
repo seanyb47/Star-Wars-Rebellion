@@ -31,10 +31,22 @@ export function allClipUrls(id: NarratorId): string[] {
 const probed = new Map<string, Promise<boolean>>();
 
 /**
- * Whether a clip is actually on the server. Asked once per URL per session;
- * a missing file is a plain 404 on GitHub Pages and on `vite preview`. The
- * dev server answers a missing public file with a 404 too, as long as the
- * request is not asking for HTML — which a fetch is not.
+ * Whether a clip is actually on the server. Asked once per URL per session.
+ *
+ * It does **not** come back as a 404, which is what this comment used to
+ * claim. A single-page app serves an index fallback for anything it does not
+ * recognise, so a missing `.mp4` answers **200 with `text/html`** — measured
+ * on `vite preview` on 20 September, and the same fallback is what GitHub
+ * Pages is configured to do. The content-type test below is therefore not
+ * belt-and-braces over the `r.ok` test, it is the only test doing any work:
+ * on `ok` alone every advisor would think it had all three clips and would
+ * hand an HTML document to a `<video>` element.
+ *
+ * The browser then aborts the transfer once it has the headers, so a HEAD for
+ * a clip that does not exist shows up as `net::ERR_ABORTED` in the network
+ * panel. That is this function working, not failing — worth saying, because
+ * three red rows per advisor is exactly the kind of thing somebody later
+ * spends an afternoon on.
  */
 export function clipExists(url: string): Promise<boolean> {
   let p = probed.get(url);
