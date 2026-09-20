@@ -6317,3 +6317,120 @@ with none of her own. Three Interceptor IIs — the Crown's pursuit corvette —
 put the Marauder on 62.9 against ~63 and the Witchlight on 33.5 against ~34.
 One squadron, two figures, both landed, which is better evidence than two
 separately-fitted pursuits would have been.
+
+---
+
+## Playing it, both sides, to the end (20 September)
+
+Sean: *"Review last session make changes and updates. When you're all done
+with work. I want you to play the game. Play both sides. Play it through to
+completion. Explore every button and options. See what works and what doesn't
+and adjust."*
+
+So this is a report of playing rather than of building: what was driven, what
+it turned up, what was adjusted, and what is left for him to decide. The
+harness is Playwright at 393×852 — an iPhone — against the built bundle, and
+every finding below was found by tapping, not by reading the code.
+
+### What was driven
+
+- **57 islands** across all seven Reaches, every tab on each: no blank panel,
+  no console error. That is the Crew-tab fix from earlier in the day holding
+  at scale.
+- The whole utility bar: World Map, Build (all three kinds), Book (all seven
+  sections, and one entry deep), Log, the advisor, the Menu and both of its
+  pages, the sound toggle both ways, the clock through all five speeds.
+- A crew member opened, sent on an errand, the errand sheet read, the errand
+  taken, and the order confirmed in the log.
+- A squadron split, sailed, and the voyage confirmed in the log.
+- Two whole wars, both sides, machine-played, to day 972 and beyond.
+
+### Six things that did not work
+
+**1. Closing a Location dropped you to the World Map.** A Location opens *in
+place of* the Reach Map rather than on top of it — one sheet at a time is the
+shape of this screen — so the cross took you all the way out. Reading a chain
+island by island, which is most of what looking at the chart is for, cost two
+taps each time. The island sheet now remembers where it was opened from.
+Every other way in drops the crumb, so the cross never sends you somewhere you
+have not been.
+
+**2. The build card said "1 co."** — *company* abbreviated, and company is the
+retired word. It walked past a check written for `\bcompany\b`. Two more of
+the same: `terms.json` itself said a Training Facility "Drills companies of
+marines and militia", and three hull blurbs in `ships.json` said what they
+land. The vocabulary file being the one place the rule is written down and
+also a place it was broken is the part worth remembering — the test read the
+interface and never the data.
+
+**3. A Pirate Lord's one order read "Send on mission."** Under a heading
+reading *On a mission*, with *Missions* as the chart filter and the tutorial
+card naming the button by the same word. **Errand** has been the agreed word
+since 17 September; it had never reached `terms.json`, and nothing was
+checking. Every *report* of one already said errand — only the places you give
+the order still said the old thing.
+
+**4. The Errands filter showed a nought with an errand in flight.** Send
+somebody on Explore — the one errand that by definition goes to an island
+nobody of yours has charted — and the filter whose own hint reads *islands
+your crew are working on, or sailing for* lit nothing. One gate at the top of
+`layerMark` was the cause: *you cannot be told about an island you have never
+charted*, which is right for every other layer and exactly wrong for this one.
+What stands on a stranger's island is not yours to know until somebody looks.
+Where you sent your own people is not news you have to buy.
+
+**5. The Fleets filter had the same hole.** Order the Home Fleet to sea on day
+one — the first thing anybody does — and the only way to ask where your navy
+is reads nought, because a squadron at sea lies off nothing. Yours on passage
+now count at the harbor they are making for. Theirs at sea stay invisible,
+which is what the watch is for.
+
+**6. The errand sheet asked who was going before it said what the job was.**
+"Who else goes" led it, so the first decision put to you was which four people
+to send and the last was what they were going to do. Its own copy gives it
+away — *take who the work needs* — which you cannot do until you have seen the
+work. The errands lead now.
+
+### What winning looks like, and why that is the next thing
+
+The Crown war ended on **day 972** with *"The Seven Seas are yours. Victory."*
+— and the screenshot of that moment is the most useful thing this session
+produced, because you cannot read it. The dispatch strip floats over the top
+of the chart with the last three notable events in it, and the one line that
+says who won sits directly underneath. You win a thirty-two-month war and what
+is on screen is three captures.
+
+Half of that is fixed here: the strip goes quiet once the war is over, so the
+line is visible. The other half is Sean's to decide, and it is the largest
+open item in the game — **there is no end-of-war screen at all.** `.verdict`
+is a single bordered line of 13px text above the chart. Everything a player
+would want at that moment — how long it took, what it cost, which islands
+turned, who was lost, whether to sail again — does not exist. The three
+outcome *screens* built in task 95 are battle outcomes, not the war's.
+
+### What the end of a war also showed
+
+- The winning side finished on **1,359 gold with 19 idle buildings**. That is
+  the gold-hoard item, and it is worse at the end than the middle: a side that
+  has won the war is sitting on eighteen months' income with nothing on order.
+- Confederate upkeep ran **74** at day 929 against the Crown's **288** at day
+  944 in its own war. The two sides do not build navies at the same rate, and
+  nothing on either screen explains why.
+
+### Left standing, not touched
+
+- **The encyclopedia's Ships page still opens by saying it is not this game**:
+  *"The war you are playing still sails the old fleet and fights it the old way
+  until the engine swap lands."* 21 hulls in play, 28 in the book. Honest, and
+  the largest structural gap.
+- **The Crew page leads with people who are not in your war.** Alphabetical,
+  and three of the first six are marked *not in this war* at full brightness.
+- **Your capital cannot build on day one.** Freeport's Buildings tab reads
+  *"NOTHING TO BUILD WITH — everything is raised by a construction yard
+  standing on the same island."* The one-of-each opening put the yards
+  elsewhere. Whether the seat should have one is a design call, not a defect.
+- **Escape closes nothing.** No sheet listens for it; only the tutorial does.
+  Irrelevant on a phone, wrong on a desktop.
+- **A crossing can take 87 to 122 days.** Not a bug — it is distance — but a
+  day-one errand to another Reach costs four months, and that is a pacing
+  number Sean may want to look at.

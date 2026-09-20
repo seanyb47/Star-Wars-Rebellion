@@ -745,7 +745,12 @@ export function App() {
           own the screen, and a card is already the louder telling. */}
       <Dispatches
         state={state}
-        hidden={Boolean(state.battle) || cards.length > 0 || panelOpen}
+        /* And silent once the war is over. Found by playing a war out to day
+           972: the strip posts the last three notable things that happened,
+           it floats over the top of the chart, and the one line that says who
+           won sits directly underneath it. You win a thirty-two-month war and
+           what you can see is three captures. The log still has them. */
+        hidden={Boolean(state.battle) || cards.length > 0 || panelOpen || Boolean(state.winner)}
         onOpen={(eventId) => {
           setFocusEventId(eventId);
           setTab('feed');
