@@ -100,6 +100,18 @@ export function App() {
   const [openSystemTab, setOpenSystemTab] = useState<IslandTab>('harbor');
   const [openReachId, setOpenReachId] = useState<string | null>(null);
   const [openListId, setOpenListId] = useState<string | null>(null);
+  /*
+   * Where an island was opened from, so closing it goes back there.
+   *
+   * A Location opens in place of the Reach Map rather than on top of it — one
+   * sheet at a time is the whole shape of this screen — so before this the
+   * cross dropped you all the way out to the World Map. Reading a chain
+   * island by island, which is most of what looking at the chart is for, cost
+   * two taps a time: reach, island, close, reach again. The sheet already had
+   * a way back up to its Reach; what it did not have was a way back to the
+   * one you came from.
+   */
+  const [cameFrom, setCameFrom] = useState<{ kind: 'reach' | 'list'; id: string } | null>(null);
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [narratorOpen, setNarratorOpen] = useState(false);
@@ -463,6 +475,7 @@ export function App() {
       setMissionChoice({ characterId: pickingFor, systemId });
       return;
     }
+    setCameFrom(null);
     setOpenSystemId(systemId);
     setOpenSystemTab(tabForLayer(layer));
   };
@@ -477,6 +490,11 @@ export function App() {
    * swipe from wherever it landed.
    */
   const openIslandTab = (systemId: string) => {
+    setCameFrom(
+      openReachId ? { kind: 'reach', id: openReachId }
+      : openListId ? { kind: 'list', id: openListId }
+      : null,
+    );
     setOpenReachId(null);
     setOpenListId(null);
     if (pickingFor || sailingFleetId || choosingSite) {
@@ -593,6 +611,7 @@ export function App() {
 
   const jumpToSystem = (systemId: string) => {
     setTab('galaxy');
+    setCameFrom(null);
     setOpenSystemId(systemId);
     setOpenSystemTab('harbor');
   };
@@ -607,6 +626,7 @@ export function App() {
     setOpenCharacterId(null);
     setOpenReachId(null);
     setOpenListId(null);
+    setCameFrom(null);
     setPickingFor(null);
     setMissionChoice(null);
     setSailingFleetId(null);
@@ -770,6 +790,7 @@ export function App() {
             }}
             onSelectReach={(sectorId: string) => setOpenReachId(sectorId)}
             onOpenIsland={(systemId: string) => {
+              setCameFrom(null);
               setOpenSystemId(systemId);
               setOpenSystemTab('buildings');
             }}
@@ -817,6 +838,7 @@ export function App() {
             if (reading) setReadingId(null);
             else markRead();
             setTab('galaxy');
+            setCameFrom(null);
             setOpenSystemId(systemId);
             setOpenSystemTab('harbor');
           }}
@@ -856,7 +878,12 @@ export function App() {
           state={state}
           system={openSystem}
           initialTab={openSystemTab}
-          onClose={() => setOpenSystemId(null)}
+          onClose={() => {
+            setOpenSystemId(null);
+            if (cameFrom?.kind === 'reach') setOpenReachId(cameFrom.id);
+            if (cameFrom?.kind === 'list') setOpenListId(cameFrom.id);
+            setCameFrom(null);
+          }}
           onBuild={handleBuild}
           onCancel={handleCancel}
           onFound={handleFound}
@@ -875,6 +902,7 @@ export function App() {
           onOpenCharacter={setOpenCharacterId}
           onOpenReach={(sectorId) => {
             setOpenSystemId(null);
+            setCameFrom(null);
             setOpenReachId(sectorId);
           }}
         />

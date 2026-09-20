@@ -59,7 +59,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'Send your crew',
     body: () =>
-      `${terms.crew} are how the map changes. Open one from the Crew tab at the foot, press Send on mission, choose an island, and it offers what can be done there — talk the island round, recruit, chart the unknown, spy, or take command. Then they sail, and it takes as long as the distance.`,
+      `${terms.crew} are how the map changes. Open one from the Crew tab at the foot, press Send on ${terms.errand.toLowerCase()}, choose an island, and it offers what can be done there — talk the island round, recruit, chart the unknown, spy, or take command. Then they sail, and it takes as long as the distance.`,
   },
   {
     title: 'Build and earn',

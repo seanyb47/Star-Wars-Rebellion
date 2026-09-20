@@ -299,7 +299,19 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
           <div className="unit__stats">
             <Stat label="Guns" value={spec.guns} />
             <Stat label="Hull" value={spec.hull} />
-            <Stat label="Carries" value={spec.carries === 0 ? '—' : `${spec.carries} co.`} />
+            {/* Found by playing: this tile read "1 co." — *company* abbreviated,
+                and company is the retired word. The Almanac's card already
+                counts troops; the build sheet, which is where you decide
+                whether a hull can carry a landing, was still saying the old
+                one under a full stop. */}
+            <Stat
+              label="Carries"
+              value={
+                spec.carries === 0
+                  ? '—'
+                  : `${spec.carries}\u00a0${spec.carries === 1 ? terms.troop.toLowerCase() : terms.troops.toLowerCase()}`
+              }
+            />
             <Stat label="Pace" value={spec.pace < 1 ? 'Fast' : spec.pace > 1 ? 'Slow' : 'Steady'} />
           </div>
           <p className="tiny muted" style={{ margin: '6px 0 0' }}>

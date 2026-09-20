@@ -77,7 +77,7 @@ export const CHART_LAYERS: LayerSpec[] = [
   { id: 'idleBuildings', label: 'Idle buildings', hint: `Islands where works of yours have no order on them — ${terms.facilities.construction_yard.toLowerCase()}s, ${terms.facilities.training_facility.toLowerCase()}s or ${terms.facilities.shipyard.toLowerCase()}s — numbered by how many are standing.` },
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
   { id: 'garrisons', label: 'Garrisons', hint: `How many ${terms.troops.toLowerCase()} are ashore on each island of yours.` },
-  { id: 'missions', label: 'Missions', hint: 'Islands your crew are working on, or sailing for.' },
+  { id: 'missions', label: terms.errands, hint: `Islands your ${terms.crew.toLowerCase()} are working on, or sailing for.` },
   { id: 'worth', label: 'Production', hint: 'What each island earns its holder in gold a day, right now.' },
   /*
    * Last, at Sean's word: *"Move idle land to last."* It is the only filter

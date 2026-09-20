@@ -208,7 +208,7 @@ export function CharacterSheet({
             disabled={character.status !== 'available'}
             onClick={onSendOnMission}
           >
-            Send on mission
+            Send on {terms.errand.toLowerCase()}
           </button>
           {posted && onRelieve && (
             <button
@@ -306,7 +306,11 @@ export function CharacterSheet({
 
       <Ratings character={character} />
 
-      <div className="section-title">On a mission</div>
+      {/* Found by playing on 20 September: this heading and the order above it
+          were the last two places the interface still said *mission*, which is
+          the retired word — the thing a crew member is sent to do is an
+          errand, and every report of one already called it that. */}
+      <div className="section-title">On an {terms.errand.toLowerCase()}</div>
       {/* Three things an officer can do on an island, and the island decides which:
           sign on whoever is standing there, parley where nobody has chosen a
           side, stir up trouble where the enemy has. All three are shown because

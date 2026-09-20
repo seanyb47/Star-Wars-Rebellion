@@ -42,7 +42,7 @@
     "mine": "Sinks a shaft on a vein of gold. Nothing else in the Seven Seas earns like it, and few islands have the ground for one.",
     "refinery": "Cuts and works the standing timber. Wants a forest under it, and most islands have a few.",
     "construction_yard": "Builds everything else on this island. Every yard here works the same job together.",
-    "training_facility": "Drills companies of marines and militia.",
+    "training_facility": "Drills marines and militia. Every troop you raise comes off this floor.",
     "shipyard": "Lays down hulls. Nothing to build here until the fleets arrive.",
     "fort": "A battery on the harbor wall. Fires on any enemy hull lying off the island, whether or not you have a fleet there, and no landing can be made while one still stands.",
     "heavy_fort": "The same wall built twice over: more than twice the guns and two and a half times the stone, on the one plot a Fortress would have taken. Costs more per gun than two Fortresses would, and is the only answer on an island with no room left."
@@ -51,5 +51,7 @@
   "worldMap": "World Map",
   "reachMap": "Reach Map",
   "crew": "Crew",
-  "crewOne": "crew member"
+  "crewOne": "crew member",
+  "errand": "Errand",
+  "errands": "Errands"
 }

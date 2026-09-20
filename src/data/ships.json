@@ -29,7 +29,7 @@
       "faction": "empire",
       "role": "transport",
       "name": "Fluyt",
-      "blurb": "An unarmed merchantman pressed into service. Carries more companies than anything else and cannot defend itself at all."
+      "blurb": "An unarmed merchantman pressed into service. Carries more troops than anything else and cannot defend itself at all."
     },
     {
       "id": "bulwark",
@@ -178,7 +178,7 @@
       "faction": "alliance",
       "role": "transport",
       "name": "Brig",
-      "blurb": "A blunt-nosed hauler. No guns worth the name, but it lands companies where they are wanted."
+      "blurb": "A blunt-nosed hauler. No guns worth the name, but it lands troops where they are wanted."
     },
     {
       "id": "reef",
@@ -208,7 +208,7 @@
       "carries": 2,
       "pace": 0.75,
       "bombard": 2,
-      "blurb": "A corvette carrying nearly twice the iron her size has any business with, and a hold full of people who mean to be on your deck. Built around the boarding action: she lands more companies than a frigate does and is no use at all in a line."
+      "blurb": "A corvette carrying nearly twice the iron her size has any business with, and a hold full of people who mean to be on your deck. Built around the boarding action: she lands more troops than a frigate does and is no use at all in a line."
     },
     {
       "id": "reefwalker",
