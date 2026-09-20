@@ -4819,34 +4819,44 @@
     "ships/bulwark": {
       "folder": "ships",
       "slug": "bulwark",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
-      "title": "bulwark",
+      "updated": "2026-09-20",
+      "title": "Bulwark",
       "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
-      "crop": {
-        "x": 0,
-        "y": 0,
-        "w": 232,
-        "h": 174
-      },
+      "notes": "Replacement commission, 20 September 2026. Delivered 1448x1086, 4:3, no crop. Matches Part 4 point for point: long slab-sided armored hull on an extremely broad beam, low continuous weather deck, reduced ivory rig with dark green bands, overlapping black-iron bands over aged copper with brass gunport frames, and the signature four long-gun casemates projecting from the hull corners. Scene is the master's own - low across a narrow strait in clear daylight with lighter Crown ships working behind her. The no-castle guardrail is obeyed: the battlements in frame are the shore forts, not the ship.",
+      "crop": null,
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/ships/bulwark.webp",
-        "w": 233,
-        "h": 174,
-        "bytes": 24680,
-        "sha1": "4b7a70d37954785a"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 657882,
+        "sha1": "1a9f106313c65ec3"
       },
       "shipped": {
         "file": "src/art/ships/bulwark.webp",
         "w": 640,
         "h": 480,
-        "bytes": 36098,
-        "sha1": "d732b24506077e40"
-      }
+        "bytes": 78358,
+        "sha1": "5dad892851c31cc6"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/bulwark.v1.webp",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
     },
     "ships/chimera": {
       "folder": "ships",

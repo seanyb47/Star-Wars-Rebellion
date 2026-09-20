@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**174 of 187 painted.** 6934KB shipped, 43.5MB of masters kept back.
+**174 of 187 painted.** 6975KB shipped, 44.1MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -84,7 +84,7 @@ three-quarter view, whole vessel, masts and waterline both in frame. 34 of 42.
 | adamant | `adamant` | 1 | 38KB | 234×174, 25KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Blackfin | `blackfin` | 1 | 83KB | 1448×1086, 656KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
 | brig | `brig` | 1 | 31KB | 234×174, 21KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
-| bulwark | `bulwark` | 1 | 35KB | 233×174, 24KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| Bulwark | `bulwark` | 2 (+1 retired) | 76KB | 1448×1086, 642KB | whole frame | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Chimera | `chimera` | 1 | 89KB | 1448×1086, 764KB | whole frame | 2026-09-19 | Sean, 19 September |
 | Coral Class | `coral-class` | 1 | 105KB | 1448×1086, 802KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
 | cutlass | `cutlass` | 2 (+1 retired) | 76KB | 1448×1086, 587KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
@@ -408,7 +408,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/adamant** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/blackfin** — The Blackfin: a low knife-lean corvette under a tall black mainsail carrying the Confederacy's crest, white foresails beside it, and both rails crowded end to end with small crewed guns on carriages instead of a single gunport. A prize running for the horizon astern. The silhouette guardrail held: the black main owns the frame.
 - **ships/brig** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
-- **ships/bulwark** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/bulwark** — Replacement commission, 20 September 2026. Delivered 1448x1086, 4:3, no crop. Matches Part 4 point for point: long slab-sided armored hull on an extremely broad beam, low continuous weather deck, reduced ivory rig with dark green bands, overlapping black-iron bands over aged copper with brass gunport frames, and the signature four long-gun casemates projecting from the hull corners. Scene is the master's own - low across a narrow strait in clear daylight with lighter Crown ships working behind her. The no-castle guardrail is obeyed: the battlements in frame are the shore forts, not the ship.
 - **ships/chimera** — The Chimera: a retrofit with three colours of timber in her, a great crimson skull-and-cutlasses course, and a Confederate anchorage of stilt-huts and half-built hulls behind her. Well plated for her size and cheap to keep, which is the hull's whole argument.
 - **ships/coral-class** — Her own painting at last; she had been borrowing the Reef-class's, the hull she grew out of. Mastless on purpose — the Coral-Class is grown rather than built — so the folder's 'masts and waterline both in frame' is met by the waterline alone. Delivered at 1448x1086, exactly 4:3, shipped uncropped.
 - **ships/cutlass** — The Cutlass proper, replacing the 234x174 contact-sheet slice that had been standing in since 16 September. A small corvette with iron banding bolted along her side, a row of light guns and a bow chaser, red-striped main and the Confederacy's own crest on the mizzen, running out past sea stacks at first light.

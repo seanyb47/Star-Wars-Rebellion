@@ -161,6 +161,8 @@ this page is generated from it.
 
 *Large, Slow. CWN-BUL-R3-01, research R3.*
 
+**PAINTED** — `src/art/ships/bulwark.webp`.
+
 **Encyclopedia** *(shown in game)* — Bulwarks are sent where the line must not move. Their heavy sides and long guns let them hold narrow channels while lighter ships maneuver behind them. They are miserable in a chase and vulnerable to small craft that slip under the great guns, facts their crews acknowledge with the fatalism of fixed-battery crews. A Bulwark at anchor lies so low and broad across the water that harbor pilots navigate around it like a breakwater.
 
 **Visual identity** — A low floating naval battery with sails: broad, horizontal, brutally practical and built to own a piece of water.
