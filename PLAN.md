@@ -6423,8 +6423,14 @@ outcome *screens* built in task 95 are battle outcomes, not the war's.
   *"The war you are playing still sails the old fleet and fights it the old way
   until the engine swap lands."* 21 hulls in play, 28 in the book. Honest, and
   the largest structural gap.
-- **The Crew page leads with people who are not in your war.** Alphabetical,
-  and three of the first six are marked *not in this war* at full brightness.
+- **The Crew page leads with people who are not in your war** — three of the
+  first six, alphabetically. Raised here and then withdrawn on reading the
+  history: the *not in this war* mark is the settled answer to Sean's earlier
+  complaint that the page listed Carrow and Torvik as *yours* when they were
+  never drawn, and `castinplay.test.ts` carries the reasoning — the
+  encyclopedia is a reference to the whole cast and alphabetical is what a
+  reference is. Noted rather than changed, and only worth revisiting if he
+  says the page feels like somebody else's game.
 - **Your capital cannot build on day one.** Freeport's Buildings tab reads
   *"NOTHING TO BUILD WITH — everything is raised by a construction yard
   standing on the same island."* The one-of-each opening put the yards
