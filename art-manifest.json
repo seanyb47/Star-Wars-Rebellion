@@ -5171,34 +5171,44 @@
     "ships/kestrel-ii": {
       "folder": "ships",
       "slug": "kestrel-ii",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
-      "title": "kestrel-ii",
+      "updated": "2026-09-20",
+      "title": "Interceptor II",
       "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
-      "crop": {
-        "x": 0,
-        "y": 0,
-        "w": 232,
-        "h": 174
-      },
+      "notes": "Commission of 20 September 2026, sent captioned 'swift 2'. Filed as Interceptor II on the evidence of the painting itself, which is that hull's Part 4 entry point for point and cannot be the Swift: the Swift is a Confederate Shoal-folk outrigger with no gun aboard, and this is a Crown warship under deep-green V2 canvas with a chase battery. The clincher is the master's signature detail for Interceptor II - 'five long chase-gun muzzles grouped into the sharp bow like a formal dueling pistol case' - which is exactly what is in the bow here, alongside the three sharply raked masts, the knife bow, the two Crown emblems and a distant fleeing target. The slug is kestrel-ii because the hull was renamed Interceptor II in the v3 roster and the art filenames never followed. Delivered 1448x1086, 4:3, no crop.",
+      "crop": null,
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/ships/kestrel-ii.webp",
-        "w": 233,
-        "h": 174,
-        "bytes": 24422,
-        "sha1": "1b605c9372c24fd3"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 590786,
+        "sha1": "b82e68aaa4958e01"
       },
       "shipped": {
         "file": "src/art/ships/kestrel-ii.webp",
         "w": 640,
         "h": 480,
-        "bytes": 35026,
-        "sha1": "262a8a25761dc9bf"
-      }
+        "bytes": 73938,
+        "sha1": "f30f5499ae12caa1"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/kestrel-ii.v1.webp",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
     },
     "ships/majestic": {
       "folder": "ships",

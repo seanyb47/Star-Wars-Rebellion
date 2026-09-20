@@ -203,6 +203,12 @@ this page is generated from it.
 
 *Small, Very Fast. CWN-INT-R5-02, research R5.*
 
+**PAINTED** — `src/art/ships/kestrel-ii.webp`. Sent captioned *"swift 2"*
+and filed here on the evidence of the painting: it carries this hull's
+signature detail, the five chase-gun muzzles grouped into the bow, and it
+cannot be the Swift, which is a Confederate outrigger with no gun aboard.
+One command to move it if that reading is wrong.
+
 **Encyclopedia** *(shown in game)* — The second Interceptor is what happens when the Admiralty refuses to choose between pursuit craft and warship. Its enlarged frame carries long chase guns, a dense light battery and just enough armor to survive the first answer. It remains brutally cramped and ruinously expensive to maintain. Green sails make it look aristocratic from shore; aboard, every passage is filled with ammunition and every meal is eaten beside a gun.
 
 **Visual identity** — An elite pursuit predator: the knife shape of Interceptor I wrapped in brass, armor and far too many weapons.
