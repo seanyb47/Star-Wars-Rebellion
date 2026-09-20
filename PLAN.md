@@ -6947,3 +6947,46 @@ the gold vein's cut rock with two thin pale seams instead of one heavy bright
 one, the mine is a shaft head rather than a cut hillside, so the two tell each
 other apart at 30px on either faction's palette. Both fall back cleanly the
 moment Sean's silver set arrives: *"I'll get to silver vein set."*
+
+## The resource paintings
+
+Sean, 20 September, four images and no words: a reef, gold in dark rock,
+silver in dark rock, and a stand of old trees. The silver set he promised when
+the ladder went in — *"I'll get to silver vein set"* — and with it new paintings
+for the two that already had one, plus coral.
+
+All four came at 1448×1086, the same delivery size as the existing masters, so
+they went in through `scripts/art.py` like everything else: master kept at full
+resolution outside `src/`, crop recorded, old gold and forest masters retired
+rather than deleted.
+
+The crops are full-width bands at the islands folder's 768×204. The thing worth
+knowing about that shape is that **the tile does not show all of it**: a slot
+board draws the band at 96/40 with `object-fit: cover`, so only the middle 64%
+is ever on screen. So the crops are chosen against that window rather than
+against the band — the bright metal has to sit in the centre of the strip, not
+just somewhere in it. Checked by rendering the visible slice of each:
+
+| | crop y | mean luma, the part you see |
+|---|---|---|
+| forest | 420 | 77.5 |
+| silver | 350 | **109.1** |
+| gold | 300 | 94.1 |
+| coral | 430 | 89.2 |
+
+Gold and silver are now plainly the same rock with different metal in it, which
+is what a ladder wants — you should be able to tell which rung an island is on
+from the tile, before reading the label.
+
+The drawn glyphs stay as the fallback they were written to be, and still do the
+work at icon size where no painting is drawn.
+
+**Coral is installed and not wired.** The painting is in the register and ready,
+but coral is still not a `ResourceType`, because the question from the economy
+spec has never been answered: Sean said living coral replaces trees in Coral
+Reach and then *"the coral is just leave it, we'll deal with the coral later."*
+Replacing timber there with a deposit nothing can work would leave that Reach
+unable to earn from two fifths of its ground, which is strictly worse than
+today. The ladder now makes the obvious answer available — coral as the bottom
+rung at 1x, with its own works — but that is his call, not one to assume from
+an image.

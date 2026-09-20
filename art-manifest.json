@@ -2062,14 +2062,46 @@
         "sha1": "40c42cd195ab2d44"
       }
     },
+    "islands/resource-coral": {
+      "folder": "islands",
+      "slug": "resource-coral",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Living coral",
+      "source": "Sean, 20 September, with the ladder",
+      "notes": "Coral is not a resource in the sim yet; the painting is here and ready.",
+      "crop": {
+        "x": 0,
+        "y": 430,
+        "w": 1448,
+        "h": 385
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/islands/resource-coral.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 658012,
+        "sha1": "fc11a9009e0ff5d2"
+      },
+      "shipped": {
+        "file": "src/art/islands/resource-coral.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 48872,
+        "sha1": "1f53a00950baa6b2"
+      }
+    },
     "islands/resource-forest": {
       "folder": "islands",
       "slug": "resource-forest",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
+      "updated": "2026-09-20",
       "title": "Standing timber",
-      "source": "unrecorded",
+      "source": "Sean, 20 September, with the ladder",
       "crop": {
         "x": 0,
         "y": 420,
@@ -2082,28 +2114,43 @@
         "file": "art-masters/islands/resource-forest.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 869924,
-        "sha1": "e9365b7b5476fd5b"
+        "bytes": 664886,
+        "sha1": "a2fd584c98d63299"
       },
       "shipped": {
         "file": "src/art/islands/resource-forest.webp",
         "w": 768,
         "h": 204,
-        "bytes": 58034,
-        "sha1": "4864f61aebe59311"
-      }
+        "bytes": 44238,
+        "sha1": "86a8a46fd069aa50"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/islands/resource-forest.v1.webp",
+          "crop": {
+            "x": 0,
+            "y": 420,
+            "w": 1448,
+            "h": 385
+          },
+          "tone": null,
+          "source": "unrecorded"
+        }
+      ]
     },
     "islands/resource-gold": {
       "folder": "islands",
       "slug": "resource-gold",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
+      "updated": "2026-09-20",
       "title": "A vein of gold in the rock",
-      "source": "unrecorded",
+      "source": "Sean, 20 September, with the ladder",
       "crop": {
         "x": 0,
-        "y": 250,
+        "y": 300,
         "w": 1448,
         "h": 385
       },
@@ -2113,15 +2160,61 @@
         "file": "art-masters/islands/resource-gold.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 707030,
-        "sha1": "88bc633004331e3a"
+        "bytes": 688730,
+        "sha1": "89d99bf512a12cb7"
       },
       "shipped": {
         "file": "src/art/islands/resource-gold.webp",
         "w": 768,
         "h": 204,
-        "bytes": 57636,
-        "sha1": "a357e98abc983aa1"
+        "bytes": 45682,
+        "sha1": "66ad19338b4bc4e6"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/islands/resource-gold.v1.webp",
+          "crop": {
+            "x": 0,
+            "y": 250,
+            "w": 1448,
+            "h": 385
+          },
+          "tone": null,
+          "source": "unrecorded"
+        }
+      ]
+    },
+    "islands/resource-silver": {
+      "folder": "islands",
+      "slug": "resource-silver",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "A seam of silver in the rock",
+      "source": "Sean, 20 September, with the ladder",
+      "crop": {
+        "x": 0,
+        "y": 350,
+        "w": 1448,
+        "h": 385
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/islands/resource-silver.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 581538,
+        "sha1": "724698896e5a5c6d"
+      },
+      "shipped": {
+        "file": "src/art/islands/resource-silver.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 35742,
+        "sha1": "34004106c1b78ece"
       }
     },
     "islands/rock-isle": {
