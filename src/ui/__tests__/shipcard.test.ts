@@ -75,8 +75,29 @@ describe('the ship card is the same shape on every hull', () => {
       ['Long guns', 'long-guns'], ['Heavy guns', 'heavy-guns'],
       ['Light guns', 'light-guns'], ['Bombardment', 'bombardment'],
     ] as const) {
-      expect(SOURCE, `${label} has no symbol`).toContain(`label="${label}" icon="${icon}"`);
+      // Whitespace-tolerant: a tile that grows a third prop gets wrapped by
+      // the formatter, and a test that breaks on that is testing the
+      // formatter rather than the card.
+      const pair = new RegExp(`label="${label}"\\s+icon="${icon}"`);
+      expect(pair.test(SOURCE), `${label} has no symbol`).toBe(true);
     }
+  });
+
+  /**
+   * Sean, 20 September: *"For 'Carries' change # to '# troops'."*
+   *
+   * Carries is the one figure whose unit is not in its own label, and it is
+   * the stat a player reads when working out whether a squadron can take an
+   * island. Pinned as a pair rather than a word plus an `s`, because the
+   * fleet really does have hulls that carry exactly one.
+   */
+  it('counts what Carries carries, and gets the singular right', () => {
+    expect(SOURCE).toMatch(/unit=\{\[terms\.troop\.toLowerCase\(\), terms\.troops\.toLowerCase\(\)\]\}/);
+    expect(SOURCE).toContain('value === 1 ? unit[0] : unit[1]');
+    // Non-vacuity for the singular: at least one hull carries exactly one.
+    expect(SHIPS.filter((s) => Number(s['Troop Capacity']) === 1).length).toBeGreaterThan(0);
+    // And a zero still reads None rather than "None troops".
+    expect(SOURCE).toContain('typeof value === \'number\' && value > 0');
   });
 
   /**

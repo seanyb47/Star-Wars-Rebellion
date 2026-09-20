@@ -2732,6 +2732,10 @@ button.tcard:hover { border-color: var(--brass); }
 }
 .shipstat i .icon { color: var(--brass); opacity: 0.85; flex: none; }
 .shipstat b { font-size: 17px; color: var(--text); font-variant-numeric: tabular-nums; }
+/* The unit after a figure — *4 troops*. Quieter and smaller than the number,
+   the way the upkeep figure sets its `/day`, so the number still reads first
+   and the tiles still line up down the row. */
+.shipstat__unit { font-size: 11px; font-weight: 400; color: var(--muted); }
 /* Scaled against the highest in the game, computed from the roster. A bar on
    its own says nothing; a bar against the fleet says where this hull sits. */
 .shipstat__bar {

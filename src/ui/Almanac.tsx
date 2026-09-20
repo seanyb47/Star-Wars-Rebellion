@@ -505,14 +505,45 @@ function figure(value: string | number): string | number {
  * the fleet, at a glance — and buys a tile that is a symbol, a name and a
  * number, which is what a reference entry is.
  */
-function Stat({ label, icon, value }: { label: string; icon: IconName; value: string | number }) {
+function Stat({
+  label,
+  icon,
+  value,
+  unit,
+}: {
+  label: string;
+  icon: IconName;
+  value: string | number;
+  /**
+   * What the figure counts, printed after it and set quieter than it.
+   *
+   * Sean, 20 September: *"For 'Carries' change # to '# troops'."* Carries is
+   * the one figure on the card whose unit is not in its own label — Hull is
+   * hull, Armor is armor, but a bare 4 under *Carries* could be four of
+   * anything, and it is the stat a player is reading when they are working
+   * out whether a squadron can take an island. Taken as a pair so the
+   * singular is right: nothing here is ever going to say *1 troops*.
+   */
+  unit?: readonly [one: string, many: string];
+}) {
+  const shown = figure(value);
+  const counted = unit !== undefined && typeof value === 'number' && value > 0;
   return (
     <div className="shipstat">
       <i>
         <Icon name={icon} size={15} />
         {label}
       </i>
-      <b>{figure(value)}</b>
+      <b>
+        {shown}
+        {/* A real space, not a margin. The gap was CSS at first and the tile
+            read back as "4troops" to anything that takes the text rather than
+            the picture — a screen reader, a copy-paste, a test. Non-breaking,
+            so the figure and its unit cannot be split across a line. */}
+        {counted && (
+          <span className="shipstat__unit">{`\u00a0${value === 1 ? unit[0] : unit[1]}`}</span>
+        )}
+      </b>
     </div>
   );
 }
@@ -864,7 +895,12 @@ function EntrySheet({
                     as Repairs above. */}
                 <Stat label="Size" icon="size" value={cls.size} />
                 <Stat label="Speed" icon="speed" value={cls.speed} />
-                <Stat label="Carries" icon="carries" value={cls.troopCapacity} />
+                <Stat
+                  label="Carries"
+                  icon="carries"
+                  value={cls.troopCapacity}
+                  unit={[terms.troop.toLowerCase(), terms.troops.toLowerCase()]}
+                />
               </div>
 
               <SectionHead title="Firepower" to="rules" at="cannon" help="The three cannon" />
