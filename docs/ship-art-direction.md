@@ -344,6 +344,8 @@ this page is generated from it.
 
 *Medium, Normal. CFS-TID-S04, research S04.*
 
+**PAINTED** — `src/art/ships/tidestalker.webp`.
+
 **Encyclopedia** *(shown in game)* — Tidestalkers are sung into shape in shallow Reef-folk nurseries, then taught the deeper water as they grow. Their living hulls flex rather than creak and close small wounds with pale new growth between voyages. They hunt close to reefs, where their low profiles vanish against broken water. Below the surface, living coral keels and rhythmic reef vanes drive them silently against wind and current.
 
 **Visual identity** — A sleek, windless living-coral ambush ship: quiet, watchful and unmistakably grown rather than built.

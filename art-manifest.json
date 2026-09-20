@@ -5639,12 +5639,12 @@
     "ships/tidestalker": {
       "folder": "ships",
       "slug": "tidestalker",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-19",
-      "updated": "2026-09-19",
+      "updated": "2026-09-20",
       "title": "Tidestalker",
       "source": "Sean, 19 September",
-      "notes": "The Tidestalker: a sloop-of-war whose whole bow and waterline have grown over with living coral, red and white patched canvas above, running out of a reef anchorage past limestone stacks. The growth is the ship - she is the Confederacy's fastest-mending hull, and this is what mending looks like on her.",
+      "notes": "Replacement commission, 20 September 2026. Delivered 1448x1086, the 4:3 the ship card wants, so no crop. Matches Part 4 of the combat master closely: blood-red, ivory and dark reef coral armor, swept-back ridges concealing a row of gunports, submerged fin-like keels, no sails or masts, half-hidden beside a bright reef at midday.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -5652,16 +5652,26 @@
         "file": "art-masters/ships/tidestalker.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 742878,
-        "sha1": "c954b010d0116e9f"
+        "bytes": 624208,
+        "sha1": "30e3ff09e0b11bbe"
       },
       "shipped": {
         "file": "src/art/ships/tidestalker.webp",
         "w": 640,
         "h": 480,
-        "bytes": 108206,
-        "sha1": "fcea1fecad668d78"
-      }
+        "bytes": 86532,
+        "sha1": "6bf67fd42d2e326f"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/tidestalker.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean, 19 September"
+        }
+      ]
     },
     "ships/urskin-goliath": {
       "folder": "ships",
