@@ -252,7 +252,7 @@ function groups(): Group[] {
         ],
         [
           'Works',
-          'What is built on an island. A building is raised on the island itself and takes no works to order it; a Shipyard lays down hulls and a Training Facility raises troops, one job at a time each. Several of the same kind on one island work together — three Shipyards finish a hull in a third of the time, and one raised halfway through a job speeds up the job already running.',
+          'What is built on an island. A building is raised on the island itself and takes no works to order it; a Shipyard lays down hulls and a Barracks raises troops, one job at a time each. Several of the same kind on one island work together — three Shipyards finish a hull in a third of the time, and one raised halfway through a job speeds up the job already running.',
         ],
         [
           'Craft',
@@ -265,7 +265,7 @@ function groups(): Group[] {
       entries: [
         [
           terms.troop,
-          'The ground unit. Troops hold what you have taken, storm what you have not, and are raised at a Training Facility.',
+          'The ground unit. Troops hold what you have taken, storm what you have not, and are raised at a Barracks.',
         ],
         [
           terms.garrison,

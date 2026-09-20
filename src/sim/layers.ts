@@ -74,7 +74,7 @@ export const CHART_LAYERS: LayerSpec[] = [
    * number is every idle works of yours on it, whatever kind, and the
    * Buildings tab it opens on says which.
    */
-  { id: 'idleBuildings', label: 'Idle buildings', hint: `Islands where works of yours have no order on them — ${terms.facilities.training_facility.toLowerCase()}s or ${terms.facilities.shipyard.toLowerCase()}s — numbered by how many are standing.` },
+  { id: 'idleBuildings', label: 'Idle buildings', hint: `Islands where works of yours have no order on them — a ${terms.facilities.training_facility.toLowerCase()} or a ${terms.facilities.shipyard.toLowerCase()} — numbered by how many are standing.` },
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them, and where yours are sailing — theirs only as far as you know.' },
   { id: 'garrisons', label: 'Garrisons', hint: `How many ${terms.troops.toLowerCase()} are ashore on each island of yours.` },
   { id: 'missions', label: terms.errands, hint: `Islands your ${terms.crew.toLowerCase()} are working on, or sailing for.` },

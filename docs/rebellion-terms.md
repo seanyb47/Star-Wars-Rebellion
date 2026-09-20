@@ -45,14 +45,14 @@ is somebody else's trademarked game.
 
 | Rebellion | Here | Note |
 |---|---|---|
-| Construction Yard | **Construction Yard** | Kept |
+| Construction Yard | *(cut)* | No such building. A building is raised on the island itself, 20 September |
 | Shipyard / Advanced Shipyard | **Shipyard** | One tier, and Craft grade does the upgrading |
-| Training Facility | **Training Facility** | Kept |
+| Training Facility | **Barracks** | Renamed 20 September; still where a Troop is raised |
 | Mine | **Gold Mine** | Needs a vein under it |
 | Refinery | **Lumber Mill** | Needs a forest |
 | Planetary shield / Ion cannon | **Fortress** / **Heavy Fortress** | No landing while one stands |
 | Facility (the category) | **Buildings** in the interface, **works** in prose | |
-| Construction (the act) | **Building** | "Construction yard" keeps the word; the act does not |
+| Construction (the act) | **Building** | Nothing keeps the word now that the yard is cut |
 
 ## Forces
 

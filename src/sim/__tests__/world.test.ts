@@ -276,8 +276,10 @@ describe('terminology', () => {
     // Sean's call, 14 September: the makers keep the original's plain names.
     // The Construction Yard stood here until 20 September, when Sean cut it:
     // *"Cut construction yards completely. Anyone can build on any available
-    // land."* Two makers left, and they keep the original's plain names.
-    expect(FACILITY_LABEL.training_facility).toBe('Training Facility');
+    // land."* Two makers left — and one of them stopped keeping the original's
+    // name the same day: *"Change 'Training Facilities' to 'Barracks' across
+    // game."* The key is still `training_facility`, because a key is code.
+    expect(FACILITY_LABEL.training_facility).toBe('Barracks');
     expect(FACILITY_LABEL.shipyard).toBe('Shipyard');
     expect(YARD_BUILDS.shipyard.label).toBe(terms.facilities.shipyard);
   });

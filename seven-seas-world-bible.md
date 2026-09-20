@@ -450,12 +450,12 @@ Keep original offense/defense/watch ratings and research positions.
 
 | Original | New | Notes |
 |---|---|---|
-| Construction Yard | **Construction Yard** | Builds facilities and shore defenses |
-| Advanced Construction Yard | **Master Yard** | 2× speed |
+| Construction Yard | *(cut 20 September)* | No such building: a building is raised on the island it stands on |
+| Advanced Construction Yard | *(cut with it)* | |
 | Orbital Shipyard | **Shipyard** | Builds ships and small craft |
 | Advanced Shipyard | **Dry Dock** (Imperium) / **Coral Bed** (Confederacy) | 2× speed; same stats, different art |
-| Training Facility | **Training Facility** | Troops and special forces |
-| Advanced Training Facility | **Marine Barracks** (Imperium) / **War-Lodge** (Confederacy) | 2× speed |
+| Training Facility | **Barracks** | Troops and special forces. Renamed 20 September |
+| Advanced Training Facility | *(not built)* | The second tier does not exist; **Marine Barracks** is retired as a name, the plain Barracks having taken the word |
 | Mine | **Camp** (timber / iron / hemp / coral-bed — art varies by island) | Produces Stores |
 | Refinery | **Mill** (sawmill / foundry / ropewalk / coral-kiln) | Stores → Fittings; each Camp+Mill pair adds 50 Upkeep |
 | GenCore Level I | **Seawall** | Blocks bombardment; two block landings. Also what keeps the Black Tide out — flavor only |
@@ -1250,6 +1250,8 @@ not a bark, and it goes in the text.
 ---
 
 ## 15. CHANGELOG
+
+- **2026-09-20 v9.41** — **The Training Facility is a Barracks.** Sean: *"Change 'Training Facilities' to 'Barracks' across game."* One label, changed in `terms.json` and carried everywhere the interface reads it, plus three sentences that had spelled the old name out by hand — the Glossary's two and the tutorial's build card. The key stays `training_facility`, the way `refinery` stays the key for the Lumber Mill and `mine` for the Gold Mine: an id is code, and renaming this one would have renamed a type, two art slugs and the files on disk behind them for a word nobody reads. The register's titles and the two conversion tables — `docs/rebellion-terms.md` and section 9 here — say Barracks now, and both were also still listing the Construction Yard as kept, a day after it was cut. One thing the rename nearly broke and the vocabulary test now pins: **Barracks is already plural in form**, so the idle-buildings filter, which built its hint by sticking an `s` on the label, would have read *barrackss*; it names the works singular instead. Worth recording that **Marine Barracks** was the name section 9 had reserved for the Advanced Training Facility — a second tier that does not exist here, Craft grade doing the upgrading, so the plain Barracks takes the word and the reserved one is retired. No lore changed.
 
 - **2026-09-20 v9.40** — **The Construction Yard is cut. You build where you stand.** Sean: *"Cut construction yards completely. Anyone can build on any available land... That way buildings are never traveling... Well just increase their time to build. So gold becomes building constraint not the yard."* A building is now raised on the island itself from its Buildings tab — yours, not in mutiny, a berth free, the ground under it if it wants ground, and the gold to pay for it — and the whole notion of a fort *in transit* leaves the game with the yard. Only two things still need a works to make them: a troop off a Training Facility floor and a hull off a Shipyard slip. A building raised in place has one pair of hands on it rather than a crew, so **every build time is doubled** (mine 40 days, silver mine 32, mill and kiln 24, fortress 60, training facility 56, shipyard 84, heavy fortress 108). Measured over forty wars the median war **halved, 1,210 days to 672**, and the last two that ran out the clock now finish. Balance moved with it, 20–18 to **16–24**, and the reason is structural rather than a mis-tune: the yard was 26% of all upkeep in the game, and the Confederacy spent that windfall on the strike fleet it could never previously afford, while the Crown's win condition — all three Lords at once, scattered across an unexplored chart — is the one thing gold cannot buy. The Crown still wins the ground war 19.8 islands to 8.6 and still loses. Build time is a weak lever on that (×1.5 and ×2.5 both tried and cut), so the manhunt is the next thing to fix, not the clock. Three bugs came out of the measurement, one of them visible only as a dispatch that never arrived. No lore changed.
 

@@ -7415,3 +7415,58 @@ The **Construction Yard art** is now orphaned — six of seven buildings had jus
 been repainted and the yard was the last one carrying a faction banner, which is
 a problem that has solved itself. Its masters and manifest entries want
 retiring. The **Coral Kiln** is still the one works drawing a placeholder glyph.
+
+## Training Facility becomes Barracks
+
+Sean, 20 September: *"Change 'Training Facilities' to 'Barracks' across game."*
+
+A label change, and the vocabulary rule already says how to make one: the word
+lives in `src/data/terms.json` and everything that shows it reads it from there.
+So the change is one line, plus the places that had spelled the old name out by
+hand — two sentences in the Glossary and the tutorial's build card, all three
+written before the label existed to be read.
+
+### The key does not move
+
+`training_facility` stays the id. That is the precedent the file already sets:
+`refinery` is the key for the Lumber Mill and `mine` for the Gold Mine, and
+neither was renamed when its label was. An id is code — this one is a
+`FacilityType` member, two art slugs, and the `.webp` files on disk behind them
+— and renaming it would have touched about sixty lines and two binaries for the
+sake of a word no player reads. The vocabulary test is written against the words
+*with a space in them* for exactly this reason: `training_facility` and
+`training-facility` both survive it on purpose, and the test says so.
+
+### Barracks is already plural
+
+The one real trap, and it is the kind that only shows on screen. The
+idle-buildings chart filter built its hint by sticking an `s` on the label:
+
+```ts
+`— ${terms.facilities.training_facility.toLowerCase()}s or ${...shipyard...}s —`
+```
+
+Against "Barracks" that reads ***barrackss***. It names the works singular now —
+*"a barracks or a shipyard"* — and the vocabulary test checks the rendered
+`CHART_LAYERS` hints rather than trusting the sweep, because anywhere else that
+pluralises a facility label is the same bug waiting.
+
+English is otherwise kind here: *barracks* takes a singular verb, so the
+Almanac's generated sentence came out as *"a shipyard lays down hulls and a
+barracks drills troops"* with nothing to fix. Confirmed on a live page rather
+than assumed — the Buildings tab and the encyclopedia both read correctly, and
+the built bundle contains no "Training Facilit" and no "barrackss".
+
+### Two tables that were a day stale
+
+`docs/rebellion-terms.md` is the table Sean's own Rebellion vocabulary is read
+against, and section 9 of the world bible is the conversion packet. Both said
+**Training Facility | Kept** — and both still listed the **Construction Yard**
+as kept too, a day after it was cut. Fixed together, because a translation table
+that is wrong is worse than no table.
+
+Section 9 also turned up a name collision worth recording: **Marine Barracks**
+was reserved there for the *Advanced* Training Facility, the 2× speed tier. That
+tier does not exist in this game — Craft grade does the upgrading — so the plain
+Barracks takes the word and the reserved name is retired rather than left to
+collide with it later.

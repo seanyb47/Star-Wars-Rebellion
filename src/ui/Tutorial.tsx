@@ -64,7 +64,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'Build and earn',
     body: () =>
-      'Buildings are raised on the island itself, from its Buildings tab — anywhere you hold with a berth free and the gold to pay for it. A Shipyard lays down hulls, a Training Facility raises troops, a Gold Mine and a Lumber Mill pay for it. The gold at the top is what you make a day after upkeep — keep it above nothing, and keep your yards working.',
+      'Buildings are raised on the island itself, from its Buildings tab — anywhere you hold with a berth free and the gold to pay for it. A Shipyard lays down hulls, a Barracks raises troops, a Gold Mine and a Lumber Mill pay for it. The gold at the top is what you make a day after upkeep — keep it above nothing, and keep your yards working.',
   },
   {
     title: 'Start the clock',

@@ -307,6 +307,47 @@ describe('the words that were retired', () => {
   });
 
   /**
+   * And `training facility`, retired on 20 September: *"Change 'Training
+   * Facilities' to 'Barracks' across game."*
+   *
+   * The key stays `training_facility`, exactly the way `refinery` stays the key
+   * for the Lumber Mill and `mine` for the Gold Mine — an id is code, and
+   * renaming this one would rename a type, two art slugs and the files on disk
+   * behind them for the sake of a word nobody reads. So the guard is written
+   * against the *words* with a space in them and never against the identifier:
+   * `training_facility` and `training-facility` both survive it on purpose.
+   *
+   * One thing the rename nearly broke, worth keeping in view: **Barracks is
+   * already plural in form.** The idle-buildings filter built its hint by
+   * sticking an `s` on the label and would have said *barrackss*; it names the
+   * works singular now. Anywhere else that pluralises a facility label is the
+   * same bug waiting, so this checks the rendered labels rather than trusting
+   * the sweep.
+   */
+  it('calls the place a troop is drilled a Barracks', () => {
+    expect(terms.facilities.training_facility).toBe('Barracks');
+    const bare = /\btraining facilit(y|ies)\b/i;
+    for (const { file, text } of uiSources()) {
+      for (const said of [...playerText(text), ...jsxText(text)]) {
+        expect(bare.test(said), `${file}: ${said.trim().slice(0, 120)}`).toBe(false);
+      }
+    }
+    for (const { file, said } of dataText()) {
+      expect(bare.test(said), `${file}: ${said.slice(0, 120)}`).toBe(false);
+    }
+    // And never doubled up by a caller that assumed a singular noun.
+    for (const { file, text } of uiSources()) {
+      for (const said of [...playerText(text), ...jsxText(text)]) {
+        expect(/barrackss/i.test(said), `${file}: ${said.trim().slice(0, 120)}`).toBe(false);
+      }
+    }
+    for (const layer of CHART_LAYERS) {
+      expect(/barrackss/i.test(layer.hint), `layer ${layer.id}`).toBe(false);
+      expect(/training facilit/i.test(`${layer.label} ${layer.hint}`), `layer ${layer.id}`).toBe(false);
+    }
+  });
+
+  /**
    * And `Diplomacy` as a name — the rating, the errand, the heading. Lower-case
    * `diplomacy` survives as the mission type's own id and as a field on a
    * character, which are code rather than words shown to anybody.

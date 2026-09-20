@@ -138,8 +138,8 @@ low approach, as if from a boat; a banner on the island panel. 26 of 31.
 | Shipyard — Crown Imperium | `facility-shipyard-empire` | 2 (+1 retired) | 35KB | 1448×1086, 572KB | 1200×319 @ 140,250 | 2026-09-12 | Sean, 20 September: shipyard new art |
 | Silver Mine — alliance | `facility-silver-mine-alliance` | 1 | 26KB | 1448×1086, 572KB | 1050×279 @ 0,400 | 2026-09-20 | Sean, 20 September: silver mine |
 | Silver Mine — empire | `facility-silver-mine-empire` | 1 | 26KB | 1448×1086, 572KB | 1050×279 @ 0,400 | 2026-09-20 | Sean, 20 September: silver mine |
-| Training Facility — alliance | `facility-training-facility-alliance` | 2 (+1 retired) | 43KB | 1448×1086, 622KB | 1448×385 @ 0,430 | 2026-09-12 | Sean, 20 September: training facility new art |
-| Training Facility — empire | `facility-training-facility-empire` | 2 (+1 retired) | 43KB | 1448×1086, 622KB | 1448×385 @ 0,430 | 2026-09-12 | Sean, 20 September: training facility new art |
+| Barracks — alliance | `facility-training-facility-alliance` | 2 (+1 retired) | 43KB | 1448×1086, 622KB | 1448×385 @ 0,430 | 2026-09-12 | Sean, 20 September: training facility new art |
+| Barracks — empire | `facility-training-facility-empire` | 2 (+1 retired) | 43KB | 1448×1086, 622KB | 1448×385 @ 0,430 | 2026-09-12 | Sean, 20 September: training facility new art |
 | Free Harbor | `free-harbor` | 1 | 38KB | 765×208, 79KB | 765×203 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Ice Isle | `ice-isle` | 1 | 33KB | 765×200, 69KB | 753×200 @ 6,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Jungle Isle | `jungle-isle` | 1 | 39KB | 763×200, 76KB | 753×200 @ 5,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
