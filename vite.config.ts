@@ -65,5 +65,16 @@ export default defineConfig(({ command, isPreview }) => ({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    /*
+     * So a test can read the stylesheet.
+     *
+     * Vitest stubs every CSS module to an empty string by default, `?raw`
+     * included, which is right for a component test that only wants the
+     * import not to explode. It is wrong for `console.test.ts`, which exists
+     * because two rules in `styles.css` were being silently overridden by
+     * source order — a bug no render test can see and no type check can
+     * reach. Nothing else in the suite imports CSS, so this costs nothing.
+     */
+    css: true,
   },
 }) as any);

@@ -6752,3 +6752,72 @@ ends sitting on 2,737 gold against the Crown's 589. The fortnight does not
 touch it, because hoarding is not a ledger problem — it is `aiBuild` declining
 to spend. That is the surplus gate and the six-orders-a-tick cadence, still
 next.
+
+## Scrap, from the player's side
+
+The mechanic shipped without the half Sean actually described. *"You can
+either actively do it or the game's going to do it for you"* — the game could
+do it; the player could not. This is the other half.
+
+### One list, not a button on every tile
+
+The Buildings board already says why, about felling timber: *a destructive
+button on a small tile is a button somebody taps by accident*. It is also the
+wrong shape for the decision. What to pull down is a question about the
+**island** — what has to go for this to be raised — so the answer is
+everything standing on it at once, in one list, reached from a line under the
+board beside the one that fells timber.
+
+The list is the island's buildings, its garrison as one row that can be tapped
+as many times as there are troops, and every hull of yours lying in the
+harbor. Each row says three things: what it raises, what it saves a day, and
+whether the plot comes back. The coin is the smallest of the three and often
+zero, which the sheet says out loud rather than hiding.
+
+### `ScrapTarget`, and the two gates
+
+`Chargeable` became an exported `ScrapTarget` carrying ids only, so the UI can
+name a thing to break up without reaching into the state it is drawing. With
+it, two functions that did not exist before:
+
+- `scrapError` is the **player** gate: not somebody else's works, not the
+  city's own ancient walls, not an order half-run (that is Cancel, and it is
+  already there), not an island in mutiny or out of your hands, and not a hull
+  in open water or in the middle of an action.
+- `scrap` asks none of it, because the fortnightly shortfall has to be able to
+  reach anything on the books, a squadron at sea very much included. That is
+  the difference the game draws everywhere else: what you may order, and what
+  happens to you.
+
+Measured after the refactor, forty wars on the same seeds: 18–21, median
+1,380, audit clean — identical to before it, which is what a refactor with no
+behaviour in it should read.
+
+### The bug the browser found and the stylesheet hid
+
+Verifying the sheet at 393px turned up something older and worse than anything
+in the new code. The ledger plaque wanted 84px and had 76, so **CLEAR was cut
+off by its own border** — on the exact phone width the top bar was built for,
+and on the console I had checked by eye the same day and called clean.
+
+Two causes, the same mistake twice:
+
+- `@media (max-width: 400px) { .topbar .iconbtn { width: 34px } }` sat *above*
+  the plain `.topbar .iconbtn { width: 38px }`. Equal specificity, so source
+  order decided and the wide rule won. Four buttons four pixels over is
+  sixteen pixels, which is twice what the ledger was short.
+- `.plaque--ledger { flex: none }` lost to `.console .plaque { flex: 0 1
+  auto }`, one class more specific. The plaque written not to shrink was the
+  one shrinking — and the comment above it confidently explained why it could
+  not be.
+
+Both narrow-screen blocks are now one block, placed after every rule it has to
+beat, and `console.test.ts` reads the stylesheet and checks that order. It
+needed `test.css: true` in the Vite config, because vitest stubs every CSS
+module to an empty string by default, `?raw` included. Nothing else in the
+suite imports CSS.
+
+The lesson is the cheap one: this was invisible to the build, to the type
+check, to every render test, and to reading the file top to bottom. It took
+`getBoundingClientRect` on a running page. Anything laid out for a specific
+width should be measured at that width rather than looked at.

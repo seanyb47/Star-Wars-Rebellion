@@ -130,23 +130,25 @@ export function scrapValue(item: BuildItem): number {
   return Math.floor(shipSpec(item as never).costGold * SCRAP_RETURN);
 }
 
-/** Everything a side owns that costs it something to keep, one entry each. */
-type Chargeable =
-  /*
-   * By id, never by index.
-   *
-   * The first cut of this carried a facility's array index, which is fine
-   * until something is scrapped: the splice shifts every later index down and
-   * the next entry in a shuffled list points at the wrong building — or off
-   * the end. A shortfall scraps several things in a row, so that is not a
-   * corner case, it is the normal path.
-   */
-  | { kind: 'facility'; system: System; facilityId: string; label: string }
-  | { kind: 'troop'; system: System }
+/**
+ * One thing a side owns that costs it something to keep, and can be sold.
+ *
+ * By id, never by object or index.
+ *
+ * The first cut of this carried a facility's array index, which is fine until
+ * something is scrapped: the splice shifts every later index down and the next
+ * entry in a shuffled list points at the wrong building — or off the end. A
+ * shortfall scraps several things in a row, so that is not a corner case, it
+ * is the normal path. Ids also mean the UI can name a target without reaching
+ * into the state it is drawing.
+ */
+export type ScrapTarget =
+  | { kind: 'facility'; systemId: string; facilityId: string }
+  | { kind: 'troop'; systemId: string }
   | { kind: 'ship'; fleetId: string; shipId: string };
 
-function everythingOnTheBooks(state: GameState, faction: PlayableFaction): Chargeable[] {
-  const out: Chargeable[] = [];
+function everythingOnTheBooks(state: GameState, faction: PlayableFaction): ScrapTarget[] {
+  const out: ScrapTarget[] = [];
   for (const system of state.systems) {
     if (system.control !== faction) continue;
     for (const facility of system.facilities) {
@@ -155,20 +157,92 @@ function everythingOnTheBooks(state: GameState, faction: PlayableFaction): Charg
       // nothing to keep, so scrapping one raises nothing and saves nothing.
       if (facility.owner !== faction || facility.ancient) continue;
       if (UPKEEP_PER_DAY[facility.type] <= 0) continue;
-      out.push({
-        kind: 'facility',
-        system,
-        facilityId: facility.id,
-        label: FACILITY_LABEL[facility.type].toLowerCase(),
-      });
+      out.push({ kind: 'facility', systemId: system.id, facilityId: facility.id });
     }
-    for (let i = 0; i < system.garrison; i += 1) out.push({ kind: 'troop', system });
+    for (let i = 0; i < system.garrison; i += 1) out.push({ kind: 'troop', systemId: system.id });
   }
   for (const fleet of state.fleets) {
     if (fleet.faction !== faction) continue;
     for (const ship of fleet.ships) out.push({ kind: 'ship', fleetId: fleet.id, shipId: ship.id });
   }
   return out;
+}
+
+/** What a thing is called in a sentence — read before it is broken up. */
+export function scrapLabel(state: GameState, what: ScrapTarget): string {
+  if (what.kind === 'troop') {
+    const system = state.systems.find((s) => s.id === what.systemId);
+    return `a ${TROOP_BUILD.label.toLowerCase()} on ${system?.name ?? 'an island'}`;
+  }
+  if (what.kind === 'facility') {
+    const system = state.systems.find((s) => s.id === what.systemId);
+    const facility = system?.facilities.find((f) => f.id === what.facilityId);
+    const name = facility ? FACILITY_LABEL[facility.type].toLowerCase() : 'works';
+    return `the ${name} on ${system?.name ?? 'an island'}`;
+  }
+  const fleet = state.fleets.find((f) => f.id === what.fleetId);
+  const ship = fleet?.ships.find((sh) => sh.id === what.shipId);
+  return ship ? `the ${shipSpec(ship.classId).label}` : 'a hull';
+}
+
+/** What breaking this up would put in the treasury. */
+export function scrapReturn(state: GameState, what: ScrapTarget): number {
+  if (what.kind === 'troop') return scrapValue('troop');
+  if (what.kind === 'facility') {
+    const system = state.systems.find((s) => s.id === what.systemId);
+    const facility = system?.facilities.find((f) => f.id === what.facilityId);
+    return facility ? scrapValue(facility.type) : 0;
+  }
+  const fleet = state.fleets.find((f) => f.id === what.fleetId);
+  const ship = fleet?.ships.find((sh) => sh.id === what.shipId);
+  return ship ? scrapValue(ship.classId) : 0;
+}
+
+/**
+ * Why the player may not break this particular thing up.
+ *
+ * A player gate, and only a player gate: `scrap` itself asks none of this,
+ * because the fortnightly shortfall has to be able to reach anything on the
+ * books — a squadron at sea very much included. The difference is the same one
+ * the game draws everywhere else: what you may order, and what happens to you.
+ */
+export function scrapError(
+  state: GameState,
+  faction: PlayableFaction,
+  what: ScrapTarget,
+): string | null {
+  if (what.kind === 'ship') {
+    const fleet = state.fleets.find((f) => f.id === what.fleetId);
+    if (!fleet || !fleet.ships.some((sh) => sh.id === what.shipId)) return 'No such ship.';
+    if (fleet.faction !== faction) return 'Not yours to break up.';
+    // A ship is broken up on a slip, not in open water, and certainly not
+    // while somebody is firing at it.
+    if (isAtSea(fleet)) return 'She is at sea. Bring her in first.';
+    if (state.battle) return 'Not in the middle of an action.';
+    const where = state.systems.find((s) => s.id === fleet.systemId);
+    if (!where || where.control !== faction) return 'Not in a harbor of yours.';
+    return null;
+  }
+
+  const system = state.systems.find((s) => s.id === what.systemId);
+  if (!system) return 'No such island.';
+  if (system.control !== faction) return 'You do not hold this island.';
+  if (system.uprising) return 'The island is in mutiny.';
+
+  if (what.kind === 'troop') {
+    if (system.garrison <= 0) return 'There is nobody ashore to disband.';
+    return null;
+  }
+
+  const facility = system.facilities.find((f) => f.id === what.facilityId);
+  if (!facility) return 'Nothing of the kind stands here.';
+  if (facility.owner !== faction) return 'Not yours to break up.';
+  if (facility.ancient) return 'Older than the Imperium, and not yours to pull down.';
+  // An order half-run is cancelled, not scrapped: cancelling is the thing the
+  // player means and it is already there.
+  if (facility.founding) return 'It is still being laid down. Cancel the order instead.';
+  if (facility.building) return 'Something is being built here. Cancel that first.';
+  return null;
 }
 
 /**
@@ -181,24 +255,26 @@ function everythingOnTheBooks(state: GameState, faction: PlayableFaction): Charg
  *
  * Returns the gold recovered, or null if the thing was not there to scrap.
  */
-export function scrap(state: GameState, faction: PlayableFaction, what: Chargeable): number | null {
+export function scrap(state: GameState, faction: PlayableFaction, what: ScrapTarget): number | null {
   if (what.kind === 'troop') {
-    if (what.system.garrison <= 0) return null;
-    what.system.garrison -= 1;
+    const system = state.systems.find((s) => s.id === what.systemId);
+    if (!system || system.garrison <= 0) return null;
+    system.garrison -= 1;
     const back = scrapValue('troop');
     state.factions[faction].gold += back;
     return back;
   }
   if (what.kind === 'facility') {
-    const at = what.system.facilities.findIndex((f) => f.id === what.facilityId);
-    const facility = at < 0 ? undefined : what.system.facilities[at];
-    if (!facility || facility.owner !== faction) return null;
-    what.system.facilities.splice(at, 1);
+    const system = state.systems.find((s) => s.id === what.systemId);
+    const at = system?.facilities.findIndex((f) => f.id === what.facilityId) ?? -1;
+    const facility = !system || at < 0 ? undefined : system.facilities[at];
+    if (!system || !facility || facility.owner !== faction) return null;
+    system.facilities.splice(at, 1);
     // The yard comes down; the ground under it is still ground. Same rule as
     // a works falling apart unpaid — a long war must not grind the world down
     // to land that can never earn again.
     const ground = WORKS_ON[facility.type];
-    if (ground) returnDeposit(state, what.system, ground);
+    if (ground) returnDeposit(state, system, ground);
     const back = scrapValue(facility.type);
     state.factions[faction].gold += back;
     return back;
@@ -276,17 +352,12 @@ export function settleLedger(state: GameState, rng: Rng): void {
     // Randomly, because the player who did not choose does not get to choose.
     for (const what of rng.shuffle(everythingOnTheBooks(state, faction))) {
       if (short <= 0) break;
+      // Named before the sale, not after it: by then the building is already
+      // off the island and there is nothing left to read the name from.
+      const named = scrapLabel(state, what);
       const got = scrap(state, faction, what);
       if (got === null) continue;
-      // Named from what was captured before the sale, not after it: by here
-      // the building is already off the island.
-      sold.push(
-        what.kind === 'troop'
-          ? `a ${TROOP_BUILD.label.toLowerCase()} on ${what.system.name}`
-          : what.kind === 'facility'
-            ? `the ${what.label} on ${what.system.name}`
-            : 'a hull',
-      );
+      sold.push(named);
       // What the sale raised goes straight back out again against the bill.
       short -= got;
       fs.gold = Math.max(0, fs.gold - got);

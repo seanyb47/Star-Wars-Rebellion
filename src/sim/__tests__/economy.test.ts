@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
-import { addShip, fleetCapacity } from '../fleets';
+import { addShip, fleetCapacity, sailFleet } from '../fleets';
 import {
   islandIncome,
   islandTrade,
   smuggledShare,
   scrap,
+  scrapError,
   scrapValue,
   settleLedger,
   recomputeLedger,
@@ -332,9 +333,8 @@ describe('scrapping', () => {
 
     const got = scrap(state, 'empire', {
       kind: 'facility',
-      system: island,
+      systemId: island.id,
       facilityId: 'f1',
-      label: 'construction yard',
     });
     expect(got).toBe(scrapValue('construction_yard'));
     expect(state.factions.empire.gold).toBe(got);
@@ -350,9 +350,8 @@ describe('scrapping', () => {
     island.deposits = [];
     scrap(state, 'empire', {
       kind: 'facility',
-      system: island,
+      systemId: island.id,
       facilityId: 'f1',
-      label: 'lumber mill',
     });
     // The mill goes; the trees it was cutting are still standing. Same rule as
     // a works falling apart unpaid — a long war must not grind the world down
@@ -423,6 +422,49 @@ describe('scrapping', () => {
     // No squadron with no ships, and nobody serving with one that is gone.
     expect(state.fleets.find((f) => f.id === fleet.id)).toBeUndefined();
     expect(officer.locationSystemId).toBe(island.id);
+  });
+
+  it('will not let the player pull down what is not theirs to pull down', () => {
+    const state = generateGalaxy(109);
+    const island = isolate(state, 'empire');
+    island.facilities = [
+      { id: 'f1', type: 'fort', owner: 'empire', ancient: true },
+      { id: 'f2', type: 'construction_yard', owner: 'empire' },
+      { id: 'f3', type: 'shipyard', owner: 'empire', founding: true },
+    ];
+    const at = (facilityId: string) =>
+      scrapError(state, 'empire', { kind: 'facility', systemId: island.id, facilityId });
+
+    // The seawalls the world opened with belong to the city, not the Crown.
+    expect(at('f1')).toMatch(/not yours/i);
+    // An order half-run is cancelled, not scrapped.
+    expect(at('f3')).toMatch(/cancel/i);
+    expect(at('f2')).toBeNull();
+
+    // And nothing at all while the island is out of your hands.
+    island.uprising = true;
+    expect(at('f2')).toMatch(/mutiny/i);
+    island.uprising = false;
+    island.control = 'alliance';
+    expect(at('f2')).toMatch(/do not hold/i);
+  });
+
+  it('will not let the player break a ship up in open water', () => {
+    const state = generateGalaxy(110);
+    const island = isolate(state, 'empire');
+    const fleet = addShip(state, island, 'empire', 'reefwalker');
+    const what = { kind: 'ship', fleetId: fleet.id, shipId: fleet.ships[0].id } as const;
+    expect(scrapError(state, 'empire', what)).toBeNull();
+
+    // Under way to somewhere else, and there is no slip in open water.
+    const elsewhere = state.systems.find((s) => s.id !== island.id)!;
+    sailFleet(state, fleet.id, elsewhere.id, 'empire');
+    expect(scrapError(state, 'empire', what)).toMatch(/at sea/i);
+
+    // The shortfall is not bound by any of that: it can reach anything on the
+    // books, which is the whole difference between what you may order and what
+    // happens to you.
+    expect(scrap(state, 'empire', what)).toBe(scrapValue('reefwalker'));
   });
 
   it('leaves a side that can pay entirely alone', () => {

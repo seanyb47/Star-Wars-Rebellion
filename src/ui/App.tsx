@@ -41,6 +41,9 @@ import {
   type PlayableFaction,
   type Speed,
   orderClearForest,
+  orderScrap,
+  scrapReturn,
+  type ScrapTarget,
   orderFoundWorks,
   type MissionType,
   inProse,
@@ -62,6 +65,7 @@ import { useAdvisorVoice } from './narrator/useAdvisorVoice';
 import { ReachSheet } from './ReachSheet';
 import { ReachListSheet } from './ReachListSheet';
 import { tabForLayer, type IslandTab } from './IslandRow';
+import { ScrapSheet } from './ScrapSheet';
 import { ShipSheet } from './ShipSheet';
 import { SystemSheet } from './SystemSheet';
 import { StartScreen } from './StartScreen';
@@ -400,6 +404,24 @@ export function App() {
     setState(result.state);
   };
 
+  /**
+   * Break one thing up. Destructive and not undoable, so it asks — the same
+   * treatment felling a forest gets, and for the same reason.
+   */
+  const handleScrap = (what: ScrapTarget, named: string) => {
+    const back = scrapReturn(state, what);
+    const ok = window.confirm(
+      `Break up ${named}?\n\n` +
+        (back > 0
+          ? `It raises ${back} gold and comes off your books. Nothing comes back.`
+          : 'It raises nothing — it cost nothing to raise — but the plot it stands on comes back. Nothing else does.'),
+    );
+    if (!ok) return;
+    const result = orderScrap(state, what);
+    if (result.error) flash(result.error);
+    setState(result.state);
+  };
+
   const handleFound = (systemId: string) => {
     const result = orderFoundWorks(state, systemId);
     if (result.error) flash(result.error);
@@ -549,6 +571,8 @@ export function App() {
 
   /** Which hull's sheet is open, if any. */
   const [openShip, setOpenShip] = useState<{ fleetId: string; shipId: string } | null>(null);
+  /** The island whose break-up list is open, if any. */
+  const [scrapFor, setScrapFor] = useState<string | null>(null);
   /**
    * Anything the player opened, which the running report defers to.
    *
@@ -893,6 +917,7 @@ export function App() {
           onCancel={handleCancel}
           onFound={handleFound}
           onClear={handleClear}
+          onBreakUp={setScrapFor}
           onSail={handleSail}
           onAssault={handleAssault}
           onBombard={handleBombard}
@@ -916,6 +941,20 @@ export function App() {
       {/* A hull's own sheet, over the island's: tapped from the list in the
           harbor, and stacked so it sits on top of the panel it came from
           rather than behind it. */}
+      {/* The break-up list, over the island it is about. */}
+      {scrapFor && (() => {
+        const island = state.systems.find((s) => s.id === scrapFor);
+        if (!island) return null;
+        return (
+          <ScrapSheet
+            state={state}
+            system={island}
+            onScrap={handleScrap}
+            onClose={() => setScrapFor(null)}
+          />
+        );
+      })()}
+
       {openShip && (() => {
         const fleet = state.fleets.find((f) => f.id === openShip.fleetId);
         if (!fleet) return null;

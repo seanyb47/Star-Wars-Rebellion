@@ -4,6 +4,7 @@
  * can never crash the game.
  */
 import { cancelBuild, clearForest, foundWorks, queueBuild } from './build';
+import { recomputeLedger, scrap, scrapError, type ScrapTarget } from './economy';
 import {
   bombardError,
   assault,
@@ -106,6 +107,23 @@ export function orderBuild(
  */
 export function orderClearForest(state: GameState, systemId: string): CommandResult {
   return run(state, (draft) => clearForest(draft, systemId, draft.player));
+}
+
+/**
+ * Break one thing of your own up for half its price.
+ *
+ * Destructive and not undoable, so the UI asks first — the same treatment
+ * felling a forest gets. The ledger is recomputed on the spot because the
+ * whole point of the order is the upkeep it takes off the books, and a player
+ * who cannot see that happen has no reason to believe it did.
+ */
+export function orderScrap(state: GameState, what: ScrapTarget): CommandResult {
+  return run(state, (draft) => {
+    const error = scrapError(draft, draft.player, what);
+    if (error) throw new Error(error);
+    scrap(draft, draft.player, what);
+    recomputeLedger(draft);
+  });
 }
 
 export function orderFoundWorks(state: GameState, systemId: string): CommandResult {

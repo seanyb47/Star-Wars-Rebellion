@@ -696,6 +696,7 @@ export function SystemSheet({
   onCancel,
   onFound,
   onClear,
+  onBreakUp,
   onOpenCharacter,
   onOpenReach,
   onSail,
@@ -719,6 +720,8 @@ export function SystemSheet({
   onFound: (systemId: string) => void;
   /** Fell a forest to open its plot. Destroys it. */
   onClear: (systemId: string) => void;
+  /** Open the list of things on this island that could be broken up. */
+  onBreakUp: (systemId: string) => void;
   onSail: (fleetId: string) => void;
   onAssault: (fleetId: string) => void;
   onBombard?: (fleetId: string) => void;
@@ -1147,6 +1150,23 @@ export function SystemSheet({
                 onClick={() => onClear(system.id)}
               >
                 Fell timber
+              </button>
+            </div>
+          )}
+
+          {/* The other end of the same decision, and it sits beside felling
+              timber because it is the same question — what has to go for this
+              to be built. Sean, on scrap: *"a great way to clear old things to
+              make room for new things."* Under the board rather than on the
+              tiles, for the reason the line above gives. */}
+          {system.control === state.player && (
+            <div className="row row--between clearline">
+              <p className="tiny muted" style={{ margin: 0, flex: 1 }}>
+                Anything of yours can be broken up for half its price, and you stop paying to keep
+                it.
+              </p>
+              <button className="tiny btn--danger" onClick={() => onBreakUp(system.id)}>
+                Break up
               </button>
             </div>
           )}
