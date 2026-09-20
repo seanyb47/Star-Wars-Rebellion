@@ -75,7 +75,7 @@ export const CHART_LAYERS: LayerSpec[] = [
    * Buildings tab it opens on says which.
    */
   { id: 'idleBuildings', label: 'Idle buildings', hint: `Islands where works of yours have no order on them — ${terms.facilities.construction_yard.toLowerCase()}s, ${terms.facilities.training_facility.toLowerCase()}s or ${terms.facilities.shipyard.toLowerCase()}s — numbered by how many are standing.` },
-  { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them — yours or theirs.' },
+  { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them, and where yours are sailing — theirs only as far as you know.' },
   { id: 'garrisons', label: 'Garrisons', hint: `How many ${terms.troops.toLowerCase()} are ashore on each island of yours.` },
   { id: 'missions', label: terms.errands, hint: `Islands your ${terms.crew.toLowerCase()} are working on, or sailing for.` },
   { id: 'worth', label: 'Production', hint: 'What each island earns its holder in gold a day, right now.' },
@@ -206,6 +206,13 @@ export function idleFacilities(
   return ofKind.filter((f) => !f.founding).length;
 }
 
+/** Hulls of your own at sea with this island as their landfall. */
+function boundFor(state: GameState, system: System, faction: PlayableFaction): number {
+  return state.fleets
+    .filter((f) => f.faction === faction && isAtSea(f) && f.voyage?.targetSystemId === system.id)
+    .reduce((n, f) => n + f.ships.length, 0);
+}
+
 /**
  * How the chart should draw one island under one layer.
  *
@@ -239,7 +246,17 @@ export function layerMark(
   }
 
   // You cannot be told about an island you have never charted.
-  if (!system.explored[faction]) return DARK;
+  if (!system.explored[faction]) {
+    // Except by a squadron of yours that is on its way to it, for the reason
+    // above: an island nobody has charted is exactly where a squadron gets
+    // sent, and the filter going blank the moment the fleet weighs anchor is
+    // the same bug as the errand one.
+    if (layer === 'fleets') {
+      const bound = boundFor(state, system, faction);
+      return bound > 0 ? { lit: true, count: bound } : DARK;
+    }
+    return DARK;
+  }
 
   switch (layer) {
     case 'idleBuildings': {
@@ -291,9 +308,17 @@ export function layerMark(
        * yours lying at an enemy island is also what makes that island `eyes`.
        */
       const here = fleetsAt(state, system.id).filter((f) => !isAtSea(f));
-      const mine = here
-        .filter((f) => f.faction === faction)
-        .reduce((n, f) => n + f.ships.length, 0);
+      const mine =
+        here
+          .filter((f) => f.faction === faction)
+          .reduce((n, f) => n + f.ships.length, 0) +
+        // And yours on passage here. Found by playing on 20 September: order
+        // the Home Fleet to sea on day one and this filter — the only way to
+        // ask where your navy is — read nought, because a squadron at sea
+        // lies off nothing. Where your own hulls are going is yours to know,
+        // the same as an errand; theirs at sea stays invisible, which is what
+        // the watch is for.
+        boundFor(state, system, faction);
       const sight = sightOf(state, system, faction);
       let theirs = 0;
       if (sight === 'eyes') {

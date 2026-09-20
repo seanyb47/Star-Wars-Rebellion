@@ -150,14 +150,31 @@ describe('chart layers', () => {
     expect(layerMark(state, where, 'idleCrew', 'empire').count ?? 0).toBe(others);
   });
 
-  it('counts hulls in harbor, not hulls at sea', () => {
+  /**
+   * A hull that has weighed anchor is no longer in the harbor it left — and,
+   * since 20 September, it is counted at the harbor it is making for.
+   *
+   * The second half is new, and it changed this test. It used to send the
+   * squadron to the island it was already lying at and check the island went
+   * dark, which is a state the game cannot reach; the destination is now the
+   * island that lights, so the old assertion was reading the right rule off
+   * the wrong pair of islands. Found by playing: order the Home Fleet to sea
+   * on day one and the Fleets filter — the only way to ask where your navy
+   * is — read nought.
+   */
+  it('counts hulls in harbor, and hulls at sea at the harbor they are making for', () => {
     const { state, mine } = setup();
     addShip(state, mine, 'empire', 'kestrel');
     const fleet = addShip(state, mine, 'empire', 'kestrel');
     expect(layerMark(state, mine, 'fleets', 'empire')).toEqual({ lit: true, count: 2 });
 
-    fleet.voyage = { targetSystemId: mine.id, daysRemaining: 3 };
-    expect(layerMark(state, mine, 'fleets', 'empire').lit).toBe(false);
+    // Both hulls are in the one squadron, so sending it empties the harbor.
+    const elsewhere = state.systems.find((s) => s.id !== mine.id)!;
+    elsewhere.explored.empire = true;
+    fleet.voyage = { targetSystemId: elsewhere.id, daysRemaining: 3 };
+    expect(layerMark(state, mine, 'fleets', 'empire').lit, 'the harbor they left').toBe(false);
+    expect(layerMark(state, elsewhere, 'fleets', 'empire'), 'the harbor they are making for')
+      .toEqual({ lit: true, count: 2 });
   });
 
   it('shows production as what an island earns its holder today, and nothing for the idle', () => {

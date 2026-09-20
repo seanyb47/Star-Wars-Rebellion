@@ -63,6 +63,33 @@ describe('the Errands filter', () => {
     }
   });
 
+  /**
+   * The same hole, one filter along: order the Home Fleet to sea on day one
+   * and the Fleets filter — the only way to ask where your navy is — read
+   * nought, because a squadron at sea lies off nothing. Theirs at sea stays
+   * invisible, which is what the watch is for.
+   */
+  it('has a twin: the Fleets filter shows where your own hulls are sailing', () => {
+    const state = generateGalaxy(3, 'alliance');
+    const fleet = state.fleets.find((f) => f.faction === 'alliance' && f.ships.length > 0)!;
+    const target = state.systems.find((s) => s.id !== fleet.systemId && !s.explored.alliance)!;
+    fleet.voyage = { targetSystemId: target.id, daysRemaining: 9 };
+    const mark = layerMark(state, target, 'fleets', 'alliance');
+    expect(mark.lit, 'the destination is dark').toBe(true);
+    expect(mark.count).toBe(fleet.ships.length);
+
+    // And a squadron of theirs at sea is still nobody's business but theirs.
+    const hers = state.fleets.find((f) => f.faction === 'empire' && f.ships.length > 0);
+    if (hers) {
+      const dark = state.systems.find(
+        (s) => s.explored.alliance && s.id !== target.id && s.id !== fleet.systemId,
+      )!;
+      hers.voyage = { targetSystemId: dark.id, daysRemaining: 9 };
+      const before = layerMark(state, dark, 'fleets', 'alliance');
+      expect(before.count ?? 0, 'their passage is visible').toBe(0);
+    }
+  });
+
   /** And it is called what the project calls it. */
   it('is labelled with the agreed word', () => {
     const chip = CHART_LAYERS.find((l) => l.id === 'missions');
