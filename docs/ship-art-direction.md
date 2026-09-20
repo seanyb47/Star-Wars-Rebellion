@@ -284,6 +284,13 @@ this page is generated from it.
 
 *Small, Very Fast. CFS-SWI-S01, research S01.*
 
+**PAINTED** — `src/art/ships/swift.webp`. Matches the master closely, shell
+wind-chimes and all. One divergence, recorded rather than corrected: the
+figure aboard is human-proportioned, where the Swift is Shoal-folk designed
+and crewed — 4 ft to 5 ft 2, large night eyes, broad sail-like ears that
+*"read first even in a black silhouette"*. Worth settling before the
+Blackfin, the other Shoal-folk hull, is commissioned.
+
 **Encyclopedia** *(shown in game)* — The Swift was designed by Shoal-folk who consider deep water an inconvenience and armed ships needlessly slow. It carries messages, scouts channels and vanishes through reefs where a square-rigger would leave its keel. There is no gun aboard because every pound of iron is a pound that cannot become sail. Crown officers dismiss it as a canoe until they discover it reported their fleet two days before their own lookouts saw land.
 
 **Visual identity** — A reef-running scout that feels closer to a racing seabird than a conventional warship.

@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**174 of 187 painted.** 6891KB shipped, 42.9MB of masters kept back.
+**174 of 187 painted.** 6934KB shipped, 43.5MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -107,7 +107,7 @@ three-quarter view, whole vessel, masts and waterline both in frame. 34 of 42.
 | sovereign | `sovereign` | 1 | 33KB | 233×174, 23KB | 232×174 @ 0,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | sovereign-ii | `sovereign-ii` | 1 | 35KB | 234×174, 23KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | swallowtail | `swallowtail` | 1 | 31KB | 234×174, 22KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
-| swift | `swift` | 1 | 32KB | 234×174, 22KB | 232×174 @ 1,0, **upscaled** | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
+| Swift | `swift` | 2 (+1 retired) | 75KB | 1448×1086, 543KB | whole frame | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | tempest | `tempest` | 2 (+1 retired) | 91KB | 1448×1086, 722KB | whole frame | 2026-09-16 | Sean, 19 September — production painting |
 | Tidestalker | `tidestalker` | 2 (+1 retired) | 84KB | 1448×1086, 609KB | whole frame | 2026-09-19 | Sean, 19 September |
 | Urskin Goliath | `urskin-goliath` | 1 | 92KB | 1448×1086, 655KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
@@ -431,7 +431,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/sovereign** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/sovereign-ii** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
 - **ships/swallowtail** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
-- **ships/swift** — Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.
+- **ships/swift** — Replacement commission, 20 September 2026. Delivered 1448x1086, 4:3, no crop. Matches Part 4 closely: narrow hull with lateral outriggers, one canted mast and a tall crab-claw sail, cream and faded crimson, rope lashings and shell fittings, no guns and no armor, skimming reef water with spray off the outriggers. The signature detail is there too - the Shoal-folk navigators' shell wind-chimes, strung from the mast. One divergence recorded rather than fixed: the figure aboard is human-proportioned, where the Swift is Shoal-folk designed and crewed.
 - **ships/tempest** — Replaces the 234x174 placeholder sliced from the 24-ship contact sheet on 16 September. Delivered at 1448x1086, exactly 4:3, so the whole painting ships with no crop.
 - **ships/tidestalker** — Replacement commission, 20 September 2026. Delivered 1448x1086, the 4:3 the ship card wants, so no crop. Matches Part 4 of the combat master closely: blood-red, ivory and dark reef coral armor, swept-back ridges concealing a row of gunports, submerged fin-like keels, no sails or masts, half-hidden beside a bright reef at midday.
 - **ships/urskin-goliath** — The colossal invasion dreadnaught, renamed from Urskin Whaler on 19 September. Shipped at ships/urskin-whaler for a few hours on the same day, before the name moved; that copy is retired under the old slug.

@@ -5565,34 +5565,44 @@
     "ships/swift": {
       "folder": "ships",
       "slug": "swift",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
-      "title": "swift",
+      "updated": "2026-09-20",
+      "title": "Swift",
       "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Placeholder, from the 24-ship reference sheet: the cell is 234x174, so this is upscaled to the shipped 640x480 and will be soft. Replace with the 2048x1536 production painting when it lands.",
-      "crop": {
-        "x": 1,
-        "y": 0,
-        "w": 232,
-        "h": 174
-      },
+      "notes": "Replacement commission, 20 September 2026. Delivered 1448x1086, 4:3, no crop. Matches Part 4 closely: narrow hull with lateral outriggers, one canted mast and a tall crab-claw sail, cream and faded crimson, rope lashings and shell fittings, no guns and no armor, skimming reef water with spray off the outriggers. The signature detail is there too - the Shoal-folk navigators' shell wind-chimes, strung from the mast. One divergence recorded rather than fixed: the figure aboard is human-proportioned, where the Swift is Shoal-folk designed and crewed.",
+      "crop": null,
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/ships/swift.webp",
-        "w": 234,
-        "h": 174,
-        "bytes": 23222,
-        "sha1": "6a3a2335565ae9d8"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 556518,
+        "sha1": "54c3c3f9a3ae3af2"
       },
       "shipped": {
         "file": "src/art/ships/swift.webp",
         "w": 640,
         "h": 480,
-        "bytes": 33478,
-        "sha1": "ef6402d74a9134d3"
-      }
+        "bytes": 77724,
+        "sha1": "b1ca498b1d494c23"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/swift.v1.webp",
+          "crop": {
+            "x": 1,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
     },
     "ships/tempest": {
       "folder": "ships",
