@@ -1711,66 +1711,96 @@
     "islands/facility-refinery-alliance": {
       "folder": "islands",
       "slug": "facility-refinery-alliance",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
-      "title": "Mill \u2014 Free Confederacy",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "updated": "2026-09-20",
+      "title": "Lumber Mill \u2014 Free Confederacy",
+      "source": "Sean, 20 September: lumber mill new art",
+      "notes": "Same painting as the Crown's; the delivery carries no faction marks.",
       "crop": {
-        "x": 4,
-        "y": 0,
-        "w": 757,
-        "h": 201
+        "x": 560,
+        "y": 600,
+        "w": 888,
+        "h": 236
       },
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/islands/facility-refinery-alliance.webp",
-        "w": 765,
-        "h": 201,
-        "bytes": 91080,
-        "sha1": "4a424094b92d7306"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 634540,
+        "sha1": "12d30afc19950b54"
       },
       "shipped": {
         "file": "src/art/islands/facility-refinery-alliance.webp",
         "w": 768,
         "h": 204,
-        "bytes": 47870,
-        "sha1": "ab373a4cd85f4a68"
-      }
+        "bytes": 36358,
+        "sha1": "f942423708b32cb5"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/islands/facility-refinery-alliance.v1.webp",
+          "crop": {
+            "x": 4,
+            "y": 0,
+            "w": 757,
+            "h": 201
+          },
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "islands/facility-refinery-empire": {
       "folder": "islands",
       "slug": "facility-refinery-empire",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
-      "title": "Mill \u2014 Crown Imperium",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "updated": "2026-09-20",
+      "title": "Lumber Mill \u2014 Crown Imperium",
+      "source": "Sean, 20 September: lumber mill new art",
+      "notes": "One painting for both sides; the delivery carries no faction marks.",
       "crop": {
-        "x": 3,
-        "y": 0,
-        "w": 757,
-        "h": 201
+        "x": 560,
+        "y": 600,
+        "w": 888,
+        "h": 236
       },
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/islands/facility-refinery-empire.webp",
-        "w": 763,
-        "h": 201,
-        "bytes": 95222,
-        "sha1": "9c8ab45675dad95b"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 634540,
+        "sha1": "12d30afc19950b54"
       },
       "shipped": {
         "file": "src/art/islands/facility-refinery-empire.webp",
         "w": 768,
         "h": 204,
-        "bytes": 52008,
-        "sha1": "15a8c155858a2f31"
-      }
+        "bytes": 36358,
+        "sha1": "f942423708b32cb5"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/islands/facility-refinery-empire.v1.webp",
+          "crop": {
+            "x": 3,
+            "y": 0,
+            "w": 757,
+            "h": 201
+          },
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "islands/facility-shipyard-alliance": {
       "folder": "islands",

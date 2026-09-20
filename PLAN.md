@@ -7122,3 +7122,45 @@ slugs and the Gold Mine is now the one building that looks the same whoever
 holds it. The owner is still named by the emblem in the sheet header, which is
 where Sean put faction identity on 19 September. Both old masters are retired
 rather than deleted, so the flagged pair comes back with one command.
+
+## The Lumber Mill, repainted — and the crop rule that was never written down
+
+Sean, 20 September: *"Lumber mill new art."* A water-powered sawmill — overshot
+wheel with the water coming over it, a frame saw in a timber house, a log on
+the carriage and sawn boards stacked beside it.
+
+The first crop was chosen the way the Gold Mine's was, against the slot board's
+window, and it looked good as a band: wheel on the left, log on the right. On
+the page it was wrong. **The encyclopedia card showed a stone pier.**
+
+### Two windows, both centred, neither of them the band
+
+Measured on the running page rather than assumed:
+
+| where | box | shows |
+|---|---|---|
+| island panel, slot tile | 96 / 40 | the middle **64%** of the band |
+| encyclopedia, building card | 176 × 110 | the middle **42.5%** |
+
+Both `object-fit: cover`. So a 768×204 band is three quarters decoration: **a
+subject that is not dead centre is a subject the player never sees.** That is
+now written on the `islands` entry in `scripts/art.py`, where the next person
+cropping one will read it before choosing rather than after.
+
+### Which is why the waterwheel is not in it
+
+The wheel is a circle about 560px across in a 1448px painting. A 3.76:1 band
+cannot contain a circle: centring the wheel forces a crop 750 wide and 199
+tall, which is a thin slice across the hub and reads as spokes and an axle,
+not as a wheel. Six boxes were rendered at **both** windows and the wheel lost
+every one of them.
+
+What ships is `560,600,888,236` — the log on its carriage with its cut end to
+camera and the sawn boards stacked behind. It says *timber, cut* at 176px,
+which is the job. It also pairs with the Gold Mine, which by luck rather than
+judgement ended up doing the same thing: both cards now show the **product**,
+close up, where the older set showed wide establishing scenes.
+
+If the wheel matters more than legibility — it is the in-game glyph, after all
+— the fix is not a different crop but a taller band for this folder, and that
+is a change to every island painting rather than to this one.

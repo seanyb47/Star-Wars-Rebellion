@@ -72,6 +72,14 @@ FOLDERS: dict[str, tuple[int, int, str]] = {
     # the crop — the topmasts and the waterline, which are the two things that
     # make a ship read as a ship.
     "ships": (640, 480, "three-quarter view, whole vessel, masts and waterline both in frame"),
+    # 768x204 is 3.76:1, and almost nothing ever sees all of it. Two windows
+    # crop it further, both centred, both `object-fit: cover`:
+    #   - the island panel's slot tile draws it at 96/40, so the middle 64%
+    #   - the encyclopedia's building card is 176x110, so the middle 42.5%
+    # A subject that is not dead centre of the band is a subject the player
+    # never sees. Measured on the page rather than assumed: the first crop of
+    # the new Lumber Mill put its waterwheel at the left of a good-looking
+    # band, and the card showed a stone pier.
     "islands": (768, 204, "low approach, as if from a boat; a banner on the island panel"),
     "isles": (768, 204, "one island's own painting, by name; wins over its type's"),
     "creatures": (768, 352, "the natural world, and where the 20% fantasy is allowed out"),
