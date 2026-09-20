@@ -1805,66 +1805,96 @@
     "islands/facility-shipyard-alliance": {
       "folder": "islands",
       "slug": "facility-shipyard-alliance",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
-      "title": "Slipway \u2014 Free Confederacy",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "updated": "2026-09-20",
+      "title": "Shipyard \u2014 Free Confederacy",
+      "source": "Sean, 20 September: shipyard new art",
+      "notes": "Same painting as the Crown's; the delivery carries no faction marks.",
       "crop": {
-        "x": 0,
-        "y": 13,
-        "w": 765,
-        "h": 203
+        "x": 140,
+        "y": 250,
+        "w": 1200,
+        "h": 319
       },
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/islands/facility-shipyard-alliance.webp",
-        "w": 765,
-        "h": 230,
-        "bytes": 109210,
-        "sha1": "edb72223d5fd2395"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 586528,
+        "sha1": "6b4a4803d38d5631"
       },
       "shipped": {
         "file": "src/art/islands/facility-shipyard-alliance.webp",
         "w": 768,
         "h": 204,
-        "bytes": 52000,
-        "sha1": "2c6550231211e9fa"
-      }
+        "bytes": 36608,
+        "sha1": "abf7413670c342e6"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/islands/facility-shipyard-alliance.v1.webp",
+          "crop": {
+            "x": 0,
+            "y": 13,
+            "w": 765,
+            "h": 203
+          },
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "islands/facility-shipyard-empire": {
       "folder": "islands",
       "slug": "facility-shipyard-empire",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-12",
-      "updated": "2026-09-12",
-      "title": "Slipway \u2014 Crown Imperium",
-      "source": "ChatGPT art project contact sheets, 12 Sep 2026",
-      "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
+      "updated": "2026-09-20",
+      "title": "Shipyard \u2014 Crown Imperium",
+      "source": "Sean, 20 September: shipyard new art",
+      "notes": "One painting for both sides; the delivery carries no faction marks.",
       "crop": {
-        "x": 0,
-        "y": 13,
-        "w": 763,
-        "h": 203
+        "x": 140,
+        "y": 250,
+        "w": 1200,
+        "h": 319
       },
       "tone": null,
-      "upscaled": true,
+      "upscaled": null,
       "master": {
         "file": "art-masters/islands/facility-shipyard-empire.webp",
-        "w": 763,
-        "h": 230,
-        "bytes": 106210,
-        "sha1": "d816823adb525a55"
+        "w": 1448,
+        "h": 1086,
+        "bytes": 586528,
+        "sha1": "6b4a4803d38d5631"
       },
       "shipped": {
         "file": "src/art/islands/facility-shipyard-empire.webp",
         "w": 768,
         "h": 204,
-        "bytes": 48492,
-        "sha1": "e9c2046dac7928f7"
-      }
+        "bytes": 36608,
+        "sha1": "abf7413670c342e6"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/islands/facility-shipyard-empire.v1.webp",
+          "crop": {
+            "x": 0,
+            "y": 13,
+            "w": 763,
+            "h": 203
+          },
+          "tone": null,
+          "source": "ChatGPT art project contact sheets, 12 Sep 2026"
+        }
+      ]
     },
     "islands/facility-training-facility-alliance": {
       "folder": "islands",

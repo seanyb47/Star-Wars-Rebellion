@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**179 of 192 painted.** 7432KB shipped, 52.5MB of masters kept back.
+**179 of 192 painted.** 7405KB shipped, 53.4MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -134,8 +134,8 @@ low approach, as if from a boat; a banner on the island panel. 24 of 29.
 | Gold Mine — Crown Imperium | `facility-mine-empire` | 2 (+1 retired) | 27KB | 1448×1086, 638KB | 1050×279 @ 0,430 | 2026-09-12 | Sean, 20 September: gold mine new art |
 | Lumber Mill — Free Confederacy | `facility-refinery-alliance` | 2 (+1 retired) | 35KB | 1448×1086, 619KB | 888×236 @ 560,600 | 2026-09-12 | Sean, 20 September: lumber mill new art |
 | Lumber Mill — Crown Imperium | `facility-refinery-empire` | 2 (+1 retired) | 35KB | 1448×1086, 619KB | 888×236 @ 560,600 | 2026-09-12 | Sean, 20 September: lumber mill new art |
-| Slipway — Free Confederacy | `facility-shipyard-alliance` | 1 | 50KB | 765×230, 106KB | 765×203 @ 0,13, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
-| Slipway — Crown Imperium | `facility-shipyard-empire` | 1 | 47KB | 763×230, 103KB | 763×203 @ 0,13, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
+| Shipyard — Free Confederacy | `facility-shipyard-alliance` | 2 (+1 retired) | 35KB | 1448×1086, 572KB | 1200×319 @ 140,250 | 2026-09-12 | Sean, 20 September: shipyard new art |
+| Shipyard — Crown Imperium | `facility-shipyard-empire` | 2 (+1 retired) | 35KB | 1448×1086, 572KB | 1200×319 @ 140,250 | 2026-09-12 | Sean, 20 September: shipyard new art |
 | Facility Training Facility Alliance | `facility-training-facility-alliance` | 1 | 40KB | 765×197, 81KB | 742×197 @ 11,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Facility Training Facility Empire | `facility-training-facility-empire` | 1 | 50KB | 763×197, 92KB | 742×197 @ 10,0, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 | Free Harbor | `free-harbor` | 1 | 38KB | 765×208, 79KB | 765×203 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
@@ -323,8 +323,8 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **islands/facility-mine-empire** — One painting for both sides; the delivery carries no faction marks.
 - **islands/facility-refinery-alliance** — Same painting as the Crown's; the delivery carries no faction marks.
 - **islands/facility-refinery-empire** — One painting for both sides; the delivery carries no faction marks.
-- **islands/facility-shipyard-alliance** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
-- **islands/facility-shipyard-empire** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **islands/facility-shipyard-alliance** — Same painting as the Crown's; the delivery carries no faction marks.
+- **islands/facility-shipyard-empire** — One painting for both sides; the delivery carries no faction marks.
 - **islands/facility-training-facility-alliance** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/facility-training-facility-empire** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/free-harbor** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.

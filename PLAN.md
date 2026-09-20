@@ -7164,3 +7164,44 @@ close up, where the older set showed wide establishing scenes.
 If the wheel matters more than legibility — it is the in-game glyph, after all
 — the fix is not a different crop but a taller band for this folder, and that
 is a change to every island painting rather than to this one.
+
+## The Shipyard, repainted
+
+Sean, 20 September: *"Shipyard."* A hull on the stocks — the frames standing
+up in a row with the sky showing between them, planking already on the lower
+strakes, a crane swinging a load of timber in, and the bow curving away at the
+right.
+
+First painting cropped with the rule from the Lumber Mill already in hand
+rather than learned afterwards, and it took two passes instead of six-then-a-
+recrop. Eleven boxes were rendered at **both** windows — the encyclopedia
+card's middle 42.5% and the slot tile's middle 64% — before choosing.
+
+What settles it is what the *card* shows, because the card is the smallest and
+least forgiving: a crop across the planking reads as a wooden wall, and a crop
+across the sweeping stern reads as one big curved beam. Only a crop with **sky
+between the frames** reads as a ship being built rather than as timber. That is
+the whole test, and `140,250,1200,319` passes it — a long run of ribs against
+cloud, planking below, the crane at the left edge of the band and the bow at
+the right.
+
+Best band of the three so far: the full 768×204 is a proper scene rather than a
+detail, and the card cut out of its middle still says shipyard.
+
+### The set is drifting into two registers
+
+Three of the seven buildings now carry Sean's new paintings and all three are
+close on the work — a cart of ore, a log and boards, a hull's frames. The four
+that have not been repainted are wide establishing scenes with figures and
+faction banners: Construction Yard, both Fortresses, Training Facility.
+
+That is not wrong yet and it may be the intended direction — the new ones are
+markedly more legible at 176px, which is the size that matters — but it is a
+split worth naming before it is four against three the other way.
+
+### Two buildings still have no painting
+
+The **Silver Mine** and the **Coral Kiln** draw the glyphs written for them, and
+on a page of paintings they read as placeholders, because they are. The Silver
+Mine is the more pressing of the two: silver is in every world and is twelve
+per cent of all ground, where coral is one Reach.
