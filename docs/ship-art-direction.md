@@ -284,8 +284,10 @@ One command to move it if that reading is wrong.
 
 *Small, Fast. CWN-WRA-R5-03, research R5.*
 
-**PAINTED** — `src/art/ships/wraith.webp`. Sent captioned *"Fenrunner"* and
-filed here on the evidence of the painting, as the two Interceptors were.
+**PAINTED** — `src/art/ships/wraith.webp`. Arrived captioned *"Fenrunner"*,
+was filed here on the evidence of the painting as the two Interceptors
+were, and **Sean confirmed it** by re-sending the same image under this
+name — pixel-identical to the first delivery, so nothing was re-imported.
 It answers this brief line by line — long narrow black galley under sweeps,
 two raked masts with charcoal grey-green lateens, a bare knife bow with no
 figurehead, grapnels and coiled lines tended along the rail, hooded crew, a
