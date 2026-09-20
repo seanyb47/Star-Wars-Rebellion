@@ -8,7 +8,8 @@
       "islands": [
         {
           "name": "Avermere",
-          "seed": 823
+          "seed": 823,
+          "note": "Crown grain and cattle. The fleet eats from here."
         },
         {
           "name": "Ballmoor",
@@ -18,7 +19,8 @@
         },
         {
           "name": "Bracton",
-          "seed": 713
+          "seed": 713,
+          "note": "Ropewalks and sailcloth. Unglamorous and indispensable."
         },
         {
           "name": "Chandler's Rest",
@@ -27,7 +29,8 @@
         },
         {
           "name": "Corsham Head",
-          "seed": 1119
+          "seed": 1119,
+          "note": "The signal station that watches the approach to the Aldermain."
         },
         {
           "name": "The Aldermain",
@@ -44,11 +47,13 @@
         },
         {
           "name": "Sievern",
-          "seed": 732
+          "seed": 732,
+          "note": "Quarry island. Every seawall in the Crown Sea started here."
         },
         {
           "name": "Ulverne",
-          "seed": 737
+          "seed": 737,
+          "note": "Assize island: the Crown's courts, and the gallows behind them."
         },
         {
           "name": "Yarrow Minor",
@@ -72,12 +77,13 @@
         },
         {
           "name": "Chepstow",
-          "note": "Market island.",
+          "note": "Market island. Prices set here are quoted three Seas away.",
           "seed": 927
         },
         {
           "name": "Marlbury",
-          "seed": 688
+          "seed": 688,
+          "note": "Garrison town. Regiments are raised and drilled here."
         }
       ],
       "role": "home"
@@ -94,7 +100,7 @@
         },
         {
           "name": "Starcross",
-          "note": "Old seafaring people. The best navigators alive.",
+          "note": "Old seafaring people. The best navigators the Crown can hire.",
           "seed": 636
         },
         {
@@ -155,19 +161,23 @@
         },
         {
           "name": "Ravenscar",
-          "seed": 606
+          "seed": 606,
+          "note": "Wreckers’ coast. Lights are shown here on bad nights, and not to help."
         },
         {
           "name": "Wrackham",
-          "seed": 942
+          "seed": 942,
+          "note": "Built entirely from salvage, including the church."
         },
         {
           "name": "Slaughden",
-          "seed": 825
+          "seed": 825,
+          "note": "Half under water. The streets are rowed, not walked."
         },
         {
           "name": "Coffinswell",
-          "seed": 595
+          "seed": 595,
+          "note": "The Hushed keep to what's left of it. They are not heard arriving."
         }
       ],
       "role": "contested"
@@ -201,7 +211,8 @@
         {
           "name": "Frostwick",
           "ice": true,
-          "seed": 724
+          "seed": 724,
+          "note": "Ice-locked five months a year; the Crown's charts stop being useful here."
         },
         {
           "name": "Varrow",
@@ -243,15 +254,18 @@
         },
         {
           "name": "Sorrowhead",
-          "seed": 1054
+          "seed": 1054,
+          "note": "A drowned village nobody rebuilt, and nobody will say why."
         },
         {
           "name": "Brimstone Cay",
-          "seed": 475
+          "seed": 475,
+          "note": "Sulphur. It gets into the powder, the food and the lungs."
         },
         {
           "name": "Basilisk Rock",
-          "seed": 1249
+          "seed": 1249,
+          "note": "Sheer, snake-ridden, and the only deep anchorage for sixty miles."
         }
       ],
       "role": "contested"
@@ -283,23 +297,28 @@
         },
         {
           "name": "The White Flats",
-          "seed": 1246
+          "seed": 1246,
+          "note": "Salt to the horizon. Ships are visible from a day away, which suits nobody."
         },
         {
           "name": "Chaswell",
-          "seed": 819
+          "seed": 819,
+          "note": "The last watering stop before the flats. Water costs what the seller says."
         },
         {
           "name": "Scaldwell",
-          "seed": 604
+          "seed": 604,
+          "note": "Hot springs and boiling pools; the water is undrinkable and the fish are not."
         },
         {
           "name": "Noonday Rock",
-          "seed": 525
+          "seed": 525,
+          "note": "No shade anywhere on it. A punishment posting."
         },
         {
           "name": "Salthouse",
-          "seed": 609
+          "seed": 609,
+          "note": "Curing houses. Half the fleet's salt beef comes through here."
         }
       ],
       "role": "frontier"
