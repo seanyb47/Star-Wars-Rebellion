@@ -1,14 +1,41 @@
 {
   "assets": {
+    "buildings/fort-alliance": {
+      "folder": "buildings",
+      "slug": "fort-alliance",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Fortress \u2014 alliance",
+      "source": "Sean, 20 September: heavy and normal fortress",
+      "notes": "One painting for both sides; the delivery carries no faction marks.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/buildings/fort-alliance.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 587940,
+        "sha1": "bef3342fe79e2297"
+      },
+      "shipped": {
+        "file": "src/art/buildings/fort-alliance.webp",
+        "w": 512,
+        "h": 384,
+        "bytes": 50784,
+        "sha1": "36086483f233760c"
+      }
+    },
     "buildings/fort-empire": {
       "folder": "buildings",
       "slug": "fort-empire",
-      "version": 2,
+      "version": 3,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
-      "title": "Fortress \u2014 Crown Imperium",
-      "source": "Sean, 16 September",
-      "notes": "Second take, and the better one: warmer light, the whole bastion line in frame, the guns reading at tile size. Replaces the first fort of the same day, which is retired.",
+      "updated": "2026-09-20",
+      "title": "Fortress \u2014 empire",
+      "source": "Sean, 20 September: heavy and normal fortress",
+      "notes": "One painting for both sides; the delivery carries no faction marks.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -16,15 +43,15 @@
         "file": "art-masters/buildings/fort-empire.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 704612,
-        "sha1": "bed1319087ef102b"
+        "bytes": 587940,
+        "sha1": "bef3342fe79e2297"
       },
       "shipped": {
         "file": "src/art/buildings/fort-empire.webp",
         "w": 512,
         "h": 384,
-        "bytes": 59626,
-        "sha1": "b485307d6705ec63"
+        "bytes": 50784,
+        "sha1": "36086483f233760c"
       },
       "history": [
         {
@@ -34,18 +61,53 @@
           "crop": null,
           "tone": null,
           "source": "Sean, 16 September"
+        },
+        {
+          "version": 2,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/buildings/fort-empire.v2.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean, 16 September"
         }
       ]
+    },
+    "buildings/heavy-fort-alliance": {
+      "folder": "buildings",
+      "slug": "heavy-fort-alliance",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Heavy Fortress \u2014 alliance",
+      "source": "Sean, 20 September: heavy and normal fortress",
+      "notes": "One painting for both sides; the delivery carries no faction marks.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/buildings/heavy-fort-alliance.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 643658,
+        "sha1": "5e7c790a0ea1fece"
+      },
+      "shipped": {
+        "file": "src/art/buildings/heavy-fort-alliance.webp",
+        "w": 512,
+        "h": 384,
+        "bytes": 53812,
+        "sha1": "4292855209377d73"
+      }
     },
     "buildings/heavy-fort-empire": {
       "folder": "buildings",
       "slug": "heavy-fort-empire",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-16",
-      "updated": "2026-09-16",
-      "title": "Heavy Fortress \u2014 Crown Imperium",
-      "source": "Sean, 16 September",
-      "notes": "The battery close-up: eight heavy guns run out, shot pyramids and powder barrels behind them, bastions stepped down to the water. Reads as the same fortress with more of everything, which is exactly what the tier is.",
+      "updated": "2026-09-20",
+      "title": "Heavy Fortress \u2014 empire",
+      "source": "Sean, 20 September: heavy and normal fortress",
+      "notes": "One painting for both sides; the delivery carries no faction marks.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -53,16 +115,26 @@
         "file": "art-masters/buildings/heavy-fort-empire.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 752432,
-        "sha1": "fe093bad53c60114"
+        "bytes": 643658,
+        "sha1": "5e7c790a0ea1fece"
       },
       "shipped": {
         "file": "src/art/buildings/heavy-fort-empire.webp",
         "w": 512,
         "h": 384,
-        "bytes": 64026,
-        "sha1": "1dc7110d74e4b0c5"
-      }
+        "bytes": 53812,
+        "sha1": "4292855209377d73"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/buildings/heavy-fort-empire.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean, 16 September"
+        }
+      ]
     },
     "chart/seas": {
       "folder": "chart",

@@ -7205,3 +7205,46 @@ The **Silver Mine** and the **Coral Kiln** draw the glyphs written for them, and
 on a page of paintings they read as placeholders, because they are. The Silver
 Mine is the more pressing of the two: silver is in every world and is twelve
 per cent of all ground, where coral is one Reach.
+
+## Both fortresses, repainted — and the Confederacy gets walls at last
+
+Sean, 20 September: *"Heavy and normal fortress."* Two paintings, and the
+mechanical difference is visible in them, which is the whole job: the Fortress
+is one rampart with four guns run out over a rock; the Heavy Fortress is a
+tiered mass with ten in two rows. The rule those pictures have to carry is that
+a Heavy gives *more than twice the guns and two and a half times the stone on
+the one plot*, and at 176px you can count the barrels and see it.
+
+### No crop decisions, for once
+
+The forts do not live in the islands band. They are in `buildings/` at 512×384,
+which is 4:3 — and both deliveries are 1448×1086, which is 4:3 exactly. So the
+crop is the whole frame and the card shows the whole painting. `facilityArt`
+has looked in two places since the first fort arrived on 16 September:
+`buildings/` for a work painted as a whole picture, `islands/` for the older
+strips sliced out of a contact sheet, and it hands the UI the ratio to draw at.
+
+That is also why the fortress cards are visibly taller than the mine's and the
+mill's: 4/3 against 1.6. Not a bug — two shapes with two ratios, doing what
+they were built to do.
+
+### The gap this closed
+
+`facilitySide('alliance')` returns `'alliance'`, with no fall-back to the
+Crown's art. Only `fort-empire` and `heavy-fort-empire` existed. So **a
+Confederate-held Fortress had no painting at all** and fell through to the
+drawn glyph — on a building the Confederacy raises as often as the Crown does.
+Nobody had reported it, and it would not show up in the encyclopedia, which
+draws whatever side you are playing.
+
+Both paintings now ship to both slugs. The two files per fort are
+byte-identical, so Rollup deduplicates them: four keys in the bundle, two
+assets on disk. Verified in the built output rather than assumed — the
+`fort-alliance` key is there and resolves.
+
+### Where the building set stands
+
+Five of the seven are Sean's new paintings now. Construction Yard and Training
+Facility are the two left from the original contact sheet, and they are also
+the two that still carry faction banners in the art — which is now the odd
+thing rather than the normal one.
