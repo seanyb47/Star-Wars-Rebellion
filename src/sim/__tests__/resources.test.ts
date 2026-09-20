@@ -92,12 +92,12 @@ describe('what is in the ground', () => {
         if (veins > 0) withGold += 1;
       }
     }
-    expect(timber / isles).toBeGreaterThan(2);
-    // Metal on most islands, and not on all of them.
-    expect(withMetal / isles).toBeGreaterThan(0.5);
-    expect(withMetal / isles).toBeLessThan(0.9);
-    // Gold on a minority of them, which is what makes it worth sailing for.
-    expect(withGold / isles).toBeLessThan(0.45);
+    expect(timber / isles).toBeGreaterThan(1);
+    // Metal on a good half of them, and not on all of them.
+    expect(withMetal / isles).toBeGreaterThan(0.35);
+    expect(withMetal / isles).toBeLessThan(0.85);
+    // Gold on a small minority, which is what makes it worth sailing for.
+    expect(withGold / isles).toBeLessThan(0.3);
     expect(withGold).toBeLessThan(withMetal);
   });
 

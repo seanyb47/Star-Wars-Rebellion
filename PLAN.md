@@ -6990,3 +6990,100 @@ unable to earn from two fifths of its ground, which is strictly worse than
 today. The ladder now makes the obvious answer available — coral as the bottom
 rung at 1x, with its own works — but that is his call, not one to assume from
 an image.
+
+## One roll per plot, and coral lands
+
+Sean's math of 20 September, replacing the share model wholesale:
+
+> For each of available land there is a 40% chance it has a resource. Now of
+> that 40% chance — 60% chance of forest / living coral (coral reef only),
+> 30% chance silver vein, 10% chance gold vein.
+
+This is a better model and not only a different one. Three shares rolled
+separately could overshoot an island's room and had to be trimmed, which
+quietly favoured whichever resource the trim kept; they needed a variance term
+so every island did not come out average, and an uplift term to undo the trim's
+bias. **One roll per plot cannot overshoot and is its own variance** — a
+four-plot rock genuinely can come up bare — so two of the three corrections are
+simply gone, and `DEPOSIT_VARIANCE` and `DEPOSIT_UPLIFT` with them.
+
+The third correction is not gone and the number is now honest rather than
+achieved. Measured over twenty worlds and 9,241 plots:
+
+| | asked | got |
+|---|---|---|
+| plots carrying a deposit | 40% | **37.8%** |
+| of those, timber + coral | 60% | **59.0%** |
+| silver | 30% | **31.3%** |
+| gold | 10% | **9.8%** |
+
+The mix is within a point and a half on each. The density runs two points light
+for a reason that predates this model and is not its fault: a side's own
+islands are **widened after their ground is rolled**, a seat to thirteen plots
+and a starting island to at least eight, so the roll was taken against a
+smaller island than the one on the chart. The old code hid that behind a 1.19
+multiplier. Two points is small enough to carry in the open, and carrying it in
+the open beats a thumb on the scale nobody remembers is there. The honest fix —
+roll the ground after `seedHoldings` — is one move away and changes every seed
+in the game, so it is his call and not a thing to slip in.
+
+Fully worked, the world now pays **1.71 a plot**, against 1.79 before the
+ladder and 1.95 after it. So the ladder's nine per cent is handed back and a
+little more: this is the leanest the ground has been, which is the direction
+Sean has been pushing all along — *"you should run out of resources if you're
+not expanding."*
+
+### The archetype tilt, rewritten
+
+`FOREST_BY_LOOK` and its two siblings added whole plots to a share, so a mining
+isle was outright *richer* than an ice field. Under one roll per plot that is
+not expressible, and it should not be: an ice field has less worth digging up,
+not less ground. So `DEPOSIT_TILT` multiplies the **mix** and never the 40% —
+every plot everywhere is asked the same question, and the island's look decides
+the flavour of the answer.
+
+Tuned by measurement rather than by taste: the first pass came out 55.7 / 32.7
+/ 11.6 because the tilt's spread dragged the world average off Sean's numbers,
+so the multipliers were softened toward 1 until the average landed back on
+60/30/10.
+
+### Coral
+
+Sean's bracket — *"forest / living coral (coral reef only)"* — is the ruling
+that had been outstanding since the economy spec, and it answers the question I
+had flagged: coral is not a fourth kind of ground, it is **what the staple is
+called in the one Reach where nothing grows**. An atoll ring has no forest on
+it, so Coral Reach rolls coral wherever anywhere else rolls timber. Verified
+over twelve worlds: 140 coral beds inside Coral Reach, zero timber inside it,
+zero coral anywhere else.
+
+It earns what a mill earns, because it is the same rung. The works is a **Coral
+Kiln** — coral burned for lime and building stone, which is a real thing people
+did on reefs — and that name is mine, not Sean's, so it is a one-word rename if
+he wants another. `complete.test.ts` had to learn that a ladder can have two
+names on one rung: it now checks the three distinct heights are 1×, 2×, 3× and
+that the pair sharing the bottom is exactly timber and coral.
+
+### What forty wars say
+
+| | the ladder | **+ Sean's roll-and-pick** |
+|---|---|---|
+| Crown — Confederacy | 15 — 22 | **20 — 18** |
+| median length | 1020 | **1210** |
+| never ended | 3 | **2** |
+| Lords taken | 1.32 of 3 | **1.70 of 3** |
+
+Audit clean. Dead even, one fewer war runs out the clock, and the manhunt is
+going better than it has — 1.7 Lords of 3 against 1.32. The median is longer
+because the world is leaner and everything takes more saving for, which is the
+trade Sean asked for.
+
+### Three fixtures, two of them mine
+
+`newmissions.test.ts` parked the Confederate crew on `systems[0]` and asserted
+a Lord was *not* on the target island — which held only while `systems[0]`
+happened not to be that island. A new world generator made them the same place.
+
+`dispatchpov.test.ts` asserted a battle line contained `beast.name` — "The
+Kraken" — which the `inProse` fix two commits ago correctly made "the Kraken".
+The test had been quietly requiring the sentence to be wrong.

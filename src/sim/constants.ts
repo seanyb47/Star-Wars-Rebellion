@@ -113,6 +113,7 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
   // Between the two, as the yield is: a shaft is a shaft, and a shallower one.
   silver_mine: { costGold: 0, days: 16, label: terms.facilities.silver_mine },
   refinery: { costGold: 0, days: 12, label: terms.facilities.refinery },
+  coral_kiln: { costGold: 0, days: 12, label: terms.facilities.coral_kiln },
   construction_yard: { costGold: 120, days: 34, label: terms.facilities.construction_yard },
   training_facility: { costGold: 80, days: 28, label: terms.facilities.training_facility },
   shipyard: { costGold: 150, days: 42, label: terms.facilities.shipyard },
@@ -924,6 +925,9 @@ export const GOLD_PER_DAY: Record<BuildItem, number> = {
   mine: 9,
   silver_mine: 6,
   refinery: 3,
+  // The same rung as a mill, because it is the same rung: Sean's math puts
+  // timber and living coral in one bucket, and Coral Reach has no timber.
+  coral_kiln: 3,
   construction_yard: 0,
   training_facility: 0,
   shipyard: 0,
@@ -941,6 +945,7 @@ export const UPKEEP_PER_DAY: Record<BuildItem, number> = {
   mine: 0,
   silver_mine: 0,
   refinery: 0,
+  coral_kiln: 0,
   construction_yard: 3,
   training_facility: 2,
   shipyard: 4,
@@ -1907,6 +1912,7 @@ export const YARD_BUILDABLE: FacilityType[] = [
   'mine',
   'silver_mine',
   'refinery',
+  'coral_kiln',
   'construction_yard',
   'training_facility',
   'shipyard',
@@ -1927,65 +1933,86 @@ export const YARD_BUILDABLE: FacilityType[] = [
  * a roll, taken within the island's character.
  */
 /**
- * How much of an island is ground worth working.
+ * What is under a plot of ground, and how often.
  *
- * Sean, 20 September, after the economy measurement: *"on average 50% of
- * available land should be either gold mines or trees slash coral. And I'd
- * say of that 50%, 40% should be trees and 10% should be gold mines. So mills
- * will be super common. You'll make a lot of mills. And if the place happens
- * to have gold, it produces significantly more."*
+ * Sean's math of 20 September, which replaced three independent shares with
+ * one roll and a weighted pick:
  *
- * These are **shares of the island's slots**, not flat counts, and that is the
- * whole change. It used to be three to six trees whatever the island's size
- * and a one-in-four chance of a vein, which put twelve veins in a world of
- * sixty-three islands and ran both sides out of unworked ground by day two
- * hundred — see `lab/hoard.ts`. A big island is now worth taking because it
- * is big.
+ * > For each of available land there is a 40% chance it has a resource. Now of
+ * > that 40% chance — 60% chance of forest / living coral (coral reef only),
+ * > 30% chance silver vein, 10% chance gold vein.
  *
- * The two shares are of the whole, and they add to his fifty: four plots in
- * ten carry timber, one in ten carries gold, and the other half of the island
- * is yours to build on. `VARIANCE` is how far one island may stray from its
- * share, so a roll can still come up rich or bare — the averages hold across
- * a world, not on every rock.
+ * Every plot is asked the same question once and the answer is a deposit four
+ * times in ten. The absolute shares fall out of it: **24% timber, 12% silver,
+ * 4% gold**, two fifths of the world's ground in all.
+ *
+ * This is a better model than the one it replaces and not merely a different
+ * one. Three shares rolled separately could overshoot an island's room and had
+ * to be trimmed, which quietly favoured whichever resource the trim kept, and
+ * they needed a variance term to stop every island coming out average. One
+ * roll per plot cannot overshoot and is its own variance — a four-plot rock
+ * genuinely can come up bare — so two of the three corrections are simply
+ * gone.
+ *
+ * The third is not, and the number above is honest rather than achieved:
+ * measured over twenty worlds and 9,241 plots, deposits come out at **38.0%**
+ * against the 40% asked for. The reason is unchanged and is not this model's
+ * fault — every island a side opens holding is widened *after* its ground is
+ * rolled, a seat to thirteen plots and a starting island to at least eight, so
+ * the roll was taken against a smaller island than the one on the chart. The
+ * honest fix is to roll the ground after `seedHoldings`, which changes every
+ * seed in the game; the old code papered over it with a 1.19 multiplier
+ * instead. Two points is small enough to carry in the open, and carrying it in
+ * the open is better than a thumb on the scale nobody remembers is there.
  */
-export const TIMBER_SHARE = 0.4;
 /**
- * The tenth that used to be all gold, split seven to three.
+ * The one Reach whose staple is living coral rather than standing timber.
  *
- * Sean's ground rule of 20 September is untouched — half an island's plots are
- * deposits, four parts timber to one part metal — and the ladder is cut out of
- * the metal rather than added beside it. Gold pays triple now, so gold is the
- * scarce one: three plots in a hundred rather than ten, and silver takes the
- * other seven at double.
- *
- * Deliberately near-neutral on what the world is worth, so a measurement reads
- * the *shape* of the change rather than a change in wealth. Measured over
- * twenty worlds and 9,479 plots: deposits still cover 49.7% of the ground, and
- * if every one of them were worked the world would pay 1.95 a plot against the
- * old 1.79 — nine per cent, and all of it in where the money lands.
+ * Sean's bracket in the deposit math — *"forest / living coral (coral reef
+ * only)"* — and it is the only reading that makes sense of the place: an atoll
+ * ring has no forest on it. Named here rather than matched on a substring so
+ * a rename of the Reach is one edit.
  */
-export const SILVER_SHARE = 0.07;
-export const GOLD_SHARE = 0.03;
-export const DEPOSIT_VARIANCE = 0.5;
+export const CORAL_REACH = 'Coral Reach';
+
+export const DEPOSIT_CHANCE = 0.4;
+
+/** And which of the three it is, once a plot has one. Sean's 60 / 30 / 10. */
+export const DEPOSIT_MIX: Record<'forest' | 'silver' | 'gold', number> = {
+  forest: 0.6,
+  silver: 0.3,
+  gold: 0.1,
+};
+
 /**
- * And a thumb on the scale, because the shares above are the target rather
- * than the result.
+ * How an island's look tilts that mix. Multipliers on the weights, normalised.
  *
- * Two things eat into them after `groundOf` has rolled. An island is capped
- * at the room it has, which clips a rich roll and never compensates for it;
- * and every island a side opens holding is **widened afterwards** — a seat to
- * thirteen plots, a starting island to at least eight — so the share was
- * taken against a smaller island than the one that ends up on the chart.
+ * Sean's 60/30/10 is the world's average, and this is what makes one island
+ * different from the next: a mining isle turns up metal where a jungle turns
+ * up timber, which is the whole reason the archetypes have names.
  *
- * Measured at the stated shares over twenty worlds, 1,260 islands and 9,379
- * plots: timber came out 33.5% against the 40% asked for and gold 8.9%
- * against 10%. The honest fix is to roll the ground after the widening, which
- * moves deposit generation to the far side of `seedHoldings` and changes
- * every seed in the game; the cheap fix is one number here, measured and
- * said out loud. This is the cheap fix, and it is in one place so the honest
- * one can replace it.
+ * It tilts the **mix** and never the 40%, so every plot everywhere is still
+ * asked the same question — an island's look decides the flavour of the
+ * answer, not the odds of getting one. That is a real change from
+ * `FOREST_BY_LOOK` and its two siblings, which added whole plots to a share
+ * and so made some islands richer than others outright. Under one roll per
+ * plot that is not expressible, and it should not be: an ice field has less
+ * worth digging up, not less ground.
  */
-export const DEPOSIT_UPLIFT = 1.19;
+export const DEPOSIT_TILT: Partial<
+  Record<IslandArchetype, Partial<Record<'forest' | 'silver' | 'gold', number>>>
+> = {
+  'jungle-isle': { forest: 1.45, silver: 0.7, gold: 0.55 },
+  'storm-isle': { forest: 1.3, silver: 0.8, gold: 0.65 },
+  'mining-isle': { forest: 0.45, silver: 1.9, gold: 1.7 },
+  'rock-isle': { forest: 0.7, silver: 1.3, gold: 1.1 },
+  'ice-isle': { forest: 0.6, silver: 1.05, gold: 0.75 },
+  'tide-isle': { forest: 0.55, silver: 1.0, gold: 0.8 },
+  'drowned-isle': { forest: 0.8, silver: 0.9, gold: 0.6 },
+  'reef-isle': { forest: 1.25, silver: 0.8, gold: 0.5 },
+  'free-harbor': { forest: 1.15, silver: 0.9, gold: 0.6 },
+  'port-city': { forest: 1.15, silver: 0.9, gold: 0.6 },
+};
 /**
  * Berths kept clear of deposits whatever the roll.
  *
@@ -2026,50 +2053,6 @@ export const NEUTRAL_WORKS: FacilityType[] = [
 export const NEUTRAL_WORKS_ONE = 0.2;
 export const NEUTRAL_WORKS_TWO = 0.05;
 
-/** How many more or fewer trees an island of this sort carries. */
-export const FOREST_BY_LOOK: Partial<Record<IslandArchetype, number>> = {
-  'jungle-isle': 1,
-  'storm-isle': 1,
-  'ice-isle': -1,
-  'tide-isle': -2,
-  'drowned-isle': -1,
-};
-
-/**
- * And where the ground runs to gold, or does not.
- *
- * These were odds — added to a flat one-in-four chance that an island had any
- * vein at all. Since 20 September they are **expected extra veins**, added to
- * the island's share of its own slots, which is why they are still fractions:
- * a mining isle's 0.45 is very nearly half a vein more than its size would
- * give it, and lands as one extra vein on nearly half of them. `FOREST_BY_LOOK`
- * above is whole plots because timber comes in stands rather than seams.
- */
-export const GOLD_BY_LOOK: Partial<Record<IslandArchetype, number>> = {
-  'mining-isle': 0.45,
-  'rock-isle': 0.1,
-  'ice-isle': -0.05,
-  'drowned-isle': -0.1,
-  'free-harbor': -0.1,
-  'port-city': -0.1,
-};
-
-/**
- * And silver, which is the same rock read one tier down.
- *
- * Same signs as gold, because the ground that carries one carries the other,
- * and larger numbers because there is more of it about: a mining isle is a
- * mining isle, and what it mostly turns up is silver.
- */
-export const SILVER_BY_LOOK: Partial<Record<IslandArchetype, number>> = {
-  'mining-isle': 0.7,
-  'rock-isle': 0.2,
-  'ice-isle': -0.1,
-  'drowned-isle': -0.2,
-  'free-harbor': -0.2,
-  'port-city': -0.2,
-};
-
 /**
  * How much of a settled island's ground is already worked when the war opens.
  *
@@ -2104,10 +2087,11 @@ export const SETTLED_WORKED_MAX = 0.7;
  * be written out as `['forest', 'gold'] as const` in four places, which is
  * exactly the shape that silently keeps drawing two of three.
  */
-export const RESOURCE_TYPES: ResourceType[] = ['forest', 'silver', 'gold'];
+export const RESOURCE_TYPES: ResourceType[] = ['forest', 'coral', 'silver', 'gold'];
 
 export const RESOURCE_LABEL: Record<ResourceType, string> = {
   forest: 'Forest',
+  coral: 'Coral bed',
   silver: 'Silver vein',
   gold: 'Gold vein',
 };
@@ -2115,6 +2099,8 @@ export const RESOURCE_LABEL: Record<ResourceType, string> = {
 export const RESOURCE_BLURB: Record<ResourceType, string> = {
   forest:
     'Standing timber. A Lumber Mill can be raised on it and nowhere else, and the mill takes its ground.',
+  coral:
+    'Living coral, and the only ground Coral Reach has in place of timber. A Coral Kiln can be raised on it and nowhere else, and earns what a mill does.',
   silver:
     'A shallower seam, and a commoner one. A Silver Mine can be raised on it and nowhere else, and earns twice what a mill does.',
   gold: 'A vein in the rock. A Gold Mine can be raised on it and nowhere else. Few islands have one, and nothing else earns like it.',
@@ -2123,6 +2109,7 @@ export const RESOURCE_BLURB: Record<ResourceType, string> = {
 /** Which works a deposit can carry, and which deposit a works needs. */
 export const WORKS_ON: Partial<Record<FacilityType, ResourceType>> = {
   refinery: 'forest',
+  coral_kiln: 'coral',
   silver_mine: 'silver',
   mine: 'gold',
 };
@@ -2152,6 +2139,7 @@ export const BUILDING_ORDER: FacilityType[] = [
   'heavy_fort',
   'fort',
   'refinery',
+  'coral_kiln',
   'silver_mine',
   'mine',
 ];

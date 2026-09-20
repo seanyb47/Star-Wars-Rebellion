@@ -210,7 +210,7 @@ export interface System {
  * vein >> 2x, Forest >> mill 1x"* — which turns one rare prize and one common
  * staple into a ladder with a rung in the middle.
  */
-export type ResourceType = 'forest' | 'silver' | 'gold';
+export type ResourceType = 'forest' | 'coral' | 'silver' | 'gold';
 
 /**
  * One deposit, standing in a berth of its own.
@@ -229,6 +229,8 @@ export type FacilityType =
   /** The middle rung: a shaft on a silver vein, worth twice a mill. */
   | 'silver_mine'
   | 'refinery'
+  /** The mill's twin on a reef: the bottom rung where no timber grows. */
+  | 'coral_kiln'
   | 'construction_yard'
   | 'training_facility'
   | 'shipyard'

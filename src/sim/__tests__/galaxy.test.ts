@@ -251,37 +251,48 @@ describe('generateGalaxy', () => {
    * standing on a forest is that forest, and counting only what is left would
    * read the Crown's own islands as bare.
    */
-  it('puts timber on two fifths of the land and metal on a tenth', () => {
+  it('gives two plots in five a deposit, and mixes them 60 / 30 / 10', () => {
     let slots = 0;
-    let timber = 0;
-    let silver = 0;
-    let gold = 0;
+    const got: Record<string, number> = { forest: 0, coral: 0, silver: 0, gold: 0 };
+    const worksFor: Record<string, string> = {
+      forest: 'refinery', coral: 'coral_kiln', silver: 'silver_mine', gold: 'mine',
+    };
     for (let seed = 1; seed <= 20; seed++) {
       for (const island of generateGalaxy(seed).systems) {
         slots += island.slots;
-        timber += depositsLeft(island, 'forest')
-          + island.facilities.filter((f) => f.type === 'refinery').length;
-        silver += depositsLeft(island, 'silver')
-          + island.facilities.filter((f) => f.type === 'silver_mine').length;
-        gold += depositsLeft(island, 'gold')
-          + island.facilities.filter((f) => f.type === 'mine').length;
+        for (const kind of Object.keys(got)) {
+          got[kind] += depositsLeft(island, kind as never)
+            + island.facilities.filter((f) => f.type === worksFor[kind]).length;
+        }
       }
     }
-    // Two points either way: the uplift is calibrated, not exact, and the
-    // room cap still clips the richest rolls.
-    expect(timber / slots).toBeGreaterThan(0.36);
-    expect(timber / slots).toBeLessThan(0.44);
-    // Sean's tenth is unchanged; since he set the three-rung ladder it is
-    // split rather than all gold, seven parts silver to three.
-    const metal = silver + gold;
-    expect(metal / slots).toBeGreaterThan(0.08);
-    expect(metal / slots).toBeLessThan(0.12);
-    expect((timber + metal) / slots).toBeGreaterThan(0.46);
-    expect((timber + metal) / slots).toBeLessThan(0.54);
-    // And the ladder really is a ladder: most ground is timber, most metal is
-    // silver, and gold is the rare one at the top.
-    expect(timber / metal).toBeGreaterThan(3);
-    expect(silver).toBeGreaterThan(gold * 1.5);
+    const all = Object.values(got).reduce((a, b) => a + b, 0);
+
+    /*
+     * Sean's math of 20 September, and both halves of it are checked: how
+     * often a plot carries anything, and what it carries when it does.
+     *
+     * The density runs two points under the 40% asked for, and that is known
+     * and recorded on `DEPOSIT_CHANCE` rather than papered over: a side's own
+     * islands are widened *after* their ground is rolled, so the roll was
+     * taken against a smaller island than the one on the chart. The bound
+     * allows the gap and would catch it growing.
+     */
+    expect(all / slots).toBeGreaterThan(0.36);
+    expect(all / slots).toBeLessThan(0.41);
+
+    // 60 / 30 / 10, within a point and a half each. Timber and living coral
+    // are one bucket — coral is simply what the staple is called in Coral
+    // Reach, where nothing grows.
+    expect((got.forest + got.coral) / all).toBeGreaterThan(0.565);
+    expect((got.forest + got.coral) / all).toBeLessThan(0.615);
+    expect(got.silver / all).toBeGreaterThan(0.285);
+    expect(got.silver / all).toBeLessThan(0.335);
+    expect(got.gold / all).toBeGreaterThan(0.085);
+    expect(got.gold / all).toBeLessThan(0.115);
+
+    // And coral is real, and only where it should be.
+    expect(got.coral).toBeGreaterThan(0);
   });
 
   it('gives the Confederacy the islands that have declared for it, and Freeport among them', () => {

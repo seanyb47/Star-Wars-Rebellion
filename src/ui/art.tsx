@@ -425,6 +425,17 @@ export function FacilityIcon({
           <path d="M3 28 H29" />
         </g>
       )}
+      {type === 'coral_kiln' && (
+        <g {...common}>
+          {/* A draw kiln: a squat stone cone with its mouth at the foot and
+              the heat going up out of it. Nothing like the mill's waterwheel,
+              which is the point — they earn the same and are not the same. */}
+          <path d="M9 28 L12 11 H20 L23 28 Z" />
+          <path d="M13.5 28 V22 H18.5 V28" />
+          <path d="M14 7.5 Q16 5 15 2 M19 7.5 Q21 5 20 2" strokeWidth="1.4" />
+          <path d="M4 28 H28" />
+        </g>
+      )}
       {type === 'silver_mine' && (
         <g {...common}>
           {/* A shaft head rather than a cut hillside: winding gear over a
@@ -704,6 +715,30 @@ export function ResourceIcon({ type, size = 30 }: { type: ResourceType; size?: n
         <path d="M14.5 16l2-3.4-2-.2 2-3.4 2 3.4-2 .2 2 3.4z" />
         <path d="M3.5 19.5h17" />
         <path d="M9.6 16v3.5M16.5 16v3.5" />
+      </svg>
+    );
+  }
+  if (type === 'coral') {
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        width={size}
+        height={size}
+        aria-hidden="true"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {/* A head of branching coral on the seabed. Rounded and forking where
+            the forest's conifers are straight and pointed, so the two staples
+            do not read as each other at tile size. */}
+        <path d="M12 19.5V13" />
+        <path d="M12 13c0-2.4-2.6-2-2.6-4.4S11 5.6 12 5.6s2.6.6 2.6 3S12 10.6 12 13z" />
+        <path d="M8.4 19.5c0-3 -2.4-3.2-2.4-5.4s2-2.4 2.6-1.2" />
+        <path d="M15.6 19.5c0-3.4 2.6-3 2.6-5.6s-2.2-2.2-2.8-.9" />
+        <path d="M3.5 21h17" />
       </svg>
     );
   }

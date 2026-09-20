@@ -457,7 +457,7 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
   //    passage, which is exactly the question.
   // Richest first, so a yard that can only take one job this tick takes the
   // one worth most. Three rungs now rather than two.
-  const earners: FacilityType[] = ['mine', 'silver_mine', 'refinery'];
+  const earners: FacilityType[] = ['mine', 'silver_mine', 'refinery', 'coral_kiln'];
   for (const item of earners) {
     if (gold < YARD_BUILDS[item].costGold) continue;
     const want = needsResource(item)!;

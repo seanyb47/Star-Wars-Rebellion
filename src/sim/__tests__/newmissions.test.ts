@@ -73,7 +73,12 @@ describe('abduction', () => {
     const theirs = state.systems.find((s) => s.control === 'alliance')!;
     const them = state.characters.find((c) => c.faction === 'alliance' && !isLord(c))!;
     const lord = state.characters.find((c) => c.faction === 'alliance' && isLord(c))!;
-    for (const c of state.characters) if (c.faction === 'alliance') place(state, c, state.systems[0]);
+    // Anywhere but the island under test. This used to park them on
+    // `systems[0]` and passed only while that happened not to be `theirs` —
+    // change the world generator and the Lord is already standing on the
+    // target, which is the one case the test is here to tell apart.
+    const elsewhere = state.systems.find((s) => s.id !== theirs.id)!;
+    for (const c of state.characters) if (c.faction === 'alliance') place(state, c, elsewhere);
     place(state, them, theirs);
     theirs.explored.empire = true;
     // Their own ground, their own garrison. This is what incitement is for,

@@ -4,6 +4,7 @@ import { advanceBuilds, queueBuild } from '../build';
 import { beastAlive, creature, sightBeast } from '../creatures';
 import { addShip, resolveBattles } from '../fleets';
 import { leakInformation } from '../support';
+import { inProse } from '../helpers';
 import { createRng, type Rng } from '../rng';
 import { YARD_BUILDS } from '../constants';
 import type { GameState, PlayableFaction } from '../types';
@@ -136,7 +137,10 @@ describe('a dispatch knows whose news it is', () => {
       expect(action.battle!.sides.alliance.hulls).toBe(0);
       expect(action.battle!.sides.alliance.lost).toBe(0);
       expect(action.text).not.toContain('Confederacy');
-      expect(action.text).toContain(action.battle!.beast!.name);
+      // In prose, so the article is lowercase: "against the Kraken", not
+      // "against The Kraken". This asserted the bare name and so quietly
+      // required the sentence to be wrong.
+      expect(action.text).toContain(inProse(action.battle!.beast!.name));
     }
   });
 });

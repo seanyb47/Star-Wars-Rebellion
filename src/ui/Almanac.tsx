@@ -352,6 +352,7 @@ export type Subject =
 /** Which works belongs on which ground — the inverse of the sim's `WORKS_ON`. */
 const WORKS_FOR_RESOURCE: Record<ResourceType, FacilityType> = {
   forest: 'refinery',
+  coral: 'coral_kiln',
   silver: 'silver_mine',
   gold: 'mine',
 };

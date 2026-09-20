@@ -18,14 +18,10 @@ import {
   CAPITAL_GARRISON,
   START_GARRISON_MAX,
   START_GARRISON_SPARE,
-  TIMBER_SHARE,
-  GOLD_SHARE,
-  DEPOSIT_VARIANCE,
-  DEPOSIT_UPLIFT,
-  FOREST_BY_LOOK,
-  GOLD_BY_LOOK,
-  SILVER_SHARE,
-  SILVER_BY_LOOK,
+  CORAL_REACH,
+  DEPOSIT_CHANCE,
+  DEPOSIT_MIX,
+  DEPOSIT_TILT,
   CLEAR_BERTHS,
   NEUTRAL_WORKS,
   NEUTRAL_WORKS_ONE,
@@ -463,16 +459,15 @@ export const ROOM_TRACK = ROOM_MAX + 1;
  * on an ordinary island, 12 where the great island fills the frame.
  */
 /**
- * What is in an island's ground, rolled once and never again.
+ * What is under an island, plot by plot.
  *
- * Forests two to five, nudged by what the island looks like; gold on one
- * island in four, nudged the same way, and one or two veins where there is
- * any. Capped so `CLEAR_BERTHS` plots always stay open — an island that rolled
- * itself solid could never raise the works that would cut its own trees.
+ * Sean's math of 20 September: every plot of available land has a **40%
+ * chance** of carrying something, and what it carries is 60% timber, 30%
+ * silver, 10% gold — see `DEPOSIT_CHANCE` and `DEPOSIT_MIX` for why one roll
+ * per plot is a better model than three shares over the island.
  *
- * Taken for every island, settled or empty, at the same odds. Sean's call, 16
- * September: the frontier is not leftovers, and a colony is worth what the
- * dice say it is worth.
+ * In Coral Reach the timber is living coral instead, which is his rule and
+ * also the only one that makes sense: an atoll ring has no forest on it.
  */
 function groundOf(
   rng: Rng,
@@ -482,50 +477,45 @@ function groundOf(
   /**
    * A place people live has something worth working.
    *
-   * Flat counts used to guarantee it — every island rolled three trees at
-   * least — and the share model of 20 September does not: four tenths of a
-   * four-slot island, taken with `DEPOSIT_VARIANCE`, can come up nothing at
-   * all. Measured over eight worlds, three settled islands opened bare, which
-   * is an island you can parley for and get a garrison and no reason. A rock
-   * nobody lives on may be bare; a town may not.
+   * A roll per plot can come up empty on a small island — that is the model
+   * working, not failing — but a settled island with nothing under it is an
+   * island you can parley for and get a garrison and no reason.
    */
   populated = false,
+  /** Coral Reach, where the timber is living coral. */
+  reef = false,
 ): Deposit[] {
-  const out: Deposit[] = [];
-  /*
-   * A share of the island, rolled so the average comes out right.
-   *
-   * `want` is a fraction of a plot as often as not — four tenths of a
-   * seven-slot island is 2.8 — and rounding it would bias every island the
-   * same way. Taking the whole part and then one more on the fraction's own
-   * odds makes the expectation exact, which is what "on average 50%" asks
-   * for. `DEPOSIT_VARIANCE` is applied before that, so a rich island and a
-   * bare one are both still possible and neither is the rule.
-   */
-  const roll = (share: number, nudge: number): number => {
-    const want = Math.max(
-      0,
-      slots * share * DEPOSIT_UPLIFT * (1 + (rng.next() * 2 - 1) * DEPOSIT_VARIANCE) + nudge,
-    );
-    const whole = Math.floor(want);
-    return whole + (rng.next() < want - whole ? 1 : 0);
+  // The mix this island's look asks for, normalised back to one so the tilt
+  // can never change how often a plot carries anything — only what.
+  const tilt = DEPOSIT_TILT[archetype] ?? {};
+  const kinds = ['forest', 'silver', 'gold'] as const;
+  const weights = kinds.map((k) => DEPOSIT_MIX[k] * (tilt[k] ?? 1));
+  const total = weights.reduce((a, b) => a + b, 0);
+  const staple: ResourceType = reef ? 'coral' : 'forest';
+
+  const pick = (): ResourceType => {
+    let n = rng.next() * total;
+    for (let i = 0; i < kinds.length; i += 1) {
+      n -= weights[i];
+      if (n <= 0) return kinds[i] === 'forest' ? staple : kinds[i];
+    }
+    return staple;
   };
-  // The look of an island still tilts it: a jungle carries more timber than
-  // an icefield, and the tilt is a plot either way rather than a share.
-  const trees = roll(TIMBER_SHARE, FOREST_BY_LOOK[archetype] ?? 0);
-  for (let i = 0; i < trees; i++) out.push({ id: makeId('dep'), type: 'forest' });
-  const seams = roll(SILVER_SHARE, SILVER_BY_LOOK[archetype] ?? 0);
-  for (let i = 0; i < seams; i++) out.push({ id: makeId('dep'), type: 'silver' });
-  const veins = roll(GOLD_SHARE, GOLD_BY_LOOK[archetype] ?? 0);
-  for (let i = 0; i < veins; i++) out.push({ id: makeId('dep'), type: 'gold' });
-  if (populated && out.length === 0) out.push({ id: makeId('dep'), type: 'forest' });
-  // Richest first if anything has to go, which is now a ladder rather than a
-  // pair: an island too small to hold what it rolled keeps its gold, then its
-  // silver, and loses timber, because timber is the thing there is most of.
+
+  const out: Deposit[] = [];
+  for (let plot = 0; plot < slots; plot += 1) {
+    if (rng.next() >= DEPOSIT_CHANCE) continue;
+    out.push({ id: makeId('dep'), type: pick() });
+  }
+  if (populated && out.length === 0) out.push({ id: makeId('dep'), type: staple });
+
+  // One berth kept clear whatever the roll, so an island can always put a
+  // yard down and work what it has. Richest first if anything has to go,
+  // though at two fifths density it almost never does.
   const room = Math.max(0, slots - CLEAR_BERTHS);
   if (out.length <= room) return out;
   const byWorth = (type: ResourceType) => out.filter((d) => d.type === type);
-  return [...byWorth('gold'), ...byWorth('silver'), ...byWorth('forest')].slice(0, room);
+  return [...byWorth('gold'), ...byWorth('silver'), ...byWorth(staple)].slice(0, room);
 }
 
 /**
@@ -540,6 +530,7 @@ function groundOf(
 /** The works that belongs on each kind of ground — the inverse of `WORKS_ON`. */
 const WORKS_FOR: Record<ResourceType, FacilityType> = {
   forest: 'refinery',
+  coral: 'coral_kiln',
   silver: 'silver_mine',
   gold: 'mine',
 };
@@ -734,7 +725,16 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       };
       // What is under it. Before anything is placed, because the starting
       // works are put *on* deposits rather than beside them.
-      system.deposits = groundOf(rng, system.archetype, system.slots, makeId, populated);
+      system.deposits = groundOf(
+        rng,
+        system.archetype,
+        system.slots,
+        makeId,
+        populated,
+        // Sean's bracket: the staple is living coral in the one Reach that is
+        // an atoll ring, and timber everywhere else.
+        sector.name === CORAL_REACH,
+      );
       // Something in the water, and only out where nobody has been. The roll
       // is taken for every frontier island so the RNG stream does not depend
       // on what the archetype happened to be.

@@ -79,7 +79,28 @@ describe('every list of ground covers every kind of ground', () => {
     const yields = RESOURCE_TYPES.map(
       (type) => GOLD_PER_DAY[EVERY_WORKS.find((w) => WORKS_ON[w] === type)!],
     );
+    // Sorted, so `RESOURCE_TYPES` really is in the order it claims.
     expect(yields).toEqual([...yields].sort((a, b) => a - b));
-    expect(new Set(yields).size, 'two rungs at the same height is one rung').toBe(yields.length);
+
+    /*
+     * Three rungs, not four.
+     *
+     * Timber and living coral share the bottom one on purpose — Sean's deposit
+     * math brackets them as one outcome, *"forest / living coral (coral reef
+     * only)"*, because coral is not a fourth kind of ground so much as what
+     * the staple is called in the one Reach where nothing grows. So the rule
+     * is about the distinct heights, and what the test forbids is a rung
+     * nobody can tell from its neighbour by anything but its name.
+     */
+    const rungs = [...new Set(yields)].sort((a, b) => a - b);
+    expect(rungs).toHaveLength(3);
+    expect(rungs[1]).toBe(rungs[0] * 2);
+    expect(rungs[2]).toBe(rungs[0] * 3);
+
+    // And the two that share a rung are the two that are meant to.
+    const bottom = RESOURCE_TYPES.filter(
+      (t) => GOLD_PER_DAY[EVERY_WORKS.find((w) => WORKS_ON[w] === t)!] === rungs[0],
+    );
+    expect([...bottom].sort()).toEqual(['coral', 'forest']);
   });
 });
