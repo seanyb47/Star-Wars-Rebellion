@@ -36,10 +36,12 @@ function ships(doc: unknown): Array<Record<string, unknown>> {
 
 describe('loading the roster', () => {
   it('reads every ship in the export', () => {
-    // Twenty-five since the re-import of 19 September: the Urskin Whaler
-    // arrived as a second Confederacy R3 beside the Tempest.
-    expect(ROSTER.ships).toHaveLength(25);
-    expect(ROSTER.byId.size).toBe(25);
+    // Twenty-eight since COMBAT MASTER v4 on 20 September, which added three
+    // small hulls and squared the navies at fourteen apiece: the Fenrunner and
+    // the Wraith for the Crown, the Witchlight for the Confederacy.
+    expect(ROSTER.ships).toHaveLength(28);
+    expect(ROSTER.byId.size).toBe(28);
+    for (const faction of NAVY_FACTIONS) expect(fleetOf(faction)).toHaveLength(14);
   });
 
   it('finds no errors in the shipped data', () => {
@@ -200,21 +202,24 @@ describe('refusing bad data', () => {
       crown[1]['Research Order'] = crown[0]['Research Order'];
     });
     expect(() => loadRoster(doc)).not.toThrow();
-    const shared = validateRoster(doc).filter(
-      (i) => /is shared with/.test(i.message) && i.shipId?.startsWith('CWN-'),
-    );
-    expect(shared).toHaveLength(1);
-    expect(shared[0].severity).toBe('warning');
+    // v4 shares three Crown rungs of its own (R1 Vanguard/Fenrunner, R5
+    // Interceptor II/Wraith), so the corruption is counted as one *more* than
+    // the roster already reports rather than as the only one.
+    const sharedNow = (d: unknown) =>
+      validateRoster(d).filter((i) => /is shared with/.test(i.message) && i.shipId?.startsWith('CWN-'));
+    const shared = sharedNow(doc);
+    expect(shared.length).toBe(sharedNow(rosterData).length + 1);
+    for (const item of shared) expect(item.severity).toBe('warning');
   });
 
   it('allows the two navies the same rung as each other', () => {
-    // Both open at S01 and both unlock an R1, which is correct: the ladders
-    // are per faction. This is the case the duplicate check must not catch.
-    expect(
-      validateRoster(rosterData).filter(
-        (i) => /is shared with/.test(i.message) && !i.shipId?.startsWith('CFS-URW'),
-      ),
-    ).toEqual([]);
+    // Both open at S01 and both unlock an R1, which is correct: the ladders are
+    // per faction, so no warning may ever pair a Crown hull with a Confederate
+    // one. The shared rungs v4 does have are all *within* a navy.
+    for (const item of validateRoster(rosterData).filter((i) => /is shared with/.test(i.message))) {
+      const [mine, theirs] = [item.shipId!.slice(0, 3), /\b(C[A-Z]{2})-/.exec(item.message)?.[1]];
+      expect(theirs, item.message).toBe(mine);
+    }
   });
 
   it('reports everything wrong at once rather than the first thing', () => {
@@ -269,7 +274,7 @@ describe('the design rules the export states about itself', () => {
      * ladders with no gaps, and the sequence `nextUnlock` hands out is the
      * ladder in order however many hulls sit on a step.
      */
-    const order = ['Marauder', 'Cutlass', 'Tempest', 'Urskin Whaler', 'Reefwarden'];
+    const order = ['Marauder', 'Cutlass', 'Witchlight', 'Tempest', 'Urskin Whaler', 'Reefwarden'];
     order.forEach((name, i) => expect(nextUnlock('Free Confederacy', i)!.name).toBe(name));
 
     for (const faction of NAVY_FACTIONS) {
@@ -281,7 +286,12 @@ describe('the design rules the export states about itself', () => {
       expect(steps).toEqual([...steps].sort((a, b) => a - b));
       ladder.forEach((ship, i) => expect(nextUnlock(faction, i)!.id).toBe(ship.id));
     }
-    expect(fleetOf('Free Confederacy').filter((s) => s.research.raw === 'R3')).toHaveLength(2);
+    // Rungs holding more than one hull, which v4 made the norm rather than the
+    // exception: Confederacy R2 and R3, Crown R1 and R5.
+    expect(fleetOf('Free Confederacy').filter((s) => s.research.raw.startsWith('R2'))).toHaveLength(2);
+    expect(fleetOf('Free Confederacy').filter((s) => s.research.raw.startsWith('R3'))).toHaveLength(2);
+    expect(fleetOf('Crown Imperium').filter((s) => s.research.raw.startsWith('R1'))).toHaveLength(2);
+    expect(fleetOf('Crown Imperium').filter((s) => s.research.raw.startsWith('R5'))).toHaveLength(2);
   });
 
   it('gives the Majestic the heaviest guns of any one ship, and not the heaviest everything', () => {
@@ -376,11 +386,10 @@ describe('the design rules the export states about itself', () => {
     // lives: no two hulls across the two navies are statistically identical.
     const crown = fleetOf('Crown Imperium');
     const confederacy = fleetOf('Free Confederacy');
-    // Not the same length any more: the Confederacy has thirteen hulls to the
-    // Crown's twelve since the Whaler, which is the sheet's stated contrast
-    // rather than a slip — *"the Confederacy favors asymmetric specialists,
-    // retrofits, raiders"*, and a retrofit is exactly what she is.
-    expect(confederacy.length).toBe(crown.length + 1);
+    // Equal in number again since v4 — fourteen apiece — so the asymmetry is
+    // nowhere in the counts and entirely in the hulls. Which is the stronger
+    // form of the sheet's claim, not a weaker one.
+    expect(confederacy.length).toBe(crown.length);
     const fingerprint = (s: (typeof crown)[number]) =>
       [s.speed, s.guns.longGuns, s.guns.heavyGuns, s.guns.lightGuns, s.armor, s.hull].join('/');
     const crownPrints = new Set(crown.map(fingerprint));
@@ -394,13 +403,19 @@ describe('what the shipped data is warned about', () => {
    * that the set cannot change without somebody noticing — if a future export
    * clears one or adds one, this test says so.
    */
-  it('flags the shared R3 rung and the Sovereign, and nothing else', () => {
+  it('flags the shared rungs and the Sovereign, and nothing else', () => {
     const warnings = validateRoster(rosterData).filter((i) => i.severity === 'warning');
-    // Two, and both are deliberate. Pinned so that a third cannot appear
-    // unnoticed.
+    // Five now, and every one deliberate. v4 turned a shared rung from an
+    // exception into a habit: the Fenrunner stands on the Vanguard's R1, the
+    // Witchlight on the Cutlass's R2, the Wraith on the Interceptor II's R5,
+    // and the Whaler is still on the Tempest's R3. Pinned so that a sixth
+    // cannot appear unnoticed.
     expect(warnings.map((w) => `${w.shipId}/${w.field}`).sort()).toEqual([
       'CFS-URW-R3-01/Research Order',
+      'CFS-WIT-R2-02/Research Order',
+      'CWN-FEN-R1-02/Research Order',
       'CWN-SOV-S04/Early-game power',
+      'CWN-WRA-R5-03/Research Order',
     ]);
     /*
      * The Whaler stands on the Tempest's rung, which the sheet allows on

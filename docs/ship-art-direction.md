@@ -1,9 +1,9 @@
-# Ship art direction — all 25 hulls
+# Ship art direction — all 28 hulls
 
-**Canon.** This is Part 4 of [`COMBAT-MASTER-v3.md`](../COMBAT-MASTER-v3.md),
+**Canon.** This is Part 4 of [`COMBAT-MASTER-v4.md`](../COMBAT-MASTER-v4.md),
 the Lore & Visual Identity tab, reproduced per ship beside its Part 3 stats.
-The master arrived on 20 September 2026 and replaced the stand-in entries
-written here the day before, which were never canon and said so.
+v4 arrived on 20 September 2026: three more hulls, and the Blackfin rewritten
+to the twin-hulled war canoe her painting turned out to be.
 
 `src/data/ship-lore.json` is a parse of the master and a test holds it to the
 master field for field, so **edit the master, not the JSON and not this file** —
@@ -54,7 +54,7 @@ whose job is working into windless bays to take soundings. Oars are not
 galley slavery: `CANON.md` §4 is explicit that the Crown keeps no slaves, so
 any Crown sweeps are pulled by her own crew.
 
-**Encyclopedia** *(shown in game)* — Wayfinders carry the people who make an Imperial claim real: chartmakers, engineers, clerks, marines and the brass-bound survey chests from which new harbors are measured. They are not glamorous ships, but an island that sees one at anchor knows that roads, tariffs and seawalls will follow. Their captains are chosen for patience rather than daring, and a Wayfinder's broad decks often become the first orderly ground in an unfamiliar Reach.
+**Encyclopedia** *(shown in game)** — Wayfinders carry the people who make an Imperial claim real: chartmakers, engineers, clerks, marines and the brass-bound survey chests from which new harbors are measured. They are not glamorous ships, but an island that sees one at anchor knows that roads, tariffs and seawalls will follow. Their captains are chosen for patience rather than daring, and a Wayfinder's broad decks often become the first orderly ground in an unfamiliar Reach.
 
 **Visual identity** — A prosperous naval packet turned expeditionary troop caravan: welcoming at first glance, unmistakably administrative on the second.
 
@@ -78,7 +78,7 @@ any Crown sweeps are pulled by her own crew.
 filed here for the same reason *"swift 2"* went to the Interceptor II.
 Pairs with it: ivory canvas and one pennant against the II's green rig.
 
-**Encyclopedia** *(shown in game)* — The Interceptor began as an Admiralty answer to smugglers that could outrun every ship sent after them: remove everything that does not help the chase, then train crews to accept what remains. It carries no armor and almost no comfort. Hammocks are struck before action, meals are taken on deck, and the ship's carpenters joke that the rigging is the strongest part of the hull. What it catches, it can harry; what catches it usually destroys it.
+**Encyclopedia** *(shown in game)** — The Interceptor began as an Admiralty answer to smugglers that could outrun every ship sent after them: remove everything that does not help the chase, then train crews to accept what remains. It carries no armor and almost no comfort. Hammocks are struck before action, meals are taken on deck, and the ship's carpenters joke that the rigging is the strongest part of the hull. What it catches, it can harry; what catches it usually destroys it.
 
 **Visual identity** — A regulation pursuit cutter pushed to the edge of safety—clean, elegant and visibly fragile.
 
@@ -98,7 +98,7 @@ Pairs with it: ivory canvas and one pennant against the II's green rig.
 
 *Large, Slow. CWN-MOR-S03, research S03.*
 
-**Encyclopedia** *(shown in game)* — Morningstars were laid down during an emergency rearmament, when Highwater demanded heavy guns sooner than its yards could design a proper ship around them. The result is brutally effective and famously inelegant: a deep hull, too much iron, too little sail and a battery that makes the whole vessel shudder like a struck bell. Sailors say dawn begins when a Morningstar fires, because every sleeping thing in the harbor wakes at once.
+**Encyclopedia** *(shown in game)** — Morningstars were laid down during an emergency rearmament, when Highwater demanded heavy guns sooner than its yards could design a proper ship around them. The result is brutally effective and famously inelegant: a deep hull, too much iron, too little sail and a battery that makes the whole vessel shudder like a struck bell. Sailors say dawn begins when a Morningstar fires, because every sleeping thing in the harbor wakes at once.
 
 **Visual identity** — An overbuilt early-war weapons platform: formidable, expensive, slow and slightly ashamed of its own proportions.
 
@@ -120,7 +120,7 @@ Pairs with it: ivory canvas and one pennant against the II's green rig.
 
 **PAINTED** — `src/art/ships/sovereign.webp`.
 
-**Encyclopedia** *(shown in game)* — A Sovereign is less a ship than a moving piece of government. Its troop decks carry marines, magistrates and enough stores to occupy a harbor before the ink on its surrender dries. Its high stern houses a chapel, signal room and the clerks who record every shell fired in the Crown's name. Islanders fear its guns, but it is the rows of identical landing boats that tell them the Imperium intends to stay.
+**Encyclopedia** *(shown in game)** — A Sovereign is less a ship than a moving piece of government. Its troop decks carry marines, magistrates and enough stores to occupy a harbor before the ink on its surrender dries. Its high stern houses a chapel, signal room and the clerks who record every shell fired in the Crown's name. Islanders fear its guns, but it is the rows of identical landing boats that tell them the Imperium intends to stay.
 
 **Visual identity** — A ceremonial assault capital whose imposing symmetry turns conquest into administration.
 
@@ -144,7 +144,7 @@ Pairs with it: ivory canvas and one pennant against the II's green rig.
 Vanguard II, which is what her guardrail asks for: same hull, same headland,
 the generation carried entirely by the rig.
 
-**Encyclopedia** *(shown in game)* — The Vanguard was the first Crown design to ask what a warship needed rather than what tradition expected it to carry. Shipwrights lowered the stern, simplified the galleries and put every saved ton into useful guns and stronger frames. Older admirals called it plain. Younger captains called it the first ship that answered the helm exactly as drawn. It became the standard by which later Imperial fighting ships were measured.
+**Encyclopedia** *(shown in game)** — The Vanguard was the first Crown design to ask what a warship needed rather than what tradition expected it to carry. Shipwrights lowered the stern, simplified the galleries and put every saved ton into useful guns and stronger frames. Older admirals called it plain. Younger captains called it the first ship that answered the helm exactly as drawn. It became the standard by which later Imperial fighting ships were measured.
 
 **Visual identity** — The Crown's first modern general-purpose gunship: balanced, efficient and almost austere.
 
@@ -160,11 +160,31 @@ the generation carried entirely by the rig.
 
 **Distinctness guardrail** — Do not exaggerate any one feature; Vanguard's recognizable feature is disciplined balance.
 
+### Fenrunner — Swamp raider (12)
+
+*Small, Fast. CWN-FEN-R1-02, research R1.*
+
+**Encyclopedia** *(shown in game)** — The Crown never asked the Bog-folk to love it; it asked them to remember. When Admiralty squadrons broke the slaver fleets that had raided the swamps for galley rowers, the clans reckoned the debt in the only currency they keep — service, paid fully and forever. A Fenrunner is that service made timber: a long, low, flat-bottomed raider poled and rowed through channels no chart records, crewed by patient people who consider a battle fought in daylight to be a battle somebody else arranged. Crown officers who ride along come back quieter. The clans' conjure-women did not follow them into the Crown's service, and a Fenrunner crew makes a quiet sign when a Witchlight passes; they will not fire the first shot at their cousins.
+
+**Visual identity** — A regulation swamp raider built by irregulars: long, low, mud-colored and half-invisible against any shoreline, with just enough Admiralty brass to show whose pennant she poles under.
+
+**Silhouette signature** — Long, low, flat-bottomed cypress hull with minimal freeboard, one short mast with a small lug sail, rows of poles and sweeps along the rails, light guns only.
+
+**Construction & materials** — Mud-dark cypress planking, rope and leather fittings, reed camouflage bundles, waxed-cloth covers and a few polished Admiralty brass fittings.
+
+**Sail plan & palette** — One small warm-ivory lug sail edged in botanical green with a modest Crown emblem; Crown pennant at the masthead.
+
+**Signature detail** — Polished Admiralty brass on a hull otherwise built to vanish — the one thing aboard the Crown insists on.
+
+**Preferred art scene** — Poling through a reed channel in misty early-morning light, half the crew watching the trees.
+
+**Distinctness guardrail** — Do not make it a gunboat, a barge or a Marauder; it is a patient shallow-water raider crewed by Bog-folk, and every fitting must suit mud, reeds and silence.
+
 ### Resolute — Sloop-of-war (18)
 
 *Medium, Fast. CWN-RES-R2-01, research R2.*
 
-**Encyclopedia** *(shown in game)* — Resolutes are built in more yards, crewed by more islands and assigned more kinds of duty than any other Crown warship. A captain may escort merchants on Monday, chase raiders on Wednesday and deliver a governor by Sunday. Their ivory sails carry standardized green corner flashes so convoys can recognize help at a distance, while paired brass chronometers behind the stern windows are set together before every departure. Crews claim a Resolute is never late; it merely arrives before the Admiralty has finished explaining why it was needed. The class earned its name not through one famous battle, but by repeatedly reaching waters where the enemy believed a proper warship could not arrive in time.
+**Encyclopedia** *(shown in game)** — Resolutes are built in more yards, crewed by more islands and assigned more kinds of duty than any other Crown warship. A captain may escort merchants on Monday, chase raiders on Wednesday and deliver a governor by Sunday. Their ivory sails carry standardized green corner flashes so convoys can recognize help at a distance, while paired brass chronometers behind the stern windows are set together before every departure. Crews claim a Resolute is never late; it merely arrives before the Admiralty has finished explaining why it was needed. The class earned its name not through one famous battle, but by repeatedly reaching waters where the enemy believed a proper warship could not arrive in time.
 
 **Visual identity** — A fast standardized frigate—the dependable working face of Imperial sea power.
 
@@ -186,7 +206,7 @@ the generation carried entirely by the rig.
 
 **PAINTED** — `src/art/ships/bulwark.webp`.
 
-**Encyclopedia** *(shown in game)* — Bulwarks are sent where the line must not move. Their heavy sides and long guns let them hold narrow channels while lighter ships maneuver behind them. They are miserable in a chase and vulnerable to small craft that slip under the great guns, facts their crews acknowledge with the fatalism of fixed-battery crews. A Bulwark at anchor lies so low and broad across the water that harbor pilots navigate around it like a breakwater.
+**Encyclopedia** *(shown in game)** — Bulwarks are sent where the line must not move. Their heavy sides and long guns let them hold narrow channels while lighter ships maneuver behind them. They are miserable in a chase and vulnerable to small craft that slip under the great guns, facts their crews acknowledge with the fatalism of fixed-battery crews. A Bulwark at anchor lies so low and broad across the water that harbor pilots navigate around it like a breakwater.
 
 **Visual identity** — A low floating naval battery with sails: broad, horizontal, brutally practical and built to own a piece of water.
 
@@ -208,7 +228,7 @@ the generation carried entirely by the rig.
 
 **PAINTED** — `src/art/ships/vanguard-ii.webp`.
 
-**Encyclopedia** *(shown in game)* — The second Vanguard keeps the proportions that made the original successful and replaces every compromise the first design accepted. The gun deck is stronger, the armor better fitted and the rig tuned by a generation of captains' reports. To the public, its green sails announce progress. To a shipwright, the family resemblance is clearer in the unchanged run of the hull: the Admiralty improving a trusted answer rather than chasing novelty.
+**Encyclopedia** *(shown in game)** — The second Vanguard keeps the proportions that made the original successful and replaces every compromise the first design accepted. The gun deck is stronger, the armor better fitted and the rig tuned by a generation of captains' reports. To the public, its green sails announce progress. To a shipwright, the family resemblance is clearer in the unchanged run of the hull: the Admiralty improving a trusted answer rather than chasing novelty.
 
 **Visual identity** — A visibly evolved Vanguard—same disciplined bones, now armored, elite and confidently refined.
 
@@ -234,7 +254,7 @@ signature detail, the five chase-gun muzzles grouped into the bow, and it
 cannot be the Swift, which is a Confederate outrigger with no gun aboard.
 One command to move it if that reading is wrong.
 
-**Encyclopedia** *(shown in game)* — The second Interceptor is what happens when the Admiralty refuses to choose between pursuit craft and warship. Its enlarged frame carries long chase guns, a dense light battery and just enough armor to survive the first answer. It remains brutally cramped and ruinously expensive to maintain. Green sails make it look aristocratic from shore; aboard, every passage is filled with ammunition and every meal is eaten beside a gun.
+**Encyclopedia** *(shown in game)** — The second Interceptor is what happens when the Admiralty refuses to choose between pursuit craft and warship. Its enlarged frame carries long chase guns, a dense light battery and just enough armor to survive the first answer. It remains brutally cramped and ruinously expensive to maintain. Green sails make it look aristocratic from shore; aboard, every passage is filled with ammunition and every meal is eaten beside a gun.
 
 **Visual identity** — An elite pursuit predator: the knife shape of Interceptor I wrapped in brass, armor and far too many weapons.
 
@@ -250,11 +270,31 @@ One command to move it if that reading is wrong.
 
 **Distinctness guardrail** — Do not make it large or comfortable; despite elite fittings it must still read as a dangerously crowded interceptor.
 
+### Wraith — Silent galley (12)
+
+*Small, Fast. CWN-WRA-R5-03, research R5.*
+
+**Encyclopedia** *(shown in game)** — Nobody hears a Wraith arrive, and almost nobody sees one leave. The Hushed serve the Crown under an old bargain whose terms neither side discusses, and the Wraith is the shape of that bargain at sea: a lean black galley with muffled oars, no lanterns, no bell and no figurehead, built to take ships and people rather than sink them. Her boarding companies come over the rail without a shout. Harbormasters find only a cut cable and an empty berth; prisoners describe hooded crews who never spoke once. The Admiralty does not list Wraiths in its published registers, which its clerks maintain is an oversight.
+
+**Visual identity** — A silent boarding galley: lean, black, unlit and unmarked — a ship designed to be remembered only afterward.
+
+**Silhouette signature** — Long, narrow, low black galley hull with two banks of muffled oars, two raked masts with lateen sails, a bare knife bow with no figurehead, and grapnels waiting along the rail.
+
+**Construction & materials** — Matte lamp-black timber, leather-wrapped oar looms, greased rowlocks, waxed dark cordage and iron fittings blackened so nothing catches the light.
+
+**Sail plan & palette** — Charcoal grey-green lateen sails; no lanterns, no bell; a small, barely visible Crown pennant is the only marking.
+
+**Signature detail** — Boarding grapnels and coiled lines kept ready at even spacing along both rails, tended like instruments.
+
+**Preferred art scene** — Closing on a lit ship across calm moonlit water, oars entering without splash, her own decks dark and still.
+
+**Distinctness guardrail** — Keep her mundane and plausible: no glow, no ghost effects, no tattered supernatural sails. Crew stay hooded and unnamed until the Hushed origin is decided. She is quiet, not haunted.
+
 ### Justiciar — 3rd rate (74)
 
 *Large, Normal. CWN-JUS-R6-01, research R6.*
 
-**Encyclopedia** *(shown in game)* — Justiciars carry no colonists, governors or comforting fiction about their purpose. Each is designed as a firing solution made into a ship. A narrow antique-gold Judgment Axis runs from the low armored command pavilion toward a stepped sequence of Long Guns, while Heavy Guns sit behind the black-framed central battery and Light Guns guard every quarter. Before opening fire, the crew strikes the bronze Verdict Bell once—the formal declaration that a target has been selected. The vessel carries no figurehead and offers its captain no ceremonial balcony. Even within the Crown, the class inspires unease: immaculate ivory sails with severe green stripes advance through the smoke, the bell sounds, and lawful procedure becomes overwhelming violence.
+**Encyclopedia** *(shown in game)** — Justiciars carry no colonists, governors or comforting fiction about their purpose. Each is designed as a firing solution made into a ship. A narrow antique-gold Judgment Axis runs from the low armored command pavilion toward a stepped sequence of Long Guns, while Heavy Guns sit behind the black-framed central battery and Light Guns guard every quarter. Before opening fire, the crew strikes the bronze Verdict Bell once—the formal declaration that a target has been selected. The vessel carries no figurehead and offers its captain no ceremonial balcony. Even within the Crown, the class inspires unease: immaculate ivory sails with severe green stripes advance through the smoke, the bell sounds, and lawful procedure becomes overwhelming violence.
 
 **Visual identity** — A pure offensive warship whose ordered geometry makes aggression look procedural.
 
@@ -277,7 +317,7 @@ One command to move it if that reading is wrong.
 **PAINTED** — `src/art/ships/sovereign-ii.webp`. The assault launches are
 visible behind their open side doors, which is her signature detail.
 
-**Encyclopedia** *(shown in game)* — The second Sovereign preserves the first class's ability to carry an invasion, but abandons the towering architecture that made its ancestor slow. Its stern is lower, its run longer and its internal administration hidden behind armored bulkheads. It can arrive with the line rather than after it. Admiralty pamphlets call it proof that order can learn; old Sovereign captains call it a palace taught to hunt.
+**Encyclopedia** *(shown in game)** — The second Sovereign preserves the first class's ability to carry an invasion, but abandons the towering architecture that made its ancestor slow. Its stern is lower, its run longer and its internal administration hidden behind armored bulkheads. It can arrive with the line rather than after it. Admiralty pamphlets call it proof that order can learn; old Sovereign captains call it a palace taught to hunt.
 
 **Visual identity** — A mobile assault super-capital: recognizable Sovereign grandeur made lower, longer and more dangerous.
 
@@ -297,7 +337,7 @@ visible behind their open side doors, which is her signature detail.
 
 *Gigantic, Slow. CWN-MAJ-R8-01, research R8.*
 
-**Encyclopedia** *(shown in game)* — Majestic is the Admiralty's final argument made timber, iron and canvas: fortress, flagship, invasion carrier and national ceremony in a single immense hull. Its rare pale-golden masts are bound with gilded iron and carry Crowned Imperial Battle Sails found on no other vessel—luminous ivory canvas framed in botanical green, stitched with restrained gold and bearing only two small seals of authority. The rig is opulent because it is perfectly made, not because it abandons naval physics. Decks broad enough for formal parade conceal magazines, assault launches and batteries capable of erasing a harbor. Yet Majestic is not a floating palace. Every gallery, mast and ornament serves the ship, making overwhelming power look like the inevitable achievement of civilization.
+**Encyclopedia** *(shown in game)** — Majestic is the Admiralty's final argument made timber, iron and canvas: fortress, flagship, invasion carrier and national ceremony in a single immense hull. Its rare pale-golden masts are bound with gilded iron and carry Crowned Imperial Battle Sails found on no other vessel—luminous ivory canvas framed in botanical green, stitched with restrained gold and bearing only two small seals of authority. The rig is opulent because it is perfectly made, not because it abandons naval physics. Decks broad enough for formal parade conceal magazines, assault launches and batteries capable of erasing a harbor. Yet Majestic is not a floating palace. Every gallery, mast and ornament serves the ship, making overwhelming power look like the inevitable achievement of civilization.
 
 **Visual identity** — The ultimate Crown ship: immense, cathedral-like in order rather than fantasy, and beautiful enough to make power persuasive.
 
@@ -324,7 +364,7 @@ visible behind their open side doors, which is her signature detail.
 shell wind-chimes and all. The v2 painting crewed her with a human; v3 puts
 three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
-**Encyclopedia** *(shown in game)* — The Swift was designed by Shoal-folk who consider deep water an inconvenience and armed ships needlessly slow. It carries messages, scouts channels and vanishes through reefs where a square-rigger would leave its keel. There is no gun aboard because every pound of iron is a pound that cannot become sail. Crown officers dismiss it as a canoe until they discover it reported their fleet two days before their own lookouts saw land.
+**Encyclopedia** *(shown in game)** — The Swift was designed by Shoal-folk who consider deep water an inconvenience and armed ships needlessly slow. It carries messages, scouts channels and vanishes through reefs where a square-rigger would leave its keel. There is no gun aboard because every pound of iron is a pound that cannot become sail. Crown officers dismiss it as a canoe until they discover it reported their fleet two days before their own lookouts saw land.
 
 **Visual identity** — A reef-running scout that feels closer to a racing seabird than a conventional warship.
 
@@ -338,13 +378,13 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 **Preferred art scene** — Skimming above turquoise reef water in brilliant daylight, spray lifting from the outriggers.
 
-**Distinctness guardrail** — Do not add guns, armor, a bulky deck or a European square-rig; speed and cultural specificity are the whole design.
+**Distinctness guardrail** — Do not add guns, armor, a bulky deck or a European square-rig; speed and cultural specificity are the whole design. Crew are Shoal-folk, never human sailors.
 
 ### Brigantine — Gun-brig (6)
 
 *Medium, Fast. CFS-BRI-S02, research S02.*
 
-**Encyclopedia** *(shown in game)* — Most Brigantines began as honest merchant vessels, although their captains disagree about when honesty ended. Cargo partitions have become troop berths, concealed ports hold a pair of light guns and every spare beam carries a pulley for loading whatever the next island needs. They are the Confederacy's connective tissue: not heroic, rarely famous, and present at every uprising before the songs arrive.
+**Encyclopedia** *(shown in game)** — Most Brigantines began as honest merchant vessels, although their captains disagree about when honesty ended. Cargo partitions have become troop berths, concealed ports hold a pair of light guns and every spare beam carries a pulley for loading whatever the next island needs. They are the Confederacy's connective tissue: not heroic, rarely famous, and present at every uprising before the songs arrive.
 
 **Visual identity** — A cheerful merchant brig retrofitted for rebellion—useful, crowded and visibly lived in.
 
@@ -364,7 +404,7 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 *Medium, Slow. CFS-CHI-S03, research S03.*
 
-**Encyclopedia** *(shown in game)* — No two yards agree on what a Chimera originally was. Its pale patrol-ship bow, broad merchant waist and clipped Imperial stern meet along celebrated scarf joints reinforced with engraved bronze fishplates. Crews polish those seams rather than hide them; every join records a vessel the Crown abandoned, lost or failed to keep. When the first rebuilt Chimera entered Confederate service, its sailors had no time for proper heraldry. They painted the Confederacy sigil from memory across a crimson sail panel with a bucket of bone-white hull paint, leaving brushstrokes, drips and the ghost of an older Imperial mark beneath it. The symbol is imperfect but its meaning is exact: whatever these pieces were before, this ship belongs to us now.
+**Encyclopedia** *(shown in game)** — No two yards agree on what a Chimera originally was. Its pale patrol-ship bow, broad merchant waist and clipped Imperial stern meet along celebrated scarf joints reinforced with engraved bronze fishplates. Crews polish those seams rather than hide them; every join records a vessel the Crown abandoned, lost or failed to keep. When the first rebuilt Chimera entered Confederate service, its sailors had no time for proper heraldry. They painted the Confederacy sigil from memory across a crimson sail panel with a bucket of bone-white hull paint, leaving brushstrokes, drips and the ghost of an older Imperial mark beneath it. The symbol is imperfect but its meaning is exact: whatever these pieces were before, this ship belongs to us now.
 
 **Visual identity** — A composite defensive warship whose charisma comes from visibly different parts made coherent by skilled hands.
 
@@ -386,7 +426,7 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 **PAINTED** — `src/art/ships/tidestalker.webp`.
 
-**Encyclopedia** *(shown in game)* — Tidestalkers are sung into shape in shallow Reef-folk nurseries, then taught the deeper water as they grow. Their living hulls flex rather than creak and close small wounds with pale new growth between voyages. They hunt close to reefs, where their low profiles vanish against broken water. Below the surface, living coral keels and rhythmic reef vanes drive them silently against wind and current.
+**Encyclopedia** *(shown in game)** — Tidestalkers are sung into shape in shallow Reef-folk nurseries, then taught the deeper water as they grow. Their living hulls flex rather than creak and close small wounds with pale new growth between voyages. They hunt close to reefs, where their low profiles vanish against broken water. Below the surface, living coral keels and rhythmic reef vanes drive them silently against wind and current.
 
 **Visual identity** — A sleek, windless living-coral ambush ship: quiet, watchful and unmistakably grown rather than built.
 
@@ -406,7 +446,7 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 *Small, Fast. CFS-MAR-R1-01, research R1.*
 
-**Encyclopedia** *(shown in game)* — A Marauder belongs to its captain in a way an Imperial ship never can. Every rail carries a choice made during a raid: cut-down spars for speed, a captured heavy gun under the forecastle, light pieces wherever recoil will not tear the deck apart, and just enough room below for a boarding company and its loot. They are cheap because their crews build half the ship while sailing the other half.
+**Encyclopedia** *(shown in game)** — A Marauder belongs to its captain in a way an Imperial ship never can. Every rail carries a choice made during a raid: cut-down spars for speed, a captured heavy gun under the forecastle, light pieces wherever recoil will not tear the deck apart, and just enough room below for a boarding company and its loot. They are cheap because their crews build half the ship while sailing the other half.
 
 **Visual identity** — A lean privateer schooner with one oversized punch and a deck crowded by opportunistic light weapons.
 
@@ -426,7 +466,7 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 *Small, Normal. CFS-CUT-R2-01, research R2.*
 
-**Encyclopedia** *(shown in game)* — The Cutlass is the closest thing the Confederacy has to a conventional fleet ship, which is why no two look entirely alike. The basic plan is simple enough to copy in small island yards: compact hull, useful armor and enough heavy guns to threaten something larger. Captains personalize the rig, but the rising curve of the bow remains. Seen in profile it resembles the guard of the weapon that gave the class its name.
+**Encyclopedia** *(shown in game)** — The Cutlass is the closest thing the Confederacy has to a conventional fleet ship, which is why no two look entirely alike. The basic plan is simple enough to copy in small island yards: compact hull, useful armor and enough heavy guns to threaten something larger. Captains personalize the rig, but the rising curve of the bow remains. Seen in profile it resembles the guard of the weapon that gave the class its name.
 
 **Visual identity** — A compact corsair warship—straightforward, aggressive and more disciplined than most Confederate hulls.
 
@@ -442,11 +482,31 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 **Distinctness guardrail** — Do not make it as skeletal as Marauder or as fast-looking as Blackfin; it is the Confederacy's compact conventional fighter.
 
+### Witchlight — Conjure sloop (10)
+
+*Small, Very Fast. CFS-WIT-R2-02, research R2.*
+
+**Encyclopedia** *(shown in game)** — When the Crown broke the slavers who had raided the swamps for generations, the Bog-folk clans paid their debt the only way that people knows how: fully, and forever. But not all of them followed the clans into the Admiralty's service. The conjure-women — the root-workers, the charm-makers, the keepers of the old ways — looked at a Crown that charts every channel and licenses every trade, and knew there would be no place in that world for what they carry. They took their lanterns, their skulls and their bottle-charms, and went to the free isles. A Witchlight is what they sail: a small black sloop of ancient bog-oak that harbors swear was never seen arriving. Her guns glow with a cold violet blessing her crew never explains, an alligator skull rides her bowsprit with its jaws bound shut, and the offerings on her stern altar are always fresh. Crown patrols report her in two Reaches on the same tide; the Admiralty lists this as clerical error. Bog-folk crews aboard Crown Fenrunners make a quiet sign when she passes, and will not fire the first shot at their cousins.
+
+**Visual identity** — A small Cajun conjure-sloop — a floating shrine built for speed, strange by dressing rather than carpentry.
+
+**Silhouette signature** — Low, lean single-masted sloop in purple-black bog-oak; a bound-jawed alligator skull for a figurehead; one tall, badly tattered crimson mainsail carrying a dripping hand-painted bone-white conjure sigil.
+
+**Construction & materials** — Ancient black bog-oak with a wet purple sheen, rope and leather fittings, no armor; rigging strung with bottle-charms, bead cords, feathers, carved fetishes, real animal skulls and grey moss.
+
+**Sail plan & palette** — Ragged faded-crimson gaff mainsail, torn and patched, the sigil painted across the tears; plain small Confederate pennant. Palette: purple-black, faded crimson, bone white, cold violet flame, silver mist.
+
+**Signature detail** — Deck guns etched with charm lines that burn cold violet — the glow is in the blessing, not the ballistics — and a stern altar of candles, coins and one flower-crowned skull.
+
+**Preferred art scene** — Slipping out of trailing mist at dusk on dark green water, lanterns burning blue-violet, her crew calm and unhurried.
+
+**Distinctness guardrail** — No skull-and-crossbones flag or emblem anywhere — her skulls are real conjure objects, never iconography. No ghost-ship transparency, floating runes or spell effects; she is a plausible wooden sloop made strange by what her crew hung on her. Do not confuse her clutter with Marauder's scavenge or Chimera's salvage: everything aboard a Witchlight was placed with intent.
+
 ### Tempest — Light frigate (26)
 
 *Medium, Fast. CFS-TEM-R3-01, research R3.*
 
-**Encyclopedia** *(shown in game)* — Tempests come from the Sea of Storms, where captains learned to carry sail in weather that sends other ships searching for shelter. Their hybrid rig can shift from long reaching canvas to tight storm triangles without striking a mast. Long guns open the fight before the ship races close enough to land troops beneath the squall. A Tempest is rarely painted against a calm horizon because nobody remembers seeing one there.
+**Encyclopedia** *(shown in game)** — Tempests come from the Sea of Storms, where captains learned to carry sail in weather that sends other ships searching for shelter. Their hybrid rig can shift from long reaching canvas to tight storm triangles without striking a mast. Long guns open the fight before the ship races close enough to land troops beneath the squall. A Tempest is rarely painted against a calm horizon because nobody remembers seeing one there.
 
 **Visual identity** — A fast storm-sea assault vessel with an exotic but plausible hybrid rig and forward long-gun emphasis.
 
@@ -466,7 +526,7 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 *Medium, Normal. CFS-URW-R3-01, research R3.*
 
-**Encyclopedia** *(shown in game)* — Before the war, Urskin Whalers followed leviathans through northern pack ice, carrying rendering gear, spare boats and provisions for months away from land. When the clans joined the Confederacy, those broad working hulls received patched iron armor, reinforced gun beds, two Heavy Guns and four Light Guns. The old harpoon ballistae remain hunting equipment rather than naval Long Guns, reminders that their crews learned courage against prey far larger than any warship. A dire-whale jaw reinforces the pointed bow, while iron-banded laminated oars can push through calm water and broken ice. A Whaler is neither elegant nor purpose-built for battle, but it is stubborn, practical and crewed by hunters who know precisely where a larger enemy is vulnerable.
+**Encyclopedia** *(shown in game)** — Before the war, Urskin Whalers followed leviathans through northern pack ice, carrying rendering gear, spare boats and provisions for months away from land. When the clans joined the Confederacy, those broad working hulls received patched iron armor, reinforced gun beds, two Heavy Guns and four Light Guns. The old harpoon ballistae remain hunting equipment rather than naval Long Guns, reminders that their crews learned courage against prey far larger than any warship. A dire-whale jaw reinforces the pointed bow, while iron-banded laminated oars can push through calm water and broken ice. A Whaler is neither elegant nor purpose-built for battle, but it is stubborn, practical and crewed by hunters who know precisely where a larger enemy is vulnerable.
 
 **Visual identity** — A medium northern working whaler hurriedly converted for war—stout, practical and visibly built by the same giant people as the Goliath.
 
@@ -488,7 +548,7 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 **PAINTED** — `src/art/ships/reefwalker.webp`.
 
-**Encyclopedia** *(shown in game)* — Reefwardens were grown after Confederate captains learned that Imperial capital ships could not simply be outsailed forever. Their coral carapaces are thickest around the forward battery, allowing them to close with ships that would crush lighter raiders. Reef-folk marines shelter in cool chambers within the living hull until the moment of boarding. Submerged Tidecraft vanes drive the ship directly into the wind, giving its prey no safe angle of escape.
+**Encyclopedia** *(shown in game)** — Reefwardens were grown after Confederate captains learned that Imperial capital ships could not simply be outsailed forever. Their coral carapaces are thickest around the forward battery, allowing them to close with ships that would crush lighter raiders. Reef-folk marines shelter in cool chambers within the living hull until the moment of boarding. Submerged Tidecraft vanes drive the ship directly into the wind, giving its prey no safe angle of escape.
 
 **Visual identity** — A windless coral-armored capital hunter with the blunt confidence of a reef predator.
 
@@ -508,7 +568,7 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 *Large, Slow. CFS-IRB-R5-01, research R5.*
 
-**Encyclopedia** *(shown in game)* — Ironback was built with Imperial straight lines and taken out of Imperial service with Admiral Dorian Jessup still aboard. The Confederacy cut down its ornamental stern, reinforced the weather deck and turned its long guns toward the kind of siege the Crown once trained Jessup to conduct. Beneath the weathering, every frame remains unmistakably Admiralty work. That contradiction is the ship's legend: discipline did not disappear when the flag changed; it chose another side.
+**Encyclopedia** *(shown in game)** — Ironback was built with Imperial straight lines and taken out of Imperial service with Admiral Dorian Jessup still aboard. The Confederacy cut down its ornamental stern, reinforced the weather deck and turned its long guns toward the kind of siege the Crown once trained Jessup to conduct. Beneath the weathering, every frame remains unmistakably Admiralty work. That contradiction is the ship's legend: discipline did not disappear when the flag changed; it chose another side.
 
 **Visual identity** — A captured Crown dreadnought whose Imperial skeleton survives beneath a severe Confederate siege refit.
 
@@ -528,32 +588,33 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 *Medium, Fast. CFS-BLA-R6-01, research R6.*
 
-**PAINTED** — `src/art/ships/blackfin.webp`. Shoal-folk crewed, and the
-signature dotted line of brass muzzles runs the length of the black hull.
-One divergence: the master calls for a narrow schooner and this is
-twin-hulled — the same idea built the Shoal-folk way.
+**PAINTED** — `src/art/ships/blackfin.webp`. Shoal-folk crewed, with the
+signature dotted line of brass swivel muzzles round the lashed deck. The
+twin hull was recorded as a divergence from v3, which called for a narrow
+schooner; **v4 rewrote the entry to the painting** rather than the other way
+round, so it is canon now.
 
-**Encyclopedia** *(shown in game)* — Blackfins are built around a simple Shoal-folk observation: a large gun is useless if it cannot turn quickly enough to find its target. Their decks bristle with small pieces on swivels and sliding carriages, each served by crews who communicate in whistles across the rigging. The tall black mainsail earned the class its name. Against capitals it is a nuisance; against small fast craft it is the thing waiting at the end of every escape route.
+**Encyclopedia** *(shown in game)** — Blackfins are built around a simple Shoal-folk observation: a large gun is useless if it cannot turn quickly enough to find its target. Their decks bristle with small pieces on swivels and sliding carriages, each served by crews who communicate in whistles across the rigging. The tall black mainsail earned the class its name. Against capitals it is a nuisance; against small fast craft it is the thing waiting at the end of every escape route.
 
-**Visual identity** — A fast anti-small combatant defined by a shark-fin sail and an improbable density of nimble light guns.
+**Visual identity** — A fast anti-small combatant — a Polynesian-style double-hulled war canoe defined by a shark-fin black sail and an improbable density of nimble light guns.
 
-**Silhouette signature** — Medium narrow schooner with a towering triangular black gaff mainsail, clipped bow, low stern and clean open firing deck.
+**Silhouette signature** — Two narrow shallow hulls joined by a lashed fighting deck, a towering triangular black crab-claw mainsail with a crimson lower edge, and a deck ringed with small swivel guns.
 
-**Construction & materials** — Dark oiled hardwood, light coral-free reinforcement, brass swivel tracks and flexible rope-and-leather gun mounts.
+**Construction & materials** — Dark oiled lashed timber, shell fittings, brass swivel tracks, flexible rope-and-leather gun mounts and strings of shell wind-chimes; no deep keel and no coral.
 
-**Sail plan & palette** — Squid-ink black mainsail with a crimson lower edge, smaller cream foresails and one Confederate emblem in bone-white.
+**Sail plan & palette** — Squid-ink black crab-claw mainsail with a crimson lower edge and smaller cream foresails; a small Confederate pennant only — no emblem, no skull, no jolly roger.
 
-**Signature detail** — Twelve small brass gun muzzles form a bright dotted line along the otherwise black hull.
+**Signature detail** — Small brass swivel-gun muzzles ring the lashed deck in a bright dotted line between the two black hulls.
 
 **Preferred art scene** — Carving through whitecaps while surrounding a much smaller fleeing cutter, under clear energetic daylight.
 
-**Distinctness guardrail** — Do not give it troops, heavy weapons, coral mass or Marauder's scavenged clutter; Blackfin is a specialized light-gun machine.
+**Distinctness guardrail** — Do not give it troops, heavy weapons, coral mass or Marauder's scavenged clutter; Blackfin is a specialized light-gun machine in the Shoal-folk family look, crewed by Shoal-folk.
 
 ### Urskin Goliath — Leviathan conversion (64)
 
 *Gigantic, Slow. CFS-URG-R7-01, research R7.*
 
-**Encyclopedia** *(shown in game)* — An Urskin Goliath is a clan, foundry and winter town carried into battle on one immense keel. Built from the northern tradition of community whalers but designed for war from the first timber, its cavernous holds carry nine garrisons, powder and cannon shot sized for Urskin hands. A colossal dire-whale skeleton reinforces the icebreaking bow; massive deck ballistae and heavy batteries line the broad upper works. Its sweep-oars are laminated, iron-banded and long enough to bite beyond the hull's shadow, while towering masts carry sails proportioned to move a vessel of such impossible weight. Southern sailors often mistake the tiny figures on deck for children until they realize each silhouette is an Urskin—and understand how large the ship truly is.
+**Encyclopedia** *(shown in game)** — An Urskin Goliath is a clan, foundry and winter town carried into battle on one immense keel. Built from the northern tradition of community whalers but designed for war from the first timber, its cavernous holds carry nine garrisons, powder and cannon shot sized for Urskin hands. A colossal dire-whale skeleton reinforces the icebreaking bow; massive deck ballistae and heavy batteries line the broad upper works. Its sweep-oars are laminated, iron-banded and long enough to bite beyond the hull's shadow, while towering masts carry sails proportioned to move a vessel of such impossible weight. Southern sailors often mistake the tiny figures on deck for children until they realize each silhouette is an Urskin—and understand how large the ship truly is.
 
 **Visual identity** — A gigantic northern great galley and community-whaler scaled for humongous Urskin crews—massive, practical, rough and culturally specific.
 
@@ -573,7 +634,7 @@ twin-hulled — the same idea built the Shoal-folk way.
 
 *Gigantic, Normal. CFS-COR-R8-01, research R8.*
 
-**Encyclopedia** *(shown in game)* — A Coral-Class Dreadnaught is not launched. Reef singers wake it beneath a guarded lagoon, and the armored hull rises only as far as battle requires. Most of its enormous hardwood keel and living coral mass travels below the surface, where coordinated Tidecraft vanes propel and steer it against wind and current. In action, waves wash over the low dorsal armor while gun apertures open just above the waterline. It is not a submarine or sea creature, but a warship deliberately grown to offer the enemy almost nothing to hit.
+**Encyclopedia** *(shown in game)** — A Coral-Class Dreadnaught is not launched. Reef singers wake it beneath a guarded lagoon, and the armored hull rises only as far as battle requires. Most of its enormous hardwood keel and living coral mass travels below the surface, where coordinated Tidecraft vanes propel and steer it against wind and current. In action, waves wash over the low dorsal armor while gun apertures open just above the waterline. It is not a submarine or sea creature, but a warship deliberately grown to offer the enemy almost nothing to hit.
 
 **Visual identity** — The ultimate semi-submerged coral dreadnaught: immense below the waterline, low and fierce above it, and armored like a living reef turned toward war.
 

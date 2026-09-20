@@ -4,10 +4,10 @@ import combatShips from '../../data/combat-ships.json';
 import { shipLore } from '../Almanac';
 
 /**
- * Part 4 of `COMBAT-MASTER-v3.md`, and nothing of mine.
+ * Part 4 of `COMBAT-MASTER-v4.md`, and nothing of mine.
  *
- * The master arrived on 20 September and replaced the stand-in entries written
- * here the day before, which were never canon and said so. Because the master
+ * v4 arrived on 20 September; it adds three hulls, rewrites the Swift's and
+ * Blackfin's entries, and changes no other ship's stats. Because the master
  * is now *in the repo*, the useful test is no longer "does this obey the rules
  * I inferred" but **"is this still what the master says"** — `ship-lore.json`
  * is a parse of a file sitting next to it, and a parse that drifts from its
@@ -17,12 +17,12 @@ import { shipLore } from '../Almanac';
  * types and this keeps the test inside the same module graph as the code.
  */
 const MASTER = (
-  import.meta.glob('../../../COMBAT-MASTER-v3.md', {
+  import.meta.glob('../../../COMBAT-MASTER-v4.md', {
     query: '?raw',
     import: 'default',
     eager: true,
   }) as Record<string, string>
-)['../../../COMBAT-MASTER-v3.md'];
+)['../../../COMBAT-MASTER-v4.md'];
 
 const LORE = shipLoreData.lore as Record<string, Record<string, string>>;
 const SHIPS = (combatShips as { ships: Array<Record<string, string | number>> }).ships;
@@ -40,13 +40,13 @@ const FIELDS: Record<string, string> = {
 
 describe('the ship encyclopedia is the master, verbatim', () => {
   it('has the master to compare against', () => {
-    expect(MASTER, 'COMBAT-MASTER-v3.md is missing from the repo').toBeTruthy();
+    expect(MASTER, 'COMBAT-MASTER-v4.md is missing from the repo').toBeTruthy();
     expect(MASTER).toContain('PART 4 — ENCYCLOPEDIA & ART DIRECTION');
   });
 
-  it('covers all 25 hulls and orphans none', () => {
+  it('covers all 28 hulls and orphans none', () => {
     const ids = new Set(SHIPS.map((s) => String(s['Ship ID'])));
-    expect(ids.size).toBe(25);
+    expect(ids.size).toBe(28);
     for (const id of ids) expect(Object.keys(LORE), `missing ${id}`).toContain(id);
     for (const id of Object.keys(LORE)) expect(ids, `orphan ${id}`).toContain(id);
   });
@@ -68,8 +68,8 @@ describe('the ship encyclopedia is the master, verbatim', () => {
         checked += 1;
       }
     }
-    // 25 ships x 8 fields. A silent drop to a handful would otherwise pass.
-    expect(checked).toBe(200);
+    // 28 ships x 8 fields. A silent drop to a handful would otherwise pass.
+    expect(checked).toBe(224);
   });
 
   it('is what the ship sheet actually renders', () => {

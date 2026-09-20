@@ -62,7 +62,7 @@ function run(makeA: () => Fleet, makeB: () => Fleet) {
   };
 }
 
-/** What v3 published, as written, so the comparison is against the sheet. */
+/** What the master publishes, as written, so the comparison is against it. */
 const CASES: Array<{ label: string; a: string[]; b: string[]; want: [number, number, number] }> = [
   { label: 'Majestic vs Urskin Goliath (1v1)', a: ['CWN-MAJ-R8-01'], b: ['CFS-URG-R7-01'], want: [100, 0, 0] },
   { label: 'Majestic vs Coral-Class (1v1)', a: ['CWN-MAJ-R8-01'], b: ['CFS-COR-R8-01'], want: [84.6, 1.2, 14.2] },
@@ -74,6 +74,18 @@ const CASES: Array<{ label: string; a: string[]; b: string[]; want: [number, num
   { label: 'Ironback vs Bulwark', a: ['CFS-IRB-R5-01'], b: ['CWN-BUL-R3-01'], want: [0, 100, 0] },
   { label: 'Interceptor II vs Blackfin', a: ['CWN-INT-R5-02'], b: ['CFS-BLA-R6-01'], want: [83, 4, 13] },
   { label: 'Blackfin vs Marauder', a: ['CFS-BLA-R6-01'], b: ['CFS-MAR-R1-01'], want: [100, 0, 0] },
+  // New in v4, and its three new hulls are the ones worth checking hardest: a
+  // published number on a ship this engine has never simmed is the strongest
+  // evidence the import is faithful rather than merely self-consistent.
+  { label: 'Wraith vs Marauder', a: ['CWN-WRA-R5-03'], b: ['CFS-MAR-R1-01'], want: [100, 0, 0] },
+  { label: 'Wraith vs Brigantine', a: ['CWN-WRA-R5-03'], b: ['CFS-BRI-S02'], want: [100, 0, 0] },
+  { label: 'Witchlight vs Swift', a: ['CFS-WIT-R2-02'], b: ['CFS-SWI-S01'], want: [100, 0, 0] },
+  { label: 'Witchlight vs Interceptor I', a: ['CFS-WIT-R2-02'], b: ['CWN-INT-S02'], want: [63, 7, 30] },
+  { label: 'Fenrunner vs Witchlight', a: ['CWN-FEN-R1-02'], b: ['CFS-WIT-R2-02'], want: [67, 5, 28] },
+  { label: 'Fenrunner vs Marauder', a: ['CWN-FEN-R1-02'], b: ['CFS-MAR-R1-01'], want: [0, 79, 21] },
+  { label: 'Fenrunner vs Swift', a: ['CWN-FEN-R1-02'], b: ['CFS-SWI-S01'], want: [100, 0, 0] },
+  { label: 'Fenrunner vs Interceptor I', a: ['CWN-FEN-R1-02'], b: ['CWN-INT-S02'], want: [88, 1, 11] },
+  { label: 'Fenrunner vs Brigantine', a: ['CWN-FEN-R1-02'], b: ['CFS-BRI-S02'], want: [86, 1, 13] },
 ];
 
 console.log(`${TRIALS} trials per matchup, seed ${SEED0}\n`);
@@ -100,7 +112,7 @@ console.log(`\nworst gap against the sheet: ${worst.toFixed(1)} percentage point
  * Exchanges" line, which was the standard the v2 import was measured against.
  */
 const MIRRORS = ['CWN-MAJ-R8-01', 'CWN-SOV-R7-02', 'CWN-VAN-R4-02', 'CFS-TEM-R3-01', 'CFS-MAR-R1-01', 'CFS-COR-R8-01'];
-console.log('\nmirror duels — v3 wants ~8 internal rounds and a handful of Exchanges');
+console.log('\nmirror duels — the master wants ~8 internal rounds and a handful of Exchanges');
 let exSum = 0;
 let roundSum = 0;
 for (const id of MIRRORS) {

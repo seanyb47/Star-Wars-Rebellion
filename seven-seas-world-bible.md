@@ -1,7 +1,7 @@
 # MASTER OF THE SEVEN SEAS — WORLD BIBLE
 ## v2.1 — **superseded 19 September 2026.** A non-canon idea pool.
 
-> **Read `CANON.md` first, and `COMBAT-MASTER-v3.md` for anything about
+> **Read `CANON.md` first, and `COMBAT-MASTER-v4.md` for anything about
 > combat, ships or their art** — this file's ship material is superseded
 > outright by the master.
 >

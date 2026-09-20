@@ -78,6 +78,11 @@ const ART_SLUG: Record<string, string> = {
   'CWN-MAJ-R8-01': 'majestic',
   'CWN-BUL-R3-01': 'bulwark',
   'CWN-VAN-R1-01': 'vanguard',
+  // v4's three new hulls. No paintings yet, so these resolve to nothing and the
+  // sheet draws its fallback; the names are here so the art drops straight in.
+  'CWN-FEN-R1-02': 'fenrunner',
+  'CWN-WRA-R5-03': 'wraith',
+  'CFS-WIT-R2-02': 'witchlight',
   'CWN-VAN-R4-02': 'vanguard-ii',
   'CFS-SWI-S01': 'swift',
   'CFS-TEM-R3-01': 'tempest',

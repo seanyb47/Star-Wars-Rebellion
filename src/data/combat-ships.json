@@ -1,25 +1,5 @@
 {
-  "_source": {
-    "file": "Master of the Seven Seas — Fleet Roster v3",
-    "kind": "Google Sheet",
-    "fileId": "1nn_aOkHRp8SB4oHIGwMqxhAM6UTPVXf0lhmNAuZEEJE",
-    "version": "v3 · 2026-09-19",
-    "imported": "2026-09-19",
-    "note": "v3 is a new sheet beside the old one and says so in its own header: *\"Supersedes v1/v2. Gun counts rebased on the historical Royal Navy rating system (1st rate 100-120 / 2nd 90-98 / 3rd 64-80 / 4th 48-60 / 5th-rate frigate 32-44 / 6th rate 20-28 / sloop 16-18 / gun-brig & cutter 6-14). Hulls, gold, maintenance and build days rebalanced against the 5,000-trial Monte Carlo engine. Every ship keeps its confirmed v2 purchase-value letter.\"* Same 25 hulls, same ids, same names; Speed, Size, Armor, Bombardment, Troop Capacity and Repair Rate are untouched and everything else moved. The combat rules are NOT in v3 and are unchanged: the accuracy matrices, the gun dice, the armor formula, the phase order and the 30% Exchange stop still live on the v1/v2 sheet's Combat Simulation Rules tab and still match navycombat.ts exactly. Change this file by re-reading the sheet, not by hand.",
-    "supersedes": [
-      {
-        "file": "Master of the Seven Seas — Fleet Roster",
-        "fileId": "1U3WMR3Ndg8ndkiZ8tFWJHNEQdAphLJEuiklh8MJyCJU",
-        "revision": "2026-09-18T21:48Z",
-        "scope": "the roster and the Ratings & Pricing bands"
-      },
-      {
-        "file": "7 Seas — Naval Combat System",
-        "kind": "Google Doc",
-        "scope": "combat mechanics"
-      }
-    ]
-  },
+  "_source": "Part 3 of COMBAT-MASTER-v4.md, parsed by scripts/import_roster.py. Do not edit by hand: edit the master and re-run the script.",
   "_notes": [
     {
       "about": "There is no Firepower stat",
@@ -433,7 +413,7 @@
       "Scaled Reference Cost": 250,
       "Price Ratio": "56%",
       "Value Rating": "A — Very Above Rate",
-      "Sim Win%": "12.70%"
+      "Sim Win%": "17.60%"
     },
     {
       "Ship ID": "CWN-INT-S02",
@@ -462,7 +442,7 @@
       "Scaled Reference Cost": 210,
       "Price Ratio": "66.70%",
       "Value Rating": "A — Very Above Rate",
-      "Sim Win%": "4.60%"
+      "Sim Win%": "4.40%"
     },
     {
       "Ship ID": "CWN-MOR-S03",
@@ -491,7 +471,7 @@
       "Scaled Reference Cost": 630,
       "Price Ratio": "107.10%",
       "Value Rating": "C — On Rate",
-      "Sim Win%": "66.60%"
+      "Sim Win%": "70.30%"
     },
     {
       "Ship ID": "CWN-SOV-S04",
@@ -520,7 +500,7 @@
       "Scaled Reference Cost": 1815,
       "Price Ratio": "106.90%",
       "Value Rating": "C — On Rate",
-      "Sim Win%": "83.10%"
+      "Sim Win%": "85.00%"
     },
     {
       "Ship ID": "CWN-VAN-R1-01",
@@ -549,7 +529,36 @@
       "Scaled Reference Cost": 660,
       "Price Ratio": "41.70%",
       "Value Rating": "S — Value Monster",
-      "Sim Win%": "52.10%"
+      "Sim Win%": "57.40%"
+    },
+    {
+      "Ship ID": "CWN-FEN-R1-02",
+      "Faction": "Crown Imperium",
+      "Research Order": "R1",
+      "Ship": "Fenrunner",
+      "Class": "Swamp raider (12)",
+      "Role": "Swamp raider",
+      "Size": "Small",
+      "Speed": "Fast",
+      "Long Guns": 0,
+      "Heavy Guns": 0,
+      "Light Guns": 12,
+      "Total Guns": 12,
+      "Armor": 0,
+      "Hull": 700,
+      "Bombardment": 1,
+      "Troop Capacity": 2,
+      "Repair Rate": "1%",
+      "Repair Display": "Normal",
+      "Days to Build": 50,
+      "Gold to Build": 160,
+      "Gold/Day Maintenance": 2,
+      "Status": "Healthy",
+      "Combatant Type": "Warship",
+      "Scaled Reference Cost": 240,
+      "Price Ratio": "66.70%",
+      "Value Rating": "A — Very Above Rate",
+      "Sim Win%": "12.90%"
     },
     {
       "Ship ID": "CWN-RES-R2-01",
@@ -578,7 +587,7 @@
       "Scaled Reference Cost": 540,
       "Price Ratio": "64.80%",
       "Value Rating": "A — Very Above Rate",
-      "Sim Win%": "26.60%"
+      "Sim Win%": "34.70%"
     },
     {
       "Ship ID": "CWN-BUL-R3-01",
@@ -607,7 +616,7 @@
       "Scaled Reference Cost": 890,
       "Price Ratio": "128.10%",
       "Value Rating": "D — Below Rate",
-      "Sim Win%": "76.30%"
+      "Sim Win%": "78.90%"
     },
     {
       "Ship ID": "CWN-VAN-R4-02",
@@ -636,7 +645,7 @@
       "Scaled Reference Cost": 1070,
       "Price Ratio": "51.40%",
       "Value Rating": "S — Value Monster",
-      "Sim Win%": "62.50%"
+      "Sim Win%": "66.70%"
     },
     {
       "Ship ID": "CWN-INT-R5-02",
@@ -665,7 +674,36 @@
       "Scaled Reference Cost": 465,
       "Price Ratio": "52.70%",
       "Value Rating": "S — Value Monster",
-      "Sim Win%": "36.80%"
+      "Sim Win%": "43.80%"
+    },
+    {
+      "Ship ID": "CWN-WRA-R5-03",
+      "Faction": "Crown Imperium",
+      "Research Order": "R5",
+      "Ship": "Wraith",
+      "Class": "Silent galley (12)",
+      "Role": "Silent galley",
+      "Size": "Small",
+      "Speed": "Fast",
+      "Long Guns": 0,
+      "Heavy Guns": 0,
+      "Light Guns": 12,
+      "Total Guns": 12,
+      "Armor": 8,
+      "Hull": 1200,
+      "Bombardment": 1,
+      "Troop Capacity": 6,
+      "Repair Rate": "1%",
+      "Repair Display": "Normal",
+      "Days to Build": 160,
+      "Gold to Build": 320,
+      "Gold/Day Maintenance": 3.5,
+      "Status": "Healthy",
+      "Combatant Type": "Warship",
+      "Scaled Reference Cost": 415,
+      "Price Ratio": "77.10%",
+      "Value Rating": "B — Above Rate",
+      "Sim Win%": "26.50%"
     },
     {
       "Ship ID": "CWN-JUS-R6-01",
@@ -694,7 +732,7 @@
       "Scaled Reference Cost": 1555,
       "Price Ratio": "54.70%",
       "Value Rating": "S — Value Monster",
-      "Sim Win%": "74.70%"
+      "Sim Win%": "77.50%"
     },
     {
       "Ship ID": "CWN-SOV-R7-02",
@@ -723,7 +761,7 @@
       "Scaled Reference Cost": 2965,
       "Price Ratio": "48.90%",
       "Value Rating": "S — Value Monster",
-      "Sim Win%": "87.50%"
+      "Sim Win%": "88.90%"
     },
     {
       "Ship ID": "CWN-MAJ-R8-01",
@@ -810,7 +848,7 @@
       "Scaled Reference Cost": 275,
       "Price Ratio": "90.90%",
       "Value Rating": "C — On Rate",
-      "Sim Win%": "6.80%"
+      "Sim Win%": "7.00%"
     },
     {
       "Ship ID": "CFS-CHI-S03",
@@ -839,7 +877,7 @@
       "Scaled Reference Cost": 315,
       "Price Ratio": "87.30%",
       "Value Rating": "B — Above Rate",
-      "Sim Win%": "41.70%"
+      "Sim Win%": "48.10%"
     },
     {
       "Ship ID": "CFS-TID-S04",
@@ -868,7 +906,7 @@
       "Scaled Reference Cost": 385,
       "Price Ratio": "75.30%",
       "Value Rating": "B — Above Rate",
-      "Sim Win%": "21.60%"
+      "Sim Win%": "30.20%"
     },
     {
       "Ship ID": "CFS-MAR-R1-01",
@@ -897,7 +935,7 @@
       "Scaled Reference Cost": 295,
       "Price Ratio": "45.80%",
       "Value Rating": "S — Value Monster",
-      "Sim Win%": "15.10%"
+      "Sim Win%": "19.90%"
     },
     {
       "Ship ID": "CFS-CUT-R2-01",
@@ -926,7 +964,36 @@
       "Scaled Reference Cost": 325,
       "Price Ratio": "52.30%",
       "Value Rating": "S — Value Monster",
-      "Sim Win%": "21.80%"
+      "Sim Win%": "28.60%"
+    },
+    {
+      "Ship ID": "CFS-WIT-R2-02",
+      "Faction": "Free Confederacy",
+      "Research Order": "R2",
+      "Ship": "Witchlight",
+      "Class": "Conjure sloop (10)",
+      "Role": "Conjure sloop",
+      "Size": "Small",
+      "Speed": "Very Fast",
+      "Long Guns": 0,
+      "Heavy Guns": 0,
+      "Light Guns": 10,
+      "Total Guns": 10,
+      "Armor": 0,
+      "Hull": 600,
+      "Bombardment": 1,
+      "Troop Capacity": 4,
+      "Repair Rate": "1.50%",
+      "Repair Display": "Fast",
+      "Days to Build": 95,
+      "Gold to Build": 320,
+      "Gold/Day Maintenance": 5,
+      "Status": "Healthy",
+      "Combatant Type": "Warship",
+      "Scaled Reference Cost": 330,
+      "Price Ratio": "97%",
+      "Value Rating": "C — On Rate",
+      "Sim Win%": "7.90%"
     },
     {
       "Ship ID": "CFS-TEM-R3-01",
@@ -955,7 +1022,7 @@
       "Scaled Reference Cost": 845,
       "Price Ratio": "34.90%",
       "Value Rating": "S — Value Monster",
-      "Sim Win%": "50.70%"
+      "Sim Win%": "56.20%"
     },
     {
       "Ship ID": "CFS-URW-R3-01",
@@ -984,7 +1051,7 @@
       "Scaled Reference Cost": 475,
       "Price Ratio": "93.70%",
       "Value Rating": "C — On Rate",
-      "Sim Win%": "45.60%"
+      "Sim Win%": "51.60%"
     },
     {
       "Ship ID": "CFS-REE-R4-01",
@@ -1013,7 +1080,7 @@
       "Scaled Reference Cost": 1185,
       "Price Ratio": "86.50%",
       "Value Rating": "B — Above Rate",
-      "Sim Win%": "70.50%"
+      "Sim Win%": "73.70%"
     },
     {
       "Ship ID": "CFS-IRB-R5-01",
@@ -1042,7 +1109,7 @@
       "Scaled Reference Cost": 670,
       "Price Ratio": "126.90%",
       "Value Rating": "D — Below Rate",
-      "Sim Win%": "58.30%"
+      "Sim Win%": "63.00%"
     },
     {
       "Ship ID": "CFS-BLA-R6-01",
@@ -1071,7 +1138,7 @@
       "Scaled Reference Cost": 480,
       "Price Ratio": "104.20%",
       "Value Rating": "C — On Rate",
-      "Sim Win%": "33.50%"
+      "Sim Win%": "40.90%"
     },
     {
       "Ship ID": "CFS-URG-R7-01",
@@ -1100,7 +1167,7 @@
       "Scaled Reference Cost": 1640,
       "Price Ratio": "97.60%",
       "Value Rating": "C — On Rate",
-      "Sim Win%": "91.70%"
+      "Sim Win%": "92.60%"
     },
     {
       "Ship ID": "CFS-COR-R8-01",
@@ -1129,7 +1196,7 @@
       "Scaled Reference Cost": 3165,
       "Price Ratio": "69.50%",
       "Value Rating": "A — Very Above Rate",
-      "Sim Win%": "95.90%"
+      "Sim Win%": "96.30%"
     }
   ]
 }

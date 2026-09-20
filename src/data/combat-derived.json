@@ -1,6 +1,6 @@
 {
   "_comment": "The Fleet Roster's own Combat Derived Stats tab, copied here verbatim so the engine can be checked against the sheet's arithmetic rather than against itself. Hit chances are what each gun type scores AGAINST this ship - its Size and Speed read through the gun-vs-Size and gun-vs-Speed matrices. The volley columns are that ship's own pre-armor average output: guns times average dice, and deliberately NOT multiplied by hit chance - the Wayfinder's eight light guns come out at 168, which is 8 x 21 flat rather than 85% of it. It measures what a hull throws, not what lands. Re-read from v3 on 19 September; regenerate by re-reading the sheet, never by hand.",
-  "_source": "Master of the Seven Seas — Fleet Roster v3 · Combat Derived Stats",
+  "_source": "Computed from Part 1 and Part 3 of COMBAT-MASTER-v4.md by scripts/import_roster.py",
   "derived": {
     "CWN-WAY-S01": {
       "lightHit": 85,
@@ -52,6 +52,16 @@
       "rawVolley": 798.0,
       "combatant": "Warship"
     },
+    "CWN-FEN-R1-02": {
+      "lightHit": 75,
+      "longHit": 50,
+      "heavyHit": 25,
+      "longVolley": 0.0,
+      "heavyVolley": 0.0,
+      "lightVolley": 252.0,
+      "rawVolley": 252.0,
+      "combatant": "Warship"
+    },
     "CWN-RES-R2-01": {
       "lightHit": 75,
       "longHit": 55,
@@ -90,6 +100,16 @@
       "heavyVolley": 0.0,
       "lightVolley": 294.0,
       "rawVolley": 462.0,
+      "combatant": "Warship"
+    },
+    "CWN-WRA-R5-03": {
+      "lightHit": 75,
+      "longHit": 50,
+      "heavyHit": 25,
+      "longVolley": 0.0,
+      "heavyVolley": 0.0,
+      "lightVolley": 252.0,
+      "rawVolley": 252.0,
       "combatant": "Warship"
     },
     "CWN-JUS-R6-01": {
@@ -180,6 +200,16 @@
       "heavyVolley": 252.0,
       "lightVolley": 294.0,
       "rawVolley": 546.0,
+      "combatant": "Warship"
+    },
+    "CFS-WIT-R2-02": {
+      "lightHit": 65,
+      "longHit": 40,
+      "heavyHit": 10,
+      "longVolley": 0.0,
+      "heavyVolley": 0.0,
+      "lightVolley": 210.0,
+      "rawVolley": 210.0,
       "combatant": "Warship"
     },
     "CFS-TEM-R3-01": {

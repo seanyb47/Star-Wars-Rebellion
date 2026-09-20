@@ -193,19 +193,30 @@ Two advisor characters, one per faction, each at their faction's end of the tab 
 
 ## 10. CANONICAL SOURCES (live documents — canon without duplication here)
 
-> **Combat canon is [`COMBAT-MASTER-v3.md`](COMBAT-MASTER-v3.md), in this repo.**
+> **Combat canon is [`COMBAT-MASTER-v4.md`](COMBAT-MASTER-v4.md), in this repo.**
 > Sean supplied it on 20 September 2026 and it says so itself: *"THE single
-> authoritative reference for the entire naval combat system… Supersedes all
-> prior roster sheets, combat docs, and the v2.4 JSON."* It folds sources 1–3
+> authoritative reference for the entire naval combat system… Supersedes v3
+> (19 Sep 2026) and all prior roster sheets, combat docs, and the v2.4 JSON."* It folds sources 1–3
 > below into one file — Part 1 the rules, Parts 2–3 the pricing and the roster,
 > Part 4 the Lore & Visual Identity tab, Part 5 the simulation results — and
 > none of those three is in Drive any more; the 19 September cleanup trashed
 > them. Use the master.
 >
-> Verified against the game on 20 September: the shipped roster in
-> `src/data/combat-ships.json` matches Part 3 exactly — 25 ships across 13
-> fields — and `lab/v3check.ts` reproduces Part 5's ten published matchups to
-> within 0.5 of a percentage point.
+> **v4 landed 20 September** and takes the roster to 28 — fourteen a side. It
+> adds the Fenrunner and the Wraith to the Crown and the Witchlight to the
+> Confederacy, rewrites the Blackfin's visual identity to the twin-hulled war
+> canoe her painting turned out to be, and writes *"crew are Shoal-folk, never
+> human sailors"* into the Swift's guardrail. **No existing ship's stats
+> changed**; the only figures that moved are the simulated win rates, recomputed
+> over a 28×28 matrix. Parts 1 and 2 — the rules and the pricing — are byte for
+> byte identical to v3.
+>
+> Verified rather than assumed: `src/data/combat-ships.json`,
+> `src/data/ship-lore.json` and `src/data/combat-derived.json` are all parses of
+> the master by `scripts/import_roster.py`, the derived table is now *computed*
+> from Part 1's formula and reproduces the old hand-transcribed one exactly, and
+> `lab/v4check.ts` reproduces all nineteen published matchups — the three new
+> hulls included, untuned — to within 2.2 percentage points.
 
 1. ~~**Master of the Seven Seas — Fleet Roster** (Sheet)~~ — gone from Drive; now **Part 3** of the master.
 2. ~~**7 Seas — Naval Combat System** (Doc)~~ — gone from Drive; now **Part 1** of the master.

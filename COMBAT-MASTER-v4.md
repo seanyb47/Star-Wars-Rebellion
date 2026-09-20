@@ -1,5 +1,5 @@
-MASTER OF THE SEVEN SEAS — COMBAT MASTER FILE (v3)
-19 Sep 2026. THE single authoritative reference for the entire naval combat system: rules, formulas, pricing system, full ship roster, derived combat stats, encyclopedia and art direction, and simulation results. Supersedes all prior roster sheets, combat docs, and the v2.4 JSON. Everything below is locked and calibrated against a 5,000-trial Monte Carlo engine (full 25x25 matchup matrix plus fleet, swarm, and retreat scenarios). Spelling is "Armor" throughout.
+MASTER OF THE SEVEN SEAS — COMBAT MASTER FILE (v4)
+20 Sep 2026. THE single authoritative reference for the entire naval combat system: rules, formulas, pricing system, full ship roster, derived combat stats, encyclopedia and art direction, and simulation results. Supersedes v3 (19 Sep 2026) and all prior roster sheets, combat docs, and the v2.4 JSON. Roster is 28 ships: 14 Crown Imperium, 14 Free Confederacy. Everything below is locked and calibrated against a 5,000-trial Monte Carlo engine (full 28x28 matchup matrix plus fleet, swarm, and retreat scenarios). Spelling is "Armor" throughout.
 
 ================================================================================
 PART 1 — COMBAT SYSTEM RULES AND FORMULAS
@@ -88,7 +88,7 @@ Every ship keeps its confirmed v2 purchase-value letter by design; each S-tier c
 ECONOMY BASELINES: Maintenance on-rate = ceil(1% of build gold) per day (maintenance controls fleet quantity). Build time on-rate = 1 day per gold. Gun sanity check: raw gun count x 50 gold remains a secondary armament-density check only.
 
 ================================================================================
-PART 3 — SHIP ROSTER (v3): STATS, ECONOMY, RATINGS, SIM PERFORMANCE
+PART 3 — SHIP ROSTER (v4): STATS, ECONOMY, RATINGS, SIM PERFORMANCE
 ================================================================================
 
 THE THREE CROWNS — Hull: Urskin Goliath 14,000 (largest in the game). Armor: Majestic 30 (the game's only Maximum). Firepower: Coral-Class Dreadnaught (102 guns, broadside 3,192, highest in the game while leading no single category). Category crowns: Long = Majestic 30; Heavy = Sovereign II 52; Light = Blackfin 29.
@@ -98,7 +98,7 @@ Crown Imperium | Research S01 | Armed survey ship (8)
 Speed Normal | Size Medium | Guns: 0 Long / 0 Heavy / 8 Light = 8 total | Armor 0 | Hull 1400
 Bombardment 0 | Troops 4 | Repair 1.0% (displays: Normal) | Avg raw volley 168
 Economy: 140 gold | 90 days to build | 2.2 gold/day maintenance | Reference cost 250 | Price ratio 56.0% | Rating A — Very Above Rate
-Sim: mean 1v1 win rate 12.7% across the roster
+Sim: mean 1v1 win rate 17.6% across the roster
 Design note: Armed survey ship, 8 light guns, 4 troops. Low-threat strategic transport; its modest combat profile reduces targeting priority and protects embarked forces.
 
 --- INTERCEPTOR I (CWN-INT-S02) ---
@@ -106,7 +106,7 @@ Crown Imperium | Research S02 | Cutter (10)
 Speed Very Fast | Size Small | Guns: 0 Long / 0 Heavy / 10 Light = 10 total | Armor 0 | Hull 500
 Bombardment 0 | Troops 0 | Repair 1.0% (displays: Normal) | Avg raw volley 210
 Economy: 140 gold | 40 days to build | 2.0 gold/day maintenance | Reference cost 210 | Price ratio 66.7% | Rating A — Very Above Rate
-Sim: mean 1v1 win rate 4.6% across the roster
+Sim: mean 1v1 win rate 4.4% across the roster
 Design note: 10-gun cutter, Very Fast, no armor. Cheap enough to swarm; the only early Crown hull fast enough to run down scouts.
 
 --- MORNINGSTAR (CWN-MOR-S03) ---
@@ -114,7 +114,7 @@ Crown Imperium | Research S03 | 4th rate (50)
 Speed Slow | Size Large | Guns: 0 Long / 26 Heavy / 24 Light = 50 total | Armor 24 | Hull 3300
 Bombardment 6 | Troops 0 | Repair 0.5% (displays: Slow) | Avg raw volley 1596
 Economy: 675 gold | 175 days to build | 20.0 gold/day maintenance | Reference cost 630 | Price ratio 107.1% | Rating C — On Rate
-Sim: mean 1v1 win rate 66.6% across the roster
+Sim: mean 1v1 win rate 70.3% across the roster
 Design note: 50-gun fourth rate: 26 heavy, 24 light. Powerful, Slow, poor repair, brutal upkeep — deliberately inefficient.
 
 --- SOVEREIGN (CWN-SOV-S04) ---
@@ -122,7 +122,7 @@ Crown Imperium | Research S04 | 3rd rate (74)
 Speed Slow | Size Gigantic | Guns: 0 Long / 46 Heavy / 28 Light = 74 total | Armor 25 | Hull 4600
 Bombardment 6 | Troops 6 | Repair 1.0% (displays: Normal) | Avg raw volley 2520
 Economy: 1940 gold | 700 days to build | 48.5 gold/day maintenance | Reference cost 1815 | Price ratio 106.9% | Rating C — On Rate
-Sim: mean 1v1 win rate 83.1% across the roster
+Sim: mean 1v1 win rate 85.0% across the roster
 Design note: 74-gun third rate: 46 heavy, 28 light, 6 troops, Bombardment 6. Rate decides: no frigate or brig swarm threatens it, and its price now says so.
 
 --- VANGUARD (CWN-VAN-R1-01) ---
@@ -130,15 +130,23 @@ Crown Imperium | Research R1 | 6th rate (28)
 Speed Normal | Size Large | Guns: 0 Long / 10 Heavy / 18 Light = 28 total | Armor 18 | Hull 1900
 Bombardment 3 | Troops 0 | Repair 2.5% (displays: Very Fast) | Avg raw volley 798
 Economy: 275 gold | 160 days to build | 9.2 gold/day maintenance | Reference cost 660 | Price ratio 41.7% | Rating S — Value Monster
-Sim: mean 1v1 win rate 52.1% across the roster
+Sim: mean 1v1 win rate 57.4% across the roster
 Design note: 28-gun sixth rate: 10 heavy, 18 light. The efficient cruiser and proven screen.
+
+--- FENRUNNER (CWN-FEN-R1-02) ---
+Crown Imperium | Research R1 | Swamp raider (12)
+Speed Fast | Size Small | Guns: 0 Long / 0 Heavy / 12 Light = 12 total | Armor 0 | Hull 700
+Bombardment 1 | Troops 2 | Repair 1.0% (displays: Normal) | Avg raw volley 252
+Economy: 160 gold | 50 days to build | 2.0 gold/day maintenance | Reference cost 240 | Price ratio 66.7% | Rating A — Very Above Rate
+Sim: mean 1v1 win rate 12.9% across the roster
+Design note: 12-gun flat-bottomed swamp raider poled and rowed by Bog-folk clansmen. The only Crown hull that goes where Shoal-folk ships go; kills scouts and brigs (100-0 vs Swift, 88/1 vs Interceptor I, 86/1 vs Brigantine), bounces off Armor 21+. The Crown's cheapest raider — Marauder still beats it in a fair fight (79/0), so the Crown's answer to Marauder stays Interceptor II.
 
 --- RESOLUTE (CWN-RES-R2-01) ---
 Crown Imperium | Research R2 | Sloop-of-war (18)
 Speed Fast | Size Medium | Guns: 0 Long / 4 Heavy / 14 Light = 18 total | Armor 8 | Hull 1100
 Bombardment 1 | Troops 1 | Repair 2.0% (displays: Fast) | Avg raw volley 462
 Economy: 350 gold | 50 days to build | 8.2 gold/day maintenance | Reference cost 540 | Price ratio 64.8% | Rating A — Very Above Rate
-Sim: mean 1v1 win rate 26.6% across the roster
+Sim: mean 1v1 win rate 34.7% across the roster
 Design note: 18-gun sloop-of-war. Fast multirole workhorse with rapid construction and inefficient upkeep.
 
 --- BULWARK (CWN-BUL-R3-01) ---
@@ -146,7 +154,7 @@ Crown Imperium | Research R3 | 4th rate (50)
 Speed Slow | Size Large | Guns: 12 Long / 38 Heavy / 0 Light = 50 total | Armor 25 | Hull 3600
 Bombardment 3 | Troops 3 | Repair 0.5% (displays: Slow) | Avg raw volley 1848
 Economy: 1140 gold | 340 days to build | 36.2 gold/day maintenance | Reference cost 890 | Price ratio 128.1% | Rating D — Below Rate
-Sim: mean 1v1 win rate 76.3% across the roster
+Sim: mean 1v1 win rate 78.9% across the roster
 Design note: 50-gun defensive fourth rate: 12 long, 38 heavy, no lights. Holds narrow channels; introduces Crown Long Guns.
 
 --- VANGUARD II (CWN-VAN-R4-02) ---
@@ -154,7 +162,7 @@ Crown Imperium | Research R4 | 5th rate frigate (44)
 Speed Normal | Size Large | Guns: 0 Long / 19 Heavy / 25 Light = 44 total | Armor 24 | Hull 2900
 Bombardment 4 | Troops 0 | Repair 3.0% (displays: Very Fast) | Avg raw volley 1323
 Economy: 550 gold | 150 days to build | 12.0 gold/day maintenance | Reference cost 1070 | Price ratio 51.4% | Rating S — Value Monster
-Sim: mean 1v1 win rate 62.5% across the roster
+Sim: mean 1v1 win rate 66.7% across the roster
 Design note: 44-gun heavy frigate: 19 heavy, 25 light, exceptional repair. Best frigate afloat — and still a frigate: it does not fight 74s.
 
 --- INTERCEPTOR II (CWN-INT-R5-02) ---
@@ -162,15 +170,23 @@ Crown Imperium | Research R5 | Corvette (22)
 Speed Very Fast | Size Small | Guns: 8 Long / 0 Heavy / 14 Light = 22 total | Armor 14 | Hull 1000
 Bombardment 0 | Troops 0 | Repair 1.0% (displays: Normal) | Avg raw volley 462
 Economy: 245 gold | 85 days to build | 11.2 gold/day maintenance | Reference cost 465 | Price ratio 52.7% | Rating S — Value Monster
-Sim: mean 1v1 win rate 36.8% across the roster
+Sim: mean 1v1 win rate 43.8% across the roster
 Design note: 22-gun corvette: 8 long chase guns, 14 lights, Very Fast. Elite pursuit hunter; beats every raider and Blackfin.
+
+--- WRAITH (CWN-WRA-R5-03) ---
+Crown Imperium | Research R5 | Silent galley (12)
+Speed Fast | Size Small | Guns: 0 Long / 0 Heavy / 12 Light = 12 total | Armor 8 | Hull 1200
+Bombardment 1 | Troops 6 | Repair 1.0% (displays: Normal) | Avg raw volley 252
+Economy: 320 gold | 160 days to build | 3.5 gold/day maintenance | Reference cost 415 | Price ratio 77.1% | Rating B — Above Rate
+Sim: mean 1v1 win rate 26.5% across the roster
+Design note: Hushed-crewed silent boarding galley: takes ships and people rather than sinking them. Capture and abduction missions live at the strategic layer; in combat, Troops 6 is the boarding strength. Annihilates raiders and brigs 100-0 (Marauder, Fenrunner, Brigantine); avoids real warships by design.
 
 --- JUSTICIAR (CWN-JUS-R6-01) ---
 Crown Imperium | Research R6 | 3rd rate (74)
 Speed Normal | Size Large | Guns: 21 Long / 25 Heavy / 28 Light = 74 total | Armor 22 | Hull 4200
 Bombardment 3 | Troops 0 | Repair 2.0% (displays: Fast) | Avg raw volley 2079
 Economy: 850 gold | 170 days to build | 23.5 gold/day maintenance | Reference cost 1555 | Price ratio 54.7% | Rating S — Value Monster
-Sim: mean 1v1 win rate 74.7% across the roster
+Sim: mean 1v1 win rate 77.5% across the roster
 Design note: 74-gun fast third rate: 21 long, 25 heavy, 28 light. Offensive backbone; no troops, pure naval aggression.
 
 --- SOVEREIGN II (CWN-SOV-R7-02) ---
@@ -178,7 +194,7 @@ Crown Imperium | Research R7 | 2nd rate (90)
 Speed Normal | Size Gigantic | Guns: 20 Long / 52 Heavy / 18 Light = 90 total | Armor 28 | Hull 6100
 Bombardment 8 | Troops 9 | Repair 1.5% (displays: Fast) | Avg raw volley 2982
 Economy: 1450 gold | 495 days to build | 31.1 gold/day maintenance | Reference cost 2965 | Price ratio 48.9% | Rating S — Value Monster
-Sim: mean 1v1 win rate 87.5% across the roster
+Sim: mean 1v1 win rate 88.9% across the roster
 Design note: 90-gun second rate carrying the game's largest heavy battery (52); 9 troops. Mobile assault super-capital.
 
 --- MAJESTIC (CWN-MAJ-R8-01) ---
@@ -202,7 +218,7 @@ Free Confederacy | Research S02 | Gun-brig (6)
 Speed Fast | Size Medium | Guns: 0 Long / 0 Heavy / 6 Light = 6 total | Armor 0 | Hull 1100
 Bombardment 0 | Troops 2 | Repair 1.5% (displays: Fast) | Avg raw volley 126
 Economy: 250 gold | 45 days to build | 1.0 gold/day maintenance | Reference cost 275 | Price ratio 90.9% | Rating C — On Rate
-Sim: mean 1v1 win rate 6.8% across the roster
+Sim: mean 1v1 win rate 7.0% across the roster
 Design note: 6-gun brig, retrofitted merchant. The Confederacy's starting trooper; superseded as a fighter once Marauder unlocks.
 
 --- CHIMERA (CFS-CHI-S03) ---
@@ -210,7 +226,7 @@ Free Confederacy | Research S03 | Improvised 6th rate (20)
 Speed Slow | Size Medium | Guns: 0 Long / 6 Heavy / 14 Light = 20 total | Armor 18 | Hull 1700
 Bombardment 1 | Troops 0 | Repair 0.5% (displays: Slow) | Avg raw volley 546
 Economy: 275 gold | 240 days to build | 5.4 gold/day maintenance | Reference cost 315 | Price ratio 87.3% | Rating B — Above Rate
-Sim: mean 1v1 win rate 41.7% across the roster
+Sim: mean 1v1 win rate 48.1% across the roster
 Design note: 20-gun improvised sixth rate from salvage: 6 heavy, 14 light, Medium armor. Hard to sink, awful to maintain.
 
 --- TIDESTALKER (CFS-TID-S04) ---
@@ -218,7 +234,7 @@ Free Confederacy | Research S04 | Sloop-of-war (18)
 Speed Normal | Size Medium | Guns: 0 Long / 0 Heavy / 18 Light = 18 total | Armor 6 | Hull 1400
 Bombardment 0 | Troops 0 | Repair 4.0% (displays: Very Fast) | Avg raw volley 378
 Economy: 290 gold | 290 days to build | 3.5 gold/day maintenance | Reference cost 385 | Price ratio 75.3% | Rating B — Above Rate
-Sim: mean 1v1 win rate 21.6% across the roster
+Sim: mean 1v1 win rate 30.2% across the roster
 Design note: 18-gun living-coral sloop, 4% regeneration. Wins by still being whole next fortnight.
 
 --- MARAUDER (CFS-MAR-R1-01) ---
@@ -226,7 +242,7 @@ Free Confederacy | Research R1 | Raiding brig (14)
 Speed Fast | Size Small | Guns: 0 Long / 0 Heavy / 14 Light = 14 total | Armor 0 | Hull 800
 Bombardment 1 | Troops 2 | Repair 1.0% (displays: Normal) | Avg raw volley 294
 Economy: 135 gold | 45 days to build | 2.3 gold/day maintenance | Reference cost 295 | Price ratio 45.8% | Rating S — Value Monster
-Sim: mean 1v1 win rate 15.1% across the roster
+Sim: mean 1v1 win rate 19.9% across the roster
 Design note: 14-gun raiding brig, ALL light guns — brigs carry no heavy smashers. S-tier price with a 200% upkeep valve. Preys on transports and trade; cannot crack Armor 21+; raid, land troops, burn, flee.
 
 --- CUTLASS (CFS-CUT-R2-01) ---
@@ -234,15 +250,23 @@ Free Confederacy | Research R2 | Corvette (20)
 Speed Normal | Size Small | Guns: 0 Long / 6 Heavy / 14 Light = 20 total | Armor 7 | Hull 950
 Bombardment 0 | Troops 0 | Repair 1.0% (displays: Normal) | Avg raw volley 546
 Economy: 170 gold | 55 days to build | 5.0 gold/day maintenance | Reference cost 325 | Price ratio 52.3% | Rating S — Value Monster
-Sim: mean 1v1 win rate 21.8% across the roster
+Sim: mean 1v1 win rate 28.6% across the roster
 Design note: 20-gun corvette: 6 heavy, 14 light. The Confederacy's conventional small warship.
+
+--- WITCHLIGHT (CFS-WIT-R2-02) ---
+Free Confederacy | Research R2 | Conjure sloop (10)
+Speed Very Fast | Size Small | Guns: 0 Long / 0 Heavy / 10 Light = 10 total | Armor 0 | Hull 600
+Bombardment 1 | Troops 4 | Repair 1.5% (displays: Fast) | Avg raw volley 210
+Economy: 320 gold | 95 days to build | 5.0 gold/day maintenance (above rate — the offerings) | Reference cost 330 | Price ratio 97.0% | Rating C — On Rate
+Sim: mean 1v1 win rate 7.9% across the roster
+Design note: Bog-folk conjure-folk sloop — the witches who did not follow the clans to the Crown. STRATEGIC ABILITY: moves the map unseen (the sea forgets her); the only Very Fast armed Confederate hull, so she escapes any retreat after a single volley. Priced On Rate because the gold buys the magic, not the broadside. Hunts scouts (100-0 vs Swift, 63/7 vs Interceptor I); loses to every real warship, including her clan-cousin Fenrunner (67/5) — the witches never fight fair.
 
 --- TEMPEST (CFS-TEM-R3-01) ---
 Free Confederacy | Research R3 | Light frigate (26)
 Speed Fast | Size Medium | Guns: 12 Long / 5 Heavy / 9 Light = 26 total | Armor 18 | Hull 1500
 Bombardment 3 | Troops 3 | Repair 1.0% (displays: Normal) | Avg raw volley 651
 Economy: 295 gold | 75 days to build | 8.0 gold/day maintenance | Reference cost 845 | Price ratio 34.9% | Rating S — Value Monster
-Sim: mean 1v1 win rate 50.7% across the roster
+Sim: mean 1v1 win rate 56.2% across the roster
 Design note: 26-gun light frigate: 12 long, 5 heavy, 9 light, Fast, 3 troops, Bombardment 3. Introduces Confederate Long Guns.
 
 --- URSKIN WHALER (CFS-URW-R3-01) ---
@@ -250,7 +274,7 @@ Free Confederacy | Research R3 | Armed whaler (18)
 Speed Normal | Size Medium | Guns: 0 Long / 6 Heavy / 12 Light = 18 total | Armor 16 | Hull 2200
 Bombardment 1 | Troops 2 | Repair 1.0% (displays: Normal) | Avg raw volley 504
 Economy: 445 gold | 120 days to build | 6.7 gold/day maintenance | Reference cost 475 | Price ratio 93.7% | Rating C — On Rate
-Sim: mean 1v1 win rate 45.6% across the roster
+Sim: mean 1v1 win rate 51.6% across the roster
 Design note: 18-gun armed whaler on a broad working hull: 6 heavy, 12 light, iron-and-bone belt. Durable mixed-battery troop escort; harpoon ballistae are cultural deck gear, not naval guns.
 
 --- REEFWARDEN (CFS-REE-R4-01) ---
@@ -258,7 +282,7 @@ Free Confederacy | Research R4 | Heavy frigate (44)
 Speed Normal | Size Large | Guns: 0 Long / 28 Heavy / 16 Light = 44 total | Armor 24 | Hull 3400
 Bombardment 0 | Troops 4 | Repair 2.5% (displays: Very Fast) | Avg raw volley 1512
 Economy: 1025 gold | 730 days to build | 7.3 gold/day maintenance | Reference cost 1185 | Price ratio 86.5% | Rating B — Above Rate
-Sim: mean 1v1 win rate 70.5% across the roster
+Sim: mean 1v1 win rate 73.7% across the roster
 Design note: 44-gun coral heavy frigate: 28 heavy, 16 light, Armor 24, strong repair. Beats Crown frigates 100-0; still a frigate — screens against, never hunts, the line.
 
 --- IRONBACK (CFS-IRB-R5-01) ---
@@ -266,7 +290,7 @@ Free Confederacy | Research R5 | Razee siege ship (28)
 Speed Slow | Size Large | Guns: 26 Long / 2 Heavy / 0 Light = 28 total | Armor 25 | Hull 3800
 Bombardment 8 | Troops 0 | Repair 0.5% (displays: Slow) | Avg raw volley 630
 Economy: 850 gold | 260 days to build | 24.0 gold/day maintenance | Reference cost 670 | Price ratio 126.9% | Rating D — Below Rate
-Sim: mean 1v1 win rate 58.3% across the roster
+Sim: mean 1v1 win rate 63.0% across the roster
 Design note: Razee siege ship: 26 long guns on a cut-down captured two-decker, Bombardment 8. A fortress-cracker that loses at sea by design.
 
 --- BLACKFIN (CFS-BLA-R6-01) ---
@@ -274,7 +298,7 @@ Free Confederacy | Research R6 | Carronade corvette (29)
 Speed Fast | Size Medium | Guns: 0 Long / 0 Heavy / 29 Light = 29 total | Armor 5 | Hull 1400
 Bombardment 0 | Troops 0 | Repair 1.5% (displays: Fast) | Avg raw volley 609
 Economy: 500 gold | 80 days to build | 5.0 gold/day maintenance | Reference cost 480 | Price ratio 104.2% | Rating C — On Rate
-Sim: mean 1v1 win rate 33.5% across the roster
+Sim: mean 1v1 win rate 40.9% across the roster
 Design note: 29-gun carronade corvette — LIGHT-GUN CROWN. One-rounds raiders and scouts; harmless against Heavy armor. Signature: the tall black mainsail.
 
 --- URSKIN GOLIATH (CFS-URG-R7-01) ---
@@ -282,7 +306,7 @@ Free Confederacy | Research R7 | Leviathan conversion (64)
 Speed Slow | Size Gigantic | Guns: 24 Long / 40 Heavy / 0 Light = 64 total | Armor 25 | Hull 14000
 Bombardment 6 | Troops 9 | Repair 1.0% (displays: Normal) | Avg raw volley 2184
 Economy: 1600 gold | 600 days to build | 16.0 gold/day maintenance | Reference cost 1640 | Price ratio 97.6% | Rating C — On Rate
-Sim: mean 1v1 win rate 91.7% across the roster
+Sim: mean 1v1 win rate 92.6% across the roster
 Design note: 64-gun leviathan conversion on the game's LARGEST HULL (14,000): 24 long, 40 heavy, 9 troops, Bombardment 6. The Confederate brawler; no lights — screen it.
 
 --- CORAL-CLASS DREADNAUGHT (CFS-COR-R8-01) ---
@@ -290,14 +314,19 @@ Free Confederacy | Research R8 | Living dreadnaught (102)
 Speed Normal | Size Gigantic | Guns: 25 Long / 50 Heavy / 27 Light = 102 total | Armor 29 | Hull 11700
 Bombardment 6 | Troops 4 | Repair 4.0% (displays: Very Fast) | Avg raw volley 3192
 Economy: 2200 gold | 900 days to build | 18.0 gold/day maintenance | Reference cost 3165 | Price ratio 69.5% | Rating A — Very Above Rate
-Sim: mean 1v1 win rate 95.9% across the roster
+Sim: mean 1v1 win rate 96.3% across the roster
 Design note: 102-gun living dreadnought — FIREPOWER CROWN (broadside 3,192, leading no category): 25 long, 50 heavy, 27 light, Armor 29, 4% regeneration, Normal speed. Beats Goliath 100-0; loses to Majestic; back to full in ~25 days.
 
 ================================================================================
 PART 4 — ENCYCLOPEDIA & ART DIRECTION (verbatim from the Lore & Visual Identity tab)
 ================================================================================
 
-Canon sources: Art Direction Guide v2.2, Naval Art Master v2.0, Faction Sigils guide, current lore document. Visual plausibility rule: every ship begins with recognizable Age-of-Sail naval engineering — one continuous keel, believable displacement and beam, coherent decks and gunports, physically supported masts and rigging, weapons that fit the hull. Fantasy comes from faction materials, culture, and Tidecraft. Never use Earth pirate iconography (no skull-and-crossbones / jolly roger); factions fly their own sigils. NOTE: encyclopedia entries below are canon flavor; where an entry names a specific stat or tier, the v3 roster in Part 3 is authoritative.
+Canon sources: Art Direction Guide v2.2, Naval Art Master v2.0, Faction Sigils guide, current lore document. Visual plausibility rule: every ship begins with recognizable Age-of-Sail naval engineering — one continuous keel, believable displacement and beam, coherent decks and gunports, physically supported masts and rigging, weapons that fit the hull. Fantasy comes from faction materials, culture, and Tidecraft. Never use Earth pirate iconography (no skull-and-crossbones / jolly roger); factions fly their own sigils. NOTE: encyclopedia entries below are canon flavor; where an entry names a specific stat or tier, the v4 roster in Part 3 is authoritative.
+DESIGN RULES (v4):
+- Shoal-folk ships (Swift, Blackfin) share a Polynesian family look: lashed timber, outriggers or double hulls, crab-claw rigs, shallow draft, no deep keel, never coral. Shoal-folk crews are drawn as Shoal-folk (slight build, webbed hands, large dark night-adapted eyes), never as human sailors.
+- Sails mark version, not rank: white/ivory sails = V1 designs, green sails = V2 designs. Entries below that say "elite green sails" read as V2.
+- The skull ban is a ban on ICONOGRAPHY: no skull-and-crossbones or jolly-roger on any sail, flag or emblem, ever. Real skulls as physical conjure objects are Bog-folk conjure-culture and belong to Witchlight alone.
+- The Bog-folk are split by the war: the clans serve the Crown, which broke the slavers that raided their swamps (Fenrunner); the conjure-folk keep the old ways under Confederate colors (Witchlight). No time-of-day mechanics exist or are planned.
 
 --- WAYFINDER ---
 Encyclopedia: Wayfinders carry the people who make an Imperial claim real: chartmakers, engineers, clerks, marines and the brass-bound survey chests from which new harbors are measured. They are not glamorous ships, but an island that sees one at anchor knows that roads, tariffs and seawalls will follow. Their captains are chosen for patience rather than daring, and a Wayfinder’s broad decks often become the first orderly ground in an unfamiliar Reach.
@@ -349,6 +378,16 @@ Signature detail: A gold-painted measuring line running arrow-straight from bow 
 Preferred art scene: Leading a small line of battle through clear blue water; the featured hull remains dominant.
 Distinctness guardrail: Do not exaggerate any one feature; Vanguard’s recognizable feature is disciplined balance.
 
+--- FENRUNNER ---
+Encyclopedia: The Crown never asked the Bog-folk to love it; it asked them to remember. When Admiralty squadrons broke the slaver fleets that had raided the swamps for galley rowers, the clans reckoned the debt in the only currency they keep — service, paid fully and forever. A Fenrunner is that service made timber: a long, low, flat-bottomed raider poled and rowed through channels no chart records, crewed by patient people who consider a battle fought in daylight to be a battle somebody else arranged. Crown officers who ride along come back quieter. The clans' conjure-women did not follow them into the Crown's service, and a Fenrunner crew makes a quiet sign when a Witchlight passes; they will not fire the first shot at their cousins.
+Visual identity: A regulation swamp raider built by irregulars: long, low, mud-colored and half-invisible against any shoreline, with just enough Admiralty brass to show whose pennant she poles under.
+Silhouette signature: Long, low, flat-bottomed cypress hull with minimal freeboard, one short mast with a small lug sail, rows of poles and sweeps along the rails, light guns only.
+Construction & materials: Mud-dark cypress planking, rope and leather fittings, reed camouflage bundles, waxed-cloth covers and a few polished Admiralty brass fittings.
+Sail plan & palette: One small warm-ivory lug sail edged in botanical green with a modest Crown emblem; Crown pennant at the masthead.
+Signature detail: Polished Admiralty brass on a hull otherwise built to vanish — the one thing aboard the Crown insists on.
+Preferred art scene: Poling through a reed channel in misty early-morning light, half the crew watching the trees.
+Distinctness guardrail: Do not make it a gunboat, a barge or a Marauder; it is a patient shallow-water raider crewed by Bog-folk, and every fitting must suit mud, reeds and silence.
+
 --- RESOLUTE ---
 Encyclopedia: Resolutes are built in more yards, crewed by more islands and assigned more kinds of duty than any other Crown warship. A captain may escort merchants on Monday, chase raiders on Wednesday and deliver a governor by Sunday. Their ivory sails carry standardized green corner flashes so convoys can recognize help at a distance, while paired brass chronometers behind the stern windows are set together before every departure. Crews claim a Resolute is never late; it merely arrives before the Admiralty has finished explaining why it was needed. The class earned its name not through one famous battle, but by repeatedly reaching waters where the enemy believed a proper warship could not arrive in time.
 Visual identity: A fast standardized frigate—the dependable working face of Imperial sea power.
@@ -389,6 +428,16 @@ Signature detail: Five long chase-gun muzzles grouped into the sharp bow like a 
 Preferred art scene: Exploding out of sea mist in hard sunlight, closing rapidly on a distant fleeing target.
 Distinctness guardrail: Do not make it large or comfortable; despite elite fittings it must still read as a dangerously crowded interceptor.
 
+--- WRAITH ---
+Encyclopedia: Nobody hears a Wraith arrive, and almost nobody sees one leave. The Hushed serve the Crown under an old bargain whose terms neither side discusses, and the Wraith is the shape of that bargain at sea: a lean black galley with muffled oars, no lanterns, no bell and no figurehead, built to take ships and people rather than sink them. Her boarding companies come over the rail without a shout. Harbormasters find only a cut cable and an empty berth; prisoners describe hooded crews who never spoke once. The Admiralty does not list Wraiths in its published registers, which its clerks maintain is an oversight.
+Visual identity: A silent boarding galley: lean, black, unlit and unmarked — a ship designed to be remembered only afterward.
+Silhouette signature: Long, narrow, low black galley hull with two banks of muffled oars, two raked masts with lateen sails, a bare knife bow with no figurehead, and grapnels waiting along the rail.
+Construction & materials: Matte lamp-black timber, leather-wrapped oar looms, greased rowlocks, waxed dark cordage and iron fittings blackened so nothing catches the light.
+Sail plan & palette: Charcoal grey-green lateen sails; no lanterns, no bell; a small, barely visible Crown pennant is the only marking.
+Signature detail: Boarding grapnels and coiled lines kept ready at even spacing along both rails, tended like instruments.
+Preferred art scene: Closing on a lit ship across calm moonlit water, oars entering without splash, her own decks dark and still.
+Distinctness guardrail: Keep her mundane and plausible: no glow, no ghost effects, no tattered supernatural sails. Crew stay hooded and unnamed until the Hushed origin is decided. She is quiet, not haunted.
+
 --- JUSTICIAR ---
 Encyclopedia: Justiciars carry no colonists, governors or comforting fiction about their purpose. Each is designed as a firing solution made into a ship. A narrow antique-gold Judgment Axis runs from the low armored command pavilion toward a stepped sequence of Long Guns, while Heavy Guns sit behind the black-framed central battery and Light Guns guard every quarter. Before opening fire, the crew strikes the bronze Verdict Bell once—the formal declaration that a target has been selected. The vessel carries no figurehead and offers its captain no ceremonial balcony. Even within the Crown, the class inspires unease: immaculate ivory sails with severe green stripes advance through the smoke, the bell sounds, and lawful procedure becomes overwhelming violence.
 Visual identity: A pure offensive warship whose ordered geometry makes aggression look procedural.
@@ -427,7 +476,7 @@ Construction & materials: Springy pale coastal timber, rope lashings, shell fitt
 Sail plan & palette: Cream and faded crimson triangular sail with one small Confederate pennant rather than a huge emblem.
 Signature detail: Strings of tiny shell wind-chimes used by Shoal-folk navigators to read air shifts.
 Preferred art scene: Skimming above turquoise reef water in brilliant daylight, spray lifting from the outriggers.
-Distinctness guardrail: Do not add guns, armor, a bulky deck or a European square-rig; speed and cultural specificity are the whole design.
+Distinctness guardrail: Do not add guns, armor, a bulky deck or a European square-rig; speed and cultural specificity are the whole design. Crew are Shoal-folk, never human sailors.
 
 --- BRIGANTINE ---
 Encyclopedia: Most Brigantines began as honest merchant vessels, although their captains disagree about when honesty ended. Cargo partitions have become troop berths, concealed ports hold a pair of light guns and every spare beam carries a pulley for loading whatever the next island needs. They are the Confederacy’s connective tissue: not heroic, rarely famous, and present at every uprising before the songs arrive.
@@ -479,6 +528,16 @@ Signature detail: A curved brass cutwater brace echoes a cutlass guard without b
 Preferred art scene: Crossing close in front of a larger enemy, guns run out and crew visible at the rail.
 Distinctness guardrail: Do not make it as skeletal as Marauder or as fast-looking as Blackfin; it is the Confederacy’s compact conventional fighter.
 
+--- WITCHLIGHT ---
+Encyclopedia: When the Crown broke the slavers who had raided the swamps for generations, the Bog-folk clans paid their debt the only way that people knows how: fully, and forever. But not all of them followed the clans into the Admiralty's service. The conjure-women — the root-workers, the charm-makers, the keepers of the old ways — looked at a Crown that charts every channel and licenses every trade, and knew there would be no place in that world for what they carry. They took their lanterns, their skulls and their bottle-charms, and went to the free isles. A Witchlight is what they sail: a small black sloop of ancient bog-oak that harbors swear was never seen arriving. Her guns glow with a cold violet blessing her crew never explains, an alligator skull rides her bowsprit with its jaws bound shut, and the offerings on her stern altar are always fresh. Crown patrols report her in two Reaches on the same tide; the Admiralty lists this as clerical error. Bog-folk crews aboard Crown Fenrunners make a quiet sign when she passes, and will not fire the first shot at their cousins.
+Visual identity: A small Cajun conjure-sloop — a floating shrine built for speed, strange by dressing rather than carpentry.
+Silhouette signature: Low, lean single-masted sloop in purple-black bog-oak; a bound-jawed alligator skull for a figurehead; one tall, badly tattered crimson mainsail carrying a dripping hand-painted bone-white conjure sigil.
+Construction & materials: Ancient black bog-oak with a wet purple sheen, rope and leather fittings, no armor; rigging strung with bottle-charms, bead cords, feathers, carved fetishes, real animal skulls and grey moss.
+Sail plan & palette: Ragged faded-crimson gaff mainsail, torn and patched, the sigil painted across the tears; plain small Confederate pennant. Palette: purple-black, faded crimson, bone white, cold violet flame, silver mist.
+Signature detail: Deck guns etched with charm lines that burn cold violet — the glow is in the blessing, not the ballistics — and a stern altar of candles, coins and one flower-crowned skull.
+Preferred art scene: Slipping out of trailing mist at dusk on dark green water, lanterns burning blue-violet, her crew calm and unhurried.
+Distinctness guardrail: No skull-and-crossbones flag or emblem anywhere — her skulls are real conjure objects, never iconography. No ghost-ship transparency, floating runes or spell effects; she is a plausible wooden sloop made strange by what her crew hung on her. Do not confuse her clutter with Marauder's scavenge or Chimera's salvage: everything aboard a Witchlight was placed with intent.
+
 --- TEMPEST ---
 Encyclopedia: Tempests come from the Sea of Storms, where captains learned to carry sail in weather that sends other ships searching for shelter. Their hybrid rig can shift from long reaching canvas to tight storm triangles without striking a mast. Long guns open the fight before the ship races close enough to land troops beneath the squall. A Tempest is rarely painted against a calm horizon because nobody remembers seeing one there.
 Visual identity: A fast storm-sea assault vessel with an exotic but plausible hybrid rig and forward long-gun emphasis.
@@ -521,13 +580,13 @@ Distinctness guardrail: Do not redesign the bones as a native pirate ship or add
 
 --- BLACKFIN ---
 Encyclopedia: Blackfins are built around a simple Shoal-folk observation: a large gun is useless if it cannot turn quickly enough to find its target. Their decks bristle with small pieces on swivels and sliding carriages, each served by crews who communicate in whistles across the rigging. The tall black mainsail earned the class its name. Against capitals it is a nuisance; against small fast craft it is the thing waiting at the end of every escape route.
-Visual identity: A fast anti-small combatant defined by a shark-fin sail and an improbable density of nimble light guns.
-Silhouette signature: Medium narrow schooner with a towering triangular black gaff mainsail, clipped bow, low stern and clean open firing deck.
-Construction & materials: Dark oiled hardwood, light coral-free reinforcement, brass swivel tracks and flexible rope-and-leather gun mounts.
-Sail plan & palette: Squid-ink black mainsail with a crimson lower edge, smaller cream foresails and one Confederate emblem in bone-white.
-Signature detail: Twelve small brass gun muzzles form a bright dotted line along the otherwise black hull.
+Visual identity: A fast anti-small combatant — a Polynesian-style double-hulled war canoe defined by a shark-fin black sail and an improbable density of nimble light guns.
+Silhouette signature: Two narrow shallow hulls joined by a lashed fighting deck, a towering triangular black crab-claw mainsail with a crimson lower edge, and a deck ringed with small swivel guns.
+Construction & materials: Dark oiled lashed timber, shell fittings, brass swivel tracks, flexible rope-and-leather gun mounts and strings of shell wind-chimes; no deep keel and no coral.
+Sail plan & palette: Squid-ink black crab-claw mainsail with a crimson lower edge and smaller cream foresails; a small Confederate pennant only — no emblem, no skull, no jolly roger.
+Signature detail: Small brass swivel-gun muzzles ring the lashed deck in a bright dotted line between the two black hulls.
 Preferred art scene: Carving through whitecaps while surrounding a much smaller fleeing cutter, under clear energetic daylight.
-Distinctness guardrail: Do not give it troops, heavy weapons, coral mass or Marauder’s scavenged clutter; Blackfin is a specialized light-gun machine.
+Distinctness guardrail: Do not give it troops, heavy weapons, coral mass or Marauder’s scavenged clutter; Blackfin is a specialized light-gun machine in the Shoal-folk family look, crewed by Shoal-folk.
 
 --- URSKIN GOLIATH ---
 Encyclopedia: An Urskin Goliath is a clan, foundry and winter town carried into battle on one immense keel. Built from the northern tradition of community whalers but designed for war from the first timber, its cavernous holds carry nine garrisons, powder and cannon shot sized for Urskin hands. A colossal dire-whale skeleton reinforces the icebreaking bow; massive deck ballistae and heavy batteries line the broad upper works. Its sweep-oars are laminated, iron-banded and long enough to bite beyond the hull’s shadow, while towering masts carry sails proportioned to move a vessel of such impossible weight. Southern sailors often mistake the tiny figures on deck for children until they realize each silhouette is an Urskin—and understand how large the ship truly is.
@@ -556,7 +615,7 @@ PART 5 — KEY SIMULATION RESULTS AND DOCTRINE (v3, 5,000 trials per matchup)
 ENDGAME CONTRACT (verified): Majestic beats a lone Urskin Goliath 100/0 and a lone Coral-Class 85/1 (14% mutual). Coral-Class beats Goliath 100/0. Any pair of Confederate capitals defeats Majestic 100%.
 RATE DECIDES: a 74 beats any frigate 100-0 (Sovereign > Justiciar > Vanguard II > Vanguard). Frigates live on speed, escort work, scouting, raiding, and price — never on fighting up a rate.
 SWARMS: light guns cannot crack Armor 21+ — 14 Marauders lose 100-0 to one Sovereign at equal gold. Swarms rule trade lanes and the early game; the counter to a battle line is a battle line.
-SPECIALISTS (verified): Reefwarden beats Vanguard II 100-0 (the Confederate answer to Crown frigates). Interceptor II beats Blackfin 83/4. Blackfin one-rounds raiders and scouts (100-0 vs Marauder) and is harmless against Heavy armor. Ironback loses 100-0 to Bulwark at sea — a pure siege tax whose value is fortress-cracking Bombardment 8.
+SPECIALISTS (verified): Reefwarden beats Vanguard II 100-0 (the Confederate answer to Crown frigates). Interceptor II beats Blackfin 83/4. Blackfin one-rounds raiders and scouts (100-0 vs Marauder) and is harmless against Heavy armor. Ironback loses 100-0 to Bulwark at sea — a pure siege tax whose value is fortress-cracking Bombardment 8. NEW IN v4: Wraith takes raiders and brigs 100-0 and avoids real warships (capture lives at the strategic layer). Witchlight hunts scouts (100-0 vs Swift, 63/7 vs Interceptor I), moves the map unseen, and is the only Very Fast armed Confederate hull; Fenrunner clears scouts and brigs but loses the fair fight to Marauder (0/79). Fenrunner beats Witchlight 67/5 — the clans win the stand-up fight; the witches never offer one.
 PACING: mirror duels average ~8 internal rounds; capital duels 7-10 rounds; mirror mutual destruction ~50% is structural to simultaneous fire at ~100 guns a side (lever if ever needed: initiative, never stats).
 RETREAT COSTS (Stern Rake): early game 0%; mid-game fleet ~16% of fleet hull with escapes for the fast; late slow fleet ~15%; a lone fleeing Majestic ~41%.
-MEAN 1v1 WIN RATES (class hierarchy): Majestic 99.4, Coral-Class 95.9, Goliath 91.7, Sovereign II 87.5, Sovereign 83.1, Bulwark 76.3, Justiciar 74.7, Reefwarden 70.5, Morningstar 66.6, Vanguard II 62.5, Ironback 58.3, Vanguard 52.1, Tempest 50.7, Urskin Whaler 45.6, Chimera 41.7, Interceptor II 36.8, Blackfin 33.5, Resolute 26.6, Cutlass 21.8, Tidestalker 21.6, Marauder 15.1, Wayfinder 12.7, Brigantine 6.8, Interceptor I 4.6, Swift 0.0.
+MEAN 1v1 WIN RATES (class hierarchy): Majestic 99.4, Coral-Class 96.3, Goliath 92.6, Sovereign II 88.9, Sovereign 85.0, Bulwark 78.9, Justiciar 77.5, Reefwarden 73.7, Morningstar 70.3, Vanguard II 66.7, Ironback 63.0, Vanguard 57.4, Tempest 56.2, Urskin Whaler 51.6, Chimera 48.1, Interceptor II 43.8, Blackfin 40.9, Resolute 34.7, Tidestalker 30.2, Cutlass 28.6, Wraith 26.5, Marauder 19.9, Wayfinder 17.6, Fenrunner 12.9, Witchlight 7.9, Brigantine 7.0, Interceptor I 4.4, Swift 0.0.
