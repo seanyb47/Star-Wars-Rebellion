@@ -17,7 +17,9 @@
 > changelog line.
 >
 > **What the code has caught up with, and what it has not.** The island rename
-> and the Aldermain (§3, §12) shipped on 19 September. The rest of v4.0 has not
+> and the Aldermain (§3, §12) shipped on 19 September, and the combat master
+> landed on 20 September — its roster and its ship encyclopedia are in the game,
+> held there by tests. The rest of v4.0 has not
 > been swept into the game yet: the Black Tide and the Deep still appear in
 > character bios and in `docs/lore.md`, Coralhome does not yet start Crown-held
 > with its bed cleared, and coral beds (§5B) are not built. Those are tracked
@@ -191,11 +193,23 @@ Two advisor characters, one per faction, each at their faction's end of the tab 
 
 ## 10. CANONICAL SOURCES (live documents — canon without duplication here)
 
-In Google Drive, 7 Seas › Naval Combat System. Always use the most recently modified file that is not marked SUPERSEDED.
+> **Combat canon is [`COMBAT-MASTER-v3.md`](COMBAT-MASTER-v3.md), in this repo.**
+> Sean supplied it on 20 September 2026 and it says so itself: *"THE single
+> authoritative reference for the entire naval combat system… Supersedes all
+> prior roster sheets, combat docs, and the v2.4 JSON."* It folds sources 1–3
+> below into one file — Part 1 the rules, Parts 2–3 the pricing and the roster,
+> Part 4 the Lore & Visual Identity tab, Part 5 the simulation results — and
+> none of those three is in Drive any more; the 19 September cleanup trashed
+> them. Use the master.
+>
+> Verified against the game on 20 September: the shipped roster in
+> `src/data/combat-ships.json` matches Part 3 exactly — 25 ships across 13
+> fields — and `lab/v3check.ts` reproduces Part 5's ten published matchups to
+> within 0.5 of a percentage point.
 
-1. **Master of the Seven Seas — Fleet Roster** (Sheet, latest): ships, stats, tier bands, pricing, sim results.
-2. **7 Seas — Naval Combat System** (Doc, latest): locked combat rules.
-3. **Ship Lore & Visual Identity tab** (latest): authoritative encyclopedia entry, visual identity, and art direction per ship. Its lore/art columns are canon; stat rows are superseded by the latest Fleet Roster.
+1. ~~**Master of the Seven Seas — Fleet Roster** (Sheet)~~ — gone from Drive; now **Part 3** of the master.
+2. ~~**7 Seas — Naval Combat System** (Doc)~~ — gone from Drive; now **Part 1** of the master.
+3. ~~**Ship Lore & Visual Identity tab**~~ — gone from Drive; now **Part 4**, parsed into `src/data/ship-lore.json` and laid out in `docs/ship-art-direction.md`.
 4. **The live game's own data files**: `src/data/*.json` at seanyb47/Star-Wars-Rebellion, as shipped at https://seanyb47.github.io/Star-Wars-Rebellion/. Canon for characters, islands, reaches, and in-game encyclopedia text, **except where it conflicts with a ruling in this document**.
 
 **Not a canon source:** *Peoples Art Guide v1*. It treats the world bible as canon. Its Reef-folk section is superseded by section 5A; its other peoples' traits are proposals until Sean confirms them.

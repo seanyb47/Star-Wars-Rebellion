@@ -1,6 +1,10 @@
 # MASTER OF THE SEVEN SEAS — WORLD BIBLE
 ## v2.1 — **superseded 19 September 2026.** A non-canon idea pool.
 
+> **Read `CANON.md` first, and `COMBAT-MASTER-v3.md` for anything about
+> combat, ships or their art** — this file's ship material is superseded
+> outright by the master.
+>
 > **Read `CANON.md` first.** Sean's canon document of 19 September 2026 demotes
 > this file: *"The old world bible is a non-canon idea pool: raw material, not
 > truth."* Nothing here is canon on its own account. Several of its load-bearing
