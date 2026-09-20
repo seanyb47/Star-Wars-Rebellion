@@ -5983,6 +5983,33 @@
         "bytes": 78150,
         "sha1": "d559003a5d9592ac"
       }
+    },
+    "ships/wraith": {
+      "folder": "ships",
+      "slug": "wraith",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Wraith",
+      "source": "unrecorded",
+      "notes": "Silent galley (12), Crown Imperium. Sent captioned 'Fenrunner' and filed as the Wraith on the evidence of the painting, the same way the two Interceptors were. It answers the Wraith brief line by line: long narrow low black galley hull under sweeps, two raked masts with charcoal grey-green lateen sails, a bare knife bow with no figurehead, boarding grapnels and coiled lines tended along the rail, hooded crew, a small Crown pennant as the only marking, and the sheet's preferred scene exactly - closing on a lit ship across calm moonlit water with her own decks dark. It answers nothing in the Fenrunner brief, which asks for a flat-bottomed mud-coloured cypress raider with one short mast and a warm-ivory lug sail, poling through a reed channel in morning mist. One small divergence: the sheet asks for two banks of oars and the painting gives one, which suits a Small hull better.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/wraith.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 401140,
+        "sha1": "e7469cd2e72317ad"
+      },
+      "shipped": {
+        "file": "src/art/ships/wraith.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 40036,
+        "sha1": "92482e416ca8041c"
+      }
     }
   }
 }

@@ -274,6 +274,19 @@ One command to move it if that reading is wrong.
 
 *Small, Fast. CWN-WRA-R5-03, research R5.*
 
+**PAINTED** — `src/art/ships/wraith.webp`. Sent captioned *"Fenrunner"* and
+filed here on the evidence of the painting, as the two Interceptors were.
+It answers this brief line by line — long narrow black galley under sweeps,
+two raked masts with charcoal grey-green lateens, a bare knife bow with no
+figurehead, grapnels and coiled lines tended along the rail, hooded crew, a
+small Crown pennant as the only marking, and the preferred scene exactly:
+closing on a lit ship across calm moonlit water with her own decks dark.
+It answers nothing in the Fenrunner brief, which asks for a flat-bottomed
+mud-coloured cypress raider with one short mast and a warm-ivory lug sail,
+poling through a reed channel in morning mist. One small divergence: the
+sheet asks for two banks of oars and the painting gives one, which suits a
+Small hull better.
+
 **Encyclopedia** *(shown in game)** — Nobody hears a Wraith arrive, and almost nobody sees one leave. The Hushed serve the Crown under an old bargain whose terms neither side discusses, and the Wraith is the shape of that bargain at sea: a lean black galley with muffled oars, no lanterns, no bell and no figurehead, built to take ships and people rather than sink them. Her boarding companies come over the rail without a shout. Harbormasters find only a cut cable and an empty berth; prisoners describe hooded crews who never spoke once. The Admiralty does not list Wraiths in its published registers, which its clerks maintain is an oversight.
 
 **Visual identity** — A silent boarding galley: lean, black, unlit and unmarked — a ship designed to be remembered only afterward.
