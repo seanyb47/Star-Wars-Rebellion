@@ -6429,8 +6429,16 @@ outcome *screens* built in task 95 are battle outcomes, not the war's.
   *"NOTHING TO BUILD WITH — everything is raised by a construction yard
   standing on the same island."* The one-of-each opening put the yards
   elsewhere. Whether the seat should have one is a design call, not a defect.
+- **A crossing can take four months, and that is worth a look.** Playing it,
+  the errand sheet kept quoting sail times in the high double figures, so it
+  was measured rather than guessed at: from the Confederate seat, over forty
+  worlds, the **nearest** island is 7–21 days, the **median** island is
+  **95–132**, and the furthest is 157–200. A war runs 750–970 days. So half
+  the map is more than three months away from where you start, and a side gets
+  something like four to eight crossings of the chart in a whole war. Nothing
+  is broken — it is the distance model doing exactly what it says — but it is
+  the number that decides how many decisions a war contains, and Sean has
+  never been shown it.
+
 - **Escape closes nothing.** No sheet listens for it; only the tutorial does.
   Irrelevant on a phone, wrong on a desktop.
-- **A crossing can take 87 to 122 days.** Not a bug — it is distance — but a
-  day-one errand to another Reach costs four months, and that is a pacing
-  number Sean may want to look at.
