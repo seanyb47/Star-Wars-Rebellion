@@ -356,6 +356,25 @@ button {
 .plaque b { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--chrome-text); }
 .plaque__net { font-size: 10px; font-weight: 600; color: var(--good); margin-left: 2px; white-space: nowrap; }
 .plaque__net--over { color: var(--bad); }
+/* The ledger plaque: in, out and the difference, three narrow columns in the
+   width of one. Four separate plaques was the first try and it did not fit a
+   393px phone — the labels ran together and the last one was cut off by the
+   clock. The difference is the only figure with a colour, because it is the
+   one the build decision turns on. */
+.ledger { display: flex; align-items: flex-start; gap: 8px; }
+.ledger__col { display: flex; flex-direction: column; line-height: 1.05; }
+.ledger__col--net b { color: var(--good); }
+.ledger__col--short b { color: var(--bad); }
+/* It keeps its width. The console lets plaques shrink, which is right for one
+   number and wrong for three: squeezed, the last column's figure ran out past
+   its own border and under the clock. The clock gives up the room instead. */
+.plaque--ledger { flex: none; }
+@media (max-width: 400px) {
+  .ledger { gap: 6px; }
+  .plaque--ledger { padding-left: 5px; padding-right: 6px; gap: 4px; }
+  .plaque--ledger .plaque__label { font-size: 8px; letter-spacing: 0.06em; }
+  .topbar .speed { padding: 3px 5px; }
+}
 .topbar .speed {
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.5));
   border: 1px solid var(--metal-lo); color: var(--chrome-text); min-height: 36px; padding: 3px 9px; border-radius: 7px;

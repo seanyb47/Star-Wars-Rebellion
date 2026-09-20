@@ -571,6 +571,33 @@ export const START_GARRISON_SPARE = 1;
 export const TROOP_BUILD: BuildSpec = { costGold: 25, days: 7, label: terms.troop };
 
 /**
+ * How often the books are done.
+ *
+ * Sean, 20 September: *"let's change from daily to fortnight... they're
+ * calculated and then they're revised every 14 days instead. Otherwise what's
+ * going to end up happening is that people are going to be looking at it like
+ * a stock chart. It's going to be bouncing all over the place."*
+ *
+ * So income and upkeep are **settled** every fourteen days rather than every
+ * morning: that is when gold moves, and it is the only day a shortfall can
+ * happen. The figures on the banner are the rates read at the last settlement
+ * and they do not move until the next one, which is the whole point — a
+ * number that changes every time an island flips is a number nobody can plan
+ * against.
+ */
+export const FORTNIGHT = 14;
+
+/**
+ * What you get back for destroying something you own: half what it cost.
+ *
+ * Sean, 20 September: *"Scrap basically is where you can destroy the unit to
+ * get money back and you get 50% of what you paid for it... But the
+ * additional advantage though, is that you don't pay the upkeep cost anymore.
+ * This is a great way to clear old things to make room for new things."*
+ */
+export const SCRAP_RETURN = 0.5;
+
+/**
  * Hulls.
  *
  * The numbers are keyed by role, not by class, so the two fleets are balanced

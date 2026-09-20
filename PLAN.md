@@ -6645,3 +6645,110 @@ dies.
 - **The Crown is drifting ahead**, 23–16 against 20–18. Within noise at forty
   samples, and worth watching: the Crown ends on 29.2 islands where it used to
   end on 22, so it is the side that gains most from ground being worth taking.
+
+## The fortnight, scrap, and the shortfall
+
+Sean's economy spec of 20 September, dictated in one go, and it is four
+mechanics that only make sense together.
+
+### Why a fortnight and not a day
+
+The ledger used to move every morning: income in, upkeep out, and when the
+upkeep could not be met something of yours fell apart. Sean's objection is not
+that the arithmetic was wrong, it is what the arithmetic did to the player:
+*"those numbers get revised every 14 days. They're recalculated and reapplied
+every 14 days... Otherwise what's going to end up happening is that people are
+going to be looking at it like a stock chart."* A figure that twitches every
+tick is a figure you watch instead of a figure you plan against.
+
+So `settleLedger` runs on `state.day % FORTNIGHT === 0` and nothing moves in
+between. Fourteen days of income in, fourteen days of upkeep out, once. The
+banner's In / Out / Clear are recomputed there too, so what the player reads
+between settlements is exactly what the next settlement will charge them —
+which is the whole point of showing it.
+
+### Why the banner shows a delta
+
+Sean again, on what the number is *for*: *"if I was a player managing my
+economy and deciding, do I want to use available land to produce more income
+producing stuff or build stuff... that decision should largely be based on...
+what's my maintenance deficit."* The gold you hold does not answer that
+question and income alone does not either. The third column does, so it is the
+one with the state: **Clear +13** in the ordinary case, **Short −13** in red.
+
+Four separate plaques were tried first and do not fit a 393px phone — the
+labels collide and CLEAR clips. One ledger plaque with three columns does,
+with `flex: none` on it so the gold plaque cannot squeeze it.
+
+### Scrap, which is two mechanics wearing one coat
+
+*"Destroy the unit to get money back and you get 50% of what you paid for
+it... the additional advantage though, is that you don't pay the upkeep cost
+anymore... a great way to clear old things to make room for new things."*
+
+The coin is the smaller half. An earner is free to raise, so half of nothing is
+nothing and `scrapValue('mine')` is 0 — and a mine is still worth pulling down,
+because what you get back is the **plot**. That is why `scrap` calls
+`returnDeposit`: the ground under a works is still ground, the same rule as a
+works falling apart unpaid, and a long war must not grind the world down to
+land that can never earn again.
+
+Two bugs in the first cut, both caught before it ran, both worth recording
+because they are the same bug:
+
+- `Chargeable` carried a facility's **array index**. That is fine until
+  something is scrapped, at which point the splice shifts every later index
+  down and the next entry in a shuffled list points at the wrong building, or
+  off the end. A shortfall scraps several things in a row, so that is the
+  normal path rather than a corner case. It carries an id now.
+- The sold-off line was assembled from the facility **after** it had been
+  deleted. The label is captured up front instead.
+
+And one that did run, found by the audit rather than by reading: scrapping a
+**hull** took the ship off the books and left everything that was riding in it
+behind. Forty wars later — `over-berthed x179`, `people-on-no-hull x60`,
+`ghost-fleet x24`: four troops in one berth, crew serving with a squadron that
+had no ships, and empty squadrons still sailing to islands they could not
+reach. The fix reuses `clearWrecks`, which the fighting has always called for
+exactly this, with one thing added in front of it. Breaking a ship up is not
+sinking it, so if the fleet is in harbor at an island you hold, the troops
+turned out of their berths **march ashore into the garrison** rather than
+drowning at anchor. At sea, or in someone else's harbor, there is no quay and
+the sinking's rule applies after all.
+
+### The shortfall
+
+*"The game randomly selects units and basically blows them up to get you the
+gold back to pay the cost that you couldn't have... So you can either actively
+do it or the game's going to do it for you."*
+
+Which is the old daily break-down with three differences: it pays for itself,
+it can take anything on the books rather than only buildings, and the player
+had a fortnight's warning in the banner. Randomly, deliberately — the player
+who did not choose does not get to choose. One `loss` event for the whole
+settlement rather than one per thing, because a sold-down side is one event in
+the player's day.
+
+This is the pressure Sean is after: *"you should run out of resources if you're
+not expanding. That's kind of the name of the game."*
+
+### What it measured
+
+Forty wars, both sides machine-played, same seeds as this morning's:
+
+| | ground by share | **+ fortnight, scrap, shortfall** |
+|---|---|---|
+| Crown — Confederacy | 23 — 16 | **18 — 21** |
+| median length | 1512 | **1380** |
+| never ended | 3 | **1** |
+| Crown at the end | 29.2 islands | **24.9** |
+
+The audit is clean. The war is shorter, fewer wars run out the clock, and the
+Crown's drift is gone — which is the expected shape: the side that was winning
+on accumulated works is now paying for them every fortnight.
+
+**Not fixed, and it is the one that was in the ticket:** the Confederacy still
+ends sitting on 2,737 gold against the Crown's 589. The fortnight does not
+touch it, because hoarding is not a ledger problem — it is `aiBuild` declining
+to spend. That is the surplus gate and the six-orders-a-tick cadence, still
+next.

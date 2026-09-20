@@ -5,7 +5,7 @@ import { advanceBuilds } from './build';
 import { stirBeasts } from './creatures';
 import { advanceFleets, advanceSieges, clearWrecks, repairOvernight, updateBlockades } from './fleets';
 import { allLordsTaken, holdTheMoot, syncHome } from './lords';
-import { collectIncome, payUpkeep, recomputeLedger } from './economy';
+import { recomputeLedger, settleLedger } from './economy';
 import { cloneState, getSystem, otherFaction, pushEvent } from './helpers';
 import { advanceMissions, syncMissionParties, takePrisoner } from './missions';
 import { decayMomentum } from './politics';
@@ -43,7 +43,7 @@ export function advanceDay(state: GameState): GameState {
   advanceSieges(next, rng);
   holdTheMoot(next);
   updateBlockades(next);
-  collectIncome(next, rng);
+
   advanceBuilds(next);
   // What every island's allegiance was worth this morning, so the evening can
   // say which ones slipped.
@@ -75,7 +75,17 @@ export function advanceDay(state: GameState): GameState {
   repairOvernight(next);
   reportLoyaltySlips(next, bands);
   leakInformation(next, rng);
-  payUpkeep(next, rng);
+  /*
+   * The books, once a fortnight.
+   *
+   * Income and upkeep used to move every morning — a trickle in, a trickle
+   * out, and a chance of something falling down on any day the trickle out
+   * was bigger. Sean, 20 September: *"let's change from daily to fortnight...
+   * otherwise people are going to be looking at it like a stock chart."* So
+   * this is a no-op on thirteen days in fourteen, and on the fourteenth it
+   * pays fourteen days of both at once and settles what cannot be paid.
+   */
+  settleLedger(next, rng);
   recomputeLedger(next);
   runAI(next, rng);
   // Observing: the player's side is played too, by the same rules and the same

@@ -178,22 +178,71 @@ export function TopBar({
 
       {/* The console: the ledger and the clock, on a wooden rail. */}
       <div className="console">
+        {/*
+          * Four figures, not two.
+          *
+          * Sean, 20 September: *"there should be, like, how much you actually
+          * have in gold. Then next to it should probably be your gold per day
+          * rating. And then there should also be a maintenance per day. And
+          * then there should probably be a delta next to that."* And the
+          * reason, which is the part that decides the layout: *"if I was a
+          * player managing my economy and deciding, do I want to use available
+          * land to produce more income or build stuff that is going to make me
+          * more — that decision should largely be based on what's my
+          * maintenance deficit."*
+          *
+          * So the delta is the last thing on the rail and the one thing given
+          * a colour, because it is the figure the decision actually turns on.
+          * The two rates are per day and are read at the fortnightly
+          * settlement, so they hold still between one and the next.
+          */}
         <div className="plaque plaque--gold">
           <CoinIcon />
           <span className="plaque__text">
             <span className="plaque__label">{terms.gold}</span>
             <b>{Math.floor(faction.gold)}</b>
           </span>
-          <span className={`plaque__net${net < 0 ? ' plaque__net--over' : ''}`}>
-            {net >= 0 ? '▲' : '▼'} {net >= 0 ? '+' : '−'}
-            {Math.abs(net).toFixed(1)}
-          </span>
         </div>
-        <div className="plaque">
+        {/*
+          * The ledger: in, out, and the difference, in one plaque.
+          *
+          * Sean asked for four figures — *"how much you actually have in gold.
+          * Then your gold per day rating. And then a maintenance per day. And
+          * then a delta next to that"* — and four plaques do not fit a 393px
+          * phone: measured, the labels ran into each other and CLEAR was cut
+          * off by the clock. So the three rates share one plaque with three
+          * narrow columns, which is the same four numbers in the width of two.
+          *
+          * The difference is the one with a colour on it, because it is the
+          * one the decision turns on: *"do I want to use available land to
+          * produce more income or build stuff... that decision should largely
+          * be based on what's my maintenance deficit."*
+          */}
+        <div className="plaque plaque--ledger">
           <LedgerIcon />
-          <span className="plaque__text">
-            <span className="plaque__label">{terms.upkeep}</span>
-            <b>{faction.upkeep}</b>
+          <span className="ledger">
+            <span className="ledger__col">
+              <span className="plaque__label">In</span>
+              <b>{faction.income.toFixed(0)}</b>
+            </span>
+            <span className="ledger__col">
+              <span className="plaque__label">Out</span>
+              <b>{faction.upkeep}</b>
+            </span>
+            <span
+              className={`ledger__col ledger__col--net${net < 0 ? ' ledger__col--short' : ''}`}
+              aria-label={
+                net >= 0
+                  ? `${net.toFixed(0)} ${terms.gold.toLowerCase()} a day clear`
+                  : `${Math.abs(net).toFixed(0)} ${terms.gold.toLowerCase()} a day short`
+              }
+            >
+              <span className="plaque__label">{net >= 0 ? 'Clear' : 'Short'}</span>
+              <b>
+                {net >= 0 ? '+' : '−'}
+                {Math.abs(net).toFixed(0)}
+              </b>
+            </span>
           </span>
         </div>
         <span className="topbar__spacer" />
