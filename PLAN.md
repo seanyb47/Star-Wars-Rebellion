@@ -6343,7 +6343,8 @@ every finding below was found by tapping, not by reading the code.
 - A crew member opened, sent on an errand, the errand sheet read, the errand
   taken, and the order confirmed in the log.
 - A squadron split, sailed, and the voyage confirmed in the log.
-- Two whole wars, both sides, machine-played, to day 972 and beyond.
+- **Two whole wars, both sides, machine-played, both to an outcome** — the
+  Crown's to day 972 and the Confederacy's to day 1368.
 
 ### Six things that did not work
 
@@ -6391,11 +6392,33 @@ to send and the last was what they were going to do. Its own copy gives it
 away — *take who the work needs* — which you cannot do until you have seen the
 work. The errands lead now.
 
+### Both wars, to the end
+
+| | Crown | Confederacy |
+|---|---|---|
+| war ended | **day 972** | **day 1368** |
+| gold at the end | **1,359** | 249 |
+| upkeep at the end | 344 | 102 |
+| idle buildings at the end | **19** | 2 |
+
+Both ended *"The Seven Seas are yours. Victory."* — which with two samples
+says nothing about balance (the machine has both sides, so it beat itself
+twice) and quite a lot about everything else. The 40-war measurement from 19
+September stands: Crown 17, Confederacy 23, median 756 days. These two, at 972
+and 1368, are both above that median, and the spread between them is the
+number worth keeping.
+
+The contrast in the last three rows is the useful part, because it is not
+symmetrical. **The gold hoard is a Crown problem, not a general one**: the
+Crown finished sitting on eighteen months' income with nineteen works standing
+about, the Confederacy on two months' and two. Its navy is three times the
+size and it still cannot spend what it earns. That narrows the open item —
+whatever the build order is doing wrong, it is doing it on one side.
+
 ### What winning looks like, and why that is the next thing
 
-The Crown war ended on **day 972** with *"The Seven Seas are yours. Victory."*
-— and the screenshot of that moment is the most useful thing this session
-produced, because you cannot read it. The dispatch strip floats over the top
+The screenshot of the moment the Crown won is the most useful thing this
+session produced, because you cannot read it. The dispatch strip floats over the top
 of the chart with the last three notable events in it, and the one line that
 says who won sits directly underneath. You win a thirty-two-month war and what
 is on screen is three captures.
@@ -6410,12 +6433,14 @@ outcome *screens* built in task 95 are battle outcomes, not the war's.
 
 ### What the end of a war also showed
 
-- The winning side finished on **1,359 gold with 19 idle buildings**. That is
-  the gold-hoard item, and it is worse at the end than the middle: a side that
-  has won the war is sitting on eighteen months' income with nothing on order.
-- Confederate upkeep ran **74** at day 929 against the Crown's **288** at day
-  944 in its own war. The two sides do not build navies at the same rate, and
-  nothing on either screen explains why.
+- **The battle sheet was never driven.** Four attempts at provoking an action
+  by hand all failed for the same undramatic reason — the seat's own chain is
+  all your own islands, and the enemy's is months away — and the two full wars
+  ran in observing mode, where the machine settles its own actions without
+  stopping on a sheet. `BattleSheet` is covered by the sim's tests and by
+  `observe.test.ts`; it is not covered by anybody having looked at it today,
+  and this note is here so nobody reads the rest of this section as though it
+  were.
 
 ### Left standing, not touched
 
