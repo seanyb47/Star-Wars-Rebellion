@@ -644,52 +644,19 @@ export function resolveFlee(fleeing: Fleet, pursuers: Fleet, rng: Rng): RetreatR
   return { volleys, volley: total, lost, escaped: survivors(fleeing).map((s) => s.id) };
 }
 
-/* ------------------------------------------------------------- assessment */
-
-export const ASSESSMENTS = [
-  'OVERWHELMINGLY FAVORABLE',
-  'FAVORABLE',
-  'EVEN',
-  'UNFAVORABLE',
-  'DESPERATE',
-] as const;
-export type Assessment = (typeof ASSESSMENTS)[number];
-
-/**
- * The cut points, and they are **inferred**.
+/*
+ * There is no assessment here, and that is deliberate.
  *
- * The sheet says a Combat Exchange ends by displaying *"the new battle
- * assessment"* and never says what the bands are or where they fall. Five
- * bands come from the superseded document, which named them and likewise gave
- * no thresholds. So this is one constant in one place, labelled, comparing the
- * product of each side's surviving volley and surviving hull — what it can
- * still do, times how long it can keep doing it.
+ * This file used to carry one: ASSESSMENTS, ASSESSMENT_CUTS, fightingStrength,
+ * assess and enemyWillFlee, cutting the five bands the combat master names at
+ * 2.0 / 1.25 / 0.8 / 0.4 on a volley-times-hull ratio. Nothing ever called any
+ * of it. The game already had the feature — `battleOdds` in `fleets.ts`, cut on
+ * guns still firing with the shore batteries and any creature counted in, and
+ * printed over the battle sheet as the line a player reads before choosing
+ * FIGHT or FLEE. So this was a second implementation of a solved problem,
+ * disagreeing with the real one, sitting where somebody would eventually tune
+ * the wrong constant.
+ *
+ * Deleted 20 September. If the bands ever want re-cutting, `battleOdds` is the
+ * one to cut.
  */
-export const ASSESSMENT_CUTS = {
-  overwhelming: 2.0,
-  favorable: 1.25,
-  even: 0.8,
-  unfavorable: 0.4,
-} as const;
-
-export function fightingStrength(fleet: Fleet): number {
-  return survivors(fleet).reduce((n, ship) => n + rawVolley(ship) * ship.hullRemaining, 0);
-}
-
-export function assess(mine: Fleet, theirs: Fleet): Assessment {
-  const ours = fightingStrength(mine);
-  const them = fightingStrength(theirs);
-  if (them <= 0) return ours > 0 ? 'OVERWHELMINGLY FAVORABLE' : 'EVEN';
-  if (ours <= 0) return 'DESPERATE';
-  const ratio = ours / them;
-  if (ratio >= ASSESSMENT_CUTS.overwhelming) return 'OVERWHELMINGLY FAVORABLE';
-  if (ratio >= ASSESSMENT_CUTS.favorable) return 'FAVORABLE';
-  if (ratio >= ASSESSMENT_CUTS.even) return 'EVEN';
-  if (ratio >= ASSESSMENT_CUTS.unfavorable) return 'UNFAVORABLE';
-  return 'DESPERATE';
-}
-
-/** The other side breaks off only when its position is hopeless. */
-export function enemyWillFlee(theirs: Fleet, mine: Fleet): boolean {
-  return assess(theirs, mine) === 'DESPERATE';
-}

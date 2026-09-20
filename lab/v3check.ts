@@ -119,14 +119,23 @@ console.log(`  mean ${(roundSum / MIRRORS.length).toFixed(1)} internal rounds, $
  * Guns yet); mid-game fleet ~16% of fleet hull; late-game slow fleet ~15%; a
  * lone fleeing Majestic ~41%."*
  *
- * A caveat that matters: v3 names the costs but not the *scenarios* - which
- * hulls were running, and above all which were chasing. Retreat damage is
- * close to linear in the pursuer's Long Gun count, so a figure of 41% pins the
- * chasing battery and nothing here can recover it. The fleets below are
- * plausible readings, not the sheet's, and the sheet's number is printed
- * beside them as a band to be in rather than an equality to hit. The one
- * exactly checkable line is the first: an early fleet with no Long Guns
- * between them takes nothing at all.
+ * v3 names the costs but not the *scenarios* - which hulls were running, and
+ * above all which were chasing. Retreat damage is close to linear in the
+ * pursuer's Long Gun count, so each figure pins a chasing battery and the
+ * document does not say which.
+ *
+ * So they were searched for instead, on 20 September, and all four are
+ * reachable: one Bulwark chasing the mid-game fleet gives 15.0% against the
+ * sheet's ~16%, three Bulwarks give 15.3% against ~15%, and Coral-Class +
+ * Goliath + Ironback take 40.8% off a lone fleeing Majestic against ~41%. That
+ * last one is the telling one - the earlier guess here chased with two hulls
+ * and got 26.6%, and the third pursuer is the whole difference.
+ *
+ * That the published numbers are all hittable with plausible pursuits is good
+ * evidence the engine matches the sim the document was written from. It is not
+ * proof these were the pursuits, so the sheet's figure is still printed beside
+ * ours and the first line remains the only exact one: an early fleet with no
+ * Long Guns between them takes nothing at all.
  */
 function rakeCost(fleeIds: string[], chaseIds: string[]): number {
   let lost = 0;
@@ -141,13 +150,16 @@ function rakeCost(fleeIds: string[], chaseIds: string[]): number {
   return (lost / started) * 100;
 }
 
-console.log('\nStern Rake — share of fleeing hull lost (scenarios inferred; see the note)');
+console.log('\nStern Rake — share of fleeing hull lost (pursuits found, not published; see the note)');
 const RAKES: Array<[string, string[], string[], number]> = [
   // Early: the openers have no Long Guns between them, so nothing reaches.
   ['early game (no Long Guns yet)', ['CFS-BRI-S02', 'CFS-CHI-S03'], ['CWN-WAY-S01', 'CWN-MOR-S03'], 0],
-  ['mid-game fleet', ['CFS-TEM-R3-01', 'CFS-CUT-R2-01', 'CFS-MAR-R1-01'], ['CWN-JUS-R6-01', 'CWN-BUL-R3-01'], 16],
-  ['late-game slow fleet', ['CFS-URG-R7-01', 'CFS-IRB-R5-01'], ['CWN-MAJ-R8-01', 'CWN-SOV-R7-02'], 15],
-  ['a lone fleeing Majestic', ['CWN-MAJ-R8-01'], ['CFS-COR-R8-01', 'CFS-URG-R7-01'], 41],
+  // Chased by one Bulwark.
+  ['mid-game fleet', ['CFS-TEM-R3-01', 'CFS-CUT-R2-01', 'CFS-MAR-R1-01'], ['CWN-BUL-R3-01'], 16],
+  // Chased by three.
+  ['late-game slow fleet', ['CFS-URG-R7-01', 'CFS-IRB-R5-01'], ['CWN-BUL-R3-01', 'CWN-BUL-R3-01', 'CWN-BUL-R3-01'], 15],
+  // Three pursuers, not two: the Ironback is what takes this from 27% to 41%.
+  ['a lone fleeing Majestic', ['CWN-MAJ-R8-01'], ['CFS-COR-R8-01', 'CFS-URG-R7-01', 'CFS-IRB-R5-01'], 41],
 ];
 for (const [label, flee, chase, want] of RAKES) {
   const got = rakeCost(flee, chase);

@@ -21,10 +21,15 @@ this page is generated from it.
   red-bandana'd skull over crossed cutlasses, and that is theirs to fly.
 - **Where an entry names a stat or a tier, Part 3 is authoritative**, not the
   prose.
-- **Sails.** The master's sail lines talk about *elite* green rigs.
-  `CANON.md` §6 supersedes that: green sails mark a **V2 ship**, not an elite
-  one, and V1 gets white. Read the master's green-sail notes as generation
-  markers. Flagged for Sean.
+- **Sails: not settled, and not to be worried about.** The master's sail lines
+  call green rigs *elite*; `CANON.md` §6 calls green a **V2** marker. Asked
+  Sean which governs on 20 September and the answer was that there is no canon
+  here and not to worry about it, so neither document is being treated as
+  overruling the other and no ship art hangs on it. Do not raise it again
+  without him raising it first.
+- **Tidecraft** survives in the master's prose (the Reefwarden's vanes, the
+  intro's list) after `CANON.md` §5 retired the Deep as a system. Same answer
+  from Sean, same day: leave it.
 - **Technical:** 768 × 512, WebP ~q82, under 120KB. The card frame is drawn by
   the interface — paint no borders, no text.
 

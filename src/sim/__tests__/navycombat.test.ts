@@ -1,21 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../rng';
 import {
-  ASSESSMENT_CUTS,
   BASE_HIT_CHANCE,
   EXCHANGE_STOP_SHARE,
   GUNS,
   GUN_KINDS,
   HIT_CEILING,
   HIT_FLOOR,
-  assess,
   assignTargets,
   combatExchange,
   commission,
   effectiveArmor,
-  enemyWillFlee,
   expectedDamage,
-  fightingStrength,
   fireCannon,
   hitChance,
   internalRound,
@@ -469,32 +465,14 @@ describe('breaking off', () => {
   });
 });
 
-describe('fleet strength and the assessment', () => {
-  it('adds up surviving volley against surviving hull', () => {
-    const fleet = [ship({ hull: 400, guns: guns(0, 0, 2) }), ship({ hull: 400, guns: guns(0, 0, 2) })];
-    const both = fightingStrength(fleet);
-    fleet[1].hullRemaining = 0;
-    expect(fightingStrength(fleet)).toBeCloseTo(both / 2);
-  });
-
-  it('runs the five bands from a walkover to a rout', () => {
-    const big = () => [ship({ hull: 1000, guns: guns(0, 0, 10) })];
-    const small = () => [ship({ hull: 100, guns: guns(0, 0, 1) })];
-    expect(assess(big(), small())).toBe('OVERWHELMINGLY FAVORABLE');
-    expect(assess(small(), big())).toBe('DESPERATE');
-    const even = () => [ship({ hull: 500, guns: guns(0, 0, 5) })];
-    expect(assess(even(), even())).toBe('EVEN');
-    expect(ASSESSMENT_CUTS.overwhelming).toBeGreaterThan(ASSESSMENT_CUTS.favorable);
-    expect(ASSESSMENT_CUTS.unfavorable).toBeLessThan(ASSESSMENT_CUTS.even);
-  });
-
-  it('makes the enemy break off only when the position is desperate', () => {
-    const big = [ship({ hull: 1000, guns: guns(0, 0, 10) })];
-    const small = [ship({ hull: 100, guns: guns(0, 0, 1) })];
-    expect(enemyWillFlee(small, big)).toBe(true);
-    expect(enemyWillFlee(big, small)).toBe(false);
-  });
-});
+/*
+ * The assessment tests went with the code they were testing, on 20 September.
+ * This file had proved out a five-band `assess()` that nothing in the game ever
+ * called: the real one is `battleOdds` in `fleets.ts`, it was there first, it
+ * counts the shore batteries and the creature as well as the fleets, and it is
+ * what the battle sheet prints. Its own tests live beside it. Keeping a green
+ * suite over a dead duplicate was the thing that let the duplicate survive.
+ */
 
 describe('what the locked rules do not contain', () => {
   const source = GUN_KINDS.join(' ');
