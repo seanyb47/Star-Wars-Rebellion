@@ -6525,3 +6525,66 @@ economy is measured against them.
 The random stream moved when the deal changed, so seed 9000 is a different
 world than it was; all three columns above were run on the new stream, which
 is why the before column is 731 rather than the 756 recorded on 19 September.
+
+---
+
+## The lore package, and where the chart stops it (20 September)
+
+Sean sent COMBAT MASTER v4.3 and a self-contained lore package in one message,
+with a new standing rule: **nothing is canon until Sean confirms it**, and
+`seven-seas-world-bible.md` is demoted to a non-canon idea pool — do not take
+lore from it, do not invent lore to fill gaps, and do not rewrite anything in
+its Part D list.
+
+### Done
+
+- **v4.3**: Majestic 1,045 → 1,200 days, Swift 40 → 15, and a 40-day build
+  floor with the Swift as its only exception, pinned by a test that reads the
+  roster rather than the prose.
+- **The Deep is retired as a system** (Part A 4). Three glossary entries and
+  four role tags gone; eleven tags on the cast become eight. *Tidecraft*
+  survives only as the word for a Reef-folk hull's vanes, and comes off the
+  "Not built yet" card because those vanes already sail.
+- **Blackwater** (Part A 5) is Human, with the bio the package gives.
+- **The Hushed and the Shoal-folk are sworn** (Part A 6), which closes the
+  same hole the Reef-folk line closed: either side could sign them.
+- **Nineteen island notes** (Part C), for islands staying where they are.
+
+### What the chart painting blocks
+
+The world map is a painting — `src/art/chart/seas.webp` — and
+`scripts/chart_positions.py` reads every island's position out of the painted
+land, grouped into Reaches by hand-placed seeds. `chart.json` is that output,
+committed as data. The interface then looks a position up by
+**`ReachName/IslandName`** (`GalaxyMap.tsx`, `ChainMap.tsx`), and island art is
+keyed the same way.
+
+Three consequences, in increasing order of awkwardness:
+
+1. **Renaming a Reach is safe.** The labels are SVG text, not paint. Whalers'
+   → Windward, Wreckers' → Sunken, Cinder → Mire cost three data edits.
+2. **Renaming an island in place is safe.** The painted landmass keeps its
+   position; only the name on it changes. Ashcombe → Starpath, Oakhanger →
+   Chimehouse, Sawtry → Outrigger Bay, Pitchcombe → Longreef, Tarmouth →
+   Palmfall, Tamalu → Reedmoot.
+3. **Moving an island between Reaches does not work**, and neither does
+   adding one. The five moves — Wrightsport, Starcross, Ropley and Wainfleet
+   from Whalers' to Sovereign; The Shoals from Coral to Windward; Tundvik from
+   Cinder to Rime — would put a Crown Sea island up in the north-west where
+   the old Whalers' cluster is painted, because that is where its landmass is.
+   And the six new islands (Driftway, Nine Reefs, Singing Shallows, Keelhaven,
+   Cane Hollow, Belfry Shoal) have no painted land to stand on.
+
+So Part B's restructure is not a data edit. It is either a new chart painting,
+or a decision that the six new islands take spare landmasses the blob detector
+already finds and the five moves are dropped.
+
+### Also standing
+
+- **Blackwater's epithet is now orphaned.** He is "the Drowned Admiral", and
+  the bio the package gives him has no drowning in it. Part D does not list
+  the epithet, and the rule is not to invent, so it is left alone and raised
+  here.
+- Part A 2 (Coralhome starts Crown-held) and Part A 3 (coral beds, a slipway
+  on a bed unlocking the reef hulls) are untouched. Neither depends on the
+  painting; both are real mechanics rather than data.
