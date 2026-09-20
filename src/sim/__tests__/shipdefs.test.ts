@@ -461,3 +461,45 @@ describe('what the shipped data is warned about', () => {
     expect(() => loadRoster(doc)).not.toThrow();
   });
 });
+
+/**
+ * The build-time floor, new in v4.3.
+ *
+ * Part 2B rule 1: *"FLOOR: no ship takes fewer than 40 days to build — a hull
+ * is a hull; the sole exception is the Swift (15 days), barely more than a
+ * sail with a hull under it."*
+ *
+ * A rule with exactly one exception is a rule worth pinning, because the
+ * exception is the part that gets copied. This reads the roster rather than
+ * the prose: the floor is only real if the numbers keep it.
+ */
+describe('the build-time floor', () => {
+  const FLOOR = 40;
+  const SHIPS = ROSTER.ships;
+  const EXEMPT = 'Swift';
+
+  it('holds for every hull but the one the master excepts', () => {
+    const under = SHIPS.filter((s) => s.daysToBuild < FLOOR);
+    expect(under.map((s) => `${s.name} (${s.daysToBuild}d)`)).toEqual(['Swift (15d)']);
+  });
+
+  it('is a floor rather than a coincidence', () => {
+    // Non-vacuity: hulls do sit near it, so the rule is doing work rather
+    // than describing a roster that was never going to go under anyway.
+    const near = SHIPS.filter((s) => s.name !== EXEMPT && s.daysToBuild <= FLOOR + 40);
+    expect(near.length, 'hulls within forty days of the floor').toBeGreaterThan(0);
+    for (const ship of SHIPS) {
+      if (ship.name === EXEMPT) continue;
+      expect(ship.daysToBuild, `${ship.name} builds under the floor`).toBeGreaterThanOrEqual(FLOOR);
+    }
+  });
+
+  /** And the two v4.3 moved on purpose. */
+  it('carries the v4.3 build times', () => {
+    const at = (name: string) => SHIPS.find((s) => s.name === name)!.daysToBuild;
+    expect(at('Majestic')).toBe(1200);
+    expect(at(EXEMPT)).toBe(15);
+    // Still the longest in the game, and by the master's own claim.
+    expect(Math.max(...SHIPS.map((s) => s.daysToBuild))).toBe(at('Coral-Class Dreadnaught'));
+  });
+});

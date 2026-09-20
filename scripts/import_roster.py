@@ -2,20 +2,25 @@
 """
 Rebuild src/data/combat-ships.json and src/data/ship-lore.json from the master.
 
-`COMBAT-MASTER-v4.2.md` is the single authoritative reference, and Parts 3 and 4
+`COMBAT-MASTER-v4.3.md` is the single authoritative reference, and Parts 3 and 4
 of it are the roster and the ship encyclopedia. Both data files are parses of
 it, and both carry a standing instruction not to be edited by hand: re-run this.
 
 The v3-to-v4 import changed no existing stat. Twenty-three of the twenty-five
 ships moved only their simulated win rate, because the matrix went from 25x25
 to 28x28, and three hulls were added — Fenrunner, Wraith and Witchlight.
+
+v4.3 is three lines: the Majestic's build goes 1,045 to 1,200 days, the
+Swift's goes 40 to 15, and Part 2B grows a **floor** — no hull builds in under
+forty days and the Swift is the only exception, being barely more than a sail
+with a hull under it.
 """
 import json
 import os
 import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MASTER = os.path.join(ROOT, 'COMBAT-MASTER-v4.2.md')
+MASTER = os.path.join(ROOT, 'COMBAT-MASTER-v4.3.md')
 
 LORE_FIELDS = {
     'Encyclopedia': 'entry', 'Visual identity': 'identity',
@@ -161,7 +166,7 @@ def main():
 
     p = os.path.join(ROOT, 'src/data/combat-ships.json')
     doc = json.load(open(p))
-    doc['_source'] = ('Part 3 of COMBAT-MASTER-v4.2.md, parsed by scripts/import_roster.py. '
+    doc['_source'] = ('Part 3 of COMBAT-MASTER-v4.3.md, parsed by scripts/import_roster.py. '
                       'Do not edit by hand: edit the master and re-run the script.')
     doc['ships'] = ships
     json.dump(doc, open(p, 'w'), indent=2, ensure_ascii=False)
@@ -169,7 +174,7 @@ def main():
 
     p = os.path.join(ROOT, 'src/data/ship-lore.json')
     doc = json.load(open(p))
-    doc['_comment'] = ('Part 4 of COMBAT-MASTER-v4.2.md, verbatim, parsed by '
+    doc['_comment'] = ('Part 4 of COMBAT-MASTER-v4.3.md, verbatim, parsed by '
                        'scripts/import_roster.py. `entry` is the encyclopedia text shown on the '
                        "ship's sheet; the rest is art direction and is shown to nobody — it is here "
                        'rather than only in the doc so a test can hold it to the master. Do not edit '
@@ -181,7 +186,7 @@ def main():
 
     p = os.path.join(ROOT, 'src/data/combat-derived.json')
     doc = json.load(open(p))
-    doc['_source'] = 'Computed from Part 1 and Part 3 of COMBAT-MASTER-v4.2.md by scripts/import_roster.py'
+    doc['_source'] = 'Computed from Part 1 and Part 3 of COMBAT-MASTER-v4.3.md by scripts/import_roster.py'
     doc['derived'] = derived(ships, text)
     json.dump(doc, open(p, 'w'), indent=2, ensure_ascii=False)
     open(p, 'a').write('\n')

@@ -201,7 +201,7 @@ describe('the words that were retired', () => {
    * idiom for the crew of a vessel rather than a word for a ground unit in
    * general. **Boarding company** is the same kind of thing, and it appears
    * only in the Wraith's and the Marauder's encyclopedia entries, which are
-   * transcribed verbatim from `COMBAT-MASTER-v4.2.md` and checked against it
+   * transcribed verbatim from `COMBAT-MASTER-v4.3.md` and checked against it
    * field for field by `shiplore.test.ts`. Rewording either would either
    * invent a unit name Sean never asked for or put the lore out of step with
    * the document that is its master. Everything else says Troop.

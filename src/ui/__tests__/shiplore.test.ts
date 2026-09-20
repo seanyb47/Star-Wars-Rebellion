@@ -4,7 +4,7 @@ import combatShips from '../../data/combat-ships.json';
 import { shipLore } from '../Almanac';
 
 /**
- * Part 4 of `COMBAT-MASTER-v4.2.md`, and nothing of mine.
+ * Part 4 of `COMBAT-MASTER-v4.3.md`, and nothing of mine.
  *
  * v4 arrived on 20 September; it adds three hulls, rewrites the Swift's and
  * Blackfin's entries, and changes no other ship's stats. Because the master
@@ -17,12 +17,12 @@ import { shipLore } from '../Almanac';
  * types and this keeps the test inside the same module graph as the code.
  */
 const MASTER = (
-  import.meta.glob('../../../COMBAT-MASTER-v4.2.md', {
+  import.meta.glob('../../../COMBAT-MASTER-v4.3.md', {
     query: '?raw',
     import: 'default',
     eager: true,
   }) as Record<string, string>
-)['../../../COMBAT-MASTER-v4.2.md'];
+)['../../../COMBAT-MASTER-v4.3.md'];
 
 const LORE = shipLoreData.lore as Record<string, Record<string, string>>;
 const SHIPS = (combatShips as { ships: Array<Record<string, string | number>> }).ships;
@@ -40,7 +40,7 @@ const FIELDS: Record<string, string> = {
 
 describe('the ship encyclopedia is the master, verbatim', () => {
   it('has the master to compare against', () => {
-    expect(MASTER, 'COMBAT-MASTER-v4.2.md is missing from the repo').toBeTruthy();
+    expect(MASTER, 'COMBAT-MASTER-v4.3.md is missing from the repo').toBeTruthy();
     expect(MASTER).toContain('PART 4 — ENCYCLOPEDIA & ART DIRECTION');
   });
 

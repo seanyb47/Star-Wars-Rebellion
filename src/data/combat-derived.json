@@ -1,6 +1,6 @@
 {
   "_comment": "The Fleet Roster's own Combat Derived Stats tab, copied here verbatim so the engine can be checked against the sheet's arithmetic rather than against itself. Hit chances are what each gun type scores AGAINST this ship - its Size and Speed read through the gun-vs-Size and gun-vs-Speed matrices. The volley columns are that ship's own pre-armor average output: guns times average dice, and deliberately NOT multiplied by hit chance - the Wayfinder's eight light guns come out at 168, which is 8 x 21 flat rather than 85% of it. It measures what a hull throws, not what lands. Re-read from v3 on 19 September; regenerate by re-reading the sheet, never by hand.",
-  "_source": "Computed from Part 1 and Part 3 of COMBAT-MASTER-v4.2.md by scripts/import_roster.py",
+  "_source": "Computed from Part 1 and Part 3 of COMBAT-MASTER-v4.3.md by scripts/import_roster.py",
   "derived": {
     "CWN-WAY-S01": {
       "lightHit": 85,

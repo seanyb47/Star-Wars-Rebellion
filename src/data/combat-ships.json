@@ -1,5 +1,5 @@
 {
-  "_source": "Part 3 of COMBAT-MASTER-v4.2.md, parsed by scripts/import_roster.py. Do not edit by hand: edit the master and re-run the script.",
+  "_source": "Part 3 of COMBAT-MASTER-v4.3.md, parsed by scripts/import_roster.py. Do not edit by hand: edit the master and re-run the script.",
   "_notes": [
     {
       "about": "There is no Firepower stat",
@@ -782,7 +782,7 @@
       "Troop Capacity": 12,
       "Repair Rate": "0.80%",
       "Repair Display": "Slow",
-      "Days to Build": 1045,
+      "Days to Build": 1200,
       "Gold to Build": 2610,
       "Gold/Day Maintenance": 52.2,
       "Status": "Healthy",
@@ -811,7 +811,7 @@
       "Troop Capacity": 0,
       "Repair Rate": "1%",
       "Repair Display": "Normal",
-      "Days to Build": 40,
+      "Days to Build": 15,
       "Gold to Build": 140,
       "Gold/Day Maintenance": 0.5,
       "Status": "Healthy",
