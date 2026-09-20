@@ -1547,7 +1547,7 @@ function caughtAshore(
       // A card, not a log line: losing a crew member is a setback on the scale
       // of an island changing hands, and it used to pass in silence.
       notable: true,
-      text: `${character.name} was taken on ${system.name} with the work half done, and is held at ${
+      text: `${character.name} was taken on ${inProse(system.name)} with the work half done, and is held at ${
         getSystem(state, character.locationSystemId).name
       }.`,
       systemId: system.id,
@@ -1560,8 +1560,8 @@ function caughtAshore(
   pushEvent(state, {
     kind: 'loss',
     text: covert
-      ? `${character.name} was found out on ${system.name} and hurt getting back to the boat.`
-      : `${character.name} is turned off ${system.name}; the talks are over before they began.`,
+      ? `${character.name} was found out on ${inProse(system.name)} and hurt getting back to the boat.`
+      : `${character.name} is turned off ${inProse(system.name)}; the talks are over before they began.`,
     systemId: system.id,
     characterId: character.id,
   });
@@ -1585,15 +1585,15 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
       kind: 'mission',
       text:
         mission.type === 'incite'
-          ? `${character.name} finds nothing left to stir on ${system.name} and goes quiet.`
+          ? `${character.name} finds nothing left to stir on ${inProse(system.name)} and goes quiet.`
           : mission.type === 'recruit'
             ? recruitPool(state, faction).length === 0
-              ? `${character.name} keeps a table on ${system.name} and nobody unclaimed is left ashore to sit at it.`
+              ? `${character.name} keeps a table on ${inProse(system.name)} and nobody unclaimed is left ashore to sit at it.`
               : `${character.name} lands on ${inProse(system.name)} to find it will not hold a table for them any more.`
             : mission.type === 'abduct'
-              ? `${character.name} finds the quay at ${system.name} empty; their mark has sailed.`
+              ? `${character.name} finds the quay at ${inProse(system.name)} empty; their mark has sailed.`
               : mission.type === 'rescue'
-                ? `${character.name} finds the cells at ${system.name} empty; the exchange came first.`
+                ? `${character.name} finds the cells at ${inProse(system.name)} empty; the exchange came first.`
               : mission.type === 'command'
                 ? `${character.name} lands on ${inProse(system.name)} to find order already restored.`
               : mission.type === 'research'
@@ -1601,18 +1601,18 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
                 // until Sean's playtest found it: a yards errand that stops
                 // being possible has lost its yards or its island, and saying
                 // so as a failed negotiation was nonsense twice over.
-                ? `${character.name} finds no yard left working on ${system.name}.`
+                ? `${character.name} finds no yard left working on ${inProse(system.name)}.`
                 : mission.type === 'sabotage' || mission.type === 'espionage'
-                  ? `${character.name} finds nothing worth the risk on ${system.name}.`
+                  ? `${character.name} finds nothing worth the risk on ${inProse(system.name)}.`
                   : mission.type === 'survey'
-                    ? `${character.name} finds ${system.name} already charted.`
+                    ? `${character.name} finds ${inProse(system.name)} already charted.`
                 : system.support[faction] >= SUPPORT_MAX
                   // Not a failure: they arrived to find the argument already
                   // won. "Beyond reach" is for an island that went the other
                   // way, and reading it over a hundred-per-cent island of your
                   // own would be nonsense.
-                  ? `${character.name} finds ${system.name} wholly yours already, and nothing left to argue.`
-                  : `${character.name} abandons the talks on ${system.name}; the island is beyond reach.`,
+                  ? `${character.name} finds ${inProse(system.name)} wholly yours already, and nothing left to argue.`
+                  : `${character.name} abandons the talks on ${inProse(system.name)}; the island is beyond reach.`,
       systemId: system.id,
       characterId: character.id,
     });
@@ -1857,7 +1857,7 @@ function recruitOutcome(
   if (!success || !recruit) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${officer.name} keeps an open table on ${system.name} for a fortnight, and nobody worth the articles sits down at it.`,
+      text: `${officer.name} keeps an open table on ${inProse(system.name)} for a fortnight, and nobody worth the articles sits down at it.`,
       systemId: system.id,
       characterId: officer.id,
     });
@@ -1872,7 +1872,7 @@ function recruitOutcome(
   recruit.locationSystemId = system.id;
   pushEvent(state, {
     kind: 'order',
-    text: `${recruit.name} has signed the articles on ${system.name}, put there by ${officer.name}. ${recruit.blurb ?? ''}`.trim(),
+    text: `${recruit.name} has signed the articles on ${inProse(system.name)}, put there by ${officer.name}. ${recruit.blurb ?? ''}`.trim(),
     systemId: system.id,
     characterId: recruit.id,
   });
@@ -1950,7 +1950,7 @@ function abductOutcome(
   if (!success) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${officer.name} moves on ${mark.name} at ${system.name} and comes away empty-handed.`,
+      text: `${officer.name} moves on ${mark.name} at ${inProse(system.name)} and comes away empty-handed.`,
       systemId: system.id,
       characterId: officer.id,
     });
@@ -1962,7 +1962,7 @@ function abductOutcome(
   pushEvent(state, {
     kind: 'loss',
     notable: true,
-    text: `${officer.name} has taken ${mark.name} off the quay at ${system.name}. They are held at ${held.name}.`,
+    text: `${officer.name} has taken ${mark.name} off the quay at ${inProse(system.name)}. They are held at ${held.name}.`,
     systemId: system.id,
     characterId: mark.id,
   });
@@ -2012,7 +2012,7 @@ function rescueOutcome(
   if (!success) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${officer.name} cannot reach ${captive.name} in the cells at ${system.name}. Not this fortnight.`,
+      text: `${officer.name} cannot reach ${captive.name} in the cells at ${inProse(system.name)}. Not this fortnight.`,
       systemId: system.id,
       characterId: officer.id,
     });
@@ -2027,7 +2027,7 @@ function rescueOutcome(
     // The other half of a capture, and just as worth stopping for: Sean asked
     // for *"captures (and probably rescues)"*.
     notable: true,
-    text: `${officer.name} has ${captive.name} out of the cells at ${system.name} and away. They are home and fit for sea.`,
+    text: `${officer.name} has ${captive.name} out of the cells at ${inProse(system.name)} and away. They are home and fit for sea.`,
     systemId: system.id,
     characterId: captive.id,
   });
@@ -2047,7 +2047,7 @@ function rescueOutcome(
         scope: 'regional',
         local: SHOCK_PRINCIPAL.local,
         regional: SHOCK_PRINCIPAL.regional,
-        news: `${captive.name} is out of the cells at ${system.name} and gone. ${reachName(state, system)} is enjoying the story.`,
+        news: `${captive.name} is out of the cells at ${inProse(system.name)} and gone. ${reachName(state, system)} is enjoying the story.`,
       },
       rng,
     );
@@ -2117,8 +2117,8 @@ export function takePost(
   pushEvent(state, {
     kind: 'order',
     text: wasOut
-      ? `${officer.name} takes command of ${system.name} and puts it back in order.`
-      : `${officer.name} takes command of ${system.name}.`,
+      ? `${officer.name} takes command of ${inProse(system.name)} and puts it back in order.`
+      : `${officer.name} takes command of ${inProse(system.name)}.`,
     systemId: system.id,
     characterId: officer.id,
   });
@@ -2150,7 +2150,7 @@ function researchOutcome(
   if (after > before) {
     pushEvent(state, {
       kind: 'order',
-      text: `The yards at ${system.name} have the measure of it. Shipwright craft is now grade ${after}: every hull is cheaper and quicker to lay down.`,
+      text: `The yards at ${inProse(system.name)} have the measure of it. Shipwright craft is now grade ${after}: every hull is cheaper and quicker to lay down.`,
       systemId: system.id,
       characterId: officer.id,
     });
@@ -2180,7 +2180,7 @@ function surveyOutcome(
   if (opened.length === 0) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${character.name} finds nothing on ${system.name} that the charts did not already have.`,
+      text: `${character.name} finds nothing on ${inProse(system.name)} that the charts did not already have.`,
       systemId: system.id,
       characterId: character.id,
     });
@@ -2414,7 +2414,7 @@ function espionageOutcome(
   if (!success) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${character.name} comes away from ${system.name} with nothing anybody could act on.`,
+      text: `${character.name} comes away from ${inProse(system.name)} with nothing anybody could act on.`,
       systemId: system.id,
       characterId: character.id,
     });
@@ -2435,8 +2435,8 @@ function espionageOutcome(
   pushEvent(state, {
     kind: 'order',
     text: bonus
-      ? `${character.name} has the measure of ${system.name} — ${countOf(system)}, and a watch of ${held} — and came away with ${bonus.name}'s dispatches besides.`
-      : `${character.name} has the measure of ${system.name}: ${countOf(system)}, and a watch of ${held}.`,
+      ? `${character.name} has the measure of ${inProse(system.name)} — ${countOf(system)}, and a watch of ${held} — and came away with ${bonus.name}'s dispatches besides.`
+      : `${character.name} has the measure of ${inProse(system.name)}: ${countOf(system)}, and a watch of ${held}.`,
     systemId: system.id,
     characterId: character.id,
   });
@@ -2507,7 +2507,7 @@ function sabotageOutcome(
   if (!success) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${character.name} finds ${system.name} too well watched, and comes away with nothing.`,
+      text: `${character.name} finds ${inProse(system.name)} too well watched, and comes away with nothing.`,
       systemId: system.id,
       characterId: character.id,
     });
@@ -2523,7 +2523,7 @@ function sabotageOutcome(
   if (back) returnDeposit(state, system, back);
   pushEvent(state, {
     kind: 'loss',
-    text: `${character.name} burns the ${FACILITY_LABEL[target.type].toLowerCase()} on ${system.name}.`,
+    text: `${character.name} burns the ${FACILITY_LABEL[target.type].toLowerCase()} on ${inProse(system.name)}.`,
     systemId: system.id,
     characterId: character.id,
   });
@@ -2561,8 +2561,8 @@ function parleyOutcome(
     pushEvent(state, {
       kind: 'mission',
       text: cycle.backfired
-        ? `${character.name} is heard out on ${system.name} and answered; the room goes the other way.`
-        : `${character.name} makes no headway on ${system.name}.`,
+        ? `${character.name} is heard out on ${inProse(system.name)} and answered; the room goes the other way.`
+        : `${character.name} makes no headway on ${inProse(system.name)}.`,
       systemId: system.id,
       characterId: character.id,
     });
@@ -2634,8 +2634,8 @@ function parleyOutcome(
     kind: 'mission',
     text:
       cycle.swing >= PARLEY_SWING_MAX * 0.8
-        ? `${character.name} carries the room on ${system.name}: allegiance up ${cycle.swing.toFixed(1)} points.`
-        : `${character.name} sways ${system.name}: allegiance up ${cycle.swing.toFixed(1)} points.`,
+        ? `${character.name} carries the room on ${inProse(system.name)}: allegiance up ${cycle.swing.toFixed(1)} points.`
+        : `${character.name} sways ${inProse(system.name)}: allegiance up ${cycle.swing.toFixed(1)} points.`,
     systemId: system.id,
     characterId: character.id,
   });
@@ -2664,8 +2664,8 @@ function inciteOutcome(
     pushEvent(state, {
       kind: 'mission',
       text: cycle.backfired
-        ? `${character.name} finds no ear for it on ${system.name}, and the wrong people hear about the asking.`
-        : `${character.name} finds no ear for it on ${system.name}.`,
+        ? `${character.name} finds no ear for it on ${inProse(system.name)}, and the wrong people hear about the asking.`
+        : `${character.name} finds no ear for it on ${inProse(system.name)}.`,
       systemId: system.id,
       characterId: character.id,
     });
@@ -2684,7 +2684,7 @@ function inciteOutcome(
   pushMomentum(system, faction, MOMENTUM_PER_SUCCESS);
   pushEvent(state, {
     kind: 'mission',
-    text: `${character.name} stirs up ${system.name}: the governor's hold falls ${cycle.swing.toFixed(1)} points.`,
+    text: `${character.name} stirs up ${inProse(system.name)}: the governor's hold falls ${cycle.swing.toFixed(1)} points.`,
     systemId: system.id,
     characterId: character.id,
   });

@@ -26,6 +26,7 @@ import {
   nextId,
   pushEvent,
   setSupport,
+  inProse,
 } from './helpers';
 import type {
   BuildItem,
@@ -300,7 +301,7 @@ export function buildError(
 
   const landing = destinationId ? state.systems.find((s) => s.id === destinationId) : system;
   if (!landing) return 'No such island.';
-  if (landing.control !== facility.owner) return `You do not hold ${landing.name}.`;
+  if (landing.control !== facility.owner) return `You do not hold ${inProse(landing.name)}.`;
   if (landing.uprising) return `${landing.name} is in mutiny.`;
 
   // The ground first. Sean's rule, 16 September: a mill goes on a forest and a
@@ -311,8 +312,8 @@ export function buildError(
   if (wants) {
     if (openDeposits(state, landing, wants) < 1) {
       return depositsLeft(landing, wants) > 0
-        ? `Every ${RESOURCE_LABEL[wants].toLowerCase()} on ${landing.name} is spoken for.`
-        : `No ${RESOURCE_LABEL[wants].toLowerCase()} on ${landing.name}.`;
+        ? `Every ${RESOURCE_LABEL[wants].toLowerCase()} on ${inProse(landing.name)} is spoken for.`
+        : `No ${RESOURCE_LABEL[wants].toLowerCase()} on ${inProse(landing.name)}.`;
     }
     return null;
   }
@@ -320,7 +321,7 @@ export function buildError(
   // Companies and hulls take no ground: one drills, the other floats.
   const held = reservedSlots(state, landing.id);
   if (takesRoom(item) && freeSlots(landing) - held < 1) {
-    return `No room left on ${landing.name}.`;
+    return `No room left on ${inProse(landing.name)}.`;
   }
   return null;
 }
@@ -487,7 +488,7 @@ export function clearForest(state: GameState, systemId: string, actor: PlayableF
   system.deposits = held;
   pushEvent(state, {
     kind: 'order',
-    text: `The timber on ${system.name} has been felled and the ground cleared. There is a plot open where the forest stood.`,
+    text: `The timber on ${inProse(system.name)} has been felled and the ground cleared. There is a plot open where the forest stood.`,
     systemId: system.id,
   });
 }
@@ -588,8 +589,8 @@ export function advanceBuilds(state: GameState): void {
           kind: 'loss',
           text:
             facility.owner === state.player
-              ? `${landing.name} is no longer yours; the ${buildLabel(order.item).toLowerCase()} bound for it turns back to ${system.name}.`
-              : `${landing.name} has changed hands; the ${buildLabel(order.item).toLowerCase()} bound for it turns back to ${system.name}.`,
+              ? `${landing.name} is no longer yours; the ${buildLabel(order.item).toLowerCase()} bound for it turns back to ${inProse(system.name)}.`
+              : `${landing.name} has changed hands; the ${buildLabel(order.item).toLowerCase()} bound for it turns back to ${inProse(system.name)}.`,
           systemId: system.id,
         });
         landing = system;
@@ -617,7 +618,7 @@ export function advanceBuilds(state: GameState): void {
         delete facility.founding;
         pushEvent(state, {
           kind: 'order',
-          text: `A ${terms.facilities.construction_yard.toLowerCase()} now stands on ${system.name}. Anything can be raised here.`,
+          text: `A ${terms.facilities.construction_yard.toLowerCase()} now stands on ${inProse(system.name)}. Anything can be raised here.`,
           systemId: system.id,
         });
         continue;
@@ -640,8 +641,8 @@ function completeBuild(
     pushEvent(state, {
       kind: 'order',
       text: shipped
-        ? `A troop drilled on ${madeOn.name} has landed on ${system.name}.`
-        : `A troop has finished its drill on ${system.name}.`,
+        ? `A troop drilled on ${inProse(madeOn.name)} has landed on ${inProse(system.name)}.`
+        : `A troop has finished its drill on ${inProse(system.name)}.`,
       systemId: system.id,
     });
     return;
@@ -652,8 +653,8 @@ function completeBuild(
     pushEvent(state, {
       kind: 'order',
       text: shipped
-        ? `A ${buildLabel(item)} off the stocks at ${madeOn.name} has come in to ${system.name} and joins ${fleet.name}.`
-        : `A ${buildLabel(item)} slides off the stocks at ${system.name} and joins ${fleet.name}.`,
+        ? `A ${buildLabel(item)} off the stocks at ${inProse(madeOn.name)} has come in to ${inProse(system.name)} and joins ${fleet.name}.`
+        : `A ${buildLabel(item)} slides off the stocks at ${inProse(system.name)} and joins ${fleet.name}.`,
       systemId: system.id,
     });
     return;
@@ -672,8 +673,8 @@ function completeBuild(
   pushEvent(state, {
     kind: 'order',
     text: shipped
-      ? `${buildLabel(item)} raised on ${system.name} by builders from ${madeOn.name}.`
-      : `${buildLabel(item)} completed on ${system.name}.`,
+      ? `${buildLabel(item)} raised on ${inProse(system.name)} by builders from ${inProse(madeOn.name)}.`
+      : `${buildLabel(item)} completed on ${inProse(system.name)}.`,
     systemId: system.id,
   });
 

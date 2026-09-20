@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AudioEngine } from '../audio/engine';
 import type { GameState } from '../sim';
 
@@ -32,6 +32,31 @@ export function useAudio(state: GameState) {
 
   if (!engine.current) engine.current = new AudioEngine();
 
+  /**
+   * Whose theme should be playing, readable from a callback made on an
+   * earlier render. The listener below is registered once and fires much
+   * later; a captured `state.player` would be whatever it was that day.
+   */
+  const theme = useRef(state.player);
+  theme.current = state.player;
+
+  /**
+   * Start the engine, then put the music on — in that order, in one place.
+   *
+   * These two cannot be separated. The theme needs an AudioContext and the
+   * context is only built inside a user gesture, so any path that starts the
+   * engine has to ask for the theme *after* it, not before. Splitting them
+   * was the whole of the music bug: a remembered preference asked for the
+   * theme on mount, got nothing because there was no context yet, and the
+   * first tap then resumed the bed and nothing else.
+   */
+  const resume = useCallback(async () => {
+    const audio = engine.current;
+    if (!audio) return;
+    await audio.start();
+    await audio.ensureTheme(theme.current);
+  }, []);
+
   const toggle = () => {
     const next = !on;
     setOn(next);
@@ -41,7 +66,7 @@ export function useAudio(state: GameState) {
       /* a refused write only costs us the preference next launch */
     }
     // Started here, inside the tap, which is the only place mobile allows it.
-    if (next) void engine.current?.start();
+    if (next) void resume();
     else void engine.current?.suspend();
   };
 
@@ -51,27 +76,29 @@ export function useAudio(state: GameState) {
    */
   useEffect(() => {
     if (!on || engine.current?.running) return;
-    const resume = () => void engine.current?.start();
-    window.addEventListener('pointerdown', resume, { once: true });
-    return () => window.removeEventListener('pointerdown', resume);
-  }, [on]);
+    const go = () => void resume();
+    window.addEventListener('pointerdown', go, { once: true });
+    return () => window.removeEventListener('pointerdown', go);
+  }, [on, resume]);
 
   useEffect(() => {
     const onVisibility = () => {
       if (document.visibilityState === 'hidden') void engine.current?.suspend();
-      else if (on) void engine.current?.start();
+      else if (on) void resume();
     };
     document.addEventListener('visibilitychange', onVisibility);
     return () => document.removeEventListener('visibilitychange', onVisibility);
-  }, [on]);
+  }, [on, resume]);
 
   useEffect(() => () => engine.current?.stop(), []);
 
-  // Your side's theme, once sound is on. A no-op with no music files, which
-  // is how the game ships until somebody puts one in src/audio/music/.
+  // Your side's theme, once sound is on. `ensureTheme` rather than `setTheme`
+  // so that a request made before the engine exists is not mistaken later for
+  // a theme already playing. A no-op with no music files, which is how the
+  // game ships until somebody puts one in src/audio/music/.
   useEffect(() => {
     if (!on) return;
-    void engine.current?.setTheme(state.player);
+    void engine.current?.ensureTheme(state.player);
   }, [on, state.player]);
 
   // Sour the bed while your islands are in revolt.

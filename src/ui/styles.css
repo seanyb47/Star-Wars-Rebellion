@@ -2604,12 +2604,21 @@ button.tcard:hover { border-color: var(--brass); }
 
 /* A tile picked up. It lifts, brightens at the rim, and stops trying to look
    like something you are about to tap. */
+/* A tile that has been picked up. The lift itself — how far it has been
+   carried — is an inline transform, because only the gesture knows where the
+   finger is; this is everything about being held that does not move. */
 .slot--held {
-  transform: scale(1.06);
   border-color: var(--brass);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55);
-  z-index: 2;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+  z-index: 3;
+  cursor: grabbing;
+  /* No transition on transform: a lifted tile has to track the finger frame
+     for frame, and easing it makes it lag behind by exactly the easing. */
+  transition: none;
 }
-/* While a tile can be dragged, the browser must not claim the gesture first:
-   without this the board scrolls and the tile never moves. */
-.slot-wrap .slot { touch-action: none; }
+/* `pan-y`, not `none`. The board must still scroll under a finger that is
+   only scrolling — it is almost entirely tiles, and with `none` here there
+   was nowhere left on the screen to drag a long list by. The browser keeps
+   vertical panning until the hold lands; after that the drag blocks page
+   scrolling itself, for exactly as long as it runs. */
+.slot-wrap .slot { touch-action: pan-y; }

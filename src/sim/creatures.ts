@@ -332,7 +332,7 @@ function prowl(state: GameState, from: System, rng: Rng, fleeing = false): boole
     if (away.explored[state.player]) {
       pushEvent(state, {
         kind: 'battle',
-        text: `${beast.name} breaks off and goes into the water off ${away.name}.`,
+        text: `${beast.name} breaks off and goes into the water off ${inProse(away.name)}.`,
         systemId: away.id,
       });
     }
@@ -347,7 +347,7 @@ function prowl(state: GameState, from: System, rng: Rng, fleeing = false): boole
   if (to.explored[state.player]) {
     pushEvent(state, {
       kind: 'battle',
-      text: `${beast.name} is in the water off ${to.name}.`,
+      text: `${beast.name} is in the water off ${inProse(to.name)}.`,
       systemId: to.id,
     });
   }
@@ -434,7 +434,7 @@ export function stirBeasts(state: GameState, rng: Rng): void {
           kind: 'battle',
           text: `${beast.name} is hurt and has nowhere in ${
             seaOf(state, system) ?? 'these waters'
-          } left to go. It turns and fights off ${system.name}.`,
+          } left to go. It turns and fights off ${inProse(system.name)}.`,
           systemId: system.id,
         });
       }
@@ -508,7 +508,7 @@ export function monsterStrike(
     if (system.explored[state.player]) {
       pushEvent(state, {
         kind: 'loss',
-        text: `${beast.name} ${beast.strike ?? 'takes'} a hull off ${system.name} and it is gone under.`,
+        text: `${beast.name} ${beast.strike ?? 'takes'} a hull off ${inProse(system.name)} and it is gone under.`,
         systemId: system.id,
       });
     }

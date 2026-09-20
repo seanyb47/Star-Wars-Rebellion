@@ -617,7 +617,7 @@ export function advanceFleets(state: GameState, rng: Rng): void {
     scoutFrom(state, fleet, system);
     pushEvent(state, {
       kind: 'order',
-      text: `${fleet.name} has come to anchor off ${system.name}.`,
+      text: `${fleet.name} has come to anchor off ${inProse(system.name)}.`,
       systemId: system.id,
     });
     // What is in the water is found by going, not by charting. scoutFrom can
@@ -915,9 +915,21 @@ function enemyBreaksOff(state: GameState, system: System, rng: Rng): boolean {
   return ran;
 }
 
-/** Every wall standing on this island for whoever holds it, rubble aside. */
+/**
+ * Every wall standing on this island for whoever holds it, rubble aside.
+ *
+ * "Whoever holds it" now includes an island that holds itself. Both this and
+ * `fortGuns` used to refuse anything but a side's own island, which was true
+ * enough while only the two sides could build — but since 20 September a
+ * settled unaligned island can open with a Fortress on it, and a wall that
+ * cannot fire because nobody has claimed the ground is not a wall. The
+ * `f.owner === system.control` test below is the one that matters and was
+ * always the right one: it is the island's own garrison manning its own
+ * battery, and `handOver` moves the deed with the island when it changes
+ * hands. An abandoned island — control 'none' — still has nothing, because
+ * nothing there matches.
+ */
 export function fortsOf(system: System): Facility[] {
-  if (system.control !== 'empire' && system.control !== 'alliance') return [];
   return system.facilities.filter(
     (f) =>
       isWall(f.type) &&
@@ -965,7 +977,6 @@ export function underTheWall(state: GameState, fleet: Fleet): boolean {
 }
 
 export function fortGuns(system: System): number {
-  if (system.control !== 'empire' && system.control !== 'alliance') return 0;
   const forts = system.facilities.filter(
     (f) => isWall(f.type) && f.owner === system.control && !f.building,
   );
@@ -1048,7 +1059,7 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
     if (fleet.faction === state.player) {
       pushEvent(state, {
         kind: 'battle',
-        text: `${fleet.name} can put nothing into the walls of ${system.name} today.`,
+        text: `${fleet.name} can put nothing into the walls of ${inProse(system.name)} today.`,
         systemId: system.id,
         report: bombardReport(state, system, 'defeat', {
           wallsDown: 0,
@@ -1127,8 +1138,8 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
     pushEvent(state, {
       kind: 'battle',
       text: fortsOf(system).length === 0
-        ? `The last of the seawall at ${system.name} is down. The landing is open.`
-        : `A battery at ${system.name} is beaten to rubble.`,
+        ? `The last of the seawall at ${inProse(system.name)} is down. The landing is open.`
+        : `A battery at ${inProse(system.name)} is beaten to rubble.`,
       // Losing a wall of your own is a loss; taking one down is an action.
       ...(system.control === state.player ? { kind: 'loss' as const } : {}),
       systemId: system.id,
@@ -1150,7 +1161,7 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
           scope: 'regional',
           local: SHOCK_MILITARY_FIRE.local,
           regional: SHOCK_MILITARY_FIRE.regional,
-          news: `The batteries of ${system.name} are down, and the town behind them is untouched. It is being told that way up and down ${reachName(state, system)}.`,
+          news: `The batteries of ${inProse(system.name)} are down, and the town behind them is untouched. It is being told that way up and down ${reachName(state, system)}.`,
         },
         rng,
       ),
@@ -1160,8 +1171,8 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
       kind: 'battle',
       text:
         fleet.faction === state.player
-          ? `${fleet.name} works the walls of ${system.name}. ${Math.round(wallCondition(system) * 100)}% of them still stand.`
-          : `${fleet.name} lies off ${system.name} and works the walls. ${Math.round(wallCondition(system) * 100)}% of them still stand.`,
+          ? `${fleet.name} works the walls of ${inProse(system.name)}. ${Math.round(wallCondition(system) * 100)}% of them still stand.`
+          : `${fleet.name} lies off ${inProse(system.name)} and works the walls. ${Math.round(wallCondition(system) * 100)}% of them still stand.`,
       systemId: system.id,
     });
   }
@@ -1179,7 +1190,7 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
     if (fleet.faction === state.player && felled > 0) {
       pushEvent(state, {
         kind: 'battle',
-        text: `${fleet.name} works the walls of ${system.name}, and they are not silenced yet.`,
+        text: `${fleet.name} works the walls of ${inProse(system.name)}, and they are not silenced yet.`,
         quiet: true,
         systemId: system.id,
         report: bombardReport(state, system, 'draw', {
@@ -1203,7 +1214,7 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
    */
   pushEvent(state, {
     kind: 'battle',
-    text: `${fleet.name} fires into ${system.name} over the heads of its people.`,
+    text: `${fleet.name} fires into ${inProse(system.name)} over the heads of its people.`,
     quiet: true,
     systemId: system.id,
     report: bombardReport(state, system, felled > 0 ? 'victory' : 'draw', {
@@ -1247,7 +1258,7 @@ function bombardReport(
           ? 'Bombardment failed'
           : 'Inconclusive',
     operation: 'Bombardment',
-    title: `The guns off ${system.name}`,
+    title: `The guns off ${inProse(system.name)}`,
     systemId: system.id,
     day: state.day,
     people: [],
@@ -1258,7 +1269,7 @@ function bombardReport(
       { label: 'Shot into the town', value: civilian, civilian: true },
     ],
     control: isPlayable(system.control)
-      ? `${factionData[system.control].shortName} holds ${system.name}`
+      ? `${factionData[system.control].shortName} holds ${inProse(system.name)}`
       : undefined,
     strategic: bombardStrategic({
       verdict,
@@ -1333,12 +1344,12 @@ function shellTheTown(
     pushEvent(state, {
       kind: system.control === state.player ? 'loss' : 'battle',
       text: system.populated
-        ? `${fleet.name} shells ${system.name} itself. ${
+        ? `${fleet.name} shells ${inProse(system.name)} itself. ${
             broken > 0
               ? `${broken} ${broken === 1 ? 'troop is' : 'troops are'} broken`
               : 'The garrison holds'
           }, the quarter behind the quay is burning, and word of it is running through the Reach.`
-        : `${fleet.name} works over ${system.name}. ${broken} ${broken === 1 ? 'troop is' : 'troops are'} broken.`,
+        : `${fleet.name} works over ${inProse(system.name)}. ${broken} ${broken === 1 ? 'troop is' : 'troops are'} broken.`,
       systemId: system.id,
     });
   }
@@ -1492,7 +1503,7 @@ function reportRound(
   if (killedBeast && beast) {
     pushEvent(state, {
       kind: 'battle',
-      text: `${beast.name} is killed off ${system.name}. The water there is only water now.`,
+      text: `${beast.name} is killed off ${inProse(system.name)}. The water there is only water now.`,
       systemId: system.id,
       quiet,
     });
@@ -1512,7 +1523,7 @@ function reportRound(
     if (beast && beastAlive(system) && damage > 0) {
       pushEvent(state, {
         kind: 'battle',
-        text: `${beast.name} is at the hulls off ${system.name}. ${damage} taken and nothing sunk${
+        text: `${beast.name} is at the hulls off ${inProse(system.name)}. ${damage} taken and nothing sunk${
           system.beastDamage ? `; it has ${system.beastDamage} of ${beast.hull} in it` : ''
         }.`,
         systemId: system.id,
@@ -1538,7 +1549,7 @@ function reportRound(
     .join(', ');
   pushEvent(state, {
     kind: 'battle',
-    text: `Action off ${system.name}${against}. ${losses ? `${losses[0].toUpperCase()}${losses.slice(1)} lost.` : 'Nothing afloat on either side.'}`,
+    text: `Action off ${inProse(system.name)}${against}. ${losses ? `${losses[0].toUpperCase()}${losses.slice(1)} lost.` : 'Nothing afloat on either side.'}`,
     systemId: system.id,
     quiet,
     battle: {
@@ -1695,7 +1706,7 @@ function fightRound(
         scope: 'regional',
         local: 0,
         regional: Math.min(SHOCK_BATTLE_CEILING, margin * SHOCK_PER_GUN_SUNK),
-        news: `The ${factionData[victor].shortName} has the better of an action off ${system.name}, and ${reachName(state, system)} is counting the wrecks.`,
+        news: `The ${factionData[victor].shortName} has the better of an action off ${inProse(system.name)}, and ${reachName(state, system)} is counting the wrecks.`,
       },
       rng,
     );
@@ -1775,8 +1786,8 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
     pushEvent(state, {
       kind: 'battle',
       text: again
-        ? `The landing on ${system.name} is thrown back, and the boats pull for the ships.`
-        : `The landing on ${system.name} is thrown back into the sea.`,
+        ? `The landing on ${inProse(system.name)} is thrown back, and the boats pull for the ships.`
+        : `The landing on ${inProse(system.name)} is thrown back into the sea.`,
       systemId: system.id,
       landing: report,
       ...(fleet.faction === state.player || system.control === state.player
@@ -1838,7 +1849,7 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
       kind: 'loss',
       // Every capture raises a card. See `notable` on GameEvent.
       notable: true,
-      text: `${caught.name} was taken on ${system.name} when it fell, and is held at ${
+      text: `${caught.name} was taken on ${inProse(system.name)} when it fell, and is held at ${
         getSystem(state, caught.locationSystemId).name
       }.`,
       systemId: system.id,
@@ -1862,7 +1873,7 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
       kind: 'mission',
       // And every rescue. Sean asked for *"captures (and probably rescues)"*.
       notable: true,
-      text: `${freed.name} is out of the cells at ${system.name}, freed by the landing.`,
+      text: `${freed.name} is out of the cells at ${inProse(system.name)}, freed by the landing.`,
       systemId: system.id,
       characterId: freed.id,
     });
@@ -1975,7 +1986,7 @@ function assaultReport(
           ? 'Assault repulsed'
           : 'Assault inconclusive',
     operation: 'Assault',
-    title: `The landing on ${system.name}`,
+    title: `The landing on ${inProse(system.name)}`,
     systemId: system.id,
     day: state.day,
     mine: {
@@ -2001,7 +2012,7 @@ function assaultReport(
       { label: 'Troops ashore, holding', value: ashore },
       { label: 'Troops still aboard', value: aboard },
     ],
-    control: `${holder} holds ${system.name}`,
+    control: `${holder} holds ${inProse(system.name)}`,
     strategic: assaultStrategic({
       verdict,
       where: system.name,
@@ -2043,8 +2054,8 @@ export function updateBlockades(state: GameState): void {
     pushEvent(state, {
       kind: shut ? 'loss' : 'order',
       text: shut
-        ? `Enemy sail off ${system.name}. Nothing is getting out of that harbor.`
-        : `The blockade of ${system.name} is lifted.`,
+        ? `Enemy sail off ${inProse(system.name)}. Nothing is getting out of that harbor.`
+        : `The blockade of ${inProse(system.name)} is lifted.`,
       systemId: system.id,
     });
   }
@@ -2168,8 +2179,8 @@ export function fleeBattle(
       pushEvent(state, {
         kind: 'battle',
         text: lost > 0
-          ? `${fleet.name} breaks off from ${system.name} under long guns and loses ${lost} ${lost === 1 ? 'hull' : 'hulls'} getting clear.`
-          : `${fleet.name} breaks off from ${system.name} under long guns and gets clear.`,
+          ? `${fleet.name} breaks off from ${inProse(system.name)} under long guns and loses ${lost} ${lost === 1 ? 'hull' : 'hulls'} getting clear.`
+          : `${fleet.name} breaks off from ${inProse(system.name)} under long guns and gets clear.`,
         systemId: system.id,
       });
     }
@@ -2183,7 +2194,7 @@ export function fleeBattle(
   if (fleet.faction === state.player) {
     pushEvent(state, {
       kind: 'order',
-      text: `${fleet.name} runs for ${refuge.name}.`,
+      text: `${fleet.name} runs for ${inProse(refuge.name)}.`,
       systemId: system.id,
     });
   }
@@ -2512,7 +2523,7 @@ export function buildBattleReport(
           ? 'They break off'
           : VERDICT_WORD[verdict],
     operation: 'Fleet action',
-    title: `Action off ${system.name}`,
+    title: `Action off ${inProse(system.name)}`,
     systemId: system.id,
     day: state.day,
     mine,

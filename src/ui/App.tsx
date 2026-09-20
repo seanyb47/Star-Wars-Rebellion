@@ -43,6 +43,7 @@ import {
   orderClearForest,
   orderFoundWorks,
   type MissionType,
+  inProse,
 } from '../sim';
 import { Almanac } from './Almanac';
 import { LookUpProvider, type EncPage } from './lookup';
@@ -361,7 +362,7 @@ export function App() {
     if (result.error) flash(result.error);
     else if (destinationId) {
       const where = state.systems.find((s) => s.id === destinationId)!;
-      flash(`Ordered for ${where.name}.`);
+      flash(`Ordered for ${inProse(where.name)}.`);
     }
     setState(result.state);
   };
@@ -421,7 +422,7 @@ export function App() {
     if (choosingSite) {
       const where = state.systems.find((s) => s.id === systemId)!;
       if (where.control !== state.player || where.uprising) {
-        flash(where.uprising ? `${where.name} is in mutiny.` : `You do not hold ${where.name}.`);
+        flash(where.uprising ? `${where.name} is in mutiny.` : `You do not hold ${inProse(where.name)}.`);
         return;
       }
       setDraft((d) => (d ? { ...d, destinationId: systemId } : d));
@@ -454,7 +455,7 @@ export function App() {
       const island = state.systems.find((s) => s.id === systemId)!;
       const officer = state.characters.find((c) => c.id === pickingFor)!;
       if (missionsOffered(state, island, officer.faction as PlayableFaction, officer).length === 0) {
-        flash(`Nothing for ${officer.name} to do on ${island.name}.`);
+        flash(`Nothing for ${officer.name} to do on ${inProse(island.name)}.`);
         return;
       }
       setOpenReachId(null);

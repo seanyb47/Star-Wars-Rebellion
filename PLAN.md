@@ -5833,3 +5833,176 @@ Tide has taken"*. The Crown's faction blurb went the same way. Those two are the
 whole of the Tide sweep in this pass; the rest of it — Blackwater's backstory,
 Ros Carrow's island, the Deep, `docs/lore.md` — sits behind v4.0's own open
 questions and is not ours to invent.
+
+## Six from the 20 September play session
+
+Sean, after playing: the drag is clunky, research ships are in the fleets, the
+Confederacy has three Swifts too many, the music is broken, open with one of
+each yard rather than two, and give the unaligned islands some infrastructure.
+Five of the six landed. The music did not, and the honest reason is below.
+
+### The drag: three faults, one mistake
+
+The gesture was already *press and hold and move* on paper. What it did was
+count travel: while a tile was held, crossing 0.6 of a tile width on whichever
+axis had moved further called `order.up` or `order.down` once and reset the
+origin. Everything wrong with it follows from measuring distance instead of
+looking at where the finger actually was.
+
+- **The board would not scroll.** `touch-action: none` sat on every orderable
+  tile so the browser could not claim the gesture. A board is almost entirely
+  tiles, so almost nothing on the screen scrolled and the only way down a long
+  list was to find a gap. It is `pan-y` now — the board scrolls normally until
+  the hold lands, and the drag pins the page itself, for exactly as long as it
+  runs, with a non-passive `touchmove`.
+- **Nothing followed the finger.** The tile scaled up six per cent and stayed
+  where it was while the list rearranged underneath it. It is lifted and
+  translated now. The shift is computed against the *cell wrapper's*
+  rectangle, which is never transformed — so after a reorder it re-reads
+  correctly with nothing to rebase.
+- **A grid was treated as a line.** The board is two across, three when wide.
+  Dragging a tile straight down one row moved it one place and put it in the
+  wrong column. The target now comes from the neighbours' real rectangles:
+  nearest centre wins, by a margin that stops a finger resting on a boundary
+  from rattling the tile between two places.
+
+Two more only a driven gesture would have found, and both were found that way —
+a scratch page mounting the real `Slot` in a board, driven with a real pointer:
+
+- **Pointer capture does not survive the reorder.** `setPointerCapture` is the
+  obvious way to keep the gesture while the finger crosses onto a neighbour.
+  The first thing this drag does is reorder the list; React moves the node; and
+  moving a node in the DOM drops its capture. Measured: the tile stepped
+  exactly one place, went deaf, and — because the `pointerup` then landed on
+  whatever tile was now under the cursor — never put itself down, staying
+  lifted on the board. Everything listens on the document now, which cannot be
+  reordered out from under a listener.
+- **Dropping a tile on another tile opened that tile.** The click after a drag
+  goes to the nearest common ancestor of the press and the release, passing
+  through whatever is under the finger on the way. The tile's own `moved` guard
+  only ever covered a drag that ended where it started. The click after a real
+  drag is now swallowed once, at the document, and dropped after 350ms in case
+  no click follows.
+
+### The opening
+
+`START_YARDS`, `START_TRAINING` and `START_SHIPYARDS` all go 2 → 1. The
+Confederate Home Fleet goes from four Swifts, a Tempest and a Brig to one
+Swift, two Tempests and a Brig — 39 guns in four hulls against the Windward's
+44 in four, where it had been 44 in six. Slightly lighter and no longer a
+swarm, which is the trade for Sean's *"1 swift is all the swifts you need"*.
+
+### Works on the unaligned islands
+
+A fifth of settled unaligned islands carry one of each of the two building
+yards, the slipway and the Fortress; a twentieth carry two. Three things had to
+be got right and only the first was obvious.
+
+**The rolls come off a stream of the island's own**, keyed on the island *and*
+the world, never off the world generator. Four extra draws per settled island
+taken from the shared stream would have re-rolled every terrain, deposit,
+creature and garrison downstream — the same trap the island rename hit on 19
+September, and the reason `System.seed` is frozen at all. Keyed on the island
+alone, which is what the first cut did, every world gave the same island the
+same shipyard: there are sixty-one islands and one frozen seed apiece, so the
+rate would not settle however many worlds were sampled.
+
+**The rates were a third of what was asked for** until the works were given the
+berth they stand on. A settled island is mostly spoken for already — deposits,
+and the mills already on them — so the roll was being won and then thrown away
+for want of a plot. Measured at 0.09–0.12 per island against the 0.30 Sean
+specified; the opening deal makes the same allowance for the two sides' own
+islands, and for the same reason. It measures 0.31–0.33 now, one at 20% and two
+at 5%.
+
+**And mulberry32 is a poor generator in its first few draws from neighbouring
+seeds.** Four independent one-in-five rolls off a freshly seeded stream came out
+as two good rolls and two holding hands — the fourth landed on 8% and 8% where
+it should have been 20% and 5%. `mixSeed` (the murmur3 finaliser) and a
+two-draw warm-up fixed it. Worth knowing for anything else that wants a stream
+per island.
+
+**The works are dealt after the two sides take their islands, not during.**
+Every island is briefly unaligned while the world is being made, so running it
+in the generation loop put yards and walls on the eight or ten islands the
+sides were about to be dealt — and the upkeep opened **both sides insolvent**,
+the Crown at 91 against an unchanged income of 83. An island is only neutral
+once the dealing is over.
+
+**The Fortress fires.** `fortGuns` and `fortsOf` refused any island the two
+sides did not hold, which was fine while only they could build one. A wall that
+cannot shoot is not a wall, so the guard is gone and the `f.owner ===
+system.control` test — which was always the right one — carries it, with
+`handOver` moving the deed when the island changes hands. So a landing on an
+island that rolled a Fortress has to knock it down first, and parley gets more
+attractive against conquest.
+
+### What the changes cost
+
+Forty machine-played wars on the same seeds, before and after:
+
+|  | before | after |
+|---|---|---|
+| result | Crown 17 — Confederacy 23 | **Crown 17 — Confederacy 23** |
+| median length | 612 days | 756 days |
+| Crown at the end | 19.1 islands, 18.3 hulls, 568 gold | 19.7, 17.9, 876 |
+| Confederacy at the end | 8.6 islands, 11.0 hulls, 757 gold | 8.9, 9.5, **1,840** |
+| Lords in irons | 1.30 of 3 | 1.43 of 3 |
+
+The war balance did not move at all. Two things did: wars run about a quarter
+longer, and both sides end much richer — the Confederacy on 1,840 gold against
+757 — because with one construction yard and one slipway there are half as many
+places to put it. That is the existing gold-hoard problem made worse rather than
+a new one, and it is worth a look before the yards change is called finished.
+
+The baseline run also turned up a rule the harness had been reporting broken
+29,400 times: `crown-seat-moved` still expected the Crown's seat to be named
+Highwater, which the island rename made false on 19 September. A harness that
+always reports a broken rule is one nobody reads when a rule actually breaks.
+It reads `capitalIslandName` now, and forty wars report no rule broken at all.
+
+### The research hulls, and where they actually were
+
+Nothing either side opens with has ever needed a grade of shipwright craft —
+checked over twelve worlds before changing anything. What was wrong is the
+Build sheet, which listed `shipsFor(faction)`, every hull the side has designs
+for, and refused the locked ones on the way out with a message. A hull you
+cannot lay down should not be on the list you lay hulls down from; it is
+`shipsAt(you, gradeOf(state, you))` now. Both halves are pinned in
+`openingfleet.test.ts` so neither can drift back.
+
+### The music, which is not fixed
+
+I could not reproduce it, and say so rather than claim otherwise.
+
+What was checked, in a browser, against both the old build and the new: the two
+mp3s are committed and not ignored; Vite emits them into `dist/assets`; the
+request for the right side's theme goes out; `decodeAudioData` succeeds; the
+buffer source starts (240.7s, looping 28.9 → 182.8); and the music gain ramps
+to 0.55. That holds on a cold start, on a first toggle, and on a reload with
+the preference remembered — every path I could construct plays.
+
+One real fault was found and fixed on the way, and it is worth keeping even
+though it is not the reported symptom. `setTheme` needs an AudioContext, the
+context is only built inside a user gesture, and `musicFor` is what stops a
+theme being laid down twice — so a theme asked for before the first gesture was
+turned away at the first guard and *never asked for again*. Today that is
+masked by the player's side changing after the gesture, which re-triggers the
+effect; it is an accident of ordering, not a safeguard. `ensureTheme` retries
+when nothing is actually sounding, and every path that starts or resumes the
+engine goes through it — which also means the written-score fallback comes back
+after the tab has been in the background, which it previously did not.
+
+The likeliest remaining cause is the one a desktop browser cannot show: on iOS
+the hardware silent switch mutes Web Audio, and that would mute the sea and the
+bell along with the music. Which is the question worth asking, and it is in the
+reply rather than guessed at here.
+
+### And a sweep that came with the rename
+
+`inprose.test.ts` went red on a seed where a parley happened on an island named
+*The Terraces* — *"Sable makes no headway on The Terraces."* `inProse` lowercases
+a leading "The " for mid-sentence use and had been applied in about six places
+out of a hundred and eight. It was passing on the luck of the draw. All 102
+remaining sites now use it, restricted to variables that genuinely hold a
+System.

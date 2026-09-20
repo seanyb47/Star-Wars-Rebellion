@@ -5,6 +5,8 @@ import {
   GOLD_PER_DAY,
   shipClass,
   shipSpec,
+  gradeOf,
+  shipsAt,
   shipsFor,
   isShipClass,
   requiredGarrison,
@@ -15,6 +17,7 @@ import {
   type FacilityType,
   type GameState,
   type System,
+  inProse,
 } from '../sim';
 import { CompanyIcon, FacilityIcon, ShipIcon, facilityArt } from './art';
 import { GoldFig, Sheet, Stat } from './components';
@@ -56,7 +59,14 @@ export const KIND_LABEL: Record<BuildKind, string> = {
   ships: 'Build Ships',
 };
 
-/** The first thing on each menu, so the order sheet opens with something chosen. */
+/**
+ * The first thing on each menu, so the order sheet opens with something
+ * chosen.
+ *
+ * `shipsFor` and not `shipsAt` on purpose: the first hull on a side's list is
+ * one it has always been able to lay down, so no grade of craft can make this
+ * pick illegal, and the menu that follows does the gating.
+ */
 export function firstItem(kind: BuildKind, faction: 'empire' | 'alliance'): BuildItem {
   if (kind === 'troops') return 'troop';
   if (kind === 'ships') return shipsFor(faction)[0].id;
@@ -173,7 +183,7 @@ export function BuildOrderSheet({
                     {buildLabel(type)}
                   </option>
                 ))
-              : shipsFor(you).map((c) => (
+              : shipsAt(you, gradeOf(state, you)).map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
                   </option>
@@ -223,8 +233,8 @@ export function BuildOrderSheet({
               </div>
               <p className="tiny muted" style={{ margin: '8px 0 0' }}>
                 {plan.travel === 0
-                  ? `Made on ${destination.name}.`
-                  : `Made on ${from?.name ?? 'an island of yours'}, then ${plan.travel} days by sea to ${destination.name}.`}
+                  ? `Made on ${inProse(destination.name)}.`
+                  : `Made on ${from?.name ?? 'an island of yours'}, then ${plan.travel} days by sea to ${inProse(destination.name)}.`}
                 {kind === 'troops' &&
                   ` ${destination.name} holds ${destination.garrison}; its allegiance asks for ${requiredGarrison(destination.support[you])}.`}
               </p>

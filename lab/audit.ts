@@ -2,6 +2,7 @@
  * Everything that must be true of a game state, checked every day of every
  * game. A violation here is a bug, not a balance opinion.
  */
+import factionData from '../src/data/factions.json';
 import { fleetCapacity } from '../src/sim/fleets';
 import type { GameState } from '../src/sim/types';
 
@@ -23,8 +24,16 @@ export function audit(s: GameState): Violation[] {
     if (!num(f.craft) || f.craft < 0) bad('craft-bad', `${side} craft=${f.craft}`);
     if (!systemIds.has(f.hqSystemId)) bad('hq-orphan', `${side} hq=${f.hqSystemId}`);
   }
+  // The Crown's seat is the Aldermain, and has been since the island rename of
+  // 19 September: Highwater is the walled capital city standing on it, not the
+  // island. This rule still said 'Highwater' and so fired on every day of
+  // every war — twenty-nine thousand times over forty wars — which is worse
+  // than useless, because a harness that always reports a broken rule is a
+  // harness nobody reads when a rule actually breaks.
   const crownSeat = s.systems.find((x) => x.id === s.factions.empire.hqSystemId);
-  if (crownSeat && crownSeat.name !== 'Highwater') bad('crown-seat-moved', crownSeat.name);
+  if (crownSeat && crownSeat.name !== factionData.empire.capitalIslandName) {
+    bad('crown-seat-moved', crownSeat.name);
+  }
   const confedSeat = s.systems.find((x) => x.id === s.factions.alliance.hqSystemId);
   // Only a violation while somewhere safe exists. With every populated island
   // in Crown hands there is nowhere to point home at, which is a design

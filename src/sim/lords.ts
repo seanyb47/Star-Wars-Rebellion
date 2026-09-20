@@ -31,7 +31,7 @@
  * becomes a manhunt rather than a search for three hulls.
  */
 import { MOOT_SUPPORT_PER_DAY, PIRATE_LORDS, type PirateLord } from './constants';
-import { getSystem, pushEvent } from './helpers';
+import { getSystem, inProse, pushEvent } from './helpers';
 import type { Character, GameState, LordPower } from './types';
 
 export function lordOfName(name: string): PirateLord | undefined {
@@ -131,7 +131,7 @@ export function restoreLord(state: GameState, character: Character): void {
   character.locationSystemId = home.id;
   pushEvent(state, {
     kind: 'order',
-    text: `${character.name} is back among the Brethren at ${home.name}.`,
+    text: `${character.name} is back among the Brethren at ${inProse(home.name)}.`,
     systemId: home.id,
     characterId: character.id,
   });

@@ -83,7 +83,11 @@ describe('the opening, against Rebellion', () => {
       for (const f of ['empire', 'alliance'] as const) {
         expect(state.factions[f].income, `${f} seed ${seed}`).toBeGreaterThan(state.factions[f].upkeep);
         const fleet = state.fleets.find((x) => x.faction === f)!;
-        expect(fleet.ships.length).toBeGreaterThanOrEqual(5);
+        // Four, not five. The Confederate Home Fleet lost three Swifts on 20
+        // September — *"1 swift is all the swifts you need"* — and came back
+        // as one Swift, two Tempests and the Brig, so four hulls is now the
+        // smaller of the two openings rather than six.
+        expect(fleet.ships.length).toBeGreaterThanOrEqual(4);
         for (const s of state.systems.filter((x) => x.control === f)) {
           const free = s.slots - s.facilities.length;
           expect(free, `${s.name}`).toBeGreaterThan(0);

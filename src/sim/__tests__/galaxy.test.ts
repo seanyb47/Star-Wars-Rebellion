@@ -167,10 +167,12 @@ describe('generateGalaxy', () => {
           .flatMap((s) => s.facilities)
           .filter((f) => f.owner !== faction),
       ).toHaveLength(0);
-      // Two of each maker, dealt at random across the side's islands.
-      expect(count('construction_yard')).toBe(2);
-      expect(count('training_facility')).toBe(2);
-      expect(count('shipyard')).toBe(2);
+      // One of each maker, dealt at random across the side's islands. It was
+      // two apiece until Sean's word of 20 September: *"Let's start game with
+      // only 1 of each type of construction facility instead of 2 each."*
+      expect(count('construction_yard')).toBe(1);
+      expect(count('training_facility')).toBe(1);
+      expect(count('shipyard')).toBe(1);
     }
   });
 

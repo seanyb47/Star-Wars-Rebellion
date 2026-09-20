@@ -1,4 +1,4 @@
-import { Children, useCallback, useRef, useState, type ReactNode } from 'react';
+import { Children, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import factionData from '../data/factions.json';
 import { allegianceColour, allegianceSegments } from './allegiance';
 import { usePrefs } from './prefs';
@@ -240,101 +240,237 @@ export function SlotBoard({
 
 /** One thing on the board: a picture, a name, and optionally a line under it. */
 /**
- * Hold a tile, then drag it past its neighbour to move it.
+ * Hold a tile, then drag it where it should go.
  *
- * Sean, 19 September: *"allow me to press and hold to drag and move."*
+ * Sean, 19 September: *"allow me to press and hold to drag and move."* And on
+ * 20 September, having tried it: *"The drag and drop feature is super clunky.
+ * Should be like a press and hold then move. Right now it's very hard to
+ * manage."* The gesture was right and the implementation was not. Three
+ * things were wrong with it, and all three are the same mistake — the old one
+ * counted travel instead of looking at where the finger actually was.
  *
- * Built on the one-step `order.up` / `order.down` the lists already expose
- * rather than on a drop target, which is what keeps it small: while a tile is
- * held, crossing the width of a tile in either direction moves it one place
- * and the origin resets. Drag three tiles' worth and it has moved three
- * places, which is what dragging feels like, without anybody having to track
- * a drop index.
+ * **The board could not be scrolled.** Every orderable tile carried
+ * `touch-action: none` so the browser would not steal the drag. On a board
+ * that is almost entirely tiles, that meant almost nothing on the screen
+ * scrolled, and the only way down a long list was to find a gap between
+ * tiles. It is `pan-y` now: the board scrolls the way any list does until the
+ * hold lands, and only then is the page pinned, by a non-passive `touchmove`
+ * that runs for the life of the drag. A finger that moves before the hold has
+ * landed was scrolling and is left alone.
  *
- * Pointer events rather than touch, so a mouse works the same way and a test
- * can drive it. The press has to be *held* — 320ms — because these tiles are
- * also buttons, and a tile that reordered on a quick drag would fight the
- * scroll of the board it sits in. The click that follows a real drag is
- * swallowed, or letting go would also open the thing you just moved.
+ * **Nothing followed the finger.** The tile grew six per cent and stayed
+ * where it was while the list rearranged itself somewhere underneath. Now the
+ * tile is lifted and translated so it sits under the finger for as long as it
+ * is held, which is the entire difference between dragging something and
+ * watching a list twitch.
+ *
+ * **A grid was treated as a line.** The board is two across, three on a wide
+ * screen, and the old rule moved a tile one place for every 0.6 of a tile
+ * width travelled on whichever axis had moved further — so dragging a tile
+ * straight down one row moved it one place and landed it in the wrong column.
+ * The target now comes from the neighbours' real rectangles: whichever cell's
+ * centre the finger is nearest is where the tile wants to be, and it steps
+ * one place at a time towards it through the same `order.up` / `order.down`
+ * the arrows use. No drop index to track, and a row is a row.
+ *
+ * The margin on that comparison is what stops a finger resting on a boundary
+ * from rattling the tile between two places forever.
  */
-const HOLD_MS = 320;
+const HOLD_MS = 250;
+/** How far a finger may stray before a press is a scroll and not a hold. */
+const SLOP = 8;
+/** How much nearer another cell must be before the tile moves to it. */
+const SETTLE = 6;
 
 function useHoldDrag(order?: { up?: () => void; down?: () => void }) {
   const [held, setHeld] = useState(false);
-  const from = useRef<{ x: number; y: number } | null>(null);
-  const timer = useRef<number | undefined>(undefined);
+  /** Where the tile is drawn relative to where it is laid out. */
+  const [shift, setShift] = useState<{ x: number; y: number } | null>(null);
   const moved = useRef(false);
   const node = useRef<HTMLElement | null>(null);
-  const pointer = useRef<number | undefined>(undefined);
+  const timer = useRef<number | undefined>(undefined);
+  const pressed = useRef<{ x: number; y: number } | null>(null);
+  /** Where in the tile the finger took hold, so it stays there. */
+  const grab = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const dragging = useRef(false);
+  /** Everything listening on the document for the life of one drag. */
+  const bound = useRef<Array<[string, EventListener, boolean]>>([]);
+  /** The live one-step moves, read at the moment of the step rather than
+   *  captured when the drag began — the ends of a list change as it moves. */
+  const steps = useRef(order);
+  steps.current = order;
 
   const stop = useCallback(() => {
     window.clearTimeout(timer.current);
     timer.current = undefined;
-    from.current = null;
-    const tile = node.current;
-    const id = pointer.current;
-    if (tile && id !== undefined && tile.hasPointerCapture?.(id)) tile.releasePointerCapture(id);
-    pointer.current = undefined;
+    dragging.current = false;
+    pressed.current = null;
+    for (const [type, fn, passive] of bound.current) {
+      document.removeEventListener(type, fn, passive ? undefined : { capture: false });
+    }
+    bound.current = [];
     setHeld(false);
+    setShift(null);
   }, []);
 
+  // A tile can be unmounted mid-drag — the list it is in is being rearranged,
+  // after all. Without this the document keeps a scroll-blocking listener for
+  // a drag that no longer exists, and the page stops scrolling for good.
+  useEffect(() => stop, [stop]);
+
   if (!order) {
-    return { held: false, moved, handlers: {} as Record<string, never> };
+    return { held: false, moved, shift: null, handlers: {} as Record<string, never> };
   }
+
+  /** The cell this tile sits in, and every cell beside it on the board. */
+  const board = (): { cell: HTMLElement; cells: HTMLElement[]; me: number } | null => {
+    const cell = node.current?.closest('.slot-wrap') as HTMLElement | null;
+    const parent = cell?.parentElement;
+    if (!cell || !parent) return null;
+    const cells = Array.from(parent.children) as HTMLElement[];
+    const me = cells.indexOf(cell);
+    return me < 0 ? null : { cell, cells, me };
+  };
+
+  const carry = (x: number, y: number) => {
+    const found = board();
+    if (!found) return;
+    const { cell, cells, me } = found;
+
+    // Where the tile should be drawn. The cell wrapper is never transformed,
+    // so its rectangle is where the tile is *laid out* — which means this
+    // re-reads correctly after a reorder without anything being rebased.
+    const box = cell.getBoundingClientRect();
+    setShift({
+      x: x - (box.left + box.width / 2) - grab.current.x,
+      y: y - (box.top + box.height / 2) - grab.current.y,
+    });
+
+    // And where it wants to go: the cell whose centre the finger is nearest.
+    const reach = (el: HTMLElement) => {
+      const r = el.getBoundingClientRect();
+      return Math.hypot(x - (r.left + r.width / 2), y - (r.top + r.height / 2));
+    };
+    const mine = reach(cell);
+    let best = me;
+    let nearest = mine;
+    cells.forEach((c, i) => {
+      const d = reach(c);
+      if (d < nearest - SETTLE && d < mine - SETTLE) {
+        nearest = d;
+        best = i;
+      }
+    });
+    if (best === me) return;
+    const go = best < me ? steps.current?.up : steps.current?.down;
+    if (!go) return;
+    go();
+    moved.current = true;
+  };
 
   const handlers = {
     onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
-      const tile = e.currentTarget;
-      node.current = tile;
+      node.current = e.currentTarget;
       moved.current = false;
-      pointer.current = e.pointerId;
       const { clientX: x, clientY: y } = e;
+      pressed.current = { x, y };
       timer.current = window.setTimeout(() => {
-        from.current = { x, y };
+        const found = board();
+        if (!found) return;
+        const rect = found.cell.getBoundingClientRect();
+        grab.current = {
+          x: x - (rect.left + rect.width / 2),
+          y: y - (rect.top + rect.height / 2),
+        };
+        dragging.current = true;
         setHeld(true);
-        // The tile has to keep the pointer, or the drag ends the instant the
-        // finger crosses onto the neighbour — which is the first thing a drag
-        // does. Without this the gesture can only ever move a tile by less
-        // than its own width, which is to say never.
-        try {
-          tile.setPointerCapture(e.pointerId);
-        } catch {
-          // Some browsers refuse a capture for a pointer already gone.
-        }
+        setShift({ x: 0, y: 0 });
+
+        /*
+         * Everything from here listens on the document, not on the tile, and
+         * that is the whole trick.
+         *
+         * The obvious way is `setPointerCapture` on the tile, so the gesture
+         * follows the finger onto its neighbours. It does not survive: the
+         * first thing this drag does is reorder the list, React moves the
+         * node to its new place, and moving a node in the DOM drops its
+         * pointer capture. Measured, the tile stepped exactly one place and
+         * then went deaf — no more moves reached it, and the pointerup landed
+         * on whatever tile was now under the cursor, so the one being dragged
+         * never learned to put itself down and stayed lifted on the board.
+         *
+         * The document cannot be reordered out from under a listener.
+         */
+        const move = (ev: Event) => {
+          const pe = ev as PointerEvent;
+          carry(pe.clientX, pe.clientY);
+        };
+        const end = () => {
+          /*
+           * Letting go must not also open something.
+           *
+           * The tile keeps its own guard below, but that only covers a drag
+           * that ends where it started. A real drag ends over a *different*
+           * tile, and the browser fires the click at the nearest ancestor the
+           * press and the release have in common — which is the board, and on
+           * the way there it passes through whatever tile is now under the
+           * finger. Measured: dragging the last tile to the front opened the
+           * tile it landed on. So the click after a drag is caught once, at
+           * the document, before anything can act on it.
+           *
+           * Dropped after a moment either way: a touch release does not always
+           * produce a click, and a swallow left armed would eat the next real
+           * tap instead.
+           */
+          if (moved.current) {
+            const swallow = (ev: Event) => {
+              ev.stopPropagation();
+              ev.preventDefault();
+            };
+            document.addEventListener('click', swallow, { capture: true, once: true });
+            window.setTimeout(
+              () => document.removeEventListener('click', swallow, { capture: true }),
+              350,
+            );
+          }
+          stop();
+        };
+        // And the page must not scroll under it. `touch-action: pan-y` let the
+        // board scroll up to this moment; from here the gesture is ours.
+        const pin = (ev: Event) => ev.preventDefault();
+        document.addEventListener('pointermove', move);
+        document.addEventListener('pointerup', end);
+        document.addEventListener('pointercancel', end);
+        document.addEventListener('touchmove', pin, { passive: false });
+        bound.current = [
+          ['pointermove', move, true],
+          ['pointerup', end, true],
+          ['pointercancel', end, true],
+          ['touchmove', pin, false],
+        ];
         // Haptic where there is one: picking a thing up should be felt.
         navigator.vibrate?.(10);
       }, HOLD_MS);
     },
     onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
-      if (!from.current) {
-        // Before the hold lands, any real movement is a scroll, not a drag.
-        return;
+      // Only the wait for the hold is handled here; once it lands the document
+      // listener above has the gesture. Before then, a finger that has gone
+      // anywhere was scrolling.
+      if (dragging.current) return;
+      const from = pressed.current;
+      if (from && Math.hypot(e.clientX - from.x, e.clientY - from.y) > SLOP) {
+        window.clearTimeout(timer.current);
+        timer.current = undefined;
       }
-      const box = node.current?.getBoundingClientRect();
-      // Past the boundary, not past the whole tile: the swap belongs where the
-      // finger crosses onto the neighbour.
-      const step = Math.max(32, (box?.width ?? 80) * 0.6);
-      const dx = e.clientX - from.current.x;
-      const dy = e.clientY - from.current.y;
-      // A board is a grid, so both axes move a tile: sideways by one, and
-      // downwards by one as well, because on a two-across board "the next
-      // one" is as often below as beside.
-      const travel = Math.abs(dx) > Math.abs(dy) ? dx : dy;
-      if (Math.abs(travel) < step) return;
-      const back = travel < 0;
-      const go = back ? order.up : order.down;
-      if (!go) return;
-      go();
-      moved.current = true;
-      from.current = { x: e.clientX, y: e.clientY };
     },
-    onPointerUp: stop,
-    onPointerCancel: stop,
-    onPointerLeave: () => {
-      if (!from.current) stop();
+    onPointerUp: () => {
+      if (!dragging.current) stop();
+    },
+    onPointerCancel: () => {
+      if (!dragging.current) stop();
     },
   };
-  return { held, moved, handlers };
+  return { held, moved, shift, handlers };
 }
 
 export function Slot({
@@ -405,6 +541,12 @@ export function Slot({
   const className = `slot${art ? ' slot--art' : ''}${tone ? ` slot--${tone}` : ''}${
     tap ? ' slot--tap' : ''
   }${drag.held ? ' slot--held' : ''}`;
+  // The lift, inline rather than in the stylesheet, because only the running
+  // gesture knows where the finger is. The scale rides along with it so the
+  // two do not fight over the same property.
+  const lift = drag.shift
+    ? { transform: `translate(${drag.shift.x}px, ${drag.shift.y}px) scale(1.06)` }
+    : undefined;
   const body = (
     <>
       {art ? <span className="slot__art">{art}</span> : <span className="slot__icon">{icon}</span>}
@@ -425,12 +567,13 @@ export function Slot({
         tap();
       }}
       aria-label={label ?? name}
+      style={lift}
       {...drag.handlers}
     >
       {body}
     </button>
   ) : (
-    <span className={className} {...drag.handlers}>
+    <span className={className} style={lift} {...drag.handlers}>
       {body}
     </span>
   );

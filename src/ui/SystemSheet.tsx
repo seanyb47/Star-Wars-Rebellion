@@ -59,6 +59,7 @@ import {
   MISSION_LABEL,
   isLord,
   type PlayableFaction,
+  inProse,
 } from '../sim';
 import {
   CharacterFace,
@@ -1029,7 +1030,7 @@ export function SystemSheet({
           </p>
 
           <SlotBoard
-            empty={`Nothing stands on ${system.name}${slots > 0 ? ' yet' : ', and there is nowhere to put anything'}.`}
+            empty={`Nothing stands on ${inProse(system.name)}${slots > 0 ? ' yet' : ', and there is nowhere to put anything'}.`}
           >
             {/* What is in the ground, before what has been built on it. A
                 deposit holds a berth until something works it, so it belongs
@@ -1308,7 +1309,7 @@ export function SystemSheet({
               remembered is which kind comes first. */}
           <SlotBoard
             ghosts={Math.max(0, needed - system.garrison)}
-            empty={`No troops are ashore on ${system.name}.`}
+            empty={`No troops are ashore on ${inProse(system.name)}.`}
           >
             {/* Always folded, since 19 September: a troop is a troop, so the
                 ungrouped list was ten identical tiles saying the same thing

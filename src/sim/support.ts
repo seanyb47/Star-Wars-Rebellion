@@ -160,7 +160,7 @@ export function resolveControlAndUnrest(state: GameState, rng?: Rng): void {
           kind: 'order',
           text: enough && support < UPRISING_END_SUPPORT
             ? `${system.name} is quiet again: ${system.garrison} troops in the square, and nobody arguing with them.`
-            : `The mutiny on ${system.name} has been put down.`,
+            : `The mutiny on ${inProse(system.name)} has been put down.`,
           systemId: system.id,
         });
       }
@@ -207,7 +207,7 @@ export function resolveControlAndUnrest(state: GameState, rng?: Rng): void {
           local: SHOCK_MUTINY.local,
           regional: SHOCK_MUTINY.regional,
           order,
-          news: `Word of the rising on ${system.name} is running through ${reachName(state, system)}.`,
+          news: `Word of the rising on ${inProse(system.name)} is running through ${reachName(state, system)}.`,
         },
         rng,
       );
@@ -322,16 +322,16 @@ export function leakInformation(state: GameState, rng: Rng): void {
       kind: mine ? 'loss' : 'mission',
       text: mine
         ? itself
-          ? `Somebody on ${system.name} has talked. The ${factionName(enemy)} has your ${works} ` +
+          ? `Somebody on ${inProse(system.name)} has talked. The ${factionName(enemy)} has your ${works} ` +
             `${works === 1 ? 'building' : 'buildings'} and ${system.garrison} ashore on their charts now` +
             (alsoMine ? `, and ${alsoMine} with it.` : '.')
-          : `Somebody on ${system.name} has talked, and it was not about ${system.name}. The ` +
+          : `Somebody on ${inProse(system.name)} has talked, and it was not about ${inProse(system.name)}. The ` +
             `${factionName(enemy)} has ${alsoMine} on their charts now.`
         : itself
-          ? `Somebody on ${system.name} has talked, and it reached you. Their ${works} ` +
+          ? `Somebody on ${inProse(system.name)} has talked, and it reached you. Their ${works} ` +
             `${works === 1 ? 'building' : 'buildings'} and ${system.garrison} ashore are on your charts now` +
             (alsoMine ? `, and ${alsoMine} with them.` : '.')
-          : `Somebody on ${system.name} has talked, and it was not about ${system.name}. ` +
+          : `Somebody on ${inProse(system.name)} has talked, and it was not about ${inProse(system.name)}. ` +
             `${alsoMine[0].toUpperCase()}${alsoMine.slice(1)} ${
               alongside.length === 1 ? 'is' : 'are'
             } on your charts now.`,

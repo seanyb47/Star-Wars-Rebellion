@@ -2,7 +2,7 @@ import factionData from '../data/factions.json';
 import characterRoster from '../data/characters.json';
 import reachData from '../data/reaches.json';
 import chartData from '../data/chart.json';
-import { createRng, type Rng } from './rng';
+import { createRng, mixSeed, type Rng } from './rng';
 import {
   CONNECTIVITY_MAX,
   CONNECTIVITY_MIN,
@@ -26,6 +26,9 @@ import {
   GOLD_VEINS_MAX,
   GOLD_BY_LOOK,
   CLEAR_BERTHS,
+  NEUTRAL_WORKS,
+  NEUTRAL_WORKS_ONE,
+  NEUTRAL_WORKS_TWO,
   SETTLED_WORKED_MIN,
   SETTLED_WORKED_MAX,
   WORKS_ON,
@@ -204,10 +207,21 @@ const START_EARNERS: Record<PlayableFaction, { mines: number; refineries: number
   empire: { mines: 3, refineries: 23 },
   alliance: { mines: 2, refineries: 17 },
 };
-const START_YARDS = 2;
-const START_TRAINING = 2;
+/**
+ * One of each maker, not two.
+ *
+ * Sean, 20 September: *"Let's start game with only 1 of each type of
+ * construction facility instead of 2 each."* It had been two apiece since 14
+ * September, which meant a side opened able to run two hulls, two companies
+ * and two works at once and never had to choose which. One apiece makes the
+ * second yard a decision rather than a fact — and it is the decision the
+ * build-rate rule was written for, since a second slipway on the same island
+ * halves the time on the hull already on the stocks.
+ */
+const START_YARDS = 1;
+const START_TRAINING = 1;
 /** A yard for hulls, so a slipway is not the first thing you have to build. */
-const START_SHIPYARDS = 2;
+const START_SHIPYARDS = 1;
 /**
  * The squadrons each side already has on the water, and where they lie.
  *
@@ -263,12 +277,20 @@ const START_FLEETS: Record<PlayableFaction, StartSquadron[]> = {
     },
   ],
   alliance: [
-    // Freeport, and nowhere else. Forty-nine guns against the Windward's
-    // forty-two — the Confederacy's whole navy rivals the Crown's second
-    // squadron, and would not last a morning against its first.
+    // Freeport, and nowhere else.
+    //
+    // Sean, 20 September: *"For confederacy 1 swift is all the swifts you
+    // need."* It had been four of them round one Tempest — forty-four guns,
+    // matching the Windward's forty-four exactly, but six hulls to the
+    // Crown's four and four of them the same hull. Re-weighed as one Swift,
+    // two Tempests and the Brig: thirty-nine guns in four hulls against the
+    // Windward's forty-four in four. Five guns lighter and no longer a swarm,
+    // which is the trade — the Confederacy's whole navy still rivals the
+    // Crown's second squadron and would still not last a morning against its
+    // first.
     {
       name: 'Home Fleet',
-      ships: ['swift', 'swift', 'swift', 'swift', 'tempest', 'brig'],
+      ships: ['swift', 'tempest', 'tempest', 'brig'],
       troops: 2,
       berth: 'seat',
     },
@@ -473,7 +495,17 @@ function workTheGround(
   if (ground.length === 0) return;
   const share = SETTLED_WORKED_MIN + rng.next() * (SETTLED_WORKED_MAX - SETTLED_WORKED_MIN);
   // At least one, never all: a settled island is working and unfinished.
-  const take = Math.min(ground.length - 1, Math.max(1, Math.round(ground.length * share)));
+  //
+  // Except on an island that rolled a single deposit, where the two halves of
+  // that rule cannot both hold and "at least one" is the half worth keeping.
+  // It used to fall the other way and leave the island bare, which read as an
+  // unsettled rock with people on it; it only ever showed up on four islands
+  // in forty worlds, so the test that says no settled island is bare had been
+  // passing on the luck of the draw rather than on the rule.
+  const take =
+    ground.length === 1
+      ? 1
+      : Math.min(ground.length - 1, Math.max(1, Math.round(ground.length * share)));
   if (take < 1) return;
   const worked = ground.slice(0, take);
   system.deposits = ground.slice(take);
@@ -481,6 +513,77 @@ function workTheGround(
     system.facilities.push(
       makeFacility(makeId('fac'), deposit.type === 'gold' ? 'mine' : 'refinery', system.control),
     );
+  }
+}
+
+/**
+ * And what a settled island nobody owns has built for itself.
+ *
+ * Sean, 20 September: *"Neutral islands also should have infrastructure.
+ * Should have a 20% chance of having 1 of each starting (non research
+ * dependent) structure, including fortress (standard not heavy) and a 5%
+ * chance of having 2."*
+ *
+ * `workTheGround` above already gives an unaligned island the mines and mills
+ * its own ground will carry; this is everything a yard can raise anywhere —
+ * the two building yards, the slipway, and the wall. Which makes courting an
+ * island a different proposition from settling an empty one: a parley can
+ * bring in a working town with a slipway already on it, and a landing on an
+ * island that rolled a Fortress has to knock the Fortress down first.
+ *
+ * The four rolls come off a stream of this island's own rather than the
+ * world's generator. That is the same device the island rename needed on 19
+ * September and it is here for the same reason: four extra draws per settled
+ * island taken from the shared stream would have re-rolled every terrain,
+ * deposit, creature and garrison downstream of them, so a change that is
+ * supposed to add a slipway would silently have dealt everybody a different
+ * world. This way the only difference between a world before this change and
+ * after it is the works.
+ *
+ * The stream is keyed on the island *and* the world. Keyed on the island
+ * alone — which is what the first cut did, since the per-island seed is
+ * frozen — every world gave the Terraces the same shipyard, because there are
+ * only sixty-one islands and a frozen seed apiece. It measured as a rate that
+ * would not settle no matter how many worlds were sampled, which is what
+ * sixty-one answers counted over and over looks like.
+ *
+ * Every roll is taken whether or not there is room for what it wins, so the
+ * stream is a fact about the island rather than about how much of its ground
+ * happened to be spoken for.
+ */
+function settleWorks(
+  system: System,
+  world: number,
+  makeId: (prefix: string) => string,
+): void {
+  const island = system.seed ?? [...system.name].reduce((n, c) => n + c.charCodeAt(0), 0);
+  const rng = createRng(mixSeed(Math.imul(island, 0x9e37_79b1) ^ mixSeed(world)));
+  // And warmed, for the reason `mixSeed` gives: the first draws off a fresh
+  // stream are the ones most like its neighbours'.
+  rng.next();
+  rng.next();
+  const wanted = NEUTRAL_WORKS.map((type) => {
+    const roll = rng.next();
+    if (roll < NEUTRAL_WORKS_TWO) return { type, count: 2 };
+    if (roll < NEUTRAL_WORKS_TWO + NEUTRAL_WORKS_ONE) return { type, count: 1 };
+    return { type, count: 0 };
+  });
+  for (const { type, count } of wanted) {
+    for (let i = 0; i < count; i++) {
+      const taken = system.facilities.length + (system.deposits?.length ?? 0);
+      // The ground the works is standing on, plus the clear berth every
+      // island keeps.
+      //
+      // Measured before this line went in, the odds came out at nine to
+      // twelve per cent instead of Sean's twenty-five: a settled island is
+      // already carrying its deposits and the mills on them, so on most of
+      // them the roll was won and then thrown away for want of a plot. The
+      // opening deal makes the same allowance for the two sides' own islands
+      // and for the same reason — an island that has built a slipway for
+      // itself has the ground the slipway stands on.
+      system.slots = Math.max(system.slots, taken + 1 + CLEAR_BERTHS);
+      system.facilities.push(makeFacility(makeId('fac'), type, system.control));
+    }
   }
 }
 
@@ -796,6 +899,20 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   };
   seedHoldings('empire', empireSystems);
   seedHoldings('alliance', allianceSystems);
+
+  // And what the islands nobody took have built for themselves.
+  //
+  // After the deal, not during it, and that is the whole of why it is down
+  // here: every island is briefly unaligned while the world is being made, so
+  // running this in the generation loop put yards and walls on the eight or
+  // ten islands the two sides were about to be dealt. Measured, that opened
+  // both sides insolvent — the Crown's upkeep went from 75 to 91 against an
+  // unchanged income of 83 — because a side was paying to keep works it had
+  // never chosen to build. Sean's rule is about *neutral* islands, and an
+  // island is only neutral once the dealing is over.
+  for (const system of systems) {
+    if (system.populated && system.control === 'neutral') settleWorks(system, seed, makeId);
+  }
 
   /**
    * The seawalls of Highwater, which are older than the Imperium.

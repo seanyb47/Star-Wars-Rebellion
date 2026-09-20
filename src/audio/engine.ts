@@ -39,6 +39,15 @@ export class AudioEngine {
   private readonly current: BedVoice = BED;
   /** Extra dissonance layered on while islands of yours are in revolt. */
   private unrest = 0;
+  /**
+   * A recorded theme is fetching and decoding right now.
+   *
+   * `musicFor` is set the moment a theme is asked for, so between the request
+   * and the first sample there is a window where the engine looks like it has
+   * a theme and has none. `ensureTheme` has to tell that window apart from a
+   * theme that was asked for and never arrived.
+   */
+  private themeLoading = false;
 
   get running(): boolean {
     return this.ctx !== null && this.ctx.state === 'running';
@@ -214,6 +223,29 @@ export class AudioEngine {
     if (!url) return;
     this.musicFor = faction;
     const token = ++this.musicToken;
+    this.themeLoading = true;
+    try {
+      await this.loadTheme(faction, ctx, url, token);
+    } finally {
+      this.themeLoading = false;
+    }
+  }
+
+  /**
+   * Fetch, decode and start one recorded theme.
+   *
+   * Split out of `setTheme` for one reason: everything from here down can
+   * return early, and every one of those returns has to clear
+   * `themeLoading`. A `finally` around a call says that once; four flags set
+   * by hand say it four times and eventually say it three.
+   */
+  private async loadTheme(
+    faction: string,
+    ctx: AudioContext,
+    url: string,
+    token: number,
+  ): Promise<void> {
+    if (!this.musicGain) return;
 
     const fadeOut = this.music;
     if (fadeOut) {
@@ -270,6 +302,28 @@ export class AudioEngine {
     this.musicGain.gain.setTargetAtTime(0.55, ctx.currentTime, 2.5);
     // Duck the bed under the score.
     this.bedGain?.gain.setTargetAtTime(0.18, ctx.currentTime, 2.5);
+  }
+
+  /**
+   * Ask for the theme again now that there is somewhere to put it.
+   *
+   * `setTheme` needs an AudioContext, and the context is only built inside a
+   * user gesture. A sound preference remembered from a previous launch asks
+   * for a theme before that gesture has happened, is turned away at the first
+   * guard, and — because `musicFor` is what stops a theme being laid down
+   * twice — is never asked for again. The symptom was exact: turn sound on,
+   * close the game, open it again, and the bed comes back on the first tap
+   * while the music never does for the rest of the session.
+   *
+   * So every path that starts or resumes the engine calls this instead, and
+   * it treats a theme as already running only if something is actually
+   * sounding or still loading.
+   */
+  async ensureTheme(faction: string): Promise<void> {
+    if (!this.ctx) return;
+    const sounding = this.music !== null || (this.score?.playing ?? false);
+    if (this.musicFor === faction && !sounding && !this.themeLoading) this.musicFor = null;
+    await this.setTheme(faction);
   }
 
   /** Islands in revolt pull the bed down and sour it. */

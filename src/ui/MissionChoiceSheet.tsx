@@ -18,6 +18,7 @@ import {
   type GameState,
   type MissionType,
   type Standing,
+  inProse,
 } from '../sim';
 import { Sheet } from './components';
 import { CategoryIcon } from './art';
@@ -251,7 +252,7 @@ export function MissionChoiceSheet({
                         postings that read differently for no reason is two
                         things to work out instead of one. */}
                     <b className="choice__name">
-                      {type === 'command' ? `Command ${island.name}` : MISSION_LABEL[type]}
+                      {type === 'command' ? `Command ${inProse(island.name)}` : MISSION_LABEL[type]}
                     </b>
                     {standing && (
                       <span className={`tiny band band--${standing.band}`}>

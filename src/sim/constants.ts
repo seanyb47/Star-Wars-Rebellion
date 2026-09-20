@@ -1881,6 +1881,35 @@ export const GOLD_VEINS_MAX = 2;
  */
 export const CLEAR_BERTHS = 1;
 
+/**
+ * What a settled island nobody owns has already built for itself.
+ *
+ * Sean, 20 September: *"Neutral islands also should have infrastructure.
+ * Should have a 20% chance of having 1 of each starting (non research
+ * dependent) structure, including fortress (standard not heavy) and a 5%
+ * chance of having 2."*
+ *
+ * Rolled per kind, independently, so most unaligned islands have none of any
+ * one works and a few have a working town. The odds are exactly his: one in
+ * twenty carries two, one in five carries one, and the rest carry none.
+ *
+ * The earners are not on this list, and deliberately. Mines and mills are
+ * dealt by `workTheGround`, which puts them on the ground that can actually
+ * carry them — a gold mine on an island with no vein is not infrastructure,
+ * it is a mistake. Everything a yard can raise anywhere is here instead.
+ *
+ * The Heavy Fortress is off the list because it is the one works behind the
+ * research errand, which is the line Sean drew: *"non research dependent"*.
+ */
+export const NEUTRAL_WORKS: FacilityType[] = [
+  'construction_yard',
+  'training_facility',
+  'shipyard',
+  'fort',
+];
+export const NEUTRAL_WORKS_ONE = 0.2;
+export const NEUTRAL_WORKS_TWO = 0.05;
+
 /** How many more or fewer trees an island of this sort carries. */
 export const FOREST_BY_LOOK: Partial<Record<IslandArchetype, number>> = {
   'jungle-isle': 1,
