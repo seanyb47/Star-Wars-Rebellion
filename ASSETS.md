@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**174 of 187 painted.** 7219KB shipped, 47.3MB of masters kept back.
+**175 of 188 painted.** 7295KB shipped, 47.9MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -77,7 +77,7 @@ the head, cropped square out of the portrait; the medallion. 26 of 26.
 
 ## ships — 640×480
 
-three-quarter view, whole vessel, masts and waterline both in frame. 34 of 42.
+three-quarter view, whole vessel, masts and waterline both in frame. 35 of 43.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
@@ -115,6 +115,7 @@ three-quarter view, whole vessel, masts and waterline both in frame. 34 of 42.
 | Vanguard | `vanguard` | 2 (+1 retired) | 78KB | 1448×1086, 604KB | whole frame | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Vanguard II | `vanguard-ii` | 2 (+1 retired) | 80KB | 1448×1086, 642KB | whole frame | 2026-09-16 | Sean, 16 September — sliced from the fleet contact sheet |
 | Wayfinder | `wayfinder` | 3 (+2 retired) | 86KB | 1448×1086, 597KB | whole frame | 2026-09-19 | Sean, 19 September — production painting |
+| Witchlight | `witchlight` | 1 | 76KB | 1448×1086, 569KB | whole frame | 2026-09-20 | unrecorded |
 
 **Still owed (8):** `alliance-large`, `alliance-medium`, `alliance-small`, `alliance-transport`, `empire-large`, `empire-medium`, `empire-small`, `empire-transport`
 
@@ -439,6 +440,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **ships/vanguard** — Commission of 20 September 2026, captioned 'vanguard 1' and it is one. Matches Part 4: long low two-decker with a clean sheer line, modest stern, three evenly spaced masts, uncluttered gun deck, standardized oak with flush black-iron reinforcement over mature copper. Rig is the master's exactly - ivory sails with disciplined green accents and a single medium Crown emblem, against the II's green canvas and two. Signature detail present: the gold-painted measuring line running arrow-straight from bow to stern just below the rail. Pairs with the new Vanguard II, same hull and same headland, which is what that family's guardrail asks for. Two small divergences recorded, not corrected: the Crown emblem sits on the fore rather than centered on the mainsail, and she sails alone where the master's scene has her leading a small line of battle. Delivered 1448x1086, 4:3, no crop.
 - **ships/vanguard-ii** — Commission of 20 September 2026, captioned 'vanguard 2' and it is one. Matches Part 4: the Vanguard's long low two-decker silhouette with a finer bow and a taller balanced rig, deep botanical-green sails with antique-gold edging, exactly two Crown emblems, bright maintained copper and brass-and-black-iron detailing, cutting through rougher water at speed. Signature detail present - the narrow gold chevron repeated at bow and stern that marks the second-generation frame. Not the Sovereign II, which is a four-masted three-decker whose own signature is nine recessed assault launches; neither is here. The family guardrail also checks out against the shipped Vanguard I: same three-masted two-decker and the same black-and-gold hull, with the upgrade carried by the rig. Delivered 1448x1086, 4:3, no crop.
 - **ships/wayfinder** — Revision of the 20 September commission, same day: the earlier painting with a full bank of sweeps run out along both sides. Everything that matched Part 4 before still does - paired brass survey lanterns, chart-cabinet stern gallery, long covered waist, paired boat cranes, small battery, ivory sails with green edge bands and one Crown emblem, calm water off an uncharted island. The oars are an addition rather than a conflict: the master does not mention them and does not forbid them, and sweeps are exactly what a survey ship wants for working into a windless bay to take soundings, which is the job her entry describes. Recorded for the avoidance of doubt: oars are not galley slavery, and CANON v4.0 section 4 is explicit that the Crown keeps none - the oarsmen here are her own crew.
+- **ships/witchlight** — Conjure sloop (10), Free Confederacy. Painting matches the v4 direction point for point: bound-jawed alligator skull at the bowsprit, bottle-charms and feathers and bead cords and grey moss in the rigging, cold violet on the deck guns and lanterns, and a stern altar of candles with one flower-crowned skull. The conjure sigil is dripping bone-white across a torn and patched mainsail, with a plain red Confederate pennant at the masthead and no skull-and-crossbones anywhere, which is her guardrail. One divergence from the sheet: the mainsail reads purple-black rather than faded crimson. The painting's palette is the stronger read and the crimson has moved to the pennant, so the painting stands and the sail line follows it.
 
 ## Changing one
 

@@ -5956,6 +5956,33 @@
           "source": "Sean, 19 September \u2014 production painting"
         }
       ]
+    },
+    "ships/witchlight": {
+      "folder": "ships",
+      "slug": "witchlight",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Witchlight",
+      "source": "unrecorded",
+      "notes": "Conjure sloop (10), Free Confederacy. Painting matches the v4 direction point for point: bound-jawed alligator skull at the bowsprit, bottle-charms and feathers and bead cords and grey moss in the rigging, cold violet on the deck guns and lanterns, and a stern altar of candles with one flower-crowned skull. The conjure sigil is dripping bone-white across a torn and patched mainsail, with a plain red Confederate pennant at the masthead and no skull-and-crossbones anywhere, which is her guardrail. One divergence from the sheet: the mainsail reads purple-black rather than faded crimson. The painting's palette is the stronger read and the crimson has moved to the pennant, so the painting stands and the sail line follows it.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/witchlight.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 583114,
+        "sha1": "75657a26e17559ff"
+      },
+      "shipped": {
+        "file": "src/art/ships/witchlight.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 78150,
+        "sha1": "d559003a5d9592ac"
+      }
     }
   }
 }

@@ -486,6 +486,16 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 *Small, Very Fast. CFS-WIT-R2-02, research R2.*
 
+**PAINTED** — `src/art/ships/witchlight.webp`. Every item on the guardrail
+is there and nothing off it is: the alligator skull at the bowsprit has its
+jaws bound, the charms in the rigging are hung objects rather than effects,
+the violet is confined to the gun etching and the lanterns, and the stern
+altar carries its flower-crowned skull. No skull-and-crossbones anywhere.
+One divergence from the sheet: the mainsail is purple-black, not faded
+crimson, and the crimson has moved to the masthead pennant. The painting's
+palette is the better read and the sigil carries further on the dark cloth,
+so the painting stands.
+
 **Encyclopedia** *(shown in game)** — When the Crown broke the slavers who had raided the swamps for generations, the Bog-folk clans paid their debt the only way that people knows how: fully, and forever. But not all of them followed the clans into the Admiralty's service. The conjure-women — the root-workers, the charm-makers, the keepers of the old ways — looked at a Crown that charts every channel and licenses every trade, and knew there would be no place in that world for what they carry. They took their lanterns, their skulls and their bottle-charms, and went to the free isles. A Witchlight is what they sail: a small black sloop of ancient bog-oak that harbors swear was never seen arriving. Her guns glow with a cold violet blessing her crew never explains, an alligator skull rides her bowsprit with its jaws bound shut, and the offerings on her stern altar are always fresh. Crown patrols report her in two Reaches on the same tide; the Admiralty lists this as clerical error. Bog-folk crews aboard Crown Fenrunners make a quiet sign when she passes, and will not fire the first shot at their cousins.
 
 **Visual identity** — A small Cajun conjure-sloop — a floating shrine built for speed, strange by dressing rather than carpentry.
