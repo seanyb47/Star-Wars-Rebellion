@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**142 of 155 painted.** 5444KB shipped, 22.9MB of masters kept back.
+**174 of 187 painted.** 6912KB shipped, 43.1MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -148,6 +148,45 @@ low approach, as if from a boat; a banner on the island panel. 22 of 27.
 | Tide Isle | `tide-isle` | 1 | 33KB | 765×227, 74KB | 765×203 @ 0,12, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
 
 **Still owed (5):** `creature-ghost-ship`, `creature-sea-turtle`, `creature-ships-cat`, `creature-the-kraken`, `creature-young-sea-dragon`
+
+## isles — 768×204
+
+one island's own painting, by name; wins over its type's. 32 of 32.
+
+| subject | slug | v | shipped | master | crop | added | source |
+|---|---|---|---|---|---|---|---|
+| Anchorite Rock | `anchorite-rock` | 1 | 34KB | 1942×809, 519KB | 1942×516 @ 0,146 | 2026-09-20 | unrecorded |
+| Ballmoor | `ballmoor` | 1 | 41KB | 2172×724, 594KB | 2172×577 @ 0,73 | 2026-09-20 | unrecorded |
+| Blackreef | `blackreef` | 1 | 47KB | 2073×758, 725KB | 2073×551 @ 0,103 | 2026-09-20 | unrecorded |
+| Brimstone Cay | `brimstone-cay` | 1 | 35KB | 2073×758, 531KB | 2073×551 @ 0,103 | 2026-09-20 | unrecorded |
+| Cartmel | `cartmel` | 1 | 45KB | 2048×768, 648KB | 2048×544 @ 0,112 | 2026-09-20 | unrecorded |
+| Chandler's Rest | `chandlers-rest` | 1 | 39KB | 2098×750, 606KB | 2098×557 @ 0,96 | 2026-09-20 | unrecorded |
+| Chepstow | `chepstow` | 1 | 47KB | 1983×793, 710KB | 1983×527 @ 0,133 | 2026-09-20 | unrecorded |
+| Coralhome | `coralhome` | 1 | 59KB | 2056×765, 746KB | 2056×546 @ 0,109 | 2026-09-20 | unrecorded |
+| Corsham Head | `corsham-head` | 1 | 45KB | 1993×789, 642KB | 1993×529 @ 0,130 | 2026-09-20 | unrecorded |
+| Firewatch | `firewatch` | 1 | 45KB | 1916×821, 606KB | 1916×509 @ 0,156 | 2026-09-20 | unrecorded |
+| Freeport | `freeport` | 1 | 49KB | 2067×761, 657KB | 2067×549 @ 0,106 | 2026-09-20 | unrecorded |
+| Gibbet Rock | `gibbet-rock` | 1 | 47KB | 2056×765, 647KB | 2056×546 @ 0,109 | 2026-09-20 | unrecorded |
+| Gorley | `gorley` | 1 | 42KB | 2129×739, 573KB | 2129×566 @ 0,86 | 2026-09-20 | unrecorded |
+| Graving Bay | `graving-bay` | 1 | 54KB | 2048×768, 761KB | 2048×544 @ 0,112 | 2026-09-20 | unrecorded |
+| Greenholm | `greenholm` | 1 | 49KB | 2086×754, 647KB | 2086×554 @ 0,100 | 2026-09-20 | unrecorded |
+| Hawksbill Bay | `hawksbill-bay` | 1 | 48KB | 2073×758, 663KB | 2073×551 @ 0,103 | 2026-09-20 | unrecorded |
+| Hearsay Cay | `hearsay-cay` | 1 | 46KB | 2043×770, 636KB | 2043×543 @ 0,113 | 2026-09-20 | unrecorded |
+| Kingsward | `kingsward` | 1 | 39KB | 2172×724, 579KB | 2172×577 @ 0,73 | 2026-09-20 | unrecorded |
+| Leeward Keep | `leeward-keep` | 1 | 43KB | 1983×793, 607KB | 1983×527 @ 0,133 | 2026-09-20 | unrecorded |
+| Minterne | `minterne` | 1 | 37KB | 2056×765, 559KB | 2056×546 @ 0,109 | 2026-09-20 | unrecorded |
+| Northreach | `northreach` | 1 | 48KB | 2129×739, 680KB | 2129×566 @ 0,86 | 2026-09-20 | unrecorded |
+| Saltgrave | `saltgrave` | 1 | 47KB | 2076×758, 658KB | 2076×551 @ 0,103 | 2026-09-20 | unrecorded |
+| Sorrowhead | `sorrowhead` | 1 | 44KB | 2066×761, 634KB | 2066×549 @ 0,106 | 2026-09-20 | unrecorded |
+| Starcross | `starcross` | 1 | 51KB | 2060×763, 707KB | 2060×547 @ 0,108 | 2026-09-20 | unrecorded |
+| Tallow Cay | `tallow-cay` | 1 | 45KB | 2048×768, 631KB | 2048×544 @ 0,112 | 2026-09-20 | unrecorded |
+| The Aldermain | `the-aldermain` | 1 | 52KB | 1983×793, 681KB | 1983×527 @ 0,133 | 2026-09-20 | unrecorded |
+| The Kettles | `the-kettles` | 1 | 43KB | 1916×821, 684KB | 1916×509 @ 0,156 | 2026-09-20 | unrecorded |
+| The Shoals | `the-shoals` | 1 | 55KB | 2056×765, 792KB | 2056×546 @ 0,109 | 2026-09-20 | unrecorded |
+| The Terraces | `the-terraces` | 1 | 44KB | 2048×768, 645KB | 2048×544 @ 0,112 | 2026-09-20 | unrecorded |
+| The White Flats | `the-white-flats` | 1 | 42KB | 2032×774, 568KB | 2032×540 @ 0,117 | 2026-09-20 | unrecorded |
+| Wrightsport | `wrightsport` | 1 | 41KB | 2048×768, 641KB | 2048×544 @ 0,112 | 2026-09-20 | unrecorded |
+| Yarrow Minor | `yarrow-minor` | 1 | 46KB | 2086×754, 684KB | 2086×554 @ 0,100 | 2026-09-20 | unrecorded |
 
 ## creatures — 768×352
 
@@ -292,6 +331,38 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **islands/rock-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/storm-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **islands/tide-isle** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.
+- **isles/anchorite-rock** — Island Art Pack, Sean, 20 September 2026 (source id 'drowned-observatory'). Delivered as a wide panorama 1942x809; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/ballmoor** — Island Art Pack, Sean, 20 September 2026 (source id 'steamcrown'). Delivered as a wide panorama 2172x724; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/blackreef** — Island Art Pack, Sean, 20 September 2026 (source id 'knifewater-cove'). Delivered as a wide panorama 2073x758; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/brimstone-cay** — Island Art Pack, Sean, 20 September 2026 (source id 'grayfall'). Delivered as a wide panorama 2073x758; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/cartmel** — Island Art Pack, Sean, 20 September 2026 (source id 'amber-abbey'). Delivered as a wide panorama 2048x768; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/chandlers-rest** — Island Art Pack, Sean, 20 September 2026 (source id 'heatherwake'). Delivered as a wide panorama 2098x750; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/chepstow** — Island Art Pack, Sean, 20 September 2026 (source id 'sevenmouth'). Delivered as a wide panorama 1983x793; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/coralhome** — Island Art Pack, Sean, 20 September 2026 (source id 'luminous-shoals'). Delivered as a wide panorama 2056x765; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/corsham-head** — Island Art Pack, Sean, 20 September 2026 (source id 'highmere'). Delivered as a wide panorama 1993x789; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/firewatch** — Island Art Pack, Sean, 20 September 2026 (source id 'cinderstep'). Delivered as a wide panorama 1916x821; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/freeport** — Island Art Pack, Sean, 20 September 2026 (source id 'redwake'). Delivered as a wide panorama 2067x761; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/gibbet-rock** — Island Art Pack, Sean, 20 September 2026 (source id 'maelstrom-reach'). Delivered as a wide panorama 2056x765; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/gorley** — Island Art Pack, Sean, 20 September 2026 (source id 'windscar-steppe'). Delivered as a wide panorama 2129x739; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/graving-bay** — Island Art Pack, Sean, 20 September 2026 (source id 'embercut-yard'). Delivered as a wide panorama 2048x768; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/greenholm** — Island Art Pack, Sean, 20 September 2026 (source id 'verdant-bastion'). Delivered as a wide panorama 2086x754; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/hawksbill-bay** — Island Art Pack, Sean, 20 September 2026 (source id 'pearlhaven'). Delivered as a wide panorama 2073x758; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/hearsay-cay** — Island Art Pack, Sean, 20 September 2026 (source id 'thousand-teeth'). Delivered as a wide panorama 2043x770; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/kingsward** — Island Art Pack, Sean, 20 September 2026 (source id 'lowtide-crown'). Delivered as a wide panorama 2172x724; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/leeward-keep** — Island Art Pack, Sean, 20 September 2026 (source id 'thunderhead-isle'). Delivered as a wide panorama 1983x793; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/minterne** — Island Art Pack, Sean, 20 September 2026 (source id 'tidemarble'). Delivered as a wide panorama 2056x765; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/northreach** — Island Art Pack, Sean, 20 September 2026 (source id 'frostgate'). Delivered as a wide panorama 2129x739; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/saltgrave** — Island Art Pack, Sean, 20 September 2026 (source id 'sunscar'). Delivered as a wide panorama 2076x758; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/sorrowhead** — Island Art Pack, Sean, 20 September 2026 (source id 'blackreed'). Delivered as a wide panorama 2066x761; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/starcross** — Island Art Pack, Sean, 20 September 2026 (source id 'skyglass'). Delivered as a wide panorama 2060x763; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/tallow-cay** — Island Art Pack, Sean, 20 September 2026 (source id 'boneharbor'). Delivered as a wide panorama 2048x768; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/the-aldermain** — Island Art Pack, Sean, 20 September 2026 (source id 'aureate-haven'). Delivered as a wide panorama 1983x793; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/the-kettles** — Island Art Pack, Sean, 20 September 2026 (source id 'lantern-deep'). Delivered as a wide panorama 1916x821; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/the-shoals** — Island Art Pack, Sean, 20 September 2026 (source id 'rootwater'). Delivered as a wide panorama 2056x765; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/the-terraces** — Island Art Pack, Sean, 20 September 2026 (source id 'cloudfall'). Delivered as a wide panorama 2048x768; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/the-white-flats** — Island Art Pack, Sean, 20 September 2026 (source id 'whitewake'). Delivered as a wide panorama 2032x774; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/wrightsport** — Island Art Pack, Sean, 20 September 2026 (source id 'veilwood'). Delivered as a wide panorama 2048x768; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/yarrow-minor** — Island Art Pack, Sean, 20 September 2026 (source id 'rainforge'). Delivered as a wide panorama 2086x754; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
 - **missions/abduct** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.
 - **missions/command** — Delivered on its own at 1254 square rather than cut from the contact sheet, so this is the sharpest of the errand tiles.
 - **missions/espionage** — Cut from a nine-tile contact sheet, so it is upscaled from the tile size. Replace with an individual export when there is one.

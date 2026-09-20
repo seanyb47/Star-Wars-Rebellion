@@ -2220,6 +2220,1030 @@
         "sha1": "626613c4159d4419"
       }
     },
+    "isles/anchorite-rock": {
+      "folder": "isles",
+      "slug": "anchorite-rock",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Anchorite Rock",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'drowned-observatory'). Delivered as a wide panorama 1942x809; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 146,
+        "w": 1942,
+        "h": 516
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/anchorite-rock.webp",
+        "w": 1942,
+        "h": 809,
+        "bytes": 531578,
+        "sha1": "f9164e2e2bf50314"
+      },
+      "shipped": {
+        "file": "src/art/isles/anchorite-rock.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 35830,
+        "sha1": "c7c49df9866a795a"
+      }
+    },
+    "isles/ballmoor": {
+      "folder": "isles",
+      "slug": "ballmoor",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Ballmoor",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'steamcrown'). Delivered as a wide panorama 2172x724; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 73,
+        "w": 2172,
+        "h": 577
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/ballmoor.webp",
+        "w": 2172,
+        "h": 724,
+        "bytes": 608344,
+        "sha1": "32f88df29014960a"
+      },
+      "shipped": {
+        "file": "src/art/isles/ballmoor.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 42662,
+        "sha1": "14a456ffa4768495"
+      }
+    },
+    "isles/blackreef": {
+      "folder": "isles",
+      "slug": "blackreef",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Blackreef",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'knifewater-cove'). Delivered as a wide panorama 2073x758; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 103,
+        "w": 2073,
+        "h": 551
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/blackreef.webp",
+        "w": 2073,
+        "h": 758,
+        "bytes": 743406,
+        "sha1": "8e06bd2c4c7e53ce"
+      },
+      "shipped": {
+        "file": "src/art/isles/blackreef.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 48960,
+        "sha1": "c933a0e923eec42e"
+      }
+    },
+    "isles/brimstone-cay": {
+      "folder": "isles",
+      "slug": "brimstone-cay",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Brimstone Cay",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'grayfall'). Delivered as a wide panorama 2073x758; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 103,
+        "w": 2073,
+        "h": 551
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/brimstone-cay.webp",
+        "w": 2073,
+        "h": 758,
+        "bytes": 544460,
+        "sha1": "780d878322791f55"
+      },
+      "shipped": {
+        "file": "src/art/isles/brimstone-cay.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 36570,
+        "sha1": "390aca868cf49edd"
+      }
+    },
+    "isles/cartmel": {
+      "folder": "isles",
+      "slug": "cartmel",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Cartmel",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'amber-abbey'). Delivered as a wide panorama 2048x768; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 112,
+        "w": 2048,
+        "h": 544
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/cartmel.webp",
+        "w": 2048,
+        "h": 768,
+        "bytes": 664390,
+        "sha1": "ca7a472a540c32ea"
+      },
+      "shipped": {
+        "file": "src/art/isles/cartmel.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 46710,
+        "sha1": "d1f32b2c897f25de"
+      }
+    },
+    "isles/chandlers-rest": {
+      "folder": "isles",
+      "slug": "chandlers-rest",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Chandler's Rest",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'heatherwake'). Delivered as a wide panorama 2098x750; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 96,
+        "w": 2098,
+        "h": 557
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/chandlers-rest.webp",
+        "w": 2098,
+        "h": 750,
+        "bytes": 621082,
+        "sha1": "b03f2cb910217013"
+      },
+      "shipped": {
+        "file": "src/art/isles/chandlers-rest.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 40172,
+        "sha1": "e42c203be8ded987"
+      }
+    },
+    "isles/chepstow": {
+      "folder": "isles",
+      "slug": "chepstow",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Chepstow",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'sevenmouth'). Delivered as a wide panorama 1983x793; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 133,
+        "w": 1983,
+        "h": 527
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/chepstow.webp",
+        "w": 1983,
+        "h": 793,
+        "bytes": 727176,
+        "sha1": "bc74149261d15b01"
+      },
+      "shipped": {
+        "file": "src/art/isles/chepstow.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 48496,
+        "sha1": "16c47a48e2d6193f"
+      }
+    },
+    "isles/coralhome": {
+      "folder": "isles",
+      "slug": "coralhome",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Coralhome",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'luminous-shoals'). Delivered as a wide panorama 2056x765; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 109,
+        "w": 2056,
+        "h": 546
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/coralhome.webp",
+        "w": 2056,
+        "h": 765,
+        "bytes": 764578,
+        "sha1": "bebbaa745550367a"
+      },
+      "shipped": {
+        "file": "src/art/isles/coralhome.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 61098,
+        "sha1": "e88f06a4892b8118"
+      }
+    },
+    "isles/corsham-head": {
+      "folder": "isles",
+      "slug": "corsham-head",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Corsham Head",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'highmere'). Delivered as a wide panorama 1993x789; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 130,
+        "w": 1993,
+        "h": 529
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/corsham-head.webp",
+        "w": 1993,
+        "h": 789,
+        "bytes": 657570,
+        "sha1": "173fa02ffa9c35f6"
+      },
+      "shipped": {
+        "file": "src/art/isles/corsham-head.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 46718,
+        "sha1": "57a80aa768ed1627"
+      }
+    },
+    "isles/firewatch": {
+      "folder": "isles",
+      "slug": "firewatch",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Firewatch",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'cinderstep'). Delivered as a wide panorama 1916x821; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 156,
+        "w": 1916,
+        "h": 509
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/firewatch.webp",
+        "w": 1916,
+        "h": 821,
+        "bytes": 621470,
+        "sha1": "88f111fecb7a3aad"
+      },
+      "shipped": {
+        "file": "src/art/isles/firewatch.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 46926,
+        "sha1": "bd1741f23952ba36"
+      }
+    },
+    "isles/freeport": {
+      "folder": "isles",
+      "slug": "freeport",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Freeport",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'redwake'). Delivered as a wide panorama 2067x761; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 106,
+        "w": 2067,
+        "h": 549
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/freeport.webp",
+        "w": 2067,
+        "h": 761,
+        "bytes": 673602,
+        "sha1": "15adaf147d2d4a1a"
+      },
+      "shipped": {
+        "file": "src/art/isles/freeport.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 50610,
+        "sha1": "41e4a266e19d6092"
+      }
+    },
+    "isles/gibbet-rock": {
+      "folder": "isles",
+      "slug": "gibbet-rock",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Gibbet Rock",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'maelstrom-reach'). Delivered as a wide panorama 2056x765; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 109,
+        "w": 2056,
+        "h": 546
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/gibbet-rock.webp",
+        "w": 2056,
+        "h": 765,
+        "bytes": 663192,
+        "sha1": "595b331007e42826"
+      },
+      "shipped": {
+        "file": "src/art/isles/gibbet-rock.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 48782,
+        "sha1": "dbf251e3d2c3b5d5"
+      }
+    },
+    "isles/gorley": {
+      "folder": "isles",
+      "slug": "gorley",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Gorley",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'windscar-steppe'). Delivered as a wide panorama 2129x739; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 86,
+        "w": 2129,
+        "h": 566
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/gorley.webp",
+        "w": 2129,
+        "h": 739,
+        "bytes": 587284,
+        "sha1": "1a0b2959263655f0"
+      },
+      "shipped": {
+        "file": "src/art/isles/gorley.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 43024,
+        "sha1": "fc42e5c7b777a955"
+      }
+    },
+    "isles/graving-bay": {
+      "folder": "isles",
+      "slug": "graving-bay",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Graving Bay",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'embercut-yard'). Delivered as a wide panorama 2048x768; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 112,
+        "w": 2048,
+        "h": 544
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/graving-bay.webp",
+        "w": 2048,
+        "h": 768,
+        "bytes": 779276,
+        "sha1": "899ca3e238f75dcf"
+      },
+      "shipped": {
+        "file": "src/art/isles/graving-bay.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 56186,
+        "sha1": "2adce68bf617348f"
+      }
+    },
+    "isles/greenholm": {
+      "folder": "isles",
+      "slug": "greenholm",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Greenholm",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'verdant-bastion'). Delivered as a wide panorama 2086x754; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 100,
+        "w": 2086,
+        "h": 554
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/greenholm.webp",
+        "w": 2086,
+        "h": 754,
+        "bytes": 662758,
+        "sha1": "ccce091020d85d9e"
+      },
+      "shipped": {
+        "file": "src/art/isles/greenholm.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 50626,
+        "sha1": "3699082383b577e7"
+      }
+    },
+    "isles/hawksbill-bay": {
+      "folder": "isles",
+      "slug": "hawksbill-bay",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Hawksbill Bay",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'pearlhaven'). Delivered as a wide panorama 2073x758; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 103,
+        "w": 2073,
+        "h": 551
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/hawksbill-bay.webp",
+        "w": 2073,
+        "h": 758,
+        "bytes": 679614,
+        "sha1": "653ba2f4346071fd"
+      },
+      "shipped": {
+        "file": "src/art/isles/hawksbill-bay.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 49928,
+        "sha1": "8155c02003a1a327"
+      }
+    },
+    "isles/hearsay-cay": {
+      "folder": "isles",
+      "slug": "hearsay-cay",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Hearsay Cay",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'thousand-teeth'). Delivered as a wide panorama 2043x770; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 113,
+        "w": 2043,
+        "h": 543
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/hearsay-cay.webp",
+        "w": 2043,
+        "h": 770,
+        "bytes": 651568,
+        "sha1": "f228fc4830f090a9"
+      },
+      "shipped": {
+        "file": "src/art/isles/hearsay-cay.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 47636,
+        "sha1": "977c992ee0dbae0e"
+      }
+    },
+    "isles/kingsward": {
+      "folder": "isles",
+      "slug": "kingsward",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Kingsward",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'lowtide-crown'). Delivered as a wide panorama 2172x724; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 73,
+        "w": 2172,
+        "h": 577
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/kingsward.webp",
+        "w": 2172,
+        "h": 724,
+        "bytes": 593434,
+        "sha1": "68f8716653019463"
+      },
+      "shipped": {
+        "file": "src/art/isles/kingsward.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 40728,
+        "sha1": "d5292302825c4b2e"
+      }
+    },
+    "isles/leeward-keep": {
+      "folder": "isles",
+      "slug": "leeward-keep",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Leeward Keep",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'thunderhead-isle'). Delivered as a wide panorama 1983x793; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 133,
+        "w": 1983,
+        "h": 527
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/leeward-keep.webp",
+        "w": 1983,
+        "h": 793,
+        "bytes": 622010,
+        "sha1": "c83e4977c99dcdaa"
+      },
+      "shipped": {
+        "file": "src/art/isles/leeward-keep.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 44698,
+        "sha1": "b17548f900019f93"
+      }
+    },
+    "isles/minterne": {
+      "folder": "isles",
+      "slug": "minterne",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Minterne",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'tidemarble'). Delivered as a wide panorama 2056x765; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 109,
+        "w": 2056,
+        "h": 546
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/minterne.webp",
+        "w": 2056,
+        "h": 765,
+        "bytes": 573370,
+        "sha1": "09e4660e56217d31"
+      },
+      "shipped": {
+        "file": "src/art/isles/minterne.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 38804,
+        "sha1": "1f9e52b0d63ad581"
+      }
+    },
+    "isles/northreach": {
+      "folder": "isles",
+      "slug": "northreach",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Northreach",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'frostgate'). Delivered as a wide panorama 2129x739; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 86,
+        "w": 2129,
+        "h": 566
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/northreach.webp",
+        "w": 2129,
+        "h": 739,
+        "bytes": 697214,
+        "sha1": "8542cad3b4dcc343"
+      },
+      "shipped": {
+        "file": "src/art/isles/northreach.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 49608,
+        "sha1": "722e0477c6b4f217"
+      }
+    },
+    "isles/saltgrave": {
+      "folder": "isles",
+      "slug": "saltgrave",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Saltgrave",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'sunscar'). Delivered as a wide panorama 2076x758; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 103,
+        "w": 2076,
+        "h": 551
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/saltgrave.webp",
+        "w": 2076,
+        "h": 758,
+        "bytes": 673916,
+        "sha1": "89f9a8d9465731d9"
+      },
+      "shipped": {
+        "file": "src/art/isles/saltgrave.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 48548,
+        "sha1": "2a198affda4e094d"
+      }
+    },
+    "isles/sorrowhead": {
+      "folder": "isles",
+      "slug": "sorrowhead",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Sorrowhead",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'blackreed'). Delivered as a wide panorama 2066x761; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 106,
+        "w": 2066,
+        "h": 549
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/sorrowhead.webp",
+        "w": 2066,
+        "h": 761,
+        "bytes": 650150,
+        "sha1": "7cf12395eddd7545"
+      },
+      "shipped": {
+        "file": "src/art/isles/sorrowhead.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 45950,
+        "sha1": "437d10ec6346ec7a"
+      }
+    },
+    "isles/starcross": {
+      "folder": "isles",
+      "slug": "starcross",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Starcross",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'skyglass'). Delivered as a wide panorama 2060x763; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 108,
+        "w": 2060,
+        "h": 547
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/starcross.webp",
+        "w": 2060,
+        "h": 763,
+        "bytes": 724540,
+        "sha1": "57a110508a9b8b06"
+      },
+      "shipped": {
+        "file": "src/art/isles/starcross.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 52422,
+        "sha1": "99c23e01b59833d4"
+      }
+    },
+    "isles/tallow-cay": {
+      "folder": "isles",
+      "slug": "tallow-cay",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Tallow Cay",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'boneharbor'). Delivered as a wide panorama 2048x768; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 112,
+        "w": 2048,
+        "h": 544
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/tallow-cay.webp",
+        "w": 2048,
+        "h": 768,
+        "bytes": 647164,
+        "sha1": "0d764316de4d0899"
+      },
+      "shipped": {
+        "file": "src/art/isles/tallow-cay.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 46162,
+        "sha1": "00bb19f7ac7b6154"
+      }
+    },
+    "isles/the-aldermain": {
+      "folder": "isles",
+      "slug": "the-aldermain",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "The Aldermain",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'aureate-haven'). Delivered as a wide panorama 1983x793; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 133,
+        "w": 1983,
+        "h": 527
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/the-aldermain.webp",
+        "w": 1983,
+        "h": 793,
+        "bytes": 697608,
+        "sha1": "7ecbdceb1c90e5d1"
+      },
+      "shipped": {
+        "file": "src/art/isles/the-aldermain.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 53538,
+        "sha1": "7c4718ed65afe0ca"
+      }
+    },
+    "isles/the-kettles": {
+      "folder": "isles",
+      "slug": "the-kettles",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "The Kettles",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'lantern-deep'). Delivered as a wide panorama 1916x821; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 156,
+        "w": 1916,
+        "h": 509
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/the-kettles.webp",
+        "w": 1916,
+        "h": 821,
+        "bytes": 700812,
+        "sha1": "bee197265df9d69a"
+      },
+      "shipped": {
+        "file": "src/art/isles/the-kettles.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 44246,
+        "sha1": "3a9962af7e6b5b04"
+      }
+    },
+    "isles/the-shoals": {
+      "folder": "isles",
+      "slug": "the-shoals",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "The Shoals",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'rootwater'). Delivered as a wide panorama 2056x765; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 109,
+        "w": 2056,
+        "h": 546
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/the-shoals.webp",
+        "w": 2056,
+        "h": 765,
+        "bytes": 811618,
+        "sha1": "9d99ad5c94dcea98"
+      },
+      "shipped": {
+        "file": "src/art/isles/the-shoals.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 57020,
+        "sha1": "c05346565f51b460"
+      }
+    },
+    "isles/the-terraces": {
+      "folder": "isles",
+      "slug": "the-terraces",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "The Terraces",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'cloudfall'). Delivered as a wide panorama 2048x768; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 112,
+        "w": 2048,
+        "h": 544
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/the-terraces.webp",
+        "w": 2048,
+        "h": 768,
+        "bytes": 661136,
+        "sha1": "3cb3a569741685a6"
+      },
+      "shipped": {
+        "file": "src/art/isles/the-terraces.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 45896,
+        "sha1": "84ea8891258f3677"
+      }
+    },
+    "isles/the-white-flats": {
+      "folder": "isles",
+      "slug": "the-white-flats",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "The White Flats",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'whitewake'). Delivered as a wide panorama 2032x774; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 117,
+        "w": 2032,
+        "h": 540
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/the-white-flats.webp",
+        "w": 2032,
+        "h": 774,
+        "bytes": 582284,
+        "sha1": "c7f0c2117de962a8"
+      },
+      "shipped": {
+        "file": "src/art/isles/the-white-flats.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 43420,
+        "sha1": "7c8fcb7bf0bab3b7"
+      }
+    },
+    "isles/wrightsport": {
+      "folder": "isles",
+      "slug": "wrightsport",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Wrightsport",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'veilwood'). Delivered as a wide panorama 2048x768; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 112,
+        "w": 2048,
+        "h": 544
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/wrightsport.webp",
+        "w": 2048,
+        "h": 768,
+        "bytes": 656946,
+        "sha1": "afa02ff05ad2eee2"
+      },
+      "shipped": {
+        "file": "src/art/isles/wrightsport.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 42732,
+        "sha1": "752d4e47fa38d652"
+      }
+    },
+    "isles/yarrow-minor": {
+      "folder": "isles",
+      "slug": "yarrow-minor",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Yarrow Minor",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'rainforge'). Delivered as a wide panorama 2086x754; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
+      "crop": {
+        "x": 0,
+        "y": 100,
+        "w": 2086,
+        "h": 554
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/yarrow-minor.webp",
+        "w": 2086,
+        "h": 754,
+        "bytes": 700920,
+        "sha1": "b80b2bc774a69242"
+      },
+      "shipped": {
+        "file": "src/art/isles/yarrow-minor.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 47752,
+        "sha1": "2000f1956adfd418"
+      }
+    },
     "missions/abduct": {
       "folder": "missions",
       "slug": "abduct",

@@ -593,7 +593,16 @@ function NoReport({
       banner={
         <IslandBanner
           archetype={live.archetype}
-          seed={live.chartName ?? live.name}
+          // The island's own name, not the chart's. Everywhere else
+          // `chartName` is right because it is the *chart* asking — the mark,
+          // the map position, the chain view. This is the banner, and Freeport
+          // is the one island where the two disagree: `galaxy.ts` overrides its
+          // archetype to `free-harbor` precisely so it looks like Freeport
+          // rather than like the island it took over, and asking by chart name
+          // here would have undone that the moment Freeport got a painting of
+          // its own. The panel below this already says which island the charts
+          // still call it.
+          seed={live.name}
           faction={live.control}
           settled={live.populated}
           facilities={0}
