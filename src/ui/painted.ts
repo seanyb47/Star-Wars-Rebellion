@@ -1,3 +1,4 @@
+import islandArt from '../data/island-art.json';
 /**
  * Painted art, where it exists.
  *
@@ -190,6 +191,36 @@ export function paintedIsle(name: string): string | undefined {
 
 export function paintedIsland(archetype: string): string | undefined {
   return ISLAND_URLS[slugify(archetype)];
+}
+
+/**
+ * The painting an island actually wears, borrowing where it has none of its own.
+ *
+ * Thirty-two islands have their own painting and sixty-three need one, and
+ * simply falling through to the archetype put four identical jungle isles in a
+ * row on the encyclopedia's alphabetical grid. Sean, 20 September: *"Let's try
+ * to space unique art so that for most part you're not seeing tons of
+ * duplicates in same 8 location block. A few is fine. But shouldn't be a
+ * bunch."*
+ *
+ * So the choice is made once, ahead of time, by `scripts/island_art.py`, which
+ * walks the islands in the order the grid shows them and gives each borrower
+ * the painting that has been off screen longest — never one still visible in
+ * the window of eight. A borrowed painting may only stand in for the archetype
+ * it was painted for, so an island still looks like the kind of place it is.
+ * Worst case is now seven distinct paintings in any eight; it was five.
+ *
+ * `@name` in that table means an archetype painting rather than a borrowed one.
+ * A name the table does not know — Freeport, which the game invents at runtime
+ * — falls back to asking by name and then by archetype, which is what every
+ * island did before this existed.
+ */
+export function islandPainting(name: string, archetype?: string): string | undefined {
+  const chosen = (islandArt.art as Record<string, string>)[name];
+  if (chosen) {
+    return chosen.startsWith('@') ? paintedIsland(chosen.slice(1)) : ISLE_URLS[chosen];
+  }
+  return paintedIsle(name) ?? (archetype ? paintedIsland(archetype) : undefined);
 }
 
 export function paintedScene(kind: string): string | undefined {

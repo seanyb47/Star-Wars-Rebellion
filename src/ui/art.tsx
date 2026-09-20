@@ -819,7 +819,7 @@ import {
   paintedCreature,
   paintedFace,
   paintedIsland,
-  paintedIsle,
+  islandPainting,
   paintedPortrait,
   paintedFrame,
   paintedRing,
@@ -1772,7 +1772,7 @@ export function IslandBanner({
   height?: number;
 }) {
   const [holder, near] = useInView<HTMLDivElement>();
-  const painting = near ? (paintedIsle(seed) ?? (archetype ? paintedIsland(archetype) : undefined)) : undefined;
+  const painting = near ? islandPainting(seed, archetype) : undefined;
   if (!painting) {
     return (
       <div className="portrait" ref={holder}>
