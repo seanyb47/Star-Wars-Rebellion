@@ -176,31 +176,6 @@ export function MissionChoiceSheet({
       onClose={onClose}
       stacked
     >
-      {mates.length > 0 && (
-        <>
-          <div className="section-title">Who else goes</div>
-          <p className="tiny muted" style={{ margin: '0 0 8px' }}>
-            Anyone at this island, on it or on a fleet here. Four go at most, and they are
-            only as good as the best hand among them at the job — take who the work needs.
-          </p>
-          <div className="chips" style={{ marginBottom: 12 }}>
-            {mates.map((mate) => {
-              const on = taking.includes(mate.id);
-              return (
-                <button
-                  key={mate.id}
-                  className={`chip${on ? ' chip--on' : ''}`}
-                  disabled={!on && full}
-                  onClick={() => toggle(mate.id)}
-                >
-                  {mate.name.split(' ').slice(-1)[0]}
-                </button>
-              );
-            })}
-          </div>
-        </>
-      )}
-
       <div className="stack">
         {offered.map((type) => {
           /*
@@ -305,6 +280,42 @@ export function MissionChoiceSheet({
           );
         })}
       </div>
+
+      {/*
+        * The party comes after the work, not before it.
+        *
+        * Found by playing on 20 September: this block led the sheet, so the
+        * first thing asked of you was which four people to send and the last
+        * was what they were going to do. Its own copy gives the game away —
+        * *take who the work needs* — which you cannot do until you have seen
+        * the work. The errand is the decision and the escort is the
+        * refinement, so the escort sits under it, where a second look at the
+        * parley bands moving as you tick names is worth something.
+        */}
+      {mates.length > 0 && (
+        <>
+          <div className="section-title">Who else goes</div>
+          <p className="tiny muted" style={{ margin: '0 0 8px' }}>
+            Anyone at this island, on it or on a fleet here. Four go at most, and they are
+            only as good as the best hand among them at the job — take who the work needs.
+          </p>
+          <div className="chips" style={{ marginBottom: 12 }}>
+            {mates.map((mate) => {
+              const on = taking.includes(mate.id);
+              return (
+                <button
+                  key={mate.id}
+                  className={`chip${on ? ' chip--on' : ''}`}
+                  disabled={!on && full}
+                  onClick={() => toggle(mate.id)}
+                >
+                  {mate.name.split(' ').slice(-1)[0]}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
     </Sheet>
   );
 }

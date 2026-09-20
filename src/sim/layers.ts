@@ -220,6 +220,24 @@ export function layerMark(
 ): LayerMark {
   if (layer === 'allegiance') return { lit: true };
 
+  /*
+   * Where your own people are going is your own knowledge.
+   *
+   * Found by playing on 20 September: send somebody on Explore — the one
+   * errand that only ever goes to an island nobody of yours has charted — and
+   * the Errands filter, whose whole job is *islands your crew are working on,
+   * or sailing for*, showed a nought and lit nothing. The charted gate below
+   * is right for every other layer, because what stands on a stranger's
+   * island is not yours to know until somebody looks. It is exactly wrong for
+   * this one: you gave the order, so the destination is not news.
+   */
+  if (layer === 'missions') {
+    const n = state.characters.filter(
+      (c) => c.faction === faction && c.mission?.targetSystemId === system.id,
+    ).length;
+    return n > 0 ? { lit: true, count: n } : DARK;
+  }
+
   // You cannot be told about an island you have never charted.
   if (!system.explored[faction]) return DARK;
 
@@ -308,12 +326,6 @@ export function layerMark(
        */
       if (system.control !== faction || system.garrison < 1) return DARK;
       return { lit: true, count: system.garrison };
-    }
-    case 'missions': {
-      const n = state.characters.filter(
-        (c) => c.faction === faction && c.mission?.targetSystemId === system.id,
-      ).length;
-      return n > 0 ? { lit: true, count: n } : DARK;
     }
     case 'worth': {
       // Production: what the island earns its holder today, as the number on
