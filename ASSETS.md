@@ -7,7 +7,7 @@ full-resolution original is kept. The shipped file is small and cropped;
 the master in `art-masters/` is the delivery as it came, so any of these
 can be recropped or resized later without asking for the art again.
 
-**181 of 194 painted.** 7485KB shipped, 55.5MB of masters kept back.
+**183 of 196 painted.** 7537KB shipped, 56.6MB of masters kept back.
 
 ## portraits — 480×436
 
@@ -123,7 +123,7 @@ three-quarter view, whole vessel, masts and waterline both in frame. 37 of 45.
 
 ## islands — 768×204
 
-low approach, as if from a boat; a banner on the island panel. 24 of 29.
+low approach, as if from a boat; a banner on the island panel. 26 of 31.
 
 | subject | slug | v | shipped | master | crop | added | source |
 |---|---|---|---|---|---|---|---|
@@ -136,6 +136,8 @@ low approach, as if from a boat; a banner on the island panel. 24 of 29.
 | Lumber Mill — Crown Imperium | `facility-refinery-empire` | 2 (+1 retired) | 35KB | 1448×1086, 619KB | 888×236 @ 560,600 | 2026-09-12 | Sean, 20 September: lumber mill new art |
 | Shipyard — Free Confederacy | `facility-shipyard-alliance` | 2 (+1 retired) | 35KB | 1448×1086, 572KB | 1200×319 @ 140,250 | 2026-09-12 | Sean, 20 September: shipyard new art |
 | Shipyard — Crown Imperium | `facility-shipyard-empire` | 2 (+1 retired) | 35KB | 1448×1086, 572KB | 1200×319 @ 140,250 | 2026-09-12 | Sean, 20 September: shipyard new art |
+| Silver Mine — alliance | `facility-silver-mine-alliance` | 1 | 26KB | 1448×1086, 572KB | 1050×279 @ 0,400 | 2026-09-20 | Sean, 20 September: silver mine |
+| Silver Mine — empire | `facility-silver-mine-empire` | 1 | 26KB | 1448×1086, 572KB | 1050×279 @ 0,400 | 2026-09-20 | Sean, 20 September: silver mine |
 | Training Facility — alliance | `facility-training-facility-alliance` | 2 (+1 retired) | 43KB | 1448×1086, 622KB | 1448×385 @ 0,430 | 2026-09-12 | Sean, 20 September: training facility new art |
 | Training Facility — empire | `facility-training-facility-empire` | 2 (+1 retired) | 43KB | 1448×1086, 622KB | 1448×385 @ 0,430 | 2026-09-12 | Sean, 20 September: training facility new art |
 | Free Harbor | `free-harbor` | 1 | 38KB | 765×208, 79KB | 765×203 @ 0,2, **upscaled** | 2026-09-12 | ChatGPT art project contact sheets, 12 Sep 2026 |
@@ -329,6 +331,8 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **islands/facility-refinery-empire** — One painting for both sides; the delivery carries no faction marks.
 - **islands/facility-shipyard-alliance** — Same painting as the Crown's; the delivery carries no faction marks.
 - **islands/facility-shipyard-empire** — One painting for both sides; the delivery carries no faction marks.
+- **islands/facility-silver-mine-alliance** — Framed to match the Gold Mine: same cart, same cut, different metal.
+- **islands/facility-silver-mine-empire** — Framed to match the Gold Mine: same cart, same cut, different metal.
 - **islands/facility-training-facility-alliance** — One painting for both sides; the delivery carries no faction marks.
 - **islands/facility-training-facility-empire** — One painting for both sides; the delivery carries no faction marks.
 - **islands/free-harbor** — Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.

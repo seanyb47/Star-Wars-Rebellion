@@ -7275,3 +7275,28 @@ just not the one the set started with.
 
 Still unpainted and still drawing their glyphs: the **Silver Mine** and the
 **Coral Kiln**, the two works added today.
+
+## The Silver Mine, and why it took the Gold Mine's crop
+
+Sean, 20 September: *"Silver mine."* Deliberately the Gold Mine's twin — the
+same mine head, the same winch drum, the same ore cart, with pale crystalline
+ore in it and silver running through the rock instead of gold.
+
+So the crop is not a fresh decision, it is a **matching** job. The frame, the
+width and the subject are copied from the Gold Mine's `0,430,1050,279`; only
+the vertical moved, to `y=400`, because the silver heap sits a little higher in
+its painting and the two cards had to line up. Four offsets were rendered
+against the gold card side by side and 400 is the one where the cart rim lands
+in the same place.
+
+That is the point of the pair. The ladder asks a player to tell three rungs
+apart at a glance, and these two now differ **only in the colour of the ore** —
+same cart, same cut, same light. A player who has seen one knows what the other
+is before reading the label, and knows it is the same kind of thing one rung
+down.
+
+### One glyph left
+
+The **Coral Kiln** is the last works drawing a placeholder. Every other
+building on that page is now a painting, which makes the one line drawing
+conspicuous in a way it was not when there were two.

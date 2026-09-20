@@ -1968,6 +1968,70 @@
         }
       ]
     },
+    "islands/facility-silver-mine-alliance": {
+      "folder": "islands",
+      "slug": "facility-silver-mine-alliance",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Silver Mine \u2014 alliance",
+      "source": "Sean, 20 September: silver mine",
+      "notes": "Framed to match the Gold Mine: same cart, same cut, different metal.",
+      "crop": {
+        "x": 0,
+        "y": 400,
+        "w": 1050,
+        "h": 279
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/islands/facility-silver-mine-alliance.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 586748,
+        "sha1": "72dfd4fd9c0d83dd"
+      },
+      "shipped": {
+        "file": "src/art/islands/facility-silver-mine-alliance.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 26878,
+        "sha1": "e9b7fcc63b9d2c24"
+      }
+    },
+    "islands/facility-silver-mine-empire": {
+      "folder": "islands",
+      "slug": "facility-silver-mine-empire",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Silver Mine \u2014 empire",
+      "source": "Sean, 20 September: silver mine",
+      "notes": "Framed to match the Gold Mine: same cart, same cut, different metal.",
+      "crop": {
+        "x": 0,
+        "y": 400,
+        "w": 1050,
+        "h": 279
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/islands/facility-silver-mine-empire.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 586748,
+        "sha1": "72dfd4fd9c0d83dd"
+      },
+      "shipped": {
+        "file": "src/art/islands/facility-silver-mine-empire.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 26878,
+        "sha1": "e9b7fcc63b9d2c24"
+      }
+    },
     "islands/facility-training-facility-alliance": {
       "folder": "islands",
       "slug": "facility-training-facility-alliance",
