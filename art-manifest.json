@@ -4760,12 +4760,12 @@
     "ships/blackfin": {
       "folder": "ships",
       "slug": "blackfin",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-19",
-      "updated": "2026-09-19",
+      "updated": "2026-09-20",
       "title": "Blackfin",
       "source": "Sean, 19 September \u2014 production painting",
-      "notes": "The Blackfin: a low knife-lean corvette under a tall black mainsail carrying the Confederacy's crest, white foresails beside it, and both rails crowded end to end with small crewed guns on carriages instead of a single gunport. A prize running for the horizon astern. The silhouette guardrail held: the black main owns the frame.",
+      "notes": "Commission of 20 September 2026. Matches Part 4: black mainsails with a crimson lower edge over smaller cream canvas, dark oiled hardwood with no coral anywhere, an improbable density of small guns on swivels along an open firing deck, and the signature bright dotted line of brass muzzles running the length of the otherwise black hull. Crewed by Shoal-folk, correctly - small, large-eyed, big-eared - which settles the crew question the Swift raised. Guardrail holds: no troops, no heavy weapons, no coral mass, no scavenged clutter. One divergence recorded: the master calls for a medium narrow schooner and this is a twin-hulled craft, which reads as the same idea built the Shoal-folk way. Delivered 1448x1086, 4:3, no crop.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -4773,16 +4773,26 @@
         "file": "art-masters/ships/blackfin.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 671800,
-        "sha1": "6d68c4e84c16952b"
+        "bytes": 676448,
+        "sha1": "46045432a01f2265"
       },
       "shipped": {
         "file": "src/art/ships/blackfin.webp",
         "w": 640,
         "h": 480,
-        "bytes": 85074,
-        "sha1": "f8fffaf8a0509069"
-      }
+        "bytes": 96546,
+        "sha1": "f4eede5a4e352325"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/blackfin.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean, 19 September \u2014 production painting"
+        }
+      ]
     },
     "ships/brig": {
       "folder": "ships",
@@ -5615,12 +5625,12 @@
     "ships/swift": {
       "folder": "ships",
       "slug": "swift",
-      "version": 2,
+      "version": 3,
       "added": "2026-09-16",
       "updated": "2026-09-20",
       "title": "Swift",
       "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Replacement commission, 20 September 2026. Delivered 1448x1086, 4:3, no crop. Matches Part 4 closely: narrow hull with lateral outriggers, one canted mast and a tall crab-claw sail, cream and faded crimson, rope lashings and shell fittings, no guns and no armor, skimming reef water with spray off the outriggers. The signature detail is there too - the Shoal-folk navigators' shell wind-chimes, strung from the mast. One divergence recorded rather than fixed: the figure aboard is human-proportioned, where the Swift is Shoal-folk designed and crewed.",
+      "notes": "Revision of the 20 September commission: the same outrigger, now crewed by three Shoal-folk rather than a human. This is the divergence flagged when the previous version went in, corrected. Everything else still matches Part 4 - narrow hull with light lateral outriggers, one canted mast and a tall crab-claw sail in cream and faded crimson, rope lashings and shell fittings, no guns and no armor, the shell wind-chimes at the mast, skimming reef water with spray off the outriggers.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -5628,15 +5638,15 @@
         "file": "art-masters/ships/swift.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 556518,
-        "sha1": "54c3c3f9a3ae3af2"
+        "bytes": 515838,
+        "sha1": "70ba27fea9cf91e4"
       },
       "shipped": {
         "file": "src/art/ships/swift.webp",
         "w": 640,
         "h": 480,
-        "bytes": 77724,
-        "sha1": "b1ca498b1d494c23"
+        "bytes": 77752,
+        "sha1": "27c3184bc75b2d4f"
       },
       "history": [
         {
@@ -5649,6 +5659,14 @@
             "w": 232,
             "h": 174
           },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        },
+        {
+          "version": 2,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/swift.v2.webp",
+          "crop": null,
           "tone": null,
           "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
         }

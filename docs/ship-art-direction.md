@@ -27,6 +27,11 @@ this page is generated from it.
   here and not to worry about it, so neither document is being treated as
   overruling the other and no ship art hangs on it. Do not raise it again
   without him raising it first.
+- **Shoal-folk crew read as Shoal-folk.** Asked on 20 September whether the
+  Swift's crew should carry the people's anatomy; answered by the art rather
+  than in words, when the Blackfin arrived Shoal-folk crewed and the Swift
+  was re-sent the same way. Small, large-eyed, big-eared, per the Peoples Art
+  Guide. Settled — do not re-raise.
 - **Tidecraft** survives in the master's prose (the Reefwarden's vanes, the
   intro's list) after `CANON.md` §5 retired the Deep as a system. Same answer
   from Sean, same day: leave it.
@@ -315,12 +320,9 @@ visible behind their open side doors, which is her signature detail.
 
 *Small, Very Fast. CFS-SWI-S01, research S01.*
 
-**PAINTED** — `src/art/ships/swift.webp`. Matches the master closely, shell
-wind-chimes and all. One divergence, recorded rather than corrected: the
-figure aboard is human-proportioned, where the Swift is Shoal-folk designed
-and crewed — 4 ft to 5 ft 2, large night eyes, broad sail-like ears that
-*"read first even in a black silhouette"*. Worth settling before the
-Blackfin, the other Shoal-folk hull, is commissioned.
+**PAINTED** — `src/art/ships/swift.webp` (v3). Matches the master closely,
+shell wind-chimes and all. The v2 painting crewed her with a human; v3 puts
+three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 **Encyclopedia** *(shown in game)* — The Swift was designed by Shoal-folk who consider deep water an inconvenience and armed ships needlessly slow. It carries messages, scouts channels and vanishes through reefs where a square-rigger would leave its keel. There is no gun aboard because every pound of iron is a pound that cannot become sail. Crown officers dismiss it as a canoe until they discover it reported their fleet two days before their own lookouts saw land.
 
@@ -525,6 +527,11 @@ Blackfin, the other Shoal-folk hull, is commissioned.
 ### Blackfin — Carronade corvette (29)
 
 *Medium, Fast. CFS-BLA-R6-01, research R6.*
+
+**PAINTED** — `src/art/ships/blackfin.webp`. Shoal-folk crewed, and the
+signature dotted line of brass muzzles runs the length of the black hull.
+One divergence: the master calls for a narrow schooner and this is
+twin-hulled — the same idea built the Shoal-folk way.
 
 **Encyclopedia** *(shown in game)* — Blackfins are built around a simple Shoal-folk observation: a large gun is useless if it cannot turn quickly enough to find its target. Their decks bristle with small pieces on swivels and sliding carriages, each served by crews who communicate in whistles across the rigging. The tall black mainsail earned the class its name. Against capitals it is a nuisance; against small fast craft it is the thing waiting at the end of every escape route.
 
