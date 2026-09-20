@@ -9,6 +9,14 @@ to the twin-hulled war canoe her painting turned out to be.
 master field for field, so **edit the master, not the JSON and not this file** —
 this page is generated from it.
 
+**`art-manifest.json` is the authority on what is painted**, not the
+**PAINTED** markers below. They were hand-written, they fell thirteen hulls
+behind the register, and on 20 September that made me tell Sean the fleet was
+thirteen paintings short when in fact every one of the twenty-eight had art.
+Two records of the same fact and nothing comparing them. The markers are
+mirrored from the register now and `shipart.test.ts` fails the build if they
+disagree, so the number can only be read one way.
+
 ## The rules the master sets
 
 - **Visual plausibility.** *"Every ship begins with recognizable Age-of-Sail
@@ -97,6 +105,8 @@ Pairs with it: ivory canvas and one pennant against the II's green rig.
 ### Morningstar — 4th rate (50)
 
 *Large, Slow. CWN-MOR-S03, research S03.*
+
+**PAINTED** — `src/art/ships/morningstar.webp` (v1). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — Morningstars were laid down during an emergency rearmament, when Highwater demanded heavy guns sooner than its yards could design a proper ship around them. The result is brutally effective and famously inelegant: a deep hull, too much iron, too little sail and a battery that makes the whole vessel shudder like a struck bell. Sailors say dawn begins when a Morningstar fires, because every sleeping thing in the harbor wakes at once.
 
@@ -193,6 +203,8 @@ with half the crew watching the trees.
 ### Resolute — Sloop-of-war (18)
 
 *Medium, Fast. CWN-RES-R2-01, research R2.*
+
+**PAINTED** — `src/art/ships/resolute.webp` (v1). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — Resolutes are built in more yards, crewed by more islands and assigned more kinds of duty than any other Crown warship. A captain may escort merchants on Monday, chase raiders on Wednesday and deliver a governor by Sunday. Their ivory sails carry standardized green corner flashes so convoys can recognize help at a distance, while paired brass chronometers behind the stern windows are set together before every departure. Crews claim a Resolute is never late; it merely arrives before the Admiralty has finished explaining why it was needed. The class earned its name not through one famous battle, but by repeatedly reaching waters where the enemy believed a proper warship could not arrive in time.
 
@@ -319,6 +331,8 @@ Small hull better.
 
 *Large, Normal. CWN-JUS-R6-01, research R6.*
 
+**PAINTED** — `src/art/ships/justiciar.webp` (v1). Mirrored from the register, which is the authority; see the note at the head of this file.
+
 **Encyclopedia** *(shown in game)** — Justiciars carry no colonists, governors or comforting fiction about their purpose. Each is designed as a firing solution made into a ship. A narrow antique-gold Judgment Axis runs from the low armored command pavilion toward a stepped sequence of Long Guns, while Heavy Guns sit behind the black-framed central battery and Light Guns guard every quarter. Before opening fire, the crew strikes the bronze Verdict Bell once—the formal declaration that a target has been selected. The vessel carries no figurehead and offers its captain no ceremonial balcony. Even within the Crown, the class inspires unease: immaculate ivory sails with severe green stripes advance through the smoke, the bell sounds, and lawful procedure becomes overwhelming violence.
 
 **Visual identity** — A pure offensive warship whose ordered geometry makes aggression look procedural.
@@ -361,6 +375,8 @@ visible behind their open side doors, which is her signature detail.
 ### Majestic — 1st rate (104)
 
 *Gigantic, Slow. CWN-MAJ-R8-01, research R8.*
+
+**PAINTED** — `src/art/ships/majestic.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — Majestic is the Admiralty's final argument made timber, iron and canvas: fortress, flagship, invasion carrier and national ceremony in a single immense hull. Its rare pale-golden masts are bound with gilded iron and carry Crowned Imperial Battle Sails found on no other vessel—luminous ivory canvas framed in botanical green, stitched with restrained gold and bearing only two small seals of authority. The rig is opulent because it is perfectly made, not because it abandons naval physics. Decks broad enough for formal parade conceal magazines, assault launches and batteries capable of erasing a harbor. Yet Majestic is not a floating palace. Every gallery, mast and ornament serves the ship, making overwhelming power look like the inevitable achievement of civilization.
 
@@ -409,6 +425,8 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 *Medium, Fast. CFS-BRI-S02, research S02.*
 
+**PAINTED** — `src/art/ships/brig.webp` (v1). Mirrored from the register, which is the authority; see the note at the head of this file.
+
 **Encyclopedia** *(shown in game)** — Most Brigantines began as honest merchant vessels, although their captains disagree about when honesty ended. Cargo partitions have become troop berths, concealed ports hold a pair of light guns and every spare beam carries a pulley for loading whatever the next island needs. They are the Confederacy's connective tissue: not heroic, rarely famous, and present at every uprising before the songs arrive.
 
 **Visual identity** — A cheerful merchant brig retrofitted for rebellion—useful, crowded and visibly lived in.
@@ -428,6 +446,8 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 ### Chimera — Improvised 6th rate (20)
 
 *Medium, Slow. CFS-CHI-S03, research S03.*
+
+**PAINTED** — `src/art/ships/chimera.webp` (v1). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — No two yards agree on what a Chimera originally was. Its pale patrol-ship bow, broad merchant waist and clipped Imperial stern meet along celebrated scarf joints reinforced with engraved bronze fishplates. Crews polish those seams rather than hide them; every join records a vessel the Crown abandoned, lost or failed to keep. When the first rebuilt Chimera entered Confederate service, its sailors had no time for proper heraldry. They painted the Confederacy sigil from memory across a crimson sail panel with a bucket of bone-white hull paint, leaving brushstrokes, drips and the ghost of an older Imperial mark beneath it. The symbol is imperfect but its meaning is exact: whatever these pieces were before, this ship belongs to us now.
 
@@ -471,6 +491,8 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 *Small, Fast. CFS-MAR-R1-01, research R1.*
 
+**PAINTED** — `src/art/ships/marauder.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
+
 **Encyclopedia** *(shown in game)** — A Marauder belongs to its captain in a way an Imperial ship never can. Every rail carries a choice made during a raid: cut-down spars for speed, a captured heavy gun under the forecastle, light pieces wherever recoil will not tear the deck apart, and just enough room below for a boarding company and its loot. They are cheap because their crews build half the ship while sailing the other half.
 
 **Visual identity** — A lean privateer schooner with one oversized punch and a deck crowded by opportunistic light weapons.
@@ -490,6 +512,8 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 ### Cutlass — Corvette (20)
 
 *Small, Normal. CFS-CUT-R2-01, research R2.*
+
+**PAINTED** — `src/art/ships/cutlass.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — The Cutlass is the closest thing the Confederacy has to a conventional fleet ship, which is why no two look entirely alike. The basic plan is simple enough to copy in small island yards: compact hull, useful armor and enough heavy guns to threaten something larger. Captains personalize the rig, but the rising curve of the bow remains. Seen in profile it resembles the guard of the weapon that gave the class its name.
 
@@ -541,6 +565,8 @@ so the painting stands.
 
 *Medium, Fast. CFS-TEM-R3-01, research R3.*
 
+**PAINTED** — `src/art/ships/tempest.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
+
 **Encyclopedia** *(shown in game)** — Tempests come from the Sea of Storms, where captains learned to carry sail in weather that sends other ships searching for shelter. Their hybrid rig can shift from long reaching canvas to tight storm triangles without striking a mast. Long guns open the fight before the ship races close enough to land troops beneath the squall. A Tempest is rarely painted against a calm horizon because nobody remembers seeing one there.
 
 **Visual identity** — A fast storm-sea assault vessel with an exotic but plausible hybrid rig and forward long-gun emphasis.
@@ -560,6 +586,8 @@ so the painting stands.
 ### Urskin Whaler — Armed whaler (18)
 
 *Medium, Normal. CFS-URW-R3-01, research R3.*
+
+**PAINTED** — `src/art/ships/urskin-whaler.webp` (v3). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — Before the war, Urskin Whalers followed leviathans through northern pack ice, carrying rendering gear, spare boats and provisions for months away from land. When the clans joined the Confederacy, those broad working hulls received patched iron armor, reinforced gun beds, two Heavy Guns and four Light Guns. The old harpoon ballistae remain hunting equipment rather than naval Long Guns, reminders that their crews learned courage against prey far larger than any warship. A dire-whale jaw reinforces the pointed bow, while iron-banded laminated oars can push through calm water and broken ice. A Whaler is neither elegant nor purpose-built for battle, but it is stubborn, practical and crewed by hunters who know precisely where a larger enemy is vulnerable.
 
@@ -602,6 +630,8 @@ so the painting stands.
 ### Ironback — Razee siege ship (28)
 
 *Large, Slow. CFS-IRB-R5-01, research R5.*
+
+**PAINTED** — `src/art/ships/ironback.webp` (v1). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — Ironback was built with Imperial straight lines and taken out of Imperial service with Admiral Dorian Jessup still aboard. The Confederacy cut down its ornamental stern, reinforced the weather deck and turned its long guns toward the kind of siege the Crown once trained Jessup to conduct. Beneath the weathering, every frame remains unmistakably Admiralty work. That contradiction is the ship's legend: discipline did not disappear when the flag changed; it chose another side.
 
@@ -649,6 +679,8 @@ round, so it is canon now.
 
 *Gigantic, Slow. CFS-URG-R7-01, research R7.*
 
+**PAINTED** — `src/art/ships/urskin-goliath.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
+
 **Encyclopedia** *(shown in game)** — An Urskin Goliath is a clan, foundry and winter town carried into battle on one immense keel. Built from the northern tradition of community whalers but designed for war from the first timber, its cavernous holds carry nine garrisons, powder and cannon shot sized for Urskin hands. A colossal dire-whale skeleton reinforces the icebreaking bow; massive deck ballistae and heavy batteries line the broad upper works. Its sweep-oars are laminated, iron-banded and long enough to bite beyond the hull's shadow, while towering masts carry sails proportioned to move a vessel of such impossible weight. Southern sailors often mistake the tiny figures on deck for children until they realize each silhouette is an Urskin—and understand how large the ship truly is.
 
 **Visual identity** — A gigantic northern great galley and community-whaler scaled for humongous Urskin crews—massive, practical, rough and culturally specific.
@@ -668,6 +700,8 @@ round, so it is canon now.
 ### Coral-Class Dreadnaught — Living dreadnaught (102)
 
 *Gigantic, Normal. CFS-COR-R8-01, research R8.*
+
+**PAINTED** — `src/art/ships/coral-class.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — A Coral-Class Dreadnaught is not launched. Reef singers wake it beneath a guarded lagoon, and the armored hull rises only as far as battle requires. Most of its enormous hardwood keel and living coral mass travels below the surface, where coordinated Tidecraft vanes propel and steer it against wind and current. In action, waves wash over the low dorsal armor while gun apertures open just above the waterline. It is not a submarine or sea creature, but a warship deliberately grown to offer the enemy almost nothing to hit.
 

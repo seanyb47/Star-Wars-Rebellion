@@ -6207,3 +6207,41 @@ One deliberate departure from the mockup: the subtitle keeps *· Confederacy*.
 The mockup shows the class alone, but the emblem beside it is now a class mark
 rather than a flag, so without the word the entry would not name the navy
 anywhere above the lore. One word, and it costs nothing.
+
+## A count I had been getting wrong
+
+Installing new art for the Coral-Class Dreadnaught turned up something worse
+than the painting it replaced: the hull was already painted, and so were
+twelve others I had been listing as unpainted at the end of every reply for
+two days.
+
+The cause is the ordinary one. There were two records of the same fact:
+
+- `art-manifest.json`, written by `scripts/art.py` every time a painting is
+  installed, and
+- the **PAINTED** markers in `docs/ship-art-direction.md`, written by hand.
+
+The doc had fallen thirteen hulls behind, I was reading the count off the
+doc, and nothing in the build compared the two. Every one of the twenty-eight
+hulls has had a painting throughout.
+
+Fixed three ways rather than one, because correcting the thirteen markers on
+its own would only reset the clock:
+
+1. The markers are **mirrored from the register**, not composed.
+2. The file now **names the register as the authority** in its header, so the
+   next person to read it knows which way the arrow points.
+3. `shipart.test.ts` fails the build if the two disagree — in either
+   direction, since a marker claiming art that does not exist is the same bug
+   wearing the other face. It asserts against the *roster* rather than against
+   either file alone, because the question worth failing a build over is "does
+   every hull in the game have a painting, and does the page a person reads
+   say so".
+
+Checked the way the fix deserves: run against the stale doc, the test names
+exactly the thirteen hulls I had misreported — Morningstar, Resolute,
+Justiciar, Majestic, Brigantine, Chimera, Marauder, Cutlass, Tempest, Urskin
+Whaler, Ironback, Urskin Goliath and the Coral-Class Dreadnaught.
+
+Both new paintings are v2 and both v1 masters are retired rather than deleted,
+so either can be brought back.

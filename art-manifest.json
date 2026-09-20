@@ -4898,12 +4898,12 @@
     "ships/coral-class": {
       "folder": "ships",
       "slug": "coral-class",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-19",
-      "updated": "2026-09-19",
+      "updated": "2026-09-20",
       "title": "Coral Class",
       "source": "Sean, 19 September \u2014 production painting",
-      "notes": "Her own painting at last; she had been borrowing the Reef-class's, the hull she grew out of. Mastless on purpose \u2014 the Coral-Class is grown rather than built \u2014 so the folder's 'masts and waterline both in frame' is met by the waterline alone. Delivered at 1448x1086, exactly 4:3, shipped uncropped.",
+      "notes": "Living dreadnaught (102), Free Confederacy. Replaces v1. The brief's hardest half is the one it gets right: roughly two thirds of the mass is under water and legible through it, the battle profile above is a low armored back with the sea washing over it, and the recessed heavy-gun bays sit just clear of the waterline behind a colossal wedge reef-ram. Blood-red, burgundy and bone-white coral plate over the whole of it. No sails, no masts, and it reads as a warship rather than a submarine, a creature, an island or a palace, which is the guardrail. One divergence recorded: the stern carries a stepped, spired coral superstructure and a scatter of small upper turrets, where the sheet asks for no towers and an exceptionally low profile with only the ram and a small command ridge exposed. The silhouette is a broad wedge with visible underwater vanes rather than the single-centerline displacement hull the sheet describes.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -4911,16 +4911,26 @@
         "file": "art-masters/ships/coral-class.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 822042,
-        "sha1": "e496e035b9fe40ce"
+        "bytes": 709188,
+        "sha1": "d3fb6d5fe40b7525"
       },
       "shipped": {
         "file": "src/art/ships/coral-class.webp",
         "w": 640,
         "h": 480,
-        "bytes": 108508,
-        "sha1": "c0032f81b99d7577"
-      }
+        "bytes": 89624,
+        "sha1": "b7d5dc5113b11ff5"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/coral-class.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean, 19 September \u2014 production painting"
+        }
+      ]
     },
     "ships/cutlass": {
       "folder": "ships",
@@ -5781,12 +5791,12 @@
     "ships/urskin-goliath": {
       "folder": "ships",
       "slug": "urskin-goliath",
-      "version": 1,
+      "version": 2,
       "added": "2026-09-19",
-      "updated": "2026-09-19",
+      "updated": "2026-09-20",
       "title": "Urskin Goliath",
       "source": "Sean, 19 September \u2014 production painting",
-      "notes": "The colossal invasion dreadnaught, renamed from Urskin Whaler on 19 September. Shipped at ships/urskin-whaler for a few hours on the same day, before the name moved; that copy is retired under the old slug.",
+      "notes": "Leviathan conversion (64), Free Confederacy. Replaces v1. The structural half is exact, which is the half the guardrail cares about: the longest deep-bellied hull in the fleet in tar-dark timber, a continuous icebreaking keel carrying a colossal dire-whale skull and jaw at the bow, whalebone ribs braced along the side, a low heavy battery, and - her signature detail, drawn as written - two orderly banks of enormous sweep-oars coming out through iron-bound ports beneath load-bearing whalebone arches. Heavy crew on deck establish the scale, pushing through broken northern ice. Nothing sleek, coral-grown, cartoonish or monstrous, and every bone on her does a job. Three divergences recorded: four masts where the sheet asks for two modest ones, bone-and-slate checkered canvas where it asks for oxblood and smoke-black, and a kraken device on the mainsail where it asks for a Confederate flag beneath clan pennants. The light is a cold overcast rather than the rose-gold the scene note prefers.",
       "crop": null,
       "tone": null,
       "upscaled": null,
@@ -5794,16 +5804,26 @@
         "file": "art-masters/ships/urskin-goliath.webp",
         "w": 1448,
         "h": 1086,
-        "bytes": 671210,
-        "sha1": "f004e984f0739b95"
+        "bytes": 770342,
+        "sha1": "57f89e8fc1beb01f"
       },
       "shipped": {
         "file": "src/art/ships/urskin-goliath.webp",
         "w": 640,
         "h": 480,
-        "bytes": 94208,
-        "sha1": "58064702c4028cf7"
-      }
+        "bytes": 99018,
+        "sha1": "e2ab67df72ae7b6d"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/urskin-goliath.v1.webp",
+          "crop": null,
+          "tone": null,
+          "source": "Sean, 19 September \u2014 production painting"
+        }
+      ]
     },
     "ships/urskin-whaler": {
       "folder": "ships",
