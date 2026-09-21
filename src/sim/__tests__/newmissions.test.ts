@@ -311,7 +311,16 @@ describe('research', () => {
     expect(stillWorthDoing(state, yard, 'empire', 'research')).toBe(false);
   });
 
-  it('makes hulls cheaper and quicker, and only hulls', () => {
+  /**
+   * Everything, not only hulls — the reverse of what this asserted.
+   *
+   * Sean, 21 September: *"Just make research the mission. And it applies to
+   * buildings, ships, and troops. Keep it simple."* The old rule was that a
+   * mine cost what a mine had always cost, so that a player noticing cheaper
+   * ships had one thing to thank. The cost of that legibility was a mission
+   * worth nothing at all to a side not building ships that month.
+   */
+  it('makes everything cheaper and quicker, not only hulls', () => {
     const state = world();
     const hull = shipsFor('empire')[0].id;
     const before = effectiveSpec(state, 'empire', hull);
@@ -324,11 +333,19 @@ describe('research', () => {
     expect(after.days).toBeLessThan(before.days);
     expect(after.days).toBeGreaterThan(0);
 
-    // A mine is a mine whatever the shipwrights have learned.
-    expect(effectiveSpec(state, 'empire', 'mine')).toEqual({
-      costGold: buildSpec('mine').costGold,
-      days: buildSpec('mine').days,
-    });
+    // And a mine, a wall and a troop take the same cut. A mine is free to
+    // raise, so its gold cannot fall — the days are what move on that one.
+    const mine = effectiveSpec(state, 'empire', 'mine');
+    expect(mine.days).toBeLessThan(buildSpec('mine').days);
+    expect(mine.days).toBeGreaterThan(0);
+
+    const fort = effectiveSpec(state, 'empire', 'fort');
+    expect(fort.costGold).toBeLessThan(buildSpec('fort').costGold);
+    expect(fort.days).toBeLessThan(buildSpec('fort').days);
+
+    const troop = effectiveSpec(state, 'empire', 'troop');
+    expect(troop.costGold).toBeLessThan(buildSpec('troop').costGold);
+    expect(troop.days).toBeLessThan(buildSpec('troop').days);
   });
 
   it('charges the discounted price, not the sticker price', () => {

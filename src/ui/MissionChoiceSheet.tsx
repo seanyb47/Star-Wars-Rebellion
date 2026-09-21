@@ -8,18 +8,14 @@ import {
   abductOn,
   captiveOn,
   missionsOffered,
-  inciteStanding,
-  parleyStanding,
   joinChance,
-  BAND_LABEL,
   passageDays,
   MISSION_WORK_DAYS,
-  type Factor,
   type GameState,
   type MissionType,
-  type Standing,
   inProse,
   chartedName,
+  MISSION_WHAT,
   type PlayableFaction,
 } from '../sim';
 import { Sheet } from './components';
@@ -35,7 +31,7 @@ import { paintedMission } from './painted';
  * choices, which told a player nothing about the one they were about to spend
  * an officer on. Falls back to the envelope for anything with no painting yet.
  */
-function MissionTile({ type }: { type: string }) {
+export function MissionTile({ type }: { type: string }) {
   const painting = paintedMission(type);
   return (
     <span className={`choice__icon${painting ? ' choice__icon--art' : ''}`}>
@@ -49,54 +45,11 @@ function MissionTile({ type }: { type: string }) {
 }
 
 /**
- * Pluses and minuses, because a figure would be the wrong promise.
- *
- * Sean's brief, 17 September: *"the exact probability should NOT be directly
- * exposed to the player... provide a tooltip such as: PARLEY — FAVORABLE /
- * Diplomat: +++ / Island allegiance: ++ / Enemy political presence: - / Local
- * conditions: +"*. So a parley and an incitement say how they look and what is
- * making them look that way, and never what the dice are. A player can see
- * that their envoy is the strong part and the island's own mind is the weak
- * one, and still not know what the fortnight will do — which is the whole
- * difference between judging a situation and doing arithmetic on it.
- */
-function Marks({ factors }: { factors: Factor[] }) {
-  return (
-    <span className="factors">
-      {factors.map((factor) => (
-        <span className="factor" key={factor.label}>
-          <span className="factor__label">{factor.label}</span>
-          <span className={`factor__mark factor__mark--${factor.weight < 0 ? 'bad' : 'good'}`}>
-            {factor.weight === 0
-              ? '·'
-              : (factor.weight < 0 ? '−' : '+').repeat(Math.abs(factor.weight))}
-          </span>
-        </span>
-      ))}
-    </span>
-  );
-}
-
-/**
  * The original's mission menu. Drop a character on a planet and it asked
  * what they were there to do; here the island usually answers for itself,
  * but where it offers more than one errand the player chooses. One card per
  * errand: what it is, what it would do, and the officer's odds of landing it.
  */
-const WHAT: Record<MissionType, string> = {
-  diplomacy: 'Talk the island round. Its allegiance to you rises with every landed argument.',
-  incite: 'Set its people against their holder. Push them far enough and the island rises.',
-  recruit:
-    'Keep an open table here for a fortnight and see who signs the articles. A Recruiter leads it; what they are worth as a leader and how much this island loves you decide whether anybody worth having sits down.',
-  sabotage: 'Break something of theirs on the island — a yard, a mill, a shipyard.',
-  survey: 'Chart the island: who lives on it, what stands on it, whether a garrison would hold it.',
-  espionage:
-    'Count what is on the island and write it down — troops, works, hulls, their people, and what they have under way here.',
-  abduct: 'Carry off the enemy crew member ashore here and hold them at your seat.',
-  command: 'Take command and put the island back in order.',
-  research: 'Put the yards to work on the craft: cheaper, quicker hulls.',
-  rescue: 'Break one of your crew out of the cells and get them home.',
-};
 
 /**
  * Errands where a second boat on the same island is simply wasted.
@@ -145,23 +98,6 @@ export function MissionChoiceSheet({
     setTaking((was) =>
       was.includes(id) ? was.filter((x) => x !== id) : full ? was : [...was, id],
     );
-  const party = [character, ...mates.filter((m) => taking.includes(m.id))];
-  /*
-   * Talking is the one thing a whole boat does together.
-   *
-   * Every other errand is settled by the best hand aboard and a passenger is
-   * decoration; a parley and an incitement take the whole party with
-   * diminishing returns, so the second and third name you tick are worth
-   * something and never worth as much as the first. The sheet therefore hands
-   * the party itself to `parleyStanding`, not `bestOf` of it, and a player
-   * watching the pluses move as they add people is watching the real rule.
-   */
-  const standingFor = (type: MissionType): Standing | null =>
-    type === 'diplomacy'
-      ? parleyStanding(island, faction, party)
-      : type === 'incite'
-        ? inciteStanding(state, island, faction, party)
-        : null;
   /** How near an unaligned island is to simply throwing in with you. */
   const willingness = (): string => {
     const chance = joinChance(island, faction);
@@ -197,7 +133,6 @@ export function MissionChoiceSheet({
            * what settle the errand — and the espionage sheet after the fact
            * still reports what happened. This is only what is shown before.
            */
-          const standing = standingFor(type);
           /*
            * Somebody of yours is already doing this here.
            *
@@ -216,7 +151,7 @@ export function MissionChoiceSheet({
               ? `Carry off ${captive.name} and hold them at your seat.`
               : type === 'rescue' && held
                 ? `Break ${held.name} out of the cells and get them home.`
-                : WHAT[type];
+                : MISSION_WHAT[type];
           return (
             <Fragment key={type}>
               <button className="card card--tap choice" onClick={() => onChoose(type, taking)}>
@@ -231,11 +166,12 @@ export function MissionChoiceSheet({
                     <b className="choice__name">
                       {type === 'command' ? `Command ${inProse(island.name)}` : MISSION_LABEL[type]}
                     </b>
-                    {standing && (
-                      <span className={`tiny band band--${standing.band}`}>
-                        {BAND_LABEL[standing.band]}
-                      </span>
-                    )}
+                    {/* The FAVORABLE / EVEN / POOR chip stood here, and the
+                        plus-and-minus factors under the blurb below. Both are
+                        gone at Sean's word of 21 September: *"Cut the
+                        'favorable' etc from missions."* Where you send
+                        somebody is the choice; a verdict printed on it does
+                        the choosing. */}
                   </span>
                   <span className="tiny muted choice__what">
                     {what}
@@ -248,7 +184,6 @@ export function MissionChoiceSheet({
                       {ONE_AT_A_TIME.includes(type) ? ', and there is only the one to do' : ''}.
                     </span>
                   )}
-                  {standing && <Marks factors={standing.factors} />}
                 </span>
               </button>
               {/* A posting can be to a deck instead of to the island, so every

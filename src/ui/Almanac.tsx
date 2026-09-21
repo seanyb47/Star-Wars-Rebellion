@@ -144,6 +144,12 @@ import {
   wallGuns,
   wallStrength,
   YARD_BUILDABLE,
+  MISSION_LABEL,
+  MISSION_WHAT,
+  MISSION_ORDER,
+  MISSION_SETTLED_BY,
+  MISSION_WORK_DAYS,
+  RECRUIT_MIN_SUPPORT,
 } from '../sim';
 import {
   CategoryIcon,
@@ -162,6 +168,7 @@ import { GoldFig, Sheet } from './components';
 import { Icon, type IconName } from './icons';
 import { useSideSwipe } from './LayerStrip';
 import { useLookUp, type EncPage } from './lookup';
+import { MissionTile } from './MissionChoiceSheet';
 
 /** The same rule `painted.ts` uses, so an id and an anchor are the same word. */
 export function slugOf(name: string): string {
@@ -1109,6 +1116,10 @@ const PAGES = [
   { id: 'companies', label: terms.troops },
   { id: 'works', label: 'Buildings' },
   { id: 'islands', label: terms.islands },
+  // Sean, 21 September: *"we need an encyclopedia section for missions lol.
+  // Explaining each type and how they work."* Before Rules, because it is
+  // about what you do rather than what is true.
+  { id: 'missions', label: terms.errands },
   { id: 'rules', label: 'Rules' },
   { id: 'glossary', label: 'Glossary' },
 ] as const;
@@ -1624,6 +1635,73 @@ export function Almanac({
       )}
 
       {page === 'glossary' && <GlossaryPage />}
+
+      {page === 'missions' && (
+        <>
+          {/*
+           * What a crew member can be sent to do, and how each one works.
+           *
+           * Sean, 21 September: *"we need an encyclopedia section for missions
+           * lol. Explaining each type and how they work."* It arrived with the
+           * two cuts that feed it — the odds table off the character sheet and
+           * the Recruit explainer off the island sheet — both of which were the
+           * *rules of missions* printed somewhere that looked like the state of
+           * one person or one island.
+           *
+           * The rule for this page: what is true of every mission of that
+           * kind, on every island, for everybody. Anything that depends on who
+           * is going or where belongs on the sheet where the order is given.
+           */}
+          <div className="card howtowin">
+            <div className="howtowin__title">How a {terms.errand.toLowerCase()} works</div>
+            <p>
+              You send one of your {terms.crew.toLowerCase()} to an island. They sail — as long as
+              the distance takes, with a toll for open sea — and then work ashore for{' '}
+              <b>{MISSION_WORK_DAYS} days</b> before they report. What can be done there is decided
+              by the island: somewhere that has not chosen a side can be talked round, somewhere the
+              enemy holds can be stirred up, a harbor of your own can keep a table for new hands.
+            </p>
+            <p>
+              <b>Any {terms.errand.toLowerCase()} is open to anybody.</b> Nobody is shut out of
+              anything by their role — the ratings decide how it goes, not whether it is allowed.
+              The one exception is signing new hands on, which only a <b>Recruiter</b> may lead.
+            </p>
+            <p>
+              <b>Your ratings are yours alone</b>, and the enemy cannot see them. Work on ground
+              that is not yours risks being found out — far more so on an island they hold, and
+              more still with one of their own {terms.crew.toLowerCase()} standing on it.{' '}
+              <b>Espionage</b> is what keeps your {terms.crewOne} out of their hands.
+            </p>
+          </div>
+
+          <div className="section-title">Every {terms.errand.toLowerCase()}</div>
+          {MISSION_ORDER.map((type) => (
+            <div className="card encmini" key={type}>
+              <span className="encmini__art">
+                <MissionTile type={type} />
+              </span>
+              <b className="encmini__name">{MISSION_LABEL[type]}</b>
+              <span className="encmini__line">{MISSION_SETTLED_BY[type]}</span>
+              <p className="muted tiny" style={{ margin: '6px 0 0' }}>
+                {MISSION_WHAT[type]}
+              </p>
+            </div>
+          ))}
+
+          <div className="section-title">{MISSION_LABEL.recruit}</div>
+          {/* Moved here from the island sheet's Crew tab, at Sean's word: the
+              loyalty floor and what a Recruiter does are the same on every
+              island, so they are a rule and not a fact about one. */}
+          <p className="muted tiny">
+            You do not hunt for people. You keep an open table at a harbor of your own that is
+            loyal enough — <b>{RECRUIT_MIN_SUPPORT}</b> allegiance or better — and see who comes.
+            Send a <b>Recruiter</b> there and the table stands for a fortnight: the better they
+            lead and the more the island loves you, the likelier somebody worth having sits down at
+            it. Nobody signs articles on an island in {terms.mutiny.toLowerCase()}, and once the
+            Seven Seas have run out of unaligned hands, whoever you have is whoever you will have.
+          </p>
+        </>
+      )}
 
       {page === 'rules' && (
         <>
