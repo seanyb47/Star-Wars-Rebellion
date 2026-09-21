@@ -31,6 +31,43 @@ export function saveGame(state: GameState, storage: Storage | undefined = global
   }
 }
 
+/**
+ * Names that moved, and a game in progress that still uses the old ones.
+ *
+ * A save carries its own `sectors[].name` and `systems[].name`, but the chart
+ * is looked up by `ReachName/IslandName` against `chart.json`, which ships with
+ * the build. So renaming a Reach or an island silently breaks every save made
+ * before it: the lookup misses, and `GalaxyMap`'s `fallbackSpot` scatters the
+ * chain in a ring round the middle of the sea. Sean's day-33 game on 21
+ * September showed exactly that — Cinder, Whalers' and Wreckers' floating off
+ * the painted land while the three Reaches that were not renamed sat correctly
+ * on theirs.
+ *
+ * Renames are cheap in the data and expensive in a save, which is the opposite
+ * of the intuition. **Anything renamed on the chart belongs in this table**,
+ * for as long as saves from before it might still be opened.
+ */
+const RENAMED_REACHES: Record<string, string> = {
+  "Whalers' Reach": 'Windward Reach',
+  "Wreckers' Reach": 'Sunken Reach',
+  'Cinder Reach': 'Mire Reach',
+};
+const RENAMED_SEAS: Record<string, string> = {
+  'The Merchant Sea': 'The Long Sea',
+};
+const RENAMED_ISLANDS: Record<string, string> = {
+  // 21 September, with the three Reaches above.
+  Ashcombe: 'Starpath',
+  Oakhanger: 'Chimehouse',
+  Sawtry: 'Outrigger Bay',
+  Pitchcombe: 'Longreef',
+  Tarmouth: 'Palmfall',
+  Tamalu: 'Reedmoot',
+  // And the seat, which went back to being the port rather than the landmass
+  // the same morning.
+  'The Aldermain': 'Highwater',
+};
+
 export function loadGame(storage: Storage | undefined = globalThis.localStorage): GameState | null {
   if (!storage) return null;
   try {
@@ -48,6 +85,12 @@ export function loadGame(storage: Storage | undefined = globalThis.localStorage)
     }));
     const systems = parsed.systems.map((s) => ({
       ...s,
+      // See RENAMED_ISLANDS: a save from before a rename still says the old
+      // name, and the chart no longer answers to it. `chartName` goes too —
+      // Freeport is renamed at runtime and keeps its painted name there, so
+      // that, not `name`, is what the lookup actually uses for it.
+      name: RENAMED_ISLANDS[s.name] ?? s.name,
+      ...(s.chartName ? { chartName: RENAMED_ISLANDS[s.chartName] ?? s.chartName } : {}),
       blockaded: !!s.blockaded,
       // Creatures moved out to the frontier after this save version. A game
       // from before it has nothing in any water, which is a duller world than
@@ -66,8 +109,13 @@ export function loadGame(storage: Storage | undefined = globalThis.localStorage)
       empire: { ...parsed.factions.empire, craft: parsed.factions.empire.craft ?? 0 },
       alliance: { ...parsed.factions.alliance, craft: parsed.factions.alliance.craft ?? 0 },
     };
+    const sectors = (parsed.sectors ?? []).map((sec) => ({
+      ...sec,
+      name: RENAMED_REACHES[sec.name] ?? sec.name,
+      sea: RENAMED_SEAS[sec.sea] ?? sec.sea,
+    }));
     // A restored game always comes back paused.
-    return { ...parsed, fleets, systems, factions, speed: 'paused' };
+    return { ...parsed, fleets, systems, sectors, factions, speed: 'paused' };
   } catch {
     return null;
   }

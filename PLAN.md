@@ -7821,3 +7821,56 @@ should make the manhunt *harder*; instead the longer war gives the Crown the
 time it never had. That is evidence about #125 worth keeping: the Crown's
 problem is not that the Lords are well hidden, it is that the war ends before
 it can look.
+
+## Renames are cheap in the data and expensive in a save (21 September)
+
+Sean, on a day-33 Crown game, minutes after the renames shipped: *"Whoa!!!!
+All island broke in wrong spots now."* The chart showed **Cinder**,
+**Whalers'** and **Wreckers'** as loose clusters of dots floating in open
+water, while **Sovereign**, **Coral** and **Salt** sat correctly on their
+painted land. That split is the whole diagnosis: the three that broke are
+exactly the three that were renamed.
+
+### What actually happened
+
+A save carries its own `sectors[].name` and `systems[].name`. The chart is
+`src/data/chart.json`, which ships **with the build**, and the interface looks
+a position up by `ReachName/IslandName`:
+
+```ts
+ISLAND_PLACES.get(`${sector.name}/${system.chartName ?? system.name}`)
+```
+
+Rename either half of that key and every save written before it misses. There
+is no error — `GalaxyMap` has a `fallbackSpot()` for a Reach the painting has
+never heard of, which rings the chain around the middle of the sea. It is
+designed for a new Reach on a bigger map and it did exactly what it says, to
+half the world, silently.
+
+Deploying is shipping here: pushing `claude/**` updates the Pages build under
+a player mid-game.
+
+### The fix, and where it belongs
+
+On the **load**, with the other migrations `persist.ts` already carries —
+fleets, craft, the Boom's removal, `beastSeen`. `loadGame` now maps old Reach
+names, old sea names and old island names to current ones, including
+`chartName`, which is the real chart key for Freeport since that island is
+renamed at runtime and keeps its painted name there.
+
+**The rule this establishes:** anything renamed on the chart goes in that
+table, and stays there for as long as saves from before it might be opened.
+A rename is a one-line data edit and a save-format change at the same time,
+and only the first of those is visible while writing it.
+
+### The test
+
+`savenames.test.ts` builds a save the way the old build wrote one, loads it,
+and asserts every Reach and every island resolves to a painted position — by
+the exact key the interface uses, not an approximation of it. It also has a
+non-vacuity case proving the fixture really is broken without the migration
+(the three Reaches the chart cannot place are named), and a case proving a
+current save round-trips untouched.
+
+Confirmed in a browser on a day-33 save: every dot back on land, labels
+reading Windward, Sunken and Mire.
