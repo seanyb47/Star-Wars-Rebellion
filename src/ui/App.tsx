@@ -158,6 +158,32 @@ export function App() {
       setAlmanac((prev) => ({ page, at, nth: (prev?.nth ?? 0) + 1 })),
     [],
   );
+  /**
+   * Where the player last was in the reference, so the Book tab can resume.
+   *
+   * A ref rather than state because nothing renders off it — it is read only
+   * at the moment the tab is tapped, and making it state would re-render the
+   * whole app every time somebody swiped between encyclopedia pages.
+   */
+  const bookPage = useRef<EncPage>('people');
+  /**
+   * The Book tab's verb, which is not the same verb as a lookup.
+   *
+   * `lookUp` remounts on purpose: a link from an ℹ means *take me to this
+   * thing*, and landing on the thing matters more than the scroll position
+   * you left behind. The tab means *open the book*, and doing the same
+   * remount there threw the page away — read three pages of Rules, close it
+   * to check something, tap Book again and you are back on People.
+   *
+   * So: tapping it while it is open closes it, the way a tab should, and
+   * opening it resumes the page you left. Neither ever loses your place,
+   * because neither is a jump.
+   */
+  const openBook = useCallback(() => {
+    setAlmanac((prev) =>
+      prev ? null : { page: bookPage.current, at: undefined, nth: 0 },
+    );
+  }, []);
   const [pickingFor, setPickingFor] = useState<string | null>(null);
   // An island that offers an officer more than one errand asks which.
   const [missionChoice, setMissionChoice] = useState<{ characterId: string; systemId: string } | null>(null);
@@ -626,6 +652,44 @@ export function App() {
     teaching;
 
   /**
+   * Shut whatever the player has open, so a tap on the chrome can do its job.
+   *
+   * The scrim sits over the whole screen including the tab bar and the top
+   * bar, so with any sheet open the most-tapped controls in the game took two
+   * taps: the first was eaten dismissing the sheet, the second did the thing.
+   * Log, pause, the clock, sound, the gear, and every tab — all of them, on
+   * every one of the fifteen sheets.
+   *
+   * The chrome now sits above the scrim and calls this first, so one tap
+   * closes what is open *and* goes where it was aimed. Which is the behaviour
+   * a player already believes they are getting, and the reason the bug is
+   * easy to miss from the inside: it does not look broken, it looks slow.
+   *
+   * A sheet that demands an answer is the exception and stays modal — there
+   * is a decision outstanding and wandering off to another tab would leave a
+   * crew member waiting for orders nobody can see.
+   */
+  const closePanels = useCallback(() => {
+    if (decision) return false;
+    setOpenSystemId(null);
+    setOpenCharacterId(null);
+    setOpenReachId(null);
+    setOpenListId(null);
+    setOpenShip(null);
+    setMissionChoice(null);
+    setSailPlan(null);
+    setSailingFleetId(null);
+    setScrapFor(null);
+    setMenuOpen(false);
+    setNarratorOpen(false);
+    setAlmanac(null);
+    setBuildMenuOpen(false);
+    setOrderOpen(false);
+    setCameFrom(null);
+    return true;
+  }, [decision]);
+
+  /**
    * Putting a list in the order the player wants it.
    *
    * All four move the game's own array, so the order saves with the game
@@ -784,10 +848,19 @@ export function App() {
         state={state}
         autoPaused={clockHeld}
         soundOn={sound.on}
+        /* Sound and the clock work through a sheet without putting it away:
+           muting the music or pausing the day is not navigating anywhere, and
+           closing what you were reading in order to do it would be its own
+           papercut. What they needed was only to be *reachable*, which is the
+           z-index change in `styles.css`. The gear opens a sheet of its own,
+           so that one clears the screen first. */
         onToggleSound={sound.toggle}
         onSetSpeed={(speed: Speed) => setState(setSpeed(state, speed))}
         onToggleObserving={() => setState(setObserving(state, !state.observing))}
-        onOpenMenu={() => setMenuOpen(true)}
+        onOpenMenu={() => {
+          if (!closePanels()) return;
+          setMenuOpen(true);
+        }}
       />
 
       {/* What has just gone into the log, said on the screen. Under the
@@ -925,6 +998,11 @@ export function App() {
       <TabBar
         tab={buildMenuOpen || orderOpen || choosingSite ? 'build' : tab}
         onChange={(next) => {
+          // One tap, not two: put away whatever sheet is over the screen and
+          // then go where the tap was aimed. It refuses while a crew member
+          // is waiting on an answer, which is the one sheet that is modal on
+          // purpose.
+          if (!closePanels()) return;
           // Build is a popup over whatever you are looking at, not a screen.
           if (next === 'build') setBuildMenuOpen(true);
           else {
@@ -937,8 +1015,18 @@ export function App() {
         }}
         unread={unread}
         player={state.player}
-        onAskAdvisor={() => setNarratorOpen(true)}
-        onOpenAlmanac={() => lookUp('people')}
+        onAskAdvisor={() => {
+          if (!closePanels()) return;
+          setNarratorOpen(true);
+        }}
+        onOpenAlmanac={() => {
+          // The Book is a sheet of its own, so closing the others first is
+          // what makes tapping it from inside an island sheet work at all.
+          if (almanacOpen) return openBook();
+          if (!closePanels()) return;
+          openBook();
+        }}
+        bookOpen={almanacOpen}
         mood={voice.mood}
         talking={voice.talking}
       />
@@ -1184,6 +1272,9 @@ export function App() {
           state={state}
           page={almanac.page}
           entry={almanac.at}
+          onPage={(page) => {
+            bookPage.current = page;
+          }}
           onClose={() => setAlmanac(null)}
         />
       )}
@@ -1228,7 +1319,17 @@ function MissionDecisionSheet({
     <Sheet
       title={`${character.name} reports`}
       subtitle={`${system.name} · Day ${state.day}`}
-      onClose={() => choose('return')}
+      /*
+       * No close at all, because both buttons are orders and the sheet used
+       * to have a third one hidden on the scrim. `onClose` was `choose('return')`
+       * here: tapping the dark area outside the sheet, or the ✕, recalled the
+       * officer irreversibly and spent the fortnight, with no confirmation and
+       * no way back. A new player taps outside to get rid of a thing they do
+       * not understand yet, so the first thing the game taught them was that
+       * it takes orders they did not give.
+       */
+      onClose={() => {}}
+      demands={`${character.name} is waiting on your word.`}
       actions={
         <>
           <button className="btn btn--flex" onClick={() => choose('return')}>

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import terms from '../data/terms.json';
 import { NarratorFigure } from './art';
 import { NARRATOR } from './Narrator';
@@ -98,6 +99,7 @@ export function TabBar({
   player,
   onAskAdvisor,
   onOpenAlmanac,
+  bookOpen = false,
   mood = 'neutral',
   talking = false,
 }: {
@@ -107,20 +109,55 @@ export function TabBar({
   player: 'empire' | 'alliance';
   onAskAdvisor: () => void;
   onOpenAlmanac: () => void;
+  /**
+   * Whether the Book is the thing on screen.
+   *
+   * The Book is the one slot that opens a sheet rather than changing `tab`,
+   * so it was comparing `tab` against a value the app never sets and never
+   * lit up — the only tab in the bar that did not tell you where you were.
+   * Build does it correctly and this now matches it.
+   */
+  bookOpen?: boolean;
   /** The advisor's face and whether they are mid-sentence (see useAdvisorVoice). */
   mood?: NarratorMood;
   talking?: boolean;
 }) {
+  /*
+   * The bar's real height, published for the sheets to sit on top of.
+   *
+   * A sheet is `bottom: 0` inside the fixed app shell, which put it *under*
+   * this bar — so a sheet's own buttons could be hidden behind the tabs, and
+   * the bar itself vanished the moment anything opened. Neither is what the
+   * screen is meant to look like: the bar is the console and stays put.
+   *
+   * Measured rather than written down because the height is the icons plus
+   * whatever the phone's home indicator claims, which is a number only the
+   * device knows.
+   */
+  const bar = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const el = bar.current;
+    if (!el) return;
+    const publish = () =>
+      document.documentElement.style.setProperty('--tabbar-h', `${el.offsetHeight}px`);
+    publish();
+    const watch = new ResizeObserver(publish);
+    watch.observe(el);
+    return () => watch.disconnect();
+  }, []);
+
   return (
-    <nav className="tabbar">
-      {SLOTS.map((entry) => (
+    <nav className="tabbar" ref={bar}>
+      {SLOTS.map((entry) => {
+        const active = entry.id === 'almanac' ? bookOpen : tab === entry.id;
+        return (
         <button
           key={entry.id}
-          className={`tab${tab === entry.id ? ' tab--active' : ''}`}
+          className={`tab${active ? ' tab--active' : ''}`}
           onClick={() =>
             entry.id === 'almanac' ? onOpenAlmanac() : onChange(entry.id as Tab)
           }
-          aria-current={tab === entry.id ? 'page' : undefined}
+          aria-current={active ? 'page' : undefined}
         >
           <span className="tab__icon">
             <TabIcon id={entry.id} />
@@ -130,7 +167,8 @@ export function TabBar({
             <span className="tab__badge">{unread > 99 ? '99+' : unread}</span>
           )}
         </button>
-      ))}
+        );
+      })}
       {/*
         Rebellion's droid stands on the console at the foot of the frame, on
         every screen, never summoned. The tab bar is our console, so the

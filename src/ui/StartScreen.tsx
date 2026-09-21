@@ -119,16 +119,24 @@ export function StartScreen({
       )}
 
       <div className="section-title">Difficulty</div>
+      {/*
+        Marks, not buttons, until there is a choice to make.
+        Every one of these was a dead tap: two were `disabled`, and Normal —
+        the one a new player would actually go for — was an enabled button
+        with no handler at all. So the first thing the game invited anybody to
+        do was press something that did nothing, which is a poor way to teach
+        that pressing things works. They say what the setting is and wait to
+        become controls when the other two mean something.
+      */}
       <div className="start__difficulty">
         {DIFFICULTIES.map((d) => (
-          <button
+          <span
             key={d.id}
-            className={`pill${d.available ? ' pill--on' : ''}`}
-            disabled={!d.available}
-            aria-pressed={d.available}
+            className={`pill pill--static${d.available ? ' pill--on' : ''}`}
+            aria-current={d.available ? 'true' : undefined}
           >
             {d.label}
-          </button>
+          </span>
         ))}
       </div>
       <p className="tiny muted start__note">
@@ -136,8 +144,16 @@ export function StartScreen({
         pretending to work.
       </p>
 
+      {/*
+        Pinned to the foot of the screen once a side is chosen.
+        Picking a faction opens a panel of strengths and weaknesses above
+        this button, which pushed it down the page — away from the tap that
+        had just been aimed at it, and often off the bottom on a phone. The
+        panel is worth reading and belongs where it is; the way out is to
+        stop the button moving rather than to stop the panel opening.
+      */}
       <button
-        className="btn btn--block btn--primary start__begin"
+        className={`btn btn--block btn--primary start__begin${faction ? ' start__begin--ready' : ''}`}
         disabled={!faction}
         onClick={() => faction && onBegin(faction)}
       >

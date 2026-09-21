@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import terms from '../data/terms.json';
 import characterRoster from '../data/characters.json';
 import factionData from '../data/factions.json';
@@ -1143,11 +1143,23 @@ export function Almanac({
   onClose,
   page: opening = 'people',
   entry,
+  onPage,
 }: {
   state: GameState;
   onClose: () => void;
   /** Which page to open on, when something else sent the player here. */
   page?: Page;
+  /**
+   * Reported back whenever the player changes page, so the Book tab can put
+   * them back where they were.
+   *
+   * The reference is a place you browse, and closing it used to throw the
+   * page away — tap Book, read three pages of Rules, close it to look at
+   * something, tap Book again and you are on People. A lookup from an ℹ still
+   * jumps, because a lookup means *take me to this thing*; only the tab
+   * resumes.
+   */
+  onPage?: (page: Page) => void;
   /**
    * A particular thing to land on, by slug — `crown-marines`, `shipyard`,
    * `forest`, a hull's class id, an officer's name. Tapping a unit anywhere in
@@ -1165,7 +1177,14 @@ export function Almanac({
    * page is a reference to the whole cast and says which of them are here.
    */
   const present = useMemo(() => inThisWar(state), [state]);
-  const [page, setPage] = useState<Page>(opening);
+  const [page, setPageState] = useState<Page>(opening);
+  const setPage = useCallback(
+    (next: Page) => {
+      setPageState(next);
+      onPage?.(next);
+    },
+    [onPage],
+  );
   /*
    * The entry currently open on top of the reference.
    *

@@ -1,8 +1,81 @@
-import { Children, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  Children,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 import factionData from '../data/factions.json';
 import { allegianceColour, allegianceSegments } from './allegiance';
 import { usePrefs } from './prefs';
 import { ROOM_TRACK, type Faction, type System } from '../sim';
+
+/**
+ * Drag a sheet down to dismiss it, which is what the grip has been promising.
+ *
+ * `.sheet__grip` was a bare `<div>` with nothing wired to it, under a comment
+ * in this file claiming "the grip above still says the sheet can be dragged
+ * away, which is how most people close it anyway." It said it; it did not do
+ * it. A control that looks draggable and is not is worse than no control,
+ * because the player concludes the app is broken rather than that they
+ * guessed wrong — and on a phone this is the gesture they try before they go
+ * looking for a ✕ that is 34 pixels across.
+ *
+ * Pointer events rather than touch, so a mouse and a pen work the same way.
+ * The sheet follows the finger exactly, refuses to go upwards, and springs
+ * back unless it was thrown or dragged more than a third of the way down.
+ * A sheet that demands an answer cannot be dragged away either — it knocks,
+ * exactly as its scrim does.
+ */
+function useSheetDrag(sheet: RefObject<HTMLDivElement | null>, onEnd: (dismissed: boolean) => void) {
+  const from = useRef<{ y: number; at: number } | null>(null);
+
+  const move = (el: HTMLDivElement, dy: number) => {
+    el.style.transition = 'none';
+    el.style.transform = `translateY(${dy}px)`;
+  };
+  const release = (el: HTMLDivElement) => {
+    el.style.transition = '';
+    el.style.transform = '';
+  };
+
+  return {
+    onPointerDown: (e: React.PointerEvent) => {
+      // Primary button or touch only; a right-click is not a drag.
+      if (e.button !== 0) return;
+      from.current = { y: e.clientY, at: performance.now() };
+      (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+    },
+    onPointerMove: (e: React.PointerEvent) => {
+      const start = from.current;
+      const el = sheet.current;
+      if (!start || !el) return;
+      // Down only. Dragging up should do nothing rather than lift the sheet
+      // off the bottom of the screen and show the chart under it.
+      move(el, Math.max(0, e.clientY - start.y));
+    },
+    onPointerUp: (e: React.PointerEvent) => {
+      const start = from.current;
+      const el = sheet.current;
+      from.current = null;
+      if (!start || !el) return;
+      const dy = e.clientY - start.y;
+      const speed = dy / Math.max(1, performance.now() - start.at);
+      release(el);
+      // A third of the sheet, or a flick: a short fast drag is as clear an
+      // intention as a long slow one, and only having the distance rule makes
+      // the gesture feel heavy.
+      onEnd(dy > el.offsetHeight / 3 || (dy > 40 && speed > 0.5));
+    },
+    onPointerCancel: () => {
+      const el = sheet.current;
+      from.current = null;
+      if (el) release(el);
+    },
+  };
+}
 
 export function Sheet(props: {
   title: string;
@@ -32,6 +105,22 @@ export function Sheet(props: {
   eyebrow?: string;
   subtitle?: ReactNode;
   onClose: () => void;
+  /**
+   * What to say when the sheet will not be dismissed, because it is a
+   * question rather than a page.
+   *
+   * A sheet whose buttons are all *orders* must not have a third, invisible
+   * order on the scrim. The mission report had exactly that: its close
+   * handler was the same call as "Set sail", so tapping the dark area to get
+   * rid of something you did not understand recalled the officer, spent the
+   * fortnight and told you nothing. A new player does that within a minute.
+   *
+   * Set this and the ✕ goes, the scrim stops dismissing, and a tap on it
+   * says this sentence instead. Saying something is the point: a tap that is
+   * simply ignored teaches the player that taps are unreliable, which is a
+   * worse lesson than the one they came for.
+   */
+  demands?: string;
   children: ReactNode;
   actions?: ReactNode;
   /** The footer is one full-width control, so drop the row padding and rule. */
@@ -91,9 +180,25 @@ export function Sheet(props: {
    * the scrolling Sean is complaining about feel worse.
    */
   const [folded, setFolded] = useState(false);
+  /** Set for a moment when somebody tries to dismiss a sheet that demands an answer. */
+  const [nudged, setNudged] = useState(false);
   const body = useRef<HTMLDivElement | null>(null);
   const mark = useRef<HTMLDivElement | null>(null);
+  const panel = useRef<HTMLDivElement | null>(null);
   const flow = props.flow === true;
+  const demands = props.demands;
+
+  useEffect(() => {
+    if (!nudged) return;
+    const t = window.setTimeout(() => setNudged(false), 2200);
+    return () => window.clearTimeout(t);
+  }, [nudged]);
+
+  /** What the scrim and the ✕ do, which is not always to close. */
+  const dismiss = () => (demands ? setNudged(true) : props.onClose());
+  const drag = useSheetDrag(panel, (dismissed) => {
+    if (dismissed) dismiss();
+  });
 
   useEffect(() => {
     if (!flow) return;
@@ -143,11 +248,16 @@ export function Sheet(props: {
         </div>
         {/* A plain mark, not a boxed one: it is the least important
             control on the sheet and the box was giving it the weight of
-            the most. The grip above still says the sheet can be dragged
-            away, which is how most people close it anyway. */}
-        <button className="sheet__x" onClick={props.onClose} aria-label="Close">
-          ✕
-        </button>
+            the most. The grip above really does drag the sheet away now,
+            which is how most people close it.
+            No ✕ at all on a sheet that demands an answer — there is nothing
+            for it to do that is not one of the orders below, and a close
+            control that secretly issues an order is worse than none. */}
+        {!demands && (
+          <button className="sheet__x" onClick={props.onClose} aria-label="Close">
+            ✕
+          </button>
+        )}
       </div>
       {props.subtitle && <div className="sheet__sub">{props.subtitle}</div>}
     </div>
@@ -157,16 +267,22 @@ export function Sheet(props: {
     <>
       <div
         className={`scrim${props.top ? ' scrim--top' : props.stacked ? ' scrim--stacked' : ''}`}
-        onClick={props.onClose}
+        onClick={dismiss}
       />
       <div
         className={`sheet${props.top ? ' sheet--top' : props.stacked ? ' sheet--stacked' : ''}${
           props.tabs ? ' sheet--tabbed' : ''
-        }${flow ? ' sheet--flow' : ''}`}
+        }${flow ? ' sheet--flow' : ''}${nudged ? ' sheet--nudged' : ''}`}
+        ref={panel}
         role="dialog"
+        aria-modal={demands ? true : undefined}
         aria-label={props.title}
       >
-        <div className="sheet__grip" />
+        {/* The grab area is deliberately taller than the bar you can see:
+            the mark is 4px and a finger is not. */}
+        <div className="sheet__griparea" {...drag}>
+          <div className="sheet__grip" />
+        </div>
         {/* The collapsed header. Absolutely placed over the top of the body so
             it reserves no room and nothing jumps when it arrives, and shown
             only once the full one has gone past. */}
@@ -176,14 +292,16 @@ export function Sheet(props: {
               <span className="sheet__fold-title">{props.title}</span>
               {props.subtitle && <span className="sheet__fold-sub">{props.subtitle}</span>}
             </div>
-            <button
-              className="sheet__x"
-              onClick={props.onClose}
-              aria-label="Close"
-              tabIndex={folded ? 0 : -1}
-            >
-              ✕
-            </button>
+            {!demands && (
+              <button
+                className="sheet__x"
+                onClick={props.onClose}
+                aria-label="Close"
+                tabIndex={folded ? 0 : -1}
+              >
+                ✕
+              </button>
+            )}
           </div>
         )}
         {!flow && head}
@@ -204,6 +322,11 @@ export function Sheet(props: {
           {flow && props.banner}
           {props.children}
         </div>
+        {demands && (
+          <div className={`sheet__demand${nudged ? ' sheet__demand--on' : ''}`} role="status">
+            {demands}
+          </div>
+        )}
         {props.actions && (
           <div className={`sheet__actions${props.actionsFlush ? ' sheet__actions--flush' : ''}`}>
             {props.actions}

@@ -196,7 +196,11 @@ button {
 .topbar {
   flex: none;
   position: relative;
-  z-index: 2;
+  /* Above the scrims, for the reason the tab bar is — see `.tabbar`. It has
+     to be set here rather than on `.banner` inside it: a positioned parent
+     with a z-index makes a stacking context, so a child raised above the
+     scrim is still trapped under it by this element. */
+  z-index: 15;
   padding: calc(var(--safe-top) + 8px) 12px 8px;
   background: var(--bg-raised);
   border-bottom: 1px solid var(--border);
@@ -446,7 +450,9 @@ button {
 .tabbar {
   flex: none;
   position: relative;
-  z-index: 2;
+  /* Above the scrims, below the sheets. See THE STACK above `.sheet--stacked`
+     in this file for why both halves of that matter. */
+  z-index: 15;
   /* Four and the advisor: the encyclopedia came down off the top rail and the
      crew tab went on 19 September. Counted from the same list the bar draws,
      so a slot added or cut never leaves a column behind. */
@@ -577,14 +583,34 @@ button {
 /* Both answers the same width, so neither reads as the safe one — going where
    they stand is an order, and so is calling it off. */
 .pickbar__btn { flex: 1; min-height: var(--tap); font-size: 13.5px; font-weight: 600; }
-.sheet--stacked { z-index: 23; }
-.scrim--stacked { z-index: 22; }
+/*
+ * THE STACK, bottom to top, because four files now have an opinion about it:
+ *
+ *   10/11/12  the three scrims — plain, over-a-sheet, over-the-encyclopedia
+ *   15        the chrome: top bar and tab bar
+ *   20/22/24  the three sheets, in the same order as their scrims
+ *   30/32     news that owns the screen: the running report, dispatch cards
+ *   60        the toast
+ *
+ * The one interesting line is 15, and it is the whole of the fix for a
+ * two-tap bug. The chrome sits **above the scrims and below the sheets**:
+ *
+ *   - Above the scrims, because the scrim covers the whole screen and used to
+ *     eat every tap on the tab bar and the top bar. One tap now closes the
+ *     sheet and goes where it was aimed (see `closePanels` in App.tsx).
+ *   - Below the sheets, because a sheet is drawn over the tab bar and its own
+ *     buttons live down there. Putting the chrome over the sheets instead hid
+ *     the orders on the mission report behind the tab bar, which was a worse
+ *     bug than the one being fixed and is why the numbers are spread out.
+ */
+.sheet--stacked { z-index: 22; }
+.scrim--stacked { z-index: 11; }
 /* The encyclopedia's second layer: one entry, opened out of the reference. */
-.sheet--top { z-index: 25; }
-.scrim--top { z-index: 24; }
+.sheet--top { z-index: 24; }
+.scrim--top { z-index: 12; }
 
 .chip--toast {
-  z-index: 30;
+  z-index: 60;
   bottom: calc(var(--safe-bottom) + 78px);
 }
 
@@ -594,11 +620,16 @@ button {
 
 /* ---------- Sheets ---------- */
 .scrim {
-  position: absolute; inset: 0; z-index: 20; background: rgba(3, 6, 12, 0.6);
+  position: absolute; inset: 0; z-index: 10; background: rgba(3, 6, 12, 0.6);
   animation: fade 140ms ease-out;
 }
 .sheet {
-  position: absolute; left: 0; right: 0; bottom: 0; z-index: 21;
+  /* Stops at the top of the tab bar, not at the floor of the app.
+     `--tabbar-h` is published by TabBar itself; the fallback is only for the
+     first frame before it measures. A sheet used to run under the bar, which
+     hid its own buttons behind the tabs — on the mission report that meant
+     the two orders it exists to offer. */
+  position: absolute; left: 0; right: 0; bottom: var(--tabbar-h, 64px); z-index: 20;
   max-height: 82%; display: flex; flex-direction: column;
   /* A sheet with no tabs is one thing and sizes to it: a ship's sheet has as
      much in it as that ship has, and stretching it to fill the screen would
@@ -607,25 +638,33 @@ button {
   border-radius: 16px 16px 0 0;
   padding-bottom: var(--safe-bottom);
   animation: slide-up 180ms cubic-bezier(0.2, 0.8, 0.3, 1);
+  /* The spring back when a drag does not go far enough to dismiss. The drag
+     itself clears this so the sheet tracks the finger exactly; letting go
+     restores it and the sheet settles. */
+  transition: transform 200ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet { animation: none; transition: none; }
 }
 /*
- * The sheet's own colour, carried on past its bottom edge.
+ * The sheet used to carry its own colour past its bottom edge, and no longer
+ * needs to.
  *
- * Sean, 19 September: *"A maroon strip shows below the sheet."* The maroon is
- * the body — `#24100c`, the Brethren's rust-black — showing through under a
- * sheet that stops where `.app` stops. `.app` is measured rather than sized
- * to the viewport (see the glass note at the top of this file), and when that
- * measurement comes up short the body paints the difference.
+ * Sean, 19 September: *"A maroon strip shows below the sheet."* The maroon was
+ * the body showing through under a sheet that stopped where `.app` stops —
+ * `.app` is measured rather than sized to the viewport (see the glass note at
+ * the top of this file), and when that measurement came up short the body
+ * painted the difference. The sheet answered it by painting 160px of its own
+ * colour below itself.
  *
- * The sheet already pads itself through the safe area; the gap is *below*
- * that, which no amount of padding reaches. So it paints past its own edge
- * instead. A hundred and sixty covers any measurement error worth having,
- * and it cannot be seen unless there is a gap for it to fill.
+ * A sheet stops at the top of the tab bar now, so that 160px landed squarely
+ * on the tabs and made the bar invisible — present and tappable, which is
+ * worse than absent, because it looked like the console had gone. The bar is
+ * the bottom-most thing on the screen now and it was already solving this for
+ * itself: its background fades into `--chrome-2`, "the colour the canvas
+ * under a short app is painted". So the sheet's underlay is gone rather than
+ * moved, and the rule it existed for is documented on `.tabbar` instead.
  */
-.sheet::after {
-  content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 160px;
-  background: var(--bg-raised); pointer-events: none;
-}
 /*
  * A sheet with tabs is one height, whatever tab is showing.
  *
@@ -642,7 +681,16 @@ button {
  *
  */
 .sheet--tabbed { height: 82%; }
-.sheet__grip { width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 8px auto 4px; }
+.sheet__grip { width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto; }
+/* A 44px-tall grab strip around a 4px mark, because the mark is not the
+   target — the top of the sheet is. `touch-action: none` is what stops the
+   browser claiming the vertical drag for a scroll before we see it. */
+.sheet__griparea {
+  padding: 10px 0 6px; touch-action: none; cursor: grab;
+  display: flex; align-items: center; justify-content: center; min-height: 20px;
+}
+.sheet__griparea:active { cursor: grabbing; }
+.sheet__griparea:active .sheet__grip { background: var(--chrome-text); }
 .map__rhumb { stroke: #0f3a47; }
 .sheet__head { padding: 4px 14px 10px; border-bottom: 1px solid var(--metal-lo); }
 .sheet__title {
@@ -744,6 +792,26 @@ button {
    brings its own edge and its own padding, and the sheet's safe-area padding
    already sits under it. */
 .sheet__actions--flush { display: block; padding: 0; border-top: 0; }
+/* A sheet that is a question rather than a page.
+
+   The line sits above the orders and is quiet until somebody tries to dismiss
+   the sheet, at which point it lights and the sheet knocks once. Both are the
+   answer to a tap that would otherwise be ignored: the player learns the sheet
+   is waiting on them, rather than learning that taps sometimes do nothing. */
+.sheet__demand {
+  padding: 8px 14px 0; font-size: 12px; line-height: 1.35;
+  color: var(--chrome-text); opacity: 0.55;
+  transition: opacity 160ms ease, color 160ms ease;
+}
+.sheet__demand--on { opacity: 1; color: var(--brass); }
+@keyframes sheet-knock {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  45% { transform: translateX(4px); }
+  70% { transform: translateX(-2px); }
+}
+.sheet--nudged { animation: sheet-knock 260ms ease; }
+@media (prefers-reduced-motion: reduce) { .sheet--nudged { animation: none; } }
 
 @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
@@ -940,7 +1008,7 @@ button {
    looking at. Pinned under the utility bar rather than laid out in the flow:
    a strip that pushed the chart down every time a mill finished would move
    the thing under the player's thumb to deliver the news. */
-.reports-slot { position: relative; z-index: 26; height: 0; }
+.reports-slot { position: relative; z-index: 30; height: 0; }
 .reports {
   position: absolute;
   left: 10px; right: 10px; top: 8px;
@@ -1068,6 +1136,8 @@ button {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  /* Room at the foot for the pinned Begin button to sit over without
+     covering the last thing on the page — the difficulty note, usually. */
   padding: calc(var(--safe-top) + 20px) 16px calc(var(--safe-bottom) + 24px);
   background:
     radial-gradient(120% 60% at 50% 0%, #0e2c38 0%, var(--bg) 60%),
@@ -1156,6 +1226,20 @@ button {
 .pill:disabled { opacity: 0.4; }
 .start__note { margin: 8px 0 0; }
 .start__begin { margin-top: 18px; }
+/* A mark rather than a control: no press state, no pointer, not a tab stop. */
+.pill--static { cursor: default; }
+/* Once a side is picked the button follows you down the page, so the detail
+   panel can be as long as it needs to be without moving the way out. */
+.start__begin--ready {
+  position: sticky; bottom: calc(10px + var(--safe-bottom)); z-index: 4;
+  /* The shadow is what tells you it is floating over the page rather than
+     sitting in it, which is the difference between "pinned" and "misaligned". */
+  box-shadow: 0 6px 22px rgba(3, 6, 12, 0.7);
+}
+/* And the page scrolls clear of it. Without this the button parks on top of
+   the difficulty row and the note under it, which is the papercut this was
+   meant to remove rather than a new one. */
+.start:has(.start__begin--ready) { padding-bottom: calc(var(--safe-bottom) + 80px); }
 
 /* ---------- Panel tabs & island art ---------- */
 .tabs {
@@ -1594,7 +1678,9 @@ button {
 .dispatch {
   position: absolute; left: 10px; right: 10px; top: 50%;
   transform: translateY(-50%);
-  z-index: 26;
+  /* Over everything, sheets included. A card is the one thing in the game
+     that genuinely owns the screen. */
+  z-index: 32;
   background: var(--bg-raised);
   border: 1px solid var(--metal-lo); border-radius: 14px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 18px 48px rgba(2, 10, 14, 0.66);

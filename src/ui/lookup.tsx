@@ -8,6 +8,11 @@ export type EncPage =
   | 'works'
   | 'ships'
   | 'islands'
+  // Added 21 September with the Missions page itself. It had been left out,
+  // so the one page in the reference that is about *what you do* was the one
+  // page nothing in the game could link to — which is backwards, since the
+  // mission cards are exactly where a player wants a footnote.
+  | 'missions'
   | 'glossary'
   | 'rules';
 
