@@ -232,6 +232,24 @@ export const FORT_STRENGTH = 60;
  */
 export const CAPITAL_WALLS = 2;
 export const CAPITAL_GARRISON = 6;
+
+/**
+ * Coralhome, and what the Crown keeps on it.
+ *
+ * Canon: the Crown chartered Coralhome, cleared the living coral bed the
+ * Reef-folk had grown their hulls on for generations, and built a proper
+ * harbor. No massacre and no villain — the Admiralty still lists it as a
+ * completed works project — and it is the thing that turned scattered
+ * resistance into the Confederacy.
+ *
+ * So it opens Crown-held, garrisoned like a capital rather than like a
+ * frontier holding, and hated: the people on it regard their holder about as
+ * badly as anywhere in the world does. An island you hold, cannot trust, and
+ * cannot give back.
+ */
+export const CORALHOME = 'Coralhome';
+export const CORALHOME_GARRISON = 6;
+export const CORALHOME_SUPPORT = 12;
 /**
  * And a battery on the great island's other Crown port.
  *

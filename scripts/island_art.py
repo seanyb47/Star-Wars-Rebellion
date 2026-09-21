@@ -38,7 +38,7 @@ AVOID = 20
 # Mirrors LOOKS/BARE in src/sim/galaxy.ts. A test fails if the two drift.
 LOOKS = {
     'The Crown Sea': ['jungle-isle', 'rock-isle'],
-    'The Merchant Sea': ['port-city', 'jungle-isle', 'mining-isle'],
+    'The Long Sea': ['port-city', 'jungle-isle', 'mining-isle'],
     'The Amber Sea': ['reef-isle', 'jungle-isle', 'port-city'],
     'The Far Sea': ['ice-isle', 'rock-isle', 'mining-isle'],
     'The Sea of Storms': ['storm-isle', 'jungle-isle', 'mining-isle'],

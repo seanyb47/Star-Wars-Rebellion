@@ -13,6 +13,9 @@ import {
 import { requiredGarrison } from '../helpers';
 import {
   CAPITAL_GARRISON,
+  CORALHOME,
+  CORALHOME_GARRISON,
+  CORALHOME_SUPPORT,
   FORT_GUNS,
   START_GARRISON_MAX,
   START_GARRISON_SPARE,
@@ -30,24 +33,39 @@ function build(system: System, type: 'fort' | 'heavy_fort', owner: 'empire' | 'a
 }
 
 describe('the opening, against Rebellion', () => {
-  it('opens the Crown on nine islands, one of them sullen, and the Confederacy on eight or nine', () => {
+  it('opens the Crown on ten islands, one of them sullen, and the Confederacy on eight or nine', () => {
     for (const seed of [17, 501, 7, 99]) {
       const state = world(seed);
       const crown = state.systems.filter((s) => s.control === 'empire');
       const confed = state.systems.filter((s) => s.control === 'alliance');
-      // Three in the home Reach and two in each of the three contested ones.
-      expect(crown).toHaveLength(9);
+      // Three in the home Reach, two in each of the three contested ones, and
+      // Coralhome — Crown-held on day one since the lore package, out on the
+      // frontier and a long way from anything else the Crown owns.
+      expect(crown).toHaveLength(10);
+      expect(crown.map((s) => s.name)).toContain(CORALHOME);
       // One or two in the home Reach, two in each of the three contested ones,
       // and Freeport, which flies Confederate colours from day one the way
       // Highwater flies the Crown's. Still no base: losing it costs nothing.
       expect(confed.length).toBeGreaterThanOrEqual(8);
       expect(confed.length).toBeLessThanOrEqual(9);
+      /*
+       * Two sullen now, not one: the dealt one in the home Reach, and
+       * Coralhome, which is sullen on purpose and by a distance — the Crown
+       * cleared its reef and the people have not forgiven it.
+       *
+       * The inner rule used to read `support >= 30`, the uprising line, as a
+       * way of saying *day one is an occupation and not a revolt*. That held
+       * only because nothing had ever been dealt below the line. Coralhome is
+       * dealt at twelve and is still not in revolt, because it is garrisoned
+       * above what the line asks for — which is the actual rule, and is what
+       * this checks now. A support floor was a proxy for it.
+       */
       const sullen = crown.filter((s) => s.support.empire < 50);
-      expect(sullen).toHaveLength(1);
+      expect(sullen).toHaveLength(2);
+      expect(sullen.map((s) => s.name)).toContain(CORALHOME);
       for (const s of sullen) {
-        // Above the uprising line, so day one is an occupation, not a revolt.
-        expect(s.support.empire).toBeGreaterThanOrEqual(30);
-        expect(s.uprising).toBe(false);
+        expect(s.uprising, s.name).toBe(false);
+        expect(s.garrison, s.name).toBeGreaterThanOrEqual(requiredGarrison(s.support.empire));
       }
       for (const s of confed) expect(s.support.alliance).toBeGreaterThanOrEqual(65);
     }
@@ -62,6 +80,16 @@ describe('the opening, against Rebellion', () => {
         // because losing it loses the war and a siege is the point of it.
         if (s.id === state.factions.empire.hqSystemId) {
           expect(s.garrison, s.name).toBe(CAPITAL_GARRISON);
+          continue;
+        }
+        // Coralhome is its own rule too, and for the opposite reason to the
+        // seat's: it is held against its people rather than by them. The
+        // loyalty rule would give it a garrison sized to how it feels about
+        // the Crown, which is the wrong question on the one island the Crown
+        // took and cleared. It opens manned like a capital.
+        if (s.name === CORALHOME) {
+          expect(s.garrison, s.name).toBe(CORALHOME_GARRISON);
+          expect(s.support.empire, s.name).toBe(CORALHOME_SUPPORT);
           continue;
         }
         const want = Math.min(START_GARRISON_MAX, Math.max(1, requiredGarrison(s.support[f]) + START_GARRISON_SPARE + (capital ? 1 : 0)));

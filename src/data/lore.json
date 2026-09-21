@@ -2,7 +2,7 @@
   "_comment": "World bible sections 7 and 13, cut into the pieces the Lore tab reads. `seas` is one Sea's character, taken from the italic line under its heading in docs/lore.md. `archetypes` is what kind of place an island is — ten of them cover seventy-one islands, which is the same trick the paintings use, and it means every island has something true to say about itself and not only the eleven the bible names. Written to be read in the island's own panel, so no sentence here refers to the war.",
   "seas": {
     "The Crown Sea": "Inner water, temperate and grey, and fortified to the last rock. The names here are stately because the Imperium gave them, and the seawalls are older than the Imperium.",
-    "The Merchant Sea": "Inner water, and the busiest of the seven. Whale oil, timber and rope go out of it in every direction, and the charts are worn through where the routes cross.",
+    "The Long Sea": "Open blue ocean with atolls scattered across it, and more water between them than anywhere else inside the charts. The Shoal-folk cross it by star and swell in lashed outriggers, through reef channels only the locals can read, and the Crown's own charts stop being much use a day out from any harbor.",
     "The Bone Sea": "Inner water over a shoal graveyard. Every chart of it is a chart of what has already been lost here, and the wreckers ashore make a living from the next one.",
     "The Far Sea": "Outer water, and cold enough that the rigging ices in the night. Ice islands, whaling stations, and the long dark in winter.",
     "The Sea of Storms": "Outer water in the monsoon belt: typhoons off the deep, volcanoes ashore, rice terraces and jungle between. Rich ground and hard to keep hold of.",

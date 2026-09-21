@@ -7611,3 +7611,120 @@ btn                  :: Set sail
 
 That is worth keeping as a technique. Any UI that only appears in a state the
 opening does not contain can be reached this way in about a minute.
+
+## The lore package, part two (21 September)
+
+Picking up where the 20 September pass stopped. Parts A4, A5, A6 and the
+nineteen staying-put notes of Part C were already in; this does the rest of
+what the chart painting does not block.
+
+### First, a conflict to state
+
+Part C's island table names the Crown's seat **The Aldermain**, and Part E
+lists "The Aldermain and Highwater" as already done. **That is superseded.**
+Sean, 21 September: *"Aldermain is the big island not the port! Revert the port
+back to the name Highwater."* The package is dated the 20th; the ruling is
+newer, so the location is Highwater and the Aldermain is the landmass it
+stands on. Nothing here reverts that.
+
+### Part A 1 — Freeport, finished
+
+The island was already renamed at runtime, but two things still said otherwise:
+`hqLabel` was `"the meeting place"`, and the title screen opened *"You begin at
+a meeting place beyond the Crown's charts."* Both say Freeport now. The phrase
+survives in comments and test names, where it is description rather than a
+label — Freeport **is** the meeting place.
+
+### Part B — the three safe renames
+
+Whalers' Reach → **Windward Reach**, and The Merchant Sea → **The Long Sea**.
+Wreckers' → **Sunken Reach**. Cinder → **Mire Reach**. Plus the six in-place
+island renames: Ashcombe → Starpath, Oakhanger → Chimehouse, Sawtry → Outrigger
+Bay, Pitchcombe → Longreef, Tarmouth → Palmfall, Tamalu → Reedmoot, each with
+the note Part C gives it.
+
+Four files key off these names and all four had to move together:
+`reaches.json`, `chart.json` (position lookup is `ReachName/IslandName`),
+`island-art.json`, and the `LOOKS` archetype table — which is keyed by **sea**
+name and exists in two copies, `galaxy.ts` and `scripts/island_art.py`, held in
+sync by a test. Renaming the sea renamed a key in both.
+
+Three consequences worth recording:
+
+1. **`island-art.json` is generated, and the rename invalidated it.**
+   `island_art.py` walks the islands *alphabetically* and spaces borrowed
+   paintings so a screen of eight is not a wall of the same picture. Renaming
+   six islands changed that order, so the solution went stale and the spacing
+   test failed. Re-running the generator fixed it and improved it: worst
+   8/8 distinct, mean 8.00.
+2. **The Long Sea needed a new blurb.** The old one led on whale oil, and
+   whaling belongs to the Urskin in the Far Sea — which is the reason the name
+   was retired. The replacement is written from the package's own identity line
+   for Windward Reach rather than invented.
+3. **A test pinned the three Reach names** to check what *contested* means.
+   That is a field on the data, so it asks the field now: renaming a Reach
+   should never fail a test about roles.
+
+**The archetypes did not change.** Windward Reach still draws the old Merchant
+Sea's `port-city / jungle-isle / mining-isle`, so its islands do not yet *look*
+like "open blue ocean and scattered atolls". The package gives that identity in
+prose and names no archetypes, and the rule is not to invent — so this is
+flagged rather than guessed.
+
+### Part A 2 — Coralhome opens Crown-held
+
+The founding wound, and now it is on the board: Crown-held on day one,
+garrisoned six like a capital, support **12** — about as far from reconciled as
+the scale goes — its reef already cleared, and its note the package's own words.
+
+Four things had to be got right, and three of them were bugs found on the way:
+
+- **The kilns go with the bed.** Stripping the coral deposits alone left seed
+  501 opening with two Coral Kilns standing on a bed that no longer existed.
+- **No beast.** Charting the island for the Crown put it in breach of the
+  standing rule that nothing is ever placed in water a side has charted.
+- **`beastSeen` is an invariant.** Setting it to `undefined` broke the save
+  round-trip: `loadGame` fills one in for pre-creature saves, so the key
+  vanished on write and came back on read and the states stopped matching. It
+  is reset to `{empire: false, alliance: false}`, not removed. Only the
+  persistence test caught this.
+- **No makers.** Seed 17's Coralhome carried a **shipyard**, which `hold` would
+  have handed to the Crown — a second slipway on day one, against the
+  deliberate one-of-each opening, and *only on some seeds*. A hidden advantage
+  is bad; one that depends on the dice is worse. Earners and walls stay; makers
+  come off.
+
+### What it costs the Crown, measured
+
+Twenty wars, seeds 9000+, the Reach renames present in both runs so this
+isolates Coralhome alone:
+
+| | before | after |
+|---|---|---|
+| Crown — Confederacy | 6 — 14 | **4 — 16** |
+| median length | 624 | **492** |
+| Crown islands at end | 18.9 | 17.1 |
+| Crown hulls at end | 25.6 | 21.2 |
+| Lords taken | 0.90 | 0.70 |
+
+Two wars in twenty, and a war a fifth shorter. That is a real handicap and it
+is not a mis-tune: a deeply sullen island on the far side of the world, holding
+six troops that cost upkeep and defend nothing, sitting in the Confederacy's
+own frontier as the easiest prize on the board. The founding wound costs the
+Crown something, which is thematically exactly right.
+
+It is also a Crown nerf on a side that was already losing, so it **compounds**
+the problem #125 describes rather than relieving it. Kept, because Sean asked
+for it and it is canon; recorded, because the manhunt is now the more urgent
+fix and not less.
+
+### Still blocked, unchanged
+
+The five cross-Reach moves and the six new islands still need the chart
+repainted — the painted landmass is where the position comes from, so moving an
+island between Reaches puts it in the wrong part of the sea, and a new island
+has no land to stand on. Part A 3's coral-bed mechanic (a slipway on a bed
+unlocking the reef hulls; the Crown able to clear one) is also still open, and
+now partly overlaps Sean's later 20 September deposit model, which placed coral
+by the 40/60/30/10 roll in Coral Reach rather than on "3 islands per game".
+That overlap needs his call.

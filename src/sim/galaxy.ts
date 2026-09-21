@@ -19,6 +19,9 @@ import {
   START_GARRISON_MAX,
   START_GARRISON_SPARE,
   CORAL_REACH,
+  CORALHOME,
+  CORALHOME_GARRISON,
+  CORALHOME_SUPPORT,
   DEPOSIT_CHANCE,
   DEPOSIT_MIX,
   DEPOSIT_TILT,
@@ -66,7 +69,7 @@ const LOOKS: Record<string, IslandArchetype[]> = {
   // The Crown Sea's ports are the three flagged on the great island; the rest
   // of the Reach is the country around them.
   'The Crown Sea': ['jungle-isle', 'rock-isle'],
-  'The Merchant Sea': ['port-city', 'jungle-isle', 'mining-isle'],
+  'The Long Sea': ['port-city', 'jungle-isle', 'mining-isle'],
   'The Amber Sea': ['reef-isle', 'jungle-isle', 'port-city'],
   'The Far Sea': ['ice-isle', 'rock-isle', 'mining-isle'],
   'The Sea of Storms': ['storm-isle', 'jungle-isle', 'mining-isle'],
@@ -1023,6 +1026,63 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   // They signed the articles standing on it, so whatever is in its water is
   // not news to them. It is still news to the Crown.
   if (allianceHq.beastSeen) allianceHq.beastSeen.alliance = true;
+
+  /*
+   * --- Coralhome: the founding wound, and the Crown still holds it. ---
+   *
+   * Canon, and Part A 2 of the lore package. The Crown chartered this island,
+   * cleared the living coral bed the Reef-folk had been singing hulls out of
+   * for generations, and built a proper harbor on it. The Admiralty lists it
+   * as a completed works project. It is the reason the Confederacy exists.
+   *
+   * Which makes it the one island in the world the opening should never deal
+   * at random: it is Crown-held on day one, garrisoned like a capital, its
+   * reef already gone, and its people about as far from reconciled as the
+   * scale goes. A frontier island otherwise — the Reach around it is still
+   * dark to both sides — so the Crown knows where its own garrison is and
+   * nothing more is charted on its account.
+   */
+  const coralhome = systems.find((s) => s.name === CORALHOME);
+  if (coralhome) {
+    hold(coralhome, 'empire', CORALHOME_SUPPORT);
+    coralhome.garrison = CORALHOME_GARRISON;
+    coralhome.explored.empire = true;
+    // The bed was cleared to build the harbor, so the ground it stood on is
+    // ordinary ground now. This is the one island that starts that way.
+    //
+    // And the kilns go with it. Stripping the deposits alone left seed 501
+    // opening with two Coral Kilns standing on a bed that no longer existed —
+    // works with nothing under them, which is a state the rest of the game
+    // takes care never to produce.
+    coralhome.deposits = (coralhome.deposits ?? []).filter((d) => d.type !== 'coral');
+    coralhome.facilities = coralhome.facilities.filter((f) => f.type !== 'coral_kiln');
+    /*
+     * And no makers. The island keeps its earners and its walls — it is a
+     * built-up Crown harbor and should look like one — but a slipway or a
+     * barracks standing here on day one would hand the Crown a second of
+     * something the opening deliberately deals one of, and only on the seeds
+     * where this island happened to be dealt one. Seed 17 did: a shipyard,
+     * which is how this was found.
+     *
+     * A hidden advantage is bad; a hidden advantage that depends on the dice
+     * is worse, because the opening is then stronger for a reason the player
+     * cannot see and cannot plan around.
+     */
+    coralhome.facilities = coralhome.facilities.filter(
+      (f) => f.type !== 'shipyard' && f.type !== 'training_facility',
+    );
+    // Nothing in the water, by the standing rule rather than as an exception:
+    // a creature is never put where a side has already charted, and the Crown
+    // charts this one the moment it garrisons it.
+    coralhome.beast = undefined;
+    // Reset rather than removed. `loadGame` guarantees every system carries a
+    // `beastSeen` — it fills one in for saves older than creatures — so a
+    // system without it does not survive a round trip: the save drops the key
+    // and the load puts it back, and the two states stop matching. Setting it
+    // to undefined here failed the persistence test and nothing else, which is
+    // the only reason it was noticed.
+    coralhome.beastSeen = { empire: false, alliance: false };
+  }
 
   // --- Characters: the world bible's seven majors per side, spread about. ---
   //

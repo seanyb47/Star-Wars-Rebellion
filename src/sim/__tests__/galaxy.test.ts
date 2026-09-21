@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import reachData from '../../data/reaches.json';
 import { raiseWorksError } from '../build';
-import { YARD_BUILDABLE } from '../constants';
+import { CORALHOME, YARD_BUILDABLE } from '../constants';
 import { generateGalaxy, START_CHARACTERS } from '../galaxy';
 import { depositsLeft } from '../helpers';
 import { isLord, lords } from '../lords';
@@ -332,6 +332,21 @@ describe('generateGalaxy', () => {
         if (!FRONTIER.includes(sector.name)) continue;
         for (const id of sector.systemIds) {
           const system = state.systems.find((s) => s.id === id)!;
+          /*
+           * Coralhome is the one island out here that is not a blank. The
+           * Crown chartered it, cleared its reef and garrisons it, so the
+           * Crown knows where it is — it would be strange for a side not to
+           * have charted its own harbor. It is still dark to the Confederacy,
+           * like the rest of the frontier, and it is not counted in the
+           * settled-behind-the-fog ratio below because nobody is holding it
+           * for the fog to hide: the Crown is.
+           */
+          if (system.name === CORALHOME) {
+            expect(system.control, `${system.name} seed ${seed}`).toBe('empire');
+            expect(system.explored.empire).toBe(true);
+            expect(system.explored.alliance).toBe(false);
+            continue;
+          }
           expect(system.explored.empire, `${system.name} seed ${seed}`).toBe(false);
           // The Confederacy knows the island it met on and nothing else out here.
           expect(system.explored.alliance).toBe(system.id === base.id);
@@ -393,7 +408,17 @@ describe('generateGalaxy', () => {
 
   it('opens each contested Reach with two islands a side and the rest settled and garrisoned', () => {
     const state = generateGalaxy(61);
-    for (const name of ["Whalers' Reach", "Wreckers' Reach", 'Cinder Reach']) {
+    /*
+     * Asked of the data rather than named here. This listed the three Reaches
+     * by name and broke on 21 September, when the lore package renamed all
+     * three at once — Whalers' to Windward, Wreckers' to Sunken, Cinder to
+     * Mire. The rule under test is about a Reach's *role*, which is a field,
+     * so read the field: renaming a Reach should never fail a test about what
+     * contested means.
+     */
+    const contested = reachData.reaches.filter((r) => r.role === 'contested').map((r) => r.name);
+    expect(contested.length, 'contested Reaches in the data').toBe(3);
+    for (const name of contested) {
       const reach = state.sectors.find((s) => s.name === name)!;
       const islands = reach.systemIds.map((id) => state.systems.find((s) => s.id === id)!);
       expect(islands.filter((s) => s.control === 'empire')).toHaveLength(2);
