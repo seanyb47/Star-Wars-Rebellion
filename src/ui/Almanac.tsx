@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import terms from '../data/terms.json';
 import characterRoster from '../data/characters.json';
 import factionData from '../data/factions.json';
@@ -143,6 +143,7 @@ import {
   isWall,
   YARD_BUILDABLE,
   MISSION_LABEL,
+  MISSION_PARTY_MAX,
   MISSION_WHAT,
   MISSION_ORDER,
   MISSION_SETTLED_BY,
@@ -163,10 +164,10 @@ import {
   FactionSigil,
 } from './art';
 import type { PlayableFaction, ResourceType } from '../sim';
-import { GoldFig, Sheet } from './components';
+import { GoldFig, Info, SectionHead, Sheet } from './components';
 import { Icon, type IconName } from './icons';
 import { useSideSwipe } from './LayerStrip';
-import { useLookUp, type EncPage } from './lookup';
+import { useLookUp } from './lookup';
 import { MissionTile } from './MissionChoiceSheet';
 
 /** The same rule `painted.ts` uses, so an id and an anchor are the same word. */
@@ -217,69 +218,6 @@ const byName = (a: { name: string }, b: { name: string }) => collate(a.name, b.n
  * simulation runs on — so it cannot quietly go out of date the way a
  * hand-written manual would.
  */
-/**
- * A mark that says "there is more about this, and it is over there".
- *
- * Sean, 19 September: *"Goal is to keep game clean and minimize text blocks
- * but add ℹ️ info that links to encyclopedia or rules or glossary when needed
- * to explain finer points of game."*
- *
- * The whole point is that it costs a line and not a paragraph. Where a page
- * used to carry the explanation it carries one of these instead, and the
- * explanation lives once, on the Rules page, where somebody who wants it goes
- * looking. A label rather than a bare glyph, because a lone ℹ️ tells you there
- * is something to read and not what about.
- */
-/**
- * A section heading, with its help folded into it.
- *
- * Sean, 20 September: *"Integrate each help link into its section heading as a
- * small info button."* The five sections each carried a full sentence of link
- * beside the heading — *Defense · What armor stops* — which put a second,
- * longer, brighter thing on the line whose job was to name the section. The
- * sentence survives as the button's label, where a screen reader and a long
- * press still find it; on the page it is one mark.
- */
-function SectionHead({
-  title,
-  to,
-  at,
-  help,
-}: {
-  title: string;
-  to?: EncPage;
-  at?: string;
-  help?: string;
-}) {
-  const lookUp = useLookUp();
-  return (
-    <div className="section-title">
-      {title}
-      {to && help && lookUp && (
-        <button
-          className="infodot"
-          onClick={() => lookUp(to, at)}
-          aria-label={help}
-          title={help}
-        >
-          <Icon name="info" size={17} />
-        </button>
-      )}
-    </div>
-  );
-}
-
-function Info({ to, at, children }: { to: EncPage; at?: string; children: ReactNode }) {
-  const lookUp = useLookUp();
-  if (!lookUp) return null;
-  return (
-    <button className="infolink" onClick={() => lookUp(to, at)}>
-      <span aria-hidden="true">&#8505;</span>
-      <span>{children}</span>
-    </button>
-  );
-}
-
 /**
  * The hull a Pirate Lord's stories are about, if this person is one.
  *
@@ -1725,6 +1663,24 @@ export function Almanac({
               </p>
             </div>
           ))}
+
+          {/*
+              Who goes with them, which had never been written down anywhere.
+              The mission sheet carried it as a paragraph above the escort
+              chips — the only statement of the rule in the game — so cutting
+              that paragraph to a line meant the rule had to land somewhere
+              first. `enc-party` is what the ℹ on that sheet points at.
+          */}
+          <div className="section-title" id="enc-party">
+            Who goes with them
+          </div>
+          <p className="muted tiny">
+            Anyone standing at the same island can go along — ashore or aboard a fleet lying
+            there — up to <b>{MISSION_PARTY_MAX}</b> in all. A party is only as good as the{' '}
+            <b>best hand among them</b> at the job in question, so a poor negotiator loses
+            nothing by travelling with a good one, and the work is settled on whoever is
+            best suited to it rather than on whoever you named first. Take who the work needs.
+          </p>
 
           <div className="section-title">{MISSION_LABEL.recruit}</div>
           {/* Moved here from the island sheet's Crew tab, at Sean's word: the

@@ -15,10 +15,10 @@ import {
   type MissionType,
   inProse,
   chartedName,
-  MISSION_WHAT,
+  MISSION_GIST,
   type PlayableFaction,
 } from '../sim';
-import { Sheet } from './components';
+import { Info, SectionHead, Sheet } from './components';
 import { CategoryIcon } from './art';
 import { paintedMission } from './painted';
 
@@ -114,6 +114,22 @@ export function MissionChoiceSheet({
       onClose={onClose}
       stacked
     >
+      {/*
+          One line a card, and the ℹ carries the rest.
+
+          Sean, 19 September, and this sheet is his own example of the rule:
+          *"keep game clean and minimize text blocks but add ℹ️ info that links
+          to encyclopedia or rules or glossary when needed."* Up to ten errands
+          are offered at once, so a second sentence on each is a screen of
+          prose standing between a player and the one decision they opened this
+          to make. The Missions page of the encyclopedia has had the long form
+          since 21 September; this is the link to it that was missing.
+      */}
+      <SectionHead
+        title={`What ${character.name} could do`}
+        to="missions"
+        help="What each mission is, and what decides whether it comes off"
+      />
       <div className="stack">
         {offered.map((type) => {
           /*
@@ -151,7 +167,7 @@ export function MissionChoiceSheet({
               ? `Carry off ${captive.name} and hold them at your seat.`
               : type === 'rescue' && held
                 ? `Break ${held.name} out of the cells and get them home.`
-                : MISSION_WHAT[type];
+                : MISSION_GIST[type];
           return (
             <Fragment key={type}>
               <button className="card card--tap choice" onClick={() => onChoose(type, taking)}>
@@ -231,10 +247,17 @@ export function MissionChoiceSheet({
         */}
       {mates.length > 0 && (
         <>
-          <div className="section-title">Who else goes</div>
+          <SectionHead
+            title="Who else goes"
+            to="missions"
+            at="party"
+            help="How an escort is picked, and which of them the work is settled on"
+          />
           <p className="tiny muted" style={{ margin: '0 0 8px' }}>
-            Anyone at this island, on it or on a fleet here. Four go at most, and they are
-            only as good as the best hand among them at the job — take who the work needs.
+            Up to {MISSION_PARTY_MAX}, and the best hand among them does the job.{' '}
+            <Info to="missions" at="party">
+              How an escort works
+            </Info>
           </p>
           <div className="chips" style={{ marginBottom: 12 }}>
             {mates.map((mate) => {

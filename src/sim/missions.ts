@@ -1294,6 +1294,36 @@ export const MISSION_ORDER: MissionType[] = [
  * while choosing and the one they read while learning would have drifted the
  * first time either was edited.
  */
+/**
+ * One line a card, because a card is a choice and not a lesson.
+ *
+ * Sean, 19 September, and it is his own example of the rule: keep the screen
+ * clean, one line on the card, and an ℹ to the reference for anybody who
+ * wants the rest. The mission sheet offers up to ten of these at once, so two
+ * sentences each is a screen of prose standing between a player and the one
+ * decision they came to make.
+ *
+ * `MISSION_WHAT` below is the long form and stays exactly as it was — it is
+ * what the Missions page of the encyclopedia prints, which is where the ℹ on
+ * this sheet now goes. Eight of the ten were already a line and are repeated
+ * verbatim; only Recruitment and Espionage are cut, and what comes off them
+ * is the procedure rather than the point.
+ */
+export const MISSION_GIST: Record<MissionType, string> = {
+  diplomacy: 'Talk the island round. Its allegiance to you rises with every landed argument.',
+  incite: 'Set its people against their holder. Push them far enough and the island rises.',
+  recruit: 'Keep an open table here for a fortnight and see who signs the articles.',
+  sabotage: 'Break something of theirs on the island — a yard, a mill, a shipyard.',
+  survey: 'Chart the island: who lives on it, what stands on it, whether a garrison would hold it.',
+  espionage: 'Count what is on the island and write it down.',
+  abduct: 'Carry off the enemy crew member ashore here and hold them at your seat.',
+  command: 'Take command and put the island back in order.',
+  research:
+    'Study, and everything your side builds comes quicker and cheaper — buildings, hulls and troops alike.',
+  rescue: 'Break one of your crew out of the cells and get them home.',
+};
+
+/** The whole of it, as the encyclopedia's Missions page prints it. */
 export const MISSION_WHAT: Record<MissionType, string> = {
   diplomacy: 'Talk the island round. Its allegiance to you rises with every landed argument.',
   incite: 'Set its people against their holder. Push them far enough and the island rises.',

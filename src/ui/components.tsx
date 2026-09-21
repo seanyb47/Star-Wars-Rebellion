@@ -9,6 +9,8 @@ import {
 } from 'react';
 import factionData from '../data/factions.json';
 import { allegianceColour, allegianceSegments } from './allegiance';
+import { Icon } from './icons';
+import { useLookUp, type EncPage } from './lookup';
 import { usePrefs } from './prefs';
 import { ROOM_TRACK, type Faction, type System } from '../sim';
 
@@ -75,6 +77,80 @@ function useSheetDrag(sheet: RefObject<HTMLDivElement | null>, onEnd: (dismissed
       if (el) release(el);
     },
   };
+}
+
+/* ------------------------------------------------- the ℹ, and where it goes */
+
+/**
+ * A mark that says "there is more about this, and it is over there".
+ *
+ * These two live here rather than in `Almanac.tsx`, where they were written,
+ * and the move is the whole of what unlocks the text cleanup. They were not
+ * exported and the Almanac is two thousand lines with forty imports out of
+ * the sim, so no screen could put an ℹ on a section without pulling the
+ * entire encyclopedia in behind it — which is why the mechanism was built,
+ * announced in the tutorial, and then used on three screens out of thirty.
+ * `components.tsx` already owns the ℹ corner mark on a board tile and knows
+ * nothing about the Almanac, so this is where they belong.
+ *
+ * Sean, 19 September: *"Goal is to keep game clean and minimize text blocks
+ * but add ℹ️ info that links to encyclopedia or rules or glossary when needed
+ * to explain finer points of game."*
+ *
+ * The whole point is that it costs a line and not a paragraph. Where a page
+ * used to carry the explanation it carries one of these instead, and the
+ * explanation lives once, on the Rules page, where somebody who wants it goes
+ * looking. A label rather than a bare glyph, because a lone ℹ️ tells you there
+ * is something to read and not what about.
+ */
+/**
+ * A section heading, with its help folded into it.
+ *
+ * Sean, 20 September: *"Integrate each help link into its section heading as a
+ * small info button."* The five sections each carried a full sentence of link
+ * beside the heading — *Defense · What armor stops* — which put a second,
+ * longer, brighter thing on the line whose job was to name the section. The
+ * sentence survives as the button's label, where a screen reader and a long
+ * press still find it; on the page it is one mark.
+ */
+export function SectionHead({
+  title,
+  to,
+  at,
+  help,
+}: {
+  title: string;
+  to?: EncPage;
+  at?: string;
+  help?: string;
+}) {
+  const lookUp = useLookUp();
+  return (
+    <div className="section-title">
+      {title}
+      {to && help && lookUp && (
+        <button
+          className="infodot"
+          onClick={() => lookUp(to, at)}
+          aria-label={help}
+          title={help}
+        >
+          <Icon name="info" size={17} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+export function Info({ to, at, children }: { to: EncPage; at?: string; children: ReactNode }) {
+  const lookUp = useLookUp();
+  if (!lookUp) return null;
+  return (
+    <button className="infolink" onClick={() => lookUp(to, at)}>
+      <span aria-hidden="true">&#8505;</span>
+      <span>{children}</span>
+    </button>
+  );
 }
 
 export function Sheet(props: {
