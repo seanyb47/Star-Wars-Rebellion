@@ -1,5 +1,5 @@
 {
-  "_source": "Part 3 of COMBAT-MASTER-v4.3.md, parsed by scripts/import_roster.py. Do not edit by hand: edit the master and re-run the script.",
+  "_source": "Part 3 of COMBAT-MASTER-v4.3.md, parsed by scripts/import_roster.py. Do not edit by hand: edit the master and re-run the script. ON 21 SEPTEMBER three rows were edited here by hand against that rule, at Sean's word: the Tidestalker, the Reefwarden and the Coral-Class Dreadnaught had their Days to Build, Gold to Build and Gold/Day Maintenance retuned, and their Price Ratio and Value Rating recomputed from the unchanged Scaled Reference Cost. The same numbers are written into the COMBAT MASTER update so the master and this file still agree; re-running the import script over an un-updated master would undo them.",
   "_notes": [
     {
       "about": "There is no Firepower stat",
@@ -898,13 +898,13 @@
       "Troop Capacity": 0,
       "Repair Rate": "4%",
       "Repair Display": "Very Fast",
-      "Days to Build": 290,
-      "Gold to Build": 290,
-      "Gold/Day Maintenance": 2.5,
+      "Days to Build": 102,
+      "Gold to Build": 295,
+      "Gold/Day Maintenance": 3.9,
       "Status": "Healthy",
       "Combatant Type": "Warship",
       "Scaled Reference Cost": 385,
-      "Price Ratio": "75.30%",
+      "Price Ratio": "76.6%",
       "Value Rating": "B — Above Rate",
       "Sim Win%": "30.20%"
     },
@@ -1072,14 +1072,14 @@
       "Troop Capacity": 4,
       "Repair Rate": "2.50%",
       "Repair Display": "Very Fast",
-      "Days to Build": 730,
-      "Gold to Build": 1025,
-      "Gold/Day Maintenance": 7.3,
+      "Days to Build": 220,
+      "Gold to Build": 762,
+      "Gold/Day Maintenance": 15.8,
       "Status": "Healthy",
       "Combatant Type": "Warship",
       "Scaled Reference Cost": 1185,
-      "Price Ratio": "86.50%",
-      "Value Rating": "B — Above Rate",
+      "Price Ratio": "64.3%",
+      "Value Rating": "A — Very Above Rate",
       "Sim Win%": "73.70%"
     },
     {
@@ -1188,13 +1188,13 @@
       "Troop Capacity": 4,
       "Repair Rate": "4%",
       "Repair Display": "Very Fast",
-      "Days to Build": 1300,
-      "Gold to Build": 2200,
-      "Gold/Day Maintenance": 18,
+      "Days to Build": 829,
+      "Gold to Build": 1770,
+      "Gold/Day Maintenance": 28.9,
       "Status": "Healthy",
       "Combatant Type": "Warship",
       "Scaled Reference Cost": 3165,
-      "Price Ratio": "69.50%",
+      "Price Ratio": "55.9%",
       "Value Rating": "A — Very Above Rate",
       "Sim Win%": "96.30%"
     }

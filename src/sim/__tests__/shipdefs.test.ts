@@ -494,12 +494,39 @@ describe('the build-time floor', () => {
     }
   });
 
-  /** And the two v4.3 moved on purpose. */
-  it('carries the v4.3 build times', () => {
+  /**
+   * And the two v4.3 moved on purpose — plus the one 21 September moved.
+   *
+   * The Coral-Class used to be the longest build in the game at 1,300 days,
+   * a hundred more than the Majestic, while costing a third of the Majestic's
+   * upkeep. Sean: *"that seems a little off to me"*, and he is right — the
+   * Majestic is the dearest hull in the fleet and should be the one that takes
+   * longest to lay down. The three coral-grown hulls were retuned against
+   * their size's par: build time about a quarter above it, upkeep about a
+   * quarter below, cost at it. So the Majestic is the longest now, which is
+   * the ordering the prices were always implying.
+   */
+  it('carries the v4.3 build times, and the 21 September coral retune', () => {
     const at = (name: string) => SHIPS.find((s) => s.name === name)!.daysToBuild;
     expect(at('Majestic')).toBe(1200);
     expect(at(EXEMPT)).toBe(15);
-    // Still the longest in the game, and by the master's own claim.
-    expect(Math.max(...SHIPS.map((s) => s.daysToBuild))).toBe(at('Coral-Class Dreadnaught'));
+    // The dearest hull in the game takes the longest to build.
+    expect(Math.max(...SHIPS.map((s) => s.daysToBuild))).toBe(at('Majestic'));
+    const dearest = SHIPS.reduce((a, b) => (b.goldToBuild > a.goldToBuild ? b : a));
+    expect(dearest.name).toBe('Majestic');
+    // And the coral hulls are still slow for what they cost, which is the
+    // flavour the retune was careful to keep: grown, not built.
+    for (const name of ['Tidestalker', 'Reefwarden', 'Coral-Class Dreadnaught']) {
+      const coral = SHIPS.find((s) => s.name === name)!;
+      const peers = SHIPS.filter((s) => s.size === coral.size && s.name !== name);
+      const median = (xs: number[]) => xs.sort((a, b) => a - b)[Math.floor(xs.length / 2)];
+      expect(coral.daysToBuild, `${name} builds slower than its size's par`).toBeGreaterThan(
+        median(peers.map((s) => s.daysToBuild)),
+      );
+      expect(
+        coral.goldPerDayMaintenance,
+        `${name} costs less to keep than its size's par`,
+      ).toBeLessThan(median(peers.map((s) => s.goldPerDayMaintenance)));
+    }
   });
 });
