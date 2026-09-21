@@ -5,7 +5,7 @@ import { AI_MISSION_INTERVAL } from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
 import { getSystem } from '../helpers';
-import { crownPrincipals, isLord } from '../lords';
+import { allLordsTaken, crownTaken, isLord } from '../lords';
 import {
   advanceMissions,
   canRecruit,
@@ -69,37 +69,41 @@ describe('a full game', () => {
   /**
    * The victory condition, end to end — and it is no longer the capital.
    *
-   * This test pinned a seed three times and was moved twice, each time by a
-   * change that moved which seeds settle: the travel rescaling of 19
-   * September, then the yards errand fix later the same day. Both moves are
-   * written up in the history of this comment and both said the same thing,
-   * which is that a pinned seed measures the seed and not the rule.
+   * This test pinned a seed three times and has now been moved four. The
+   * first two were the travel rescaling of 19 September and the yards errand
+   * fix later the same day, and both said the same thing without either of us
+   * hearing it: a pinned seed measures the seed and not the rule.
    *
-   * The third move is different in kind, so it gets the rewrite the other two
-   * should have had. The Confederacy's condition **is not taking Highwater
-   * any more** — since the Crown gained a second principal it is *both of them
-   * in irons at once*, and taking the capital is merely how that usually
-   * happens, because a principal standing on an island when it is stormed goes
-   * into the cells with the garrison. Seed 2, which this test used to pin, now
-   * demonstrates the difference rather than the rule: at day 3,000 the
-   * Confederacy holds Highwater and has still not won, because the Regent
-   * sailed the week before and is a Regent still to be found.
+   * The third move was different in kind. The Confederacy's condition **is
+   * not taking Highwater any more** — since the Crown gained a second
+   * principal it is *both of them in irons at once*, and taking the capital is
+   * merely how that usually happens, because a principal standing on an
+   * island when it is stormed goes into the cells with the garrison. So the
+   * test had been passing on a coincidence for a day. Seed 2, which it used
+   * to pin, now demonstrates the difference rather than the rule: it holds
+   * Highwater at day 3,000 and has still not won, because the Regent sailed
+   * the week before and is a Regent still to be found.
    *
-   * So: find a war the Confederacy wins and assert the condition it won on.
-   * The scan is cheap next to what it buys — it cannot be moved by the next
-   * balance change, only by the rule itself changing, which is what a test of
-   * a rule should be sensitive to.
+   * The fourth came the same evening from the other side, and is the reason
+   * this version is not the one I wrote: the research floor was fixed, and a
+   * war in which both sides can actually research is not the same war. Mine
+   * scanned for a Confederate win and checked the Confederate condition.
+   * This checks **both**, over every war in the sample that settles, which is
+   * the stronger test and the one that survives the next balance change. A
+   * seed that runs long is not a failure — it is the thing the suite has
+   * always known about these wars and says so above.
    */
-  it('ends the way the rules say: both Crown principals in irons at once', () => {
-    let won: GameState | undefined;
-    for (let seed = 1; seed <= 8 && !won; seed++) {
+  it('ends only the way the rules say: two of the Crown, or all three Lords', () => {
+    const settled: GameState[] = [];
+    for (const seed of [2, 5, 9, 13]) {
       const state = playOut(seed, 'empire');
-      if (state.winner === 'alliance') won = state;
+      if (state.winner) settled.push(state);
     }
-    expect(won).toBeDefined();
-    const principals = crownPrincipals(won!);
-    expect(principals.length).toBeGreaterThan(1);
-    for (const who of principals) expect(who.status).toBe('captured');
+    expect(settled.length).toBeGreaterThan(0);
+    for (const state of settled) {
+      if (state.winner === 'alliance') expect(crownTaken(state)).toBe(true);
+      else expect(allLordsTaken(state)).toBe(true);
+    }
   });
 });
 

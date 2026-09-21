@@ -1431,8 +1431,6 @@ export const ESPIONAGE_SECOND_ISLAND = 55;
 export const ASSUMED_WATCH = 70;
 
 export const RESEARCH_BASE = 0.45;
-/** Allegiance an island must already have before its yards can spare the time. */
-export const RESEARCH_MIN_SUPPORT = 75;
 /** Progress a landed cycle adds, before the officer's Espionage. */
 export const RESEARCH_PROGRESS = 24;
 /**
@@ -1454,8 +1452,34 @@ export const RESEARCH_PROGRESS = 24;
  *
  * The spacing is the old curve's, stretched: the rungs are further apart as
  * they climb, so the Majestic is a late-war ship and the Vanguard is not.
+ *
+ * **Scaled to Sean's target, 21 September**, and it is the first hard target
+ * this ladder has ever had: *"assuming that you use research capable units
+ * from day 1 to research... then late game units like magestic should be
+ * coming available around 80% of the average length of a game in days."*
+ *
+ * Measured first, because the invented thresholds turned out to be wrong in
+ * the direction nobody expected. `lab/ladder.ts` watches `craftGrade` every
+ * morning of sixteen wars: mean war length 1,171 days, so the target for the
+ * top rung is day 937 — and a side that pursued research was crossing it on
+ * day 312. The ladder was three times too short, not too long. The whole
+ * roster's back half was arriving in the first third of the war.
+ *
+ * So the ceiling moves from 520 to 1,560, and the gaps are cleaned up on the
+ * way: they were 40/50/60/70/80/90/60/70, which is a curve that climbs and
+ * then stops climbing, and rungs 7 and 8 arrived in a rush right after the
+ * slowest rung in the ladder. They now rise the whole way —
+ * 120/150/170/180/200/230/250/260 — so each unlock costs a little more than
+ * the last and the Majestic is the longest wait on the board.
+ *
+ * What this is really pricing is *attention*, not gold: research is an officer
+ * standing in a yard for fifteen days at a time instead of doing anything
+ * else. The ladder only pays out for a side that keeps somebody there from day
+ * one, which is the condition Sean attached to the target, and a side that
+ * does not gets the first two or three rungs and no more. That asymmetry is
+ * the point of the change rather than a side effect of it.
  */
-export const CRAFT_GRADES = [40, 90, 150, 220, 300, 390, 450, 520];
+export const CRAFT_GRADES = [120, 270, 440, 620, 820, 1050, 1300, 1560];
 /*
  * Tried and cut: the same eight rungs compressed to a 330 ceiling, so that
  * more of the ladder is actually climbed inside a war. It worked at what it
@@ -1882,6 +1906,31 @@ export const FORT_REPAIR_PER_DAY = 0.02;
  */
 export const SUPPORT_FIRM = 90;
 export const SUPPORT_STEADY = 60;
+
+/**
+ * Allegiance an island must already have before its yards can spare the time.
+ *
+ * **Was 75, and 75 was unreachable.** Found on 21 September while measuring
+ * the research ladder against Sean's 80%-of-a-war target, and it is a bug
+ * rather than a dial: a held island drifts to `HELD_SUPPORT_LEVEL`, which is
+ * 65, and stops there. So the resting state of every island a side owns sat
+ * ten points *below* the floor its own yards needed, and research was off by
+ * default for anybody who was not actively arguing an island upward.
+ *
+ * Measured over twelve wars, the share of days a side had any island it could
+ * research at: the Confederacy 66%, the Crown **7%**. The Confederacy gets by
+ * because the Moot pushes an island up a point a day and it holds few, loved
+ * islands; the Crown conquers, governs grudging ground, and had no lever at
+ * all. Every Crown shipyard in the trace sits at exactly 65 — Ulverne,
+ * Coffinswell, Firewatch, Coralhome, all of them, for four hundred days.
+ *
+ * The floor is now the steady band itself. That keeps the rule's actual
+ * meaning — *a thin island has an argument to be won and a parley is the
+ * better use of an officer* — while letting an island that is simply yours do
+ * the work its yards are for. It is written as `SUPPORT_STEADY` rather than 60
+ * so the two cannot drift apart again.
+ */
+export const RESEARCH_MIN_SUPPORT = SUPPORT_STEADY;
 
 /**
  * The three sizes a mark on the chart comes in. The chart's whole vocabulary:

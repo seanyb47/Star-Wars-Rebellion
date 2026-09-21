@@ -29,7 +29,13 @@ import {
 } from '../missions';
 import { effectiveSpec, queueBuild } from '../build';
 import { buildSpec, shipsFor } from '../constants';
-import { CRAFT_GRADES, MISSION_PARTY_MAX, MISSION_WORK_DAYS, RESEARCH_MIN_SUPPORT } from '../constants';
+import {
+  CRAFT_GRADES,
+  HELD_SUPPORT_LEVEL,
+  MISSION_PARTY_MAX,
+  MISSION_WORK_DAYS,
+  RESEARCH_MIN_SUPPORT,
+} from '../constants';
 import type { Character, GameState, System } from '../types';
 
 function world(seed = 501): GameState {
@@ -334,7 +340,11 @@ describe('research', () => {
     const before = effectiveSpec(state, 'empire', hull);
     expect(before).toEqual({ costGold: buildSpec(hull).costGold, days: buildSpec(hull).days });
 
-    state.factions.empire.craft = 1000; // well past the top rung
+    // Past the top rung, whatever the top rung is. It was a literal 1000,
+    // which stopped being past anything when the ladder was rescaled to
+    // Sean's 80%-of-a-war target on 21 September and the ceiling went to
+    // 1,560. Read off the ladder so it cannot go stale again.
+    state.factions.empire.craft = CRAFT_GRADES[CRAFT_GRADES.length - 1] + 1;
     // Eight rungs since the roster swap, not three: the sheet gives each side
     // eight research unlocks in order and the number in the sheet is the rung.
     expect(craftGrade(state.factions.empire.craft)).toBe(CRAFT_GRADES.length);
@@ -360,7 +370,7 @@ describe('research', () => {
 
   it('charges the discounted price, not the sticker price', () => {
     const state = world();
-    state.factions.empire.craft = 1000;
+    state.factions.empire.craft = CRAFT_GRADES[CRAFT_GRADES.length - 1] + 1;
     const yard = state.systems.find((s) =>
       s.facilities.some((f) => f.owner === 'empire' && f.type === 'shipyard'),
     );
@@ -569,5 +579,56 @@ describe('the passage a sheet quotes', () => {
     const state = world();
     const reyne = state.characters.find((c) => c.name === 'Captain Silas Reyne')!;
     expect(passageDays(state, reyne, reyne.locationSystemId)).toBe(0);
+  });
+});
+
+/**
+ * The floor a held island has to clear before its yards will work on the craft.
+ *
+ * This is a regression test with a number attached, because the floor was
+ * unreachable for four days and nobody noticed. It was 75; an island a side
+ * holds drifts to `HELD_SUPPORT_LEVEL`, which is 65, and stops. So the resting
+ * state of every island anybody owned was ten points below the bar its own
+ * shipyards needed, and research only happened where something was actively
+ * pushing an island upward — the Moot, or a parley nobody had a spare officer
+ * for.
+ *
+ * Measured over twelve wars before the fix, the share of days a side had any
+ * island it could research at: Confederacy 66%, **Crown 7%**. Every Crown
+ * shipyard in the trace sat at exactly 65 for four hundred days.
+ *
+ * The invariant is therefore not "the floor is 60". It is that a side can
+ * always work the yards of an island that is simply, quietly theirs.
+ */
+describe('the yards of an ordinary island', () => {
+  it('will work on the craft at the level a held island actually rests at', () => {
+    expect(RESEARCH_MIN_SUPPORT).toBeLessThanOrEqual(HELD_SUPPORT_LEVEL);
+  });
+
+  it('is a research target once it has a slipway and nothing is wrong with it', () => {
+    const state = generateGalaxy(3, 'empire');
+    const island = state.systems.find((s) => s.control === 'empire' && s.populated)!;
+    island.explored.empire = true;
+    island.uprising = false;
+    island.support.empire = HELD_SUPPORT_LEVEL;
+    island.support.alliance = 100 - HELD_SUPPORT_LEVEL;
+    if (!island.facilities.some((f) => f.owner === 'empire' && f.type === 'shipyard')) {
+      island.facilities.push({ id: 'fac-yard-test', type: 'shipyard', owner: 'empire' });
+      island.slots = Math.max(island.slots, island.facilities.length);
+    }
+    state.factions.empire.craft = 0;
+    expect(isResearchTarget(state, island, 'empire')).toBe(true);
+  });
+
+  it('is not, once it has slipped out of the steady band', () => {
+    const state = generateGalaxy(3, 'empire');
+    const island = state.systems.find((s) => s.control === 'empire' && s.populated)!;
+    island.explored.empire = true;
+    island.support.empire = RESEARCH_MIN_SUPPORT - 1;
+    island.support.alliance = 100 - island.support.empire;
+    // A thin island still has an argument to be won, and a parley is the
+    // better use of an officer. That half of the rule is the half that was
+    // always right, and it stays.
+    expect(isResearchTarget(state, island, 'empire')).toBe(false);
   });
 });
