@@ -77,7 +77,7 @@ import {
   sailError,
   sailFleet,
 } from './fleets';
-import { isLord, lords, powerOf } from './lords';
+import { isPrincipal, lords, powerOf } from './lords';
 import {
   depositsLeft,
   freeSlots,
@@ -695,7 +695,7 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
   const liftable = (s: System) => {
     const mark = abductOn(state, s, ai);
     if (!mark) return undefined;
-    return isLord(mark) || follows(state, 'hunt-the-principals') ? mark : undefined;
+    return isPrincipal(mark) || follows(state, 'hunt-the-principals') ? mark : undefined;
   };
   const open = state.systems.filter(
     (s) =>
@@ -873,7 +873,7 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
         close +
         AI_RESCUE_BONUS +
         quality(prisoner) +
-        (isLord(prisoner) ? AI_LORD_RESCUE_BONUS : 0) -
+        (isPrincipal(prisoner) ? AI_LORD_RESCUE_BONUS : 0) -
         caution(s, 'rescue')
       );
     }
@@ -883,7 +883,7 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
         close +
         AI_ABDUCT_BONUS +
         quality(mark) +
-        (isLord(mark) ? AI_LORD_BOUNTY : 0) -
+        (isPrincipal(mark) ? AI_LORD_BOUNTY : 0) -
         caution(s, 'abduct')
       );
     }

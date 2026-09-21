@@ -30,7 +30,7 @@
  * which is what makes them a losing condition worth defending: the Crown's war
  * becomes a manhunt rather than a search for three hulls.
  */
-import { MOOT_SUPPORT_PER_DAY, PIRATE_LORDS, type PirateLord } from './constants';
+import { MOOT_SUPPORT_PER_DAY, PIRATE_LORDS, CROWN_PRINCIPALS, type PirateLord } from './constants';
 import { getSystem, inProse, pushEvent } from './helpers';
 import type { Character, GameState, LordPower } from './types';
 
@@ -40,6 +40,23 @@ export function lordOfName(name: string): PirateLord | undefined {
 
 export function isLord(character: Character): boolean {
   return lordOfName(character.name) !== undefined;
+}
+
+/**
+ * Anybody whose capture is a victory condition: the three Lords, and the
+ * Crown's two.
+ *
+ * `isLord` is about who leads the Confederacy and what powers they carry.
+ * This is about who ends the war, which since 21 September is a question with
+ * an answer on both sides — and the opponent's targeting has to ask the
+ * second question rather than the first. It was asking the first: the bounty
+ * on a mark read `isLord`, so a Confederate agent standing in the same harbor
+ * as the Lord Regent had no more reason to lift him than to lift a harbour
+ * master, and the Confederacy's own victory condition could only ever have
+ * been met by accident.
+ */
+export function isPrincipal(character: Character): boolean {
+  return isLord(character) || CROWN_PRINCIPALS.includes(character.name);
 }
 
 /** The characters who are Lords, in the bible's order. */
@@ -90,6 +107,24 @@ export function passageShare(character: Character): number {
 export function allLordsTaken(state: GameState): boolean {
   const held = lords(state);
   return held.length === PIRATE_LORDS.length && held.every((c) => c.status === 'captured');
+}
+
+/** The Crown's own two, the same way. */
+export function crownPrincipals(state: GameState): Character[] {
+  return state.characters.filter((c) => CROWN_PRINCIPALS.includes(c.name));
+}
+
+/**
+ * Both of the Crown's principals in irons at once, which is how the
+ * Confederacy wins from 21 September.
+ *
+ * Written exactly as `allLordsTaken` is, including the length check: two of
+ * two, so a war in which one of them was never dealt cannot be won by
+ * default. They are both bound into every opening for that reason.
+ */
+export function crownTaken(state: GameState): boolean {
+  const held = crownPrincipals(state);
+  return held.length === CROWN_PRINCIPALS.length && held.every((c) => c.status === 'captured');
 }
 
 /**

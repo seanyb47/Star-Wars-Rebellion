@@ -13,7 +13,7 @@ import {
   rollRating,
   watchOf,
   CAPITAL_WALLS,
-  CROWN_PRINCIPAL,
+  CROWN_PRINCIPALS,
   HOME_PORT_WALLS,
   CAPITAL_GARRISON,
   START_GARRISON_MAX,
@@ -350,10 +350,13 @@ export const START_CHARACTERS: Record<PlayableFaction, number> = { empire: 4, al
 function openingCast(faction: PlayableFaction, rng: Rng) {
   const roster = characterRoster[faction];
   // Who is in every war on this side: the three Lords for the Confederacy, the
-  // Regent for the Crown. Knowing your cast is knowledge worth having, and it
-  // only is if the cast is actually there.
+  // Regent and Blackwater for the Crown. Knowing your cast is knowledge worth
+  // having, and it only is if the cast is actually there — and since 21
+  // September all five of them are victory conditions, which makes it a rule
+  // rather than a courtesy. A war that can be won by default because somebody
+  // was never dealt is not a war.
   const bound = roster.filter(
-    (e) => PIRATE_LORDS.some((l) => l.name === e.name) || e.name === CROWN_PRINCIPAL,
+    (e) => PIRATE_LORDS.some((l) => l.name === e.name) || CROWN_PRINCIPALS.includes(e.name),
   );
   const rest = roster.filter((e) => !bound.includes(e));
   const drawn = rng.shuffle(rest).slice(0, Math.max(0, START_CHARACTERS[faction] - bound.length));

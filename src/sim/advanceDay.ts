@@ -4,7 +4,7 @@ import { runAI } from './ai';
 import { advanceBuilds } from './build';
 import { stirBeasts } from './creatures';
 import { advanceFleets, advanceSieges, clearWrecks, repairOvernight, updateBlockades } from './fleets';
-import { allLordsTaken, holdTheMoot, syncHome } from './lords';
+import { allLordsTaken, crownPrincipals, crownTaken, holdTheMoot, syncHome } from './lords';
 import { recomputeLedger, settleLedger } from './economy';
 import { cloneState, getSystem, otherFaction, pushEvent } from './helpers';
 import { advanceMissions, syncMissionParties, takePrisoner } from './missions';
@@ -152,22 +152,46 @@ function roundUpTheLandless(state: GameState): void {
 }
 
 /**
- * Two ways the war ends, one each, and nothing else.
+ * Two ways the war ends, one each, and they are the same way.
  *
- * The Confederacy wins the day it holds Highwater. The Crown wins the day all
- * three Pirate Lords are in irons at once — it has to find the three of them
- * out in the Reaches and carry them off a quay, which is the hunt the whole
- * design points at.
+ * The Crown wins the day all three Pirate Lords are in irons at once. The
+ * Confederacy wins the day both of the Crown's principals are — the Lord
+ * Regent and Admiral Blackwater, together.
+ *
+ * **Taking Highwater is no longer a win**, and that is the change of 21
+ * September. Sean, on the Crown ending a war holding twenty-two islands to
+ * their ten and losing it anyway: *"the crown wins the map and loses the war.
+ * Let's give them two characters that need to be captured also."* The two
+ * conditions were never the same kind of thing. The Crown had to find three
+ * people out in seven Reaches and carry each one off a quay; the Confederacy
+ * had to get one fleet to one island. One of those is a war and the other is
+ * an afternoon, and it is why a Crown that had won everywhere still lost.
+ *
+ * Rebellion does it the other way round and the right way round: the Rebel
+ * player wins by taking the Emperor and Vader, and taking Coruscant is a
+ * catastrophe for the Empire rather than the end of it.
+ *
+ * Which does not make Highwater worth less — it makes it worth the same thing
+ * it is worth in Rebellion. An officer on an island the moment it is stormed
+ * goes into the cells with the garrison, and the Crown's principals are
+ * usually standing on their own capital. So taking Highwater is *how* the
+ * Confederacy usually wins, and now it has to actually catch them there
+ * rather than merely arrive. A Regent who sailed out the week before is a
+ * Regent still to be found.
+ *
+ * The backstop is `roundUpTheLandless`, which is why a war still cannot run
+ * for ever: a side with no islands left has every one of its people taken up,
+ * and both of these conditions read the same list.
  */
 export function checkVictory(state: GameState): void {
-  const capital = state.systems.find((s) => s.id === state.factions.empire.hqSystemId);
-  if (capital && capital.control === 'alliance') {
+  if (crownTaken(state)) {
     state.winner = 'alliance';
     state.speed = 'paused';
     pushEvent(state, {
       kind: 'war',
-      text: `${capital.name} has fallen to the ${factionData.alliance.name}. The Crown is finished; the war is over.`,
-      systemId: capital.id,
+      text: `${crownPrincipals(state)
+        .map((c) => c.name)
+        .join(' and ')} are both in irons at once. The ${factionData.empire.name} has no one left to give an order; the ${factionData.alliance.name} has won the war.`,
     });
     return;
   }

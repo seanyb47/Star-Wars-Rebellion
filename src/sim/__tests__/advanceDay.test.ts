@@ -1,3 +1,4 @@
+import { crownPrincipals } from '../lords';
 import { describe, expect, it } from 'vitest';
 import reachData from '../../data/reaches.json';
 import { advanceDay, checkVictory } from '../advanceDay';
@@ -96,10 +97,15 @@ describe('the opponent AI', () => {
 });
 
 describe('victory', () => {
-  it('declares the Confederacy the winner the day it holds Highwater', () => {
+  it('declares the Confederacy the winner with both Crown principals in irons', () => {
     const state = generateGalaxy(409);
+    // Highwater is not the war since 21 September; the two people are.
     const capital = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
     capital.control = 'alliance';
+    checkVictory(state);
+    expect(state.winner).toBeUndefined();
+
+    for (const who of crownPrincipals(state)) who.status = 'captured';
     checkVictory(state);
     expect(state.winner).toBe('alliance');
     expect(state.speed).toBe('paused');

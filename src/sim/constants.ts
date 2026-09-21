@@ -957,7 +957,29 @@ export function mayServe(people: string | undefined, faction: PlayableFaction): 
   return sworn === undefined || sworn === faction;
 }
 
-export const CROWN_PRINCIPAL = 'Lord Regent Halvard Corvane';
+/**
+ * The two the Crown cannot lose, and the mirror of the three Pirate Lords.
+ *
+ * Sean, 21 September, on the Crown winning the map and losing the war anyway:
+ * *"Let's give them two characters that need to be captured also."* Which is
+ * Rebellion's own shape — the Rebel player wins by taking the Emperor and
+ * Vader, not by taking Coruscant — and it is the thing this game was missing.
+ * The Crown had a hunt to run and the Confederacy had a building to storm, and
+ * one of those is a war and the other is an afternoon.
+ *
+ * The two pick themselves. The **Lord Regent** is the head of state and the
+ * best leader in the game; **Blackwater** is its sword, and the Confederacy's
+ * own, once — Corwin Calloway came out of the water as Admiral Corvus
+ * Blackwater and has hunted his old ship for the Crown ever since. Taking him
+ * is not only a victory condition, it is the one the Brethren would want.
+ *
+ * Both are bound into every war, exactly as the three Lords are: a victory
+ * condition that depends on who the dice dealt is not a victory condition.
+ */
+export const CROWN_PRINCIPALS = ['Lord Regent Halvard Corvane', 'Admiral Corvus Blackwater'];
+
+/** The first of them, where something wants just the one. */
+export const CROWN_PRINCIPAL = CROWN_PRINCIPALS[0];
 
 export const PIRATE_LORDS: PirateLord[] = [
   { name: 'Commodore-Elect Adaira Hale', ship: 'harbor', power: 'moot' },
