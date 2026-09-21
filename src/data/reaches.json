@@ -1,5 +1,5 @@
 {
-  "_comment": "World bible section 13. Seven Reaches on the small map, one for each Sea (the Far Sea's ice and its whaling chain are one Reach, Rime), so a Sea and its archipelago are the same thing at this size. Sugar, Whalers' and Mirage are held back for the larger maps alongside Scrap \u2014 each shared a Sea with a Reach that survives, and each sat on a painted cluster too crowded or too sparse to chart clearly. Island counts are set by how many clearly separated islands each painted cluster holds. Each Reach has a role in the opening (docs/opening.md): home is the Crown's, contested Reaches open with two islands a side, open Reaches are charted and nobody's, frontier Reaches start unexplored and hide the Confederacy's base. An island marked port is one of the three port cities on the Aldermain, Sovereign Reach's great island. Each island carries a `seed`: the number the world's look, its creature and its garrison mix are drawn from. It used to be computed from the island's name, which meant renaming an island silently re-rolled its terrain, its deposits and what lives in its water. It is written down here instead, frozen at the value it had on 19 September, so the Star Wars rename changed names and nothing else.",
+  "_comment": "World bible section 13. Seven Reaches on the small map, one for each Sea (the Far Sea's ice and its whaling chain are one Reach, Rime), so a Sea and its archipelago are the same thing at this size. Sugar, Whalers' and Mirage are held back for the larger maps alongside Scrap — each shared a Sea with a Reach that survives, and each sat on a painted cluster too crowded or too sparse to chart clearly. Island counts are set by how many clearly separated islands each painted cluster holds. Each Reach has a role in the opening (docs/opening.md): home is the Crown's, contested Reaches open with two islands a side, open Reaches are charted and nobody's, frontier Reaches start unexplored and hide the Confederacy's base. An island marked port is one of the three port cities on the Aldermain, Sovereign Reach's great island. Each island carries a `seed`: the number the world's look, its creature and its garrison mix are drawn from. It used to be computed from the island's name, which meant renaming an island silently re-rolled its terrain, its deposits and what lives in its water. It is written down here instead, frozen at the value it had on 19 September, so the Star Wars rename changed names and nothing else.",
   "reaches": [
     {
       "name": "Sovereign Reach",
@@ -147,7 +147,7 @@
           "seed": 927
         }
       ],
-      "role": "contested"
+      "role": "frontier"
     },
     {
       "name": "Sunken Reach",
@@ -177,7 +177,7 @@
         {
           "name": "Ravenscar",
           "seed": 606,
-          "note": "Wreckers\u2019 coast. Lights are shown here on bad nights, and not to help."
+          "note": "Wreckers’ coast. Lights are shown here on bad nights, and not to help."
         },
         {
           "name": "Wrackham",
@@ -405,7 +405,7 @@
           "seed": 1596
         }
       ],
-      "role": "frontier"
+      "role": "contested"
     }
   ]
 }

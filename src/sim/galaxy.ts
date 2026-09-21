@@ -121,13 +121,20 @@ const MIN_SYSTEM_SEPARATION = 38;
  * other two ports and one more island there, and the Confederacy with one or
  * two. Three contested Reaches open with two islands a side and the rest
  * settled and nobody's — garrisoned, so taking them is a landing, not a
- * stroll. Three frontier Reaches — Rime, Salt and now Coral — start
- * unexplored by everyone, a quarter of their islands settled behind the fog,
- * and Freeport, where the Lords signed the articles, is one island in one of
- * the three. Coral joined them at Sean's word: the spiral atoll is far enough
- * south that the war has not charted it, which makes it a third place the
- * Confederacy might have been founded rather than the one open Reach nobody
- * had a reason to sail to.
+ * stroll. Three frontier Reaches — Rime, Salt and Windward — start unexplored
+ * by everyone, a quarter of their islands settled behind the fog, and
+ * Freeport, where the Lords signed the articles, is one island in one of the
+ * three.
+ *
+ * Which three has moved twice. Coral went out past the charts on 20 September
+ * and came back in on 21st, at Sean's word, and Windward went out in its
+ * place. It is the better trade in both directions: Coralhome is the founding
+ * wound and the Confederacy's whole reason for existing, which is worth more
+ * as ground you can sail to on day one than as a rumour behind fog, and the
+ * Long Sea — outriggers, lashed timber, a reef with one channel through it
+ * only locals know — reads like somewhere the Crown's charts stop rather than
+ * somewhere its shipwrights live. The count is what the opening is balanced
+ * on, so the two swapped rather than one moving.
  */
 const START_CONTESTED_PER_SIDE = 2;
 const START_HOME_CONFEDERACY: [number, number] = [1, 2];
@@ -863,8 +870,17 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   }
 
   // --- Contested Reaches: two islands a side, the rest nobody's. ---
+  //
+  // Coralhome is never in the deal. It is handed to the Crown by name further
+  // down, and was safe from this loop only while its Reach was frontier — the
+  // day Coral came inside the charts, the shuffle could deal the founding
+  // wound to the Confederacy and then have it taken back by the block below,
+  // leaving the island Crown-held but standing in `allianceSystems`, where the
+  // opening puts Confederate crew and counts Confederate holdings.
   for (const sector of contestedSectors) {
-    const picks = rng.shuffle(islandsOf(sector)).slice(0, START_CONTESTED_PER_SIDE * 2);
+    const picks = rng
+      .shuffle(islandsOf(sector).filter((s) => s.name !== CORALHOME))
+      .slice(0, START_CONTESTED_PER_SIDE * 2);
     for (const [index, system] of picks.entries()) {
       const owner: PlayableFaction = index < START_CONTESTED_PER_SIDE ? 'empire' : 'alliance';
       hold(system, owner, loyal());
@@ -1062,9 +1078,9 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
    * Which makes it the one island in the world the opening should never deal
    * at random: it is Crown-held on day one, garrisoned like a capital, its
    * reef already gone, and its people about as far from reconciled as the
-   * scale goes. A frontier island otherwise — the Reach around it is still
-   * dark to both sides — so the Crown knows where its own garrison is and
-   * nothing more is charted on its account.
+   * scale goes. It is kept out of the contested shuffle above for that reason
+   * and dealt here by name, so the shuffle cannot hand the founding wound to
+   * the side the wound created.
    */
   const coralhome = systems.find((s) => s.name === CORALHOME);
   if (coralhome) {

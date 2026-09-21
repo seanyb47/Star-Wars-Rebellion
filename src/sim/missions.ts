@@ -2261,7 +2261,7 @@ function surveyOutcome(
     kind: 'order',
     text:
       opened.length === 1
-        ? `${character.name} puts ${opened[0]} on the chart.`
+        ? `${character.name} puts ${inProse(opened[0])} on the chart.`
         : `${character.name} charts ${inProse(opened[0])} and ${opened.length - 1} more of the chain.`,
     systemId: system.id,
     characterId: character.id,

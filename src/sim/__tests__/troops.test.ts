@@ -12,6 +12,13 @@ describe('garrison companies', () => {
         expect(n).toBeGreaterThan(0);
         expect(n).toBeLessThanOrEqual(50);
       }
+      // The seven numbers: three for fighting, one for being shelled, three for
+      // the ledger. Every one of them is even — the clean-numbers rule of v4.4.
+      expect(type.bombardDefense).toBeGreaterThan(0);
+      for (const n of [type.offense, type.defense, type.watch]) expect(n % 2).toBe(0);
+      expect(type.costGold).toBeGreaterThan(0);
+      expect(type.days).toBeGreaterThan(0);
+      expect(type.unlock).toMatch(/^(start|R[2468])$/);
     }
   });
 
@@ -20,7 +27,7 @@ describe('garrison companies', () => {
       const mine = troopsOf(faction);
       expect(mine.filter((t) => t.role === 'line')).toHaveLength(1);
       expect(mine.filter((t) => t.role === 'sailors')).toHaveLength(1);
-      expect(mine.length).toBe(5);
+      expect(mine.length).toBe(6);
     }
   });
 
@@ -28,11 +35,11 @@ describe('garrison companies', () => {
     const best = (key: 'offense' | 'defense' | 'watch') =>
       TROOP_TYPES.reduce((a, b) => (b[key] > a[key] ? b : a));
     expect(best('offense').id).toBe('urskin-berserkers');
-    expect(best('defense').id).toBe('reef-guard');
+    expect(best('defense').id).toBe('drowned-guard');
     expect(best('watch').id).toBe('reefwalkers');
     // And the Crown's opening edge: its line company beats theirs at landing,
     // which is the early military advantage stated in the faction profile.
-    expect(troopType('crown-regulars')!.offense).toBeGreaterThan(
+    expect(troopType('crown-marines')!.offense).toBeGreaterThan(
       troopType('island-militia')!.offense,
     );
   });

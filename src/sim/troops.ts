@@ -40,6 +40,16 @@ export interface TroopType {
   defense: number;
   /** What it sees: the eyes that catch a saboteur or a boat in the dark. */
   watch: number;
+  /** What it costs a ship's guns to break it once the walls are rubble. A much
+   *  smaller scale than `defense`: a fleet rolls 1d32 where six troops roll
+   *  1d180, so the two defences cannot share a number. */
+  bombardDefense: number;
+  /** Gold to raise, days to raise it, and gold a day to keep. */
+  costGold: number;
+  days: number;
+  upkeep: number;
+  /** "start", or the research tier that opens it: R2, R4, R6, R8. */
+  unlock: string;
   blurb: string;
   /** Behind research, and so not in play. */
   research?: boolean;
@@ -58,10 +68,36 @@ export function troopsOf(faction: PlayableFaction): TroopType[] {
   return TROOP_TYPES.filter((t) => t.faction === faction);
 }
 
+/**
+ * The company an island is garrisoned with when nothing better applies.
+ *
+ * It was simply "the one with role `line`", which held while both sides had a
+ * cheap conscript company on day one. On Sean's roster of 21 September the
+ * Crown's line company is the **Fensworn, behind R2** — its only two starting
+ * troops are Marines and a Ship's Company — so on day one it has no line
+ * company at all, and the roster as first merged papered over that by calling
+ * the Marines `line`.
+ *
+ * Measured, that is not a label: the Marines watch 24 where the Crown Regulars
+ * they replaced watched 15, so **every rock the Crown holds was suddenly
+ * garrisoned by elites** and the capital's watch went 100 to 143 — a 42% rise
+ * in the price of every covert operation against the Crown, out of a change
+ * about ground combat. The rescue rate out of Highwater fell from nine wars in
+ * thirty-two to one, and a side that cannot get its people back is the stall
+ * `RESCUE_BASE` is written about.
+ *
+ * So the Marines are `elite` again, as the change order's own card has them
+ * — *"CROWN MARINES — Human, elite, start"* — and a side with no line company
+ * posts its sailors instead. Which is the rule the Crown's ports already
+ * followed from the other end: it sends its best where it means to be seen,
+ * and everywhere else it is whoever came off a hull.
+ */
 const lineOf = (faction: PlayableFaction) =>
-  TROOP_TYPES.find((t) => t.faction === faction && t.role === 'line')!;
+  TROOP_TYPES.find((t) => t.faction === faction && t.role === 'line' && !t.research) ??
+  TROOP_TYPES.find((t) => t.faction === faction && t.role === 'sailors' && !t.research)!;
 const sailorsOf = (faction: PlayableFaction) =>
-  TROOP_TYPES.find((t) => t.faction === faction && t.role === 'sailors')!;
+  TROOP_TYPES.find((t) => t.faction === faction && t.role === 'sailors' && !t.research) ??
+  lineOf(faction);
 
 /**
  * The unit an island's own people make, if they make one.
@@ -72,14 +108,22 @@ const sailorsOf = (faction: PlayableFaction) =>
  * the other end: the Crown sends its best where it means to be seen.
  */
 function localOf(faction: PlayableFaction, system: Pick<System, 'archetype'>): TroopType | undefined {
-  if (faction === 'empire') {
-    return system.archetype === 'port-city' || system.archetype === 'free-harbor'
-      ? TROOP_TYPES.find((t) => t.id === 'crown-marines')
-      : undefined;
-  }
-  return TROOP_TYPES.find(
-    (t) => t.faction === faction && t.role === 'native' && t.home?.includes(system.archetype),
+  // A people behind research is not standing in anybody's square yet, so the
+  // local company has to be one the side can actually raise today. Without the
+  // `research` test the Bog Witches and the Shoal Wardens would turn up in
+  // starting garrisons on their home islands years before they join the war.
+  const native = TROOP_TYPES.find(
+    (t) =>
+      t.faction === faction &&
+      t.role === 'native' &&
+      !t.research &&
+      t.home?.includes(system.archetype),
   );
+  if (native) return native;
+  if (faction === 'empire' && (system.archetype === 'port-city' || system.archetype === 'free-harbor')) {
+    return TROOP_TYPES.find((t) => t.id === 'crown-marines');
+  }
+  return undefined;
 }
 
 /**

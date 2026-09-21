@@ -7,8 +7,30 @@ tested in `src/sim/__tests__/galaxy.test.ts` and `defences.test.ts`. Every
 Reach carries a `role` in `src/data/reaches.json`; the three port cities of
 the great island carry `port: true`.
 
-**Frontier — Salt, Rime and Coral Reaches.** Always start
-unexplored, for everyone. Each island has a 25% chance of being settled and
+**Frontier — Salt, Rime and Windward Reaches.** Always start
+unexplored, for everyone.
+
+(Which three has moved twice, and the count is the part that is fixed. Coral
+went out past the charts on 20 September and came back inside them on the
+21st, at Sean's word, with Windward going out in its place. It is the better
+trade both ways: Coralhome is the founding wound and the Confederacy's whole
+reason for existing, which is worth more as ground you can sail to on day one
+than as a rumour behind fog — and the Long Sea, with forty miles of reef and
+one channel through it only locals know, reads like somewhere the Crown's
+charts stop. A dark chain a short sail from the capital is also a better
+opening than a dark chain three Seas away. Note that a Reach's *tier* did not
+move with its role: Windward is still drawn on the inner ring. Where a chain
+sits on the map and whether anyone has charted it are two different questions
+now, which is why the test that used to read `isCore` reads the role instead.
+
+Measured, because swapping an eleven-island chain next to the capital for a
+nine-island chain three Seas out is not a cosmetic change: twenty-four wars,
+both sides machine-played, seeds 900–923. Before, the Crown won ten; after,
+seven. That is three wars on a sample whose standard deviation is about two
+and a half, so it is inside the noise and nothing was compensated for it. The
+first read was twelve wars and said eight-to-three, which would have been a
+real break if it had been real — it is on the record here as the reminder that
+twelve wars is not a measurement.) Each island has a 25% chance of being settled and
 held by neutral forces, behind the fog. The Confederacy has no base: its three
 Pirate Lords signed the articles on one random island in one of these three
 Reaches, and that island is called **Freeport** for the rest of the game. It
@@ -82,8 +104,17 @@ it stand down to one under the new flag. It used to hand over the whole
 militia, and an opponent that talked twenty islands round inherited forty
 companies' wages and went broke with nothing built.
 
-**Contested — Wreckers' Reach, Whalers' Reach, Cinder Reach.** Each side
-opens with two islands; the rest are settled, nobody's, and garrisoned.
+**Contested — Sunken, Mire and Coral Reaches.** Each side
+opens with two islands; the rest are settled, nobody's, and garrisoned. (The
+names in this line were the pre-rename ones — Wreckers', Cinder, Whalers' —
+and two of the three Reaches they pointed at are no longer contested at all.)
+
+Coralhome is the one island in the world that is never in that deal. It is
+handed to the Crown by name — chartered, its reef cleared, garrisoned like a
+capital and about as far from reconciled as the scale goes — so where it falls
+inside a contested Reach it is a third Crown island on top of the two, and it
+is kept out of the shuffle so the dice can never deal the founding wound to
+the side the wound created.
 
 **Neutral forces.** A settled island that is nobody's opens with a garrison
 (one to three companies near the war, two to four on the frontier). A landing

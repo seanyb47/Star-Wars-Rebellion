@@ -9,10 +9,11 @@ import { isLord, lords } from '../lords';
 /** The map has grown twice this month; the data is the one place it is true. */
 const ISLAND_COUNT = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
 
-/** The Reaches the war has not charted: Rime and Salt, and Coral since Sean
- *  moved the atoll out past the charts to make it a third place the
- *  Confederacy might have been founded. */
-const FRONTIER = ['Rime Reach', 'Salt Reach', 'Coral Reach'];
+/** The Reaches the war has not charted: Rime and Salt, and Windward since
+ *  21 September, when Sean brought the Coral atoll back inside the charts and
+ *  sent the Long Sea out in its place. Three either way — the opening deals
+ *  against the count, not the names. */
+const FRONTIER = ['Rime Reach', 'Salt Reach', 'Windward Reach'];
 
 describe('generateGalaxy', () => {
   it('builds seven Reaches of five to fifteen islands, sixty-three in all', () => {
@@ -62,9 +63,27 @@ describe('generateGalaxy', () => {
     expect(new Set(state.systems.map((s) => s.name)).size).toBe(ISLAND_COUNT);
   });
 
-  it('makes core systems populated and explored by both sides', () => {
+  /**
+   * `isCore` is the inner ring of the map, and it used to be the same thing as
+   * charted because the three inner Reaches were the home Reach and two
+   * contested ones. Windward went out past the charts on 21 September without
+   * moving on the map, and the two stopped being the same thing — which is the
+   * more honest arrangement anyway: what a side has charted follows the
+   * Reach's *role*, and where a Reach is drawn follows its tier. A dark chain
+   * a short sail from the capital is a better opening than a dark chain three
+   * Seas away, and the Long Sea has forty miles of reef with one channel
+   * through it to explain itself with.
+   */
+  it('makes charted systems populated and explored by both sides', () => {
     const state = generateGalaxy(8);
+    const dark = new Set(
+      reachData.reaches.filter((r) => r.role === 'frontier').map((r) => r.name),
+    );
+    const darkSectors = new Set(
+      state.sectors.filter((sec) => dark.has(sec.name)).map((sec) => sec.id),
+    );
     for (const system of state.systems.filter((s) => s.isCore)) {
+      if (darkSectors.has(system.sectorId)) continue;
       expect(system.populated).toBe(true);
       expect(system.explored.empire).toBe(true);
       expect(system.explored.alliance).toBe(true);
@@ -343,20 +362,13 @@ describe('generateGalaxy', () => {
         for (const id of sector.systemIds) {
           const system = state.systems.find((s) => s.id === id)!;
           /*
-           * Coralhome is the one island out here that is not a blank. The
-           * Crown chartered it, cleared its reef and garrisons it, so the
-           * Crown knows where it is — it would be strange for a side not to
-           * have charted its own harbor. It is still dark to the Confederacy,
-           * like the rest of the frontier, and it is not counted in the
-           * settled-behind-the-fog ratio below because nobody is holding it
-           * for the fog to hide: the Crown is.
+           * There used to be an exception here for Coralhome, which is
+           * Crown-held by name and so charted by the Crown whatever its Reach
+           * does. It stopped being needed on 21 September: Coral came inside
+           * the charts and Windward went out, and nothing out here is dealt to
+           * anybody now. The frontier is a blank again, which is what it was
+           * always meant to be.
            */
-          if (system.name === CORALHOME) {
-            expect(system.control, `${system.name} seed ${seed}`).toBe('empire');
-            expect(system.explored.empire).toBe(true);
-            expect(system.explored.alliance).toBe(false);
-            continue;
-          }
           expect(system.explored.empire, `${system.name} seed ${seed}`).toBe(false);
           // The Confederacy knows the island it met on and nothing else out here.
           expect(system.explored.alliance).toBe(system.id === base.id);
@@ -374,6 +386,46 @@ describe('generateGalaxy', () => {
     }
     expect(settled / total).toBeGreaterThan(0.15);
     expect(settled / total).toBeLessThan(0.35);
+  });
+
+  /**
+   * Sean, 21 September: *"Let's make the coral reach one of the explored
+   * starting reaches. And the windward one unexplored."*
+   *
+   * The swap is worth a test of its own because of what it nearly broke.
+   * Coralhome is dealt to the Crown by name, after the contested Reaches have
+   * been dealt at random — which was safe only while its Reach was frontier
+   * and had no deal. Inside the charts, the shuffle could hand the founding
+   * wound to the Confederacy and have the Crown take it back a hundred lines
+   * later, leaving it flying Crown colours while still counted as a
+   * Confederate holding: their crew posted to it, their reinforcements sent
+   * to it. It is kept out of the shuffle instead.
+   */
+  it('deals Coral inside the charts and never deals Coralhome to the Confederacy', () => {
+    for (let seed = 1; seed <= 12; seed++) {
+      const state = generateGalaxy(seed);
+      const coral = state.sectors.find((sec) => sec.name === 'Coral Reach')!;
+      const coralhome = state.systems.find((s) => s.name === CORALHOME)!;
+      expect(coralhome.sectorId).toBe(coral.id);
+      // The Crown's, always, and known to both sides now that the Reach is
+      // charted: the Confederacy was founded over this island and has no need
+      // to go looking for it.
+      expect(coralhome.control, `seed ${seed}`).toBe('empire');
+      expect(coralhome.explored.empire).toBe(true);
+      expect(coralhome.explored.alliance).toBe(true);
+      // Two a side elsewhere in the chain, and the founding wound is not one
+      // of the four.
+      const here = state.systems.filter((s) => s.sectorId === coral.id);
+      expect(here.filter((s) => s.control === 'empire')).toHaveLength(3);
+      expect(here.filter((s) => s.control === 'alliance')).toHaveLength(2);
+      // And the Long Sea took its place out past the charts.
+      const windward = state.sectors.find((sec) => sec.name === 'Windward Reach')!;
+      for (const s of state.systems.filter((x) => x.sectorId === windward.id)) {
+        if (s.id === state.factions.alliance.hqSystemId) continue;
+        expect(s.explored.empire, s.name).toBe(false);
+        expect(s.explored.alliance, s.name).toBe(false);
+      }
+    }
   });
 
   it('holds the meeting on one frontier island, with a squadron each and the Home Fleet at Highwater', () => {
@@ -433,7 +485,12 @@ describe('generateGalaxy', () => {
     for (const name of contested) {
       const reach = state.sectors.find((s) => s.name === name)!;
       const islands = reach.systemIds.map((id) => state.systems.find((s) => s.id === id)!);
-      expect(islands.filter((s) => s.control === 'empire')).toHaveLength(2);
+      // Two a side dealt. Coralhome is the one island in the world that is
+      // held by name rather than dealt, so where it falls in a contested
+      // Reach it is a third Crown island on top of the deal — and it is kept
+      // out of the shuffle so it can never be one of the two.
+      const extra = islands.some((s) => s.name === CORALHOME) ? 1 : 0;
+      expect(islands.filter((s) => s.control === 'empire')).toHaveLength(2 + extra);
       expect(islands.filter((s) => s.control === 'alliance')).toHaveLength(2);
       for (const s of islands) {
         expect(s.populated).toBe(true);

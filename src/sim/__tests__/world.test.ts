@@ -419,8 +419,15 @@ describe('the Sea summary', () => {
     const twoReach = a.sea;
     const sectors = reachesOfSea(state, twoReach);
     expect(sectors).toHaveLength(2);
+    // Charted and settled, which is what a summary averages over — an island
+    // your boats have never entered is not in any of these counts, by the
+    // rule that closed the Coral Reach info leak. This read `populated` alone
+    // and agreed with the code only while both Reaches happened to be fully
+    // charted on day one; on 21 September the second Reach on the map went
+    // out past the charts and the two stopped agreeing.
     const settled = state.systems.filter(
-      (s) => s.populated && sectors.some((sec) => sec.id === s.sectorId),
+      (s) =>
+        s.populated && s.explored.empire && sectors.some((sec) => sec.id === s.sectorId),
     );
     settled.forEach((s, i) => {
       s.support.empire = i === 0 ? 100 : 0;

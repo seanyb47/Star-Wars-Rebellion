@@ -8310,3 +8310,58 @@ cannot win by ground at all, because its victory condition is a manhunt.
 **This is Sean's to settle and is not settled here.** Nothing on the roster
 was touched. The candidates, with the measurement behind each, are in the
 message that goes with this commit.
+
+## The ground roster lands, and brings a watch problem with it (21 September)
+
+Sean's `siege-and-ground-war` branch, merged: six troops a side, two to start
+and four behind research at R2/R4/R6/R8 — which lines up exactly with the
+eight-rung ladder the roster swap had just built — plus the Coral/Windward
+swap of explored and dark.
+
+### What the merge broke, and it was not in the diff
+
+`npm test` came back with one failure, and it was the one that matters:
+*"a prisoner is gone after by the opponent, and mostly got out"* read **1 of
+32** against a floor of 4. The rescue rate out of Highwater had collapsed.
+
+The cause is three steps from the change. The change order cuts Crown
+Regulars, so the Crown's only two starting companies are Marines and a Ship's
+Company — and its line company, the Fensworn, is behind R2. `garrisonRoster`
+posts `lineOf(faction)` in most squares, so the roster as merged gave the
+Marines `role: "line"` to keep that lookup working.
+
+That is not a label. Marines watch **24** where the Regulars they replaced
+watched **15**, so every rock the Crown holds was suddenly garrisoned by
+elites:
+
+| mean capital garrison watch, 32 seeds | |
+|---|---|
+| before the merge | **100.5** |
+| as merged | **143.1** |
+| after the fix | **124.0** |
+
+A 42% rise in the price of every covert operation against the Crown, out of a
+change about ground combat — and a side that cannot get its people back is
+precisely the stall `RESCUE_BASE`'s note is written about.
+
+### The fix was already written in the change order
+
+Its own card says *"CROWN MARINES — Human, elite, start"* and *"FENSWORN —
+Bog-folk clans, line, R2"*. The data had Marines as line and Fensworn as a
+native with home islands. Put back the way the doc has them — Marines elite,
+Fensworn line — and `lineOf` given a fallback to the sailors company for a
+side with no line company it can raise yet, the Crown's ordinary squares are
+held by whoever came off a hull and the Marines stand where it means to be
+seen. Which is the rule `localOf` has stated from the other end all along.
+
+The remaining 124 against 100 is real and is the roster: the Crown's cheapest
+company now watches 20 where its conscripts watched 15. That is a fair reading
+of a design that gives the Crown no conscripts, and the rescue rate is back
+inside its measured band.
+
+### Still to build
+
+Sections 0, 1 and 2 of the change order — the overkill casualty rule, the
+bombardment rework (dice-rolled actions, five ticks a magazine, cascading
+rolls) and the invasion rework (walls add to the defender's die instead of
+barring the landing). The branch carries section 3 and the Reach swap only.
