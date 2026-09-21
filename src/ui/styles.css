@@ -868,6 +868,20 @@ button {
 .event--unread .event__text { color: var(--text); }
 
 
+/* An order whose name is the label and whose numbers are the second line.
+   Sean's rule for the attack orders, 21 September: the act gets named —
+   Bombardment, Invasion — and the rate or the odds sit under it, rather than
+   the whole thing being spelled out as a sentence across the button. */
+.orderbtn--stacked {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  line-height: 1.25;
+  text-align: left;
+}
+.orderbtn--stacked > .tiny { opacity: 0.85; font-weight: 400; }
+
 /* An order you cannot give yet, and why. A line rather than a dead button:
    a greyed-out "Land 6 against 2" with no reason attached is a puzzle. */
 .fleet__blocked {

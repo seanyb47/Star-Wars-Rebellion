@@ -280,8 +280,13 @@ function groups(): Group[] {
           'Firing on an island from the water to bring its walls down. It either silences the harbor, knocks stones about without silencing it, or achieves nothing — and shot that goes past the walls into the town is the one thing the whole world hears about.',
         ],
         [
-          'Landing',
-          'Putting troops ashore to take an island. No landing can be made while a Fortress still stands. Taking a place is not the same as winning it: an island carried by storm is occupied and hostile.',
+          // Sean named the two attack orders on 21 September — Bombardment and
+          // Invasion — so the encyclopedia uses the word the order does.
+          // Bombardment was already this entry's neighbour under that name;
+          // this one was 'Landing', which is the act in prose and now the word
+          // for it nowhere else.
+          'Invasion',
+          'Putting troops ashore to take an island. None can be made while a Fortress still stands. Taking a place is not the same as winning it: an island carried by storm is occupied and hostile.',
         ],
         [
           'Long guns',

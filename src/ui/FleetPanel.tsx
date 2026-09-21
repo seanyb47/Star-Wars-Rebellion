@@ -203,6 +203,11 @@ export function FleetCard({
   const landBlocked = canOrder && !atSea ? assaultError(state, fleet.id, state.player) : null;
   // Something to break off from, and somewhere to break off to.
   const canFlee = canOrder && !atSea && fleeError(state, fleet.id, state.player) === null;
+  /* The two attack orders, asked once so the heading above them can know
+     whether there is anything to head. A squadron with no troops lying off an
+     island it already holds has neither, and gets no Attack actions row. */
+  const canBombard = fleet.bombarding || cannotBombard === null;
+  const canLand = !holdsIsland && fleet.troops > 0;
   const refuge = canFlee ? refugeFor(state, fleet) : undefined;
 
   // One row per class, so eight sloops are a line rather than eight lines.
@@ -435,6 +440,55 @@ export function FleetCard({
 
       {canOrder && !atSea && (
         <div className="fleet__orders">
+          {/*
+           * Attack actions, named and first.
+           *
+           * Sean, 21 September: *"Change these terms — Attack Actions:
+           * Bombardment, Invasion. Put this at top."* They were "Shell the
+           * town — 30 a day" and "Land 2 against 2 ashore", which described
+           * the act rather than naming it, and sat under Set sail — so the
+           * two orders that decide a war were the two furthest down.
+           *
+           * The numbers did not just get cut: a rate and a balance of troops
+           * are the whole of what you are deciding, so they move to a second
+           * line under the name. What goes is the sentence around them.
+           */}
+          {(canBombard || canLand) && (
+            <>
+              <div className="section-title">Attack actions</div>
+              {fleet.bombarding ? (
+                <button className="btn" onClick={() => onCeaseFire?.(fleet.id)}>
+                  Cease fire
+                </button>
+              ) : (
+                cannotBombard === null && (
+                  <button className="btn orderbtn--stacked" onClick={() => onBombard?.(fleet.id)}>
+                    <b>Bombardment</b>
+                    {/* Which target, because it is a different decision and
+                        priced like one: while a wall stands it is the wall,
+                        and past that it is the town. */}
+                    <span className="tiny muted">
+                      {walls > 0 ? 'the walls' : 'the town'} · {fleetBombard(fleet)} a day
+                    </span>
+                  </button>
+                )
+              )}
+              {canLand &&
+                (landBlocked && /seawall/i.test(landBlocked) ? (
+                  <div className="tiny muted fleet__blocked">{landBlocked}</div>
+                ) : (
+                  <button
+                    className="btn btn--primary orderbtn--stacked"
+                    onClick={() => onAssault(fleet.id)}
+                  >
+                    <b>Invasion</b>
+                    <span className="tiny">
+                      {fleet.troops} against {system?.garrison ?? 0} ashore
+                    </span>
+                  </button>
+                ))}
+            </>
+          )}
           {/* Every squadron sails. There was a fourth state here — a hull
               pinned in harbor because the Lord who owned her was away on an
               errand — and it went with the Lords: they are people now, and a
@@ -449,31 +503,6 @@ export function FleetCard({
             <button className="btn" onClick={() => onFlee?.(fleet.id)}>
               Break off — run for {refuge?.name ?? 'safety'}
             </button>
-          )}
-          {/* Open fire, or call the guns off. The order says what it is for:
-              while a wall stands it is the wall, and past that it is the town,
-              which is a different decision and priced like one. */}
-          {fleet.bombarding ? (
-            <button className="btn" onClick={() => onCeaseFire?.(fleet.id)}>
-              Cease fire
-            </button>
-          ) : (
-            cannotBombard === null && (
-              <button className="btn" onClick={() => onBombard?.(fleet.id)}>
-                {walls > 0
-                  ? `Bombard the walls — ${fleetBombard(fleet)} a day`
-                  : `Shell the town — ${fleetBombard(fleet)} a day`}
-              </button>
-            )
-          )}
-          {!holdsIsland && fleet.troops > 0 && (
-            landBlocked && /seawall/i.test(landBlocked) ? (
-              <div className="tiny muted fleet__blocked">{landBlocked}</div>
-            ) : (
-              <button className="btn btn--primary" onClick={() => onAssault(fleet.id)}>
-                Land {fleet.troops} against {system?.garrison ?? 0} ashore
-              </button>
-            )
           )}
         </div>
       )}

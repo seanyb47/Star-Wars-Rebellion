@@ -7546,3 +7546,68 @@ page the chart filter chip reads **Missions**.
 `doctrine.json` prose was updated too. It is the opponent's rulebook and is
 never rendered, but it ships in the bundle and describes the same rules, so
 leaving it saying *errand* would have made it the next person's puzzle.
+
+## Attack actions, named and first
+
+Sean, 21 September, on a squadron lying off an enemy island: *"Change these
+terms — Attack Actions: Bombardment, Invasion. Put this at top."*
+
+The two buttons read **"Shell the town — 30 a day"** and **"Land 2 against 2
+ashore"**, and they sat *under* Set sail. Two problems in one screenshot: the
+orders described the act instead of naming it, and the two that decide a war
+were the two furthest down the list.
+
+Now there is an **Attack actions** heading, and under it **Bombardment** and
+**Invasion**, above Set sail and Break off. The heading only renders when there
+is something to head — a squadron with no troops lying off an island it already
+holds has neither order and gets no row.
+
+### The numbers were not the problem
+
+A rate of fire and a balance of troops are the whole of what you are deciding,
+so they stayed — they moved to a second line under the name, muted:
+
+```
+Bombardment
+the town · 10 a day
+
+Invasion
+4 against 2 ashore
+```
+
+What went is the *sentence* around them. The wall/town distinction survives as
+that second line, because it is a real rule and priced like one: while a wall
+stands the guns are on the wall, and past that they are on the town, which is
+the shot the whole world hears about.
+
+### The button was the odd one out, not the encyclopedia
+
+Worth noting, because it makes this a smaller change than it looks:
+**Bombardment was already the word.** It is a ship stat in the Almanac, a
+Glossary entry, and a heading in the rules. Only the order itself was saying
+something else.
+
+The other half was not: the Glossary called it **Landing**. That entry is
+**Invasion** now, so the encyclopedia and the order agree. *Landing* survives in
+the sentence under it — "no landing can be made while a Fortress still stands" —
+which is the standing rule: a label uses the agreed word, and prose keeps its
+voice.
+
+### Verified on a built state, not by clicking around
+
+A fleet lying off an enemy island with troops aboard is several minutes of play
+away, and this project has no React render harness — its UI tests read source
+as text. So the check was to build the state with the sim (`vite-node`: a Crown
+squadron off Avermere, four troops against a garrison of two), write it to
+`localStorage` under the real save key, and load it through the game's own
+Continue path. The rendered order block:
+
+```
+section-title        :: ATTACK ACTIONS
+btn orderbtn--stacked:: Bombardment / the town · 10 a day
+btn btn--primary     :: Invasion / 4 against 2 ashore
+btn                  :: Set sail
+```
+
+That is worth keeping as a technique. Any UI that only appears in a state the
+opening does not contain can be reached this way in about a minute.
