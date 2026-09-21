@@ -28,7 +28,7 @@ function setUp(seed = 11) {
   const [rider, ashoreToo] = crew;
   const port = getSystem(state, rider.locationSystemId);
   ashoreToo.locationSystemId = port.id;
-  const fleet = addShip(state, port, 'alliance', 'reefwalker');
+  const fleet = addShip(state, port, 'alliance', 'CFS-MAR-R1-01');
   fleet.voyage = undefined;
   board(state, fleet.id, rider.id, 'alliance');
   const away = state.systems.find((s) => s.id !== port.id && s.sectorId !== port.sectorId)!;

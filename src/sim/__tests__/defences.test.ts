@@ -111,11 +111,17 @@ describe('the opening, against Rebellion', () => {
       for (const f of ['empire', 'alliance'] as const) {
         expect(state.factions[f].income, `${f} seed ${seed}`).toBeGreaterThan(state.factions[f].upkeep);
         const fleet = state.fleets.find((x) => x.faction === f)!;
-        // Four, not five. The Confederate Home Fleet lost three Swifts on 20
-        // September — *"1 swift is all the swifts you need"* — and came back
-        // as one Swift, two Tempests and the Brig, so four hulls is now the
-        // smaller of the two openings rather than six.
-        expect(fleet.ships.length).toBeGreaterThanOrEqual(4);
+        /*
+         * Three, not four, and not because the opening got lighter.
+         *
+         * Sean named it hull by hull on 21 September and the Crown's Home
+         * Fleet is a Sovereign and two Interceptors. One Sovereign is 4,600
+         * of hull and seventy-four guns where the whole old six-hull Home
+         * Fleet was 119 guns, so what counting hulls measures here is the
+         * roster's scale rather than the fleet's weight. What the line is
+         * still for is catching an opening that quietly comes up empty.
+         */
+        expect(fleet.ships.length).toBeGreaterThanOrEqual(2);
         for (const s of state.systems.filter((x) => x.control === f)) {
           const free = s.slots - s.facilities.length;
           expect(free, `${s.name}`).toBeGreaterThan(0);
@@ -139,7 +145,7 @@ describe('forts', () => {
     build(port, 'fort');
     build(port, 'fort');
     expect(fortGuns(port)).toBe(2 * FORT_GUNS);
-    const raider = addShip(state, port, 'alliance', 'swift');
+    const raider = addShip(state, port, 'alliance', 'CFS-SWI-S01');
     const before = raider.ships[0].damage;
     resolveBattles(state, createRng(3));
     expect(raider.ships).toHaveLength(1);
@@ -160,7 +166,11 @@ describe('forts', () => {
     build(port, 'fort');
     build(port, 'fort');
     // A hull that throws heavy enough for the order to be allowed at all.
-    const raider = addShip(state, port, 'alliance', 'reef');
+    // The Reefwarden is not one: forty-four guns and a Bombardment of **zero**
+    // on the sheet, which is the roster saying she is a fleet ship and not a
+    // siege train. Bombardment is its own column now and the Ironback is where
+    // the Confederacy keeps it.
+    const raider = addShip(state, port, 'alliance', 'CFS-IRB-R5-01');
     expect(bombardError(state, raider.id, 'alliance')).toBeNull();
     raider.bombarding = true;
     const before = raider.ships[0].damage;
@@ -191,9 +201,12 @@ describe('a port with nothing in the water but the enemy', () => {
     state.fleets.length = 0;
     const port = mineWithWater(state);
     expect(isBlockaded(state, port)).toBe(false);
-    // One sloop. There used to be a floor here, held up by a boom across the
-    // harbor mouth; Sean cut the boom on 16 September and the floor with it.
-    addShip(state, port, 'alliance', 'swift');
+    // One armed sloop. There used to be a floor here, held up by a boom
+    // across the harbor mouth; Sean cut the boom on 16 September and the
+    // floor with it. A Marauder rather than a Swift, because the Swift is the
+    // one hull on the v4.3 sheet with no guns at all — *any* gun shuts a
+    // port, and a ship with none is not one.
+    addShip(state, port, 'alliance', 'CFS-MAR-R1-01');
     expect(isBlockaded(state, port)).toBe(true);
   });
 });

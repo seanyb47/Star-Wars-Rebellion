@@ -52,7 +52,7 @@ describe('nothing in the opening waits on the shipwrights', () => {
   it('gives the Confederacy one Swift, not four', () => {
     for (let seed = 1; seed <= 6; seed++) {
       const home = generateGalaxy(seed, 'alliance').fleets.find((f) => f.faction === 'alliance')!;
-      const swifts = home.ships.filter((s) => s.classId === 'swift');
+      const swifts = home.ships.filter((s) => s.classId === 'CFS-SWI-S01');
       expect(swifts).toHaveLength(1);
     }
   });

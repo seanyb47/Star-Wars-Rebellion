@@ -1,4 +1,13 @@
 import shipData from '../data/ships.json';
+import shipFlavour from '../data/ship-flavour.json';
+import type { CombatStats } from './navycombat';
+import {
+  NAVY_FACTION_TO_PLAYABLE,
+  ROSTER,
+  type ShipDefinition,
+  type ShipSize,
+  type SpeedCategory,
+} from './shipdefs';
 import type { Rng } from './rng';
 import terms from '../data/terms.json';
 import type {
@@ -447,7 +456,14 @@ export const RETREAT_SHOTS: Record<number, [number, number]> = {
  * here is only the one number the round needs: how likely it is to be hit at
  * all. A thing mostly under the water is harder to hit than a ship.
  */
-export const BEAST_HIT_CHANCE = 0.55;
+/*
+ * Tried and cut: **BEAST_HIT_CHANCE**, and `Creature.evade` with it,
+ * 21 September. A creature used to carry one number for how hard it was to
+ * hit. The locked rules read accuracy off the *target's* Size and point of
+ * sail, and one number cannot say what those two say — that a ghost-ship is
+ * nearly impossible to catch and a Kraken is simply enormous. Both are
+ * fields on the creature now.
+ */
 
 /**
  * When a creature stops staying put, and how it behaves once it has.
@@ -759,22 +775,23 @@ export interface ShipClass {
    */
   legend?: true;
   /**
-   * The research grade a side must have reached before a yard will lay one
-   * down. Absent means day one.
+   * Which rung of the research ladder a yard has to have reached before it
+   * will lay one down. Absent, or zero, means day one.
    *
    * Sean's ruling, 16 September: *"They are all building but better units
-   * require r&d. Like in SWRebellion."* Rebellion gates its better hulls
-   * behind a research track run by people rather than by a build queue, and
-   * that is what the craft ladder here already was — it simply had nothing to
-   * unlock, and made hulls cheaper and quicker instead. Now it has something.
+   * require r&d. Like in SWRebellion."* This used to be a grade 1–3 that also
+   * made every hull cheaper and quicker. It is the roster's own ladder now —
+   * *"R = requires research to unlock, and the # is the order unlocked"* —
+   * so the number here is literally the R in the hull's Research Order, and
+   * research unlocks rather than discounts.
    */
-  craft?: 1 | 2 | 3;
+  craft?: number;
   /**
    * Numbers of its own, over the size's.
    *
-   * A role is a starting point, not a straitjacket: a Bulwark is a medium with
-   * half again the hull and four fewer guns, a Marauder is a medium that hits
-   * like one and folds like a sloop. Anything not stated here is the role's.
+   * Every hull on the v4.3 roster states all of them, so the role's figures
+   * are a fallback that nothing on the water reaches any more — kept for the
+   * three legends and for anything added by hand before it has a sheet row.
    */
   hull?: number;
   guns?: number;
@@ -785,6 +802,17 @@ export interface ShipClass {
   upkeep?: number;
   speed?: number;
   bombard?: number;
+  /* --- The locked combat model reads these, and nothing else. --- */
+  /** How hard she is to hit, which is not the same as how big she looks. */
+  size?: ShipSize;
+  /** The roster's word, not the retreat number above it. */
+  pointOfSail?: SpeedCategory;
+  armor?: number;
+  longGuns?: number;
+  heavyGuns?: number;
+  lightGuns?: number;
+  /** A fraction of whole hull mended per day, between actions. */
+  repairPerDay?: number;
 }
 
 /**
@@ -907,7 +935,161 @@ export const LORD_POWER_TEXT: Record<LordPower, string> = {
 /** Allegiance a day the Moot brings an island round by. */
 export const MOOT_SUPPORT_PER_DAY = 1;
 
-export const SHIP_CLASSES: ShipClass[] = shipData.classes as ShipClass[];
+/**
+ * What an island earns, against a roster that prices ships its own way.
+ *
+ * The v4.3 sheet is the pricing authority and its maintenance benchmark is
+ * *"ceil(1% of actual build cost) gold per day"* — which puts a Sovereign at
+ * 48.5 a day and a Majestic at 52.2, where the roster this replaced had its
+ * heaviest hull at 5. The islands were tuned against that 5, so on the sheet's
+ * own numbers a single first-rate costs more to keep than a whole side earns,
+ * and measured over four wars the opponent simply stopped building: 24,529
+ * gold at the end against nine hulls, because `aiLayDownHull`'s surplus gate
+ * never once passed.
+ *
+ * One number rather than three, and it moves the economy rather than the
+ * roster. Every ratio the sheet states — hull against hull, cost against build
+ * time against maintenance — is left exactly as Sean priced it; what changes
+ * is how much an island is worth against all of them. The alternative was to
+ * divide the sheet's gold, its days and its maintenance by three different
+ * numbers picked here, which is not reading a roster, it is writing one.
+ *
+ * Measured: see the table in PLAN.md.
+ */
+export const PRODUCTION_SCALE = 1;
+
+/**
+ * The sheet's build days, in this game's days.
+ *
+ * The roster's benchmark is *"On Rate = 1 build day per gold of actual build
+ * cost"*, which makes a build day a unit of **money spent per day of yard
+ * time** rather than a day on anybody's calendar. It has to be: the sheet has
+ * no idea how long a war is. On its own numbers a Marauder is forty-five days
+ * and a Coral-Class thirteen hundred, against a war whose median is under a
+ * thousand — so the whole top of both ladders would be unbuildable and the
+ * bottom would be a season's work.
+ *
+ * Three, measured. The sheet's days-per-gold runs about 0.33 across both
+ * ladders where the old table ran 0.15, so a factor near two or three is the
+ * one that puts a hull's build time back where the game was tuned for it: a
+ * Marauder is fifteen days for 135 gold, a Vanguard fifty-three for 275, a
+ * Sovereign 233 at one slipway and 78 at three. Swept from 2.2 to 6 over
+ * twenty-four wars; it moves the length of the war and not who wins it, which
+ * is the signature of a conversion rather than a lever. Every ratio between
+ * hulls is untouched.
+ */
+export const SHIP_DAYS_SCALE = 3;
+
+/**
+ * The sheet's maintenance, in what an island actually earns.
+ *
+ * Same problem as the days and the same kind of answer. The roster's
+ * benchmark is *"On Rate = ceil(1% of actual build cost) gold per day"*, and
+ * a per-day figure derived from a build cost is a number about the sheet's
+ * economy, not about an island's. Measured on the sheet's own numbers, at day
+ * one the Crown pays **75 gold a day** to keep its navy and the Confederacy
+ * pays **10** — and it widens: by day 600 the Crown's fifteen hulls cost 428 a
+ * day against the Confederacy's twenty at 92. It went bankrupt on day 540 of
+ * every war and began scrapping its own fleet, and lost six of six.
+ *
+ * That gap is deliberate on the sheet — the Crown's doctrine is *"dominant
+ * capital ships"* and the Confederacy's is efficiency, and the Sovereign is
+ * priced at 250% of its own maintenance baseline where the Brigantine is at
+ * 40%. The roster is right and the conversion was missing: an empire funds a
+ * heavy navy off a tax base, and three is the factor at which it can.
+ *
+ * Every ratio the sheet states survives — the Crown's capitals are still the
+ * expensive ones, by exactly the multiple the sheet gives them.
+ */
+export const SHIP_UPKEEP_SCALE = 3;
+
+/**
+ * The live roster is the v4.3 sheet, read through `shipdefs.ts`.
+ *
+ * It was twenty-four hulls in `ships.json` with four size archetypes behind
+ * them, written before the Fleet Roster existed. The roster has been in the
+ * repository since 19 September — validated, tested, and drawn in the
+ * encyclopedia — while the game on the water still fought with the old one,
+ * so a player could read a Blackfin's sheet and never sail one. This closes
+ * that: one roster, and it is Sean's.
+ *
+ * Three things come from elsewhere and are joined on here. The **prose** is
+ * `ship-flavour.json`, because `combat-ships.json` carries a standing
+ * instruction to be changed only by re-reading the sheet and a line written
+ * into it would be gone on the next import. The **legends** are the three
+ * ships the Pirate Lords are named for, which are not on the sheet because
+ * they are not ships anybody builds. And the **legacy figures** — role, pace,
+ * the retreat number — are derived, because the sheet states a Size and a
+ * point of sail and the rest of the game asks in the older vocabulary.
+ */
+const LEGACY_ROLE: Record<ShipSize, ShipRole> = {
+  Small: 'small',
+  Medium: 'medium',
+  Large: 'large',
+  Gigantic: 'large',
+};
+
+/**
+ * How long a crossing takes her, as a multiplier on the passage.
+ *
+ * Pace is not the retreat number below it and never was: pace is how long she
+ * is at sea and speed is how fast she is out of gun-range. A first-rate is
+ * slow at both, which is why one number could pass for a while; a Tidestalker
+ * is Normal under sail and hard to catch, which is where it stopped.
+ */
+const PACE_BY_SAIL: Record<SpeedCategory, number> = {
+  'Very Fast': 0.6,
+  Fast: 0.78,
+  Normal: 1,
+  Slow: 1.35,
+  None: 1,
+};
+
+/** How hard she is to run down, 1 to 10, off the same word. */
+const RETREAT_BY_SAIL: Record<SpeedCategory, number> = {
+  'Very Fast': 10,
+  Fast: 8,
+  Normal: 5,
+  Slow: 3,
+  None: 1,
+};
+
+const FLAVOUR = (shipFlavour as { flavour: Record<string, string> }).flavour;
+
+function fromRoster(def: ShipDefinition): ShipClass {
+  const total = def.guns.longGuns + def.guns.heavyGuns + def.guns.lightGuns;
+  return {
+    id: def.id as ShipClassId,
+    faction: NAVY_FACTION_TO_PLAYABLE[def.faction],
+    // A hull that cannot fight is a transport whatever size she is: it is what
+    // the old vocabulary called the shape, and the Swift is the only one.
+    role: def.combatantType === 'Noncombat' ? 'transport' : LEGACY_ROLE[def.size],
+    name: def.name,
+    blurb: FLAVOUR[def.id] ?? '',
+    craft: def.research.kind === 'research' ? def.research.order : undefined,
+    hull: def.hull,
+    guns: total,
+    pace: PACE_BY_SAIL[def.speed],
+    carries: def.troopCapacity,
+    costGold: def.goldToBuild,
+    days: Math.max(1, Math.round(def.daysToBuild / SHIP_DAYS_SCALE)),
+    upkeep: def.goldPerDayMaintenance / SHIP_UPKEEP_SCALE,
+    speed: RETREAT_BY_SAIL[def.speed],
+    bombard: def.bombardment,
+    size: def.size,
+    pointOfSail: def.speed,
+    armor: def.armor,
+    longGuns: def.guns.longGuns,
+    heavyGuns: def.guns.heavyGuns,
+    lightGuns: def.guns.lightGuns,
+    repairPerDay: def.repairRatePerDay,
+  };
+}
+
+export const SHIP_CLASSES: ShipClass[] = [
+  ...ROSTER.ships.map(fromRoster),
+  ...(shipData.classes as ShipClass[]).filter((c) => c.legend),
+];
 
 const SHIP_BY_ID = new Map(SHIP_CLASSES.map((c) => [c.id, c] as const));
 
@@ -929,6 +1111,30 @@ export function shipSpec(id: ShipClassId): ShipRoleSpec {
     if (own !== undefined) spec[key] = own;
   }
   return spec;
+}
+
+/**
+ * A hull as the guns see her, which is the only vocabulary they have.
+ *
+ * `CombatStats` is what `navycombat.ts` takes, and the roster satisfies it
+ * structurally — Size, point of sail, three gun counts, Armor, Hull. The three
+ * legends have none of that on the sheet, so they get a medium's shape; no
+ * legend is ever on the water, and this exists so a lookup cannot throw.
+ */
+export function combatStatsOf(id: ShipClassId): CombatStats {
+  const cls = shipClass(id);
+  return {
+    size: cls.size ?? 'Medium',
+    speed: cls.pointOfSail ?? 'Normal',
+    guns: {
+      longGuns: cls.longGuns ?? 0,
+      heavyGuns: cls.heavyGuns ?? 0,
+      lightGuns: cls.lightGuns ?? cls.guns ?? 0,
+    },
+    armor: cls.armor ?? 0,
+    hull: cls.hull ?? SHIP_ROLES[cls.role].hull,
+    combatantType: (cls.guns ?? 0) > 0 ? 'Warship' : 'Noncombat',
+  };
 }
 
 /** What grade of shipwright craft this hull waits on. Nothing, for most. */
@@ -961,8 +1167,9 @@ export function buildSpec(item: BuildItem): BuildSpec {
  * works it into something worth selling. The rest make things or protect you,
  * and cost gold every day they stand.
  */
+
 const NO_SHIP_INCOME = Object.fromEntries(
-  (shipData.classes as ShipClass[]).map((c) => [c.id, 0]),
+  SHIP_CLASSES.map((c) => [c.id, 0]),
 ) as Record<ShipClassId, number>;
 
 export const GOLD_PER_DAY: Record<BuildItem, number> = {
@@ -985,12 +1192,12 @@ export const GOLD_PER_DAY: Record<BuildItem, number> = {
    * All three still cost nothing to build and nothing to keep — a worked
    * deposit is a well, not a business.
    */
-  mine: 9,
-  silver_mine: 6,
-  refinery: 3,
+  mine: 9 * PRODUCTION_SCALE,
+  silver_mine: 6 * PRODUCTION_SCALE,
+  refinery: 3 * PRODUCTION_SCALE,
   // The same rung as a mill, because it is the same rung: Sean's math puts
   // timber and living coral in one bucket, and Coral Reach has no timber.
-  coral_kiln: 3,
+  coral_kiln: 3 * PRODUCTION_SCALE,
   training_facility: 0,
   shipyard: 0,
   fort: 0,
@@ -1000,7 +1207,7 @@ export const GOLD_PER_DAY: Record<BuildItem, number> = {
 };
 
 const SHIP_UPKEEP = Object.fromEntries(
-  (shipData.classes as ShipClass[]).map((c) => [c.id, c.legend ? 0 : SHIP_ROLES[c.role].upkeep]),
+  SHIP_CLASSES.map((c) => [c.id, c.legend ? 0 : (c.upkeep ?? SHIP_ROLES[c.role].upkeep)]),
 ) as Record<ShipClassId, number>;
 
 export const UPKEEP_PER_DAY: Record<BuildItem, number> = {
@@ -1247,10 +1454,35 @@ export const RESEARCH_MIN_SUPPORT = 75;
 /** Progress a landed cycle adds, before the officer's Espionage. */
 export const RESEARCH_PROGRESS = 24;
 /** Progress needed for grades one, two and three. */
-export const CRAFT_GRADES = [100, 260, 520];
+/**
+ * The research ladder: eight rungs, and what each one costs to reach.
+ *
+ * Three, until the v4.3 roster landed. The roster is a ladder in Sean's own
+ * words — *"R = requires research to unlock (ship research mission), and the #
+ * is the order unlocked"* — and both navies run R1 to R8, so the number of
+ * rungs is a fact about the roster rather than a dial.
+ *
+ * The shape is the old one stretched: each rung dearer than the last, the
+ * first one early enough to feel, the last one a thing only a long war
+ * reaches. A cycle in the yards is `RESEARCH_PROGRESS` plus the officer, so
+ * the first rung is three or four spells ashore and the eighth is forty-odd.
+ */
+export const CRAFT_GRADES = [80, 175, 285, 410, 550, 705, 875, 1060];
 /** What each grade takes off a hull's cost and days, as a fraction per grade. */
-export const CRAFT_COST_STEP = 0.1;
-export const CRAFT_DAYS_STEP = 0.13;
+/*
+ * Tried and cut: **research as a discount**, 21 September.
+ *
+ * `CRAFT_COST_STEP` and `CRAFT_DAYS_STEP` took a tenth off a hull's price and
+ * a eighth off its days for every grade a side had reached. That was written
+ * when the craft ladder had nothing to unlock and had to be worth something;
+ * it has had something to unlock since 16 September, and the v4.3 roster
+ * prices every hull absolutely off its own Ratings & Pricing tab.
+ *
+ * Keeping both would have compounded badly: eight rungs at a tenth each is
+ * eighty per cent off a Majestic, and the sheet's whole pricing authority
+ * would have been a suggestion. Research unlocks now, and nothing else —
+ * which is what the roster's own note says it does.
+ */
 
 /**
  * What a saboteur goes for first.

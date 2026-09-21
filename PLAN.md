@@ -8190,3 +8190,123 @@ and cuts nothing off. `object-fit: contain`, so a painting that is ever *not*
 
 Guarded in `shipart.test.ts` off the stylesheet, and the guard was checked
 against the old rule before it was trusted: it fails on `height: 40vh`.
+
+## The v4.3 roster goes on the water (#123, #134, 21 September)
+
+Sean, on the saves this would end: *"Oh I don't care about my game. Push it."*
+
+The Fleet Roster has been in the repository since 19 September — validated,
+tested, drawn, with prose for all twenty-eight hulls — while the game on the
+water went on fighting with the twenty-four of `ships.json` and four size
+archetypes behind them. A player could read a Blackfin's sheet and never sail
+one. That is closed: one roster, and it is his.
+
+### What actually changed
+
+**The roster is a view over the sheet.** `SHIP_CLASSES` is built from
+`shipdefs.ts` rather than from `ships.json`, and a hull's live id *is* its
+Ship ID — which deleted the encyclopedia's translation table, exactly as that
+table's own note said it would: *"the whole map deletes itself the day the
+live roster swaps."* `ships.json` holds the three legends and nothing else.
+
+**The round is the locked cannon model.** *"There is no ship-level Firepower
+stat. Every individual cannon makes its own attack."* So `decksOf` is gone —
+it split one weight-of-metal number into two or three "decks" to stop a
+first-rate emptying herself into a sloop, which is a way of saying with one
+number what the sheet says with three — and `aimAt`, `HULL_EASE`,
+`GUNNERY_ON_SMALL` and `GUN_DECKS` went with it, replaced by the sheet's own
+accuracy matrix. Long Guns are Phase 1 of every round; a hull they sink never
+gets her Light and Heavy guns away. `navycombat.ts` stays the pure authority
+on a cannon against a hull and `fleets.ts` keeps the world around it — three
+parties at an island, forts, officers, the politics of a lost squadron.
+
+**Research unlocks instead of discounting.** Eight rungs, because the sheet
+has eight: *"R = requires research to unlock, and the # is the order
+unlocked."* `CRAFT_COST_STEP` and `CRAFT_DAYS_STEP` are retired — they were
+written when the ladder had nothing to unlock, and eight rungs at a tenth each
+would have taken eighty per cent off a Majestic and made the sheet's pricing
+authority a suggestion.
+
+**Creatures moved onto the same scale.** Hulls 28–90 became 1,300–4,600
+against ships of 350–14,000, and each got a Size and a point of sail because
+the accuracy matrix reads the *target's*. `evade` and `BEAST_HIT_CHANCE` are
+retired: one number could not say what those two say.
+
+**And Sean's opening, hull by hull** — Sovereign and two Interceptors at
+Highwater, Wayfinder and Morningstar forward, Swift and two Brigantines at
+Freeport, Chimera and Tidestalker forward. Every one an S-rung, six of the
+eight impossible before today.
+
+### Three unit conversions, and why they are conversions
+
+The sheet prices hulls against each other. It has no idea how long a war is or
+what an island earns, and two of its own benchmarks say so in its own units:
+*"1 build day per gold of actual build cost"* and *"ceil(1% of actual build
+cost) gold per day"*. Both are numbers about the sheet's economy.
+
+| | what the sheet says | in the game |
+|---|---|---|
+| build days | Marauder 45, Coral-Class 1,300 | ÷ **3** |
+| maintenance | Sovereign 48.5/day, Brigantine 1.0 | ÷ **3** |
+
+Taken raw, the top of both ladders is unbuildable in a war whose median is
+under a thousand days, and the Crown is bankrupt by day 540. Every ratio the
+sheet states survives both divisions untouched; what they set is the scale
+against the clock and against an island.
+
+The days factor was swept 2.2 to 6 over twenty-four wars: **it moves the
+length of the war and not who wins it**, which is the signature of a
+conversion rather than a lever.
+
+### Two bugs only the new scale could show
+
+**A fleet action went unreported.** `reportRound` left out a round that sank
+nothing, on the rule that two fleets trading shot is not news and a creature
+is. True when hulls ran nine to thirty-two; on this roster two Sovereigns
+against two Tempests wrote **no line at all**. One rule for both now: damage
+done is news, whoever did it.
+
+**A creature stopped being dangerous.** `monsterStrike` did `beast.guns` give
+or take a seventh — sixteen points against a hull that now has five hundred.
+Measured: a Sea Dragon took seventeen a round off three Interceptors and
+killed none of them in seven days. Its guns are cannon like everybody else's
+now, rolling the Light Gun's dice; three Interceptors lose two of three
+getting it, which is what a sea-dragon is for.
+
+### And the balance came back, badly
+
+Twelve wars, seeds 9000+:
+
+| | before the swap | **after** |
+|---|---|---|
+| Crown — Confederacy | 10 — 10 | **2 — 9** |
+| never ended | 0 of 20 | 1 of 12 |
+| median length | 636 | 1,289 |
+| Crown gold at the end | — | 1,857 |
+| Confederacy hulls at the end | — | 22.3 |
+
+Audit clean, every rule holding. The cause is not the conversions — moving
+them across a 2× range gives the same answer every time. It is the two
+ladders, and it is on the sheet:
+
+| across the whole roster | Crown | Confederacy |
+|---|---|---|
+| gold per 1,000 hull | 234 | 185 |
+| **upkeep per 1,000 hull** | **5.64** | **2.65** |
+| upkeep per gun | 0.44 | 0.30 |
+
+**The Crown pays 2.1× the Confederacy's maintenance for the same hull.** The
+endgame says it plainest: the Majestic is 2,610 gold and 52.2 a day for
+13,900 hull; the Coral-Class is 2,200 and **18.0** for 11,700 — 84% of the
+hull, 98% of the guns, a third of the bill.
+
+That is deliberate on the sheet, and the sheet says why: *"Crown doctrine:
+standardized combined-arms fleets ... strong Heavy Guns and capital ships"*
+against *"Confederacy doctrine: asymmetric specialists, fast raiders,
+retrofits"*. The design assumes an empire funds a heavy navy off a big tax
+base. This game does not pay it for one: the Crown holds the most ground and
+cannot win by ground at all, because its victory condition is a manhunt.
+
+**This is Sean's to settle and is not settled here.** Nothing on the roster
+was touched. The candidates, with the measurement behind each, are in the
+message that goes with this commit.

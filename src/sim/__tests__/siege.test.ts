@@ -23,6 +23,8 @@ import {
   FORT_GUNS,
   FORT_STRENGTH,
   REPAIR_PER_DAY,
+  REPAIR_AT_A_YARD,
+  shipClass,
   shipSpec,
 } from '../constants';
 import type { GameState, PlayableFaction, ShipClassId, System } from '../types';
@@ -56,7 +58,7 @@ describe('the seawall gates the landing', () => {
     const state = world();
     const isle = walled(state);
     isle.garrison = 2;
-    const fleet = put(state, isle, 'alliance', ['reef', 'reef', 'brig']);
+    const fleet = put(state, isle, 'alliance', ['CFS-IRB-R5-01', 'CFS-IRB-R5-01', 'CFS-BRI-S02']);
     fleet.troops = 6;
 
     expect(assaultError(state, fleet.id, 'alliance')).toMatch(/seawall/i);
@@ -69,15 +71,15 @@ describe('the seawall gates the landing', () => {
   it('will not open fire while their ships are still in the water', () => {
     const state = world();
     const isle = walled(state);
-    const mine = put(state, isle, 'alliance', ['reef', 'reef']);
-    put(state, isle, 'empire', ['kestrel']);
+    const mine = put(state, isle, 'alliance', ['CFS-IRB-R5-01', 'CFS-IRB-R5-01']);
+    put(state, isle, 'empire', ['CWN-INT-S02']);
     expect(bombardError(state, mine.id, 'alliance')).toMatch(/ships hold the harbor/i);
   });
 
   it('will not open fire with nothing aboard that throws heavy enough', () => {
     const state = world();
     const isle = walled(state);
-    const boats = put(state, isle, 'alliance', ['brig', 'brig']);
+    const boats = put(state, isle, 'alliance', ['CFS-BRI-S02', 'CFS-BRI-S02']);
     expect(fleetBombard(boats)).toBe(0);
     expect(bombardError(state, boats.id, 'alliance')).toMatch(/heavy enough/i);
   });
@@ -87,8 +89,8 @@ describe('a day of bombardment', () => {
   it('takes the walls down over days, and the battery fires back the whole time', () => {
     const state = world();
     const isle = walled(state);
-    const fleet = put(state, isle, 'alliance', ['reef', 'reef']);
-    expect(fleetBombard(fleet)).toBe(shipSpec('reef').bombard * 2);
+    const fleet = put(state, isle, 'alliance', ['CFS-IRB-R5-01', 'CFS-IRB-R5-01']);
+    expect(fleetBombard(fleet)).toBe(shipSpec('CFS-IRB-R5-01').bombard * 2);
     expect(Math.round(fortGuns(isle))).toBe(FORT_GUNS);
 
     const rng = createRng(4);
@@ -112,7 +114,7 @@ describe('a day of bombardment', () => {
     // per cent and stayed there for ever.
     const state = world();
     const isle = walled(state);
-    const fleet = put(state, isle, 'alliance', ['reef', 'reef', 'reef']);
+    const fleet = put(state, isle, 'alliance', ['CFS-IRB-R5-01', 'CFS-IRB-R5-01', 'CFS-IRB-R5-01']);
     const rng = createRng(9);
     for (let d = 0; d < 12 && fortsOf(isle).length > 0; d++) {
       bombardRound(state, fleet, rng);
@@ -135,7 +137,14 @@ describe('a day of bombardment', () => {
       (s) => s.sectorId === isle.sectorId && s.id !== isle.id && s.populated,
     )!;
     const nearBefore = neighbour.support.alliance;
-    const fleet = put(state, isle, 'alliance', ['reef', 'reef', 'reef']);
+    // Four, not three: `BOMBARD_PER_COMPANY` is twenty-six and an Ironback
+    // throws eight, so three of them is a day of noise and no company broken.
+    const fleet = put(state, isle, 'alliance', [
+      'CFS-IRB-R5-01',
+      'CFS-IRB-R5-01',
+      'CFS-IRB-R5-01',
+      'CFS-IRB-R5-01',
+    ]);
 
     bombardRound(state, fleet, createRng(2));
     expect(isle.garrison).toBeLessThan(4);
@@ -162,22 +171,28 @@ describe('what mends overnight', () => {
     mine.facilities = mine.facilities.filter((f) => f.type !== 'shipyard');
     const hurt = (f: { ships: { damage: number }[] }) => f.ships[0].damage;
 
-    const atSea = put(state, mine, 'alliance', ['reef']);
-    atSea.ships[0].damage = 20;
+    const atSea = put(state, mine, 'alliance', ['CFS-IRB-R5-01']);
+    // Half her hull. It was a flat twenty, which was most of a hull on the
+    // roster this replaced and is half a per cent of one on the v4.3 sheet —
+    // so a day at anchor mended more than the damage and the test measured a
+    // clamp rather than a rate.
+    const whole = shipSpec('CFS-IRB-R5-01').hull;
+    atSea.ships[0].damage = whole / 2;
     atSea.voyage = { targetSystemId: mine.id, daysRemaining: 3 };
     repairOvernight(state);
-    expect(hurt(atSea)).toBe(20);
+    expect(hurt(atSea)).toBe(whole / 2);
 
     atSea.voyage = undefined;
     repairOvernight(state);
-    const atAnchor = 20 - hurt(atSea);
-    expect(atAnchor).toBeCloseTo(shipSpec('reef').hull * REPAIR_PER_DAY, 5);
+    const atAnchor = whole / 2 - hurt(atSea);
+    // Her own rate off the roster, not one rate for every hull in the game.
+    expect(atAnchor).toBeCloseTo(whole * shipClass('CFS-IRB-R5-01').repairPerDay!, 5);
 
     // The same hull, at an island of ours with a yard on it.
     mine.facilities.push({ id: 'fac-yard-test', type: 'shipyard', owner: 'alliance' });
-    atSea.ships[0].damage = 20;
+    atSea.ships[0].damage = whole / 2;
     repairOvernight(state);
-    expect(20 - hurt(atSea)).toBeCloseTo(atAnchor * 2, 5);
+    expect(whole / 2 - hurt(atSea)).toBeCloseTo(atAnchor * (REPAIR_AT_A_YARD / REPAIR_PER_DAY), 5);
   });
 
   it('patches a wall under blockade, but the yard does not work', () => {
@@ -187,15 +202,19 @@ describe('what mends overnight', () => {
     const fort = isle.facilities.find((f) => f.type === 'fort')!;
     fort.damage = 30;
     // A hull of theirs in their own blockaded harbor.
-    const theirs = put(state, isle, 'empire', ['sovereign']);
-    theirs.ships[0].damage = 20;
+    const theirs = put(state, isle, 'empire', ['CWN-SOV-S04']);
+    const whole = shipSpec('CWN-SOV-S04').hull;
+    theirs.ships[0].damage = whole / 2;
     isle.facilities.push({ id: 'fac-yard-2', type: 'shipyard', owner: 'empire' });
 
     repairOvernight(state);
     // Men with shovels work under fire. Shipwrights do not — so the hull mends
     // at the plain rate rather than the yard's.
     expect(fort.damage).toBeLessThan(30);
-    expect(20 - theirs.ships[0].damage).toBeCloseTo(shipSpec('sovereign').hull * REPAIR_PER_DAY, 5);
+    expect(whole / 2 - theirs.ships[0].damage).toBeCloseTo(
+      whole * shipClass('CWN-SOV-S04').repairPerDay!,
+      5,
+    );
   });
 });
 
@@ -204,7 +223,7 @@ describe('taking the island', () => {
     const state = world();
     const isle = walled(state, 0);
     isle.garrison = 1;
-    const fleet = put(state, isle, 'alliance', ['reef', 'reef', 'brig']);
+    const fleet = put(state, isle, 'alliance', ['CFS-IRB-R5-01', 'CFS-IRB-R5-01', 'CFS-BRI-S02']);
     fleet.troops = 9;
     expect(assaultError(state, fleet.id, 'alliance')).toBeNull();
 
@@ -265,7 +284,7 @@ describe('the siege as standing orders', () => {
     const state = world();
     const isle = walled(state);
     isle.garrison = 0;
-    const fleet = put(state, isle, 'alliance', ['reef', 'reef', 'reef']);
+    const fleet = put(state, isle, 'alliance', ['CFS-IRB-R5-01', 'CFS-IRB-R5-01', 'CFS-IRB-R5-01']);
     fleet.bombarding = true;
     const rng = createRng(6);
     for (let d = 0; d < 20 && fleet.bombarding; d++) advanceSieges(state, rng);
@@ -287,7 +306,18 @@ describe('a siege, end to end, through the orders a player gives', () => {
     // day with the wall at thirteen per cent — which is the doctrine's own
     // point about not dabbling, and a bad fixture for a test about the
     // sequence of orders.
-    const fleet = put(state, at(state), 'alliance', ['reef', 'reef', 'reef', 'brig']);
+    // The Goliath rather than a Brigantine, and that is the v4.3 roster
+    // changing the fixture rather than the fixture being wrong: an Ironback
+    // carries nobody at all and a Brigantine carries two, so the old squadron
+    // could throw a wall down and then put fewer men ashore than the garrison
+    // it had just uncovered. Carrying is a column on the sheet now, not a
+    // class of ship, and a siege train has to include a hull with a hold.
+    const fleet = put(state, at(state), 'alliance', [
+      'CFS-IRB-R5-01',
+      'CFS-IRB-R5-01',
+      'CFS-IRB-R5-01',
+      'CFS-URG-R7-01',
+    ]);
     fleet.troops = 6;
     const fleetId = fleet.id;
 
@@ -318,7 +348,7 @@ describe('a siege, end to end, through the orders a player gives', () => {
     let state = world(21);
     state.player = 'alliance';
     const isleId = walled(state).id;
-    const fleet = put(state, state.systems.find((s) => s.id === isleId)!, 'alliance', ['reef', 'reef']);
+    const fleet = put(state, state.systems.find((s) => s.id === isleId)!, 'alliance', ['CFS-IRB-R5-01', 'CFS-IRB-R5-01']);
     state = orderBombard(state, fleet.id).state;
     state = orderCeaseFire(state, fleet.id).state;
     expect(state.fleets.find((f) => f.id === fleet.id)!.bombarding).toBeUndefined();

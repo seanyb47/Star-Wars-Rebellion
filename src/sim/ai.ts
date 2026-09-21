@@ -1180,8 +1180,18 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
   const grade = gradeOf(state, ai);
   const classes = shipsAt(ai, grade);
   const afloat = fleetsOf(state, ai).flatMap((f) => f.ships);
-  // Keep roughly two fighting hulls to every transport.
-  const transports = afloat.filter((s) => s.classId === classes.find((c) => c.role === 'transport')!.id);
+  /*
+   * What carries, and it is no longer a class of its own.
+   *
+   * The old roster had a Transport with a role to match, and this asked for
+   * that one hull by name. The v4.3 roster has no such category: carrying is
+   * `Troop Capacity`, a column most warships have something in — a Wayfinder
+   * lifts four and a Majestic twelve — and exactly one hull on the sheet is
+   * marked Noncombat at all. So a "transport" here is anything with a hold,
+   * and the fleet's problem is berths rather than a missing ship.
+   */
+  const lifts = (id: ShipClassId) => shipSpec(id).carries;
+  const transports = afloat.filter((s) => lifts(s.classId) > 0);
   const capital = getSystem(state, state.factions.empire.hqSystemId);
   const carryAll = fleetsOf(state, ai).reduce((n, f) => n + fleetCapacity(f), 0);
   // Two clear of what the capital holds, so a landing is possible at all after
@@ -1231,9 +1241,16 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
       (a, b) =>
         missing(b) + shipSpec(b.id).costGold - (missing(a) + shipSpec(a.id).costGold),
     );
+  // Short of berths: the roomiest hold it can pay for, which on this roster is
+  // usually a warship that happens to carry rather than a ship that only does.
+  const lifters = classes
+    .filter((c) => lifts(c.id) > 0)
+    .filter((c) => carried(c.id))
+    .filter((c) => shipSpec(c.id).costGold + AI_SHIP_RESERVE <= state.factions[ai].gold)
+    .sort((a, b) => lifts(b.id) - lifts(a.id));
   const pick = wantTransport
-    ? classes.find((c) => c.role === 'transport')
-    : (affordable[0] ?? classes.find((c) => c.role === 'small'));
+    ? (lifters[0] ?? affordable[0])
+    : (affordable[0] ?? lifters[0] ?? classes.find((c) => c.role === 'small'));
   if (!pick || !carried(pick.id)) return;
 
   // One hull, or — with gold to burn — one at every slipway standing idle.

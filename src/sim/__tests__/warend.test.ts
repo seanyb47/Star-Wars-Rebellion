@@ -3,7 +3,7 @@ import { generateGalaxy } from '../galaxy';
 import { advanceDay } from '../advanceDay';
 import { warReport } from '../warend';
 import { isLord } from '../lords';
-import type { GameState } from '../types';
+import type { GameState, PlayableFaction } from '../types';
 
 /**
  * The closing screen has to hold for wars nobody wrote a fixture for.
@@ -20,6 +20,22 @@ function playOut(seed: number, cap = 3000): GameState {
   return state;
 }
 
+/**
+ * The first seed that gives this winner, found rather than written down.
+ *
+ * These tests used to name a seed apiece — 9001 for the Crown's win, 9003 for
+ * the Confederacy's — which made a balance change into a test failure: the
+ * v4.3 roster landed and both of them flipped. Which seed produces which
+ * outcome is not what any of this is about, so it is looked up.
+ */
+function warWonBy(winner: PlayableFaction): GameState {
+  for (let seed = 9000; seed < 9040; seed++) {
+    const state = playOut(seed);
+    if (state.winner === winner) return state;
+  }
+  throw new Error(`no war in forty seeds was won by the ${winner}`);
+}
+
 describe('the closing screen', () => {
   it('says nothing at all while the war is running', () => {
     expect(warReport(generateGalaxy(11, 'empire'))).toBeUndefined();
@@ -27,7 +43,7 @@ describe('the closing screen', () => {
 
   it('reports a finished war from the chair the player sat in', () => {
     // Seeds picked for speed, not for outcome: one of each winner, measured.
-    for (const seed of [9001, 9003]) {
+    for (const seed of [9000, 9001]) {
       const state = playOut(seed);
       const report = warReport(state)!;
       expect(report, `seed ${seed}`).toBeTruthy();
@@ -54,8 +70,7 @@ describe('the closing screen', () => {
    * its absence: three lines, always, whatever the log still carries.
    */
   it('names all three captures when the Crown wins, log or no log', () => {
-    const state = playOut(9001);
-    expect(state.winner, 'seed 9001 is the Crown win this reads').toBe('empire');
+    const state = warWonBy('empire');
     const report = warReport(state)!;
     expect(report.deciding).toHaveLength(3);
     for (const line of report.deciding) {
@@ -79,8 +94,7 @@ describe('the closing screen', () => {
    * the headline above it.
    */
   it('gives the capital its last days when the Confederacy wins', () => {
-    const state = playOut(9003);
-    expect(state.winner, 'seed 9003 is the Confederate win this reads').toBe('alliance');
+    const state = warWonBy('alliance');
     const report = warReport(state)!;
     expect(report.deciding.length).toBeGreaterThan(0);
     expect(report.deciding.length).toBeLessThanOrEqual(4);
@@ -95,7 +109,7 @@ describe('the closing screen', () => {
    * would name a cell they walked out of.
    */
   it('leaves no capture day on anybody at large', () => {
-    const state = playOut(9003);
+    const state = warWonBy('alliance');
     for (const c of state.characters) {
       if (c.status !== 'captured') expect(c.takenOnDay, c.name).toBeUndefined();
     }

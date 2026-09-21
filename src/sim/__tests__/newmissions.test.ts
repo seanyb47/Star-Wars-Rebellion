@@ -28,7 +28,7 @@ import {
   startMission,
 } from '../missions';
 import { effectiveSpec, queueBuild } from '../build';
-import { buildSpec, shipsFor } from '../constants';
+import { buildSpec, shipsAt, shipsFor } from '../constants';
 import { CRAFT_GRADES, MISSION_PARTY_MAX, MISSION_WORK_DAYS, RESEARCH_MIN_SUPPORT } from '../constants';
 import type { Character, GameState, System } from '../types';
 
@@ -320,37 +320,55 @@ describe('research', () => {
    * ships had one thing to thank. The cost of that legibility was a mission
    * worth nothing at all to a side not building ships that month.
    */
-  it('makes everything cheaper and quicker, not only hulls', () => {
+  /**
+   * Research unlocks; it does not discount.
+   *
+   * These two tests used to prove the opposite — that reaching a grade took a
+   * tenth off a hull's price and an eighth off its days, and that a wall and a
+   * troop took the same cut. That rule was written when the craft ladder had
+   * nothing to unlock and had to be worth something anyway. It has had
+   * something to unlock since 16 September, and the v4.3 roster prices every
+   * hull absolutely off its own Ratings & Pricing tab, so keeping both would
+   * have made the sheet's pricing authority a suggestion: eight rungs at a
+   * tenth each is eighty per cent off a Majestic.
+   *
+   * So the proof is inverted, which is the same move the combat tests made
+   * when a removal shipped: the price on the sheet is the price, at every
+   * rung, and what the ladder buys is hulls a yard would otherwise refuse.
+   */
+  it('charges the price on the sheet, at every rung of the ladder', () => {
     const state = world();
     const hull = shipsFor('empire')[0].id;
-    const before = effectiveSpec(state, 'empire', hull);
-    expect(before).toEqual({ costGold: buildSpec(hull).costGold, days: buildSpec(hull).days });
+    const sticker = { costGold: buildSpec(hull).costGold, days: buildSpec(hull).days };
+    expect(effectiveSpec(state, 'empire', hull)).toEqual(sticker);
 
-    state.factions.empire.craft = 1000; // well past grade three
-    expect(craftGrade(state.factions.empire.craft)).toBe(3);
-    const after = effectiveSpec(state, 'empire', hull);
-    expect(after.costGold).toBeLessThan(before.costGold);
-    expect(after.days).toBeLessThan(before.days);
-    expect(after.days).toBeGreaterThan(0);
+    state.factions.empire.craft = 5000; // past the top of the ladder
+    expect(craftGrade(state.factions.empire.craft)).toBe(CRAFT_GRADES.length);
+    expect(effectiveSpec(state, 'empire', hull)).toEqual(sticker);
 
-    // And a mine, a wall and a troop take the same cut. A mine is free to
-    // raise, so its gold cannot fall — the days are what move on that one.
-    const mine = effectiveSpec(state, 'empire', 'mine');
-    expect(mine.days).toBeLessThan(buildSpec('mine').days);
-    expect(mine.days).toBeGreaterThan(0);
-
-    const fort = effectiveSpec(state, 'empire', 'fort');
-    expect(fort.costGold).toBeLessThan(buildSpec('fort').costGold);
-    expect(fort.days).toBeLessThan(buildSpec('fort').days);
-
-    const troop = effectiveSpec(state, 'empire', 'troop');
-    expect(troop.costGold).toBeLessThan(buildSpec('troop').costGold);
-    expect(troop.days).toBeLessThan(buildSpec('troop').days);
+    // And nothing else moves either: a mine, a wall and a troop cost what
+    // they cost however far the shipwrights have got.
+    for (const item of ['mine', 'fort', 'troop'] as const) {
+      expect(effectiveSpec(state, 'empire', item)).toEqual({
+        costGold: buildSpec(item).costGold,
+        days: buildSpec(item).days,
+      });
+    }
   });
 
-  it('charges the discounted price, not the sticker price', () => {
+  it('opens a rung of the roster at each grade, which is what it is for', () => {
+    // Nothing but the four S-rungs on day one.
+    expect(shipsAt('empire', 0).every((c) => (c.craft ?? 0) === 0)).toBe(true);
+    const opening = shipsAt('empire', 0).length;
+    // One rung up, and R1 is on the menu.
+    expect(shipsAt('empire', 1).length).toBeGreaterThan(opening);
+    // All the way up, and the whole ladder is.
+    expect(shipsAt('empire', CRAFT_GRADES.length).length).toBe(shipsFor('empire').length);
+  });
+
+  it('charges the sticker price when the order is actually placed', () => {
     const state = world();
-    state.factions.empire.craft = 1000;
+    state.factions.empire.craft = 5000;
     const yard = state.systems.find((s) =>
       s.facilities.some((f) => f.owner === 'empire' && f.type === 'shipyard'),
     );

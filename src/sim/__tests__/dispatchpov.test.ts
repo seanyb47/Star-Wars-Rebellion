@@ -117,21 +117,28 @@ describe('a dispatch knows whose news it is', () => {
       .filter((s) => beastAlive(s) && (creature(s.beast!)?.guns ?? 0) > 0)
       .sort((a, b) => (creature(b.beast!)?.guns ?? 0) - (creature(a.beast!)?.guns ?? 0))[0];
     expect(target, 'no fighting creature in this world').toBeTruthy();
-    const fleet = state.fleets.filter((f) => f.faction === 'empire')[1];
-    fleet.systemId = target.id;
-    fleet.voyage = undefined;
-    // Nobody on the quarterdeck. The forward squadron is where Admiral
-    // Blackwater now opens, and an admiral aboard is worth enough gunnery to
-    // kill this creature in the first round — which writes the kill line and
-    // no action card, and the action card is what this test reads. A fixture
-    // about whose news it is should not also be a fixture about command.
-    fleet.officerIds = [];
+    /*
+     * A squadron raised on the spot rather than the forward one brought over.
+     *
+     * The fixture used to sail the Crown's second squadron to the creature
+     * and add small hulls to it. Two things made that stop working: Admiral
+     * Blackwater opens on that squadron since this morning, and an admiral
+     * aboard is worth enough gunnery to settle this in a round — and the
+     * v4.3 roster put a Morningstar on it, fifty guns of Heavy and Light.
+     * Either way the dragon died before it could sink anything, which writes
+     * the kill line and no action card, and the action card is what this test
+     * reads. Three Interceptors and nothing else: enough to kill it over
+     * several days and light enough to lose hulls doing it.
+     */
     target.explored.empire = true;
     sightBeast(target, 'empire');
-    // Small hulls, so the creature actually sinks one: a round that takes
-    // damage and no hull is reported as a line without a tally, and it is the
-    // tally this test is about.
-    for (let i = 0; i < 6; i++) addShip(state, target, 'empire', 'reefwalker');
+    // Small hulls of the Crown's own, so the creature actually sinks one: a
+    // round that takes damage and no hull is reported as a line without a
+    // tally, and it is the tally this test is about. The Interceptor is the
+    // lightest thing the Crown has on the v4.3 sheet at five hundred of hull;
+    // the old fixture asked for a Marauder, which is a Confederate ship and
+    // was only ever standing in for a hull that no longer exists.
+    for (let i = 0; i < 3; i++) addShip(state, target, 'empire', 'CWN-INT-S02');
 
     const rng = createRng(7);
     for (let i = 0; i < 12 && beastAlive(target); i++) resolveBattles(state, rng);

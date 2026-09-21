@@ -384,8 +384,8 @@ describe('scrapping', () => {
     const state = generateGalaxy(107);
     const island = isolate(state, 'empire');
     // Two hulls, loaded to the last berth, then one of them sold.
-    const fleet = addShip(state, island, 'empire', 'reefwalker');
-    addShip(state, island, 'empire', 'reefwalker');
+    const fleet = addShip(state, island, 'empire', 'CFS-MAR-R1-01');
+    addShip(state, island, 'empire', 'CFS-MAR-R1-01');
     fleet.troops = fleetCapacity(fleet);
     expect(fleet.troops).toBeGreaterThan(1);
     const aboard = fleet.troops;
@@ -397,7 +397,7 @@ describe('scrapping', () => {
       fleetId: fleet.id,
       shipId: fleet.ships[0].id,
     });
-    expect(got).toBe(scrapValue('reefwalker'));
+    expect(got).toBe(scrapValue('CFS-MAR-R1-01'));
     expect(fleet.ships).toHaveLength(1);
     // Nobody rides in a berth that is on the breaker's slip.
     expect(fleet.troops).toBeLessThanOrEqual(fleetCapacity(fleet));
@@ -409,7 +409,7 @@ describe('scrapping', () => {
   it('takes the last hull of a squadron off the board, crew and all', () => {
     const state = generateGalaxy(108);
     const island = isolate(state, 'empire');
-    const fleet = addShip(state, island, 'empire', 'reefwalker');
+    const fleet = addShip(state, island, 'empire', 'CFS-MAR-R1-01');
     const officer = state.characters.find((c) => c.faction === 'empire')!;
     // Serving at sea rather than standing on the island, so "put ashore"
     // means something the assertion can see.
@@ -452,7 +452,7 @@ describe('scrapping', () => {
   it('will not let the player break a ship up in open water', () => {
     const state = generateGalaxy(110);
     const island = isolate(state, 'empire');
-    const fleet = addShip(state, island, 'empire', 'reefwalker');
+    const fleet = addShip(state, island, 'empire', 'CFS-MAR-R1-01');
     const what = { kind: 'ship', fleetId: fleet.id, shipId: fleet.ships[0].id } as const;
     expect(scrapError(state, 'empire', what)).toBeNull();
 
@@ -464,7 +464,7 @@ describe('scrapping', () => {
     // The shortfall is not bound by any of that: it can reach anything on the
     // books, which is the whole difference between what you may order and what
     // happens to you.
-    expect(scrap(state, 'empire', what)).toBe(scrapValue('reefwalker'));
+    expect(scrap(state, 'empire', what)).toBe(scrapValue('CFS-MAR-R1-01'));
   });
 
   it('leaves a side that can pay entirely alone', () => {

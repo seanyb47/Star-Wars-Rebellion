@@ -265,8 +265,15 @@ export type FacilityType =
  */
 export type ShipRole = 'small' | 'medium' | 'large' | 'transport';
 
-/** How far a side's shipwrights have got: nothing, then three grades. */
-export type ShipGrade = 0 | 1 | 2 | 3;
+/**
+ * How far a side's shipwrights have got: nothing, then eight rungs.
+ *
+ * Three, until the v4.3 roster landed. The roster is a ladder in Sean's own
+ * words — *"R = requires research to unlock (ship research mission), and the
+ * # is the order unlocked"* — and both navies run R1 through R8, so the
+ * number of rungs is a fact about the roster rather than a dial.
+ */
+export type ShipGrade = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 /**
  * Every hull in the game, from the Naval Art Master roster.
@@ -280,28 +287,35 @@ export type ShipGrade = 0 | 1 | 2 | 3;
  */
 export type ShipClassId =
   // --- Crown Imperium ---
-  | 'kestrel'
-  | 'kestrel-ii'
-  | 'razorback'
-  | 'razorback-ii'
-  | 'bulwark'
-  | 'vanguard'
-  | 'vanguard-ii'
-  | 'sovereign'
-  | 'sovereign-ii'
-  | 'majestic'
-  | 'fluyt'
-  | 'fluyt-ii'
+  | 'CWN-WAY-S01'   // Wayfinder
+  | 'CWN-INT-S02'   // Interceptor I
+  | 'CWN-MOR-S03'   // Morningstar
+  | 'CWN-SOV-S04'   // Sovereign
+  | 'CWN-VAN-R1-01'   // Vanguard
+  | 'CWN-FEN-R1-02'   // Fenrunner
+  | 'CWN-RES-R2-01'   // Resolute
+  | 'CWN-BUL-R3-01'   // Bulwark
+  | 'CWN-VAN-R4-02'   // Vanguard II
+  | 'CWN-INT-R5-02'   // Interceptor II
+  | 'CWN-WRA-R5-03'   // Wraith
+  | 'CWN-JUS-R6-01'   // Justiciar
+  | 'CWN-SOV-R7-02'   // Sovereign II
+  | 'CWN-MAJ-R8-01'   // Majestic
   // --- Free Confederacy ---
-  | 'swift'
-  | 'cutlass'
-  | 'tempest'
-  | 'marauder'
-  | 'freebooter'
-  | 'brig'
-  | 'reef'
-  | 'urskin-whaler'
-  | 'reefwalker'
+  | 'CFS-SWI-S01'   // Swift
+  | 'CFS-BRI-S02'   // Brigantine
+  | 'CFS-CHI-S03'   // Chimera
+  | 'CFS-TID-S04'   // Tidestalker
+  | 'CFS-MAR-R1-01'   // Marauder
+  | 'CFS-CUT-R2-01'   // Cutlass
+  | 'CFS-WIT-R2-02'   // Witchlight
+  | 'CFS-TEM-R3-01'   // Tempest
+  | 'CFS-URW-R3-01'   // Urskin Whaler
+  | 'CFS-REE-R4-01'   // Reefwarden
+  | 'CFS-IRB-R5-01'   // Ironback
+  | 'CFS-BLA-R6-01'   // Blackfin
+  | 'CFS-URG-R7-01'   // Urskin Goliath
+  | 'CFS-COR-R8-01'   // Coral-Class Dreadnaught
   /** The Pirate Lords' ships. Legends: named in the lore, never on the water. */
   | 'harbor'
   | 'swallowtail'

@@ -114,7 +114,7 @@ describe('a capture is never silent', () => {
     mark.mission = undefined;
     mark.status = 'available';
 
-    const fleet = addShip(state, island, 'alliance', 'reefwalker');
+    const fleet = addShip(state, island, 'alliance', 'CFS-MAR-R1-01');
     fleet.voyage = undefined;
     fleet.troops = 3;
     expect(assaultError(state, fleet.id, 'alliance')).toBeNull();
@@ -138,7 +138,7 @@ describe('a capture is never silent', () => {
     prisoner.status = 'captured';
     prisoner.locationSystemId = gaol.id;
 
-    const fleet = addShip(state, gaol, 'alliance', 'reefwalker');
+    const fleet = addShip(state, gaol, 'alliance', 'CFS-MAR-R1-01');
     fleet.voyage = undefined;
     fleet.troops = 3;
     assault(state, fleet.id, createRng(5), 'alliance');

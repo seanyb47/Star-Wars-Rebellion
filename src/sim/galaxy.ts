@@ -7,6 +7,7 @@ import {
   CONNECTIVITY_MAX,
   CONNECTIVITY_MIN,
   PIRATE_LORDS,
+  PRODUCTION_SCALE,
   RECRUIT_LAST_DAY,
   RECRUITS_AT_START,
   RECRUITS_IN_PLAY,
@@ -259,41 +260,55 @@ interface StartSquadron {
 }
 const START_FLEETS: Record<PlayableFaction, StartSquadron[]> = {
   empire: [
-    // Powerful, and at Highwater: a ship of the line, three heavy frigates, a
-    // scout and a transport. Eighty-nine guns.
+    // Sean, 21 September, naming the opening hull by hull:
+    //
+    //   *"Crown Fleet 1 @ Highwater: 1x Sovereign, 2x Interceptors.
+    //    Fleet 2 @ random Imperium location: 1x Wayfinder, 1x Morningstar."*
+    //
+    // Every name in it is an S-rung of the v4.3 roster, which is why this
+    // waited on the roster swap: six of the eight hulls he named did not
+    // exist on the water until today. Three ships at the seat rather than
+    // six, and the weight is not smaller for it — one Sovereign is 4,600 hull
+    // and seventy-four guns where the whole old Home Fleet was 119.
     {
       name: 'Home Fleet',
-      ships: ['sovereign', 'razorback', 'razorback', 'razorback', 'kestrel', 'fluyt'],
+      ships: ['CWN-SOV-S04', 'CWN-INT-S02', 'CWN-INT-S02'],
       troops: 2,
       berth: 'seat',
     },
-    // And a medium one forward, in a Reach the Crown does not own outright.
-    // Forty-two guns, no ship of the line: enough to take an island off
-    // somebody and not enough to fight the Confederacy's whole navy.
+    // And the forward squadron, which is the one that matters: berthed at a
+    // holding drawn fresh each war, and carrying Admiral Blackwater since
+    // this morning. A Wayfinder to chart with and a Morningstar to argue.
     {
       name: 'Windward Squadron',
-      ships: ['razorback', 'razorback', 'kestrel', 'fluyt'],
+      ships: ['CWN-WAY-S01', 'CWN-MOR-S03'],
       troops: 2,
       berth: 'forward',
     },
   ],
   alliance: [
-    // Freeport, and nowhere else.
+    //   *"Confederacy Fleet 1 @ Freeport: Swift, 2x Brigantine.
+    //    Fleet 2 @ random Confederate location: Chimera, Tidestalker."*
     //
-    // Sean, 20 September: *"For confederacy 1 swift is all the swifts you
-    // need."* It had been four of them round one Tempest — forty-four guns,
-    // matching the Windward's forty-four exactly, but six hulls to the
-    // Crown's four and four of them the same hull. Re-weighed as one Swift,
-    // two Tempests and the Brig: thirty-nine guns in four hulls against the
-    // Windward's forty-four in four. Five guns lighter and no longer a swarm,
-    // which is the trade — the Confederacy's whole navy still rivals the
-    // Crown's second squadron and would still not last a morning against its
-    // first.
+    // Which is the larger change of the two, and a deliberate one: the
+    // Confederacy had **one** squadron and one harbor, and now it has two of
+    // each. The asymmetry the old note described — the Crown in two seas at
+    // once and the Brethren in one — is gone at his word, and what replaces
+    // it is the asymmetry the roster carries: the Crown's three hulls are
+    // 5,600 hull between them and the Confederacy's four are 4,900, but the
+    // Crown's are concentrated in one first-rate and the Brethren's are
+    // spread across four decks that can be in four places.
     {
       name: 'Home Fleet',
-      ships: ['swift', 'tempest', 'tempest', 'brig'],
+      ships: ['CFS-SWI-S01', 'CFS-BRI-S02', 'CFS-BRI-S02'],
       troops: 2,
       berth: 'seat',
+    },
+    {
+      name: 'Reef Squadron',
+      ships: ['CFS-CHI-S03', 'CFS-TID-S04'],
+      troops: 2,
+      berth: 'forward',
     },
   ],
 };
@@ -361,7 +376,12 @@ function openingCast(faction: PlayableFaction, rng: Rng) {
  * everywhere with a little to spare, and still does not cover the dearest job
  * everywhere (650), which is where the choosing starts.
  */
-export const START_GOLD = 450;
+/*
+ * Still the same idea — enough to set every yard going and not enough to set
+ * the dearest job going everywhere — and it moves with the islands: see
+ * `PRODUCTION_SCALE`.
+ */
+export const START_GOLD = 450 * PRODUCTION_SCALE;
 
 /** Scatter points inside the sector disc, rejecting anything too close. */
 function scatterSystems(rng: Rng, count: number): Array<{ x: number; y: number }> {
@@ -1250,9 +1270,20 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
           classId,
           damage: 0,
         })),
-        troops: squadron.troops,
+        // What she can actually carry, which is not always what was asked
+        // for. Sean's Confederate second squadron is a Chimera and a
+        // Tidestalker, and on the v4.3 sheet neither has a hold: Troop
+        // Capacity 0 apiece. Two companies aboard a squadron with no room for
+        // them is a squadron that lands men out of nowhere, so the opening
+        // clamps rather than pretending.
+        troops: 0,
         officerIds: [],
       });
+      const berthed = state.fleets[state.fleets.length - 1];
+      berthed.troops = Math.min(
+        squadron.troops,
+        berthed.ships.reduce((n, sh) => n + (shipClass(sh.classId).carries ?? 0), 0),
+      );
     }
   }
   /*

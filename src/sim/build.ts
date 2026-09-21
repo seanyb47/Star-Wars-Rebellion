@@ -14,8 +14,6 @@ import {
   RESOURCE_LABEL,
   needsResource,
   WORKS_ON,
-  CRAFT_COST_STEP,
-  CRAFT_DAYS_STEP,
   UPKEEP_PER_DAY,
 } from './constants';
 import { craftGrade, travelDays } from './missions';
@@ -185,13 +183,12 @@ export function effectiveSpec(
   faction: PlayableFaction,
   item: BuildItem,
 ): { costGold: number; days: number } {
+  void state;
+  void faction;
+  // The price on the sheet is the price. Research unlocks hulls; it no longer
+  // discounts them — see the note beside `CRAFT_GRADES`.
   const spec = buildSpec(item);
-  const grade = craftGrade(state.factions[faction].craft);
-  if (grade === 0) return { costGold: spec.costGold, days: spec.days };
-  return {
-    costGold: Math.ceil(spec.costGold * (1 - CRAFT_COST_STEP * grade)),
-    days: Math.max(1, Math.ceil(spec.days * (1 - CRAFT_DAYS_STEP * grade))),
-  };
+  return { costGold: spec.costGold, days: spec.days };
 }
 
 /** Whether an order for this item takes a slot on the island it lands on. */
