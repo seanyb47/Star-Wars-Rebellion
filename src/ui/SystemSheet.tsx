@@ -66,6 +66,7 @@ import {
   isLord,
   type PlayableFaction,
   inProse,
+  chartedName,
 } from '../sim';
 import {
   CharacterFace,
@@ -760,7 +761,10 @@ export function SystemSheet({
   if (!explored) {
     return (
       <Sheet
-        title={live.name}
+        // The charts' name, not the island's own: you learn what a place is
+        // called by going to it. See `chartedName` — this header was how the
+        // Crown could find Freeport without leaving harbor.
+        title={chartedName(live, state.player)}
         eyebrow={terms.island}
         subtitle={`${sector.name} · ${terms.uncharted}`}
         onClose={onClose}

@@ -7874,3 +7874,54 @@ current save round-trips untouched.
 
 Confirmed in a browser on a day-33 save: every dot back on land, labels
 reading Windward, Sunken and Mire.
+
+## The name was the secret (21 September)
+
+Sean, playing the Crown: *"Haha I just noticed something — if I play imperium
+it tells me where free port is lol."* Opening any unexplored island in the
+frontier put **Freeport** in the Location header. The one question the entire
+Crown campaign is built on could be answered by tapping round the map: no hull,
+no mission, no day spent.
+
+### Why it happened
+
+Freeport is a *real rename*. The generator draws an uncharted island each war,
+calls it Freeport, and keeps the painted name in `chartName` so the chart can
+still find its rock. That field has existed since the island was introduced —
+but only for **position**: `GalaxyMap`, `ChainMap` and `ChartMark` all look up
+`chartName ?? name` to find where to draw, and every one of them then printed
+`name` as the label.
+
+So the machinery to fix this was already there, pointed at the wrong half of
+the problem. The chart knew the island by two names and told the player the
+secret one.
+
+### The rule
+
+`chartedName(system, faction)` — an island you have not explored reads as the
+charts have it. You learn what a place is *called* by going there, which is the
+same rule as everything else about it: the Crown is told a meeting happened and
+that islands are declaring, and has to find where.
+
+It is the identity function on the other sixty-eight islands, which have no
+`chartName`, and a test asserts exactly that so the helper can never quietly
+start rewriting ordinary names.
+
+Applied at four display sites: the unexplored Location sheet (the one in the
+screenshot), the Reach map's island label, the Reach list row, and the mission
+target sheet — Explore can be pointed at an uncharted island, so that picker
+named it too.
+
+**The coastline seed is deliberately left alone.** `islandPath(system.name)`
+generates the drawn outline, and switching it to the charted name would make
+the island visibly change shape the moment it was explored. A shape is not a
+name, and a pop is worse than the tell.
+
+### Verified on both sides, which is the part that matters
+
+A fix that hides it from everybody would look identical in a Crown test. So:
+as the **Crown**, the Reach map and the sheet read **Varrow**; as the
+**Confederacy**, on the same seed, the same island reads **Freeport**. The
+first browser pass looked like a pass and was not — the page had started a new
+game on a random seed and landed on an island that happens to be called Varrow
+anyway. Seeding the save is what made the check real.
