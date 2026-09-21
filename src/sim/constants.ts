@@ -1506,6 +1506,28 @@ export const INCITE_PRIORITY_PENALTY = 30;
  */
 export const AI_ABDUCT_BONUS = 150;
 export const AI_LORD_BOUNTY = 200;
+
+/**
+ * And what it is worth when you already hold the others.
+ *
+ * A victory condition that needs three people in irons **at once** is not
+ * three separate hunts — it is one hunt that gets more urgent the closer it
+ * comes, because the ones you have are being rescued the whole time you look
+ * for the last. Priced flat, the opponent treated the third Lord exactly like
+ * the first, went off to court an island instead, and came back to find it had
+ * lost the one it had.
+ *
+ * Measured on 21 September, with the economy at the sheet's own scale and the
+ * Crown's two principals a condition of their own: twenty-four wars, and
+ * **six of them never ended** — both sides alive, neither able to close, wars
+ * running past three thousand days. The number of wars that finish is the one
+ * thing a strategy game cannot be relaxed about.
+ *
+ * So the bounty multiplies by how much of the set is already held: the last
+ * one of three is worth three times the first. It is the same hunt, priced
+ * like the endgame it is.
+ */
+export const AI_CLOSING_BOUNTY = 1;
 /**
  * What the opponent will spend to get its own people out of a cell.
  *

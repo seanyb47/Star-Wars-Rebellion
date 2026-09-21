@@ -298,10 +298,18 @@ describe('espionage', () => {
   it('sends the opponent to look before it sends anybody to work', () => {
     let sent = 0;
     let held = 0;
-    // Three wars rather than one. Two or three errands a war is what this rule
-    // is worth, and a single war can spend both of them and have both foiled —
-    // which is not the rule failing, it is the watch working.
-    for (const seed of [11, 33, 44]) {
+    /*
+     * Eight wars rather than three, and the reason is the reason the comment
+     * below already gave: a war spends two or three spies and the watch can
+     * foil all of them, which is the rule working rather than failing.
+     *
+     * Three seeds was too thin to say so. Measured on 21 September, after the
+     * economy went to the sheet's own scale: seeds 11, 33 and 44 sent one, two
+     * and three spies between them and every one was caught, while eight seeds
+     * held intel in five of them. The rule had not changed; the sample had
+     * always been a coin toss and finally came up tails.
+     */
+    for (const seed of [11, 33, 44, 7, 21, 55, 88, 99]) {
       let state = generateGalaxy(seed, 'empire');
       state.observing = true;
       const onErrand = new Set<string>();

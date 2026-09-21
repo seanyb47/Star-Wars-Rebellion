@@ -12,6 +12,7 @@ import {
   AI_NEAR_BONUS,
   AI_ABDUCT_BONUS,
   AI_LORD_BOUNTY,
+  AI_CLOSING_BOUNTY,
   AI_RESCUE_BONUS,
   AI_LORD_RESCUE_BONUS,
   AI_RECRUIT_BONUS,
@@ -883,7 +884,7 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
         close +
         AI_ABDUCT_BONUS +
         quality(mark) +
-        (isPrincipal(mark) ? AI_LORD_BOUNTY : 0) -
+        (isPrincipal(mark) ? AI_LORD_BOUNTY * closingOn(state, ai) : 0) -
         caution(s, 'abduct')
       );
     }
@@ -1307,6 +1308,21 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
       laid += 1;
     }
   }
+}
+
+/**
+ * How close this side is to having the whole set, as a multiplier.
+ *
+ * One when it holds none of them, three when it holds two of three: the last
+ * name on the list is the war, and the opponent should price it that way.
+ */
+function closingOn(state: GameState, ai: PlayableFaction): number {
+  const theirs = state.characters.filter(
+    (c) => c.faction === otherFaction(ai) && isPrincipal(c),
+  );
+  if (theirs.length === 0) return 1;
+  const held = theirs.filter((c) => c.status === 'captured').length;
+  return 1 + held * AI_CLOSING_BOUNTY * (theirs.length / Math.max(1, theirs.length - held));
 }
 
 /**

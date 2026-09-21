@@ -1,3 +1,4 @@
+import { FORTNIGHT } from '../sim';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
@@ -314,8 +315,23 @@ export function App() {
     // How far through the day we are, published as a custom property rather
     // than as React state: this moves ten times a second, and re-rendering
     // the chart at that rate to turn a ring a few degrees would be absurd.
-    const show = (fraction: number) =>
-      document.documentElement.style.setProperty('--day-progress', fraction.toFixed(3));
+    /*
+     * Two rings, not one. Sean, 21 September: *"have concentric circles, where
+     * there's an outer one and an inner one. One's tracking the fortnight and
+     * another one's tracking the day. You don't really have to explain them —
+     * people will figure out what they are, and the explanation can be in the
+     * upkeep glossary entry."*
+     *
+     * The fortnight is the one the money runs on: the ledger settles every
+     * fourteenth day, and a player who can see that coming can decide whether
+     * to lay another hull down before it or after it. Unexplained on purpose.
+     */
+    const show = (fraction: number) => {
+      const root = document.documentElement.style;
+      root.setProperty('--day-progress', fraction.toFixed(3));
+      const throughFortnight = ((stateRef.current.day % FORTNIGHT) + fraction) / FORTNIGHT;
+      root.setProperty('--fortnight-progress', throughFortnight.toFixed(3));
+    };
     if (!running) return;
     let last = performance.now();
     const interval = window.setInterval(() => {

@@ -224,8 +224,11 @@ describe('generateGalaxy', () => {
       // and then cut the yard out of the game entirely: *"Cut construction
       // yards completely. Anyone can build on any available land."* So the
       // count that used to be two is no count at all.
-      expect(count('training_facility')).toBe(1);
-      expect(count('shipyard')).toBe(1);
+      // Two barracks and a slipway, at Sean's word of 21 September — and two
+      // slipways for the Crown, which is the head start he asked for and a
+      // real one now that build time divides by how many yards stand there.
+      expect(count('training_facility')).toBe(2);
+      expect(count('shipyard')).toBe(faction === 'empire' ? 2 : 1);
     }
   });
 

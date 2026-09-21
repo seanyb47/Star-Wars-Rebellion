@@ -861,6 +861,13 @@ function EntrySheet({
                 </div>
                 <div>
                   <i><Icon name="upkeep" size={15} />{terms.upkeep}</i>
+                  {/* What you actually pay, with no period on it. Sean, 21
+                      September: *"make it just a cost, but don't specify over
+                      what period of time."* The ledger settles every fortnight,
+                      so this is the fortnightly figure — which is also the
+                      number he was reading off the sheet when he spotted the
+                      Coral-Class was mispriced. The explanation lives in the
+                      glossary under Upkeep and nowhere else. */}
                   <b><GoldFig n={perFortnight(cls.goldPerDayMaintenance)} /></b>
                 </div>
               </div>
@@ -970,11 +977,14 @@ function EntrySheet({
               </div>
               <p className="encfull__lore">{type.blurb}</p>
               <div className="card small">
-                <b>{TROOP_BUILD.label}s cost the same whoever they are:</b>{' '}
-                <GoldFig n={TROOP_BUILD.costGold} per={null} /> and {TROOP_BUILD.days}d at a{' '}
+                <b>What this one costs:</b>{' '}
+                <GoldFig n={type.costGold} per={null} /> and {type.days}d at a{' '}
                 {FACILITY_LABEL.training_facility}, then{' '}
-                <GoldFig label={terms.upkeep} n={perFortnight(UPKEEP_PER_DAY.troop)} tone="cost" />.
-                Which kind you get is the island, not the order.
+                <GoldFig label={terms.upkeep} n={perFortnight(type.upkeep)} tone="cost" />.
+                Troops used to cost the same whoever they were; since 21 September the
+                price follows the unit, which is what makes a cheap troop worth
+                raising to hold sour ground. Which kind you get is still the island,
+                not the order.
                 {type.research && (
                   <>
                     <br />

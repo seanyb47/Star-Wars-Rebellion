@@ -69,6 +69,19 @@ export function troopsOf(faction: PlayableFaction): TroopType[] {
 }
 
 /**
+ * A company this side can raise today, of this role, or nothing.
+ *
+ * `!t.research` is the whole of it, and it was a live bug rather than a
+ * question. The Confederacy's sailors are The Brethren, who are behind R2 —
+ * so every Confederate island with a slipway on it was posting a company that
+ * does not exist yet, on day one, before anybody had researched anything. The
+ * Crown's Ship's Company is a starting unit and was fine, which is why it went
+ * unnoticed.
+ */
+const raisable = (faction: PlayableFaction, role: TroopType['role']) =>
+  TROOP_TYPES.find((t) => t.faction === faction && t.role === role && !t.research);
+
+/**
  * The company an island is garrisoned with when nothing better applies.
  *
  * It was simply "the one with role `line`", which held while both sides had a
@@ -91,13 +104,41 @@ export function troopsOf(faction: PlayableFaction): TroopType[] {
  * sailors instead. Which is the rule the Crown's ports already followed from
  * the other end: it sends its best where it means to be seen, and everywhere
  * else it is whoever came off a hull.
+ *
+ * TWO FALLBACKS MEET HERE and they point opposite ways, which is worth saying
+ * plainly because it reads like a loop and is not one. A side with no line
+ * company it can raise yet posts its sailors (the Crown, whose Fensworn are
+ * behind R2); a side whose *sailors* are behind research garrisons its yards
+ * with the line company instead (the Confederacy, whose Brethren are). Today
+ * neither side is missing both, so neither fallback ever asks the other for an
+ * answer it does not have — and this function no longer calls `sailorsOf` at
+ * all, so it could not deadlock even if one were.
+ *
+ * What it can still be is wrong data, and that is what the throw is for. A
+ * side with nothing raisable in either role has no garrison at all, which
+ * would have surfaced as `undefined.name` somewhere three files away. One bad
+ * research flag in `troops.json` is all it would take, so it says so here.
  */
-const lineOf = (faction: PlayableFaction) =>
-  TROOP_TYPES.find((t) => t.faction === faction && t.role === 'line' && !t.research) ??
-  TROOP_TYPES.find((t) => t.faction === faction && t.role === 'sailors' && !t.research)!;
-const sailorsOf = (faction: PlayableFaction) =>
-  TROOP_TYPES.find((t) => t.faction === faction && t.role === 'sailors' && !t.research) ??
-  lineOf(faction);
+const lineOf = (faction: PlayableFaction): TroopType => {
+  const found = raisable(faction, 'line') ?? raisable(faction, 'sailors');
+  if (!found) {
+    throw new Error(
+      `${faction} has no line or sailors company it can raise on day one, so its ` +
+        `islands cannot be garrisoned. Every side needs at least one company of ` +
+        `either role with no research flag in troops.json.`,
+    );
+  }
+  return found;
+};
+
+/**
+ * And the sailors, who may genuinely not exist yet.
+ *
+ * Undefined until the Brethren are recruited, and `garrisonRoster` falls back
+ * to the line company. Which is what "behind R2" is supposed to mean: until
+ * then, a Confederate yard is held by whoever lives there.
+ */
+const sailorsOf = (faction: PlayableFaction) => raisable(faction, 'sailors');
 
 /**
  * The unit an island's own people make, if they make one.
@@ -151,7 +192,7 @@ export function garrisonRoster(
   for (let i = 0; i < system.garrison; i++) {
     const turn = (seed + i) % 4;
     if (local && turn === 1) out.push(local);
-    else if (hasYard && turn === 2) out.push(sailors);
+    else if (sailors && hasYard && turn === 2) out.push(sailors);
     else out.push(line);
   }
   return out;

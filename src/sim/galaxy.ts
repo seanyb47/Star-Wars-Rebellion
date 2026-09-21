@@ -226,9 +226,32 @@ const START_EARNERS: Record<PlayableFaction, { mines: number; refineries: number
  * build-rate rule was written for, since a second slipway on the same island
  * halves the time on the hull already on the stocks.
  */
-const START_TRAINING = 1;
-/** A yard for hulls, so a slipway is not the first thing you have to build. */
-const START_SHIPYARDS = 1;
+/**
+ * Two barracks, and Sean reversed himself on it.
+ *
+ * On 20 September it was one of each maker — *"Let's start game with only 1 of
+ * each type of construction facility instead of 2 each."* On the 21st, asked
+ * what a side is meant to be able to *do* on day one: *"you get two barracks
+ * and one shipyard in the game when you start... early on in the game you're
+ * really just kind of training up a couple troops, deciding where you want to
+ * put them, and you can start in on one ship."*
+ *
+ * Which is a better opening than either of the two before it, because the two
+ * makers are not the same kind of thing. A troop is fast and a hull is slow,
+ * so two barracks is two decisions a week and two slipways would be two
+ * decisions a season. The second slipway stays a decision.
+ */
+const START_TRAINING = 2;
+/**
+ * And the Crown gets the second slipway, because the Crown is the navy.
+ *
+ * Sean: *"Maybe the Imperium starts with two shipyards. I mean, Imperium's
+ * going to start with a head start."* It is a real head start and not a
+ * cosmetic one, now that build time divides by how many yards stand on the
+ * island: two slipways is a hull in half the days, for the whole war, on the
+ * side whose hulls take longest.
+ */
+const START_SHIPYARDS: Record<PlayableFaction, number> = { empire: 2, alliance: 1 };
 /**
  * The squadrons each side already has on the water, and where they lie.
  *
@@ -944,7 +967,7 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       ...Array<FacilityType>(short('mine', START_EARNERS[owner].mines)).fill('mine'),
       ...Array<FacilityType>(short('refinery', START_EARNERS[owner].refineries)).fill('refinery'),
       ...Array<FacilityType>(START_TRAINING).fill('training_facility'),
-      ...Array<FacilityType>(START_SHIPYARDS).fill('shipyard'),
+      ...Array<FacilityType>(START_SHIPYARDS[owner]).fill('shipyard'),
     ];
     // Sean's rule, 14 September: two of each maker a side, dealt at random
     // across the side's starting islands — doubling up on one island is

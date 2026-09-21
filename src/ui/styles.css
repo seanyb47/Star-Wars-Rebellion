@@ -320,7 +320,31 @@ button {
   mask: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
   opacity: 0.85;
 }
-@media (prefers-reduced-motion: reduce) { .banner__day::after { transition: none; } }
+/* And an outer ring for the fortnight, which is the one the money runs on.
+   Sean, 21 September: *"have concentric circles... one's tracking the
+   fortnight and another one's tracking the day. You don't really have to
+   explain them — people will figure out what they are, and the explanation
+   can be in the upkeep glossary entry."*
+
+   Deliberately quieter than the day ring and a hair further out: the day is
+   the thing you watch and the fortnight is the thing you feel coming. It fills
+   once every fourteen days and resets on the settlement, so a player who can
+   see it closing knows whether to lay a hull down before the ledger or after
+   it — without ever being told that is what it is for. */
+.banner__day::before {
+  content: ''; position: absolute; inset: -9px; border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(
+    var(--brass) calc(var(--fortnight-progress, 0) * 360deg),
+    transparent 0
+  );
+  -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  mask: radial-gradient(closest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  opacity: 0.55;
+}
+@media (prefers-reduced-motion: reduce) {
+  .banner__day::after, .banner__day::before { transition: none; }
+}
 .banner__daylabel { font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1; color: var(--chrome-text); opacity: 0.8; }
 .banner__day b { font-size: 17px; line-height: 1.05; font-weight: 700; }
 /* Every control reachable, at Sean's word: *"The top bar's last button is cut

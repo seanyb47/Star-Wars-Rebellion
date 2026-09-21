@@ -45,35 +45,71 @@ import type { PlayableFaction, ShipClassId, ShipRole } from './types';
 /**
  * What the sheet's Gold to Build is divided by to become a price in this game.
  *
- * Five, which puts a Majestic at 522 gold against the old roster's dearest
- * hull at 150 and the Wayfinder at 28 against its cheapest at 45. The top of
- * the fleet gets dearer and the bottom gets cheaper, which is the rated
- * roster's opinion and not this file's: the spread between a survey ship and
- * a first-rate was four to one and the sheet makes it nineteen to one.
+ * One. It is the same gold.
+ *
+ * This was five until 21 September, on the reasoning that the sheet had no
+ * stated relationship to what an island earns. It has one: `buildTimeBands`
+ * and `maintenanceBands` both price against *actual build cost*, and the
+ * island economy was already built to the sheet's scale without anybody
+ * noticing. Sean, asked directly, was unambiguous — a gold is a gold, a build
+ * day is a game day, and an island earning three to nine a day is "about
+ * right".
  */
-export const ROSTER_GOLD_DIVISOR = 5;
+export const ROSTER_GOLD_DIVISOR = 1;
 
 /**
- * And Days to Build, which is the one that had to move furthest.
+ * And Days to Build, which is also one, and which is the answer that surprised
+ * me.
  *
- * Twelve. The sheet's 1,200 days for a Majestic becomes a hundred, and its
- * fifteen for a Swift becomes one and a quarter — rounded up to a day, since
- * nothing is laid down in an afternoon. Build time already divides by how many
- * yards stand on the island, so a hundred days is twenty-five with four yards
- * working, which is a campaign's worth of commitment rather than a war's.
+ * Sean, 21 September: *"if it's talking about the ships it's how many game
+ * days does it take for the ship to be completed and usable."* So a Majestic
+ * really is twelve hundred days.
+ *
+ * It works because of a rule that was already in the game and that I had
+ * forgotten was load-bearing: **build time divides by how many yards of that
+ * kind stand on the island**, asked fresh every morning. A Majestic is twelve
+ * hundred days at one slipway and two hundred at six. So the sheet's numbers
+ * are not a wait, they are a *price in shipyards* — and that turns the whole
+ * roster into the decision Sean says the game is about: *"are you building
+ * income producing facilities or are you building stuff that makes you
+ * ships?"* A side that wants capitals has to spend its berths on the yards to
+ * lay them down, and those berths are not earning.
+ *
+ * Measured, twelve wars: gold stops being the constraint and starts piling up
+ * — both sides ended on twenty-seven and thirty-six thousand — which is what
+ * made it safe to stop discounting upkeep as well.
  */
-export const ROSTER_DAYS_DIVISOR = 12;
+export const ROSTER_DAYS_DIVISOR = 1;
 
 /**
- * And Gold/Day Maintenance.
+ * Upkeep is not divided at all. It is recomputed.
  *
- * Eight, which lands a Majestic at 6.5 a day against the old large hull's 5
- * and a Swift at a rounding error. The cheap end goes nearly free and the
- * expensive end costs a little more than it did, so a fleet of capitals is a
- * standing bill in a way a fleet of sloops is not — which is the sheet's own
- * shape, and is what makes a big navy a decision.
+ * The sheet's own `maintenanceBands` define On Rate as **1% of actual build
+ * cost per day**, and that is the number used here. The Gold/Day Maintenance
+ * column is not: measured against the sheet's own benchmark, every hull in the
+ * roster is above rate, the Crown's by a mean of 238% and the Confederacy's by
+ * 172%.
+ *
+ * That gap is question B4 — *"the Crown pays 2.1x the Confederacy's
+ * maintenance for the same hull"* — and at full scale it is not a flavour, it
+ * is decisive: with the column taken literally the Crown ended wars on
+ * **thirteen hulls** against the Confederacy's thirty-two, because it simply
+ * could not afford a navy. Sean, on that question: *"we'll fix that in
+ * balancing... I'll default to the AI for help with tuning."*
+ *
+ * So this is the tuning, and it is deliberately not a number I invented: it is
+ * the sheet's own definition of On Rate, applied to every hull on both sides.
+ * It removes the Crown's tax as a side effect of removing everybody's, and it
+ * leaves the *relative* price of hulls exactly where `Gold to Build` puts it.
+ *
+ * WHAT IT THROWS AWAY, and this is the open question: the column's deliberate
+ * per-hull deviations. The Witchlight paying above rate is called a valve in
+ * the troop document, and the Swift at 36% of rate is meant to be nearly free
+ * to keep. Both are flattened here. If those deviations are load-bearing, the
+ * fix is to keep each hull's ratio to its own benchmark and compress it
+ * rather than discard it — but that needs Sean's word on which ones matter.
  */
-export const ROSTER_UPKEEP_DIVISOR = 8;
+export const UPKEEP_SHARE_OF_COST = 0.01;
 
 /* ------------------------------------------------------------- speed, twice */
 
@@ -280,7 +316,7 @@ function convert(def: ShipDefinition): RosterClass {
     carries: def.troopCapacity,
     costGold: Math.max(1, Math.round(def.goldToBuild / ROSTER_GOLD_DIVISOR)),
     days: Math.max(1, Math.ceil(def.daysToBuild / ROSTER_DAYS_DIVISOR)),
-    upkeep: Math.round((def.goldPerDayMaintenance / ROSTER_UPKEEP_DIVISOR) * 10) / 10,
+    upkeep: Math.max(0.1, Math.round(def.goldToBuild * UPKEEP_SHARE_OF_COST * 10) / 10),
     pace: PACE_OF[def.speed],
     speed: EVASION_OF[def.speed],
     repairPerDay: def.repairRatePerDay,

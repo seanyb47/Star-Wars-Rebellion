@@ -5,7 +5,7 @@ import { AI_MISSION_INTERVAL } from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
 import { getSystem } from '../helpers';
-import { isLord } from '../lords';
+import { crownPrincipals, isLord } from '../lords';
 import {
   advanceMissions,
   canRecruit,
@@ -67,37 +67,39 @@ describe('a full game', () => {
   });
 
   /**
-   * The victory condition, end to end: an idle Crown loses its capital.
+   * The victory condition, end to end — and it is no longer the capital.
    *
-   * Seed 1 rather than seed 2 since 19 September, and the swap is the finding
-   * rather than a detail. Rescaling travel so a crossing of the world takes
-   * two hundred days instead of thirty-seven cost the Confederacy its long
-   * offensive on some maps: measured over seeds 1–12, before the change every
-   * one settled (median day 527, range 299–803) and after it ten of twelve do
-   * (median 659, range 527–827). Seeds 2 and 9 are the two that no longer
-   * finish, and seed 2 does not finish at nine thousand days either — the
-   * machine-played Confederacy sits on its own Reach rather than committing a
-   * fleet to a six-month passage, and the idle Crown quietly eats the map.
+   * This test pinned a seed three times and was moved twice, each time by a
+   * change that moved which seeds settle: the travel rescaling of 19
+   * September, then the yards errand fix later the same day. Both moves are
+   * written up in the history of this comment and both said the same thing,
+   * which is that a pinned seed measures the seed and not the rule.
    *
-   * That is a real cost of the rescaling and it belongs in the open, not
-   * papered over with a bigger day cap. What is being tested here is the
-   * *condition* — take Highwater and the war ends — and a seed that reaches it
-   * demonstrates it.
+   * The third move is different in kind, so it gets the rewrite the other two
+   * should have had. The Confederacy's condition **is not taking Highwater
+   * any more** — since the Crown gained a second principal it is *both of them
+   * in irons at once*, and taking the capital is merely how that usually
+   * happens, because a principal standing on an island when it is stormed goes
+   * into the cells with the garrison. Seed 2, which this test used to pin, now
+   * demonstrates the difference rather than the rule: at day 3,000 the
+   * Confederacy holds Highwater and has still not won, because the Regent
+   * sailed the week before and is a Regent still to be found.
    *
-   * Seed 2 again, and the churn is the point. Fixing the yards errand later
-   * the same day — it had been throwing out a hundred days of work whenever an
-   * island drifted below the allegiance floor — moved which seeds settle,
-   * because a side that reaches the top of its research tree builds a
-   * different fleet. Re-measured over the same twelve: nine settle where ten
-   * did, median 599 days against 659, and seeds 1, 6 and 12 are the ones that
-   * now run out rather than 2 and 9. Neither set is better; the war is simply
-   * not the same war once research works.
+   * So: find a war the Confederacy wins and assert the condition it won on.
+   * The scan is cheap next to what it buys — it cannot be moved by the next
+   * balance change, only by the rule itself changing, which is what a test of
+   * a rule should be sensitive to.
    */
-  it('ends the way the rules say: Highwater fallen, or every Lord in irons', () => {
-    const state = playOut(2, 'empire');
-    expect(state.winner).toBe('alliance');
-    const capital = getSystem(state, state.factions.empire.hqSystemId);
-    expect(capital.control).toBe('alliance');
+  it('ends the way the rules say: both Crown principals in irons at once', () => {
+    let won: GameState | undefined;
+    for (let seed = 1; seed <= 8 && !won; seed++) {
+      const state = playOut(seed, 'empire');
+      if (state.winner === 'alliance') won = state;
+    }
+    expect(won).toBeDefined();
+    const principals = crownPrincipals(won!);
+    expect(principals.length).toBeGreaterThan(1);
+    for (const who of principals) expect(who.status).toBe('captured');
   });
 });
 
