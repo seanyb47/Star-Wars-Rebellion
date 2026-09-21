@@ -276,3 +276,61 @@ describe('a landing', () => {
     }
   });
 });
+
+/**
+ * Sean's ruling of 21 September, which is one sentence and closes two
+ * questions at once.
+ *
+ * > bombardment doesn't need the same contraints of a fleet battle. this is
+ * > old data. bombardment is either successful or not. if its successful at
+ * > least 1 thing died.
+ *
+ * The first half retires the 33%/3.5 figure the change order carried: it came
+ * from a model where a bombardment was an exchange of fire, and this is not
+ * that. The second half is a rule, and it had a hole in it — a roll could beat
+ * the island's whole total and destroy nothing, because the *margin* over the
+ * total still had to separately afford the cheapest thing standing. Measured
+ * before the fix, that hollow outcome ran from 5.7% of actions to 38.3%
+ * depending on the match-up.
+ */
+describe("a bombardment that beats the island kills something", () => {
+  const walls = (n: number, cost: number): Shellable[] =>
+    Array.from({ length: n }, (_, i) => ({ kind: 'wall' as const, cost, ref: `w${i}` }));
+  const men = (n: number, cost: number): Shellable[] =>
+    Array.from({ length: n }, (_, i) => ({ kind: 'troop' as const, cost, ref: `t${i}` }));
+
+  it('never beats the total and leaves the island untouched', () => {
+    const boards: Shellable[][] = [
+      [...walls(1, FORT_BOMBARD_DEFENSE.fort), ...men(4, 4)],
+      [...walls(2, FORT_BOMBARD_DEFENSE.heavy_fort), ...men(6, 4)],
+      [...men(3, 5)],
+    ];
+    for (const score of [12, 16, 32, 48]) {
+      for (const board of boards) {
+        for (let i = 0; i < TRIALS; i++) {
+          const result = bombard(score, board, rngAt(i));
+          const beat = result.rolls.some((r) => r.rolled > r.against);
+          // The whole of the ruling: a shot that beat the number on the screen
+          // took something off the island. Not "usually", and not "if the
+          // margin stretched to it".
+          if (beat) expect(result.destroyed.length).toBeGreaterThan(0);
+          // And the converse, so this cannot pass by destroying things for no
+          // reason: nothing dies unless some roll beat the total.
+          if (!beat) expect(result.destroyed.length).toBe(0);
+        }
+      }
+    }
+  });
+
+  it('still cannot level a fortress with a light train', () => {
+    // The ruling makes a bombardment always *cost* the defender something. It
+    // is not meant to make a weak squadron able to clear a walled island, and
+    // the odds screen would be lying if it did.
+    const board = [...walls(1, FORT_BOMBARD_DEFENSE.heavy_fort), ...men(4, 4)];
+    let cleared = 0;
+    for (let i = 0; i < TRIALS; i++) {
+      if (bombard(12, board, rngAt(i)).destroyed.length >= board.length) cleared += 1;
+    }
+    expect(cleared / TRIALS).toBeLessThan(0.05);
+  });
+});

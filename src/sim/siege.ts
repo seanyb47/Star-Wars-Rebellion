@@ -152,11 +152,27 @@ export function islandDefense(defenders: Shellable[]): number {
  *
  * Measured against the spec's own figure, 20,000 trials of a 1d32 siege train
  * against one Fortress and four troops: this clears the island outright 61% of
- * the time in an average of 2.2 rolls, where the spec reports 33% and 3.5. The
- * other reading — everything in the total — gives 42% and 1.8, so it is not
- * the explanation either. Something in the harness that produced those figures
- * differs from both readings of the text, and it is worth Sean's eye. The rule
- * as written is what is implemented.
+ * the time in an average of 2.2 rolls, where the spec reported 33% and 3.5.
+ * The other reading — everything in the total — gives 42% and 1.8, so it was
+ * not the explanation either.
+ *
+ * **Settled by Sean, 21 September, and the answer was that the question was
+ * stale:** *"bombardment doesn't need the same constraints of a fleet battle.
+ * this is old data. bombardment is either successful or not. if its successful
+ * at least 1 thing died."*
+ *
+ * So the 33%/3.5 pair is not a target this file missed; it is a leftover from
+ * when a bombardment was modelled on an exchange of fire, with rounds and
+ * attrition and a share of damage. It is not that any more. A bombardment is
+ * one question asked once — did the shot beat what is defending the island —
+ * and the whole of the ruling is that a yes must cost the defender something
+ * real. It does: the first roll that beats the total destroys a defender
+ * before the cascade is even considered, so there is no such thing here as a
+ * successful bombardment that killed nothing.
+ *
+ * The 61% stands, and nothing in this file needs to change to honour the
+ * ruling. What it removes is the obligation to reconcile with a number
+ * produced by a model the game no longer uses.
  */
 
 /** What is currently shootable: the walls, or the garrison once they are gone. */
@@ -203,16 +219,36 @@ export function bombard(fleetScore: number, defenders: Shellable[], rng: Rng): B
       rolled - against,
       pool.map((d) => ({ cost: d.cost, what: d })),
     );
+    /*
+     * Beating the total is the kill. **Sean, 21 September:** *"bombardment is
+     * either successful or not. if its successful at least 1 thing died."*
+     *
+     * Until that ruling a roll could clear the island's whole total and still
+     * destroy nothing, because the *margin* over the total had to separately
+     * afford the cheapest thing standing — so a train that rolled 12 against a
+     * Fortress of 8 had beaten the island and knocked nothing down. Measured
+     * over 20,000 actions per match-up, that hollow outcome ran from 5.7% of
+     * bombardments (a heavy train against two fortresses) to **38.3%** (a light
+     * one against a single fortress). A player watching a shot land, beat the
+     * number on the screen, and change nothing has been told the rule is a lie.
+     *
+     * So the margin now buys the *second* thing and everything after it. The
+     * first is paid for by beating the total, which is the number the odds
+     * screen already prints before a shot is spent.
+     */
+    if (dead.length === 0 && pool.length > 0) {
+      const cheapest = pool.reduce((a, b) => (b.cost < a.cost ? b : a));
+      dead.push(cheapest);
+    }
     for (const d of dead) {
       left.splice(left.indexOf(d), 1);
       result.destroyed.push(d);
     }
     result.rolls.push({ rolled, against, broke: dead.length });
-    // A roll that beats the total but cannot afford even the cheapest thing on
-    // the island breaks nothing and the cascade goes on — the rule is "keep
-    // rolling until a roll FAILS to beat the island total", not until a roll
-    // stops killing. It still terminates: the state is unchanged, so the next
-    // roll has the same chance of ending it as this one did.
+    // The cascade goes on — the rule is "keep rolling until a roll FAILS to
+    // beat the island total". It terminates either way now: every roll that
+    // beats the total takes something off the island, so `left` strictly
+    // shrinks and the loop is bounded by the number of defenders.
   }
   return result;
 }
