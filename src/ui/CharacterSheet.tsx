@@ -1,15 +1,6 @@
 import terms from '../data/terms.json';
 import {
   atSea as atSeaNow,
-  MISSION_LABEL,
-  MISSION_WORK_DAYS,
-  inciteLoss,
-  parleyGain,
-  recruitChance,
-  canRecruit,
-  isPlayable,
-  RECRUIT_MIN_SUPPORT,
-  successChance,
   LORD_POWER_LABEL,
   lordOfName,
   shipClass,
@@ -17,8 +8,6 @@ import {
   powerOf,
   type Character,
   type GameState,
-  type PlayableFaction,
-  type System,
 } from '../sim';
 import { CharacterPainting } from './art';
 import { Sheet } from './components';
@@ -42,22 +31,6 @@ function Where({
       {system.name}
     </button>
   );
-}
-
-/**
- * Yardsticks for the signing-on range.
- *
- * Two harbors rather than two strangers, since Sean's memo of 17 September:
- * the errand is set against the island now, not against whoever happened to be
- * standing on it. The easy end is a harbor that adores you, the hard end the
- * least loyal harbor that will hold a table at all. Only `support` and
- * `control` are read, so the rest is filler.
- */
-function harborAt(faction: PlayableFaction, standing: number): System {
-  return {
-    support: { empire: 0, alliance: 0, [faction]: standing } as System['support'],
-    control: faction,
-  } as System;
 }
 
 /**
@@ -306,67 +279,19 @@ export function CharacterSheet({
 
       <Ratings character={character} />
 
-      {/* Found by playing on 20 September: this heading and the order above it
-          were the last two places the interface still said *mission*, which is
-          the retired word — the thing a crew member is sent to do is an
-          errand, and every report of one already called it that. */}
-      <div className="section-title">On a {terms.errand.toLowerCase()}</div>
-      {/* Three things an officer can do on an island, and the island decides which:
-          sign on whoever is standing there, parley where nobody has chosen a
-          side, stir up trouble where the enemy has. All three are shown because
-          where you send them is the whole of the choice. */}
-      <div className="card small stack">
-        <div className="row row--between">
-          <span className="muted">{terms.parley} · unaligned or your own</span>
-          <b>
-            {Math.round(successChance(character, 'diplomacy') * 100)}% · +
-            {parleyGain(character).toFixed(1)}
-          </b>
-        </div>
-        <div className="row row--between">
-          <span className="muted">{terms.incite} · islands they hold</span>
-          <b>
-            {Math.round(successChance(character, 'incite') * 100)}% · −
-            {inciteLoss(character).toFixed(1)}
-          </b>
-        </div>
-        <div className="row row--between">
-          <span className="muted">{MISSION_LABEL.recruit} · somewhere loyal of your own</span>
-          {/* A range, because it depends on the harbor: the numbers are for a
-              port that will just about hold a table and for one that adores
-              you. Only a Recruiter may lead one at all, so anybody else reads
-              a dash rather than a number they cannot use. */}
-          <b>
-            {canRecruit(character) && isPlayable(character.faction) ? (
-              <>
-                {Math.round(
-                  recruitChance(character, harborAt(character.faction as PlayableFaction, RECRUIT_MIN_SUPPORT), character.faction as PlayableFaction) * 100,
-                )}
-                –
-                {Math.round(recruitChance(character, harborAt(character.faction as PlayableFaction, 100), character.faction as PlayableFaction) * 100)}%
-              </>
-            ) : (
-              'Not a Recruiter'
-            )}
-          </b>
-        </div>
-        <div className="row row--between">
-          <span className="muted">Passage</span>
-          {/* No single number to print any more: passage is the distance,
-              so the sheet gives the shape of it and the target picker gives
-              the figure for the island actually chosen. */}
-          <b>By the distance · a toll for open sea</b>
-        </div>
-        <div className="row row--between">
-          <span className="muted">Time on the island</span>
-          <b>{MISSION_WORK_DAYS}d per cycle</b>
-        </div>
-      </div>
-      <p className="muted tiny" style={{ marginTop: 10 }}>
-        These ratings are yours alone; the enemy cannot see them. Work on ground that is not yours
-        risks being found out — far more so on an island they hold, and more still with one of their
-        own officers standing on it. Espionage is what keeps your officer out of their hands.
-      </p>
+      {/*
+       * The odds table that stood here is gone, at Sean's word of 21
+       * September: *"Cut this entire section. This should be in rules not
+       * character block."*
+       *
+       * It listed every mission's chance and gain — Parley 60% +12.0,
+       * Incitement 99% −13.0, Recruit's range, the passage rule, the days
+       * ashore — on the sheet of a person who might be sent on none of them.
+       * Those are the *rules of missions*, identical for everybody with the
+       * same ratings, so they belong where the rules live: the encyclopedia's
+       * Missions section. What is left here is this crew member: who they are,
+       * what they are good at, and where they are.
+       */}
     </Sheet>
   );
 }

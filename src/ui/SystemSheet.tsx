@@ -6,9 +6,6 @@ import {
   fleetsAt,
   isAtSea,
   otherFaction,
-  recruitPool,
-  canRecruitAt,
-  RECRUIT_MIN_SUPPORT,
   reportOn,
   sightOf,
   type Sight,
@@ -1505,57 +1502,17 @@ export function SystemSheet({
       {live_tab === 'crew' && (
         <>
           {/*
-            Whether this is a harbor you could grow your corps out of.
-
-            There used to be a card here naming the unaligned officer standing
-            on this particular quay, because that was how signing on worked:
-            find the person, sail to the person. Since Sean's memo of 17
-            September there is no person to find — you keep an open table at a
-            harbor of your own that is loyal enough, and see who comes. So what
-            this tab says is whether *this* is such a harbor, which is the
-            question a player who wants more officers is actually asking, and
-            it says it on your own islands only, where the answer can be acted
-            on. It is also the one place the game explains the rule, which
-            matters: nothing on the chart points at recruiting any more.
-          */}
-          {system.control === state.player && system.populated && (() => {
-            const pool = recruitPool(state).length;
-            const here = canRecruitAt(state, system, state.player);
-            const loyalty = Math.round(system.support[state.player]);
-            return (
-              <>
-                <div className="section-title">{MISSION_LABEL.recruit}</div>
-                <p className="muted tiny" style={{ margin: '0 0 10px' }}>
-                  {pool === 0 ? (
-                    <>
-                      There is nobody left in the Seven Seas to sign. Whoever you have is whoever
-                      you will have.
-                    </>
-                  ) : here ? (
-                    <>
-                      This place is loyal enough ({loyalty}) to sign hands on. Send a{' '}
-                      <b>Recruiter</b> of yours here and they will keep an open table for a
-                      fortnight: the better they lead and the more this island loves you, the
-                      likelier somebody worth having sits down at it.
-                    </>
-                  ) : system.uprising ? (
-                    <>
-                      Nobody signs articles on an island in {terms.mutiny.toLowerCase()}. Put this
-                      one back in order first.
-                    </>
-                  ) : (
-                    <>
-                      Allegiance here is {loyalty}, and it wants {RECRUIT_MIN_SUPPORT} before
-                      anybody will sign with you on it. Parley this island up, or recruit from a
-                      more devoted one — a secure, well-loved island is worth keeping for exactly
-                      this.
-                    </>
-                  )}
-                </p>
-              </>
-            );
-          })()}
-
+           * The Recruit explainer that stood here is gone, at Sean's word of
+           * 21 September: *"Cut this section. This should be simply in the
+           * encyclopedia section for missions."*
+           *
+           * It taught the whole rule on the Crew tab of any island of yours —
+           * the loyalty floor, what a Recruiter does, how long the table
+           * stands, what makes somebody worth having sit down at it — which is
+           * the rule of the Recruit mission and identical on every island. It
+           * lives in the encyclopedia's Missions section now. The island tab
+           * is for what is true of *this* island.
+           */}
           <TheirsAshore state={state} system={system} report={filed} sight={sight} />
 
           {/* Two words apiece, at Sean's word: *"Same with crew. Cut all the

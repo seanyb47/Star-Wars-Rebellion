@@ -1237,8 +1237,76 @@ export const MISSION_LABEL: Record<MissionType, string> = {
   espionage: 'Espionage',
   abduct: 'Abduction',
   command: 'In command',
-  research: 'In the yards',
+  // Sean, 21 September, on "In the yards": *"This makes no sense: Just make
+  // research the mission. And it applies to buildings, ships, and troops."*
+  research: 'Research',
   rescue: 'Rescue',
+};
+
+/**
+ * Which rating settles each mission, and where it can be pointed.
+ *
+ * Read off `successChance` below rather than remembered: every line here has a
+ * branch there that proves it. Recruit is the odd one — it is the only mission
+ * with a gate on *who* may lead it as well as a rating that decides how it
+ * goes.
+ */
+export const MISSION_SETTLED_BY: Record<MissionType, string> = {
+  diplomacy: 'Settled by Parley · somewhere unaligned, or your own',
+  incite: 'Settled by Leadership · islands they hold',
+  recruit: 'Settled by Leadership · a loyal harbor of your own · Recruiters only',
+  sabotage: 'Settled by Espionage and Combat together · islands they hold',
+  survey: 'Never fails · anywhere uncharted',
+  espionage: 'Settled by Espionage · anywhere, including your own',
+  abduct: 'Settled by Combat · wherever one of theirs is ashore',
+  command: 'Settled by Leadership · any island of yours, or a squadron in its harbor',
+  research: 'Settled by Espionage · any island of yours with a shipyard',
+  rescue: 'Settled by Combat · wherever one of yours is held',
+};
+
+/**
+ * The order the encyclopedia lists them in: what you will do most, first.
+ *
+ * Not the order of `MissionType`, which is the order they were built in, and
+ * not alphabetical, which would open on Abduction — a mission most wars never
+ * see.
+ */
+export const MISSION_ORDER: MissionType[] = [
+  'diplomacy',
+  'incite',
+  'survey',
+  'espionage',
+  'recruit',
+  'command',
+  'research',
+  'sabotage',
+  'abduct',
+  'rescue',
+];
+
+/**
+ * What each mission does, in one line.
+ *
+ * Lifted out of `MissionChoiceSheet` on 21 September so the encyclopedia's
+ * Missions page and the sheet where you give the order say the same thing.
+ * Two copies of a description is two descriptions: the one a player reads
+ * while choosing and the one they read while learning would have drifted the
+ * first time either was edited.
+ */
+export const MISSION_WHAT: Record<MissionType, string> = {
+  diplomacy: 'Talk the island round. Its allegiance to you rises with every landed argument.',
+  incite: 'Set its people against their holder. Push them far enough and the island rises.',
+  recruit:
+    'Keep an open table here for a fortnight and see who signs the articles. A Recruiter leads it; what they are worth as a leader and how much this island loves you decide whether anybody worth having sits down.',
+  sabotage: 'Break something of theirs on the island — a yard, a mill, a shipyard.',
+  survey: 'Chart the island: who lives on it, what stands on it, whether a garrison would hold it.',
+  espionage:
+    'Count what is on the island and write it down — troops, works, hulls, their people, and what they have under way here.',
+  abduct: 'Carry off the enemy crew member ashore here and hold them at your seat.',
+  command: 'Take command and put the island back in order.',
+  research:
+    'Study, and everything your side builds comes quicker and cheaper — buildings, hulls and troops alike.',
+  rescue: 'Break one of your crew out of the cells and get them home.',
 };
 
 /** Chance the mission lands its argument (spec 4.5). */

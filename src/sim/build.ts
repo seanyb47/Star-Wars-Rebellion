@@ -167,10 +167,16 @@ export const ANY_GRADE: ShipGrade = 3;
 /**
  * What an order actually costs this side today, craft included.
  *
- * Only hulls. The research errand is shipwright craft and nothing else, so a
- * mine costs what a mine has always cost — which also keeps the effect legible:
- * a player who notices their ships got cheaper has exactly one thing to thank
- * for it.
+ * **Everything you build**, since Sean's ruling of 21 September: *"Just make
+ * research the mission. And it applies to buildings, ships, and troops. Keep
+ * it simple."*
+ *
+ * It used to be hulls alone, on the reasoning that the research mission was
+ * shipwright craft and nothing else, and that one effect is easier to notice
+ * than three. That was a rule about *what research is* rather than about what
+ * a player wants from it — and it left the mission worth nothing at all to a
+ * side that was not building ships that month. One grade now takes its cut off
+ * a mine, a wall, a troop and a first-rate alike.
  *
  * Rounded up rather than down, and floored at a day: three grades of a 13%
  * cut is a real saving, not a free hull.
@@ -181,7 +187,6 @@ export function effectiveSpec(
   item: BuildItem,
   on?: System,
 ): { costGold: number; days: number } {
-  const spec = buildSpec(item);
   /*
    * A company is priced by who it is, since 21 September.
    *
@@ -190,14 +195,17 @@ export function effectiveSpec(
    * are the cheapest bodies in the world and can be raised in eight days —
    * cost exactly what the Drowned Guard cost. The island already knows who it
    * raises, so the price simply follows.
+   *
+   * It does not return here, and that is the whole of the merge. The ground
+   * roster priced troops and left `if (!isShipClass(item)) return` standing
+   * above the craft cut, so the comment on this function said research applies
+   * to a mine, a wall, a troop and a first-rate alike and the body applied it
+   * to hulls only. Sean's ruling is the comment: *"Just make research the
+   * mission. And it applies to buildings, ships, and troops."* So a company
+   * gets its own price **and then** the cut, like everything else.
    */
-  if (item === 'troop') {
-    const kind = on ? troopBuildAt(on, faction) : undefined;
-    return kind
-      ? { costGold: kind.costGold, days: kind.days }
-      : { costGold: spec.costGold, days: spec.days };
-  }
-  if (!isShipClass(item)) return { costGold: spec.costGold, days: spec.days };
+  const spec =
+    item === 'troop' && on ? (troopBuildAt(on, faction) ?? buildSpec(item)) : buildSpec(item);
   const grade = craftGrade(state.factions[faction].craft);
   if (grade === 0) return { costGold: spec.costGold, days: spec.days };
   return {

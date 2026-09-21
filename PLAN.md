@@ -7925,3 +7925,66 @@ as the **Crown**, the Reach map and the sheet read **Varrow**; as the
 first browser pass looked like a pass and was not — the page had started a new
 game on a random seed and landed on an island that happens to be called Varrow
 anyway. Seeding the save is what made the check real.
+
+## The missions cluster (21 September)
+
+Four of Sean's notes were one piece of work, because the first two cut things
+that the third needed somewhere to go.
+
+### What came off the sheets
+
+**The odds table, off the character sheet** (*"Cut this entire section. This
+should be in rules not character block."*). It listed Parley 60% +12.0,
+Incitement 99% −13.0, the Recruit range, the passage rule and the days ashore —
+on the sheet of a person who might be sent on none of them. Those are the rules
+of missions, identical for anyone with the same ratings.
+
+**The Recruit explainer, off the island sheet** (*"Cut this section. This
+should be simply in the encyclopedia section for missions."*). It taught the
+whole rule — the loyalty floor, what a Recruiter does, how long the table
+stands — on the Crew tab of every island you hold.
+
+**The Favorable chip and the ± factors, off the mission cards** (*"Cut the
+'favorable' etc from missions."*). Where you send somebody is the choice; a
+verdict printed on the card does the choosing for you.
+
+Each cut left dead code behind it — ten imports, a local `harborAt` fixture, the
+`Marks` component, `standingFor` and the derived `party` — and all of it went
+with them. A cut that leaves its machinery behind is half a cut.
+
+### What they moved into
+
+A **Missions page** in the encyclopedia, between Locations and Rules: how a
+mission works, then every mission with its painting, what settles it and where
+it can be pointed, then the Recruit rule.
+
+Two things made it worth doing properly rather than as prose:
+
+- **The blurbs are shared now.** `WHAT` lived in `MissionChoiceSheet`; it is
+  `MISSION_WHAT` in the sim, read by both the sheet and the page. Two copies of
+  a description is two descriptions, diverging the first time either is edited.
+- **`MISSION_SETTLED_BY` is read off the code, not remembered.** Every line has
+  a branch in `successChance` that proves it — sabotage is Espionage *and*
+  Combat averaged, research is Espionage, incite is Leadership. I would have
+  guessed at least two of those wrong.
+
+### Research, while I was in there
+
+Sean on "In the yards": *"This makes no sense: Just make research the mission.
+And it applies to buildings, ships, and troops."*
+
+The mission is **Research** now, and `effectiveSpec` no longer gates the craft
+discount on hulls. It read:
+
+```ts
+if (!isShipClass(item)) return { costGold: spec.costGold, days: spec.days };
+```
+
+The reasoning for that line was legibility — one effect is easier to notice
+than three. The cost was a mission worth **nothing at all** to a side that was
+not building ships that month, which is most months. One grade now takes its
+cut off a mine, a wall, a troop and a first-rate alike.
+
+Measured over twenty wars: **8–12 against 9–11**, median 576 against 636. Inside
+the noise on twenty, so the wider discount is not a balance change — it is the
+same saving spread over more of what you buy.
