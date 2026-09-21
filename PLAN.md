@@ -8400,3 +8400,92 @@ page from the moment the roster went in, because one end lower-cased the slug
 and `getElementById` does not. `infolinks.test.ts` requires every literal
 anchor a screen links to exist in the encyclopedia. It is the cheap half of
 item 12 and catches the mistake that gets made.
+
+## The floor that had research switched off (21 September)
+
+Three more commits from the other session, and the middle one is the best find
+either line has made this week.
+
+`RESEARCH_MIN_SUPPORT` was **75**. An island a side holds drifts to
+`HELD_SUPPORT_LEVEL`, which is **65**, and stops there. So the resting state of
+every island anybody owned sat ten points below the bar its own shipyards
+needed, and research only happened where something was actively pushing an
+island upward — the Moot, or a parley nobody had a spare officer for. Measured
+before the fix, the share of days a side had *anywhere at all* to research:
+Confederacy 66%, **Crown 7%**.
+
+`lab/ladder.ts` found it by watching `craftGrade` every morning rather than
+reading it once at the end, and that is the whole reason it was found. A
+harness that samples at the end sees a low number and calls it tuning. The
+lesson is about harnesses, not about research.
+
+The floor is now `SUPPORT_STEADY`, and the test pins the **invariant** rather
+than the number: a side can always work the yards of an island that is simply,
+quietly theirs. Re-measured here, Crown yard availability 73% and the
+Confederacy's 90%. The ladder went the same way — three times too short, the
+ceiling from 520 to 1,560 — and on this branch rung 8 lands on mean day 1,092
+against Sean's target of 1,086.
+
+## What twenty-four wars cannot tell you (21 September)
+
+They suggested the floor bug is "almost certainly the real cause of the
+maintenance asymmetry you diagnosed". Testing it properly produced something
+more useful than a yes or a no, and it starts with me being wrong twice.
+
+**The floor fix helps, and it is worth about two wars.** Same seeds as this
+branch's own earlier number: Crown 9 — 11 with four stalls before, **Crown
+11 — 11 with two** after.
+
+**Then the hypothesis I had given Sean twice, measured and refuted.** I had
+said this branch's troop-role fix — Crown Marines `elite` rather than `line` —
+accounted for the gap against their tree. Flipping the roles back on the same
+seeds:
+
+| 24 wars, seeds 2000 | Crown | Conf. | unfinished | Lords taken |
+|---|---|---|---|---|
+| Marines `elite` (this branch) | 8 | 12 | 4 | 1.21 |
+| Marines `line` (their shape) | 9 | 13 | 2 | 1.79 |
+| their tree, as reported | 11 | 12 | 1 | — |
+
+One win. The roles do **not** explain the win gap. What they do explain is the
+*stalls*, and that half of the reasoning holds: a Crown whose every rock is
+garrisoned by elites pays more for every covert operation and cannot close the
+manhunt — 1.21 Lords in irons against 1.79, four unfinished wars against two.
+
+**And then the finding that makes both of the above nearly pointless.** This
+branch, unchanged, reads Crown 11 — 11 on seeds 9000 and Crown 8 — 12 on seeds
+2000. Three wins apart on identical code. A side's win count is a coin flip
+with standard deviation `sqrt(n)/2`, so at twenty-four wars that is 2.45 and a
+three-win gap is noise.
+
+Run at forty-eight: **Crown 17 — Confederacy 25, six unfinished**. Pooled with
+the two smaller samples, eighty-four decided wars on this branch read Crown 36
+— Confederacy 48, which is 1.31 standard deviations from even, *p* = 0.19.
+**The sides may well be even and nothing here can say otherwise.** Their
+15 — 8 to 11 — 12 swing is probably real at about 2.9 SD; their 11 — 12 against
+this branch's 8 — 12 is not a difference at all.
+
+The reasoning is now written into `lab/duel.ts` so nobody reads a 24-war win
+table as decisive again, including me.
+
+### What *is* measurable, and is the thing that matters
+
+Wars that never end are a rate, not a coin flip, so they show up at sample
+sizes the win table cannot use. Pooled over ninety-six wars this branch stalls
+**12.5%** of the time (12 of 96) against the 4.2% their single run reports. If
+their rate were the true one, twelve stalls in ninety-six is four standard
+deviations out.
+
+Their own instruction says it best — *"wars that end is the one thing a
+strategy game cannot be relaxed about"* — and the role experiment points
+straight at the mechanism: the Crown cannot finish the manhunt. Every stalled
+war in every sample has the Crown ahead on ground with one Lord or none in
+irons, which is #125 unchanged.
+
+**So there is a decision for Sean, and it is a design one rather than a tuning
+one.** Marines as `elite` is what the change order's own cards say and it is
+the better reading of the fiction. It also costs roughly one war in ten that
+never finishes. Putting them back to `line` buys those wars back and makes
+every covert operation against the Crown 15% cheaper, which was the regression
+the role fix existed to remove. The honest answer is that the manhunt needs a
+fix of its own rather than that one of these two labels is right.

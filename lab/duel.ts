@@ -6,6 +6,27 @@
  * 12-12 all day and hid the fact that a Crown which is *played* loses 21-0.
  *
  *   npx vite-node lab/duel.ts <games> <first-seed>
+ *
+ * HOW MANY WARS IS ENOUGH, because twenty-four has been the default since this
+ * file was written and nobody ever justified it.
+ *
+ * A war has one winner, so a side's win count over `n` decided wars is a coin
+ * flip and its standard deviation is `sqrt(n)/2`. At twenty-four that is 2.45,
+ * which means two runs of the *same code* on different seeds land three wins
+ * apart without anything being wrong. That is not a thought experiment — it is
+ * what happened on 21 September: this tree read Crown 11 — 11 on seeds 9000
+ * and Crown 8 — 12 on seeds 2000, and two sessions spent an afternoon
+ * explaining a difference that was noise.
+ *
+ * So: twenty-four wars can detect a rout and nothing finer. Forty-eight halves
+ * the error and is the least worth quoting a win table from. **A win count
+ * within about two of even is not a finding**, and the honest report of one is
+ * "no difference this run can see" rather than a score.
+ *
+ * The other two columns are cheaper to be sure about, and are usually the more
+ * interesting answers anyway. Wars that never end and the count of Lords taken
+ * are not coin flips — they are rates with a much smaller spread — so a change
+ * in them shows up at twenty-four wars when a change in the win table does not.
  */
 import { audit, type Violation } from './audit';
 import { generateGalaxy } from '../src/sim/galaxy';
