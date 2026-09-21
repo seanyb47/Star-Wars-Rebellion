@@ -1,5 +1,5 @@
 import { createContext, useContext, type ReactNode } from 'react';
-import { ROSTER } from '../sim/shipdefs';
+import { SHIP_CLASSES } from '../sim/constants';
 
 /** The encyclopedia's tabs, by the name the Almanac knows them by. */
 export type EncPage =
@@ -50,19 +50,17 @@ export function useLookUp(): LookUp | undefined {
 /**
  * The entry to open for a hull.
  *
- * There used to be a translation table here, mapping each of the twenty-four
- * hulls the game sailed onto its counterpart among the twenty-eight the
- * encyclopedia held — Kestrel to Interceptor I, Reef-class to Coral-Class,
- * four hulls with no counterpart at all deliberately left unmapped. Its note
- * said *"the whole map deletes itself the day the live roster swaps"*, and
- * this is that day: a hull the game sails **is** a hull on the sheet, and its
- * id is the sheet's own Ship ID.
+ * There used to be a hand-kept crosswalk here, mapping each of the old
+ * roster's twenty-four hulls onto its counterpart in the new one so that a `?`
+ * on a ship row would open the right encyclopedia page — with four hulls left
+ * deliberately unmapped, because the new fleet had cut them rather than
+ * renaming them. It carried a note saying it would delete itself the day the
+ * live roster swapped.
  *
- * Kept as a function rather than inlined at the call sites, because what a `?`
- * opens is a question worth having one answer to, and because the three
- * legends still have no entry: nothing builds them and the sheet has never
- * heard of them.
+ * That was 21 September. Every hull the game sails is a hull out of the sheet
+ * now and carries the sheet's own key on it, so there is nothing left to
+ * translate.
  */
 export function encyclopediaShip(classId: string): string | undefined {
-  return ROSTER.byId.has(classId) ? classId : undefined;
+  return SHIP_CLASSES.find((c) => c.id === classId)?.rosterId;
 }

@@ -1,7 +1,8 @@
 import type { Combatant } from './round';
-import { fireCannon, hitChance } from './navycombat';
-import type { ShipSize, SpeedCategory } from './shipdefs';
+import type { Fighter } from './cannon';
 import {
+  BEAST_HIT_CHANCE,
+  DAMAGE_SWING,
   BEAST_FLEE_CHANCE,
   BEAST_FLEE_HURT,
   BEAST_MOVE_CHANCE,
@@ -66,22 +67,10 @@ export interface Creature {
   guns: number;
   hull: number;
   /**
-   * How hard it is to hit, and how much of a shot its hide turns.
-   *
-   * These arrived with the v4.3 roster and they replace `evade`. The locked
-   * rules read accuracy off the *target's* Size and point of sail, so a thing
-   * in the water has to have both or the guns have nothing to aim by — and a
-   * single evade number could not say what these say, that a ghost-ship is
-   * nearly impossible to catch and a Kraken is simply enormous.
-   *
-   * The hulls were rescaled with them. They were 28 to 90 against ships of 9
-   * to 32; they are 1,300 to 4,600 against ships of 350 to 14,000, which puts
-   * the Kraken at a first-rate's weight and the Derelict at a frigate's — the
-   * same standing the old numbers gave them, on the scale the roster uses.
+   * How hard it is to hit. A thing mostly under the water is not a ship.
+   * Defaults to BEAST_HIT_CHANCE.
    */
-  size: ShipSize;
-  sail: SpeedCategory;
-  armor: number;
+  evade?: number;
   /** Strikes it makes in a round. Most make one. */
   shots?: number;
   /**
@@ -111,10 +100,8 @@ export const CREATURES: Creature[] = [
       'Nobody has brought back a body, which is the only fact about it everyone agrees on. What comes back instead is timber: a strake, a hatch cover, once most of a quarterdeck, all of it scored with parallel grooves a hand apart. The Admiralty rates the loss of any hull in the drowned reaches as weather. The crews who sail them do not.',
     waters: ['drowned-isle', 'storm-isle'],
     guns: 26,
-    hull: 4600,
-    size: 'Gigantic',
-    sail: 'Slow',
-    armor: 8,
+    hull: 90,
+    evade: 0.5,
     shots: 2,
     seize: 0.25,
     strike: 'takes hold of',
@@ -129,10 +116,8 @@ export const CREATURES: Creature[] = [
       'Only the young are ever seen, which has kept the argument going for two centuries: either the old ones go somewhere nobody sails, or there are no old ones and the young are all there is. They take seals, and boats that look like seals from below. A grown one has never been measured, and every figure ever given for the length of one was given by a man who did not stay to check.',
     waters: ['rock-isle', 'ice-isle'],
     guns: 16,
-    hull: 2400,
-    size: 'Large',
-    sail: 'Fast',
-    armor: 4,
+    hull: 50,
+    evade: 0.6,
     splash: 1,
     strike: 'rakes',
   },
@@ -146,10 +131,8 @@ export const CREATURES: Creature[] = [
       'She is under sail, she holds a course, and she has answered no hail in living memory. Boarding parties have gone across four times that are written down. Three found her empty, dry and in good order, with the log written up to a date nobody can read. The fourth did not come back, and the ship that sent them wrote her off and turned for home, which is what every captain since has done.',
     waters: ['drowned-isle', 'tide-isle', 'ice-isle'],
     guns: 11,
-    hull: 1300,
-    size: 'Medium',
-    sail: 'Very Fast',
-    armor: 0,
+    hull: 28,
+    evade: 0.35,
     strike: 'fires into',
   },
   {
@@ -163,9 +146,6 @@ export const CREATURES: Creature[] = [
     waters: ['reef-isle', 'jungle-isle', 'tide-isle'],
     guns: 0,
     hull: 0,
-    size: 'Large',
-    sail: 'Slow',
-    armor: 0,
   },
   {
     slug: 'ships-cat',
@@ -178,9 +158,6 @@ export const CREATURES: Creature[] = [
     waters: ['port-city', 'free-harbor', 'mining-isle'],
     guns: 0,
     hull: 0,
-    size: 'Small',
-    sail: 'Normal',
-    armor: 0,
   },
 ];
 
@@ -491,23 +468,74 @@ export function stirBeasts(state: GameState, rng: Rng): void {
  * this is a view onto `system.beastDamage` that the round can treat exactly
  * like a hull. Undefined where there is nothing alive in the water.
  */
+/**
+ * How much bigger a creature's hull is than the number written beside it.
+ *
+ * The creature stats were set against an engine that fired once per hull for
+ * damage equal to a ship's gun count — a squadron of five threw perhaps sixty
+ * points a round, so a Kraken's ninety was two days' work. Under the locked
+ * rules every cannon rolls its own 2d20 or 4d20, and that same squadron throws
+ * nearer three thousand. Ninety would not survive the first broadside.
+ *
+ * Forty, so the fights come out where the design comment below them says they
+ * should: the Kraken costs a five-hull squadron a day or two and usually a
+ * hull, the Sea Dragon two days and rarely one. The creatures' numbers are
+ * left exactly as Sean wrote them and the scale is applied here, in one place
+ * with its reason attached, rather than rewritten into the data — where the
+ * next person to read them would have no idea why a sea monster has 3,600
+ * hull points.
+ */
+export const BEAST_HULL_SCALE = 40;
+
+/**
+ * The creature as something the per-cannon engine can shoot at.
+ *
+ * It carries no guns here, and that is not an oversight: a creature does not
+ * fire a broadside, it comes at somebody, and `monsterStrike` is the whole of
+ * its offence. What this is for is the other direction — giving a fleet
+ * something with a size, a speed and a hull to point its cannons at.
+ *
+ * Size and speed are read off how hard it is to hit. A thing that is nearly
+ * impossible to mark is Small and Very Fast whatever it looks like, because
+ * those are the two columns the accuracy table has for "hard to hit", and a
+ * Kraken that fills the anchorage is Gigantic and Slow.
+ */
+export function beastFighter(system: System): Fighter | undefined {
+  const beast = beastAt(system);
+  if (!beast || !beastAlive(system)) return undefined;
+  const evade = beast.evade ?? BEAST_HIT_CHANCE;
+  const whole = beast.hull * BEAST_HULL_SCALE;
+  return {
+    id: `beast-${system.id}`,
+    name: beast.name,
+    size: evade <= 0.4 ? 'Small' : evade >= 0.7 ? 'Gigantic' : 'Medium',
+    speed: evade <= 0.4 ? 'Very Fast' : evade >= 0.7 ? 'Slow' : 'Normal',
+    // Hide and bone rather than plate, and nothing in the water is plated
+    // like a ship of the line.
+    armor: 0,
+    guns: { long: 0, heavy: 0, light: 0 },
+    combatantType: 'Warship',
+    wholeHull: whole,
+    hull: Math.max(0, whole - (system.beastDamage ?? 0) * BEAST_HULL_SCALE),
+  };
+}
+
+/** Write a creature's remaining hull back onto the island it lives at. */
+export function landBeastDamage(system: System, fighter: Fighter): void {
+  const beast = beastAt(system);
+  if (!beast) return;
+  const taken = Math.ceil((fighter.wholeHull - fighter.hull) / BEAST_HULL_SCALE);
+  system.beastDamage = Math.min(beast.hull, Math.max(system.beastDamage ?? 0, taken));
+}
+
 export function beastCombatant(system: System): Combatant | undefined {
   const beast = beastAt(system);
   if (!beast || !beastAlive(system)) return undefined;
   return {
-    stats: {
-      size: beast.size,
-      speed: beast.sail,
-      // Everything a creature throws is Light: nothing in the water carries a
-      // battery, and armor-cracking is the Heavy Gun's signature alone. What
-      // makes a Kraken a Kraken is `seize`, not a gun kind.
-      guns: { longGuns: 0, heavyGuns: 0, lightGuns: beast.guns },
-      armor: beast.armor,
-      hull: beast.hull,
-      combatantType: beast.guns > 0 ? 'Warship' : 'Noncombat',
-    },
+    guns: beast.guns,
     left: beast.hull - (system.beastDamage ?? 0),
     whole: beast.hull,
+    hitChance: beast.evade ?? BEAST_HIT_CHANCE,
     hurt: (amount) => {
       system.beastDamage = Math.min(beast.hull, (system.beastDamage ?? 0) + amount);
       return system.beastDamage >= beast.hull;
@@ -537,10 +565,7 @@ export function monsterStrike(
 ): void {
   const beast = beastAt(system);
   if (!beast) return;
-  // A creature's own chance of getting hold of something, read off the shape
-  // of what it is reaching for rather than off a number of its own. Light-gun
-  // accuracy is the right table: a thing in the water is close work.
-  if (rng.range(1, 100) > hitChance('Light', target.stats)) return;
+  if (!rng.chance(target.hitChance)) return;
 
   if (beast.seize && rng.chance(beast.seize)) {
     // Taken. Not damaged — taken. Whatever it had left goes with it.
@@ -554,25 +579,11 @@ export function monsterStrike(
     }
     return;
   }
-  /*
-   * What it does when it does not take the hull whole, and it is a broadside
-   * after all.
-   *
-   * This was `beast.guns` give or take a seventh — one number, on a roster
-   * where a sloop had nine of hull. On the v4.3 sheet the smallest thing
-   * afloat has five hundred, and sixteen points a day against that is a
-   * creature nothing need ever run from: measured, a Sea Dragon of sixteen
-   * guns took seventeen a round off three Interceptors and killed none of
-   * them in seven days.
-   *
-   * So its guns are cannon, like everybody else's, and they roll the Light
-   * Gun's dice — which is what `beastCombatant` has said its armament is
-   * since the swap. What still makes a creature a creature is the `seize`
-   * above it and the fact that it is in the water with you when you run.
-   */
-  let done = 0;
-  for (let gun = 0; gun < beast.guns; gun++) {
-    done += fireCannon('Light', target.stats, rng) ?? 0;
-  }
-  if (done > 0) target.hurt(done);
+  const swing = 1 + (rng.next() * 2 - 1) * DAMAGE_SWING;
+  // On the hulls' own scale, by the same forty its own hull is scaled by. A
+  // creature's `guns` were set against an engine whose ships had hulls of
+  // twenty; a Kraken laying twenty-six points on an Interceptor of five
+  // hundred would be a scratch, and the thing is meant to be the reason
+  // nobody sails the drowned reaches.
+  target.hurt(Math.max(1, Math.round(beast.guns * swing * BEAST_HULL_SCALE)));
 }

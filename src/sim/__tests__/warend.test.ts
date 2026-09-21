@@ -23,10 +23,9 @@ function playOut(seed: number, cap = 3000): GameState {
 /**
  * The first seed that gives this winner, found rather than written down.
  *
- * These tests used to name a seed apiece — 9001 for the Crown's win, 9003 for
- * the Confederacy's — which made a balance change into a test failure: the
- * v4.3 roster landed and both of them flipped. Which seed produces which
- * outcome is not what any of this is about, so it is looked up.
+ * These tests used to name a seed apiece. Which seed produces which outcome is
+ * not what any of this is about, and it makes every balance change into a test
+ * failure — the v4.3 roster landed and both of them flipped.
  */
 function warWonBy(winner: PlayableFaction): GameState {
   for (let seed = 9000; seed < 9040; seed++) {
@@ -42,9 +41,17 @@ describe('the closing screen', () => {
   });
 
   it('reports a finished war from the chair the player sat in', () => {
-    // Seeds picked for speed, not for outcome: one of each winner, measured.
-    for (const seed of [9000, 9001]) {
-      const state = playOut(seed);
+    /*
+     * Wars that actually finished, found rather than named.
+     *
+     * Two seeds were written down here and one of them stopped finishing the
+     * moment the ground roster changed who garrisons a Crown island — which
+     * is a fair thing for a balance change to do and a silly thing for this
+     * test to fail on. What it is about is a report matching the state it was
+     * built from, so it asks for finished wars and reads those.
+     */
+    for (const state of [warWonBy('empire'), warWonBy('alliance')]) {
+      const seed = state.winner;
       const report = warReport(state)!;
       expect(report, `seed ${seed}`).toBeTruthy();
       expect(report.winner).toBe(state.winner);
@@ -89,16 +96,24 @@ describe('the closing screen', () => {
   });
 
   /**
-   * The Confederacy wins by taking one island, so the evidence is that
-   * island's last days — and never the closing line itself, which is already
-   * the headline above it.
+   * And the Confederacy's evidence is two captures, not an island's last days.
+   *
+   * It *was* that island's last days, because the Confederacy won by taking
+   * Highwater. Sean changed that on 21 September — *"the crown wins the map
+   * and loses the war. Let's give them two characters that need to be captured
+   * also."* — so both sides now win by holding people and the closing screen
+   * reads the same way from either chair: three captures for the Crown, two
+   * for the Confederacy.
    */
-  it('gives the capital its last days when the Confederacy wins', () => {
+  it('names both captures when the Confederacy wins', () => {
     const state = warWonBy('alliance');
     const report = warReport(state)!;
-    expect(report.deciding.length).toBeGreaterThan(0);
-    expect(report.deciding.length).toBeLessThanOrEqual(4);
+    expect(report.deciding).toHaveLength(2);
+    const days = report.deciding.map((d) => d.day);
+    expect([...days].sort((a, b) => a - b)).toEqual(days);
     for (const line of report.deciding) {
+      expect(line.text.length).toBeGreaterThan(0);
+      // Never the closing line itself: that is already the headline above it.
       expect(line.text).not.toBe(report.dispatch);
     }
   });

@@ -47,7 +47,9 @@ describe('resolving a lookup to an entry', () => {
       ...characterRoster.alliance,
       ...characterRoster.recruits,
     ];
-    expect(cast).toHaveLength(26);
+    // Twenty-eight since 21 September: the two negotiators took the named
+    // principals from fourteen to sixteen.
+    expect(cast).toHaveLength(28);
     for (const person of cast) {
       expect(subjectFor(slugOf(person.name)), person.name).toEqual({
         kind: 'person',

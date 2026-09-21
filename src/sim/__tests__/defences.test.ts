@@ -3,10 +3,11 @@ import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
 import {
   addShip,
-  advanceSieges,
   bombardError,
   contestedAt,
-  fortGuns,
+  bombardNow,
+  fortsOf,
+  islandBombardDefense,
   isBlockaded,
   resolveBattles,
 } from '../fleets';
@@ -16,7 +17,7 @@ import {
   CORALHOME,
   CORALHOME_GARRISON,
   CORALHOME_SUPPORT,
-  FORT_GUNS,
+  FORT_BOMBARD_DEFENSE,
   START_GARRISON_MAX,
   START_GARRISON_SPARE,
 } from '../constants';
@@ -112,17 +113,11 @@ describe('the opening, against Rebellion', () => {
       for (const f of ['empire', 'alliance'] as const) {
         expect(state.factions[f].income, `${f} seed ${seed}`).toBeGreaterThan(state.factions[f].upkeep);
         const fleet = state.fleets.find((x) => x.faction === f)!;
-        /*
-         * Three, not four, and not because the opening got lighter.
-         *
-         * Sean named it hull by hull on 21 September and the Crown's Home
-         * Fleet is a Sovereign and two Interceptors. One Sovereign is 4,600
-         * of hull and seventy-four guns where the whole old six-hull Home
-         * Fleet was 119 guns, so what counting hulls measures here is the
-         * roster's scale rather than the fleet's weight. What the line is
-         * still for is catching an opening that quietly comes up empty.
-         */
-        expect(fleet.ships.length).toBeGreaterThanOrEqual(2);
+        // Four, not five. The Confederate Home Fleet lost three Swifts on 20
+        // September — *"1 swift is all the swifts you need"* — and came back
+        // as one Swift, two Tempests and the Brig, so four hulls is now the
+        // smaller of the two openings rather than six.
+        expect(fleet.ships.length).toBeGreaterThanOrEqual(4);
         for (const s of state.systems.filter((x) => x.control === f)) {
           const free = s.slots - s.facilities.length;
           expect(free, `${s.name}`).toBeGreaterThan(0);
@@ -133,66 +128,58 @@ describe('the opening, against Rebellion', () => {
 });
 
 describe('forts', () => {
-  it('hold their fire at a fleet that is only lying there', () => {
-    // Sean, 18 September: *"guns should be anti bombardment only."* A harbor
-    // battery used to fight any enemy hull in the water, which made a
-    // fortified island grind down a squadron that had not fired a shot and
-    // could not fire back — the walls cannot be sunk in a fleet action. The
-    // battery is silent now until it is given something to answer.
+  /**
+   * A wall does not fire at all any more.
+   *
+   * Sean, 18 September: *"guns should be anti bombardment only."* That first
+   * narrowed a battery to answering only a squadron that had opened on it —
+   * and on 20 September, when a bombardment stopped being a round of fire and
+   * became a die roll, the battery lost its last trigger. `FORT_GUNS`,
+   * `HEAVY_FORT_GUNS`, `wallGuns`, `fortGuns` and `underTheWall` are all gone
+   * with it. A fort is an obstacle now, and never a danger.
+   *
+   * What it does instead is stand in the way twice over: it is what a
+   * bombardment has to break before it can reach anybody, and while it stands
+   * it adds its Invasion Defense to whoever is holding the island.
+   */
+  it('never fires at a fleet, whatever that fleet is doing', () => {
     const state = world();
     state.fleets.length = 0;
     const port = mineWithWater(state);
     port.facilities = port.facilities.filter((f) => f.type !== 'fort');
     build(port, 'fort');
     build(port, 'fort');
-    expect(fortGuns(port)).toBe(2 * FORT_GUNS);
-    const raider = addShip(state, port, 'alliance', 'CFS-SWI-S01');
+    const raider = addShip(state, port, 'alliance', 'coral-dreadnaught');
     const before = raider.ships[0].damage;
+    // Lying there.
     resolveBattles(state, createRng(3));
+    expect(raider.ships[0].damage).toBe(before);
+    // And firing on it, which used to be the moment the whole battery
+    // answered at full weight.
+    expect(bombardError(state, raider.id, 'alliance')).toBeNull();
+    bombardNow(state, raider, createRng(3));
     expect(raider.ships).toHaveLength(1);
     expect(raider.ships[0].damage).toBe(before);
-    // Not an action at all, which is why nothing was fought: there is nobody
-    // in the water to fight.
+    // Not an action at all: there is nobody in the water to fight.
     expect(contestedAt(state, port)).toBe(false);
   });
 
-  it('answer the moment that fleet opens on the walls', () => {
-    // The other half of the same ruling, and the reason it is not a nerf: a
-    // squadron that starts throwing shot gets the whole battery back, at full
-    // weight, exactly as it always did.
-    const state = world();
-    state.fleets.length = 0;
-    const port = mineWithWater(state);
-    port.facilities = port.facilities.filter((f) => f.type !== 'fort');
-    build(port, 'fort');
-    build(port, 'fort');
-    // A hull that throws heavy enough for the order to be allowed at all.
-    // The Reefwarden is not one: forty-four guns and a Bombardment of **zero**
-    // on the sheet, which is the roster saying she is a fleet ship and not a
-    // siege train. Bombardment is its own column now and the Ironback is where
-    // the Confederacy keeps it.
-    const raider = addShip(state, port, 'alliance', 'CFS-IRB-R5-01');
-    expect(bombardError(state, raider.id, 'alliance')).toBeNull();
-    raider.bombarding = true;
-    const before = raider.ships[0].damage;
-    advanceSieges(state, createRng(3));
-    expect(raider.ships.length === 0 || raider.ships[0].damage > before).toBe(true);
-  });
-
-  it('count only for whoever holds the island, and only once finished', () => {
+  it('counts for whoever holds the island, and only once finished', () => {
     const state = world();
     const port = mineWithWater(state);
     port.facilities = port.facilities.filter((f) => f.type !== 'fort');
     build(port, 'fort');
+    // A wall still going up is not a wall.
     port.facilities.at(-1)!.building = {
       item: 'fort', work: 3, workLeft: 3, travel: 0, travelLeft: 0, costGold: 100,
     };
-    expect(fortGuns(port)).toBe(0);
+    expect(fortsOf(port)).toHaveLength(0);
     port.facilities.at(-1)!.building = undefined;
-    expect(fortGuns(port)).toBe(FORT_GUNS);
-    // The island changes hands: the guns do not fire for the side that built them.
+    expect(fortsOf(port)).toHaveLength(1);
+    expect(islandBombardDefense(port)).toBe(FORT_BOMBARD_DEFENSE.fort);
+    // The island changes hands: the wall belongs to whoever holds the ground.
     port.control = 'alliance';
-    expect(fortGuns(port)).toBe(0);
+    expect(fortsOf(port)).toHaveLength(0);
   });
 });
 
@@ -202,12 +189,13 @@ describe('a port with nothing in the water but the enemy', () => {
     state.fleets.length = 0;
     const port = mineWithWater(state);
     expect(isBlockaded(state, port)).toBe(false);
-    // One armed sloop. There used to be a floor here, held up by a boom
-    // across the harbor mouth; Sean cut the boom on 16 September and the
-    // floor with it. A Marauder rather than a Swift, because the Swift is the
-    // one hull on the v4.3 sheet with no guns at all — *any* gun shuts a
-    // port, and a ship with none is not one.
-    addShip(state, port, 'alliance', 'CFS-MAR-R1-01');
+    // One sloop. There used to be a floor here, held up by a boom across the
+    // harbor mouth; Sean cut the boom on 16 September and the floor with it.
+    // The Brigantine, not the Swift: since the roster swap the Swift is the
+    // one hull in the game with no guns at all, and a blockade is raised by a
+    // gun. Six light guns is still the smallest thing that can shut a port,
+    // which is what this rule is about.
+    addShip(state, port, 'alliance', 'brigantine');
     expect(isBlockaded(state, port)).toBe(true);
   });
 });

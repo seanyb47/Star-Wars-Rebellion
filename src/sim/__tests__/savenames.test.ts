@@ -37,7 +37,7 @@ function oldSave(): string {
   };
   const isles: Record<string, string> = {
     Starpath: 'Ashcombe',
-    Chimehouse: 'Oakhanger',
+    Shellhouse: 'Oakhanger',
     'Outrigger Bay': 'Sawtry',
     Longreef: 'Pitchcombe',
     Palmfall: 'Tarmouth',

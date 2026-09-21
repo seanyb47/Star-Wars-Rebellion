@@ -140,14 +140,14 @@ export interface System {
    * it. Set by the rumour that wakes it, or by taking enough hurt to run.
    */
   beastRoaming?: boolean;
-  /**
-   * Days this island's own town has been shelled.
-   *
-   * Only counts shot that went past the walls looking for the garrison, which
-   * is the only kind that touches the people. Never cleared: a town remembers,
-   * and each further day of it costs the bombarding side more than the last.
+  /*
+   * `shelled` stood here — days this island's town had been shelled, so each
+   * further day cost the bombarding side more than the last. It is gone with
+   * the daily tick, and it was a bug as well as a mechanic: it was written and
+   * never cleared, not even when the island changed hands, so a town's penalty
+   * latched at its cap for the rest of the war. A bombardment now carries a
+   * flat one-in-twenty chance of finding the town, rolled once per action.
    */
-  shelled?: number;
   /** Hurt, tried to break off, and found the whole Sea shut to it. Carried so
    *  the log says so once rather than every day it goes on being true. */
   cornered?: boolean;
@@ -265,15 +265,8 @@ export type FacilityType =
  */
 export type ShipRole = 'small' | 'medium' | 'large' | 'transport';
 
-/**
- * How far a side's shipwrights have got: nothing, then eight rungs.
- *
- * Three, until the v4.3 roster landed. The roster is a ladder in Sean's own
- * words — *"R = requires research to unlock (ship research mission), and the
- * # is the order unlocked"* — and both navies run R1 through R8, so the
- * number of rungs is a fact about the roster rather than a dial.
- */
-export type ShipGrade = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+/** How far a side's shipwrights have got: nothing, then three grades. */
+export type ShipGrade = 0 | 1 | 2 | 3;
 
 /**
  * Every hull in the game, from the Naval Art Master roster.
@@ -286,36 +279,36 @@ export type ShipGrade = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
  * with the ice-frames still in her, a cruiser cut to one captain's taste.
  */
 export type ShipClassId =
-  // --- Crown Imperium ---
-  | 'CWN-WAY-S01'   // Wayfinder
-  | 'CWN-INT-S02'   // Interceptor I
-  | 'CWN-MOR-S03'   // Morningstar
-  | 'CWN-SOV-S04'   // Sovereign
-  | 'CWN-VAN-R1-01'   // Vanguard
-  | 'CWN-FEN-R1-02'   // Fenrunner
-  | 'CWN-RES-R2-01'   // Resolute
-  | 'CWN-BUL-R3-01'   // Bulwark
-  | 'CWN-VAN-R4-02'   // Vanguard II
-  | 'CWN-INT-R5-02'   // Interceptor II
-  | 'CWN-WRA-R5-03'   // Wraith
-  | 'CWN-JUS-R6-01'   // Justiciar
-  | 'CWN-SOV-R7-02'   // Sovereign II
-  | 'CWN-MAJ-R8-01'   // Majestic
+  // --- Crown Imperium: four to start, eight by research, in that order ---
+  | 'wayfinder'
+  | 'interceptor-i'
+  | 'morningstar'
+  | 'sovereign'
+  | 'vanguard'
+  | 'fenrunner'
+  | 'resolute'
+  | 'bulwark'
+  | 'vanguard-ii'
+  | 'interceptor-ii'
+  | 'wraith'
+  | 'justiciar'
+  | 'sovereign-ii'
+  | 'majestic'
   // --- Free Confederacy ---
-  | 'CFS-SWI-S01'   // Swift
-  | 'CFS-BRI-S02'   // Brigantine
-  | 'CFS-CHI-S03'   // Chimera
-  | 'CFS-TID-S04'   // Tidestalker
-  | 'CFS-MAR-R1-01'   // Marauder
-  | 'CFS-CUT-R2-01'   // Cutlass
-  | 'CFS-WIT-R2-02'   // Witchlight
-  | 'CFS-TEM-R3-01'   // Tempest
-  | 'CFS-URW-R3-01'   // Urskin Whaler
-  | 'CFS-REE-R4-01'   // Reefwarden
-  | 'CFS-IRB-R5-01'   // Ironback
-  | 'CFS-BLA-R6-01'   // Blackfin
-  | 'CFS-URG-R7-01'   // Urskin Goliath
-  | 'CFS-COR-R8-01'   // Coral-Class Dreadnaught
+  | 'swift'
+  | 'brigantine'
+  | 'chimera'
+  | 'tidestalker'
+  | 'marauder'
+  | 'cutlass'
+  | 'witchlight'
+  | 'tempest'
+  | 'urskin-whaler'
+  | 'reefwarden'
+  | 'ironback'
+  | 'blackfin'
+  | 'urskin-goliath'
+  | 'coral-dreadnaught'
   /** The Pirate Lords' ships. Legends: named in the lore, never on the water. */
   | 'harbor'
   | 'swallowtail'
@@ -329,6 +322,14 @@ export type BuildItem = FacilityType | 'troop' | ShipClassId;
 export interface Ship {
   id: string;
   classId: ShipClassId;
+  /**
+   * How many times she has bombarded since she last lay in a friendly port.
+   *
+   * Sean's rule of 20 September: five, and then she is out of shot until she
+   * goes home for more. Absent means a full magazine, so a save written before
+   * the rule reads as one and nothing has to be migrated.
+   */
+  bombardTicks?: number;
   /**
    * Damage taken. At or past the class's hull the ship is lost.
    *

@@ -7,15 +7,13 @@ import {
   CONNECTIVITY_MAX,
   CONNECTIVITY_MIN,
   PIRATE_LORDS,
-  PRODUCTION_SCALE,
   RECRUIT_LAST_DAY,
   RECRUITS_AT_START,
   RECRUITS_IN_PLAY,
   rollRating,
   watchOf,
   CAPITAL_WALLS,
-  CROWN_PRINCIPAL,
-  CROWN_ADMIRAL,
+  CROWN_PRINCIPALS,
   HOME_PORT_WALLS,
   CAPITAL_GARRISON,
   START_GARRISON_MAX,
@@ -267,55 +265,57 @@ interface StartSquadron {
 }
 const START_FLEETS: Record<PlayableFaction, StartSquadron[]> = {
   empire: [
-    // Sean, 21 September, naming the opening hull by hull:
+    // Powerful, and at Highwater: the ship of the line, a two-decker, a
+    // sloop and the survey ship. A hundred and forty-two guns, and the
+    // Sovereign's forty-six of them are Heavy.
     //
-    //   *"Crown Fleet 1 @ Highwater: 1x Sovereign, 2x Interceptors.
-    //    Fleet 2 @ random Imperium location: 1x Wayfinder, 1x Morningstar."*
-    //
-    // Every name in it is an S-rung of the v4.3 roster, which is why this
-    // waited on the roster swap: six of the eight hulls he named did not
-    // exist on the water until today. Three ships at the seat rather than
-    // six, and the weight is not smaller for it — one Sovereign is 4,600 hull
-    // and seventy-four guns where the whole old Home Fleet was 119.
+    // Rebuilt on the canonical roster of 21 September, which is why the
+    // names have all changed. Every hull here is one of the four a side
+    // opens with in the sheet — S01 to S04 — rather than whatever the old
+    // roster had lying about, which is the whole point of the swap.
     {
       name: 'Home Fleet',
-      ships: ['CWN-SOV-S04', 'CWN-INT-S02', 'CWN-INT-S02'],
+      ships: ['sovereign', 'morningstar', 'interceptor-i', 'wayfinder'],
       troops: 2,
       berth: 'seat',
     },
-    // And the forward squadron, which is the one that matters: berthed at a
-    // holding drawn fresh each war, and carrying Admiral Blackwater since
-    // this morning. A Wayfinder to chart with and a Morningstar to argue.
+    // And a medium one forward, in a Reach the Crown does not own outright:
+    // the two-decker, three sloops and the survey ship. No ship of the line
+    // — enough to take an island off somebody, and not enough to fight the
+    // Confederacy's whole navy and expect to win.
     {
       name: 'Windward Squadron',
-      ships: ['CWN-WAY-S01', 'CWN-MOR-S03'],
+      ships: ['morningstar', 'interceptor-i', 'interceptor-i', 'interceptor-i', 'wayfinder'],
       troops: 2,
       berth: 'forward',
     },
   ],
   alliance: [
-    //   *"Confederacy Fleet 1 @ Freeport: Swift, 2x Brigantine.
-    //    Fleet 2 @ random Confederate location: Chimera, Tidestalker."*
+    // Freeport, and nowhere else.
     //
-    // Which is the larger change of the two, and a deliberate one: the
-    // Confederacy had **one** squadron and one harbor, and now it has two of
-    // each. The asymmetry the old note described — the Crown in two seas at
-    // once and the Brethren in one — is gone at his word, and what replaces
-    // it is the asymmetry the roster carries: the Crown's three hulls are
-    // 5,600 hull between them and the Confederacy's four are 4,900, but the
-    // Crown's are concentrated in one first-rate and the Brethren's are
-    // spread across four decks that can be in four places.
+    // Sean's shape of 18 September holds — *"Confederacy fleet is its
+    // Freeport only and it's medium sized. Should rival the medium fleet
+    // from imperium."* — and on the canonical roster it is three Chimeras,
+    // a Tidestalker, the Brigantine and one Swift. Sean, 20 September: *"For
+    // confederacy 1 swift is all the swifts you need."*
+    //
+    // "Rival" is now a measured thing rather than a gun count, and it had to
+    // be: the per-cannon engine makes a fleet action close to deterministic,
+    // so two fleets are either even or they are 100-0, with very little in
+    // between. Measured over 150 seeds: this beats the Windward Squadron 51
+    // times in a hundred and loses to it 49, which is as even as the engine
+    // gets. Two Chimeras instead of three loses every single time — the
+    // Morningstar's armor of 24 is a wall that only the Chimera's six Heavy
+    // guns get through, and below a certain number of them the Confederacy
+    // cannot kill it before it kills them.
+    //
+    // Against the Home Fleet it loses a hundred times in a hundred, which is
+    // the other half of the rule and always was.
     {
       name: 'Home Fleet',
-      ships: ['CFS-SWI-S01', 'CFS-BRI-S02', 'CFS-BRI-S02'],
+      ships: ['chimera', 'chimera', 'chimera', 'tidestalker', 'brigantine', 'swift'],
       troops: 2,
       berth: 'seat',
-    },
-    {
-      name: 'Reef Squadron',
-      ships: ['CFS-CHI-S03', 'CFS-TID-S04'],
-      troops: 2,
-      berth: 'forward',
     },
   ],
 };
@@ -350,13 +350,13 @@ export const START_CHARACTERS: Record<PlayableFaction, number> = { empire: 4, al
 function openingCast(faction: PlayableFaction, rng: Rng) {
   const roster = characterRoster[faction];
   // Who is in every war on this side: the three Lords for the Confederacy, the
-  // Regent and the Admiral for the Crown. Knowing your cast is knowledge worth
-  // having, and it only is if the cast is actually there.
+  // Regent and Blackwater for the Crown. Knowing your cast is knowledge worth
+  // having, and it only is if the cast is actually there — and since 21
+  // September all five of them are victory conditions, which makes it a rule
+  // rather than a courtesy. A war that can be won by default because somebody
+  // was never dealt is not a war.
   const bound = roster.filter(
-    (e) =>
-      PIRATE_LORDS.some((l) => l.name === e.name) ||
-      e.name === CROWN_PRINCIPAL ||
-      e.name === CROWN_ADMIRAL,
+    (e) => PIRATE_LORDS.some((l) => l.name === e.name) || CROWN_PRINCIPALS.includes(e.name),
   );
   const rest = roster.filter((e) => !bound.includes(e));
   const drawn = rng.shuffle(rest).slice(0, Math.max(0, START_CHARACTERS[faction] - bound.length));
@@ -383,12 +383,7 @@ function openingCast(faction: PlayableFaction, rng: Rng) {
  * everywhere with a little to spare, and still does not cover the dearest job
  * everywhere (650), which is where the choosing starts.
  */
-/*
- * Still the same idea — enough to set every yard going and not enough to set
- * the dearest job going everywhere — and it moves with the islands: see
- * `PRODUCTION_SCALE`.
- */
-export const START_GOLD = 450 * PRODUCTION_SCALE;
+export const START_GOLD = 450;
 
 /** Scatter points inside the sector disc, rejecting anything too close. */
 function scatterSystems(rng: Rng, count: number): Array<{ x: number; y: number }> {
@@ -1286,47 +1281,11 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
           classId,
           damage: 0,
         })),
-        // What she can actually carry, which is not always what was asked
-        // for. Sean's Confederate second squadron is a Chimera and a
-        // Tidestalker, and on the v4.3 sheet neither has a hold: Troop
-        // Capacity 0 apiece. Two companies aboard a squadron with no room for
-        // them is a squadron that lands men out of nowhere, so the opening
-        // clamps rather than pretending.
-        troops: 0,
+        troops: squadron.troops,
         officerIds: [],
       });
-      const berthed = state.fleets[state.fleets.length - 1];
-      berthed.troops = Math.min(
-        squadron.troops,
-        berthed.ships.reduce((n, sh) => n + (shipClass(sh.classId).carries ?? 0), 0),
-      );
     }
   }
-  /*
-   * --- Admiral Blackwater sails with the forward squadron. ---
-   *
-   * Sean, 21 September: *"Admiral Corvus should be on the second fleet that's
-   * randomly placed."* He is the Crown's admiral and the game's one named
-   * sailor; leaving him ashore among the seven scattered about made the most
-   * obviously naval person in the cast a passenger, and left the squadron
-   * furthest from home — the one that actually has to make decisions in the
-   * first fortnight — with nobody aboard to make them.
-   *
-   * The forward squadron rather than the Home Fleet, and that is the point of
-   * it: it is berthed at a holding drawn fresh each war, so where the Crown's
-   * admiral is standing on day one is a thing the Confederacy has to find out
-   * rather than assume.
-   */
-  const forwardFleet = state.fleets.find(
-    (f) => f.faction === 'empire' && f.systemId !== capital.id,
-  );
-  const blackwater = state.characters.find((c) => c.name === CROWN_ADMIRAL);
-  if (forwardFleet && blackwater) {
-    forwardFleet.officerIds.push(blackwater.id);
-    // Signed on means aboard: a person on a deck stands where the deck is.
-    blackwater.locationSystemId = forwardFleet.systemId;
-  }
-
   // No Lord's ship goes on the water. The three of them are people standing
   // at Freeport with the rest of the Brethren, and their ships live in their
   // bios — which is Sean's call, 15 September: a thing that is a person and a

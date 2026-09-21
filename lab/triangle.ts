@@ -26,13 +26,13 @@ function duel(a: ShipClassId[], b: ShipClassId[], runs = 150) {
 }
 const cost: Record<string, number> = { kestrel: 45, razorback: 85, sovereign: 150, fluyt: 55 };
 console.log('one to one:');
-console.log(`  1 first-rate (150g) vs 1 sloop (45g):      ${duel(['CWN-SOV-S04'], ['CFS-SWI-S01'])}`);
-console.log(`  1 first-rate vs 1 frigate (85g):           ${duel(['CWN-SOV-S04'], ['CFS-TEM-R3-01'])}`);
+console.log(`  1 first-rate (150g) vs 1 sloop (45g):      ${duel(['sovereign'], ['swift'])}`);
+console.log(`  1 first-rate vs 1 frigate (85g):           ${duel(['sovereign'], ['tempest'])}`);
 console.log('\nby the purse — even gold each side:');
-console.log(`  1 first-rate (150g) vs 3 sloops (135g):    ${duel(['CWN-SOV-S04'], ['CFS-SWI-S01','CFS-SWI-S01','CFS-SWI-S01'])}`);
-console.log(`  1 first-rate (150g) vs 4 sloops (180g):    ${duel(['CWN-SOV-S04'], ['CFS-SWI-S01','CFS-SWI-S01','CFS-SWI-S01','CFS-SWI-S01'])}`);
-console.log(`  2 first-rates (300g) vs 7 sloops (315g):   ${duel(['CWN-SOV-S04','CWN-SOV-S04'], Array(7).fill('CFS-SWI-S01'))}`);
-console.log(`  2 frigates (170g) vs 4 sloops (180g):      ${duel(['CWN-VAN-R1-01','CWN-VAN-R1-01'], Array(4).fill('CFS-SWI-S01'))}`);
-console.log(`  2 first-rates (300g) vs 3 frigates (255g): ${duel(['CWN-SOV-S04','CWN-SOV-S04'], ['CFS-TEM-R3-01','CFS-TEM-R3-01','CFS-TEM-R3-01'])}`);
-console.log(`  balanced 1 large+2 med (320g) vs 7 sloops: ${duel(['CWN-SOV-S04','CWN-VAN-R1-01','CWN-VAN-R1-01'], Array(7).fill('CFS-SWI-S01'))}`);
+console.log(`  1 first-rate (150g) vs 3 sloops (135g):    ${duel(['sovereign'], ['swift','swift','swift'])}`);
+console.log(`  1 first-rate (150g) vs 4 sloops (180g):    ${duel(['sovereign'], ['swift','swift','swift','swift'])}`);
+console.log(`  2 first-rates (300g) vs 7 sloops (315g):   ${duel(['sovereign','sovereign'], Array(7).fill('swift'))}`);
+console.log(`  2 frigates (170g) vs 4 sloops (180g):      ${duel(['razorback','razorback'], Array(4).fill('swift'))}`);
+console.log(`  2 first-rates (300g) vs 3 frigates (255g): ${duel(['sovereign','sovereign'], ['tempest','tempest','tempest'])}`);
+console.log(`  balanced 1 large+2 med (320g) vs 7 sloops: ${duel(['sovereign','razorback','razorback'], Array(7).fill('swift'))}`);
 void cost;

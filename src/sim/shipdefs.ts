@@ -21,12 +21,18 @@
  *    file knows how to read and check that data and nothing about what any of
  *    it means in a fight.
  * 2. **Do not invent missing formulas.** Armor mitigation, First Strike,
- *    pursuit, how three kinds of gun resolve against a hull — none of that is
- *    defined yet, so none of it is here. See `navy.ts` for the placeholders
- *    and the open questions.
- * 3. **Nothing is wired into the live game.** This is the parallel system Sean
- *    asked for: it loads, it validates, it is tested, and `advanceDay` has
- *    never heard of it. The existing roster in `ships.json` is untouched.
+ *    pursuit and how three kinds of gun resolve against a hull were all
+ *    undefined when this was written, so none of it was here. They are defined
+ *    now — the Naval Combat System v3 document of 19 September — and they live
+ *    in `cannon.ts`, read out of `combatRules` in the data rather than guessed
+ *    at. This file still knows nothing about what any of its numbers mean in a
+ *    fight, which is the rule holding.
+ * 3. **This is the live roster.** It ran alongside the game for three days as
+ *    the parallel system Sean asked for — loading, validating, tested, and
+ *    unknown to `advanceDay` — while the game sailed a hand-kept roster of its
+ *    own in `ships.json`. On 21 September the per-cannon engine went in and
+ *    the two became one: `roster.ts` converts this into the hulls the game
+ *    builds and sails, and `ships.json` is deleted.
  *
  * The one thing this file does decide is the *shape*: an immutable definition
  * here, a mutable instance in `navy.ts`, and no way to confuse the two.

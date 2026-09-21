@@ -22,7 +22,6 @@ import {
   reorderShips,
   orderAssault,
   orderBombard,
-  orderCeaseFire,
   orderBreakOff,
   orderCloseBattle,
   orderDetach,
@@ -562,11 +561,9 @@ export function App() {
     setState(result.state);
     flash('The guns open.');
   };
-  const handleCeaseFire = (fleetId: string) => {
-    const result = orderCeaseFire(state, fleetId);
-    if (result.error) return flash(result.error);
-    setState(result.state);
-  };
+  // `handleCeaseFire` stood here. There is nothing to call off since a
+  // bombardment became one ordered action: the guns open, the cascade runs,
+  // and it is over before the screen has finished redrawing.
 
   const handleFlee = (fleetId: string) => {
     const result = orderFlee(state, fleetId);
@@ -956,7 +953,6 @@ export function App() {
           onSail={handleSail}
           onAssault={handleAssault}
           onBombard={handleBombard}
-          onCeaseFire={handleCeaseFire}
           onFlee={handleFlee}
           onOpenShip={(fleetId, shipId) => setOpenShip({ fleetId, shipId })}
           onOrderShips={handleOrderShips}

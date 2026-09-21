@@ -13,17 +13,21 @@ _Everything the game knows about its world, in one place. Edit freely: this is t
 
 An archipelago world with no continents. Seven Seas, each its own archipelago with its own water, its own weather, and its own idea of what is normal. The three Inner Seas behave like seas. The four Outer Seas do not always.
 
-### The Black Tide
+### The water itself
 
-Beneath and between the Seven Seas moves something older than either faction: **the Black Tide** — a living, spreading water, thick as oil and black as a shut eye, that dissolves timber, sours fresh water, and drinks islands whole. Where it makes landfall, an island's forests rot and its springs turn brackish. When it recedes it sometimes leaves behind pearl-black ambergris and coral that grows into anything you carve it toward — the most valuable substance in the world, and the reason people keep going where they shouldn't.
+There is no third force. Sean's ruling of 19 September cut one — *"the war needs no third force; the conflict is law against freedom"* — and what is left in its place is the thing that was always doing the work anyway: the sea.
+
+The three Inner Seas behave. They are charted, the reefs are marked, the packet runs keep their timetables, and a competent master can take a hull from Highwater to the Bone Sea and back without anything happening to her. The four Outer Seas are a different proposition. The Far Sea freezes five months a year and the charts stop being useful before the ice does. The Sea of Storms has weather that arrives without a horizon to arrive over. The Glass Sea is flat enough to see a ship a full day away, which suits nobody. And the deep water between the chains has things in it that take whole hulls and leave a strake and a hatch cover to be found a week later, scored with parallel grooves a hand apart.
+
+None of that is a faction and none of it can be beaten. It is the cost of the world being islands: every crossing is a decision, every chart is worth money, and an island that loses its seawall loses more than a wall.
 
 **Coral is the Confederacy's, and nobody else's.** Living coral only takes shape for somebody who can sing it into shape, which is a Reef-folk art and has never been anything else. The Admiralty has spent a century trying to cultivate it in the Highwater yards and has a century of dead grey rock to show for it, so the Crown sheathes its hulls in milled copper instead and calls the other way superstition. It is the cleanest line between the two: **the Crown builds and bolts on; the Confederacy grows.** Nothing of the Crown's is coral — not a hull, not a wall, not a company.
 
-Nobody knows what it is. Nobody controls it. Both factions claim to be the only thing standing between the islands and it.
+Both factions claim to be the reason the islands are still here, and the argument between them is an argument about *how* a world of islands is kept alive.
 
-- **The Imperium's story:** only seawalls, discipline, and licensed Tidemasters hold the Tide back. Every island that "goes free" is an island that stops maintaining its walls. Liberty is how the Tide gets in.
-- **The Confederacy's story:** the Imperium's dredging fleets pull things up out of the deep that should stay there, and the Tide follows them. The Leviathan was *found* in the Black Tide, not built. The Crown is feeding the thing it says it fights.
-- **Truth:** both have evidence. Neither is entirely right.
+- **The Imperium's story:** seawalls, charts, drills and a standing fleet. The Admiralty surveys the reefs, lights the channels, prices the salvage and hangs the wreckers, and every island that "goes free" is an island that stops maintaining its wall and starts selling its chart. Liberty is how the sea gets in.
+- **The Confederacy's story:** the Crown's dredgers cut channels through living reef to save a day's sailing, and a cleared reef is an island with nothing between it and the next storm. The Admiralty's answer to water it does not understand is to wall it out and bill the island for the stone. You do not survive the Outer Seas by drilling. You survive them by knowing the water, and the people who know it were not asked.
+- **Truth:** both have evidence, and both are describing a real cost somebody else pays.
 
 ### How it all looks
 
@@ -50,9 +54,9 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 **Creed:** Order · Stability · Trade · Civilization · A brighter tomorrow.
 **Motto:** *Through trade, duty, and discipline, a safer world.*
 
-**What they say about themselves:** Before the Imperium, every Reach was its own corsair kingdom and the Tide ate a village a month. The Admiralty built the walls, charted the reefs, schooled the Tidemasters, standardized the coin and ran down the wreckers. The islands are still here because of the Crown.
+**What they say about themselves:** Before the Imperium, every Reach was its own corsair kingdom and the wreckers took a village a month. The Admiralty built the walls, charted the reefs, schooled the Tidemasters, standardized the coin and ran down the wreckers. The islands are still here because of the Crown.
 
-**What their enemies say:** The walls keep people in as well as the Tide out. The conscription rolls fall hardest on the smallest islands, which have the fewest voices at court. Tidecraft licensing means a child born with the gift is schooled at Highwater whether the family agrees or not. And the Leviathan is not a wall. It is a mouth.
+**What their enemies say:** The walls keep people in as well as the sea out. The conscription rolls fall hardest on the smallest islands, which have the fewest voices at court. Tidecraft licensing means a child born with the gift is schooled at Highwater whether the family agrees or not. And the Leviathan is not a seawall. It is a threat with a Crown flag on it.
 
 **Truth:** Both. Officers run from principled to overzealous, and the good ones spend their careers arguing with the rest.
 
@@ -72,9 +76,9 @@ Nobody knows what it is. Nobody controls it. Both factions claim to be the only 
 
 A Lord is a ship when idle and a person on an errand. Left alone they are aboard, and what the ship does is what the Lord does for the cause. Sent ashore — to parley, to spy, to sign somebody on — they are an officer like any other: they can be found out, hurt, and carried off to Highwater in irons, and their ship lies where they left it, unable to sail, her power asleep, until they are back on her deck. That is the Confederacy's whole dilemma and it is meant to hurt: the three best people they have are also three of their best hulls, and early on there is nothing else to send.
 
-A Lord taken goes in irons to Highwater and **stays there**. Nobody is released for nothing: a prisoner is held until their own side sends somebody to break them out, which is an errand like any other — it costs an officer, a voyage and a roll, and it can fail. Measured, a Lord in the Crown's cells is out again in a median of seventy days, but the spread runs from twenty-seven to a hundred and forty-eight, and a Confederacy down to its last islands with no officer to spare does not get them back at all. Calloway, meanwhile, came out of the Black Tide as Admiral Corvus Blackwater and hunts his own old ship for the Crown.
+A Lord taken goes in irons to Highwater and **stays there**. Nobody is released for nothing: a prisoner is held until their own side sends somebody to break them out, which is an errand like any other — it costs an officer, a voyage and a roll, and it can fail. Measured, a Lord in the Crown's cells is out again in a median of seventy days, but the spread runs from twenty-seven to a hundred and forty-eight, and a Confederacy down to its last islands with no officer to spare does not get them back at all. Calloway, meanwhile, came out of the water at the Broken Chain with brass lungs and a black leather mask, as Admiral Corvus Blackwater, and hunts his own old ship for the Crown.
 
-**How the war ends.** One way each. The Confederacy wins the day it holds the Aldermain. The Crown wins the day all three Lords are in irons **at once** — which is a grip it has to keep hold of, because the Brethren keep coming to get them back.
+**How the war ends.** One way each, and since 21 September they are the same way. The Crown wins the day all three Lords are in irons **at once**. The Confederacy wins the day the **Lord Regent and Admiral Blackwater** are — both together, and taking Highwater is no longer a win on its own. It is still how the Confederacy usually wins, because anybody standing on an island when it is stormed goes into the cells with the garrison and the Crown's two are usually on their own capital; what changed is that the Brethren have to actually catch them there. A Regent who sailed out the week before is a Regent still to be found. Either grip has to be kept hold of, because both sides keep coming to get their people back.
 
 **Creed:** Freedom · Opportunity · Independence · Brotherhood · A bolder tomorrow.
 **Motto:** *Free seas. Free peoples. Always.*
@@ -123,7 +127,7 @@ What he learned aboard her he teaches to whatever squadron is lying where he is.
   Corsair Wars and the Bog-folk held them through it; the Admiralty pays for
   that in silence and latitude, and gets a people who can take an island back
   without ever forming a line.
-- **Outlander** (Beyond the Black Tide). Thorne came from *past* the Tide, where no chart goes. Blue-grey skin, red eyes. Nobody knows what's out there. He won't say.
+- **Outlander** (past the edge of the charts). Thorne came from somewhere beyond the Glass Sea, where no chart goes and nobody has been back from twice. Blue-grey skin, red eyes. Nobody knows what is out there. He will not say.
 
 ## 4. The Deep
 
@@ -165,7 +169,7 @@ Has not left the citadel of Highwater in eleven years. Can still the whole harbo
 
 **Admiral Corvus Blackwater** “the Drowned Admiral” — Human (once). Tidemaster, Leader, Spec Ops, Diplomat.
 
-Burned and drowned at the Broken Chain, pulled from the Black Tide by the Regent's surgeons and rebuilt with brass lungs and a black leather mask. Keeps every promise, even to enemies. Executes captains for failure and feels nothing.
+Burned and drowned at the Broken Chain, pulled out of the water by the Regent's surgeons and rebuilt with brass lungs and a black leather mask. Keeps every promise, even to enemies. Executes captains for failure and feels nothing.
 
 **Captain Fenwick Pryor** “the Survivor” — Human. Diplomat, Leader.
 
@@ -207,7 +211,7 @@ Marine drillmaster. Invented the Imperium's landing doctrine and the Drowned Gua
 - **Colonel Orlock** — Human; LEADER (general). Garrison colonel. Hard on deserters, feeds his men better than the regulations require.
 - **Commander Piers Thane** — Human; DIPLOMAT. Prefers a treaty to a broadside.
 - **Sheridan Rix** — Human; SPEC OPS. Crown assassin-courier; leaves no witnesses.
-- **Grand Admiral Cassian Thorne** — Outlander; WILDCARD-RESEARCH, LEADER (admiral). Came from beyond the Black Tide. Studies an enemy's figureheads and shanties to predict how they'll fight. Coldest mind in the Imperium; the Regent doesn't fully trust him and shouldn't.
+- **Grand Admiral Cassian Thorne** — Outlander; WILDCARD-RESEARCH, LEADER (admiral). Came from somewhere past the edge of the charts. Studies an enemy's figureheads and shanties to predict how they'll fight. Coldest mind in the Imperium; the Regent doesn't fully trust him and shouldn't.
 - **Captain Villiers** — Human; LEADER (admiral/general). Reliable second-tier commander.
 - **Tobias Zeck** — Human; SPEC OPS. Gutter-born marine; saboteur and knife man.
 - **Bastian Ferro** — Human?; SPEC OPS (combat/espionage). Masked bounty hunter in a coat of riveted iron plate and verdigrised copper. Has never been seen to eat. Works for coin, not flag.
@@ -227,7 +231,7 @@ Fisher's boy from the Far Sea. The fish come to his boat and old sailors cross t
 
 **Rosalind "Ros" Carrow** “of Carrow” — Human. Diplomat, Recruiter, Latent Deep-touched.
 
-Heir of the island of Carrow, which the Black Tide took while an Imperium fleet held position a day's sail away. The Confederacy's best negotiator: tireless, sharp, running on grief.
+Heir of the island of Carrow, which went under in the great gale while an Imperium fleet held position a day's sail away and did not come in. The Confederacy's best negotiator: tireless, sharp, running on grief.
 
 **Captain Silas Reyne** “the Swallowtail” — Human. Spec Ops, Recruiter, Leader.
 
@@ -604,7 +608,7 @@ _Garrison companies. Three numbers each: what it is worth landing, what it is wo
 
 ### Secretary Sabine Marlow — the Crown's advisor
 
-First Secretary of the Admiralty: the permanent official. Admirals come and go, Lord Regents come and go, and the Secretary reads every dispatch before the Imperator does. Born to a clerk's family on Highwater, she entered the Admiralty at sixteen as a copyist and has outlasted four Regents and eleven First Sea Lords without ever once going to sea. She married a frigate captain, Aurel Marlow, lost with his ship at the Narrows holding the strait for the Crown. Their two sons went to sea after him and rose fast — Tobias, the elder, a post-captain at twenty-six, taken with all hands by the Black Tide off Whalers' Reach; Hal, the younger, commanding a sloop-of-war, driven onto the Wreckers' coast in the great gale and drowned getting his people ashore. Three of the Imperium's best officers, all hers, all lost in its service. She has never taken a day's leave for any of it, never asked the Crown for anything on their account, and has never once let it shake her faith in the thing they died for. Her work is managing big men with big ships and bigger opinions, which is why she is the only person in the Imperium who will tell the Imperator, to their face, that they are wrong — and why the Imperator keeps her.
+First Secretary of the Admiralty: the permanent official. Admirals come and go, Lord Regents come and go, and the Secretary reads every dispatch before the Imperator does. Born to a clerk's family on Highwater, she entered the Admiralty at sixteen as a copyist and has outlasted four Regents and eleven First Sea Lords without ever once going to sea. She married a frigate captain, Aurel Marlow, lost with his ship at the Narrows holding the strait for the Crown. Their two sons went to sea after him and rose fast — Tobias, the elder, a post-captain at twenty-six, taken with all hands by something in the deep water off Windward Reach; Hal, the younger, commanding a sloop-of-war, driven onto the Wreckers' coast in the great gale and drowned getting his people ashore. Three of the Imperium's best officers, all hers, all lost in its service. She has never taken a day's leave for any of it, never asked the Crown for anything on their account, and has never once let it shake her faith in the thing they died for. Her work is managing big men with big ships and bigger opinions, which is why she is the only person in the Imperium who will tell the Imperator, to their face, that they are wrong — and why the Imperator keeps her.
 
 A small woman of sixty-one, straight-backed, seated at a desk as if the chair were an afterthought. Iron-grey hair cropped short, no wig. A face lined by forty-five years of reading other people's dispatches by lamplight, and grey, level eyes amused at something she is not going to share. She wears the Admiralty's civil dress in the Imperium's colours: a deep sea-green coat with cream facings and a narrow gold edge at collar and cuff — no epaulettes, no braid, no sword, the uniform of the staff and not the fleet — a high white collar and a black stock, with ink on the first two fingers of the right hand. At her throat, one small brass clasp holding three plain mourning rings on a short chain: a husband and two sons, all captains, all lost at sea, none of them discussed. Half-moon reading spectacles, on her nose or in her hand, and a black cane with a plain brass head leaning against the desk, which she does not need and does not explain. She should make the viewer feel briefed, judged, and — if they have earned it — trusted.
 
@@ -645,7 +649,7 @@ character, Corvane and Hale included, answers to them.
 **Concept.** In the original, neutral islands are harmless: no troops, no defenses, they never fight back. Mythic Isles are the exception. Each game, **2–3 Mythic Isles** are generated at random in the Outer Seas (never the Inner Seas, never in the same Sea twice, never within one Reach of either side's start). Each is a small neutral *faction*: a guardian, its own garrison, its own defenses, and a hoard. Both players are incentivized to find them first, which creates early-game races and mid-game battles over specific nodes.
 
 - **Wyrmroost** (Sea of Storms). Guardian: A sea-dragon that nests in a live volcano. Held by dragon-cult islanders, fire-hardened. To win it over: Urskin envoy or a Tidecaller; it wants its eggs left alone. As a unit: Capital-class unit: bombardment, terrifies small craft (enemy squadrons launch slower)
-- **The Singing Reef** (Bone Sea). Guardian: A kraken the Reef-folk call "Grandmother". Held by reef-folk hermits, coral shore batteries. To win it over: Reef-folk envoy; it wants the Black Tide kept away. As a unit: Fleet-trap unit: acts as a mobile Kraken-caller / Stillwater
+- **The Singing Reef** (Bone Sea). Guardian: A kraken the Reef-folk call "Grandmother". Held by reef-folk hermits, coral shore batteries. To win it over: Reef-folk envoy; it wants the dredgers kept off its reef. As a unit: Fleet-trap unit: acts as a mobile Kraken-caller / Stillwater
 - **The Sunken Court** (Glass Sea). Guardian: A drowned king who still holds court beneath still water. Held by the drowned guard's original — a regiment of the dead. To win it over: Any Tidecaller; it wants its name spoken at Highwater. As a unit: Troop unit: elite garrison that never loses watch rating
 - **The Iron Shoal** (Bone Sea). Guardian: A Tidewrought colossus older than the Imperium, half-buried. Held by lesser automata that wake when disturbed. To win it over: A Works researcher (Lemmick, Kade); it wants to be repaired. As a unit: Troop/siege unit: brutal offense, terrible watch
 - **The Witch-Mother's Isle** (Glass or Bone Sea). Guardian: The coven-mother of Hagsmoor's exiles. Held by wild tidecallers. To win it over: Deep-touched woman envoy; she wants a promise the coven can hold you to. As a unit: Character-like unit: a Tidecaller who can train your Deep-touched (a second Old Hesper)

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
+import { crownPrincipals } from '../lords';
 import { advanceDay, checkVictory } from '../advanceDay';
 import { PIRATE_LORDS } from '../constants';
 import { lords, powerOf } from '../lords';
@@ -24,17 +25,54 @@ describe('how the war ends', () => {
     expect(state.events.at(-1)!.kind).toBe('war');
   });
 
-  it('is won by the Confederacy the day it holds Highwater, and by nothing less', () => {
+  /**
+   * The mirror of the rule above, and the change of 21 September.
+   *
+   * Sean, on the Crown ending a war holding twenty-two islands to their ten
+   * and losing it anyway: *"the crown wins the map and loses the war. Let's
+   * give them two characters that need to be captured also."* Taking Highwater
+   * was never the same kind of thing as hunting three people across seven
+   * Reaches — one is a war and the other is an afternoon.
+   */
+  it('is won by the Confederacy with both Crown principals in irons, and by nothing less', () => {
     const state = generateGalaxy(7, 'alliance');
     // Holding most of the world is not the war.
     for (const s of state.systems) if (s.populated && s.control !== 'empire') s.control = 'alliance';
     checkVictory(state);
     expect(state.winner).toBeUndefined();
+
+    // Nor is holding the capital. It is a catastrophe for the Crown and not
+    // the end of it, exactly as Coruscant is in the game this one is after.
     const capital = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
     expect(capital.name).toBe('Highwater');
     capital.control = 'alliance';
     checkVictory(state);
+    expect(state.winner).toBeUndefined();
+
+    const heads = crownPrincipals(state);
+    expect(heads).toHaveLength(2);
+    // One of the two is not the war either.
+    heads[0].status = 'captured';
+    checkVictory(state);
+    expect(state.winner).toBeUndefined();
+
+    heads[1].status = 'captured';
+    checkVictory(state);
     expect(state.winner).toBe('alliance');
+    expect(state.speed).toBe('paused');
+    expect(state.events.at(-1)!.kind).toBe('war');
+  });
+
+  /**
+   * And the two of them are dealt into every war, because a victory condition
+   * that depends on who the dice handed out is not a victory condition.
+   */
+  it('puts both of the Crown\'s principals in every world', () => {
+    for (const seed of [3, 11, 29, 101, 501]) {
+      const state = generateGalaxy(seed, 'empire');
+      expect(crownPrincipals(state), `seed ${seed}`).toHaveLength(2);
+      for (const who of crownPrincipals(state)) expect(who.faction).toBe('empire');
+    }
   });
 
   /**

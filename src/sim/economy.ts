@@ -12,6 +12,8 @@ import {
   loyaltyBand,
   shipSpec,
 } from './constants';
+import { garrisonRoster, landingTroop } from './troops';
+import { craftGrade } from './missions';
 import { clearWrecks, fleetCapacity, isAtSea } from './fleets';
 import { getSystem, inProse, otherFaction, pushEvent, returnDeposit, supportMultiplier } from './helpers';
 import type { Rng } from './rng';
@@ -78,14 +80,20 @@ export function totalUpkeep(state: GameState, faction: PlayableFaction): number 
         upkeep += UPKEEP_PER_DAY[facility.type];
       }
     }
-    upkeep += system.garrison * UPKEEP_PER_DAY.troop;
+    // Per company, by who they are. It was a flat gold a day for every troop
+    // in the game, which priced a Shoal Warden and a Drowned Guard the same
+    // and made the garrison ladder — the whole reason a mass-producible troop
+    // exists — cost identical money whichever unit held the island.
+    upkeep += garrisonRoster(system).reduce((n, t) => n + t.upkeep, 0);
   }
   // A hull costs the same whether it is fighting or lying at anchor, and the
   // companies aboard it eat wherever they are.
   for (const fleet of state.fleets) {
     if (fleet.faction !== faction) continue;
     for (const ship of fleet.ships) upkeep += UPKEEP_PER_DAY[ship.classId];
-    upkeep += fleet.troops * UPKEEP_PER_DAY.troop;
+    // Companies aboard are the side's landing troop, which is who a landing
+    // actually puts on a beach.
+    upkeep += fleet.troops * landingTroop(fleet.faction, craftGrade(state.factions[fleet.faction].craft)).upkeep;
   }
   return upkeep;
 }

@@ -8169,216 +8169,60 @@ with every war finished** at −0.15. *"Nothing, nothing, nothing, then the
 game."* It is the right dial for a **difficulty setting** and the wrong one for
 a balance change, and the war is 17 — 23 without touching it.
 
-## The encyclopedia plate shows the whole hull (#136, 21 September)
+## Two lines, one game (21 September)
 
-Sean: *"Encyclopedia ships need to be resized to fit properly without cutting
-off image. All should be 4:3."*
+Sean has been running a second session against the same design docs, and sent
+a twelve-patch series cut from the same commit this branch left. Both lines
+had independently built the per-cannon engine and the live roster swap; each
+had work the other had never seen.
 
-Every painting in `src/art/ships` already **is** 4:3 — 640 × 480, all
-thirty-seven of them. What was wrong was the box. His earlier ask for the same
-plate read *"approximately 38-42vh on mobile using its natural 4:3 ratio and
-object-fit: cover"*, and it was taken literally: `height: 40vh` with the aspect
-ratio released. On a phone 40vh is taller than 4:3, so `cover` did what `cover`
-does and cropped the painting to fill it — topmasts or waterline, depending on
-where `object-position` landed.
+**The series is the mainline where they overlap.** It was built with the
+design docs to hand, and its own later patches stand on its versions of the
+engine and the roster — keeping this branch's versions would have meant
+rewriting three of its patches against them for no gain.
 
-The two asks pull against each other and the later one wins, so the ratio is
-what is fixed now and the height follows from it. On a 393px phone that is a
-295px plate, which is within a few points of the 38–42vh the first ask wanted
-and cuts nothing off. `object-fit: contain`, so a painting that is ever *not*
-4:3 letterboxes rather than losing a bow.
-
-Guarded in `shipart.test.ts` off the stylesheet, and the guard was checked
-against the old rule before it was trusted: it fails on `height: 40vh`.
-
-## The v4.3 roster goes on the water (#123, #134, 21 September)
-
-Sean, on the saves this would end: *"Oh I don't care about my game. Push it."*
-
-The Fleet Roster has been in the repository since 19 September — validated,
-tested, drawn, with prose for all twenty-eight hulls — while the game on the
-water went on fighting with the twenty-four of `ships.json` and four size
-archetypes behind them. A player could read a Blackfin's sheet and never sail
-one. That is closed: one roster, and it is his.
-
-### What actually changed
-
-**The roster is a view over the sheet.** `SHIP_CLASSES` is built from
-`shipdefs.ts` rather than from `ships.json`, and a hull's live id *is* its
-Ship ID — which deleted the encyclopedia's translation table, exactly as that
-table's own note said it would: *"the whole map deletes itself the day the
-live roster swaps."* `ships.json` holds the three legends and nothing else.
-
-**The round is the locked cannon model.** *"There is no ship-level Firepower
-stat. Every individual cannon makes its own attack."* So `decksOf` is gone —
-it split one weight-of-metal number into two or three "decks" to stop a
-first-rate emptying herself into a sloop, which is a way of saying with one
-number what the sheet says with three — and `aimAt`, `HULL_EASE`,
-`GUNNERY_ON_SMALL` and `GUN_DECKS` went with it, replaced by the sheet's own
-accuracy matrix. Long Guns are Phase 1 of every round; a hull they sink never
-gets her Light and Heavy guns away. `navycombat.ts` stays the pure authority
-on a cannon against a hull and `fleets.ts` keeps the world around it — three
-parties at an island, forts, officers, the politics of a lost squadron.
-
-**Research unlocks instead of discounting.** Eight rungs, because the sheet
-has eight: *"R = requires research to unlock, and the # is the order
-unlocked."* `CRAFT_COST_STEP` and `CRAFT_DAYS_STEP` are retired — they were
-written when the ladder had nothing to unlock, and eight rungs at a tenth each
-would have taken eighty per cent off a Majestic and made the sheet's pricing
-authority a suggestion.
-
-**Creatures moved onto the same scale.** Hulls 28–90 became 1,300–4,600
-against ships of 350–14,000, and each got a Size and a point of sail because
-the accuracy matrix reads the *target's*. `evade` and `BEAST_HIT_CHANCE` are
-retired: one number could not say what those two say.
-
-**And Sean's opening, hull by hull** — Sovereign and two Interceptors at
-Highwater, Wayfinder and Morningstar forward, Swift and two Brigantines at
-Freeport, Chimera and Tidestalker forward. Every one an S-rung, six of the
-eight impossible before today.
-
-### Three unit conversions, and why they are conversions
-
-The sheet prices hulls against each other. It has no idea how long a war is or
-what an island earns, and two of its own benchmarks say so in its own units:
-*"1 build day per gold of actual build cost"* and *"ceil(1% of actual build
-cost) gold per day"*. Both are numbers about the sheet's economy.
-
-| | what the sheet says | in the game |
-|---|---|---|
-| build days | Marauder 45, Coral-Class 1,300 | ÷ **3** |
-| maintenance | Sovereign 48.5/day, Brigantine 1.0 | ÷ **3** |
-
-Taken raw, the top of both ladders is unbuildable in a war whose median is
-under a thousand days, and the Crown is bankrupt by day 540. Every ratio the
-sheet states survives both divisions untouched; what they set is the scale
-against the clock and against an island.
-
-The days factor was swept 2.2 to 6 over twenty-four wars: **it moves the
-length of the war and not who wins it**, which is the signature of a
-conversion rather than a lever.
-
-### Two bugs only the new scale could show
-
-**A fleet action went unreported.** `reportRound` left out a round that sank
-nothing, on the rule that two fleets trading shot is not news and a creature
-is. True when hulls ran nine to thirty-two; on this roster two Sovereigns
-against two Tempests wrote **no line at all**. One rule for both now: damage
-done is news, whoever did it.
-
-**A creature stopped being dangerous.** `monsterStrike` did `beast.guns` give
-or take a seventh — sixteen points against a hull that now has five hundred.
-Measured: a Sea Dragon took seventeen a round off three Interceptors and
-killed none of them in seven days. Its guns are cannon like everybody else's
-now, rolling the Light Gun's dice; three Interceptors lose two of three
-getting it, which is what a sea-dragon is for.
-
-### And the balance came back, badly
-
-Twelve wars, seeds 9000+:
-
-| | before the swap | **after** |
-|---|---|---|
-| Crown — Confederacy | 10 — 10 | **2 — 9** |
-| never ended | 0 of 20 | 1 of 12 |
-| median length | 636 | 1,289 |
-| Crown gold at the end | — | 1,857 |
-| Confederacy hulls at the end | — | 22.3 |
-
-Audit clean, every rule holding. The cause is not the conversions — moving
-them across a 2× range gives the same answer every time. It is the two
-ladders, and it is on the sheet:
-
-| across the whole roster | Crown | Confederacy |
-|---|---|---|
-| gold per 1,000 hull | 234 | 185 |
-| **upkeep per 1,000 hull** | **5.64** | **2.65** |
-| upkeep per gun | 0.44 | 0.30 |
-
-**The Crown pays 2.1× the Confederacy's maintenance for the same hull.** The
-endgame says it plainest: the Majestic is 2,610 gold and 52.2 a day for
-13,900 hull; the Coral-Class is 2,200 and **18.0** for 11,700 — 84% of the
-hull, 98% of the guns, a third of the bill.
-
-That is deliberate on the sheet, and the sheet says why: *"Crown doctrine:
-standardized combined-arms fleets ... strong Heavy Guns and capital ships"*
-against *"Confederacy doctrine: asymmetric specialists, fast raiders,
-retrofits"*. The design assumes an empire funds a heavy navy off a big tax
-base. This game does not pay it for one: the Crown holds the most ground and
-cannot win by ground at all, because its victory condition is a manhunt.
-
-**This is Sean's to settle and is not settled here.** Nothing on the roster
-was touched. The candidates, with the measurement behind each, are in the
-message that goes with this commit.
-
-## The ground roster lands, and brings a watch problem with it (21 September)
-
-Sean's `siege-and-ground-war` branch, merged: six troops a side, two to start
-and four behind research at R2/R4/R6/R8 — which lines up exactly with the
-eight-rung ladder the roster swap had just built — plus the Coral/Windward
-swap of explored and dark.
-
-### What the merge broke, and it was not in the diff
-
-`npm test` came back with one failure, and it was the one that matters:
-*"a prisoner is gone after by the opponent, and mostly got out"* read **1 of
-32** against a floor of 4. The rescue rate out of Highwater had collapsed.
-
-The cause is three steps from the change. The change order cuts Crown
-Regulars, so the Crown's only two starting companies are Marines and a Ship's
-Company — and its line company, the Fensworn, is behind R2. `garrisonRoster`
-posts `lineOf(faction)` in most squares, so the roster as merged gave the
-Marines `role: "line"` to keep that lookup working.
-
-That is not a label. Marines watch **24** where the Regulars they replaced
-watched **15**, so every rock the Crown holds was suddenly garrisoned by
-elites:
-
-| mean capital garrison watch, 32 seeds | |
+| | |
 |---|---|
-| before the merge | **100.5** |
-| as merged | **143.1** |
-| after the fix | **124.0** |
+| superseded here | the roster swap, the round rewrite, the Blackwater placement, the 4:3 plate |
+| kept from here | Freeport hidden until charted, the missions cluster, the purse, the closing screen, the manhunt measurement |
+| new from the series | the siege as two ordered actions, overkill, bombardment odds shown before a tick is spent, result screens, the coral hulls retuned, and **two Crown principals to lose** |
 
-A 42% rise in the price of every covert operation against the Crown, out of a
-change about ground combat — and a side that cannot get its people back is
-precisely the stall `RESCUE_BASE`'s note is written about.
+### The series answered this morning's balance problem
 
-### The fix was already written in the change order
+Measured here at dawn: the Crown lost **2 — 9** while ending every war ahead
+on ground, and the note above concluded the cause was the two ladders'
+maintenance and left it for the next roster export. Sean's 0009 found the
+better answer, and it is a design answer rather than a pricing one:
 
-Its own card says *"CROWN MARINES — Human, elite, start"* and *"FENSWORN —
-Bog-folk clans, line, R2"*. The data had Marines as line and Fensworn as a
-native with home islands. Put back the way the doc has them — Marines elite,
-Fensworn line — and `lineOf` given a fallback to the sailors company for a
-side with no line company it can raise yet, the Crown's ordinary squares are
-held by whoever came off a hull and the Marines stand where it means to be
-seen. Which is the rule `localOf` has stated from the other end all along.
+> *"the crown wins the map and loses the war. Let's give them two characters
+> that need to be captured also."*
 
-The remaining 124 against 100 is real and is the roster: the Crown's cheapest
-company now watches 20 where its conscripts watched 15. That is a fair reading
-of a design that gives the Crown no conscripts, and the rescue rate is back
-inside its measured band.
+The two win conditions were never the same kind of thing — three people across
+seven Reaches against one fleet reaching one island. Now both sides win by
+holding people, and twelve wars read **Crown 7 — Confederacy 5**, all of them
+finished, median 780 days, audit clean. The maintenance asymmetry is still
+real and still on the sheet; it is no longer decisive.
 
-### Still to build
+### What the integration itself had to settle
 
-Sections 0, 1 and 2 of the change order — the overkill casualty rule, the
-bombardment rework (dice-rolled actions, five ticks a magazine, cascading
-rolls) and the invasion rework (walls add to the defender's die instead of
-barring the landing). The branch carries section 3 and the Reach swap only.
+- **`effectiveSpec` disagreed with its own comment.** The ground roster priced
+  troops per island and left `if (!isShipClass(item)) return` above the craft
+  cut, so the doc said research applies to a mine, a wall, a troop and a
+  first-rate alike and the body applied it to hulls. Sean's ruling is the
+  comment.
+- **The closing screen was built on a rule that no longer exists.** It read
+  the capital's last days as the evidence for a Confederate win. Both sides
+  hold people now, so the evidence is symmetric — three captures and two — and
+  it asks `isPrincipal` rather than `isLord`.
+- **Both vocabulary rulings survived** in `terms.json`: the Defenses section
+  and the Production/Income decision were appended to the same comment on
+  either side.
+- **The troop-role fix had to be re-applied**, since it lived in a merge
+  commit the cherry-picks could not carry. The series carries the same
+  regression: capital detection 143.1 against 100.5 before the ground roster.
 
-### Two decisions, both Sean's, both taken (21 September)
+### Worth saying plainly
 
-**The Crown's maintenance: leave it.** Asked whether to pay the Crown for
-holding ground, flatten the gap between the ladders, or neither — *"Leave it,
-I'll redo the sheet."* So nothing is compensated for in code. The war sits at
-2 — 9 and the reason is understood and written down above; it is not a bug to
-be found again and not a balance problem to be tuned around. The next Fleet
-Roster export revises the maintenance column, and the measurement is re-run
-when it lands. **Do not add a Crown production bonus or scale the maintenance
-divisor to chase this.**
-
-**Sections 0–2 of the siege change order: wait.** Asked whether to build the
-overkill rule, the bombardment rework and the invasion rework now — *"I'll
-make you an update and send to you."* A revised change order is coming, so the
-version in `docs/siege-and-ground-war.md` is not the one to build from. What
-is merged is section 3 and the Reach swap, and they stand.
+Two sessions building the same features from the same docs cost a day of
+duplicated work on the engine and the roster. Whichever line is canonical, it
+is cheaper if only one of them builds a given thing.

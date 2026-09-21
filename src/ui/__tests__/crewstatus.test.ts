@@ -50,7 +50,7 @@ describe('what the crew badge says', () => {
     const state = generateGalaxy(11, 'alliance');
     const person = anyone(state);
     const port = getSystem(state, person.locationSystemId);
-    const fleet = addShip(state, port, 'alliance', 'CFS-MAR-R1-01');
+    const fleet = addShip(state, port, 'alliance', 'reefwarden');
     fleet.voyage = undefined;
     board(state, fleet.id, person.id, 'alliance');
     expect(crewStatus(person, state).label).toBe('Available');

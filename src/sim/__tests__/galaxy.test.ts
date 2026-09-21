@@ -434,14 +434,12 @@ describe('generateGalaxy', () => {
       const base = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
       const baseReach = state.sectors.find((s) => s.id === base.sectorId)!;
       expect(FRONTIER).toContain(baseReach.name);
-      // Two squadrons a side since 21 September, and the first of each lies
-      // at its seat. It was four for the Confederacy while the three Lords
-      // were hulls of their own, then one when they became people; Sean named
-      // a second when he wrote the opening out hull by hull, and the rule that
-      // survives all three is where the *first* one lies.
+      // One squadron a side. It was four for the Confederacy while the three
+      // Lords were hulls of their own; they are people now and the meeting
+      // place has the one fleet, like Highwater.
       const confed = state.fleets.filter((f) => f.faction === 'alliance');
-      expect(confed).toHaveLength(2);
-      expect(confed[0].systemId).toBe(base.id);
+      expect(confed).toHaveLength(1);
+      for (const f of confed) expect(f.systemId).toBe(base.id);
       const seat = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
       expect(seat.name).toBe('Highwater');
       expect(seat.archetype).toBe('port-city');

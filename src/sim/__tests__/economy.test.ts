@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { garrisonRoster } from '../troops';
 import { generateGalaxy } from '../galaxy';
 import { addShip, fleetCapacity, sailFleet } from '../fleets';
 import {
@@ -189,8 +190,16 @@ describe('upkeep', () => {
       { id: 'f3', type: 'shipyard', owner: 'empire' },
     ];
     island.garrison = 3;
-    expect(totalUpkeep(state, 'empire')).toBe(
-      UPKEEP_PER_DAY.shipyard + UPKEEP_PER_DAY.shipyard + 3 * UPKEEP_PER_DAY.troop,
+    // Per company, by who they are. A troop cost a flat gold a day until 21
+    // September, whoever it was, which priced a Shoal Warden and a Drowned
+    // Guard identically and made the garrison ladder — the reason a
+    // mass-producible troop exists at all — cost the same money whichever
+    // unit was holding the island.
+    const garrison = garrisonRoster(island).reduce((n, t) => n + t.upkeep, 0);
+    expect(garrison).toBeGreaterThan(0);
+    expect(totalUpkeep(state, 'empire')).toBeCloseTo(
+      UPKEEP_PER_DAY.shipyard + UPKEEP_PER_DAY.shipyard + garrison,
+      5,
     );
   });
 
@@ -384,8 +393,8 @@ describe('scrapping', () => {
     const state = generateGalaxy(107);
     const island = isolate(state, 'empire');
     // Two hulls, loaded to the last berth, then one of them sold.
-    const fleet = addShip(state, island, 'empire', 'CFS-MAR-R1-01');
-    addShip(state, island, 'empire', 'CFS-MAR-R1-01');
+    const fleet = addShip(state, island, 'empire', 'reefwarden');
+    addShip(state, island, 'empire', 'reefwarden');
     fleet.troops = fleetCapacity(fleet);
     expect(fleet.troops).toBeGreaterThan(1);
     const aboard = fleet.troops;
@@ -397,7 +406,7 @@ describe('scrapping', () => {
       fleetId: fleet.id,
       shipId: fleet.ships[0].id,
     });
-    expect(got).toBe(scrapValue('CFS-MAR-R1-01'));
+    expect(got).toBe(scrapValue('reefwarden'));
     expect(fleet.ships).toHaveLength(1);
     // Nobody rides in a berth that is on the breaker's slip.
     expect(fleet.troops).toBeLessThanOrEqual(fleetCapacity(fleet));
@@ -409,7 +418,7 @@ describe('scrapping', () => {
   it('takes the last hull of a squadron off the board, crew and all', () => {
     const state = generateGalaxy(108);
     const island = isolate(state, 'empire');
-    const fleet = addShip(state, island, 'empire', 'CFS-MAR-R1-01');
+    const fleet = addShip(state, island, 'empire', 'reefwarden');
     const officer = state.characters.find((c) => c.faction === 'empire')!;
     // Serving at sea rather than standing on the island, so "put ashore"
     // means something the assertion can see.
@@ -452,7 +461,7 @@ describe('scrapping', () => {
   it('will not let the player break a ship up in open water', () => {
     const state = generateGalaxy(110);
     const island = isolate(state, 'empire');
-    const fleet = addShip(state, island, 'empire', 'CFS-MAR-R1-01');
+    const fleet = addShip(state, island, 'empire', 'reefwarden');
     const what = { kind: 'ship', fleetId: fleet.id, shipId: fleet.ships[0].id } as const;
     expect(scrapError(state, 'empire', what)).toBeNull();
 
@@ -464,7 +473,7 @@ describe('scrapping', () => {
     // The shortfall is not bound by any of that: it can reach anything on the
     // books, which is the whole difference between what you may order and what
     // happens to you.
-    expect(scrap(state, 'empire', what)).toBe(scrapValue('CFS-MAR-R1-01'));
+    expect(scrap(state, 'empire', what)).toBe(scrapValue('reefwarden'));
   });
 
   it('leaves a side that can pay entirely alone', () => {

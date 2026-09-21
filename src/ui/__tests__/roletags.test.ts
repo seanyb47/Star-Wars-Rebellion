@@ -31,7 +31,8 @@ function everyRole(): string[] {
 
 describe('crew role tags', () => {
   it('has the cast it thinks it has', () => {
-    expect(everyone).toHaveLength(26);
+    // Twenty-eight since the two negotiators went in.
+    expect(everyone).toHaveLength(28);
     // Eight tags, down from eleven on 20 September when the lore package
     // retired the Deep as a system and its three ranks — Deep-touched, Latent
     // Deep-touched and Tidemaster — came off the four people who wore them.

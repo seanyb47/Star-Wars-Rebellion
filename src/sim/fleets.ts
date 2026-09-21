@@ -9,10 +9,6 @@ import {
   BREAK_OFF_ODDS,
   PURSUIT_ODDS,
   isWall,
-  wallGuns,
-  wallStrength,
-  FORT_REPAIR_PER_DAY,
-  BOMBARD_PER_COMPANY,
   SHOCK_BATTLE_CEILING,
   SHOCK_BATTLE_FLOOR,
   SHOCK_PER_GUN_SUNK,
@@ -20,14 +16,12 @@ import {
   SHOCK_MILITARY_FIRE,
   SHOCK_CONQUEST,
   SHOCK_LIBERATION_LEVEL,
-  CIVILIAN_STACK,
-  CIVILIAN_STACK_MAX,
   REPAIR_PER_DAY,
   REPAIR_AT_A_YARD,
   OFFICER_EDGE,
   SCOUT_PER_ISLAND,
   shipSpec,
-  combatStatsOf,
+  hitChanceOn,
   shipClass,
   LONG_GUN_SHARE,
   RETREAT_SHOTS,
@@ -36,13 +30,28 @@ import {
   beastAlive,
   beastAt,
   beastCombatant,
+  beastFighter,
   beastGuns,
+  landBeastDamage,
   monsterShots,
   monsterStrike,
   sightBeast,
 } from './creatures';
-import { fireOnce, gunsOf, gunsOfKind, pickTarget, type Combatant } from './round';
-import { GUN_KINDS, type GunKind } from './navycombat';
+import { fireOnce, pickTarget, type Combatant } from './round';
+import { exchange, type Fighter } from './cannon';
+import type { Ledger, LedgerRow } from './outcome';
+import {
+  bombard,
+  invade,
+  islandDefense,
+  wallBombardDefense,
+  wallInvasionDefense,
+  type Fighter as Landed,
+  type Shellable,
+} from './siege';
+import { BOMBARD_CIVILIAN_LOYALTY, BOMBARD_TICKS_MAX, FACILITY_LABEL } from './constants';
+import { craftGrade } from './missions';
+import { garrisonRoster, landingTroop } from './troops';
 import {
   inProse,
   getSystem,
@@ -163,11 +172,9 @@ export function fleetStatus(state: GameState, fleet: Fleet): string {
     return `At sea for ${target?.name ?? 'open water'} — ${days}d`;
   }
   const here = state.systems.find((s) => s.id === fleet.systemId);
-  if (fleet.bombarding && here) {
+  if (here && here.control !== fleet.faction && fortsOf(here).length > 0 && fleetBombard(fleet) > 0) {
     const walls = fortsOf(here).length;
-    return walls > 0
-      ? `Working the walls — ${Math.round(wallCondition(here) * 100)}% standing`
-      : 'Shelling the town';
+    return `Off the walls — ${walls} ${walls === 1 ? 'battery' : 'batteries'} standing`;
   }
   if (here && here.control !== fleet.faction && here.populated) return 'Blockading';
   return 'At anchor';
@@ -575,13 +582,18 @@ export function assaultError(
   if (fleetsAt(state, system.id).some((f) => f.faction !== fleet.faction && fleetGuns(f) > 0)) {
     return 'Enemy ships hold the harbor.';
   }
-  // The gate the whole siege hangs on. Boats do not go in under a battery
-  // that is still firing, so the walls come down first and the only thing
-  // that brings them down is weight of shot.
-  const walls = fortsOf(system).length;
-  if (walls > 0) {
-    return `The seawall still stands. ${walls === 1 ? 'It has' : 'They have'} to be beaten down first.`;
-  }
+  /*
+   * The gate the whole siege used to hang on stood here: *"a single fortress
+   * on the island prevents the fleet from doing an assault"* (Sean, 15
+   * September). It is repealed as of 20 September. You may always land.
+   *
+   * What a standing wall does instead is add its Invasion Defense to the
+   * garrison's die, which makes storming it expensive rather than impossible.
+   * That is the better rule for the same reason the bombardment rework is:
+   * with the wall as a turnstile there was exactly one order of operations and
+   * no decision in it. Now there is a trade — spend ticks and risk the town,
+   * or spend companies going over the wall.
+   */
   return null;
 }
 
@@ -903,7 +915,7 @@ function enemyBreaksOff(state: GameState, system: System, rng: Rng): boolean {
   const mine =
     fightingAt(state, system.id)
       .filter((f) => f.faction === state.player)
-      .reduce((n, f) => n + fleetGuns(f), 0) + (system.control === state.player ? fortGuns(system) : 0);
+      .reduce((n, f) => n + fleetGuns(f), 0);
   if (theirGuns === 0 || mine < theirGuns * BREAK_OFF_ODDS) return false;
   let ran = false;
   for (const fleet of theirs) {
@@ -930,27 +942,18 @@ function enemyBreaksOff(state: GameState, system: System, rng: Rng): boolean {
  */
 export function fortsOf(system: System): Facility[] {
   return system.facilities.filter(
-    (f) =>
-      isWall(f.type) &&
-      f.owner === system.control &&
-      !f.building &&
-      (f.damage ?? 0) < wallStrength(f.type),
+    (f) => isWall(f.type) && f.owner === system.control && !f.building,
   );
 }
 
-/** What is left of the walls, as a share of what they were. */
-export function wallCondition(system: System): number {
-  const forts = system.facilities.filter(
-    (f) => isWall(f.type) && f.owner === system.control && !f.building,
-  );
-  if (forts.length === 0) return 0;
-  // By weight of stone, not by count: a Heavy Fortress at half is more wall
-  // left than a Fortress untouched, and the figure the panel prints has to
-  // mean the same thing on every island.
-  const whole = forts.reduce((n, f) => n + wallStrength(f.type), 0);
-  const left = forts.reduce((n, f) => n + Math.max(0, wallStrength(f.type) - (f.damage ?? 0)), 0);
-  return left / whole;
-}
+/*
+ * `wallCondition` stood here, and reported what was left of an island's walls
+ * as a share of the stone they were built from. There is no such share any
+ * more: a wall is standing or it is rubble, and nothing in between, which is
+ * the whole of "nothing has hit points" from the change order. What replaced
+ * the percentage on the panel is a count of batteries, which is also what the
+ * bombardment die is actually rolled against.
+ */
 
 /**
  * The harbor's own guns, for whoever holds it.
@@ -960,31 +963,14 @@ export function wallCondition(system: System): number {
  * is the dangerous one and every day after is cheaper, which is the right
  * shape for a siege and comes free with giving the wall a condition.
  */
-/**
- * Is this fleet under the island's guns?
- *
- * Only a squadron that has opened on the walls is. Sean, 18 September:
- * *"guns should be anti bombardment only"* — so the battery is silent at a
- * fleet that is merely lying there, and answers the moment that fleet starts
- * throwing shot at it. One test, so the battle, the break-off and the parting
- * volley cannot drift apart about what counts.
+/*
+ * `underTheWall`, `fortGuns` and `wallGuns` stood here and are gone with the
+ * daily tick. They existed only to let a wall shoot back during a bombardment
+ * round, and per Sean's rule of 18 September — *"guns should be anti
+ * bombardment only"* — they were already silent at any fleet not firing. With
+ * rounds gone and ships taking no damage from stone, they have no trigger and
+ * no target. A fort is an obstacle now, never a danger.
  */
-export function underTheWall(state: GameState, fleet: Fleet): boolean {
-  if (!fleet.bombarding) return false;
-  const system = getSystem(state, fleet.systemId);
-  return system.control !== fleet.faction && fortGuns(system) > 0;
-}
-
-export function fortGuns(system: System): number {
-  const forts = system.facilities.filter(
-    (f) => isWall(f.type) && f.owner === system.control && !f.building,
-  );
-  return forts.reduce((n, f) => {
-    const whole = wallStrength(f.type);
-    const left = Math.max(0, whole - (f.damage ?? 0)) / whole;
-    return n + wallGuns(f.type) * left;
-  }, 0);
-}
 
 /* ------------------------------------------------------------------- siege */
 
@@ -996,8 +982,46 @@ export function fortGuns(system: System): number {
 export function fleetBombard(fleet: Fleet): number {
   return fleet.ships.reduce((n, ship) => {
     const spec = shipSpec(ship.classId);
-    return n + (ship.damage >= spec.hull ? 0 : spec.bombard);
+    if (ship.damage >= spec.hull) return n;
+    // And a hull that has emptied its magazine throws nothing until it has
+    // been home. Sean's rule: *"A ship can only bombard 5x before it has to go
+    // back to a friendly port to resupply."* Counting it here rather than
+    // refusing the whole action gives graceful degradation and correct
+    // reinforcement for nothing: a squadron running dry gets weaker by the
+    // hull, and a fresh ship joining it is worth exactly what it brings.
+    if ((ship.bombardTicks ?? 0) >= BOMBARD_TICKS_MAX) return n;
+    return n + spec.bombard;
   }, 0);
+}
+
+/** How many shots this squadron has left in it, as pips for the screen. */
+export function fleetTicksLeft(fleet: Fleet): Array<{ shipId: string; left: number }> {
+  return fleet.ships.map((ship) => ({
+    shipId: ship.id,
+    left: Math.max(0, BOMBARD_TICKS_MAX - (ship.bombardTicks ?? 0)),
+  }));
+}
+
+/** Everything the island has that shot can be spent on, walls before men. */
+export function islandDefenders(system: System): Shellable[] {
+  const out: Shellable[] = fortsOf(system).map((f) => ({
+    kind: 'wall' as const,
+    cost: wallBombardDefense(f.type),
+    ref: f.id,
+  }));
+  // A garrison is a number rather than a list of records, so the roster is
+  // what says who each of those companies actually is — and therefore what it
+  // costs a broadside to break.
+  const roster = garrisonRoster(system);
+  for (let i = 0; i < system.garrison; i++) {
+    out.push({ kind: 'troop', cost: roster[i]?.bombardDefense ?? 2, ref: `troop-${i}` });
+  }
+  return out;
+}
+
+/** What the island stands at today — the number a player is owed beforehand. */
+export function islandBombardDefense(system: System): number {
+  return islandDefense(islandDefenders(system));
 }
 
 /**
@@ -1023,42 +1047,75 @@ export function bombardError(
   if (fleetsAt(state, system.id).some((f) => f.faction !== fleet.faction && fleetGuns(f) > 0)) {
     return 'Their ships hold the harbor. Beat them first.';
   }
+  // Two named refusals, and neither is a defeat. Sean's §6: *"the player
+  // should not receive a generic 'Defeat' screen when the operation simply
+  // failed to accomplish its bombardment objective."* A squadron out of shot
+  // is a supply problem with an obvious answer; a squadron with nothing heavy
+  // aboard never had the guns for it.
+  if (fleet.ships.length > 0 && fleet.ships.every((sh) => (sh.bombardTicks ?? 0) >= BOMBARD_TICKS_MAX)) {
+    return 'This squadron is out of shot. Put in at a port of yours to resupply.';
+  }
   if (fleetBombard(fleet) <= 0) return 'Nothing aboard throws heavy enough to matter.';
   return null;
 }
 
 /**
- * One day of bombardment: the walls first, the garrison only after.
+ * What the player is told before a tick is spent, and the reason it must be
+ * told: the top of the die *is* the fleet's bombardment score, so a squadron
+ * under the island's number has no chance rather than poor odds.
+ *
+ * > "your squadron rolls at most 32; these walls stand at 40."
+ */
+export function bombardOdds(
+  state: GameState,
+  fleet: Fleet,
+): { rolls: number; against: number; hopeless: boolean } {
+  const system = getSystem(state, fleet.systemId);
+  const defenders = islandDefenders(system);
+  const against = islandDefense(defenders);
+  const cheapest = Math.min(...defenders.map((d) => d.cost), Infinity);
+  const rolls = fleetBombard(fleet);
+  // To break anything at all you must roll the island's whole total plus the
+  // cheapest thing on it.
+  return { rolls, against, hopeless: rolls <= against + (Number.isFinite(cheapest) ? cheapest : 0) };
+}
+
+/**
+ * One bombardment: ordered, rolled and over, in the moment you order it.
  *
  * Sean cut deliberate targeting and he is right — he has played Rebellion for
  * years and never once found shelling a granary worth doing, and a target
  * picker on a phone is a menu in the middle of a decision. So there is one
- * button and a hierarchy. Shot goes at the walls while any stand. Only when
- * none do can it reach the garrison, and shot that goes looking for companies
- * in a town finds the town: the island's regard falls hard, every other island
- * in the Reach hears of it, and each further day costs more than the last.
+ * button and a hierarchy: shot goes at the walls while any stand, and only
+ * when none do can it reach the garrison.
  *
- * The wall fires back the whole time, which is what makes the first day of a
- * siege the expensive one.
+ * What changed on 21 September is the pacing. This was a standing order that
+ * fired once a morning and ground a wall's hit points down over a fortnight;
+ * it is now a die roll that cascades. The fleet rolls 1d(its bombardment
+ * score) against the island's total. Beat it and the margin is spent breaking
+ * things cheapest-first; every wall that falls lowers the total, so the next
+ * roll is easier and a hot streak levels an island in one action. Roll under
+ * it and the action is over.
+ *
+ * One action, one tick from every ship that took part, however many rolls the
+ * cascade ran.
  */
-export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
+export function bombardNow(state: GameState, fleet: Fleet, rng: Rng): void {
   const system = getSystem(state, fleet.systemId);
   const wallsBefore = fortsOf(system).length;
-  let weight = fleetBombard(fleet);
+  const score = fleetBombard(fleet);
   /*
    * Nothing to fire with, which is a *failed* operation and not a lost one.
    *
    * Sean's §6 is explicit that these are different screens: *"the player
    * should not receive a generic 'Defeat' screen when the operation simply
-   * failed to accomplish its bombardment objective."* A squadron that has been
-   * shot to pieces, or that never had the guns for it, achieved nothing — and
-   * saying so is more use than calling it a defeat.
+   * failed to accomplish its bombardment objective."*
    */
-  if (weight <= 0) {
+  if (score <= 0) {
     if (fleet.faction === state.player) {
       pushEvent(state, {
         kind: 'battle',
-        text: `${fleet.name} can put nothing into the walls of ${inProse(system.name)} today.`,
+        text: `${fleet.name} can put nothing into the walls of ${inProse(system.name)}.`,
         systemId: system.id,
         report: bombardReport(state, system, 'defeat', {
           wallsDown: 0,
@@ -1072,77 +1129,55 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
     }
     return;
   }
+
   /**
    * Whose news this is.
    *
    * It used to be "my fleet is doing it", which meant a player watching their
    * own capital being battered down was told nothing at all until the last
    * battery fell — the one thing in the game most worth knowing, and the log
-   * was silent on it. A siege is news to both sides: the guns firing and the
-   * walls being fired at.
+   * was silent on it. A siege is news to both sides.
    */
   const mine = fleet.faction === state.player || system.control === state.player;
 
-  // The wall answers first, at what it still has.
-  const wall = Math.round(fortGuns(system));
-  if (wall > 0) {
-    const targets: Combatant[] = fleet.ships
-      .filter((sh) => sh.damage < combatStatsOf(sh.classId).hull)
-      .map(combatantOf);
-    // Every gun on the wall, one at a time, and each picks its own mark: the
-    // battery is Heavy metal, so it hits a first-rate lying in the roads far
-    // more readily than the sloop that came in with her.
-    for (let g = 0; g < wall; g++) {
-      const target = pickTarget(targets, rng, 'Heavy');
-      if (!target) break;
-      fireOnce('Heavy', target, rng);
-    }
-    sinkAndDrown(state, fleet);
+  const result = bombard(score, islandDefenders(system), rng);
+
+  // One tick per ship that took part, whatever the cascade did.
+  for (const ship of fleet.ships) {
+    if (ship.damage >= shipSpec(ship.classId).hull) continue;
+    if ((ship.bombardTicks ?? 0) >= BOMBARD_TICKS_MAX) continue;
+    ship.bombardTicks = (ship.bombardTicks ?? 0) + 1;
   }
 
-  // Then the walls take what is thrown at them, worst first: a battery already
-  // half down is finished rather than a fresh one started, because a wall only
-  // stops mattering when it is rubble.
-  const standing = fortsOf(system).sort((a, b) => (b.damage ?? 0) - (a.damage ?? 0));
-  const rubble: string[] = [];
-  for (const fort of standing) {
-    if (weight <= 0) break;
-    const left = wallStrength(fort.type) - (fort.damage ?? 0);
-    const put = Math.min(weight, left);
-    fort.damage = (fort.damage ?? 0) + put;
-    weight -= put;
-    if (fort.damage >= wallStrength(fort.type)) rubble.push(fort.id);
+  // Stone first. A wall beaten down is rubble, and rubble does not mend —
+  // patching a battery under fire is one thing, raising it again out of
+  // nothing is a build order, which is exactly what a blockade prevents.
+  const felled = result.destroyed.filter((d) => d.kind === 'wall');
+  if (felled.length > 0) {
+    const gone = new Set(felled.map((d) => d.ref));
+    system.facilities = system.facilities.filter((f) => !gone.has(f.id));
   }
-  // A wall beaten to nothing is rubble, and rubble does not mend.
-  //
-  // It used to stay on the island at full damage, and the night's repair took
-  // a stone off it — which put it back under its own strength and therefore
-  // back on the list of walls standing. Measured: every siege drove the walls
-  // to two per cent and stuck there for ever, bombarding and being rebuilt in
-  // the same breath, and not one siege in eight games ever finished. Patching
-  // a battery under fire is one thing; raising it again out of nothing is a
-  // build order, which is exactly what a blockade prevents.
-  const felled = rubble.length;
-  if (felled > 0) system.facilities = system.facilities.filter((f) => !rubble.includes(f.id));
+  // Then the men, once there was no stone left to stop the shot.
+  const broken = result.destroyed.filter((d) => d.kind === 'troop').length;
+  if (broken > 0) system.garrison = Math.max(0, system.garrison - broken);
 
   const ripples: Ripple[] = [];
-  if (felled > 0 && mine) {
+  if (felled.length > 0 && mine) {
     pushEvent(state, {
-      kind: 'battle',
-      text: fortsOf(system).length === 0
-        ? `The last of the seawall at ${inProse(system.name)} is down. The landing is open.`
-        : `A battery at ${inProse(system.name)} is beaten to rubble.`,
-      // Losing a wall of your own is a loss; taking one down is an action.
-      ...(system.control === state.player ? { kind: 'loss' as const } : {}),
+      kind: system.control === state.player ? 'loss' : 'battle',
+      text:
+        fortsOf(system).length === 0
+          ? `The last of the seawall at ${inProse(system.name)} is down. The landing is open.`
+          : `A battery at ${inProse(system.name)} is beaten to rubble.`,
       systemId: system.id,
     });
+  }
+  if (felled.length > 0) {
     /*
-     * And it is read as a military success rather than an atrocity. Sean's
-     * §14: shot that destroys the enemy's soldiers without touching the town
-     * reads as *"defeating the enemy military rather than attacking
-     * civilians"*, and is worth a little goodwill instead of costing a lot.
-     * Only when a wall actually falls — a siege that grinds away for a
-     * fortnight is a fortnight of noise, not a fortnight of news.
+     * Read as a military success rather than an atrocity. Sean's §14: shot
+     * that destroys the enemy's soldiers without touching the town reads as
+     * *"defeating the enemy military rather than attacking civilians"*, and is
+     * worth a little goodwill instead of costing a lot.
      */
     ripples.push(
       ...applyShock(
@@ -1158,65 +1193,114 @@ export function bombardRound(state: GameState, fleet: Fleet, rng: Rng): void {
         rng,
       ),
     );
-  } else if (standing.length > 0 && mine) {
-    pushEvent(state, {
-      kind: 'battle',
-      text:
-        fleet.faction === state.player
-          ? `${fleet.name} works the walls of ${inProse(system.name)}. ${Math.round(wallCondition(system) * 100)}% of them still stand.`
-          : `${fleet.name} lies off ${inProse(system.name)} and works the walls. ${Math.round(wallCondition(system) * 100)}% of them still stand.`,
-      systemId: system.id,
-    });
   }
 
-  // Past the walls. Only now can the guns reach the companies, and only at a
-  // price the whole Reach pays.
-  if (fortsOf(system).length > 0 || weight <= 0) {
-    /*
-     * The harbor is not silenced, so the day's work is *inconclusive* — §7,
-     * and Sean's line about it is the one that shapes the screen: *"do not
-     * call this a victory simply because something was destroyed."* A card
-     * only when something actually happened; a siege grinding on is a line in
-     * the log, not a screen.
-     */
-    if (fleet.faction === state.player && felled > 0) {
+  /*
+   * And the one thing in the game the whole world hears about.
+   *
+   * A flat one action in twenty, rolled once however long the cascade ran, and
+   * five loyalty off every island in the Reach. It replaces a penalty that
+   * escalated with how many days a town had been shelled — which was also a
+   * real bug, because the counter was written and never cleared, so a town's
+   * penalty latched at its cap and followed the island through changing hands.
+   *
+   * The shape of the political rule is unchanged and is Sean's §13: a large
+   * loss on the island, a moderate shock through the Reach, and a very small
+   * one everywhere else, because *"people across the region hear about the
+   * destruction"* and not because every island changes sides.
+   */
+  if (result.civilian && system.populated) {
+    ripples.push(
+      ...applyShock(
+        state,
+        {
+          systemId: system.id,
+          faction: otherFaction(fleet.faction),
+          scope: 'global',
+          local: BOMBARD_CIVILIAN_LOYALTY,
+          regional: BOMBARD_CIVILIAN_LOYALTY,
+          global: SHOCK_CIVILIAN_FIRE.global,
+          news: `${inProse(system.name)} was shelled over the heads of its people. The story is going everywhere a ship goes.`,
+        },
+        rng,
+      ),
+    );
+    if (mine) {
       pushEvent(state, {
-        kind: 'battle',
-        text: `${fleet.name} works the walls of ${inProse(system.name)}, and they are not silenced yet.`,
-        quiet: true,
+        kind: system.control === state.player ? 'loss' : 'battle',
+        text: `Shot from ${fleet.name} finds the quarter behind the quay at ${inProse(system.name)}, and word of it runs through ${reachName(state, system)}.`,
         systemId: system.id,
-        report: bombardReport(state, system, 'draw', {
-          wallsDown: felled,
-          wallsLeft: fortsOf(system).length,
-          companies: 0,
-          civilian: 0,
-          ripples,
-        }),
       });
     }
-    return;
   }
-  const broken = shellTheTown(state, system, fleet, weight, rng, ripples);
+
   if (fleet.faction !== state.player) return;
-  /*
-   * Past the walls, which means the town took shot meant for the garrison.
-   * Military damage and civilian damage are reported apart because the
-   * political rules price them completely differently — §5 asks for exactly
-   * that separation, and §7 for the tradeoff to be *"immediately apparent"*.
-   */
+  const verdict: Verdict =
+    fortsOf(system).length === 0 && wallsBefore > 0
+      ? 'victory'
+      : felled.length > 0 || broken > 0
+        ? 'draw'
+        : 'defeat';
   pushEvent(state, {
     kind: 'battle',
-    text: `${fleet.name} fires into ${inProse(system.name)} over the heads of its people.`,
-    quiet: true,
+    text:
+      verdict === 'victory'
+        ? `${fleet.name} has silenced the harbor at ${inProse(system.name)}.`
+        : `${fleet.name} works the walls of ${inProse(system.name)}.`,
     systemId: system.id,
-    report: bombardReport(state, system, felled > 0 ? 'victory' : 'draw', {
-      wallsDown: felled + (wallsBefore - fortsOf(system).length - felled),
+    report: bombardReport(state, system, verdict, {
+      wallsDown: felled.length,
       wallsLeft: fortsOf(system).length,
       companies: broken,
-      civilian: system.populated ? 1 : 0,
+      civilian: result.civilian && system.populated ? 1 : 0,
       ripples,
+      ledger: islandLedger(state, system, felled.length, broken),
+      why:
+        verdict === 'defeat'
+          ? `${fleet.name} rolls at most ${score}; ${inProse(system.name)} stands at ${result.rolls[0]?.against ?? 0}.`
+          : undefined,
     }),
   });
+}
+
+/**
+ * What is left on the island and what went, as two columns.
+ *
+ * Counted by *kind* rather than listed one by one, which is the only way it
+ * reads on a phone: "2 Fortresses" beats two rows saying Fortress. The
+ * garrison's kinds come off the roster, which is the same list the Defenses
+ * panel prints, so the screen and the panel never disagree about who was
+ * standing there.
+ */
+function islandLedger(
+  state: GameState,
+  system: System,
+  wallsDown: number,
+  troopsBroken: number,
+): Ledger[] {
+  void state;
+  const tally = (rows: Array<{ label: string }>): LedgerRow[] => {
+    const seen = new Map<string, number>();
+    for (const r of rows) seen.set(r.label, (seen.get(r.label) ?? 0) + 1);
+    return [...seen].map(([label, count]) => ({ label, count }));
+  };
+  const standingWalls = fortsOf(system).map((f) => ({ label: FACILITY_LABEL[f.type] }));
+  // Which walls went is not recorded kind by kind, and saying "1 Fortress"
+  // when it was the Heavy one would be worse than saying "1 battery".
+  const lostWalls: LedgerRow[] =
+    wallsDown > 0 ? [{ label: wallsDown === 1 ? 'Battery' : 'Batteries', count: wallsDown }] : [];
+  const roster = garrisonRoster(system);
+  return [
+    {
+      side: system.name,
+      faction: isPlayable(system.control) ? system.control : undefined,
+      standing: [...tally(standingWalls), ...tally(roster.map((t) => ({ label: t.name })))],
+      lost: [
+        ...lostWalls,
+        ...(troopsBroken > 0 ? [{ label: 'Troops broken', count: troopsBroken }] : []),
+      ],
+    },
+  ];
 }
 
 /**
@@ -1237,9 +1321,10 @@ function bombardReport(
     civilian: number;
     ripples: Ripple[];
     why?: string;
+    ledger?: Ledger[];
   },
 ): OperationReport {
-  const { wallsDown, wallsLeft, companies, civilian, ripples, why } = input;
+  const { wallsDown, wallsLeft, companies, civilian, ripples, why, ledger } = input;
   const report: OperationReport = {
     kind: 'bombardment',
     verdict,
@@ -1273,6 +1358,7 @@ function bombardReport(
       why,
     }),
     political: ripples,
+    ledger,
   };
   report.tension =
     verdict !== 'victory' && civilian > 0
@@ -1281,88 +1367,27 @@ function bombardReport(
   return report;
 }
 
-/** Shot that goes looking for companies, and what it finds instead. */
-function shellTheTown(
-  state: GameState,
-  system: System,
-  fleet: Fleet,
-  weight: number,
-  rng: Rng,
-  ripples: Ripple[],
-): number {
-  if (system.garrison <= 0) return 0;
-  const broken = Math.min(system.garrison, Math.floor(weight / BOMBARD_PER_COMPANY));
-  system.garrison -= broken;
-
-  const already = system.shelled ?? 0;
-  system.shelled = already + 1;
-  const stack = 1 + Math.min(already * CIVILIAN_STACK, CIVILIAN_STACK_MAX);
-  const enemy = otherFaction(fleet.faction);
-  if (system.populated) {
-    /*
-     * The one thing in the game the whole world hears about.
-     *
-     * Sean's propagation memo, §13: shot that goes past the walls looking for
-     * the garrison is *"a major political mistake"* — a large loss on the
-     * island, a moderate shock through the Reach, and a *very small* effect
-     * everywhere else, because *"people across the region hear about the
-     * destruction"* and not because every island changes sides. §18: a global
-     * effect ignores the Reach boundary entirely, which is the point of it.
-     *
-     * This used to be a flat hit on the island and the same flat hit on every
-     * other island in the Reach, near or far, and nothing beyond. It escalates
-     * the same way it always did — a town remembers, and the second day of it
-     * costs more than the first — but it now falls off with distance, varies
-     * island by island, and carries, faintly, past the chain.
-     */
-    ripples.push(
-      ...applyShock(
-        state,
-        {
-          systemId: system.id,
-          faction: enemy,
-          scope: 'global',
-          local: SHOCK_CIVILIAN_FIRE.local * stack,
-          regional: SHOCK_CIVILIAN_FIRE.regional * stack,
-          global: SHOCK_CIVILIAN_FIRE.global * stack,
-          news: `${system.name} is being shelled over the heads of its people. The story is going everywhere a ship goes.`,
-        },
-        rng,
-      ),
-    );
-  }
-
-  if (fleet.faction === state.player || system.control === state.player) {
-    pushEvent(state, {
-      kind: system.control === state.player ? 'loss' : 'battle',
-      text: system.populated
-        ? `${fleet.name} shells ${inProse(system.name)} itself. ${
-            broken > 0
-              ? `${broken} ${broken === 1 ? 'troop is' : 'troops are'} broken`
-              : 'The garrison holds'
-          }, the quarter behind the quay is burning, and word of it is running through the Reach.`
-        : `${fleet.name} works over ${inProse(system.name)}. ${broken} ${broken === 1 ? 'troop is' : 'troops are'} broken.`,
-      systemId: system.id,
-    });
-  }
-  return broken;
-}
 
 /**
- * Every squadron under standing orders to bombard fires once, and the orders
- * end the moment they cannot be carried out.
+ * What a day does to a siege now, which is: nothing.
+ *
+ * There was a standing-order loop here — every squadron told to bombard fired
+ * once each morning, and the order ended when it could no longer be carried
+ * out. It is gone with the daily tick, and this is what is left of it: a ship
+ * that has put in at a friendly port fills its magazine again.
+ *
+ * Sean: *"A ship can only bombard 5x before it has to go back to a friendly
+ * port to resupply."* Going back is the whole cost, and it is a real one —
+ * the squadron is off the island while it does, and the wall it left standing
+ * is still standing when it returns.
  */
 export function advanceSieges(state: GameState, rng: Rng): void {
-  for (const fleet of [...state.fleets]) {
-    if (!fleet.bombarding) continue;
-    if (bombardError(state, fleet.id, fleet.faction) !== null) {
-      fleet.bombarding = undefined;
-      continue;
-    }
-    bombardRound(state, fleet, rng);
-    // Walls down and nothing worth shelling: the order has done its job.
-    const system = getSystem(state, fleet.systemId);
-    if (fortsOf(system).length === 0 && system.garrison <= 0) fleet.bombarding = undefined;
+  void rng;
+  for (const fleet of state.fleets) {
+    if (isAtSea(fleet)) continue;
+    const here = state.systems.find((s) => s.id === fleet.systemId);
+    if (!here || here.control !== fleet.faction || here.blockaded) continue;
+    for (const ship of fleet.ships) if (ship.bombardTicks) ship.bombardTicks = undefined;
   }
   clearWrecks(state);
 }
@@ -1386,33 +1411,18 @@ export function repairOvernight(state: GameState): void {
       !here.blockaded &&
       !here.uprising &&
       here.facilities.some((f) => f.type === 'shipyard' && f.owner === fleet.faction && !f.building);
-    /*
-     * Her own rate, not the fleet's.
-     *
-     * The roster carries a Repair Rate per hull — *"a BETWEEN-BATTLES stat
-     * (never during combat)"* — running from half a per cent to four, and it
-     * is one of the things that tells a Coral-Class from a Sovereign. The
-     * game had one number for every ship because the old roster had no such
-     * column. `REPAIR_PER_DAY` is what a hull with no rate of its own gets,
-     * and a yard still doubles whatever the hull manages on her own.
-     */
+    const rate = atAYard ? REPAIR_AT_A_YARD : REPAIR_PER_DAY;
     for (const ship of fleet.ships) {
       if (ship.damage <= 0) continue;
-      const cls = shipClass(ship.classId);
-      const own = cls.repairPerDay ?? REPAIR_PER_DAY;
-      const rate = atAYard ? own * (REPAIR_AT_A_YARD / REPAIR_PER_DAY) : own;
-      ship.damage = Math.max(0, ship.damage - combatStatsOf(ship.classId).hull * rate);
+      ship.damage = Math.max(0, ship.damage - shipSpec(ship.classId).hull * rate);
     }
   }
-  for (const system of state.systems) {
-    for (const fort of system.facilities) {
-      if (!isWall(fort.type) || fort.building || !fort.damage) continue;
-      // A share of its own stone, so a Heavy Fortress patches faster in
-      // absolute terms and at the same rate as a share of itself.
-      fort.damage = Math.max(0, fort.damage - wallStrength(fort.type) * FORT_REPAIR_PER_DAY);
-      if (fort.damage === 0) delete fort.damage;
-    }
-  }
+  // Walls used to be patched here, a share of their own stone a night. There
+  // is nothing to patch: a wall is standing or it is rubble, and rubble does
+  // not mend. The percentage-patch against a flat bombardment was also the
+  // cause of a silent bug worth remembering — any fleet throwing under 1.2 a
+  // day could never scratch a Fortress and nothing anywhere said so, so a lone
+  // Chimera would besiege an island until the end of the war.
 }
 
 
@@ -1420,33 +1430,60 @@ export function repairOvernight(state: GameState): void {
 /**
  * Everything at an island that can shoot, on one side, as combatants.
  *
- * A hull, a fort on the wall and a creature in the water all take a shot and
- * all take damage, so the round does not care which is which. What differs is
- * only how hard each is to hit and what happens when it dies, and both of
- * those live on the combatant.
+ * A `Fighter` is a value with a mutable hull, so the exchange can work on it
+ * without knowing anything about fleets, and `land` is what writes the result
+ * back afterwards. The `combatant` beside it is the same hull in the older
+ * shape, kept for the one thing that still speaks it: a creature's strike,
+ * which takes a whole hull rather than firing at one.
  */
-function hullsOf(fleets: Fleet[]): Combatant[] {
-  const out: Combatant[] = [];
+interface LineShip {
+  /** What the guns see. */
+  fighter: Fighter;
+  /** The same hull as the old round saw it, for a creature's strike. */
+  combatant: Combatant;
+  /** Land the exchange's result back on the ship. */
+  land: () => void;
+}
+
+function lineOf(fleets: Fleet[]): LineShip[] {
+  const out: LineShip[] = [];
   for (const fleet of fleets) {
     for (const ship of fleet.ships) {
-      out.push(combatantOf(ship));
+      const cls = shipClass(ship.classId);
+      const spec = shipSpec(ship.classId);
+      const fighter: Fighter = {
+        id: ship.id,
+        name: cls.name,
+        size: cls.size ?? 'Medium',
+        speed: cls.speedCategory ?? 'Normal',
+        armor: cls.armor ?? 0,
+        guns: { long: cls.longGuns ?? 0, heavy: cls.heavyGuns ?? 0, light: cls.lightGuns ?? 0 },
+        // A hull with nothing aboard that fires is shot at last, which is
+        // what makes a transport worth escorting.
+        combatantType: spec.guns > 0 ? 'Warship' : 'Noncombat',
+        wholeHull: spec.hull,
+        hull: Math.max(0, spec.hull - ship.damage),
+      };
+      out.push({
+        fighter,
+        combatant: {
+          guns: spec.guns,
+          left: fighter.hull,
+          whole: spec.hull,
+          role: cls.role,
+          hitChance: hitChanceOn(cls.role),
+          hurt: (amount) => {
+            ship.damage += amount;
+            return ship.damage >= spec.hull;
+          },
+        },
+        land: () => {
+          ship.damage = Math.max(ship.damage, spec.hull - fighter.hull);
+        },
+      });
     }
   }
   return out;
-}
-
-/** One hull, as the guns see her and as the damage finds her. */
-function combatantOf(ship: Ship): Combatant {
-  const stats = combatStatsOf(ship.classId);
-  return {
-    stats,
-    left: stats.hull - ship.damage,
-    whole: stats.hull,
-    hurt: (amount) => {
-      ship.damage += amount;
-      return ship.damage >= stats.hull;
-    },
-  };
 }
 
 
@@ -1460,24 +1497,6 @@ function combatantOf(ship: Ship): Combatant {
  * that can now actually shoot back at it.
  */
 
-/**
- * Every cannon this thing works, as one assignment apiece.
- *
- * `decksOf` used to stand here and split a hull's single weight-of-metal
- * number into two or three "decks" so a first-rate would not empty herself
- * into one sloop. That was a way of saying, with one number, what the roster
- * says with three: a Sovereign carries forty-six Heavy Guns and twenty-eight
- * Light, and each of the seventy-four picks its own mark and rolls its own
- * dice. The reason for the old approximation has gone with the number it
- * approximated.
- */
-function cannonOf(who: Combatant): GunKind[] {
-  const out: GunKind[] = [];
-  for (const kind of GUN_KINDS) {
-    for (let i = 0; i < gunsOfKind(who, kind); i++) out.push(kind);
-  }
-  return out;
-}
 
 /** Total damage standing on every hull in these fleets. */
 function hurtIn(fleets: Fleet[]): number {
@@ -1522,39 +1541,17 @@ function reportRound(
   const lostEmpire = before.empire - after.empire;
   const lostAlliance = before.alliance - after.alliance;
   if (lostEmpire === 0 && lostAlliance === 0) {
-    /*
-     * A day of shot that sank nothing, which used to be a silent day.
-     *
-     * The old rule was that two fleets trading shot without a loss is not
-     * news, and a creature is — it can chew a squadron for a week without
-     * taking a hull down. That was true on a roster where hulls ran nine to
-     * thirty-two and a round routinely sank something. On the v4.3 sheet they
-     * run three hundred and fifty to fourteen thousand, and two squadrons can
-     * hammer each other for a week with nothing going under: measured, two
-     * Sovereigns against two Tempests wrote **no line at all** on the first
-     * day. A player watching their fleet's condition fall with an empty log
-     * has no way to find out why, which is exactly the complaint that put the
-     * creature's line here in the first place.
-     *
-     * So it is one rule for both now: damage done is news, whoever did it.
-     */
-    const damage = Math.round(hurtIn([...empire, ...alliance]) - before.hurt);
-    if (damage <= 0) return;
-    if (beast && beastAlive(system)) {
+    // Two fleets trading shot without sinking anything is a quiet day and the
+    // log has always left it out. A creature is not: it can chew a squadron
+    // for a week without taking a hull down, and a player watching damage
+    // climb with nothing in the log has no way to find out why.
+    const damage = hurtIn([...empire, ...alliance]) - before.hurt;
+    if (beast && beastAlive(system) && damage > 0) {
       pushEvent(state, {
         kind: 'battle',
         text: `${beast.name} is at the hulls off ${inProse(system.name)}. ${damage} taken and nothing sunk${
-          system.beastDamage ? `; it has ${Math.round(system.beastDamage)} of ${beast.hull} in it` : ''
+          system.beastDamage ? `; it has ${system.beastDamage} of ${beast.hull} in it` : ''
         }.`,
-        systemId: system.id,
-        quiet,
-      });
-      return;
-    }
-    if (before.empire > 0 && before.alliance > 0) {
-      pushEvent(state, {
-        kind: 'battle',
-        text: `Shot exchanged off ${inProse(system.name)}. ${damage} taken between them and nothing sunk.`,
         systemId: system.id,
         quiet,
       });
@@ -1562,7 +1559,11 @@ function reportRound(
     return;
   }
   const tally = (n: number) => `${n} ${n === 1 ? 'hull' : 'hulls'}`;
-  const alive = beast !== undefined && beastAlive(system);
+  // In the action, rather than alive at the end of it. A creature killed by
+  // the same broadside it struck back with was in the fight and belongs on the
+  // card — it used to drop off the report of its own last round, which read as
+  // an ordinary action that cost two hulls for no reason anybody could see.
+  const alive = beast !== undefined && (beastAlive(system) || killedBeast);
   // Mid-sentence, so the creature's article goes lowercase: "against the
   // Derelict", not "against The Derelict". Same rule and the same miss as the
   // rumour line in `creatures.ts` — a name with a definite article in it needs
@@ -1639,11 +1640,12 @@ function fightRound(
     allianceGuns: alliance.reduce((n, f) => n + fleetGuns(f), 0),
   };
 
-  // The three parties. Forts shoot for the side that holds the island; the
-  // creature shoots for nobody and is shot at by everybody.
-  const empireGuns = hullsOf(empire);
-  const allianceGuns = hullsOf(alliance);
-  const monster = beastCombatant(system);
+  // The two navies, as the per-cannon engine wants them: a hull with a size,
+  // a speed, an armor belt and three kinds of gun, and a way back to the ship
+  // it came from so the damage can be landed when the firing stops.
+  const empireLine = lineOf(empire);
+  const allianceLine = lineOf(alliance);
+  const beast = beastFighter(system);
 
   // Leadership tells here, as it always has: a well-handled squadron gets more
   // out of the same guns. It is a hit-chance edge now rather than a multiplier
@@ -1658,58 +1660,64 @@ function fightRound(
     admiral ? 1 + (admiral.leadership / 100) * OFFICER_EDGE : 1,
   );
 
-  // Everyone shoots once, and everyone shoots at the same moment: the volleys
-  // are worked out against the state at the start of the round, so a hull that
-  // goes down still got its shot off. Simultaneous fire is what keeps a battle
-  // from being decided by who is listed first.
   /*
-   * One assignment per cannon, and the Long Guns go first.
+   * One Combat Exchange, by the locked rules: long guns first and on their
+   * own, then light and heavy together, both phases simultaneous, and the
+   * whole thing stopping when a side has lost thirty per cent of the hull it
+   * came in with. Eight or so internal rounds, which is what the sheet's own
+   * simulator reports and what `cannon.test.ts` measures this against.
    *
-   * The locked rules make the phase order part of the round rather than a
-   * flag on a hull: *"Long Guns fire in the first-strike phase"*, and a hull
-   * they sink never gets her Light and Heavy guns away. So Phase 1 is every
-   * Long Gun on the island and Phase 2 is everything else, and a Bulwark's
-   * twelve Long Guns are worth more than twelve guns because of when they
-   * fire.
-   *
-   * Within a phase fire is simultaneous, worked out against the state at the
-   * start of it: a hull that goes down in Phase 2 still got her broadside
-   * off. That is what keeps a battle from being decided by who is listed
-   * first.
+   * A day is one Exchange. The old round was one shot per hull per day, which
+   * is the same shape at a different grain — what changed is that the grain is
+   * now the one the roster was priced on.
    */
-  const volleys: Array<{ from: Combatant; kind: GunKind; at: Combatant[]; edge: number }> = [];
-  const push = (from: Combatant, at: Combatant[], edge: number) => {
-    for (const kind of cannonOf(from)) volleys.push({ from, kind, at, edge });
-  };
-  for (const gun of empireGuns) push(gun, monster ? [...allianceGuns, monster] : allianceGuns, empireEdge);
-  for (const gun of allianceGuns) push(gun, monster ? [...empireGuns, monster] : empireGuns, allianceEdge);
-
-  const strikes: Combatant[][] = [];
-  if (monster) {
-    // It is nobody's, so it comes at everything and picks its own way — a
-    // Kraken does not shoot, it takes hold of something.
-    for (let i = 0; i < monsterShots(system); i++) strikes.push([...empireGuns, ...allianceGuns]);
+  if (empireLine.length > 0 && allianceLine.length > 0) {
+    exchange(
+      empireLine.map((l) => l.fighter),
+      allianceLine.map((l) => l.fighter),
+      rng,
+      100,
+      { a: empireEdge, b: allianceEdge },
+    );
   }
 
-  for (const phase of [true, false]) {
-    for (const volley of volleys) {
-      if ((volley.kind === 'Long') !== phase) continue;
-      if (volley.from.left <= 0) continue;
-      const target = pickTarget(volley.at, rng, volley.kind);
-      if (!target) continue;
-      fireOnce(volley.kind, target, rng, volley.edge);
+  /*
+   * And then the thing in the water, which is nobody's.
+   *
+   * It is resolved after the fleet action and against everybody at once,
+   * because it is on no side and the Exchange has two of them. Every hull
+   * still afloat fires at it; it answers with `monsterStrike`, which is the
+   * whole of its offence and is not a broadside — the Kraken takes a hull
+   * down entire, sound or not, and no amount of armor is any use against that.
+   */
+  let killed = false;
+  if (beast) {
+    const guns = [...empireLine, ...allianceLine].filter((l) => l.fighter.hull > 0);
+    if (guns.length > 0) {
+      exchange(guns.map((l) => l.fighter), [beast], rng, 1, { a: 1, b: 1 });
+      landBeastDamage(system, beast);
+      killed = beast.hull <= 0 && !system.beastSlain;
+    }
+    // It strikes whether or not that broadside finished it, for the same
+    // reason a hull sunk in a phase still fires: it was alive when the round
+    // opened. Without this a creature met by anything heavy enough to kill it
+    // outright never touched anybody, and a squadron that lost nothing was
+    // reported as a line with no tally on it.
+    const targets = [...empireLine, ...allianceLine]
+      .filter((l) => l.fighter.hull > 0)
+      .map((l) => l.combatant);
+    for (let i = 0; i < monsterShots(system) && targets.length > 0; i++) {
+      const target = pickTarget(targets, rng);
+      if (target) monsterStrike(state, system, target, rng);
     }
   }
-  for (const at of strikes) {
-    if (!monster || monster.left <= 0) break;
-    const target = pickTarget(at, rng);
-    if (target) monsterStrike(state, system, target, rng);
-  }
 
-  const killed = monster !== undefined && monster.left <= 0 && !system.beastSlain;
+  // The firing is over; land it on the ships.
+  for (const line of [...empireLine, ...allianceLine]) line.land();
+
   if (killed) {
-    const fromEmpire = empireGuns.reduce((n, g) => n + gunsOf(g), 0);
-    const fromAlliance = allianceGuns.reduce((n, g) => n + gunsOf(g), 0);
+    const fromEmpire = empireLine.reduce((n, l) => n + l.fighter.guns.long + l.fighter.guns.heavy + l.fighter.guns.light, 0);
+    const fromAlliance = allianceLine.reduce((n, l) => n + l.fighter.guns.long + l.fighter.guns.heavy + l.fighter.guns.light, 0);
     system.beastSlain = fromEmpire >= fromAlliance ? 'empire' : 'alliance';
     system.beastDamage = beastAt(system)!.hull;
   }
@@ -1790,19 +1798,43 @@ function sinkAndDrown(state: GameState, fleet: Fleet): void {
  */
 export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   const system = getSystem(state, fleet.systemId);
-  const defenders = system.garrison;
-  // Combat tells here, for the same reason: companies led ashore by somebody
-  // who knows the business go further than the same companies alone.
-  const attackers = fleet.troops * officerEdge(state, fleet, 'combat');
-  // Both sides lose companies; the smaller force is spent entirely.
-  const spent = Math.min(Math.round(attackers), defenders);
-  const roll = rng.next();
-  const attackerWins = attackers > defenders || (attackers === defenders && roll > 0.5);
-
+  /*
+   * A landing, by the rules of 20 September.
+   *
+   * > ATTACK = 1d(sum of Attack across every landed troop)
+   * > DEFENSE = 1d(sum of Invasion Defense across defending troops, PLUS every
+   * > standing wall)
+   *
+   * It used to be a comparison of two counts with a coin toss for the tie, and
+   * a standing fortress forbade the landing outright. That gate is repealed:
+   * you may always land, and the walls swell the defender's die instead. So
+   * bombardment is softening rather than a turnstile, and the two systems
+   * finally trade against each other — six Crown Marines take a militia island
+   * 74% of the time with a Heavy Fortress standing and 98% with it in rubble.
+   */
+  const grade = craftGrade(state.factions[fleet.faction].craft);
+  const kind = landingTroop(fleet.faction, grade);
+  // Combat tells here, for the same reason it always has: companies led
+  // ashore by somebody who knows the business go further than the same
+  // companies alone. It weights the die rather than the count.
+  const edge = officerEdge(state, fleet, 'combat');
   const landed = fleet.troops;
   const garrisonBefore = system.garrison;
-  fleet.troops = Math.max(0, fleet.troops - spent);
-  system.garrison = Math.max(0, system.garrison - spent);
+  const roster = garrisonRoster(system);
+  const mine: Landed[] = Array.from({ length: landed }, () => ({
+    score: Math.max(1, Math.round(kind.attack * edge)),
+    id: kind.id,
+  }));
+  const theirs: Landed[] = Array.from({ length: garrisonBefore }, (_, i) => ({
+    score: roster[i]?.invasionDefense ?? 20,
+    id: roster[i]?.id ?? 'garrison',
+  }));
+  const walls = fortsOf(system).reduce((n, f) => n + wallInvasionDefense(f.type), 0);
+  const fought = invade(mine, theirs, walls, rng);
+
+  const attackerWins = fought.taken;
+  fleet.troops = fought.attackers.length;
+  system.garrison = fought.defenders.length;
   const report = {
     attacker: fleet.faction,
     landed,
@@ -1844,6 +1876,8 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
               defenders: garrisonBefore,
               defendersLost: garrisonBefore - system.garrison,
               ripples: [],
+              kind: kind.name,
+              holdingKind: roster[0]?.name,
             }),
           }
         : {}),
@@ -1984,8 +2018,10 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
             ashore: holding,
             aboard: fleet.troops,
             defenders: garrisonBefore,
-            defendersLost: garrisonBefore - Math.max(0, garrisonBefore - spent),
+            defendersLost: garrisonBefore,
             ripples,
+            kind: kind.name,
+            holdingKind: roster[0]?.name,
           }),
         }
       : {}),
@@ -2015,6 +2051,8 @@ function assaultReport(
     defenders: number;
     defendersLost: number;
     ripples: Ripple[];
+    kind?: string;
+    holdingKind?: string;
   },
 ): OperationReport {
   const { attacker, landed, lost, ashore, aboard, defenders, defendersLost, ripples } = input;
@@ -2030,7 +2068,7 @@ function assaultReport(
           ? 'Assault repulsed'
           : 'Assault inconclusive',
     operation: 'Assault',
-    title: `The landing on ${inProse(system.name)}`,
+    title: `The assault of ${inProse(system.name)}`,
     systemId: system.id,
     day: state.day,
     mine: {
@@ -2066,6 +2104,31 @@ function assaultReport(
       populated: system.populated,
     }),
     political: ripples,
+    /*
+     * Both sides, standing and lost. Sean's ask of 21 September: *"you can see
+     * both sides, like what was destroyed and what was still there."*
+     *
+     * A landing force is counted in companies of one kind — whoever the side
+     * puts in the boats — and the defenders in whatever the island raises, so
+     * the two columns name units rather than saying "6" and "4".
+     */
+    ledger: [
+      {
+        side: forceName(attacker, 'assault'),
+        faction: attacker,
+        standing: ashore + aboard > 0 ? [{ label: input.kind ?? 'Troops', count: ashore + aboard }] : [],
+        lost: lost > 0 ? [{ label: input.kind ?? 'Troops', count: lost }] : [],
+      },
+      {
+        side: forceName(defender, 'assault'),
+        faction: defender,
+        standing:
+          defenders - defendersLost > 0
+            ? [{ label: input.holdingKind ?? 'Troops', count: defenders - defendersLost }]
+            : [],
+        lost: defendersLost > 0 ? [{ label: input.holdingKind ?? 'Troops', count: defendersLost }] : [],
+      },
+    ],
   };
   report.tension =
     verdict === 'victory' && system.populated && system.support[attacker] < 40
@@ -2134,10 +2197,10 @@ export function fleeError(state: GameState, fleetId: string, actor: PlayableFact
   const enemies = fleetsAt(state, system.id).some(
     (f) => f.faction !== fleet.faction && fleetGuns(f) > 0,
   );
-  // A fort on its own is not something to break off from any more: it does not
-  // fire unless you are firing at it. A squadron that *is* bombarding is in
-  // something, and leaving it costs the run past the guns.
-  if (!enemies && !beastAlive(system) && !underTheWall(state, fleet)) {
+  // A fort is never something to break off from. It was, while a wall fired
+  // back at a squadron bombarding it; a wall is an obstacle now and fires at
+  // nobody, so there is nothing to run from but ships and what is in the water.
+  if (!enemies && !beastAlive(system)) {
     return 'Nothing to break off from.';
   }
   if (!refugeFor(state, fleet)) return 'Nowhere to run to.';
@@ -2176,46 +2239,47 @@ export function fleeBattle(
   const system = getSystem(state, fleet.systemId);
   const refuge = refugeFor(state, fleet)!;
 
-  // Everything at this island that can reach a fleet under way. A fort can,
-  // but only if you had opened on it: the guns are manned and laid because you
-  // gave them something to answer, and you have to sail back past them. A hull
-  // can reach only if she carries long guns. A creature always can — it is in
-  // the water with you, and being unable to outswim the Kraken is the point.
+  // Everything at this island that can reach a fleet under way. A hull can
+  // reach only if she carries long guns. A creature always can — it is in the
+  // water with you, and being unable to outswim the Kraken is the point.
   //
-  // *"Long Guns fire in the first-strike phase and are the only guns that
-  // reach a fleeing fleet, in up to four raking volleys that ignore armor."*
-  // So this counts cannon rather than a share of a weight-of-metal number,
-  // and every one of them rakes: a stern rake goes in where there is no plate,
-  // which is why `fireOnce` is told to ignore armor here and nowhere else.
-  let reaching = 0;
-  const wall = underTheWall(state, fleet) ? fortGuns(system) : 0;
-  // The battery's Heavy metal does not reach a ship under way; a share of it,
-  // the pieces laid to bear down the roads, does.
-  if (wall > 0) reaching += Math.round(wall * LONG_GUN_SHARE);
+  // A wall used to be on this list, at a share of its guns, for a squadron
+  // that had opened on it. Walls do not fire any more.
+  const reaching: Array<{ guns: number }> = [];
   for (const other of fleetsAt(state, system.id)) {
     if (other.faction === fleet.faction) continue;
     for (const ship of other.ships) {
-      reaching += combatStatsOf(ship.classId).guns.longGuns;
+      const spec = shipSpec(ship.classId);
+      if (!spec.longGuns) continue;
+      reaching.push({ guns: Math.round(spec.guns * LONG_GUN_SHARE) });
     }
   }
   const monster = beastCombatant(system);
-  // A creature always reaches — it is in the water with you, and being unable
-  // to outswim the Kraken is the point.
-  if (monster) reaching += Math.round(gunsOf(monster) * LONG_GUN_SHARE);
+  if (monster) reaching.push({ guns: Math.round(monster.guns * LONG_GUN_SHARE) });
 
-  if (reaching > 0) {
+  if (reaching.length > 0) {
     for (const ship of [...fleet.ships]) {
-      const target = combatantOf(ship);
-      const band = RETREAT_SHOTS[Math.max(1, Math.min(10, shipSpec(ship.classId).speed))] ?? [1, 1];
-      const volleys = band[0] + (band[1] > band[0] ? rng.int(band[1] - band[0] + 1) : 0);
-      for (let v = 0; v < volleys && target.left > 0; v++) {
-        for (let g = 0; g < reaching && target.left > 0; g++) {
-          const done = fireOnce('Long', target, rng, 1, true);
-          target.left -= done;
-        }
+      const spec = shipSpec(ship.classId);
+      const band = RETREAT_SHOTS[Math.max(1, Math.min(10, spec.speed))] ?? [1, 1];
+      const shots = band[0] + (band[1] > band[0] ? rng.int(band[1] - band[0] + 1) : 0);
+      const target: Combatant = {
+        guns: spec.guns,
+        left: spec.hull - ship.damage,
+        whole: spec.hull,
+        role: shipClass(ship.classId).role,
+        hitChance: hitChanceOn(shipClass(ship.classId).role),
+        hurt: (amount) => {
+          ship.damage += amount;
+          return ship.damage >= spec.hull;
+        },
+      };
+      for (let i = 0; i < shots && target.left > 0; i++) {
+        const gun = reaching[rng.int(reaching.length)];
+        const done = fireOnce(gun, target, rng);
+        target.left -= done;
       }
     }
-    const lost = fleet.ships.filter((s) => s.damage >= combatStatsOf(s.classId).hull).length;
+    const lost = fleet.ships.filter((s) => s.damage >= shipSpec(s.classId).hull).length;
     sinkAndDrown(state, fleet);
     if (fleet.faction === state.player) {
       pushEvent(state, {

@@ -1,65 +1,39 @@
-import { TARGET_JITTER } from './constants';
-import {
-  GUN_KINDS,
-  expectedDamagePerShot,
-  fireCannon,
-  hitChance,
-  type CombatStats,
-  type GunKind,
-} from './navycombat';
+import { DAMAGE_SWING, TARGET_JITTER } from './constants';
 import type { Rng } from './rng';
+import type { ShipRole } from './types';
 
 /**
- * One round of a fleet action, on the locked cannon model.
+ * One round of a fleet action.
  *
- * *"There is no ship-level Firepower stat. Every individual cannon makes its
- * own attack using the rules for its gun type."* — the Combat Rules tab, and
- * the sentence the whole of this hangs on.
+ * Every hull that can still shoot takes one shot. Three quarters of them tell,
+ * and a hit does what the gun does give or take a seventh — which is the whole
+ * of the randomness, and it is deliberately at the level of the individual
+ * shot rather than the battle. A weaker fleet loses to a stronger one; what
+ * varies is how much it costs.
  *
- * What stood here before was a round of one shot per hull, where a hull's
- * whole weight of metal was a single number and a hit did that number give or
- * take a seventh. It was a good model of the roster it was written for, and
- * that roster is gone: the v4.3 sheet gives every hull three separate
- * batteries that differ in dice, penetration and accuracy, and an Armor value
- * that only Heavy Guns really crack. None of that can be said in one number.
- *
- * So the unit of action is a cannon. The arithmetic of a cannon against a hull
- * is `navycombat.ts` and stays there, pure and calibrated against the sheet's
- * own published matchups; what lives here is the part that knows about the
- * *world* — that a fort and a creature also shoot, that an officer on the
- * quarterdeck is worth something, and that the three parties at an island are
- * not always two sides.
+ * This replaced a pool: the old round added up both sides' guns, halved the
+ * total and dealt that many one-point hits at random hulls. That could not
+ * express a damage roll — a seventh of one point is nothing — and it could not
+ * express a target choice either, because there were no attackers, only a
+ * number. Ships shoot now.
  */
 
 /** A thing that can shoot and be shot at: a hull, a fort, or a creature. */
 export interface Combatant {
-  /**
-   * What it is, in the only vocabulary the guns understand.
-   *
-   * A fort and a creature have one of these too. Neither is a ship, and the
-   * model does not care: Size and point of sail are how hard a thing is to
-   * hit, armor is what a shot has to get through, and a shore battery and a
-   * sea-dragon both have answers to those.
-   */
-  stats: CombatStats;
+  /** What it throws in a round. */
+  guns: number;
   /** What is left of it. */
   left: number;
   /** What it had to start with, for the report's percentages. */
   whole: number;
+  /** How likely a shot at it is to tell. A creature is harder to hit, and so
+   *  is anything small and quick. */
+  hitChance: number;
+  /** What kind of hull it is, for a shooter working out whether it can train
+   *  its guns round fast enough. Absent for a fort or a creature. */
+  role?: ShipRole;
   /** Apply damage. Returns true if this killed it. */
   hurt: (amount: number) => boolean;
-}
-
-/** Every cannon of a kind this thing still works. Guns do not degrade. */
-export function gunsOfKind(who: Combatant, kind: GunKind): number {
-  const { longGuns, heavyGuns, lightGuns } = who.stats.guns;
-  return kind === 'Long' ? longGuns : kind === 'Heavy' ? heavyGuns : lightGuns;
-}
-
-/** Everything it throws in a round, of every kind. */
-export function gunsOf(who: Combatant): number {
-  const { longGuns, heavyGuns, lightGuns } = who.stats.guns;
-  return longGuns + heavyGuns + lightGuns;
 }
 
 /**
@@ -69,35 +43,27 @@ export function gunsOf(who: Combatant): number {
  * right about what the answer looks like — but a Monte Carlo inside a round
  * inside a day that ticks a hundred times a second is not affordable, and it
  * would eat the seeded RNG stream besides. So this is the closed form the sim
- * converges on.
+ * converges on, and `combat.sim.test.ts` checks that claim by brute-forcing
+ * the best order against every alternative and confirming this agrees.
  *
- * The form: score a target by the threat it removes per point of damage this
- * gun can actually put into it. `expectedDamagePerShot` is what makes that
- * honest now — it is the true expectation over the dice after armor rather
- * than the mean roll minus armor, and those are very different numbers the
- * moment plate bites: 2d20 against effective armor 20 averages 3.4 a shot
- * where the naive form says 1.0. A gun that cannot hurt a hull should not
- * choose it, and one that can should.
- *
- * A little jitter, so a battle is not a machine, and so two identical hulls do
- * not both eat the whole broadside while a third goes untouched.
+ * The form: score a target by the threat it removes per point of damage spent
+ * removing it — guns over remaining hull. Finishing a hurt ship beats starting
+ * a fresh one, and a hurt gunship beats a hurt transport. A little jitter, so
+ * a battle is not a machine, and so two identical hulls do not both eat the
+ * whole broadside while a third goes untouched.
  */
-export function pickTarget(
-  targets: Combatant[],
-  rng: Rng,
-  kind: GunKind = 'Light',
-): Combatant | undefined {
+export function pickTarget(targets: Combatant[], rng: Rng): Combatant | undefined {
   const live = targets.filter((t) => t.left > 0);
   if (live.length === 0) return undefined;
   let best: Combatant | undefined;
   let bestScore = -Infinity;
   for (const target of live) {
-    const threat = gunsOf(target) + 1;
-    const rate = expectedDamagePerShot(kind, target.stats);
-    // Threat removed per shot spent removing it. A transport has no guns, so
-    // it scores off the floor and is shot last — which is correct and is also
-    // what makes a transport worth escorting.
-    const worth = (threat / target.left) * rate;
+    // Threat removed per *shot* spent removing it. Shots, not points: a hull
+    // that is hard to hit costs more shots for the same damage, so once hulls
+    // stopped being equally easy to hit this had to count the misses too.
+    // A transport has no guns, so it scores off the floor and is shot last —
+    // which is correct and is also what makes a transport worth escorting.
+    const worth = ((target.guns + 1) / target.left) * target.hitChance;
     const score = worth * (1 + (rng.next() - 0.5) * TARGET_JITTER);
     if (score > bestScore) {
       bestScore = score;
@@ -107,48 +73,17 @@ export function pickTarget(
   return best;
 }
 
-/**
- * One cannon. Returns the damage it lands, which is zero on a miss.
- *
- * `edge` is the officer on the quarterdeck and is the one thing here the sheet
- * does not describe: a multiplier on the chance to hit, capped at the sheet's
- * own ceiling so a well-handled squadron is never a certainty.
- */
+/** One shot. Returns the damage done, which is zero on a miss. */
 export function fireOnce(
-  kind: GunKind,
+  attacker: { guns: number },
   target: Combatant,
   rng: Rng,
   edge = 1,
-  ignoreArmor = false,
 ): number {
-  if (target.left <= 0) return 0;
-  if (edge !== 1) {
-    // The edge moves the die roll rather than the damage, so a better officer
-    // lands more shots and not heavier ones.
-    const chance = Math.min(95, hitChance(kind, target.stats) * edge);
-    if (rng.range(1, 100) > chance) return 0;
-    let rolled = 0;
-    for (let d = 0; d < DICE[kind]; d++) rolled += rng.range(1, 20);
-    const through = Math.max(0, rolled - armorAgainst(kind, target.stats, ignoreArmor));
-    if (through > 0) target.hurt(through);
-    return through;
-  }
-  const done = fireCannon(kind, target.stats, rng, ignoreArmor);
-  if (done === undefined || done <= 0) return 0;
-  target.hurt(done);
-  return done;
+  if (attacker.guns <= 0) return 0;
+  if (!rng.chance(Math.min(0.95, target.hitChance * edge))) return 0;
+  const swing = 1 + (rng.next() * 2 - 1) * DAMAGE_SWING;
+  const damage = Math.max(1, Math.round(attacker.guns * swing));
+  target.hurt(damage);
+  return damage;
 }
-
-/* The two pieces of `navycombat`'s arithmetic the edged path has to redo for
-   itself, kept here rather than exported from there: the engine's own
-   `fireCannon` is the authority, and this is the one caller that needs to
-   open it up. */
-const DICE: Record<GunKind, number> = { Long: 2, Heavy: 4, Light: 2 };
-function armorAgainst(kind: GunKind, target: CombatStats, ignoreArmor: boolean): number {
-  if (ignoreArmor) return 0;
-  const penetration = kind === 'Heavy' ? 0.5 : kind === 'Long' ? 0.25 : 0;
-  return Math.ceil(target.armor * (1 - penetration));
-}
-
-export { GUN_KINDS };
-export type { GunKind, CombatStats };

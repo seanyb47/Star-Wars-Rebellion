@@ -9,14 +9,14 @@
       "role": "elite",
       "people": "Human",
       "unlock": "start",
-      "offense": 30,
-      "defense": 30,
-      "watch": 24,
       "bombardDefense": 2,
       "costGold": 42,
       "days": 20,
       "upkeep": 0.4,
-      "blurb": "The white-coats. Drilled to go over a gunwale or up a beach and to keep going, and posted where the Crown means to be seen keeping order. The best thing the Crown can land before it starts making soldiers that were never born."
+      "blurb": "The white-coats. Drilled to go over a gunwale or up a beach and to keep going, and posted where the Crown means to be seen keeping order. The best thing the Crown can land before it starts making soldiers that were never born.",
+      "attack": 30,
+      "invasionDefense": 30,
+      "detection": 24
     },
     {
       "id": "crown-ships-company",
@@ -25,14 +25,14 @@
       "role": "sailors",
       "people": "Human",
       "unlock": "start",
-      "offense": 16,
-      "defense": 16,
-      "watch": 20,
       "bombardDefense": 2,
       "costGold": 26,
       "days": 12,
       "upkeep": 0.3,
-      "blurb": "Sailors put ashore with cutlasses and told to hold something. Worse at it than soldiers and better at noticing a boat that should not be there, which is the trade you are making."
+      "blurb": "Sailors put ashore with cutlasses and told to hold something. Worse at it than soldiers and better at noticing a boat that should not be there, which is the trade you are making.",
+      "attack": 16,
+      "invasionDefense": 16,
+      "detection": 20
     },
     {
       "id": "fensworn",
@@ -42,14 +42,14 @@
       "people": "Bog-folk",
       "research": true,
       "unlock": "R2",
-      "offense": 20,
-      "defense": 20,
-      "watch": 20,
       "bombardDefense": 2,
       "costGold": 30,
       "days": 14,
       "upkeep": 0.3,
-      "blurb": "Clansmen who came out of the swamps when the Crown broke the slavers and have not gone back. They are not clever soldiers and the Admiralty's drillmasters have stopped saying so; they hold ground the way they hold a grudge. Every one of them knows a cousin under the other flag, and none of them will be the first to raise a musket at her."
+      "blurb": "Clansmen who came out of the swamps when the Crown broke the slavers and have not gone back. They are not clever soldiers and the Admiralty's drillmasters have stopped saying so; they hold ground the way they hold a grudge. Every one of them knows a cousin under the other flag, and none of them will be the first to raise a musket at her.",
+      "attack": 20,
+      "invasionDefense": 20,
+      "detection": 20
     },
     {
       "id": "the-hushed",
@@ -59,14 +59,14 @@
       "people": "The Hushed",
       "research": true,
       "unlock": "R4",
-      "offense": 16,
-      "defense": 20,
-      "watch": 36,
       "bombardDefense": 2,
       "costGold": 36,
       "days": 18,
       "upkeep": 0.4,
-      "blurb": "They serve under an old bargain whose terms neither side discusses, and they do not discuss anything else either. A Hushed picket does not challenge, does not signal and does not sleep; the first the enemy knows of them is that the boat they sent has not come back. Post them where you cannot afford a surprise, and do not ask what became of the crew."
+      "blurb": "They serve under an old bargain whose terms neither side discusses, and they do not discuss anything else either. A Hushed picket does not challenge, does not signal and does not sleep; the first the enemy knows of them is that the boat they sent has not come back. Post them where you cannot afford a surprise, and do not ask what became of the crew.",
+      "attack": 16,
+      "invasionDefense": 20,
+      "detection": 36
     },
     {
       "id": "tidewrought",
@@ -76,14 +76,14 @@
       "people": "Brass and iron",
       "research": true,
       "unlock": "R6",
-      "offense": 40,
-      "defense": 36,
-      "watch": 4,
       "bombardDefense": 4,
       "costGold": 40,
       "days": 20,
       "upkeep": 0.6,
-      "blurb": "Automata of brass and black iron that walk in over the seabed and come out of the surf already advancing. They hit like a falling spar and they see nothing at all; a troop of them will march past a saboteur standing still. Shot does less to them than it does to men, which is the other half of what the Admiralty paid for."
+      "blurb": "Automata of brass and black iron that walk in over the seabed and come out of the surf already advancing. They hit like a falling spar and they see nothing at all; a troop of them will march past a saboteur standing still. Shot does less to them than it does to men, which is the other half of what the Admiralty paid for.",
+      "attack": 40,
+      "invasionDefense": 36,
+      "detection": 4
     },
     {
       "id": "drowned-guard",
@@ -93,14 +93,14 @@
       "people": "Human (once)",
       "research": true,
       "unlock": "R8",
-      "offense": 44,
-      "defense": 40,
-      "watch": 30,
       "bombardDefense": 4,
       "costGold": 56,
       "days": 28,
       "upkeep": 0.8,
-      "blurb": "Marines who have been cold-baptised: held under the Deep until they stop struggling, and brought back. Black plate, no fear, and something missing behind the eyes. The worst thing the Crown can put on a beach, and the Admiralty does not discuss how they are made. They do not break under bombardment because there is nothing left in them to break."
+      "blurb": "Marines who have been cold-baptised: held under the Deep until they stop struggling, and brought back. Black plate, no fear, and something missing behind the eyes. The worst thing the Crown can put on a beach, and the Admiralty does not discuss how they are made. They do not break under bombardment because there is nothing left in them to break.",
+      "attack": 44,
+      "invasionDefense": 40,
+      "detection": 30
     },
     {
       "id": "island-militia",
@@ -109,14 +109,14 @@
       "role": "line",
       "people": "Whoever lives there",
       "unlock": "start",
-      "offense": 16,
-      "defense": 20,
-      "watch": 10,
       "bombardDefense": 1,
       "costGold": 24,
       "days": 12,
       "upkeep": 0.2,
-      "blurb": "The island's own, with whatever was in the shed. They will not take anything off anybody, and on their own ground they are a great deal harder to shift than their drill suggests."
+      "blurb": "The island's own, with whatever was in the shed. They will not take anything off anybody, and on their own ground they are a great deal harder to shift than their drill suggests.",
+      "attack": 16,
+      "invasionDefense": 20,
+      "detection": 10
     },
     {
       "id": "reefwalkers",
@@ -125,9 +125,6 @@
       "role": "native",
       "people": "Shoal-folk",
       "unlock": "start",
-      "offense": 20,
-      "defense": 20,
-      "watch": 40,
       "bombardDefense": 2,
       "costGold": 40,
       "days": 20,
@@ -136,7 +133,10 @@
         "port-city",
         "free-harbor"
       ],
-      "blurb": "Shoal-folk scouts, small and webbed and night-eyed, who can hear a hull creak a mile out. The best watch in the world: nothing lands on an island they are on without the island knowing first."
+      "blurb": "Shoal-folk scouts, small and webbed and night-eyed, who can hear a hull creak a mile out. The best watch in the world: nothing lands on an island they are on without the island knowing first.",
+      "attack": 20,
+      "invasionDefense": 20,
+      "detection": 40
     },
     {
       "id": "the-brethren",
@@ -146,14 +146,14 @@
       "people": "Mixed",
       "research": true,
       "unlock": "R2",
-      "offense": 32,
-      "defense": 12,
-      "watch": 16,
       "bombardDefense": 2,
       "costGold": 30,
       "days": 14,
       "upkeep": 0.3,
-      "blurb": "A boarding party that has run out of ship. They come up a beach the way they come over a gunwale - fast, loud, and entirely uninterested in what happens after the third minute. Nothing this cheap hits this hard and nothing this cheap dies this fast: ask them to hold a wall and you will get the wall back in pieces with nobody standing on it."
+      "blurb": "A boarding party that has run out of ship. They come up a beach the way they come over a gunwale - fast, loud, and entirely uninterested in what happens after the third minute. Nothing this cheap hits this hard and nothing this cheap dies this fast: ask them to hold a wall and you will get the wall back in pieces with nobody standing on it.",
+      "attack": 32,
+      "invasionDefense": 12,
+      "detection": 16
     },
     {
       "id": "bog-witches",
@@ -163,9 +163,6 @@
       "people": "Bog-folk",
       "research": true,
       "unlock": "R4",
-      "offense": 20,
-      "defense": 32,
-      "watch": 36,
       "bombardDefense": 2,
       "costGold": 44,
       "days": 22,
@@ -174,7 +171,10 @@
         "jungle-isle",
         "drowned-isle"
       ],
-      "blurb": "The conjure-women who did not follow the clans to the Crown, and who have long memories about it. They do not fight so much as make a place expensive to be in: water that will not boil, sentries who hear their own names called from the treeline, a fever that takes the officers first. Nothing gets onto an island they are on without the island being told."
+      "blurb": "The conjure-women who did not follow the clans to the Crown, and who have long memories about it. They do not fight so much as make a place expensive to be in: water that will not boil, sentries who hear their own names called from the treeline, a fever that takes the officers first. Nothing gets onto an island they are on without the island being told.",
+      "attack": 20,
+      "invasionDefense": 32,
+      "detection": 36
     },
     {
       "id": "shoal-wardens",
@@ -184,9 +184,6 @@
       "people": "Shoal-folk",
       "research": true,
       "unlock": "R6",
-      "offense": 12,
-      "defense": 16,
-      "watch": 24,
       "bombardDefense": 2,
       "costGold": 16,
       "days": 8,
@@ -195,7 +192,10 @@
         "reef-isle",
         "tide-isle"
       ],
-      "blurb": "Shoal-folk off the shallow islands, slight and webbed and without number. Any one of them is worth very little and all of them know it; they come in the quantity the sea sends them, cost almost nothing to raise, and are replaced before anybody has finished counting the ones who did not come back. Set them in the tideline and they are the hardest thing in the game to shift - not because any one of them will not move, but because there is always another one behind her."
+      "blurb": "Shoal-folk off the shallow islands, slight and webbed and without number. Any one of them is worth very little and all of them know it; they come in the quantity the sea sends them, cost almost nothing to raise, and are replaced before anybody has finished counting the ones who did not come back. Set them in the tideline and they are the hardest thing in the game to shift - not because any one of them will not move, but because there is always another one behind her.",
+      "attack": 12,
+      "invasionDefense": 16,
+      "detection": 24
     },
     {
       "id": "urskin-berserkers",
@@ -205,9 +205,6 @@
       "people": "Urskin",
       "research": true,
       "unlock": "R8",
-      "offense": 50,
-      "defense": 20,
-      "watch": 20,
       "bombardDefense": 2,
       "costGold": 44,
       "days": 22,
@@ -216,7 +213,10 @@
         "ice-isle",
         "rock-isle"
       ],
-      "blurb": "Torvik's people, tusked and shaggy and eight feet of them, coming up a beach with the harpoons they use on things bigger than boats. Nothing in the game hits harder going forward. Ask them to stand still and hold a wall and you have wasted them."
+      "blurb": "Torvik's people, tusked and shaggy and eight feet of them, coming up a beach with the harpoons they use on things bigger than boats. Nothing in the game hits harder going forward. Ask them to stand still and hold a wall and you have wasted them.",
+      "attack": 50,
+      "invasionDefense": 20,
+      "detection": 20
     }
   ]
 }

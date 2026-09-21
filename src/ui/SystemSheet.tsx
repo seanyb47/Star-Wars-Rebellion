@@ -13,6 +13,9 @@ import {
   type MissionType,
   FACILITY_BLURB,
   FACILITY_LABEL,
+  FORT_BOMBARD_DEFENSE,
+  FORT_INVASION_DEFENSE,
+  fortsOf,
   GOLD_PER_DAY,
   LEAK_CHANCE,
   LOYALTY_BAND_LABEL,
@@ -132,7 +135,18 @@ const TABS: Array<{ id: IslandTab; label: string }> = [
   { id: 'harbor', label: 'Harbor' },
   { id: 'crew', label: 'Crew' },
   { id: 'buildings', label: 'Buildings' },
-  { id: 'garrison', label: terms.troops },
+  /*
+   * "Defenses", not "Troops", since 20 September. What holds an island is one
+   * idea and the player should read it in one place: so many companies, so
+   * many walls. The fortresses moved in with the rename.
+   *
+   * The unit is still a Troop — Sean's reversal of 19 September stands — so
+   * "Troops" is not a retired word and still reads "3 Troops" inside the
+   * panel. Only the section was renamed, which is why there is no entry for
+   * it in the vocabulary test's retirement list: a blanket retirement would
+   * fail the build on every legitimate use of the unit's own name.
+   */
+  { id: 'garrison', label: terms.defenses },
 ];
 
 /**
@@ -704,7 +718,6 @@ export function SystemSheet({
   onSail,
   onAssault,
   onBombard,
-  onCeaseFire,
   onFlee,
   onOpenShip,
   onOrderShips,
@@ -728,7 +741,6 @@ export function SystemSheet({
   onSail: (fleetId: string) => void;
   onAssault: (fleetId: string) => void;
   onBombard?: (fleetId: string) => void;
-  onCeaseFire?: (fleetId: string) => void;
   onFlee?: (fleetId: string) => void;
   onOpenShip?: (fleetId: string, shipId: string) => void;
   onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
@@ -884,6 +896,8 @@ export function SystemSheet({
   const roster = garrisonRoster(system);
   // Folded into kinds, in the order the player put them, for the grouped view.
   const garrison = byRemembered(garrisonSummary(system), (e) => e.type.id, system.garrisonOrder);
+  // The walls, for the Defenses panel. Whoever holds the ground holds them.
+  const walls = fortsOf(system);
   /**
    * What stands here, as rows. Grouped, two mines of the same owner are one
    * line with a count.
@@ -1029,7 +1043,6 @@ export function SystemSheet({
             onSail={onSail}
             onAssault={onAssault}
             onBombard={onBombard}
-            onCeaseFire={onCeaseFire}
             onFlee={onFlee}
             onOpenCharacter={onOpenCharacter}
             onOpenShip={onOpenShip}
@@ -1391,6 +1404,46 @@ export function SystemSheet({
               every troop is its own. The kinds can be put in an order —
               a troop has no identity of its own to move, so what is
               remembered is which kind comes first. */}
+          {/*
+            The walls, above the companies.
+
+            Sean, 20 September: *"rename the troops tab to 'defenses' on all
+            locations. And move fortresses there. Troops can move islands but
+            fortresses can't."* So this is the one screen that answers "what
+            would it take to get this island off them", and the two halves of
+            the answer sit one above the other. The rows are deliberately not
+            selectable, which is the whole of how the panel says a wall does
+            not embark: a troop tile can be reordered for the boats and a
+            battery has no controls on it at all.
+          */}
+          {walls.length > 0 && (
+            <div className="card small" style={{ marginBottom: 10 }}>
+              <div className="row row--between">
+                <b>
+                  {walls.length} {walls.length === 1 ? 'battery' : 'batteries'} standing
+                </b>
+                <span className="tiny muted">Fixed — a wall does not embark</span>
+              </div>
+              {walls.map((f: { id: string; type: FacilityType }) => (
+                <div className="row row--between tiny" key={f.id} style={{ marginTop: 4 }}>
+                  <span className="row" style={{ gap: 6 }}>
+                    <FacilityIcon type={f.type} size={18} />
+                    {FACILITY_LABEL[f.type]}
+                  </span>
+                  <span className="muted">
+                    {FORT_INVASION_DEFENSE[f.type as 'fort' | 'heavy_fort']} against a landing ·{' '}
+                    {FORT_BOMBARD_DEFENSE[f.type as 'fort' | 'heavy_fort']} against shot
+                  </span>
+                </div>
+              ))}
+              <p className="tiny muted" style={{ margin: '6px 0 0' }}>
+                A landing has to beat the garrison <i>and</i> every wall still standing. Breaking
+                one is a bombardment's job, and it takes a roll over the island's whole total plus
+                that battery's own number — so a squadron under it has no chance rather than long
+                odds.
+              </p>
+            </div>
+          )}
           <SlotBoard
             ghosts={Math.max(0, needed - system.garrison)}
             empty={`No troops are ashore on ${inProse(system.name)}.`}

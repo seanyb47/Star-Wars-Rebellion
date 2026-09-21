@@ -24,9 +24,6 @@ import {
   AI_SURVEY_DARK,
   AI_PLOT_WORTH,
   AI_COMFORTABLE,
-  wallStrength,
-  FORT_REPAIR_PER_DAY,
-  AI_SIEGE_DAYS,
   AI_RUNWAY_DAYS,
   AI_SHIP_RESERVE,
   AI_TROOP_POOL,
@@ -55,10 +52,16 @@ import {
   queueBuild,
 } from './build';
 import { follows } from './doctrine';
+import { expectedDamage } from './cannon';
+import { islandDefense } from './siege';
+import { shipClass } from './constants';
 import {
   assault,
   assaultError,
   bombardError,
+  bombardNow,
+  bombardOdds,
+  islandDefenders,
   fleetBombard,
   fortsOf,
   board,
@@ -66,7 +69,6 @@ import {
   embark,
   embarkError,
   sparedCompanies,
-  fortGuns,
   fleetCapacity,
   fleetGuns,
   fleetsAt,
@@ -75,7 +77,7 @@ import {
   sailError,
   sailFleet,
 } from './fleets';
-import { isLord, lords, powerOf } from './lords';
+import { isPrincipal, lords, powerOf } from './lords';
 import {
   depositsLeft,
   freeSlots,
@@ -208,7 +210,10 @@ function savingForTheStrike(state: GameState, ai: PlayableFaction): boolean {
   const guarded = fleetsAt(state, capital.id)
     .filter((f) => f.faction === enemy)
     .reduce((n, f) => n + fleetGuns(f), 0);
-  const wall = (guarded + fortGuns(capital)) * 1.25;
+  // Ships only. A fort used to be counted here as though it shot back, and it
+  // does not any more — a wall is an obstacle to a landing and to a
+  // bombardment, and never a danger to a fleet lying off it.
+  const wall = guarded * 1.25;
   const best = Math.max(0, ...fleetsOf(state, ai).map(fleetGuns));
   return best < wall;
 }
@@ -690,7 +695,7 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
   const liftable = (s: System) => {
     const mark = abductOn(state, s, ai);
     if (!mark) return undefined;
-    return isLord(mark) || follows(state, 'hunt-the-principals') ? mark : undefined;
+    return isPrincipal(mark) || follows(state, 'hunt-the-principals') ? mark : undefined;
   };
   const open = state.systems.filter(
     (s) =>
@@ -868,7 +873,7 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
         close +
         AI_RESCUE_BONUS +
         quality(prisoner) +
-        (isLord(prisoner) ? AI_LORD_RESCUE_BONUS : 0) -
+        (isPrincipal(prisoner) ? AI_LORD_RESCUE_BONUS : 0) -
         caution(s, 'rescue')
       );
     }
@@ -878,7 +883,7 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
         close +
         AI_ABDUCT_BONUS +
         quality(mark) +
-        (isLord(mark) ? AI_LORD_BOUNTY : 0) -
+        (isPrincipal(mark) ? AI_LORD_BOUNTY : 0) -
         caution(s, 'abduct')
       );
     }
@@ -1120,7 +1125,7 @@ function aiFleet(state: GameState, ai: PlayableFaction, rng: Rng): void {
     // with the harbor to itself opens fire and keeps firing; there is nothing
     // else it can usefully do there, and sailing away wastes every day of it
     // because the walls are patched while nobody is working them.
-    if (aiBeginSiege(state, fleet, ai)) continue;
+    if (aiBeginSiege(state, fleet, ai, rng)) continue;
     if (aiLandTroops(state, fleet, ai, rng)) continue;
     if (aiSettle(state, fleet, ai, rng)) continue;
     aiLoadAndSail(state, fleet, ai);
@@ -1181,17 +1186,16 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
   const classes = shipsAt(ai, grade);
   const afloat = fleetsOf(state, ai).flatMap((f) => f.ships);
   /*
-   * What carries, and it is no longer a class of its own.
-   *
-   * The old roster had a Transport with a role to match, and this asked for
-   * that one hull by name. The v4.3 roster has no such category: carrying is
-   * `Troop Capacity`, a column most warships have something in — a Wayfinder
-   * lifts four and a Majestic twelve — and exactly one hull on the sheet is
-   * marked Noncombat at all. So a "transport" here is anything with a hold,
-   * and the fleet's problem is berths rather than a missing ship.
+   * Lift, since 21 September, is a number on every hull rather than a kind of
+   * hull. The canonical roster gives troop capacity to a survey ship, a ship
+   * of the line and a smuggler's brigantine alike, and only one hull in the
+   * whole fleet — the Confederacy's Swift — is a Noncombat at all. So this
+   * counts berths instead of counting transports, which is what it was
+   * always really asking, and it stopped being able to ask the old way the
+   * day the Crown had no transport class to find.
    */
-  const lifts = (id: ShipClassId) => shipSpec(id).carries;
-  const transports = afloat.filter((s) => lifts(s.classId) > 0);
+  const bestLifter = [...classes].sort((a, b) => shipSpec(b.id).carries - shipSpec(a.id).carries)[0];
+  const berths = afloat.reduce((n, s) => n + shipSpec(s.classId).carries, 0);
   const capital = getSystem(state, state.factions.empire.hqSystemId);
   const carryAll = fleetsOf(state, ai).reduce((n, f) => n + fleetCapacity(f), 0);
   // Two clear of what the capital holds, so a landing is possible at all after
@@ -1216,7 +1220,11 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
     ai === 'alliance' &&
     fortsOf(capital).length > 0 &&
     Math.max(0, ...fleetsOf(state, ai).map(fleetBombard)) < siegeWeightFor(capital);
-  const wantTransport = !noSiegeTrain && (transports.length * 3 < afloat.length + 1 || shortOfLift);
+  // Roughly one berth for every hull afloat, which is the same ratio the old
+  // "two fighting hulls to every transport" worked out at when a transport
+  // carried three companies and nothing else carried any.
+  const wantTransport =
+    !noSiegeTrain && bestLifter !== undefined && (berths < afloat.length + 1 || shortOfLift);
   // Fighting hulls as big as it can afford; a transport when it is short of one.
   const spare = surplus(state, ai);
   const carried = (id: ShipClassId) => spare - UPKEEP_PER_DAY[id] >= AI_SURPLUS_MARGIN;
@@ -1233,24 +1241,56 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
     follows(state, 'balanced-fleet') && !afloat.some((s) => roleOf(s.classId) === c.role)
       ? 1000
       : 0;
+  /*
+   * Guns on the water per day of yard time, rather than the dearest hull it
+   * can pay for.
+   *
+   * "Dearest affordable" was a mild preference while the whole fleet cost
+   * between 45 and 150 gold and took between eight and twenty-two days. The
+   * canonical roster turned it into a trap: a Majestic is 522 gold and a
+   * hundred days against an Interceptor's 28 and four, so a side following
+   * the old rule spends an entire war laying down three capitals while the
+   * other fields thirty sloops — and under the per-cannon rules thirty hulls
+   * firing is a great deal more shot than three.
+   *
+   * Measured before this change, twenty-four wars with both sides played: the
+   * Crown ended on seventeen hulls to the Confederacy's thirty-two and lost
+   * every single war. The Confederacy was not out-designed, it was
+   * out-built, and the reason was on the Crown's own side of the keyboard.
+   *
+   * Weight of shot per build-day is the plainest statement of what a navy
+   * wants from a slipway. It still buys big — a Morningstar is fifty guns in
+   * fifteen days and beats an Interceptor's ten in four — it simply stops
+   * buying the thing that will not be in the water until the war is decided.
+   */
+  const perDay = (id: ShipClassId) => {
+    const spec = shipSpec(id);
+    const cls = shipClass(id);
+    // Shot that actually gets through, not shot fired. Counting guns alone
+    // sent the Crown to the slipway for Interceptors — ten light guns in four
+    // days looks like the best deal in the fleet and is the worst buy it has,
+    // because a light gun does almost nothing to anything plated. Measured at
+    // equal gold against the whole Confederate roster: the Interceptor I wins
+    // 15% of the time and the Vanguard 96%.
+    //
+    // So each gun is worth what the engine says it is worth against a hull
+    // worth shooting at, which is `expectedDamage` — the same function the
+    // targeting uses, asked about a reference target rather than a real one.
+    const REFERENCE = { size: 'Large', speed: 'Normal', armor: 18 } as const;
+    const worth =
+      (cls.longGuns ?? 0) * expectedDamage('Long', REFERENCE) +
+      (cls.heavyGuns ?? 0) * expectedDamage('Heavy', REFERENCE) +
+      (cls.lightGuns ?? 0) * expectedDamage('Light', REFERENCE);
+    return worth / Math.max(1, spec.days);
+  };
   const affordable = classes
-    .filter((c) => c.role !== 'transport')
+    .filter((c) => shipSpec(c.id).guns > 0)
     .filter((c) => carried(c.id))
     .filter((c) => shipSpec(c.id).costGold + AI_SHIP_RESERVE <= state.factions[ai].gold)
-    .sort(
-      (a, b) =>
-        missing(b) + shipSpec(b.id).costGold - (missing(a) + shipSpec(a.id).costGold),
-    );
-  // Short of berths: the roomiest hold it can pay for, which on this roster is
-  // usually a warship that happens to carry rather than a ship that only does.
-  const lifters = classes
-    .filter((c) => lifts(c.id) > 0)
-    .filter((c) => carried(c.id))
-    .filter((c) => shipSpec(c.id).costGold + AI_SHIP_RESERVE <= state.factions[ai].gold)
-    .sort((a, b) => lifts(b.id) - lifts(a.id));
+    .sort((a, b) => missing(b) + perDay(b.id) - (missing(a) + perDay(a.id)));
   const pick = wantTransport
-    ? (lifters[0] ?? affordable[0])
-    : (affordable[0] ?? lifters[0] ?? classes.find((c) => c.role === 'small'));
+    ? bestLifter
+    : (affordable[0] ?? classes.find((c) => c.role === 'small') ?? classes[0]);
   if (!pick || !carried(pick.id)) return;
 
   // One hull, or — with gold to burn — one at every slipway standing idle.
@@ -1325,45 +1365,57 @@ function aiLandTroops(state: GameState, fleet: Fleet, ai: PlayableFaction, rng: 
 }
 
 /**
- * Standing orders to work the walls, where that is the thing to do.
+ * Open fire, where that is the thing to do.
  *
- * Returns true when the squadron is committed to a siege and should be left
- * to it. A siege is a race — the wall is patched at two per cent a day — so
- * the one thing it must not do is wander off and come back.
+ * Returns true when the squadron has just spent an action on the walls and
+ * should be left where it is rather than sent elsewhere this tick.
+ *
+ * It used to set a standing order and return early for ever after, because a
+ * siege was a race against the wall being patched at two per cent a day and
+ * the one thing a squadron must not do was wander off and come back. There is
+ * no race now and no standing order: a bombardment is one action with a die in
+ * it, and the only question is whether this fleet can do anything with one.
  */
-function aiBeginSiege(state: GameState, fleet: Fleet, ai: PlayableFaction): boolean {
-  if (fleet.bombarding) return true;
+function aiBeginSiege(state: GameState, fleet: Fleet, ai: PlayableFaction, rng: Rng): boolean {
   if (bombardError(state, fleet.id, ai) !== null) return false;
   const here = getSystem(state, fleet.systemId);
   // Only against walls. Shelling a town to break its companies is a thing a
   // player may decide is worth the Reach turning against them; the opponent
-  // does not do it, because it cannot weigh that and would only ever wreck
-  // its own standing everywhere it went.
+  // does not do it, because it cannot weigh that and would only ever wreck its
+  // own standing everywhere it went.
   if (fortsOf(here).length === 0) return false;
-  // Doctrine: `commit-to-the-siege`. A siege is a race against two per cent a
-  // day of patching, so a squadron that cannot be through the wall in a few
-  // days should not open fire at all. Without the article it dabbles, which is
-  // what a lone first-rate under forty guns of battery looks like.
-  if (follows(state, 'commit-to-the-siege') && fleetBombard(fleet) < siegeWeightFor(here)) {
-    return false;
-  }
-  fleet.bombarding = true;
+  /*
+   * And only where it can actually break something.
+   *
+   * The top of the die *is* the fleet's bombardment score, so a squadron under
+   * the island's total plus the cheapest thing on it has no chance at all
+   * rather than poor odds — and a fleet that opens fire under that number is
+   * not fighting a slow siege, it is spending its magazine on nothing. Which
+   * is exactly what the Crown was measured doing to Freeport on 21 September:
+   * shelling it every single day from day 214, its upkeep bleeding it white
+   * and its own Reach turning against it over the civilian penalty, and the
+   * walls no nearer down at the end of it than at the start.
+   */
+  if (bombardOdds(state, fleet).hopeless) return false;
+  bombardNow(state, fleet, rng);
   return true;
 }
 
 /**
  * The weight of shot it takes to be worth opening fire at all.
  *
- * Enough to be through the walls inside `AI_SIEGE_DAYS`, on top of what they
- * patch every night. Under that the guns are a gift: the wall comes back as
- * fast as it goes down and the battery shoots at you the whole time.
+ * It used to be "enough to be through the walls inside `AI_SIEGE_DAYS`, on top
+ * of what they patch every night", which was the right question to ask of a
+ * daily grind and is meaningless against a die. The number now is the one the
+ * rules put in front of the player: the island's whole defence plus the
+ * cheapest wall standing on it, because that is the roll it takes to break
+ * anything at all.
  */
 function siegeWeightFor(system: System): number {
-  const walls = fortsOf(system);
+  const defenders = islandDefenders(system);
+  const walls = defenders.filter((d) => d.kind === 'wall');
   if (walls.length === 0) return 0;
-  const standing = walls.reduce((n, f) => n + (wallStrength(f.type) - (f.damage ?? 0)), 0);
-  const patch = walls.reduce((n, f) => n + wallStrength(f.type) * FORT_REPAIR_PER_DAY, 0);
-  return standing / AI_SIEGE_DAYS + patch;
+  return islandDefense(defenders) + Math.min(...walls.map((d) => d.cost));
 }
 
 /** Take companies aboard where there are spare, then go and make a nuisance. */
@@ -1475,7 +1527,7 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
   // carry more companies than the capital has ashore will never sail, however
   // many hulls it has, and the whole navy will gather behind it and wait out
   // the war.
-  const wall = (crownGuns + fortGuns(capital)) * 1.25;
+  const wall = crownGuns * 1.25;
   const outgunned = fleetGuns(fleet) < wall;
   const needLift = fleetCapacity(fleet) < need;
   // And the third shortage, which is the one that used to send a lone
@@ -1512,7 +1564,7 @@ function aiStrikeCapital(state: GameState, rng: Rng): string | undefined {
     // squadron with fifty-six weight of shot and thirty-eight companies sat
     // off Highwater for two thousand days while one seawall stood, because
     // the only thing it knew how to do was land and landing was shut.
-    if (aiBeginSiege(state, fleet, 'alliance')) return fleet.id;
+    if (aiBeginSiege(state, fleet, 'alliance', rng)) return fleet.id;
     if (
       fleet.troops > capital.garrison &&
       assaultError(state, fleet.id, 'alliance') === null

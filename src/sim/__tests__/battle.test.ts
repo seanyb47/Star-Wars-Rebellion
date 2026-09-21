@@ -57,8 +57,8 @@ describe('an action the player is in', () => {
     // the wall settle a two-a-side action in the first round.
     const { state } = world();
     const home = plainIsle(state);
-    put(state, home, 'empire', ['CWN-SOV-S04', 'CWN-SOV-S04']);
-    put(state, home, 'alliance', ['CFS-TEM-R3-01', 'CFS-TEM-R3-01']);
+    put(state, home, 'empire', ['sovereign', 'sovereign']);
+    put(state, home, 'alliance', ['tempest', 'tempest']);
     resolveBattles(state, createRng(3));
 
     // The meeting engagement happened — you do not get to decline being shot
@@ -72,10 +72,10 @@ describe('an action the player is in', () => {
   it('is only ever one at a time, and the other is still fought', () => {
     const { state, home } = world();
     const other = state.systems.find((s) => s.control === 'empire' && s.id !== home.id)!;
-    put(state, home, 'empire', ['CWN-SOV-S04']);
-    put(state, home, 'alliance', ['CFS-TEM-R3-01']);
-    put(state, other, 'empire', ['CWN-SOV-S04']);
-    const theirs = put(state, other, 'alliance', ['CFS-TEM-R3-01']);
+    put(state, home, 'empire', ['sovereign']);
+    put(state, home, 'alliance', ['tempest']);
+    put(state, other, 'empire', ['sovereign']);
+    const theirs = put(state, other, 'alliance', ['tempest']);
     const before = theirs.ships.reduce((n, sh) => n + sh.damage, 0);
     resolveBattles(state, createRng(9));
     expect([home.id, other.id]).toContain(state.battle!.systemId);
@@ -90,8 +90,8 @@ describe('an action the player is in', () => {
 
   it('keeps its rounds out of the dispatches but not out of the log', () => {
     const { state, home } = world();
-    put(state, home, 'empire', ['CWN-SOV-S04', 'CWN-SOV-S04']);
-    put(state, home, 'alliance', ['CFS-TEM-R3-01', 'CFS-TEM-R3-01']);
+    put(state, home, 'empire', ['sovereign', 'sovereign']);
+    put(state, home, 'alliance', ['tempest', 'tempest']);
     resolveBattles(state, createRng(3));
     const mine = state.events.filter((e) => e.systemId === home.id && e.kind === 'battle');
     expect(mine.length).toBeGreaterThan(0);
@@ -101,8 +101,8 @@ describe('an action the player is in', () => {
 
   it('settles once one side has nothing left afloat', () => {
     const { state, home } = world();
-    put(state, home, 'empire', ['CWN-SOV-S04', 'CWN-SOV-S04', 'CWN-SOV-S04', 'CWN-SOV-S04']);
-    put(state, home, 'alliance', ['CFS-BRI-S02']);
+    put(state, home, 'empire', ['sovereign', 'sovereign', 'sovereign', 'sovereign']);
+    put(state, home, 'alliance', ['brigantine']);
     const rng = createRng(11);
     resolveBattles(state, rng);
     for (let i = 0; i < 12 && state.battle && !state.battle.settled; i++) {
@@ -117,8 +117,8 @@ describe('an action the player is in', () => {
 
   it('lets the other side break off once it is badly outgunned', () => {
     const { state, home } = world();
-    put(state, home, 'empire', ['CWN-SOV-S04', 'CWN-SOV-S04', 'CWN-SOV-S04', 'CWN-SOV-S04']);
-    const theirs = put(state, home, 'alliance', ['CFS-SWI-S01']);
+    put(state, home, 'empire', ['sovereign', 'sovereign', 'sovereign', 'sovereign']);
+    const theirs = put(state, home, 'alliance', ['swift']);
     const rng = createRng(5);
     resolveBattles(state, rng);
     // Never on the first exchange: that decision is taken after you have seen
@@ -132,8 +132,8 @@ describe('an action the player is in', () => {
 
   it('breaks off the whole action, and says so', () => {
     const { state, home } = world();
-    const mine = put(state, home, 'empire', ['CWN-SOV-S04', 'CWN-SOV-S04']);
-    put(state, home, 'alliance', ['CFS-TEM-R3-01', 'CFS-TEM-R3-01', 'CFS-TEM-R3-01']);
+    const mine = put(state, home, 'empire', ['sovereign', 'sovereign']);
+    put(state, home, 'alliance', ['tempest', 'tempest', 'tempest']);
     const rng = createRng(2);
     resolveBattles(state, rng);
     expect(state.battle).toBeDefined();
@@ -147,8 +147,8 @@ describe('an action the player is in', () => {
   it('leaves an action the player has no ships in alone', () => {
     const { state } = world();
     const theirs = state.systems.find((s) => s.control === 'alliance')!;
-    put(state, theirs, 'alliance', ['CFS-TEM-R3-01']);
-    put(state, theirs, 'empire', ['CWN-SOV-S04']);
+    put(state, theirs, 'alliance', ['tempest']);
+    put(state, theirs, 'empire', ['sovereign']);
     state.player = 'alliance';
     resolveBattles(state, createRng(4));
     expect(state.battle?.systemId).toBe(theirs.id);
@@ -159,7 +159,7 @@ describe('an action the player is in', () => {
     const far = state.systems.find(
       (s) => s.id !== theirs.id && s.control === 'alliance',
     )!;
-    put(state, far, 'alliance', ['CFS-TEM-R3-01']);
+    put(state, far, 'alliance', ['tempest']);
     expect(battleView(state)).toBeUndefined();
   });
 });
@@ -177,7 +177,7 @@ describe('the assessment', () => {
 
   it('lays out each side hull by hull, heaviest first, with who is aboard', () => {
     const { state, home } = world();
-    const mine = put(state, home, 'alliance', ['CFS-SWI-S01', 'CFS-SWI-S01', 'CFS-REE-R4-01', 'CFS-BRI-S02']);
+    const mine = put(state, home, 'alliance', ['swift', 'swift', 'coral-dreadnaught', 'brigantine']);
     state.player = 'alliance';
     const crew = state.characters.find(
       (c) => c.faction === 'alliance' && !/Hale|Reyne|Jessup/.test(c.name),
@@ -186,7 +186,7 @@ describe('the assessment', () => {
     crew.leadership = 90;
     board(state, mine.id, crew.id, 'alliance');
     mine.troops = 2;
-    put(state, home, 'empire', ['CWN-SOV-S04']);
+    put(state, home, 'empire', ['sovereign']);
     resolveBattles(state, createRng(13));
     const view = battleView(state)!;
 
@@ -207,8 +207,8 @@ describe('the assessment', () => {
 
   it('lays out both sides of a fleet action with the condition, not just a count', () => {
     const { state, home } = world();
-    put(state, home, 'empire', ['CWN-SOV-S04', 'CWN-SOV-S04', 'CWN-SOV-S04']);
-    put(state, home, 'alliance', ['CFS-TEM-R3-01', 'CFS-TEM-R3-01', 'CFS-TEM-R3-01']);
+    put(state, home, 'empire', ['sovereign', 'sovereign', 'sovereign']);
+    put(state, home, 'alliance', ['tempest', 'tempest', 'tempest']);
     resolveBattles(state, createRng(6));
     const view = battleView(state)!;
     expect(view.system.id).toBe(home.id);
@@ -230,7 +230,7 @@ describe('companies load and unload themselves', () => {
     isle.explored.alliance = true;
     isle.support = { empire: 20, alliance: 80 };
     isle.garrison = 6;
-    const fleet = put(state, isle, 'alliance', ['CFS-BRI-S02', 'CFS-BRI-S02']);
+    const fleet = put(state, isle, 'alliance', ['brigantine', 'brigantine']);
     const spare = sparedCompanies(isle, state);
     expect(spare).toBeGreaterThan(0);
     expect(spare).toBeLessThan(isle.garrison);
@@ -262,7 +262,7 @@ describe('companies load and unload themselves', () => {
     expect(requiredGarrison(isle.support.alliance, isle.uprising)).toBe(0);
     expect(sparedCompanies(isle, state)).toBe(3);
 
-    const fleet = put(state, isle, 'alliance', ['CFS-BRI-S02', 'CFS-BRI-S02']);
+    const fleet = put(state, isle, 'alliance', ['brigantine', 'brigantine']);
     const to = state.systems.find((s) => s.id !== isle.id && s.explored.alliance)!;
     sailFleet(state, fleet.id, to.id, 'alliance');
     expect(isle.garrison).toBe(1);
@@ -280,7 +280,7 @@ describe('companies load and unload themselves', () => {
     capital.support = { empire: 97, alliance: 3 };
     expect(sparedCompanies(capital, state)).toBe(0);
 
-    const fleet = put(state, capital, 'empire', ['CWN-WAY-S01', 'CWN-WAY-S01']);
+    const fleet = put(state, capital, 'empire', ['wayfinder', 'wayfinder']);
     const to = state.systems.find((s) => s.id !== capital.id && s.explored.empire)!;
     sailFleet(state, fleet.id, to.id, 'empire');
     expect(fleet.troops).toBe(0);
@@ -294,7 +294,7 @@ describe('companies load and unload themselves', () => {
     rock.control = 'alliance';
     rock.explored.alliance = true;
     rock.garrison = 1;
-    const fleet = put(state, rock, 'alliance', ['CFS-BRI-S02']);
+    const fleet = put(state, rock, 'alliance', ['brigantine']);
     expect(sparedCompanies(rock, state)).toBe(0);
     sailFleet(state, fleet.id, home.id, 'alliance');
     expect(fleet.troops).toBe(0);
@@ -315,7 +315,7 @@ describe('companies load and unload themselves', () => {
     theirs.explored.alliance = true;
 
     const rng = createRng(3);
-    const home1 = put(state, home, 'alliance', ['CFS-BRI-S02', 'CFS-BRI-S02']);
+    const home1 = put(state, home, 'alliance', ['brigantine', 'brigantine']);
     sailFleet(state, home1.id, mine.id, 'alliance');
     const carried = home1.troops;
     expect(carried).toBeGreaterThan(0);
@@ -326,7 +326,7 @@ describe('companies load and unload themselves', () => {
 
     // And on the enemy's ground they stay aboard, because that is what a
     // landing is made of.
-    const second = put(state, home, 'alliance', ['CFS-BRI-S02', 'CFS-BRI-S02']);
+    const second = put(state, home, 'alliance', ['brigantine', 'brigantine']);
     home.garrison = 8;
     sailFleet(state, second.id, theirs.id, 'alliance');
     const aboard = second.troops;
@@ -346,7 +346,7 @@ describe('splitting and joining squadrons', () => {
   it('makes a new squadron out of the hulls you pick, and leaves the rest', () => {
     const { state, home } = world();
     state.player = 'alliance';
-    const fleet = put(state, home, 'alliance', ['CFS-TEM-R3-01', 'CFS-SWI-S01', 'CFS-SWI-S01', 'CFS-BRI-S02']);
+    const fleet = put(state, home, 'alliance', ['tempest', 'swift', 'swift', 'brigantine']);
     const take = fleet.ships.slice(1, 3).map((sh) => sh.id);
     const made = detachShips(state, fleet.id, take, undefined, 'alliance');
 
@@ -362,7 +362,7 @@ describe('splitting and joining squadrons', () => {
   it('refuses to make a squadron out of the whole squadron', () => {
     const { state, home } = world();
     state.player = 'alliance';
-    const fleet = put(state, home, 'alliance', ['CFS-TEM-R3-01', 'CFS-SWI-S01']);
+    const fleet = put(state, home, 'alliance', ['tempest', 'swift']);
     const every = fleet.ships.map((sh) => sh.id);
     expect(detachError(state, fleet.id, every, undefined, 'alliance')).toMatch(/whole squadron/);
   });
@@ -370,7 +370,7 @@ describe('splitting and joining squadrons', () => {
   it('joins another squadron lying in the same water, and folds an empty one in', () => {
     const { state, home } = world();
     state.player = 'alliance';
-    const first = put(state, home, 'alliance', ['CFS-TEM-R3-01', 'CFS-SWI-S01']);
+    const first = put(state, home, 'alliance', ['tempest', 'swift']);
     const second = detachShips(state, first.id, [first.ships[1].id], undefined, 'alliance');
     // Now send everything left in the first across: it empties, so it goes.
     const crew = state.characters.find(
@@ -391,11 +391,11 @@ describe('splitting and joining squadrons', () => {
     const { state, home } = world();
     state.player = 'alliance';
     home.control = 'alliance';
-    const fleet = put(state, home, 'alliance', ['CFS-BRI-S02', 'CFS-BRI-S02', 'CFS-TEM-R3-01']);
+    const fleet = put(state, home, 'alliance', ['brigantine', 'brigantine', 'tempest']);
     fleet.troops = fleetCapacity(fleet);
     const carried = fleet.troops;
     // Take the transports out, which is where nearly all the room was.
-    const holds = fleet.ships.filter((sh) => sh.classId === 'CFS-BRI-S02').map((sh) => sh.id);
+    const holds = fleet.ships.filter((sh) => sh.classId === 'brigantine').map((sh) => sh.id);
     const made = detachShips(state, fleet.id, holds, undefined, 'alliance');
     expect(fleet.troops + made.troops).toBe(carried);
     expect(fleet.troops).toBeLessThanOrEqual(fleetCapacity(fleet));
@@ -405,9 +405,9 @@ describe('splitting and joining squadrons', () => {
   it('will not move hulls to a squadron at another island, or one at sea', () => {
     const { state, home } = world();
     state.player = 'alliance';
-    const here = put(state, home, 'alliance', ['CFS-TEM-R3-01', 'CFS-SWI-S01']);
+    const here = put(state, home, 'alliance', ['tempest', 'swift']);
     const far = state.systems.find((s) => s.id !== home.id)!;
-    const there = put(state, far, 'alliance', ['CFS-TEM-R3-01']);
+    const there = put(state, far, 'alliance', ['tempest']);
     expect(detachError(state, here.id, [here.ships[0].id], there.id, 'alliance')).toMatch(
       /another island/,
     );
@@ -523,7 +523,7 @@ describe("the Admiral's harbor", () => {
     state.fleets.length = 0;
     // A squadron with nobody aboard at all: the edge cannot be coming from an
     // officer on the deck, because there is no officer on the deck.
-    const mine = addShip(state, here, 'alliance', 'CFS-TEM-R3-01');
+    const mine = addShip(state, here, 'alliance', 'tempest');
     expect(mine.officerIds).toHaveLength(0);
 
     // Nobody posted: no power, and no edge.

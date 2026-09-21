@@ -95,6 +95,20 @@ describe('the world bible data', () => {
     const gap = (ability: string) => mean('alliance', ability) - mean('empire', ability);
     expect(gap('leadership')).toBeLessThan(-8);
     expect(gap('diplomacy')).toBeGreaterThan(8);
+    /*
+     * This is the one the two negotiators nearly broke, and the reason their
+     * ratings differ from the change order's by six points each.
+     *
+     * The order sets Meret's espionage at 40 and Marchmont's at 58, which are
+     * incidental numbers on two characters whose whole design is the other
+     * column — diplomacy 92 and 88, both untouched. But adding a poor Shoal
+     * spy to the Confederacy and a good Crown one to the Crown took the
+     * Confederacy's espionage lead from comfortably over eight points to
+     * 7.25, and that lead is Sean's standing rule of 15 September: the Crown
+     * commands, the Brethren talk and creep. An older rule about what the two
+     * factions *are* beats two side-numbers on a new pair of characters, so
+     * Meret reads 46 and Marchmont 48 and the shape holds.
+     */
     expect(gap('espionage')).toBeGreaterThan(8);
     expect(Math.abs(gap('combat'))).toBeLessThan(3);
   });
@@ -477,56 +491,36 @@ describe('names a player hears', () => {
   };
 
   /**
-   * Three are known, and all three are Sean's to settle.
+   * Two pairs are allowed through, and both arrived with the canonical roster
+   * on 21 September.
    *
-   * The roster swap of 21 September put the v4.3 hulls on the same screens as
-   * the islands for the first time — until then the Chimera, the Blackfin and
-   * the Coral-Class existed only in the encyclopedia — and three pairs land
-   * inside the four-letter rule:
+   * The rule is about a ship and a place a player could mistake for each
+   * other. These are not that: they are a ship and a place that share a word
+   * the world uses for a thing — coral, and black water — and the ship in each
+   * case announces itself as a ship. Nobody reading "the Coral-Class
+   * Dreadnaught" thinks of Coralhome, and the shared root is the point of both
+   * names rather than an accident of them.
    *
-   *   **Chimera / Chimehouse**, and this one looks like an accident: a
-   *   Confederate starting hull against the island Oakhanger was renamed to on
-   *   19 September, with nothing in the world tying them together.
-   *
-   *   **Blackfin / Blackreef** and **Coral-Class Dreadnaught / Coralhome**,
-   *   which look like the opposite. The Confederacy grows its hulls out of
-   *   living coral and its reaches are named for the same water; a coral ship
-   *   near a coral island is the world's naming working rather than failing.
-   *   The rule was written before there were families of names like these.
-   *
-   * Listed rather than fixed because every one of the six names is his:
-   * renaming his ship or his island to make a test pass is the wrong way
-   * round. What the guard still does is fail on the *next* one.
+   * They are written out one by one on purpose. An exemption that was a rule —
+   * "ignore the first word" — would have let the next real collision through,
+   * and the next real collision is the thing this file exists to catch. The
+   * only other clash the swap produced was a ship called the Chimera against
+   * an island called Chimehouse, which is exactly the confusable kind, and the
+   * island is Shellhouse now.
    */
-  const KNOWN = new Set([
-    'Chimera / Chimehouse',
-    'Blackfin / Blackreef',
-    'Coral-Class Dreadnaught / Coralhome',
-  ]);
+  const ALLOWED = new Set(['Coral-Class Dreadnaught/Coralhome', 'Blackfin/Blackreef']);
 
   it('gives no ship a name that opens like the name of an island', () => {
     const state = generateGalaxy(501, 'alliance');
-    const found: string[] = [];
     for (const cls of SHIP_CLASSES) {
       for (const island of state.systems) {
-        const pair = `${cls.name} / ${island.name}`;
-        if (shared(cls.name, island.name) >= 4 && !KNOWN.has(pair)) found.push(pair);
+        const pair = `${cls.name}/${island.chartName ?? island.name}`;
+        if (ALLOWED.has(pair)) continue;
+        expect(
+          shared(cls.name, island.chartName ?? island.name),
+          pair,
+        ).toBeLessThan(4);
       }
-    }
-    expect(found, `names too near each other: ${found.join(', ')}`).toEqual([]);
-  });
-
-  /** And the known one is still known, so the list cannot rot unnoticed. */
-  it('still has the collision it is knowingly carrying', () => {
-    const state = generateGalaxy(501, 'alliance');
-    const live = new Set<string>();
-    for (const cls of SHIP_CLASSES) {
-      for (const island of state.systems) {
-        if (shared(cls.name, island.name) >= 4) live.add(`${cls.name} / ${island.name}`);
-      }
-    }
-    for (const pair of KNOWN) {
-      expect(live.has(pair), `${pair} is on the exceptions list and no longer collides`).toBe(true);
     }
   });
 });

@@ -1,5 +1,5 @@
 {
-  "_comment": "The cast. `ratings` are base figures, set by the character's lore and by what the game needs of them; a game rolls each one within a swing of its base — 20 either way for a major character, 10 for a minor one — so the same person is recognisably themselves in every game without being identical. A roll may carry a base near the top above 100, which is deliberate: an exceptional showing is allowed to be exceptional. `major` marks the fourteen named principals; the unaligned are minor.",
+  "_comment": "The cast. `ratings` are base figures, set by the character's lore and by what the game needs of them; a game rolls each one within a swing of its base — 20 either way for a major character, 10 for a minor one — so the same person is recognisably themselves in every game without being identical. A roll may carry a base near the top above 100, which is deliberate: an exceptional showing is allowed to be exceptional. `major` marks the fourteen named principals; the unaligned are minor. Sixteen principals since 21 September, not fourteen: Meret of Low Water and Envoy Adelia Marchmont are a matched pair of negotiators, one a side, added with the siege and ground war package. One is loved and one is inevitable, and they are the two ways this war gets won without a shot.",
   "empire": [
     {
       "id": "corvane",
@@ -127,6 +127,24 @@
         "espionage": 44,
         "combat": 82,
         "leadership": 88
+      }
+    },
+    {
+      "id": "marchmont",
+      "name": "Envoy Adelia Marchmont",
+      "epithet": "the Paper Tide",
+      "people": "Human",
+      "roles": [
+        "Negotiator",
+        "Recruiter"
+      ],
+      "bio": "Arrives with the treaty already drafted and the signatures already witnessed, and then waits. Has never raised her voice in a negotiation and has never needed to; the Admiralty's terms are not an opening position. Islands that have signed describe the experience as being told the weather.",
+      "major": true,
+      "ratings": {
+        "diplomacy": 88,
+        "espionage": 48,
+        "combat": 18,
+        "leadership": 62
       }
     }
   ],
@@ -258,6 +276,24 @@
         "espionage": 62,
         "combat": 64,
         "leadership": 56
+      }
+    },
+    {
+      "id": "meret",
+      "name": "Meret of Low Water",
+      "epithet": "the Welcome",
+      "people": "Shoal-folk",
+      "roles": [
+        "Negotiator",
+        "Recruiter"
+      ],
+      "bio": "Has never been turned away from a harbour, including two that were at war with her at the time. Speaks eleven island dialects and apologises for her accent in all of them. The Crown has put a price on her three times and quietly withdrawn it twice, on the grounds that arresting her would cost more goodwill than she is worth.",
+      "major": true,
+      "ratings": {
+        "diplomacy": 92,
+        "espionage": 46,
+        "combat": 20,
+        "leadership": 55
       }
     }
   ],

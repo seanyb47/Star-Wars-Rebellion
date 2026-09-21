@@ -2693,25 +2693,19 @@ button.tcard:hover { border-color: var(--brass); }
 }
 .encfull__art > svg { width: auto; height: auto; max-width: 62%; max-height: 190px; }
 /*
- * The cinematic plate, and it is 4:3 everywhere now.
+ * The cinematic plate, at Sean's size: *"size it to approximately 38-42vh on
+ * mobile using its natural 4:3 ratio and object-fit: cover."*
  *
- * It asked for *"approximately 38-42vh on mobile using its natural 4:3 ratio
- * and object-fit: cover"*, and took the height literally: 40vh with the ratio
- * released, which on a phone is a box taller than 4:3, so `cover` cropped the
- * painting to fill it — topmasts off the top or waterline off the bottom
- * depending on where the object-position landed. Sean, 21 September:
- * *"Encyclopedia ships need to be resized to fit properly without cutting off
- * image. All should be 4:3."* The two asks pull against each other and the
- * later one wins, so the ratio is what is fixed and the height follows from
- * it. Every painting in `src/art/ships` is 640 × 480, so full-bleed 4:3 on a
- * 393px phone is 295px — within a few points of the 38-42vh the first ask
- * wanted, and with nothing cut off.
+ * A height rather than an aspect ratio, because the point of the number is
+ * how much of the screen the picture gets — and a 4:3 painting in a box that
+ * is nearly square has to crop rather than letterbox, which is what `cover`
+ * below is for. Above phone width it goes back to its own 4:3, where there is
+ * room for the whole hull.
  */
 @media (max-width: 560px) {
-  .sheet--flow .encfull__art--plate .shipthumb {
-    display: block; width: 100% !important; height: auto !important; aspect-ratio: 4 / 3;
-  }
-  .sheet--flow .encfull__art--plate .shipthumb img { object-fit: contain; object-position: 50% 50%; }
+  .sheet--flow .encfull__art--plate { height: 40vh; min-height: 190px; }
+  .sheet--flow .encfull__art--plate .shipthumb { height: 100% !important; aspect-ratio: auto; }
+  .sheet--flow .encfull__art--plate .shipthumb img { object-position: 50% 42%; }
 }
 .encfull__art .charface { width: 100% !important; height: auto !important; aspect-ratio: 1 / 1; }
 /* The hull the stories give a Pirate Lord, under their story.

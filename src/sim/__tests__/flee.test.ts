@@ -6,15 +6,7 @@ import { createRng } from '../rng';
 import type { GameState, ShipClassId } from '../types';
 
 /** Two sides in one harbor, with the Crown's squadron ready to break off. */
-/*
- * A Brigantine rather than a Tempest for "theirs", and the swap is the v4.3
- * roster arriving rather than a fixture being wrong. Long Guns used to be a
- * thing nothing in the game had; the sheet puts them on nine hulls, the
- * Tempest's twelve among them. A test about breaking off *unmolested* needs a
- * harbor with nothing in it that reaches, and the Brigantine's six Light Guns
- * are exactly that.
- */
-function standoff(theirs: ShipClassId[] = ['CFS-BRI-S02'], mine: ShipClassId[] = ['CWN-INT-S02', 'CWN-SOV-S04']) {
+function standoff(theirs: ShipClassId[] = ['tempest'], mine: ShipClassId[] = ['interceptor-i', 'sovereign']) {
   const state = generateGalaxy(501, 'empire');
   const isle = state.systems.find((s) => s.control === 'none' && !s.beast)!;
   state.fleets.length = 0;
@@ -44,10 +36,8 @@ describe('breaking off', () => {
   });
 
   it('costs nothing at all when nothing present can reach', () => {
-    // Nothing in this harbor carries a Long Gun, and a neutral island has no
-    // fort: breaking off from a fight like this one is free, which is exactly
-    // the arc the spec wants — and the day the first long-gunned hull comes
-    // over the horizon is the day it stops being.
+    // No long guns anywhere in the game yet, and no fort on a neutral island:
+    // early disengagement is free, which is exactly the arc the spec wants.
     const { state, fleet } = standoff();
     fleeBattle(state, fleet.id, createRng(5), 'empire');
     expect(hurt(state, fleet.id)).toBe(0);
@@ -81,13 +71,13 @@ describe('breaking off', () => {
     let slow = 0;
     let quick = 0;
     for (let seed = 1; seed <= 60; seed++) {
-      const { state, isle, fleet } = standoff(['CFS-TEM-R3-01'], ['CWN-SOV-S04', 'CWN-INT-S02']);
+      const { state, isle, fleet } = standoff(['tempest'], ['sovereign', 'interceptor-i']);
       isle.beast = 'the-kraken';
       isle.beastSeen = { empire: true, alliance: false };
       isle.beastDamage = 0;
       isle.beastSlain = undefined;
-      const big = fleet.ships.find((s) => s.classId === 'CWN-SOV-S04')!;
-      const small = fleet.ships.find((s) => s.classId === 'CWN-INT-S02')!;
+      const big = fleet.ships.find((s) => s.classId === 'sovereign')!;
+      const small = fleet.ships.find((s) => s.classId === 'interceptor-i')!;
       fleeBattle(state, fleet.id, createRng(seed), 'empire');
       slow += big.damage;
       quick += small.damage;
@@ -124,8 +114,8 @@ describe('breaking off', () => {
     // has nothing to do with whether a squadron can break off.
     const state = generateGalaxy(501, 'alliance');
     const isle = state.systems.find((s) => s.control === 'alliance' && s.populated)!;
-    const mine = addShip(state, isle, 'alliance', 'CFS-TEM-R3-01');
-    addShip(state, isle, 'empire', 'CWN-SOV-S04');
+    const mine = addShip(state, isle, 'alliance', 'tempest');
+    addShip(state, isle, 'empire', 'sovereign');
     const before = fleeError(state, mine.id, 'alliance');
 
     const lord = state.characters.find((c) => c.name.includes('Hale'))!;

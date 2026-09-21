@@ -1,20 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { createRng } from '../rng';
-import {
-  addShip,
-  advanceSieges,
-  fortGuns,
-  fortsOf,
-  wallCondition,
-} from '../fleets';
-import { advanceDay } from '../advanceDay';
+import { addShip, bombardNow, fortsOf, islandBombardDefense } from '../fleets';
 import { raiseWorksError } from '../build';
 import {
-  FORT_GUNS,
-  FORT_STRENGTH,
-  HEAVY_FORT_GUNS,
-  HEAVY_FORT_STRENGTH,
+  FORT_BOMBARD_DEFENSE,
+  FORT_INVASION_DEFENSE,
   YARD_BUILDS,
   UPKEEP_PER_DAY,
   FACILITY_LABEL,
@@ -22,8 +13,6 @@ import {
   CRAFT_GRADES,
   FACILITY_CRAFT,
   isWall,
-  wallGuns,
-  wallStrength,
 } from '../constants';
 import type { FacilityType, GameState, System } from '../types';
 
@@ -56,15 +45,21 @@ describe('the Heavy Fortress, as a second tier', () => {
     const heavy = YARD_BUILDS.heavy_fort;
     const light = YARD_BUILDS.fort;
 
-    // Per berth, it is more than twice the harbor.
-    expect(HEAVY_FORT_GUNS).toBeGreaterThan(FORT_GUNS * 2);
-    expect(HEAVY_FORT_STRENGTH).toBeGreaterThan(FORT_STRENGTH * 2);
+    // Per berth, it is worth exactly two Fortresses in both defences. No bulk
+    // discount, which is right: one big wall is harder to cascade through than
+    // two small ones, because a cascade has to clear the island's whole total
+    // plus the thing it is killing.
+    expect(FORT_BOMBARD_DEFENSE.heavy_fort).toBe(FORT_BOMBARD_DEFENSE.fort * 2);
+    expect(FORT_INVASION_DEFENSE.heavy_fort).toBe(FORT_INVASION_DEFENSE.fort * 2);
 
-    // Per gold and per day of upkeep, it is the worse buy — which is what
-    // stops it being simply the better building.
-    expect(HEAVY_FORT_GUNS / heavy.costGold).toBeLessThan(FORT_GUNS / light.costGold);
-    expect(HEAVY_FORT_GUNS / UPKEEP_PER_DAY.heavy_fort).toBeLessThan(
-      FORT_GUNS / UPKEEP_PER_DAY.fort,
+    // And per gold and per day of upkeep it is the worse buy — two and a half
+    // Fortresses of money for two Fortresses of wall — which is what stops it
+    // being simply the better building.
+    expect(FORT_INVASION_DEFENSE.heavy_fort / heavy.costGold).toBeLessThan(
+      FORT_INVASION_DEFENSE.fort / light.costGold,
+    );
+    expect(FORT_INVASION_DEFENSE.heavy_fort / UPKEEP_PER_DAY.heavy_fort).toBeLessThan(
+      FORT_INVASION_DEFENSE.fort / UPKEEP_PER_DAY.fort,
     );
 
     // And it is not free in time either: dearer and slower than one Fortress,
@@ -80,80 +75,15 @@ describe('the Heavy Fortress, as a second tier', () => {
     for (const type of ['mine', 'refinery', 'shipyard', 'training_facility'] as FacilityType[]) {
       expect(isWall(type), type).toBe(false);
     }
-    expect(wallGuns('fort')).toBe(FORT_GUNS);
-    expect(wallGuns('heavy_fort')).toBe(HEAVY_FORT_GUNS);
-    expect(wallStrength('fort')).toBe(FORT_STRENGTH);
-    expect(wallStrength('heavy_fort')).toBe(HEAVY_FORT_STRENGTH);
+    // A wall's two numbers, and it has no others: it does not fire and it has
+    // no condition.
+    expect(FORT_BOMBARD_DEFENSE.fort).toBeGreaterThan(0);
+    expect(FORT_BOMBARD_DEFENSE.heavy_fort).toBeGreaterThan(FORT_BOMBARD_DEFENSE.fort);
   });
 
-  it('fires its own weight of guns, and less of them as it is worked over', () => {
-    const state = world();
-    state.fleets.length = 0;
-    const port = bare(state);
-    wall(port, 'heavy_fort');
-    expect(fortGuns(port)).toBe(HEAVY_FORT_GUNS);
 
-    // Half beaten down is half the guns — the same rule the Fortress uses,
-    // measured against its own stone rather than a Fortress's.
-    port.facilities.at(-1)!.damage = HEAVY_FORT_STRENGTH / 2;
-    expect(fortGuns(port)).toBeCloseTo(HEAVY_FORT_GUNS / 2);
-    expect(wallCondition(port)).toBeCloseTo(0.5);
-  });
 
-  it('weighs the walls by stone rather than by count', () => {
-    const state = world();
-    const port = bare(state);
-    // One of each, the Heavy untouched and the Fortress rubble-but-standing.
-    wall(port, 'heavy_fort');
-    wall(port, 'fort', FORT_STRENGTH - 1);
-    // By count that would read as half. By stone it is nearly all of it, which
-    // is the truth: the Heavy Fortress is most of this island's defence.
-    const whole = HEAVY_FORT_STRENGTH + FORT_STRENGTH;
-    expect(wallCondition(port)).toBeCloseTo((HEAVY_FORT_STRENGTH + 1) / whole);
-    expect(wallCondition(port)).toBeGreaterThan(0.7);
-  });
 
-  it('takes a longer siege than a Fortress and shoots harder while it lasts', () => {
-    const state = world();
-    state.fleets.length = 0;
-    const port = bare(state);
-    wall(port, 'heavy_fort');
-    expect(fortGuns(port)).toBe(HEAVY_FORT_GUNS);
-
-    // A squadron that would be a nuisance to a Fortress is in real trouble
-    // here — once it opens fire. Since 18 September the battery answers a
-    // bombardment and nothing else, so the order is what puts it in range.
-    // The Ironback, not the Reefwarden: the v4.3 sheet gives the Reefwarden a
-    // Bombardment of zero, and a squadron that cannot open on the walls is
-    // never in range of them.
-    const raider = addShip(state, port, 'alliance', 'CFS-IRB-R5-01');
-    raider.bombarding = true;
-    const before = raider.ships[0].damage;
-    advanceSieges(state, createRng(3));
-    expect(raider.ships.length === 0 || raider.ships[0].damage > before).toBe(true);
-  });
-
-  it('patches at the same share of itself a night, so more stone a night', () => {
-    const state = world();
-    state.fleets.length = 0;
-    const port = bare(state);
-    const heavy = wall(port, 'heavy_fort', HEAVY_FORT_STRENGTH / 2);
-    const light = wall(port, 'fort', FORT_STRENGTH / 2);
-    const heavyId = heavy.id;
-    const lightId = light.id;
-    const hurtBefore = { heavy: heavy.damage!, light: light.damage! };
-
-    const next = advanceDay(state);
-    const after = next.systems.find((s) => s.id === port.id)!;
-    const h = after.facilities.find((f) => f.id === heavyId)!;
-    const l = after.facilities.find((f) => f.id === lightId)!;
-    const mendedHeavy = hurtBefore.heavy - (h.damage ?? 0);
-    const mendedLight = hurtBefore.light - (l.damage ?? 0);
-    expect(mendedHeavy).toBeGreaterThan(0);
-    expect(mendedHeavy).toBeGreaterThan(mendedLight);
-    // The same *share*, which is what keeps a siege the same shape at both tiers.
-    expect(mendedHeavy / HEAVY_FORT_STRENGTH).toBeCloseTo(mendedLight / FORT_STRENGTH);
-  });
 
   it('is a thing a yard can be told to build, on any ground', () => {
     const state = world();
@@ -217,16 +147,23 @@ describe('the Heavy Fortress, as a second tier', () => {
     expect(at('heavy_fort')).toBeLessThan(at('fort'));
   });
 
-  it('stops a landing the same way, and is rubble when it is beaten', () => {
+  /**
+   * What a Heavy Fortress is *for*, now that it neither fires nor crumbles:
+   * it is twice the wall to break and twice the wall to climb, and it takes
+   * one berth to do both.
+   */
+  it('is twice the obstacle, and takes a heavier squadron to break', () => {
     const state = world();
+    state.fleets.length = 0;
     const port = bare(state);
-    const heavy = wall(port, 'heavy_fort');
+    wall(port, 'heavy_fort');
+    expect(islandBombardDefense(port)).toBe(FORT_BOMBARD_DEFENSE.heavy_fort);
+
+    // A squadron that would be through a Fortress is not through this one: to
+    // break it a roll has to beat 8 and then afford another 8, so anything
+    // under 16 on the die cannot touch it however long it lies there.
+    const raider = addShip(state, port, 'alliance', 'marauder');
+    for (let i = 0; i < 40; i++) bombardNow(state, raider, createRng(300 + i));
     expect(fortsOf(port)).toHaveLength(1);
-    // One stone short of gone is still a wall, and a landing is still barred.
-    heavy.damage = HEAVY_FORT_STRENGTH - 1;
-    expect(fortsOf(port)).toHaveLength(1);
-    heavy.damage = HEAVY_FORT_STRENGTH;
-    expect(fortsOf(port)).toHaveLength(0);
-    expect(fortGuns(port)).toBe(0);
   });
 });

@@ -14,8 +14,11 @@ import {
   RESOURCE_LABEL,
   needsResource,
   WORKS_ON,
+  CRAFT_COST_STEP,
+  CRAFT_DAYS_STEP,
   UPKEEP_PER_DAY,
 } from './constants';
+import { troopBuildAt } from './troops';
 import { craftGrade, travelDays } from './missions';
 import { addShip } from './fleets';
 import {
@@ -182,13 +185,33 @@ export function effectiveSpec(
   state: GameState,
   faction: PlayableFaction,
   item: BuildItem,
+  on?: System,
 ): { costGold: number; days: number } {
-  void state;
-  void faction;
-  // The price on the sheet is the price. Research unlocks hulls; it no longer
-  // discounts them — see the note beside `CRAFT_GRADES`.
-  const spec = buildSpec(item);
-  return { costGold: spec.costGold, days: spec.days };
+  /*
+   * A company is priced by who it is, since 21 September.
+   *
+   * Every troop in the game used to cost 25 gold and seven days whoever they
+   * were, which made the Shoal Wardens — the whole point of whom is that they
+   * are the cheapest bodies in the world and can be raised in eight days —
+   * cost exactly what the Drowned Guard cost. The island already knows who it
+   * raises, so the price simply follows.
+   *
+   * It does not return here, and that is the whole of the merge. The ground
+   * roster priced troops and left `if (!isShipClass(item)) return` standing
+   * above the craft cut, so the comment on this function said research applies
+   * to a mine, a wall, a troop and a first-rate alike and the body applied it
+   * to hulls only. Sean's ruling is the comment: *"Just make research the
+   * mission. And it applies to buildings, ships, and troops."* So a company
+   * gets its own price **and then** the cut, like everything else.
+   */
+  const spec =
+    item === 'troop' && on ? (troopBuildAt(on, faction) ?? buildSpec(item)) : buildSpec(item);
+  const grade = craftGrade(state.factions[faction].craft);
+  if (grade === 0) return { costGold: spec.costGold, days: spec.days };
+  return {
+    costGold: Math.ceil(spec.costGold * (1 - CRAFT_COST_STEP * grade)),
+    days: Math.max(1, Math.ceil(spec.days * (1 - CRAFT_DAYS_STEP * grade))),
+  };
 }
 
 /** Whether an order for this item takes a slot on the island it lands on. */
@@ -304,13 +327,13 @@ export function buildError(
   if (system.control !== facility.owner) return 'You do not hold this island.';
   if (system.uprising) return 'The island is in mutiny.';
 
-  const spec = effectiveSpec(state, facility.owner, item);
+  const landing = destinationId ? state.systems.find((s) => s.id === destinationId) : system;
+  if (!landing) return 'No such island.';
+  const spec = effectiveSpec(state, facility.owner, item, landing);
   if (state.factions[facility.owner].gold < spec.costGold) {
     return `Needs ${spec.costGold} ${terms.gold.toLowerCase()}.`;
   }
 
-  const landing = destinationId ? state.systems.find((s) => s.id === destinationId) : system;
-  if (!landing) return 'No such island.';
   if (landing.control !== facility.owner) return `You do not hold ${inProse(landing.name)}.`;
   if (landing.uprising) return `${landing.name} is in mutiny.`;
 
@@ -361,7 +384,8 @@ export function queueBuild(
   const error = buildError(state, facilityId, item, destinationId);
   if (error) throw new Error(error);
   const { system, facility } = findFacility(state, facilityId)!;
-  const spec = effectiveSpec(state, facility.owner as PlayableFaction, item);
+  const landing = destinationId ? state.systems.find((s) => s.id === destinationId) : system;
+  const spec = effectiveSpec(state, facility.owner as PlayableFaction, item, landing ?? system);
   state.factions[facility.owner as PlayableFaction].gold -= spec.costGold;
   const away = destinationId && destinationId !== system.id ? destinationId : undefined;
   const passage = away ? travelDays(state, system.id, away) : 0;

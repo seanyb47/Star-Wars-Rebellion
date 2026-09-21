@@ -34,12 +34,12 @@ export interface TroopType {
   name: string;
   role: 'line' | 'sailors' | 'elite' | 'native' | 'made';
   people: string;
-  /** What it is worth landing on somebody. */
-  offense: number;
-  /** What it is worth holding ground. */
-  defense: number;
+  /** What it is worth landing on somebody. The die an invasion rolls. */
+  attack: number;
+  /** What it is worth holding ground. The die a defence rolls. */
+  invasionDefense: number;
   /** What it sees: the eyes that catch a saboteur or a boat in the dark. */
-  watch: number;
+  detection: number;
   /** What it costs a ship's guns to break it once the walls are rubble. A much
    *  smaller scale than `defense`: a fleet rolls 1d32 where six troops roll
    *  1d180, so the two defences cannot share a number. */
@@ -72,25 +72,25 @@ export function troopsOf(faction: PlayableFaction): TroopType[] {
  * The company an island is garrisoned with when nothing better applies.
  *
  * It was simply "the one with role `line`", which held while both sides had a
- * cheap conscript company on day one. On Sean's roster of 21 September the
+ * cheap conscript company on day one. On the ground roster of 21 September the
  * Crown's line company is the **Fensworn, behind R2** — its only two starting
- * troops are Marines and a Ship's Company — so on day one it has no line
- * company at all, and the roster as first merged papered over that by calling
- * the Marines `line`.
+ * troops are Marines and a Ship's Company — so on day one it has none at all,
+ * and the roster as delivered papered over that by calling the Marines `line`.
  *
- * Measured, that is not a label: the Marines watch 24 where the Crown Regulars
- * they replaced watched 15, so **every rock the Crown holds was suddenly
- * garrisoned by elites** and the capital's watch went 100 to 143 — a 42% rise
- * in the price of every covert operation against the Crown, out of a change
- * about ground combat. The rescue rate out of Highwater fell from nine wars in
- * thirty-two to one, and a side that cannot get its people back is the stall
- * `RESCUE_BASE` is written about.
+ * Measured, that is not a label. Marines detect 24 where the Crown Regulars
+ * they replaced detected 15, so **every rock the Crown holds was garrisoned by
+ * elites** and the capital's detection went 100.5 to 143.1 over thirty-two
+ * seeds — a 42% rise in the price of every covert operation against the Crown,
+ * out of a change about ground combat. The rescue rate out of Highwater fell
+ * from nine wars in thirty-two to one, and a side that cannot get its people
+ * back is the stall `RESCUE_BASE`'s note is written about.
  *
- * So the Marines are `elite` again, as the change order's own card has them
- * — *"CROWN MARINES — Human, elite, start"* — and a side with no line company
- * posts its sailors instead. Which is the rule the Crown's ports already
- * followed from the other end: it sends its best where it means to be seen,
- * and everywhere else it is whoever came off a hull.
+ * So the Marines are `elite`, as the change order's own card has them —
+ * *"CROWN MARINES — Human, elite, start"* and *"FENSWORN — Bog-folk clans,
+ * line, R2"* — and a side with no line company it can raise yet posts its
+ * sailors instead. Which is the rule the Crown's ports already followed from
+ * the other end: it sends its best where it means to be seen, and everywhere
+ * else it is whoever came off a hull.
  */
 const lineOf = (faction: PlayableFaction) =>
   TROOP_TYPES.find((t) => t.faction === faction && t.role === 'line' && !t.research) ??
@@ -168,4 +168,51 @@ export function garrisonSummary(
     else out.push({ type, count: 1 });
   }
   return out;
+}
+
+/**
+ * Who a side puts in the boats.
+ *
+ * A fleet carries a number of companies rather than a list of them, which was
+ * fine while a landing was settled on counting them and is not fine now that
+ * each one rolls its Attack. So the number needs a *kind*, and this is it: the
+ * best attacker the side has unlocked.
+ *
+ * That is a design decision the change order does not make, and it is made
+ * this way for one reason — it is the answer that makes the research ladder
+ * mean something on land. A Crown that has reached R8 lands the Drowned Guard;
+ * one that has not lands Marines. The alternative, a fixed line company for
+ * ever, would leave four of the six troops a side never setting foot on an
+ * enemy beach.
+ *
+ * `grade` is the side's shipwright craft, which is the same ladder the troop
+ * unlocks are written against: "R2", "R4", "R6", "R8".
+ */
+export function landingTroop(faction: PlayableFaction, grade: number): TroopType {
+  const unlocked = troopsOf(faction).filter((t) => {
+    if (t.unlock === 'start') return true;
+    const rung = Number(t.unlock.slice(1));
+    return Number.isFinite(rung) && grade >= rung;
+  });
+  return unlocked.reduce((best, t) => (t.attack > best.attack ? t : best), unlocked[0]);
+}
+
+/**
+ * What raising one company on this island costs, and how long it takes.
+ *
+ * Per-troop economics, which the change order asks for in its section 5: the
+ * flat 25 gold and seven days are gone and both come from the type. What makes
+ * that affordable to implement is that an island already knows who it raises —
+ * `garrisonRoster` has said so since the troops got names — so this is a
+ * lookup rather than a new decision for the player to make.
+ *
+ * It is also the whole of section 3B, which is the reason the Shoal Wardens
+ * exist. Blanketing ten sour islands costs 640 gold in Shoal-folk against
+ * 1,680 in Crown Marines, and an island that drops into revolt can be answered
+ * in eight days rather than twenty. That ladder only bites if the price
+ * follows the unit, and until now it did not.
+ */
+export function troopBuildAt(system: System, faction: PlayableFaction): TroopType | undefined {
+  const roster = garrisonRoster({ ...system, control: faction, garrison: 1 });
+  return roster[0];
 }

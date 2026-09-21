@@ -443,7 +443,7 @@ shares that painting with the others like it.
 
 `islands/tide-isle.webp`
 
-> An island the Black Tide has reached: forest rotted grey, the water thick and black as oil against the shore. Understated wrongness, no monster visible. Seen from a low approach as if from a boat, landscape composition, strong silhouette against sky. No borders or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical.
+> An island the sea takes half of twice a day and gives back: wide tidal flats at low water with a stone causeway running out across them, stilt houses standing clear of the mud, boats sitting on their bilges waiting for the water. Understated, worked, lived-in; the strangeness is the scale of the tide rather than anything wrong. Seen from a low approach as if from a boat, landscape composition, strong silhouette against sky. No borders or text. cinematic stylized historical realism, hand-painted trading-card illustration, authentic late-17th/18th-century maritime detail, strong readable silhouette, dramatic natural lighting, textured painterly brushwork, rich colours, romantic adventure atmosphere, 80% historical realism and 20% dark nautical fantasy; never photorealistic, cartoonish, steampunk, high-fantasy or overly magical.
 
 
 ---

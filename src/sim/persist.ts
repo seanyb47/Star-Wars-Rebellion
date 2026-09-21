@@ -58,7 +58,7 @@ const RENAMED_SEAS: Record<string, string> = {
 const RENAMED_ISLANDS: Record<string, string> = {
   // 21 September, with the three Reaches above.
   Ashcombe: 'Starpath',
-  Oakhanger: 'Chimehouse',
+  Oakhanger: 'Shellhouse',
   Sawtry: 'Outrigger Bay',
   Pitchcombe: 'Longreef',
   Tarmouth: 'Palmfall',
@@ -66,6 +66,14 @@ const RENAMED_ISLANDS: Record<string, string> = {
   // And the seat, which went back to being the port rather than the landmass
   // the same morning.
   'The Aldermain': 'Highwater',
+  // 21 September, and the canonical roster's doing rather than the lore
+  // package's. The sheet has a Confederate hull called the Chimera, and
+  // Sean's rule is that no ship may open on the same four letters as an
+  // island — a ship and a place read a minute apart are easy to confuse and
+  // there is a test that fails the build over it. The ship's name is locked
+  // canon and the island's was not, so the island moved. It keeps its
+  // shells: the wind-chimes still hang in every doorway.
+  Chimehouse: 'Shellhouse',
 };
 
 export function loadGame(storage: Storage | undefined = globalThis.localStorage): GameState | null {

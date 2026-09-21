@@ -129,20 +129,18 @@ import {
   COMMAND_ROLES,
   RECRUITER_ROLE,
   TROOP_TYPES,
-  FORT_GUNS,
+  FORT_BOMBARD_DEFENSE,
   RESOURCE_LABEL,
   RESOURCE_TYPES,
   RESOURCE_BLURB,
-  FORT_STRENGTH,
-  FORT_REPAIR_PER_DAY,
+  FORT_INVASION_DEFENSE,
+  BOMBARD_TICKS_MAX,
   REPAIR_PER_DAY,
   REPAIR_AT_A_YARD,
   BOMBARD_PER_COMPANY,
   CIVILIAN_LOYALTY_HIT,
   SUPPORT_FIRM as FIRM,
   isWall,
-  wallGuns,
-  wallStrength,
   YARD_BUILDABLE,
   MISSION_LABEL,
   MISSION_WHAT,
@@ -966,9 +964,9 @@ function EntrySheet({
           content: (
             <>
               <div className="statgrid" style={{ marginTop: 10 }}>
-                <span><i>Attack</i><b>{type.offense}</b></span>
-                <span><i>Hold</i><b>{type.defense}</b></span>
-                <span><i>Watch</i><b>{type.watch}</b></span>
+                <span><i>Attack</i><b>{type.attack}</b></span>
+                <span><i>Hold</i><b>{type.invasionDefense}</b></span>
+                <span><i>Watch</i><b>{type.detection}</b></span>
               </div>
               <p className="encfull__lore">{type.blurb}</p>
               <div className="card small">
@@ -1013,8 +1011,8 @@ function EntrySheet({
               </div>
               {isWall(type) && (
                 <div className="statgrid" style={{ marginTop: 10 }}>
-                  <span><i>Guns</i><b>{wallGuns(type)}</b></span>
-                  <span><i>Wall</i><b>{wallStrength(type)}</b></span>
+                  <span><i>Against shot</i><b>{FORT_BOMBARD_DEFENSE[type as 'fort' | 'heavy_fort']}</b></span>
+                  <span><i>Against a landing</i><b>{FORT_INVASION_DEFENSE[type as 'fort' | 'heavy_fort']}</b></span>
                 </div>
               )}
               <p className="encfull__lore">{terms.facilityBlurbs[type]}</p>
@@ -1376,19 +1374,29 @@ export function Almanac({
           two that are not about money at all. */}
       <div className="section-title">Standing defences</div>
       <div className="card small">
-        <b>A {FACILITY_LABEL.fort.toLowerCase()} is {FORT_GUNS} guns that answer a bombardment.</b>{' '}
-        It does not fire at ships that are merely lying in its water — an enemy squadron can sit
-        off a fortified harbor all year and never be shot at. Open on the walls and the whole
-        battery answers, at full weight, for as long as it stands. It also does something no fleet
-        can: while one stands, <i>no landing is possible</i>. An enemy who wants the island has to
-        beat the wall down with shot first, which is the only thing that can touch it.
+        <b>A {FACILITY_LABEL.fort.toLowerCase()} is an obstacle, not a battery.</b>{' '}
+        It does not fire at anybody. What it does is stand in the way twice over: a bombardment
+        has to break it before its shot can reach anyone behind it, and while it stands it adds{' '}
+        {FORT_INVASION_DEFENSE.fort} to what a landing has to beat. A{' '}
+        {FACILITY_LABEL.heavy_fort.toLowerCase()} is worth {FORT_INVASION_DEFENSE.heavy_fort}.
         <br />
         <br />
-        <b>It has a condition, and its gunnery falls with it.</b> {FORT_STRENGTH} of strength; a
-        wall at half is half a battery. Beaten to nothing it is rubble, and rubble does not come
-        back — the island has to build a new one. Left alone it mends{' '}
-        {Math.round(FORT_REPAIR_PER_DAY * 100)}% of itself a day, twice what a hull manages, which
-        is why a siege that stops for a week has lost the week.
+        <b>It has no condition.</b> A wall is standing or it is rubble, and nothing between —
+        there is no chipping away at one over a fortnight. Breaking it is a die: your squadron
+        rolls its whole bombardment score, and to bring a battery down that roll has to beat the
+        island's total <i>plus</i> that battery's own {FORT_BOMBARD_DEFENSE.fort}. So a squadron
+        under that number has no chance at all rather than long odds, which is worth reading
+        before you spend a shot. Beaten down, a wall is rubble and rubble does not come back —
+        the island has to build a new one.
+        <br />
+        <br />
+        <b>Your magazine is five.</b> Each ship can bombard {BOMBARD_TICKS_MAX} times before it
+        has to put in at a port of yours for more shot. A ship that is out adds nothing to the
+        squadron's weight and still blockades normally.
+        <br />
+        <br />
+        <b>And you may always land.</b> A standing wall used to forbid it outright; now it only
+        makes it dear.
         <br />
         <br />
         <b>Hulls mend too, slowly.</b> {Math.round(REPAIR_PER_DAY * 100)}% of a hull a day at
@@ -1445,7 +1453,7 @@ export function Almanac({
                 {type.name}
               </b>
               <span className="encmini__line">
-                {type.offense} / {type.defense} / {type.watch}
+                {type.attack} / {type.invasionDefense} / {type.detection}
                 {type.research && ' · not yet built'}
               </span>
             </button>
@@ -1791,6 +1799,14 @@ export function Almanac({
         roster and the engine that fights it follow in the next pass; the note
         at the top says so rather than letting the reader find out.
       */}
+      <div className="card small" style={{ borderColor: 'var(--warn, #b8863b)' }}>
+        <b>This is the new fleet.</b> {ROSTER.ships.length} hulls on the locked combat
+        rules — three kinds of cannon, armor, Size and Speed. The war you are
+        playing still sails the old fleet and fights it the old way until the
+        engine swap lands, so a name here may not be a name in your harbor
+        yet.
+      </div>
+
       {/*
         One list, both navies, A-Z. Sean, 19 September: *"Don't separate crown
         and confederate ships. Put them all in encyclopedia in ABC order. But
