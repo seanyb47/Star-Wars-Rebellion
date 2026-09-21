@@ -719,7 +719,6 @@ export function SystemSheet({
   onSail,
   onAssault,
   onBombard,
-  onCeaseFire,
   onFlee,
   onOpenShip,
   onOrderShips,
@@ -743,7 +742,6 @@ export function SystemSheet({
   onSail: (fleetId: string) => void;
   onAssault: (fleetId: string) => void;
   onBombard?: (fleetId: string) => void;
-  onCeaseFire?: (fleetId: string) => void;
   onFlee?: (fleetId: string) => void;
   onOpenShip?: (fleetId: string, shipId: string) => void;
   onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
@@ -1043,7 +1041,6 @@ export function SystemSheet({
             onSail={onSail}
             onAssault={onAssault}
             onBombard={onBombard}
-            onCeaseFire={onCeaseFire}
             onFlee={onFlee}
             onOpenCharacter={onOpenCharacter}
             onOpenShip={onOpenShip}

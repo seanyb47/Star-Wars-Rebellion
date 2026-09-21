@@ -7,8 +7,10 @@ import {
   fleetGuns,
   fleetStatus,
   fleetsToJoin,
-  fleetBombard,
   fortsOf,
+  bombardOdds,
+  fleetTicksLeft,
+  BOMBARD_TICKS_MAX,
   wallInvasionDefense,
   bombardError,
   assaultError,
@@ -166,7 +168,6 @@ export function FleetCard({
   onSail,
   onAssault,
   onBombard,
-  onCeaseFire,
   onFlee,
   onOpenCharacter,
   onOpenShip,
@@ -180,7 +181,6 @@ export function FleetCard({
   onSail: (fleetId: string) => void;
   onAssault: (fleetId: string) => void;
   onBombard?: (fleetId: string) => void;
-  onCeaseFire?: (fleetId: string) => void;
   onFlee?: (fleetId: string) => void;
   onOpenCharacter?: (characterId: string) => void;
   onOpenShip?: (fleetId: string, shipId: string) => void;
@@ -205,7 +205,9 @@ export function FleetCard({
   /* The two attack orders, asked once so the heading above them can know
      whether there is anything to head. A squadron with no troops lying off an
      island it already holds has neither, and gets no Attack actions row. */
-  const canBombard = fleet.bombarding || cannotBombard === null;
+  const canBombard = cannotBombard === null || /out of shot/i.test(cannotBombard ?? '');
+  const odds = system && system.control !== fleet.faction ? bombardOdds(state, fleet) : undefined;
+  const ticks = fleetTicksLeft(fleet);
   const canLand = !holdsIsland && fleet.troops > 0;
   const refuge = canFlee ? refugeFor(state, fleet) : undefined;
 
@@ -455,25 +457,53 @@ export function FleetCard({
           {(canBombard || canLand) && (
             <>
               <div className="section-title">Attack actions</div>
-              {fleet.bombarding ? (
-                <button className="btn" onClick={() => onCeaseFire?.(fleet.id)}>
-                  Cease fire
+              {/*
+                One press, one action. There was a standing order here with a
+                "Cease fire" beside it, and both are gone with the daily tick.
+              */}
+              {cannotBombard === null && odds && (
+                <button className="btn orderbtn--stacked" onClick={() => onBombard?.(fleet.id)}>
+                  <b>Bombardment</b>
+                  {/*
+                    The number the player is owed *before* a shot is spent.
+                    The top of the die is the squadron's whole bombardment
+                    score, so a fleet under the island's total plus the
+                    cheapest thing on it has no chance at all rather than long
+                    odds — and finding that out over five ticks is how a siege
+                    used to waste a war.
+                  */}
+                  <span className="tiny muted">
+                    rolls at most {odds.rolls} · {walls > 0 ? 'walls' : 'the garrison'} stand at{' '}
+                    {odds.against}
+                  </span>
+                  <span className="tiny">
+                    {odds.hopeless
+                      ? 'Nothing here can be broken by this squadron.'
+                      : 'One action, however far it cascades.'}
+                  </span>
                 </button>
-              ) : (
-                cannotBombard === null && (
-                  <button className="btn orderbtn--stacked" onClick={() => onBombard?.(fleet.id)}>
-                    <b>Bombardment</b>
-                    {/* Which target, because it is a different decision and
-                        priced like one: while a wall stands it is the wall,
-                        and past that it is the town. */}
-                    <span className="tiny muted">
-                      {walls > 0 ? 'the walls' : 'the town'} · {fleetBombard(fleet)} a day
+              )}
+              {cannotBombard !== null && /out of shot/i.test(cannotBombard) && (
+                <div className="tiny muted fleet__blocked">{cannotBombard}</div>
+              )}
+              {/*
+                The magazine, as pips rather than a number: five shots a hull,
+                and a hull that is out adds nothing to the squadron's weight
+                and still blockades normally.
+              */}
+              {ticks.some((t) => t.left < BOMBARD_TICKS_MAX) && (
+                <div className="tiny muted" style={{ margin: '2px 0 6px' }}>
+                  Shot aboard:{' '}
+                  {ticks.map((t) => (
+                    <span key={t.shipId} style={{ marginRight: 6, letterSpacing: 1 }}>
+                      {'\u25CF'.repeat(t.left)}
+                      {'\u25CB'.repeat(BOMBARD_TICKS_MAX - t.left)}
                     </span>
-                  </button>
-                )
+                  ))}
+                </div>
               )}
               {canLand &&
-                (landBlocked && /seawall/i.test(landBlocked) ? (
+                (landBlocked ? (
                   <div className="tiny muted fleet__blocked">{landBlocked}</div>
                 ) : (
                   <button
@@ -483,6 +513,7 @@ export function FleetCard({
                     <b>Invasion</b>
                     <span className="tiny">
                       {fleet.troops} against {system?.garrison ?? 0} ashore
+                      {walls > 0 ? ` and ${walls} ${walls === 1 ? 'wall' : 'walls'}` : ''}
                     </span>
                   </button>
                 ))}
@@ -516,7 +547,6 @@ export function ShipsHere({
   onSail,
   onAssault,
   onBombard,
-  onCeaseFire,
   onFlee,
   onOpenCharacter,
   onOpenShip,
@@ -529,7 +559,6 @@ export function ShipsHere({
   onSail: (fleetId: string) => void;
   onAssault: (fleetId: string) => void;
   onBombard?: (fleetId: string) => void;
-  onCeaseFire?: (fleetId: string) => void;
   onFlee?: (fleetId: string) => void;
   onOpenCharacter?: (characterId: string) => void;
   onOpenShip?: (fleetId: string, shipId: string) => void;
@@ -636,7 +665,6 @@ export function ShipsHere({
           onSail={onSail}
           onAssault={onAssault}
           onBombard={onBombard}
-          onCeaseFire={onCeaseFire}
           onFlee={onFlee}
           onOpenCharacter={onOpenCharacter}
           onOpenShip={onOpenShip}
