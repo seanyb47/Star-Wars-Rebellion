@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { landingTroop } from '../troops';
 import { advanceDay } from '../advanceDay';
 import { queueBuild } from '../build';
 import { SHIP_ROLES, shipClass, shipSpec, shipsFor } from '../constants';
@@ -177,7 +178,10 @@ describe('building a hull', () => {
     // The hull's own figure, off the sheet, rather than its size's: since the
     // roster swap every hull is priced on its own and a first-rate costs a
     // great deal more to keep than a sloop.
-    expect(after).toBe(before + shipSpec('sovereign').upkeep + 2);
+    // And the companies aboard are priced by who they are too, which is the
+    // side's landing troop rather than a flat gold a head.
+    const aboard = 2 * landingTroop('empire', 0).upkeep;
+    expect(after).toBeCloseTo(before + shipSpec('sovereign').upkeep + aboard, 5);
   });
 });
 
@@ -369,32 +373,41 @@ describe('assault', () => {
     expect(assaultError(state, fleet.id, 'empire')).toBe('Enemy ships hold the harbor.');
   });
 
-  it('takes the island when the landing force outnumbers the garrison', () => {
+  /**
+   * A landing is dice now, so the assertions are about the shape of the result
+   * rather than an arithmetic identity. It used to be a comparison of two
+   * counts — four attackers against one defender spent exactly one company a
+   * side — and the numbers below were that subtraction written down.
+   */
+  it('takes the island when the landing force much outweighs the garrison', () => {
     const { state } = setup();
     const target = state.systems.find((s) => s.control === 'alliance' && s.populated)!;
     target.garrison = 1;
     const fleet = put(state, target, 'empire', ['sovereign', 'sovereign']);
-    fleet.troops = 4;
+    fleet.troops = 6;
 
     resolveLanding(state, fleet, createRng(1));
 
     expect(target.control).toBe('empire');
-    expect(target.garrison).toBe(3); // four landed, one spent against the defence
-    expect(fleet.troops).toBe(0);
+    // Enough ashore to hold it quiet; whatever survived beyond that stays in
+    // the boats, so the squadron can go on to the next island.
+    expect(target.garrison).toBeGreaterThan(0);
+    expect(target.garrison + fleet.troops).toBeLessThanOrEqual(6);
   });
 
-  it('is thrown back when the garrison is the stronger', () => {
+  it('is thrown back when the garrison is much the stronger', () => {
     const { state } = setup();
     const target = state.systems.find((s) => s.control === 'alliance' && s.populated)!;
-    target.garrison = 5;
+    target.garrison = 8;
     const fleet = put(state, target, 'empire', ['sovereign']);
-    fleet.troops = 2;
+    fleet.troops = 1;
 
     resolveLanding(state, fleet, createRng(1));
 
     expect(target.control).toBe('alliance');
-    expect(target.garrison).toBe(3);
-    expect(fleet.troops).toBe(0);
+    // Something of theirs is still standing, and the boats came back lighter.
+    expect(target.garrison).toBeGreaterThan(0);
+    expect(fleet.troops).toBeLessThan(1);
   });
 
   it('leaves an island taken by force sullen rather than loyal', () => {

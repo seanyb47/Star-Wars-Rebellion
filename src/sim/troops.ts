@@ -34,12 +34,12 @@ export interface TroopType {
   name: string;
   role: 'line' | 'sailors' | 'elite' | 'native' | 'made';
   people: string;
-  /** What it is worth landing on somebody. */
-  offense: number;
-  /** What it is worth holding ground. */
-  defense: number;
+  /** What it is worth landing on somebody. The die an invasion rolls. */
+  attack: number;
+  /** What it is worth holding ground. The die a defence rolls. */
+  invasionDefense: number;
   /** What it sees: the eyes that catch a saboteur or a boat in the dark. */
-  watch: number;
+  detection: number;
   /** What it costs a ship's guns to break it once the walls are rubble. A much
    *  smaller scale than `defense`: a fleet rolls 1d32 where six troops roll
    *  1d180, so the two defences cannot share a number. */
@@ -142,4 +142,51 @@ export function garrisonSummary(
     else out.push({ type, count: 1 });
   }
   return out;
+}
+
+/**
+ * Who a side puts in the boats.
+ *
+ * A fleet carries a number of companies rather than a list of them, which was
+ * fine while a landing was settled on counting them and is not fine now that
+ * each one rolls its Attack. So the number needs a *kind*, and this is it: the
+ * best attacker the side has unlocked.
+ *
+ * That is a design decision the change order does not make, and it is made
+ * this way for one reason — it is the answer that makes the research ladder
+ * mean something on land. A Crown that has reached R8 lands the Drowned Guard;
+ * one that has not lands Marines. The alternative, a fixed line company for
+ * ever, would leave four of the six troops a side never setting foot on an
+ * enemy beach.
+ *
+ * `grade` is the side's shipwright craft, which is the same ladder the troop
+ * unlocks are written against: "R2", "R4", "R6", "R8".
+ */
+export function landingTroop(faction: PlayableFaction, grade: number): TroopType {
+  const unlocked = troopsOf(faction).filter((t) => {
+    if (t.unlock === 'start') return true;
+    const rung = Number(t.unlock.slice(1));
+    return Number.isFinite(rung) && grade >= rung;
+  });
+  return unlocked.reduce((best, t) => (t.attack > best.attack ? t : best), unlocked[0]);
+}
+
+/**
+ * What raising one company on this island costs, and how long it takes.
+ *
+ * Per-troop economics, which the change order asks for in its section 5: the
+ * flat 25 gold and seven days are gone and both come from the type. What makes
+ * that affordable to implement is that an island already knows who it raises —
+ * `garrisonRoster` has said so since the troops got names — so this is a
+ * lookup rather than a new decision for the player to make.
+ *
+ * It is also the whole of section 3B, which is the reason the Shoal Wardens
+ * exist. Blanketing ten sour islands costs 640 gold in Shoal-folk against
+ * 1,680 in Crown Marines, and an island that drops into revolt can be answered
+ * in eight days rather than twenty. That ladder only bites if the price
+ * follows the unit, and until now it did not.
+ */
+export function troopBuildAt(system: System, faction: PlayableFaction): TroopType | undefined {
+  const roster = garrisonRoster({ ...system, control: faction, garrison: 1 });
+  return roster[0];
 }

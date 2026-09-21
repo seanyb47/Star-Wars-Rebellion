@@ -14,6 +14,8 @@ import {
   fightBattleRound,
   fleeBattle,
   sailFleet,
+  bombardNow,
+  findFleet,
 } from './fleets';
 import { createRng } from './rng';
 import { runAI } from './ai';
@@ -288,26 +290,32 @@ export function orderBreakOff(state: GameState): CommandResult {
 }
 
 /**
- * Open fire on the island, and keep firing.
+ * Open fire on the island: one action, resolved now.
  *
- * A day's bombardment is a day, so this is standing orders rather than a
- * button pressed every morning: the squadron works the walls until they are
- * down, until you call it off, or until something makes it impossible.
+ * This used to set a standing order and the squadron fired once a morning
+ * until the walls came down. Sean: *"The once per day mechanic will be
+ * annoying tbh. It means you have to sit and wait."* So the whole thing —
+ * roll, cascade, and whatever it knocks down — happens on the press, and costs
+ * one shot out of each ship's magazine of five.
  */
 export function orderBombard(state: GameState, fleetId: string): CommandResult {
   return run(state, (draft) => {
     const error = bombardError(draft, fleetId, draft.player);
     if (error) throw new Error(error);
-    draft.fleets.find((f) => f.id === fleetId)!.bombarding = true;
+    const rng = createRng(draft.rngSeed);
+    bombardNow(draft, findFleet(draft, fleetId)!, rng);
+    draft.rngSeed = rng.seed;
   });
 }
 
-/** Call the guns off. */
+/**
+ * There is nothing to call off any more, so this is kept only so a save or a
+ * screen written against the old standing order does not throw. It does
+ * nothing, deliberately.
+ */
 export function orderCeaseFire(state: GameState, fleetId: string): CommandResult {
   return run(state, (draft) => {
-    const fleet = draft.fleets.find((f) => f.id === fleetId);
-    if (!fleet) throw new Error('No such fleet.');
-    fleet.bombarding = undefined;
+    if (!draft.fleets.some((f) => f.id === fleetId)) throw new Error('No such fleet.');
   });
 }
 

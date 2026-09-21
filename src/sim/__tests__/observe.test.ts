@@ -213,6 +213,12 @@ describe('a prisoner is held until somebody comes', () => {
       // on 21 September, when the naval swap made the Confederacy well able
       // to be standing on Highwater inside a year.
       cell.control = 'empire';
+      // And held hard enough that nobody storms it. Taking the island the
+      // cells are on frees everybody in them, which is the rule working; a
+      // landing is not a clock. Since the ground war went to dice on 21
+      // September a landing is decisive enough that holding the gaol has to
+      // be stated rather than assumed.
+      cell.garrison = 12;
     }
     const after = next.characters.find((c) => c.id === who.id)!;
     expect(after.status).toBe('captured');

@@ -8,24 +8,35 @@ import {
   assault,
   assaultError,
   bombardError,
-  bombardRound,
+  bombardNow,
+  bombardOdds,
   fleetBombard,
-  fortGuns,
   fortsOf,
+  islandBombardDefense,
   repairOvernight,
-  wallCondition,
 } from '../fleets';
 import { getSystem, requiredGarrison } from '../helpers';
-import { orderAssault, orderBombard, orderCeaseFire } from '../commands';
+import { orderAssault, orderBombard } from '../commands';
 import {
+  BOMBARD_TICKS_MAX,
   CAPITAL_GARRISON,
   CAPITAL_WALLS,
-  FORT_GUNS,
-  FORT_STRENGTH,
+  FORT_BOMBARD_DEFENSE,
   REPAIR_PER_DAY,
   shipSpec,
 } from '../constants';
 import type { GameState, PlayableFaction, ShipClassId, System } from '../types';
+
+/**
+ * The siege, after 21 September.
+ *
+ * Most of this file used to be about a standing order that fired once a
+ * morning and ground a wall's hit points down over a fortnight, with the
+ * battery firing back the whole time and patching itself overnight. None of
+ * that exists. What is here now is two ordered actions with dice in them, and
+ * the tests are about the sequence and the refusals rather than about an
+ * arithmetic of attrition.
+ */
 
 function world(seed = 7): GameState {
   const state = generateGalaxy(seed, 'alliance');
@@ -51,18 +62,21 @@ function walled(state: GameState, forts = 1) {
   return isle;
 }
 
-describe('the seawall gates the landing', () => {
-  it('refuses an assault while any wall stands, and allows it once none does', () => {
+describe('the sequence of orders', () => {
+  /**
+   * The gate is repealed. Sean, 15 September: *"a single fortress on the
+   * island prevents the fleet from doing an assault"* — gone on 20 September,
+   * because with the wall as a turnstile there was exactly one order of
+   * operations and no decision anywhere in it. A standing wall adds its
+   * Invasion Defense to the garrison's die instead, so storming it is
+   * expensive rather than impossible and bombardment becomes softening.
+   */
+  it('lets the boats go in with the wall still standing, and charges for it', () => {
     const state = world();
     const isle = walled(state);
     isle.garrison = 2;
-    const fleet = put(state, isle, 'alliance', ['coral-dreadnaught', 'coral-dreadnaught', 'brigantine']);
+    const fleet = put(state, isle, 'alliance', ['coral-dreadnaught', 'brigantine']);
     fleet.troops = 6;
-
-    expect(assaultError(state, fleet.id, 'alliance')).toMatch(/seawall/i);
-    // Beaten to rubble, and the door is open.
-    for (const fort of isle.facilities) if (fort.type === 'fort') fort.damage = FORT_STRENGTH;
-    isle.facilities = isle.facilities.filter((f) => f.type !== 'fort');
     expect(assaultError(state, fleet.id, 'alliance')).toBeNull();
   });
 
@@ -83,73 +97,125 @@ describe('the seawall gates the landing', () => {
   });
 });
 
-describe('a day of bombardment', () => {
-  it('takes the walls down over days, and the battery fires back the whole time', () => {
+describe('a bombardment', () => {
+  /**
+   * One action, resolved on the press. Sean, on the old pacing: *"The once
+   * per day mechanic will be annoying tbh. It means you have to sit and
+   * wait."*
+   */
+  it('is over the moment it is ordered', () => {
     const state = world();
-    const isle = walled(state);
-    const fleet = put(state, isle, 'alliance', ['coral-dreadnaught', 'coral-dreadnaught']);
-    expect(fleetBombard(fleet)).toBe(shipSpec('coral-dreadnaught').bombard * 2);
-    expect(Math.round(fortGuns(isle))).toBe(FORT_GUNS);
+    const isle = walled(state, 1);
+    isle.garrison = 0;
+    // Enough weight to be sure of the one wall: it stands at 4, so anything
+    // over 8 can break it and a Dreadnaught and a Goliath roll 12.
+    const fleet = put(state, isle, 'alliance', ['coral-dreadnaught', 'urskin-goliath']);
+    expect(fleetBombard(fleet)).toBeGreaterThan(FORT_BOMBARD_DEFENSE.fort * 2);
+    let down = 0;
+    for (let i = 0; i < 40; i++) {
+      const fresh = world();
+      const target = walled(fresh, 1);
+      target.garrison = 0;
+      const squadron = put(fresh, target, 'alliance', ['coral-dreadnaught', 'urskin-goliath']);
+      bombardNow(fresh, squadron, createRng(i + 1));
+      if (fortsOf(target).length === 0) down += 1;
+    }
+    // Most single actions take the wall outright, which is the whole point of
+    // it being an action rather than a fortnight.
+    expect(down).toBeGreaterThan(20);
+  });
 
-    const rng = createRng(4);
-    const before = fleet.ships.reduce((n, s) => n + s.damage, 0);
-    bombardRound(state, fleet, rng);
-    expect(wallCondition(isle)).toBeLessThan(1);
-    // Hurt in the doing of it: the wall shoots at whoever is working it.
-    expect(fleet.ships.reduce((n, s) => n + s.damage, 0)).toBeGreaterThan(before);
+  /**
+   * > A ship may bombard FIVE TIMES before returning to a friendly port,
+   * > where its ticks clear in full. A spent ship adds nothing to the fleet
+   * > score but still blockades normally.
+   */
+  it('empties a magazine in five, and fills it again at home', () => {
+    const state = world();
+    const isle = walled(state, 3);
+    isle.garrison = 6;
+    const fleet = put(state, isle, 'alliance', ['coral-dreadnaught']);
+    const full = fleetBombard(fleet);
+    expect(full).toBeGreaterThan(0);
+    for (let i = 0; i < BOMBARD_TICKS_MAX; i++) {
+      if (bombardError(state, fleet.id, 'alliance') === null) {
+        bombardNow(state, fleet, createRng(50 + i));
+      }
+    }
+    expect(fleet.ships[0].bombardTicks).toBe(BOMBARD_TICKS_MAX);
+    // Out of shot: no weight, and a refusal that says so rather than reading
+    // as a defeat.
+    expect(fleetBombard(fleet)).toBe(0);
+    expect(bombardError(state, fleet.id, 'alliance')).toMatch(/out of shot/i);
 
-    // And its gunnery falls with it, so the second day is cheaper than the first.
-    expect(fortGuns(isle)).toBeLessThan(FORT_GUNS);
+    // Home to a port of theirs, and the magazine fills.
+    const home = state.systems.find((s) => s.control === 'alliance' && !s.blockaded)!;
+    fleet.systemId = home.id;
+    advanceSieges(state, createRng(1));
+    expect(fleet.ships[0].bombardTicks).toBeUndefined();
+    expect(fleetBombard(fleet)).toBe(full);
+  });
 
-    for (let d = 0; d < 10 && fortsOf(isle).length > 0; d++) bombardRound(state, fleet, rng);
-    expect(fortsOf(isle)).toHaveLength(0);
+  /**
+   * > Because the top of the die IS the fleet's bombardment score, a fleet
+   * > under that number has ZERO chance rather than poor odds — so say so
+   * > before a tick is spent.
+   *
+   * This is the readout the UI owes the player, and the reason the opponent
+   * stopped besieging things it could never break: measured on 21 September,
+   * the Crown shelled Freeport every day from day 214 to the end of the war
+   * and never once got through the wall.
+   */
+  it('says plainly when a squadron cannot break anything at all', () => {
+    const state = world();
+    const isle = walled(state, 3);
+    isle.garrison = 0;
+    // Three Fortresses stand at 12; to break one you must roll 12 + 4.
+    expect(islandBombardDefense(isle)).toBe(FORT_BOMBARD_DEFENSE.fort * 3);
+    const small = put(state, isle, 'alliance', ['marauder']);
+    const odds = bombardOdds(state, small);
+    expect(odds.rolls).toBeLessThan(odds.against + FORT_BOMBARD_DEFENSE.fort);
+    expect(odds.hopeless).toBe(true);
+    // And it really is hopeless, not merely unlikely.
+    for (let i = 0; i < 60; i++) {
+      const before = fortsOf(isle).length;
+      bombardNow(state, small, createRng(200 + i));
+      expect(fortsOf(isle)).toHaveLength(before);
+    }
+  });
+
+  /**
+   * > Walls while any stand; once they are all rubble, the garrison.
+   */
+  it('cannot reach the garrison while a wall is standing', () => {
+    const state = world();
+    const isle = walled(state, 1);
+    isle.garrison = 4;
+    const before = isle.garrison;
+    const fleet = put(state, isle, 'alliance', ['coral-dreadnaught']);
+    // A roll that breaks the wall and nothing else still leaves four ashore;
+    // a roll that cascades past it may reach them. What is impossible is
+    // reaching them with the wall still up.
+    bombardNow(state, fleet, createRng(11));
+    if (fortsOf(isle).length > 0) expect(isle.garrison).toBe(before);
   });
 
   it('leaves rubble, not a wall that mends itself back into a wall', () => {
-    // Measured before this rule: a wall driven to nothing was patched a stone
-    // overnight, which put it back under its own strength and therefore back
-    // on the list of walls standing. Every siege in eight games ground to two
-    // per cent and stayed there for ever.
+    // Measured before the walls went binary: a wall driven to nothing was
+    // patched a stone overnight, which put it back under its own strength and
+    // therefore back on the list of walls standing. Every siege in eight games
+    // ground to two per cent and stayed there for ever.
     const state = world();
     const isle = walled(state);
-    const fleet = put(state, isle, 'alliance', ['coral-dreadnaught', 'coral-dreadnaught', 'coral-dreadnaught']);
-    const rng = createRng(9);
-    for (let d = 0; d < 12 && fortsOf(isle).length > 0; d++) {
-      bombardRound(state, fleet, rng);
+    const fleet = put(state, isle, 'alliance', ['coral-dreadnaught', 'urskin-goliath', 'ironback']);
+    for (let d = 0; d < BOMBARD_TICKS_MAX && fortsOf(isle).length > 0; d++) {
+      bombardNow(state, fleet, createRng(9 + d));
       repairOvernight(state);
     }
     expect(fortsOf(isle)).toHaveLength(0);
     expect(isle.facilities.some((f) => f.type === 'fort')).toBe(false);
-    // The slot the wall stood in is free again.
+    // The berth the wall stood in is free again.
     expect(isle.facilities.length).toBeLessThan(isle.slots);
-  });
-
-  it('reaches the garrison only past the walls, and the whole Reach hears about it', () => {
-    const state = world();
-    const isle = walled(state, 0);
-    isle.garrison = 4;
-    // Room to fall: at ninety-ten the second day's larger hit is clipped by
-    // the floor and the stacking cannot be seen.
-    isle.support = { empire: 60, alliance: 40 };
-    const neighbour = state.systems.find(
-      (s) => s.sectorId === isle.sectorId && s.id !== isle.id && s.populated,
-    )!;
-    const nearBefore = neighbour.support.alliance;
-    const fleet = put(state, isle, 'alliance', ['coral-dreadnaught', 'coral-dreadnaught', 'coral-dreadnaught']);
-
-    bombardRound(state, fleet, createRng(2));
-    expect(isle.garrison).toBeLessThan(4);
-    // The people turn against whoever is doing the shelling, here and
-    // everywhere else in the Reach that hears of it.
-    expect(isle.support.alliance).toBeLessThan(40);
-    expect(neighbour.support.alliance).toBeLessThan(nearBefore);
-    expect(isle.shelled).toBe(1);
-
-    // And it costs more the second day than the first.
-    const firstDay = 40 - isle.support.alliance;
-    const was = isle.support.alliance;
-    bombardRound(state, fleet, createRng(3));
-    expect(was - isle.support.alliance).toBeGreaterThan(firstDay);
   });
 });
 
@@ -184,22 +250,28 @@ describe('what mends overnight', () => {
     expect(START_DAMAGE - hurt(atSea)).toBeCloseTo(atAnchor * 2, 5);
   });
 
-  it('patches a wall under blockade, but the yard does not work', () => {
+  /**
+   * And nothing mends stone, because there is no stone to mend. A wall is
+   * standing or it is rubble; the percentage-patch is gone with the hit
+   * points, and with it a silent bug — because the patch was a percentage and
+   * the bombardment a flat subtraction, any fleet under 1.2 a day could never
+   * scratch a Fortress and nothing anywhere said so.
+   */
+  it('mends a hull in a blockaded harbor, and never mends a wall', () => {
     const state = world();
     const isle = walled(state);
     isle.blockaded = true;
     const fort = isle.facilities.find((f) => f.type === 'fort')!;
-    fort.damage = 30;
-    // A hull of theirs in their own blockaded harbor.
     const theirs = put(state, isle, 'empire', ['sovereign']);
     theirs.ships[0].damage = 1000;
     isle.facilities.push({ id: 'fac-yard-2', type: 'shipyard', owner: 'empire' });
 
     repairOvernight(state);
-    // Men with shovels work under fire. Shipwrights do not — so the hull mends
-    // at the plain rate rather than the yard's.
-    expect(fort.damage).toBeLessThan(30);
+    // Shipwrights do not work under fire, so the hull mends at the plain rate
+    // rather than the yard's.
     expect(1000 - theirs.ships[0].damage).toBeCloseTo(shipSpec('sovereign').hull * REPAIR_PER_DAY, 5);
+    // And the wall is exactly as it was, because a wall has no condition.
+    expect(fort.damage).toBeUndefined();
   });
 });
 
@@ -209,9 +281,8 @@ describe('taking the island', () => {
     const isle = walled(state, 0);
     isle.garrison = 1;
     const fleet = put(state, isle, 'alliance', ['coral-dreadnaught', 'coral-dreadnaught', 'brigantine']);
-    fleet.troops = 9;
+    fleet.troops = 12;
     expect(assaultError(state, fleet.id, 'alliance')).toBeNull();
-
 
     assault(state, fleet.id, createRng(5), 'alliance');
     expect(isle.control).toBe('alliance');
@@ -242,7 +313,7 @@ describe('nobody ashore, and the people decide', () => {
     )!;
     isle.garrison = 0;
     isle.support = { empire: 15, alliance: 85 };
-    let next = advanceDay(state);
+    const next = advanceDay(state);
     const after = next.systems.find((s) => s.id === isle.id)!;
     expect(after.control).toBe('alliance');
     expect(next.events.some((e) => /nobody ashore to argue/i.test(e.text))).toBe(true);
@@ -264,20 +335,6 @@ describe('nobody ashore, and the people decide', () => {
   });
 });
 
-describe('the siege as standing orders', () => {
-  it('fires once a day and stops itself when there is nothing left to fire on', () => {
-    const state = world();
-    const isle = walled(state);
-    isle.garrison = 0;
-    const fleet = put(state, isle, 'alliance', ['coral-dreadnaught', 'coral-dreadnaught', 'coral-dreadnaught']);
-    fleet.bombarding = true;
-    const rng = createRng(6);
-    for (let d = 0; d < 20 && fleet.bombarding; d++) advanceSieges(state, rng);
-    expect(fortsOf(isle)).toHaveLength(0);
-    expect(fleet.bombarding).toBeUndefined();
-  });
-});
-
 describe('a siege, end to end, through the orders a player gives', () => {
   it('blockade, walls, landing — and the island changes hands', () => {
     let state = world(21);
@@ -285,50 +342,32 @@ describe('a siege, end to end, through the orders a player gives', () => {
     const isleId = walled(state).id;
     const at = (s: GameState) => s.systems.find((x) => x.id === isleId)!;
     at(state).garrison = 3;
-    // Weight enough to be through the wall and still be afloat after. Two of
-    // the line and a transport was cutting it fine, and once the world's
-    // islands were rolled differently the squadron started dying on the third
-    // day with the wall at thirteen per cent — which is the doctrine's own
-    // point about not dabbling, and a bad fixture for a test about the
-    // sequence of orders.
-    const fleet = put(state, at(state), 'alliance', ['coral-dreadnaught', 'coral-dreadnaught', 'coral-dreadnaught', 'brigantine']);
-    fleet.troops = 6;
+    const fleet = put(state, at(state), 'alliance', [
+      'coral-dreadnaught',
+      'urskin-goliath',
+      'ironback',
+      'brigantine',
+    ]);
+    fleet.troops = 10;
     const fleetId = fleet.id;
 
-    // The landing is shut while the wall stands, and the guns are the only
-    // way to open it.
-    expect(orderAssault(state, fleetId).error).toMatch(/seawall/i);
-    const opened = orderBombard(state, fleetId);
-    expect(opened.error).toBeUndefined();
-    state = opened.state;
-    expect(state.fleets.find((f) => f.id === fleetId)!.bombarding).toBe(true);
-
-    // Days pass. The squadron works the walls on its own, and takes fire.
-    for (let d = 0; d < 30 && fortsOf(at(state)).length > 0; d++) state = advanceDay(state);
+    // The landing is open from the first minute now — that is the repealed
+    // rule — but going in over a standing wall is dearer, so the guns come
+    // first if the squadron has them.
+    // `orderAssault` reports no error by leaving the field out.
+    expect(orderAssault(state, fleetId).error).toBeUndefined();
+    for (let n = 0; n < BOMBARD_TICKS_MAX && fortsOf(at(state)).length > 0; n++) {
+      const opened = orderBombard(state, fleetId);
+      if (opened.error) break;
+      state = opened.state;
+    }
     expect(fortsOf(at(state))).toHaveLength(0);
-    // Standing orders end themselves once there is nothing left to fire on.
-    const after = state.fleets.find((f) => f.id === fleetId);
-    expect(after).toBeDefined();
 
-    // And now the boats go in.
+    // And now the boats go in against nothing but the garrison.
     const landing = orderAssault(state, fleetId);
     expect(landing.error).toBeUndefined();
     state = landing.state;
     expect(at(state).control).toBe('alliance');
     expect(state.events.some((e) => /carried by storm/i.test(e.text))).toBe(true);
-  });
-
-  it('calls the guns off when told, and they stay off', () => {
-    let state = world(21);
-    state.player = 'alliance';
-    const isleId = walled(state).id;
-    const fleet = put(state, state.systems.find((s) => s.id === isleId)!, 'alliance', ['coral-dreadnaught', 'coral-dreadnaught']);
-    state = orderBombard(state, fleet.id).state;
-    state = orderCeaseFire(state, fleet.id).state;
-    expect(state.fleets.find((f) => f.id === fleet.id)!.bombarding).toBeUndefined();
-    const before = wallCondition(state.systems.find((s) => s.id === isleId)!);
-    state = advanceDay(state);
-    // Untouched, and mending.
-    expect(wallCondition(state.systems.find((s) => s.id === isleId)!)).toBeGreaterThanOrEqual(before);
   });
 });

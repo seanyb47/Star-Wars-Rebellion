@@ -140,14 +140,14 @@ export interface System {
    * it. Set by the rumour that wakes it, or by taking enough hurt to run.
    */
   beastRoaming?: boolean;
-  /**
-   * Days this island's own town has been shelled.
-   *
-   * Only counts shot that went past the walls looking for the garrison, which
-   * is the only kind that touches the people. Never cleared: a town remembers,
-   * and each further day of it costs the bombarding side more than the last.
+  /*
+   * `shelled` stood here — days this island's town had been shelled, so each
+   * further day cost the bombarding side more than the last. It is gone with
+   * the daily tick, and it was a bug as well as a mechanic: it was written and
+   * never cleared, not even when the island changed hands, so a town's penalty
+   * latched at its cap for the rest of the war. A bombardment now carries a
+   * flat one-in-twenty chance of finding the town, rolled once per action.
    */
-  shelled?: number;
   /** Hurt, tried to break off, and found the whole Sea shut to it. Carried so
    *  the log says so once rather than every day it goes on being true. */
   cornered?: boolean;
@@ -322,6 +322,14 @@ export type BuildItem = FacilityType | 'troop' | ShipClassId;
 export interface Ship {
   id: string;
   classId: ShipClassId;
+  /**
+   * How many times she has bombarded since she last lay in a friendly port.
+   *
+   * Sean's rule of 20 September: five, and then she is out of shot until she
+   * goes home for more. Absent means a full magazine, so a save written before
+   * the rule reads as one and nothing has to be migrated.
+   */
+  bombardTicks?: number;
   /**
    * Damage taken. At or past the class's hull the ship is lost.
    *

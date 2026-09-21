@@ -8,14 +8,14 @@ describe('garrison companies', () => {
       expect(type.id).toMatch(/^[a-z-]+$/);
       expect(type.people.length).toBeGreaterThan(2);
       expect(type.blurb.length).toBeGreaterThan(80);
-      for (const n of [type.offense, type.defense, type.watch]) {
+      for (const n of [type.attack, type.invasionDefense, type.detection]) {
         expect(n).toBeGreaterThan(0);
         expect(n).toBeLessThanOrEqual(50);
       }
       // The seven numbers: three for fighting, one for being shelled, three for
       // the ledger. Every one of them is even — the clean-numbers rule of v4.4.
       expect(type.bombardDefense).toBeGreaterThan(0);
-      for (const n of [type.offense, type.defense, type.watch]) expect(n % 2).toBe(0);
+      for (const n of [type.attack, type.invasionDefense, type.detection]) expect(n % 2).toBe(0);
       expect(type.costGold).toBeGreaterThan(0);
       expect(type.days).toBeGreaterThan(0);
       expect(type.unlock).toMatch(/^(start|R[2468])$/);
@@ -32,15 +32,15 @@ describe('garrison companies', () => {
   });
 
   it('keeps the bible\'s claims about who is best at what true', () => {
-    const best = (key: 'offense' | 'defense' | 'watch') =>
+    const best = (key: 'attack' | 'invasionDefense' | 'detection') =>
       TROOP_TYPES.reduce((a, b) => (b[key] > a[key] ? b : a));
-    expect(best('offense').id).toBe('urskin-berserkers');
-    expect(best('defense').id).toBe('drowned-guard');
-    expect(best('watch').id).toBe('reefwalkers');
+    expect(best('attack').id).toBe('urskin-berserkers');
+    expect(best('invasionDefense').id).toBe('drowned-guard');
+    expect(best('detection').id).toBe('reefwalkers');
     // And the Crown's opening edge: its line company beats theirs at landing,
     // which is the early military advantage stated in the faction profile.
-    expect(troopType('crown-marines')!.offense).toBeGreaterThan(
-      troopType('island-militia')!.offense,
+    expect(troopType('crown-marines')!.attack).toBeGreaterThan(
+      troopType('island-militia')!.attack,
     );
   });
 

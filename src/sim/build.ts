@@ -18,6 +18,7 @@ import {
   CRAFT_DAYS_STEP,
   UPKEEP_PER_DAY,
 } from './constants';
+import { troopBuildAt } from './troops';
 import { craftGrade, travelDays } from './missions';
 import { addShip } from './fleets';
 import {
@@ -178,8 +179,24 @@ export function effectiveSpec(
   state: GameState,
   faction: PlayableFaction,
   item: BuildItem,
+  on?: System,
 ): { costGold: number; days: number } {
   const spec = buildSpec(item);
+  /*
+   * A company is priced by who it is, since 21 September.
+   *
+   * Every troop in the game used to cost 25 gold and seven days whoever they
+   * were, which made the Shoal Wardens — the whole point of whom is that they
+   * are the cheapest bodies in the world and can be raised in eight days —
+   * cost exactly what the Drowned Guard cost. The island already knows who it
+   * raises, so the price simply follows.
+   */
+  if (item === 'troop') {
+    const kind = on ? troopBuildAt(on, faction) : undefined;
+    return kind
+      ? { costGold: kind.costGold, days: kind.days }
+      : { costGold: spec.costGold, days: spec.days };
+  }
   if (!isShipClass(item)) return { costGold: spec.costGold, days: spec.days };
   const grade = craftGrade(state.factions[faction].craft);
   if (grade === 0) return { costGold: spec.costGold, days: spec.days };
@@ -302,13 +319,13 @@ export function buildError(
   if (system.control !== facility.owner) return 'You do not hold this island.';
   if (system.uprising) return 'The island is in mutiny.';
 
-  const spec = effectiveSpec(state, facility.owner, item);
+  const landing = destinationId ? state.systems.find((s) => s.id === destinationId) : system;
+  if (!landing) return 'No such island.';
+  const spec = effectiveSpec(state, facility.owner, item, landing);
   if (state.factions[facility.owner].gold < spec.costGold) {
     return `Needs ${spec.costGold} ${terms.gold.toLowerCase()}.`;
   }
 
-  const landing = destinationId ? state.systems.find((s) => s.id === destinationId) : system;
-  if (!landing) return 'No such island.';
   if (landing.control !== facility.owner) return `You do not hold ${inProse(landing.name)}.`;
   if (landing.uprising) return `${landing.name} is in mutiny.`;
 
@@ -359,7 +376,8 @@ export function queueBuild(
   const error = buildError(state, facilityId, item, destinationId);
   if (error) throw new Error(error);
   const { system, facility } = findFacility(state, facilityId)!;
-  const spec = effectiveSpec(state, facility.owner as PlayableFaction, item);
+  const landing = destinationId ? state.systems.find((s) => s.id === destinationId) : system;
+  const spec = effectiveSpec(state, facility.owner as PlayableFaction, item, landing ?? system);
   state.factions[facility.owner as PlayableFaction].gold -= spec.costGold;
   const away = destinationId && destinationId !== system.id ? destinationId : undefined;
   const passage = away ? travelDays(state, system.id, away) : 0;

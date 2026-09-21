@@ -159,7 +159,7 @@ export const YARD_BUILDS: Record<FacilityType, BuildSpec> = {
  */
 // Scaled with the hulls: a fort still answers a bombardment like a frigate
 // and a bit.
-export const FORT_GUNS = 20;
+
 /**
  * And the Heavy Fortress, which is a berth's worth of decision.
  *
@@ -176,7 +176,7 @@ export const FORT_GUNS = 20;
  * than like a frigate. A harbor with one in it is a harbor you bring the fleet
  * to rather than a squadron.
  */
-export const HEAVY_FORT_GUNS = 45;
+
 /*
  * Stone, on the canonical roster's scale.
  *
@@ -200,7 +200,7 @@ export const HEAVY_FORT_GUNS = 45;
  * bombardment becomes a roll against an island's defence — and when that
  * lands, these three constants go with it.
  */
-export const HEAVY_FORT_STRENGTH = 60;
+
 
 /**
  * The three questions every siege rule asks of a works, answered in one place.
@@ -214,12 +214,72 @@ export const HEAVY_FORT_STRENGTH = 60;
 export function isWall(type: FacilityType): boolean {
   return type === 'fort' || type === 'heavy_fort';
 }
-export function wallGuns(type: FacilityType): number {
-  return type === 'heavy_fort' ? HEAVY_FORT_GUNS : FORT_GUNS;
-}
-export function wallStrength(type: FacilityType): number {
-  return type === 'heavy_fort' ? HEAVY_FORT_STRENGTH : FORT_STRENGTH;
-}
+
+/**
+ * What a wall costs a fleet's guns to break, and what it adds to the defence
+ * of the ground behind it.
+ *
+ * Section 4 of the siege change order. Two numbers rather than one, and the
+ * spec answers the obvious complaint at length: the dice they answer are on
+ * completely different scales. A siege train rolls 1d32 and six Crown Marines
+ * invading roll 1d180, so a wall worth 8 against a broadside is worth 60 in
+ * the streets, and merging them would mean multiplying every ship's
+ * Bombardment by ten or dividing every troop's Attack by ten — a full
+ * rebalance for one fewer number.
+ *
+ * They also measure genuinely different things: how hard you are to hit from a
+ * deck at half a mile, against how hard you are to kill with a cutlass in an
+ * alley. A militia company is easy to shell and respectable in the alleys;
+ * brass automata are the reverse.
+ *
+ * A Heavy Fortress costs two and a half Fortresses and is worth two in both.
+ * No bulk discount, which is right: one big wall is harder to cascade through
+ * than two small ones, because the cascade has to clear the whole island total
+ * plus the thing it is killing. Raising these was tried as a brake on the
+ * Urskin Berserkers and rejected — Fortress 50 / Heavy 100 moved them from 99%
+ * to 97% while dragging the opening down to 59/46.
+ */
+export const FORT_BOMBARD_DEFENSE: Record<'fort' | 'heavy_fort', number> = {
+  fort: 4,
+  heavy_fort: 8,
+};
+export const FORT_INVASION_DEFENSE: Record<'fort' | 'heavy_fort', number> = {
+  fort: 30,
+  heavy_fort: 60,
+};
+
+/**
+ * How many times a ship can bombard before it has to go home for more shot.
+ *
+ * Sean's own rule, and the thing that makes a siege a campaign rather than a
+ * standing order: *"A ship can only bombard 5x before it has to go back to a
+ * friendly port to resupply."* A spent hull adds nothing to the fleet's
+ * bombardment score and still blockades normally, so a magazine runs out
+ * gracefully — the squadron gets weaker rather than stopping.
+ */
+export const BOMBARD_TICKS_MAX = 5;
+
+/**
+ * The chance an action puts shot into the town rather than into the works.
+ *
+ * Flat, and rolled once per action however many rolls the cascade ran. It
+ * replaces an escalating per-day penalty that counted how long a town had been
+ * shelled — which was also a real bug, since the counter was written and never
+ * cleared, so a town's penalty latched at its cap permanently and followed the
+ * island through changing hands.
+ */
+export const BOMBARD_CIVILIAN_CHANCE = 0.05;
+/** Loyalty every island in the Reach loses when it happens. */
+export const BOMBARD_CIVILIAN_LOYALTY = 5;
+/*
+ * `wallGuns` and `wallStrength` stood here, with FORT_GUNS 20, HEAVY_FORT_GUNS
+ * 45 and the stone each wall was built from. All four are gone with the daily
+ * siege: a wall does not fire (Sean, 18 September: *"guns should be anti
+ * bombardment only"*, and there is no bombardment round left for it to answer)
+ * and it has no condition, because a battery is standing or it is rubble.
+ * What a wall is now is two numbers, FORT_BOMBARD_DEFENSE and
+ * FORT_INVASION_DEFENSE above.
+ */
 
 /**
  * What a seawall is made of, and why an island with one cannot simply be
@@ -241,7 +301,7 @@ export function wallStrength(type: FacilityType): number {
  * under twenty guns, which it does not survive. That is the answer to "why
  * build ships of the line", and it is arithmetic rather than a rule.
  */
-export const FORT_STRENGTH = 24;
+
 
 /**
  * What the Crown's seat opens with.
@@ -629,7 +689,17 @@ export const START_GARRISON_SPARE = 1;
  * decision made in advance and not a button pressed when the sail appears on
  * the horizon, short enough that losing an island is recoverable.
  */
-export const TROOP_BUILD: BuildSpec = { costGold: 25, days: 7, label: terms.troop };
+/**
+ * What a company costs when nothing else says otherwise.
+ *
+ * It used to be the only answer — every troop in the game cost 25 gold and
+ * took seven days, whoever they were. Both come from the type now
+ * (`troopBuildAt`), and this is the fallback for the one case with no island
+ * to ask: a build menu drawn before anybody has chosen where. The numbers are
+ * the Crown's line company, the most ordinary troop in the game and the right
+ * thing to show as a placeholder.
+ */
+export const TROOP_BUILD: BuildSpec = { costGold: 42, days: 20, label: terms.troop };
 
 /**
  * How often the books are done.

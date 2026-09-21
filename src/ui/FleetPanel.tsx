@@ -9,8 +9,7 @@ import {
   fleetsToJoin,
   fleetBombard,
   fortsOf,
-  fortGuns,
-  wallCondition,
+  wallInvasionDefense,
   bombardError,
   assaultError,
   fleeError,
@@ -558,16 +557,8 @@ export function ShipsHere({
         <span className="row" style={{ gap: 6 }}>
           <FacilityIcon type="fort" size={22} />
           <span className="small">
-            {forts} {forts === 1 ? 'fort' : 'forts'} · {Math.round(fortGuns(island))} guns on the
-            wall
-            {/* A battery that has been worked over fires like what it now is,
-                so the condition is the number that decides the next day. */}
-            {wallCondition(island) < 0.999 && (
-              <span className="shiprow__hurt">
-                {' '}
-                · {Math.round(wallCondition(island) * 100)}% standing
-              </span>
-            )}
+            {forts} {forts === 1 ? 'fort' : 'forts'} · {island ? fortsOf(island).reduce((n, f) => n + wallInvasionDefense(f.type), 0) : 0} against
+            a landing
           </span>
         </span>
       )}

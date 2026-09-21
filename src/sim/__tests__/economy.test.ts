@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { garrisonRoster } from '../troops';
 import { generateGalaxy } from '../galaxy';
 import { addShip, fleetCapacity, sailFleet } from '../fleets';
 import {
@@ -189,8 +190,16 @@ describe('upkeep', () => {
       { id: 'f3', type: 'shipyard', owner: 'empire' },
     ];
     island.garrison = 3;
-    expect(totalUpkeep(state, 'empire')).toBe(
-      UPKEEP_PER_DAY.shipyard + UPKEEP_PER_DAY.shipyard + 3 * UPKEEP_PER_DAY.troop,
+    // Per company, by who they are. A troop cost a flat gold a day until 21
+    // September, whoever it was, which priced a Shoal Warden and a Drowned
+    // Guard identically and made the garrison ladder — the reason a
+    // mass-producible troop exists at all — cost the same money whichever
+    // unit was holding the island.
+    const garrison = garrisonRoster(island).reduce((n, t) => n + t.upkeep, 0);
+    expect(garrison).toBeGreaterThan(0);
+    expect(totalUpkeep(state, 'empire')).toBeCloseTo(
+      UPKEEP_PER_DAY.shipyard + UPKEEP_PER_DAY.shipyard + garrison,
+      5,
     );
   });
 
