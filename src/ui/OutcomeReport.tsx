@@ -1,7 +1,7 @@
 import factionData from '../data/factions.json';
-import type { DamageRow, ForceTally, OperationReport, PersonRow, Verdict } from '../sim';
+import type { DamageRow, ForceTally, Ledger, OperationReport, PersonRow, Verdict } from '../sim';
 import { shipClass, VERDICT_WORD } from '../sim';
-import { FactionCrest, ShipThumb } from './art';
+import { AssaultScene, FactionCrest, ShipThumb, SiegeScene } from './art';
 import { EventScene } from './EventScene';
 
 /**
@@ -41,12 +41,32 @@ export function OutcomeReport({ report }: { report: OperationReport }) {
           aftermath — which is §3's *"subdued aftermath illustration"* and §4's
           *"ambiguous aftermath: smoke, fleets separating, neither side clearly
           dominant"* done with what the game has. */}
-      <EventScene
-        kind={verdict === 'victory' ? 'battle' : verdict === 'defeat' ? 'loss' : 'war'}
-        tint={`var(--outcome)`}
-        seed={`${report.systemId}-${verdict}`}
-        height={84}
-      />
+      {/*
+        A siege gets its own picture, and it is the picture that tells you what
+        happened. Sean, 21 September: *"a thumbnail that is either a picture of
+        the place that looks peaceful or a picture of a place that looks like
+        bombarded. If you get the peaceful screen, then you know that you
+        weren't successful."* So the bombardment scene reads the island rather
+        than the verdict, and an assault gets a generic beach because the
+        fighting looks the same whoever won it.
+      */}
+      {report.kind === 'bombardment' ? (
+        <SiegeScene
+          seed={report.systemId}
+          hit={report.damage.some((r) => !r.civilian && /beaten|broken/i.test(r.label) && r.value > 0)}
+          faction={report.ledger?.[0]?.faction ?? 'neutral'}
+          height={84}
+        />
+      ) : report.kind === 'assault' ? (
+        <AssaultScene seed={report.systemId} height={84} />
+      ) : (
+        <EventScene
+          kind={verdict === 'victory' ? 'battle' : verdict === 'defeat' ? 'loss' : 'war'}
+          tint={`var(--outcome)`}
+          seed={`${report.systemId}-${verdict}`}
+          height={84}
+        />
+      )}
 
       <div className="outcome__verdict">{report.headline || VERDICT_WORD[verdict]}</div>
 
@@ -77,6 +97,7 @@ export function OutcomeReport({ report }: { report: OperationReport }) {
       )}
       {report.theirs && <Force tally={report.theirs} />}
 
+      {report.ledger && report.ledger.length > 0 && <Standing ledger={report.ledger} />}
       {report.damage.length > 0 && <Damage rows={report.damage} />}
 
       {/* §2: *"only show this section when personnel status is relevant."* */}
@@ -177,6 +198,51 @@ function Fig({ label, value, bad }: { label: string; value: number; bad?: boolea
  * the political rules — one is a small credit, the other is the only thing in
  * the game the whole world hears about — so they are never in the same column.
  */
+/**
+ * What is still there, and what is not.
+ *
+ * Sean asked for it in those words — *"two columns, right? What's still there
+ * and what blew up"* — and the shape is worth keeping literal. One block per
+ * side, two columns each, and a column that is empty says so in a word rather
+ * than being left blank, because a blank column reads as missing data and
+ * "Nothing" reads as good news or bad depending on which side you are.
+ */
+function Standing({ ledger }: { ledger: Ledger[] }) {
+  return (
+    <div className="outcome__block">
+      {ledger.map((side) => (
+        <div key={side.side} style={{ marginBottom: 10 }}>
+          <div className="section-title">{side.side}</div>
+          <div className="row" style={{ gap: 12, alignItems: 'flex-start' }}>
+            {(
+              [
+                ['Still standing', side.standing],
+                ['Destroyed', side.lost],
+              ] as const
+            ).map(([title, rows]) => (
+              <div key={title} style={{ flex: 1, minWidth: 0 }}>
+                <div className="tiny muted" style={{ marginBottom: 2 }}>
+                  {title}
+                </div>
+                {rows.length === 0 ? (
+                  <div className="tiny">Nothing</div>
+                ) : (
+                  rows.map((row) => (
+                    <div key={row.label} className="outcome__row">
+                      <span className="muted">{row.label}</span>
+                      <b>{row.count}</b>
+                    </div>
+                  ))
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Damage({ rows }: { rows: DamageRow[] }) {
   const military = rows.filter((r) => !r.civilian);
   const civilian = rows.filter((r) => r.civilian);

@@ -2022,3 +2022,188 @@ export function FacilityThumb({
     </span>
   );
 }
+
+/* ------------------------------------------------------------------ *
+ * The siege thumbnails
+ * ------------------------------------------------------------------ */
+
+/**
+ * An island seen from the sea, either quiet or worked over.
+ *
+ * Sean's ask of 21 September, and the whole of what makes it worth drawing:
+ * *"a thumbnail that is either a picture of the place that looks peaceful or
+ * a picture of a place that looks like bombarded. If you get the peaceful
+ * screen, then you know that you weren't successful."*
+ *
+ * So the picture carries the result before a word of it is read, which is the
+ * right job for the one element on the screen a player's eye lands on first.
+ * The two are the same island — the same coastline, drawn from the same seed —
+ * so the difference reads as damage rather than as a different place: the
+ * quiet one has its works standing, its water flat and a sail on the horizon;
+ * the shelled one has broken stumps where they were, smoke going up off them,
+ * and a sea with something in it.
+ */
+export function SiegeScene({
+  seed,
+  hit,
+  faction,
+  height = 84,
+}: {
+  seed: string;
+  /** Did anything actually come down? */
+  hit: boolean;
+  faction: 'empire' | 'alliance' | 'neutral' | 'none';
+  height?: number;
+}) {
+  const random = seededRandom(`${seed}-siege`);
+  const coast = islandPath(seed, 30, 13);
+  const shelf = islandPath(seed, 40, 13);
+  const tint =
+    faction === 'empire'
+      ? 'var(--empire)'
+      : faction === 'alliance'
+        ? 'var(--alliance)'
+        : 'var(--neutral)';
+  // Four to six works along the shore, each either standing or a stump.
+  const works = Array.from({ length: 4 + Math.floor(random() * 3) }, (_, i) => {
+    const angle = random() * Math.PI * 2;
+    const radius = 6 + random() * 14;
+    return {
+      x: Math.cos(angle) * radius,
+      y: Math.sin(angle) * radius,
+      tall: random() > 0.55,
+      // On a hit, roughly half of them are down. Not all: an island that has
+      // been shelled once is not an island that has been levelled.
+      down: hit && (i % 2 === 0 || random() > 0.6),
+    };
+  });
+  return (
+    <svg
+      viewBox="-56 -44 112 88"
+      width="100%"
+      height={height}
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+      style={{ display: 'block' }}
+    >
+      <rect x="-56" y="-44" width="112" height="88" fill="var(--water-deep)" />
+      <path d={shelf} fill="var(--shallow)" opacity="0.5" />
+      <path d={coast} fill="var(--land)" stroke={tint} strokeWidth="1.6" />
+      <path d={coast} fill={tint} opacity="0.14" />
+      {works.map((w, i) =>
+        w.down ? (
+          <g key={i}>
+            {/* A stump, and the smoke off it going the same way on every one,
+                because it is one wind. */}
+            <rect x={w.x - 2.5} y={w.y - 1} width="5" height="4" rx="1" fill="#4a3a32" />
+            <path
+              d={`M${w.x} ${w.y - 1} q ${2 + random() * 2} -6 ${-1} -11 q ${-2} -4 ${1} -8`}
+              fill="none"
+              stroke="#8d8479"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              opacity="0.65"
+            />
+          </g>
+        ) : (
+          <g key={i} fill="var(--brass)" opacity="0.9">
+            <rect x={w.x - 2.5} y={w.y - 3} width="5" height="6" rx="1" />
+            {w.tall && <rect x={w.x - 0.8} y={w.y - 10} width="1.6" height="7" rx="0.8" />}
+          </g>
+        ),
+      )}
+      {hit ? (
+        // The water off a shelled harbor: chop, and a squadron standing off it.
+        <>
+          <path
+            d="M-52 26 q 8 -3 16 0 t 16 0 t 16 0 t 16 0 t 16 0"
+            fill="none"
+            stroke="#6f8a96"
+            strokeWidth="1.4"
+            opacity="0.7"
+          />
+          <path
+            d="M-52 33 q 8 -3 16 0 t 16 0 t 16 0 t 16 0 t 16 0"
+            fill="none"
+            stroke="#6f8a96"
+            strokeWidth="1.2"
+            opacity="0.5"
+          />
+        </>
+      ) : (
+        // Flat water and one sail a long way off, which is the whole of
+        // "nothing happened here".
+        <>
+          <path
+            d="M-52 30 h 104"
+            fill="none"
+            stroke="#6f8a96"
+            strokeWidth="1"
+            opacity="0.45"
+          />
+          <path d="M34 -30 l 0 8 l 6 0 z" fill="#cfd8dc" opacity="0.8" />
+          <path d="M34 -30 l 0 8 l -5 0 z" fill="#aebac0" opacity="0.7" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+/**
+ * Two sides meeting on a beach, and deliberately nobody's in particular.
+ *
+ * Sean: *"the thumbnail for that one can probably just be generic, like
+ * Imperium and Crown fighting. Like, you know, just a generic kind of like,
+ * you know, battle."* So it is two lines of colour coming at each other with
+ * the smoke between them, and it does not say who won — the assault screen has
+ * a word and two columns for that, and a picture that guessed would be lying
+ * half the time.
+ */
+export function AssaultScene({ seed, height = 84 }: { seed: string; height?: number }) {
+  const random = seededRandom(`${seed}-assault`);
+  const figures = (from: number, dir: 1 | -1, colour: string) =>
+    Array.from({ length: 5 }, (_, i) => {
+      const x = from + dir * i * 7 + (random() - 0.5) * 3;
+      const y = 14 + (random() - 0.5) * 8;
+      return (
+        <g key={`${colour}-${i}`} stroke={colour} strokeWidth="1.8" strokeLinecap="round">
+          <line x1={x} y1={y} x2={x} y2={y - 7} />
+          {/* A raised arm, angled the way that side is going. */}
+          <line x1={x} y1={y - 5} x2={x + dir * 5} y2={y - 10} />
+        </g>
+      );
+    });
+  return (
+    <svg
+      viewBox="-56 -30 112 60"
+      width="100%"
+      height={height}
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+      style={{ display: 'block' }}
+    >
+      <rect x="-56" y="-30" width="112" height="60" fill="var(--water-deep)" />
+      <path d="M-56 12 q 28 -8 56 -8 t 56 8 v 18 h -112 z" fill="var(--land)" />
+      <path d="M-56 12 q 28 -8 56 -8 t 56 8" fill="none" stroke="#6f8a96" strokeWidth="1.2" />
+      {/* The smoke between them, which is the only thing either side agrees on. */}
+      <path
+        d="M-6 8 q 5 -10 0 -18 q -4 -6 1 -12"
+        fill="none"
+        stroke="#8d8479"
+        strokeWidth="3"
+        strokeLinecap="round"
+        opacity="0.5"
+      />
+      <path
+        d="M7 8 q -5 -9 1 -16 q 4 -5 0 -10"
+        fill="none"
+        stroke="#8d8479"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        opacity="0.4"
+      />
+      {figures(-40, 1, 'var(--empire)')}
+      {figures(40, -1, 'var(--alliance)')}
+    </svg>
+  );
+}

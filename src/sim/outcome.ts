@@ -74,6 +74,30 @@ export interface DamageRow {
   civilian?: true;
 }
 
+/** One line in a standing/lost column: three Fortresses, four Crown Marines. */
+export interface LedgerRow {
+  label: string;
+  count: number;
+}
+
+/**
+ * What is still there and what is not, side by side.
+ *
+ * Sean, 21 September, asking for this on both the bombardment and the assault
+ * screens: *"it'll show you what ships or what things were blown up. And it
+ * should have two columns, right? What's still there and what blew up."*
+ *
+ * One entry per side. A bombardment has one — the island — because the fleet
+ * doing the shelling is never fired back at. An assault has two.
+ */
+export interface Ledger {
+  /** Whose column this is, in words: "Highwater", "The landing force". */
+  side: string;
+  faction?: PlayableFaction;
+  standing: LedgerRow[];
+  lost: LedgerRow[];
+}
+
 export interface OperationReport {
   kind: Operation;
   verdict: Verdict;
@@ -99,6 +123,8 @@ export interface OperationReport {
   strategic: string[];
   /** Island by island, and only what actually moved. */
   political: Ripple[];
+  /** Standing and lost, per side. See `Ledger`. */
+  ledger?: Ledger[];
   /** One line holding the tension between the word and the consequences, for
    *  the cases where they pull apart: *"limited military success — significant
    *  political cost"*. Absent when they agree. */

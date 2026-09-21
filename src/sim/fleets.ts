@@ -39,6 +39,7 @@ import {
 } from './creatures';
 import { fireOnce, pickTarget, type Combatant } from './round';
 import { exchange, type Fighter } from './cannon';
+import type { Ledger, LedgerRow } from './outcome';
 import {
   bombard,
   invade,
@@ -48,7 +49,7 @@ import {
   type Fighter as Landed,
   type Shellable,
 } from './siege';
-import { BOMBARD_CIVILIAN_LOYALTY, BOMBARD_TICKS_MAX } from './constants';
+import { BOMBARD_CIVILIAN_LOYALTY, BOMBARD_TICKS_MAX, FACILITY_LABEL } from './constants';
 import { craftGrade } from './missions';
 import { garrisonRoster, landingTroop } from './troops';
 import {
@@ -1253,12 +1254,53 @@ export function bombardNow(state: GameState, fleet: Fleet, rng: Rng): void {
       companies: broken,
       civilian: result.civilian && system.populated ? 1 : 0,
       ripples,
+      ledger: islandLedger(state, system, felled.length, broken),
       why:
         verdict === 'defeat'
           ? `${fleet.name} rolls at most ${score}; ${inProse(system.name)} stands at ${result.rolls[0]?.against ?? 0}.`
           : undefined,
     }),
   });
+}
+
+/**
+ * What is left on the island and what went, as two columns.
+ *
+ * Counted by *kind* rather than listed one by one, which is the only way it
+ * reads on a phone: "2 Fortresses" beats two rows saying Fortress. The
+ * garrison's kinds come off the roster, which is the same list the Defenses
+ * panel prints, so the screen and the panel never disagree about who was
+ * standing there.
+ */
+function islandLedger(
+  state: GameState,
+  system: System,
+  wallsDown: number,
+  troopsBroken: number,
+): Ledger[] {
+  void state;
+  const tally = (rows: Array<{ label: string }>): LedgerRow[] => {
+    const seen = new Map<string, number>();
+    for (const r of rows) seen.set(r.label, (seen.get(r.label) ?? 0) + 1);
+    return [...seen].map(([label, count]) => ({ label, count }));
+  };
+  const standingWalls = fortsOf(system).map((f) => ({ label: FACILITY_LABEL[f.type] }));
+  // Which walls went is not recorded kind by kind, and saying "1 Fortress"
+  // when it was the Heavy one would be worse than saying "1 battery".
+  const lostWalls: LedgerRow[] =
+    wallsDown > 0 ? [{ label: wallsDown === 1 ? 'Battery' : 'Batteries', count: wallsDown }] : [];
+  const roster = garrisonRoster(system);
+  return [
+    {
+      side: system.name,
+      faction: isPlayable(system.control) ? system.control : undefined,
+      standing: [...tally(standingWalls), ...tally(roster.map((t) => ({ label: t.name })))],
+      lost: [
+        ...lostWalls,
+        ...(troopsBroken > 0 ? [{ label: 'Troops broken', count: troopsBroken }] : []),
+      ],
+    },
+  ];
 }
 
 /**
@@ -1279,9 +1321,10 @@ function bombardReport(
     civilian: number;
     ripples: Ripple[];
     why?: string;
+    ledger?: Ledger[];
   },
 ): OperationReport {
-  const { wallsDown, wallsLeft, companies, civilian, ripples, why } = input;
+  const { wallsDown, wallsLeft, companies, civilian, ripples, why, ledger } = input;
   const report: OperationReport = {
     kind: 'bombardment',
     verdict,
@@ -1315,6 +1358,7 @@ function bombardReport(
       why,
     }),
     political: ripples,
+    ledger,
   };
   report.tension =
     verdict !== 'victory' && civilian > 0
@@ -1832,6 +1876,8 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
               defenders: garrisonBefore,
               defendersLost: garrisonBefore - system.garrison,
               ripples: [],
+              kind: kind.name,
+              holdingKind: roster[0]?.name,
             }),
           }
         : {}),
@@ -1973,6 +2019,8 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
             defenders: garrisonBefore,
             defendersLost: garrisonBefore,
             ripples,
+            kind: kind.name,
+            holdingKind: roster[0]?.name,
           }),
         }
       : {}),
@@ -2002,6 +2050,8 @@ function assaultReport(
     defenders: number;
     defendersLost: number;
     ripples: Ripple[];
+    kind?: string;
+    holdingKind?: string;
   },
 ): OperationReport {
   const { attacker, landed, lost, ashore, aboard, defenders, defendersLost, ripples } = input;
@@ -2017,7 +2067,7 @@ function assaultReport(
           ? 'Assault repulsed'
           : 'Assault inconclusive',
     operation: 'Assault',
-    title: `The landing on ${inProse(system.name)}`,
+    title: `The assault of ${inProse(system.name)}`,
     systemId: system.id,
     day: state.day,
     mine: {
@@ -2053,6 +2103,31 @@ function assaultReport(
       populated: system.populated,
     }),
     political: ripples,
+    /*
+     * Both sides, standing and lost. Sean's ask of 21 September: *"you can see
+     * both sides, like what was destroyed and what was still there."*
+     *
+     * A landing force is counted in companies of one kind — whoever the side
+     * puts in the boats — and the defenders in whatever the island raises, so
+     * the two columns name units rather than saying "6" and "4".
+     */
+    ledger: [
+      {
+        side: forceName(attacker, 'assault'),
+        faction: attacker,
+        standing: ashore + aboard > 0 ? [{ label: input.kind ?? 'Troops', count: ashore + aboard }] : [],
+        lost: lost > 0 ? [{ label: input.kind ?? 'Troops', count: lost }] : [],
+      },
+      {
+        side: forceName(defender, 'assault'),
+        faction: defender,
+        standing:
+          defenders - defendersLost > 0
+            ? [{ label: input.holdingKind ?? 'Troops', count: defenders - defendersLost }]
+            : [],
+        lost: defendersLost > 0 ? [{ label: input.holdingKind ?? 'Troops', count: defendersLost }] : [],
+      },
+    ],
   };
   report.tension =
     verdict === 'victory' && system.populated && system.support[attacker] < 40
