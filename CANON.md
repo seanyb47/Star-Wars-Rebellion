@@ -78,7 +78,7 @@ The known world is a series of island chains: **7 Seas → Reaches → islands**
 | Coral Reach | The Amber Sea | outer — frontier |
 
 **The great island: the Aldermain.** One island is far larger than anything else in the world, with the best ground and the best resources. The Imperium holds it, and it is the seat of their power. The Crown's capital, **Highwater**, is the walled city on it. *Aldermain* = "alder" (eldest) + "main" (the mainland, as in the Spanish Main): what sailors call the one great land.
-> Data change for Claude Code: the island in Sovereign Reach currently named Highwater becomes **the Aldermain**; Highwater stays as the capital city standing on it. *(Done 19 Sep 2026.)*
+> Data change for Claude Code: the island in Sovereign Reach currently named Highwater becomes **the Aldermain**; Highwater stays as the capital city standing on it. *(Done 19 Sep 2026; **reverted for the island entry on 21 Sep** — Sean: "Aldermain is the big island not the port! Revert the port back to the name Highwater". The chart entry is Highwater again and the Aldermain is the landmass it stands on, which is what this paragraph says and what the rename briefly stopped being true. `persist.ts` migrates saves written in between.)*
 
 **Coralhome** (Coral Reach) is the Reef-folk homeland. **It starts every game Crown-held and heavily garrisoned, with its coral bed already cleared.** Retaking it restores nothing, and that is the point. See section 5B.
 
@@ -247,7 +247,7 @@ Standing presentation rules (canon): spelling is **Armor**; back-end math stays 
 - **Sails** — green = V2, white = V1. Not an elite marker (Sean, 19 Sep 2026).
 - **Advisors** — confirmed canon; the Crown's is **Secretary Marlow**, not Crane (Sean, 19 Sep 2026).
 - **Star Wars leftover island names** — approved for renaming (Sean, 19 Sep 2026). **Shipped 19 Sep 2026:** thirty-one islands renamed; the audit and the reasoning are in `PLAN.md`.
-- **The Aldermain** — confirmed as the great island's name (Sean, 19 Sep 2026). **Shipped 19 Sep 2026.**
+- **The Aldermain** — confirmed as the great island's name (Sean, 19 Sep 2026). **Shipped 19 Sep 2026**, and the island *entry* reverted to Highwater on 21 Sep at Sean's word: the Aldermain is the landmass, Highwater the port on it, and the chart names the port.
 - **Seawalls** — canon, Sean's own design idea: a harbor battery (the Fortress / Heavy Fortress building). Highwater has two, three hundred feet high.
 - **The Black Tide** — **cut entirely** (Sean, 19 Sep 2026). The war needs no third force; the conflict is law against freedom.
 - **The Drowned Reach** — **cut entirely** (Sean, 19 Sep 2026). The articles are signed at Free Harbor instead.

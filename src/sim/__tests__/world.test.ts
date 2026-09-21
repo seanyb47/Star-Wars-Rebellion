@@ -95,6 +95,20 @@ describe('the world bible data', () => {
     const gap = (ability: string) => mean('alliance', ability) - mean('empire', ability);
     expect(gap('leadership')).toBeLessThan(-8);
     expect(gap('diplomacy')).toBeGreaterThan(8);
+    /*
+     * This is the one the two negotiators nearly broke, and the reason their
+     * ratings differ from the change order's by six points each.
+     *
+     * The order sets Meret's espionage at 40 and Marchmont's at 58, which are
+     * incidental numbers on two characters whose whole design is the other
+     * column — diplomacy 92 and 88, both untouched. But adding a poor Shoal
+     * spy to the Confederacy and a good Crown one to the Crown took the
+     * Confederacy's espionage lead from comfortably over eight points to
+     * 7.25, and that lead is Sean's standing rule of 15 September: the Crown
+     * commands, the Brethren talk and creep. An older rule about what the two
+     * factions *are* beats two side-numbers on a new pair of characters, so
+     * Meret reads 46 and Marchmont 48 and the shape holds.
+     */
     expect(gap('espionage')).toBeGreaterThan(8);
     expect(Math.abs(gap('combat'))).toBeLessThan(3);
   });

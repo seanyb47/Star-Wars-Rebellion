@@ -1,8 +1,9 @@
 # Master of the Seven Seas
 
-A real-time grand strategy game of pirates, sea-magic and the Black Tide, built
-for the phone. Phase 1: the chart of the Seven Seas, a pausable day clock, the
-camp/mill/upkeep economy, allegiance and control, and one mission type (Parley).
+A real-time grand strategy game of pirates and sea-magic, built for the phone:
+law against freedom across seven chains of islands, with no third force in the
+water. The Black Tide used to be named here and was cut from canon on 19
+September — the war needs no monster under it.
 
 Built as a single-page app with no backend. Every name the player sees —
 factions, crew, Reaches, islands, facilities, the vocabulary itself — lives in
