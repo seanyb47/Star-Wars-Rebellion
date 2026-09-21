@@ -164,8 +164,8 @@ describe('chart layers', () => {
    */
   it('counts hulls in harbor, and hulls at sea at the harbor they are making for', () => {
     const { state, mine } = setup();
-    addShip(state, mine, 'empire', 'kestrel');
-    const fleet = addShip(state, mine, 'empire', 'kestrel');
+    addShip(state, mine, 'empire', 'interceptor-i');
+    const fleet = addShip(state, mine, 'empire', 'interceptor-i');
     expect(layerMark(state, mine, 'fleets', 'empire')).toEqual({ lit: true, count: 2 });
 
     // Both hulls are in the one squadron, so sending it empties the harbor.

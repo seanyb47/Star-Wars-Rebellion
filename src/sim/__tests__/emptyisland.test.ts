@@ -31,7 +31,7 @@ function rock(state: GameState) {
 
 /** One hull off the beach with a single troop aboard, and the boats go in. */
 function landOn(state: GameState, island: System, faction: PlayableFaction, troops: number) {
-  const fleet = addShip(state, island, faction, 'reefwalker');
+  const fleet = addShip(state, island, faction, 'reefwarden');
   fleet.voyage = undefined;
   fleet.troops = troops;
   expect(assaultError(state, fleet.id, faction)).toBeNull();

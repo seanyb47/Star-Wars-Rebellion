@@ -476,13 +476,35 @@ describe('names a player hears', () => {
     return n;
   };
 
+  /**
+   * Two pairs are allowed through, and both arrived with the canonical roster
+   * on 21 September.
+   *
+   * The rule is about a ship and a place a player could mistake for each
+   * other. These are not that: they are a ship and a place that share a word
+   * the world uses for a thing — coral, and black water — and the ship in each
+   * case announces itself as a ship. Nobody reading "the Coral-Class
+   * Dreadnaught" thinks of Coralhome, and the shared root is the point of both
+   * names rather than an accident of them.
+   *
+   * They are written out one by one on purpose. An exemption that was a rule —
+   * "ignore the first word" — would have let the next real collision through,
+   * and the next real collision is the thing this file exists to catch. The
+   * only other clash the swap produced was a ship called the Chimera against
+   * an island called Chimehouse, which is exactly the confusable kind, and the
+   * island is Shellhouse now.
+   */
+  const ALLOWED = new Set(['Coral-Class Dreadnaught/Coralhome', 'Blackfin/Blackreef']);
+
   it('gives no ship a name that opens like the name of an island', () => {
     const state = generateGalaxy(501, 'alliance');
     for (const cls of SHIP_CLASSES) {
       for (const island of state.systems) {
+        const pair = `${cls.name}/${island.chartName ?? island.name}`;
+        if (ALLOWED.has(pair)) continue;
         expect(
-          shared(cls.name, island.name),
-          `${cls.name} / ${island.name}`,
+          shared(cls.name, island.chartName ?? island.name),
+          pair,
         ).toBeLessThan(4);
       }
     }

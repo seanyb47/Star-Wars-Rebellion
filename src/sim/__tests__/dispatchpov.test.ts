@@ -125,7 +125,12 @@ describe('a dispatch knows whose news it is', () => {
     // Small hulls, so the creature actually sinks one: a round that takes
     // damage and no hull is reported as a line without a tally, and it is the
     // tally this test is about.
-    for (let i = 0; i < 6; i++) addShip(state, target, 'empire', 'reefwalker');
+    // Sloops, so the creature actually sinks one: a round that takes damage
+    // and no hull is reported as a line without a tally, and it is the tally
+    // this test is about. (This read `reefwalker` until the roster swap, which
+    // was a Confederate sloop; the nearest thing on the Crown's side of the
+    // canonical roster is the Interceptor I.)
+    for (let i = 0; i < 6; i++) addShip(state, target, 'empire', 'interceptor-i');
 
     const rng = createRng(7);
     for (let i = 0; i < 12 && beastAlive(target); i++) resolveBattles(state, rng);

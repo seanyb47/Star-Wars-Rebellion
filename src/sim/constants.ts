@@ -1,4 +1,4 @@
-import shipData from '../data/ships.json';
+import { ROSTER_CLASSES, type RosterClass } from './roster';
 import type { Rng } from './rng';
 import terms from '../data/terms.json';
 import type {
@@ -177,7 +177,30 @@ export const FORT_GUNS = 20;
  * to rather than a squadron.
  */
 export const HEAVY_FORT_GUNS = 45;
-export const HEAVY_FORT_STRENGTH = 150;
+/*
+ * Stone, on the canonical roster's scale.
+ *
+ * These three numbers — a wall's strength, a heavy wall's, and the weight of
+ * shot it takes to break a company in the town behind them — were all set
+ * against the old roster's bombardment figures, where a first-rate threw 14 at
+ * a seawall and a Majestic 24. The sheet is about two and a half times lighter
+ * on that column: a Sovereign throws 6 and a Majestic 12, because bombardment
+ * there is a number of guns that can be laid on stone rather than a separate
+ * scale. Ported without this, every siege in the game would take two and a
+ * half times as long overnight, which is a balance change nobody asked for
+ * wearing the clothes of a data swap.
+ *
+ * So all three are divided by the same 2.5, measured off the opening fleets:
+ * the old Crown Home Fleet threw 30 at a wall and the new one throws 12.
+ * Siege pacing is therefore unchanged, and every relative weight in the
+ * sheet's bombardment column is preserved exactly.
+ *
+ * This is a holding measure and is meant to be. The siege and ground war
+ * change order replaces all of it — walls stop having hit points at all and a
+ * bombardment becomes a roll against an island's defence — and when that
+ * lands, these three constants go with it.
+ */
+export const HEAVY_FORT_STRENGTH = 60;
 
 /**
  * The three questions every siege rule asks of a works, answered in one place.
@@ -218,7 +241,7 @@ export function wallStrength(type: FacilityType): number {
  * under twenty guns, which it does not survive. That is the answer to "why
  * build ships of the line", and it is arithmetic rather than a rule.
  */
-export const FORT_STRENGTH = 60;
+export const FORT_STRENGTH = 24;
 
 /**
  * What the Crown's seat opens with.
@@ -752,7 +775,16 @@ export interface ShipClass {
    * that is what the craft ladder here already was — it simply had nothing to
    * unlock, and made hulls cheaper and quicker instead. Now it has something.
    */
-  craft?: 1 | 2 | 3;
+  craft?: number;
+  /** Its key in the sheet: `CWN-SOV-S04`. Absent on the three legends. */
+  rosterId?: string;
+  /** What the guns care about, and only the guns. Absent on the legends. */
+  size?: 'Small' | 'Medium' | 'Large' | 'Gigantic';
+  speedCategory?: 'None' | 'Slow' | 'Normal' | 'Fast' | 'Very Fast';
+  armor?: number;
+  longGuns?: number;
+  heavyGuns?: number;
+  lightGuns?: number;
   /**
    * Numbers of its own, over the size's.
    *
@@ -879,7 +911,79 @@ export const LORD_POWER_TEXT: Record<LordPower, string> = {
 /** Allegiance a day the Moot brings an island round by. */
 export const MOOT_SUPPORT_PER_DAY = 1;
 
-export const SHIP_CLASSES: ShipClass[] = shipData.classes as ShipClass[];
+/**
+ * The three ships the stories tell about, which are not in the roster because
+ * nothing builds them and nothing sails them. A Lord's bio names one and the
+ * encyclopedia has to have something to open.
+ */
+const LEGEND_CLASSES: ShipClass[] = [
+  {
+    id: 'harbor',
+    faction: 'alliance',
+    role: 'large',
+    name: "Open Deck",
+    legend: true,
+    blurb:
+      "Commodore-Elect Adaira Hale's ship: Corwin Calloway's old coral-grown three-decker, named for what he meant her to be, since any deck of his stood open to anyone the Crown wanted. The Moot was called on her quarterdeck and has been the Moot ever since. Where Hale is, the Moot sits \u2014 the hull was never the point, and nobody has seen it in years.",
+  },
+  {
+    id: 'swallowtail',
+    faction: 'alliance',
+    role: 'small',
+    name: "Swallowtail",
+    legend: true,
+    blurb:
+      "Captain Silas Reyne's coral-grown sloop, which should not be as fast as she is and has never once been caught. Reyne is not off her for a night in his life, so far as anyone tells it, and that is the whole of why he turns up where he does when he does \u2014 a week's sail in half a week, every time, and no explanation offered.",
+  },
+  {
+    id: 'adamant',
+    faction: 'alliance',
+    role: 'large',
+    name: "Adamant",
+    legend: true,
+    blurb:
+      "The Crown dreadnought Admiral Dorian Jessup took with him when he left the Imperium's service, and fought the Crown's own line with for nine years. What he learned aboard her he teaches to whatever squadron is lying in the harbor he is posted to, which is worth more to the Confederacy now than the ship ever was.",
+  },
+];
+
+
+/**
+ * Every hull in the game, out of the canonical roster.
+ *
+ * This used to read `ships.json`, a hand-kept file of twenty-four hulls on a
+ * scale of its own. The sheet is the roster now: `roster.ts` converts it and
+ * `cannon.ts` fights with it, and the only thing left here is the three
+ * legends, which no sheet will ever carry because nothing builds them.
+ */
+export const SHIP_CLASSES: ShipClass[] = [
+  ...ROSTER_CLASSES.map(
+    (c: RosterClass): ShipClass => ({
+      id: c.id,
+      faction: c.faction,
+      role: c.role,
+      name: c.name,
+      blurb: c.blurb,
+      craft: c.craft,
+      rosterId: c.rosterId,
+      size: c.size,
+      speedCategory: c.speedCategory,
+      armor: c.armor,
+      longGuns: c.longGuns,
+      heavyGuns: c.heavyGuns,
+      lightGuns: c.lightGuns,
+      hull: c.hull,
+      guns: c.guns,
+      bombard: c.bombard,
+      carries: c.carries,
+      costGold: c.costGold,
+      days: c.days,
+      upkeep: c.upkeep,
+      pace: c.pace,
+      speed: c.speed,
+    }),
+  ),
+  ...LEGEND_CLASSES,
+];
 
 const SHIP_BY_ID = new Map(SHIP_CLASSES.map((c) => [c.id, c] as const));
 
@@ -934,7 +1038,7 @@ export function buildSpec(item: BuildItem): BuildSpec {
  * and cost gold every day they stand.
  */
 const NO_SHIP_INCOME = Object.fromEntries(
-  (shipData.classes as ShipClass[]).map((c) => [c.id, 0]),
+  SHIP_CLASSES.map((c) => [c.id, 0]),
 ) as Record<ShipClassId, number>;
 
 export const GOLD_PER_DAY: Record<BuildItem, number> = {
@@ -971,8 +1075,13 @@ export const GOLD_PER_DAY: Record<BuildItem, number> = {
   ...NO_SHIP_INCOME,
 };
 
+/**
+ * What each hull costs a day, from the sheet rather than from its size.
+ *
+ * A legend costs nothing because a legend is never on the water.
+ */
 const SHIP_UPKEEP = Object.fromEntries(
-  (shipData.classes as ShipClass[]).map((c) => [c.id, c.legend ? 0 : SHIP_ROLES[c.role].upkeep]),
+  SHIP_CLASSES.map((c) => [c.id, c.legend ? 0 : c.upkeep ?? SHIP_ROLES[c.role].upkeep]),
 ) as Record<ShipClassId, number>;
 
 export const UPKEEP_PER_DAY: Record<BuildItem, number> = {
@@ -1218,8 +1327,44 @@ export const RESEARCH_BASE = 0.45;
 export const RESEARCH_MIN_SUPPORT = 75;
 /** Progress a landed cycle adds, before the officer's Espionage. */
 export const RESEARCH_PROGRESS = 24;
-/** Progress needed for grades one, two and three. */
-export const CRAFT_GRADES = [100, 260, 520];
+/**
+ * Progress needed for each rung of shipwright craft.
+ *
+ * Three rungs until 21 September, at 100, 260 and 520. The canonical roster
+ * gives four starting hulls a side and **eight** research unlocks in order —
+ * Sean, 18 September: *"R = requires research to unlock (ship research
+ * mission), and the # is the order unlocked."* — so there are eight rungs now,
+ * and the number in the sheet is the rung.
+ *
+ * The ceiling has not moved. The eighth rung sits at the 520 the third used
+ * to, so a side's total research is the same length of work it always was and
+ * what changed is that there are more things standing on the way up. Measured
+ * before the change, over three machine-played wars: craft finished at 179.7,
+ * 24.0 and 164.3 days and the top of the old three-rung tree had never once
+ * been reached by either side — which is the other reason not to raise the
+ * ceiling while adding rungs to it.
+ *
+ * The spacing is the old curve's, stretched: the rungs are further apart as
+ * they climb, so the Majestic is a late-war ship and the Vanguard is not.
+ */
+export const CRAFT_GRADES = [40, 90, 150, 220, 300, 390, 450, 520];
+/*
+ * Tried and cut: the same eight rungs compressed to a 330 ceiling, so that
+ * more of the ladder is actually climbed inside a war. It worked at what it
+ * was aimed at — both sides reached rung 5.4 instead of 4.2 — and changed
+ * nothing that mattered: sixteen wars came out 1-14 to the Confederacy
+ * either way. Research pacing is not what is deciding these wars, so the
+ * ceiling stays where it was and the swap keeps its promise of not moving
+ * the total research effort.
+ *
+ * What IS deciding them, measured the same evening: the Crown ends a war on
+ * 298 gold and twenty hulls against the Confederacy's fourteen thousand and
+ * sixty. The sheet's maintenance column charges the Crown two to three times
+ * as much to keep a navy at every tier — which is the flavour, a professional
+ * navy against a pirate one — and in this economy the Confederacy's early
+ * surplus compounds into a fleet the Crown can never match. That is a
+ * question for the sheet rather than for this file.
+ */
 /** What each grade takes off a hull's cost and days, as a fraction per grade. */
 export const CRAFT_COST_STEP = 0.1;
 export const CRAFT_DAYS_STEP = 0.13;
@@ -1562,7 +1707,7 @@ export const AI_COMFORTABLE = 12;
  * further day of it costs more than the last, because a town shelled for a
  * fortnight is a different story from a town shelled once.
  */
-export const BOMBARD_PER_COMPANY = 26;
+export const BOMBARD_PER_COMPANY = 10;
 export const CIVILIAN_LOYALTY_HIT = 5;
 export const CIVILIAN_REACH_HIT = 1.5;
 /** What each day of shelling adds to the next day's price. */

@@ -35,6 +35,7 @@ import { PIRATE_LORDS } from '../constants';
 import { isDiplomacyTarget, startMission, travelDays } from '../missions';
 import { getSystem } from '../helpers';
 import { createRng } from '../rng';
+import { exchange, type Fighter } from '../cannon';
 import type { GameState, PlayableFaction, ShipClassId, System } from '../types';
 
 /** A game with the player holding a known island, for orders to act on.
@@ -69,34 +70,54 @@ describe('ship classes', () => {
     // What has to stay true is that neither opening is worth more than the
     // other — so the four day-one hulls a side are compared by total weight
     // rather than hull by hull.
+    /*
+     * The four a side open with, which are the sheet's S01 to S04 since the
+     * roster swap of 21 September.
+     *
+     * This used to compare guns, hull, gold and lift and demand the two sides
+     * came within a tenth of each other on all four. It cannot any more, and
+     * the reason is the point of the swap rather than a broken test: a gun is
+     * no longer a gun. Twenty Light guns and twenty Heavy guns are the same
+     * number and not remotely the same fleet, and hull is on a scale where a
+     * Gigantic is twenty times a sloop. Adding those columns up and taking a
+     * ratio measures nothing.
+     *
+     * So what is checked is what the numbers were always a proxy for: that
+     * neither side opens with a fleet the other cannot answer. The Crown's
+     * four are heavier and dearer — they are meant to be, it is the navy —
+     * and the Confederacy's four carry more and cost less to keep, which is
+     * the trade the sheet priced.
+     */
     const OPENING: Record<PlayableFaction, ShipClassId[]> = {
-      empire: ['sovereign', 'razorback', 'kestrel', 'fluyt'],
-      alliance: ['reef', 'tempest', 'swift', 'brig'],
+      empire: ['wayfinder', 'interceptor-i', 'morningstar', 'sovereign'],
+      alliance: ['swift', 'brigantine', 'chimera', 'tidestalker'],
     };
     const weigh = (ids: ShipClassId[]) =>
       ids.reduce(
         (n, id) => {
           const s = shipSpec(id);
           return {
-            guns: n.guns + s.guns,
             hull: n.hull + s.hull,
             gold: n.gold + s.costGold,
             carries: n.carries + s.carries,
+            upkeep: n.upkeep + s.upkeep,
           };
         },
-        { guns: 0, hull: 0, gold: 0, carries: 0 },
+        { hull: 0, gold: 0, carries: 0, upkeep: 0 },
       );
     const crown = weigh(OPENING.empire);
     const confed = weigh(OPENING.alliance);
-    // Within a tenth on every count: different ships, the same opening.
-    for (const key of ['guns', 'hull', 'gold', 'carries'] as const) {
-      const ratio = crown[key] / confed[key];
-      expect(ratio, `${key} ${crown[key]} vs ${confed[key]}`).toBeGreaterThan(0.9);
-      expect(ratio, `${key} ${crown[key]} vs ${confed[key]}`).toBeLessThan(1.1);
-    }
-    // And they really are different ships, or the rule above is vacuous.
-    expect(shipSpec('razorback').guns).not.toBe(shipSpec('tempest').guns);
-    expect(shipSpec('reef').pace).not.toBe(shipSpec('sovereign').pace);
+    // The Crown's opening is the heavier navy and is priced like one.
+    expect(crown.hull).toBeGreaterThan(confed.hull);
+    expect(crown.gold).toBeGreaterThan(confed.gold);
+    // And the Confederacy's is the cheaper one to keep at sea.
+    expect(confed.upkeep).toBeLessThan(crown.upkeep);
+    // Both can put somebody on a beach on day one, which is the floor.
+    expect(crown.carries).toBeGreaterThan(0);
+    expect(confed.carries).toBeGreaterThan(0);
+    // And every one of the eight is a different hull, or the rule is vacuous.
+    const all = [...OPENING.empire, ...OPENING.alliance];
+    expect(new Set(all).size).toBe(all.length);
   });
 
   it('makes every size good at something and bad at something', () => {
@@ -126,16 +147,16 @@ describe('building a hull', () => {
     home.facilities.push({ id: 'yard-test', type: 'shipyard', owner: 'empire' });
     state.factions.empire.gold = 500;
 
-    queueBuild(state, 'yard-test', 'kestrel');
-    expect(state.factions.empire.gold).toBe(500 - shipSpec('kestrel').costGold);
+    queueBuild(state, 'yard-test', 'interceptor-i');
+    expect(state.factions.empire.gold).toBe(500 - shipSpec('interceptor-i').costGold);
 
     let next = state;
-    for (let day = 0; day < shipSpec('kestrel').days; day++) next = advanceDay(next);
+    for (let day = 0; day < shipSpec('interceptor-i').days; day++) next = advanceDay(next);
 
     const fleets = fleetsAt(next, home.id).filter((f) => f.faction === 'empire');
     expect(fleets).toHaveLength(1);
     expect(fleets[0].ships).toHaveLength(1);
-    expect(fleets[0].ships[0].classId).toBe('kestrel');
+    expect(fleets[0].ships[0].classId).toBe('interceptor-i');
   });
 
   it('takes no island slot, because a hull floats', () => {
@@ -144,7 +165,7 @@ describe('building a hull', () => {
     state.factions.empire.gold = 500;
     // Fill every water slot; a hull should still be orderable.
     home.slots = home.facilities.length;
-    expect(() => queueBuild(state, 'yard-test', 'kestrel')).not.toThrow();
+    expect(() => queueBuild(state, 'yard-test', 'interceptor-i')).not.toThrow();
   });
 
   it('charges upkeep for hulls and for the troops aboard them', () => {
@@ -153,14 +174,17 @@ describe('building a hull', () => {
     const fleet = put(state, home, 'empire', ['sovereign']);
     fleet.troops = 2;
     const after = totalUpkeep(state, 'empire');
-    expect(after).toBe(before + SHIP_ROLES.large.upkeep + 2);
+    // The hull's own figure, off the sheet, rather than its size's: since the
+    // roster swap every hull is priced on its own and a first-rate costs a
+    // great deal more to keep than a sloop.
+    expect(after).toBe(before + shipSpec('sovereign').upkeep + 2);
   });
 });
 
 describe('sailing', () => {
   it('refuses a fleet that is not yours, and one already at sea', () => {
     const { state, home } = setup();
-    const mine = put(state, home, 'empire', ['kestrel']);
+    const mine = put(state, home, 'empire', ['interceptor-i']);
     const theirs = put(state, home, 'alliance', ['swift']);
     const elsewhere = state.systems.find((s) => s.id !== home.id)!;
 
@@ -174,7 +198,7 @@ describe('sailing', () => {
 
   it('takes days, and arrives at the island it was sent to', () => {
     const { state, home } = setup();
-    const fleet = put(state, home, 'empire', ['kestrel']);
+    const fleet = put(state, home, 'empire', ['interceptor-i']);
     const target = state.systems.find((s) => s.sectorId === home.sectorId && s.id !== home.id)!;
 
     sailFleet(state, fleet.id, target.id, 'empire');
@@ -196,7 +220,7 @@ describe('sailing', () => {
 describe('battle', () => {
   it('resolves when two sides share a harbor, and costs hulls', () => {
     const { state, home } = setup();
-    put(state, home, 'empire', ['sovereign', 'kestrel']);
+    put(state, home, 'empire', ['sovereign', 'interceptor-i']);
     put(state, home, 'alliance', ['tempest', 'swift']);
 
     const rng = createRng(42);
@@ -221,7 +245,7 @@ describe('battle', () => {
   it('is deterministic: the same seed fights the same battle', () => {
     const fight = () => {
       const { state, home } = setup(11);
-      put(state, home, 'empire', ['sovereign', 'kestrel']);
+      put(state, home, 'empire', ['sovereign', 'interceptor-i']);
       put(state, home, 'alliance', ['tempest', 'swift']);
       const rng = createRng(99);
       for (let i = 0; i < 12; i++) advanceFleets(state, rng);
@@ -232,7 +256,7 @@ describe('battle', () => {
 
   it('drowns companies whose transport goes down', () => {
     const { state, home } = setup();
-    const fleet = put(state, home, 'empire', ['fluyt']);
+    const fleet = put(state, home, 'empire', ['wayfinder']);
     fleet.troops = fleetCapacity(fleet);
     expect(fleet.troops).toBeGreaterThan(0);
     // An overwhelming enemy: the transport has no guns of its own.
@@ -247,7 +271,7 @@ describe('battle', () => {
 
   it('leaves a lone fleet alone', () => {
     const { state, home } = setup();
-    const fleet = put(state, home, 'empire', ['kestrel']);
+    const fleet = put(state, home, 'empire', ['interceptor-i']);
     const rng = createRng(3);
     for (let i = 0; i < 10; i++) advanceFleets(state, rng);
     expect(fleet.ships).toHaveLength(1);
@@ -285,7 +309,11 @@ describe('blockade', () => {
 
   it('is not raised by an unarmed transport', () => {
     const { state, home } = setup();
-    put(state, home, 'alliance', ['brig']);
+    // The Swift, which is the one hull in the roster the sheet marks
+    // Noncombat: no guns at all. The Brigantine used to stand here and has
+    // six light guns of its own now, which is not a transport in the sense
+    // this rule is about.
+    put(state, home, 'alliance', ['swift']);
     expect(fleetGuns(state.fleets[0])).toBe(0);
     updateBlockades(state);
     expect(home.blockaded).toBe(false);
@@ -295,7 +323,7 @@ describe('blockade', () => {
 describe('embarking', () => {
   it('will not load more companies than there is room for', () => {
     const { state, home } = setup();
-    const fleet = put(state, home, 'empire', ['fluyt']);
+    const fleet = put(state, home, 'empire', ['wayfinder']);
     home.garrison = 10;
     const room = fleetCapacity(fleet);
 
@@ -307,14 +335,14 @@ describe('embarking', () => {
 
   it('will not load troops that are not there', () => {
     const { state, home } = setup();
-    const fleet = put(state, home, 'empire', ['fluyt']);
+    const fleet = put(state, home, 'empire', ['wayfinder']);
     home.garrison = 0;
     expect(embarkError(state, fleet.id, 1, 'empire')).toBe('Not enough troops ashore.');
   });
 
   it('puts them back ashore again', () => {
     const { state, home } = setup();
-    const fleet = put(state, home, 'empire', ['fluyt']);
+    const fleet = put(state, home, 'empire', ['wayfinder']);
     home.garrison = 4;
     embark(state, fleet.id, 2, 'empire');
     embark(state, fleet.id, -2, 'empire');
@@ -326,7 +354,7 @@ describe('embarking', () => {
 describe('assault', () => {
   it('needs troops aboard, and an island that is not already yours', () => {
     const { state, home } = setup();
-    const fleet = put(state, home, 'empire', ['fluyt']);
+    const fleet = put(state, home, 'empire', ['wayfinder']);
     expect(assaultError(state, fleet.id, 'empire')).toBe('No troops aboard.');
     fleet.troops = 2;
     expect(assaultError(state, fleet.id, 'empire')).toBe('The island is already yours.');
@@ -335,7 +363,7 @@ describe('assault', () => {
   it('will not land while enemy guns hold the harbor', () => {
     const { state } = setup();
     const target = state.systems.find((s) => s.control === 'alliance' && s.populated)!;
-    const fleet = put(state, target, 'empire', ['fluyt']);
+    const fleet = put(state, target, 'empire', ['wayfinder']);
     fleet.troops = 2;
     put(state, target, 'alliance', ['tempest']);
     expect(assaultError(state, fleet.id, 'empire')).toBe('Enemy ships hold the harbor.');
@@ -418,7 +446,7 @@ describe('pace', () => {
     const { state, home } = setup();
     const target = state.systems.find((s) => s.sectorId === home.sectorId && s.id !== home.id)!;
 
-    const sloops = put(state, home, 'empire', ['kestrel']);
+    const sloops = put(state, home, 'empire', ['interceptor-i']);
     sailFleet(state, sloops.id, target.id, 'empire');
     const quick = sloops.voyage!.daysRemaining;
 
@@ -434,13 +462,13 @@ describe('pace', () => {
   it('one first-rate slows a squadron of sloops', () => {
     const { state, home } = setup();
     const target = state.systems.find((s) => s.sectorId === home.sectorId && s.id !== home.id)!;
-    const fleet = put(state, home, 'empire', ['kestrel', 'kestrel', 'sovereign']);
+    const fleet = put(state, home, 'empire', ['interceptor-i', 'interceptor-i', 'sovereign']);
     sailFleet(state, fleet.id, target.id, 'empire');
     const withHeavy = fleet.voyage!.daysRemaining;
 
     const { state: s2, home: h2 } = setup();
     const t2 = s2.systems.find((s) => s.sectorId === h2.sectorId && s.id !== h2.id)!;
-    const light = put(s2, h2, 'empire', ['kestrel', 'kestrel']);
+    const light = put(s2, h2, 'empire', ['interceptor-i', 'interceptor-i']);
     sailFleet(s2, light.id, t2.id, 'empire');
     expect(withHeavy).toBeGreaterThan(light.voyage!.daysRemaining);
   });
@@ -522,7 +550,7 @@ describe('the opponent builds toward its navy', () => {
 describe('crew', () => {
   it('will not sign on somebody who is not standing where the fleet is', () => {
     const { state, home } = setup();
-    const fleet = put(state, home, 'empire', ['kestrel']);
+    const fleet = put(state, home, 'empire', ['interceptor-i']);
     const crew = state.characters.find((c) => c.faction === 'empire')!;
     const elsewhere = state.systems.find((s) => s.id !== home.id)!;
     crew.locationSystemId = elsewhere.id;
@@ -536,7 +564,7 @@ describe('crew', () => {
 
   it('carries them along when the fleet sails', () => {
     const { state, home } = setup();
-    const fleet = put(state, home, 'empire', ['kestrel']);
+    const fleet = put(state, home, 'empire', ['interceptor-i']);
     const crew = state.characters.find(
       (c) => c.faction === 'empire' && c.locationSystemId === home.id,
     )!;
@@ -564,7 +592,7 @@ describe('crew', () => {
       // the officer, so the action is fought where there is no wall.
       home.facilities = home.facilities.filter((f) => f.type !== 'fort');
       const mine = put(state, home, 'empire', ['sovereign', 'sovereign', 'sovereign']);
-      put(state, home, 'alliance', ['reef', 'reef', 'reef']);
+      put(state, home, 'alliance', ['coral-dreadnaught', 'coral-dreadnaught', 'coral-dreadnaught']);
       if (withOfficer) {
         const crew = state.characters.find((c) => c.faction === 'empire')!;
         crew.locationSystemId = home.id;
@@ -616,11 +644,11 @@ describe('crew', () => {
 
   it('puts them ashore rather than drowning them when the fleet is sunk', () => {
     const { state, home } = setup();
-    const doomed = put(state, home, 'empire', ['kestrel']);
+    const doomed = put(state, home, 'empire', ['interceptor-i']);
     const crew = state.characters.find((c) => c.faction === 'empire')!;
     crew.locationSystemId = home.id;
     board(state, doomed.id, crew.id, 'empire');
-    put(state, home, 'alliance', ['reef', 'reef', 'reef']);
+    put(state, home, 'alliance', ['coral-dreadnaught', 'coral-dreadnaught', 'coral-dreadnaught']);
 
     const rng = createRng(2);
     for (let i = 0; i < 25 && state.fleets.some((f) => f.faction === 'empire'); i++) {
@@ -635,7 +663,7 @@ describe('espionage charts the map', () => {
   it('a spy aboard opens islands the fleet did not anchor at', () => {
     const chart = (espionage: number) => {
       const { state, home } = setup(13);
-      const fleet = put(state, home, 'empire', ['kestrel']);
+      const fleet = put(state, home, 'empire', ['interceptor-i']);
       // Somewhere with dark water around it.
       const target = state.systems.find(
         (s) => !s.explored.empire && s.sectorId !== home.sectorId,
@@ -663,7 +691,7 @@ describe('espionage charts the map', () => {
 
   it('charts nothing it has already charted, and never leaves the chain', () => {
     const { state, home } = setup(13);
-    const fleet = put(state, home, 'empire', ['kestrel']);
+    const fleet = put(state, home, 'empire', ['interceptor-i']);
     const spy = state.characters.find((c) => c.faction === 'empire')!;
     spy.locationSystemId = home.id;
     spy.espionage = 100;
@@ -706,7 +734,7 @@ describe('espionage charts the map', () => {
      */
     const run = (seed: number) => {
       const { state, home } = setup(seed);
-      const fleet = put(state, home, 'empire', ['kestrel']);
+      const fleet = put(state, home, 'empire', ['interceptor-i']);
       const spy = state.characters.find((c) => c.faction === 'empire')!;
       spy.locationSystemId = home.id;
       spy.espionage = 100;
@@ -782,19 +810,61 @@ describe('the opening position', () => {
 
   /**
    * The two mediums are meant to be a fair fight and the Home Fleet is not.
-   * Weight of shot, so the numbers say what the fleets are rather than how
-   * many hulls happen to be in them.
+   *
+   * Fought rather than weighed, since 21 September. This used to add up each
+   * fleet's guns and ask that the two squadrons came within a quarter of each
+   * other, which worked while a gun was a gun. Under the per-cannon rules a
+   * gun count says almost nothing — a Chimera's six Heavy guns are worth more
+   * against a Morningstar's armor than twenty Light ones — so the only honest
+   * way to ask whether two fleets are evenly matched is to sail them at each
+   * other and count.
+   *
+   * Measured over 150 seeds when the opening was rebuilt: the Confederacy
+   * beats the Windward Squadron 51 times in a hundred and loses 49, and loses
+   * to the Home Fleet a hundred times in a hundred. The bands below are wide
+   * because this is a measurement; what is worth catching is the day one of
+   * these stops being a contest at all.
    */
   it('matches the Confederacy against the Crown\'s second squadron, not its first', () => {
     const state = generateGalaxy(7, 'empire');
-    const guns = (f: (typeof state.fleets)[number]) =>
-      f.ships.reduce((n, sh) => n + SHIP_ROLES[shipClass(sh.classId).role].guns, 0);
     const [home, forward] = state.fleets.filter((f) => f.faction === 'empire');
     const rebels = state.fleets.find((f) => f.faction === 'alliance')!;
-    expect(guns(home)).toBeGreaterThan(guns(rebels) * 1.5);
-    // Within a quarter of each other either way: a rival, not a mirror.
-    expect(guns(rebels)).toBeGreaterThan(guns(forward) * 0.75);
-    expect(guns(rebels)).toBeLessThan(guns(forward) * 1.25);
+    const line = (f: (typeof state.fleets)[number]): Fighter[] =>
+      f.ships.map((sh, i) => {
+        const cls = shipClass(sh.classId);
+        const spec = shipSpec(sh.classId);
+        return {
+          id: `${sh.classId}-${i}`,
+          name: cls.name,
+          size: cls.size ?? 'Medium',
+          speed: cls.speedCategory ?? 'Normal',
+          armor: cls.armor ?? 0,
+          guns: { long: cls.longGuns ?? 0, heavy: cls.heavyGuns ?? 0, light: cls.lightGuns ?? 0 },
+          combatantType: spec.guns > 0 ? ('Warship' as const) : ('Noncombat' as const),
+          wholeHull: spec.hull,
+          hull: spec.hull,
+        };
+      });
+    const winsFor = (a: typeof rebels, b: typeof rebels, trials = 40) => {
+      let won = 0;
+      for (let t = 0; t < trials; t++) {
+        const rng = createRng(900 + t);
+        const x = line(a);
+        const y = line(b);
+        let guard = 0;
+        while (x.some((f) => f.hull > 0) && y.some((f) => f.hull > 0) && guard++ < 60) {
+          if (exchange(x, y, rng).ended === 'destroyed') break;
+        }
+        if (x.some((f) => f.hull > 0) && !y.some((f) => f.hull > 0)) won += 1;
+      }
+      return won / trials;
+    };
+    // A rival to the forward squadron: it wins its share and loses its share.
+    const againstForward = winsFor(rebels, forward);
+    expect(againstForward).toBeGreaterThan(0.2);
+    expect(againstForward).toBeLessThan(0.8);
+    // And no kind of rival to the Home Fleet.
+    expect(winsFor(rebels, home)).toBeLessThan(0.1);
   });
 
   it('gives each side a yard that can lay down a hull', () => {
@@ -927,7 +997,7 @@ describe('what the confirm sheet promises', () => {
     // sloop this test means to sail alone was quietly sailing in company, and
     // the slow hull added at the end changed nothing.
     state.fleets.length = 0;
-    const fleet = addShip(state, here, 'empire', 'kestrel');
+    const fleet = addShip(state, here, 'empire', 'interceptor-i');
     for (const to of [near, far]) {
       const quoted = sailDays(state, fleet.id, to.id);
       sailFleet(state, fleet.id, to.id, 'empire');
@@ -959,8 +1029,8 @@ describe('what the confirm sheet promises', () => {
   it('drowns the companies riding in hulls that have gone down', () => {
     const state = generateGalaxy(31, 'empire');
     const here = state.systems.find((s) => s.control === 'empire')!;
-    const fleet = addShip(state, here, 'empire', 'fluyt');
-    addShip(state, here, 'empire', 'fluyt');
+    const fleet = addShip(state, here, 'empire', 'wayfinder');
+    addShip(state, here, 'empire', 'wayfinder');
     const berths = fleetCapacity(fleet);
     expect(berths).toBeGreaterThan(1);
     here.garrison = berths + 20;
@@ -977,7 +1047,7 @@ describe('what the confirm sheet promises', () => {
   it('never quotes a crossing it would refuse to make', () => {
     const state = generateGalaxy(31, 'empire');
     const here = state.systems.find((s) => s.control === 'empire')!;
-    const fleet = addShip(state, here, 'empire', 'kestrel');
+    const fleet = addShip(state, here, 'empire', 'interceptor-i');
     // Staying put is not a voyage, and the sheet is never opened for one.
     expect(sailError(state, fleet.id, here.id, 'empire')).not.toBeNull();
     // Nor is somebody else's fleet yours to send.

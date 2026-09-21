@@ -55,6 +55,8 @@ import {
   queueBuild,
 } from './build';
 import { follows } from './doctrine';
+import { expectedDamage } from './cannon';
+import { shipClass } from './constants';
 import {
   assault,
   assaultError,
@@ -1180,8 +1182,17 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
   const grade = gradeOf(state, ai);
   const classes = shipsAt(ai, grade);
   const afloat = fleetsOf(state, ai).flatMap((f) => f.ships);
-  // Keep roughly two fighting hulls to every transport.
-  const transports = afloat.filter((s) => s.classId === classes.find((c) => c.role === 'transport')!.id);
+  /*
+   * Lift, since 21 September, is a number on every hull rather than a kind of
+   * hull. The canonical roster gives troop capacity to a survey ship, a ship
+   * of the line and a smuggler's brigantine alike, and only one hull in the
+   * whole fleet — the Confederacy's Swift — is a Noncombat at all. So this
+   * counts berths instead of counting transports, which is what it was
+   * always really asking, and it stopped being able to ask the old way the
+   * day the Crown had no transport class to find.
+   */
+  const bestLifter = [...classes].sort((a, b) => shipSpec(b.id).carries - shipSpec(a.id).carries)[0];
+  const berths = afloat.reduce((n, s) => n + shipSpec(s.classId).carries, 0);
   const capital = getSystem(state, state.factions.empire.hqSystemId);
   const carryAll = fleetsOf(state, ai).reduce((n, f) => n + fleetCapacity(f), 0);
   // Two clear of what the capital holds, so a landing is possible at all after
@@ -1206,7 +1217,11 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
     ai === 'alliance' &&
     fortsOf(capital).length > 0 &&
     Math.max(0, ...fleetsOf(state, ai).map(fleetBombard)) < siegeWeightFor(capital);
-  const wantTransport = !noSiegeTrain && (transports.length * 3 < afloat.length + 1 || shortOfLift);
+  // Roughly one berth for every hull afloat, which is the same ratio the old
+  // "two fighting hulls to every transport" worked out at when a transport
+  // carried three companies and nothing else carried any.
+  const wantTransport =
+    !noSiegeTrain && bestLifter !== undefined && (berths < afloat.length + 1 || shortOfLift);
   // Fighting hulls as big as it can afford; a transport when it is short of one.
   const spare = surplus(state, ai);
   const carried = (id: ShipClassId) => spare - UPKEEP_PER_DAY[id] >= AI_SURPLUS_MARGIN;
@@ -1223,17 +1238,56 @@ function aiLayDownHull(state: GameState, ai: PlayableFaction): void {
     follows(state, 'balanced-fleet') && !afloat.some((s) => roleOf(s.classId) === c.role)
       ? 1000
       : 0;
+  /*
+   * Guns on the water per day of yard time, rather than the dearest hull it
+   * can pay for.
+   *
+   * "Dearest affordable" was a mild preference while the whole fleet cost
+   * between 45 and 150 gold and took between eight and twenty-two days. The
+   * canonical roster turned it into a trap: a Majestic is 522 gold and a
+   * hundred days against an Interceptor's 28 and four, so a side following
+   * the old rule spends an entire war laying down three capitals while the
+   * other fields thirty sloops — and under the per-cannon rules thirty hulls
+   * firing is a great deal more shot than three.
+   *
+   * Measured before this change, twenty-four wars with both sides played: the
+   * Crown ended on seventeen hulls to the Confederacy's thirty-two and lost
+   * every single war. The Confederacy was not out-designed, it was
+   * out-built, and the reason was on the Crown's own side of the keyboard.
+   *
+   * Weight of shot per build-day is the plainest statement of what a navy
+   * wants from a slipway. It still buys big — a Morningstar is fifty guns in
+   * fifteen days and beats an Interceptor's ten in four — it simply stops
+   * buying the thing that will not be in the water until the war is decided.
+   */
+  const perDay = (id: ShipClassId) => {
+    const spec = shipSpec(id);
+    const cls = shipClass(id);
+    // Shot that actually gets through, not shot fired. Counting guns alone
+    // sent the Crown to the slipway for Interceptors — ten light guns in four
+    // days looks like the best deal in the fleet and is the worst buy it has,
+    // because a light gun does almost nothing to anything plated. Measured at
+    // equal gold against the whole Confederate roster: the Interceptor I wins
+    // 15% of the time and the Vanguard 96%.
+    //
+    // So each gun is worth what the engine says it is worth against a hull
+    // worth shooting at, which is `expectedDamage` — the same function the
+    // targeting uses, asked about a reference target rather than a real one.
+    const REFERENCE = { size: 'Large', speed: 'Normal', armor: 18 } as const;
+    const worth =
+      (cls.longGuns ?? 0) * expectedDamage('Long', REFERENCE) +
+      (cls.heavyGuns ?? 0) * expectedDamage('Heavy', REFERENCE) +
+      (cls.lightGuns ?? 0) * expectedDamage('Light', REFERENCE);
+    return worth / Math.max(1, spec.days);
+  };
   const affordable = classes
-    .filter((c) => c.role !== 'transport')
+    .filter((c) => shipSpec(c.id).guns > 0)
     .filter((c) => carried(c.id))
     .filter((c) => shipSpec(c.id).costGold + AI_SHIP_RESERVE <= state.factions[ai].gold)
-    .sort(
-      (a, b) =>
-        missing(b) + shipSpec(b.id).costGold - (missing(a) + shipSpec(a.id).costGold),
-    );
+    .sort((a, b) => missing(b) + perDay(b.id) - (missing(a) + perDay(a.id)));
   const pick = wantTransport
-    ? classes.find((c) => c.role === 'transport')
-    : (affordable[0] ?? classes.find((c) => c.role === 'small'));
+    ? bestLifter
+    : (affordable[0] ?? classes.find((c) => c.role === 'small') ?? classes[0]);
   if (!pick || !carried(pick.id)) return;
 
   // One hull, or — with gold to burn — one at every slipway standing idle.

@@ -265,20 +265,27 @@ interface StartSquadron {
 }
 const START_FLEETS: Record<PlayableFaction, StartSquadron[]> = {
   empire: [
-    // Powerful, and at Highwater: a ship of the line, three heavy frigates, a
-    // scout and a transport. Eighty-nine guns.
+    // Powerful, and at Highwater: the ship of the line, a two-decker, a
+    // sloop and the survey ship. A hundred and forty-two guns, and the
+    // Sovereign's forty-six of them are Heavy.
+    //
+    // Rebuilt on the canonical roster of 21 September, which is why the
+    // names have all changed. Every hull here is one of the four a side
+    // opens with in the sheet — S01 to S04 — rather than whatever the old
+    // roster had lying about, which is the whole point of the swap.
     {
       name: 'Home Fleet',
-      ships: ['sovereign', 'razorback', 'razorback', 'razorback', 'kestrel', 'fluyt'],
+      ships: ['sovereign', 'morningstar', 'interceptor-i', 'wayfinder'],
       troops: 2,
       berth: 'seat',
     },
-    // And a medium one forward, in a Reach the Crown does not own outright.
-    // Forty-two guns, no ship of the line: enough to take an island off
-    // somebody and not enough to fight the Confederacy's whole navy.
+    // And a medium one forward, in a Reach the Crown does not own outright:
+    // the two-decker, three sloops and the survey ship. No ship of the line
+    // — enough to take an island off somebody, and not enough to fight the
+    // Confederacy's whole navy and expect to win.
     {
       name: 'Windward Squadron',
-      ships: ['razorback', 'razorback', 'kestrel', 'fluyt'],
+      ships: ['morningstar', 'interceptor-i', 'interceptor-i', 'interceptor-i', 'wayfinder'],
       troops: 2,
       berth: 'forward',
     },
@@ -286,18 +293,27 @@ const START_FLEETS: Record<PlayableFaction, StartSquadron[]> = {
   alliance: [
     // Freeport, and nowhere else.
     //
-    // Sean, 20 September: *"For confederacy 1 swift is all the swifts you
-    // need."* It had been four of them round one Tempest — forty-four guns,
-    // matching the Windward's forty-four exactly, but six hulls to the
-    // Crown's four and four of them the same hull. Re-weighed as one Swift,
-    // two Tempests and the Brig: thirty-nine guns in four hulls against the
-    // Windward's forty-four in four. Five guns lighter and no longer a swarm,
-    // which is the trade — the Confederacy's whole navy still rivals the
-    // Crown's second squadron and would still not last a morning against its
-    // first.
+    // Sean's shape of 18 September holds — *"Confederacy fleet is its
+    // Freeport only and it's medium sized. Should rival the medium fleet
+    // from imperium."* — and on the canonical roster it is three Chimeras,
+    // a Tidestalker, the Brigantine and one Swift. Sean, 20 September: *"For
+    // confederacy 1 swift is all the swifts you need."*
+    //
+    // "Rival" is now a measured thing rather than a gun count, and it had to
+    // be: the per-cannon engine makes a fleet action close to deterministic,
+    // so two fleets are either even or they are 100-0, with very little in
+    // between. Measured over 150 seeds: this beats the Windward Squadron 51
+    // times in a hundred and loses to it 49, which is as even as the engine
+    // gets. Two Chimeras instead of three loses every single time — the
+    // Morningstar's armor of 24 is a wall that only the Chimera's six Heavy
+    // guns get through, and below a certain number of them the Confederacy
+    // cannot kill it before it kills them.
+    //
+    // Against the Home Fleet it loses a hundred times in a hundred, which is
+    // the other half of the rule and always was.
     {
       name: 'Home Fleet',
-      ships: ['swift', 'tempest', 'tempest', 'brig'],
+      ships: ['chimera', 'chimera', 'chimera', 'tidestalker', 'brigantine', 'swift'],
       troops: 2,
       berth: 'seat',
     },

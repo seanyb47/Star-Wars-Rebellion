@@ -102,7 +102,7 @@ describe('an action the player is in', () => {
   it('settles once one side has nothing left afloat', () => {
     const { state, home } = world();
     put(state, home, 'empire', ['sovereign', 'sovereign', 'sovereign', 'sovereign']);
-    put(state, home, 'alliance', ['brig']);
+    put(state, home, 'alliance', ['brigantine']);
     const rng = createRng(11);
     resolveBattles(state, rng);
     for (let i = 0; i < 12 && state.battle && !state.battle.settled; i++) {
@@ -177,7 +177,7 @@ describe('the assessment', () => {
 
   it('lays out each side hull by hull, heaviest first, with who is aboard', () => {
     const { state, home } = world();
-    const mine = put(state, home, 'alliance', ['swift', 'swift', 'reef', 'brig']);
+    const mine = put(state, home, 'alliance', ['swift', 'swift', 'coral-dreadnaught', 'brigantine']);
     state.player = 'alliance';
     const crew = state.characters.find(
       (c) => c.faction === 'alliance' && !/Hale|Reyne|Jessup/.test(c.name),
@@ -230,7 +230,7 @@ describe('companies load and unload themselves', () => {
     isle.explored.alliance = true;
     isle.support = { empire: 20, alliance: 80 };
     isle.garrison = 6;
-    const fleet = put(state, isle, 'alliance', ['brig', 'brig']);
+    const fleet = put(state, isle, 'alliance', ['brigantine', 'brigantine']);
     const spare = sparedCompanies(isle, state);
     expect(spare).toBeGreaterThan(0);
     expect(spare).toBeLessThan(isle.garrison);
@@ -262,7 +262,7 @@ describe('companies load and unload themselves', () => {
     expect(requiredGarrison(isle.support.alliance, isle.uprising)).toBe(0);
     expect(sparedCompanies(isle, state)).toBe(3);
 
-    const fleet = put(state, isle, 'alliance', ['brig', 'brig']);
+    const fleet = put(state, isle, 'alliance', ['brigantine', 'brigantine']);
     const to = state.systems.find((s) => s.id !== isle.id && s.explored.alliance)!;
     sailFleet(state, fleet.id, to.id, 'alliance');
     expect(isle.garrison).toBe(1);
@@ -280,7 +280,7 @@ describe('companies load and unload themselves', () => {
     capital.support = { empire: 97, alliance: 3 };
     expect(sparedCompanies(capital, state)).toBe(0);
 
-    const fleet = put(state, capital, 'empire', ['fluyt', 'fluyt']);
+    const fleet = put(state, capital, 'empire', ['wayfinder', 'wayfinder']);
     const to = state.systems.find((s) => s.id !== capital.id && s.explored.empire)!;
     sailFleet(state, fleet.id, to.id, 'empire');
     expect(fleet.troops).toBe(0);
@@ -294,7 +294,7 @@ describe('companies load and unload themselves', () => {
     rock.control = 'alliance';
     rock.explored.alliance = true;
     rock.garrison = 1;
-    const fleet = put(state, rock, 'alliance', ['brig']);
+    const fleet = put(state, rock, 'alliance', ['brigantine']);
     expect(sparedCompanies(rock, state)).toBe(0);
     sailFleet(state, fleet.id, home.id, 'alliance');
     expect(fleet.troops).toBe(0);
@@ -315,7 +315,7 @@ describe('companies load and unload themselves', () => {
     theirs.explored.alliance = true;
 
     const rng = createRng(3);
-    const home1 = put(state, home, 'alliance', ['brig', 'brig']);
+    const home1 = put(state, home, 'alliance', ['brigantine', 'brigantine']);
     sailFleet(state, home1.id, mine.id, 'alliance');
     const carried = home1.troops;
     expect(carried).toBeGreaterThan(0);
@@ -326,7 +326,7 @@ describe('companies load and unload themselves', () => {
 
     // And on the enemy's ground they stay aboard, because that is what a
     // landing is made of.
-    const second = put(state, home, 'alliance', ['brig', 'brig']);
+    const second = put(state, home, 'alliance', ['brigantine', 'brigantine']);
     home.garrison = 8;
     sailFleet(state, second.id, theirs.id, 'alliance');
     const aboard = second.troops;
@@ -346,7 +346,7 @@ describe('splitting and joining squadrons', () => {
   it('makes a new squadron out of the hulls you pick, and leaves the rest', () => {
     const { state, home } = world();
     state.player = 'alliance';
-    const fleet = put(state, home, 'alliance', ['tempest', 'swift', 'swift', 'brig']);
+    const fleet = put(state, home, 'alliance', ['tempest', 'swift', 'swift', 'brigantine']);
     const take = fleet.ships.slice(1, 3).map((sh) => sh.id);
     const made = detachShips(state, fleet.id, take, undefined, 'alliance');
 
@@ -391,11 +391,11 @@ describe('splitting and joining squadrons', () => {
     const { state, home } = world();
     state.player = 'alliance';
     home.control = 'alliance';
-    const fleet = put(state, home, 'alliance', ['brig', 'brig', 'tempest']);
+    const fleet = put(state, home, 'alliance', ['brigantine', 'brigantine', 'tempest']);
     fleet.troops = fleetCapacity(fleet);
     const carried = fleet.troops;
     // Take the transports out, which is where nearly all the room was.
-    const holds = fleet.ships.filter((sh) => sh.classId === 'brig').map((sh) => sh.id);
+    const holds = fleet.ships.filter((sh) => sh.classId === 'brigantine').map((sh) => sh.id);
     const made = detachShips(state, fleet.id, holds, undefined, 'alliance');
     expect(fleet.troops + made.troops).toBe(carried);
     expect(fleet.troops).toBeLessThanOrEqual(fleetCapacity(fleet));

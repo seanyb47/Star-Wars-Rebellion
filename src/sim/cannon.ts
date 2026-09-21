@@ -321,9 +321,25 @@ function assign(shots: Shot[], enemies: Fighter[], rng: Rng): Array<{ shot: Shot
 
 /* ----------------------------------------------------------------- the firing */
 
-/** Roll one cannon at one hull and return what gets through. Zero on a miss. */
-export function fireCannon(kind: GunKind, target: Fighter, rng: Rng, penetration?: number): number {
-  if (rng.next() * 100 >= hitChance(kind, target)) return 0;
+/**
+ * Roll one cannon at one hull and return what gets through. Zero on a miss.
+ *
+ * `edge` is the one thing here the locked rules do not describe, and it is not
+ * an invention of this file: the game has always given a well-handled squadron
+ * more out of the same guns, and it has always been a multiplier on the chance
+ * of a hit. It multiplies the table's percentage and is clamped by the table's
+ * own ceiling, so the best captain in the world still cannot do better than
+ * ninety-five.
+ */
+export function fireCannon(
+  kind: GunKind,
+  target: Fighter,
+  rng: Rng,
+  penetration?: number,
+  edge = 1,
+): number {
+  const chance = Math.min(ACCURACY_MAX, hitChance(kind, target) * edge);
+  if (rng.next() * 100 >= chance) return 0;
   let roll = 0;
   for (let d = 0; d < GUNS[kind].dice; d++) roll += rng.range(1, 20);
   const pen = penetration ?? GUNS[kind].penetration;
@@ -352,14 +368,23 @@ function gunsOf(side: Fighter[], kinds: readonly GunKind[]): Shot[] {
  * each phase. A ship that is going to die this phase still fires, which is
  * what stops the side that wins initiative from winning everything.
  */
-function phase(a: Fighter[], b: Fighter[], kinds: readonly GunKind[], rng: Rng): void {
-  const orders = [...assign(gunsOf(a, kinds), b, rng), ...assign(gunsOf(b, kinds), a, rng)];
+function phase(
+  a: Fighter[],
+  b: Fighter[],
+  kinds: readonly GunKind[],
+  rng: Rng,
+  edge: { a: number; b: number },
+): void {
+  const orders = [
+    ...assign(gunsOf(a, kinds), b, rng).map((o) => ({ ...o, edge: edge.a })),
+    ...assign(gunsOf(b, kinds), a, rng).map((o) => ({ ...o, edge: edge.b })),
+  ];
   const dealt = new Map<Fighter, number>();
-  for (const { shot, at } of orders) {
+  for (const { shot, at, edge: hand } of orders) {
     // A hull sunk earlier in this same phase does not fire — but it only
     // stops firing once the damage is applied, which is after the loop. So
     // this checks nothing, deliberately: everything assigned, fires.
-    const through = fireCannon(shot.kind, at, rng);
+    const through = fireCannon(shot.kind, at, rng, undefined, hand);
     if (through > 0) dealt.set(at, (dealt.get(at) ?? 0) + through);
   }
   for (const [target, damage] of dealt) target.hull = Math.max(0, target.hull - damage);
@@ -390,7 +415,13 @@ const sumHull = (side: Fighter[]) => side.reduce((n, f) => n + f.hull, 0);
  * had: it asked the player to confirm a battle and then fought the whole
  * thing, which is why a fleet action could not be broken off halfway.
  */
-export function exchange(a: Fighter[], b: Fighter[], rng: Rng, roundCap = 100): ExchangeResult {
+export function exchange(
+  a: Fighter[],
+  b: Fighter[],
+  rng: Rng,
+  roundCap = 100,
+  edge: { a: number; b: number } = { a: 1, b: 1 },
+): ExchangeResult {
   const opened = { a: sumHull(a), b: sumHull(b) };
   const floor = { a: opened.a * (1 - EXCHANGE_STOP_SHARE), b: opened.b * (1 - EXCHANGE_STOP_SHARE) };
   let rounds = 0;
@@ -398,8 +429,8 @@ export function exchange(a: Fighter[], b: Fighter[], rng: Rng, roundCap = 100): 
   while (rounds < roundCap) {
     // > Long Guns resolve before Light and Heavy Guns ... Ships sunk by Long
     // > Guns are removed before Phase 2 and do not fire Light or Heavy Guns.
-    phase(a, b, ['Long'], rng);
-    phase(a, b, ['Light', 'Heavy'], rng);
+    phase(a, b, ['Long'], rng, edge);
+    phase(a, b, ['Light', 'Heavy'], rng, edge);
     rounds += 1;
     // > After the complete round, test the 30% Combat Exchange stop condition.
     const now = { a: sumHull(a), b: sumHull(b) };

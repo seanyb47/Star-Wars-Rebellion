@@ -272,7 +272,7 @@ describe('once the rumours start', () => {
     const { state, home, inSea } = waking();
     home.beastRoaming = true;
     const bait = inSea[inSea.length - 1];
-    addShip(state, bait, 'empire', 'kestrel');
+    addShip(state, bait, 'empire', 'interceptor-i');
     // Until it gets there, not until it first moves: a hunting creature works
     // its way across its own Sea and may put in at an empty island on the way.
     for (let i = 0; i < 600 && beastNow(state)!.id !== bait.id; i++) {
@@ -287,7 +287,7 @@ describe('once the rumours start', () => {
     home.beastDamage = Math.ceil(beastAt(home)!.hull * BEAST_FLEE_HURT);
     // Ships everywhere but one island: running has exactly one answer.
     const refuge = inSea[0];
-    for (const s of inSea) if (s.id !== refuge.id) addShip(state, s, 'empire', 'kestrel');
+    for (const s of inSea) if (s.id !== refuge.id) addShip(state, s, 'empire', 'interceptor-i');
     for (let i = 0; i < 600 && beastNow(state)!.id === home.id; i++) {
       stirBeasts(state, createRng(3000 + i));
     }
@@ -301,7 +301,7 @@ describe('once the rumours start', () => {
     home.beastRoaming = true;
     home.beastDamage = beastAt(home)!.hull - 1;
     // Every other island in the Sea has ships in it: nowhere to run.
-    for (const s of inSea) addShip(state, s, 'empire', 'kestrel');
+    for (const s of inSea) addShip(state, s, 'empire', 'interceptor-i');
     for (let i = 0; i < 600 && !home.cornered; i++) stirBeasts(state, createRng(4000 + i));
     expect(home.cornered).toBe(true);
     expect(beastNow(state)!.id).toBe(home.id);
@@ -318,7 +318,7 @@ describe('once the rumours start', () => {
       (s) => !inSea.includes(s) && s.id !== home.id && s.id !== target.id,
     )!;
     addShip(state, far, 'empire', 'sovereign');
-    addShip(state, far, 'empire', 'razorback');
+    addShip(state, far, 'empire', 'resolute');
     const fleet = state.fleets.find((f) => f.systemId === far.id)!;
     fleet.voyage = { targetSystemId: target.id, daysRemaining: 20 };
     const sound = () => fleet.ships.reduce((n, s) => n + s.damage, 0);

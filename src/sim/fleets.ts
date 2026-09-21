@@ -27,9 +27,7 @@ import {
   OFFICER_EDGE,
   SCOUT_PER_ISLAND,
   shipSpec,
-  GUN_DECKS,
   hitChanceOn,
-  aimAt,
   shipClass,
   LONG_GUN_SHARE,
   RETREAT_SHOTS,
@@ -38,12 +36,15 @@ import {
   beastAlive,
   beastAt,
   beastCombatant,
+  beastFighter,
   beastGuns,
+  landBeastDamage,
   monsterShots,
   monsterStrike,
   sightBeast,
 } from './creatures';
 import { fireOnce, pickTarget, type Combatant } from './round';
+import { exchange, type Fighter } from './cannon';
 import {
   inProse,
   getSystem,
@@ -1416,31 +1417,62 @@ export function repairOvernight(state: GameState): void {
 /**
  * Everything at an island that can shoot, on one side, as combatants.
  *
- * A hull, a fort on the wall and a creature in the water all take a shot and
- * all take damage, so the round does not care which is which. What differs is
- * only how hard each is to hit and what happens when it dies, and both of
- * those live on the combatant.
+ * A `Fighter` is a value with a mutable hull, so the exchange can work on it
+ * without knowing anything about fleets, and `land` is what writes the result
+ * back afterwards. The `combatant` beside it is the same hull in the older
+ * shape, kept for the one thing that still speaks it: a creature's strike,
+ * which takes a whole hull rather than firing at one.
  */
-function hullsOf(fleets: Fleet[]): Combatant[] {
-  const out: Combatant[] = [];
+interface LineShip {
+  /** What the guns see. */
+  fighter: Fighter;
+  /** The same hull as the old round saw it, for a creature's strike. */
+  combatant: Combatant;
+  /** Land the exchange's result back on the ship. */
+  land: () => void;
+}
+
+function lineOf(fleets: Fleet[]): LineShip[] {
+  const out: LineShip[] = [];
   for (const fleet of fleets) {
     for (const ship of fleet.ships) {
+      const cls = shipClass(ship.classId);
       const spec = shipSpec(ship.classId);
+      const fighter: Fighter = {
+        id: ship.id,
+        name: cls.name,
+        size: cls.size ?? 'Medium',
+        speed: cls.speedCategory ?? 'Normal',
+        armor: cls.armor ?? 0,
+        guns: { long: cls.longGuns ?? 0, heavy: cls.heavyGuns ?? 0, light: cls.lightGuns ?? 0 },
+        // A hull with nothing aboard that fires is shot at last, which is
+        // what makes a transport worth escorting.
+        combatantType: spec.guns > 0 ? 'Warship' : 'Noncombat',
+        wholeHull: spec.hull,
+        hull: Math.max(0, spec.hull - ship.damage),
+      };
       out.push({
-        guns: spec.guns,
-        left: spec.hull - ship.damage,
-        whole: spec.hull,
-        role: shipClass(ship.classId).role,
-        hitChance: hitChanceOn(shipClass(ship.classId).role),
-        hurt: (amount) => {
-          ship.damage += amount;
-          return ship.damage >= spec.hull;
+        fighter,
+        combatant: {
+          guns: spec.guns,
+          left: fighter.hull,
+          whole: spec.hull,
+          role: cls.role,
+          hitChance: hitChanceOn(cls.role),
+          hurt: (amount) => {
+            ship.damage += amount;
+            return ship.damage >= spec.hull;
+          },
+        },
+        land: () => {
+          ship.damage = Math.max(ship.damage, spec.hull - fighter.hull);
         },
       });
     }
   }
   return out;
 }
+
 
 /*
  * `wallOf` used to stand here, and put the island's own guns into the fleet
@@ -1452,25 +1484,6 @@ function hullsOf(fleets: Fleet[]): Combatant[] {
  * that can now actually shoot back at it.
  */
 
-/**
- * One hull's shots for the round, each carrying its share of her weight.
- *
- * A first-rate lays three decks on three different marks rather than emptying
- * herself into one sloop; a sloop has the one gun. The shots share the hull's
- * condition, so a ship sunk halfway through a round stops firing the rest.
- */
-function decksOf(gun: Combatant): Combatant[] {
-  const decks = gun.role ? GUN_DECKS[gun.role] : 1;
-  if (decks <= 1) return [gun];
-  const each = gun.guns / decks;
-  return Array.from({ length: decks }, () => ({
-    ...gun,
-    // Her weight, shared out. Read live off the hull, so a ship sunk halfway
-    // through a round does not go on firing the decks she has left.
-    get guns() { return gun.left > 0 ? each : 0; },
-    get left() { return gun.left; },
-  }));
-}
 
 /** Total damage standing on every hull in these fleets. */
 function hurtIn(fleets: Fleet[]): number {
@@ -1533,7 +1546,11 @@ function reportRound(
     return;
   }
   const tally = (n: number) => `${n} ${n === 1 ? 'hull' : 'hulls'}`;
-  const alive = beast !== undefined && beastAlive(system);
+  // In the action, rather than alive at the end of it. A creature killed by
+  // the same broadside it struck back with was in the fight and belongs on the
+  // card — it used to drop off the report of its own last round, which read as
+  // an ordinary action that cost two hulls for no reason anybody could see.
+  const alive = beast !== undefined && (beastAlive(system) || killedBeast);
   // Mid-sentence, so the creature's article goes lowercase: "against the
   // Derelict", not "against The Derelict". Same rule and the same miss as the
   // rumour line in `creatures.ts` — a name with a definite article in it needs
@@ -1610,11 +1627,12 @@ function fightRound(
     allianceGuns: alliance.reduce((n, f) => n + fleetGuns(f), 0),
   };
 
-  // The three parties. Forts shoot for the side that holds the island; the
-  // creature shoots for nobody and is shot at by everybody.
-  const empireGuns = hullsOf(empire);
-  const allianceGuns = hullsOf(alliance);
-  const monster = beastCombatant(system);
+  // The two navies, as the per-cannon engine wants them: a hull with a size,
+  // a speed, an armor belt and three kinds of gun, and a way back to the ship
+  // it came from so the damage can be landed when the firing stops.
+  const empireLine = lineOf(empire);
+  const allianceLine = lineOf(alliance);
+  const beast = beastFighter(system);
 
   // Leadership tells here, as it always has: a well-handled squadron gets more
   // out of the same guns. It is a hit-chance edge now rather than a multiplier
@@ -1629,48 +1647,64 @@ function fightRound(
     admiral ? 1 + (admiral.leadership / 100) * OFFICER_EDGE : 1,
   );
 
-  // Everyone shoots once, and everyone shoots at the same moment: the volleys
-  // are worked out against the state at the start of the round, so a hull that
-  // goes down still got its shot off. Simultaneous fire is what keeps a battle
-  // from being decided by who is listed first.
-  const volleys: Array<{ from: Combatant; at: Combatant[]; edge: number }> = [];
-  for (const gun of empireGuns) {
-    for (const shot of decksOf(gun)) {
-      volleys.push({ from: shot, at: monster ? [...allianceGuns, monster] : allianceGuns, edge: empireEdge });
-    }
+  /*
+   * One Combat Exchange, by the locked rules: long guns first and on their
+   * own, then light and heavy together, both phases simultaneous, and the
+   * whole thing stopping when a side has lost thirty per cent of the hull it
+   * came in with. Eight or so internal rounds, which is what the sheet's own
+   * simulator reports and what `cannon.test.ts` measures this against.
+   *
+   * A day is one Exchange. The old round was one shot per hull per day, which
+   * is the same shape at a different grain — what changed is that the grain is
+   * now the one the roster was priced on.
+   */
+  if (empireLine.length > 0 && allianceLine.length > 0) {
+    exchange(
+      empireLine.map((l) => l.fighter),
+      allianceLine.map((l) => l.fighter),
+      rng,
+      100,
+      { a: empireEdge, b: allianceEdge },
+    );
   }
-  for (const gun of allianceGuns) {
-    for (const shot of decksOf(gun)) {
-      volleys.push({ from: shot, at: monster ? [...empireGuns, monster] : empireGuns, edge: allianceEdge });
+
+  /*
+   * And then the thing in the water, which is nobody's.
+   *
+   * It is resolved after the fleet action and against everybody at once,
+   * because it is on no side and the Exchange has two of them. Every hull
+   * still afloat fires at it; it answers with `monsterStrike`, which is the
+   * whole of its offence and is not a broadside — the Kraken takes a hull
+   * down entire, sound or not, and no amount of armor is any use against that.
+   */
+  let killed = false;
+  if (beast) {
+    const guns = [...empireLine, ...allianceLine].filter((l) => l.fighter.hull > 0);
+    if (guns.length > 0) {
+      exchange(guns.map((l) => l.fighter), [beast], rng, 1, { a: 1, b: 1 });
+      landBeastDamage(system, beast);
+      killed = beast.hull <= 0 && !system.beastSlain;
     }
-  }
-  if (monster) {
-    // It is nobody's, so it fires on everything and picks its own way — a
-    // Kraken does not shoot, it takes hold of something.
-    for (let i = 0; i < monsterShots(system); i++) {
-      volleys.push({ from: monster, at: [...empireGuns, ...allianceGuns], edge: 1 });
+    // It strikes whether or not that broadside finished it, for the same
+    // reason a hull sunk in a phase still fires: it was alive when the round
+    // opened. Without this a creature met by anything heavy enough to kill it
+    // outright never touched anybody, and a squadron that lost nothing was
+    // reported as a line with no tally on it.
+    const targets = [...empireLine, ...allianceLine]
+      .filter((l) => l.fighter.hull > 0)
+      .map((l) => l.combatant);
+    for (let i = 0; i < monsterShots(system) && targets.length > 0; i++) {
+      const target = pickTarget(targets, rng);
+      if (target) monsterStrike(state, system, target, rng);
     }
   }
 
-  for (const volley of volleys) {
-    if (volley.from.left <= 0) continue;
-    const target = pickTarget(volley.at, rng);
-    if (!target) continue;
-    if (monster && volley.from === monster) monsterStrike(state, system, target, rng);
-    else {
-      // What this shooter manages against that target. A heavy battery laid
-      // for pounding stone does not train round fast enough to catch a sloop,
-      // which is the rule that makes a fleet of nothing but ships of the line
-      // a fleet with a hole in it.
-      const aim = target.role ? aimAt(volley.from.role ?? 'shore', target.role) : 1;
-      fireOnce(volley.from, target, rng, volley.edge * aim);
-    }
-  }
+  // The firing is over; land it on the ships.
+  for (const line of [...empireLine, ...allianceLine]) line.land();
 
-  const killed = monster !== undefined && monster.left <= 0 && !system.beastSlain;
   if (killed) {
-    const fromEmpire = empireGuns.reduce((n, g) => n + g.guns, 0);
-    const fromAlliance = allianceGuns.reduce((n, g) => n + g.guns, 0);
+    const fromEmpire = empireLine.reduce((n, l) => n + l.fighter.guns.long + l.fighter.guns.heavy + l.fighter.guns.light, 0);
+    const fromAlliance = allianceLine.reduce((n, l) => n + l.fighter.guns.long + l.fighter.guns.heavy + l.fighter.guns.light, 0);
     system.beastSlain = fromEmpire >= fromAlliance ? 'empire' : 'alliance';
     system.beastDamage = beastAt(system)!.hull;
   }

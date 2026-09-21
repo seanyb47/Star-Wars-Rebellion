@@ -325,8 +325,10 @@ describe('research', () => {
     const before = effectiveSpec(state, 'empire', hull);
     expect(before).toEqual({ costGold: buildSpec(hull).costGold, days: buildSpec(hull).days });
 
-    state.factions.empire.craft = 1000; // well past grade three
-    expect(craftGrade(state.factions.empire.craft)).toBe(3);
+    state.factions.empire.craft = 1000; // well past the top rung
+    // Eight rungs since the roster swap, not three: the sheet gives each side
+    // eight research unlocks in order and the number in the sheet is the rung.
+    expect(craftGrade(state.factions.empire.craft)).toBe(CRAFT_GRADES.length);
     const after = effectiveSpec(state, 'empire', hull);
     expect(after.costGold).toBeLessThan(before.costGold);
     expect(after.days).toBeLessThan(before.days);

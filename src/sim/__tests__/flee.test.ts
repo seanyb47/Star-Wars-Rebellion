@@ -6,7 +6,7 @@ import { createRng } from '../rng';
 import type { GameState, ShipClassId } from '../types';
 
 /** Two sides in one harbor, with the Crown's squadron ready to break off. */
-function standoff(theirs: ShipClassId[] = ['tempest'], mine: ShipClassId[] = ['kestrel', 'sovereign']) {
+function standoff(theirs: ShipClassId[] = ['tempest'], mine: ShipClassId[] = ['interceptor-i', 'sovereign']) {
   const state = generateGalaxy(501, 'empire');
   const isle = state.systems.find((s) => s.control === 'none' && !s.beast)!;
   state.fleets.length = 0;
@@ -71,13 +71,13 @@ describe('breaking off', () => {
     let slow = 0;
     let quick = 0;
     for (let seed = 1; seed <= 60; seed++) {
-      const { state, isle, fleet } = standoff(['tempest'], ['sovereign', 'kestrel']);
+      const { state, isle, fleet } = standoff(['tempest'], ['sovereign', 'interceptor-i']);
       isle.beast = 'the-kraken';
       isle.beastSeen = { empire: true, alliance: false };
       isle.beastDamage = 0;
       isle.beastSlain = undefined;
       const big = fleet.ships.find((s) => s.classId === 'sovereign')!;
-      const small = fleet.ships.find((s) => s.classId === 'kestrel')!;
+      const small = fleet.ships.find((s) => s.classId === 'interceptor-i')!;
       fleeBattle(state, fleet.id, createRng(seed), 'empire');
       slow += big.damage;
       quick += small.damage;

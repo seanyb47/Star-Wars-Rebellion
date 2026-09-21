@@ -123,7 +123,7 @@ describe('the Heavy Fortress, as a second tier', () => {
     // A squadron that would be a nuisance to a Fortress is in real trouble
     // here — once it opens fire. Since 18 September the battery answers a
     // bombardment and nothing else, so the order is what puts it in range.
-    const raider = addShip(state, port, 'alliance', 'reef');
+    const raider = addShip(state, port, 'alliance', 'coral-dreadnaught');
     raider.bombarding = true;
     const before = raider.ships[0].damage;
     advanceSieges(state, createRng(3));

@@ -1,4 +1,5 @@
 import { createContext, useContext, type ReactNode } from 'react';
+import { SHIP_CLASSES } from '../sim/constants';
 
 /** The encyclopedia's tabs, by the name the Almanac knows them by. */
 export type EncPage =
@@ -47,55 +48,19 @@ export function useLookUp(): LookUp | undefined {
 }
 
 /**
- * Which encyclopedia entry a hull in the water corresponds to.
+ * The entry to open for a hull.
  *
- * A bridge, and a temporary one. The Encyclopedia was rebuilt on the Fleet
- * Roster of 18 September and anchors its entries on that sheet's ship ids —
- * `CFS-TEM-R3-01` — while the hulls the game actually sails still carry the
- * old ones. Without this every `?` on a ship row would open the Ships page at
- * the top and look broken.
+ * There used to be a hand-kept crosswalk here, mapping each of the old
+ * roster's twenty-four hulls onto its counterpart in the new one so that a `?`
+ * on a ship row would open the right encyclopedia page — with four hulls left
+ * deliberately unmapped, because the new fleet had cut them rather than
+ * renaming them. It carried a note saying it would delete itself the day the
+ * live roster swapped.
  *
- * Only the counterparts that are genuinely the same ship, or the same ship
- * renamed, are mapped. A hull with no counterpart in the new roster returns
- * undefined and lands the player at the top of the page, which is honest:
- * there is no entry for a Buccaneer because the new fleet does not have one.
- *
- * The whole map deletes itself the day the live roster swaps.
+ * That was 21 September. Every hull the game sails is a hull out of the sheet
+ * now and carries the sheet's own key on it, so there is nothing left to
+ * translate.
  */
-const ENCYCLOPEDIA_SHIP: Record<string, string> = {
-  // Same ship, same name.
-  sovereign: 'CWN-SOV-S04',
-  'sovereign-ii': 'CWN-SOV-R7-02',
-  bulwark: 'CWN-BUL-R3-01',
-  vanguard: 'CWN-VAN-R1-01',
-  'vanguard-ii': 'CWN-VAN-R4-02',
-  majestic: 'CWN-MAJ-R8-01',
-  swift: 'CFS-SWI-S01',
-  tempest: 'CFS-TEM-R3-01',
-  cutlass: 'CFS-CUT-R2-01',
-  marauder: 'CFS-MAR-R1-01',
-  // Same ship, renamed by the new roster.
-  kestrel: 'CWN-INT-S02', // → Interceptor I
-  'kestrel-ii': 'CWN-INT-R5-02', // → Interceptor II
-  fluyt: 'CWN-WAY-S01', // → Wayfinder
-  brig: 'CFS-BRI-S02', // → Brigantine
-  reef: 'CFS-COR-R8-01', // Reef-class → Coral-Class Dreadnaught
-  reefwalker: 'CFS-REE-R4-01', // → Reefwarden
-  // Razorback, Razorback II, Fluyt II and the Buccaneer have no counterpart:
-  // the new roster cut them rather than renaming them, so they are left out
-  // deliberately rather than pointed at the nearest thing.
-  //
-  // And the Whaler, mapped again the day she landed. She was pulled out on 19
-  // September when the Gigantic CFS-URW-R7-01 she used to point at was renamed
-  // the Urskin Goliath — a live Medium sending a player to an 1,800-hull
-  // monster would have been worse than sending them nowhere — with the note
-  // that she went back the moment Sean entered a real one in the sheet. He
-  // has: CFS-URW-R3-01, a Medium retrofit at Confederacy R3, which is the
-  // same ship the live roster has been sailing all along.
-  'urskin-whaler': 'CFS-URW-R3-01',
-};
-
-/** The entry to open for a hull, or nothing where the new roster has none. */
 export function encyclopediaShip(classId: string): string | undefined {
-  return ENCYCLOPEDIA_SHIP[classId];
+  return SHIP_CLASSES.find((c) => c.id === classId)?.rosterId;
 }

@@ -1,4 +1,5 @@
 import type { Combatant } from './round';
+import type { Fighter } from './cannon';
 import {
   BEAST_HIT_CHANCE,
   DAMAGE_SWING,
@@ -467,6 +468,66 @@ export function stirBeasts(state: GameState, rng: Rng): void {
  * this is a view onto `system.beastDamage` that the round can treat exactly
  * like a hull. Undefined where there is nothing alive in the water.
  */
+/**
+ * How much bigger a creature's hull is than the number written beside it.
+ *
+ * The creature stats were set against an engine that fired once per hull for
+ * damage equal to a ship's gun count — a squadron of five threw perhaps sixty
+ * points a round, so a Kraken's ninety was two days' work. Under the locked
+ * rules every cannon rolls its own 2d20 or 4d20, and that same squadron throws
+ * nearer three thousand. Ninety would not survive the first broadside.
+ *
+ * Forty, so the fights come out where the design comment below them says they
+ * should: the Kraken costs a five-hull squadron a day or two and usually a
+ * hull, the Sea Dragon two days and rarely one. The creatures' numbers are
+ * left exactly as Sean wrote them and the scale is applied here, in one place
+ * with its reason attached, rather than rewritten into the data — where the
+ * next person to read them would have no idea why a sea monster has 3,600
+ * hull points.
+ */
+export const BEAST_HULL_SCALE = 40;
+
+/**
+ * The creature as something the per-cannon engine can shoot at.
+ *
+ * It carries no guns here, and that is not an oversight: a creature does not
+ * fire a broadside, it comes at somebody, and `monsterStrike` is the whole of
+ * its offence. What this is for is the other direction — giving a fleet
+ * something with a size, a speed and a hull to point its cannons at.
+ *
+ * Size and speed are read off how hard it is to hit. A thing that is nearly
+ * impossible to mark is Small and Very Fast whatever it looks like, because
+ * those are the two columns the accuracy table has for "hard to hit", and a
+ * Kraken that fills the anchorage is Gigantic and Slow.
+ */
+export function beastFighter(system: System): Fighter | undefined {
+  const beast = beastAt(system);
+  if (!beast || !beastAlive(system)) return undefined;
+  const evade = beast.evade ?? BEAST_HIT_CHANCE;
+  const whole = beast.hull * BEAST_HULL_SCALE;
+  return {
+    id: `beast-${system.id}`,
+    name: beast.name,
+    size: evade <= 0.4 ? 'Small' : evade >= 0.7 ? 'Gigantic' : 'Medium',
+    speed: evade <= 0.4 ? 'Very Fast' : evade >= 0.7 ? 'Slow' : 'Normal',
+    // Hide and bone rather than plate, and nothing in the water is plated
+    // like a ship of the line.
+    armor: 0,
+    guns: { long: 0, heavy: 0, light: 0 },
+    combatantType: 'Warship',
+    wholeHull: whole,
+    hull: Math.max(0, whole - (system.beastDamage ?? 0) * BEAST_HULL_SCALE),
+  };
+}
+
+/** Write a creature's remaining hull back onto the island it lives at. */
+export function landBeastDamage(system: System, fighter: Fighter): void {
+  const beast = beastAt(system);
+  if (!beast) return;
+  const taken = Math.ceil((fighter.wholeHull - fighter.hull) / BEAST_HULL_SCALE);
+  system.beastDamage = Math.min(beast.hull, Math.max(system.beastDamage ?? 0, taken));
+}
+
 export function beastCombatant(system: System): Combatant | undefined {
   const beast = beastAt(system);
   if (!beast || !beastAlive(system)) return undefined;
@@ -519,5 +580,10 @@ export function monsterStrike(
     return;
   }
   const swing = 1 + (rng.next() * 2 - 1) * DAMAGE_SWING;
-  target.hurt(Math.max(1, Math.round(beast.guns * swing)));
+  // On the hulls' own scale, by the same forty its own hull is scaled by. A
+  // creature's `guns` were set against an engine whose ships had hulls of
+  // twenty; a Kraken laying twenty-six points on an Interceptor of five
+  // hundred would be a scratch, and the thing is meant to be the reason
+  // nobody sails the drowned reaches.
+  target.hurt(Math.max(1, Math.round(beast.guns * swing * BEAST_HULL_SCALE)));
 }

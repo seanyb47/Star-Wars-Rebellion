@@ -34,7 +34,7 @@ describe('where one of your crew is', () => {
     expect(whereabouts(state, governor.name)).toBe(`Commanding ${island.name}`);
 
     const port = getSystem(state, captain.locationSystemId);
-    const fleet = addShip(state, port, 'alliance', 'reefwalker');
+    const fleet = addShip(state, port, 'alliance', 'reefwarden');
     fleet.voyage = undefined;
     board(state, fleet.id, captain.id, 'alliance');
     expect(whereabouts(state, captain.name)).toBe(`Commanding ${fleet.name}`);
@@ -57,7 +57,7 @@ describe('where one of your crew is', () => {
     const state = generateGalaxy(11, 'alliance');
     const who = ours(state)[0];
     const port = getSystem(state, who.locationSystemId);
-    const fleet = addShip(state, port, 'alliance', 'reefwalker');
+    const fleet = addShip(state, port, 'alliance', 'reefwarden');
     fleet.voyage = undefined;
     board(state, fleet.id, who.id, 'alliance');
     const away = state.systems.find((s) => s.sectorId !== port.sectorId)!;

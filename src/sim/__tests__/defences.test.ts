@@ -161,7 +161,7 @@ describe('forts', () => {
     build(port, 'fort');
     build(port, 'fort');
     // A hull that throws heavy enough for the order to be allowed at all.
-    const raider = addShip(state, port, 'alliance', 'reef');
+    const raider = addShip(state, port, 'alliance', 'coral-dreadnaught');
     expect(bombardError(state, raider.id, 'alliance')).toBeNull();
     raider.bombarding = true;
     const before = raider.ships[0].damage;
@@ -194,7 +194,11 @@ describe('a port with nothing in the water but the enemy', () => {
     expect(isBlockaded(state, port)).toBe(false);
     // One sloop. There used to be a floor here, held up by a boom across the
     // harbor mouth; Sean cut the boom on 16 September and the floor with it.
-    addShip(state, port, 'alliance', 'swift');
+    // The Brigantine, not the Swift: since the roster swap the Swift is the
+    // one hull in the game with no guns at all, and a blockade is raised by a
+    // gun. Six light guns is still the smallest thing that can shut a port,
+    // which is what this rule is about.
+    addShip(state, port, 'alliance', 'brigantine');
     expect(isBlockaded(state, port)).toBe(true);
   });
 });
