@@ -8365,3 +8365,20 @@ Sections 0, 1 and 2 of the change order — the overkill casualty rule, the
 bombardment rework (dice-rolled actions, five ticks a magazine, cascading
 rolls) and the invasion rework (walls add to the defender's die instead of
 barring the landing). The branch carries section 3 and the Reach swap only.
+
+### Two decisions, both Sean's, both taken (21 September)
+
+**The Crown's maintenance: leave it.** Asked whether to pay the Crown for
+holding ground, flatten the gap between the ladders, or neither — *"Leave it,
+I'll redo the sheet."* So nothing is compensated for in code. The war sits at
+2 — 9 and the reason is understood and written down above; it is not a bug to
+be found again and not a balance problem to be tuned around. The next Fleet
+Roster export revises the maintenance column, and the measurement is re-run
+when it lands. **Do not add a Crown production bonus or scale the maintenance
+divisor to chase this.**
+
+**Sections 0–2 of the siege change order: wait.** Asked whether to build the
+overkill rule, the bombardment rework and the invasion rework now — *"I'll
+make you an update and send to you."* A revised change order is coming, so the
+version in `docs/siege-and-ground-war.md` is not the one to build from. What
+is merged is section 3 and the Reach swap, and they stand.
