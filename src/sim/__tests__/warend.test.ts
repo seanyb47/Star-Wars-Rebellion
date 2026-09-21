@@ -41,9 +41,17 @@ describe('the closing screen', () => {
   });
 
   it('reports a finished war from the chair the player sat in', () => {
-    // Seeds picked for speed, not for outcome: one of each winner, measured.
-    for (const seed of [9000, 9001]) {
-      const state = playOut(seed);
+    /*
+     * Wars that actually finished, found rather than named.
+     *
+     * Two seeds were written down here and one of them stopped finishing the
+     * moment the ground roster changed who garrisons a Crown island — which
+     * is a fair thing for a balance change to do and a silly thing for this
+     * test to fail on. What it is about is a report matching the state it was
+     * built from, so it asks for finished wars and reads those.
+     */
+    for (const state of [warWonBy('empire'), warWonBy('alliance')]) {
+      const seed = state.winner;
       const report = warReport(state)!;
       expect(report, `seed ${seed}`).toBeTruthy();
       expect(report.winner).toBe(state.winner);

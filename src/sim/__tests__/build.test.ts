@@ -17,8 +17,9 @@ import { depositsLeft, freeSlots, getSystem, returnDeposit } from '../helpers';
 // and a test that repeats the numbers fails for that alone, saying nothing
 // about whether the machinery still works. Seven of these did exactly that the
 // first time the rates moved.
-import { TROOP_BUILD, YARD_BUILDS, shipsFor } from '../constants';
+import { YARD_BUILDS, shipsFor } from '../constants';
 import { travelDays } from '../missions';
+import { troopBuildAt } from '../troops';
 import type { GameState, System } from '../types';
 
 /**
@@ -179,11 +180,22 @@ describe('raising a building', () => {
 describe('a hull and a company still come off a works', () => {
   it('deducts at order time and sets the build clock', () => {
     const state = generateGalaxy(310, 'empire');
-    const { facility } = siteOf(state, 'empire');
+    const { system, facility } = siteOf(state, 'empire');
     state.factions.empire.gold = 5000;
+    /*
+     * The island's own company, not the generic one.
+     *
+     * A troop cost 25 gold and seven days whoever it was until the ground
+     * roster of 21 September priced each kind, and this read `TROOP_BUILD`
+     * either way — it passed only because the Crown's line company happened
+     * to be the one the fixture's island raises. What is being tested is that
+     * an order deducts and sets the clock, so it should ask the island what
+     * it is raising rather than assume.
+     */
+    const kind = troopBuildAt(system, 'empire')!;
     queueBuild(state, facility.id, 'troop');
-    expect(state.factions.empire.gold).toBe(5000 - TROOP_BUILD.costGold);
-    expect(facility.building!.workLeft).toBe(TROOP_BUILD.days);
+    expect(state.factions.empire.gold).toBe(5000 - kind.costGold);
+    expect(facility.building!.workLeft).toBe(kind.days);
   });
 
   it('refuses a second order on works already at that kind of work', () => {
@@ -209,8 +221,12 @@ describe('a hull and a company still come off a works', () => {
     const { system, facility } = siteOf(state, 'empire');
     state.factions.empire.gold = 5000;
     const before = system.garrison;
+    // Same reason as above: the island decides what it raises and how long it
+    // takes. This passed on `TROOP_BUILD.days` only because that happens to be
+    // longer than the company the fixture's island drills.
+    const days = troopBuildAt(system, 'empire')!.days;
     queueBuild(state, facility.id, 'troop');
-    for (let day = 0; day < TROOP_BUILD.days; day += 1) advanceBuilds(state);
+    for (let day = 0; day < days; day += 1) advanceBuilds(state);
     expect(system.garrison).toBe(before + 1);
   });
 
@@ -224,10 +240,11 @@ describe('a hull and a company still come off a works', () => {
     const passage = travelDays(state, system.id, away.id);
     expect(passage).toBeGreaterThan(0);
     const before = away.garrison;
+    const days = troopBuildAt(system, 'empire')!.days;
 
     queueBuild(state, facility.id, 'troop', away.id);
-    expect(daysToFinish(system, facility)).toBe(TROOP_BUILD.days);
-    for (let day = 0; day < TROOP_BUILD.days + passage; day += 1) advanceBuilds(state);
+    expect(daysToFinish(system, facility)).toBe(days);
+    for (let day = 0; day < days + passage; day += 1) advanceBuilds(state);
     expect(away.garrison).toBe(before + 1);
     expect(findFacility(state, facility.id)!.facility.building).toBeUndefined();
   });

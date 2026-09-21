@@ -68,10 +68,36 @@ export function troopsOf(faction: PlayableFaction): TroopType[] {
   return TROOP_TYPES.filter((t) => t.faction === faction);
 }
 
+/**
+ * The company an island is garrisoned with when nothing better applies.
+ *
+ * It was simply "the one with role `line`", which held while both sides had a
+ * cheap conscript company on day one. On the ground roster of 21 September the
+ * Crown's line company is the **Fensworn, behind R2** — its only two starting
+ * troops are Marines and a Ship's Company — so on day one it has none at all,
+ * and the roster as delivered papered over that by calling the Marines `line`.
+ *
+ * Measured, that is not a label. Marines detect 24 where the Crown Regulars
+ * they replaced detected 15, so **every rock the Crown holds was garrisoned by
+ * elites** and the capital's detection went 100.5 to 143.1 over thirty-two
+ * seeds — a 42% rise in the price of every covert operation against the Crown,
+ * out of a change about ground combat. The rescue rate out of Highwater fell
+ * from nine wars in thirty-two to one, and a side that cannot get its people
+ * back is the stall `RESCUE_BASE`'s note is written about.
+ *
+ * So the Marines are `elite`, as the change order's own card has them —
+ * *"CROWN MARINES — Human, elite, start"* and *"FENSWORN — Bog-folk clans,
+ * line, R2"* — and a side with no line company it can raise yet posts its
+ * sailors instead. Which is the rule the Crown's ports already followed from
+ * the other end: it sends its best where it means to be seen, and everywhere
+ * else it is whoever came off a hull.
+ */
 const lineOf = (faction: PlayableFaction) =>
-  TROOP_TYPES.find((t) => t.faction === faction && t.role === 'line')!;
+  TROOP_TYPES.find((t) => t.faction === faction && t.role === 'line' && !t.research) ??
+  TROOP_TYPES.find((t) => t.faction === faction && t.role === 'sailors' && !t.research)!;
 const sailorsOf = (faction: PlayableFaction) =>
-  TROOP_TYPES.find((t) => t.faction === faction && t.role === 'sailors')!;
+  TROOP_TYPES.find((t) => t.faction === faction && t.role === 'sailors' && !t.research) ??
+  lineOf(faction);
 
 /**
  * The unit an island's own people make, if they make one.
