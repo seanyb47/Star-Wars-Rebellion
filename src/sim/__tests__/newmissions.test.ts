@@ -227,10 +227,14 @@ describe('command over an island', () => {
 describe('research', () => {
   it('waits until the island has nothing left to be talked round about', () => {
     const state = world();
+    // A slipway, and only a slipway: shipwright craft is the shipyard's
+    // business and `researchStillPossible` has said so since 17 September.
+    // This used to accept a barracks as well, which was a wider net than the
+    // rule it is testing — it passed only for as long as the seed's first
+    // Crown island with either happened to have both, and stopped passing on
+    // 21 September when the opening was dealt a different Coral Reach.
     const yard = state.systems.find(
-      (s) =>
-        s.control === 'empire' &&
-        s.facilities.some((f) => f.type === 'shipyard' || f.type === 'training_facility'),
+      (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'shipyard'),
     )!;
     yard.support.empire = RESEARCH_MIN_SUPPORT - 10;
     expect(isResearchTarget(state, yard, 'empire')).toBe(false);
@@ -276,10 +280,14 @@ describe('research', () => {
    */
   it('keeps working through a dip in allegiance, and stops for the things that really stop it', () => {
     const state = world();
+    // A slipway, and only a slipway: shipwright craft is the shipyard's
+    // business and `researchStillPossible` has said so since 17 September.
+    // This used to accept a barracks as well, which was a wider net than the
+    // rule it is testing — it passed only for as long as the seed's first
+    // Crown island with either happened to have both, and stopped passing on
+    // 21 September when the opening was dealt a different Coral Reach.
     const yard = state.systems.find(
-      (s) =>
-        s.control === 'empire' &&
-        s.facilities.some((f) => f.type === 'shipyard' || f.type === 'training_facility'),
+      (s) => s.control === 'empire' && s.facilities.some((f) => f.type === 'shipyard'),
     )!;
     yard.support.empire = RESEARCH_MIN_SUPPORT + 5;
     expect(isResearchTarget(state, yard, 'empire')).toBe(true);

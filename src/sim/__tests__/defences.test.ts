@@ -39,8 +39,9 @@ describe('the opening, against Rebellion', () => {
       const crown = state.systems.filter((s) => s.control === 'empire');
       const confed = state.systems.filter((s) => s.control === 'alliance');
       // Three in the home Reach, two in each of the three contested ones, and
-      // Coralhome — Crown-held on day one since the lore package, out on the
-      // frontier and a long way from anything else the Crown owns.
+      // Coralhome — Crown-held on day one since the lore package, and kept out
+      // of its Reach's deal so the count is the same ten whether Coral is
+      // inside the charts or outside them.
       expect(crown).toHaveLength(10);
       expect(crown.map((s) => s.name)).toContain(CORALHOME);
       // One or two in the home Reach, two in each of the three contested ones,
