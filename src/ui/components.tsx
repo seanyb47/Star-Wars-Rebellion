@@ -818,7 +818,11 @@ export function Coin({ size = 11 }: { size?: number }) {
  */
 export function GoldFig({
   n,
-  per = 'day',
+  // No duration by default since 21 September. Sean: *"you don't need to say
+  // how long. Just say 'Upkeep X' and gold symbol."* Every figure that used to
+  // read `/day` is now the fortnight's, and a fortnight is what the ledger
+  // settles in, so the unit is the one the balance is already in.
+  per = null,
   label,
   tone,
 }: {

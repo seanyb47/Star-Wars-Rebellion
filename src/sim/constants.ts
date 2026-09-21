@@ -719,6 +719,22 @@ export const TROOP_BUILD: BuildSpec = { costGold: 42, days: 20, label: terms.tro
 export const FORTNIGHT = 14;
 
 /**
+ * Upkeep as the player is shown it: what a thing costs over one settlement.
+ *
+ * Sean, 21 September: *"All places that show maintenance costs, change to
+ * fortnight cost instead of per day. And you don't need to say how long. Just
+ * say 'Upkeep X' and gold symbol. Keep it simple."*
+ *
+ * The books still run per day — that is what `UPKEEP_PER_DAY` is and what the
+ * settlement actually charges — but per-day is the wrong unit to *read*. The
+ * ledger pays once a fortnight, so a figure per day is a number the player has
+ * to multiply by fourteen before it means anything against the balance they
+ * were just shown. Rounded, because a barracks at 2 a day is 28 and a hull at
+ * 3.7 is not a fraction anybody needs.
+ */
+export const perFortnight = (perDay: number): number => Math.round(perDay * FORTNIGHT);
+
+/**
  * What you get back for destroying something you own: half what it cost.
  *
  * Sean, 20 September: *"Scrap basically is where you can destroy the unit to

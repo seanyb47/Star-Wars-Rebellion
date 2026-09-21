@@ -64,6 +64,7 @@ import {
   type PlayableFaction,
   inProse,
   chartedName,
+  perFortnight,
 } from '../sim';
 import {
   CharacterFace,
@@ -1243,7 +1244,7 @@ export function SystemSheet({
                                 ? `${spec.days} days · ${coming.length} already going up`
                                 : `${spec.days} days${
                                     UPKEEP_PER_DAY[type] > 0
-                                      ? ` · ${UPKEEP_PER_DAY[type]}/day to keep`
+                                      ? ` · ${terms.upkeep} ${perFortnight(UPKEEP_PER_DAY[type])}`
                                       : ' · costs nothing to keep'
                                   }`}
                           </span>

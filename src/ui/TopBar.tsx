@@ -1,7 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
-import { SPEED_LABEL, SPEED_ORDER, type GameState, type Speed } from '../sim';
+import { perFortnight, SPEED_LABEL, SPEED_ORDER, type GameState, type Speed } from '../sim';
 import { FactionCrest } from './art';
 import { paintedIsland } from './painted';
 
@@ -130,6 +130,7 @@ export function TopBar({
   const faction = state.factions[state.player];
   const side = factionData[state.player];
   const net = faction.income - faction.upkeep;
+  const [purseOpen, setPurseOpen] = useState(false);
   const banner = paintedIsland(BANNER[state.player]);
 
   const cycle = () => {
@@ -196,55 +197,47 @@ export function TopBar({
           * The two rates are per day and are read at the fortnightly
           * settlement, so they hold still between one and the next.
           */}
-        <div className="plaque plaque--gold">
+        {/*
+          * Gold, the delta, and everything else behind a tap.
+          *
+          * Sean, 21 September: *"This section needs cleaning up. ui is
+          * awkward. Let's make it just show gold and the delta next to it.
+          * Then click on the gold and it expands into Available Gold / Upkeep
+          * Cost / Production / Surplus-Deficit."*
+          *
+          * The old rail was two plaques and four figures — GOLD, IN, OUT,
+          * CLEAR — all shouting at once on a 393px phone, and only one of them
+          * answers the question a player actually has at a glance. That is the
+          * delta, by his own reasoning: *"do I want to use available land to
+          * produce more income or build stuff... that decision should largely
+          * be based on what's my maintenance deficit."*
+          *
+          * So the rail is what you have and which way it is going. The
+          * breakdown is one tap away, and only there because the numbers
+          * behind a delta are worth reading *sometimes* — not every second of
+          * every day at the top of the screen.
+          *
+          * `Production` rather than Income or Earnings, at his ruling the same
+          * day: one word per idea, and the chart filter already had it.
+          */}
+        <button
+          className={`plaque plaque--gold plaque--tap${purseOpen ? ' plaque--open' : ''}`}
+          onClick={() => setPurseOpen((was) => !was)}
+          aria-expanded={purseOpen}
+          aria-label={`${Math.floor(faction.gold)} ${terms.gold.toLowerCase()}, ${
+            net >= 0 ? 'a surplus of' : 'a deficit of'
+          } ${Math.abs(perFortnight(net))} a fortnight. Tap for the breakdown.`}
+        >
           <CoinIcon />
           <span className="plaque__text">
             <span className="plaque__label">{terms.gold}</span>
             <b>{Math.floor(faction.gold)}</b>
           </span>
-        </div>
-        {/*
-          * The ledger: in, out, and the difference, in one plaque.
-          *
-          * Sean asked for four figures — *"how much you actually have in gold.
-          * Then your gold per day rating. And then a maintenance per day. And
-          * then a delta next to that"* — and four plaques do not fit a 393px
-          * phone: measured, the labels ran into each other and CLEAR was cut
-          * off by the clock. So the three rates share one plaque with three
-          * narrow columns, which is the same four numbers in the width of two.
-          *
-          * The difference is the one with a colour on it, because it is the
-          * one the decision turns on: *"do I want to use available land to
-          * produce more income or build stuff... that decision should largely
-          * be based on what's my maintenance deficit."*
-          */}
-        <div className="plaque plaque--ledger">
-          <LedgerIcon />
-          <span className="ledger">
-            <span className="ledger__col">
-              <span className="plaque__label">In</span>
-              <b>{faction.income.toFixed(0)}</b>
-            </span>
-            <span className="ledger__col">
-              <span className="plaque__label">Out</span>
-              <b>{faction.upkeep}</b>
-            </span>
-            <span
-              className={`ledger__col ledger__col--net${net < 0 ? ' ledger__col--short' : ''}`}
-              aria-label={
-                net >= 0
-                  ? `${net.toFixed(0)} ${terms.gold.toLowerCase()} a day clear`
-                  : `${Math.abs(net).toFixed(0)} ${terms.gold.toLowerCase()} a day short`
-              }
-            >
-              <span className="plaque__label">{net >= 0 ? 'Clear' : 'Short'}</span>
-              <b>
-                {net >= 0 ? '+' : '−'}
-                {Math.abs(net).toFixed(0)}
-              </b>
-            </span>
+          <span className={`purse__delta${net < 0 ? ' purse__delta--short' : ''}`}>
+            {net >= 0 ? '+' : '−'}
+            {Math.abs(perFortnight(net))}
           </span>
-        </div>
+        </button>
         <span className="topbar__spacer" />
         <button
           className={`speed${running ? ' speed--running' : ''}`}
@@ -301,6 +294,34 @@ export function TopBar({
           <GearIcon />
         </button>
       </div>
+      {/* The four figures, once asked for. A fortnight of each, because
+          that is the span the ledger settles in and the span the delta
+          above is in — a breakdown in a different unit from the figure it
+          breaks down would be worse than no breakdown. */}
+      {purseOpen && (
+        <div className="purse" role="region" aria-label="The books">
+          <div className="purse__row">
+            <LedgerIcon />
+            <span className="purse__name">Available {terms.gold.toLowerCase()}</span>
+            <b>{Math.floor(faction.gold)}</b>
+          </div>
+          <div className="purse__row">
+            <span className="purse__name">{terms.income}</span>
+            <b className="purse__earn">+{perFortnight(faction.income)}</b>
+          </div>
+          <div className="purse__row">
+            <span className="purse__name">{terms.upkeep}</span>
+            <b className="purse__cost">−{perFortnight(faction.upkeep)}</b>
+          </div>
+          <div className="purse__row purse__row--net">
+            <span className="purse__name">{net >= 0 ? 'Surplus' : 'Deficit'}</span>
+            <b className={net < 0 ? 'purse__cost' : 'purse__earn'}>
+            {net >= 0 ? '+' : '−'}
+            {Math.abs(perFortnight(net))}
+            </b>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

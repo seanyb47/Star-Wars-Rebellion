@@ -1,6 +1,7 @@
 import {
   FACILITY_LABEL,
   UPKEEP_PER_DAY,
+  perFortnight,
   fleetsAt,
   scrapError,
   scrapReturn,
@@ -150,7 +151,7 @@ export function ScrapSheet({
                       {row.error
                         ? row.error
                         : [
-                            row.saves > 0 ? `saves ${row.saves}/day` : null,
+                            row.saves > 0 ? `saves ${perFortnight(row.saves)}` : null,
                             row.frees ? 'frees the plot' : null,
                           ]
                             .filter(Boolean)

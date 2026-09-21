@@ -18,6 +18,7 @@ import {
   type GameState,
   type System,
   inProse,
+  perFortnight,
 } from '../sim';
 import { CompanyIcon, FacilityIcon, ShipIcon, facilityArt } from './art';
 import { GoldFig, Sheet, Stat } from './components';
@@ -272,7 +273,7 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
   // sentence. "Costs 3 gold a day to keep" was eight words for one number.
   const upkeepLine =
     plan.upkeep > 0 ? (
-      <GoldFig label={terms.upkeep} n={plan.upkeep} tone="cost" />
+      <GoldFig label={terms.upkeep} n={perFortnight(plan.upkeep)} tone="cost" />
     ) : GOLD_PER_DAY[item] > 0 ? (
       /*
        * From the table, not from a literal.
