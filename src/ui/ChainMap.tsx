@@ -10,6 +10,7 @@ import {
   type System,
   isLoudLayer,
   showsNumber,
+  chartedName,
 } from '../sim';
 import factionData from '../data/factions.json';
 import { allegianceColour, allegianceSegments } from './allegiance';
@@ -350,6 +351,12 @@ export function ChainMap({
           state.fleets.some((f) => f.systemId === system.id && !f.voyage && f.faction === side),
         );
 
+        /* What this side calls it. Freeport is renamed at runtime, so an
+           island the viewer has not explored reads as the charts have it —
+           otherwise the Reach map names the Confederacy's base to the Crown
+           from across the world. See `chartedName`. */
+        const shown = chartedName(system, viewer);
+
         return (
           <g
             key={system.id}
@@ -361,18 +368,18 @@ export function ChainMap({
             style={{ cursor: live ? 'pointer' : 'default' }}
             aria-label={
               work === 'recruit'
-                ? `${system.name}, keep an open table and sign somebody on`
+                ? `${shown}, keep an open table and sign somebody on`
                 : work === 'incite'
-                  ? `${system.name}, stir up trouble`
+                  ? `${shown}, stir up trouble`
                   : work === 'diplomacy'
-                    ? `${system.name}, parley`
+                    ? `${shown}, parley`
                     : explored
-                      ? `${system.name}, ${built} of ${slots} slots built${
+                      ? `${shown}, ${built} of ${slots} slots built${
                           moored.length > 0
                             ? `, ${moored.map((m) => factionData[m].shortName).join(' and ')} hulls at anchor`
                             : ''
                         }`
-                      : `${system.name}, unexplored`
+                      : `${shown}, unexplored`
             }
           >
             {/* Something to tap. The name itself refuses pointer events so
@@ -395,7 +402,7 @@ export function ChainMap({
                 {layer && isLoudLayer(layer) && (
                   <circle
                     className="map__idle-halo"
-                    cx={spot.x - nameWidth(system.name) / 2 - (showsNumber(layer) ? 22 : 26)}
+                    cx={spot.x - nameWidth(shown) / 2 - (showsNumber(layer) ? 22 : 26)}
                     cy={spot.y + 1}
                     r={54}
                     fill={tint}
@@ -404,7 +411,7 @@ export function ChainMap({
                 {layer && showsNumber(layer) && litCount !== undefined ? (
                   <text
                     className="chainmap__num"
-                    x={spot.x - nameWidth(system.name) / 2 - 22}
+                    x={spot.x - nameWidth(shown) / 2 - 22}
                     y={spot.y + 12}
                     fill={tint}
                   >
@@ -412,7 +419,7 @@ export function ChainMap({
                   </text>
                 ) : (
                   <circle
-                    cx={spot.x - nameWidth(system.name) / 2 - (layer && isLoudLayer(layer) ? 26 : 22)}
+                    cx={spot.x - nameWidth(shown) / 2 - (layer && isLoudLayer(layer) ? 26 : 22)}
                     cy={spot.y + 1}
                     r={
                       layer && isLoudLayer(layer)
@@ -428,7 +435,7 @@ export function ChainMap({
                 {!(layer && showsNumber(layer)) && litSize === undefined && litCount !== undefined && litCount > 1 && (
                   <text
                     className="chainmap__lit-n"
-                    x={spot.x + nameWidth(system.name) / 2 + 22}
+                    x={spot.x + nameWidth(shown) / 2 + 22}
                     y={spot.y - 14}
                     fill={tint}
                   >
@@ -528,7 +535,7 @@ export function ChainMap({
               fill={ground && crop ? tint : flag}
               pointerEvents="none"
             >
-              {system.name}
+              {shown}
             </text>
 
             {/* A sail over the name for each side with hulls lying here, in

@@ -1,5 +1,6 @@
 import terms from '../data/terms.json';
 import type { ChartLayer, GameState, IslandSummary, System } from '../sim';
+import { chartedName } from '../sim';
 import { allegianceColour, allegianceSegments } from './allegiance';
 import { CategoryIcon } from './art';
 import { ChartMark } from './ChartMark';
@@ -92,7 +93,7 @@ export function IslandRow({
         />
         <span className="isle__name">
           <span className="isle__title">
-            {system.name}
+            {chartedName(system, you)}
             {/* The same grade the chart shows, so a list reads like the map. */}
             {explored && <WorthMark system={system} size={14} className="isle__worth" />}
           </span>

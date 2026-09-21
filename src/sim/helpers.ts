@@ -227,6 +227,29 @@ export function atSea(state: GameState, character: Character): boolean {
 }
 
 /**
+ * The name a side knows this island by.
+ *
+ * Almost every island answers to one name. **Freeport does not**: the game
+ * picks an uncharted island each war and renames it, keeping the original in
+ * `chartName` so the painted chart can still find its rock. Which means the
+ * name itself was the answer to the question the whole Crown campaign is
+ * about.
+ *
+ * Sean, 21 September: *"If I play imperium it tells me where free port is
+ * lol."* Opening any unexplored island in the frontier showed **Freeport**
+ * in the header — so the meeting place could be found by tapping round the
+ * map, without a hull, an errand or a day spent.
+ *
+ * So an island you have not explored reads as the charts have it. You learn
+ * what it is *called* by going there, which is the same rule as everything
+ * else about it: the Crown is told a meeting happened and that islands are
+ * declaring, and has to find where.
+ */
+export function chartedName(system: System, faction: PlayableFaction): string {
+  return system.explored[faction] ? system.name : system.chartName ?? system.name;
+}
+
+/**
  * A name as it reads *inside* a sentence.
  *
  * Islands are most of the traffic, but not all of it: **The Widow Ashgrave**

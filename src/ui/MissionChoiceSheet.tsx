@@ -19,6 +19,8 @@ import {
   type MissionType,
   type Standing,
   inProse,
+  chartedName,
+  type PlayableFaction,
 } from '../sim';
 import { Sheet } from './components';
 import { CategoryIcon } from './art';
@@ -171,7 +173,7 @@ export function MissionChoiceSheet({
 
   return (
     <Sheet
-      title={island.name}
+      title={chartedName(island, character.faction as PlayableFaction)}
       subtitle={`What should ${character.name} do there? ${sail === 0 ? 'Already ashore' : `${sail} days' sail`}, then ${MISSION_WORK_DAYS} days' work.`}
       onClose={onClose}
       stacked
