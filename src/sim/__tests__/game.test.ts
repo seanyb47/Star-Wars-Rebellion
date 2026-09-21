@@ -93,6 +93,21 @@ describe('a full game', () => {
    * seed that runs long is not a failure — it is the thing the suite has
    * always known about these wars and says so above.
    */
+  /**
+   * Rewritten 21 September, twice over.
+   *
+   * It pinned seed 2 and asserted that the Confederacy won by taking
+   * Highwater — which stopped being a win condition when the Crown got two
+   * principals of its own to lose, so it had been passing on a coincidence for
+   * a day. Then the research floor was fixed the same evening and seed 2 ran
+   * past the cap, because a war in which both sides can actually research is
+   * not the same war.
+   *
+   * So it tests the rule rather than a seed: over a handful of wars, at least
+   * one settles, and every war that settles satisfies the condition it claims
+   * to have been won by. A seed that runs long is not a failure — it is the
+   * thing the suite has always known about these wars and says so above.
+   */
   it('ends only the way the rules say: two of the Crown, or all three Lords', () => {
     const settled: GameState[] = [];
     for (const seed of [2, 5, 9, 13]) {
