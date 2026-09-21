@@ -509,6 +509,7 @@ export function takePrisoner(
 ): void {
   mark.status = 'captured';
   mark.injuredDays = undefined;
+  mark.takenOnDay = state.day;
   mark.mission = undefined;
   relieve(state, mark.id);
   mark.locationSystemId = state.factions[captor].hqSystemId;
@@ -2089,6 +2090,7 @@ function rescueOutcome(
   }
   captive.status = 'available';
   captive.injuredDays = undefined;
+  delete captive.takenOnDay;
   captive.mission = undefined;
   captive.locationSystemId = state.factions[faction].hqSystemId;
   pushEvent(state, {

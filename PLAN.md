@@ -8048,3 +8048,53 @@ The chart filter reads `terms.income` now rather than a literal, and the
 vocabulary guard forbids *income* and *earnings* in player text — over `src/sim`
 as well as `src/ui`, which is the sweep added earlier today. It found exactly
 one real site, in the Locations rules.
+
+## The war ends on a screen now (#122, 21 September)
+
+A war ended in eight words. `.verdict` — one bordered line, 13px, *"The Seven
+Seas are yours. Victory."* — over the chart, and that was the whole of what
+thirty-two months came to. Asked whether the closing screen should be the
+dispatch or the tally, Sean: *"Both, stacked."*
+
+So it is three things and the order is the argument. The **dispatch** is the
+log's own closing line, in the world's voice. The **figures** are what each
+side had left, which is the only place in the game the two columns are ever
+set beside each other. The **deciding lines** are the three or four entries
+that actually settled it. Told, shown, then given the evidence.
+
+### Which lines decided it is not a judgement call
+
+Nothing here scores events for drama. The two sides win differently and each
+win condition names its own evidence, so the selection reads the win condition
+backwards: the Confederacy wins by taking one island, so the thread is that
+island's last days; the Crown wins by holding three people at once, so the
+thread is the three captures.
+
+### The bug that only a long war has
+
+The log holds four hundred lines. Measured over twenty wars this session, a
+spell in irons runs **138 days** — so in a war of a thousand days the capture
+that decided it has scrolled out of the log before the war ends, and a closing
+screen built on the log alone would have shown the Crown's victory with one
+capture named and two missing. It is the kind of bug that passes every test
+written against a short war.
+
+`Character.takenOnDay` is the fix and it is one optional field: the day is the
+fact, the log entry is the sentence, and they come apart on purpose. The day
+is always there; the sentence is there when it is, and the screen writes its
+own line when it is not. Cleared with `delete` rather than set to `undefined`
+when somebody walks out of a cell — the beast-seen bug earlier today was
+exactly that, a key that vanished on write and came back on read.
+
+### What the screenshot caught that the tests could not
+
+The larger figure of each pair was marked in the outcome accent. On a lost war
+that accent is red — and the Crown ends most defeats **ahead on islands, hulls
+and troops**, which is the story of the defeat. So the screen painted the
+player's own advantages in the colour of losing. The mark means "more", which
+is not a verdict and must not be coloured like one; it is weight and a faint
+pill now. Nothing in a build, a type check or 818 tests says a word about it.
+
+"In irons" went the same way: under a faction's column it reads as that side's
+people in irons, and the figure is the opposite — how many of the *other*
+side's it is holding. **Prisoners held.**

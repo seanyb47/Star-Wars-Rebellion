@@ -1946,6 +1946,7 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
     if (freed.locationSystemId !== system.id) continue;
     freed.status = 'available';
     freed.injuredDays = undefined;
+    delete freed.takenOnDay;
     pushEvent(state, {
       kind: 'mission',
       // And every rescue. Sean asked for *"captures (and probably rescues)"*.

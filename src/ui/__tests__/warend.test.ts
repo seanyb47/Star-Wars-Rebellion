@@ -36,4 +36,48 @@ describe('the end of a war', () => {
     expect(SOURCE).toContain('The Seven Seas are yours. Victory.');
     expect(SOURCE).toMatch(/verdict--\$\{state\.winner === state\.player \? 'win' : 'lose'\}/);
   });
+
+  /**
+   * And the verdict line is now the way back in.
+   *
+   * The closing screen is shown once and dismissed, because a full screen
+   * that cannot be put away locks the player out of the world they just spent
+   * thirty-two months in. That only works if there is a way to open it again,
+   * and the obvious one is the line that is already saying the war is over.
+   * A dismissable screen with no handle is a screen you get one look at.
+   */
+  it('opens the closing screen, and can get back to it', () => {
+    expect(SOURCE).toContain('<WarEnd');
+    expect(SOURCE, 'the screen is gated on the report and on having been seen').toMatch(
+      /endReport && !warEndSeen/,
+    );
+    const verdict = SOURCE.slice(SOURCE.indexOf('className={`verdict'));
+    expect(
+      verdict.slice(0, 400),
+      'the verdict line does not reopen the screen',
+    ).toContain('setWarEndSeen(false)');
+  });
+
+  /**
+   * The stack, in Sean's order: *"Both, stacked."* Told, shown, then given
+   * the evidence — and the order is the whole of the answer, so a screen
+   * that grew a table above its headline would be a different answer.
+   */
+  it('stacks the dispatch above the figures above the evidence', () => {
+    const screen = (
+      import.meta.glob('../WarEnd.tsx', { query: '?raw', import: 'default', eager: true }) as Record<
+        string,
+        string
+      >
+    )['../WarEnd.tsx'];
+    expect(screen).toBeTruthy();
+    const word = screen.indexOf('warend__word');
+    const dispatch = screen.indexOf('warend__dispatch');
+    const ledger = screen.indexOf('warend__ledger');
+    const deciding = screen.indexOf('report.deciding.map');
+    expect(word).toBeGreaterThan(-1);
+    expect(dispatch).toBeGreaterThan(word);
+    expect(ledger).toBeGreaterThan(dispatch);
+    expect(deciding).toBeGreaterThan(ledger);
+  });
 });
