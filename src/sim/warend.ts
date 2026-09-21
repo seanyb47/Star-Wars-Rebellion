@@ -22,8 +22,8 @@
  */
 import factionData from '../data/factions.json';
 import { craftGrade } from './missions';
-import { isLord } from './lords';
-import type { Character, GameEvent, GameState, PlayableFaction } from './types';
+import { isPrincipal } from './lords';
+import type { Character, GameState, PlayableFaction } from './types';
 
 /** What one side had left when it stopped. */
 export interface WarSide {
@@ -102,37 +102,33 @@ function captureOf(state: GameState, lord: Character): DecidingLine {
 }
 
 /**
- * The last days of the island the whole war was about.
- *
- * Everything the log has that happened at the Crown's seat, nearest the end
- * first, minus the closing line itself — which is already the headline and
- * would otherwise be printed twice.
- */
-function lastDaysOf(state: GameState, systemId: string, closing?: GameEvent): DecidingLine[] {
-  return [...state.events]
-    .filter((e) => e.systemId === systemId && e.id !== closing?.id && e.kind !== 'war')
-    .slice(-4)
-    .map((e) => ({ day: e.day, text: e.text, eventId: e.id }));
-}
-
-/**
  * The whole of the closing screen, or nothing while the war is still running.
  */
 export function warReport(state: GameState): WarReport | undefined {
   if (!state.winner) return undefined;
   const winner = state.winner;
   const closing = [...state.events].reverse().find((e) => e.kind === 'war' && e.day > 0);
-  const capital = state.systems.find((s) => s.id === state.factions.empire.hqSystemId);
 
-  const deciding =
-    winner === 'empire'
-      ? state.characters
-          .filter((c) => isLord(c) && c.status === 'captured')
-          .map((lord) => captureOf(state, lord))
-          .sort((a, b) => a.day - b.day)
-      : capital
-        ? lastDaysOf(state, capital.id, closing)
-        : [];
+  /*
+   * Both sides win by holding people now, so the evidence is symmetric.
+   *
+   * This used to read the *capital's* last days for a Confederate win, because
+   * the Confederacy won by taking Highwater. Sean changed that on 21
+   * September — *"the crown wins the map and loses the war. Let's give them
+   * two characters that need to be captured also."* — so the Confederacy wins
+   * by holding the Lord Regent and Admiral Blackwater at once and Highwater
+   * wins nothing on its own. The thread is three captures for the Crown and
+   * two for the Confederacy, and the screen reads the same way from both
+   * chairs.
+   *
+   * `isPrincipal` rather than `isLord`, which is the same question the
+   * abduction bounty had to start asking: who ends the war, not who leads the
+   * Confederacy.
+   */
+  const deciding = state.characters
+    .filter((c) => c.faction !== winner && isPrincipal(c) && c.status === 'captured')
+    .map((who) => captureOf(state, who))
+    .sort((a, b) => a.day - b.day);
 
   return {
     winner,
@@ -143,7 +139,7 @@ export function warReport(state: GameState): WarReport | undefined {
     how:
       winner === 'empire'
         ? 'All three of the Brethren in irons at once.'
-        : `${capital?.name ?? 'The Crown seat'} taken, and with it the Crown.`,
+        : 'The Regent and the Admiral in irons at once.',
     days: state.day,
     sides: { empire: sideOf(state, 'empire'), alliance: sideOf(state, 'alliance') },
     deciding,
