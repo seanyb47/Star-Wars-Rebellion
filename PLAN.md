@@ -8329,3 +8329,74 @@ ends on 23,477 gold with 58.5 hulls while the Crown spends down to 3,195 with
 own observation — so the constraint has moved to berths and yards, and #121
 wants re-asking as "how many slipways does each side actually build" rather
 than "who is sitting on gold".
+
+## A UI read, and the seven of twenty-one that are done (21 September)
+
+The other session went through every screen against the ℹ principle and came
+back with twenty-one items. Its own recommendation was 1–5 first ("bugs or
+near-bugs, maybe an afternoon"), then 6 to unlock the text cleanup, then 8 as
+the smallest visible piece of it. That is what is built. **Items 7 and 9–21
+are untouched and want Sean's numbers.**
+
+### The worst one was invisible from the inside
+
+Tapping outside a mission report *issued an order*. `onClose` was
+`choose('return')` — the same call as the sheet's own "Set sail" button — so
+the scrim and the ✕ recalled the officer irreversibly and spent the fortnight.
+It is the first thing a new player does with a sheet they do not understand,
+and it never looks like a bug: it looks like the game taking an order.
+
+A `Sheet` can now declare that it **demands an answer**. Audited the other
+fourteen: every other close handler is navigation, so this is the only one.
+
+### The chrome fix had three wrong answers before the right one
+
+Worth writing down, because each wrong answer looked finished:
+
+1. **Chrome above the scrim.** Fixes the two-tap bug — and puts the chrome
+   above the *sheets*, hiding the mission report's own orders behind the tab
+   bar. Found by driving the app, not by reading it.
+2. **Dispatch cards above the chrome.** Fixes that — and leaves a sheet
+   painting 160px of its own colour over the tab bar, so the bar was present,
+   tappable and invisible, which is worse than absent.
+3. **Sheet stops at the tab bar.** The bar measures itself and publishes
+   `--tabbar-h`; the sheet's underlay is deleted rather than moved, because
+   the bar was already solving that for itself — its background fades into
+   "the colour the canvas under a short app is painted".
+
+The stack is now written down in one place in `styles.css`: scrims 10–12,
+chrome 15, sheets 20–24, news 30–32, toast 60. A test pins the three
+relations, because they live in three different rules and any one of them
+alone reads as correct.
+
+### What item 6 actually bought
+
+`SectionHead` and `Info` were unexported inside the Almanac, so the ℹ
+mechanism — built, wired through `lookUp`, and announced to the player in the
+tutorial — was reachable from three screens out of about thirty. Moving two
+functions to `components.tsx` is the whole of the unlock.
+
+`EncPage` was also missing `'missions'`, so the one page in the reference
+about *what you do* was the one page nothing could link to.
+
+### Two things that could not simply be cut
+
+- **The escort paragraph** was the only statement of that rule in the game.
+  It had to land on the Missions page before the sheet could lose it.
+- **`MISSION_WHAT`** is what the encyclopedia prints, so the cards got
+  `MISSION_GIST` beside it rather than having the long form shortened
+  underneath them.
+
+The same will be true of item 11: the harbour panel's creature paragraph is
+the only place creature mechanics are explained at all, and there is a live
+bestiary on the Rules tab waiting for it.
+
+### Anchors are checked now
+
+An ℹ's anchor is a bare string at both ends and a mismatch drops the reader at
+the top of a long page with no error anywhere. That has already happened once
+and went unnoticed for days — every ship lookup landed at the top of the Ships
+page from the moment the roster went in, because one end lower-cased the slug
+and `getElementById` does not. `infolinks.test.ts` requires every literal
+anchor a screen links to exist in the encyclopedia. It is the cheap half of
+item 12 and catches the mistake that gets made.
