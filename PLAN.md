@@ -8098,3 +8098,73 @@ pill now. Nothing in a build, a type check or 818 tests says a word about it.
 "In irons" went the same way: under a faction's column it reads as that side's
 people in irons, and the figure is the opposite — how many of the *other*
 side's it is holding. **Prisoners held.**
+
+## The manhunt, measured (#125, 21 September)
+
+Sean, on what to do about the three wars in forty that stall with the Crown
+ahead and a Lord unfound: *"Let me measure first, then propose."* So
+`lab/manhunt.ts` measures the manhunt rather than the war. Four things could be
+wrong and they want different fixes — the Crown cannot *see* the Lords, cannot
+*reach* them, never *tries*, or tries and *fails* — and only a measurement
+tells them apart.
+
+### Forty wars, seeds 9000–9039
+
+| | |
+|---|---|
+| Crown — Confederacy | 17 — 23 |
+| **never ended** | **0 of 40** |
+| a Lord liftable by the Crown | 73% of days |
+| a hunt running | 61% of days |
+| liftable and nobody sent | 20% of days |
+| world charted by the Crown | 75% |
+| the Lord's own island charted | 64% of Lord-days |
+| abductions sent | 9.7 a war |
+| most Lords held at once | 1.9 of 3 |
+| days holding two of three | 82 a war |
+| freed out of the Crown's cells | 1.6 a war |
+| a spell in irons | 120 days |
+
+**The stall in the ticket is gone: none of forty.** Nothing was done about the
+manhunt to make that happen — it is the map growing. Measured when Coralhome
+and the six islands went in: Lords taken went 0.90 → 1.45, and the note then
+said why. *"More islands means more places to hide, which should make the
+manhunt harder; instead the longer war gives the Crown the time it never had."*
+
+**And it is none of the four.** The Crown can see a Lord on three days in four
+and has a hunt running on three days in five. It is not blind and it is not
+idle. It reaches **two of three and holds it for eighty days**, and then 1.6
+Lords a war walk back out of its cells. The wall is the third simultaneous
+capture, which is not a bug in the hunt — it is the victory condition working
+as designed.
+
+### Tried and cut: three hunters
+
+The one soft number is that a Lord is liftable and nobody is out after one on
+**a fifth of all days**, which reads like `AI_HUNTERS = 2` doing it. It is not.
+
+| | two (ships) | three |
+|---|---|---|
+| Crown — Confederacy | 10 — 10 | 9 — 11 |
+| Lords taken a war | 1.50 | **1.35** |
+| liftable, nobody sent | 18.6% | **21.4%** |
+
+A third slot goes wherever the first two go: an officer is spent on whatever
+`worth` rates highest that morning, and a Lord already outranks nearly
+everything, so raising the cap moves people off parley and research and buys
+no extra captures. Both the captures and the passed-over share got *worse*.
+Recorded beside `AI_HUNTERS`.
+
+### The proposal
+
+**Nothing, and the reason is the measurement.** Do not build the Crown a way
+to *find* Lords that scales with effort — the thing that was proposed when the
+ticket was filed — because finding them is not what it is short of. That would
+make the Crown stronger in the one dimension it is not weak in.
+
+The dial that does move this is already found, already measured, and already
+has a note saying not to turn it by accident: a rescue penalty specific to a
+Lord. Ninety-six wars said nothing at −0.07, nothing at −0.11, and **56 — 37
+with every war finished** at −0.15. *"Nothing, nothing, nothing, then the
+game."* It is the right dial for a **difficulty setting** and the wrong one for
+a balance change, and the war is 17 — 23 without touching it.

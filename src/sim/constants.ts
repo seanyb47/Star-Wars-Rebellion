@@ -2076,6 +2076,21 @@ export const AI_MISSION_PATIENCE = 4;
  * that has to do the winning. Hunting is a standing detail, not the corps.
  */
 export const AI_HUNTERS = 2;
+/*
+ * Tried and cut: **three hunters**, 21 September. Twenty wars, seeds 9000+.
+ *
+ *   two (as it ships)   Crown 10 — 10, Lords 1.50 a war, 18.6% of days with a
+ *                       Lord liftable and nobody out after one
+ *   three               Crown  9 — 11, Lords 1.35 a war, 21.4% of those days
+ *
+ * The one-in-five days where the Crown can take a Lord and has no hunter out
+ * looked like the cap doing it. It is not: a third slot goes the same place
+ * the first two do, because an officer is spent on whatever `worth` rates
+ * highest that morning and a Lord already outranks nearly everything. Raising
+ * the cap moves officers off parley and research and buys no extra captures,
+ * which is the shape of every result here — 1.35 against 1.50 and the
+ * passed-over share going *up*.
+ */
 /** How much of an island's watch the opponent counts against a covert errand
  *  there. A loyal capital with six companies is worth roughly two hundred, so
  *  at this rate it costs an abduction most of its bounty — which is the point:
