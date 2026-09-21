@@ -40,6 +40,16 @@ export interface TroopType {
   defense: number;
   /** What it sees: the eyes that catch a saboteur or a boat in the dark. */
   watch: number;
+  /** What it costs a ship's guns to break it once the walls are rubble. A much
+   *  smaller scale than `defense`: a fleet rolls 1d32 where six troops roll
+   *  1d180, so the two defences cannot share a number. */
+  bombardDefense: number;
+  /** Gold to raise, days to raise it, and gold a day to keep. */
+  costGold: number;
+  days: number;
+  upkeep: number;
+  /** "start", or the research tier that opens it: R2, R4, R6, R8. */
+  unlock: string;
   blurb: string;
   /** Behind research, and so not in play. */
   research?: boolean;
@@ -72,14 +82,22 @@ const sailorsOf = (faction: PlayableFaction) =>
  * the other end: the Crown sends its best where it means to be seen.
  */
 function localOf(faction: PlayableFaction, system: Pick<System, 'archetype'>): TroopType | undefined {
-  if (faction === 'empire') {
-    return system.archetype === 'port-city' || system.archetype === 'free-harbor'
-      ? TROOP_TYPES.find((t) => t.id === 'crown-marines')
-      : undefined;
-  }
-  return TROOP_TYPES.find(
-    (t) => t.faction === faction && t.role === 'native' && t.home?.includes(system.archetype),
+  // A people behind research is not standing in anybody's square yet, so the
+  // local company has to be one the side can actually raise today. Without the
+  // `research` test the Bog Witches and the Shoal Wardens would turn up in
+  // starting garrisons on their home islands years before they join the war.
+  const native = TROOP_TYPES.find(
+    (t) =>
+      t.faction === faction &&
+      t.role === 'native' &&
+      !t.research &&
+      t.home?.includes(system.archetype),
   );
+  if (native) return native;
+  if (faction === 'empire' && (system.archetype === 'port-city' || system.archetype === 'free-harbor')) {
+    return TROOP_TYPES.find((t) => t.id === 'crown-marines');
+  }
+  return undefined;
 }
 
 /**
