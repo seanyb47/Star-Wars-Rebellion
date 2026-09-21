@@ -8226,3 +8226,106 @@ real and still on the sheet; it is no longer decisive.
 Two sessions building the same features from the same docs cost a day of
 duplicated work on the engine and the roster. Whichever line is canonical, it
 is cheaper if only one of them builds a given thing.
+
+## The economy goes to the sheet's own scale (21 September)
+
+The thirteenth patch of the series, and the one that overturns the most. The
+three divisors in `roster.ts` were a guess made to reconcile two scales that
+turned out to be the same scale. Sean, asked directly, took them all away:
+
+- **A build day is a game day.** *"If it's talking about the ships it's how
+  many game days does it take for the ship to be completed and usable."* A
+  Majestic is twelve hundred days, not a hundred.
+- **A gold is a gold.** Island income of 9/6/3 a day is "about right", so the
+  sheet and the island economy were always on one footing.
+- **Upkeep is recomputed rather than divided**, from the sheet's own
+  `maintenanceBands`: On Rate is 1% of build cost per day, and that is what
+  every hull pays.
+
+The days divisor is the one that looks alarming and is not, and the reason is
+a rule already in the game: **build time divides by how many yards of that
+kind stand on the island**, asked fresh every morning. A Majestic is 1,200
+days at one slipway and 200 at six. So the roster's days are not a wait, they
+are a price in shipyards — which is the decision Sean says the game is about:
+*"are you building income producing facilities or are you building stuff that
+makes you ships?"*
+
+### What the integration had to settle
+
+Two fallbacks now point in opposite directions in `troops.ts`, and left as
+delivered the pair was a crash waiting for one bad data edit.
+
+- **Mine:** a side with no *line* company it can raise yet posts its sailors.
+  That is the Crown, whose Fensworn are behind R2.
+- **Theirs:** a side whose *sailors* are behind research has none, and the
+  roster falls back to the line company. That is the Confederacy, whose
+  Brethren are behind R2 — a live bug, since every Confederate island with a
+  slipway had been posting a company that does not exist yet, on day one.
+
+Both behaviours are right and neither reaches the other today. But `lineOf`'s
+fallback was a non-null assertion standing on a function that can now return
+`undefined`. Both now read a shared `raisable(faction, role)`, so `lineOf`
+never calls `sailorsOf` at all and could not deadlock even if a side were
+missing both; and a side missing both throws a named error naming
+`troops.json` rather than surfacing as `undefined.name` three files away.
+
+**`game.test.ts` had pinned a seed for the third time**, and this time the
+rewrite it should have had twice before. The Confederacy's victory condition
+is no longer taking Highwater — since the Crown gained a second principal it
+is both of them in irons at once, and the capital is merely how that usually
+happens. Seed 2 now demonstrates the difference rather than the rule: at day
+3,000 the Confederacy holds Highwater and has still not won, because the
+Regent sailed the week before. The test finds a war the Confederacy wins and
+asserts the condition it won on, so only the rule changing can move it.
+
+**On the conflicts with this branch's own upkeep work**, the rule given was
+"my numbers, your structure", and in the event the two agreed: their
+`Math.round(n * FORTNIGHT)` and this branch's `perFortnight(n)` are the same
+function, and `GoldFig`'s `per` already defaulted to `null` here. So their
+prose and their per-unit troop price went in, expressed through the helper.
+The glossary entry is theirs entire — it is the one place the two rings on the
+date are explained, which is the whole point of leaving them unlabelled.
+
+### Re-measured on the merged tree, and it does not match theirs
+
+The patch reports twenty-four wars at **Crown 15 — Confederacy 8, one
+unfinished**. On this branch, same harness, same twenty-four seeds:
+
+```
+Crown 9 — Confederacy 11 — unfinished 4
+length: min 360  median 1368  max 2595
+empire    at the end: 26.7 islands, 29.0 hulls,  3,195 gold, craft 6.2
+alliance  at the end: 22.5 islands, 58.5 hulls, 23,477 gold, craft 4.9
+Lords in irons at the end: 1.33 of 3
+no rule broken in any war.
+```
+
+Four wars in twenty-four that never end, against their one. That is the
+number, and it is not being tuned away: the divisors stay at one and upkeep
+stays at the sheet's own On Rate, because the instruction on this patch was
+explicit that a bad measurement is to be reported rather than dialled out.
+
+**The likely cause is this branch's own troop-role fix**, which the series
+does not carry. Crown Marines are `elite` here rather than `line`, so the
+capital's watch is 124.0 where the series measures 143.1 — a 14% discount on
+every covert operation against the Crown, which is exactly the side that has
+to be operated against for the war to end. Re-measured after this patch the
+figure is unchanged at 124.0, so the second barracks and the Crown's second
+slipway moved nothing there:
+
+```
+Highwater's watch against the Confederacy, day one, 32 seeds:
+  garrison   124.0 flat      idle  65.2 (55-118)
+  commander    0.0           people 60.0 flat      total 249.2
+```
+
+`lab/capwatch.ts` is that harness, written because this figure has now moved
+twice in two days for reasons that had nothing to do with covert play.
+
+**The second finding is the gold, and it is #121 turned round.** The open
+question was why the Crown hoards; on this tree it is the *Confederacy* that
+ends on 23,477 gold with 58.5 hulls while the Crown spends down to 3,195 with
+29. Nobody is short of money now that a gold is a gold — which is the patch's
+own observation — so the constraint has moved to berths and yards, and #121
+wants re-asking as "how many slipways does each side actually build" rather
+than "who is sitting on gold".
