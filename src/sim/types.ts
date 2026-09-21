@@ -463,6 +463,16 @@ export interface Character {
   status: 'available' | 'on_mission' | 'injured' | 'captured';
   /** Days left of an `injured` status. Absent when not injured. */
   injuredDays?: number;
+  /**
+   * The day they went into irons. Absent unless they are in a cell now.
+   *
+   * The log is the record of the war and it is four hundred lines deep, so in
+   * a war of a thousand days the capture that decided it has aged out of the
+   * log by the time the war ends. The closing screen has to be able to say
+   * when each of the three was taken whether or not the line survives, and
+   * this is the smallest thing that can say it.
+   */
+  takenOnDay?: number;
   mission?: Mission;
   /**
    * The officer whose errand this one is along on. Set on a companion for as

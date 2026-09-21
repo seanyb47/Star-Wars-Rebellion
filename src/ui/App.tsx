@@ -32,6 +32,7 @@ import {
   isCovert,
   missionTypeFor,
   missionsOffered,
+  warReport,
   type ChartLayer,
   sendCrew,
   setObserving,
@@ -73,6 +74,7 @@ import { StartScreen } from './StartScreen';
 import { Tutorial, alreadyTaught } from './Tutorial';
 import { TabBar, type Tab } from './TabBar';
 import { TopBar } from './TopBar';
+import { WarEnd } from './WarEnd';
 import { useAudio } from './useAudio';
 import { FactionCrest } from './art';
 import { ControlBadge, Sheet, Stat } from './components';
@@ -119,6 +121,15 @@ export function App() {
   const [cameFrom, setCameFrom] = useState<{ kind: 'reach' | 'list'; id: string } | null>(null);
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  /*
+   * The closing screen is shown once and then put away.
+   *
+   * It is an event, not a state: the war being over is said permanently by
+   * the line under the utility bar, and a full screen that cannot be
+   * dismissed would lock a player out of the world they just spent thirty-two
+   * months in. Reopened from that line whenever they want it back.
+   */
+  const [warEndSeen, setWarEndSeen] = useState(false);
   const [narratorOpen, setNarratorOpen] = useState(false);
   const voice = useAdvisorVoice();
   // The encyclopedia, and where in it. `at` is set when a unit somewhere in
@@ -706,6 +717,9 @@ export function App() {
    * Back keeps it, so "here" would be a second word for the same thing. And
    * nothing for a fleet, which cannot sail to the harbor it is lying in.
    */
+  /* What the war came to, or nothing while it is still running. */
+  const endReport = useMemo(() => warReport(state), [state]);
+
   const pickHere = (() => {
     if (!pickingCharacter) return null;
     const at = state.systems.find((sy) => sy.id === pickingCharacter.locationSystemId);
@@ -784,11 +798,17 @@ export function App() {
 
       {state.winner && (
         <div className="pad" style={{ paddingBottom: 0 }}>
-          <div className={`verdict verdict--${state.winner === state.player ? 'win' : 'lose'}`}>
+          {/* The permanent line, and the way back to the closing screen. It
+              said the same eight words before and did nothing when tapped,
+              which was the whole of how a war ended. */}
+          <button
+            className={`verdict verdict--${state.winner === state.player ? 'win' : 'lose'}`}
+            onClick={() => setWarEndSeen(false)}
+          >
             {state.winner === state.player
               ? 'The Seven Seas are yours. Victory.'
               : `The ${factionData[state.winner].name} holds the Seven Seas. Defeat.`}
-          </div>
+          </button>
         </div>
       )}
 
@@ -839,6 +859,20 @@ export function App() {
           />
         )}
       </main>
+
+      {/* The war is over, and this is the whole of what it came to. Above the
+          dispatch cards, which are the news of a war that has stopped. */}
+      {endReport && !warEndSeen && (
+        <Sheet
+          eyebrow="The war"
+          title={endReport.outcome === 'victory' ? 'The war is won' : 'The war is lost'}
+          subtitle={`${endReport.days} days`}
+          onClose={() => setWarEndSeen(true)}
+          stacked
+        >
+          <WarEnd state={state} report={endReport} />
+        </Sheet>
+      )}
 
       {/* Above everything, including the dispatches: while your ships are in
           action, that is the only thing on the screen. */}

@@ -985,9 +985,57 @@ button {
 .verdict {
   border-radius: 10px; padding: 10px 12px; font-size: 13px;
   border: 1px solid currentColor;
+  /* It is a button now — the way back into the closing screen — so it has to
+     unlearn the button defaults rather than look like one. */
+  display: block; width: 100%; text-align: left;
+  background: rgba(0, 0, 0, 0.25); font: inherit; font-size: 13px;
+  cursor: pointer;
 }
 .verdict--win { color: var(--good); }
 .verdict--lose { color: var(--bad); }
+
+/* ---------- The closing screen: the dispatch, the figures, the evidence ----
+   Sean, asked whether the war should end on the dispatch or the tally: "Both,
+   stacked." So the order down the page is the argument — told, then shown,
+   then given the evidence — and the two columns of figures are the only place
+   in the game the sides are ever set beside each other. */
+.warend { --warend: var(--good); display: flex; flex-direction: column; gap: 8px; }
+.warend--defeat { --warend: var(--bad); }
+.warend__word {
+  font-size: 30px; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--warend); text-align: center; padding: 2px 0;
+}
+.warend--defeat .warend__word { text-transform: uppercase; letter-spacing: 0.1em; font-size: 26px; }
+.warend__dispatch { margin: 0; text-align: center; font-size: 14px; line-height: 1.45; }
+.warend__how { margin: 0; text-align: center; }
+
+.warend__ledger { display: flex; flex-direction: column; gap: 2px; }
+.warend__names, .warend__row {
+  display: grid; grid-template-columns: 1fr 72px 72px; align-items: center; gap: 6px;
+}
+.warend__names { padding: 0 8px 4px; }
+.warend__col {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  font-size: 11px; text-align: center;
+}
+.warend__row {
+  padding: 6px 8px; border-radius: 8px; background: rgba(0, 0, 0, 0.22);
+  border: 1px solid var(--metal-lo);
+}
+.warend__cell {
+  display: flex; align-items: center; justify-content: center; gap: 3px;
+  font-size: 14px; font-variant-numeric: tabular-nums;
+}
+/* The larger of each pair, marked in weight and nothing else.
+   It was the outcome accent, which was wrong in the way only a screenshot
+   shows: a lost war paints the accent red, and the Crown ends most defeats
+   ahead on islands, hulls and troops — so the screen marked the player's own
+   advantages in the colour of losing. The mark means "more", which is not a
+   verdict and must not be coloured like one. */
+.warend__cell--up { font-weight: 700; background: rgba(255, 255, 255, 0.07); border-radius: 6px; }
+
+.warend__line { display: flex; flex-direction: column; gap: 2px; font-size: 13px; line-height: 1.4; }
+.warend__day { letter-spacing: 0.08em; text-transform: uppercase; }
 
 /* ---------- Start screen ---------- */
 .start {

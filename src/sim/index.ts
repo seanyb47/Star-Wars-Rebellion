@@ -8,6 +8,7 @@ export * from './support';
 export * from './politics';
 export * from './propagate';
 export * from './outcome';
+export * from './warend';
 export * from './reach';
 export * from './build';
 export * from './fleets';
