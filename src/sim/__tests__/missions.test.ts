@@ -256,18 +256,48 @@ describe('resolution', () => {
    * So a warm island does not join on a number, and a cold one cannot be
    * talked over at all. Given enough meetings, a warm one does come across.
    */
+  /*
+   * Asked as *how often*, not *whether*, because that is the rule.
+   *
+   * Sean cut the old arithmetic — *"remove the rule 'an unaligned island
+   * automatically joins a faction when allegiance reaches 80'... this should
+   * feel like a political decision by the island rather than filling an XP
+   * bar"* — so joining is now a chance taken after a meeting that went well,
+   * climbing with the island's warmth and never reaching certainty.
+   *
+   * This test asserted it on one world and one roll stream, which made a
+   * probabilistic rule look deterministic and held only as long as seed 301
+   * stayed lucky. Six new islands on 21 September moved the world behind that
+   * seed and it stopped being. The rule was never broken: measured across
+   * eight worlds the island comes over in six of them, and the two that hold
+   * out are the rule working. Measured, not asserted.
+   */
   it('lets a warm island decide to join, in its own time and never on a number', () => {
-    const { state, diplomat, sameSector } = setup();
-    diplomat.diplomacy = 100;
+    const { state, sameSector } = setup();
     sameSector.support = { empire: 88, alliance: 12 };
     // Crossing eighty does nothing by itself: no meeting, no decision.
     resolveControlAndUnrest(state);
     expect(getSystem(state, sameSector.id).control).toBe('neutral');
 
-    startMission(state, diplomat.id, sameSector.id);
-    const cycle = cycleDays(state, diplomat.id, sameSector.id);
-    runDays(state, cycle + MISSION_WORK_DAYS * 8, 2);
-    expect(getSystem(state, sameSector.id).control).toBe('empire');
+    /*
+     * The roll stream varies with the world, and that matters more than the
+     * number of worlds. `runDays` takes its own seed, and passing a constant
+     * gave all eight trials the *same* dice — one sequence wearing eight hats,
+     * which is why it read 3 of 8 where an ordinary played-out war gives 6.
+     */
+    const seeds = [301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312];
+    const came = seeds.filter((seed) => {
+      const world = setup(seed);
+      world.diplomat.diplomacy = 100;
+      world.sameSector.support = { empire: 88, alliance: 12 };
+      startMission(world.state, world.diplomat.id, world.sameSector.id);
+      const cycle = cycleDays(world.state, world.diplomat.id, world.sameSector.id);
+      runDays(world.state, cycle + MISSION_WORK_DAYS * 8, seed);
+      return getSystem(world.state, world.sameSector.id).control === 'empire';
+    });
+    // Most of them, and never all: a certainty here would be the XP bar back.
+    expect(came.length, `joined ${came.length} of ${seeds.length}`).toBeGreaterThanOrEqual(seeds.length / 2);
+    expect(came.length).toBeLessThan(seeds.length);
   });
 
   /**

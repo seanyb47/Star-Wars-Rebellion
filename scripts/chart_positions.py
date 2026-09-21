@@ -59,13 +59,15 @@ CHART_W, CHART_H = 1000, 1500
 # ground. A Reach may have more than one seed point, though none needs it now.
 SEEDS: dict[str, tuple[float, float] | list[tuple[float, float]]] = {
     # Sean's chart, 14 September. Rime is the dark northern chain and a few
-    # of the bergs in the pack ice above it; Whalers' is the long chain down
-    # the west; the rest sit where they are.
+    # of the bergs in the pack ice above it; Windward is the long chain down
+    # the west; the rest sit where they are. The names here must match
+    # `reaches.json` exactly — three of them were renamed on 21 September and
+    # this table is the only other place they are written down.
     "Rime Reach": [(0.50, 0.16), (0.50, 0.05)],
-    "Whalers' Reach": (0.18, 0.27),
+    "Windward Reach": (0.18, 0.27),
     "Sovereign Reach": (0.50, 0.48),
-    "Wreckers' Reach": (0.86, 0.32),
-    "Cinder Reach": (0.15, 0.60),
+    "Sunken Reach": (0.86, 0.32),
+    "Mire Reach": (0.15, 0.60),
     "Coral Reach": (0.85, 0.65),
     "Salt Reach": (0.55, 0.84),
 }

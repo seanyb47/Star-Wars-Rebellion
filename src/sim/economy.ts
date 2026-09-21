@@ -13,7 +13,7 @@ import {
   shipSpec,
 } from './constants';
 import { clearWrecks, fleetCapacity, isAtSea } from './fleets';
-import { getSystem, otherFaction, pushEvent, returnDeposit, supportMultiplier } from './helpers';
+import { getSystem, inProse, otherFaction, pushEvent, returnDeposit, supportMultiplier } from './helpers';
 import type { Rng } from './rng';
 import type { BuildItem, GameState, PlayableFaction, System } from './types';
 
@@ -302,7 +302,7 @@ export function scrap(state: GameState, faction: PlayableFaction, what: ScrapTar
       system.garrison += ashore;
       pushEvent(state, {
         kind: 'order',
-        text: `${ashore} ${ashore === 1 ? 'troop marches' : 'troops march'} off ${fleet.name} onto ${system.name}.`,
+        text: `${ashore} ${ashore === 1 ? 'troop marches' : 'troops march'} off ${fleet.name} onto ${inProse(system.name)}.`,
         systemId: system.id,
       });
     }

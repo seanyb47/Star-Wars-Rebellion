@@ -6,6 +6,9 @@ import { generateGalaxy, START_CHARACTERS } from '../galaxy';
 import { depositsLeft } from '../helpers';
 import { isLord, lords } from '../lords';
 
+/** The map has grown twice this month; the data is the one place it is true. */
+const ISLAND_COUNT = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
+
 /** The Reaches the war has not charted: Rime and Salt, and Coral since Sean
  *  moved the atoll out past the charts to make it a third place the
  *  Confederacy might have been founded. */
@@ -20,7 +23,7 @@ describe('generateGalaxy', () => {
     // painting offers, however they fall across the chains. Coral gained
     // three when it went frontier — the atoll had more painted land in it
     // than five islands were using.
-    expect(state.systems).toHaveLength(63);
+    expect(state.systems).toHaveLength(ISLAND_COUNT);
     for (const sector of state.sectors) {
       expect(sector.systemIds.length).toBeGreaterThanOrEqual(5);
       expect(sector.systemIds.length).toBeLessThanOrEqual(15);
@@ -29,10 +32,17 @@ describe('generateGalaxy', () => {
 
   it('splits the map into three inner Reaches and four outer', () => {
     const state = generateGalaxy(42);
-    // Sovereign 15 + Whalers' 9 + Wreckers' 8.
-    expect(state.systems.filter((s) => s.isCore)).toHaveLength(32);
-    // Rime 6 + Cinder 8 + Salt 9 + Coral 8.
-    expect(state.systems.filter((s) => !s.isCore)).toHaveLength(31);
+    // Counted off the data rather than written down. These read "Sovereign 15
+    // + Whalers' 9 + Wreckers' 8" and were wrong twice over by 21 September:
+    // two of the three Reaches had been renamed and three islands added to
+    // them. What the test is actually about is that `isCore` follows `tier`.
+    const inner = reachData.reaches.filter((r) => r.tier === 'inner');
+    const outer = reachData.reaches.filter((r) => r.tier === 'outer');
+    expect(inner).toHaveLength(3);
+    expect(outer).toHaveLength(4);
+    const count = (rs: typeof inner) => rs.reduce((n, r) => n + r.islands.length, 0);
+    expect(state.systems.filter((s) => s.isCore)).toHaveLength(count(inner));
+    expect(state.systems.filter((s) => !s.isCore)).toHaveLength(count(outer));
   });
 
   it('is deterministic for a seed and different across seeds', () => {
@@ -48,8 +58,8 @@ describe('generateGalaxy', () => {
 
   it('gives every system a unique id and name', () => {
     const state = generateGalaxy(3);
-    expect(new Set(state.systems.map((s) => s.id)).size).toBe(63);
-    expect(new Set(state.systems.map((s) => s.name)).size).toBe(63);
+    expect(new Set(state.systems.map((s) => s.id)).size).toBe(ISLAND_COUNT);
+    expect(new Set(state.systems.map((s) => s.name)).size).toBe(ISLAND_COUNT);
   });
 
   it('makes core systems populated and explored by both sides', () => {

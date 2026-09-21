@@ -227,7 +227,15 @@ export function atSea(state: GameState, character: Character): boolean {
 }
 
 /**
- * An island's name as it reads *inside* a sentence.
+ * A name as it reads *inside* a sentence.
+ *
+ * Islands are most of the traffic, but not all of it: **The Widow Ashgrave**
+ * is a crew member, and The Kraken and The Derelict are creatures. The rule is
+ * the same for all three and so is the helper — this was documented as being
+ * about islands, and the recruitment dispatch duly read *"put there by The
+ * Widow Ashgrave"* for as long as that line has existed. It surfaced on 21
+ * September only because six new islands moved the RNG stream and seed 11
+ * started signing her on.
  *
  * Four islands wear a definite article as part of the name — The Kettles, The
  * Shoals, The Terraces, The White Flats. As a label that capital *The* is

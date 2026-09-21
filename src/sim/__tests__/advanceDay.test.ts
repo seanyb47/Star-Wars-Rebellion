@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import reachData from '../../data/reaches.json';
 import { advanceDay, checkVictory } from '../advanceDay';
 import { MISSION_WORK_DAYS, YARD_BUILDS } from '../constants';
 import { generateGalaxy, START_GOLD } from '../galaxy';
@@ -8,6 +9,9 @@ import { freeSlots } from '../helpers';
 import { getSystem, setSupport } from '../helpers';
 import { travelDays } from '../missions';
 import type { GameState } from '../types';
+
+/** The map has grown twice this month; the data is the one place it is true. */
+const ISLAND_COUNT = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
 
 /** What a new game starts with; kept here so the test states the intent. */
 
@@ -44,7 +48,7 @@ describe('advanceDay', () => {
 
   it('survives a long run without throwing or corrupting the galaxy', () => {
     const after = tick(generateGalaxy(404), 400);
-    expect(after.systems).toHaveLength(63);
+    expect(after.systems).toHaveLength(ISLAND_COUNT);
     expect(after.day).toBeGreaterThan(1);
     for (const system of after.systems) {
       expect(system.support.empire).toBeGreaterThanOrEqual(0);
@@ -238,7 +242,7 @@ describe('save and load', () => {
     saveGame(state, storage);
     const loaded = loadGame(storage)!;
     expect(loaded.day).toBe(state.day);
-    expect(loaded.systems).toHaveLength(63);
+    expect(loaded.systems).toHaveLength(ISLAND_COUNT);
     expect(JSON.stringify({ ...loaded, speed: state.speed })).toEqual(JSON.stringify(state));
   });
 

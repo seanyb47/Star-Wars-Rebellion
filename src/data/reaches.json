@@ -135,6 +135,16 @@
         {
           "name": "Wainfleet",
           "seed": 718
+        },
+        {
+          "name": "Driftway",
+          "note": "Everything lost in the Long Sea washes up here eventually, including people.",
+          "seed": 842
+        },
+        {
+          "name": "Nine Reefs",
+          "note": "Nine atolls, one lagoon, and the best sheltered anchorage in the Reach.",
+          "seed": 927
         }
       ],
       "role": "contested"
@@ -183,6 +193,11 @@
           "name": "Coffinswell",
           "seed": 595,
           "note": "The Hushed keep to what's left of it. They are not heard arriving."
+        },
+        {
+          "name": "Belfry Shoal",
+          "note": "Open water with one bell tower standing out of it. The bell still rings on the swell.",
+          "seed": 1147
         }
       ],
       "role": "contested"
@@ -224,6 +239,11 @@
           "note": "Fairweather's floating market: a city of lashed-together hulks.",
           "ice": true,
           "seed": 641
+        },
+        {
+          "name": "Keelhaven",
+          "note": "Where Urskin clans winter their great keels and repair them in the dark.",
+          "seed": 915
         }
       ],
       "role": "frontier"
@@ -272,6 +292,11 @@
           "name": "Basilisk Rock",
           "seed": 1249,
           "note": "Sheer, snake-ridden, and the only deep anchorage for sixty miles."
+        },
+        {
+          "name": "Cane Hollow",
+          "note": "Sugar cane, fever, and the conjure-women the clans left behind.",
+          "seed": 1036
         }
       ],
       "role": "contested"
@@ -373,6 +398,11 @@
           "name": "Denby Cay",
           "note": "Sugar and rum. Old money, and none of it decided.",
           "seed": 815
+        },
+        {
+          "name": "Singing Shallows",
+          "note": "A nursery reef. Hulls are grown here, and the singing does not stop at night.",
+          "seed": 1596
         }
       ],
       "role": "frontier"

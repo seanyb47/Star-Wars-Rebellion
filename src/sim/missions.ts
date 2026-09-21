@@ -1873,7 +1873,7 @@ function recruitOutcome(
   recruit.locationSystemId = system.id;
   pushEvent(state, {
     kind: 'order',
-    text: `${recruit.name} has signed the articles on ${inProse(system.name)}, put there by ${officer.name}. ${recruit.blurb ?? ''}`.trim(),
+    text: `${recruit.name} has signed the articles on ${inProse(system.name)}, put there by ${inProse(officer.name)}. ${recruit.blurb ?? ''}`.trim(),
     systemId: system.id,
     characterId: recruit.id,
   });
@@ -2436,7 +2436,7 @@ function espionageOutcome(
   pushEvent(state, {
     kind: 'order',
     text: bonus
-      ? `${character.name} has the measure of ${inProse(system.name)} — ${countOf(system)}, and a watch of ${held} — and came away with ${bonus.name}'s dispatches besides.`
+      ? `${character.name} has the measure of ${inProse(system.name)} — ${countOf(system)}, and a watch of ${held} — and came away with ${inProse(bonus.name)}'s dispatches besides.`
       : `${character.name} has the measure of ${inProse(system.name)}: ${countOf(system)}, and a watch of ${held}.`,
     systemId: system.id,
     characterId: character.id,

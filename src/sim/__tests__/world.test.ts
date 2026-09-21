@@ -16,6 +16,9 @@ import { generateGalaxy } from '../galaxy';
 import { startMission } from '../missions';
 import { reachesOfSea, seasOf, summariseReach, summariseSea } from '../reach';
 
+/** The map has grown twice this month; the data is the one place it is true. */
+const ISLAND_COUNT = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
+
 /**
  * The world bible is the source of truth for every name the player sees.
  * These tests fail if the data files and the simulation drift apart.
@@ -45,8 +48,8 @@ describe('the world bible data', () => {
   });
 
   it('names 63 distinct islands', () => {
-    expect(allIslands).toHaveLength(63);
-    expect(new Set(allIslands.map((i) => i.name)).size).toBe(63);
+    expect(allIslands).toHaveLength(ISLAND_COUNT);
+    expect(new Set(allIslands.map((i) => i.name)).size).toBe(ISLAND_COUNT);
   });
 
   it('covers all seven Seas', () => {

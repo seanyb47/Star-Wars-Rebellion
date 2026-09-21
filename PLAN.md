@@ -7728,3 +7728,96 @@ unlocking the reef hulls; the Crown able to clear one) is also still open, and
 now partly overlaps Sean's later 20 September deposit model, which placed coral
 by the 40/60/30/10 roll in Coral Reach rather than on "3 islands per game".
 That overlap needs his call.
+
+## Option B: six new islands on the paint we have (21 September)
+
+Sean: *"B - work with paint we have."* And on coral: *"A3 is wrong. On the
+coral reach anytime a forest would have appeared instead make it coral at game
+start. That's it."*
+
+### A3 is cut, and it was already built
+
+His coral rule is exactly what `groundOf` does — `const staple = reef ? 'coral'
+: 'forest'`, with `reef` true for Coral Reach only, at generation. So there is
+no work: the slipway-on-a-bed unlock, the Crown clearing a bed, and the "3
+islands per game" placement setting all go. Checked that nothing in the live
+game promised the unlock — the reef hulls exist only in the new combat roster,
+which is not wired in yet.
+
+### The six islands fit, with room to spare
+
+The detector finds far more painted landmasses than there are islands: it hands
+each Reach's islands the biggest pieces in its group and the rest go unused.
+
+| Reach | blobs | islands | spare |
+|---|---|---|---|
+| Rime | 47 | 6 | 41 |
+| Windward | 27 | 9 | 18 |
+| Sovereign | 37 | 15 | 22 |
+| Sunken | 26 | 8 | 18 |
+| Mire | 17 | 8 | 9 |
+| Coral | 27 | 8 | 19 |
+| Salt | 30 | 9 | 21 |
+
+So option B is just: add the island to `reaches.json` and re-run
+`chart_positions.py`, which asks the group for one more landmass and gets it.
+Driftway and Nine Reefs to Windward, Singing Shallows to Coral, Keelhaven to
+Rime, Cane Hollow to Mire, Belfry Shoal to Sunken. **Sixty-three islands to
+sixty-nine.** The five cross-Reach moves stay dropped, as option B implies.
+
+Belfry Shoal drew the smallest blob on the chart, `land: 0.007`, which is a
+lucky accident: *"open water with one bell tower standing out of it"*.
+
+New islands get seeds by the same sum-of-character-codes the frozen ones were
+computed with — still the fallback in `galaxy.ts:591`.
+
+### Three derived things, and one latent break
+
+`chart.json` and `island-art.json` are both **generated**, and both had to be
+re-run. The art spacer walks islands alphabetically, so six new names changed
+the order; re-running kept it at worst 8/8 distinct, mean 8.00.
+
+The latent break: `scripts/chart_positions.py` holds the seven Reach names in
+its own hand-placed `SEEDS` table, and the renames earlier today had not
+reached it. Nothing failed, because nobody regenerates the chart on an ordinary
+day — it would have failed the next time the painting changed, with the reason
+long forgotten. Fixed, and the table now says the names must match.
+
+### Two bugs the new islands shook loose
+
+Adding islands moves the RNG stream, which is a good fuzzer.
+
+1. **`inProse` was never applied to people.** Seed 11 started signing on **The
+   Widow Ashgrave** — the one character whose name wears an article — and the
+   dispatch read *"put there by The Widow Ashgrave"*. The helper was documented
+   as being about island names; it is about names. Two character sites fixed,
+   plus `economy.ts`, where the march-ashore line I wrote this morning said
+   *"onto The Kettles"*.
+2. **A probabilistic rule asserted as a certainty.** The warm-island join test
+   ran one world and one roll stream and expected a flip. Joining is a chance
+   after a good meeting — Sean cut the old 80-and-it-flips arithmetic on
+   purpose — so the test only ever held while seed 301 was lucky. It measures
+   twelve worlds now and wants most, never all.
+
+   Worth keeping: the first rewrite still read **3 of 12** where a played-out
+   war gives 6 of 8, because `runDays` takes its own seed and I passed a
+   constant — all twelve trials shared one dice sequence. One stream wearing
+   twelve hats is not twelve trials.
+
+### And the balance came back
+
+Twenty wars, seeds 9000+:
+
+| | before today | Coralhome only | + six islands |
+|---|---|---|---|
+| Crown — Confederacy | 6 — 14 | 4 — 16 | **9 — 11** |
+| median length | 624 | 492 | 636 |
+| Lords taken | 0.90 | 0.70 | **1.45** |
+
+Coralhome on its own pushed the Crown down; the six islands more than gave it
+back, and the war is the closest to even it has been. The Lords number is the
+telling one — 0.70 to 1.45. More islands means more places to hide, which
+should make the manhunt *harder*; instead the longer war gives the Crown the
+time it never had. That is evidence about #125 worth keeping: the Crown's
+problem is not that the Lords are well hidden, it is that the war ends before
+it can look.
