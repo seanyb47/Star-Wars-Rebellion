@@ -7470,3 +7470,79 @@ was reserved there for the *Advanced* Training Facility, the 2× speed tier. Tha
 tier does not exist in this game — Craft grade does the upgrading — so the plain
 Barracks takes the word and the reserved name is retired rather than left to
 collide with it later.
+
+## Errand goes back to Mission
+
+Sean, 21 September: *"I don't like errands. Mission is the word we want to
+use."* That reverses the 17 September ruling, which had retired *mission* in
+favour of *errand* — and it is the second reversal in four days, after Company
+became Troop on the 19th.
+
+Two reversals is enough to say what the rule actually is. It is **one word per
+idea**, not *this particular word forever*. So the thing to optimise is not
+picking the right word first time; it is making a change of mind cost almost
+nothing.
+
+### Why it was cheap
+
+Because the 17 September pass had been careful about exactly this. It took
+*mission* out of the **labels** and deliberately left it everywhere it was
+code — `MissionType`, `on_mission`, the `'mission'` event kind,
+`missionsOffered`, the `missions` chart-layer id, `missions.ts`,
+`MissionChoiceSheet.tsx` — on the stated grounds that none of it is read by
+anybody, and that renaming the layer id alone would have broken saved filter
+orders.
+
+That judgement is what made this reversal a morning's work rather than a
+refactor. The code never stopped saying mission, so turning the word round cost
+a value in `terms.json`, a direction in the test, and the sentences a player
+reads. **Retire words from prose, never from identifiers** — now written into
+CLAUDE.md, because it is the reason this was easy and the reason the next one
+will be.
+
+The keys `errand` and `errands` stay in `terms.json` for the same reason. A key
+is code. It reads a little odd — `terms.errand === 'Mission'` — and that is the
+correct trade: an honest mismatch in one file beats renaming a key across forty.
+
+### The method: invert the guard, let it find the sites
+
+Rather than grep for "errand" and judge 300 hits by hand, I inverted
+`vocabulary.test.ts` first — it now forbids *errand* in player text — and used
+its own extraction rules to list the sites. That filters comments automatically,
+which matters here: the files are full of Sean's memos quoted back at the code,
+and the test's own doc note says rewording those *"would be falsifying the
+record of why the code is the way it is."* Thirteen real sites, all prose.
+
+Sean's button by name: **Assign Mission**, replacing *Send on errand*.
+
+### Two holes the reversal exposed
+
+Both were in the guard itself, and both had been there since the vocabulary
+pass was written.
+
+**1. A one-word label looks exactly like an identifier.** The sweep skipped any
+quoted string matching `/^[A-Za-z_]\w*$/` as code. So it walked straight past
+the encyclopedia's own section heading — `title: 'Errands'` — and the entry
+named `'Errand'` directly beneath it. A whole Glossary page about the retired
+word, invisible to the guard written to retire it. The rule now skips a
+**lower-case** single word as an id and checks a **capitalised** one as a label.
+
+**2. The sim was never swept at all.** `vocabulary.test.ts` read `src/ui` and
+`src/data` and nothing else. But player-facing prose lives in `src/sim` too:
+Reyne's power blurb — *"Any errand he leads makes the passage in half the
+time"* — is in `constants.ts`. The file already half-knew this, because it
+checked the chart filters through `CHART_LAYERS` one at a time, which is the
+shape of an exception that should have been a rule. There is a `simSources()`
+sweep now, with its own non-vacuity check.
+
+Neither hole was about *errand*. They were both waiting for any future word.
+
+### Verified
+
+798 tests green. The built bundle contains no player-visible "errand" — every
+remaining occurrence is a key or a property that renders **Mission**. On a live
+page the chart filter chip reads **Missions**.
+
+`doctrine.json` prose was updated too. It is the opponent's rulebook and is
+never rendered, but it ships in the bundle and describes the same rules, so
+leaving it saying *errand* would have made it the next person's puzzle.

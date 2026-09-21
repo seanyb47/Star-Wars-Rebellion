@@ -657,7 +657,7 @@ function NoReport({
       <p className="muted small" style={{ textAlign: 'center', margin: '4px 0 0' }}>
         No report. {holder ? factionData[holder].shortName : 'Somebody'} holds it and nobody of
         yours has been ashore to count what is on it — not its troops, not who has the chair,
-        not what stands in its yards, and not what a quiet errand against it would have to get
+        not what stands in its yards, and not what a quiet mission against it would have to get
         past.
       </p>
       <p className="muted small" style={{ textAlign: 'center', margin: '10px 0 0' }}>
@@ -1314,7 +1314,7 @@ export function SystemSheet({
             
             Sean's rule, 17 September: troops, officers standing idle, a
             commander in the chair and the island's own loyalty all add up to
-            one number, and that number is what every quiet errand against this
+            one number, and that number is what every quiet mission against this
             island has to get past. It is read off the island rather than
             written on it, so this is the only place a player can find out why
             a raid on a loyal capital is a different proposition from a raid on

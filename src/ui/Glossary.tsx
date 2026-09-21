@@ -79,7 +79,7 @@ function groups(): Group[] {
         ],
         [
           terms.uncharted,
-          'Nobody of yours has been. You can see that something is there and nothing about it — not who holds it, not what it is worth, not what is in the water off it. Charting it is the Explore errand.',
+          'Nobody of yours has been. You can see that something is there and nothing about it — not who holds it, not what it is worth, not what is in the water off it. Charting it is the Explore mission.',
         ],
       ],
     },
@@ -122,7 +122,7 @@ function groups(): Group[] {
         ],
         [
           'Ship Design',
-          'A shipwright. A label, not a rule: the Research errand is settled on ratings and anybody may be sent, so this says who ought to go rather than who may.',
+          'A shipwright. A label, not a rule: the Research mission is settled on ratings and anybody may be sent, so this says who ought to go rather than who may.',
         ],
         [
           'Drill Research',
@@ -156,15 +156,15 @@ function groups(): Group[] {
       ],
     },
     {
-      title: 'Errands',
+      title: terms.errands,
       entries: [
         [
-          'Errand',
+          terms.errand,
           `Anything you send a ${terms.crewOne} to do. The sail is as long as the distance — a week to the next island, a fortnight the length of a ${terms.reach}, months across open water and ${TRAVEL_MAX_DAYS} days corner to corner — and then ${MISSION_WORK_DAYS} days' work ashore before they report.`,
         ],
         [
           terms.parley,
-          `Talking an island round: the errand for somewhere that has not chosen a side, or somewhere already yours that is cooling. Settled by the ${terms.parley} rating.`,
+          `Talking an island round: the mission for somewhere that has not chosen a side, or somewhere already yours that is cooling. Settled by the ${terms.parley} rating.`,
         ],
         [
           terms.incite,
@@ -192,7 +192,7 @@ function groups(): Group[] {
         ],
         [
           'Abduction',
-          'Carrying one of theirs off a quay. What you get is a prisoner, not a corpse — and the same errand pointed the other way is a Rescue.',
+          'Carrying one of theirs off a quay. What you get is a prisoner, not a corpse — and the same mission pointed the other way is a Rescue.',
         ],
         [
           terms.survey,
@@ -213,7 +213,7 @@ function groups(): Group[] {
         ],
         [
           'Standing',
-          `What has lately been happening on an island, which makes the next errand there easier or harder. It builds with each success, runs out at ${MOMENTUM_CAP}, and fades if nobody keeps it up.`,
+          `What has lately been happening on an island, which makes the next mission there easier or harder. It builds with each success, runs out at ${MOMENTUM_CAP}, and fades if nobody keeps it up.`,
         ],
         [
           terms.mutiny,
@@ -256,7 +256,7 @@ function groups(): Group[] {
         ],
         [
           'Craft',
-          'Your shipwrights\' grade, raised by the Research errand. It opens better hulls and takes time off everything a shipyard lays down.',
+          'Your shipwrights\' grade, raised by the Research mission. It opens better hulls and takes time off everything a shipyard lays down.',
         ],
       ],
     },

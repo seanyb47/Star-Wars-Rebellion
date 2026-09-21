@@ -8,10 +8,20 @@ it is one. The file is `src/data/terms.json` and
 `src/ui/__tests__/vocabulary.test.ts` fails the build if a retired word reaches
 the player.
 
-Sean reversed one of these on 19 September: a ground unit was a **Company**
-and *troops* was retired; it is a **Troop** now and *company* is the retired
-word. The one survivor is **Ship's Company**, which is a unit's proper name
-and a real naval idiom rather than the category.
+Sean has reversed two of these, so treat the table as the current ruling
+rather than a settled one. On 19 September a ground unit stopped being a
+**Company** and became a **Troop**; *company* is the retired word now. The one
+survivor is **Ship's Company**, which is a unit's proper name and a real naval
+idiom rather than the category. On 21 September — *"I don't like errands.
+Mission is the word we want to use"* — an **Errand** went back to being a
+**Mission**, reversing the 17 September ruling that had retired it.
+
+Both reversals were cheap for the same reason, and it is the reason to keep
+doing it this way: the retired word was only ever taken out of the *labels*.
+`mission` stayed in the code throughout — `MissionType`, `missionsOffered`,
+the `missions` chart-layer id, `missions.ts` — so turning the word round cost
+a value in `terms.json`, a direction in the test, and the sentences a player
+reads. Retire words from prose, never from identifiers.
 
 | Idea | The word | Retired |
 |---|---|---|
@@ -22,8 +32,9 @@ and a real naval idiom rather than the category.
 | One chain, opened | **Reach Map** | the chain view |
 | One island, opened | **Location** | port, harbor (as a screen name) |
 | A ground unit | **Troop**, plural *troops* | regiment, **company** |
+| Where a troop is raised | **Barracks** | training facility |
 | What is built | **Buildings** (in prose, *works*) | facilities |
-| A thing a crew member is sent to do | **Errand** | mission |
+| A thing a crew member is sent to do | **Mission** | **errand** |
 
 ## Correct Sean's terms
 

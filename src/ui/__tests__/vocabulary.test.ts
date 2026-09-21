@@ -31,6 +31,31 @@ const SOURCES = import.meta.glob('../*.{ts,tsx}', {
   eager: true,
 }) as Record<string, string>;
 
+/**
+ * The sim's player-facing strings, which are not in `src/ui` at all.
+ *
+ * The 21 September reversal found a Pirate Lord's power blurb — *"Any errand
+ * he leads makes the passage in half the time"* — sitting in
+ * `src/sim/constants.ts`, where no guard in this file had ever looked. The
+ * sweep below reads `src/ui`; the chart filters were already known to live in
+ * the sim and were checked one at a time through `CHART_LAYERS`, which is the
+ * shape of an exception that should have been a rule.
+ *
+ * The sim has no JSX, so only its quoted strings are read.
+ */
+const SIM = import.meta.glob('../../sim/*.ts', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+function simSources(): Array<{ file: string; text: string }> {
+  return Object.entries(SIM).map(([path, text]) => ({
+    file: path.replace('../../', ''),
+    text,
+  }));
+}
+
 function uiSources(): Array<{ file: string; text: string }> {
   return Object.entries(SOURCES)
     .map(([path, text]) => ({ file: path.replace('../', ''), text }))
@@ -254,6 +279,17 @@ describe('the words that were retired', () => {
   });
 
   /**
+   * Non-vacuity for the sim sweep, for the same reason the data one has it: a
+   * glob that stops resolving turns its guard green by looking at nothing.
+   */
+  it('is actually reading the sim files', () => {
+    const files = simSources();
+    expect(files.length, 'files found in src/sim').toBeGreaterThan(15);
+    const said = files.flatMap(({ text }) => playerText(text));
+    expect(said.length, 'strings found in src/sim').toBeGreaterThan(500);
+  });
+
+  /**
    * Non-vacuity: the data sweep is reading real prose rather than an empty
    * glob. If `import.meta.glob` ever stops resolving these the test above goes
    * green by looking at nothing.
@@ -265,86 +301,66 @@ describe('the words that were retired', () => {
   });
 
   /**
-   * And `mission`, which CLAUDE.md has listed as retired since 17 September and
-   * which nothing was checking.
+   * And `errand` — retired on 21 September, which reverses the ruling that
+   * retired `mission` on the 17th.
    *
-   * A playtest on 20 September opened a Pirate Lord and found the one order on
-   * her sheet reading **Send on mission**, under a heading reading **On a
-   * mission**, with **Missions** as the chart filter and the tutorial card
-   * naming the button by the same word. Every *report* of one already said
-   * errand; only the places you give the order still said the old thing. The
-   * word never reached `terms.json` at all, which is how four labels kept it
-   * for three days.
+   * Sean: *"I don't like errands. Mission is the word we want to use."* The
+   * same shape as the Company/Troop reversal two days earlier, and the reason
+   * this file is written the way it is: the rule is *one word per idea*, not
+   * *this particular word forever*, so a reversal should cost a value in
+   * `terms.json` and a direction here, and nothing else.
    *
-   * `mission` survives everywhere it is code: `MissionType`, `on_mission` as a
-   * status, `'mission'` as an event kind, `missionsOffered`, the `missions`
-   * layer id. None of those is read by anybody, and renaming the layer id
-   * alone would have broken saved filter orders.
+   * It very nearly did. The 17 September pass had already been careful to
+   * leave `mission` alone everywhere it was code — `MissionType`, `on_mission`
+   * as a status, `'mission'` as an event kind, `missionsOffered`, the
+   * `missions` chart-layer id, `missions.ts`, `MissionChoiceSheet.tsx` — on
+   * the grounds that none of it is read by anybody. That judgement is what
+   * made this reversal cheap: the code never stopped saying mission, so only
+   * the words a player reads had to turn round.
+   *
+   * The keys `errand` and `errands` stay in `terms.json` for the same reason.
+   * A key is code.
    */
-  it('calls a thing a crew member is sent to do an errand', () => {
-    expect(terms.errand).toBe('Errand');
-    expect(terms.errands).toBe('Errands');
-    const bare = /\bmissions?\b/i;
-    for (const { file, text } of uiSources()) {
+  it('calls a thing a crew member is sent to do a mission', () => {
+    expect(terms.errand).toBe('Mission');
+    expect(terms.errands).toBe('Missions');
+    const bare = /\berrands?\b/i;
+    for (const { file, text } of [...uiSources(), ...simSources()]) {
       for (const said of [...playerText(text), ...jsxText(text)]) {
-        // An identifier on its own is code: an id, a key, a css class.
-        if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(said.trim())) continue;
+        /*
+         * An identifier on its own is code: an id, a key, a css class. But
+         * *capitalised* on its own is a label, and telling those apart matters
+         * — this rule read `/^[A-Za-z_]\w*$/` and so walked straight past the
+         * Glossary's own section heading, `title: 'Errands'`, and the entry
+         * named `'Errand'` directly under it. A whole encyclopedia page about
+         * the retired word, invisible to the guard written to retire it,
+         * because a single word looks like a variable.
+         *
+         * So: a lower-case single word is an id and is skipped; a capitalised
+         * one is a label and is checked.
+         */
+        if (/^[a-z_][a-zA-Z0-9_]*$/.test(said.trim())) continue;
         if (/^[a-z0-9-]+$/.test(said.trim())) continue;
         // `jsxText` takes everything between the tags, and a `{...}` block in
         // the middle of a component is code that happens to sit there. Prose
         // does not have arrows and semicolons in it.
         if (/&&|\|\||=>|===|!==|\?\.|\.\w+\(|\)\s*[,;]|\bconst\b|\breturn\b/.test(said)) continue;
+        // A field on an interface, which `jsxText` leaves behind as
+        // `errands: Array ;` once it has eaten the `<{...}>`. The arrows and
+        // semicolons rule above misses it because there is no paren in it.
+        // Any typed member would land here, so it is skipped by shape rather
+        // than by name: a word, then a colon, then something that starts like
+        // a type. Prose that opens `Recruit · somewhere loyal` does not.
+        if (/^\w+\??:\s*(Array|Record|Map|Set|Partial|Readonly|string|number|boolean|[A-Z]\w*)\b/.test(said.trim())) continue;
         expect(bare.test(said), `${file}: ${said.trim().slice(0, 120)}`).toBe(false);
       }
     }
-    // The chart filters are written in the sim, not the interface, which is
-    // where the "Missions" chip came from.
+    // The chart filters are written in the sim, not the interface.
     for (const { said } of dataText()) {
       expect(bare.test(said), `src/data: ${said.slice(0, 120)}`).toBe(false);
     }
-    expect(CHART_LAYERS.some((l) => /mission/i.test(l.label) || /mission/i.test(l.hint)), 'a chart filter still says it').toBe(false);
-    expect(CHART_LAYERS.some((l) => l.label === terms.errands), 'the errands filter is there').toBe(true);
-  });
-
-  /**
-   * And `training facility`, retired on 20 September: *"Change 'Training
-   * Facilities' to 'Barracks' across game."*
-   *
-   * The key stays `training_facility`, exactly the way `refinery` stays the key
-   * for the Lumber Mill and `mine` for the Gold Mine — an id is code, and
-   * renaming this one would rename a type, two art slugs and the files on disk
-   * behind them for the sake of a word nobody reads. So the guard is written
-   * against the *words* with a space in them and never against the identifier:
-   * `training_facility` and `training-facility` both survive it on purpose.
-   *
-   * One thing the rename nearly broke, worth keeping in view: **Barracks is
-   * already plural in form.** The idle-buildings filter built its hint by
-   * sticking an `s` on the label and would have said *barrackss*; it names the
-   * works singular now. Anywhere else that pluralises a facility label is the
-   * same bug waiting, so this checks the rendered labels rather than trusting
-   * the sweep.
-   */
-  it('calls the place a troop is drilled a Barracks', () => {
-    expect(terms.facilities.training_facility).toBe('Barracks');
-    const bare = /\btraining facilit(y|ies)\b/i;
-    for (const { file, text } of uiSources()) {
-      for (const said of [...playerText(text), ...jsxText(text)]) {
-        expect(bare.test(said), `${file}: ${said.trim().slice(0, 120)}`).toBe(false);
-      }
-    }
-    for (const { file, said } of dataText()) {
-      expect(bare.test(said), `${file}: ${said.slice(0, 120)}`).toBe(false);
-    }
-    // And never doubled up by a caller that assumed a singular noun.
-    for (const { file, text } of uiSources()) {
-      for (const said of [...playerText(text), ...jsxText(text)]) {
-        expect(/barrackss/i.test(said), `${file}: ${said.trim().slice(0, 120)}`).toBe(false);
-      }
-    }
-    for (const layer of CHART_LAYERS) {
-      expect(/barrackss/i.test(layer.hint), `layer ${layer.id}`).toBe(false);
-      expect(/training facilit/i.test(`${layer.label} ${layer.hint}`), `layer ${layer.id}`).toBe(false);
-    }
+    expect(CHART_LAYERS.some((l) => /errand/i.test(l.label) || /errand/i.test(l.hint)), 'a chart filter still says it').toBe(false);
+    expect(CHART_LAYERS.some((l) => l.label === terms.errands), 'the missions filter is there').toBe(true);
   });
 
   /**

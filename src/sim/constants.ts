@@ -855,7 +855,7 @@ export const LORD_POWER_LABEL: Record<LordPower, string> = {
 /** What each power does, in the player's words. */
 export const LORD_POWER_TEXT: Record<LordPower, string> = {
   moot: 'The Moot sits where she does. While she holds a posting, that island comes round to the Confederacy a point a day — their own ground, unaligned ground, or the Crown\'s.',
-  runner: 'The Swallowtail is the fastest thing afloat and he is never off her. Any errand he leads makes the passage in half the time.',
+  runner: 'The Swallowtail is the fastest thing afloat and he is never off her. Any mission he leads makes the passage in half the time.',
   line: 'While he holds a posting, every fleet lying in that harbor fights under the Admiral\'s command.',
 };
 /** Allegiance a day the Moot brings an island round by. */

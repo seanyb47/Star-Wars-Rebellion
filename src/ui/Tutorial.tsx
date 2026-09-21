@@ -59,7 +59,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'Send your crew',
     body: () =>
-      `${terms.crew} are how the map changes. Open one from the Crew tab at the foot, press Send on ${terms.errand.toLowerCase()}, choose an island, and it offers what can be done there — talk the island round, recruit, chart the unknown, spy, or take command. Then they sail, and it takes as long as the distance.`,
+      `${terms.crew} are how the map changes. Open one from the Crew tab at the foot, press Assign ${terms.errand}, choose an island, and it offers what can be done there — talk the island round, recruit, chart the unknown, spy, or take command. Then they sail, and it takes as long as the distance.`,
   },
   {
     title: 'Build and earn',
@@ -69,7 +69,7 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
   {
     title: 'Start the clock',
     body: () =>
-      'Nothing happens while it says Paused. Start it and the days turn on their own. Passages take weeks, errands a fortnight ashore, hulls months — so set things going, let it run, and read the Log to find out what happened while you were away.',
+      'Nothing happens while it says Paused. Start it and the days turn on their own. Passages take weeks, missions a fortnight ashore, hulls months — so set things going, let it run, and read the Log to find out what happened while you were away.',
   },
   {
     title: 'The rest is in the Book',

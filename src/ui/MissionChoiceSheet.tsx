@@ -251,7 +251,7 @@ export function MissionChoiceSheet({
               </button>
               {/* A posting can be to a deck instead of to the island, so every
                   squadron of yours lying here is its own line. Taking one is
-                  the same errand — the voyage out, then the post — which is
+                  the same mission — the voyage out, then the post — which is
                   why they sit under Command rather than being an order you
                   give from the harbor the way signing on used to be. */}
               {type === 'command' &&

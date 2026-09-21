@@ -114,8 +114,8 @@
       "id": "look-before-you-land",
       "tier": "sharp",
       "title": "Count the guns before you send anybody past them",
-      "rule": "Send a spy to an enemy island it has no report on before it sends anybody to work on that island covertly, and price every covert errand off what its own reports say rather than off what is true.",
-      "why": "The watch is the number every quiet errand has to beat, and an island held against you does not tell you what its watch is. Without this the opponent knows every island's strength for nothing and to the digit, which is not a strategy, it is the absence of one. With it, the memo's chain falls out on its own: look, then soften, then raid."
+      "rule": "Send a spy to an enemy island it has no report on before it sends anybody to work on that island covertly, and price every covert mission off what its own reports say rather than off what is true.",
+      "why": "The watch is the number every quiet mission has to beat, and an island held against you does not tell you what its watch is. Without this the opponent knows every island's strength for nothing and to the digit, which is not a strategy, it is the absence of one. With it, the memo's chain falls out on its own: look, then soften, then raid."
     },
     {
       "id": "shell-only-when-you-must",
@@ -137,8 +137,8 @@
       "id": "keep-a-chair-warm",
       "tier": "plain",
       "title": "Do not walk your own commanders out of the room",
-      "rule": "An officer holding a posting is not available for an errand or a deck. Leaving ends the posting.",
-      "why": "Otherwise the errand pass appoints a commander and then immediately sends them somewhere else."
+      "rule": "An officer holding a posting is not available for a mission or a deck. Leaving ends the posting.",
+      "why": "Otherwise the mission pass appoints a commander and then immediately sends them somewhere else."
     },
     {
       "id": "break-off-early",

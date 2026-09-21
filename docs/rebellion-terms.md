@@ -25,7 +25,7 @@ is somebody else's trademarked game.
 | System / planet | **Location** (an island) | *Location* in a label, *island* in a sentence |
 | Planet screen | **Location** | Harbor / Crew / Garrison / Buildings / Lore |
 | Core / Rim | **Inner** / **Outer** Seas | A Sea names weather and paintings, nothing actable |
-| Uncharted system | **Unexplored** | Charting it is the Explore errand |
+| Uncharted system | **Unexplored** | Charting it is the Explore mission |
 | Hyperspace / jump | **Passage** / sailing | Days at sea, not a jump |
 
 ## People
@@ -92,4 +92,4 @@ sector-wide "influence" as a number the player reads.
 ## And one we have that it does not
 
 The **watch** — how closely an island is being watched, which every covert
-errand must get past before it is even attempted.
+mission must get past before it is even attempted.

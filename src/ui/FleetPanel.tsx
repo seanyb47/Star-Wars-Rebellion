@@ -365,7 +365,7 @@ export function FleetCard({
           Signing somebody on from the quay used to happen here — a chip that
           put them on the deck the instant it was tapped, provided they were
           already standing on the same island. That is gone at Sean's word.
-          Taking a deck is an errand now, ordered from the officer and paid for
+          Taking a deck is a mission now, ordered from the officer and paid for
           with the voyage, so an officer arrives on a quarterdeck the same way
           they arrive anywhere else in this game. What is left is who is
           aboard; tap one to open them, and relieve them from there. */}

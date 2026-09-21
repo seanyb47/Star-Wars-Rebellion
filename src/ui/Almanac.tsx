@@ -754,7 +754,7 @@ function EntrySheet({
                   somebody to know whether it applied to them. */}
               <div className="section-title">What they may be sent to do</div>
               <div className="card small">
-                <b>Any errand</b> is open to anybody — the rating decides how it goes.
+                <b>Any mission</b> is open to anybody — the rating decides how it goes.
                 Two are not:
                 <br />
                 <br />
@@ -1539,14 +1539,14 @@ export function Almanac({
           rule, and the general rule can wait until after the roster. */}
       <div className="section-title">What a {terms.crewOne} is for</div>
       <div className="card small">
-        <b>Four numbers, and each one is a different errand.</b>{' '}
+        <b>Four numbers, and each one is a different mission.</b>{' '}
         <b>{terms.parley}</b> wins islands over and stirs them up. <b>Espionage</b> is the quiet work —
         sabotage, and carrying somebody off a quay. <b>Combat</b> tells in a landing and keeps them
-        alive when an errand goes wrong. <b>Leadership</b> is worth a hit chance to every gun in
+        alive when a mission goes wrong. <b>Leadership</b> is worth a hit chance to every gun in
         the squadron they sail with, and holds an island quiet when they are posted to it.
         <br />
         <br />
-        <b>A posting is not an errand.</b> Put a {terms.crewOne} in command of an island and they stay:
+        <b>A posting is not a mission.</b> Put a {terms.crewOne} in command of an island and they stay:
         the island does not rise while they stand on it, and a stranger asking questions in its
         harbor is far likelier to be found out. They are not available for anything else until
         relieved, and leaving ends the posting.
@@ -2138,7 +2138,7 @@ export function Almanac({
             Deep. It is not a system waiting to be built: it is the word for
             the vanes under a Reef-folk hull, and those sail already. */}
         The Leviathan and a research tree with things in it are designed but not in the
-        game. Everything else the original had is: fleets and sea battles, and eight kinds of errand
+        game. Everything else the original had is: fleets and sea battles, and eight kinds of mission
         — {terms.parley.toLowerCase()}, stirring up trouble, recruiting, {terms.survey.toLowerCase()},
         {' '}{terms.sabotage.toLowerCase()}, abduction, command of an island in revolt, and the yards.
         You never pick one; the island decides.
