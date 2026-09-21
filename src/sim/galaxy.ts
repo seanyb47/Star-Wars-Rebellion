@@ -14,6 +14,7 @@ import {
   watchOf,
   CAPITAL_WALLS,
   CROWN_PRINCIPAL,
+  CROWN_ADMIRAL,
   HOME_PORT_WALLS,
   CAPITAL_GARRISON,
   START_GARRISON_MAX,
@@ -327,10 +328,13 @@ export const START_CHARACTERS: Record<PlayableFaction, number> = { empire: 4, al
 function openingCast(faction: PlayableFaction, rng: Rng) {
   const roster = characterRoster[faction];
   // Who is in every war on this side: the three Lords for the Confederacy, the
-  // Regent for the Crown. Knowing your cast is knowledge worth having, and it
-  // only is if the cast is actually there.
+  // Regent and the Admiral for the Crown. Knowing your cast is knowledge worth
+  // having, and it only is if the cast is actually there.
   const bound = roster.filter(
-    (e) => PIRATE_LORDS.some((l) => l.name === e.name) || e.name === CROWN_PRINCIPAL,
+    (e) =>
+      PIRATE_LORDS.some((l) => l.name === e.name) ||
+      e.name === CROWN_PRINCIPAL ||
+      e.name === CROWN_ADMIRAL,
   );
   const rest = roster.filter((e) => !bound.includes(e));
   const drawn = rng.shuffle(rest).slice(0, Math.max(0, START_CHARACTERS[faction] - bound.length));
@@ -1251,6 +1255,31 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       });
     }
   }
+  /*
+   * --- Admiral Blackwater sails with the forward squadron. ---
+   *
+   * Sean, 21 September: *"Admiral Corvus should be on the second fleet that's
+   * randomly placed."* He is the Crown's admiral and the game's one named
+   * sailor; leaving him ashore among the seven scattered about made the most
+   * obviously naval person in the cast a passenger, and left the squadron
+   * furthest from home — the one that actually has to make decisions in the
+   * first fortnight — with nobody aboard to make them.
+   *
+   * The forward squadron rather than the Home Fleet, and that is the point of
+   * it: it is berthed at a holding drawn fresh each war, so where the Crown's
+   * admiral is standing on day one is a thing the Confederacy has to find out
+   * rather than assume.
+   */
+  const forwardFleet = state.fleets.find(
+    (f) => f.faction === 'empire' && f.systemId !== capital.id,
+  );
+  const blackwater = state.characters.find((c) => c.name === CROWN_ADMIRAL);
+  if (forwardFleet && blackwater) {
+    forwardFleet.officerIds.push(blackwater.id);
+    // Signed on means aboard: a person on a deck stands where the deck is.
+    blackwater.locationSystemId = forwardFleet.systemId;
+  }
+
   // No Lord's ship goes on the water. The three of them are people standing
   // at Freeport with the rest of the Brethren, and their ships live in their
   // bios — which is Sean's call, 15 September: a thing that is a person and a

@@ -120,6 +120,12 @@ describe('a dispatch knows whose news it is', () => {
     const fleet = state.fleets.filter((f) => f.faction === 'empire')[1];
     fleet.systemId = target.id;
     fleet.voyage = undefined;
+    // Nobody on the quarterdeck. The forward squadron is where Admiral
+    // Blackwater now opens, and an admiral aboard is worth enough gunnery to
+    // kill this creature in the first round — which writes the kill line and
+    // no action card, and the action card is what this test reads. A fixture
+    // about whose news it is should not also be a fixture about command.
+    fleet.officerIds = [];
     target.explored.empire = true;
     sightBeast(target, 'empire');
     // Small hulls, so the creature actually sinks one: a round that takes

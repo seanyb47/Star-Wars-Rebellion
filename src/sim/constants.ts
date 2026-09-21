@@ -873,6 +873,18 @@ export function mayServe(people: string | undefined, faction: PlayableFaction): 
 
 export const CROWN_PRINCIPAL = 'Lord Regent Halvard Corvane';
 
+/**
+ * The Crown's other fixture, and the reason the fixture list has two names.
+ *
+ * Sean, 21 September: *"Admiral Corvus should be on the second fleet that's
+ * randomly placed."* A placement rule needs somebody to place. The opening
+ * cast is a draw, so before this he simply was not dealt in most wars, and a
+ * rule about where he stands would have been a rule that mostly did nothing.
+ * Binding him is the smaller half of the change and the half without which the
+ * other one cannot hold.
+ */
+export const CROWN_ADMIRAL = 'Admiral Corvus Blackwater';
+
 export const PIRATE_LORDS: PirateLord[] = [
   { name: 'Commodore-Elect Adaira Hale', ship: 'harbor', power: 'moot' },
   { name: 'Captain Silas Reyne', ship: 'swallowtail', power: 'runner' },

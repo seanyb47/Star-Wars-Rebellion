@@ -1791,14 +1791,6 @@ export function Almanac({
         roster and the engine that fights it follow in the next pass; the note
         at the top says so rather than letting the reader find out.
       */}
-      <div className="card small" style={{ borderColor: 'var(--warn, #b8863b)' }}>
-        <b>This is the new fleet.</b> {ROSTER.ships.length} hulls on the locked combat
-        rules — three kinds of cannon, armor, Size and Speed. The war you are
-        playing still sails the old fleet and fights it the old way until the
-        engine swap lands, so a name here may not be a name in your harbor
-        yet.
-      </div>
-
       {/*
         One list, both navies, A-Z. Sean, 19 September: *"Don't separate crown
         and confederate ships. Put them all in encyclopedia in ABC order. But
