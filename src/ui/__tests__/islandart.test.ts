@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import reaches from '../../data/reaches.json';
+import factionData from '../../data/factions.json';
 import { slugify } from '../painted';
 
 /**
@@ -41,9 +42,15 @@ describe("an island's own painting", () => {
     expect(paintedSlugs().length).toBeGreaterThanOrEqual(32);
   });
 
+  /**
+   * The capital is asked for by the name the data gives it, not by a slug
+   * written down here. This pinned `the-aldermain` and so broke on 21
+   * September when Sean moved the seat's name back to Highwater — the
+   * painting had simply followed its island, which is the rule working.
+   */
   it('gives the capital and the meeting place their own', () => {
     const painted = new Set(paintedSlugs());
-    expect(painted.has('the-aldermain')).toBe(true);
+    expect(painted.has(slugify(factionData.empire.capitalIslandName))).toBe(true);
     expect(painted.has('freeport')).toBe(true);
     expect(painted.has('coralhome')).toBe(true);
   });

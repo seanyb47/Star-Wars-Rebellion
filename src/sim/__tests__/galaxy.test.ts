@@ -351,7 +351,7 @@ describe('generateGalaxy', () => {
     expect(settled / total).toBeLessThan(0.35);
   });
 
-  it('holds the meeting on one frontier island, with a squadron each and the Home Fleet at the Aldermain', () => {
+  it('holds the meeting on one frontier island, with a squadron each and the Home Fleet at Highwater', () => {
     for (const seed of [41, 42, 43]) {
       const state = generateGalaxy(seed);
       const base = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
@@ -364,13 +364,13 @@ describe('generateGalaxy', () => {
       expect(confed).toHaveLength(1);
       for (const f of confed) expect(f.systemId).toBe(base.id);
       const seat = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
-      expect(seat.name).toBe('The Aldermain');
+      expect(seat.name).toBe('Highwater');
       expect(seat.archetype).toBe('port-city');
       expect(state.fleets.find((f) => f.faction === 'empire')!.systemId).toBe(seat.id);
     }
   });
 
-  it('opens the home Reach with the Aldermain, a second port, one more island, and a Confederate foothold', () => {
+  it('opens the home Reach with Highwater, a second port, one more island, and a Confederate foothold', () => {
     for (const seed of [51, 52, 53, 54]) {
       const state = generateGalaxy(seed);
       const home = state.sectors.find((s) => s.name === 'Sovereign Reach')!;
@@ -378,14 +378,14 @@ describe('generateGalaxy', () => {
       const crown = islands.filter((s) => s.control === 'empire');
       const confed = islands.filter((s) => s.control === 'alliance');
       expect(crown).toHaveLength(3);
-      expect(crown.map((s) => s.name)).toContain('The Aldermain');
+      expect(crown.map((s) => s.name)).toContain('Highwater');
       expect(crown.some((s) => s.name === 'Gorley' || s.name === 'Ballmoor')).toBe(true);
       expect(confed.length).toBeGreaterThanOrEqual(1);
       expect(confed.length).toBeLessThanOrEqual(2);
       // Never on the great island: its ports are the Crown's ground to start.
-      for (const s of confed) expect(['The Aldermain', 'Gorley', 'Ballmoor']).not.toContain(s.name);
+      for (const s of confed) expect(['Highwater', 'Gorley', 'Ballmoor']).not.toContain(s.name);
       // The three ports of the great island, whoever holds them.
-      for (const name of ['The Aldermain', 'Gorley', 'Ballmoor']) {
+      for (const name of ['Highwater', 'Gorley', 'Ballmoor']) {
         expect(islands.find((s) => s.name === name)!.archetype).toBe('port-city');
       }
     }

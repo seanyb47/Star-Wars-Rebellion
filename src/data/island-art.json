@@ -1,5 +1,5 @@
 {
-  "_comment": "Which painting each island wears, precomputed by scripts/island_art.py and read by paintedIsleFor(). Thirty-two islands have their own; the rest borrow one painted for an island of the same kind, spaced so the encyclopedia's alphabetical grid of eight does not show the same picture several times at once, and holds up when only part of the map is charted — Sean, 20 September. A name prefixed @ is an archetype painting in src/art/islands rather than a borrowed one. Do not edit by hand: re-run the script.",
+  "_comment": "Which painting each island wears, precomputed by scripts/island_art.py and read by paintedIsleFor(). Thirty-two islands have their own; the rest borrow one painted for an island of the same kind, spaced so the encyclopedia's alphabetical grid of eight does not show the same picture several times at once, and holds up when only part of the map is charted \u2014 Sean, 20 September. A name prefixed @ is an archetype painting in src/art/islands rather than a borrowed one. Do not edit by hand: re-run the script.",
   "window": 8,
   "avoidWithin": 20,
   "worstDistinctPerWindow": 7,
@@ -30,6 +30,7 @@
     "Greenholm": "greenholm",
     "Hawksbill Bay": "hawksbill-bay",
     "Hearsay Cay": "hearsay-cay",
+    "Highwater": "highwater",
     "Kingsward": "kingsward",
     "Leeward Keep": "leeward-keep",
     "Marlbury": "@jungle-isle",
@@ -56,7 +57,6 @@
     "Tallow Cay": "tallow-cay",
     "Tamalu": "@storm-isle",
     "Tarmouth": "ballmoor",
-    "The Aldermain": "the-aldermain",
     "The Kettles": "the-kettles",
     "The Shoals": "the-shoals",
     "The Terraces": "the-terraces",

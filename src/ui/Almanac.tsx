@@ -1645,7 +1645,7 @@ export function Almanac({
           <p key={side}>
             <b>{factionData[side].name}{side === you ? ' — you' : ''}:</b>{' '}
             {side === 'alliance' ? (
-              <>hold the Aldermain. Take the great island, and Highwater the Crown's capital that stands on it, and the war is over that day.</>
+              <>hold Highwater. Take the Crown's walled capital, on the great island of the Aldermain, and the war is over that day.</>
             ) : (
               <>
                 have all three Pirate Lords — {PIRATE_LORDS.map((l) => l.name).join(', ')} — in
@@ -2076,7 +2076,7 @@ export function Almanac({
       <div className="card small">
         <b>One mark, three sizes.</b> Every island is a dot in the colour of whoever holds it, and
         the chart speaks by making that dot bigger or smaller — never by changing what it is. Two
-        things are not dots: the <b>star</b>, which marks the Aldermain and wherever a Pirate Lord is
+        things are not dots: the <b>star</b>, which marks Highwater and wherever a Pirate Lord is
         standing and nothing else ever, and a <b>numeral</b> on the two filters whose answer is a
         figure you want exactly — Production and Idle crew.
         <br />

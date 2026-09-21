@@ -31,7 +31,7 @@ describe('the combat order', () => {
   });
 
   it('shows both fleets and comes back to where it was asked from', () => {
-    const hail = openEncounter('isl-1', 'The Aldermain');
+    const hail = openEncounter('isl-1', 'Highwater');
     const looking = viewFleets(hail);
     expect(looking.phase).toBe('fleets');
     expect(back(looking).phase).toBe('hail');
@@ -39,12 +39,12 @@ describe('the combat order', () => {
 
   it('keeps the choice open while the player is looking', () => {
     // The point of the screen: decide after evaluating, not before.
-    const looking = viewFleets(openEncounter('isl-1', 'The Aldermain'));
+    const looking = viewFleets(openEncounter('isl-1', 'Highwater'));
     expect(actionsFor(looking)).toEqual(['attack', 'flee', 'back']);
   });
 
   it('runs the sequence on a choice and lands on an outcome', () => {
-    const e = choose(openEncounter('isl-1', 'The Aldermain'), 'attack', always('victory'));
+    const e = choose(openEncounter('isl-1', 'Highwater'), 'attack', always('victory'));
     expect(e.choice).toBe('attack');
     expect(e.outcome).toBe('victory');
     expect(e.phase).toBe('outcome');
@@ -53,7 +53,7 @@ describe('the combat order', () => {
 
   it('offers one button on the outcome, and it is the damage report', () => {
     for (const outcome of ['victory', 'defeat', 'you-fled', 'they-fled'] as EncounterOutcome[]) {
-      const e = choose(openEncounter('isl-1', 'The Aldermain'), 'attack', always(outcome));
+      const e = choose(openEncounter('isl-1', 'Highwater'), 'attack', always(outcome));
       expect(actionsFor(e)).toEqual(['viewDamageReport']);
       expect(OUTCOME_HEADLINE[outcome].length).toBeGreaterThan(0);
       const report = viewDamageReport(e);

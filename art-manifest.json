@@ -3113,6 +3113,38 @@
         "sha1": "977c992ee0dbae0e"
       }
     },
+    "isles/highwater": {
+      "folder": "isles",
+      "slug": "highwater",
+      "version": 1,
+      "added": "2026-09-20",
+      "updated": "2026-09-20",
+      "title": "Highwater",
+      "source": "unrecorded",
+      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'aureate-haven'). Delivered as a wide panorama 1983x793; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses. Filed under the-aldermain until 21 September, when Sean moved the seat's name back to Highwater; the painting is the walled capital either way.",
+      "crop": {
+        "x": 0,
+        "y": 133,
+        "w": 1983,
+        "h": 527
+      },
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/isles/highwater.webp",
+        "w": 1983,
+        "h": 793,
+        "bytes": 697608,
+        "sha1": "7ecbdceb1c90e5d1"
+      },
+      "shipped": {
+        "file": "src/art/isles/highwater.webp",
+        "w": 768,
+        "h": 204,
+        "bytes": 53538,
+        "sha1": "7c4718ed65afe0ca"
+      }
+    },
     "isles/kingsward": {
       "folder": "isles",
       "slug": "kingsward",
@@ -3367,38 +3399,6 @@
         "h": 204,
         "bytes": 46162,
         "sha1": "00bb19f7ac7b6154"
-      }
-    },
-    "isles/the-aldermain": {
-      "folder": "isles",
-      "slug": "the-aldermain",
-      "version": 1,
-      "added": "2026-09-20",
-      "updated": "2026-09-20",
-      "title": "The Aldermain",
-      "source": "unrecorded",
-      "notes": "Island Art Pack, Sean, 20 September 2026 (source id 'aureate-haven'). Delivered as a wide panorama 1983x793; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.",
-      "crop": {
-        "x": 0,
-        "y": 133,
-        "w": 1983,
-        "h": 527
-      },
-      "tone": null,
-      "upscaled": null,
-      "master": {
-        "file": "art-masters/isles/the-aldermain.webp",
-        "w": 1983,
-        "h": 793,
-        "bytes": 697608,
-        "sha1": "7ecbdceb1c90e5d1"
-      },
-      "shipped": {
-        "file": "src/art/isles/the-aldermain.webp",
-        "w": 768,
-        "h": 204,
-        "bytes": 53538,
-        "sha1": "7c4718ed65afe0ca"
       }
     },
     "isles/the-kettles": {

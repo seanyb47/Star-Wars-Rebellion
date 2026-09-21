@@ -24,12 +24,14 @@ export function audit(s: GameState): Violation[] {
     if (!num(f.craft) || f.craft < 0) bad('craft-bad', `${side} craft=${f.craft}`);
     if (!systemIds.has(f.hqSystemId)) bad('hq-orphan', `${side} hq=${f.hqSystemId}`);
   }
-  // The Crown's seat is the Aldermain, and has been since the island rename of
-  // 19 September: Highwater is the walled capital city standing on it, not the
-  // island. This rule still said 'Highwater' and so fired on every day of
-  // every war — twenty-nine thousand times over forty wars — which is worse
-  // than useless, because a harness that always reports a broken rule is a
-  // harness nobody reads when a rule actually breaks.
+  // Read from the data rather than written down here, and that is the whole
+  // point of it. This rule used to name the seat in the source: it said
+  // 'Highwater' after the 19 September rename moved the seat to the Aldermain,
+  // and so fired on every day of every war — twenty-nine thousand times over
+  // forty wars — which is worse than useless, because a harness that always
+  // reports a broken rule is a harness nobody reads when one actually breaks.
+  // The seat went back to being Highwater on 21 September and this needed no
+  // edit, which is the argument for never writing a name down twice.
   const crownSeat = s.systems.find((x) => x.id === s.factions.empire.hqSystemId);
   if (crownSeat && crownSeat.name !== factionData.empire.capitalIslandName) {
     bad('crown-seat-moved', crownSeat.name);

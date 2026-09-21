@@ -33,8 +33,8 @@
           "note": "The signal station that watches the approach to the Aldermain."
         },
         {
-          "name": "The Aldermain",
-          "note": "The one great island, far larger than anything else, with the best ground and the best resources in the world. Highwater, the Crown's walled capital, stands on it behind seawalls three hundred feet high.",
+          "name": "Highwater",
+          "note": "The Crown's walled capital, behind seawalls three hundred feet high. It stands on the Aldermain, the one great island, far larger than anything else, with the best ground and the best resources in the world.",
           "capital": true,
           "port": true,
           "seed": 931

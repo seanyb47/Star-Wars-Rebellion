@@ -82,7 +82,7 @@ describe('what each screen leads with', () => {
 
   /** §4: a draw's first fact is that nothing was settled. */
   it('opens a draw on the absence of a decision', () => {
-    const lines = battleStrategic({ ...common, verdict: 'draw', withdrewTo: 'The Aldermain' });
+    const lines = battleStrategic({ ...common, verdict: 'draw', withdrewTo: 'Highwater' });
     expect(lines[0]).toMatch(/no decisive control/i);
     // And it never claims either side was destroyed or driven off.
     expect(lines.join(' ')).not.toMatch(/nothing of (yours|theirs) is left afloat/i);
@@ -91,9 +91,9 @@ describe('what each screen leads with', () => {
 
   /** §3: a defeat leads with what the player lost. */
   it('opens a defeat on the player being forced off, and says where they went', () => {
-    const lines = battleStrategic({ ...common, verdict: 'defeat', withdrewTo: 'The Aldermain' });
+    const lines = battleStrategic({ ...common, verdict: 'defeat', withdrewTo: 'Highwater' });
     expect(lines[0]).toMatch(/forced off|nothing of yours/i);
-    expect(lines.join(' ')).toContain('The Aldermain');
+    expect(lines.join(' ')).toContain('Highwater');
   });
 
   it('opens a victory on the enemy being gone and the water being yours', () => {

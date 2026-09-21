@@ -11,11 +11,18 @@ import { inProse } from '../helpers';
  * game starts with it — immediately read *"hold The Aldermain, whatever
  * else."* Four islands had the same problem before it and nobody had noticed,
  * because none of them was named as often as a capital is.
+ *
+ * The seat is **Highwater** again since 21 September — Sean: *"Aldermain is
+ * the big island not the port! Revert the port back to the name Highwater"* —
+ * and carries no article at all, so the sentence that started this no longer
+ * exists. The rule outlived it: The Kettles, The Shoals, The Terraces and The
+ * White Flats are still named as often as anything else on the chart, and the
+ * war-long sweep at the bottom is what actually guards them.
  */
 describe('an island name inside a sentence', () => {
   it('drops the article to lower case, and touches nothing else', () => {
-    expect(inProse('The Aldermain')).toBe('the Aldermain');
     expect(inProse('The Kettles')).toBe('the Kettles');
+    expect(inProse('The Shoals')).toBe('the Shoals');
     expect(inProse('The White Flats')).toBe('the White Flats');
     // Not a leading article, so not its business. Thebes would be a fine name
     // for an island and this must not eat its T.
@@ -28,19 +35,27 @@ describe('an island name inside a sentence', () => {
     for (const side of ['empire', 'alliance'] as const) {
       const state = generateGalaxy(11, side);
       const opening = state.events.map((e) => e.text).join(' ');
-      expect(opening).not.toMatch(/ The Aldermain/);
       expect(opening).not.toMatch(/hold The /);
+      // Mid-sentence only: "The Free Confederacy is formed..." and "The Imperium
+      // will come looking" are proper nouns opening a sentence and are right.
+      expect(opening).not.toMatch(/[^.!?\u2014]\s(The [A-Z])/);
     }
   });
 
   /**
-   * And the island is still called what it is called. The helper is for
+   * And an island is still called what it is called. The helper is for
    * sentences; the data, the chart and the tab keep the capital.
+   *
+   * The seat is the wrong island to check that on now — Highwater has no
+   * article to keep — so it checks both halves: the seat reads plainly, and an
+   * island that *does* wear one still has it in the data.
    */
-  it('leaves the island itself named The Aldermain', () => {
+  it('leaves an island itself named with its capital article', () => {
     const state = generateGalaxy(11, 'empire');
     const seat = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
-    expect(seat.name).toBe('The Aldermain');
+    expect(seat.name).toBe('Highwater');
+    const kettles = state.systems.find((s) => s.name.endsWith('Kettles'))!;
+    expect(kettles.name).toBe('The Kettles');
   });
 
   /**

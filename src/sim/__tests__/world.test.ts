@@ -147,9 +147,9 @@ describe('the generated world matches the bible', () => {
     }
   });
 
-  it('seats the Imperium at the Aldermain', () => {
+  it('seats the Imperium at Highwater', () => {
     const hq = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
-    expect(hq.name).toBe('The Aldermain');
+    expect(hq.name).toBe('Highwater');
     expect(hq.isCore).toBe(true);
   });
 
@@ -161,8 +161,8 @@ describe('the generated world matches the bible', () => {
   });
 
   it('carries the bible notes through onto the islands that have them', () => {
-    const aldermain = state.systems.find((s) => s.name === 'The Aldermain')!;
-    expect(aldermain.note).toMatch(/seawalls/i);
+    const seat = state.systems.find((s) => s.name === 'Highwater')!;
+    expect(seat.note).toMatch(/seawalls/i);
     // And an island the data gives no note to still has none. Named by the
     // data rather than by hand: this was Avermere until 20 September, when
     // the lore package gave Avermere a note and the negative case with it.

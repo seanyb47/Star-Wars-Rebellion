@@ -230,10 +230,11 @@ export function atSea(state: GameState, character: Character): boolean {
  * An island's name as it reads *inside* a sentence.
  *
  * Four islands wear a definite article as part of the name — The Kettles, The
- * Shoals, The Terraces, The White Flats — and since 19 September so does the
- * Crown's seat, the Aldermain. As a label that capital *The* is right, and on
- * a chart and a tab it is what the island is called. Dropped into the middle
- * of a sentence it is not: *"hold The Aldermain, whatever else"*.
+ * Shoals, The Terraces, The White Flats. As a label that capital *The* is
+ * right, and on a chart and a tab it is what the island is called. Dropped
+ * into the middle of a sentence it is not: *"hold The Kettles, whatever
+ * else"*. The Crown's seat wore one too between 19 and 21 September, when it
+ * was the Aldermain; it is Highwater again and needs no help from this.
  *
  * This is the vocabulary rule from CLAUDE.md applied to a name rather than a
  * noun — **a label uses the agreed word, and prose keeps its voice** — so the

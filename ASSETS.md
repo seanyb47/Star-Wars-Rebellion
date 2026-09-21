@@ -179,6 +179,7 @@ one island's own painting, by name; wins over its type's. 32 of 32.
 | Greenholm | `greenholm` | 1 | 49KB | 2086×754, 647KB | 2086×554 @ 0,100 | 2026-09-20 | unrecorded |
 | Hawksbill Bay | `hawksbill-bay` | 1 | 48KB | 2073×758, 663KB | 2073×551 @ 0,103 | 2026-09-20 | unrecorded |
 | Hearsay Cay | `hearsay-cay` | 1 | 46KB | 2043×770, 636KB | 2043×543 @ 0,113 | 2026-09-20 | unrecorded |
+| Highwater | `highwater` | 1 | 52KB | 1983×793, 681KB | 1983×527 @ 0,133 | 2026-09-20 | unrecorded |
 | Kingsward | `kingsward` | 1 | 39KB | 2172×724, 579KB | 2172×577 @ 0,73 | 2026-09-20 | unrecorded |
 | Leeward Keep | `leeward-keep` | 1 | 43KB | 1983×793, 607KB | 1983×527 @ 0,133 | 2026-09-20 | unrecorded |
 | Minterne | `minterne` | 1 | 37KB | 2056×765, 559KB | 2056×546 @ 0,109 | 2026-09-20 | unrecorded |
@@ -187,7 +188,6 @@ one island's own painting, by name; wins over its type's. 32 of 32.
 | Sorrowhead | `sorrowhead` | 1 | 44KB | 2066×761, 634KB | 2066×549 @ 0,106 | 2026-09-20 | unrecorded |
 | Starcross | `starcross` | 1 | 51KB | 2060×763, 707KB | 2060×547 @ 0,108 | 2026-09-20 | unrecorded |
 | Tallow Cay | `tallow-cay` | 1 | 45KB | 2048×768, 631KB | 2048×544 @ 0,112 | 2026-09-20 | unrecorded |
-| The Aldermain | `the-aldermain` | 1 | 52KB | 1983×793, 681KB | 1983×527 @ 0,133 | 2026-09-20 | unrecorded |
 | The Kettles | `the-kettles` | 1 | 43KB | 1916×821, 684KB | 1916×509 @ 0,156 | 2026-09-20 | unrecorded |
 | The Shoals | `the-shoals` | 1 | 55KB | 2056×765, 792KB | 2056×546 @ 0,109 | 2026-09-20 | unrecorded |
 | The Terraces | `the-terraces` | 1 | 44KB | 2048×768, 645KB | 2048×544 @ 0,112 | 2026-09-20 | unrecorded |
@@ -362,6 +362,7 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **isles/greenholm** — Island Art Pack, Sean, 20 September 2026 (source id 'verdant-bastion'). Delivered as a wide panorama 2086x754; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
 - **isles/hawksbill-bay** — Island Art Pack, Sean, 20 September 2026 (source id 'pearlhaven'). Delivered as a wide panorama 2073x758; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
 - **isles/hearsay-cay** — Island Art Pack, Sean, 20 September 2026 (source id 'thousand-teeth'). Delivered as a wide panorama 2043x770; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
+- **isles/highwater** — Island Art Pack, Sean, 20 September 2026 (source id 'aureate-haven'). Delivered as a wide panorama 1983x793; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses. Filed under the-aldermain until 21 September, when Sean moved the seat's name back to Highwater; the painting is the walled capital either way.
 - **isles/kingsward** — Island Art Pack, Sean, 20 September 2026 (source id 'lowtide-crown'). Delivered as a wide panorama 2172x724; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
 - **isles/leeward-keep** — Island Art Pack, Sean, 20 September 2026 (source id 'thunderhead-isle'). Delivered as a wide panorama 1983x793; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
 - **isles/minterne** — Island Art Pack, Sean, 20 September 2026 (source id 'tidemarble'). Delivered as a wide panorama 2056x765; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
@@ -370,7 +371,6 @@ top-down chart ground, quiet where the chains sit. 2 of 2.
 - **isles/sorrowhead** — Island Art Pack, Sean, 20 September 2026 (source id 'blackreed'). Delivered as a wide panorama 2066x761; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
 - **isles/starcross** — Island Art Pack, Sean, 20 September 2026 (source id 'skyglass'). Delivered as a wide panorama 2060x763; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
 - **isles/tallow-cay** — Island Art Pack, Sean, 20 September 2026 (source id 'boneharbor'). Delivered as a wide panorama 2048x768; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
-- **isles/the-aldermain** — Island Art Pack, Sean, 20 September 2026 (source id 'aureate-haven'). Delivered as a wide panorama 1983x793; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
 - **isles/the-kettles** — Island Art Pack, Sean, 20 September 2026 (source id 'lantern-deep'). Delivered as a wide panorama 1916x821; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
 - **isles/the-shoals** — Island Art Pack, Sean, 20 September 2026 (source id 'rootwater'). Delivered as a wide panorama 2056x765; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.
 - **isles/the-terraces** — Island Art Pack, Sean, 20 September 2026 (source id 'cloudfall'). Delivered as a wide panorama 2048x768; the pack's own README asks for the central horizontal band, so the crop is full width and centred vertically down to the 768x204 the island banner uses.

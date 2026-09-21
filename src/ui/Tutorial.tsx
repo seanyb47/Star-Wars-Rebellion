@@ -48,8 +48,8 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
     title: 'How you win',
     body: (side) =>
       side === 'empire'
-        ? `Have all three Pirate Lords — ${PIRATE_LORDS.map((l) => l.name).join(', ')} — in irons at the same time. They are people, so you take one by carrying them off a quay. Lose the Aldermain and you lose the war that day.`
-        : `Take the Aldermain, the great island where Highwater the Crown's capital stands, and the war is over that day. You lose if the Crown gets all three of your Pirate Lords in irons at once — so keep them apart.`,
+        ? `Have all three Pirate Lords — ${PIRATE_LORDS.map((l) => l.name).join(', ')} — in irons at the same time. They are people, so you take one by carrying them off a quay. Lose Highwater and you lose the war that day.`
+        : `Take Highwater, the Crown's walled capital on the great island of the Aldermain, and the war is over that day. You lose if the Crown gets all three of your Pirate Lords in irons at once — so keep them apart.`,
   },
   {
     title: 'Tap an island',
