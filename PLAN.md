@@ -8168,3 +8168,25 @@ Lord. Ninety-six wars said nothing at −0.07, nothing at −0.11, and **56 — 
 with every war finished** at −0.15. *"Nothing, nothing, nothing, then the
 game."* It is the right dial for a **difficulty setting** and the wrong one for
 a balance change, and the war is 17 — 23 without touching it.
+
+## The encyclopedia plate shows the whole hull (#136, 21 September)
+
+Sean: *"Encyclopedia ships need to be resized to fit properly without cutting
+off image. All should be 4:3."*
+
+Every painting in `src/art/ships` already **is** 4:3 — 640 × 480, all
+thirty-seven of them. What was wrong was the box. His earlier ask for the same
+plate read *"approximately 38-42vh on mobile using its natural 4:3 ratio and
+object-fit: cover"*, and it was taken literally: `height: 40vh` with the aspect
+ratio released. On a phone 40vh is taller than 4:3, so `cover` did what `cover`
+does and cropped the painting to fill it — topmasts or waterline, depending on
+where `object-position` landed.
+
+The two asks pull against each other and the later one wins, so the ratio is
+what is fixed now and the height follows from it. On a 393px phone that is a
+295px plate, which is within a few points of the 38–42vh the first ask wanted
+and cuts nothing off. `object-fit: contain`, so a painting that is ever *not*
+4:3 letterboxes rather than losing a bow.
+
+Guarded in `shipart.test.ts` off the stylesheet, and the guard was checked
+against the old rule before it was trusted: it fails on `height: 40vh`.

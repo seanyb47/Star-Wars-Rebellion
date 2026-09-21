@@ -54,6 +54,35 @@ describe('every hull in the roster has a painting, and the page says so', () => 
     expect(unmarked, `painted but not marked in the doc: ${unmarked.join(', ')}`).toEqual([]);
   });
 
+  /**
+   * And the sheet shows the whole painting.
+   *
+   * Sean, 21 September: *"Encyclopedia ships need to be resized to fit
+   * properly without cutting off image. All should be 4:3."* The plate had a
+   * `height: 40vh` on phone width with the aspect ratio released, and 40vh of
+   * a phone is taller than 4:3, so `object-fit: cover` cropped every hull to
+   * fill it. Every painting in `src/art/ships` is 640 x 480, so the fix is to
+   * fix the ratio and let the height follow.
+   *
+   * Read off the stylesheet because `App.tsx` has no seam to render in a test
+   * — the same reason `console.test.ts` reads it. What it pins is the rule
+   * that was wrong, not the pixels.
+   */
+  it('shows the whole hull rather than cropping it to a height', () => {
+    const css = (
+      import.meta.glob('../styles.css', { query: '?raw', import: 'default', eager: true }) as Record<
+        string,
+        string
+      >
+    )['../styles.css'];
+    expect(css).toBeTruthy();
+    const narrow = css.slice(css.indexOf('@media (max-width: 560px)'));
+    const plate = narrow.slice(0, narrow.indexOf('\n}\n', narrow.indexOf('--plate')) + 3);
+    expect(plate, 'the plate is back on a fixed height').not.toMatch(/--plate[^}]*height:\s*\d+vh/);
+    expect(plate, 'the plate is not 4:3').toMatch(/aspect-ratio:\s*4\s*\/\s*3/);
+    expect(plate, 'the painting is still cropped to fill').toMatch(/object-fit:\s*contain/);
+  });
+
   it('claims nothing the register does not have', () => {
     const claimed = [...DOC.matchAll(/src\/art\/ships\/([a-z0-9-]+)\.webp/g)].map((m) => m[1]);
     expect(claimed.length).toBeGreaterThan(0);
