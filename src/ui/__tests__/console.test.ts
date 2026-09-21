@@ -37,10 +37,37 @@ describe('the console at phone width', () => {
     expect(at('.topbar .speed {'), 'the speed control padding').toBeLessThan(block);
   });
 
-  it('keeps the ledger plaque from shrinking, specifically enough to mean it', () => {
-    // `.plaque--ledger` alone loses to `.console .plaque`; it has to be
-    // written at least as specifically to hold its width.
-    expect(CSS).toContain('.console .plaque--ledger { flex: none; }');
-    expect(CSS).not.toMatch(/^\.plaque--ledger \{ flex: none; \}/m);
+  /**
+   * The ledger plaque this used to guard is gone — Sean cut it on 21
+   * September for one that shows gold and the delta and hides the rest behind
+   * a tap, which is what made the width fight go away rather than winning it.
+   *
+   * What replaced it has a subtler version of the same trap. The purse panel
+   * is absolutely positioned, so it needs a positioned ancestor, and the
+   * obvious one is wrong: `.console` scrolls sideways with `overflow-y:
+   * hidden`, so a panel anchored there is clipped the instant it drops below
+   * the row. It hangs off `.topbar` instead. Neither fact shows up in a build
+   * or a type check, and both show up as a panel nobody can see.
+   */
+  it('hangs the purse off the header, not off the console that scrolls', () => {
+    expect(CSS).toMatch(/\.topbar \{[^}]*position: relative/);
+    expect(CSS).toMatch(/\.purse \{[^}]*position: absolute/);
+    // The console still scrolls, which is exactly why the purse is not in it.
+    expect(CSS).toMatch(/\.console \{[^}]*overflow-x: auto/);
+    const purse = CSS.indexOf('.purse {');
+    const console_ = CSS.indexOf('.console {');
+    expect(purse, 'the purse rule is there at all').toBeGreaterThan(-1);
+    expect(console_).toBeGreaterThan(-1);
+    /*
+     * And no rules left behind for a plaque that no longer exists — checked
+     * against the stylesheet with its comments stripped, because the note
+     * explaining the *old* CLEAR bug still names `.plaque--ledger` and should:
+     * it is the record of why the narrow-screen block sits where it sits.
+     * A guard that cannot tell a rule from a comment about a rule would have
+     * forced that history to be deleted to stay green.
+     */
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, ' ');
+    expect(rules).not.toContain('.plaque--ledger');
+    expect(rules).not.toContain('.ledger__col');
   });
 });

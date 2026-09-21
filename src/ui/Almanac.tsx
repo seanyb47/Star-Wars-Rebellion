@@ -150,6 +150,7 @@ import {
   MISSION_SETTLED_BY,
   MISSION_WORK_DAYS,
   RECRUIT_MIN_SUPPORT,
+  perFortnight,
 } from '../sim';
 import {
   CategoryIcon,
@@ -416,7 +417,7 @@ function GoldLine({ type }: { type: FacilityType }) {
   const earns = GOLD_PER_DAY[type];
   const costs = UPKEEP_PER_DAY[type];
   if (earns > 0) return <GoldFig label="Earns" n={earns} tone="earn" />;
-  if (costs > 0) return <GoldFig label={terms.upkeep} n={costs} tone="cost" />;
+  if (costs > 0) return <GoldFig label={terms.upkeep} n={perFortnight(costs)} tone="cost" />;
   return <span className="muted">No running cost</span>;
 }
 
@@ -862,7 +863,7 @@ function EntrySheet({
                 </div>
                 <div>
                   <i><Icon name="upkeep" size={15} />{terms.upkeep}</i>
-                  <b><GoldFig n={cls.goldPerDayMaintenance} per="day" /></b>
+                  <b><GoldFig n={perFortnight(cls.goldPerDayMaintenance)} /></b>
                 </div>
               </div>
 
@@ -974,7 +975,7 @@ function EntrySheet({
                 <b>{TROOP_BUILD.label}s cost the same whoever they are:</b>{' '}
                 <GoldFig n={TROOP_BUILD.costGold} per={null} /> and {TROOP_BUILD.days}d at a{' '}
                 {FACILITY_LABEL.training_facility}, then{' '}
-                <GoldFig label={terms.upkeep} n={UPKEEP_PER_DAY.troop} tone="cost" /> a day.
+                <GoldFig label={terms.upkeep} n={perFortnight(UPKEEP_PER_DAY.troop)} tone="cost" />.
                 Which kind you get is the island, not the order.
                 {type.research && (
                   <>
@@ -1336,9 +1337,9 @@ export function Almanac({
         <br />
         <br />
         <b>An empty island has not been touched.</b> Every deposit on it is raw, and all of its
-        worth is still in front of whoever settles it — which is the trade the frontier offers: no
-        income on the day you land, and more of it later than a settled island of the same size has
-        left to give.
+        worth is still in front of whoever settles it — which is the trade the frontier offers: it
+        produces nothing on the day you land, and more later than a settled island of the same size
+        has left to give.
       </div>
 
       <div className="section-title">How a thing gets built</div>
@@ -1408,7 +1409,7 @@ export function Almanac({
           </span>
         </div>
         <div className="tiny" style={{ marginTop: 2 }}>
-          <GoldFig label={terms.upkeep} n={UPKEEP_PER_DAY.troop} tone="cost" />
+          <GoldFig label={terms.upkeep} n={perFortnight(UPKEEP_PER_DAY.troop)} tone="cost" />
         </div>
         <div style={{ margin: '8px 0' }}>
           <CompanyRow present={3} />

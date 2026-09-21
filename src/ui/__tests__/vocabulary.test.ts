@@ -364,6 +364,35 @@ describe('the words that were retired', () => {
   });
 
   /**
+   * And `Income`, retired on 21 September in favour of **Production**.
+   *
+   * Sean was shown that the chart filter said Production and the top bar's
+   * ledger said Income for the same idea, and picked Production. His own
+   * wording for the expanded purse had a *third* — "Available Gold / Upkeep
+   * Cost / Earnings / Surplus" — so earnings goes too. One word per idea
+   * means one, even when the third is your own.
+   *
+   * The key stays `income`, like every other key in the file.
+   */
+  it('calls what an island earns Production', () => {
+    expect(terms.income).toBe('Production');
+    const bare = /\b(income|earnings)\b/i;
+    for (const { file, text } of [...uiSources(), ...simSources()]) {
+      for (const said of [...playerText(text), ...jsxText(text)]) {
+        if (/^[a-z_][a-zA-Z0-9_]*$/.test(said.trim())) continue;
+        if (/^[a-z0-9-]+$/.test(said.trim())) continue;
+        if (/&&|\|\||=>|===|!==|\?\.|\.\w+\(|\)\s*[,;]|\bconst\b|\breturn\b/.test(said)) continue;
+        if (/^\w+\??:\s*(Array|Record|Map|Set|Partial|Readonly|string|number|boolean|[A-Z]\w*)\b/.test(said.trim())) continue;
+        expect(bare.test(said), `${file}: ${said.trim().slice(0, 120)}`).toBe(false);
+      }
+    }
+    for (const { file, said } of dataText()) {
+      expect(bare.test(said), `${file}: ${said.slice(0, 120)}`).toBe(false);
+    }
+    expect(CHART_LAYERS.some((l) => l.label === terms.income), 'the filter is there').toBe(true);
+  });
+
+  /**
    * And `Diplomacy` as a name — the rating, the errand, the heading. Lower-case
    * `diplomacy` survives as the mission type's own id and as a field on a
    * character, which are code rather than words shown to anybody.

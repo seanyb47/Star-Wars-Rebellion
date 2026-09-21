@@ -244,7 +244,7 @@ function groups(): Group[] {
         ],
         [
           terms.upkeep,
-          'What everything you own costs to keep, per day. The figure at the top of the screen is what you make after paying it.',
+          'What everything you own costs to keep, over one fortnight — the same span the ledger settles in. The figure at the top of the screen is what you make after paying it.',
         ],
         [
           terms.space,

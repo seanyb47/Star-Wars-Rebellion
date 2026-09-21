@@ -7988,3 +7988,63 @@ cut off a mine, a wall, a troop and a first-rate alike.
 Measured over twenty wars: **8–12 against 9–11**, median 576 against 636. Inside
 the noise on twenty, so the wider discount is not a balance change — it is the
 same saving spread over more of what you buy.
+
+## The purse, the fortnight, and one word for what an island earns
+
+Three of Sean's notes that turn out to be one idea: the economy was being shown
+in a unit nobody settles in, in more figures than anybody reads, under two
+different names.
+
+### Upkeep is a fortnight now (#130)
+
+*"All places that show maintenance costs, change to fortnight cost instead of
+per day. And you don't need to say how long. Just say 'Upkeep X' and gold
+symbol. Keep it simple."*
+
+The books still run per day — that is what `UPKEEP_PER_DAY` is and what the
+settlement charges. But per-day is the wrong unit to *read*: the ledger pays
+once a fortnight, so a figure per day is a number the player has to multiply by
+fourteen before it means anything against the balance they were just shown.
+`perFortnight()` in the sim, and `GoldFig` no longer prints a duration at all —
+its `per` defaulted to `'day'`, so every call site that did not think about it
+was saying `/day` by accident.
+
+### The purse (#131)
+
+*"This section needs cleaning up. ui is awkward. Let's make it just show gold
+and the delta next to it. Then click on the gold and it expands."*
+
+The rail was GOLD, IN, OUT and CLEAR — four figures fighting for a 393px phone,
+and only one of them answers the question a player has at a glance. It is the
+delta, by Sean's own earlier reasoning: *"do I want to use available land to
+produce more income or build stuff... that decision should largely be based on
+what's my maintenance deficit."*
+
+So the rail is **what you have and which way it is going**, and the breakdown is
+a tap away. Which also retires, rather than wins, the CSS specificity fight the
+old ledger caused: the whole reason `.console .plaque--ledger { flex: none }`
+had to exist was four figures that no longer compete for the room.
+
+**The trap in the replacement**, and it is a subtler version of the same kind:
+the panel is absolutely positioned, and the obvious ancestor is wrong.
+`.console` scrolls sideways with `overflow-y: hidden`, so a panel anchored
+there is clipped the instant it drops below the row. It hangs off `.topbar`.
+The console test guards that now instead of the plaque it used to guard.
+
+That test needed one more fix to be honest: `not.toContain('.plaque--ledger')`
+caught the *comment* that records why the narrow-screen block sits where it
+sits. A guard that cannot tell a rule from a comment about a rule would have
+forced that history to be deleted to stay green, so it strips comments first.
+
+### Production, not Income (#138)
+
+Sean picked **Production** when shown that the chart filter said one thing and
+the ledger said another for the same idea. Worth noting he picked against my
+recommendation and against his own earlier wording: his sketch for this very
+panel read *"Available Gold / Upkeep Cost / **Earnings** / Surplus"*, which was
+a third word. One word per idea means one, even when the third is your own.
+
+The chart filter reads `terms.income` now rather than a literal, and the
+vocabulary guard forbids *income* and *earnings* in player text — over `src/sim`
+as well as `src/ui`, which is the sweep added earlier today. It found exactly
+one real site, in the Locations rules.

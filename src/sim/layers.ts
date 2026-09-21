@@ -78,7 +78,7 @@ export const CHART_LAYERS: LayerSpec[] = [
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them, and where yours are sailing — theirs only as far as you know.' },
   { id: 'garrisons', label: 'Garrisons', hint: `How many ${terms.troops.toLowerCase()} are ashore on each island of yours.` },
   { id: 'missions', label: terms.errands, hint: `Islands your ${terms.crew.toLowerCase()} are working on, or sailing for.` },
-  { id: 'worth', label: 'Production', hint: 'What each island earns its holder in gold a day, right now.' },
+  { id: 'worth', label: terms.income, hint: `What each island earns its holder in ${terms.gold.toLowerCase()} a day, right now.` },
   /*
    * Last, at Sean's word: *"Move idle land to last."* It is the only filter
    * here answering a planning question rather than a this-morning one — where
