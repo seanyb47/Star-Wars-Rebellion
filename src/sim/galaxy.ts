@@ -369,6 +369,21 @@ function startGarrison(support: number, capital: boolean): number {
  * fixed — you always know exactly what Hale is worth, and not whether you have
  * her.
  */
+/*
+ * Tried and cut, 22 September: **six and seven**, on the grounds that the bags
+ * had just grown to fourteen and eleven and any one officer was down to about
+ * a war in six — Blackwater, whose reveal is that he is Corwin Calloway, in
+ * 20% of them.
+ *
+ * Measured over the same 24 wars as the four-and-five baseline, both sides
+ * played: **Crown 9 — Confederacy 14, one war unfinished**, against 11 — 13
+ * and none unfinished. A wider opening bench is worth more to the Confederacy
+ * than to the Crown, and the reason is legible once it is on the page: the
+ * extra hands are spec ops and abductions before they are anything else, and
+ * the Confederacy wins by taking people. So the seen-cast problem is real and
+ * this is not the fix for it; the fix, if Sean wants one, is which officers
+ * are bound rather than how many are drawn.
+ */
 export const START_CHARACTERS: Record<PlayableFaction, number> = { empire: 4, alliance: 5 };
 
 function openingCast(faction: PlayableFaction, rng: Rng) {
