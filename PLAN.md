@@ -8722,3 +8722,49 @@ pages goes stale silently, because nothing links it to the rule it describes.**
 Numbers do not have this problem — they are read off constants and move when
 the constants move. Sentences about rules need either a test or a constant, and
 "a comment saying keep this in sync" has now failed twice this week.
+
+### The Buildings page becomes its two grids (22 September)
+
+Sean: *"Same with all the text under buildings in encyclopedia. Cut it all.
+Move it to glossary. That's where you can dump unlimited text."*
+
+Four cards and about sixteen paragraphs stood under the pictures — *What is in
+the ground*, *Settled ground and empty ground*, *How a thing gets built*,
+*Standing defences* — on a page whose job is to let a player look at a building
+and tap it. All four are gone; the page is the buildings grid, the deposits
+grid, and nothing else.
+
+**The last clause is the rule, and it is his.** The Glossary is the one screen
+where length costs nothing, because it is a searchable list that nobody reads
+end to end. Everything cut today landed there:
+
+| Cut from Buildings | Now in Glossary |
+|---|---|
+| What is in the ground | `Deposit`, `Forest`, `Gold vein` |
+| Settled and empty ground | `Worked ground` |
+| How a thing gets built | `Works`, extended |
+| Standing defences | `Fortress`, `Bombardment` extended, `Repair` |
+
+Every figure reads off its constant — `FORT_INVASION_DEFENSE`,
+`FORT_BOMBARD_DEFENSE`, `BOMBARD_TICKS_MAX`, `REPAIR_PER_DAY`,
+`REPAIR_AT_A_YARD`, `GOLD_PER_DAY` — rather than being retyped on the way
+across.
+
+**And the move found the same bug again, a fourth time.** The cut paragraph
+said *"a {Lumber Mill} can only be raised on a forest, and a {Gold Mine} only
+on a vein"*. True when it was written, when those were the only two deposits.
+Coral Reach's kiln and the silver seam arrived afterwards and nobody went back
+to the sentence, so a player reading it would not learn that a Coral Kiln needs
+coral or that silver earns twice what timber does.
+
+So `Deposit` does not name the pairs — it builds the list out of `WORKS_ON`,
+the table the sim decides by, and gains a pair on the day the sim does. That is
+the general form of today's lesson, and it is cheaper than the test: **where a
+sentence enumerates something the sim already enumerates, generate it.** A test
+catches a stale sentence after somebody writes it; generation means nobody can.
+
+One thing the cut *removed* that was correct, and is worth noting because it
+is the exception: the Standing defences card was the only page in the game that
+stated the landing rule properly — *"and you may always land. A standing wall
+used to forbid it outright; now it only makes it dear."* Somebody updated that
+one and none of the other three. It survives in `Fortress` and `Invasion`.

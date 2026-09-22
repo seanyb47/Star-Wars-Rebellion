@@ -2,13 +2,21 @@ import { useMemo, useState } from 'react';
 import terms from '../data/terms.json';
 import reachData from '../data/reaches.json';
 import {
+  BOMBARD_TICKS_MAX,
+  FACILITY_LABEL,
+  FORT_BOMBARD_DEFENSE,
   FORT_INVASION_DEFENSE,
   GARRISON_FOR_BAND,
   GARRISON_SMUGGLING_CUT,
+  GOLD_PER_DAY,
+  RESOURCE_LABEL,
+  WORKS_ON,
   LONG_GUN_SHARE,
   MISSION_WORK_DAYS,
   TRAVEL_MAX_DAYS,
   MOMENTUM_CAP,
+  REPAIR_AT_A_YARD,
+  REPAIR_PER_DAY,
   UPKEEP_PER_DAY,
   UPRISING_END_SUPPORT,
   UPRISING_SUPPORT,
@@ -258,8 +266,36 @@ function groups(): Group[] {
           'Berths to build on. Every building takes one and an island has only so many; troops and hulls take none.',
         ],
         [
+          'Deposit',
+          // The pairs are read off WORKS_ON rather than named.
+          //
+          // The prose this replaces knew about two of them, because it was
+          // written when there were two; Coral Reach's kiln and the silver
+          // seam arrived later and nothing went back to the paragraph. That
+          // is the same failure as every other one found today, so this
+          // sentence builds itself out of the table the sim decides by and
+          // gains a pair whenever the sim does.
+          `What an island has in the ground, rolled when the world is made and never changed after. Each kind carries one works and nothing else — ${(
+            Object.entries(WORKS_ON) as [keyof typeof FACILITY_LABEL, keyof typeof RESOURCE_LABEL][]
+          )
+            .map(([works, on]) => `a ${FACILITY_LABEL[works]} on ${RESOURCE_LABEL[on].toLowerCase()}`)
+            .join(', ')} — and the works takes the deposit's own plot, the forest becoming the mill, so working ground you already have costs no room and a full island can still cut its own trees. What it cannot do is invent ground it does not have. Nothing here runs dry: a worked deposit yields forever, and a burnt mill leaves the trees standing, so the deposit comes back the moment whatever was working it comes down.`,
+        ],
+        [
+          'Forest',
+          `The common deposit — most islands carry two to five stands of timber. It takes a ${FACILITY_LABEL.refinery}, and it can also be felled for nothing but its plot: a stand in the way of a ${FACILITY_LABEL.shipyard.toLowerCase()} can be cleared to make room. That is the one order in the game that takes something out of the world for good, and nothing grows it back.`,
+        ],
+        [
+          'Gold vein',
+          `The rare deposit — about one island in four has any, and then only one or two. It takes a ${FACILITY_LABEL.mine}, which costs about twice what a mill does to sink and is worth ${Math.round(GOLD_PER_DAY.mine / GOLD_PER_DAY.refinery)} of them a day. A vein cannot be cleared the way timber can: it is in the rock, so an island with gold on it and no room left is a problem rather than a decision. It is also the reason nobody can put a mine wherever they like and print money, and why an island with gold is worth sailing a war across.`,
+        ],
+        [
+          'Worked ground',
+          'A settled island opens with some of its ground already worked — some, never all. Every island with people on it is a going concern: mills already standing and something still left to do. That is what you win by courting an unaligned island or storming a held one, because the works come with the island and only what was half-built when the boats came in is lost. An empty island has not been touched, so every deposit on it is raw: it produces nothing on the day you land and has more left to give than a settled island of the same size.',
+        ],
+        [
           'Works',
-          'What is built on an island. A building is raised on the island itself and takes no works to order it; a Shipyard lays down hulls and a Barracks raises troops, one job at a time each. Several of the same kind on one island work together — three Shipyards finish a hull in a third of the time, and one raised halfway through a job speeds up the job already running.',
+          `What is built on an island. A building is raised on the island getting it — any island you hold, any open plot, no works needed first and nothing crossing water to reach it; what stops you is the price and the ground. Hulls and ${terms.troops.toLowerCase()} are different: a ${FACILITY_LABEL.shipyard.toLowerCase()} lays down hulls and a ${FACILITY_LABEL.training_facility.toLowerCase()} drills ${terms.troops.toLowerCase()}, one job of a kind at a time per island. Several of the same kind work together rather than doubling the output — three ${FACILITY_LABEL.shipyard}s finish a hull in a third of the time, one raised halfway through shortens what is left from that morning on, and one lost to a landing slows the job the same way. An order may also name another island of yours: the work takes exactly as long and the thing is then at sea for the length of the passage, which is how a seawall goes up on an island that could never have built one. Gold goes at the order and does not come back — cancelling stops the work and keeps nothing — and an island in ${terms.mutiny.toLowerCase()} builds nothing at all until it is quiet.`,
         ],
         [
           'Craft',
@@ -287,7 +323,15 @@ function groups(): Group[] {
         ],
         [
           'Bombardment',
-          'Firing on an island from the water to bring its walls down. It either silences the harbor, knocks stones about without silencing it, or achieves nothing — and shot that goes past the walls into the town is the one thing the whole world hears about.',
+          `Firing on an island from the water to bring its walls down. It either silences the harbor, knocks stones about without silencing it, or achieves nothing — and shot that goes past the walls into the town is the one thing the whole world hears about. Breaking a battery is a single die rather than a siege: your squadron rolls its whole bombardment score, and to bring one down that roll has to beat the island's total plus that battery's own ${FORT_BOMBARD_DEFENSE.fort}. A squadron under that number has no chance at all rather than long odds, which is worth working out before you spend a shot. Each ship can fire ${BOMBARD_TICKS_MAX} times before it must put in at a port of yours for more; a ship that is out adds nothing to the squadron's weight and still blockades normally.`,
+        ],
+        [
+          FACILITY_LABEL.fort,
+          `An obstacle, not a battery: it does not fire at anybody. What it does is stand in the way twice over — a bombardment has to break it before its shot can reach anything behind it, and while it stands it adds ${FORT_INVASION_DEFENSE.fort} to what a landing has to beat, or ${FORT_INVASION_DEFENSE.heavy_fort} for a ${FACILITY_LABEL.heavy_fort}. It has no condition: a wall is standing or it is rubble and nothing in between, so there is no chipping away at one over a fortnight. Rubble does not come back either — the island has to build a new one.`,
+        ],
+        [
+          'Repair',
+          `${Math.round(REPAIR_PER_DAY * 100)}% of a hull a day at anchor, ${Math.round(REPAIR_AT_A_YARD * 100)}% at an island of yours carrying a ${FACILITY_LABEL.shipyard.toLowerCase()} that is not shut in. Nothing mends at sea.`,
         ],
         [
           // Sean named the two attack orders on 21 September — Bombardment and

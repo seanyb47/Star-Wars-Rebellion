@@ -105,9 +105,6 @@ import {
   RESOURCE_TYPES,
   RESOURCE_BLURB,
   FORT_INVASION_DEFENSE,
-  BOMBARD_TICKS_MAX,
-  REPAIR_PER_DAY,
-  REPAIR_AT_A_YARD,
   BOMBARD_PER_COMPANY,
   CIVILIAN_LOYALTY_HIT,
   isWall,
@@ -1243,115 +1240,24 @@ export function Almanac({
           );
         })}
       </div>
-      <div className="card small">
-        <b>Every island has something in it, and that is what its earners are.</b>{' '}
-        <b>Forests</b> are common — most islands carry two to five stands of timber. A{' '}
-        <b>gold vein</b> is rare: about one island in four has any, and then only one or two.
-        What an island holds is rolled when the world is made and never changes.
-        <br />
-        <br />
-        <b>A {FACILITY_LABEL.refinery} can only be raised on a forest, and a{' '}
-        {FACILITY_LABEL.mine} only on a vein.</b> The works takes the deposit's own plot — the
-        forest becomes the mill — so working ground you have costs no room, and a full island can
-        still cut its own trees. What it cannot do is invent ground it does not have.
-        <br />
-        <br />
-        <b>A vein is worth {Math.round(GOLD_PER_DAY.mine / GOLD_PER_DAY.refinery)} mills a day</b>,
-        and costs about twice as much to sink. An island with gold on it is a thing worth sailing
-        a war across, which is the whole point of the rule: nobody can put a mine wherever they
-        like and print money.
-        <br />
-        <br />
-        <b>Burn a mill and the trees are still standing.</b> A deposit comes back when whatever was
-        working it comes down, and a worked one never runs dry — resources do not deplete in this
-        game. Builders can be sent across the world to work ground on an island that has no yard of
-        its own.
-        <br />
-        <br />
-        <b>Timber can be felled for anything, and felling destroys it.</b> A forest in the way of a
-        slipway can be cleared to open its plot — it is the one order in the game that takes
-        something out of the world for good, and nothing grows it back. A vein cannot be cleared:
-        it is in the rock, and an island with gold and no room is a problem rather than a decision.
-      </div>
+      {/*
+        The Buildings page is its two grids and nothing else.
 
-      <div className="section-title">Settled ground and empty ground</div>
-      <div className="card small">
-        <b>A settled island opens with some of its ground already worked.</b> Some of it, never all
-        — every island that has people on it is a going concern with mills already standing and
-        something still left to do. That is what you are winning when you court an unaligned island
-        or storm a held one: the works come with the island, and only what was half-built when the
-        boats came in is lost.
-        <br />
-        <br />
-        <b>An empty island has not been touched.</b> Every deposit on it is raw, and all of its
-        worth is still in front of whoever settles it — which is the trade the frontier offers: it
-        produces nothing on the day you land, and more later than a settled island of the same size
-        has left to give.
-      </div>
+        Sean, 22 September: *"Same with all the text under buildings in
+        encyclopedia. Cut it all. Move it to glossary. That's where you can
+        dump unlimited text."* Four cards and about sixteen paragraphs stood
+        under these pictures — what is in the ground, settled versus empty
+        ground, how a thing gets built, standing defences — on a page whose job
+        is to let a player look at a building and tap it.
 
-      <div className="section-title">How a thing gets built</div>
-      <div className="card small">
-        <b>A building is raised on the island that is getting it.</b> Any island you hold, any
-        open plot, no works needed first and nothing crossing water to reach it — what stops you
-        is the price and the ground. Hulls and {terms.troops.toLowerCase()} are different: a{' '}
-        {FACILITY_LABEL.shipyard.toLowerCase()} lays down hulls and a{' '}
-        {FACILITY_LABEL.training_facility.toLowerCase()} drills {terms.troops.toLowerCase()}, one
-        job of a kind at a time per island, and the more of that kind stand there the faster the
-        job goes.
-        <br />
-        <br />
-        <b>More of a kind is speed, not volume.</b> Every works of that kind on the island puts its
-        hands on the same job. Three yards finish a sixty-day building in twenty days; a fourth
-        finished halfway through shortens what is left from that morning on, and a yard lost to a
-        landing slows what it was working on the same way. The figure on the button is what{' '}
-        <i>this</i> island will take, not the sticker price.
-        <br />
-        <br />
-        <b>It does not have to be built where it is wanted.</b> Any order can name another island
-        of yours: the work takes exactly as long, and then the thing is at sea for the length of
-        the passage before it arrives. Builders sail to raise a seawall on an island that could
-        never have built one; a hull comes off the stocks and joins the squadron lying wherever you
-        sent it. The panel keeps the two apart — days to build, and days to deploy.
-        <br />
-        <br />
-        <b>Gold goes at the order, and does not come back.</b> Cancelling stops the work and keeps
-        nothing. An island in {terms.mutiny.toLowerCase()} builds nothing at all, and the clock
-        simply stops until it is quiet.
-      </div>
-
-      {/* Sean's list asks for defensive structures by name, and they are the
-          two that are not about money at all. */}
-      <div className="section-title">Standing defences</div>
-      <div className="card small">
-        <b>A {FACILITY_LABEL.fort.toLowerCase()} is an obstacle, not a battery.</b>{' '}
-        It does not fire at anybody. What it does is stand in the way twice over: a bombardment
-        has to break it before its shot can reach anyone behind it, and while it stands it adds{' '}
-        {FORT_INVASION_DEFENSE.fort} to what a landing has to beat. A{' '}
-        {FACILITY_LABEL.heavy_fort.toLowerCase()} is worth {FORT_INVASION_DEFENSE.heavy_fort}.
-        <br />
-        <br />
-        <b>It has no condition.</b> A wall is standing or it is rubble, and nothing between —
-        there is no chipping away at one over a fortnight. Breaking it is a die: your squadron
-        rolls its whole bombardment score, and to bring a battery down that roll has to beat the
-        island's total <i>plus</i> that battery's own {FORT_BOMBARD_DEFENSE.fort}. So a squadron
-        under that number has no chance at all rather than long odds, which is worth reading
-        before you spend a shot. Beaten down, a wall is rubble and rubble does not come back —
-        the island has to build a new one.
-        <br />
-        <br />
-        <b>Your magazine is five.</b> Each ship can bombard {BOMBARD_TICKS_MAX} times before it
-        has to put in at a port of yours for more shot. A ship that is out adds nothing to the
-        squadron's weight and still blockades normally.
-        <br />
-        <br />
-        <b>And you may always land.</b> A standing wall used to forbid it outright; now it only
-        makes it dear.
-        <br />
-        <br />
-        <b>Hulls mend too, slowly.</b> {Math.round(REPAIR_PER_DAY * 100)}% of a hull a day at
-        anchor, {Math.round(REPAIR_AT_A_YARD * 100)}% at an island of yours with a{' '}
-        {FACILITY_LABEL.shipyard.toLowerCase()} on it that is not shut in. Nothing mends at sea.
-      </div>
+        The last clause is the design rule, and it is his: the Glossary is the
+        one screen where length costs nothing, because it is a searchable list
+        nobody scrolls end to end. Everything here is in it now, under
+        `Deposit`, `Forest`, `Gold vein`, `Worked ground`, `Works`,
+        `Bombardment`, `Fortress` and `Repair`, with every figure
+        read off its constant rather than typed out — the same reason the
+        troops ladder moved an hour ago.
+      */}
 
         </>
       )}
