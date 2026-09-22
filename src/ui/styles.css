@@ -1580,9 +1580,14 @@ button {
   padding: 8px; min-height: 132px; align-content: start;
   background: var(--bg-sunken);
   border: 1px solid var(--border); border-radius: 10px;
-  /* Three rows, then scroll. Cut just past the third row so a sliver of the
-     fourth shows: a board that ends flush looks finished when it is not. */
-  max-height: 430px; overflow-y: auto;
+  /* Two rows and a sliver of the third, then scroll.
+     It was three rows at 430px, which on a phone is the whole visible body of
+     the sheet — so an island with five buildings on it put the felling line,
+     the break-up line and every yard below the fold, and the board read as
+     the whole screen rather than as one section of it. Sean, 22 September:
+     *"these are too big."* The sliver is deliberate either way: a board that
+     ends flush looks finished when it is not. */
+  max-height: 290px; overflow-y: auto;
   -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
 }
 /* On anything wider than a phone the tiles would go the size of playing cards,
@@ -1596,7 +1601,7 @@ button {
   border: 1px dashed var(--border); border-radius: 10px;
 }
 .slot {
-  min-height: 124px; padding: 10px 5px 8px; width: 100%;
+  min-height: 96px; padding: 10px 5px 8px; width: 100%;
   display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 5px;
   background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px;
   text-align: center; overflow: hidden;

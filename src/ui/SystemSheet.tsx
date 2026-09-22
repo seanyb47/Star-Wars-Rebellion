@@ -1174,7 +1174,13 @@ export function SystemSheet({
                 // that have had paintings since the first art batch.
                 art={
                   facilityPainting(facility.type, facility.owner) ? (
-                    <FacilityThumb type={facility.type} owner={facility.owner} fill />
+                    <FacilityThumb
+                      type={facility.type}
+                      owner={facility.owner}
+                      fill
+                      /* Banded rather than whole: see the note on `ratio`. */
+                      ratio={2}
+                    />
                   ) : undefined
                 }
                 name={

@@ -2001,11 +2001,29 @@ export function FacilityThumb({
   width = 96,
   /** Fill whatever it is put in, at the painting's own proportions. */
   fill,
+  ratio,
 }: {
   type: string;
   owner: 'empire' | 'alliance' | 'neutral' | 'none';
   width?: number;
   fill?: boolean;
+  /**
+   * Fill the width at this shape instead of the painting's own, cropping to it.
+   *
+   * Only the slot board asks for this, and only because a board is a grid
+   * rather than a card: at the painting's own 4:3 a works tile on a phone is
+   * a hundred and sixty points tall, so three buildings fill the panel and
+   * everything under them — the felling line, the break-up line, the yards —
+   * is below the fold. Sean, 22 September, looking at exactly that: *"these
+   * are too big."*
+   *
+   * A band rather than a smaller tile, because the ruling it has to live with
+   * is his own of the 19th — *"all the unit images in the game are too
+   * small... larger images and less text."* The picture stays the full width
+   * of the tile and loses a third of its height, which costs some sky and no
+   * legibility; going back to three columns would have made it a stamp again.
+   */
+  ratio?: number;
 }) {
   const art = facilityArt(type, owner);
   if (!art) return <FacilityIcon type={type as never} size={30} />;
@@ -2014,8 +2032,8 @@ export function FacilityThumb({
       className="facthumb"
       style={
         fill
-          ? { width: '100%', aspectRatio: String(art.ratio) }
-          : { width, height: Math.round(width / art.ratio) }
+          ? { width: '100%', aspectRatio: String(ratio ?? art.ratio) }
+          : { width, height: Math.round(width / (ratio ?? art.ratio)) }
       }
     >
       <img src={art.src} alt="" loading="lazy" />
