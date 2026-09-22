@@ -240,7 +240,7 @@ function HullRow({ faction, row }: { faction: PlayableFaction; row: BattleHulls 
         <span className={hurt > 0 ? 'battle__hurt' : undefined}>
           {row.left}/{row.whole}
         </span>
-        <span className="muted"> hull · </span>
+        <span className="muted"> condition · </span>
         {row.guns}
         <span className="muted"> guns</span>
       </span>

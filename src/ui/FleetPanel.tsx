@@ -88,7 +88,7 @@ function ShipRow({
           </span>
           <span className="shiprow__stats">
             {whole - hurt}/{whole}
-            <span className="muted"> hull</span>
+            <span className="muted"> condition</span>
           </span>
         </span>
       </button>
@@ -130,12 +130,22 @@ function ShipRow({
           {/* Condition only. What the class *is* — her guns, her armor, what
               can hit her — is a tap away in the encyclopedia, and a gameplay
               screen wants the picture and the state of this hull, not a
-              spec sheet. */}
+              spec sheet.
+
+              And it is *called* condition, since 22 September. Sean: *"say
+              it's condition instead of hull strength here."* The tell was
+              already in this file — the comment had read "condition only"
+              since the row was written while the label under it said hull.
+              Two words for one idea, and the reader got the wrong one.
+
+              `hull` keeps the other idea: what the class is *rated* at, the
+              1400 the encyclopedia prints beside a Wayfinder, which never
+              changes. This number is a state and moves every day. */}
           <span className="shiprow__stats">
             <span className={hurt > 0 ? 'shiprow__hurt' : undefined}>
               {whole - hurt}/{whole}
             </span>
-            <span className="muted"> hull</span>
+            <span className="muted"> condition</span>
           </span>
         </span>
         <span className="shiprow__chev" aria-hidden="true">›</span>

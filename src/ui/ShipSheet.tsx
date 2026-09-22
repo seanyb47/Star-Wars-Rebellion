@@ -91,7 +91,7 @@ export function ShipSheet({
                 {sisters.length > 1 ? ` ${i + 1}` : ''}
               </span>
               <span className={hurt > 0 ? 'shiprow__hurt' : 'muted'}>
-                {hurt === 0 ? 'Sound' : `${left} of ${spec.hull} hull`}
+                {hurt === 0 ? 'Sound' : `${left} of ${spec.hull} condition`}
               </span>
             </div>
           );

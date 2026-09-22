@@ -418,3 +418,52 @@ describe('the words that were retired', () => {
     }
   });
 });
+
+/**
+ * Hull is a rating; condition is a state.
+ *
+ * Sean, 22 September, over the harbor list: *"say it's condition instead of
+ * hull strength here."* The tell was already in the file — the comment above
+ * that row had said *"condition only"* since the row was written, while the
+ * label under it said `hull`. Two words for one idea, and the reader got the
+ * wrong one.
+ *
+ * So they are two ideas now, and the split is worth holding: **hull** is what
+ * the class is rated at, the 1400 the encyclopedia prints beside a Wayfinder,
+ * and it never changes. **Condition** is what this hull has left this morning,
+ * and it moves every day. A screen showing `current/max` is always the second.
+ */
+describe('hull and condition are not the same word', () => {
+  const SCREENS = import.meta.glob('../*.tsx', {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  }) as Record<string, string>;
+
+  it('labels every current-out-of-max readout condition, never hull', () => {
+    const offenders: string[] = [];
+    for (const [file, source] of Object.entries(SCREENS)) {
+      // A pair rendered as `{a}/{b}` or `${a} of ${b}` followed, within a few
+      // characters of markup, by the word hull.
+      for (const m of source.matchAll(/(\{[^}]+\}\/\{[^}]+\}|\$\{[^}]+\} of \$\{[^}]+\})[\s\S]{0,120}?\bhull\b/g)) {
+        offenders.push(`${file}: ${m[0].replace(/\s+/g, ' ').slice(0, 90)}`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('is a test that can fail: the same sweep finds the condition labels', () => {
+    // Non-vacuity. If the pattern matches nothing at all the assertion above
+    // is free, so the identical sweep for the word that *should* be there has
+    // to come back with the three rows this covers.
+    let found = 0;
+    for (const source of Object.values(SCREENS)) {
+      for (const _ of source.matchAll(
+        /(\{[^}]+\}\/\{[^}]+\}|\$\{[^}]+\} of \$\{[^}]+\})[\s\S]{0,120}?\bcondition\b/g,
+      )) {
+        found += 1;
+      }
+    }
+    expect(found).toBeGreaterThanOrEqual(3);
+  });
+});

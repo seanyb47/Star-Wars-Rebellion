@@ -8833,3 +8833,33 @@ tab, which is where you are standing when *where can I put this* comes up.
 covered it is replaced by one test pinning the strip's new last entry — because
 removing the last item from `CHART_LAYERS` is exactly the edit that changes the
 swipe order silently.
+
+### Hull is a rating, condition is a state (22 September)
+
+Sean, over the harbor list: *"say it's condition instead of hull strength
+here."*
+
+The tell was already in the file. The comment above that row had read
+*"Condition only. What the class is… is a tap away in the encyclopedia"* since
+the day the row was written, while the label under it said `hull`. One idea,
+two words, and the reader was handed the wrong one — which is the exact
+failure `terms.json` and the vocabulary test exist to catch, on a pair nobody
+had thought to write down.
+
+So they are two ideas now and both keep a word:
+
+- **Hull** is what the class is *rated* at. The `1400` beside a Wayfinder in
+  the encyclopedia. It never changes.
+- **Condition** is what this particular hull has left this morning. It moves
+  every day, it is what repair mends and what shot takes off.
+
+Three screens show `current/max` and all three now say condition: the harbor
+list, the ship sheet's sisters, and the battle sheet. The encyclopedia's
+`Medium · 1400 hull` is untouched, because that one really is the rating.
+
+The guard is in `vocabulary.test.ts` and matches on *shape* rather than on a
+list of files — any `{a}/{b}` or `${a} of ${b}` followed within a short span of
+markup by the word "hull" is a failure. It was confirmed to fail by putting
+`hull` back on the harbor row. The non-vacuity half sweeps for the same shape
+with the right word and requires the three rows to be there, so the test cannot
+pass by matching nothing.
