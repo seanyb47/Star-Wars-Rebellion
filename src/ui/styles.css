@@ -730,7 +730,28 @@ button {
    nothing left behind when the art goes. Taller than a normal sheet because
    an entry is a whole page rather than a panel, and the art is now paying for
    two fifths of it. */
-.sheet--flow { height: 90%; max-height: 90%; }
+/*
+ * Tall, but never up behind the status bar.
+ *
+ * Sean, 22 September: *"I can't close encyclopedia entries because X is too
+ * high."* The ✕ was sitting on the clock and the battery, so the tap went to
+ * iOS rather than to the sheet.
+ *
+ * The arithmetic, on a 932pt screen: this sheet is anchored to the *bottom*,
+ * above the tab bar, so its top is whatever is left over —
+ * `932 − 64 (tab bar) − 839 (90%) = 29pt`, and the status bar is 59. The base
+ * `.sheet` is 82% and lands at 104, clear; raising it to 90% for the flowing
+ * entry put it under the notch, and `.sheet--flow .sheet__head { padding-top:
+ * 0 }` took away the inset that might have caught it.
+ *
+ * So the ceiling is expressed as what is left rather than as a percentage:
+ * everything except the bar it sits above, the inset it must clear, and a
+ * little air. It cannot be wrong on a screen nobody has measured on.
+ */
+.sheet--flow {
+  height: 90%;
+  max-height: calc(100% - var(--safe-top) - var(--tabbar-h, 64px) - 8px);
+}
 /* One pixel with no ink: what the collapsed bar watches for. */
 .sheet__mark { height: 1px; margin: 0; }
 /* The collapsed header. Laid over the top of the body rather than above it,

@@ -71,3 +71,54 @@ describe('the console at phone width', () => {
     expect(rules).not.toContain('.ledger__col');
   });
 });
+
+/**
+ * No sheet rises behind the status bar.
+ *
+ * Sean, 22 September: *"I can't close encyclopedia entries because X is too
+ * high."* The ✕ was sitting on the clock and the battery, so the tap went to
+ * iOS instead of to the sheet — a close button that cannot be pressed, which
+ * is as stuck as a screen gets.
+ *
+ * The arithmetic on a 932pt phone, and the reason a percentage was the wrong
+ * unit for this: a sheet is anchored to the **bottom**, above the tab bar, so
+ * its top is whatever is left over. `932 − 64 (tab bar) − 839 (90%) = 29`,
+ * against a 59pt status bar. The base `.sheet` is 82% and lands at 104, which
+ * is why nothing else showed the fault; only `.sheet--flow` raised it to 90%,
+ * and `.sheet--flow .sheet__head { padding-top: 0 }` removed the inset that
+ * might have caught it.
+ *
+ * So the ceiling is written as what is left — everything minus the bar it sits
+ * above, the inset it must clear, and a little air — and cannot be wrong on a
+ * screen nobody has measured on. Verified in Chromium with the inset forced to
+ * 59: the sheet lands at 67 and the ✕ at 100.
+ */
+describe('sheet geometry', () => {
+  const CSS = import.meta.glob('../styles.css', {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  }) as Record<string, string>;
+  const css = CSS['../styles.css'];
+
+  it('caps the flowing sheet against the inset and the tab bar, not at a percentage', () => {
+    const rule = css.slice(css.indexOf('.sheet--flow {'), css.indexOf('}', css.indexOf('.sheet--flow {')));
+    expect(rule).toContain('var(--safe-top)');
+    expect(rule).toContain('var(--tabbar-h');
+    // The bare percentage ceiling is what put it under the notch.
+    expect(rule).not.toMatch(/max-height:\s*90%/);
+  });
+
+  /**
+   * And the base sheet still stops at the tab bar rather than the floor, which
+   * is the other half of the same rule and was its own bug once: a sheet that
+   * ran under the bar hid the mission report's own orders behind the tabs.
+   */
+  it('keeps every sheet above the tab bar', () => {
+    // Matched on the declaration rather than by slicing to the first
+    // `.sheet {`: there is more than one, and the first draft of this test
+    // sliced a narrow-screen override that has no `bottom` at all — which
+    // would have failed for a reason that had nothing to do with the rule.
+    expect(css).toContain('bottom: var(--tabbar-h, 64px); z-index: 20;');
+  });
+});

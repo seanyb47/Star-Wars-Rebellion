@@ -9108,3 +9108,42 @@ blurbs, and now this sheet were all removed for one reason: they restated
 something the screen beside them already said. It is worth naming as a habit
 rather than three incidents — a screen that exists to hold one fact and three
 copies is a screen whose one fact belongs somewhere else.
+
+### A close button you could not press (22 September)
+
+Sean: *"I can't close encyclopedia entries because X is too high."* The ✕ was
+sitting on the clock and the battery, so the tap went to iOS rather than to the
+sheet — which is as stuck as a screen gets, since the ✕ is the way out.
+
+**Why a percentage was the wrong unit.** A sheet is anchored to the *bottom*,
+above the tab bar, so its top is whatever is left over. On a 932pt phone:
+
+```
+932 − 64 (tab bar) − 839 (90% of 932) = 29pt,   against a 59pt status bar
+```
+
+The base `.sheet` is 82% and lands at 104, comfortably clear — which is why
+nothing else in the game showed the fault. Only `.sheet--flow`, the encyclopedia
+entry, raised it to 90%, and `.sheet--flow .sheet__head { padding-top: 0 }`
+took away the inset that might have caught it. Two rules that are each fine
+alone.
+
+So the ceiling is expressed as **what is left** rather than as a fraction of
+the whole:
+
+```css
+max-height: calc(100% - var(--safe-top) - var(--tabbar-h, 64px) - 8px);
+```
+
+Everything except the bar it sits above, the inset it must clear, and a little
+air. That cannot be wrong on a screen nobody has measured on, which a
+percentage always can be.
+
+Measured in Chromium with the inset forced to 59: the sheet lands at **67** and
+the ✕ at **100**, forty points clear. The guard asserts the rule is written in
+those two variables and not as a bare `90%`.
+
+One note on the test itself: its first draft sliced from `css.indexOf('.sheet
+{')`, which found a narrow-screen override at line 173 that has no `bottom` at
+all. It would have failed for a reason unrelated to the rule it was checking.
+It matches the declaration now.
