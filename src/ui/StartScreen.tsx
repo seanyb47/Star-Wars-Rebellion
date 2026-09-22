@@ -57,6 +57,24 @@ export function StartScreen({
       className={backdrop ? 'start start--painted' : 'start'}
       style={backdrop ? ({ ['--backdrop' as string]: `url(${backdrop})` }) : undefined}
     >
+      {/*
+        A scrolling body and a fixed foot, rather than one long scroll with a
+        sticky button in it.
+
+        Sean, 22 September, with a screenshot of the button sitting across the
+        strengths panel: *"take command screen is floating."* That was my fix
+        of 20 September for a real problem — picking a side opens the detail
+        panel, which used to push the button down the page and off a phone —
+        and `position: sticky` did stop it moving. What it also did was park a
+        shadowed gold pill halfway down a paragraph, which reads as a layout
+        fault rather than as a control.
+
+        A footer solves the same problem and looks deliberate: the button is
+        always in the same place, always reachable, and separated from the page
+        by a rule and a background instead of hovering over it. The page below
+        scrolls under nothing.
+      */}
+      <div className="start__body">
       <header className="start__head">
         <div className="start__rose">
           <CompassRose size={64} opacity={0.55} />
@@ -144,16 +162,11 @@ export function StartScreen({
         pretending to work.
       </p>
 
-      {/*
-        Pinned to the foot of the screen once a side is chosen.
-        Picking a faction opens a panel of strengths and weaknesses above
-        this button, which pushed it down the page — away from the tap that
-        had just been aimed at it, and often off the bottom on a phone. The
-        panel is worth reading and belongs where it is; the way out is to
-        stop the button moving rather than to stop the panel opening.
-      */}
+      </div>
+
+      <div className="start__foot">
       <button
-        className={`btn btn--block btn--primary start__begin${faction ? ' start__begin--ready' : ''}`}
+        className="btn btn--block btn--primary start__begin"
         disabled={!faction}
         onClick={() => faction && onBegin(faction)}
       >
@@ -161,10 +174,11 @@ export function StartScreen({
       </button>
 
       {hasSave && (
-        <p className="tiny muted start__note">
+        <p className="tiny muted start__note start__note--foot">
           Starting a new game discards the one in progress.
         </p>
       )}
+      </div>
     </div>
   );
 }

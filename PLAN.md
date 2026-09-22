@@ -9029,3 +9029,37 @@ Raising the bar permanently is the fix that was tried on 20 September and broke
 the mission report, where chrome over the scrim swallowed the report's own
 buttons. So `.topbar--purse` lifts it to 26 **only while the purse is open**,
 which is a state the player enters and leaves with one tap.
+
+### The Begin button stops floating (22 September)
+
+Sean, over a screenshot of the start screen with the gold button lying across
+the strengths panel: *"Take command screen is floating."*
+
+That was my own fix of 20 September, for a real problem: picking a side opens a
+panel of strengths and weaknesses, which pushed the button down the page and
+often off the bottom of a phone. `position: sticky; bottom: 10px` kept it
+reachable and it did solve the stated complaint — *"Begin stays put"*.
+
+**The tell was in the comment I wrote next to it.**
+
+> The shadow is what tells you it is floating over the page rather than sitting
+> in it, which is the difference between "pinned" and "misaligned".
+
+That sentence is the bug report. A drop shadow is what you reach for when an
+element is in the wrong place and you want the reader to forgive it; it does
+not make a gold pill parked halfway down a paragraph read as a control. I wrote
+the diagnosis and shipped the thing it diagnosed.
+
+**A footer meets the same requirement and looks deliberate.** `.start` is a
+flex column now: `.start__body` scrolls and `.start__foot` does not. The detail
+panel can be any length, the button never moves, and it is separated from the
+page by a rule and a background of its own rather than by a shadow over
+somebody else's text. Measured in the browser: body 0–863, foot 863–932, no
+overlap, and the button's box is identical before and after scrolling the body
+to its end.
+
+The general point, since this is the second layout fix this week to go this
+way: **a sticky element inside a scroll is the right answer when it is chrome
+and the wrong answer when it is content.** The tab bar and the top bar are
+chrome and belong pinned. A primary action at the end of a form is the last
+thing in the form — it wants a footer, which is a place, not a hover.

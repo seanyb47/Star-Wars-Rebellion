@@ -1149,18 +1149,37 @@ button {
 .warend__day { letter-spacing: 0.08em; text-transform: uppercase; }
 
 /* ---------- Start screen ---------- */
+/* A column: the page scrolls, the foot does not. The container itself stopped
+   scrolling on 22 September, when the Begin button moved out of the flow and
+   into a footer — see `.start__foot`. */
 .start {
   position: relative;
   height: 100%;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  /* Room at the foot for the pinned Begin button to sit over without
-     covering the last thing on the page — the difficulty note, usually. */
-  padding: calc(var(--safe-top) + 20px) 16px calc(var(--safe-bottom) + 24px);
+  display: flex; flex-direction: column;
+  overflow: hidden;
   background:
     radial-gradient(120% 60% at 50% 0%, #0e2c38 0%, var(--bg) 60%),
     var(--bg);
+}
+.start__body {
+  flex: 1; min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: calc(var(--safe-top) + 20px) 16px 20px;
+}
+/* The way out, always in the same place.
+   It was `position: sticky` inside the scroll, which kept it reachable and
+   made it look like a mistake: a shadowed gold pill parked across the middle
+   of the strengths panel. A footer answers the same requirement — the detail
+   panel can be any length and the button never moves — and reads as chrome,
+   because it has a rule above it and a background of its own rather than a
+   drop shadow over somebody else's paragraph. */
+.start__foot {
+  flex: none;
+  padding: 12px 16px calc(var(--safe-bottom) + 12px);
+  border-top: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(6, 16, 24, 0.92), rgba(4, 11, 17, 0.98));
 }
 /**
  * The title screen stands on the chart it is about.
@@ -1252,21 +1271,10 @@ button {
 .pill--on { border-color: var(--metal); color: var(--metal-hi); background: rgba(0, 0, 0, 0.3); }
 .pill:disabled { opacity: 0.4; }
 .start__note { margin: 8px 0 0; }
-.start__begin { margin-top: 18px; }
+.start__begin { margin-top: 0; }
+.start__note--foot { margin: 8px 0 0; text-align: center; }
 /* A mark rather than a control: no press state, no pointer, not a tab stop. */
 .pill--static { cursor: default; }
-/* Once a side is picked the button follows you down the page, so the detail
-   panel can be as long as it needs to be without moving the way out. */
-.start__begin--ready {
-  position: sticky; bottom: calc(10px + var(--safe-bottom)); z-index: 4;
-  /* The shadow is what tells you it is floating over the page rather than
-     sitting in it, which is the difference between "pinned" and "misaligned". */
-  box-shadow: 0 6px 22px rgba(3, 6, 12, 0.7);
-}
-/* And the page scrolls clear of it. Without this the button parks on top of
-   the difficulty row and the note under it, which is the papercut this was
-   meant to remove rather than a new one. */
-.start:has(.start__begin--ready) { padding-bottom: calc(var(--safe-bottom) + 80px); }
 
 /* ---------- Panel tabs & island art ---------- */
 .tabs {

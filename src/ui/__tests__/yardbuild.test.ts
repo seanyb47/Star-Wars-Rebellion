@@ -267,3 +267,48 @@ describe('building to a fleet', () => {
     expect(UI['../TopBar.tsx']).toContain("`topbar${purseOpen ? ' topbar--purse' : ''}`");
   });
 });
+
+/**
+ * The way out of the start screen sits in a footer, not over the page.
+ *
+ * Sean, 22 September, over a screenshot of the Begin button lying across the
+ * strengths panel: *"take command screen is floating."*
+ *
+ * It was `position: sticky`, which was my fix of 20 September for a real
+ * problem — picking a side opens the detail panel, and that used to push the
+ * button down the page and off a phone. Sticky did stop it moving. It also
+ * parked a shadowed gold pill halfway down a paragraph, which a player reads
+ * as a layout fault rather than as a control, and the comment beside it said
+ * so out loud: *"the shadow is what tells you it is floating over the page."*
+ * That was the tell, written down and not acted on.
+ *
+ * A footer meets the same requirement — the panel can be any length and the
+ * button never moves — and looks deliberate, because it has a rule above it
+ * and a background of its own.
+ */
+describe('the start screen footer', () => {
+  const CSS = import.meta.glob('../styles.css', {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  }) as Record<string, string>;
+  const css = CSS['../styles.css'];
+  const START = UI['../StartScreen.tsx'];
+
+  it('puts the button in a foot, outside the scrolling body', () => {
+    expect(START).toContain('<div className="start__body">');
+    expect(START).toContain('<div className="start__foot">');
+    // The body scrolls; the container no longer does, or the foot would
+    // scroll away with it.
+    expect(css).toContain('.start__body {');
+    expect(css).toMatch(/\.start__foot \{[^}]*flex: none/);
+  });
+
+  it('leaves nothing sticky or shadowed over the page', () => {
+    expect(css).not.toContain('.start__begin--ready');
+    expect(START).not.toContain('start__begin--ready');
+    const foot = css.slice(css.indexOf('.start__foot {'), css.indexOf('}', css.indexOf('.start__foot {')));
+    expect(foot).not.toMatch(/position:\s*sticky/);
+    expect(foot).toContain('border-top');
+  });
+});
