@@ -9622,9 +9622,19 @@ The row is the ordinary `.shiprow`: same painting, same 112px, same place in
 the list. Two things change and no third — the painting is held to 62% and
 drained to a third of its saturation, and carries the slipway glyph from the
 Buildings tab stamped across it in brass; and where a hull in the water reports
-her condition, this one reports when she will be in it (`On the stocks · 98d ·
-from Minterne`). The mark is the one the game already uses for a hull on the
-stocks, so there is nothing new to learn.
+her condition, this one reports when she will be in it (`Under construction ·
+120d · from Firewatch`). The mark is the one the game already uses for a hull
+on the stocks, so there is nothing new to learn.
+
+The label was **On the stocks** for about an hour, and Sean changed it:
+*"Change on the stocks to under construction."* He is right, and the reason is
+the vocabulary rule read the right way round. The prose of this game may call a
+hull on the stocks whatever a shipwright would — `art.tsx` and `galaxy.ts` both
+do, and they should — but a label is not prose. It is the words a player reads
+off a row at a glance, and those should be the words anybody knows. The
+identifiers did not move with it: `StocksRow`, `.shiprow--stocks`,
+`stocks.test.ts` all stand, which is the house rule exactly — retire words from
+prose, never from identifiers.
 
 Seen side by side in Chromium it reads immediately: a vivid Wayfinder at anchor
 with a drained one below her carrying the mark. She still taps through to her

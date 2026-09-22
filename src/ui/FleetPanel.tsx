@@ -603,6 +603,14 @@ export function FleetCard({
  * She is not tappable through to the encyclopedia the way a finished hull is —
  * she is, deliberately, since a player looking at a class they have not seen
  * fight yet is exactly who wants the entry.
+ *
+ * The label reads **Under construction**, at Sean's word later the same day.
+ * It was "On the stocks", which is the right idiom and the wrong label: the
+ * prose of this game can call a hull on the stocks whatever a shipwright would
+ * — `art.tsx` and `galaxy.ts` both do — but the words a player reads off a row
+ * should say what is happening in the words anybody knows. The identifiers did
+ * not move with it, which is the house rule: retire words from prose, never
+ * from identifiers.
  */
 function StocksRow({ hull, here }: { hull: HullOnTheStocks; here: string }) {
   const lookUp = useLookUp();
@@ -624,7 +632,7 @@ function StocksRow({ hull, here }: { hull: HullOnTheStocks; here: string }) {
         <span className="shiprow__text">
           <span className="shiprow__name">{cls.name}</span>
           <span className="shiprow__stats">
-            On the stocks · <b>{hull.days}d</b>
+            Under construction · <b>{hull.days}d</b>
             {shipped && <span className="muted"> · from {inProse(hull.madeOn.name)}</span>}
           </span>
         </span>
@@ -769,7 +777,7 @@ export function ShipsHere({
       ))}
       {stocks.length > 0 && (
         <>
-          <div className="section-title">On the stocks</div>
+          <div className="section-title">Under construction</div>
           {stocks.map((hull) => (
             <StocksRow key={hull.facilityId} hull={hull} here={systemId} />
           ))}
