@@ -82,9 +82,6 @@ const PAINTED = new Map(
 const PIP_STEP = 110 / ROOM_TRACK;
 /** Water to leave around a chain when cropping the painting to it. */
 const CROP_PAD = 46;
-/** Past this much displacement an island has been pushed off its own painted
- *  land, and gets a leader line back to it. Under it, nobody would notice. */
-const TETHER = 34;
 
 /**
  * The window of the big chart this chain fills.
@@ -445,25 +442,18 @@ export function ChainMap({
               </g>
             )}
 
-            {/* Pushed off its own painted island to make room. Say so: a
-                hairline to where it actually lies, and a tick on the land. */}
-            {(() => {
-              const real = truth?.[index];
-              if (!real) return null;
-              if (Math.hypot(real.x - spot.x, real.y - spot.y) < TETHER) return null;
-              return (
-                <g pointerEvents="none" opacity={live ? 0.55 : 0.2}>
-                  <line
-                    className="chainmap__tether"
-                    x1={spot.x}
-                    y1={spot.y}
-                    x2={real.x}
-                    y2={real.y}
-                  />
-                  <circle className="chainmap__tether-end" cx={real.x} cy={real.y} r={7} />
-                </g>
-              );
-            })()}
+            {/*
+              A leader line used to run from here to where the painting really
+              put the island, with a tick on the land at the far end, on any
+              island the spread had pushed more than 34 units off its own coast.
+
+              Sean, 22 September: *"I don't like the little arrows to the
+              islands. Just put the icon over the island."* So the mark is the
+              island now and there is nothing pointing at anything. The spread
+              is unchanged — it is what keeps ten islands' names and bars off
+              each other on a tight chain — and it was already small enough on
+              every chain that the nearest land under a mark is its own.
+            */}
 
             {/* A finger-sized target over the whole island, marks included. */}
             {live && <circle cx={spot.x} cy={spot.y} r={62} fill="transparent" />}

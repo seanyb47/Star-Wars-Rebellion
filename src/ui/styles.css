@@ -1530,10 +1530,8 @@ button {
   font-size: 26px; font-weight: 700; text-anchor: middle;
   paint-order: stroke fill; stroke: #041219cc; stroke-width: 5px;
 }
-.chainmap__tether { stroke: var(--brass); stroke-width: 2.5; stroke-dasharray: 8 6; }
 /* Over the painting a name needs its own ground; the sea under it is busy. */
 .chainmap__name--painted { paint-order: stroke fill; stroke: #041219cc; stroke-width: 6px; }
-.chainmap__tether-end { fill: none; stroke: var(--brass); stroke-width: 2.5; }
 .chainmap__isle:active .chainmap__name { fill: var(--text); }
 .chainmap__name {
   font-size: 34px; text-anchor: middle;
