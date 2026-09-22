@@ -114,6 +114,32 @@ still a design question for Sean: price Crown Marines nearer the militia, give
 the Crown a cheap day-one garrison unit of its own, or move the Fensworn up so
 R2 is worth reaching.
 
+### And the menu is not the ladder — measured, 22 September
+
+The ladder is the wrong thing to count, because a people's `home` means the
+list a player actually sees is the ladder *intersected with the island they are
+standing on*. `lab/menu.ts` reports both, over 200 worlds a side:
+
+| rung | Crown menu | one choice or none | Confederate menu | one choice or none |
+|---|---|---|---|---|
+| R0 | 1.00 | 100% | 1.21 | 79% |
+| R2 | 1.44 | 56% | 1.21 | 79% |
+| R4 | 2.44 | 0% | 1.58 | 42% |
+| R6 | 3.44 | 0% | 1.78 | 22% |
+| R8 | 4.44 | 0% | 1.89 | 11% |
+
+Which inverts the complaint. The Crown is thin on day one and never thin again
+— by R4 every island it holds offers three, because the Hushed and everything
+after them are *made* and a made thing goes anywhere. The Confederacy is never
+as thin as the Crown's opening and never stops being somewhat thin: at R8, with
+the whole ladder bought, an eighth of its islands still offer one line, because
+four of its five are peoples and only the Island Militia are from everywhere.
+
+That is the faction shape working exactly as `troops.json` says it should, so
+neither number is a fault. It is worth knowing which way round it runs before
+anybody prices the Crown's opening, because the fix for the Crown's day one
+should not be a fix that also widens the Confederacy's endgame.
+
 ## The prompts
 
 They live in [`art-units.md`](art-units.md), alongside the facility prompts, so
