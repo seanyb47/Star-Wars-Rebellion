@@ -69,8 +69,17 @@ describe('loading the roster', () => {
     // A 1st rate of 104 guns since v3 rebased the counts on the Royal Navy's
     // rating system. The three columns have to add to the rate, which is the
     // one thing a transcription slip would break.
+    //
+    // The split moved on 21 September, when Sean asked for the Crown's guns to
+    // follow the real rating system rather than only its totals. It is now
+    // Victory's at Trafalgar, read onto the game's three kinds: her thirty
+    // long 32-pounders on the lower deck are the Heavy tier, her twenty-eight
+    // 24-pounders on the middle deck plus the two medium 12-pounders on her
+    // forecastle are the Long tier, and the short 12-pounders above are the
+    // Light tier with her four 68-pounder carronades folded into Heavy. Thirty
+    // Long is also the crown the sheet's own header gives her.
     const majestic = ROSTER.byId.get('CWN-MAJ-R8-01')!;
-    expect(majestic.guns).toEqual({ longGuns: 30, heavyGuns: 46, lightGuns: 28 });
+    expect(majestic.guns).toEqual({ longGuns: 30, heavyGuns: 34, lightGuns: 40 });
     expect(Object.values(majestic.guns).reduce((a, b) => a + b)).toBe(104);
   });
 
@@ -312,9 +321,13 @@ describe('the design rules the export states about itself', () => {
     expect(heaviest((s) => s.armor).id).toBe('CWN-MAJ-R8-01');
     expect(majestic.armor).toBe(30);
     expect(heaviest((s) => s.hull).id).toBe('CFS-URG-R7-01');
-    // And the Goliath's Heavy Guns are the Confederacy's greatest, not the
-    // game's: the Majestic's sixteen still beat her thirteen.
-    expect(majestic.guns.heavyGuns).toBeGreaterThan(ROSTER.byId.get('CFS-URG-R7-01')!.guns.heavyGuns);
+    // And the Heavy Gun crown is the Goliath's, which is what the sheet says
+    // in the same breath — *'Urskin Goliath keeps the greatest hull and Heavy
+    // Gun mass'*. This asserted the opposite until 21 September and passed only
+    // because the Majestic was carrying forty-six Heavy, which no first rate
+    // ever did. On Victory's real split she carries thirty-four, and the rule
+    // the sheet actually states comes true.
+    expect(majestic.guns.heavyGuns).toBeLessThan(ROSTER.byId.get('CFS-URG-R7-01')!.guns.heavyGuns);
   });
 
   it('lets a Coral-Class and an Urskin Goliath out-gun and out-hull a Majestic', () => {
@@ -351,22 +364,55 @@ describe('the design rules the export states about itself', () => {
     expect(most(all, (s) => s.hull)).toBe('CFS-URG-R7-01');
     expect(most(all, (s) => s.armor)).toBe('CWN-MAJ-R8-01');
     expect(most(all, (s) => s.guns.longGuns)).toBe('CWN-MAJ-R8-01');
-    expect(most(all, (s) => s.guns.heavyGuns)).toBe('CWN-SOV-R7-02');
-    expect(most(all, (s) => s.guns.lightGuns)).toBe('CFS-BLA-R6-01');
+    /*
+     * The Heavy crown moved to the Coral-Class on 21 September and the sheet
+     * header has not caught up.
+     *
+     * Its line reads *"Heavy = Sovereign II 52"*, and she carried fifty-two
+     * until the Crown's guns went onto the real rating system: a 90-gun second
+     * rate carried twenty-eight 32-pounders on her lower deck, not fifty-two of
+     * anything. She carries thirty now, and the Coral-Class's fifty is the most
+     * in the game.
+     *
+     * Pinned to what the roster says rather than to the header, because the
+     * header is the thing that is out of date. It wants re-exporting.
+     */
+    expect(most(all, (s) => s.guns.heavyGuns)).toBe('CFS-COR-R8-01');
+    /*
+     * And the Light crown went the same way, to the Majestic, for the same
+     * reason and with the same warning attached.
+     *
+     * Victory's upper deck was thirty short 12-pounders with sixteen more on
+     * the quarterdeck and forecastle, so a first rate carries more small guns
+     * than anything else afloat — which is true and is also a problem, because
+     * *"a storm of light shot"* is the Blackfin's whole entry and she now holds
+     * the second most in the game rather than the most.
+     *
+     * Pinned to the roster, flagged for Sean: this is one of four crowns and
+     * doctrines the 21 September gun rescale overturned, and the set of them is
+     * a question about the sheet rather than about this test.
+     */
+    expect(most(all, (s) => s.guns.lightGuns)).toBe('CWN-MAJ-R8-01');
+    expect(most(fleetOf('Free Confederacy'), (s) => s.guns.lightGuns)).toBe('CFS-BLA-R6-01');
     /*
      * And the broadside. The header's wording is exact and worth reading
      * twice: *"Coral-Class 102 guns, highest broadside (3,192) while leading
      * no single category."* The crown is the 3,192 — average damage thrown —
      * not the gun count, which the Majestic wins 104 to 102 while throwing
-     * 3,150. Heavy guns are 4d20 against everything else's 2d20, so a hull
+     * 2,898. Heavy guns are 4d20 against everything else's 2d20, so a hull
      * can be out-gunned and still out-shoot.
+     *
+     * The Majestic threw 3,150 until 21 September. She trades weight of shot
+     * for reach on Victory's real armament, so the Coral-Class's lead over her
+     * widens from 42 to 294 — which is the sheet's own claim holding more
+     * firmly than it did, by an accident of history rather than by design.
      */
     expect(most(all, gunsOf)).toBe('CWN-MAJ-R8-01');
     const broadside = (s: ShipDefinition) =>
       (s.guns.longGuns * 2 + s.guns.heavyGuns * 4 + s.guns.lightGuns * 2) * 10.5;
     expect(most(all, broadside)).toBe('CFS-COR-R8-01');
     expect(broadside(ROSTER.byId.get('CFS-COR-R8-01')!)).toBe(3192);
-    expect(broadside(ROSTER.byId.get('CWN-MAJ-R8-01')!)).toBe(3150);
+    expect(broadside(ROSTER.byId.get('CWN-MAJ-R8-01')!)).toBe(2898);
   });
 
   it('keeps bombardment off the list of things a ship shoots at a ship', () => {

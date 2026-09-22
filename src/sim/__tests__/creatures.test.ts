@@ -156,6 +156,20 @@ describe('a creature in the harbor', () => {
     // heavy frigates settle a Sea Dragon before it has fired, and a creature
     // that never gets a shot off cannot be tested for getting a shot off.
     const { state, target, fleet } = standoff(501, 1);
+    /*
+     * One hull, not the whole squadron.
+     *
+     * It used to send the forward squadron entire, and on 21 September that
+     * stopped working for a reason worth keeping: the Crown's guns went onto
+     * the real rating system and its starting hulls gained a long-gun tier,
+     * which fires in the first-strike phase. Four of them now settle a Sea
+     * Dragon before it answers, so the fleet took no damage at all and the
+     * test read that as a failure when it was the engine working.
+     *
+     * A single hull still kills the beast, and the beast still gets its shot
+     * in — which is the thing under test.
+     */
+    fleet.ships.length = 1;
     // Hull still floating, not damage dealt: a hull beaten to nothing is
     // removed from the fleet, so counting damage reads zero exactly when the
     // beast did its worst. This bit the test the day the hulls stopped all

@@ -184,14 +184,16 @@ describe('accuracy, against the target', () => {
   it('matches the sheet average raw volleys', () => {
     // Also his: 2d20 averages 21 a cannon and 4d20 averages 42.
     // v3's Combat Derived Stats tab, after the gun counts were rebased on the
-    // rating system. `derived.test.ts` checks the engine against the whole
+    // rating system — and rebased again on 21 September, when the Crown's
+    // hulls went onto the real armaments rather than only the real totals.
+    // Every Crown figure below moved; no Confederate one did. `derived.test.ts` checks the engine against the whole
     // table; this is the handful worth reading in place.
     const expected: Record<string, number> = {
       'CWN-WAY-S01': 168,
-      'CWN-MOR-S03': 1596,
-      'CWN-MAJ-R8-01': 3150,
-      'CWN-JUS-R6-01': 2079,
-      'CWN-SOV-R7-02': 2982,
+      'CWN-MOR-S03': 1512,
+      'CWN-MAJ-R8-01': 2898,
+      'CWN-JUS-R6-01': 1806,
+      'CWN-SOV-R7-02': 2520,
       'CFS-URG-R7-01': 2184,
       'CFS-COR-R8-01': 3192,
       'CFS-SWI-S01': 0,
@@ -510,7 +512,10 @@ describe('the roster feeds the engine with no conversion', () => {
     const majestic = ROSTER.byId.get('CWN-MAJ-R8-01')!;
     const ship = commission('maj-1', majestic);
     expect(ship.hullRemaining).toBe(13900);
-    expect(rawVolley(ship)).toBe(3150);
+    // 2,898 since the Crown's guns were put on the real rating system, down
+    // from 3,150: she trades weight of shot for reach, which is what Victory
+    // actually carried.
+    expect(rawVolley(ship)).toBe(2898);
     expect(hitChance('Heavy', majestic)).toBe(95);
   });
 

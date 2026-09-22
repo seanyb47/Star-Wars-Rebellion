@@ -91,8 +91,21 @@ describe('an action the player is in', () => {
   it('keeps its rounds out of the dispatches but not out of the log', () => {
     const { state, home } = world();
     put(state, home, 'empire', ['sovereign', 'sovereign']);
-    put(state, home, 'alliance', ['tempest', 'tempest']);
-    resolveBattles(state, createRng(3));
+    // Four of them, and fought out rather than only opened.
+    //
+    // Two things were wrong here and 21 September found both. `resolveBattles`
+    // raises the sheet for an action the player is in and stops — the rounds
+    // are what write to the log, and they only happen when the player orders
+    // them, which the sibling test below has always known. And two Tempests
+    // against two Sovereigns is no longer an action: once the Crown's guns
+    // went onto the real rating system they break off in the second round,
+    // before anything reaches the log. Four of them stay and fight.
+    put(state, home, 'alliance', ['tempest', 'tempest', 'tempest', 'tempest']);
+    const rng = createRng(3);
+    resolveBattles(state, rng);
+    for (let i = 0; i < 12 && state.battle && !state.battle.settled; i++) {
+      fightBattleRound(state, rng);
+    }
     const mine = state.events.filter((e) => e.systemId === home.id && e.kind === 'battle');
     expect(mine.length).toBeGreaterThan(0);
     // In the log, and not a card over the top of the sheet already saying it.
