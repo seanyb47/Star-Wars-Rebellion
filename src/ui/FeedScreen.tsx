@@ -1,6 +1,85 @@
 import { canSee } from '../sim';
-import { useEffect, useRef } from 'react';
-import type { GameEvent, GameState } from '../sim';
+import { useEffect, useRef, useState } from 'react';
+import type { EventKind, GameEvent, GameState } from '../sim';
+import { usePrefs, withKind } from './prefs';
+
+/**
+ * What each kind of news is, in the words the panel needs.
+ *
+ * The seven `EventKind`s are the taxonomy the log already sorts by — every
+ * line in it is exactly one of these and its coloured mark is drawn from it —
+ * so the notification settings use the same seven rather than inventing a
+ * second list for the player to map onto the first.
+ */
+const KIND_LABEL: Record<EventKind, string> = {
+  war: 'The war',
+  flip: 'Islands changing hands',
+  mutiny: 'Risings',
+  battle: 'Actions at sea',
+  mission: 'Missions',
+  order: 'Orders finishing',
+  loss: 'Losses',
+};
+/** In the order they are worth being interrupted for, loudest first. */
+const KIND_ORDER: EventKind[] = ['war', 'flip', 'mutiny', 'battle', 'mission', 'order', 'loss'];
+
+/**
+ * Which news interrupts, which will make a sound, and which only goes to the
+ * log.
+ *
+ * Sean, 22 September: *"there kind of should be three categories of alerts.
+ * Ones that actually notify you on the top of the screen... and then there
+ * should be ones that just make sounds... or you could uncheck both boxes and
+ * have no notifications, and then the notification will just go to the log
+ * itself, because there's a number on the log of unread."*
+ *
+ * So there are two checkboxes and the third category is both of them off —
+ * which is the honest way to draw it, because "goes only to the log" is not a
+ * thing you switch on, it is what is left when nothing else is switched on.
+ * Everything reaches the log either way; these decide only how loudly.
+ *
+ * **Sound is disabled and stays that way for now.** *"We can add sound files
+ * later. You can just gray that one out for now, just leave a spot for it and
+ * we'll develop that later."* The column is real, the preference is real and
+ * saved, and nothing reads it yet.
+ */
+function Notifications() {
+  const [prefs, setPrefs] = usePrefs();
+  return (
+    <div className="notify">
+      <div className="notify__row notify__row--head tiny muted">
+        <span className="notify__what">What happens</span>
+        <span className="notify__col">Pop-up</span>
+        <span className="notify__col">Sound</span>
+      </div>
+      {KIND_ORDER.map((kind) => {
+        const pops = !prefs.popupOff.includes(kind);
+        return (
+          <div key={kind} className="notify__row">
+            <span className="notify__what">
+              <span className={`event__kind event__kind--${kind}`} aria-hidden="true" />
+              {KIND_LABEL[kind]}
+            </span>
+            <button
+              className={`notify__box${pops ? ' notify__box--on' : ''}`}
+              aria-pressed={pops}
+              aria-label={`Pop-up for ${KIND_LABEL[kind].toLowerCase()}`}
+              onClick={() => setPrefs({ popupOff: withKind(prefs.popupOff, kind, !pops) })}
+            >
+              {pops ? '☑' : '☐'}
+            </button>
+            <button className="notify__box" disabled aria-label="Sound, not yet built">
+              ☐
+            </button>
+          </div>
+        );
+      })}
+      <p className="tiny muted notify__foot">
+        Everything reaches the log whichever of these is set. Sounds are not built yet.
+      </p>
+    </div>
+  );
+}
 
 export function FeedScreen({
   state,
@@ -41,7 +120,12 @@ export function FeedScreen({
   }, [focusId]);
 
   if (events.length === 0) {
-    return <div className="empty">The log is empty. Start the clock.</div>;
+    return (
+      <div className="pad">
+        <LogHead />
+        <div className="empty">The log is empty. Start the clock.</div>
+      </div>
+    );
   }
 
   const order = (event: GameEvent) => Number(event.id.split('-')[1]) || 0;
@@ -57,6 +141,7 @@ export function FeedScreen({
 
   return (
     <div className="pad">
+      <LogHead />
       {days.map(({ day, events: entries }) => (
         <section key={day} className="logday">
           <h3 className="logday__head serif">Day {day}</h3>
@@ -81,6 +166,29 @@ export function FeedScreen({
           ))}
         </section>
       ))}
+    </div>
+  );
+}
+
+/**
+ * The log's one control: a way to the notification settings.
+ *
+ * Folded away rather than standing open, because it is a thing you set once
+ * and then read the log past for the rest of the war. Closed it is one line;
+ * open it is the panel.
+ */
+function LogHead() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="loghead">
+      <button
+        className={`listopt${open ? ' listopt--on' : ''}`}
+        aria-expanded={open}
+        onClick={() => setOpen((up) => !up)}
+      >
+        Notifications
+      </button>
+      {open && <Notifications />}
     </div>
   );
 }

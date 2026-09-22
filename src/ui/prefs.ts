@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import type { EventKind, GameEvent } from '../sim';
 
 /**
  * How the player likes their lists, kept on the device rather than in the
@@ -40,9 +41,59 @@ export interface Prefs {
    * no longer matches — `orderedLayers` reconciles it at read time instead.
    */
   layerOrder: string[];
+  /**
+   * Kinds of news that are NOT to interrupt, stored as the exceptions.
+   *
+   * Sean, 22 September: *"let's add some kind of toggle filter in the log on
+   * which ones you want to be pop-ups, which ones you want to be like alerts
+   * ... or you could uncheck both boxes and have no notifications, and then
+   * the notification will just go to the log itself."*
+   *
+   * The exceptions rather than the list, and that is the whole reason it is
+   * shaped this way: `DEFAULTS` merges shallowly, so a saved record of every
+   * kind would freeze this player's settings at the kinds that existed the day
+   * they last touched the panel, and a kind added later would arrive silenced
+   * for them and loud for everybody else. Storing what has been turned *off*
+   * means a new kind is on for everyone until somebody says otherwise, which
+   * is the right default for news.
+   */
+  popupOff: EventKind[];
+  /**
+   * And the other way round for sound, which nothing plays yet.
+   *
+   * Sean: *"there should be ones that just make sounds. And we can add sound
+   * files later. You can just gray that one out for now, just leave a spot for
+   * it."* So the column is in the panel and disabled, and this is where its
+   * answers will go when there is something to play. Opt-in, because a game
+   * that starts making noises at somebody who never asked is worse than one
+   * that stays quiet.
+   */
+  soundOn: EventKind[];
 }
 
-const DEFAULTS: Prefs = { group: true, layerOrder: [] };
+const DEFAULTS: Prefs = { group: true, layerOrder: [], popupOff: [], soundOn: [] };
+
+/**
+ * Whether this piece of news is allowed to appear on the screen.
+ *
+ * One question asked in one place, by both layers that put news on the screen
+ * — the dispatch cards that stop you and the running strip that does not. They
+ * are two presentations of the same decision, and a player unchecking "Battles"
+ * means it in both.
+ */
+export function popsUp(prefs: Prefs, event: Pick<GameEvent, 'kind'>): boolean {
+  return !prefs.popupOff.includes(event.kind);
+}
+
+/** The same question for sound. Nothing reads it yet; see `soundOn`. */
+export function makesSound(prefs: Prefs, event: Pick<GameEvent, 'kind'>): boolean {
+  return prefs.soundOn.includes(event.kind);
+}
+
+/** Flip one kind in one of the two lists, for the checkboxes in the log. */
+export function withKind(list: EventKind[], kind: EventKind, on: boolean): EventKind[] {
+  return on ? list.filter((k) => k !== kind) : [...new Set([...list, kind])];
+}
 
 function read(): Prefs {
   try {

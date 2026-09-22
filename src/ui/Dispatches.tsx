@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { GameEvent, GameState } from '../sim';
+import { popsUp, usePrefs, type Prefs } from './prefs';
 
 /**
  * The running report: what has just gone into the log, said on the screen.
@@ -42,6 +43,7 @@ export function Dispatches({
   /** Open the log at this entry. */
   onOpen: (eventId: string) => void;
 }) {
+  const [prefs] = usePrefs();
   const [lines, setLines] = useState<GameEvent[]>([]);
   /**
    * Everything already posted when this mounted.
@@ -64,13 +66,16 @@ export function Dispatches({
       seen.current = new Set(state.events.map((e) => e.id));
       return;
     }
-    const fresh = state.events.filter((e) => !seen.current!.has(e.id) && reports(e));
+    const fresh = state.events.filter((e) => !seen.current!.has(e.id) && reports(e, prefs));
     for (const e of state.events) seen.current.add(e.id);
     if (fresh.length === 0) return;
     // The cap applies to what is waiting as well as what is up. A card read at
     // leisure could have a hundred quiet days behind it, and the answer to
     // that is the three most recent, not a hundred lines to sit through.
     setLines((up) => [...up, ...fresh].slice(-MAX_ON_SCREEN));
+    // `prefs` is read but deliberately not a dependency: unchecking a kind
+    // should stop the *next* one, not replay the log against the new setting.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.events]);
 
   /**
@@ -142,7 +147,11 @@ export function Dispatches({
  * whatever is already being shouted, and a `quiet` event is one the battle
  * sheet is already narrating round by round.
  */
-function reports(event: GameEvent): boolean {
+function reports(event: GameEvent, prefs: Prefs): boolean {
   if (event.quiet) return false;
+  // And the player's own answer, since 22 September. Unchecked here means the
+  // line goes to the log and nowhere else; the unread count on the tab is what
+  // tells them it arrived.
+  if (!popsUp(prefs, event)) return false;
   return event.kind === 'order' || event.kind === 'mission' || event.kind === 'loss';
 }

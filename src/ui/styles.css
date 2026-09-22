@@ -3149,3 +3149,75 @@ button.tcard:hover { border-color: var(--brass); }
 }
 .shiprow--stocks .shiprow__name { color: var(--muted); }
 .shiprow--stocks .shiprow__stats b { color: var(--text); font-variant-numeric: tabular-nums; }
+
+/* Whose squadron, and whether she is in the water.
+
+   Sean, 22 September: *"we need a faction color clearly stamped on each fleet,
+   whether it's the background of the card or a strip at the top... if they're
+   in harbor it's fine to leave it as is. If they're setting sea or sailing,
+   maybe we put like a background behind it that indicates that it's in
+   transit."*
+
+   Two signals, kept apart because they answer two questions. The stripe is
+   WHOSE — a solid bar of the faction's own colour across the top of the card,
+   full bleed, so it reads before any word on the card does. The wash is WHERE
+   — a card at anchor is untouched, and one under way gets a faint gradient of
+   that same colour, so the two states are told apart without a second palette
+   to learn. */
+.fleet { position: relative; overflow: hidden; }
+.fleet__flag {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--unknown);
+}
+.fleet--empire .fleet__flag { background: var(--empire); }
+.fleet--alliance .fleet__flag { background: var(--alliance); }
+/* The card's own padding has to clear the stripe, or the fleet's name sits on
+   it. 3px of bar plus the 10px the card already had. */
+.fleet { padding-top: 13px; }
+/* Under way: the same colour, at a twentieth, falling off down the card so it
+   reads as weather behind the squadron rather than as a second panel. */
+.fleet--sailing::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, var(--sail-wash) 0%, transparent 70%);
+}
+.fleet--sailing { --sail-wash: rgba(147, 167, 175, 0.1); }
+.fleet--empire.fleet--sailing { --sail-wash: rgba(79, 196, 106, 0.11); }
+.fleet--alliance.fleet--sailing { --sail-wash: rgba(216, 72, 63, 0.11); }
+/* Everything the card draws sits over the wash rather than under it. */
+.fleet > *:not(.fleet__flag) { position: relative; }
+
+/* Which news interrupts, which will make a sound, and which only goes to the
+   log. Sean's three categories, drawn as two checkboxes — the third is both of
+   them off, because "only to the log" is what is left rather than a thing you
+   switch on. */
+.loghead { margin-bottom: 10px; }
+.notify {
+  margin-top: 8px; padding: 8px 10px;
+  background: var(--bg-sunken); border: 1px solid var(--border); border-radius: 10px;
+}
+.notify__row { display: flex; align-items: center; gap: 8px; min-height: 34px; }
+.notify__row + .notify__row { border-top: 1px solid var(--border); }
+.notify__row--head { min-height: 26px; }
+.notify__row--head + .notify__row { border-top: 0; }
+.notify__what { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+/* The head labels sit over their columns, so they take the columns' width. */
+.notify__col { flex: none; width: 46px; text-align: center; }
+.notify__box {
+  flex: none; width: 46px; min-height: 30px; padding: 0;
+  font-size: 16px; line-height: 1; color: var(--muted);
+  background: none; border: 0;
+}
+.notify__box--on { color: var(--brass); }
+.notify__box:disabled { opacity: 0.32; }
+.notify__foot { margin: 8px 0 2px; }
+/* The log's coloured mark, addressed on its own rather than through the row it
+   usually sits in — the settings panel lists the kinds outside any log line. */
+.event__kind--war { background: var(--metal); opacity: 1; }
+.event__kind--battle { background: var(--bad); opacity: 1; }
+.event__kind--mutiny { background: var(--bad); opacity: 1; }
+.event__kind--loss { background: var(--bad); opacity: 0.8; }
+.event__kind--flip { background: var(--good); opacity: 1; }
+.event__kind--order { background: var(--neutral); opacity: 0.9; }
+.event__kind--mission { background: var(--metal-hi); opacity: 0.8; }
+/* In the panel the mark is not inside a flex column, so it needs no top nudge. */
+.notify .event__kind { margin-top: 0; }

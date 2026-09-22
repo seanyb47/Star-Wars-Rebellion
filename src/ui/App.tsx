@@ -77,7 +77,7 @@ import { WarEnd } from './WarEnd';
 import { useAudio } from './useAudio';
 import { FactionCrest } from './art';
 import { ControlBadge, Sheet, Stat } from './components';
-import { orderedLayers, usePrefs } from './prefs';
+import { orderedLayers, popsUp, usePrefs } from './prefs';
 
 const SEEN_KEY = 'galactic-rebellion.lastSeenEvent.v1';
 
@@ -221,6 +221,7 @@ export function App() {
    * in has a hundred days of news in it, and none of it is news any more.
    * Only what happens from now on is worth stopping for.
    */
+  const [notifyPrefs] = usePrefs();
   const [toldOf, setToldOf] = useState<string[]>(() => state.events.map((e) => e.id));
   /** A card opened from the log, which is one event rather than a day's worth. */
   const [readingId, setReadingId] = useState<string | null>(null);
@@ -240,7 +241,14 @@ export function App() {
      hands in a Reach they have never charted raised a card while the log
      rightly said nothing. Same rule in both places, from the same function. */
   const dispatches = state.events.filter(
-    (e) => isNotable(e) && canSee(state, e, state.player) && !toldOf.includes(e.id),
+    (e) =>
+      isNotable(e) &&
+      // The player's own answer on whether this kind stops them — the same
+      // setting the running strip reads, because a dispatch card and a strip
+      // line are two presentations of one decision. See `Notifications`.
+      popsUp(notifyPrefs, e) &&
+      canSee(state, e, state.player) &&
+      !toldOf.includes(e.id),
   );
   // The log is capped, so the list of what has been read is capped with it.
   useEffect(() => {
@@ -415,15 +423,40 @@ export function App() {
   // ---- Unread feed badge ----------------------------------------------
   const newestEvent = state.events.length ? eventOrder(state.events.at(-1)!.id) : 0;
   const unread = state.events.filter((e) => eventOrder(e.id) > lastSeen).length;
+  /*
+   * Read on *leaving* the log, not on arriving at it.
+   *
+   * Sean, 22 September: *"every time you open up the log you can view all the
+   * messages, and then when you close the log it will mark all of those as
+   * read."*
+   *
+   * This advanced the watermark while the log was open and on every event
+   * after — so a line that posted while you were reading was marked read in
+   * the same frame it appeared in, and scrolled into a log you were looking at
+   * already dimmed. Now the mark holds still for as long as you are in there:
+   * everything unread stays lit while you read it, anything arriving behind
+   * you lights up too, and the whole lot goes read when you leave.
+   *
+   * `newest` is a ref because the effect must fire on the tab changing and
+   * nothing else, while still marking what was there at the moment of leaving.
+   */
+  const newest = useRef(newestEvent);
+  newest.current = newestEvent;
+  const wasReading = useRef(false);
   useEffect(() => {
-    if (tab !== 'feed') return;
-    setLastSeen(newestEvent);
+    if (tab === 'feed') {
+      wasReading.current = true;
+      return;
+    }
+    if (!wasReading.current) return;
+    wasReading.current = false;
+    setLastSeen(newest.current);
     try {
-      localStorage.setItem(SEEN_KEY, String(newestEvent));
+      localStorage.setItem(SEEN_KEY, String(newest.current));
     } catch {
       /* storage may be unavailable; the badge just resets next launch */
     }
-  }, [tab, newestEvent]);
+  }, [tab]);
 
   const flash = useCallback((message: string) => {
     setNotice(message);

@@ -14,7 +14,6 @@ import {
   bombardOdds,
   fleetTicksLeft,
   BOMBARD_TICKS_MAX,
-  wallInvasionDefense,
   bombardError,
   assaultError,
   fleeError,
@@ -284,8 +283,30 @@ export function FleetCard({
     for (const ship of fleet.ships) rows.push({ key: ship.id, ships: [ship] });
   }
 
+  /*
+   * Whose squadron this is, and whether she is in the water or at anchor.
+   *
+   * Sean, 22 September: *"we need a faction color clearly stamped on each
+   * fleet, whether it's the background of the card or a strip at the top,
+   * something like that, that indicates clearly that it's a Confederacy or an
+   * Imperium fleet... if they're in harbor it's fine to leave it as is. If
+   * they're setting sea or sailing, maybe we put like a background behind it
+   * or something that indicates that it's in transit."*
+   *
+   * Both, and they are different signals doing different jobs. The **stripe**
+   * is whose: a solid bar of the faction's own colour across the top of the
+   * card, which is the one thing you should never have to read a word to know.
+   * The **wash** is where: a card at anchor is left exactly as it was, and a
+   * card under way gets a faint tint of that same colour behind it, so the two
+   * states are told apart without inventing a second palette.
+   *
+   * Reading the colour off `controlColour`, which the chart already uses for
+   * the same question, so a green squadron and a green island are green for
+   * the same reason and stay in step if either ever changes.
+   */
   return (
-    <div className="card fleet">
+    <div className={`card fleet fleet--${fleet.faction}${atSea ? ' fleet--sailing' : ''}`}>
+      <span className="fleet__flag" aria-hidden="true" />
       <div className="row row--between" style={{ alignItems: 'flex-start' }}>
         <div>
           <div style={{ fontWeight: 600 }}>{fleet.name}</div>
@@ -585,7 +606,6 @@ export function FleetCard({
   );
 }
 
-/** Every fleet at an island, yours and theirs, with its fixed defences. */
 /**
  * A hull on the stocks, in the harbor she will come to.
  *
@@ -672,29 +692,22 @@ export function ShipsHere({
   // is exactly the thing espionage is for, and the harbor is not going to
   // hand it over.
   const stocks = hullsBuildingFor(state, systemId, state.player);
-  // The fixed defences sit in the harbor with the hulls rather than under
-  // Buildings with the mills, because this is where they matter: no landing
-  // goes in past a wall that stands, and a bombardment is answered by it.
-  // They do not fight an action at sea — see `contestedAt`.
+  /*
+   * The walls' own card stood here — "2 forts · 60 against a landing" — and
+   * Sean cut it on 22 September: *"cut the section on the harbor that says two
+   * forts, 60 against the landing. Just cut that completely, don't need that."*
+   *
+   * It was the third place on one island sheet saying the same thing. Defenses
+   * lists every battery with both its numbers, Buildings names the fortresses
+   * standing, and this said it a third time in a shorter form at the top of a
+   * tab about ships. A wall is not moored here and never fights an action at
+   * sea, so the harbor was the weakest of the three places to say it.
+   */
   const island = state.systems.find((s) => s.id === systemId);
   // And whatever is in the water. It is not a fleet and it is nobody's, but a
   // card among the ships is exactly what it is to the player: a thing lying in
   // this harbor with guns, which has to be got past.
   const beast = island && island.beastSeen?.[state.player] ? beastAt(island) : undefined;
-  const forts = island ? fortsOf(island).length : 0;
-  const defences = forts > 0 && (
-    <div className="card row" style={{ gap: 14, alignItems: 'center' }}>
-      {forts > 0 && island && (
-        <span className="row" style={{ gap: 6 }}>
-          <FacilityIcon type="fort" size={22} />
-          <span className="small">
-            {forts} {forts === 1 ? 'fort' : 'forts'} · {island ? fortsOf(island).reduce((n, f) => n + wallInvasionDefense(f.type), 0) : 0} against
-            a landing
-          </span>
-        </span>
-      )}
-    </div>
-  );
 
   const monster = beast && beast.guns > 0 && island && (
     <div className="card fleet fleet--beast">
@@ -740,7 +753,6 @@ export function ShipsHere({
     return (
       <div className="stack">
         {monster}
-        {defences}
         <div className="card muted small">
           Nothing is moored here. Lay down a hull at a {terms.facilities.shipyard.toLowerCase()} and
           it will come to anchor where it was built. Any fortress guarding the island will sit
@@ -758,7 +770,6 @@ export function ShipsHere({
           the save — a habit, not a fact about this war. */}
       {here.length > 0 && <GroupHulls />}
       {monster}
-      {defences}
       {here.map((fleet) => (
         <FleetCard
           key={fleet.id}
@@ -785,12 +796,39 @@ export function ShipsHere({
       )}
       {inbound.length > 0 && (
         <>
+          {/*
+            A squadron under way is a squadron, not a line of text.
+
+            It was a name and "12d out" on a bare row, which is the least a
+            harbor could say about a fleet bound for it — you could not see
+            what was coming, only that something was. Sean asked for the
+            transit state to be *shown* rather than described: *"if they're
+            setting sail or sailing, maybe we put like a background behind it
+            that indicates that it's in transit."* A card with no hulls in it
+            has nothing for that background to sit behind.
+
+            So it is the ordinary `FleetCard`, which brings its faction stripe
+            and its hull list with it and picks up the sailing wash from being
+            at sea. `fleetStatus` already says where she is bound and how long
+            she has; the card's own `atSea` gates keep every order off her
+            until she arrives.
+          */}
           <div className="section-title">Under way to here</div>
           {inbound.map((fleet) => (
-            <div key={fleet.id} className="card row row--between">
-              <span className="small">{fleet.name}</span>
-              <span className="tiny muted">{fleet.voyage!.daysRemaining}d out</span>
-            </div>
+            <FleetCard
+              key={fleet.id}
+              state={state}
+              fleet={fleet}
+              onSail={onSail}
+              onAssault={onAssault}
+              onBombard={onBombard}
+              onFlee={onFlee}
+              onOpenCharacter={onOpenCharacter}
+              onOrderShips={onOrderShips}
+              onOrderOfficers={onOrderOfficers}
+              onDetach={onDetach}
+              canOrder={fleet.faction === state.player}
+            />
           ))}
         </>
       )}

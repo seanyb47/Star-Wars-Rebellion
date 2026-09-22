@@ -9661,3 +9661,70 @@ which is what he asked for and steadier than what he asked for. The Confederacy
 is untouched at 3.15, already the 3 he wanted kept.
 
 Marchmont keeps Negotiator, which is the half of her the bible leads with.
+
+### The harbor loses a line, fleets gain a flag, and the log gains a switchboard
+
+Three of Sean's, 22 September.
+
+**The walls' line goes.** *"Cut the section on the harbor that says two forts,
+60 against the landing. Just cut that completely, don't need that."* It was the
+third place one island sheet said the same thing — Defenses lists every battery
+with both its numbers, Buildings names the fortresses standing, and this said it
+again in a shorter form at the top of a tab about ships. A wall is not moored
+there and never fights an action at sea, so the harbor was the weakest of the
+three places to say it.
+
+**A fleet flies its flag, and says whether it has sailed.** *"We need a faction
+color clearly stamped on each fleet, whether it's the background of the card or
+a strip at the top... if they're in harbor it's fine to leave it as is. If
+they're setting sail or sailing, maybe we put like a background behind it that
+indicates that it's in transit."*
+
+Both, kept apart because they answer different questions. The **stripe** is
+whose: a solid bar of the faction's colour across the top of the card, full
+bleed, read before any word on it. The **wash** is where: a card at anchor is
+untouched, and one under way gets a faint gradient of that same colour falling
+down it, so the two states differ without a second palette to learn.
+
+The wash needed somewhere to live. `FleetCard` only ever rendered for fleets
+*at* an island — `ShipsHere` filters on `!f.voyage` — so a squadron under way was
+one bare row at its destination saying its name and "12d out", and the transit
+treatment would have had nothing to treat. The inbound list renders real cards
+now: hulls, crew, faction stripe, wash, and `fleetStatus` already saying *At sea
+for Avermere — 19d*. Every order stays gated on the same `atSea` the wash reads,
+so the buttons and the colour cannot disagree.
+
+**The log becomes a switchboard.** *"Let's add some kind of toggle filter in the
+log on which ones you want to be pop-ups, which ones you want to be like
+alerts... there kind of should be three categories of alerts. Ones that actually
+notify you on the top of the screen... and then there should be ones that just
+make sounds... or you could uncheck both boxes and have no notifications, and
+then the notification will just go to the log itself, because there's a number
+on the log of unread."*
+
+Three categories drawn as **two checkboxes**, because the third is both of them
+off: "only to the log" is not a thing you switch on, it is what is left. The
+rows are the seven `EventKind`s, which is the taxonomy the log already sorts and
+colours by, so the settings use the same seven rather than a second list to map
+onto the first. Sound is present, disabled and greyed — *"we can add sound files
+later, you can just gray that one out for now"* — and its preference is already
+saved for when there is something to play.
+
+Stored as the **exceptions** (`popupOff`, `soundOn`) rather than as a record of
+every kind, and that shape is load-bearing: `DEFAULTS` merges shallowly, so a
+saved record would freeze a player's settings at the kinds that existed the day
+they last opened the panel, and a kind added later would arrive silenced for
+them and loud for everyone else. Storing what has been turned *off* means new
+news is on by default, which is the right default for news.
+
+One question, asked in one place, by both layers that put news on screen — the
+dispatch cards that stop you and the running strip that does not. They are two
+presentations of one decision, and a player unchecking *Actions at sea* means it
+in both.
+
+**And the unread count now behaves the way he described.** *"Every time you open
+up the log you can view all the messages, and then when you close the log it
+will mark all of those as read."* The watermark advanced while the log was open
+and on every event after, so a line posting while you read it was marked read in
+the same frame it appeared — dimmed before you saw it. It holds still now for as
+long as you are in there, and everything goes read on the way out.

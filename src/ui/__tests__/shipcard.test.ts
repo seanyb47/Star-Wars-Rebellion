@@ -195,7 +195,11 @@ describe('where Set sail lives', () => {
   const src = FLEET['../FleetPanel.tsx'];
 
   it('is in the card header, not the orders stack', () => {
-    const header = src.slice(src.indexOf('<div className="card fleet">'), src.indexOf('fleet__orders'));
+    // Anchored on the flag rather than on the card's class, which stopped
+    // being a literal on 22 September when the card gained its faction
+    // stripe. The flag is the first thing inside the card and is not going to
+    // move: see `.fleet__flag`.
+    const header = src.slice(src.indexOf('<span className="fleet__flag"'), src.indexOf('fleet__orders'));
     expect(header).toContain('className="btn fleet__sail"');
     expect(header).toContain('onClick={() => onSail(fleet.id)}');
     // And only once — it must not be left behind in the stack as well.
@@ -205,7 +209,7 @@ describe('where Set sail lives', () => {
   it('is gated exactly as the orders were', () => {
     // A fleet at sea, or somebody else's, has no Set sail — the same
     // condition the orders block uses, not a looser one.
-    const header = src.slice(src.indexOf('<div className="card fleet">'), src.indexOf('fleet__orders'));
+    const header = src.slice(src.indexOf('<span className="fleet__flag"'), src.indexOf('fleet__orders'));
     expect(header).toContain('{canOrder && !atSea && (');
   });
 
@@ -217,5 +221,52 @@ describe('where Set sail lives', () => {
       eager: true,
     }) as Record<string, string>;
     expect(CSS['../styles.css']).toMatch(/\.fleet__sail \{[^}]*width: auto/);
+  });
+});
+
+/**
+ * Whose squadron it is, and whether she is in the water.
+ *
+ * Sean, 22 September: *"we need a faction color clearly stamped on each fleet,
+ * whether it's the background of the card or a strip at the top... if they're
+ * in harbor it's fine to leave it as is. If they're setting sail or sailing,
+ * maybe we put like a background behind it that indicates that it's in
+ * transit."*
+ *
+ * Two signals answering two questions, and the second one needed a card to
+ * live on: `FleetCard` only ever rendered for fleets *at* an island, so a
+ * squadron under way was one line of text at its destination and the transit
+ * wash would have had nothing to wash. The inbound list renders real cards now.
+ */
+describe('a fleet card says whose it is and where it is', () => {
+  const src = FLEET['../FleetPanel.tsx'];
+
+  it('stamps the faction on the card and flies a flag inside it', () => {
+    expect(src).toContain('className={`card fleet fleet--${fleet.faction}');
+    expect(src).toContain('<span className="fleet__flag" aria-hidden="true" />');
+  });
+
+  it('marks a squadron under way, and only one under way', () => {
+    expect(src).toContain("${atSea ? ' fleet--sailing' : ''}");
+    // Read off the same `atSea` the orders are gated on, so the wash and the
+    // buttons can never disagree about whether she has sailed.
+    expect(src).toContain('const atSea = fleet.voyage !== undefined;');
+  });
+
+  it('gives an inbound squadron a card rather than a line of text', () => {
+    const inbound = src.slice(src.indexOf('Under way to here'));
+    expect(inbound).toContain('<FleetCard');
+    // The bare row it replaced said the name and the days and nothing else.
+    expect(src).not.toContain('{fleet.voyage!.daysRemaining}d out');
+  });
+
+  /**
+   * And the walls' own card is gone from the harbor, at his word: *"cut the
+   * section on the harbor that says two forts, 60 against the landing."* It
+   * was the third place one island sheet said the same thing.
+   */
+  it('no longer counts the walls in the harbor', () => {
+    expect(src).not.toContain('against\n            a landing');
+    expect(src).not.toContain('wallInvasionDefense');
   });
 });
