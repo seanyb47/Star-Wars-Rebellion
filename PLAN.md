@@ -8628,3 +8628,37 @@ how the rows are shuffled, and the order is the whole of the change.
 
 All three marks were followed in Chromium rather than counted: ships lands on
 the Wayfinder's entry, works on the Gold Mine's, troops on the Troops page.
+
+### The banner that outlived its migration (22 September)
+
+Sean, over the encyclopedia's Ships page: *"Cut this text at top. Not
+necessary."*
+
+It was a framed notice reading **This is the new fleet** — 28 hulls on the
+locked combat rules — *"the war you are playing still sails the old fleet and
+fights it the old way until the engine swap lands, so a name here may not be a
+name in your harbor yet."*
+
+Two things about it are worth keeping, and neither is the sentence.
+
+**It was already false.** That banner was written on 18 September, when the
+roster and the fleet the game sailed genuinely were different things. The
+engine swap landed on the 21st. From that moment the notice was telling
+players that the reference page under it could not be trusted — on the one
+screen a player opens *because* they do not already know the answer. A banner
+describing work in progress has an expiry date, and nothing in the build knows
+when that date passes.
+
+**It was already meant to be gone.** The task list has carried *"Cut the This
+is the new fleet notice"* as **completed**, and `git log -S "This is the new
+fleet"` returns exactly one commit: the one that added it. It was never
+removed. The task was closed without the change landing, and four days of
+screenshots went past with the banner in shot — mine included.
+
+So the guard is a test rather than a comment, since a comment is what failed
+last time. `encentry.test.ts` now strips the comments out of `Almanac.tsx` —
+this file explains the banner at length, and a rule its own explanation trips
+is a rule nobody can keep — and then asserts that none of four migration
+phrases survives in anything rendered. The rule it encodes: **the reference
+pages state what is true and never what is temporary.** If a fact needs a
+migration notice beside it, the fact is not ready to be in the encyclopedia.

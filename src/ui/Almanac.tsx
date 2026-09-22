@@ -1759,22 +1759,23 @@ export function Almanac({
       {page === 'ships' && (
         <>
       {/*
-        The fleet on the locked combat model of 18 September.
+        The fleet on the locked combat model of 18 September, read off `ROSTER`
+        — the Fleet Roster sheet — rather than off the hulls the game sails.
 
-        Read off `ROSTER` — the Fleet Roster sheet — rather than off the hulls
-        the game currently sails, because Sean's instruction was to rebuild
-        this around the new names and stats and scrap the old model. The live
-        roster and the engine that fights it follow in the next pass; the note
-        at the top says so rather than letting the reader find out.
+        A banner used to stand here warning that the two were not yet the same
+        thing: *"the war you are playing still sails the old fleet and fights
+        it the old way until the engine swap lands, so a name here may not be a
+        name in your harbor yet."* That was true for two days. The engine swap
+        landed, and the notice went on telling players the reference could not
+        be trusted.
+
+        Sean cut it on 22 September — *"cut this text at top, not necessary"* —
+        and it is worth saying why it should not have needed cutting: a banner
+        that describes a migration has an expiry date, and nothing in the build
+        knows when that date passes. The page it sat on was the one place a
+        player goes to look something up, which is the worst place to keep a
+        sentence that has quietly become false.
       */}
-      <div className="card small" style={{ borderColor: 'var(--warn, #b8863b)' }}>
-        <b>This is the new fleet.</b> {ROSTER.ships.length} hulls on the locked combat
-        rules — three kinds of cannon, armor, Size and Speed. The war you are
-        playing still sails the old fleet and fights it the old way until the
-        engine swap lands, so a name here may not be a name in your harbor
-        yet.
-      </div>
-
       {/*
         One list, both navies, A-Z. Sean, 19 September: *"Don't separate crown
         and confederate ships. Put them all in encyclopedia in ABC order. But

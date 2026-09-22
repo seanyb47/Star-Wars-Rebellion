@@ -259,3 +259,48 @@ describe('what a works earns is read and never retyped', () => {
     expect(GOLD_PER_DAY.mine).toBe(GOLD_PER_DAY.refinery * 3);
   });
 });
+
+/**
+ * The encyclopedia does not carry notices about itself.
+ *
+ * A banner stood at the top of the Ships page for four days warning that the
+ * roster and the fleet the game sailed were not yet the same thing — *"the war
+ * you are playing still sails the old fleet and fights it the old way until
+ * the engine swap lands."* The swap landed on 21 September. The banner stayed,
+ * and went on telling players that the page under it could not be trusted.
+ *
+ * Sean cut it on the 22nd: *"cut this text at top, not necessary."*
+ *
+ * The lesson is worth a test rather than a comment, because it is the second
+ * time: a sentence about work in progress has an expiry date, nothing in the
+ * build knows when it passes, and the page it sits on is the one a player
+ * opens precisely when they do not already know the answer. So the reference
+ * pages state what is true and never what is temporary — if a fact needs a
+ * migration notice beside it, the fact is not ready to be in here.
+ */
+const ALMANAC_SOURCE = import.meta.glob('../Almanac.tsx', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+describe('the encyclopedia states what is true, not what is temporary', () => {
+  it('carries no migration notice on any page', () => {
+    const source = ALMANAC_SOURCE['../Almanac.tsx'];
+    expect(source).toBeTruthy();
+    // Strip the comments: this file explains at length why the banner went,
+    // and a rule that its own explanation trips is a rule nobody can keep.
+    const rendered = source
+      .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/^\s*\/\/.*$/gm, '');
+    for (const stale of [
+      'This is the new fleet',
+      'engine swap',
+      'until the engine',
+      'not be a name in your harbor',
+    ]) {
+      expect(rendered, `a notice about work in progress: "${stale}"`).not.toContain(stale);
+    }
+  });
+});
