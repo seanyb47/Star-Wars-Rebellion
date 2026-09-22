@@ -33,7 +33,7 @@ export const SPEED_MS: Record<Speed, number> = {
   very_slow: 30_000,
   slow: 15_000,
   medium: 5_000,
-  fast: 2_000,
+  fast: 1_000,
 };
 
 /**
@@ -41,11 +41,16 @@ export const SPEED_MS: Record<Speed, number> = {
  *
  * Not how often a day passes — that is SPEED_MS. This is the resolution the
  * day's progress is measured and drawn at, fine enough that the ring around
- * the day badge moves smoothly and coarse enough to cost nothing. Halved when
- * the speeds were: at two seconds a day, two hundred milliseconds moved the
- * ring a tenth of a turn at a time and you could see the steps.
+ * the day badge moves smoothly and coarse enough to cost nothing.
+ *
+ * Halved twice, both times because a speed was. At two seconds a day, two
+ * hundred milliseconds moved the ring a tenth of a turn at a time and you
+ * could see the steps; Sean cut Fast to one second on 22 September, which put
+ * a hundred back in exactly that position. The rule is the ratio rather than
+ * either number: the tick wants to be about a fiftieth of the fastest day, or
+ * the ring stutters at the only speed anybody watches it at.
  */
-export const CLOCK_TICK_MS = 100;
+export const CLOCK_TICK_MS = 50;
 
 export const SPEED_ORDER: Speed[] = ['paused', 'very_slow', 'slow', 'medium', 'fast'];
 
@@ -1969,14 +1974,10 @@ export function garrisonBand(companies: number): MarkSize {
  * as roomy and now reads as ordinary, which is fairer. Five is still a place
  * you can put a whole industry; it just is not the threshold any more.
  */
-export const ROOM_FAIR = GARRISON_FAIR;
-export const ROOM_AMPLE = GARRISON_STRONG;
-
-export function roomBand(free: number): MarkSize {
-  if (free >= ROOM_AMPLE) return 'large';
-  if (free >= ROOM_FAIR) return 'medium';
-  return 'small';
-}
+/* ROOM_FAIR, ROOM_AMPLE and roomBand stood here, sizing the Available land
+   mark on the chart. Sean cut that filter on 22 September and nothing else
+   read them, so they go with it rather than sitting as three exports the
+   next reader has to work out the use of. */
 
 /**
  * How far a character's ratings wander from their base, game to game.

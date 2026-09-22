@@ -1,12 +1,7 @@
-import {
-  ROOM_AMPLE,
-  ROOM_FAIR,
-  roomBand,
-  type MarkSize,
-} from './constants';
+import { type MarkSize } from './constants';
 import { ANY_GRADE, buildMenu } from './build';
 import { islandIncome } from './economy';
-import { ashoreAt, freeSlots } from './helpers';
+import { ashoreAt } from './helpers';
 import { fleetsAt, isAtSea } from './fleets';
 import { knownIsland, reportOn, sightOf } from './missions';
 import terms from '../data/terms.json';
@@ -31,7 +26,6 @@ export type ChartLayer =
   | 'allegiance'
   | 'idleCrew'
   | 'idleBuildings'
-  | 'room'
   | 'fleets'
   | 'garrisons'
   | 'missions'
@@ -80,12 +74,17 @@ export const CHART_LAYERS: LayerSpec[] = [
   { id: 'missions', label: terms.errands, hint: `Islands your ${terms.crew.toLowerCase()} are working on, or sailing for.` },
   { id: 'worth', label: terms.income, hint: `What each island earns its holder in ${terms.gold.toLowerCase()} a day, right now.` },
   /*
-   * Last, at Sean's word: *"Move idle land to last."* It is the only filter
-   * here answering a planning question rather than a this-morning one — where
-   * could I build, rather than what needs an order now — so it is the one you
-   * swipe to deliberately.
+   * There was an **Available land** filter here, moved to last on 19
+   * September because it was the only one answering a planning question
+   * rather than a this-morning one. Sean cut it on 22 September.
+   *
+   * Being last is what finished it: a filter you swipe past every time to
+   * reach the ones you use is a filter whose answer you did not want. And the
+   * answer was already on the island — the Buildings tab shows free berths on
+   * the island you are looking at, which is where you are standing when the
+   * question *where can I put this* actually comes up. The chart-wide version
+   * was a second way to ask it, one swipe further away than the first.
    */
-  { id: 'room', label: 'Available land', hint: `Islands of yours with berths still open, numbered, and sized by how many: big is ${ROOM_AMPLE} or more, small is under ${ROOM_FAIR}.` },
 ];
 
 /**
@@ -148,8 +147,7 @@ export function showsNumber(layer: ChartLayer): boolean {
     // Size still answers *how hard is this held* from across the chart; the
     // numeral answers *how hard exactly* without opening the island. They do
     // not compete, because one is read at a distance and the other close up.
-    layer === 'garrisons' ||
-    layer === 'room'
+    layer === 'garrisons'
   );
 }
 
@@ -279,15 +277,6 @@ export function layerMark(
         (c) => c.status === 'available' && !c.mission,
       ).length;
       return n > 0 ? { lit: true, count: n } : DARK;
-    }
-    case 'room': {
-      // Where there is still ground to build on, and it is yours to build
-      // on: an island in revolt takes no orders, and room on somebody else's
-      // island is not room you have. The count is free berths, not total —
-      // the question the layer answers is what you can put down today.
-      if (system.control !== faction || system.uprising) return DARK;
-      const free = freeSlots(system);
-      return free > 0 ? { lit: true, count: free, size: roomBand(free) } : DARK;
     }
     case 'fleets': {
       /*

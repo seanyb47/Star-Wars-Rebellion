@@ -44,7 +44,6 @@ import {
   TRAVEL_MAX_DAYS,
   TRAVEL_WORLD_SPAN,
   RESCUE_BASE,
-  PARLEY_SWING_MAX,
   ESPIONAGE_BASE,
   ESPIONAGE_DIVISOR,
   ESPIONAGE_SECOND_ISLAND,
@@ -1035,30 +1034,6 @@ export function canStartMission(
   return missionError(state, characterId, targetSystemId) === null;
 }
 
-/**
- * Why they sailed, in the log's words, one line per errand.
- *
- * Was a nine-deep nested ternary until espionage would have made it ten. A
- * table reads the same and does not have to be re-indented every time the game
- * learns to do something new.
- */
-const ERRAND_PURPOSE: Record<
-  MissionType,
-  (state: GameState, target: System, faction: PlayableFaction) => string
-> = {
-  incite: () => 'to stir up trouble',
-  sabotage: () => 'to see what can be broken',
-  survey: () => 'to put it on the chart',
-  espionage: () => 'to see what is on it',
-  abduct: (state, target, faction) =>
-    `to take ${abductOn(state, target, faction)!.name} off the quay`,
-  command: () => 'to take command there',
-  research: () => 'to put its yards to work on the craft',
-  recruit: () => 'to keep an open table and see who sits down',
-  rescue: (state, target, faction) =>
-    `to break ${captiveOn(state, target, faction)!.name} out`,
-  diplomacy: () => 'to parley',
-};
 
 /**
  * Send a character ashore. The island decides what they do unless the player
@@ -1142,10 +1117,9 @@ export function startMission(
     takePost(state, character, target, targetFleetId);
     return;
   }
-  const errand = ERRAND_PURPOSE[type](state, target, character.faction as PlayableFaction);
   pushEvent(state, {
     kind: 'mission',
-    text: `${character.name} sails for ${inProse(target.name)} ${errand}.`,
+    text: missionLine(type, target.name, 'under way'),
     systemId: targetSystemId,
     characterId,
   });
@@ -1221,6 +1195,99 @@ export function missionReport(type: MissionType, success: boolean, place: string
  * third one had already fallen behind: a mission type the list did not know
  * about came out as "parley", which is a lie rather than a gap.
  */
+/**
+ * One shape for every line a mission writes into the log.
+ *
+ * Sean, 22 September: *"I don't like the liberties you're taking with text.
+ * Too much fluff. 'Commodore-Elect Adaira Hale keeps an open table…' This is
+ * bad. Log should be simple. Parley mission on [location] is [status]."*
+ *
+ * He is right and the fault is worth naming, because it was deliberate and
+ * wrong. Seventeen call sites each wrote their own sentence in the world's
+ * voice — *comes away empty-handed*, *finds no ear for it*, *the room goes the
+ * other way*, *nobody worth the articles sits down at it*. Read one at a time
+ * in a dispatch card that is fine. Read as a list, which is what a log is, it
+ * means every row has a different shape and the reader parses prose to answer
+ * *what happened, where, and did it work* — three facts that fit in a column.
+ *
+ * Prose keeps its voice in the dispatch cards and the mission reports, which
+ * is where CLAUDE.md's rule points: the log is a label, and a label uses the
+ * agreed words.
+ *
+ * `detail` is for the one figure a line genuinely carries — a parley's swing,
+ * a name taken off a quay. Everything else is the status word.
+ */
+/**
+ * Why a mission was called off before it could be worked.
+ *
+ * A clause rather than a sentence, so it reads as the tail of a log line: "is
+ * off — the island changed hands." Kept as a table for the reason the purpose
+ * table was kept as one, before it went: the alternative is a nested ternary
+ * that has to be re-indented every time the game learns a new errand.
+ */
+function offReason(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+  type: MissionType,
+): string {
+  switch (type) {
+    case 'incite':
+      return 'nothing left to stir';
+    case 'recruit':
+      return recruitPool(state, faction).length === 0
+        ? 'nobody unclaimed left ashore'
+        : 'the island will not hold a table';
+    case 'abduct':
+      return 'their mark has sailed';
+    case 'rescue':
+      return 'the cells are empty';
+    case 'command':
+      return 'order already restored';
+    case 'research':
+      return 'no yard left working';
+    case 'sabotage':
+    case 'espionage':
+      return 'nothing worth the risk';
+    case 'survey':
+      return 'already charted';
+    default:
+      return system.support[faction] >= SUPPORT_MAX
+        ? 'the island is wholly yours already'
+        : 'the island is beyond reach';
+  }
+}
+
+export function missionLine(
+  type: MissionType,
+  systemName: string,
+  status: string,
+  detail?: string,
+): string {
+  const head = `${MISSION_LOG_LABEL[type]} mission on ${inProse(systemName)} is ${status}`;
+  return detail ? `${head} — ${detail}.` : `${head}.`;
+}
+
+/**
+ * The mission's name at the head of a log line.
+ *
+ * Two differ from `MISSION_LABEL`, because that table labels a *button* and
+ * this one starts a sentence: "Stirring up trouble mission on Gorley" and "In
+ * command mission on Gorley" both read as mistakes.
+ */
+export const MISSION_LOG_LABEL: Record<MissionType, string> = {
+  recruit: 'Recruit',
+  diplomacy: 'Parley',
+  incite: 'Incite',
+  sabotage: 'Sabotage',
+  survey: 'Explore',
+  espionage: 'Espionage',
+  abduct: 'Abduction',
+  command: 'Command',
+  research: 'Research',
+  rescue: 'Rescue',
+};
+
 export const MISSION_LABEL: Record<MissionType, string> = {
   // Sean, 19 September, renaming the four on the errand sheet: *"Recruit."*
   // It was "Signing on", which is the in-world phrase for the thing and reads
@@ -1584,7 +1651,7 @@ export function advanceMissions(state: GameState, rng: Rng): void {
         character.mission = undefined;
         pushEvent(state, {
           kind: 'mission',
-          text: `${character.name} lands on ${inProse(landed.name)} to find the work already done, and stands by.`,
+          text: missionLine(mission.type, landed.name, 'already done'),
           systemId: landed.id,
           characterId: character.id,
         });
@@ -1602,7 +1669,7 @@ export function advanceMissions(state: GameState, rng: Rng): void {
       mission.daysRemaining = MISSION_WORK_DAYS;
       pushEvent(state, {
         kind: 'mission',
-      text: `${character.name} has made landfall at ${inProse(landed.name)}.`,
+      text: missionLine(mission.type, landed.name, 'landed'),
         systemId: mission.targetSystemId,
         characterId: character.id,
       });
@@ -1683,36 +1750,13 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
     character.mission = undefined;
     pushEvent(state, {
       kind: 'mission',
-      text:
-        mission.type === 'incite'
-          ? `${character.name} finds nothing left to stir on ${inProse(system.name)} and goes quiet.`
-          : mission.type === 'recruit'
-            ? recruitPool(state, faction).length === 0
-              ? `${character.name} keeps a table on ${inProse(system.name)} and nobody unclaimed is left ashore to sit at it.`
-              : `${character.name} lands on ${inProse(system.name)} to find it will not hold a table for them any more.`
-            : mission.type === 'abduct'
-              ? `${character.name} finds the quay at ${inProse(system.name)} empty; their mark has sailed.`
-              : mission.type === 'rescue'
-                ? `${character.name} finds the cells at ${inProse(system.name)} empty; the exchange came first.`
-              : mission.type === 'command'
-                ? `${character.name} lands on ${inProse(system.name)} to find order already restored.`
-              : mission.type === 'research'
-                // Not "the island is beyond reach", which is what this said
-                // until Sean's playtest found it: a yards errand that stops
-                // being possible has lost its yards or its island, and saying
-                // so as a failed negotiation was nonsense twice over.
-                ? `${character.name} finds no yard left working on ${inProse(system.name)}.`
-                : mission.type === 'sabotage' || mission.type === 'espionage'
-                  ? `${character.name} finds nothing worth the risk on ${inProse(system.name)}.`
-                  : mission.type === 'survey'
-                    ? `${character.name} finds ${inProse(system.name)} already charted.`
-                : system.support[faction] >= SUPPORT_MAX
-                  // Not a failure: they arrived to find the argument already
-                  // won. "Beyond reach" is for an island that went the other
-                  // way, and reading it over a hundred-per-cent island of your
-                  // own would be nonsense.
-                  ? `${character.name} finds ${inProse(system.name)} wholly yours already, and nothing left to argue.`
-                  : `${character.name} abandons the talks on ${inProse(system.name)}; the island is beyond reach.`,
+      // One line, one reason. This was a ten-deep ternary of sentences —
+      // *the quay is empty, their mark has sailed*, *the cells are empty, the
+      // exchange came first* — which is exactly the fluff Sean cut on 22
+      // September. The reason survives as a clause because it is the useful
+      // half: a mission called off because the island is already yours is not
+      // the same news as one called off because it changed hands.
+      text: missionLine(mission.type, system.name, 'off', offReason(state, system, faction, mission.type)),
       systemId: system.id,
       characterId: character.id,
     });
@@ -1957,7 +2001,7 @@ function recruitOutcome(
   if (!success || !recruit) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${officer.name} keeps an open table on ${inProse(system.name)} for a fortnight, and nobody worth the articles sits down at it.`,
+      text: missionLine('recruit', system.name, 'a failure'),
       systemId: system.id,
       characterId: officer.id,
     });
@@ -2050,7 +2094,7 @@ function abductOutcome(
   if (!success) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${officer.name} moves on ${mark.name} at ${inProse(system.name)} and comes away empty-handed.`,
+      text: missionLine('abduct', system.name, 'a failure'),
       systemId: system.id,
       characterId: officer.id,
     });
@@ -2112,7 +2156,7 @@ function rescueOutcome(
   if (!success) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${officer.name} cannot reach ${captive.name} in the cells at ${inProse(system.name)}. Not this fortnight.`,
+      text: missionLine('rescue', system.name, 'a failure'),
       systemId: system.id,
       characterId: officer.id,
     });
@@ -2128,7 +2172,7 @@ function rescueOutcome(
     // The other half of a capture, and just as worth stopping for: Sean asked
     // for *"captures (and probably rescues)"*.
     notable: true,
-    text: `${officer.name} has ${captive.name} out of the cells at ${inProse(system.name)} and away. They are home and fit for sea.`,
+    text: missionLine('rescue', system.name, 'a success', `${captive.name} is out and home`),
     systemId: system.id,
     characterId: captive.id,
   });
@@ -2281,7 +2325,7 @@ function surveyOutcome(
   if (opened.length === 0) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${character.name} finds nothing on ${inProse(system.name)} that the charts did not already have.`,
+      text: missionLine('survey', system.name, 'a failure'),
       systemId: system.id,
       characterId: character.id,
     });
@@ -2515,7 +2559,7 @@ function espionageOutcome(
   if (!success) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${character.name} comes away from ${inProse(system.name)} with nothing anybody could act on.`,
+      text: missionLine('espionage', system.name, 'a failure'),
       systemId: system.id,
       characterId: character.id,
     });
@@ -2608,7 +2652,7 @@ function sabotageOutcome(
   if (!success) {
     pushEvent(state, {
       kind: 'mission',
-      text: `${character.name} finds ${inProse(system.name)} too well watched, and comes away with nothing.`,
+      text: missionLine('sabotage', system.name, 'a failure'),
       systemId: system.id,
       characterId: character.id,
     });
@@ -2662,8 +2706,8 @@ function parleyOutcome(
     pushEvent(state, {
       kind: 'mission',
       text: cycle.backfired
-        ? `${character.name} is heard out on ${inProse(system.name)} and answered; the room goes the other way.`
-        : `${character.name} makes no headway on ${inProse(system.name)}.`,
+        ? missionLine('diplomacy', system.name, 'a failure', 'the room went the other way')
+        : missionLine('diplomacy', system.name, 'a failure'),
       systemId: system.id,
       characterId: character.id,
     });
@@ -2733,10 +2777,10 @@ function parleyOutcome(
 
   pushEvent(state, {
     kind: 'mission',
-    text:
-      cycle.swing >= PARLEY_SWING_MAX * 0.8
-        ? `${character.name} carries the room on ${inProse(system.name)}: allegiance up ${cycle.swing.toFixed(1)} points.`
-        : `${character.name} sways ${inProse(system.name)}: allegiance up ${cycle.swing.toFixed(1)} points.`,
+    // The two branches said "carries the room" over a big swing and "sways"
+    // over a small one. With the number on the line the adjective was doing
+    // nothing the figure did not already do, so the split goes with it.
+    text: missionLine('diplomacy', system.name, 'a success', `allegiance up ${cycle.swing.toFixed(1)}`),
     systemId: system.id,
     characterId: character.id,
   });
@@ -2765,8 +2809,8 @@ function inciteOutcome(
     pushEvent(state, {
       kind: 'mission',
       text: cycle.backfired
-        ? `${character.name} finds no ear for it on ${inProse(system.name)}, and the wrong people hear about the asking.`
-        : `${character.name} finds no ear for it on ${inProse(system.name)}.`,
+        ? missionLine('recruit', system.name, 'a failure', 'the wrong people heard the asking')
+        : missionLine('recruit', system.name, 'a failure'),
       systemId: system.id,
       characterId: character.id,
     });
@@ -2785,7 +2829,7 @@ function inciteOutcome(
   pushMomentum(system, faction, MOMENTUM_PER_SUCCESS);
   pushEvent(state, {
     kind: 'mission',
-    text: `${character.name} stirs up ${inProse(system.name)}: the governor's hold falls ${cycle.swing.toFixed(1)} points.`,
+    text: missionLine('incite', system.name, 'a success', `their hold falls ${cycle.swing.toFixed(1)}`),
     systemId: system.id,
     characterId: character.id,
   });

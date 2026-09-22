@@ -41,8 +41,22 @@ const SIM_SOURCE = import.meta.glob('../*.ts', {
   eager: true,
 }) as Record<string, string>;
 
-/** The prose of somebody going into, or coming out of, a cell. */
-const CAPTURE = /was taken on|taken off the quay|is taken up on|out of the cells/;
+/**
+ * The prose of somebody going into, or coming out of, a cell.
+ *
+ * This matches on wording, which is the weakness the log rewrite of 22
+ * September found: the rescue line stopped saying *"out of the cells at X and
+ * away"* and became `missionLine('rescue', …, 'a success', …)`, so the sweep
+ * silently fell from five paths to four. The count assertion below is what
+ * caught it — without `toBeGreaterThanOrEqual(5)` the suite would have gone on
+ * passing while guarding one path fewer.
+ *
+ * So the structured form is matched too. A wording-based net has to be fed
+ * every time the wording moves; the number underneath it is what makes that a
+ * failure rather than a quiet loss of cover.
+ */
+const CAPTURE =
+  /was taken on|taken off the quay|is taken up on|out of the cells|missionLine\('rescue', [^)]*'a success'/;
 
 /** Every pushEvent call in the sim, whole, by brace matching from its paren. */
 function pushEventCalls(source: string): string[] {

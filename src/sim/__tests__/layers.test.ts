@@ -9,7 +9,7 @@ import {
   showsNumber,
   worthTier,
 } from '../layers';
-import { GARRISON_FAIR, GARRISON_STRONG, ROOM_AMPLE, ROOM_FAIR } from '../constants';
+import { GARRISON_FAIR, GARRISON_STRONG } from '../constants';
 import { islandIncome } from '../economy';
 import { getSystem } from '../helpers';
 import { addShip } from '../fleets';
@@ -271,54 +271,21 @@ describe('garrisons answer with a number and nothing else', () => {
   });
 });
 
-describe('available land', () => {
-  it('lights an island of yours with berths still open, and grades how many', () => {
-    const state = generateGalaxy(7, 'empire');
-    const island = state.systems.find((s) => s.control === 'empire')!;
-    island.uprising = false;
-    // Room is berths with nothing on them, and a deposit is something. This
-    // test is about the grading, so the ground is cleared and the berth count
-    // is set outright.
-    island.deposits = [];
-
-    const free = () => layerMark(state, island, 'room', 'empire');
-    // One berth open: something, but not much.
-    island.slots = island.facilities.length + 1;
-    expect(free()).toEqual({ lit: true, count: 1, size: 'small' });
-    island.slots = island.facilities.length + ROOM_FAIR;
-    expect(free().size).toBe('medium');
-    island.slots = island.facilities.length + ROOM_AMPLE;
-    expect(free().size).toBe('large');
-
-    // Built out: no room, so nothing to say.
-    island.slots = island.facilities.length;
-    expect(free().lit).toBe(false);
-  });
-
-  it('says nothing about ground that is not yours to build on', () => {
-    const state = generateGalaxy(7, 'empire');
-    const island = state.systems.find((s) => s.control === 'empire')!;
-    island.slots = island.facilities.length + 4;
-
-    // An island in revolt takes no orders, whatever room it has.
-    island.uprising = true;
-    expect(layerMark(state, island, 'room', 'empire').lit).toBe(false);
-    island.uprising = false;
-
-    // Nor is room on somebody else's island room you have.
-    expect(layerMark(state, island, 'room', 'alliance').lit).toBe(false);
-
-    // Nor room on an island you have never charted.
-    island.explored.empire = false;
-    expect(layerMark(state, island, 'room', 'empire').lit).toBe(false);
-  });
-
-  it('answers in a size and a number, and comes last in the strip', () => {
-    expect(showsNumber('room')).toBe(true);
-    expect(CHART_LAYERS.find((l) => l.id === 'room')!.label).toBe('Available land');
-    // *"Move idle land to last."* Pinned, because the order of this array is
-    // the swipe order and nothing else says so.
-    expect(CHART_LAYERS[CHART_LAYERS.length - 1].id).toBe('room');
+/*
+ * The **Available land** suite stood here: its grading, who it stayed dark
+ * for, and its place last in the swipe. Sean cut the layer on 22 September, so
+ * the tests go with it rather than being kept green against a filter nobody
+ * can reach.
+ *
+ * What it guarded that still matters is the swipe order, which is the order of
+ * CHART_LAYERS and is written down nowhere else. Removing the last entry is
+ * exactly the edit that changes it silently, so the new last one is pinned
+ * below.
+ */
+describe('the swipe order', () => {
+  it('ends on the filter meant to be swiped to', () => {
+    expect(CHART_LAYERS[CHART_LAYERS.length - 1].id).toBe('worth');
+    expect(CHART_LAYERS.some((l) => String(l.id) === 'room')).toBe(false);
   });
 });
 
@@ -330,9 +297,7 @@ describe('which layers count and which grade', () => {
   });
 
   it('counts the two that were graded only, and leaves the rest', () => {
-    for (const layer of ['garrisons', 'room'] as const) {
-      expect(showsNumber(layer), layer).toBe(true);
-    }
+    expect(showsNumber('garrisons')).toBe(true);
     for (const layer of ['allegiance', 'none', 'fleets', 'missions'] as const) {
       expect(showsNumber(layer), layer).toBe(false);
     }

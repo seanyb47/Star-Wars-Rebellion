@@ -338,13 +338,26 @@ button {
 .banner__day::before {
   content: ''; position: absolute; inset: -9px; border-radius: 50%;
   pointer-events: none;
+  /* The remainder is a track, not nothing.
+     Sean, 22 September: *"the fortnight timer is hard to see. Also can you
+     make it flow smooth like the day timer?"* Both complaints had one cause.
+     An arc drawn on bare chrome with no ring behind it gives the eye nothing
+     to measure against, so until it is nearly closed it reads as a smudge
+     rather than as a dial — and a dial you cannot read cannot be seen to
+     move, however smoothly it is actually being driven. (It was already
+     driven on the same tick as the day ring, off the same fraction, so there
+     was never anything jerky to fix; there was nothing legible to watch.)
+     So the far side of the gradient is a faint brass track instead of
+     `transparent`, the band is half again as wide as the day's, and it is
+     drawn at nearly full strength. It stays a hair further out and a shade
+     cooler, which keeps the day the thing you watch. */
   background: conic-gradient(
     var(--brass) calc(var(--fortnight-progress, 0) * 360deg),
-    transparent 0
+    rgba(184, 134, 59, 0.22) 0
   );
-  -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
-  mask: radial-gradient(closest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
-  opacity: 0.55;
+  -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  mask: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  opacity: 0.9;
 }
 @media (prefers-reduced-motion: reduce) {
   .banner__day::after, .banner__day::before { transition: none; }

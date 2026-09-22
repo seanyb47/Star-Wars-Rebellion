@@ -8768,3 +8768,68 @@ is the exception: the Standing defences card was the only page in the game that
 stated the landing rule properly — *"and you may always land. A standing wall
 used to forbid it outright; now it only makes it dear."* Somebody updated that
 one and none of the other three. It survives in `Fortress` and `Invasion`.
+
+### The log gets one shape, and four smaller cuts (22 September)
+
+Sean: *"I don't like the liberties you're taking with text. Too much fluff.
+'Commodore-Elect Adaira Hale keeps an open table…' This is bad. Log should be
+simple. Parley mission on [location] is [status]."*
+
+He is right, and the fault was deliberate rather than careless, which makes it
+worth naming. Twenty-odd call sites each wrote their own sentence in the
+world's voice — *comes away empty-handed*, *finds no ear for it*, *the room
+goes the other way*, *nobody worth the articles sits down at it*. Read one at a
+time in a dispatch card that is good writing. Read as a list, which is what a
+log **is**, it means every row has a different shape and the reader parses
+prose to recover three facts that fit in a column: what, where, did it work.
+
+CLAUDE.md already said which way this goes — *a label uses the agreed word;
+prose keeps its voice*. The log is a label. The dispatch cards and the mission
+reports are where the voice belongs, and they keep it.
+
+So `missionLine(type, island, status, detail?)` is the only way a mission
+writes a row now, and a ten-deep ternary of abandonment sentences collapsed
+into `offReason`, a table of clauses. Two tables of prose went with it:
+`ERRAND_PURPOSE`, which existed only to end the dispatch line, and the
+`carries the room` / `sways` split, which was an adjective doing work the
+figure beside it already did.
+
+**What the template costs.** It drops the officer's name, and the log row is a
+dot and a line of text with nothing else on it — so a player with six crew out
+can no longer tell which of them the row is about. That is a real loss and it
+is his call, not mine: the fix is one argument, either a `Hale — ` prefix or a
+name chip off the `characterId` the event already carries.
+
+**The capture guard caught its own blind spot.** `captures.test.ts` finds
+capture events by matching prose, and the rescue line stopped saying *"out of
+the cells"*. The sweep fell from five paths to four and the count assertion
+failed — which is the only reason it was noticed. Without
+`toBeGreaterThanOrEqual(5)` the suite would have gone on passing while
+guarding one path fewer. A wording-based net needs a number under it.
+
+### The fortnight ring, Fast, and the land filter
+
+**The ring had no track.** *"The fortnight timer is hard to see. Also can you
+make it flow smooth like the day timer?"* — one cause behind both. It was
+already driven off the same fraction on the same tick as the day ring, so
+nothing was ever jerky; an arc drawn on bare chrome with nothing behind it just
+gives the eye no way to measure how far round it has gone, and a dial you
+cannot read cannot be seen to move. The far side of the gradient is a faint
+brass track now, the band is half again as wide, and it is drawn at nearly full
+strength. Confirmed moving in the browser: 0.159 → 0.169 across 700ms.
+
+**Fast is one second**, down from two. `CLOCK_TICK_MS` halves with it, to 50.
+The constant's own comment recorded this happening once before — at two seconds
+a day, 200ms moved the ring a tenth of a turn at a time — so the rule is now
+written as the ratio rather than the number: the tick wants to be about a
+fiftieth of the fastest day, or the ring stutters at the only speed anybody
+watches it at.
+
+**Available land is cut.** Being moved last on 19 September is what finished
+it: a filter you swipe past every time to reach the ones you use is a filter
+whose answer you did not want. The answer was already on the island's Buildings
+tab, which is where you are standing when *where can I put this* comes up.
+`ROOM_FAIR`, `ROOM_AMPLE` and `roomBand` went with it, and the suite that
+covered it is replaced by one test pinning the strip's new last entry — because
+removing the last item from `CHART_LAYERS` is exactly the edit that changes the
+swipe order silently.
