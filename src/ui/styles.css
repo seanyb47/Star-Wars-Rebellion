@@ -1219,7 +1219,15 @@ button {
 
 .start__difficulty { display: flex; gap: 8px; }
 .pill {
+  /* Centred by the rule rather than by the element.
+     A <button> centres its own label and a <span> does not, so when these
+     stopped being buttons on 21 September the words slid to the top left of
+     their capsules and stayed there. Stating it here means the capsule looks
+     the same whatever carries it, which is the only way a mark and a control
+     can share a class. */
   flex: 1; min-height: var(--tap); border-radius: 999px; font-size: 13px;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 6px 10px; text-align: center; line-height: 1.2;
   border: 1px solid var(--border); background: var(--bg-sunken); color: var(--muted);
 }
 .pill--on { border-color: var(--metal); color: var(--metal-hi); background: rgba(0, 0, 0, 0.3); }
