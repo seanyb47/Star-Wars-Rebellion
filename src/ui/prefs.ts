@@ -69,9 +69,30 @@ export interface Prefs {
    * that stays quiet.
    */
   soundOn: EventKind[];
+  /**
+   * And a third column: which kinds the advisor says out loud.
+   *
+   * Sean, 22 September: *"for notifications, we can also add 'Narrator'. we
+   * will record each narrator saying various expressions like 'Informants have
+   * provided information on [location, or 3 locations]' ... Sound just means
+   * the notification or mission type"* — which settles what the two columns
+   * are for. **Sound** is a noise that tells you a thing of that kind has
+   * happened. **Narrator** is Marlow or Pennywhistle telling you what it was,
+   * in their own voice, from a line recorded for that kind of news.
+   *
+   * Same shape as `soundOn` and for the same reason: opt-in, and nothing reads
+   * it until there are recordings to play. The clips do not exist yet.
+   */
+  narratorOn: EventKind[];
 }
 
-const DEFAULTS: Prefs = { group: true, layerOrder: [], popupOff: [], soundOn: [] };
+const DEFAULTS: Prefs = {
+  group: true,
+  layerOrder: [],
+  popupOff: [],
+  soundOn: [],
+  narratorOn: [],
+};
 
 /**
  * Whether this piece of news is allowed to appear on the screen.
@@ -88,6 +109,11 @@ export function popsUp(prefs: Prefs, event: Pick<GameEvent, 'kind'>): boolean {
 /** The same question for sound. Nothing reads it yet; see `soundOn`. */
 export function makesSound(prefs: Prefs, event: Pick<GameEvent, 'kind'>): boolean {
   return prefs.soundOn.includes(event.kind);
+}
+
+/** And for the advisor's voice. Nothing reads it yet; see `narratorOn`. */
+export function isSpoken(prefs: Prefs, event: Pick<GameEvent, 'kind'>): boolean {
+  return prefs.narratorOn.includes(event.kind);
 }
 
 /** Flip one kind in one of the two lists, for the checkboxes in the log. */

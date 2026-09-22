@@ -384,9 +384,33 @@ describe('scrapping', () => {
     // is covered rather than emptying the island.
     expect(island.facilities.length).toBeGreaterThan(0);
     expect(island.facilities.length).toBeLessThan(10);
-    // And the books say so, in one line rather than one per building.
-    const told = state.events.filter((e) => e.text.includes('would not balance'));
+    // And the books say so, in one line rather than one per building — and it
+    // stops the player, because Sean asked for a notification rather than a
+    // line they would only find afterwards.
+    const told = state.events.filter((e) => e.text.includes('could not be met'));
     expect(told).toHaveLength(1);
+    expect(told[0].kind).toBe('loss');
+    expect(told[0].notable).toBe(true);
+    // Named, not counted — and identical things folded, so eight shipyards
+    // off one island read as one entry with a number on it.
+    expect(told[0].text).toMatch(/shipyard on .+ ×\d/);
+  });
+
+  it('tells you about your own shortfall and not the opponent\'s', () => {
+    const state = generateGalaxy(105, 'alliance');
+    const island = isolate(state, 'empire');
+    island.slots = 30;
+    island.facilities = Array.from({ length: 10 }, (_, i) => ({
+      id: `y${i}`,
+      type: 'shipyard' as const,
+      owner: 'empire' as const,
+    }));
+    state.factions.empire.gold = 0;
+    settleOnce(state, createRng(11));
+    // The Crown sold itself down and the Confederate player hears nothing
+    // about it. Whose books these are is the whole of the question.
+    expect(island.facilities.length).toBeLessThan(10);
+    expect(state.events.filter((e) => e.text.includes('could not be met'))).toHaveLength(0);
   });
 
   it('puts the troops ashore when the hull under them is broken up', () => {

@@ -402,12 +402,40 @@ export function settleLedger(state: GameState, rng: Rng): void {
       fs.gold = Math.max(0, fs.gold - got);
     }
     fs.upkeep = totalUpkeep(state, faction);
-    if (sold.length > 0) {
+    /*
+     * The one bill you can lose a war to without being told.
+     *
+     * Sean, 22 September: *"we do need a notification for failure to pay
+     * upkeep when things auto scrap."* It was a log line of the `loss` kind,
+     * which does not raise a card — so the first the player knew of a
+     * shortfall was that a shipyard had gone off an island and they could not
+     * think why. It is `notable` now, which is exactly what that flag is for,
+     * and it names what went rather than counting it: three by name and the
+     * rest as a number, because the fortnight that sells eleven things is the
+     * one you least want a paragraph about.
+     *
+     * Only ever the player's own books. The opponent settles in the same loop
+     * and its shortfalls are its own business — the log is what *you* are
+     * told, and a card reading "the books would not balance" about somebody
+     * else's treasury is worse than no card at all.
+     */
+    if (sold.length > 0 && faction === state.player) {
+      // Three kinds of thing by name and the rest as a number, and identical
+      // things folded rather than listed: a bad fortnight sells four shipyards
+      // off the same island, and "the shipyard on Bracton, the shipyard on
+      // Bracton, the shipyard on Bracton" is not a sentence anybody reads.
+      const tally = new Map<string, number>();
+      for (const name of sold) tally.set(name, (tally.get(name) ?? 0) + 1);
+      const kinds = [...tally.entries()].map(([name, n]) => (n > 1 ? `${name} ×${n}` : name));
+      const named = kinds.slice(0, 3).join(', ');
+      const rest = kinds.length - 3;
       pushEvent(state, {
         kind: 'loss',
+        notable: true,
         text:
-          `The books would not balance. ${sold.length} thing${sold.length === 1 ? ' was' : 's were'} ` +
-          `broken up to pay the fortnight's bill.`,
+          `The fortnight's bill could not be met, and the difference was raised ` +
+          `by breaking things up: ${named}${rest > 0 ? `, and ${rest} more` : ''}. ` +
+          `Upkeep is now ${Math.round(fs.upkeep)} a day.`,
       });
     }
   }

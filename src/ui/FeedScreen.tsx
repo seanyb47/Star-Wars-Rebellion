@@ -38,10 +38,19 @@ const KIND_ORDER: EventKind[] = ['war', 'flip', 'mutiny', 'battle', 'mission', '
  * thing you switch on, it is what is left when nothing else is switched on.
  * Everything reaches the log either way; these decide only how loudly.
  *
- * **Sound is disabled and stays that way for now.** *"We can add sound files
- * later. You can just gray that one out for now, just leave a spot for it and
- * we'll develop that later."* The column is real, the preference is real and
- * saved, and nothing reads it yet.
+ * **Three columns since 22 September**, because Sean asked for the advisor to
+ * be one of them: *"for notifications, we can also add 'Narrator'. we will
+ * record each narrator saying various expressions like 'Informants have
+ * provided information on [location, or 3 locations]' ... Sound just means the
+ * notification or mission type."* That last clause is what separates the two:
+ * **Sound** is a noise that says a thing of this kind happened, **Narrator** is
+ * Marlow or Pennywhistle telling you what it was.
+ *
+ * **Both of them are disabled and stay that way for now.** *"We can add sound
+ * files later. You can just gray that one out for now, just leave a spot for it
+ * and we'll develop that later."* — and the advisor's lines are not recorded
+ * yet either. The columns are real, the preferences are real and saved, and
+ * nothing reads either of them.
  */
 function Notifications() {
   const [prefs, setPrefs] = usePrefs();
@@ -51,6 +60,7 @@ function Notifications() {
         <span className="notify__what">What happens</span>
         <span className="notify__col">Pop-up</span>
         <span className="notify__col">Sound</span>
+        <span className="notify__col">Narrator</span>
       </div>
       {KIND_ORDER.map((kind) => {
         const pops = !prefs.popupOff.includes(kind);
@@ -71,11 +81,19 @@ function Notifications() {
             <button className="notify__box" disabled aria-label="Sound, not yet built">
               ☐
             </button>
+            <button
+              className="notify__box"
+              disabled
+              aria-label="Narrator, not yet recorded"
+            >
+              ☐
+            </button>
           </div>
         );
       })}
       <p className="tiny muted notify__foot">
-        Everything reaches the log whichever of these is set. Sounds are not built yet.
+        Everything reaches the log whichever of these is set. Sounds are not built
+        yet, and the advisor's lines are not recorded yet.
       </p>
     </div>
   );

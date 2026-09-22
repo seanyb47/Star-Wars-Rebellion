@@ -496,8 +496,17 @@ button {
      rather than left to the content, because the whole point of the bar is
      that the labels are legible, and a grid row will give up its height to a
      short parent without saying so — which is how they came to be clipped. */
-  min-height: calc(62px + var(--safe-bottom));
-  align-content: center;
+  /* Room for the advisor to be a framed portrait rather than a thing wedged
+     between two rules. Sean, 22 September: *"the narrator box is not clean.
+     lines run through the portrait"* — the bar's own top rule and the
+     portrait's gold edge were landing on the same pixel at different
+     fractions, which reads as a line drawn across her. The bar is a dozen
+     pixels taller and she is centred in it, so nothing touches her. */
+  min-height: calc(74px + var(--safe-bottom));
+  /* The row fills the bar rather than floating centred in it, so the seam
+     that divides the advisor's slot from the tabs runs the console's whole
+     depth instead of stopping in mid-air above and below her. */
+  align-content: stretch;
   /* The bottom of the bar fades out of its own grain into flat `--chrome-2`
      — the colour the canvas under a short app is painted. The wood is still
      wood where you look at it, and the last few pixels are exactly what
@@ -525,10 +534,17 @@ button {
 }
 .tab__icon { display: grid; place-items: center; height: 24px; }
 .tab__icon svg { display: block; }
+/* The unread count on the Log.
+   Sean, 22 September: *"the confederacy log notification button is
+   green....thats imperoum colors"*. It was painted `--empire` outright, so a
+   Confederate console carried a Crown-green pip. It wears the side's own
+   metal now — gold on the Crown's green wood, rust on the Confederacy's red —
+   which is what every other mark on this bar does. */
 .tab__badge {
   position: absolute; top: 4px; right: 50%; transform: translateX(20px);
   min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px;
-  background: var(--empire); color: #fff; font-size: 10px; font-weight: 700;
+  background: var(--metal); color: var(--chrome-2); font-size: 10px; font-weight: 800;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
   display: grid; place-items: center;
 }
 
@@ -1437,22 +1453,24 @@ button {
    and overflows upward on purpose, so they stand on it rather than sit in it —
    which is what stops them reading as a fourth tab. */
 .advisor {
-  /* Taller than the bar on purpose: he stands on the console rather than
-     sitting in it, and the bar grew to give him the room. */
+  /* Her own slot at the end of the console, and she is framed in it: centred,
+     clear of the bar's top rule and clear of the glass at the bottom. */
   position: relative;
   min-width: var(--tap); min-height: 62px;
-  display: flex; align-items: flex-end; justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   background: none; border: none;
   border-left: 1px solid var(--metal-lo);
-  filter: drop-shadow(0 1px 4px rgba(3, 13, 18, 0.8));
   -webkit-touch-callout: none; user-select: none;
 }
 .advisor > svg { margin-bottom: 1px; }
 .advisor__figure {
-  position: relative; display: block; margin-bottom: 1px; overflow: hidden;
-  border-radius: 4px 4px 0 0;
-  border: 1px solid rgba(201, 162, 74, 0.55); border-bottom: none;
+  /* Above the bar's border-top in the paint order, so the rule stops at her
+     frame instead of carrying on across the picture. */
+  position: relative; z-index: 1; display: block; overflow: hidden;
+  border-radius: 4px;
+  border: 1px solid rgba(201, 162, 74, 0.55);
   background: #071a22;
+  box-shadow: 0 2px 8px rgba(3, 13, 18, 0.75);
   transform-origin: 50% 100%;
 }
 .advisor__face {
@@ -3230,10 +3248,12 @@ button.tcard:hover { border-color: var(--brass); }
 .notify__row--head { min-height: 26px; }
 .notify__row--head + .notify__row { border-top: 0; }
 .notify__what { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; font-size: 13px; }
-/* The head labels sit over their columns, so they take the columns' width. */
-.notify__col { flex: none; width: 46px; text-align: center; }
+/* The head labels sit over their columns, so they take the columns' width —
+   wide enough for "Narrator" to stay on one line, since the third column
+   arrived with the longest word in the panel. */
+.notify__col { flex: none; width: 54px; text-align: center; }
 .notify__box {
-  flex: none; width: 46px; min-height: 30px; padding: 0;
+  flex: none; width: 54px; min-height: 30px; padding: 0;
   font-size: 16px; line-height: 1; color: var(--muted);
   background: none; border: 0;
 }
