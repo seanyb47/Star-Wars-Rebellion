@@ -9343,3 +9343,47 @@ rule working as intended: it prices the strategy of building one fortress-island
 and running the whole war out of it.
 
 Audit clean in both runs.
+
+### Does the opening roll decide the war? No — `lab/opening.ts`
+
+Sean, 22 September: *"I noticed upkeep starts differently every game. I guess
+that means that the random seed of income producing stuff changes right? Is
+that a big deal or no?"*
+
+The premise needs one correction before the answer. **Upkeep is very nearly
+fixed** — over sixty seeds the Crown opens between 67 and 71 gold a day and the
+Confederacy between 27 and 28, a 6% and 3% spread. What moves is **income**,
+32% for the Crown and 43% for the Confederacy, and therefore the **surplus**,
+which is the green figure beside the gold and is what he was watching. Crown
+surplus runs 22–59 a day; Confederate 41–76.
+
+The cause is `seedHoldings` in `galaxy.ts`. A side's opening earners are
+`short(type, want)` — the target *less what its islands already carry* — and
+what they already carry comes from the seeded neutral-island infrastructure. So
+a side is given at least the target and keeps everything above it, and a side
+that rolls generous islands opens with 35 earners against another's 27.
+
+**Whether that is a big deal is a measurable question, so it was measured.**
+`lab/opening.ts` plays each seed out with both sides machine-played, then sorts
+the wars by the Crown's opening surplus edge and splits them in half. If the
+roll were load-bearing, the seeds where the Crown opened richest would be the
+seeds the Crown wins.
+
+```
+Crown opening surplus edge: -47.8/day worst … +5.2/day best
+worst half for the Crown  Crown 13 — Confederacy 11
+best half for the Crown   Crown 12 — Confederacy 12
+```
+
+A 53 gold/day swing in the opening books, and it predicts nothing: both halves
+are inside a coin flip's noise at 24 wars (SD 2.45). The reason is almost
+certainly that the wars run 700-odd days, and seven hundred days of play swamps
+a starting difference worth one hull.
+
+**One thing did fall out of this that is not noise, and wants Sean's eye.** The
+edge runs from −47.8 to +5.2, so **the Confederacy opens with the better net
+surplus on nearly every seed** — and the Crown's upkeep is 2.4× theirs (68
+against 28). That is structural rather than random, and it is not obviously
+wrong: the Crown opens with nine hulls to their six, heavier ones, and twice the
+troops. But it is the same quantity the pending upkeep ruling is about, so it
+belongs in that decision rather than this one.
