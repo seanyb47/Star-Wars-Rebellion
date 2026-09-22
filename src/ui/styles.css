@@ -2177,6 +2177,18 @@ button.tcard:hover { border-color: var(--brass); }
 .unit__body { min-width: 0; }
 .unit__name { font-weight: 700; font-size: 15px; }
 .unit__stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+/* The three figures an order is decided on: label left, figure right, one to
+   a line. A row of columns was tried first and the headings wrap — "Time to
+   Completion" is three words in a quarter of a phone — so the list wins on
+   the only screen width that matters. */
+.figures { margin: 8px 0 0; display: flex; flex-direction: column; gap: 2px; }
+.figures > div {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  padding: 3px 0; border-bottom: 1px solid var(--metal-lo);
+}
+.figures > div:last-child { border-bottom: 0; }
+.figures dt { font-size: 12px; color: var(--muted); }
+.figures dd { margin: 0; font-size: 13px; font-weight: 600; color: var(--text); }
 
 /* The mission menu: one card an errand. */
 .choice { display: flex; gap: 10px; align-items: flex-start; text-align: left; width: 100%; }

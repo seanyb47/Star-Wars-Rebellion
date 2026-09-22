@@ -1,10 +1,10 @@
+import type { ReactNode } from 'react';
 import terms from '../data/terms.json';
 import {
   buildLabel,
   planBuild,
   GOLD_PER_DAY,
   shipClass,
-  shipSpec,
   gradeOf,
   shipsAt,
   shipsFor,
@@ -275,6 +275,61 @@ function roomLine(state: GameState, system: System): string {
   return `${free} free`;
 }
 
+/**
+ * The three figures an order is decided on, and nothing else.
+ *
+ * Sean, 22 September: *"on the build screen, all I need to see for stats is
+ * Construction Cost: X gold / Time to Completion: X days / Upkeep: x gold.
+ * That's it."*
+ *
+ * They were a single dimmed line — `140 · 90 days · Upkeep: 20` — with a hull's
+ * four combat numbers in a grid under it. The line made the reader work out
+ * which number was which from the units, and the grid answered a question this
+ * screen is not for: what a hull is *like* is the encyclopedia's job, and every
+ * one of those four is on its entry, an ℹ away. What the build panel decides is
+ * what it costs, how long it takes, and what it costs to keep.
+ *
+ * Labelled rows rather than a row of columns, because his three are two words
+ * each and column headings that wrap are worse than a list.
+ */
+function BuildFigures({
+  cost,
+  days,
+  keepLabel,
+  keep,
+}: {
+  cost: number;
+  days: number;
+  /**
+   * The third row is Upkeep for everything that costs and Earns for the two
+   * that pay — a mine and a mill cost nothing to keep, and what they bring in
+   * is the reason to raise one. Sean's Day 150 playtest was about exactly this
+   * figure being wrong, so it keeps its own line rather than being folded into
+   * an Upkeep of zero.
+   */
+  keepLabel: string;
+  keep: ReactNode;
+}) {
+  return (
+    <dl className="figures">
+      <div>
+        <dt>Construction Cost</dt>
+        <dd>
+          <GoldFig n={cost} per={null} />
+        </dd>
+      </div>
+      <div>
+        <dt>Time to Completion</dt>
+        <dd>{days} days</dd>
+      </div>
+      <div>
+        <dt>{keepLabel}</dt>
+        <dd>{keep}</dd>
+      </div>
+    </dl>
+  );
+}
+
 /** The thing itself: its painting, what it costs to keep, what it is for. */
 function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
   const you = state.player;
@@ -282,9 +337,11 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
   // What it costs to run, or earns, once it is standing. Sean's format, 16
   // September: a label, a figure, the coin, and what it is per — not a
   // sentence. "Costs 3 gold a day to keep" was eight words for one number.
+  const keepLabel =
+    plan.upkeep > 0 ? terms.upkeep : GOLD_PER_DAY[item] > 0 ? 'Earns' : terms.upkeep;
   const upkeepLine =
     plan.upkeep > 0 ? (
-      <GoldFig label={terms.upkeep} n={perFortnight(plan.upkeep)} tone="cost" />
+      <GoldFig n={perFortnight(plan.upkeep)} tone="cost" />
     ) : GOLD_PER_DAY[item] > 0 ? (
       /*
        * From the table, not from a literal.
@@ -298,14 +355,13 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
        * more than four times, on the one screen where a player decides which
        * of the two to build.
        */
-      <GoldFig label="Earns" n={GOLD_PER_DAY[item]} tone="earn" />
+      <GoldFig n={GOLD_PER_DAY[item]} tone="earn" />
     ) : (
-      <span className="muted">Nothing to keep</span>
+      <span className="muted">Nothing</span>
     );
 
   if (isShipClass(item)) {
     const cls = shipClass(item);
-    const spec = shipSpec(item);
     /*
      * Her own painting, and only then the fallback.
      *
@@ -328,27 +384,12 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
         </div>
         <div className="unit__body">
           <div className="unit__name">{cls.name}</div>
-          <div className="tiny muted">
-            <GoldFig n={plan.costGold} per={null} /> · {plan.days} days · {upkeepLine}
-          </div>
-          <div className="unit__stats">
-            <Stat label="Guns" value={spec.guns} />
-            <Stat label="Hull" value={spec.hull} />
-            {/* Found by playing: this tile read "1 co." — *company* abbreviated,
-                and company is the retired word. The Almanac's card already
-                counts troops; the build sheet, which is where you decide
-                whether a hull can carry a landing, was still saying the old
-                one under a full stop. */}
-            <Stat
-              label="Carries"
-              value={
-                spec.carries === 0
-                  ? '—'
-                  : `${spec.carries}\u00a0${spec.carries === 1 ? terms.troop.toLowerCase() : terms.troops.toLowerCase()}`
-              }
-            />
-            <Stat label="Pace" value={spec.pace < 1 ? 'Fast' : spec.pace > 1 ? 'Slow' : 'Steady'} />
-          </div>
+          <BuildFigures
+            cost={plan.costGold}
+            days={plan.days}
+            keepLabel={keepLabel}
+            keep={upkeepLine}
+          />
           <p className="tiny muted" style={{ margin: '6px 0 0' }}>
             {cls.blurb}
           </p>
@@ -365,9 +406,12 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
         </div>
         <div className="unit__body">
           <div className="unit__name">{buildLabel('troop')}</div>
-          <div className="tiny muted">
-            <GoldFig n={plan.costGold} per={null} /> · {plan.days} days · {upkeepLine}
-          </div>
+          <BuildFigures
+            cost={plan.costGold}
+            days={plan.days}
+            keepLabel={keepLabel}
+            keep={upkeepLine}
+          />
           <p className="tiny muted" style={{ margin: '6px 0 0' }}>
             Marines and militia. A troop holds an island quiet when its allegiance falls, is the
             only thing that holds an empty island at all, and is what a landing is made of.
@@ -392,9 +436,12 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
       </div>
       <div className="unit__body">
         <div className="unit__name">{buildLabel(type)}</div>
-        <div className="tiny muted">
-          <GoldFig n={plan.costGold} per={null} /> · {plan.days} days · {upkeepLine}
-        </div>
+        <BuildFigures
+            cost={plan.costGold}
+            days={plan.days}
+            keepLabel={keepLabel}
+            keep={upkeepLine}
+          />
         <p className="tiny muted" style={{ margin: '6px 0 0' }}>
           {terms.facilityBlurbs[type]}
         </p>
