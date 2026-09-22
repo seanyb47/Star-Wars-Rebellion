@@ -82,7 +82,7 @@ any Crown sweeps are pulled by her own crew.
 
 *Small, Very Fast. CWN-INT-S02, research S02.*
 
-**PAINTED** — `src/art/ships/kestrel.webp`. Sent captioned *"swift 1"*,
+**PAINTED** — `src/art/ships/interceptor-i.webp`. Sent captioned *"swift 1"*,
 filed here for the same reason *"swift 2"* went to the Interceptor II.
 Pairs with it: ivory canvas and one pennant against the II's green rig.
 
@@ -270,7 +270,7 @@ with half the crew watching the trees.
 
 *Small, Very Fast. CWN-INT-R5-02, research R5.*
 
-**PAINTED** — `src/art/ships/kestrel-ii.webp`. Sent captioned *"swift 2"*
+**PAINTED** — `src/art/ships/interceptor-ii.webp`. Sent captioned *"swift 2"*
 and filed here on the evidence of the painting: it carries this hull's
 signature detail, the five chase-gun muzzles grouped into the bow, and it
 cannot be the Swift, which is a Confederate outrigger with no gun aboard.
@@ -425,7 +425,7 @@ three Shoal-folk aboard, which is what her entry's first sentence asks for.
 
 *Medium, Fast. CFS-BRI-S02, research S02.*
 
-**PAINTED** — `src/art/ships/brig.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
+**PAINTED** — `src/art/ships/brigantine.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — Most Brigantines began as honest merchant vessels, although their captains disagree about when honesty ended. Cargo partitions have become troop berths, concealed ports hold a pair of light guns and every spare beam carries a pulley for loading whatever the next island needs. They are the Confederacy's connective tissue: not heroic, rarely famous, and present at every uprising before the songs arrive.
 
@@ -609,7 +609,7 @@ so the painting stands.
 
 *Large, Normal. CFS-REE-R4-01, research R4.*
 
-**PAINTED** — `src/art/ships/reefwalker.webp`.
+**PAINTED** — `src/art/ships/reefwarden.webp`.
 
 **Encyclopedia** *(shown in game)** — Reefwardens were grown after Confederate captains learned that Imperial capital ships could not simply be outsailed forever. Their coral carapaces are thickest around the forward battery, allowing them to close with ships that would crush lighter raiders. Reef-folk marines shelter in cool chambers within the living hull until the moment of boarding. Submerged Tidecraft vanes drive the ship directly into the wind, giving its prey no safe angle of escape.
 
@@ -701,7 +701,7 @@ round, so it is canon now.
 
 *Gigantic, Normal. CFS-COR-R8-01, research R8.*
 
-**PAINTED** — `src/art/ships/coral-class.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
+**PAINTED** — `src/art/ships/coral-dreadnaught.webp` (v2). Mirrored from the register, which is the authority; see the note at the head of this file.
 
 **Encyclopedia** *(shown in game)** — A Coral-Class Dreadnaught is not launched. Reef singers wake it beneath a guarded lagoon, and the armored hull rises only as far as battle requires. Most of its enormous hardwood keel and living coral mass travels below the surface, where coordinated Tidecraft vanes propel and steer it against wind and current. In action, waves wash over the low dorsal armor while gun apertures open just above the waterline. It is not a submarine or sea creature, but a warship deliberately grown to offer the enemy almost nothing to hit.
 

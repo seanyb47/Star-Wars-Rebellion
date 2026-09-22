@@ -53,52 +53,23 @@ const LEGACY_ROLE: Record<ShipSize, 'small' | 'medium' | 'large' | 'transport'> 
 };
 
 /**
- * Which painting a hull uses.
+ * Which painting a hull uses — and it is the roster's own crosswalk, not a
+ * second copy of it.
  *
- * Most of the roster has art under its own name. The rest inherit from the
- * hull they replaced, which is a lineage rather than a guess — the Coral-Class
- * *is* the Reef-class grown up. Since 19 September every hull on the roster
- * has one, so the drawn silhouette is a fallback that nothing currently
- * reaches — kept because the next ship Sean adds will reach it.
+ * There used to be an `ART_SLUG` table here, twenty-eight Ship IDs mapped to
+ * twenty-eight filenames by hand. `roster.ts` already holds exactly that map,
+ * because it needs it to turn the sheet into hulls the game can build, and
+ * `slugOf` has been exported from it the whole time (imported here as
+ * `hullSlug`, since this file already has a `slugOf` for anchors). Two hand-maintained
+ * copies of one crosswalk drift, and on 22 September this one had: five hulls
+ * still pointed at the names their paintings were filed under *before* the
+ * roster renamed them, so the Interceptors, the Brigantine, the Reefwarden and
+ * the Coral-Class were falling through to the drawn silhouette while their
+ * paintings sat on disk unused.
  *
- * An entry moves from a borrowed slug to its own the day it is painted: the
- * Wayfinder was on the Fluyt's and is not any more.
+ * The fallback to `cls.id` stays for a hull added to the game before its
+ * painting arrives, which is the case the silhouette exists for.
  */
-const ART_SLUG: Record<string, string> = {
-  'CFS-COR-R8-01': 'coral-class',
-  'CFS-REE-R4-01': 'reefwalker',
-  'CFS-BRI-S02': 'brig',
-  'CWN-INT-S02': 'kestrel',
-  'CWN-INT-R5-02': 'kestrel-ii',
-  'CWN-WAY-S01': 'wayfinder',
-  'CWN-MOR-S03': 'morningstar',
-  'CWN-RES-R2-01': 'resolute',
-  'CWN-JUS-R6-01': 'justiciar',
-  'CWN-SOV-S04': 'sovereign',
-  'CWN-SOV-R7-02': 'sovereign-ii',
-  'CWN-MAJ-R8-01': 'majestic',
-  'CWN-BUL-R3-01': 'bulwark',
-  'CWN-VAN-R1-01': 'vanguard',
-  // v4's three new hulls. No paintings yet, so these resolve to nothing and the
-  // sheet draws its fallback; the names are here so the art drops straight in.
-  'CWN-FEN-R1-02': 'fenrunner',
-  'CWN-WRA-R5-03': 'wraith',
-  'CFS-WIT-R2-02': 'witchlight',
-  'CWN-VAN-R4-02': 'vanguard-ii',
-  'CFS-SWI-S01': 'swift',
-  'CFS-TEM-R3-01': 'tempest',
-  'CFS-CUT-R2-01': 'cutlass',
-  'CFS-MAR-R1-01': 'marauder',
-  'CFS-URG-R7-01': 'urskin-goliath',
-  'CFS-CHI-S03': 'chimera',
-  // Hers has been on disk since 16 September and was never wired up: the
-  // slug was taken by the Gigantic hull until that was renamed the Goliath
-  // on the 19th, and the mapping did not move back with the painting.
-  'CFS-URW-R3-01': 'urskin-whaler',
-  'CFS-TID-S04': 'tidestalker',
-  'CFS-IRB-R5-01': 'ironback',
-  'CFS-BLA-R6-01': 'blackfin',
-};
 
 /** Counted from the data rather than remembered: the old figure said 71. */
 const ISLAND_COUNT = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
@@ -163,6 +134,7 @@ import {
   IslandBanner,
   FactionSigil,
 } from './art';
+import { slugOf as hullSlug } from '../sim/roster';
 import type { PlayableFaction, ResourceType } from '../sim';
 import { GoldFig, Info, SectionHead, Sheet } from './components';
 import { Icon, type IconName } from './icons';
@@ -753,7 +725,7 @@ function EntrySheet({
               <ShipThumb
                 faction={side}
                 role={LEGACY_ROLE[cls.size]}
-                cls={ART_SLUG[cls.id] ?? cls.id}
+                cls={hullSlug(cls.id) ?? cls.id}
                 size={560}
               />
             </div>
@@ -1821,7 +1793,7 @@ export function Almanac({
                 <ShipThumb
                   faction={side}
                   role={LEGACY_ROLE[cls.size]}
-                  cls={ART_SLUG[cls.id] ?? cls.id}
+                  cls={hullSlug(cls.id) ?? cls.id}
                   size={280}
                 />
               </span>

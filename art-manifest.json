@@ -5143,7 +5143,7 @@
         }
       ]
     },
-    "ships/brig": {
+    "ships/brigantine": {
       "folder": "ships",
       "slug": "brig",
       "version": 2,
@@ -5254,7 +5254,7 @@
         "sha1": "081998381aa232ca"
       }
     },
-    "ships/coral-class": {
+    "ships/coral-dreadnaught": {
       "folder": "ships",
       "slug": "coral-class",
       "version": 2,
@@ -5496,6 +5496,90 @@
         "sha1": "2c0db8b442b62c82"
       }
     },
+    "ships/interceptor-i": {
+      "folder": "ships",
+      "slug": "kestrel",
+      "version": 2,
+      "added": "2026-09-16",
+      "updated": "2026-09-20",
+      "title": "Interceptor I",
+      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "notes": "Commission of 20 September 2026, captioned 'swift 1'. Filed as Interceptor I, on the same reading that put 'swift 2' on the Interceptor II: the Swift is a Confederate Shoal-folk outrigger with no gun aboard, and this is a Crown cutter with a green pursuit pennant and a green-coated crew. Matches Part 4: knife-thin low hull, sharply raked bow, two raked masts and an outsized spread of fore-and-aft canvas, light timber with minimal bulwarks over a narrow copper strip at the waterline, ivory canvas with one green pennant and a small Crown emblem and pointedly no elite green sails, heeled hard in bright wind with a distant sail to run down. The guardrail holds - she is not bulked up and carries nothing heavier than a light gun. Slug is kestrel, the Interceptor I's art filename from before the v3 rename. Delivered 1448x1086, 4:3, no crop.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/kestrel.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 556964,
+        "sha1": "3b116bf5b26e456d"
+      },
+      "shipped": {
+        "file": "src/art/ships/kestrel.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 74386,
+        "sha1": "14ef3d2fa61a1cb8"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/kestrel.v1.webp",
+          "crop": {
+            "x": 1,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
+    },
+    "ships/interceptor-ii": {
+      "folder": "ships",
+      "slug": "kestrel-ii",
+      "version": 2,
+      "added": "2026-09-16",
+      "updated": "2026-09-20",
+      "title": "Interceptor II",
+      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
+      "notes": "Commission of 20 September 2026, sent captioned 'swift 2'. Filed as Interceptor II on the evidence of the painting itself, which is that hull's Part 4 entry point for point and cannot be the Swift: the Swift is a Confederate Shoal-folk outrigger with no gun aboard, and this is a Crown warship under deep-green V2 canvas with a chase battery. The clincher is the master's signature detail for Interceptor II - 'five long chase-gun muzzles grouped into the sharp bow like a formal dueling pistol case' - which is exactly what is in the bow here, alongside the three sharply raked masts, the knife bow, the two Crown emblems and a distant fleeing target. The slug is kestrel-ii because the hull was renamed Interceptor II in the v3 roster and the art filenames never followed. Delivered 1448x1086, 4:3, no crop.",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/ships/kestrel-ii.webp",
+        "w": 1448,
+        "h": 1086,
+        "bytes": 590786,
+        "sha1": "b82e68aaa4958e01"
+      },
+      "shipped": {
+        "file": "src/art/ships/kestrel-ii.webp",
+        "w": 640,
+        "h": 480,
+        "bytes": 73938,
+        "sha1": "f30f5499ae12caa1"
+      },
+      "history": [
+        {
+          "version": 1,
+          "retired": "2026-09-20",
+          "master": "art-masters/_retired/ships/kestrel-ii.v1.webp",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 232,
+            "h": 174
+          },
+          "tone": null,
+          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
+        }
+      ]
+    },
     "ships/ironback": {
       "folder": "ships",
       "slug": "ironback",
@@ -5549,90 +5633,6 @@
         "bytes": 79810,
         "sha1": "c3627cb9b0e58801"
       }
-    },
-    "ships/kestrel": {
-      "folder": "ships",
-      "slug": "kestrel",
-      "version": 2,
-      "added": "2026-09-16",
-      "updated": "2026-09-20",
-      "title": "Interceptor I",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Commission of 20 September 2026, captioned 'swift 1'. Filed as Interceptor I, on the same reading that put 'swift 2' on the Interceptor II: the Swift is a Confederate Shoal-folk outrigger with no gun aboard, and this is a Crown cutter with a green pursuit pennant and a green-coated crew. Matches Part 4: knife-thin low hull, sharply raked bow, two raked masts and an outsized spread of fore-and-aft canvas, light timber with minimal bulwarks over a narrow copper strip at the waterline, ivory canvas with one green pennant and a small Crown emblem and pointedly no elite green sails, heeled hard in bright wind with a distant sail to run down. The guardrail holds - she is not bulked up and carries nothing heavier than a light gun. Slug is kestrel, the Interceptor I's art filename from before the v3 rename. Delivered 1448x1086, 4:3, no crop.",
-      "crop": null,
-      "tone": null,
-      "upscaled": null,
-      "master": {
-        "file": "art-masters/ships/kestrel.webp",
-        "w": 1448,
-        "h": 1086,
-        "bytes": 556964,
-        "sha1": "3b116bf5b26e456d"
-      },
-      "shipped": {
-        "file": "src/art/ships/kestrel.webp",
-        "w": 640,
-        "h": 480,
-        "bytes": 74386,
-        "sha1": "14ef3d2fa61a1cb8"
-      },
-      "history": [
-        {
-          "version": 1,
-          "retired": "2026-09-20",
-          "master": "art-masters/_retired/ships/kestrel.v1.webp",
-          "crop": {
-            "x": 1,
-            "y": 0,
-            "w": 232,
-            "h": 174
-          },
-          "tone": null,
-          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
-        }
-      ]
-    },
-    "ships/kestrel-ii": {
-      "folder": "ships",
-      "slug": "kestrel-ii",
-      "version": 2,
-      "added": "2026-09-16",
-      "updated": "2026-09-20",
-      "title": "Interceptor II",
-      "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet",
-      "notes": "Commission of 20 September 2026, sent captioned 'swift 2'. Filed as Interceptor II on the evidence of the painting itself, which is that hull's Part 4 entry point for point and cannot be the Swift: the Swift is a Confederate Shoal-folk outrigger with no gun aboard, and this is a Crown warship under deep-green V2 canvas with a chase battery. The clincher is the master's signature detail for Interceptor II - 'five long chase-gun muzzles grouped into the sharp bow like a formal dueling pistol case' - which is exactly what is in the bow here, alongside the three sharply raked masts, the knife bow, the two Crown emblems and a distant fleeing target. The slug is kestrel-ii because the hull was renamed Interceptor II in the v3 roster and the art filenames never followed. Delivered 1448x1086, 4:3, no crop.",
-      "crop": null,
-      "tone": null,
-      "upscaled": null,
-      "master": {
-        "file": "art-masters/ships/kestrel-ii.webp",
-        "w": 1448,
-        "h": 1086,
-        "bytes": 590786,
-        "sha1": "b82e68aaa4958e01"
-      },
-      "shipped": {
-        "file": "src/art/ships/kestrel-ii.webp",
-        "w": 640,
-        "h": 480,
-        "bytes": 73938,
-        "sha1": "f30f5499ae12caa1"
-      },
-      "history": [
-        {
-          "version": 1,
-          "retired": "2026-09-20",
-          "master": "art-masters/_retired/ships/kestrel-ii.v1.webp",
-          "crop": {
-            "x": 0,
-            "y": 0,
-            "w": 232,
-            "h": 174
-          },
-          "tone": null,
-          "source": "Sean, 16 September \u2014 sliced from the fleet contact sheet"
-        }
-      ]
     },
     "ships/majestic": {
       "folder": "ships",
@@ -5849,7 +5849,7 @@
         "sha1": "da4e1b692c37828c"
       }
     },
-    "ships/reefwalker": {
+    "ships/reefwarden": {
       "folder": "ships",
       "slug": "reefwalker",
       "version": 2,
