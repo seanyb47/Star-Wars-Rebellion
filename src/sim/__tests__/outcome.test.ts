@@ -5,9 +5,7 @@ import {
   battleStrategic,
   bombardStrategic,
   forceName,
-  tensionOf,
   verdictOf,
-  type OperationReport,
 } from '../outcome';
 import type { BattleOutcome } from '../types';
 
@@ -21,35 +19,12 @@ import type { BattleOutcome } from '../types';
  * whether the arithmetic adds up.
  */
 
-function report(over: Partial<OperationReport> = {}): OperationReport {
-  return {
-    kind: 'battle',
-    verdict: 'victory',
-    headline: 'Victory',
-    operation: 'Fleet action',
-    title: 'Action off Coralhome',
-    systemId: 'sys-1',
-    day: 100,
-    people: [],
-    damage: [],
-    strategic: [],
-    political: [],
-    ...over,
-  };
-}
-
-function force(over: Partial<OperationReport['mine']> = {}) {
-  return {
-    faction: 'empire' as const,
-    name: 'Fleet',
-    committed: 8,
-    destroyed: 1,
-    damaged: 2,
-    surviving: 7,
-    roster: [],
-    ...over,
-  };
-}
+/*
+ * `report()` and `force()` stood here, building a whole OperationReport and a
+ * force tally for the `tensionOf` suite. Both went when that line did: nothing
+ * else in this file needs a full report, because the builders below are pure
+ * functions over their own arguments.
+ */
 
 describe('the three states', () => {
   /** §11: victory is the objective achieved, defeat is the opponent
@@ -83,23 +58,23 @@ describe('what each screen leads with', () => {
   /** §4: a draw's first fact is that nothing was settled. */
   it('opens a draw on the absence of a decision', () => {
     const lines = battleStrategic({ ...common, verdict: 'draw', withdrewTo: 'Highwater' });
-    expect(lines[0]).toMatch(/no decisive control/i);
+    expect(lines[0]).toMatch(/drawn/i);
     // And it never claims either side was destroyed or driven off.
     expect(lines.join(' ')).not.toMatch(/nothing of (yours|theirs) is left afloat/i);
-    expect(lines.join(' ')).toMatch(/neither/i);
+    expect(lines.join(' ')).toMatch(/both fleets are still in the water/i);
   });
 
   /** §3: a defeat leads with what the player lost. */
   it('opens a defeat on the player being forced off, and says where they went', () => {
     const lines = battleStrategic({ ...common, verdict: 'defeat', withdrewTo: 'Highwater' });
-    expect(lines[0]).toMatch(/forced off|nothing of yours/i);
+    expect(lines[0]).toMatch(/your fleet has (withdrawn|been destroyed)/i);
     expect(lines.join(' ')).toContain('Highwater');
   });
 
   it('opens a victory on the enemy being gone and the water being yours', () => {
     const lines = battleStrategic({ ...common, verdict: 'victory', theyFled: true });
-    expect(lines[0]).toMatch(/driven off/i);
-    expect(lines[1]).toMatch(/yours to lie in/i);
+    expect(lines[0]).toMatch(/fleet has (withdrawn|been destroyed)/i);
+    expect(lines[1]).toMatch(/your fleet holds the water/i);
   });
 
   /** The three lists must not be the same list. */
@@ -138,20 +113,20 @@ describe('a bombardment is not won or lost', () => {
    *  destroyed."* */
   it('calls a wall down with the harbor still firing inconclusive', () => {
     const lines = bombardStrategic({ ...common, verdict: 'draw', wallsDown: 1, wallsLeft: 2 });
-    expect(lines.join(' ')).toMatch(/not silenced/i);
+    expect(lines.join(' ')).toMatch(/no landing can be made/i);
     expect(lines.join(' ')).toMatch(/no landing/i);
   });
 
   it('says the harbor is silenced only when it actually is', () => {
     const lines = bombardStrategic({ ...common, verdict: 'victory', wallsDown: 3, wallsLeft: 0 });
-    expect(lines[0]).toMatch(/silenced/i);
-    expect(lines[1]).toMatch(/landing can be put ashore/i);
+    expect(lines[0]).toMatch(/harbor defences of .* have been destroyed/i);
+    expect(lines[1]).toMatch(/a landing can be made/i);
   });
 
   /** §7: the tradeoff must be immediately apparent. */
   it('says the town was hit when the town was hit', () => {
     const lines = bombardStrategic({ ...common, verdict: 'draw', wallsDown: 1, civilian: 1 });
-    expect(lines.join(' ')).toMatch(/into the town/i);
+    expect(lines.join(' ')).toMatch(/the town was hit/i);
   });
 });
 
@@ -162,8 +137,8 @@ describe('an assault', () => {
    *  capture does not automatically equal political allegiance."* */
   it('says an island is taken and its people are not, as two separate facts', () => {
     const lines = assaultStrategic({ ...common, verdict: 'victory', allegiance: 34 });
-    expect(lines[0]).toMatch(/carried/i);
-    expect(lines[1]).toMatch(/politically hostile/i);
+    expect(lines[0]).toMatch(/have taken control of/i);
+    expect(lines[1]).toMatch(/the island is hostile/i);
     // And not when they wanted you.
     const welcomed = assaultStrategic({ ...common, verdict: 'victory', allegiance: 80 });
     expect(welcomed[1]).not.toMatch(/hostile/i);
@@ -174,78 +149,93 @@ describe('an assault', () => {
   it('tells being repulsed apart from being unable to finish', () => {
     const beaten = assaultStrategic({ ...common, verdict: 'defeat' }).join(' ');
     const unfinished = assaultStrategic({ ...common, verdict: 'draw', aboard: 3 }).join(' ');
-    expect(beaten).toMatch(/nothing left/i);
-    expect(unfinished).toMatch(/still aboard/i);
-    expect(unfinished).toMatch(/still capable/i);
-    expect(unfinished).not.toMatch(/nothing left/i);
+    expect(beaten).toMatch(/no troops remain/i);
+    // §10's requirement is that a draw says the attacker can go again. The
+    // line that said "both forces are still capable of continuing" went on 22
+    // September: it restated the count on the line above it, which is the
+    // fluff Sean cut. The count is the claim now.
+    expect(unfinished).toMatch(/3 troops remain aboard/i);
+    expect(unfinished).not.toMatch(/no troops remain/i);
   });
 });
 
-describe('the word and the consequences are reported apart', () => {
-  /** §13, every branch of it. */
-  it('says so when a victory cost more than it was worth', () => {
-    const said = tensionOf(
-      report({
-        verdict: 'victory',
-        mine: force({ destroyed: 5 }),
-        theirs: force({ faction: 'alliance', destroyed: 1 }),
-      }),
-    );
-    expect(said).toMatch(/cost/i);
+/*
+ * The suite for `tensionOf` stood here — five tests over §13's branches, one
+ * per way a verdict and its consequences can pull apart.
+ *
+ * Sean cut the line itself on 22 September, beside five Rebellion resolution
+ * screens: *"see how they're all crazy simple. Just bottom line up front. You
+ * keep adding so much fluff, no one knows what it means."* §13's observation
+ * was sound — a victory really can be expensive and a defeat really can play
+ * well — but the sheet already shows both halves as numbers, in the tallies
+ * and in the political ripples. The line was telling the player what to
+ * conclude from figures in front of them, which is the definition of the
+ * fluff he is describing.
+ *
+ * The tests go with the function. What replaces them is the register check
+ * below, which is the rule the whole rewrite came from.
+ */
+
+describe('the report screens read like reports', () => {
+  /*
+   * Rebellion's own resolution screens are the specification now, and they are
+   * strikingly plain: *"The Imperial fleet is victorious."* *"Deyer is now
+   * under blockade by Imperial forces."* *"Imperial troops have taken control
+   * of the Alliance system Geedon V."* Subject, verb, object; one fact a line;
+   * the outcome first.
+   *
+   * What ours did instead was invert and elaborate — *"Nothing of theirs is
+   * left afloat off Deyer"*, *"the water off Deyer is yours to lie in"*,
+   * *"carried, and the troops that took it are holding it"*. Each is a
+   * sentence a person would enjoy writing and a sentence a player has to
+   * unpack.
+   *
+   * These are the tells, so they are asserted rather than described: a line
+   * that opens on a negation, and the idioms that were actually in the file.
+   */
+  const lines = () => [
+    ...battleStrategic({ verdict: 'victory', where: 'Deyer', theirs: 'Free Confederacy', ashore: 'Deyer is still yours.' }),
+    ...battleStrategic({ verdict: 'defeat', where: 'Deyer', theirs: 'Free Confederacy', ashore: 'Deyer is still yours.', wiped: true }),
+    ...battleStrategic({ verdict: 'draw', where: 'Deyer', theirs: 'Free Confederacy', ashore: 'Deyer is still yours.' }),
+    ...bombardStrategic({ verdict: 'victory', where: 'Deyer', wallsDown: 2, wallsLeft: 0, companies: 0, civilian: 1 }),
+    ...bombardStrategic({ verdict: 'defeat', where: 'Deyer', wallsDown: 0, wallsLeft: 2, companies: 0, civilian: 0 }),
+    ...bombardStrategic({ verdict: 'draw', where: 'Deyer', wallsDown: 1, wallsLeft: 1, companies: 2, civilian: 1 }),
+    ...assaultStrategic({ verdict: 'victory', where: 'Deyer', holder: 'Crown Imperium', aboard: 0, allegiance: 30 }),
+    ...assaultStrategic({ verdict: 'defeat', where: 'Deyer', holder: 'Crown Imperium', aboard: 0, allegiance: 30 }),
+    ...assaultStrategic({ verdict: 'draw', where: 'Deyer', holder: 'Crown Imperium', aboard: 2, allegiance: 30 }),
+  ];
+
+  it('opens no line on a negation', () => {
+    for (const line of lines()) {
+      // The tell is a delayed subject, not the word "no". "No landing can be
+      // made" is as plain as Rebellion's own lines; "Nothing of theirs is left
+      // afloat" and "Neither squadron is destroyed" make the reader wait for
+      // what the sentence is about, which is the habit being removed.
+      expect(line, line).not.toMatch(/^(Nothing|Neither)\b/);
+    }
   });
 
-  it('says so when a defeat left the enemy wrecked', () => {
-    const said = tensionOf(
-      report({
-        verdict: 'defeat',
-        mine: force({ destroyed: 2 }),
-        theirs: force({ faction: 'alliance', destroyed: 6 }),
-      }),
-    );
-    expect(said).toMatch(/long time making good/i);
+  it('keeps the idioms out', () => {
+    const banned = [
+      /yours to lie in/i,
+      /is carried/i,
+      /free to do something else/i,
+      /as they did this morning/i,
+      /will be remembered/i,
+      /for now\b/i,
+      /two different problems/i,
+    ];
+    for (const line of lines()) {
+      for (const bad of banned) {
+        expect(line, line).not.toMatch(bad);
+      }
+    }
   });
 
-  it('says so when a defeat played well with the Reach', () => {
-    const said = tensionOf(
-      report({
-        verdict: 'defeat',
-        mine: force({ destroyed: 3 }),
-        theirs: force({ faction: 'alliance', destroyed: 1 }),
-        political: [{ systemId: 'a', name: 'A', faction: 'empire', delta: 2 }],
-      }),
-    );
-    expect(said).toMatch(/thinks the better of you/i);
-  });
-
-  /** A draw is not automatically politically neutral — §4 says so outright. */
-  it('says so when a draw cost or won standing', () => {
-    const lost = tensionOf(
-      report({
-        verdict: 'draw',
-        political: [{ systemId: 'a', name: 'A', faction: 'empire', delta: -2 }],
-      }),
-    );
-    const won = tensionOf(
-      report({
-        verdict: 'draw',
-        political: [{ systemId: 'a', name: 'A', faction: 'empire', delta: 2 }],
-      }),
-    );
-    expect(lost).toMatch(/nothing settled/i);
-    expect(won).toMatch(/nothing settled/i);
-    expect(lost).not.toBe(won);
-  });
-
-  it('says nothing at all when the word and the facts agree', () => {
-    expect(
-      tensionOf(
-        report({
-          verdict: 'victory',
-          mine: force({ destroyed: 1 }),
-          theirs: force({ faction: 'alliance', destroyed: 5 }),
-        }),
-      ),
-    ).toBeUndefined();
+  it('is a test that can fail: the sweep sees the lines it is checking', () => {
+    // Non-vacuity. If `lines()` ever returns nothing the two assertions above
+    // are free, so the count is pinned.
+    expect(lines().length).toBeGreaterThanOrEqual(20);
   });
 });
 

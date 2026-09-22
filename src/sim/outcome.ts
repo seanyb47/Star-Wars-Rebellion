@@ -125,10 +125,19 @@ export interface OperationReport {
   political: Ripple[];
   /** Standing and lost, per side. See `Ledger`. */
   ledger?: Ledger[];
-  /** One line holding the tension between the word and the consequences, for
-   *  the cases where they pull apart: *"limited military success — significant
-   *  political cost"*. Absent when they agree. */
-  tension?: string;
+  /*
+   * There was a `tension` line here: one sentence of editorial over the top of
+   * the report — *"Won, and it cost more than it was worth"*, *"the water is
+   * yours and the people are further from you than they were"*.
+   *
+   * Sean cut it on 22 September with five Rebellion resolution screens beside
+   * it: *"see how they're all crazy simple. Just bottom line up front. You
+   * keep adding so much fluff, no one knows what it means. I get it's trying
+   * to add flavor but it's actually adding confusion."* Every fact that line
+   * drew on is already on the sheet — the losses in the tallies, the swing in
+   * the political ripples — so it was the screen telling the player what to
+   * conclude from numbers they can see.
+   */
 }
 
 export const VERDICT_WORD: Record<Verdict, string> = {
@@ -150,43 +159,6 @@ export function forceName(faction: PlayableFaction, kind: Operation): string {
   return `${side} fleet`;
 }
 
-/**
- * Whether this report's word and its contents disagree, and how.
- *
- * Sean's §13 is the reason this exists at all: *"a victory can produce victory
- * — heavy losses — political backlash. A defeat can produce defeat — enemy
- * fleet heavily damaged — favourable political reaction."* A screen that only
- * says VICTORY has thrown that away. When the two pull apart the sheet says so
- * in a line, and when they agree it says nothing rather than filling space.
- */
-export function tensionOf(report: OperationReport): string | undefined {
-  const mine = report.mine;
-  const theirs = report.theirs;
-  const politics = report.political.reduce((n, r) => n + r.delta, 0);
-  const bled = mine && theirs && mine.destroyed > theirs.destroyed;
-  const cheap = mine && theirs && theirs.destroyed > mine.destroyed * 2;
-
-  if (report.verdict === 'victory' && bled && politics < -0.5) {
-    return 'Won, at a price, and the Reach has not taken it well.';
-  }
-  if (report.verdict === 'victory' && bled) return 'Won, and it cost more than it was worth.';
-  if (report.verdict === 'victory' && politics < -0.5) {
-    return 'The water is yours and the people are further from you than they were.';
-  }
-  if (report.verdict === 'defeat' && cheap) {
-    return 'Beaten off — and they will be a long time making good what it cost them.';
-  }
-  if (report.verdict === 'defeat' && politics > 0.5) {
-    return 'Beaten, and the Reach thinks the better of you for how it was done.';
-  }
-  if (report.verdict === 'draw' && politics < -0.5) {
-    return 'Nothing settled, and it has cost you standing to settle nothing.';
-  }
-  if (report.verdict === 'draw' && politics > 0.5) {
-    return 'Nothing settled, and the Reach counts that as standing up to them.';
-  }
-  return undefined;
-}
 
 /**
  * The bullets under STRATEGIC RESULT, which are the whole difference between
@@ -216,28 +188,24 @@ export function battleStrategic(input: {
   if (verdict === 'victory') {
     return [
       theyFled
-        ? `${theirs} sail is driven off ${where}.`
-        : `Nothing of theirs is left afloat off ${where}.`,
-      `The water off ${where} is yours to lie in.`,
+        ? `The ${theirs} fleet has withdrawn.`
+        : `The ${theirs} fleet has been destroyed.`,
+      `Your fleet holds the water off ${where}.`,
       ashore,
     ];
   }
   if (verdict === 'defeat') {
     return [
-      wiped
-        ? `Nothing of yours is left afloat off ${where}.`
-        : `Your squadron is forced off ${where}.`,
-      `${theirs} sail holds the water there.`,
-      ...(withdrewTo ? [`What is left of yours is standing for ${withdrewTo}.`] : []),
+      wiped ? 'Your fleet has been destroyed.' : 'Your fleet has withdrawn.',
+      `The ${theirs} fleet holds the water off ${where}.`,
+      ...(withdrewTo ? [`Your survivors are sailing for ${withdrewTo}.`] : []),
       ashore,
     ];
   }
   return [
-    'No decisive control established.',
-    'Neither squadron is destroyed, and neither has driven the other off.',
-    ...(withdrewTo
-      ? [`Yours has hauled off toward ${withdrewTo}; theirs is still in the water.`]
-      : ['Both are still in the water and still able to fight.']),
+    'The action is drawn.',
+    `Both fleets are still in the water off ${where}.`,
+    ...(withdrewTo ? [`Your fleet is sailing for ${withdrewTo}.`] : []),
     ashore,
   ];
 }
@@ -262,27 +230,27 @@ export function bombardStrategic(input: {
   why?: string;
 }): string[] {
   const { verdict, where, wallsDown, wallsLeft, companies, civilian, why } = input;
+  const walls = (n: number) => `${n} ${n === 1 ? 'wall' : 'walls'}`;
   if (verdict === 'victory') {
     return [
-      `The harbor defences of ${where} are silenced.`,
-      'A landing can be put ashore now; nothing is firing on the boats.',
-      ...(civilian > 0 ? ['The town took shot meant for the walls.'] : []),
+      `The harbor defences of ${where} have been destroyed.`,
+      'A landing can be made.',
+      ...(civilian > 0 ? ['The town was hit.'] : []),
     ];
   }
   if (verdict === 'defeat') {
     return [
-      why ?? 'The guns did no useful work today.',
-      `${wallsLeft} ${wallsLeft === 1 ? 'wall stands' : 'walls stand'} at ${where}, as they did this morning.`,
-      'No landing can be made while they do.',
+      why ?? 'The bombardment failed.',
+      `${walls(wallsLeft)} still stand at ${where}.`,
+      'No landing can be made.',
     ];
   }
   return [
-    `${wallsDown > 0 ? `${wallsDown} down, ` : ''}${wallsLeft} still standing at ${where}.`,
-    'The harbor is not silenced, so no landing can be made.',
-    ...(companies > 0 ? [`${companies} of their troops broken in the town.`] : []),
-    ...(civilian > 0
-      ? ['Shot went past the walls and into the town, and that will be remembered.']
-      : []),
+    ...(wallsDown > 0 ? [`${walls(wallsDown)} destroyed at ${where}.`] : []),
+    `${walls(wallsLeft)} still stand.`,
+    'No landing can be made.',
+    ...(companies > 0 ? [`${companies} of their troops were destroyed.`] : []),
+    ...(civilian > 0 ? ['The town was hit.'] : []),
   ];
 }
 
@@ -315,27 +283,25 @@ export function assaultStrategic(input: {
   const { verdict, where, holder, aboard, allegiance, populated = true } = input;
   if (verdict === 'victory') {
     return [
-      `${where} is carried, and the troops that took it are holding it.`,
+      `Your troops have taken control of ${where}.`,
       !populated
-        ? 'Nobody lives there: the landing party is the whole of the island\'s opinion. Finish anything on it and it settles.'
+        ? 'Nobody lives there. Build anything on it and it settles.'
         : allegiance < 50
-          ? 'Occupied, and politically hostile: the people did not want this and have not changed their minds.'
-          : 'The harbor is content enough to be held without a struggle.',
-      'The squadron offshore is free to do something else.',
+          ? 'The island is hostile.'
+          : 'The island is content.',
     ];
   }
   if (verdict === 'defeat') {
     return [
-      'The landing is thrown back into the sea.',
+      'The landing has been thrown back.',
       `${holder} keeps ${where}.`,
-      'There is nothing left ashore and nothing left aboard to try again with.',
+      'No troops remain to try again.',
     ];
   }
   return [
-    'The landing did not carry the place, and was not destroyed either.',
-    `${holder} keeps ${where} for now.`,
-    `${aboard} ${aboard === 1 ? 'troop is' : 'troops are'} still aboard and able to go again.`,
-    'Both forces are still capable of continuing.',
+    `The landing did not take ${where}.`,
+    `${holder} keeps ${where}.`,
+    `${aboard} ${aboard === 1 ? 'troop remains' : 'troops remain'} aboard.`,
   ];
 }
 

@@ -72,7 +72,6 @@ import {
   battleStrategic,
   bombardStrategic,
   forceName,
-  tensionOf,
   verdictOf,
   type Fate,
   type ForceTally,
@@ -1360,10 +1359,6 @@ function bombardReport(
     political: ripples,
     ledger,
   };
-  report.tension =
-    verdict !== 'victory' && civilian > 0
-      ? 'Little taken, and a town that will not forget how it was done.'
-      : tensionOf(report);
   return report;
 }
 
@@ -2130,10 +2125,6 @@ function assaultReport(
       },
     ],
   };
-  report.tension =
-    verdict === 'victory' && system.populated && system.support[attacker] < 40
-      ? 'The island is yours and its people are not, which is two different problems.'
-      : tensionOf(report);
   return report;
 }
 
@@ -2613,11 +2604,14 @@ export function buildBattleReport(
       ? state.systems.find((s) => s.id === away.voyage!.targetSystemId)?.name
       : undefined;
 
+  // Who is standing on the island, flat. This read "nothing at sea changes who
+  // is standing on it" and "answers to nobody, and still does" — a clause
+  // explaining the rule attached to a line whose job is to state a fact.
   const holder = isPlayable(system.control)
     ? system.control === me
       ? `${system.name} is still yours.`
-      : `${system.name} itself stays under the ${factionData[them].shortName}; nothing at sea changes who is standing on it.`
-    : `${system.name} answers to nobody, and still does.`;
+      : `The ${factionData[them].shortName} still holds ${system.name}.`
+    : `${system.name} is held by nobody.`;
 
   const report: OperationReport = {
     kind: 'battle',
@@ -2647,7 +2641,6 @@ export function buildBattleReport(
     }),
     political: ripples,
   };
-  report.tension = tensionOf(report);
   return report;
 }
 

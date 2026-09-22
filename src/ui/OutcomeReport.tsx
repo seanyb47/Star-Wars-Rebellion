@@ -73,7 +73,6 @@ export function OutcomeReport({ report }: { report: OperationReport }) {
       {/* §13, and the only line on the screen that is an opinion. It appears
           when the word and the consequences disagree and is absent otherwise,
           because a sheet that always editorialises is a sheet nobody reads. */}
-      {report.tension && <p className="outcome__tension serif">{report.tension}</p>}
 
       {/*
         A draw says what it is before it says what it cost.

@@ -8914,3 +8914,64 @@ search rather than on the thing it checks. Bound raised to 400. Worth noting
 the asymmetry: had the search been wide enough to absorb it, a genuine drop in
 the foil rate would have passed unnoticed — a search-until-found test reports
 a balance change only when the change happens to exceed its budget.
+
+### The resolution screens learn Rebellion's register (22 September)
+
+Sean sent five *Star Wars: Rebellion* resolution screens and one instruction:
+*"See how they're all crazy simple. Just bottom line up front. You keep adding
+so much fluff, no one knows what it means. I get it's trying to add flavor but
+it's actually adding confusion."*
+
+The reference is worth transcribing, because it is the specification:
+
+> **Assault on Geedon V** — Imperial troops have taken control of the Alliance
+> system Geedon V.
+>
+> **Battle at Deyer** — The Imperial fleet is victorious. Deyer is now under
+> blockade by Imperial forces. The Alliance fleet has been completely
+> destroyed.
+
+Subject, verb, object. One fact a line. The outcome first. Rebellion uses three
+lines where it needs three — it is not terse for its own sake — but every line
+is a flat declarative a reader takes in without unpacking.
+
+**What ours did instead was invert and elaborate.** Side by side:
+
+| Ours | Rebellion's register |
+|---|---|
+| Nothing of theirs is left afloat off Deyer. | The Free Confederacy fleet has been destroyed. |
+| The water off Deyer is yours to lie in. | Your fleet holds the water off Deyer. |
+| Highwater is carried, and the troops that took it are holding it. | Your troops have taken control of Highwater. |
+| Occupied, and politically hostile: the people did not want this and have not changed their minds. | The island is hostile. |
+| Nothing is firing on the boats. | A landing can be made. |
+| …and that will be remembered. | The town was hit. |
+
+The pattern in the left column is a delayed subject — *Nothing of theirs…*,
+*Neither squadron…* — plus a trailing clause explaining the consequence of the
+fact just stated. Each is a sentence somebody enjoyed writing. Together they
+are a screen the player has to translate.
+
+**Three lines were cut outright** rather than rewritten, because they were not
+facts at all: *"The squadron offshore is free to do something else"*, *"Both
+forces are still capable of continuing"* (the troops-aboard count says this),
+and *"nothing at sea changes who is standing on it"* (a rule, explained on a
+line whose job was to name a holder).
+
+**And the `tension` line is gone entirely.** That was one sentence of editorial
+over the top of every report — *"Won, and it cost more than it was worth"*,
+*"the water is yours and the people are further from you than they were"*. The
+observation behind it (§13: a victory can be expensive, a defeat can play well)
+is true, but both halves are already on the sheet as numbers — the losses in
+the tallies, the swing in the political ripples. The line was the screen
+telling the player what to conclude from figures in front of them. Its five
+tests went with it.
+
+**The guard is a register check**, not a list of strings: no line may open on
+*Nothing* or *Neither* (the delayed-subject tell), and seven idioms that were
+actually in the file are banned by name. It caught one of my own replacements
+in the same run — *"Neither fleet has been destroyed or driven off"* — which is
+the test doing exactly its job on the person who wrote it.
+
+Note the rule it does **not** enforce: lines may open on *No*. "No landing can
+be made." is as plain as anything in Rebellion. The fault is the delayed
+subject, not the negative.
