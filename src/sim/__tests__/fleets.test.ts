@@ -640,7 +640,16 @@ describe('crew', () => {
       const target = state.systems.find((s) => s.control === 'alliance' && s.populated)!;
       target.garrison = 3;
       const fleet = put(state, target, 'empire', ['sovereign', 'sovereign']);
-      fleet.troops = 3;
+      // Four, not three.
+      //
+      // The knife edge moved on 22 September, when the garrison troops were
+      // reshaped so the Crown holds ground and the Confederacy takes it. A
+      // Confederate island now defends itself better than it did — Island
+      // Militia at 24 invasion defense where they stood at 20 — so three
+      // companies no longer settle it either way and the test was measuring
+      // nothing. Four is where the officer decides it again, which is the
+      // thing under test.
+      fleet.troops = 4;
       if (withOfficer) {
         const crew = state.characters.find((c) => c.faction === 'empire')!;
         crew.locationSystemId = target.id;
@@ -650,7 +659,7 @@ describe('crew', () => {
       resolveLanding(state, fleet, createRng(9));
       return target.control;
     };
-    // Three against three is a coin toss; three led by a fighter carries it.
+    // Four against three is a coin toss; four led by a fighter carries it.
     expect(land(true)).toBe('empire');
     expect(land(false)).toBe('alliance');
   });

@@ -84,7 +84,25 @@ function perGold(aNames: string[], dNames: string[], purse: number, wall: number
   return { win: (taken / TRIALS) * 100, a: a.length, d: d.length };
 }
 
-console.log('\n=== Equal companies, no walls: who takes the island? ===\n');
+/*
+ * What a player actually fields: the best attacker they have against the best
+ * defender the other side has. Cycling the whole roster measures roster depth,
+ * which matters, but nobody lands their militia alongside their shock troops.
+ */
+const bestFor = (names: string[], stat: 'attack' | 'invasionDefense') =>
+  [names.reduce((a, b) => (byName(b)[stat] > byName(a)[stat] ? b : a))];
+
+console.log('\n=== Best company each side has for the job, 6 v 6, no walls ===\n');
+console.log('stage            Crown attacking   Confederacy attacking');
+for (const [label, sides] of Object.entries(AT_RUNG)) {
+  const crown = duel(bestFor(sides.empire, 'attack'), bestFor(sides.alliance, 'invasionDefense'), 6, 0);
+  const confed = duel(bestFor(sides.alliance, 'attack'), bestFor(sides.empire, 'invasionDefense'), 6, 0);
+  console.log(
+    `${label.padEnd(16)} ${crown.toFixed(0).padStart(13)}%   ${confed.toFixed(0).padStart(19)}%`,
+  );
+}
+
+console.log('\n=== Equal companies, whole roster cycled, no walls ===\n');
 console.log('stage            Crown attacking   Confederacy attacking   (6 v 6)');
 for (const [label, sides] of Object.entries(AT_RUNG)) {
   const crown = duel(sides.empire, sides.alliance, 6, 0);
