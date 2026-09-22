@@ -9563,3 +9563,39 @@ is the same finding as the opening-books measurement earlier today, where the
 Confederacy opened with the better net surplus on nearly every seed and the
 Crown's upkeep ran 2.4× theirs. The hoard was hiding it. That is the pending
 **upkeep** ruling, and it is now the biggest open number in the game.
+
+### The shipwright gap is officer time, not opportunity — `lab/yards.ts`
+
+The one number left unexplained after the AI fixes: the Crown reaches craft 5.5
+and the Confederacy 3.2, and the Confederacy puts **more** officers on it (0.91
+against 0.76) while having **better** espionage (68.8 mean against 60.5, and
+research pays out on espionage). More effort, better people, less result.
+
+`lab/yards.ts` rules out the two mechanical explanations:
+
+```
+           islands held  of those, loyal enough   %   on research  still at sea   craft
+empire            20.6                    18.9  92%          0.76          0.13    1084
+alliance          16.0                    15.4  96%          0.91          0.18     651
+```
+
+Both sides have somewhere to research nearly always — the 75-support floor that
+once made this a real bug is gone, and 92% and 96% are not a difference. Travel
+is not eating it either. So the gap is in the cycles themselves, and the likely
+cause is *which* officer goes: the Confederacy's best people are its
+negotiators, its war is won by turning islands, and the ones left over for the
+yards are not the ones with the espionage. The Crown, whose war is built rather
+than talked, sends better.
+
+**Read as design rather than as a fault, and left alone.** It is the two sides
+being different in the way the world says they are, and the Confederacy is
+winning slightly more as it stands. `constants.ts` already carries a tried-and-cut
+note from an earlier session saying research pacing is not what decides these
+wars — it was right, and this is the second measurement to say so.
+
+### Checked and not a bug: the report cards overlapping
+
+A 100-day browser run left three report cards apparently overlapping the log.
+`report-in` fades a new card in from `translateY(-8px)` over 220ms and `.reports`
+is a flex column with a 6px gap, so a single screenshot catches one mid-flight.
+Nothing to fix.
