@@ -390,10 +390,21 @@ function shipNiche(cls: ShipDefinition): string {
   const { longGuns, heavyGuns, lightGuns } = cls.guns;
   const role = cls.role.toLowerCase();
   if (longGuns + heavyGuns + lightGuns === 0) {
-    return cls.troopCapacity >= 3 ? 'Troop carrier' : 'Fleet auxiliary';
+    if (cls.troopCapacity >= 3) return 'Troop carrier';
+    // A hull with no guns and nobody aboard is not an auxiliary, it is a pair
+    // of eyes — which is the Swift's whole entry: *"A pair of eyes and a fast
+    // hull, and that is the whole of her."* Reading her as a fleet auxiliary
+    // described a supply role she does not have.
+    return cls.speed === 'Very Fast' ? 'Courier' : 'Fleet auxiliary';
   }
   if (role.includes('survey')) return 'Scout';
-  if (cls.bombardment >= 10 || role.includes('siege')) return 'Siege ship';
+  // Bombardment alone cannot decide this: a Sovereign II bombards at eight and
+  // is a gun platform that can also shell a town, where an Ironback bombards at
+  // the same eight and is nothing else. So the hull says which it is, and it
+  // says so in its own name — 'siege' or 'bombard'.
+  if (cls.bombardment >= 10 || role.includes('siege') || role.includes('bombard')) {
+    return 'Siege ship';
+  }
   // Weight of shot, not number of barrels: a heavy throws twice a light.
   const throwWeight = 2 * heavyGuns + longGuns + lightGuns;
   if (2 * heavyGuns >= 0.4 * throwWeight) return 'Heavy-gun hunter';
