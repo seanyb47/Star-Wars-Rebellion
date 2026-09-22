@@ -6,13 +6,22 @@ import {
   SCRAP_RETURN,
   SMUGGLED_SHARE,
   TROOP_BUILD,
+  buildSpec,
+  isTroopItem,
   UPKEEP_PER_DAY,
   WORKS_ON,
   YARD_BUILDS,
   loyaltyBand,
   shipSpec,
 } from './constants';
-import { garrisonRoster, landingTroop } from './troops';
+import {
+  companiesOn,
+  landingTroop,
+  materialiseCompanies,
+  postCompanies,
+  setCompanies,
+  troopType,
+} from './troops';
 import { craftGrade } from './missions';
 import { clearWrecks, fleetCapacity, isAtSea } from './fleets';
 import { getSystem, inProse, otherFaction, pushEvent, returnDeposit, supportMultiplier } from './helpers';
@@ -84,7 +93,7 @@ export function totalUpkeep(state: GameState, faction: PlayableFaction): number 
     // in the game, which priced a Shoal Warden and a Drowned Guard the same
     // and made the garrison ladder — the whole reason a mass-producible troop
     // exists — cost identical money whichever unit held the island.
-    upkeep += garrisonRoster(system).reduce((n, t) => n + t.upkeep, 0);
+    upkeep += companiesOn(system).reduce((n, t) => n + t.upkeep, 0);
   }
   // A hull costs the same whether it is fighting or lying at anchor, and the
   // companies aboard it eat wherever they are.
@@ -133,6 +142,7 @@ export function recomputeLedger(state: GameState): void {
  */
 export function scrapValue(item: BuildItem): number {
   if (item === 'troop') return Math.floor(TROOP_BUILD.costGold * SCRAP_RETURN);
+  if (isTroopItem(item)) return Math.floor(buildSpec(item).costGold * SCRAP_RETURN);
   const yard = YARD_BUILDS[item as keyof typeof YARD_BUILDS];
   if (yard) return Math.floor(yard.costGold * SCRAP_RETURN);
   return Math.floor(shipSpec(item as never).costGold * SCRAP_RETURN);
@@ -152,7 +162,11 @@ export function scrapValue(item: BuildItem): number {
  */
 export type ScrapTarget =
   | { kind: 'facility'; systemId: string; facilityId: string }
-  | { kind: 'troop'; systemId: string }
+  /** `at` is the company's place in the island's roster: which one, not just
+   *  one of them. Without it every company on an island scrapped for the same
+   *  coin under the same name, which was true while they were interchangeable
+   *  and stopped being true when they got names. */
+  | { kind: 'troop'; systemId: string; at?: number }
   | { kind: 'ship'; fleetId: string; shipId: string };
 
 function everythingOnTheBooks(state: GameState, faction: PlayableFaction): ScrapTarget[] {
@@ -167,7 +181,9 @@ function everythingOnTheBooks(state: GameState, faction: PlayableFaction): Scrap
       if (UPKEEP_PER_DAY[facility.type] <= 0) continue;
       out.push({ kind: 'facility', systemId: system.id, facilityId: facility.id });
     }
-    for (let i = 0; i < system.garrison; i += 1) out.push({ kind: 'troop', systemId: system.id });
+    for (let i = 0; i < system.garrison; i += 1) {
+      out.push({ kind: 'troop', systemId: system.id, at: i });
+    }
   }
   for (const fleet of state.fleets) {
     if (fleet.faction !== faction) continue;
@@ -180,7 +196,8 @@ function everythingOnTheBooks(state: GameState, faction: PlayableFaction): Scrap
 export function scrapLabel(state: GameState, what: ScrapTarget): string {
   if (what.kind === 'troop') {
     const system = state.systems.find((s) => s.id === what.systemId);
-    return `a ${TROOP_BUILD.label.toLowerCase()} on ${system?.name ?? 'an island'}`;
+    const who = system ? companiesOn(system)[what.at ?? 0] : undefined;
+    return `${who ? who.name : `a ${TROOP_BUILD.label.toLowerCase()}`} on ${system?.name ?? 'an island'}`;
   }
   if (what.kind === 'facility') {
     const system = state.systems.find((s) => s.id === what.systemId);
@@ -195,7 +212,11 @@ export function scrapLabel(state: GameState, what: ScrapTarget): string {
 
 /** What breaking this up would put in the treasury. */
 export function scrapReturn(state: GameState, what: ScrapTarget): number {
-  if (what.kind === 'troop') return scrapValue('troop');
+  if (what.kind === 'troop') {
+    const system = state.systems.find((s) => s.id === what.systemId);
+    const who = system ? companiesOn(system)[what.at ?? 0] : undefined;
+    return who ? Math.floor(who.costGold * SCRAP_RETURN) : scrapValue('troop');
+  }
   if (what.kind === 'facility') {
     const system = state.systems.find((s) => s.id === what.systemId);
     const facility = system?.facilities.find((f) => f.id === what.facilityId);
@@ -267,8 +288,14 @@ export function scrap(state: GameState, faction: PlayableFaction, what: ScrapTar
   if (what.kind === 'troop') {
     const system = state.systems.find((s) => s.id === what.systemId);
     if (!system || system.garrison <= 0) return null;
-    system.garrison -= 1;
-    const back = scrapValue('troop');
+    const posted = materialiseCompanies(system);
+    const at = Math.min(Math.max(0, what.at ?? 0), posted.length - 1);
+    const who = troopType(posted[at]);
+    setCompanies(
+      system,
+      posted.filter((_, i) => i !== at),
+    );
+    const back = who ? Math.floor(who.costGold * SCRAP_RETURN) : scrapValue('troop');
     state.factions[faction].gold += back;
     return back;
   }
@@ -307,7 +334,11 @@ export function scrap(state: GameState, faction: PlayableFaction, what: ScrapTar
     if (system.control === faction) {
       const ashore = fleet.troops - berths;
       fleet.troops = berths;
-      system.garrison += ashore;
+      postCompanies(
+        system,
+        landingTroop(faction, craftGrade(state.factions[faction].craft)).id,
+        ashore,
+      );
       pushEvent(state, {
         kind: 'order',
         text: `${ashore} ${ashore === 1 ? 'troop marches' : 'troops march'} off ${fleet.name} onto ${inProse(system.name)}.`,

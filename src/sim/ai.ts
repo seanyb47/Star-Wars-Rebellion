@@ -52,6 +52,9 @@ import {
   raiseWorksError,
   queueBuild,
 } from './build';
+import { craftGrade } from './missions';
+import type { BuildItem } from './types';
+import { raisableTroops } from './troops';
 import { follows } from './doctrine';
 import { expectedDamage } from './cannon';
 import { islandDefense } from './siege';
@@ -310,6 +313,29 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
   // answer to that is income.
   const thin = spare < AI_SURPLUS_MARGIN * 2;
 
+  /**
+   * Which company this side drills on that island.
+   *
+   * `'troop'` still works and means "whatever the island raises", but the
+   * opponent asking for it would leave the research ladder buying nothing:
+   * four rungs on each side open companies, and a side that never names one
+   * garrisons with its day-one line unit for the whole war while the player
+   * fields the Hushed. So the opponent names one too.
+   *
+   * What it wants from a company is that it *holds*, since almost every one it
+   * drills is going into a square to keep an island quiet — so the best
+   * invasion defence it can pay the daily bill on wins, and the cheaper one
+   * breaks a tie. That is also the rule that makes the cheap natives worth
+   * something to it: a Shoal Warden holds nearly as well as a Marine for a
+   * third of the keep, on the islands where Shoal-folk live.
+   */
+  const drillChoice = (system: System): BuildItem => {
+    const raisable = raisableTroops(ai, craftGrade(state.factions[ai].craft), system)
+      .filter((t) => spare - t.upkeep >= margin)
+      .sort((a, b) => b.invasionDefense - a.invasionDefense || a.costGold - b.costGold);
+    return (raisable[0]?.id as BuildItem) ?? 'troop';
+  };
+
   // 1. Companies. A drill ground raises them on its own island and nowhere
   //    else, so this works outward from the drill grounds rather than from the
   //    islands that are short — the short ones usually have no drill ground on
@@ -325,8 +351,9 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
       const drill = system.facilities.find(
         (f) => f.owner === ai && f.type === 'training_facility' && !f.building,
       );
-      if (drill && canQueueBuild(state, drill.id, 'troop')) {
-        queueBuild(state, drill.id, 'troop');
+      const want = drillChoice(system);
+      if (drill && canQueueBuild(state, drill.id, want)) {
+        queueBuild(state, drill.id, want);
         return true;
       }
     }
@@ -347,8 +374,9 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
       const drill = system.facilities.find(
         (f) => f.owner === ai && f.type === 'training_facility' && !f.building,
       );
-      if (drill && canQueueBuild(state, drill.id, 'troop')) {
-        queueBuild(state, drill.id, 'troop');
+      const want = drillChoice(system);
+      if (drill && canQueueBuild(state, drill.id, want)) {
+        queueBuild(state, drill.id, want);
         return true;
       }
     }

@@ -53,7 +53,7 @@ import {
   SECURITY_PER_COMPANY,
 } from './constants';
 import { otherFaction } from './helpers';
-import { garrisonRoster } from './troops';
+import { companiesOn } from './troops';
 import type { Rng } from './rng';
 import type { Character, GameState, PlayableFaction, System } from './types';
 
@@ -147,7 +147,7 @@ export function partyPull(
  * incitement and in whether an island dares rise.
  */
 export function politicalSecurity(state: GameState, system: System): number {
-  const companies = garrisonRoster(system).length * SECURITY_PER_COMPANY;
+  const companies = companiesOn(system).length * SECURITY_PER_COMPANY;
   const held = system.commanderId
     ? state.characters.find((c) => c.id === system.commanderId)
     : undefined;
@@ -255,7 +255,7 @@ export function inciteStanding(
     factors: [
       { label: party.length > 1 ? 'Your agitators' : 'Your agitator', weight: mark(pull - 50, 18) },
       { label: 'Their hold on the people', weight: mark(40 - loyalty, 12) },
-      { label: 'Troops ashore', weight: -mark(garrisonRoster(system).length * SECURITY_PER_COMPANY, 8) },
+      { label: 'Troops ashore', weight: -mark(companiesOn(system).length * SECURITY_PER_COMPANY, 8) },
       ...(system.commanderId ? [{ label: 'Their crew in the chair', weight: -2 }] : []),
       ...(momentum !== 0 ? [{ label: 'Recent unrest here', weight: mark(momentum, 4) }] : []),
     ],

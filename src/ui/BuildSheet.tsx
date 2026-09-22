@@ -1,6 +1,11 @@
 import type { ReactNode } from 'react';
 import terms from '../data/terms.json';
 import {
+  isTroopItem,
+  raiseReason,
+  raiseShort,
+  troopType,
+  troopsOf,
   buildLabel,
   planBuild,
   GOLD_PER_DAY,
@@ -71,7 +76,7 @@ export const KIND_LABEL: Record<BuildKind, string> = {
  * pick illegal, and the menu that follows does the gating.
  */
 export function firstItem(kind: BuildKind, faction: 'empire' | 'alliance'): BuildItem {
-  if (kind === 'troops') return 'troop';
+  if (kind === 'troops') return troopsOf(faction).filter((t) => t.role !== 'sailors')[0].id as BuildItem;
   if (kind === 'ships') return shipsFor(faction)[0].id;
   return 'mine';
 }
@@ -150,6 +155,40 @@ export function BuildOrderSheet({
   const { kind, item } = draft;
   const held = state.systems.filter((s) => s.control === you && !s.uprising);
   const destination = held.find((s) => s.id === draft.destinationId) ?? null;
+  /*
+   * Which companies this island can raise, and why not for the rest.
+   *
+   * Shown rather than hidden, because the two reasons a company is out are
+   * both things the player can do something about, and a list that silently
+   * omits them teaches nothing. Research says *put somebody on it*; a people's
+   * home says *this is the wrong island*, which is the whole of why the
+   * Confederacy's islands are not interchangeable.
+   *
+   * Sailors are left off entirely: a ship's company comes off a hull and is
+   * ashore because hulls are, so it is not a thing you order.
+   */
+  const troopChoices =
+    kind === 'troops'
+      ? troopsOf(you)
+          .filter((t) => t.role !== 'sailors')
+          .map((type) => ({
+            type,
+            why: raiseReason(type, gradeOf(state, you), destination ?? undefined),
+            short: raiseShort(type, gradeOf(state, you), destination ?? undefined),
+          }))
+          .sort((a, b) => Number(a.why !== null) - Number(b.why !== null) || a.type.costGold - b.type.costGold)
+      : [];
+  /*
+   * Moving the order to another island can make the chosen company illegal —
+   * pick Reefwalkers on a reef, then send the order to an ice island — so the
+   * draft falls back to the first thing that island *can* raise rather than
+   * sitting on a choice the sim will refuse.
+   */
+  const troopLegal = troopChoices.find((c) => c.type.id === item && c.why === null);
+  const firstLegal = troopChoices.find((c) => c.why === null);
+  if (kind === 'troops' && !troopLegal && firstLegal && item !== firstLegal.type.id) {
+    queueMicrotask(() => onChange({ ...draft, item: firstLegal.type.id as BuildItem }));
+  }
   const plan = destination ? planBuild(state, you, item, destination.id) : null;
   const from = plan?.fromSystemId ? state.systems.find((s) => s.id === plan.fromSystemId) : null;
 
@@ -222,24 +261,32 @@ export function BuildOrderSheet({
         screen reader still hears what the menu is for; what goes is the
         pixels.
 
-        Troops had no menu behind that label, only a static box with the word
-        "Troop" in it: one value that cannot be changed, under a title already
-        reading Build Troops. Stripping its label would have left an unlabelled
-        box saying nothing, so on that kind the card is the first thing on the
-        sheet instead.
+        Troops had no menu behind that label for a day, because the sim had
+        exactly one buildable company and a menu of one is not a menu. That was
+        right about the widget and wrong about the game: eight of the twelve
+        companies were unreachable, four rungs of research on each side bought
+        a unit that could never stand anywhere, and the island chose for you.
+        Companies have names in an order now, so the menu is back — and it is a
+        real one, listing what *this island* can raise today.
       */}
-      {kind !== 'troops' && (
-        <div className="field">
-          <select
-            className="field__select"
-            aria-label="What to build"
-            value={item}
-            onChange={(e) => onChange({ ...draft, item: e.target.value as BuildItem })}
-          >
-            {kind === 'facilities'
-              ? FACILITY_ORDER.map((type) => (
-                  <option key={type} value={type}>
-                    {buildLabel(type)}
+      <div className="field">
+        <select
+          className="field__select"
+          aria-label="What to build"
+          value={item}
+          onChange={(e) => onChange({ ...draft, item: e.target.value as BuildItem })}
+        >
+          {kind === 'facilities'
+            ? FACILITY_ORDER.map((type) => (
+                <option key={type} value={type}>
+                  {buildLabel(type)}
+                </option>
+              ))
+            : kind === 'troops'
+              ? troopChoices.map((c) => (
+                  <option key={c.type.id} value={c.type.id} disabled={c.why !== null}>
+                    {c.type.name}
+                    {c.short ? ` — ${c.short}` : ''}
                   </option>
                 ))
               : shipsAt(you, gradeOf(state, you)).map((c) => (
@@ -247,9 +294,8 @@ export function BuildOrderSheet({
                     {c.name}
                   </option>
                 ))}
-          </select>
-        </div>
-      )}
+        </select>
+      </div>
 
       <UnitCard state={state} item={item} />
 
@@ -490,7 +536,8 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
     );
   }
 
-  if (item === 'troop') {
+  if (item === 'troop' || isTroopItem(item)) {
+    const who = item === 'troop' ? undefined : troopType(item);
     return (
       <div className="card unit">
         <div className="unit__art">
@@ -503,10 +550,27 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
             keepLabel={keepLabel}
             keep={upkeepLine}
           />
-          {/* No anchor, because there is no one troop to land on: the order
-              is for a troop and the island decides which kind it raises. The
-              page itself is the answer. */}
-          <Info to="companies" label={`More about ${terms.troops.toLowerCase()}`} />
+          {/* The three numbers that decide what a company is for, now that
+              there is a choice to make: what it is worth going up a beach,
+              what it is worth holding one, and what it sees in the dark. A
+              Hushed picket is a third of a Marine's attack and half again
+              their eyes, and a player picking between them should be able to
+              read that here rather than in the encyclopedia. */}
+          {who && (
+            <div className="row" style={{ gap: 14, flexWrap: 'wrap', marginTop: 8 }}>
+              <Stat label="Attack" value={String(who.attack)} />
+              <Stat label="Holds" value={String(who.invasionDefense)} />
+              <Stat label="Sees" value={String(who.detection)} />
+            </div>
+          )}
+          {/* The entry the name goes to, where there is one name to go to.
+              A generic order has no single company to anchor on, so it keeps
+              the page itself. */}
+          <Info
+            to="companies"
+            at={who?.id}
+            label={who ? `More about the ${who.name}` : `More about ${terms.troops.toLowerCase()}`}
+          />
         </div>
       </div>
     );

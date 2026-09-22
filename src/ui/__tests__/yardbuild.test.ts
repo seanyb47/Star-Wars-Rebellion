@@ -152,11 +152,17 @@ describe('ordering a hull from the island', () => {
    * the label existing as much as on the text going.
    */
   it('links each thing to its entry with one mark and no sentence', () => {
-    // A hull and a works land on their own entry; a troop lands on the page,
-    // because the order is for a troop and the island picks which kind.
+    // A hull and a works land on their own entry, and so does a company now.
+    //
+    // This assertion said the opposite until 22 September — *a troop lands on
+    // the page, because the order is for a troop and the island picks which
+    // kind* — and the premise was the bug rather than the behaviour. An order
+    // names a company, so it has an entry to land on. The generic order still
+    // has none, and still gets the page.
     expect(BUILD).toContain('<Info to="ships" at={encyclopediaShip(item)} label={`More about the ${cls.name}`} />');
     expect(BUILD).toContain('<Info to="works" at={type} label={`More about the ${buildLabel(type)}`} />');
-    expect(BUILD).toContain('<Info to="companies" label={`More about ${terms.troops.toLowerCase()}`} />');
+    expect(BUILD).toContain('at={who?.id}');
+    expect(BUILD).toContain('`More about the ${who.name}`');
     // Nothing on the card renders the name as link text any more.
     expect(BUILD).not.toContain('More about the {cls.name}');
     expect(BUILD).not.toContain('>More about {terms.troops.toLowerCase()}<');

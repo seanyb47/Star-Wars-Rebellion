@@ -64,7 +64,7 @@ import {
   pushEvent,
   returnDeposit,
 } from './helpers';
-import { garrisonRoster } from './troops';
+import { companiesOn } from './troops';
 import { sightBeast } from './creatures';
 import { recomputeLedger } from './economy';
 import { resolveControlAndUnrest } from './support';
@@ -791,7 +791,7 @@ export function watchOn(state: GameState, system: System, against: PlayableFacti
   const holder = system.control;
   const theirs = holder !== against && (holder === 'empire' || holder === 'alliance');
 
-  const garrison = garrisonRoster(system).reduce((n, company) => n + company.detection, 0);
+  const garrison = companiesOn(system).reduce((n, company) => n + company.detection, 0);
 
   // Only the ones standing about. Somebody away on an errand of their own is
   // not watching the quay, which is Sean's rule and is also the interesting
@@ -899,7 +899,7 @@ export function captureChance(
   const holder = system.control;
   if (holder !== otherFaction(faction)) return 0;
   const muscle =
-    garrisonRoster(system).reduce((n, company) => n + company.attack, 0) +
+    companiesOn(system).reduce((n, company) => n + company.attack, 0) +
     (() => {
       const held = commanderOf(state, system);
       return held && held.faction !== faction && held.status === 'available' ? held.combat : 0;
@@ -1471,7 +1471,7 @@ export function missionOdds(
   type: MissionType,
 ): number {
   if (type === 'rescue') {
-    const bars = garrisonRoster(system).reduce((n, company) => n + company.invasionDefense, 0);
+    const bars = companiesOn(system).reduce((n, company) => n + company.invasionDefense, 0);
     return Math.max(0.05, successChance(party, 'rescue') - bars / RESCUE_GARRISON_DIVISOR);
   }
   if (type === 'incite') {

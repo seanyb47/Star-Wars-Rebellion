@@ -1,5 +1,6 @@
 import {
   FACILITY_LABEL,
+  companiesOn,
   UPKEEP_PER_DAY,
   perFortnight,
   fleetsAt,
@@ -10,8 +11,8 @@ import {
   type ScrapTarget,
   type System,
 } from '../sim';
-import type { ReactNode } from 'react';
 import terms from '../data/terms.json';
+import type { ReactNode } from 'react';
 import { FacilityIcon, FacilityThumb, ShipThumb, facilityPainting } from './art';
 import { Coin, Sheet } from './components';
 
@@ -87,19 +88,36 @@ export function ScrapSheet({
     });
   }
 
-  // The garrison is a count rather than a list, so it is one row that can be
-  // tapped as many times as there are troops standing there.
+  /*
+   * One row per *kind* of company, because a garrison is a list now.
+   *
+   * It was one row tapped as many times as there were troops, which was right
+   * while every troop on an island was the same thing and wrong the moment
+   * they were not: an island holding two Hushed and four militia would have
+   * offered "Troops (6)" and disbanded whichever the sim reached first. You
+   * pick which. Within a kind they are still alike, so a kind is one row with
+   * a count, exactly as the Defenses tab groups them.
+   */
   if (system.control === me && system.garrison > 0) {
-    const what: ScrapTarget = { kind: 'troop', systemId: system.id };
-    rows.push({
-      key: 'garrison',
-      what,
-      name: system.garrison > 1 ? `${terms.troops} (${system.garrison})` : terms.troop,
-      named: `one ${terms.troop.toLowerCase()}`,
-      error: scrapError(state, me, what),
-      saves: UPKEEP_PER_DAY.troop,
-      frees: false,
+    const posted = companiesOn(system);
+    const kinds = new Map<string, { name: string; upkeep: number; at: number; count: number }>();
+    posted.forEach((t, at) => {
+      const seen = kinds.get(t.id);
+      if (seen) seen.count += 1;
+      else kinds.set(t.id, { name: t.name, upkeep: t.upkeep, at, count: 1 });
     });
+    for (const [id, entry] of kinds) {
+      const what: ScrapTarget = { kind: 'troop', systemId: system.id, at: entry.at };
+      rows.push({
+        key: `garrison-${id}`,
+        what,
+        name: entry.count > 1 ? `${entry.name} (${entry.count})` : entry.name,
+        named: `one ${terms.troop.toLowerCase()} of ${entry.name}`,
+        error: scrapError(state, me, what),
+        saves: entry.upkeep,
+        frees: false,
+      });
+    }
   }
 
   // Hulls lying in this harbor, which is the only place one can be broken up.

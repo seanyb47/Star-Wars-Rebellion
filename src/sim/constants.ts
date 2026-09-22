@@ -1,6 +1,7 @@
 import { ROSTER_CLASSES, type RosterClass } from './roster';
 import type { Rng } from './rng';
 import terms from '../data/terms.json';
+import troopData from '../data/troops.json';
 import type {
   BuildItem,
   FacilityType,
@@ -10,6 +11,7 @@ import type {
   PlayableFaction,
   ShipClassId,
   ShipRole,
+  TroopTypeId,
   Speed,
 } from './types';
 
@@ -1139,10 +1141,48 @@ export function shipsAt(faction: PlayableFaction, grade: number): ShipClass[] {
   return shipsFor(faction).filter((c) => (c.craft ?? 0) <= grade);
 }
 
+/*
+ * Every company is orderable by name now, so the three tables an order needs —
+ * what it costs, what it is called, what it is for — are read off the roster
+ * rather than typed out beside it. `troops.json` is already the authority on a
+ * company's price and pace; a second copy here is a second thing to forget.
+ *
+ * The raw import rather than `./troops` is deliberate: this file is imported
+ * by almost everything and `troops.ts` reads its own JSON the same way, so
+ * neither has to depend on the other.
+ */
+const TROOP_ROSTER = troopData.types as Array<{
+  id: string;
+  name: string;
+  costGold: number;
+  days: number;
+  upkeep: number;
+  blurb: string;
+}>;
+
+const TROOP_SPECS = Object.fromEntries(
+  TROOP_ROSTER.map((t) => [t.id, { costGold: t.costGold, days: t.days, label: t.name }]),
+) as Record<string, BuildSpec>;
+
+const TROOP_UPKEEP = Object.fromEntries(
+  TROOP_ROSTER.map((t) => [t.id, t.upkeep]),
+) as Record<TroopTypeId, number>;
+const TROOP_NO_INCOME = Object.fromEntries(
+  TROOP_ROSTER.map((t) => [t.id, 0]),
+) as Record<TroopTypeId, number>;
+const TROOP_NAMES = Object.fromEntries(TROOP_ROSTER.map((t) => [t.id, t.name]));
+const TROOP_BLURBS = Object.fromEntries(TROOP_ROSTER.map((t) => [t.id, t.blurb]));
+
+/** Is this build item one of the companies, rather than a hull or a works? */
+export function isTroopItem(item: BuildItem): boolean {
+  return item !== 'troop' && item in TROOP_SPECS;
+}
+
 export function buildSpec(item: BuildItem): BuildSpec {
   if (item === 'troop') return TROOP_BUILD;
+  if (isTroopItem(item)) return TROOP_SPECS[item];
   if (isShipClass(item)) return shipSpec(item);
-  return YARD_BUILDS[item];
+  return YARD_BUILDS[item as FacilityType];
 }
 
 /**
@@ -1185,6 +1225,7 @@ export const GOLD_PER_DAY: Record<BuildItem, number> = {
   fort: 0,
   heavy_fort: 0,
   troop: 0,
+  ...TROOP_NO_INCOME,
   ...NO_SHIP_INCOME,
 };
 
@@ -1207,6 +1248,7 @@ export const UPKEEP_PER_DAY: Record<BuildItem, number> = {
   fort: 2,
   heavy_fort: 5,
   troop: 1,
+  ...TROOP_UPKEEP,
   ...SHIP_UPKEEP,
 };
 
@@ -2537,14 +2579,16 @@ export const TROOP_LABEL = terms.troop;
 /** The player-facing name of anything you can order, whatever kind it is. */
 export function buildLabel(item: BuildItem): string {
   if (item === 'troop') return TROOP_LABEL;
+  if (isTroopItem(item)) return TROOP_NAMES[item];
   if (isShipClass(item)) return shipClass(item).name;
-  return FACILITY_LABEL[item];
+  return FACILITY_LABEL[item as FacilityType];
 }
 
 export function buildBlurb(item: BuildItem): string {
   if (item === 'troop') return 'A troop of marines, drilled and put ashore.';
+  if (isTroopItem(item)) return TROOP_BLURBS[item];
   if (isShipClass(item)) return shipClass(item).blurb;
-  return FACILITY_BLURB[item];
+  return FACILITY_BLURB[item as FacilityType];
 }
 
 /* ---------------------------------------------------------------------------

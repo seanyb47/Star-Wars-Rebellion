@@ -51,7 +51,27 @@ import {
 } from './siege';
 import { BOMBARD_CIVILIAN_LOYALTY, BOMBARD_TICKS_MAX, FACILITY_LABEL } from './constants';
 import { craftGrade } from './missions';
-import { garrisonRoster, landingTroop } from './troops';
+import {
+  companiesOn,
+  landingTroop,
+  materialiseCompanies,
+  postCompanies,
+  setCompanies,
+  takeCompanies,
+} from './troops';
+
+/**
+ * Who a fleet is carrying, for the moment they step ashore.
+ *
+ * A fleet counts its companies rather than listing them — `fleet.troops` is a
+ * number and has been since fleets existed — so a company that embarks loses
+ * its name and comes ashore as the side's landing troop, which is already who
+ * the sim says a side puts in boats. That is a seam rather than a rule, and
+ * the note in docs/troops.md says what closing it would mean.
+ */
+function landedKind(state: GameState, fleet: Fleet) {
+  return landingTroop(fleet.faction, craftGrade(state.factions[fleet.faction].craft));
+}
 import {
   inProse,
   getSystem,
@@ -435,7 +455,9 @@ function loadSpareCompanies(state: GameState, fleet: Fleet): void {
   const room = fleetCapacity(fleet) - fleet.troops;
   const take = Math.min(room, sparedCompanies(system, state));
   if (take <= 0) return;
-  system.garrison -= take;
+  // `takeCompanies` sends the weakest defenders, which is the right way round:
+  // an island keeps what holds it and the boats get what is spare.
+  takeCompanies(system, take);
   fleet.troops += take;
 }
 
@@ -443,7 +465,7 @@ function loadSpareCompanies(state: GameState, fleet: Fleet): void {
 function landCompanies(state: GameState, fleet: Fleet): void {
   const system = getSystem(state, fleet.systemId);
   if (system.control !== fleet.faction || fleet.troops <= 0) return;
-  system.garrison += fleet.troops;
+  postCompanies(system, landedKind(state, fleet).id, fleet.troops);
   fleet.troops = 0;
 }
 
@@ -503,7 +525,8 @@ export function embark(
   if (error) throw new Error(error);
   const fleet = findFleet(state, fleetId)!;
   const system = getSystem(state, fleet.systemId);
-  system.garrison -= companies;
+  if (companies > 0) takeCompanies(system, companies);
+  else postCompanies(system, landedKind(state, fleet).id, -companies);
   fleet.troops += companies;
 }
 
@@ -1011,7 +1034,7 @@ export function islandDefenders(system: System): Shellable[] {
   // A garrison is a number rather than a list of records, so the roster is
   // what says who each of those companies actually is — and therefore what it
   // costs a broadside to break.
-  const roster = garrisonRoster(system);
+  const roster = companiesOn(system);
   for (let i = 0; i < system.garrison; i++) {
     out.push({ kind: 'troop', cost: roster[i]?.bombardDefense ?? 2, ref: `troop-${i}` });
   }
@@ -1157,8 +1180,19 @@ export function bombardNow(state: GameState, fleet: Fleet, rng: Rng): void {
     system.facilities = system.facilities.filter((f) => !gone.has(f.id));
   }
   // Then the men, once there was no stone left to stop the shot.
-  const broken = result.destroyed.filter((d) => d.kind === 'troop').length;
-  if (broken > 0) system.garrison = Math.max(0, system.garrison - broken);
+  const felledMen = result.destroyed.filter((d) => d.kind === 'troop');
+  if (felledMen.length > 0) {
+    // The siege names which companies the shot reached — `troop-3` is the
+    // fourth in the square — so those are the ones that fall, rather than a
+    // count coming off the end of the list.
+    const posted = materialiseCompanies(system);
+    const lost = new Set(felledMen.map((d) => Number(String(d.ref).split('-')[1])));
+    setCompanies(
+      system,
+      posted.filter((_, i) => !lost.has(i)),
+    );
+  }
+  const broken = felledMen.length;
 
   const ripples: Ripple[] = [];
   if (felled.length > 0 && mine) {
@@ -1288,7 +1322,7 @@ function islandLedger(
   // when it was the Heavy one would be worse than saying "1 battery".
   const lostWalls: LedgerRow[] =
     wallsDown > 0 ? [{ label: wallsDown === 1 ? 'Battery' : 'Batteries', count: wallsDown }] : [];
-  const roster = garrisonRoster(system);
+  const roster = companiesOn(system);
   return [
     {
       side: system.name,
@@ -1815,7 +1849,7 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   const edge = officerEdge(state, fleet, 'combat');
   const landed = fleet.troops;
   const garrisonBefore = system.garrison;
-  const roster = garrisonRoster(system);
+  const roster = companiesOn(system);
   const mine: Landed[] = Array.from({ length: landed }, () => ({
     score: Math.max(1, Math.round(kind.attack * edge)),
     id: kind.id,
@@ -1829,7 +1863,12 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
 
   const attackerWins = fought.taken;
   fleet.troops = fought.attackers.length;
-  system.garrison = fought.defenders.length;
+  // `invade` fights company by company and hands back the ones still standing,
+  // by id. That was already true and only `.length` was being read, so the
+  // survivors of a beaten-off landing keep their names for free: hold an
+  // island with two Hushed and four militia, lose four, and what is left is
+  // what actually lived rather than four of whatever the seed says.
+  setCompanies(system, fought.defenders.map((d) => d.id));
   const report = {
     attacker: fleet.faction,
     landed,
@@ -1893,7 +1932,11 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
   const hold = Math.max(1, requiredGarrison(35));
   const holding = Math.min(survivors, hold);
   fleet.troops = survivors - holding;
-  system.garrison = holding;
+  // The island changes hands, so what is posted on it is the landing party —
+  // whoever this side puts in boats — and not a survivor of the garrison that
+  // just lost it.
+  setCompanies(system, []);
+  postCompanies(system, kind.id, holding);
   system.control = fleet.faction;
   // And everything standing on it. What was being built when the boats came
   // in is lost with the old holder.

@@ -22,7 +22,7 @@ import { runAI } from './ai';
 import { generateGalaxy } from './galaxy';
 import { cloneState } from './helpers';
 import { moveBlock } from './order';
-import { garrisonRoster } from './troops';
+import { companiesOn } from './troops';
 import { continueMission, endMission, relieve, startMission } from './missions';
 import { resolveControlAndUnrest } from './support';
 import { syncHome } from './lords';
@@ -206,7 +206,7 @@ export function reorderGarrison(
   return run(state, (draft) => {
     const system = draft.systems.find((s) => s.id === systemId);
     if (!system) throw new Error('No such island.');
-    const current = system.garrisonOrder ?? [...new Set(garrisonRoster(system).map((t) => t.id))];
+    const current = system.garrisonOrder ?? [...new Set(companiesOn(system).map((t) => t.id))];
     const set = new Set(typeIds);
     system.garrisonOrder = moveBlock(current, (id) => set.has(id), dir);
   });

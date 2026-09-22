@@ -3,6 +3,7 @@ import terms from '../data/terms.json';
 import {
   buildLabel,
   isShipClass,
+  isTroopItem,
   shipsAt,
   shipClass,
   craftNeeded,
@@ -18,7 +19,7 @@ import {
   CRAFT_DAYS_STEP,
   UPKEEP_PER_DAY,
 } from './constants';
-import { troopBuildAt } from './troops';
+import { postCompanies, raiseReason, raisableTroops, troopBuildAt, troopType } from './troops';
 import { craftGrade, travelDays } from './missions';
 import { addShip } from './fleets';
 import {
@@ -86,7 +87,7 @@ export function crewOn(system: System, type: FacilityType, owner: Faction): numb
  * things you decide to have, not tolls on owning ground.
  */
 export function makerFor(item: BuildItem): FacilityType | undefined {
-  if (item === 'troop') return 'training_facility';
+  if (item === 'troop' || isTroopItem(item)) return 'training_facility';
   if (isShipClass(item)) return 'shipyard';
   return undefined;
 }
@@ -141,10 +142,18 @@ export function busyAt(
  * Callers that only want to know whether a works has anything at all to do
  * pass `ANY_GRADE` and say so.
  */
-export function buildMenu(facility: Facility, grade: ShipGrade): BuildItem[] {
+export function buildMenu(facility: Facility, grade: ShipGrade, on?: System): BuildItem[] {
   // A works waits on the shipwrights too now, for exactly one building: see
   // `FACILITY_CRAFT`. Everything else a yard has always been able to raise.
-  if (facility.type === 'training_facility') return ['troop'];
+  if (facility.type === 'training_facility') {
+    if (!isPlayable(facility.owner)) return [];
+    // Every company the side has unlocked *and* this island can actually
+    // raise. Where the island is not known — the chart's idle marks ask about
+    // the works, not about an order — the side's whole unlocked list answers,
+    // so a drill ground never reads as having nothing to do.
+    const here = raisableTroops(facility.owner, grade, on);
+    return here.length > 0 ? here.map((t) => t.id as BuildItem) : ['troop'];
+  }
   if (facility.type === 'shipyard' && isPlayable(facility.owner)) {
     return shipsAt(facility.owner, grade).map((c) => c.id);
   }
@@ -217,7 +226,7 @@ export function effectiveSpec(
 /** Whether an order for this item takes a slot on the island it lands on. */
 /** Whether this order needs a berth on the island it lands on. */
 function takesRoom(item: BuildItem): boolean {
-  return item !== 'troop' && !isShipClass(item);
+  return item !== 'troop' && !isTroopItem(item) && !isShipClass(item);
 }
 
 /**
@@ -330,13 +339,27 @@ export function buildError(
   const { system, facility } = found;
   if (!isPlayable(facility.owner)) return 'That facility is not yours.';
   const grade = gradeOf(state, facility.owner);
-  if (!buildMenu(facility, grade).includes(item)) {
-    // Told apart on purpose: a shipyard that cannot build a Sovereign II yet
-    // is a different problem from a training ground being asked for a hull,
-    // and the first one has an answer — put somebody on the research.
-    if (isShipClass(item) && shipClass(item).faction === facility.owner) {
+  if (!buildMenu(facility, grade, system).includes(item)) {
+    /*
+     * A drill ground always takes `'troop'`, whatever its menu says.
+     *
+     * The menu is the *picker's* list — the named companies this island can
+     * raise today — and `'troop'` is deliberately not on it, because offering
+     * "Troop" beside "Crown Marines" and "Fensworn" would be offering the same
+     * thing twice. But `'troop'` is still a legal order and means *whatever
+     * this island raises*: it is what the opponent asks for, and what an order
+     * placed before companies had names meant. Refusing it here would have
+     * stopped the opponent raising a single company for the rest of the war.
+     */
+    if (item === 'troop' && facility.type === 'training_facility') {
+      // Falls through to the checks below rather than returning.
+    } else if (isTroopItem(item) && facility.type === 'training_facility') {
+      const t = troopType(item);
+      const why = t ? raiseReason(t, grade, system) : null;
+      return why ?? 'This building cannot make that.';
+    } else if (isShipClass(item) && shipClass(item).faction === facility.owner) {
       return `${shipClass(item).name} needs ${craftNeeded(item)} ${craftNeeded(item) === 1 ? 'grade' : 'grades'} of shipwright craft.`;
-    }
+    } else {
     // Same answer for the one building that waits on the yards: it is not
     // "this works cannot make that", it is "not yet", and the difference is
     // whether the player has something to go and do about it.
@@ -347,6 +370,7 @@ export function buildError(
       return `${FACILITY_LABEL[item as FacilityType]} needs ${wants} ${wants === 1 ? 'grade' : 'grades'} of shipwright craft.`;
     }
     return 'This building cannot make that.';
+    }
   }
   // One job of a kind at a time, per island — not per works. The rest of the
   // island's yards of that kind are not idle hands to give another job to;
@@ -806,13 +830,24 @@ function completeBuild(
   madeOn: System,
 ): void {
   const shipped = madeOn.id !== system.id;
-  if (item === 'troop') {
-    system.garrison += 1;
+  /*
+   * A company arrives as *itself*.
+   *
+   * `'troop'` still means "whatever this island raises", which is what the
+   * opponent orders and what an order placed before companies had names meant;
+   * it is settled here, on delivery, by asking the island. A named order keeps
+   * the name it was given. Either way the island's roster gains a real entry
+   * rather than the count going up by one and the mix being re-invented.
+   */
+  if (item === 'troop' || isTroopItem(item)) {
+    const kind = item === 'troop' ? (troopBuildAt(system, owner)?.id ?? item) : item;
+    postCompanies(system, kind);
+    const name = buildLabel(kind as BuildItem);
     pushEvent(state, {
       kind: 'order',
       text: shipped
-        ? `A troop drilled on ${inProse(madeOn.name)} has landed on ${inProse(system.name)}.`
-        : `A troop has finished its drill on ${inProse(system.name)}.`,
+        ? `${name} drilled on ${inProse(madeOn.name)} have landed on ${inProse(system.name)}.`
+        : `${name} have finished their drill on ${inProse(system.name)}.`,
       systemId: system.id,
     });
     return;
@@ -839,7 +874,7 @@ function completeBuild(
     if (at >= 0) held.splice(at, 1);
     system.deposits = held;
   }
-  system.facilities.push({ id: nextId(state, 'fac'), type: item, owner });
+  system.facilities.push({ id: nextId(state, 'fac'), type: item as FacilityType, owner });
   pushEvent(state, {
     kind: 'order',
     text: shipped

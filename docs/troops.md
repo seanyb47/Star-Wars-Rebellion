@@ -55,6 +55,65 @@ researched anything, and gating that made every Confederate island in the
 opening look identical. The two made units keep their research gate, which is
 the half of the rule that was doing work. Sean's call if he wants it back.
 
+## Raising one — 22 September
+
+Sean, over the Build Troops screen: *"Should give me option of which troop to
+build right?"* It should, and until this it could not, for a reason worth
+writing down because it was invisible.
+
+A garrison was a **count**. `garrisonRoster` invented the mix from the island's
+seed every time anybody asked, and it filtered every researched company out —
+so **eight of the twelve companies could never stand in a garrison at all**.
+Measured over six full wars with every garrison sampled every 25 days, only the
+four day-one companies ever appeared. Four rungs of the research ladder on each
+side bought a unit nobody could post anywhere, and the Shoal Wardens were
+unreachable in the exact role they were written for.
+
+So an island now keeps a **list of who is posted on it** (`System.companies`),
+authoritative where it exists, with `garrison` staying as its length. The seeded
+mix is still the answer for an island nobody has changed anything on, which is
+why nothing had to be migrated.
+
+Three rules decide what a drill ground will raise:
+
+- **Research.** A company behind R4 wants four grades of shipwright craft, the
+  same ladder as a hull.
+- **A people live where they live.** A `native` company raises only on its own
+  `home` archetypes. That is what makes the two sides differ rather than mirror:
+  the Confederacy musters whoever is already there, while the Crown's later
+  companies are *made* — brass and iron, and men who were human once — and a
+  made thing can be made anywhere.
+- **Sailors are not raised.** A ship's company comes off a hull.
+
+### The seam this leaves
+
+**A fleet counts its companies rather than listing them.** `fleet.troops` is a
+number, so a company that embarks loses its name and comes ashore as the side's
+landing troop — which is already who the sim says a side puts in boats, but it
+does mean you cannot carry two Hushed to a landing and have them arrive as the
+Hushed. Closing it means giving `Fleet` the same list the island now has and
+teaching the landing to fight with it; the `invade` call already carries
+per-company identities, so the combat half is done. Not started.
+
+### What it cost the Crown, and why
+
+Enforcing the sailors rule took something away that had been load-bearing. The
+old generic order priced itself from `troopBuildAt`, which returns the island's
+first roster entry — and on roughly a quarter of yard islands that was a
+**Ship's Company at 26 gold** rather than Crown Marines at 42. The Crown was
+garrisoning on the cheap with crews it had not raised.
+
+With that closed, **the Crown has exactly one raisable company until R2**, at 42
+gold and 0.4 a day, against the Confederacy's Island Militia at 24 and 0.2 — and
+the Crown's R2 unit, the Fensworn, holds worse than the Marines it replaces, so
+its ladder only pays at R6.
+
+Ninety-six wars say this costs the Crown nothing it can measure — 46 — 50 pooled,
+0.4 SD from even — so it is a lopsided menu rather than a balance problem. It is
+still a design question for Sean: price Crown Marines nearer the militia, give
+the Crown a cheap day-one garrison unit of its own, or move the Fensworn up so
+R2 is worth reaching.
+
 ## The prompts
 
 They live in [`art-units.md`](art-units.md), alongside the facility prompts, so

@@ -4,6 +4,7 @@
  */
 import factionData from '../src/data/factions.json';
 import { fleetCapacity } from '../src/sim/fleets';
+import { TROOP_TYPES } from '../src/sim/troops';
 import type { GameState } from '../src/sim/types';
 
 export interface Violation { rule: string; detail: string; day: number; }
@@ -32,6 +33,27 @@ export function audit(s: GameState): Violation[] {
   // reports a broken rule is a harness nobody reads when one actually breaks.
   // The seat went back to being Highwater on 21 September and this needed no
   // edit, which is the argument for never writing a name down twice.
+  /*
+   * The roster and the count must agree.
+   *
+   * An island's companies became a real list on 22 September, with `garrison`
+   * kept as its length because thirty readers ask how many and none ask who.
+   * Two numbers for one fact is exactly the shape that drifts, and the drift
+   * would be silent: `companiesOn` treats a list out of step with the count as
+   * absent and quietly falls back to the seeded mix, so a garrison would go on
+   * reading plausibly while the player's choices were being thrown away every
+   * time somebody looked at it. This is the rule that makes that loud.
+   */
+  for (const system of s.systems) {
+    const posted = system.companies;
+    if (posted && posted.length !== system.garrison) {
+      bad('companies-adrift', `${system.name}: ${posted.length} listed, garrison ${system.garrison}`);
+    }
+    if (posted?.some((id) => !TROOP_TYPES.some((t) => t.id === id))) {
+      bad('companies-unknown', `${system.name}: ${posted.filter((id) => !TROOP_TYPES.some((t) => t.id === id)).join(', ')}`);
+    }
+  }
+
   const crownSeat = s.systems.find((x) => x.id === s.factions.empire.hqSystemId);
   if (crownSeat && crownSeat.name !== factionData.empire.capitalIslandName) {
     bad('crown-seat-moved', crownSeat.name);

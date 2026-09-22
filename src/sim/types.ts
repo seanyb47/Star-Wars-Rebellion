@@ -110,6 +110,22 @@ export interface System {
    */
   deposits?: Deposit[];
   garrison: number;
+  /**
+   * Who is actually posted here, one id per company, authoritative when set.
+   *
+   * A garrison was a count, and `garrisonRoster` invented the mix from the
+   * island's seed every time anybody asked. That was fine while a company had
+   * no identity you could choose — and it is the reason four rungs of the
+   * research ladder bought units that could never stand anywhere, because the
+   * invented mix could only ever name the two a side starts with.
+   *
+   * So: this list is the truth where it exists, and `garrison` stays as its
+   * length because thirty readers ask that question and none of them care who.
+   * Where it is absent — a neutral island, a save from before this, a starting
+   * garrison nobody has touched — the seeded mix still answers, so nothing had
+   * to be migrated. `materialiseCompanies` writes it out on the first change.
+   */
+  companies?: string[];
   uprising: boolean;
   /**
    * An enemy fleet is lying off it and nothing is getting out. Always a real
@@ -317,7 +333,27 @@ export type ShipClassId =
 /** What a Pirate Lord does that nobody else in the war can. */
 export type LordPower = 'moot' | 'runner' | 'line';
 
-export type BuildItem = FacilityType | 'troop' | ShipClassId;
+/**
+ * `'troop'` is still a build item and means *whatever this island raises* —
+ * the island's own choice, which is what the opponent orders and what an order
+ * placed before troops had names meant. A specific id is a specific company.
+ */
+export type BuildItem = FacilityType | 'troop' | TroopTypeId | ShipClassId;
+
+/** The companies in `troops.json`, as a type rather than a loose string. */
+export type TroopTypeId =
+  | 'crown-marines'
+  | 'crown-ships-company'
+  | 'fensworn'
+  | 'the-hushed'
+  | 'tidewrought'
+  | 'drowned-guard'
+  | 'island-militia'
+  | 'reefwalkers'
+  | 'the-brethren'
+  | 'bog-witches'
+  | 'shoal-wardens'
+  | 'urskin-berserkers';
 
 export interface Ship {
   id: string;

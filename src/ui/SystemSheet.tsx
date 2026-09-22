@@ -44,7 +44,7 @@ import {
   type System,
   beastOf,
   byRemembered,
-  garrisonRoster,
+  companiesOn,
   garrisonSummary,
   MISSION_LABEL,
   isLord,
@@ -821,7 +821,7 @@ export function SystemSheet({
   const ground = RESOURCE_TYPES
     .map((type) => ({ type, count: depositsLeft(system, type) }))
     .filter((entry) => entry.count > 0);
-  const roster = garrisonRoster(system);
+  const roster = companiesOn(system);
   // Folded into kinds, in the order the player put them, for the grouped view.
   const garrison = byRemembered(garrisonSummary(system), (e) => e.type.id, system.garrisonOrder);
   // The walls, for the Defenses panel. Whoever holds the ground holds them.

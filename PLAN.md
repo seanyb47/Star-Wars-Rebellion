@@ -9387,3 +9387,95 @@ against 28). That is structural rather than random, and it is not obviously
 wrong: the Crown opens with nine hulls to their six, heavier ones, and twice the
 troops. But it is the same quantity the pending upkeep ruling is about, so it
 belongs in that decision rather than this one.
+
+### An island keeps a list of who is posted on it, and research finally pays
+
+Sean, over the Build Troops screen: *"Should give me option of which troop to
+build right?"* It should. Chasing why it could not turned up something larger
+than the missing dropdown.
+
+A garrison was a **count**, and `garrisonRoster` invented the mix from the
+island's seed every time anybody asked — filtering out every research-gated
+company as it went, on the reasoning that a company behind R2 is not standing in
+anybody's square yet. That reasoning was right for a *starting* garrison and
+became a cage: nothing ever moved a company out of that filter, so
+`lab/troopreach.ts`, sampling every garrison every 25 days across six full wars,
+found this:
+
+```
+empire:                          alliance:
+  GARRISONED  Crown Marines        GARRISONED  Island Militia
+  GARRISONED  Ship's Company       GARRISONED  Reefwalkers
+  never seen  Fensworn      R2     never seen  The Brethren      R2
+  never seen  The Hushed    R4     never seen  Bog Witches       R4
+  never seen  Tidewrought   R6     never seen  Shoal Wardens     R6
+  never seen  Drowned Guard R8     never seen  Urskin Berserkers R8
+```
+
+**Eight of twelve companies could never stand anywhere**, and four rungs of the
+research ladder on each side bought a unit nobody could post. The Shoal Wardens
+were unreachable in the exact role the code comment justifies them by.
+
+So `System.companies` is a real list, authoritative where it exists, with
+`garrison` kept as its length because thirty readers ask how many and none ask
+who. The seeded mix still answers for an island nobody has changed anything on,
+which is why no save and no starting garrison had to be migrated, and
+`materialiseCompanies` writes the list out on the first change. The audit gained
+`companies-adrift`, because two numbers for one fact is the shape that drifts and
+the drift would have been silent — `companiesOn` treats a list out of step with
+the count as absent, so the player's choices would have been thrown away quietly
+every time anybody looked.
+
+The pleasant surprise was the combat. `invade` already fights company by company
+and hands back the survivors **by id**; only `.length` was being read. So the
+survivors of a beaten-off landing keep their names for free.
+
+**The faction asymmetry falls out of the roster rather than being invented.** A
+`native` company raises only on its own `home` archetypes — the Confederacy
+musters whoever already lives there — while the Crown's later companies are
+`made`, brass and iron and men who were human once, and a made thing can be made
+anywhere. The Confederacy's islands stop being interchangeable; the Crown's were
+never meant to be.
+
+#### What it did to the war, and the part that wants Sean
+
+**The win split does not move, and getting to that answer took two runs.**
+
+```
+seeds 3000, 48 wars   Crown 20 — Confederacy 28
+seeds 2000, 48 wars   Crown 26 — Confederacy 22
+pooled, 96 wars       Crown 46 — Confederacy 50
+```
+
+The first block alone read as a five-war swing to the Confederacy against the
+25 — 23 this tree gave before the change, and that is what this file said until
+the second block came in and flipped it the other way. Pooled, it is **two from
+even against an SD of 4.9 — about 0.4 SD**, which is nothing. This is precisely
+the trap `duel.ts`'s own docstring records from 21 September, when two sessions
+spent an afternoon explaining a difference that was noise, and one seed block
+nearly bought it again. **One block is not a measurement.**
+
+Audit clean in both, including the new `companies-adrift` rule, across 96 wars.
+
+#### The one thing here that is real, and is Sean's call
+
+Enforcing "sailors are not raised" took something away that had been
+load-bearing, and this part is a reading of the code rather than of a win table.
+The old generic order priced itself from `troopBuildAt`, which returns the
+island's first roster entry, and on roughly a quarter of yard islands that entry
+was a **Ship's Company at 26 gold** rather than Crown Marines at 42. The Crown
+had been garrisoning on the cheap with crews it never raised.
+
+With that closed the Crown has **exactly one raisable company until R2**, at 42
+gold and 0.4 a day, against Island Militia at 24 and 0.2 — and its R2 unit, the
+Fensworn, *holds worse* than the Marines it would replace, so the Crown's ladder
+does not pay until R6. Ninety-six wars say this costs it nothing it can measure,
+so it is not urgent; it is still a lopsided menu, and the candidates are pricing
+Crown Marines nearer the militia, giving the Crown a cheap day-one garrison unit
+of its own, or moving the Fensworn up so R2 is worth reaching. `troops.json` is
+Sean's design data and none of those were taken here.
+
+Second finding, from the same table and worth its own look: **the Confederacy's
+research stalls at craft 2.6 while the Crown reaches 5.6.** That is why its R6
+and R8 companies are still never seen, and it is a much bigger asymmetry than
+anything in this change.
