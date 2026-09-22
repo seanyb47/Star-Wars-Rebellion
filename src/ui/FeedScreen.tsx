@@ -1,3 +1,4 @@
+import { canSee } from '../sim';
 import { useEffect, useRef } from 'react';
 import type { GameEvent, GameState } from '../sim';
 
@@ -23,7 +24,17 @@ export function FeedScreen({
   /** Open the card for a dispatch worth seeing as a picture. */
   onRead: (eventId: string) => void;
 }) {
-  const events = [...state.events].reverse();
+  /*
+   * Only what this side could actually know.
+   *
+   * The log used to print `state.events` whole, which is both sides' orders in
+   * one list: a do-nothing Crown game showed 111 of 145 events belonging to
+   * the Confederacy, named — who sailed where and what for, who took command
+   * of which island, when their troops finished drilling. `lab/leak.ts` is the
+   * measurement and `canSee` is Sean's rule of 22 September, which is
+   * `sightOf` applied to where the event happened.
+   */
+  const events = [...state.events].filter((e) => canSee(state, e, state.player)).reverse();
   const focus = useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
     if (focusId) focus.current?.scrollIntoView({ block: 'center' });

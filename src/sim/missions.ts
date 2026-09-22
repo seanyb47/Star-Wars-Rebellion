@@ -75,6 +75,7 @@ import factionData from '../data/factions.json';
 import type { Rng } from './rng';
 import type {
   Character,
+  GameEvent,
   GameState,
   Intel,
   Mission,
@@ -2498,6 +2499,62 @@ export function sightOf(
     return 'eyes';
   }
   return reportOn(state, system, faction) ? 'report' : 'none';
+}
+
+/**
+ * Whether a side has any business hearing about this event at all.
+ *
+ * Sean's rule, 22 September, after the log was measured and found to be
+ * narrating the opponent's private orders: *"always your own side + enemy
+ * fleets actively at locations you control. Fog of war is everything else.
+ * However, you can clear fog of war through detection and espionage/covert
+ * ops."*
+ *
+ * That is `sightOf` in one sentence, which is why this is four lines and not
+ * a subsystem. `sightOf` already answers *can this side see that island
+ * today* — yours or neutral, a hull of yours lying at it, somebody of yours
+ * ashore, or a report bought with a fortnight of espionage — and the rule for
+ * an event is the same rule applied to where it happened.
+ *
+ * What was wrong before: nothing at all. Every event went into one list and
+ * the log printed it, so playing the Crown and giving no orders still showed
+ * 111 of 145 events belonging to the Confederacy — who sailed where and what
+ * for, who took command of which island, when their troops finished drilling.
+ * `lab/leak.ts` is the measurement.
+ *
+ * Three cases, in order:
+ *
+ * 1. **Yours.** Anything one of your own crew did, wherever they did it. You
+ *    gave the order; the report comes back whatever the enemy can see.
+ * 2. **Somewhere.** Anything else that happened at an island is visible
+ *    exactly as far as the island is — `sightOf` decides, so an enemy harbor
+ *    you have never looked at says nothing, and one you have a spy's report
+ *    on says what the report says.
+ * 3. **Nowhere in particular.** A ledger settlement, the end of the war: no
+ *    island and no crew, so nothing to hide it behind. These are yours by
+ *    construction — the sim only writes them about the side whose books are
+ *    being settled.
+ *
+ * Deliberately *not* a stored flag on the event. Every push site would have
+ * had to set one and half of them would have been wrong by next week;
+ * deriving it means a new event is fogged correctly the day it is written,
+ * without anybody remembering this rule exists.
+ */
+export function canSee(
+  state: GameState,
+  event: Pick<GameEvent, 'characterId' | 'systemId'>,
+  faction: PlayableFaction,
+): boolean {
+  if (event.characterId) {
+    const who = state.characters.find((c) => c.id === event.characterId);
+    if (who?.faction === faction) return true;
+    // Somebody else's crew: you hear about them only where you can see.
+    if (!event.systemId) return false;
+  }
+  if (!event.systemId) return true;
+  const system = state.systems.find((s) => s.id === event.systemId);
+  if (!system) return true;
+  return sightOf(state, system, faction) !== 'none';
 }
 
 /**

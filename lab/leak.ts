@@ -8,6 +8,7 @@
  */
 import { generateGalaxy } from '../src/sim/galaxy';
 import { advanceDay } from '../src/sim/advanceDay';
+import { canSee } from '../src/sim/missions';
 
 const DAYS = Number(process.argv[2] ?? 24);
 const GAMES = Number(process.argv[3] ?? 12);
@@ -20,7 +21,8 @@ for (let g = 0; g < GAMES; g++) {
   let state = generateGalaxy(1000 + g, 'empire');
   const side = new Map(state.characters.map((c) => [c.id, c.faction]));
   for (let d = 0; d < DAYS; d++) state = advanceDay(state);
-  for (const e of state.events) {
+  // Only what the Crown could actually know, which is what the log prints.
+  for (const e of state.events.filter((e) => canSee(state, e, 'empire'))) {
     // Fall back to who holds the island it happened on: a build finishing
     // carries no character, and "a troop has finished its drill on Tundvik"
     // is still somebody's business rather than nobody's.
@@ -35,7 +37,8 @@ for (let g = 0; g < GAMES; g++) {
   }
 }
 
-console.log(`${GAMES} games, ${DAYS} days each, playing the Crown and giving no orders.\n`);
+console.log(`${GAMES} games, ${DAYS} days each, playing the Crown, no orders given.`);
+console.log('Counting only events `canSee` lets through — what the log actually shows.\n');
 console.log('kind            mine  theirs  unattributed');
 for (const [kind, row] of [...tally].sort((a, b) => b[1].theirs - a[1].theirs)) {
   console.log(`${kind.padEnd(14)} ${String(row.mine).padStart(5)} ${String(row.theirs).padStart(7)} ${String(row.neither).padStart(13)}`);

@@ -1,4 +1,4 @@
-import { FORTNIGHT } from '../sim';
+import { FORTNIGHT, canSee } from '../sim';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
@@ -235,7 +235,13 @@ export function App() {
    * the war. Orders finishing and crew reporting stay in the log, or the game
    * would interrupt itself every other day.
    */
-  const dispatches = state.events.filter((e) => isNotable(e) && !toldOf.includes(e.id));
+  /* `canSee` as well as `isNotable`, or the game would stop the player for
+     news it has just decided they cannot have — an enemy island changing
+     hands in a Reach they have never charted raised a card while the log
+     rightly said nothing. Same rule in both places, from the same function. */
+  const dispatches = state.events.filter(
+    (e) => isNotable(e) && canSee(state, e, state.player) && !toldOf.includes(e.id),
+  );
   // The log is capped, so the list of what has been read is capped with it.
   useEffect(() => {
     setToldOf((seen) =>
