@@ -9147,3 +9147,71 @@ One note on the test itself: its first draft sliced from `css.indexOf('.sheet
 {')`, which found a narrow-screen override at line 173 that has no `bottom` at
 all. It would have failed for a reason unrelated to the rule it was checking.
 It matches the declaration now.
+
+### Fog of war on the log (22 September)
+
+Sean's rule, after `lab/leak.ts` measured the leak: *"always your own side +
+enemy fleets actively at locations you control. Fog of war is everything else.
+However, you can clear fog of war through detection and espionage/covert ops."*
+
+That is `sightOf` in one sentence, which is why `canSee` is four lines rather
+than a subsystem. `sightOf` already answers *can this side see that island
+today* — yours or neutral, a hull of yours lying at it, somebody of yours
+ashore, or a report bought with a fortnight of espionage. The rule for an event
+is the same rule applied to where it happened.
+
+| Twelve do-nothing Crown games | Before | After |
+|---|---|---|
+| Events shown | 145 | 17 |
+| Of those, the Confederacy's | **111** | **1** |
+
+**The surviving one is a judgement call worth naming.** It is a Confederate
+officer arriving to parley at a *charted neutral* island. Strictly that is not
+"a location you control" — but `sightOf` counts any island the enemy does not
+control as visible, and the island sheet already shows that officer standing
+there. Fogging his arrival while showing the man would be the inconsistency.
+
+Derived rather than stored, deliberately. A `faction` flag on `GameEvent` would
+have to be set at every push site and half of them would be wrong within a
+month; deriving it means an event written next year is fogged correctly without
+its author knowing the rule exists.
+
+### Marines to line — and the number Sean should see (22 September)
+
+He asked for it, so it is in. What the question I asked him did not say, because
+I did not know it until measuring, is how much this moves.
+
+`elite` versus `line` does **not** change who leads a landing: `landingTroop`
+picks the highest attack unlocked, and that is the Marines either way. What it
+changes is `garrisonRoster`, through `lineOf` — and because `lineOf` filters on
+`!research`, the Crown had no day-one `line` at all and fell back to `sailors`.
+
+| | Crown garrison unit | Confederate |
+|---|---|---|
+| Marines as `elite` | Ship's Company 16/16 | Island Militia 16/20 |
+| Marines as `line` | **Crown Marines 30/30** | Island Militia 16/20 |
+
+Same 48 seeds, only the role changed:
+
+| | Marines `elite` | Marines `line` |
+|---|---|---|
+| Crown — Confederacy | 22 — 24 | **31 — 17** |
+| Wars that never ended | 2 | **0** |
+| Lords taken, of 3 | 1.69 | 2.19 |
+| Length, median | 768 | 739 |
+
+**Nine wins is not noise.** At 48 decided wars the standard deviation is 3.46,
+so this is about 2.6 SD — unlike the travel change, which moved the split
+within the error bar. The Crown now wins 65% of decided wars.
+
+The mechanism is not subtle: Crown garrisons very nearly doubled in defence
+while the Confederacy's did not move. The faction profile does claim an opening
+edge for the Crown — *"its line company beats theirs at landing"* — and the
+troops test has asserted that since it was written. An edge is defensible; 65%
+is a different claim.
+
+Three ways out, if the number is not wanted: give the Confederacy a day-one
+line unit nearer 30/30 (the Reefwalkers are 20/20 and already day-one); lower
+the Marines' `invasionDefense` while keeping their attack, so the Crown's edge
+stays offensive; or put them back to `elite`. Sean's call — the change is
+shipped as asked, and the number is here rather than buried.

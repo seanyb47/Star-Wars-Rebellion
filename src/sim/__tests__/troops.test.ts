@@ -22,13 +22,37 @@ describe('garrison companies', () => {
     }
   });
 
-  it('gives each side a line company and sailors, and no more than one of each', () => {
+  /**
+   * The invariant is about **day one**, not about the whole roster.
+   *
+   * This counted every troop of a role, research included, and so read "one
+   * line company a side" while the Crown's `line` was the research-locked
+   * Fensworn and its garrisons were actually Ship's Companies — `lineOf`
+   * filters on `!research`, so the Fensworn's role never chose anything.
+   *
+   * Sean moved the Marines from `elite` to `line` on 22 September, which gave
+   * the Crown two `line` troops and failed this. The count was the wrong
+   * count: what has to be true is that each side has exactly one line company
+   * it can raise on the first morning, because that is the one `garrisonRoster`
+   * puts in the square.
+   */
+  it('gives each side one line company it can raise on day one, and sailors', () => {
     for (const faction of ['empire', 'alliance'] as const) {
       const mine = troopsOf(faction);
-      expect(mine.filter((t) => t.role === 'line')).toHaveLength(1);
+      expect(mine.filter((t) => t.role === 'line' && !t.research)).toHaveLength(1);
       expect(mine.filter((t) => t.role === 'sailors')).toHaveLength(1);
       expect(mine.length).toBe(6);
     }
+  });
+
+  /** And that one is the one the island actually garrisons with. */
+  it('garrisons with the day-one line company', () => {
+    expect(garrisonRoster({
+      name: 'Test', seed: 0, archetype: 'port-city', control: 'empire', garrison: 1, facilities: [],
+    })[0].id).toBe('crown-marines');
+    expect(garrisonRoster({
+      name: 'Test', seed: 0, archetype: 'port-city', control: 'alliance', garrison: 1, facilities: [],
+    })[0].id).toBe('island-militia');
   });
 
   it('keeps the bible\'s claims about who is best at what true', () => {

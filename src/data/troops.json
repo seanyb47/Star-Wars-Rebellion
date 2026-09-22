@@ -6,7 +6,7 @@
       "id": "crown-marines",
       "faction": "empire",
       "name": "Crown Marines",
-      "role": "elite",
+      "role": "line",
       "people": "Human",
       "unlock": "start",
       "bombardDefense": 2,
