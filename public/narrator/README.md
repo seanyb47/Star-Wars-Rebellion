@@ -18,4 +18,19 @@ what is still owed.
   and is never renumbered; `rendered` is flipped by `scripts/render_voicelines.py`
   and by nothing else.
 
+  `question` is what makes the line play. Six of them are the advisor's own
+  sheet — the questions you can ask her — and thirteen exist in total because
+  the seven kinds of news in the log are cues too, written `news_war`,
+  `news_flip`, `news_mutiny`, `news_battle`, `news_mission`, `news_order`,
+  `news_loss`. Sean, 22 September: *"Can you add sound effects for each
+  notification? And voice also."* The prefix is not decoration: `war` is both
+  a question she answers and a kind of news, and without it she would answer
+  "how is the war going" every time a war ended.
+
+  **Nothing is rendered yet.** The world bible's `narrator-voices` block has
+  no voice ids in it, so `npm run voices` writes nothing and says so, and the
+  game is silent on the Narrator column by design rather than by accident.
+  Fill the block in, set `ELEVENLABS_API_KEY`, run it, and forty-two lines
+  land in `audio/` and start playing with no other change.
+
 Run `npm run narrator:check` to see what is missing or misnamed.

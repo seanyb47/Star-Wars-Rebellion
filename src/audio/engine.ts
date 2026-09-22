@@ -361,6 +361,14 @@ export class AudioEngine {
         this.ping(now, 659, 0.3, 0.09);
         this.ping(now + 0.11, 659, 0.22, 0.09);
         break;
+      case 'battle':
+        // Guns. Two broadsides a beat apart, each a noise burst under a low
+        // tone, and the second a shade lower — the answer from the other
+        // deck. It was the one kind with no sound at all: the loudest thing
+        // in the game and the game said nothing.
+        this.gun(now, 0.9);
+        this.gun(now + 0.26, 0.7, 0.86);
+        break;
       case 'loss':
         this.thud(now, 96, 0.5);
         break;
@@ -392,6 +400,40 @@ export class AudioEngine {
     gain.connect(this.reverb!);
     osc.start(at);
     osc.stop(at + length + 0.05);
+  }
+
+  /**
+   * A gun going off: a crack of filtered noise over a falling tone.
+   *
+   * Noise alone reads as static and a tone alone reads as a bell; a gun is
+   * both, and the noise has to be the louder half or it is a door closing.
+   */
+  private gun(at: number, level: number, pitch = 1): void {
+    const ctx = this.ctx!;
+    const length = 0.5;
+    const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * length), ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      // Decaying noise: the crack is the first few milliseconds and the rest
+      // is the roll of it coming back off the water.
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2.2);
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const band = ctx.createBiquadFilter();
+    band.type = 'lowpass';
+    band.frequency.setValueAtTime(2400 * pitch, at);
+    band.frequency.exponentialRampToValueAtTime(320 * pitch, at + length);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(level * 0.3, at);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + length);
+    noise.connect(band);
+    band.connect(gain);
+    gain.connect(this.master!);
+    gain.connect(this.reverb!);
+    noise.start(at);
+    noise.stop(at + length);
+    this.thud(at, 110 * pitch, level * 0.8);
   }
 
   private thud(at: number, freq: number, level: number): void {

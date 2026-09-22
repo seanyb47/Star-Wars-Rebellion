@@ -59,18 +59,22 @@ export interface Prefs {
    */
   popupOff: EventKind[];
   /**
-   * And the other way round for sound, which nothing plays yet.
+   * Kinds that are NOT to make a sound, stored the same way and for the same
+   * reason.
    *
-   * Sean: *"there should be ones that just make sounds. And we can add sound
-   * files later. You can just gray that one out for now, just leave a spot for
-   * it."* So the column is in the panel and disabled, and this is where its
-   * answers will go when there is something to play. Opt-in, because a game
-   * that starts making noises at somebody who never asked is worse than one
-   * that stays quiet.
+   * It was `soundOn` — opt-in, on the grounds that a game which starts making
+   * noises at somebody who never asked is worse than one that stays quiet.
+   * That was right while the column was greyed out and nothing read it, and
+   * wrong the moment it went live: the engine has sounded every kind since
+   * the day it was written, so an opt-in list would have taken the sound away
+   * from everybody who has it now and called that a feature. Whether the game
+   * makes any noise at all is the speaker button in the top bar, which is off
+   * until somebody presses it; this column is which of the seven kinds that
+   * noise is for, and the honest default is all of them.
    */
-  soundOn: EventKind[];
+  soundOff: EventKind[];
   /**
-   * And a third column: which kinds the advisor says out loud.
+   * And the third column: kinds the advisor is NOT to say out loud.
    *
    * Sean, 22 September: *"for notifications, we can also add 'Narrator'. we
    * will record each narrator saying various expressions like 'Informants have
@@ -80,18 +84,19 @@ export interface Prefs {
    * happened. **Narrator** is Marlow or Pennywhistle telling you what it was,
    * in their own voice, from a line recorded for that kind of news.
    *
-   * Same shape as `soundOn` and for the same reason: opt-in, and nothing reads
-   * it until there are recordings to play. The clips do not exist yet.
+   * Exceptions again, and on by default because he asked for it. It costs
+   * nothing to be wrong about that yet — a kind with no recording is silent,
+   * and `speak` never waits on a file that is not there.
    */
-  narratorOn: EventKind[];
+  narratorOff: EventKind[];
 }
 
 const DEFAULTS: Prefs = {
   group: true,
   layerOrder: [],
   popupOff: [],
-  soundOn: [],
-  narratorOn: [],
+  soundOff: [],
+  narratorOff: [],
 };
 
 /**
@@ -106,14 +111,14 @@ export function popsUp(prefs: Prefs, event: Pick<GameEvent, 'kind'>): boolean {
   return !prefs.popupOff.includes(event.kind);
 }
 
-/** The same question for sound. Nothing reads it yet; see `soundOn`. */
+/** The same question for the stinger the audio engine plays. */
 export function makesSound(prefs: Prefs, event: Pick<GameEvent, 'kind'>): boolean {
-  return prefs.soundOn.includes(event.kind);
+  return !prefs.soundOff.includes(event.kind);
 }
 
-/** And for the advisor's voice. Nothing reads it yet; see `narratorOn`. */
+/** And for the advisor saying it out loud. */
 export function isSpoken(prefs: Prefs, event: Pick<GameEvent, 'kind'>): boolean {
-  return prefs.narratorOn.includes(event.kind);
+  return !prefs.narratorOff.includes(event.kind);
 }
 
 /** Flip one kind in one of the two lists, for the checkboxes in the log. */

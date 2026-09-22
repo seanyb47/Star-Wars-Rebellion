@@ -38,7 +38,20 @@ AUDIO_DIR = os.path.join(ROOT, "public", "narrator", "audio")
 
 CHARACTERS = ("marlow", "pennywhistle")
 MOODS = ("neutral", "grave", "encouraged")
-QUESTIONS = ("tutorial", "build", "free", "trouble", "defect", "war")
+# What makes a line play. The first six are the advisor's own sheet — the
+# questions you can ask her. The seven after are the `EventKind`s the log
+# sorts by: Sean, 22 September, *"for notifications, we can also add
+# 'Narrator'"*, and then *"And voice also"*, so the advisor now speaks the
+# news as well as answering questions. One vocabulary for both, because a
+# line is a line and the manifest should not need two shapes to hold them.
+# `news_*` are prefixed on purpose: `war` is both a question she answers and
+# a kind of news the log sorts by, and an unprefixed list would have had her
+# answering "how is the war going" every time a war ended.
+QUESTIONS = (
+    "tutorial", "build", "free", "trouble", "defect", "war",
+    "news_war", "news_flip", "news_mutiny", "news_battle",
+    "news_mission", "news_order", "news_loss",
+)
 REQUIRED = ("voice_id", "model_id", "stability", "similarity_boost", "style")
 
 

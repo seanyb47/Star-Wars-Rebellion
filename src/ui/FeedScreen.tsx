@@ -46,11 +46,20 @@ const KIND_ORDER: EventKind[] = ['war', 'flip', 'mutiny', 'battle', 'mission', '
  * **Sound** is a noise that says a thing of this kind happened, **Narrator** is
  * Marlow or Pennywhistle telling you what it was.
  *
- * **Both of them are disabled and stay that way for now.** *"We can add sound
- * files later. You can just gray that one out for now, just leave a spot for it
- * and we'll develop that later."* — and the advisor's lines are not recorded
- * yet either. The columns are real, the preferences are real and saved, and
- * nothing reads either of them.
+ * **All three are live**, since Sean asked for the other two on 22 September:
+ * *"Can you add sound effects for each notification? And voice also."* The
+ * stingers were already written — the audio engine has sounded every kind
+ * since it was built, and the guns for an action at sea were added with this —
+ * so Sound is a switch on something that already happens. Narrator plays the
+ * advisor's own recording of that kind of news, and is silent for a kind that
+ * has none, which is every kind until the voice settings in the world bible
+ * are filled in and `npm run voices` is run.
+ *
+ * All three default to on, stored as the exceptions. That is not a shrug: the
+ * engine has always sounded everything, so an opt-in column would have taken
+ * the sound away from everybody who has it and called it a feature. Whether
+ * the game makes any noise at all is still the speaker in the top bar, which
+ * is off until pressed.
  */
 function Notifications() {
   const [prefs, setPrefs] = usePrefs();
@@ -63,37 +72,38 @@ function Notifications() {
         <span className="notify__col">Narrator</span>
       </div>
       {KIND_ORDER.map((kind) => {
-        const pops = !prefs.popupOff.includes(kind);
+        const what = KIND_LABEL[kind].toLowerCase();
+        /* Three columns, three lists, one shape: each holds the kinds that are
+           switched *off*, so a box is ticked unless its kind is named. */
+        const cols = [
+          { on: !prefs.popupOff.includes(kind), what: 'Pop-up', key: 'popupOff' as const },
+          { on: !prefs.soundOff.includes(kind), what: 'Sound', key: 'soundOff' as const },
+          { on: !prefs.narratorOff.includes(kind), what: 'Narrator', key: 'narratorOff' as const },
+        ];
         return (
           <div key={kind} className="notify__row">
             <span className="notify__what">
               <span className={`event__kind event__kind--${kind}`} aria-hidden="true" />
               {KIND_LABEL[kind]}
             </span>
-            <button
-              className={`notify__box${pops ? ' notify__box--on' : ''}`}
-              aria-pressed={pops}
-              aria-label={`Pop-up for ${KIND_LABEL[kind].toLowerCase()}`}
-              onClick={() => setPrefs({ popupOff: withKind(prefs.popupOff, kind, !pops) })}
-            >
-              {pops ? '☑' : '☐'}
-            </button>
-            <button className="notify__box" disabled aria-label="Sound, not yet built">
-              ☐
-            </button>
-            <button
-              className="notify__box"
-              disabled
-              aria-label="Narrator, not yet recorded"
-            >
-              ☐
-            </button>
+            {cols.map((col) => (
+              <button
+                key={col.key}
+                className={`notify__box${col.on ? ' notify__box--on' : ''}`}
+                aria-pressed={col.on}
+                aria-label={`${col.what} for ${what}`}
+                onClick={() => setPrefs({ [col.key]: withKind(prefs[col.key], kind, !col.on) })}
+              >
+                {col.on ? '☑' : '☐'}
+              </button>
+            ))}
           </div>
         );
       })}
       <p className="tiny muted notify__foot">
-        Everything reaches the log whichever of these is set. Sounds are not built
-        yet, and the advisor's lines are not recorded yet.
+        Everything reaches the log whichever of these is set, and none of them
+        make a sound until the speaker in the top bar is on. The advisor speaks
+        only the news there is a recording for.
       </p>
     </div>
   );

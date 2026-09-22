@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AudioEngine } from '../audio/engine';
+import { narratorIdFor } from './narrator/assets';
+import { hushVoice, speak } from './narrator/voice';
+import { isSpoken, makesSound, usePrefs } from './prefs';
 import type { GameState } from '../sim';
 
 const SOUND_KEY = 'seven-seas.sound.v1';
@@ -27,6 +30,8 @@ function readPreference(): boolean {
  */
 export function useAudio(state: GameState) {
   const [on, setOn] = useState(readPreference);
+  // Which kinds of news may make a noise, and which the advisor may speak.
+  const [prefs] = usePrefs();
   const engine = useRef<AudioEngine | null>(null);
   const lastEventId = useRef<string | null>(null);
 
@@ -125,11 +130,31 @@ export function useAudio(state: GameState) {
     const fresh = seen === -1 ? [newest] : events.slice(seen + 1);
     lastEventId.current = newest.id;
 
-    // One sound per kind per tick: a busy day should not become a clatter.
-    for (const kind of new Set(fresh.map((e) => e.kind))) {
-      engine.current?.play(kind);
+    /*
+     * One sound per kind per tick: a busy day should not become a clatter.
+     * Which kinds are allowed to make one is the Sound column in the log's
+     * notification panel — the speaker in the top bar says whether the game
+     * makes any noise at all, and this says what the noise is for.
+     */
+    const kinds = [...new Set(fresh.map((e) => e.kind))];
+    for (const kind of kinds) {
+      if (makesSound(prefs, { kind })) engine.current?.play(kind);
     }
-  }, [on, state.events]);
+    /*
+     * And the advisor says one of them out loud — the first, not all of them.
+     * Two recordings over each other is somebody talking in a pub, and
+     * `speak` refuses the second anyway; asking once keeps the reason here
+     * rather than only in there.
+     */
+    const toSay = kinds.find((kind) => isSpoken(prefs, { kind }));
+    if (toSay) speak(narratorIdFor(state.player), toSay);
+  }, [on, state.events, state.player, prefs]);
+
+  // Switching sound off mid-sentence stops the sentence. The engine suspends
+  // its own graph; a recording is an `<audio>` element and is nobody else's.
+  useEffect(() => {
+    if (!on) hushVoice();
+  }, [on]);
 
   return { on, toggle };
 }
