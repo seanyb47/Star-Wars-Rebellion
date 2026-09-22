@@ -9728,3 +9728,43 @@ will mark all of those as read."* The watermark advanced while the log was open
 and on every event after, so a line posting while you read it was marked read in
 the same frame it appeared — dimmed before you saw it. It holds still now for as
 long as you are in there, and everything goes read on the way out.
+
+### A condition ladder, and a hull that has no condition yet
+
+Sean, 22 September, on the under-construction row: *"That's perfect... you can
+even make the logo a little bigger."* And then three colour rulings that are one
+idea.
+
+**Sound goes green.** *"Where it says like sound, turn that one green, like
+good."* It was muted grey, the same colour as the word "condition" beside the
+figures — so the one state you never need to act on looked like a label rather
+than an answer.
+
+**Damage becomes a ladder.** *"Obviously like the different categories of
+damage, move them into like yellow, orange, red."* The figure carried
+`--bad` for every state short of sound, so a hull at 95% and one at 5% read
+identically at the only distance this row is ever read from. Thirds, because
+three colours want three bands and there is no finer reading the eye takes off a
+list this size; the exact number is still printed for anyone who wants it.
+
+**And a hull under construction stays off that ladder**, which Sean worked out
+mid-sentence: *"maybe yellow... and then the under construction, maybe not
+yellow, cause yellow is an indication of something being slightly damaged...
+maybe it's just white or something."* He is right, and the reason is worth
+writing down: she has **no condition to grade**. Every rung on the ladder is an
+amount of damage, and a hull on the stocks has not been hit — she has not been
+launched. White is the one colour in the row that cannot be mistaken for a rung,
+which makes it the correct answer rather than a spare one.
+
+```
+Sound              --good        mint green
+> 2/3 left         --hurt-light  yellow
+> 1/3 left         --hurt-mid    orange
+otherwise          --bad         red
+under construction --building    white
+```
+
+The watermark glyph goes 34px to 46px on a 112px painting, at his word. Checked
+as a swatch painted into the live page, so the real tokens on the real
+background are what got judged rather than a guess at them: all five are legible
+and none reads as any other.

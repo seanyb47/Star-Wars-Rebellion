@@ -25,6 +25,20 @@
   --unknown-name: #cdd8dd;
   --good: #4ec98a;
   --bad: #e2504a;
+  /* How badly a hull is hurt, as a ladder rather than one word for "not
+     sound". Sean, 22 September: *"the different categories of damage, move
+     them into like yellow, orange, red."* Sound is `--good`, and these are the
+     three below it. Kept off `--brass` so a damaged hull never reads as a
+     figure of gold, and off `--alliance` so a hurt Crown ship is not briefly
+     a Confederate one. */
+  --hurt-light: #e8c24a;
+  --hurt-mid: #e8913f;
+  /* A hull that is not a hull yet. Deliberately NOT yellow: *"maybe not
+     yellow, cause yellow is an indication of something being slightly
+     damaged... maybe it's just white."* White is the one colour on this ladder
+     that cannot be mistaken for a condition, which is the point — she has no
+     condition yet. */
+  --building: #ffffff;
   /* Minimum comfortable touch target (iOS HIG 44pt, Android 48dp). */
   --tap: 44px;
   /* The status bar's strip, and the home indicator's. A phone's own chrome
@@ -1547,7 +1561,17 @@ button {
 .shiprow__stats {
   font-size: 12px; font-variant-numeric: tabular-nums; color: var(--muted);
 }
+/* Sound, and then the three rungs below it. Sean, 22 September: *"where it
+   says like sound, turn that one green, like good... and then obviously the
+   different categories of damage, move them into like yellow, orange, red."*
+   The figure carried one colour for every state short of sound, so a hull at
+   95% and one at 5% read the same at a glance — which is the only reading this
+   row is for. */
+.shiprow__sound { color: var(--good); }
 .shiprow__hurt { color: var(--bad); }
+.shiprow__hurt--light { color: var(--hurt-light); }
+.shiprow__hurt--mid { color: var(--hurt-mid); }
+.shiprow__hurt--bad { color: var(--bad); }
 .shiprow__chev { flex: none; color: var(--muted); font-size: 17px; line-height: 1; }
 .shiprow__order { flex: none; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
 /* One line for the squadron, under its hulls: what belongs to the fleet
@@ -3148,7 +3172,13 @@ button.tcard:hover { border-color: var(--brass); }
   pointer-events: none;
 }
 .shiprow--stocks .shiprow__name { color: var(--muted); }
-.shiprow--stocks .shiprow__stats b { color: var(--text); font-variant-numeric: tabular-nums; }
+/* White, and off the damage ladder on purpose — she has no condition yet, so
+   the one colour that cannot be mistaken for one is the right colour. Sean:
+   *"maybe not yellow, cause yellow is an indication of something being
+   slightly damaged... maybe it's just white or something."* */
+.shiprow--stocks .shiprow__stats { color: var(--building); }
+.shiprow--stocks .shiprow__stats b { color: var(--building); font-variant-numeric: tabular-nums; }
+.shiprow--stocks .shiprow__stats .muted { color: var(--muted); }
 
 /* Whose squadron, and whether she is in the water.
 

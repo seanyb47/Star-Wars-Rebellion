@@ -149,6 +149,13 @@ const FLEET = import.meta.glob('../FleetPanel.tsx', {
   eager: true,
 }) as Record<string, string>;
 
+/** The stylesheet, for the rules the rows above only name. */
+const UI = import.meta.glob('../styles.css', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
 describe('a hull goes straight to its entry', () => {
   const src = FLEET['../FleetPanel.tsx'];
 
@@ -168,8 +175,41 @@ describe('a hull goes straight to its entry', () => {
   it('says Sound when whole and gives the figures when hurt', () => {
     const stats = src.slice(src.indexOf('<span className="shiprow__stats">'));
     expect(stats).toContain('{hurt > 0 ? (');
-    expect(stats).toContain('<span className="muted">Sound</span>');
+    // Sound is its own colour since 22 September rather than muted grey —
+    // *"where it says like sound, turn that one green, like good."*
+    expect(stats).toContain('<span className="shiprow__sound">Sound</span>');
     expect(stats).toContain('{whole - hurt}/{whole}');
+  });
+
+  /**
+   * And how badly, in three rungs.
+   *
+   * Sean: *"obviously like the different categories of damage, move them into
+   * like yellow, orange, red."* The figure carried one colour for everything
+   * short of sound, so a hull at 95% and one at 5% read identically at the
+   * only distance this row is read from.
+   */
+  it('grades the damage rather than flagging it', () => {
+    expect(src).toContain('shiprow__hurt--${hurtBand(whole - hurt, whole)}');
+    const band = src.slice(src.indexOf('function hurtBand'), src.indexOf('function ShipRow'));
+    expect(band).toContain("if (share > 2 / 3) return 'light';");
+    expect(band).toContain("if (share > 1 / 3) return 'mid';");
+    expect(band).toContain("return 'bad';");
+  });
+
+  /**
+   * A hull under construction is deliberately NOT on that ladder. Sean talked
+   * himself out of yellow in the same breath he suggested it: *"maybe not
+   * yellow, cause yellow is an indication of something being slightly
+   * damaged... maybe it's just white."* She has no condition to grade.
+   */
+  it('keeps a hull under construction off the damage ladder', () => {
+    const css = UI['../styles.css'];
+    expect(css).toContain('.shiprow--stocks .shiprow__stats { color: var(--building); }');
+    expect(css).toContain('--building: #ffffff;');
+    // And white is not one of the damage colours, so the two can never be
+    // confused for one another.
+    expect(css).not.toContain('--hurt-light: #ffffff');
   });
 });
 

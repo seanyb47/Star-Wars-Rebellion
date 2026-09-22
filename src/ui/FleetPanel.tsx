@@ -45,6 +45,26 @@ import { ControlBadge, GroupHulls } from './components';
  * many guns — and nothing you would only read once. The blurb and the pace are
  * behind the row.
  */
+/**
+ * How badly she is hurt, as a rung rather than a number.
+ *
+ * Sean, 22 September: *"obviously like the different categories of damage,
+ * move them into like yellow, orange, red."* The figure was one colour for
+ * every state short of sound, which told you that something was wrong and
+ * never how wrong — a hull at 95% and one at 5% read identically at a glance,
+ * and a glance is what this row is for.
+ *
+ * Thirds, because three colours want three bands and there is no finer reading
+ * the eye takes off a list this size. The number is still there for anyone who
+ * wants the exact answer.
+ */
+function hurtBand(left: number, whole: number): 'light' | 'mid' | 'bad' {
+  const share = whole > 0 ? left / whole : 1;
+  if (share > 2 / 3) return 'light';
+  if (share > 1 / 3) return 'mid';
+  return 'bad';
+}
+
 function ShipRow({
   ships,
   faction,
@@ -167,13 +187,13 @@ function ShipRow({
           <span className="shiprow__stats">
             {hurt > 0 ? (
               <>
-                <span className="shiprow__hurt">
+                <span className={`shiprow__hurt shiprow__hurt--${hurtBand(whole - hurt, whole)}`}>
                   {whole - hurt}/{whole}
                 </span>
                 <span className="muted"> condition</span>
               </>
             ) : (
-              <span className="muted">Sound</span>
+              <span className="shiprow__sound">Sound</span>
             )}
           </span>
         </span>
@@ -646,7 +666,7 @@ function StocksRow({ hull, here }: { hull: HullOnTheStocks; here: string }) {
         <span className="stocks__art">
           <ShipThumb faction={hull.owner} role={cls.role} cls={cls.id} size={112} />
           <span className="stocks__mark" aria-hidden="true">
-            <FacilityIcon type="shipyard" size={34} />
+            <FacilityIcon type="shipyard" size={46} />
           </span>
         </span>
         <span className="shiprow__text">
