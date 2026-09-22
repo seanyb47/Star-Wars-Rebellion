@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import terms from '../data/terms.json';
 import {
+  hullsBuildingFor,
+  inProse,
+  type HullOnTheStocks,
   beastAt,
   fleetCapacity,
   fleetDamaged,
@@ -583,6 +586,53 @@ export function FleetCard({
 }
 
 /** Every fleet at an island, yours and theirs, with its fixed defences. */
+/**
+ * A hull on the stocks, in the harbor she will come to.
+ *
+ * Sean, 22 September: *"ships under construction need to appear like any other
+ * ship but need a UI on them that indicates under construction. Maybe a
+ * watermark with a construction logo on it. So I should be able to see them."*
+ *
+ * So it is the same row a finished hull gets — same painting, same size, same
+ * place in the list — with two differences and no third. The painting is
+ * dimmed and carries a shipwright's mark over it, which is the watermark; and
+ * where a hull in the water reports her condition, this one reports when she
+ * will be in it. Nothing else changes, because the whole point is that she
+ * reads as one of your ships rather than as a line item on a building.
+ *
+ * She is not tappable through to the encyclopedia the way a finished hull is —
+ * she is, deliberately, since a player looking at a class they have not seen
+ * fight yet is exactly who wants the entry.
+ */
+function StocksRow({ hull, here }: { hull: HullOnTheStocks; here: string }) {
+  const lookUp = useLookUp();
+  const cls = shipClass(hull.classId);
+  const shipped = hull.madeOn.id !== here;
+  return (
+    <div className="shiprow shiprow--stocks">
+      <button
+        className="shiprow__tap"
+        onClick={() => lookUp?.('ships', encyclopediaShip(cls.id))}
+        aria-label={`What is a ${cls.name}?`}
+      >
+        <span className="stocks__art">
+          <ShipThumb faction={hull.owner} role={cls.role} cls={cls.id} size={112} />
+          <span className="stocks__mark" aria-hidden="true">
+            <FacilityIcon type="shipyard" size={34} />
+          </span>
+        </span>
+        <span className="shiprow__text">
+          <span className="shiprow__name">{cls.name}</span>
+          <span className="shiprow__stats">
+            On the stocks · <b>{hull.days}d</b>
+            {shipped && <span className="muted"> · from {inProse(hull.madeOn.name)}</span>}
+          </span>
+        </span>
+      </button>
+    </div>
+  );
+}
+
 export function ShipsHere({
   state,
   systemId,
@@ -610,6 +660,10 @@ export function ShipsHere({
   const inbound = state.fleets.filter(
     (f) => f.faction === state.player && f.voyage?.targetSystemId === systemId,
   );
+  // Yours only, and only where you can see: a hull on somebody else's stocks
+  // is exactly the thing espionage is for, and the harbor is not going to
+  // hand it over.
+  const stocks = hullsBuildingFor(state, systemId, state.player);
   // The fixed defences sit in the harbor with the hulls rather than under
   // Buildings with the mills, because this is where they matter: no landing
   // goes in past a wall that stands, and a bombardment is answered by it.
@@ -674,7 +728,7 @@ export function ShipsHere({
     </div>
   );
 
-  if (here.length === 0 && inbound.length === 0) {
+  if (here.length === 0 && inbound.length === 0 && stocks.length === 0) {
     return (
       <div className="stack">
         {monster}
@@ -713,6 +767,14 @@ export function ShipsHere({
           canOrder={fleet.faction === state.player}
         />
       ))}
+      {stocks.length > 0 && (
+        <>
+          <div className="section-title">On the stocks</div>
+          {stocks.map((hull) => (
+            <StocksRow key={hull.facilityId} hull={hull} here={systemId} />
+          ))}
+        </>
+      )}
       {inbound.length > 0 && (
         <>
           <div className="section-title">Under way to here</div>

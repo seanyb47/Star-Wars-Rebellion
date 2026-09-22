@@ -9599,3 +9599,55 @@ A 100-day browser run left three report cards apparently overlapping the log.
 `report-in` fades a new card in from `translateY(-8px)` over 220ms and `.reports`
 is a flex column with a 6px gap, so a single screenshot catches one mid-flight.
 Nothing to fix.
+
+### A hull on the stocks shows up in the harbor she is coming to
+
+Sean: *"Ships under construction need to appear like any other ship but need a
+UI on them that indicates under construction. Maybe a watermark with a
+construction logo on it. So I should be able to see them."*
+
+They were only ever visible as a line on the shipyard building them, which
+means the Harbor tab — the screen that answers *what have I got here* — showed
+everything except what was about to arrive in it.
+
+`hullsBuildingFor` answers the question the harbor actually asks, and the
+wording matters: **not "what is being built here" but "what will come here"**.
+A hull laid down at Minterne for a squadron at Highwater belongs in Highwater's
+harbor with her crossing counted, not in Minterne's — so the order's
+`destinationId` decides, falling back to the island the yard stands on.
+`daysToDeliver` already folds the work and the passage together, so there is no
+new arithmetic in it.
+
+The row is the ordinary `.shiprow`: same painting, same 112px, same place in
+the list. Two things change and no third — the painting is held to 62% and
+drained to a third of its saturation, and carries the slipway glyph from the
+Buildings tab stamped across it in brass; and where a hull in the water reports
+her condition, this one reports when she will be in it (`On the stocks · 98d ·
+from Minterne`). The mark is the one the game already uses for a hull on the
+stocks, so there is nothing new to learn.
+
+Seen side by side in Chromium it reads immediately: a vivid Wayfinder at anchor
+with a drained one below her carrying the mark. She still taps through to her
+encyclopedia entry, deliberately — a player looking at a class they have not
+seen fight yet is exactly who wants it.
+
+Yours only. A hull on somebody else's stocks is what espionage is for.
+
+### Crown recruiters: three become two
+
+Sean: *"let's take the recruiters down from 3 to 2 on imperium side. Keep it at
+3 for confederacy."*
+
+Worth measuring before touching, because the roster and the game disagree. The
+roster carries 3 Crown recruiters and **5** Confederate; what reaches a war is
+the `openingCast` draw, and over sixty seeds that came out **Crown 2.30 (2 to
+3), Confederacy 3.15 (2 to 4)**. So his two numbers are the Crown's roster and
+the Confederacy's typical war.
+
+The Crown's floor is 2 because both of its always-drawn principals — the Regent
+and Blackwater — carry the role, and the third is Envoy Adelia Marchmont, who
+is drawn or not. Taking Recruiter off her makes it **exactly 2 in every war**,
+which is what he asked for and steadier than what he asked for. The Confederacy
+is untouched at 3.15, already the 3 he wanted kept.
+
+Marchmont keeps Negotiator, which is the half of her the bible leads with.

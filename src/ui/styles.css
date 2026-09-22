@@ -3122,3 +3122,30 @@ button.tcard:hover { border-color: var(--brass); }
   min-height: 30px; width: 34px; padding: 0;
   font-size: 17px; line-height: 1;
 }
+
+/* A hull on the stocks, in the harbor she will come to.
+
+   Sean, 22 September: *"ships under construction need to appear like any other
+   ship but need a UI on them that indicates under construction. Maybe a
+   watermark with a construction logo on it."*
+
+   So the row is the ordinary `.shiprow` and only the painting is treated: held
+   back to two thirds, drained of most of its colour, and stamped with the
+   shipwright's mark the Buildings tab uses for a slipway. Same glyph, same
+   idea — a hull on the stocks — so there is nothing new for a player to learn,
+   and the row still reads as one of their ships at a glance rather than as a
+   line item about a building. */
+.shiprow--stocks .shiprow__tap { cursor: pointer; }
+.stocks__art { position: relative; display: inline-flex; flex: none; }
+.stocks__art > * { opacity: 0.62; filter: saturate(0.35); }
+/* The mark itself sits over the middle of the painting and is not dimmed with
+   it — a watermark you have to hunt for is not a watermark. */
+.stocks__mark {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--brass); opacity: 0.92;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.75));
+  pointer-events: none;
+}
+.shiprow--stocks .shiprow__name { color: var(--muted); }
+.shiprow--stocks .shiprow__stats b { color: var(--text); font-variant-numeric: tabular-nums; }

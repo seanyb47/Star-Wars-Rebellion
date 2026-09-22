@@ -41,6 +41,7 @@ import type {
   GameState,
   PlayableFaction,
   ResourceType,
+  ShipClassId,
   ShipGrade,
   System,
 } from './types';
@@ -104,6 +105,60 @@ export function daysToFinish(system: System, facility: Facility): number {
   if (!order) return 0;
   if (order.workLeft <= 0) return 0;
   return Math.ceil(order.workLeft / crewOn(system, facility.type, facility.owner));
+}
+
+/**
+ * Hulls on the stocks that will come to anchor in this harbor.
+ *
+ * Sean, 22 September: *"ships under construction need to appear like any other
+ * ship... so I should be able to see them."* They were only ever visible as a
+ * line on the shipyard that happened to be building them, which means a player
+ * looking at a harbor — the screen that answers *what have I got here* — was
+ * shown everything except what was about to arrive in it.
+ *
+ * "Will come here" is the question, not "is being built here", and the two are
+ * different: a hull laid down at Kingsward for a squadron at Highwater belongs
+ * in Highwater's harbor with its passage counted, and not in Kingsward's. So
+ * the destination decides, falling back to the island the yard stands on.
+ *
+ * `daysToDeliver` already answers the rest — work left over how many yards are
+ * on it, plus the crossing — so this is a search rather than any new
+ * arithmetic.
+ */
+export interface HullOnTheStocks {
+  /** The works carrying the order. Stable, and unique per hull in flight. */
+  facilityId: string;
+  classId: ShipClassId;
+  /** Days until she is lying in this harbor: the work and then the passage. */
+  days: number;
+  /** Where she is being built, for a hull coming from somewhere else. */
+  madeOn: System;
+  owner: PlayableFaction;
+}
+
+export function hullsBuildingFor(
+  state: GameState,
+  systemId: string,
+  faction: PlayableFaction,
+): HullOnTheStocks[] {
+  const out: HullOnTheStocks[] = [];
+  for (const system of state.systems) {
+    for (const facility of system.facilities) {
+      const order = facility.building;
+      if (!order || facility.owner !== faction) continue;
+      if (!isShipClass(order.item)) continue;
+      if ((order.destinationId ?? system.id) !== systemId) continue;
+      out.push({
+        facilityId: facility.id,
+        classId: order.item,
+        days: daysToDeliver(system, facility),
+        madeOn: system,
+        owner: faction,
+      });
+    }
+  }
+  // Soonest first: the one you are waiting on is the one at the top.
+  return out.sort((a, b) => a.days - b.days);
 }
 
 export function daysToDeliver(system: System, facility: Facility): number {
