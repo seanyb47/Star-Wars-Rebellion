@@ -8975,3 +8975,57 @@ the test doing exactly its job on the person who wrote it.
 Note the rule it does **not** enforce: lines may open on *No*. "No landing can
 be made." is as plain as anything in Rebellion. The fault is the delayed
 subject, not the negative.
+
+### Fleets in the Where picker, and gold in one place (22 September)
+
+**Two asks on the build screen.**
+
+*"On the drop down for where to build, let's also include the fleets. So
+default location is where the facility is located. But then fleets go
+underneath that. Then islands."*
+
+The default needed no work — a yard's own Build button already sets its island
+— so this is the middle group. What is worth recording is that it cost the sim
+nothing at all. A fleet option carries **its island** as its value, and
+`addShip` has always joined whatever squadron of yours lies at the island a
+hull is delivered to:
+
+```ts
+// Join whatever fleet of ours lies here, so a player does not end up with
+// nine fleets of one.
+const existing = fleetsAt(state, system.id).find((f) => f.faction === faction);
+```
+
+So the order is still an order to an island. The player names it by the fleet
+lying there, which is the thing they actually have in mind, and the join
+happens by a rule that was already written.
+
+Only squadrons **at anchor** are offered. A fleet at sea has no island to sail a
+hull to, and `isAtSea` is the same check the transfer sheet makes for the same
+reason. Hulls only, too: a building is raised on ground and troops go ashore.
+
+**The limit, stated rather than left to be discovered.** The island is resolved
+when the order is given. A squadron that sails before the hull is off the
+stocks will not be met at sea — the hull arrives where the fleet *was*, and
+joins whatever is lying there. Making a new hull chase a moving fleet is a real
+sim change (the order would have to carry a fleet id, and answer what happens
+when that fleet is sunk mid-build), and it is not what was asked for.
+
+**And the gold.** *"Cut the gold you have on hand at the bottom, but make the
+pop up go below the gold at the top, so I can see how much gold I have and my
+upkeep delta."*
+
+The bottom line was the same figure as the plaque, five hundred pixels further
+down and without the delta — the screen saying gold twice and saying less the
+second time. It is cut.
+
+The popup was the interesting half. It already had `z-index: 40` and already
+sat directly under the plaque; what it could not do was escape `.topbar`, which
+sets `z-index: 15` and therefore makes a stacking context. **A child cannot
+paint above its parent's layer**, so 40 measured inside 15 still loses to a
+sheet at 20 — the purse was opening behind the build screen every time.
+
+Raising the bar permanently is the fix that was tried on 20 September and broke
+the mission report, where chrome over the scrim swallowed the report's own
+buttons. So `.topbar--purse` lifts it to 26 **only while the purse is open**,
+which is a state the player enters and leaves with one tap.

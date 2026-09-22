@@ -205,6 +205,12 @@ button {
   background: var(--bg-raised);
   border-bottom: 1px solid var(--border);
 }
+/* Over the sheets, but only while the purse is showing. `.purse` carries its
+   own z-index and cannot use it: this element makes the stacking context, so
+   the child's 40 is measured inside the parent's 15 and a sheet at 20 wins.
+   Tied to the state rather than set always, because a permanently raised bar
+   is what put chrome over the mission report's own buttons on 20 September. */
+.topbar--purse { z-index: 26; } /* guarded by a test in yardbuild.test.ts */
 .topbar__row { display: flex; align-items: center; gap: 8px; }
 .topbar__day { font-weight: 700; font-size: 16px; letter-spacing: 0.02em; }
 .topbar__spacer { flex: 1; }

@@ -160,7 +160,23 @@ export function TopBar({
   const observing = Boolean(state.observing);
 
   return (
-    <header className="topbar">
+    /*
+     * The header lifts while the purse is open, and only then.
+     *
+     * Sean, 22 September: *"make the pop up go below the gold at the top, so I
+     * can see how much gold I have and my upkeep delta"* — from the build
+     * screen, where it was invisible. The purse already carried `z-index: 40`
+     * and already sat directly under the plaque; what it could not do was
+     * escape `.topbar`, which sets `z-index: 15` and so makes a stacking
+     * context. A child cannot paint above its parent's layer, so 40 inside 15
+     * still loses to a sheet at 20.
+     *
+     * Raising the whole bar permanently is the fix that was tried on 20
+     * September and broke the mission report — chrome over a scrim swallowed
+     * the report's own buttons. So the lift is tied to the purse being open,
+     * which is a state the player enters and leaves with a tap.
+     */
+    <header className={`topbar${purseOpen ? ' topbar--purse' : ''}`}>
       {/* The banner: the side's painting, crest, name and creed, and the day. */}
       <div className="banner" style={banner ? { backgroundImage: `url(${banner})` } : undefined}>
         <div className="banner__scrim" />

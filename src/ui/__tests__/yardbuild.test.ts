@@ -211,3 +211,59 @@ describe('ordering a hull from the island', () => {
     }
   });
 });
+
+/**
+ * Where a thing goes: the yard's island, then fleets, then islands.
+ *
+ * Sean, 22 September: *"on the drop down for where to build, let's also
+ * include the fleets. So default location is where the facility is located.
+ * But then fleets go underneath that. Then islands."*
+ *
+ * The default needed nothing — a yard's own Build button already sets its
+ * island — so what this adds is the middle group, and the interesting part is
+ * that it cost the sim nothing. A fleet option carries its own island as its
+ * value, and `addShip` has always joined whatever squadron of yours lies at
+ * the island a hull is delivered to. The order is still to an island; the
+ * player just names it by the fleet lying there.
+ *
+ * The limit that follows from that, and is worth stating rather than
+ * discovering: the island is resolved when the order is given. A squadron that
+ * sails before the hull is off the stocks will not be met at sea — the hull
+ * arrives where the fleet was. Making it chase would be a real sim change.
+ */
+describe('building to a fleet', () => {
+  const BUILDSHEET = UI['../BuildSheet.tsx'];
+
+  it('offers fleets between the default and the islands', () => {
+    const where = BUILDSHEET.slice(BUILDSHEET.indexOf('<span className="field__label">Where</span>'));
+    const fleets = where.indexOf('<optgroup label="Fleets">');
+    const reaches = where.indexOf('{byReach.map(');
+    expect(fleets).toBeGreaterThan(-1);
+    expect(reaches).toBeGreaterThan(-1);
+    expect(fleets).toBeLessThan(reaches);
+  });
+
+  it('carries the island as the value, so nothing downstream learns about fleets', () => {
+    expect(BUILDSHEET).toContain('<option key={fleet.id} value={at.id}>');
+  });
+
+  it('offers only squadrons at anchor, on an island still yours', () => {
+    expect(BUILDSHEET).toContain("f.faction === you && !isAtSea(f)");
+    expect(BUILDSHEET).toContain("row.at!.control === you && !row.at!.uprising");
+  });
+
+  /** A building is raised on ground and troops go ashore; only a hull joins. */
+  it('offers the group for hulls only', () => {
+    expect(BUILDSHEET).toContain("{kind === 'ships' && anchored.length > 0 && (");
+  });
+
+  /**
+   * And the gold moved rather than being duplicated: the figure at the bottom
+   * of this sheet is gone, and the plaque's breakdown can reach over the sheet
+   * now, which is where the delta lives.
+   */
+  it('shows gold once, at the top, with its delta', () => {
+    expect(BUILDSHEET).not.toContain('in hand.');
+    expect(UI['../TopBar.tsx']).toContain("`topbar${purseOpen ? ' topbar--purse' : ''}`");
+  });
+});

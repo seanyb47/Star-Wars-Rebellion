@@ -9,6 +9,7 @@ import {
   shipsAt,
   shipsFor,
   isShipClass,
+  isAtSea,
   requiredGarrison,
   freeSlots,
   reservedSlots,
@@ -150,8 +151,21 @@ export function BuildOrderSheet({
   const held = state.systems.filter((s) => s.control === you && !s.uprising);
   const destination = held.find((s) => s.id === draft.destinationId) ?? null;
   const plan = destination ? planBuild(state, you, item, destination.id) : null;
-  const gold = Math.floor(state.factions[you].gold);
   const from = plan?.fromSystemId ? state.systems.find((s) => s.id === plan.fromSystemId) : null;
+
+  /*
+   * Your squadrons at anchor, each with the island it is lying at.
+   *
+   * Sorted by name so the list does not reorder itself as fleets sail, which
+   * is the kind of movement a player reads as the control misbehaving.
+   */
+  const anchored = state.fleets
+    .filter((f) => f.faction === you && !isAtSea(f))
+    .map((fleet) => ({ fleet, at: state.systems.find((s) => s.id === fleet.systemId) }))
+    .filter((row): row is { fleet: (typeof state.fleets)[number]; at: System } =>
+      Boolean(row.at) && row.at!.control === you && !row.at!.uprising,
+    )
+    .sort((a, b) => a.fleet.name.localeCompare(b.fleet.name));
 
   // Islands grouped by Reach, in the Reach's own order, for the picker.
   const byReach = state.sectors
@@ -244,9 +258,37 @@ export function BuildOrderSheet({
         <select
           className="field__select"
           value={destination?.id ?? ''}
+          /* A fleet option carries its own island as its value, so nothing
+             downstream has to learn about fleets: the order is still to an
+             island, and `addShip` already joins whatever squadron of yours is
+             lying there when the hull comes off the stocks. */
           onChange={(e) => onChange({ ...draft, destinationId: e.target.value || null })}
         >
-          <option value="">Choose an island of yours…</option>
+          <option value="">Choose where it goes…</option>
+          {/*
+            Fleets above islands, at Sean's word of 22 September: *"let's also
+            include the fleets. So default location is where the facility is
+            located. But then fleets go underneath that. Then islands."*
+            The default is unchanged — a yard's own Build button already sets
+            its island — so this is the second group down, where he put it.
+
+            Only squadrons lying at anchor. A fleet at sea has no island to
+            sail a new hull to, and offering one would be offering an order the
+            game cannot take; `isAtSea` is the same check the transfer sheet
+            makes for the same reason.
+
+            Hulls only. A building is raised on ground and a fleet has none,
+            and troops go ashore rather than aboard.
+          */}
+          {kind === 'ships' && anchored.length > 0 && (
+            <optgroup label="Fleets">
+              {anchored.map(({ fleet, at }) => (
+                <option key={fleet.id} value={at.id}>
+                  {fleet.name} · at {at.name}
+                </option>
+              ))}
+            </optgroup>
+          )}
           {byReach.map(({ sector, islands }) => (
             <optgroup key={sector.id} label={sector.name}>
               {islands.map((s) => (
@@ -287,9 +329,13 @@ export function BuildOrderSheet({
           )}
         </div>
       )}
-      <p className="tiny muted" style={{ marginTop: 10 }}>
-        <GoldFig n={gold} per={null} /> in hand.
-      </p>
+      {/* The "N in hand" line that stood here is cut. Sean, 22 September:
+          *"cut the gold you have on hand at the bottom, but make the pop up go
+          below the gold at the top."* It was the same figure as the plaque at
+          the top of the screen, five hundred pixels further down and without
+          the delta beside it — so the screen said gold twice and said less the
+          second time. The plaque answers it, and now its breakdown opens over
+          this sheet instead of behind it. */}
     </Sheet>
   );
 }
