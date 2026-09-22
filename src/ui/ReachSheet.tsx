@@ -121,11 +121,16 @@ export function ReachSheet({
         choosing={choosing}
         layer={layer}
       />
-      <div className="chainmap__key">
-        <span><i className="key key--room" /> Room to build</span>
-        <span><i className="key key--lean" /> Loyalty</span>
-        <span><i className="key key--ships" /> Hulls at anchor</span>
-      </div>
+      {/* The key goes with what it is a key to: on None the chart draws
+          nothing but names, so three labels for three things that are not
+          there is the opposite of the clean look that was asked for. */}
+      {layer !== 'none' && (
+        <div className="chainmap__key">
+          <span><i className="key key--room" /> Room to build</span>
+          <span><i className="key key--lean" /> Loyalty</span>
+          <span><i className="key key--ships" /> Hulls at anchor</span>
+        </div>
+      )}
     </Sheet>
   );
 }

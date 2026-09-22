@@ -37,8 +37,31 @@ import chartData from '../data/chart.json';
 const FIELD_W = 1000;
 const FIELD_H = 1400;
 const FIELD_PAD = 150;
-/** Centre-to-centre room each island needs for its marks, name and bars. */
-const MIN_SEPARATION = 262;
+/**
+ * How much room one island's label needs, and it is not a circle.
+ *
+ * It used to be: a single 262-unit radius, which is what the widest name
+ * ("Chandler's Rest") measures across. But a label is wide and short — the
+ * name plus two 110-wide bars under it — so two islands stacked one above the
+ * other were being shoved 262 apart to solve a collision that 80 would have
+ * solved, and ended up a long way from their own coasts.
+ *
+ * Sean, 22 September: *"at least very close to the island. Right now many are
+ * way off the location."* So the room is an ellipse the shape of the label:
+ * wide across, shallow down. Vertical neighbours barely move now.
+ */
+const SEPARATION_X = 250;
+const SEPARATION_Y = 86;
+/**
+ * And a leash: however crowded the chain, no mark strays further than this
+ * from where the painting put its island.
+ *
+ * The spread is a best effort, not a promise — past this the mark stops
+ * reading as a label for that island and starts reading as a label for the
+ * water. Two names touching is a smaller fault than a name on the wrong
+ * island, so at the leash the overlap is simply allowed.
+ */
+const MAX_DRIFT = 95;
 
 const CHART = chartData as {
   width: number;
@@ -117,16 +140,16 @@ function cropFor(points: Array<{ x: number; y: number }>) {
  * need 262. Coral Reach is 39. So a faithful zoom would stack every island's
  * information on its neighbour's.
  *
- * Zooming further does not rescue it: preserving 262 units of separation would
- * need between 7.5x and 36.6x, and at 36x you are looking at twenty-eight
+ * Zooming further does not rescue it: preserving a label's width of separation
+ * would need between 7.5x and 36.6x, and at 36x you are looking at twenty-eight
  * pixels of a 1024px painting.
  *
  * So the marks start where the painting put the island and are pushed apart
- * only as far as they must be. On a roomy chain nothing moves far and the mark
- * sits on its own painted island. On a crowded one it is pushed off, and gets
- * a hairline back to where it belongs rather than pretending. That way the
- * view is a zoom of the chart wherever it honestly can be, and says so
- * wherever it cannot.
+ * only as far as they must be — by the shape of a label rather than by a
+ * circle drawn round its widest measurement, and never further than the leash
+ * from their own coast. On a roomy chain nothing moves at all. On a crowded
+ * one two names may touch, which is the cheaper of the two faults: a mark that
+ * has wandered off its island is a mark for the water.
  */
 function layoutIslands(
   systems: System[],
@@ -141,18 +164,33 @@ function layoutIslands(
       for (let j = i + 1; j < points.length; j++) {
         const dx = points[j].x - points[i].x;
         const dy = points[j].y - points[i].y;
-        const distance = Math.hypot(dx, dy) || 0.01;
-        if (distance >= MIN_SEPARATION) continue;
-        const shove = ((MIN_SEPARATION - distance) / distance) * 0.25;
+        // Measured in units of the label's own footprint, so "touching" means
+        // the two labels overlap rather than the two centres being close.
+        const nx = dx / SEPARATION_X;
+        const ny = dy / SEPARATION_Y;
+        const norm = Math.hypot(nx, ny) || 0.01;
+        if (norm >= 1) continue;
+        const shove = ((1 - norm) / norm) * 0.25;
         points[i].x -= dx * shove;
         points[i].y -= dy * shove;
         points[j].x += dx * shove;
         points[j].y += dy * shove;
       }
     }
-    for (const point of points) {
+    for (let i = 0; i < points.length; i++) {
+      const point = points[i];
       point.x = Math.max(FIELD_PAD, Math.min(FIELD_W - FIELD_PAD, point.x));
       point.y = Math.max(FIELD_PAD, Math.min(FIELD_H - FIELD_PAD, point.y));
+      // The leash, applied every pass rather than once at the end, so the
+      // spread keeps working inside it instead of being cut off by it.
+      const home = seeds?.[i];
+      if (!home) continue;
+      const dx = point.x - home.x;
+      const dy = point.y - home.y;
+      const drift = Math.hypot(dx, dy);
+      if (drift <= MAX_DRIFT) continue;
+      point.x = home.x + (dx / drift) * MAX_DRIFT;
+      point.y = home.y + (dy / drift) * MAX_DRIFT;
     }
   }
   return points;
@@ -233,6 +271,20 @@ export function ChainMap({
   // the layers stand down while it is happening — same rule as the chart's.
   const filtering =
     Boolean(layer) && layer !== 'allegiance' && layer !== 'none' && !pickingFor && !sailing && !choosing;
+  /*
+   * None means none.
+   *
+   * Sean, 22 September: *"when the 'none' filter is on on the individual Reach
+   * screen, turn off everything but island names. So it looks super clean and
+   * you can see map."* So on None the room bar, the free-berth figure, the
+   * loyalty bar and the sails all come off, and what is left is fifteen names
+   * over the painting. Every one of them is still a tap into the island, and
+   * the other filters are one swipe away.
+   *
+   * Not while picking a destination: there the marks are how you tell which
+   * islands answer, and a bare chart would be a chart you cannot choose from.
+   */
+  const bare = layer === 'none' && !pickingFor && !sailing && !choosing;
   const ground = paintedChart('seas');
   const reachName = state.sectors.find((r) => r.id === systems[0]?.sectorId)?.name;
 
@@ -532,7 +584,7 @@ export function ChainMap({
                 that side's colour. Above rather than beside, and big: where
                 the fleets are is the first thing worth seeing in a Reach, and
                 at the chart's own scale a fleet is only a large dot. */}
-            {explored && moored.length > 0 && (
+            {explored && !bare && moored.length > 0 && (
               <g pointerEvents="none">
                 {moored.map((side, i) => {
                   const w = 20 * SAIL_SCALE;
@@ -581,7 +633,7 @@ export function ChainMap({
               </g>
             )}
 
-            {explored && (
+            {explored && !bare && (
               <g pointerEvents="none">
                 {/* Room to build, against the same thirteen-berth track the
                     island's panel uses: the pip is always the same size, so
