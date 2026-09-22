@@ -73,3 +73,13 @@ report('Sovereign II vs Sovereign', [['CWN-SOV-R7-02', 1]], [['CWN-SOV-S04', 1]]
 report('Majestic vs Sovereign', [['CWN-MAJ-R8-01', 1]], [['CWN-SOV-S04', 1]]);
 report('Sovereign vs Coral-Class', [['CWN-SOV-S04', 1]], [['CFS-COR-R8-01', 1]]);
 report('Sovereign vs Urskin Goliath', [['CWN-SOV-S04', 1]], [['CFS-URG-R7-01', 1]]);
+
+/*
+ * And the price question the build side asked on 22 September: a Sovereign is
+ * 1,940 gold and a Justiciar is 850, so two Justiciars and change buy one
+ * Sovereign. Is she worth it?
+ */
+console.log('\nThe Sovereign against what her gold buys instead:\n');
+report('Sovereign vs 1 Justiciar', [['CWN-SOV-S04', 1]], [['CWN-JUS-R6-01', 1]]);
+report('Sovereign vs 2 Justiciars', [['CWN-SOV-S04', 1]], [['CWN-JUS-R6-01', 2]]);
+report('Sovereign vs 7 Vanguards (equal gold)', [['CWN-SOV-S04', 1]], [['CWN-VAN-R1-01', 7]]);
