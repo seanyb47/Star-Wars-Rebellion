@@ -112,6 +112,7 @@ describe('an order names its company, and the island gets that company', () => {
   it('raises the one that was ordered', () => {
     const { state, island } = stage(904);
     state.factions.empire.craft = 9999; // every rung open
+    island.archetype = 'jungle-isle'; // the Fensworn come out of the swamps
     const before = island.garrison;
     queueBuild(state, 'drill-1', 'fensworn');
     for (let d = 0; d < 400 && island.garrison === before; d++) advanceBuilds(state);

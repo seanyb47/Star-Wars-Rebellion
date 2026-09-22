@@ -1,11 +1,13 @@
 {
-  "_comment": "The cast. `ratings` are base figures, set by the character's lore and by what the game needs of them; a game rolls each one within a swing of its base — 20 either way for a major character, 10 for a minor one — so the same person is recognisably themselves in every game without being identical. A roll may carry a base near the top above 100, which is deliberate: an exceptional showing is allowed to be exceptional. `major` marks the fourteen named principals; the unaligned are minor. Sixteen principals since 21 September, not fourteen: Meret of Low Water and Envoy Adelia Marchmont are a matched pair of negotiators, one a side, added with the siege and ground war package. One is loved and one is inevitable, and they are the two ways this war gets won without a shot.",
+  "_comment": "The cast. `ratings` are base figures, set by the character's lore and by what the game needs of them; a game rolls each one within a swing of its base — 20 either way for a major character, 10 for a minor one — so the same person is recognisably themselves in every game without being identical. A roll may carry a base near the top above 100, which is deliberate: an exceptional showing is allowed to be exceptional. `major` marks a named principal; the unaligned are minor. Twenty-five principals since 22 September, fourteen Crown and eleven Confederate — the opening still seats four and five of them (`START_CHARACTERS`), so the roster is the bag you draw from rather than the cast you get, and a wider bag is a different war rather than a longer one.",
   "empire": [
     {
       "id": "cassian",
       "name": "Imperator Cassian Thorne",
       "epithet": "the Young Imperator",
       "people": "Human",
+      "age": 14,
+      "home": "Highwater, the Aldermain",
       "roles": [
         "Leader",
         "Recruiter"
@@ -17,13 +19,17 @@
         "espionage": 30,
         "combat": 48,
         "leadership": 66
-      }
+      },
+      "look": "Fair, thin-wristed, hair the colour of wet straw. State robes cut for a grown man and taken in twice. His father's signet worn on a cord because it does not fit his hand.",
+      "temper": "Watchful and over-polite. Hates being carried."
     },
     {
       "id": "corvane",
       "name": "Grand Admiral Halvard Corvane",
       "epithet": "the Old Tide",
       "people": "Human",
+      "age": 71,
+      "home": "Highwater, the Aldermain",
       "roles": [
         "Leader",
         "Recruiter",
@@ -36,13 +42,17 @@
         "espionage": 62,
         "combat": 70,
         "leadership": 96
-      }
+      },
+      "look": "Tall and gaunt, white side-whiskers, a face like weathered oak. Full dress at every hour of the day: admiral's double bullion, the Corsair Wars ribbon, no decoration he did not earn.",
+      "temper": "Immovable, courteous, cold. Has not raised his voice since the Corsair Wars and has not needed to."
     },
     {
       "id": "blackwater",
       "name": "Admiral Corvus Blackwater",
       "epithet": "the Drowned Admiral",
       "people": "Human",
+      "age": 48,
+      "home": "unrecorded — Far Sea, by his vowels",
       "roles": [
         "Leader",
         "Spec Ops",
@@ -54,14 +64,18 @@
         "diplomacy": 60,
         "espionage": 80,
         "combat": 92,
-        "leadership": 92
-      }
+        "leadership": 94
+      },
+      "look": "Black leather half-mask, a brass lung-cage worn over the chest and audible in a quiet room. No hair. Salt-scarred to the collar.",
+      "temper": "Exact and unhurried. Keeps every promise, including the ones enemies would rather he forgot."
     },
     {
       "id": "pryor",
       "name": "Captain Fenwick Pryor",
       "epithet": "the Survivor",
       "people": "Human",
+      "age": 44,
+      "home": "the Aldermain — minor gentry, third son",
       "roles": [
         "Negotiator",
         "Leader"
@@ -71,15 +85,19 @@
       "ratings": {
         "diplomacy": 74,
         "espionage": 46,
-        "combat": 52,
-        "leadership": 72
-      }
+        "combat": 58,
+        "leadership": 80
+      },
+      "look": "Sandy, going soft at the jaw, a good coat kept a year too long and brushed every morning.",
+      "temper": "Careful, agreeable, a genuinely good listener. Nobody's favourite and nobody's enemy, which is exactly why he is alive."
     },
     {
       "id": "jarrold",
       "name": "Governor Tiberius Jarrold",
       "epithet": "the Sleepless",
       "people": "Human",
+      "age": 57,
+      "home": "Greenholm, Whalers' Reach",
       "roles": [
         "Negotiator",
         "Leader"
@@ -87,17 +105,21 @@
       "bio": "Oversees the Leviathan's completion at Greenholm. Charming at dinner; has stopped sleeping.",
       "major": true,
       "ratings": {
-        "diplomacy": 76,
-        "espionage": 46,
+        "diplomacy": 90,
+        "espionage": 44,
         "combat": 38,
-        "leadership": 68
-      }
+        "leadership": 78
+      },
+      "look": "Heavy and florid and magnificent at a dinner table. Ink on the cuffs, grey under the eyes, a hand that has begun to shake at the third glass.",
+      "temper": "Charming at a table and frightened away from one. Has stopped sleeping and will not say why."
     },
     {
       "id": "neddam",
       "name": "Captain Lorne Neddam",
       "epithet": "First Over the Rail",
       "people": "Human",
+      "age": 33,
+      "home": "the Salt Reach — born on a Glass Sea salt-island, took Crown pay at fifteen",
       "roles": [
         "Spec Ops",
         "Leader"
@@ -107,15 +129,19 @@
       "ratings": {
         "diplomacy": 40,
         "espionage": 62,
-        "combat": 80,
-        "leadership": 74
-      }
+        "combat": 84,
+        "leadership": 82
+      },
+      "look": "Dark brown skin, close-shaved head, a boarder's forearms, a nose broken twice and set badly both times. Working rig; he owns one good coat and keeps it aboard.",
+      "temper": "Blunt, cheerful, physically unable to lie. The men would follow him anywhere and the Admiralty will never promote him."
     },
     {
       "id": "ozmond",
       "name": "Admiral Kendrick Ozmond",
       "epithet": "the Peacock",
       "people": "Human",
+      "age": 39,
+      "home": "the Aldermain — old money, older debts",
       "roles": [
         "Spec Ops",
         "Leader"
@@ -125,15 +151,19 @@
       "ratings": {
         "diplomacy": 44,
         "espionage": 56,
-        "combat": 72,
-        "leadership": 62
-      }
+        "combat": 76,
+        "leadership": 78
+      },
+      "look": "Beautiful and knows it. Powdered, ringed, a coat that cost more than a gun, and a sword that has never been drawn in anger.",
+      "temper": "Vain and quick and spiteful when slighted. Brilliant on a raid and wasteful with other people's crews."
     },
     {
       "id": "vierling",
       "name": "Colonel Maximilian Vierling",
       "epithet": "the Drillmaster",
       "people": "Human",
+      "age": 62,
+      "home": "Cinder Reach garrison stock, three generations of it",
       "roles": [
         "Drill Research",
         "General"
@@ -144,24 +174,138 @@
         "diplomacy": 34,
         "espionage": 44,
         "combat": 90,
-        "leadership": 88
-      }
+        "leadership": 92
+      },
+      "look": "Grey bristle, parade-ground voice, the ramrod posture of a man who has never once sat back in a chair.",
+      "temper": "Relentless and literal. No cruelty in him and no mercy either; the Drowned Guard call him father and the islands call him the cold-baptiser."
     },
     {
       "id": "marchmont",
       "name": "Envoy Adelia Marchmont",
       "epithet": "the Paper Tide",
       "people": "Human",
+      "age": 51,
+      "home": "the Aldermain — Admiralty clerk-caste, four generations",
       "roles": [
         "Negotiator"
       ],
       "bio": "Arrives with the treaty already drafted and the signatures already witnessed, and then waits. Has never raised her voice in a negotiation and has never needed to; the Admiralty's terms are not an opening position. Islands that have signed describe the experience as being told the weather.",
       "major": true,
       "ratings": {
-        "diplomacy": 88,
+        "diplomacy": 94,
         "espionage": 48,
         "combat": 18,
-        "leadership": 62
+        "leadership": 64
+      },
+      "look": "Small and grey in a plain coat, spectacles on a chain, a document case that is never further than her arm.",
+      "temper": "Unhurried, unmoved, faintly kind. Has never broken her word and has never given one that cost the Crown anything."
+    },
+    {
+      "id": "veyle",
+      "name": "Captain Sabra Veyle",
+      "epithet": "the Convert",
+      "people": "Human",
+      "age": 27,
+      "home": "the Salt Reach — a Glass Sea salt-island, left at fourteen",
+      "roles": [
+        "Negotiator",
+        "Leader"
+      ],
+      "bio": "Walked onto a Crown recruiting hulk at fourteen with no shoes and an argument already prepared, and has been making the same argument ever since: that an island under one flag is an island that stops being raided. She believes it the way people who chose a thing believe it, and she is the best talker the Admiralty has under fifty. Islands that sign with her sign gladly, which is precisely why the Confederacy would rather she were dead than Marchmont.",
+      "look": "Tall, dark brown skin, hair braided close under the hat. A uniform kept immaculate at her own expense because nobody issued her one that fitted.",
+      "temper": "Earnest, tireless, and allergic to irony. Takes every insult to the Crown personally and none to herself at all.",
+      "major": true,
+      "ratings": {
+        "diplomacy": 88,
+        "espionage": 44,
+        "combat": 52,
+        "leadership": 84
+      }
+    },
+    {
+      "id": "marsh",
+      "name": "Captain-of-Scouts Ivo Marsh",
+      "epithet": "the Muster Name",
+      "people": "Bog-folk",
+      "age": 51,
+      "home": "the Cinder Reach swamps",
+      "roles": [
+        "Spec Ops",
+        "General"
+      ],
+      "bio": "Bog-folk, and named off a Crown muster roll the way all of them in Crown service are — the name he was born with belonged to the man who owned him, so he gave it back and took the one the clerk wrote down. Runs the Admiralty's scouts and has never lost one. Speaks rarely, and when he does the Admiralty listens, because he has been right about ground for thirty years and has no interest at all in being right about anything else.",
+      "look": "Wrinkled grey-green hide, webbed hands, an eye that closes sideways. Swamp leathers under a Crown-green sash, boots carried and not worn.",
+      "temper": "Patient, literal, unamused. Owes the Crown a debt he considers unpaid and would find the question insulting.",
+      "major": true,
+      "ratings": {
+        "diplomacy": 30,
+        "espionage": 84,
+        "combat": 82,
+        "leadership": 54
+      }
+    },
+    {
+      "id": "quill",
+      "name": "Quill",
+      "epithet": "no other name",
+      "people": "The Hushed",
+      "age": null,
+      "home": "the Drowned Reach",
+      "roles": [
+        "Spec Ops"
+      ],
+      "bio": "Hushed, and the Admiralty does not list her because the old bargain is not a commission and never was. What the Crown gets is this: a door that was locked is open, a man who was going to speak does not, and a fleet that was going to sail is still in harbour arguing about why. She has never been seen leaving anywhere. Corvane has met her twice and describes the experience as being audited.",
+      "look": "Eel-thin and paper-pale, eyes with no white in them. An oiled dark wrap, bare feet, nothing on her that catches light or makes a sound.",
+      "temper": "Silent, exact, entirely without hurry. Not cruel — the word does not apply to her any more than it applies to weather.",
+      "major": true,
+      "ratings": {
+        "diplomacy": 22,
+        "espionage": 92,
+        "combat": 82,
+        "leadership": 40
+      }
+    },
+    {
+      "id": "thrale",
+      "name": "Rear-Admiral Godwin Thrale",
+      "epithet": "the Hammer of Ballmoor",
+      "people": "Human",
+      "age": 64,
+      "home": "Wreckers' Reach — three generations of salvage men",
+      "roles": [
+        "General",
+        "Leader"
+      ],
+      "bio": "Came up out of the wrecking trade, which the Admiralty has never quite forgiven and has never been able to argue with. Took Ballmoor in a morning and lost the harbour back to one Urskin whaler in an afternoon, and tells both halves of the story himself, loudly, at dinner. Wins. Leaves a harbour that remembers him, and considers that part of winning.",
+      "look": "A barrel of a man gone white, one ear gone above the lobe, an old coat and a newer scar. Never wears the second-best of anything.",
+      "temper": "Loud, decisive, and enjoying himself. There is no malice in him, which somehow makes the accounts worse rather than better.",
+      "major": true,
+      "ratings": {
+        "diplomacy": 30,
+        "espionage": 34,
+        "combat": 86,
+        "leadership": 92
+      }
+    },
+    {
+      "id": "vance",
+      "name": "Lieutenant Cordelia Vance",
+      "epithet": "the Orphan of the Chain",
+      "people": "Human",
+      "age": 22,
+      "home": "the Aldermain — Admiralty family, both sides of it",
+      "roles": [
+        "Leader"
+      ],
+      "bio": "Daughter of Captain Hollis Vance, who took the Broken Chain's third rate and did not come off her. The fleet adopted the child and has been slightly ruining her ever since: every wardroom in the Crown Sea wants her at its table and none of them want her in a fight. She has commanded a brig for eleven months, brought it home twice, and is quietly furious that neither is the thing anyone mentions.",
+      "look": "Small and freckled, red hair pinned hard under the hat, wearing her father's sword, which is four inches too long for her and which she will not have shortened.",
+      "temper": "Grave and quick and terrified of being pitied. Will take any posting nobody else wants, for exactly that reason.",
+      "major": true,
+      "ratings": {
+        "diplomacy": 58,
+        "espionage": 50,
+        "combat": 58,
+        "leadership": 84
       }
     }
   ],
@@ -171,6 +315,8 @@
       "name": "Commodore-Elect Adaira Hale",
       "epithet": "the Magistrate",
       "people": "Human",
+      "age": 46,
+      "home": "the Aldermain — Crown magistrate until she resigned",
       "roles": [
         "Negotiator",
         "Recruiter",
@@ -179,17 +325,21 @@
       "bio": "Former Imperium magistrate who resigned over the licensing raids, and has held a pack of pirates together for six years by force of argument. Incorruptible; has looked away from what some of her captains do because she needs their hulls.",
       "major": true,
       "ratings": {
-        "diplomacy": 92,
+        "diplomacy": 88,
         "espionage": 58,
         "combat": 32,
         "leadership": 84
-      }
+      },
+      "look": "Severe, greying, still in a magistrate's plain black at sea because she has not found a reason to change.",
+      "temper": "Cold and reasonable and unbending. The Confederacy's conscience, and its most convenient excuse."
     },
     {
       "id": "calloway",
       "name": "Tam Calloway",
       "epithet": "the Fisher's Boy",
       "people": "Human",
+      "age": 19,
+      "home": "the Far Sea — a fishing island with no name on any chart",
       "roles": [
         "Spec Ops",
         "Leader",
@@ -198,17 +348,21 @@
       "bio": "Fisher's boy from the Far Sea. The fish come to his boat and old sailors cross themselves when he walks past. Raw, brave, and going to be either the greatest Tidecaller in a generation or dead by twenty-two.",
       "major": true,
       "ratings": {
-        "diplomacy": 64,
+        "diplomacy": 76,
         "espionage": 76,
         "combat": 70,
         "leadership": 56
-      }
+      },
+      "look": "Skinny, sunburnt, salt-bleached hair, bare feet on any deck, a fisher's knife and nothing else worth taking.",
+      "temper": "Open, reckless, easily hurt and slow to show it."
     },
     {
       "id": "carrow",
       "name": "Rosalind \"Ros\" Carrow",
       "epithet": "of Carrow",
       "people": "Human",
+      "age": 19,
+      "home": "Carrow, in the Amber Sea — taken, and not retaken",
       "roles": [
         "Negotiator",
         "Recruiter"
@@ -216,17 +370,21 @@
       "bio": "Heir of the island of Carrow, which was lost while an Imperium fleet held position a day's sail away. The Confederacy's best negotiator: tireless, sharp, running on grief.",
       "major": true,
       "ratings": {
-        "diplomacy": 88,
-        "espionage": 70,
+        "diplomacy": 86,
+        "espionage": 72,
         "combat": 46,
         "leadership": 66
-      }
+      },
+      "look": "Sharp-featured, dark hair cut short with a knife and kept that way, still in mourning grey a year on.",
+      "temper": "Relentless. Funny when she is too tired to be angry, which is not often."
     },
     {
       "id": "reyne",
       "name": "Captain Silas Reyne",
       "epithet": "the Swallowtail",
       "people": "Human",
+      "age": 34,
+      "home": "the Amber Sea, no fixed island and no intention of getting one",
       "roles": [
         "Spec Ops",
         "Recruiter",
@@ -235,34 +393,42 @@
       "bio": "Smuggler captain of the Swallowtail, a coral-grown sloop that has no business being that fast. Owes Jubal the Fat more than a ship is worth. Claims to be in it for the money; keeps proving otherwise.",
       "major": true,
       "ratings": {
-        "diplomacy": 62,
-        "espionage": 88,
+        "diplomacy": 66,
+        "espionage": 90,
         "combat": 86,
         "leadership": 79
-      }
+      },
+      "look": "Lean and brown, a good beard badly kept, a coat won at cards off a man who could afford it.",
+      "temper": "Glib and generous and entirely unwilling to discuss the debt. Claims to be in it for money; keeps proving otherwise."
     },
     {
       "id": "torvik",
       "name": "Anselm \"Big\" Torvik",
       "epithet": "Big Torvik",
       "people": "Urskin",
+      "age": 40,
+      "home": "Northreach, in the Rime Reach",
       "roles": [
         "Spec Ops"
       ],
       "bio": "Reyne's first mate: a tusked, shaggy mountain who can throw a harpoon through a hull. Loyal past all reason, and surprisingly good at parley when Reyne shuts up.",
       "major": true,
       "ratings": {
-        "diplomacy": 46,
-        "espionage": 66,
-        "combat": 90,
-        "leadership": 50
-      }
+        "diplomacy": 55,
+        "espionage": 48,
+        "combat": 94,
+        "leadership": 74
+      },
+      "look": "Nine feet of black pelt, both tusks whole and scrimshawed with the names of his dead, a whaler's harpoon he carries one-handed. Wears what fits, which is very little.",
+      "temper": "Slow and warm and catastrophic when it finally goes. Loyal past all reason."
     },
     {
       "id": "jessup",
       "name": "Admiral Dorian Jessup",
       "epithet": "the Grandfather",
       "people": "Human",
+      "age": 68,
+      "home": "the Aldermain — forty years of Admiralty before he walked",
       "roles": [
         "General",
         "Negotiator",
@@ -271,17 +437,21 @@
       "bio": "Elderly ex-Imperium admiral; the Confederacy's grandfather figure and its steadiest voice at a parley table.",
       "major": true,
       "ratings": {
-        "diplomacy": 82,
+        "diplomacy": 78,
         "espionage": 52,
         "combat": 86,
         "leadership": 86
-      }
+      },
+      "look": "White beard, ruined knees, and a Crown coat with the facings unpicked rather than replaced.",
+      "temper": "Gentle, stubborn, sad. The only man in three Seas both fleets will sit down with."
     },
     {
       "id": "ansell",
       "name": "Wyatt Ansell",
       "epithet": "the Shipwright",
       "people": "Human",
+      "age": 24,
+      "home": "born Whalers' Reach, apprenticed to the Coral Reach",
       "roles": [
         "Ship Design",
         "Wing-Captain"
@@ -289,17 +459,21 @@
       "bio": "Young cutter-captain and self-taught shipwright, learning to grow coral hulls from the Reef-folk.",
       "major": true,
       "ratings": {
-        "diplomacy": 50,
-        "espionage": 62,
+        "diplomacy": 56,
+        "espionage": 68,
         "combat": 64,
         "leadership": 56
-      }
+      },
+      "look": "Freckled, sawdust in his hair and everything else, hands scarred white by coral.",
+      "temper": "Absorbed to the point of rudeness, shy with people and sharp about hulls. Too young to be listened to and usually right."
     },
     {
       "id": "meret",
       "name": "Meret of Low Water",
       "epithet": "the Welcome",
       "people": "Shoal-folk",
+      "age": 38,
+      "home": "Low Water, in the Shoals",
       "roles": [
         "Negotiator",
         "Recruiter"
@@ -307,10 +481,77 @@
       "bio": "Has never been turned away from a harbour, including two that were at war with her at the time. Speaks eleven island dialects and apologises for her accent in all of them. The Crown has put a price on her three times and quietly withdrawn it twice, on the grounds that arresting her would cost more goodwill than she is worth.",
       "major": true,
       "ratings": {
-        "diplomacy": 92,
-        "espionage": 46,
-        "combat": 20,
-        "leadership": 55
+        "diplomacy": 88,
+        "espionage": 58,
+        "combat": 44,
+        "leadership": 60
+      },
+      "look": "Small and webbed and night-eyed, in a coat sewn from eleven mismatched island cloths, one from every harbour that took her in.",
+      "temper": "Warm, apologetic, unkillably patient. Welcome everywhere and trusted nowhere important."
+    },
+    {
+      "id": "vask",
+      "name": "Nerine Vask",
+      "epithet": "the Grown Fleet",
+      "people": "Reef-folk",
+      "age": 60,
+      "home": "Coralhome, in the Coral Reach",
+      "roles": [
+        "Leader",
+        "Negotiator"
+      ],
+      "bio": "Grew four hulls in her life and lost three of them to licensing writs, and still opens every parley by asking after the other side's family. The best admiral the Confederacy has and the last of the Reef-folk old enough to remember the oar-benches from the inside, which she mentions to nobody and forgets in no room she is standing in.",
+      "look": "Luminous eyes and gill-slits at the throat, skin going slate to bronze with her temper. A coral gorget grown rather than made, and a coat over it out of courtesy to the humans.",
+      "temper": "Formal, forgiving, and immovable on exactly one subject. Has forgiven the Crown personally and will not forgive it politically.",
+      "major": true,
+      "ratings": {
+        "diplomacy": 84,
+        "espionage": 58,
+        "combat": 78,
+        "leadership": 82
+      }
+    },
+    {
+      "id": "kitto",
+      "name": "Kitto of the Nine Shoals",
+      "epithet": "the Listening Boy",
+      "people": "Shoal-folk",
+      "age": 17,
+      "home": "the Shoals, in the Coral Reach",
+      "roles": [
+        "Spec Ops"
+      ],
+      "bio": "Seventeen, four foot nothing, and the reason the Confederacy has never once been surprised in the Coral Reach. Sat a masthead through a night action at fourteen calling ranges he could not see, and the fleet has not let him off a masthead since. Hears everything. Repeats most of it, to everyone, immediately, which has cost the Confederacy two secrets and saved it eleven ships.",
+      "look": "The smallest person on any deck, webbed, with night eyes that take up half his face. A crow's nest built to his size and a permanent bundle of somebody else's blanket.",
+      "temper": "Chattering, anxious, never off watch. Frightened of the water, which he will deny.",
+      "major": true,
+      "ratings": {
+        "diplomacy": 62,
+        "espionage": 88,
+        "combat": 48,
+        "leadership": 50
+      }
+    },
+    {
+      "id": "coyne",
+      "name": "Rafferty Coyne",
+      "epithet": "the Quartermaster",
+      "people": "Human",
+      "age": 55,
+      "home": "Freeport — born over the harbour office and never left it",
+      "roles": [
+        "Negotiator",
+        "Spec Ops"
+      ],
+      "bio": "Keeps the articles, the ledger and the peace at Freeport, in that order, and has done since before there was a Confederacy to keep them for. Knows what every hull in three Seas owes and to whom, which makes him the most dangerous man at the table and the least likely to be hit. Has never sailed on a raid. Has planned rather a lot of them.",
+      "look": "Enormous and bald and aproned, a pistol belt under it, and a ledger on a chain at his waist that he has never once handed to anybody.",
+      "temper": "Jovial and mercenary. Keeps his word to the letter and not one word further, and says so up front, which most people mistake for a joke.",
+      "major": true,
+      "ratings": {
+        "diplomacy": 74,
+        "espionage": 72,
+        "combat": 70,
+        "leadership": 52
       }
     }
   ],
@@ -320,23 +561,29 @@
       "name": "Maren Quist",
       "epithet": "the Coralwright",
       "people": "Reef-folk",
+      "age": 44,
+      "home": "Coralhome, in the Coral Reach",
       "bio": "Grew her own hull over nine years the way the Reef-folk do, singing coral into shape a season at a time. The Admiralty took it at Coralhome on a licensing writ and broke it up for the keel-timber, which is not a thing you can do to a grown ship quietly. She reads a sea the way other people read a page, and she has not spoken about the ship since.",
       "major": false,
       "ratings": {
-        "diplomacy": 58,
+        "diplomacy": 78,
         "espionage": 52,
-        "combat": 48,
+        "combat": 72,
         "leadership": 90
       },
       "roles": [
         "Leader",
         "Ship Design"
-      ]
+      ],
+      "look": "Luminous eyes, gill-slits at the throat, skin that goes slate when she is thinking and stays slate now.",
+      "temper": "Quiet in a way that was not always the case. Reads a sea the way other people read a page."
     },
     {
       "name": "Pellam Voss",
       "epithet": "the Master Gunner",
       "people": "Human",
+      "age": 63,
+      "home": "the Aldermain — forty years of Admiralty gundecks",
       "bio": "Forty years on Admiralty gundecks, the last eleven as a master gunner, and pensioned off inside a week for saying at a dinner what he thought of the admiral at the head of it. He was right, which made it worse. Lays a gun by feel in the dark, and has never yet been asked to explain himself twice.",
       "major": false,
       "ratings": {
@@ -348,28 +595,36 @@
       "roles": [
         "General",
         "Drill Research"
-      ]
+      ],
+      "look": "Squat, deaf in the near ear, powder-burnt to the elbow, and disinclined to shout about it.",
+      "temper": "Plain-spoken to the point of career suicide, which is how he came to be available."
     },
     {
       "name": "Sable",
       "epithet": "no other name",
       "people": "The Hushed",
+      "age": null,
+      "home": "the Drowned Reach — listed on no roll in either fleet",
       "bio": "Hushed, and listed on no roll in either fleet. The old bargain that binds her people to the Crown does not appear to bind her, and nobody has worked out what does. She is not heard arriving. Twice now a thing that was certainly going to happen has simply not happened, and both times somebody remembers a door standing open.",
       "major": false,
       "ratings": {
-        "diplomacy": 28,
-        "espionage": 92,
-        "combat": 62,
+        "diplomacy": 26,
+        "espionage": 96,
+        "combat": 64,
         "leadership": 38
       },
       "roles": [
         "Spec Ops"
-      ]
+      ],
+      "look": "Eel-thin, paper-pale, eyes with no white in them. Oiled dark wrap, bare feet, nothing that catches light.",
+      "temper": "Not heard arriving. Nobody has worked out what binds her, including the Crown."
     },
     {
       "name": "Hesper Lyn",
       "epithet": "the Price List",
       "people": "The Rumor Guild",
+      "age": 41,
+      "home": "Hearsay Cay, in the Coral Reach",
       "bio": "High in the Rumor Guild and entirely open about the arrangement: there is a price list, both sides are on it, and she has never pretended otherwise. Keeps a private book of every debt, affair and quiet burial in three Seas, and has never had to open it in public. Whether she keeps to the price list is the only question anybody actually asks.",
       "major": false,
       "ratings": {
@@ -381,44 +636,57 @@
       "roles": [
         "Recruiter",
         "Negotiator"
-      ]
+      ],
+      "look": "Ink-stained fingers, spectacles pushed up into black hair, three rings and a very good coat.",
+      "temper": "Entirely open about the arrangement. There is a price list; both sides are on it."
     },
     {
       "name": "Brannoc Tull",
-      "epithet": "the Harpoon",
+      "epithet": "the Whale-Road",
       "people": "Urskin",
-      "bio": "Whaler out of Northreach, and the harpoon is not decorative — he has put one through a hull on purpose more than once, and the second time was not an emergency. Took a whale off the Bone Sea shelf that fed a chain through a bad winter. Slow to anger, and afterwards there is no route round him; the Admiralty established this at Ballmoor, at length.",
+      "age": 58,
+      "home": "Northreach, in the Rime Reach",
+      "bio": "Forty winters of saying which boats go out and which stay in, in front of the families of both, which is a harder command than any deck. Speaks for the Northreach whaling fleets and they sail when he says so. The Admiralty took Ballmoor from him in a morning and he took it back the same afternoon with eleven boats and no guns at all, and has never once described how.",
       "major": false,
       "ratings": {
-        "diplomacy": 28,
-        "espionage": 42,
-        "combat": 92,
-        "leadership": 52
+        "diplomacy": 58,
+        "espionage": 38,
+        "combat": 84,
+        "leadership": 90
       },
       "roles": [
-        "Spec Ops"
-      ]
+        "Leader",
+        "General"
+      ],
+      "look": "Grey-white pelt gone thin at the shoulders, one tusk broken off short and capped in scrimshawed bone, an ice-scar across the muzzle. Older and smaller than Torvik and does not need to be told so.",
+      "temper": "Slow, exact, and listened to. Forty winters of deciding which boats go out and which stay in, in front of the families of both."
     },
     {
       "name": "Wren Tally",
       "epithet": "the Ear",
       "people": "Shoal-folk",
+      "age": 26,
+      "home": "the Shoals — nine years on towers nobody thought mattered",
       "bio": "Nine years sat a masthead, most of them on watch towers nobody thought mattered, and came off them able to name a ship in fog by the sound of its hull working. Frightened of a great many things — weather on an open deck, officers, the dark below the waterline — and has never once left a post.",
       "major": false,
       "ratings": {
-        "diplomacy": 42,
+        "diplomacy": 62,
         "espionage": 86,
-        "combat": 42,
-        "leadership": 48
+        "combat": 52,
+        "leadership": 54
       },
       "roles": [
         "Spec Ops"
-      ]
+      ],
+      "look": "Small, webbed, huge night eyes, a coat too big for her because it was somebody else's.",
+      "temper": "Frightened of weather, officers and the dark below the waterline, and has never once left a post."
     },
     {
       "name": "Doctor Ambrose Kell",
       "epithet": "the Tide Doctor",
       "people": "Human",
+      "age": 52,
+      "home": "no port for long — struck off in the Crown Sea",
       "bio": "Surgeon and scholar, and the only man on his island who will say out loud that the deep can be studied rather than merely survived. It has cost him a licence, a post and most of his friends. Runs a surgery from whatever port will have him, takes payment in passage, and is the one person in three Seas that both fleets will pass through a blockade.",
       "major": false,
       "ratings": {
@@ -429,12 +697,16 @@
       },
       "roles": [
         "Negotiator"
-      ]
+      ],
+      "look": "Thin, stooped, spectacles mended with wire, a bag that is all he kept.",
+      "temper": "Careful, curious, and incapable of not saying the thing that costs him the licence."
     },
     {
       "name": "Captain Isolde Marrow",
       "epithet": "the Even Hand",
       "people": "Human",
+      "age": 37,
+      "home": "the Merchant Sea — a letter of marque nobody will admit to signing",
       "bio": "Sails under a letter of marque nobody at the Admiralty will admit to signing, which suits everyone until it does not. Took a merchantman back off a boarding party with eleven crew and a signal gun, then put the boarders ashore alive because war had not been declared that week. Keeps her crew and keeps her word, in that order, and has resigned from both sides in writing.",
       "major": false,
       "ratings": {
@@ -446,12 +718,16 @@
       "roles": [
         "Leader",
         "Negotiator"
-      ]
+      ],
+      "look": "Weather-brown, a long plait pinned up, a plain coat and a very well-kept signal gun.",
+      "temper": "Keeps her crew and keeps her word, in that order. Has resigned from both sides in writing."
     },
     {
       "name": "The Widow Ashgrave",
       "epithet": "the Widow",
       "people": "Human",
+      "age": 64,
+      "home": "a witch-island in the Glass Sea that nobody charts twice",
       "bio": "Buried a shipowner, a governor and a Moot councillor, in that order, and inherited from all three. Brokers passage, marriages and truces out of a witch-island nobody charts twice, and holds the paper on half the yards in the Glass Sea. What she is owed is not really the point. Being owed is the point.",
       "major": false,
       "ratings": {
@@ -463,29 +739,37 @@
       "roles": [
         "Negotiator",
         "Recruiter"
-      ]
+      ],
+      "look": "Black, immaculate, three widow's rings worn together, and a smile she uses like a hand of cards.",
+      "temper": "Brokers passage, marriages and truces. Being owed is the point."
     },
     {
       "name": "Tobias Renn",
       "epithet": "the Swampcat",
       "people": "Bog-folk",
+      "age": 49,
+      "home": "the Cinder Reach swamps — Crown ground, and his",
       "bio": "Held the Storm swamps for the Imperium against four hundred insurgents, with eleven men and the weather, over eleven years, and never once in the open. Patient well past the point most people mean by the word. Considers a battle fought in daylight to be a battle somebody else arranged.",
       "major": false,
       "ratings": {
-        "diplomacy": 42,
-        "espionage": 68,
-        "combat": 82,
+        "diplomacy": 44,
+        "espionage": 66,
+        "combat": 88,
         "leadership": 68
       },
       "roles": [
         "General",
         "Spec Ops"
-      ]
+      ],
+      "look": "Wrinkled grey-green hide, webbed hands, a nictitating eye that closes sideways. Swamp leathers under a Crown-green sash that is the only Crown thing on him.",
+      "temper": "Patient well past what most people mean by the word. Considers a battle fought in daylight to be a battle somebody else arranged."
     },
     {
       "name": "Silvaine Crow",
       "epithet": "the Quiet Hand",
       "people": "Human",
+      "age": 35,
+      "home": "the Crown Sea — a governor's household, for nine years",
       "bio": "Deep-touched, and trained by nobody the Crown ever licensed, which in the Crown Sea is a charge rather than a description. Was a governor's secretary for nine years, which is how she knows where everything is written down; she left on a morning nobody can quite reconstruct, with three ledgers and a seal. Knows a lie by its echo, and does not always say so.",
       "major": false,
       "ratings": {
@@ -497,12 +781,16 @@
       "roles": [
         "Spec Ops",
         "Recruiter"
-      ]
+      ],
+      "look": "Neat, forgettable on purpose, grey gloves she does not take off.",
+      "temper": "Knows a lie by its echo and does not always say so."
     },
     {
       "name": "Jory Halloran",
       "epithet": "the Understudy",
       "people": "Human",
+      "age": 19,
+      "home": "a revenue station in the Merchant Sea, and desperate to leave it",
       "bio": "Nineteen, quick, and desperate to be off the island by any hull that will take him. Has crewed a revenue cutter, kept books for a chandler, and spent a fortnight in a gaol over a misunderstanding about the books. Adequate at all of it, remarkable at none, and perfectly aware that this is the problem. Somebody is going to make something of him.",
       "major": false,
       "ratings": {
@@ -513,7 +801,76 @@
       },
       "roles": [
         "Leader"
-      ]
+      ],
+      "look": "Scrawny, eager, a borrowed coat with the cuffs turned, and boots he is proud of.",
+      "temper": "Adequate at everything, remarkable at nothing, and perfectly aware that this is the problem."
+    },
+    {
+      "name": "Mother Bracken",
+      "epithet": "who gave the name back",
+      "people": "Bog-folk",
+      "age": 66,
+      "home": "the Cinder Reach swamps, until she left them",
+      "sworn": "alliance",
+      "roles": [
+        "Spec Ops",
+        "General"
+      ],
+      "bio": "Bog-folk, and the other kind: the witches would not take the muster name and would not take the debt either, and the ones who went south went for good. Her own people count her dead and the Crown counts her a traitor, and she answers to neither. Fights the way her cousins in the Crown-green sash fight, out of the dark and out of the water, and does it against them.",
+      "look": "Wrinkled grey-green hide gone pale with age, webbed hands, an eye that closes sideways, and river-weed braided in — reclaimed, not decoration.",
+      "temper": "Dry, unsentimental, and done explaining herself. Has been asked to come home once and did not reply.",
+      "major": false,
+      "ratings": {
+        "diplomacy": 40,
+        "espionage": 88,
+        "combat": 74,
+        "leadership": 56
+      }
+    },
+    {
+      "name": "Vurn Kesk",
+      "epithet": "the Betrayer",
+      "people": "Urskin",
+      "age": 37,
+      "home": "Northreach — struck from the whaling articles",
+      "sworn": "empire",
+      "notBefore": 380,
+      "roles": [
+        "Spec Ops",
+        "General"
+      ],
+      "bio": "No Urskin has ever signed Crown articles, which is why his name is said the way it is said. He took Crown coin to bring in his own kind and has been taking it ever since — a bounty man, paid by the head, and worth every penny of it. The Admiralty is careful never to let him meet Thrale socially. His own fleet has retired his harpoon, which among Urskin is not an honour.",
+      "look": "Half a hand taller than Torvik and rust-red where Torvik is black. Both tusks filed flat and ringed in Crown silver, one for each name he has brought in. Wears good coats badly.",
+      "temper": "Cheerful, talkative, and entirely for sale. Will tell you what he costs before you ask, and has never yet failed to deliver.",
+      "major": false,
+      "ratings": {
+        "diplomacy": 30,
+        "espionage": 62,
+        "combat": 98,
+        "leadership": 58
+      }
+    },
+    {
+      "name": "Hessa Fen",
+      "epithet": "the Night Corporal",
+      "people": "Bog-folk",
+      "age": 29,
+      "home": "the Cinder Reach swamps",
+      "roles": [
+        "Spec Ops"
+      ],
+      "bio": "Second generation off the benches, which in the swamps means she has heard about it rather than lived it, and it has made her worse about it rather than better. Eleven confirmed night actions and no daylight ones. Turned down a commission twice on the grounds that officers have to stand where people can see them.",
+      "look": "Young for her hide, grey-green going darker at the shoulders, webbed, and never above the waterline when she can help it. Blacked face, blacked blade, and the green sash worn under the leathers where it will not catch light.",
+      "temper": "Quiet, fierce, and openly devoted to the Crown in a way that embarrasses actual Crown officers.",
+      "major": false,
+      "ratings": {
+        "diplomacy": 36,
+        "espionage": 80,
+        "combat": 84,
+        "leadership": 48
+      }
     }
-  ]
+  ],
+  "_fields": "`age`, `home`, `look` and `temper` are Sean's brief of 22 September: *\"differentiate the different officers — you got young and old, male and female, ugly and pretty... and also regional.\"* `look` is the art brief and the encyclopedia's physical line in one, and is written to be paintable; `temper` is the one-line character, which is the thing that makes two officers with the same four numbers different people. `home` carries the regional spread — the Aldermain is fair and English-looking and is the minority of the Crown's own officers, not the whole of it. `age: null` means nobody knows.",
+  "_sworn": "`sworn` overrides the people rule for one person, and is the whole point of the two who carry it. `PEOPLE_ALLEGIANCE` says no Urskin signs Crown articles and no Bog-folk signs Confederate ones, and that stays true — Vurn Kesk is called the Betrayer *because* of it, and Mother Bracken gave her name back over it. An exception that is not rare is not an exception, so there are two and there is a test that says so. `notBefore` floors a recruit's arrival day: Sean asked for the Betrayer as a late find, not an opening one."
 }

@@ -481,6 +481,16 @@ export interface Character {
   name: string;
   /** Which people they belong to. Display only — drives their portrait. */
   people?: string;
+  /**
+   * One person's own allegiance, overriding their people's.
+   *
+   * Two characters carry it and both are named for carrying it: Vurn Kesk the
+   * Betrayer is an Urskin in Crown pay, and Mother Bracken is a bog witch who
+   * went south. `mayServe` reads this before `PEOPLE_ALLEGIANCE`, so the rule
+   * that no Urskin signs Crown articles stays a rule and these two stay the
+   * reason anybody says it out loud.
+   */
+  sworn?: PlayableFaction;
   /** A line on who they are. Everyone carries it now, not only the unaligned:
    *  it is the reason to care which of your seven you send, and it was sitting
    *  unused in the roster while the crew screen showed four numbers instead. */

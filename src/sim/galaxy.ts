@@ -6,6 +6,7 @@ import { createRng, mixSeed, type Rng } from './rng';
 import {
   CONNECTIVITY_MAX,
   CONNECTIVITY_MIN,
+  PEOPLE_ALLEGIANCE,
   PIRATE_LORDS,
   RECRUIT_LAST_DAY,
   RECRUITS_AT_START,
@@ -1210,10 +1211,30 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     ),
   );
   const inPlay = Math.min(RECRUITS_IN_PLAY, openIslands.length);
-  for (const [index, entry] of rng
-    .shuffle(characterRoster.recruits)
-    .slice(0, inPlay)
-    .entries()) {
+  /*
+   * Who is ashore on the first morning, and why it is not simply the first two
+   * out of the bag.
+   *
+   * The two at the front of this list land on day one, and the reason they do
+   * is that recruiting has to be *discoverable* — a player who never sees the
+   * mission offered never learns it exists. But the pool is not one pool: an
+   * Urskin will not sign Crown articles and a Bog-folk will not sign
+   * Confederate ones, so two sworn strangers on two quays can leave one side
+   * with the mission greyed out for a third of the war and no way to know why.
+   * That was luck rather than design before the pool grew; it is now a draw
+   * you can lose.
+   *
+   * So the opening two are taken from the people nobody has sworn, who are on
+   * both sides' lists by definition, and the sworn go into the drift behind
+   * them. The bag is still shuffled and the pair is still different every war
+   * — it is only *which two are ashore first* that is steered, and steered
+   * towards the one property the opening needs them to have.
+   */
+  const bag = rng.shuffle(characterRoster.recruits).slice(0, inPlay);
+  const unsworn = (e: (typeof bag)[number]) =>
+    !('sworn' in e) && PEOPLE_ALLEGIANCE[e.people] === undefined;
+  const ashoreFirst = [...bag.filter(unsworn), ...bag.filter((e) => !unsworn(e))];
+  for (const [index, entry] of ashoreFirst.entries()) {
     const roll = (base: number) => rollRating(rng, base, entry.major);
     // A couple are ashore on day one so the errand is discoverable; the rest
     // are spread over the war, evenly with a little jitter so they do not
@@ -1234,6 +1255,11 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       // island if they are a Leader or a General, and the field was being
       // dropped on the way in.
       roles: 'roles' in entry ? (entry.roles as string[]) : undefined,
+      // One person's own allegiance, where they have one. Two of the pool do
+      // — the Betrayer and the bog witch — and dropping it here would put an
+      // Urskin bounty man into the Confederacy's pool, which is the one place
+      // he must never be.
+      sworn: 'sworn' in entry ? (entry.sworn as PlayableFaction) : undefined,
       faction: 'neutral',
       diplomacy: roll(entry.ratings.diplomacy),
       espionage: roll(entry.ratings.espionage),
@@ -1247,10 +1273,16 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
       }),
       locationSystemId: openIslands[index].id,
       status: 'available',
-      appearsOnDay:
+      // `notBefore` is a floor on the draw, not a replacement for it: Sean
+      // asked for the Betrayer as *"a late recruit on the Imperium side"*, and
+      // a person whose whole idea is that he turns up once the war has gone
+      // long is no good turning up in the first fortnight.
+      appearsOnDay: Math.max(
+        'notBefore' in entry ? (entry.notBefore as number) : 0,
         index < RECRUITS_AT_START
           ? 1
           : Math.round((later + 1) * (RECRUIT_LAST_DAY / spread)) + rng.range(-12, 12),
+      ),
     });
   }
 

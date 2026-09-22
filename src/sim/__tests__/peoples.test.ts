@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { PEOPLE_ALLEGIANCE, mayServe } from '../constants';
-import { recruitPool } from '../missions';
+import { PEOPLE_ALLEGIANCE, RECRUIT_LAST_DAY, mayServe } from '../constants';
+import { hasArrived, recruitPool } from '../missions';
 import { generateGalaxy } from '../galaxy';
 import characterRoster from '../../data/characters.json';
 import type { GameState } from '../types';
@@ -74,6 +74,89 @@ describe('the peoples who will only serve one side', () => {
   it('has nobody on the shipped roster standing on the wrong side', () => {
     for (const person of everyone) {
       expect([person.name, mayServe(person.people, person.side)]).toEqual([person.name, true]);
+    }
+  });
+});
+
+/**
+ * The two who swore for themselves.
+ *
+ * Sean, 22 September: *"I do want to have one Urskin, called like the Betrayer
+ * or something, that is a late recruit on the Imperium side"*, and on the bog
+ * folk, *"probably only like one bog witch on the Confederacy side."* Both cut
+ * straight across the rule above, and that is the point of them — a bounty man
+ * is only worth a name because no Urskin takes Crown coin, and Mother Bracken
+ * is defined by the name she gave back.
+ *
+ * So the rule keeps its teeth and the exception is per person, in `sworn`. The
+ * count is pinned: an exception that is not rare is not an exception, and the
+ * way this goes wrong quietly is a third one three months from now.
+ */
+describe('the two who swore against their own people', () => {
+  const defectors = characterRoster.recruits.filter(
+    (e): e is typeof e & { sworn: 'empire' | 'alliance' } => 'sworn' in e,
+  );
+
+  it('is two of them, by name', () => {
+    expect(defectors.map((e) => [e.name, e.people, e.sworn])).toEqual([
+      ['Mother Bracken', 'Bog-folk', 'alliance'],
+      ['Vurn Kesk', 'Urskin', 'empire'],
+    ]);
+  });
+
+  it('puts each of them on exactly the side their people will not serve', () => {
+    for (const who of defectors) {
+      expect([who.name, PEOPLE_ALLEGIANCE[who.people]]).not.toEqual([who.name, who.sworn]);
+      expect([who.name, mayServe(who.people, who.sworn, who.sworn)]).toEqual([who.name, true]);
+      const other = who.sworn === 'empire' ? 'alliance' : 'empire';
+      expect([who.name, mayServe(who.people, other, who.sworn)]).toEqual([who.name, false]);
+    }
+  });
+
+  it('lets the Crown sign the Betrayer and nobody else, in a real world', () => {
+    const state = world();
+    for (const c of state.characters) if (c.faction === 'neutral') c.appearsOnDay = 1;
+    const crown = recruitPool(state, 'empire');
+    const brethren = recruitPool(state, 'alliance');
+    // Named rather than counted: whether either is dealt into a given war is
+    // the draw's business, but if they are, they are on one list only.
+    const on = (pool: typeof crown, name: string) => pool.some((c) => c.name === name);
+    if (state.characters.some((c) => c.name === 'Vurn Kesk')) {
+      expect([on(crown, 'Vurn Kesk'), on(brethren, 'Vurn Kesk')]).toEqual([true, false]);
+    }
+    if (state.characters.some((c) => c.name === 'Mother Bracken')) {
+      expect([on(crown, 'Mother Bracken'), on(brethren, 'Mother Bracken')]).toEqual([false, true]);
+    }
+  });
+
+  it('keeps the Betrayer out of the opening — he is a late find', () => {
+    const notBefore = (characterRoster.recruits.find((e) => e.name === 'Vurn Kesk') as {
+      notBefore: number;
+    }).notBefore;
+    expect(notBefore).toBeGreaterThan(300);
+    expect(notBefore).toBeLessThanOrEqual(RECRUIT_LAST_DAY);
+    for (const seed of [3, 11, 55, 101, 203, 501]) {
+      const state = generateGalaxy(seed, 'empire');
+      const him = state.characters.find((c) => c.name === 'Vurn Kesk');
+      if (him) expect([seed, him.appearsOnDay! >= notBefore]).toEqual([seed, true]);
+    }
+  });
+});
+
+/**
+ * And the other half of the same problem: the two ashore on the first morning
+ * are drawn from the unsworn, so neither side opens with the mission greyed
+ * out and no way to find out why. Before the pool grew this was luck.
+ */
+describe('the opening pair', () => {
+  it('gives both sides somebody they could actually sign on day one', () => {
+    for (const seed of [3, 11, 55, 101, 203, 321, 501]) {
+      const state = generateGalaxy(seed, 'empire');
+      const ashore = state.characters.filter((c) => c.faction === 'neutral' && hasArrived(state, c));
+      expect([seed, ashore.length]).toEqual([seed, 2]);
+      for (const side of ['empire', 'alliance'] as const) {
+        expect([seed, side, recruitPool(state, side).length]).toEqual([seed, side, 2]);
+      }
     }
   });
 });

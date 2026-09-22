@@ -31,8 +31,8 @@ function everyRole(): string[] {
 
 describe('crew role tags', () => {
   it('has the cast it thinks it has', () => {
-    // Twenty-nine since the young Imperator went in.
-    expect(everyone).toHaveLength(29);
+    // Forty since the crew package of 22 September: 14 Crown, 11 Confederate, 15 unaligned.
+    expect(everyone).toHaveLength(40);
     // Eight tags, down from eleven on 20 September when the lore package
     // retired the Deep as a system and its three ranks — Deep-touched, Latent
     // Deep-touched and Tidemaster — came off the four people who wore them.

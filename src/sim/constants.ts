@@ -974,10 +974,25 @@ export const PEOPLE_ALLEGIANCE: Record<string, PlayableFaction> = {
  * The rule: an Urskin or a Reef-folk will not sign Crown articles and a
  * Bog-folk will not sign Confederate ones, however good the offer and however
  * loyal the island.
+ *
+ * `sworn` is one person's own answer, and it beats their people's. Sean, 22
+ * September, asked for two characters who exist entirely because the rule
+ * above exists: *"one Urskin, called like the Betrayer or something, that is
+ * a late recruit on the Imperium side"*, and a bog witch on the Confederate
+ * one. Neither weakens the rule — an Urskin bounty man is only worth writing
+ * down because no Urskin does that, and Mother Bracken gave her muster name
+ * back rather than keep the Crown's debt. So the exception is per person,
+ * carried in the roster as `sworn`, and `peoples.test.ts` names the two and
+ * fails if a third appears without anybody deciding to add one.
  */
-export function mayServe(people: string | undefined, faction: PlayableFaction): boolean {
-  const sworn = people ? PEOPLE_ALLEGIANCE[people] : undefined;
-  return sworn === undefined || sworn === faction;
+export function mayServe(
+  people: string | undefined,
+  faction: PlayableFaction,
+  sworn?: PlayableFaction,
+): boolean {
+  if (sworn) return sworn === faction;
+  const byPeople = people ? PEOPLE_ALLEGIANCE[people] : undefined;
+  return byPeople === undefined || byPeople === faction;
 }
 
 /**

@@ -308,6 +308,27 @@ export function inThisWar(state: GameState): Set<string> {
   return new Set(state.characters.map((c) => c.name));
 }
 
+/**
+ * Which one side this person may sign with, if only one.
+ *
+ * Their people's answer, unless they have given their own. Two have: Vurn Kesk
+ * the Betrayer is an Urskin in Crown pay and Mother Bracken is a bog witch who
+ * went south, and both of them mean the opposite of what their people's line
+ * says. The cast is loaded from JSON, so `sworn` is read off the entry rather
+ * than declared on all thirty-odd of them.
+ */
+export function swornSide(who: { people: string }): PlayableFaction | undefined {
+  const own = (who as { sworn?: PlayableFaction }).sworn;
+  return own ?? PEOPLE_ALLEGIANCE[who.people];
+}
+
+/** Whether that oath is their own and against their people's. */
+export function swornAlone(who: { people: string }): boolean {
+  const own = (who as { sworn?: PlayableFaction }).sworn;
+  const theirs = PEOPLE_ALLEGIANCE[who.people];
+  return Boolean(own && theirs && own !== theirs);
+}
+
 /** The whole cast, both navies and the recruit pool, in one list. */
 export function everyone() {
   return [
@@ -612,7 +633,7 @@ function EntrySheet({
         const who = everyone().find((c) => slugOf(c.name) === subject.id);
         if (!who) return null;
         const roles: string[] = who.roles ?? [];
-        const sworn = PEOPLE_ALLEGIANCE[who.people];
+        const sworn = swornSide(who);
         const lord = PIRATE_LORDS.some((l) => l.name === who.name);
         // Four of the Crown's seven and five of the Confederacy's are seated
         // by the opening draw; the rest sit this war out and are not in the
@@ -693,8 +714,20 @@ function EntrySheet({
               </div>
               {sworn && (
                 <div className="card small" style={{ marginTop: 8 }}>
-                  <b>Sworn.</b> The {who.people} sail for the{' '}
-                  {factionData[sworn].shortName} and nobody else
+                  {/* Two of the cast swore for themselves and against their own
+                      people, which is the whole of who they are — so the card
+                      says that rather than repeating the people's line back
+                      with the flag reversed. */}
+                  <b>Sworn.</b>{' '}
+                  {swornAlone(who) ? (
+                    <>
+                      The {who.people} sail for the{' '}
+                      {factionData[sworn === 'empire' ? 'alliance' : 'empire'].shortName} and
+                      nobody else. This one does not, and is named for it.
+                    </>
+                  ) : (
+                    <>The {who.people} sail for the {factionData[sworn].shortName} and nobody else</>
+                  )}
                   {sworn === you
                     ? ' — which is you, so they can be signed.'
                     : ', so no recruiter of yours will ever sign them however loyal the island.'}
@@ -1362,7 +1395,7 @@ export function Almanac({
           .sort(byPerson)
           .map((who) => {
           const subject: Subject = { kind: 'person', id: slugOf(who.name) };
-          const sworn = PEOPLE_ALLEGIANCE[who.people];
+          const sworn = swornSide(who);
           /*
            * Whether this person is in *this* war.
            *

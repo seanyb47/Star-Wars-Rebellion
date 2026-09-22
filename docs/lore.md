@@ -180,19 +180,68 @@ What he learned aboard her he teaches to whatever squadron is lying where he is.
 ## 3. The Peoples
 
 - **Human** (Everywhere). Default
-- **Reef-folk** (Coralhome (Amber Sea)). Amphibious. Gill-slits at the throat, luminous eyes, skin that shifts color with mood. Grow their ships from living coral over years. The Confederacy's best admirals. Once bound to Imperium oar-benches under an old indenture the Crown quietly stopped enforcing and has never apologised for.
-- **Shoal-folk** (The Shoals (Amber Sea)). Small, webbed, night-eyed, chattering. Can hear a ship's hull creak a mile off. Best watchers in the world; cheap to arm because they arm themselves.
-- **Urskin** (Northreach (Far Sea)). Huge, shaggy, tusked sea-bear folk. Harpooners and whalers. Loyal to death, slow to anger, terrifying past it. Torvik is Urskin. **Confederacy, always** — the whaling fleets are named in the articles and no Urskin has ever signed Crown ones.
+- **Reef-folk** (Coralhome (Amber Sea)). Amphibious. Gill-slits at the throat, luminous eyes, skin that shifts color with mood. Grow their ships from living coral over years. **Good negotiators and good fighters, and they produce admirals** — middling at everything in between. The Confederacy's best commanders come from here. Once bound to Imperium oar-benches under an old indenture the Crown quietly stopped enforcing and has never apologised for, which is the difference between them and the Bog-folk in one sentence: nobody ever broke the benches for the Reef-folk, the Crown simply stopped filling them.
+- **Shoal-folk** (The Shoals (Amber Sea)). Small, webbed, night-eyed, chattering. Can hear a ship's hull creak a mile off. Best watchers in the world; cheap to arm because they arm themselves. **Decent at most things and better at a parley than they look**, and they vary more one to the next than any other people — Meret of Low Water has never been turned away from a harbour and Kitto of the Nine Shoals cannot stop talking in one.
+- **Urskin** (Northreach (Far Sea)). Huge, shaggy, tusked sea-bear folk.
+  Harpooners and whalers. **Combat and command are what they are for** — the
+  best fighters alive and better leaders than anybody expects, middling
+  negotiators, and poor spies, because an Urskin cannot go anywhere quietly and
+  has never seen why he should. Slow to anger and terrifying past it. They vary:
+  Torvik is nine feet of black pelt and does what Reyne tells him, Brannoc Tull
+  is grey and half a head shorter and forty winters of deciding which boats go
+  out. **Confederacy, always** — the whaling fleets are named in the articles
+  and no Urskin has signed Crown ones.
+
+  Except one, which is the point of him. **Vurn Kesk** takes Crown coin to bring
+  in his own kind, by the head, and the Northreach fleets have retired his
+  harpoon — among Urskin that is not an honour but the opposite of one, a
+  name struck off a boat that will never go out again. The Confederacy calls him
+  the Betrayer. He answers to it cheerfully, which is worse.
 - **The Rumor Guild** (human)** (Hearsay Cay (Amber Sea)). A guild, not a people. Ink-stained, sharp, sells to both sides.
-- **The Hushed** (The Drowned Reach (Bone Sea)). Pale, eel-thin, silent folk from half-drowned islands. Bound to the Crown by an old bargain. Nobody hears them coming.
+- **The Hushed** (The Drowned Reach (Bone Sea)). Pale, eel-thin, silent folk
+  from half-drowned islands. Bound to the Crown by an old bargain whose terms
+  nobody will state. **Special operations, and nothing else** — the finest
+  spies in the world and very nearly the finest killers, and hopeless at
+  everything a war is otherwise made of: they do not command, they do not
+  negotiate, and a table full of governors is a room they leave rather than a
+  room they work. There are never many of them. That is the trade the Crown
+  made and it has never been offered a better one. **Imperium, always.**
 - **The Fatmouths** (Fatmouth & Blackreef). Bloated harbor-kings who own the wharves, the warehouses and most of the debts. Nobody has seen Jubal's legs; there is a rumor he doesn't have any.
 - **Tidewrought** (Imperium yards). Brass-and-iron automata built by Lemmick, animated by a bound sliver of the Deep. Walk the seabed. See poorly. Never tire.
-- **Bog-folk** (Sea of Storms swamps). Wrinkled, patient, amphibious irregulars
-  who fight at night and from cover and have never once been beaten in their
-  own water. **Imperium, always.** The swamps were Crown ground before the
-  Corsair Wars and the Bog-folk held them through it; the Admiralty pays for
-  that in silence and latitude, and gets a people who can take an island back
-  without ever forming a line.
+- **Bog-folk** (Cinder Reach swamps, in the Sea of Storms). Wrinkled, patient,
+  amphibious irregulars who fight at night and from cover and have never once
+  been beaten in their own water. **Bruisers and spies** — heavy hitters who
+  are also the best scouts the Crown has. Poor negotiators, indifferent
+  commanders, and comfortable with both facts. **Imperium, always**, and the
+  reason why is the ugliest and best story either side has. See below.
+
+  **The muster name.** The swamps were not Crown ground first. They belonged to
+  human slavers — families out of the Glass Sea who had worked the fens for
+  four generations and kept the Bog-folk on the benches and the drying racks,
+  and who held their papers in good order the whole time. When the Crown took
+  the Cinder Reach in the last year of the Corsair Wars it broke the houses,
+  burned the papers, and hanged the men who had signed them, and it did all of
+  that for its own reasons and not for the Bog-folk's. It does not matter. The
+  Bog-folk were there, and they watched, and it is the only thing anybody has
+  ever done for them.
+
+  So they are loyal past argument, and the Crown has never had to ask twice.
+  A Bog-folk in Crown service takes a **muster name** — the one the clerk
+  wrote down — because the name they were born with belonged to the man who
+  owned them, and giving it back is the thing they did first. Renn, Marsh, Fen:
+  place-words off a roll, and worn the way other people wear a medal.
+
+  **The witches, and what they did.** Not all of them took it. The bog witches
+  — the Deep-touched of the fens, and the ones the old houses feared rather
+  than owned — argued that a debt is still a collar if you can never put it
+  down, and that the Crown had freed them the way a man frees a horse. They
+  lost the argument, and the ones who had made it went south to the Confederacy
+  and did not come back. Their own people count them dead. The Crown counts
+  them traitors. There are very few of them and they are not sorry.
+
+  So both sides have Bog-folk and they are not the same people: three in the
+  Crown-green sash for every one who went, and the ones who went fight exactly like the
+  ones who stayed, out of the dark and out of the water, against their cousins.
 - **Outlander** (past the edge of the charts). Thorne came from somewhere beyond the Glass Sea, where no chart goes and nobody has been back from twice. Blue-grey skin, red eyes. Nobody knows what is out there. He will not say.
 
 ## 4. The Deep
@@ -215,7 +264,7 @@ There is no dark side. Tidecraft is neutral; the sea doesn't care. What a person
 - **Fogmire.** Tam Calloway sails alone to Fogmire to train under Old Hesper (~100 days away; large Deep-score boost on return; he comes back quieter).
 - **The black water.** Tam meets Admiral Blackwater on a mission. The water goes black and flat between them. Blackwater reveals he was Corwin Calloway, the Confederacy captain everyone believes drowned at the Battle of the Broken Chain.
 - **The twins.** Tam tells Ros Carrow they are twins, separated as infants when their mother fled Highwater.
-- **Before the Regent.** Blackwater brings Tam before the Lord Regent at Highwater. If Tam's Deep-score is high enough he turns his father and both are taken for the Confederacy.
+- **Before the throne.** Blackwater brings Tam before the Imperator and Corvane at Highwater. If Tam's Deep-score is high enough he turns his father and both are taken for the Confederacy.
 
 **Reyne's debt.**
 - **Collectors.** Silas Reyne owes a ruinous debt to **Jubal the Fat**, corsair-king of **Blackreef**; Jubal's collectors periodically try to take him.
@@ -229,33 +278,147 @@ _Every named character has one admirable trait and one ugly one. No side owns ei
 
 #### The principals
 
-**Lord Regent Halvard Corvane** “the Old Tide” — Human. Tidemaster, Leader, Recruiter.
+_Regenerated from `src/data/characters.json`, which is the only copy that the game reads. Sean, 22 September: *"differentiate the different officers — you got young and old, male and female, ugly and pretty... and also regional."* Every entry carries an age, a home, a look and a temper for exactly that reason, and the look line doubles as the portrait brief. Do not edit these by hand; edit the roster and regenerate, because this page had already drifted — it was still calling Corvane the Lord Regent a day after he stopped being one._
 
-Has not left the citadel of Highwater in eleven years. Can still the whole harbor by standing at a window. Ended the Corsair Wars, and keeps a ledger of every hanging and every child taken for licensing without once thinking the number too high.
+**Imperator Cassian Thorne** “the Young Imperator” — Human, 14. Highwater, the Aldermain.
 
-**Admiral Corvus Blackwater** “the Drowned Admiral” — Human (once). Tidemaster, Leader, Spec Ops, Diplomat.
+*Leader · Recruiter* — Parley 72 · Espionage 30 · Combat 48 · Leadership 66
 
-Burned and drowned at the Broken Chain, pulled out of the water by the Regent's surgeons and rebuilt with brass lungs and a black leather mask. Keeps every promise, even to enemies. Executes captains for failure and feels nothing.
+Aurelian Thorne's only son, and eleven months on a throne his father built and did not live to hand over properly. He has his father's dying wish written out in a hand he is still learning to read as an instruction rather than a letter. The Admiralty carries the war; the boy carries the reason for it, and every island that sees him in person remembers it for a year.
 
-**Captain Fenwick Pryor** “the Survivor” — Human. Diplomat, Leader.
+*Looks like:* Fair, thin-wristed, hair the colour of wet straw. State robes cut for a grown man and taken in twice. His father's signet worn on a cord because it does not fit his hand.
+
+*Is like:* Watchful and over-polite. Hates being carried.
+
+**Grand Admiral Halvard Corvane** “the Old Tide” — Human, 71. Highwater, the Aldermain.
+
+*Leader · Recruiter · General* — Parley 84 · Espionage 62 · Combat 70 · Leadership 96
+
+Ended the Corsair Wars from a quarterdeck and has not left the citadel of Highwater since the Emperor died. Can still the whole harbor by standing at a window. Keeps a ledger of every hanging and every child taken for licensing without once thinking the number too high, and keeps the boy at his elbow while he does it.
+
+*Looks like:* Tall and gaunt, white side-whiskers, a face like weathered oak. Full dress at every hour of the day: admiral's double bullion, the Corsair Wars ribbon, no decoration he did not earn.
+
+*Is like:* Immovable, courteous, cold. Has not raised his voice since the Corsair Wars and has not needed to.
+
+**Admiral Corvus Blackwater** “the Drowned Admiral” — Human, 48. unrecorded — Far Sea, by his vowels.
+
+*Leader · Spec Ops · Negotiator* — Parley 60 · Espionage 80 · Combat 92 · Leadership 94
+
+Burned and drowned at the Broken Chain, pulled out of the water by the Regent’s surgeons and rebuilt with brass lungs and a black leather mask. Keeps every promise, even to enemies. Executes captains for failure and feels nothing.
+
+*Looks like:* Black leather half-mask, a brass lung-cage worn over the chest and audible in a quiet room. No hair. Salt-scarred to the collar.
+
+*Is like:* Exact and unhurried. Keeps every promise, including the ones enemies would rather he forgot.
+
+**Captain Fenwick Pryor** “the Survivor” — Human, 44. the Aldermain — minor gentry, third son.
+
+*Negotiator · Leader* — Parley 74 · Espionage 46 · Combat 58 · Leadership 80
 
 Careful and competent; survives Blackwater's flagship by never being the one blamed. Good at parley because he listens.
 
-**Governor Tiberius Jarrold** “the Sleepless” — Human. Diplomat, Leader.
+*Looks like:* Sandy, going soft at the jaw, a good coat kept a year too long and brushed every morning.
+
+*Is like:* Careful, agreeable, a genuinely good listener. Nobody's favourite and nobody's enemy, which is exactly why he is alive.
+
+**Governor Tiberius Jarrold** “the Sleepless” — Human, 57. Greenholm, Whalers' Reach.
+
+*Negotiator · Leader* — Parley 90 · Espionage 44 · Combat 38 · Leadership 78
 
 Oversees the Leviathan's completion at Greenholm. Charming at dinner; has stopped sleeping.
 
-**Captain Lorne Neddam** “First Over the Rail” — Human. Spec Ops, Leader.
+*Looks like:* Heavy and florid and magnificent at a dinner table. Ink on the cuffs, grey under the eyes, a hand that has begun to shake at the third glass.
+
+*Is like:* Charming at a table and frightened away from one. Has stopped sleeping and will not say why.
+
+**Captain Lorne Neddam** “First Over the Rail” — Human, 33. the Salt Reach — born on a Glass Sea salt-island, took Crown pay at fifteen.
+
+*Spec Ops · Leader* — Parley 40 · Espionage 62 · Combat 84 · Leadership 82
 
 Boarding-action specialist. Honest to a fault, which will get him killed.
 
-**Admiral Kendrick Ozmond** “the Peacock” — Human. Spec Ops, Leader.
+*Looks like:* Dark brown skin, close-shaved head, a boarder's forearms, a nose broken twice and set badly both times. Working rig; he owns one good coat and keeps it aboard.
+
+*Is like:* Blunt, cheerful, physically unable to lie. The men would follow him anywhere and the Admiralty will never promote him.
+
+**Admiral Kendrick Ozmond** “the Peacock” — Human, 39. the Aldermain — old money, older debts.
+
+*Spec Ops · Leader* — Parley 44 · Espionage 56 · Combat 76 · Leadership 78
 
 Aristocrat, vain, better at raids than fleets. Blackwater despises him.
 
-**Colonel Maximilian Vierling** “the Drillmaster” — Human. Drill Research, General.
+*Looks like:* Beautiful and knows it. Powdered, ringed, a coat that cost more than a gun, and a sword that has never been drawn in anger.
+
+*Is like:* Vain and quick and spiteful when slighted. Brilliant on a raid and wasteful with other people's crews.
+
+**Colonel Maximilian Vierling** “the Drillmaster” — Human, 62. Cinder Reach garrison stock, three generations of it.
+
+*Drill Research · General* — Parley 34 · Espionage 44 · Combat 90 · Leadership 92
 
 Marine drillmaster. Invented the Imperium's landing doctrine and the Drowned Guard's cold-baptism.
+
+*Looks like:* Grey bristle, parade-ground voice, the ramrod posture of a man who has never once sat back in a chair.
+
+*Is like:* Relentless and literal. No cruelty in him and no mercy either; the Drowned Guard call him father and the islands call him the cold-baptiser.
+
+**Envoy Adelia Marchmont** “the Paper Tide” — Human, 51. the Aldermain — Admiralty clerk-caste, four generations.
+
+*Negotiator* — Parley 94 · Espionage 48 · Combat 18 · Leadership 64
+
+Arrives with the treaty already drafted and the signatures already witnessed, and then waits. Has never raised her voice in a negotiation and has never needed to; the Admiralty's terms are not an opening position. Islands that have signed describe the experience as being told the weather.
+
+*Looks like:* Small and grey in a plain coat, spectacles on a chain, a document case that is never further than her arm.
+
+*Is like:* Unhurried, unmoved, faintly kind. Has never broken her word and has never given one that cost the Crown anything.
+
+**Captain Sabra Veyle** “the Convert” — Human, 27. the Salt Reach — a Glass Sea salt-island, left at fourteen.
+
+*Negotiator · Leader* — Parley 88 · Espionage 44 · Combat 52 · Leadership 84
+
+Walked onto a Crown recruiting hulk at fourteen with no shoes and an argument already prepared, and has been making the same argument ever since: that an island under one flag is an island that stops being raided. She believes it the way people who chose a thing believe it, and she is the best talker the Admiralty has under fifty. Islands that sign with her sign gladly, which is precisely why the Confederacy would rather she were dead than Marchmont.
+
+*Looks like:* Tall, dark brown skin, hair braided close under the hat. A uniform kept immaculate at her own expense because nobody issued her one that fitted.
+
+*Is like:* Earnest, tireless, and allergic to irony. Takes every insult to the Crown personally and none to herself at all.
+
+**Captain-of-Scouts Ivo Marsh** “the Muster Name” — Bog-folk, 51. the Cinder Reach swamps.
+
+*Spec Ops · General* — Parley 30 · Espionage 84 · Combat 82 · Leadership 54
+
+Bog-folk, and named off a Crown muster roll the way all of them in Crown service are — the name he was born with belonged to the man who owned him, so he gave it back and took the one the clerk wrote down. Runs the Admiralty's scouts and has never lost one. Speaks rarely, and when he does the Admiralty listens, because he has been right about ground for thirty years and has no interest at all in being right about anything else.
+
+*Looks like:* Wrinkled grey-green hide, webbed hands, an eye that closes sideways. Swamp leathers under a Crown-green sash, boots carried and not worn.
+
+*Is like:* Patient, literal, unamused. Owes the Crown a debt he considers unpaid and would find the question insulting.
+
+**Quill** “no other name” — The Hushed, age unknown. the Drowned Reach.
+
+*Spec Ops* — Parley 22 · Espionage 92 · Combat 82 · Leadership 40
+
+Hushed, and the Admiralty does not list her because the old bargain is not a commission and never was. What the Crown gets is this: a door that was locked is open, a man who was going to speak does not, and a fleet that was going to sail is still in harbour arguing about why. She has never been seen leaving anywhere. Corvane has met her twice and describes the experience as being audited.
+
+*Looks like:* Eel-thin and paper-pale, eyes with no white in them. An oiled dark wrap, bare feet, nothing on her that catches light or makes a sound.
+
+*Is like:* Silent, exact, entirely without hurry. Not cruel — the word does not apply to her any more than it applies to weather.
+
+**Rear-Admiral Godwin Thrale** “the Hammer of Ballmoor” — Human, 64. Wreckers' Reach — three generations of salvage men.
+
+*General · Leader* — Parley 30 · Espionage 34 · Combat 86 · Leadership 92
+
+Came up out of the wrecking trade, which the Admiralty has never quite forgiven and has never been able to argue with. Took Ballmoor in a morning and lost the harbour back to one Urskin whaler in an afternoon, and tells both halves of the story himself, loudly, at dinner. Wins. Leaves a harbour that remembers him, and considers that part of winning.
+
+*Looks like:* A barrel of a man gone white, one ear gone above the lobe, an old coat and a newer scar. Never wears the second-best of anything.
+
+*Is like:* Loud, decisive, and enjoying himself. There is no malice in him, which somehow makes the accounts worse rather than better.
+
+**Lieutenant Cordelia Vance** “the Orphan of the Chain” — Human, 22. the Aldermain — Admiralty family, both sides of it.
+
+*Leader* — Parley 58 · Espionage 50 · Combat 58 · Leadership 84
+
+Daughter of Captain Hollis Vance, who took the Broken Chain's third rate and did not come off her. The fleet adopted the child and has been slightly ruining her ever since: every wardroom in the Crown Sea wants her at its table and none of them want her in a fight. She has commanded a brig for eleven months, brought it home twice, and is quietly furious that neither is the thing anyone mentions.
+
+*Looks like:* Small and freckled, red hair pinned hard under the hat, wearing her father's sword, which is four inches too long for her and which she will not have shortened.
+
+*Is like:* Grave and quick and terrified of being pitied. Will take any posting nobody else wants, for exactly that reason.
 
 #### The rest of the roster
 
@@ -277,43 +440,125 @@ Marine drillmaster. Invented the Imperium's landing doctrine and the Drowned Gua
 - **Colonel Orlock** — Human; LEADER (general). Garrison colonel. Hard on deserters, feeds his men better than the regulations require.
 - **Commander Piers Thane** — Human; DIPLOMAT. Prefers a treaty to a broadside.
 - **Sheridan Rix** — Human; SPEC OPS. Crown assassin-courier; leaves no witnesses.
-- **Grand Admiral Cassian Thorne** — Outlander; WILDCARD-RESEARCH, LEADER (admiral). Came from somewhere past the edge of the charts. Studies an enemy's figureheads and shanties to predict how they'll fight. Coldest mind in the Imperium; the Regent doesn't fully trust him and shouldn't.
+- **Grand Admiral Auberon Vale** — Outlander; WILDCARD-RESEARCH, LEADER (admiral). Came from somewhere past the edge of the charts. Studies an enemy's figureheads and shanties to predict how they'll fight. Coldest mind in the Imperium; the Admiralty doesn't fully trust him and shouldn't. *(Renamed 22 September. He was Cassian Thorne on this bench, which is now the boy on the throne — a name collision, and the worst possible one. The Outlander's surname was never load-bearing; the Imperator's is.)*
 - **Captain Villiers** — Human; LEADER (admiral/general). Reliable second-tier commander.
 - **Tobias Zeck** — Human; SPEC OPS. Gutter-born marine; saboteur and knife man.
-- **Bastian Ferro** — Human?; SPEC OPS (combat/espionage). Masked bounty hunter in a coat of riveted iron plate and verdigrised copper. Has never been seen to eat. Works for coin, not flag.
+- **Bastian Ferro** — Human?; SPEC OPS (combat/espionage). Masked bounty hunter in a coat of riveted iron plate and verdigrised copper. Has never been seen to eat. Works for coin, not flag. *Overlaps Vurn Kesk the Betrayer, who is shipped and he is not — if both are ever built, Ferro is the one who is nobody's and Kesk is the one who used to be somebody's, and that is the only difference worth keeping.*
 - **Lyra Vesper, "the Regent's Hand"** — Human; DEEP, SPEC OPS. Corvane's personal blade, taken at six for licensing and raised in the citadel. A Tidecaller who can walk across a still harbor without a boat. Has a conscience she keeps locked in a chest.
 
 ### The Free Confederacy
 
 #### The principals
 
-**Commodore-Elect Adaira Hale** “the Magistrate” — Human. Diplomat, Recruiter.
+**Commodore-Elect Adaira Hale** “the Magistrate” — Human, 46. the Aldermain — Crown magistrate until she resigned.
+
+*Negotiator · Recruiter · Leader* — Parley 88 · Espionage 58 · Combat 32 · Leadership 84
 
 Former Imperium magistrate who resigned over the licensing raids, and has held a pack of pirates together for six years by force of argument. Incorruptible; has looked away from what some of her captains do because she needs their hulls.
 
-**Tam Calloway** “the Fisher's Boy” — Human. Deep-touched, Spec Ops, Leader, Recruiter.
+*Looks like:* Severe, greying, still in a magistrate's plain black at sea because she has not found a reason to change.
+
+*Is like:* Cold and reasonable and unbending. The Confederacy's conscience, and its most convenient excuse.
+
+**Tam Calloway** “the Fisher's Boy” — Human, 19. the Far Sea — a fishing island with no name on any chart.
+
+*Spec Ops · Leader · Recruiter* — Parley 76 · Espionage 76 · Combat 70 · Leadership 56
 
 Fisher's boy from the Far Sea. The fish come to his boat and old sailors cross themselves when he walks past. Raw, brave, and going to be either the greatest Tidecaller in a generation or dead by twenty-two.
 
-**Rosalind "Ros" Carrow** “of Carrow” — Human. Diplomat, Recruiter, Latent Deep-touched.
+*Looks like:* Skinny, sunburnt, salt-bleached hair, bare feet on any deck, a fisher's knife and nothing else worth taking.
 
-Heir of the island of Carrow, which went under in the great gale while an Imperium fleet held position a day's sail away and did not come in. The Confederacy's best negotiator: tireless, sharp, running on grief.
+*Is like:* Open, reckless, easily hurt and slow to show it.
 
-**Captain Silas Reyne** “the Swallowtail” — Human. Spec Ops, Recruiter, Leader.
+**Rosalind "Ros" Carrow** “of Carrow” — Human, 19. Carrow, in the Amber Sea — taken, and not retaken.
+
+*Negotiator · Recruiter* — Parley 86 · Espionage 72 · Combat 46 · Leadership 66
+
+Heir of the island of Carrow, which was lost while an Imperium fleet held position a day's sail away. The Confederacy's best negotiator: tireless, sharp, running on grief.
+
+*Looks like:* Sharp-featured, dark hair cut short with a knife and kept that way, still in mourning grey a year on.
+
+*Is like:* Relentless. Funny when she is too tired to be angry, which is not often.
+
+**Captain Silas Reyne** “the Swallowtail” — Human, 34. the Amber Sea, no fixed island and no intention of getting one.
+
+*Spec Ops · Recruiter · Leader* — Parley 66 · Espionage 90 · Combat 86 · Leadership 79
 
 Smuggler captain of the Swallowtail, a coral-grown sloop that has no business being that fast. Owes Jubal the Fat more than a ship is worth. Claims to be in it for the money; keeps proving otherwise.
 
-**Anselm "Big" Torvik** “Big Torvik” — Urskin. Spec Ops.
+*Looks like:* Lean and brown, a good beard badly kept, a coat won at cards off a man who could afford it.
+
+*Is like:* Glib and generous and entirely unwilling to discuss the debt. Claims to be in it for money; keeps proving otherwise.
+
+**Anselm "Big" Torvik** “Big Torvik” — Urskin, 40. Northreach, in the Rime Reach.
+
+*Spec Ops* — Parley 55 · Espionage 48 · Combat 94 · Leadership 74
 
 Reyne's first mate: a tusked, shaggy mountain who can throw a harpoon through a hull. Loyal past all reason, and surprisingly good at parley when Reyne shuts up.
 
-**Admiral Dorian Jessup** “the Grandfather” — Human. General, Diplomat, Leader.
+*Looks like:* Nine feet of black pelt, both tusks whole and scrimshawed with the names of his dead, a whaler's harpoon he carries one-handed. Wears what fits, which is very little.
+
+*Is like:* Slow and warm and catastrophic when it finally goes. Loyal past all reason.
+
+**Admiral Dorian Jessup** “the Grandfather” — Human, 68. the Aldermain — forty years of Admiralty before he walked.
+
+*General · Negotiator · Leader* — Parley 78 · Espionage 52 · Combat 86 · Leadership 86
 
 Elderly ex-Imperium admiral; the Confederacy's grandfather figure and its steadiest voice at a parley table.
 
-**Wyatt Ansell** “the Shipwright” — Human. Ship Design, Wing-Captain.
+*Looks like:* White beard, ruined knees, and a Crown coat with the facings unpicked rather than replaced.
+
+*Is like:* Gentle, stubborn, sad. The only man in three Seas both fleets will sit down with.
+
+**Wyatt Ansell** “the Shipwright” — Human, 24. born Whalers' Reach, apprenticed to the Coral Reach.
+
+*Ship Design · Wing-Captain* — Parley 56 · Espionage 68 · Combat 64 · Leadership 56
 
 Young cutter-captain and self-taught shipwright, learning to grow coral hulls from the Reef-folk.
+
+*Looks like:* Freckled, sawdust in his hair and everything else, hands scarred white by coral.
+
+*Is like:* Absorbed to the point of rudeness, shy with people and sharp about hulls. Too young to be listened to and usually right.
+
+**Meret of Low Water** “the Welcome” — Shoal-folk, 38. Low Water, in the Shoals.
+
+*Negotiator · Recruiter* — Parley 88 · Espionage 58 · Combat 44 · Leadership 60
+
+Has never been turned away from a harbour, including two that were at war with her at the time. Speaks eleven island dialects and apologises for her accent in all of them. The Crown has put a price on her three times and quietly withdrawn it twice, on the grounds that arresting her would cost more goodwill than she is worth.
+
+*Looks like:* Small and webbed and night-eyed, in a coat sewn from eleven mismatched island cloths, one from every harbour that took her in.
+
+*Is like:* Warm, apologetic, unkillably patient. Welcome everywhere and trusted nowhere important.
+
+**Nerine Vask** “the Grown Fleet” — Reef-folk, 60. Coralhome, in the Coral Reach.
+
+*Leader · Negotiator* — Parley 84 · Espionage 58 · Combat 78 · Leadership 82
+
+Grew four hulls in her life and lost three of them to licensing writs, and still opens every parley by asking after the other side's family. The best admiral the Confederacy has and the last of the Reef-folk old enough to remember the oar-benches from the inside, which she mentions to nobody and forgets in no room she is standing in.
+
+*Looks like:* Luminous eyes and gill-slits at the throat, skin going slate to bronze with her temper. A coral gorget grown rather than made, and a coat over it out of courtesy to the humans.
+
+*Is like:* Formal, forgiving, and immovable on exactly one subject. Has forgiven the Crown personally and will not forgive it politically.
+
+**Kitto of the Nine Shoals** “the Listening Boy” — Shoal-folk, 17. the Shoals, in the Coral Reach.
+
+*Spec Ops* — Parley 62 · Espionage 88 · Combat 48 · Leadership 50
+
+Seventeen, four foot nothing, and the reason the Confederacy has never once been surprised in the Coral Reach. Sat a masthead through a night action at fourteen calling ranges he could not see, and the fleet has not let him off a masthead since. Hears everything. Repeats most of it, to everyone, immediately, which has cost the Confederacy two secrets and saved it eleven ships.
+
+*Looks like:* The smallest person on any deck, webbed, with night eyes that take up half his face. A crow's nest built to his size and a permanent bundle of somebody else's blanket.
+
+*Is like:* Chattering, anxious, never off watch. Frightened of the water, which he will deny.
+
+**Rafferty Coyne** “the Quartermaster” — Human, 55. Freeport — born over the harbour office and never left it.
+
+*Negotiator · Spec Ops* — Parley 74 · Espionage 72 · Combat 70 · Leadership 52
+
+Keeps the articles, the ledger and the peace at Freeport, in that order, and has done since before there was a Confederacy to keep them for. Knows what every hull in three Seas owes and to whom, which makes him the most dangerous man at the table and the least likely to be hit. Has never sailed on a raid. Has planned rather a lot of them.
+
+*Looks like:* Enormous and bald and aproned, a pistol belt under it, and a ledger on a chain at his waist that he has never once handed to anybody.
+
+*Is like:* Jovial and mercenary. Keeps his word to the letter and not one word further, and says so up front, which most people mistake for a joke.
 
 #### The rest of the roster
 
@@ -324,7 +569,7 @@ Young cutter-captain and self-taught shipwright, learning to grow coral hulls fr
 - **General Carsten Reike** — Human; LEADER (general). Steady, grim, evacuates before it's too late.
 - **Major Cormac Dane** — Human; SPEC OPS, RESEARCH-TROOPS. Former Crown Marine officer who defected after a cold-baptism went wrong; trains the Cutthroats.
 - **Lord Garrin Beloise** — Human; DIPLOMAT, LEADER. Dissident Sugar Reach noble with a private squadron; clashes with Hale.
-- **Admiral Halloran Quist** — Reef-folk; LEADER (admiral). Once an Imperium slave-oarsman. The Confederacy's greatest fleet mind; his skin goes red when he's about to win.
+- **Admiral Halloran Quist** — Reef-folk; LEADER (admiral). Once an Imperium slave-oarsman. The Confederacy's greatest fleet mind; his skin goes red when he's about to win. *Maren Quist's uncle, and the reason she was allowed near a hull at fourteen — kept as a shared surname rather than renamed, because a Reef-folk family that produces admirals is better than a coincidence.*
 - **Hiram Drace** — Human; LEADER (admiral). Dependable convoy admiral.
 - **Huon Nevis** — Human; DIPLOMAT. Traveling preacher-diplomat who sways islands from a tavern table.
 - **Sergeant Jory Padgett** — Human; SPEC OPS. Leads the boarding parties; quiet, precise, lethal.
@@ -343,20 +588,161 @@ Young cutter-captain and self-taught shipwright, learning to grow coral hulls fr
 
 ### The unaligned
 
-_Ashore somewhere in the Reaches, waiting for whichever side asks first._
+_Ashore somewhere in the Reaches, waiting for whichever side asks first. Eight of the fifteen are dealt into any one war (`RECRUITS_IN_PLAY`), two of them ashore on the first morning._
 
-- **Maren Quist** “the Coralwright” — Reef-folk. Grew her own hull over nine years the way the Reef-folk do, singing coral into shape a season at a time. The Admiralty took it at Coralhome on a licensing writ and broke it up for the keel-timber, which is not a thing you can do to a grown ship quietly. She reads a sea the way other people read a page, and she has not spoken about the ship since.
-- **Pellam Voss** “the Master Gunner” — Human. Forty years on Admiralty gundecks, the last eleven as a master gunner, and pensioned off inside a week for saying at a dinner what he thought of the admiral at the head of it. He was right, which made it worse. Lays a gun by feel in the dark, and has never yet been asked to explain himself twice.
-- **Sable** “no other name” — The Hushed. Hushed, out of the Drowned Reach, and listed on no roll in either fleet. The old bargain that binds her people to the Crown does not appear to bind her, and nobody has worked out what does. She is not heard arriving. Twice now a thing that was certainly going to happen has simply not happened, and both times somebody remembers a door standing open.
-- **Hesper Lyn** “the Price List” — The Rumor Guild. High in the Rumor Guild and entirely open about the arrangement: there is a price list, both sides are on it, and she has never pretended otherwise. Keeps a private book of every debt, affair and quiet burial in three Seas, and has never had to open it in public. Whether she keeps to the price list is the only question anybody actually asks.
-- **Brannoc Tull** “the Harpoon” — Urskin. Whaler out of Northreach, and the harpoon is not decorative — he has put one through a hull on purpose more than once, and the second time was not an emergency. Took a whale off the Bone Sea shelf that fed a chain through a bad winter. Slow to anger, and afterwards there is no route round him; the Admiralty established this at Ballmoor, at length.
-- **Wren Tally** “the Ear” — Shoal-folk. Nine years sat a masthead, most of them on watch towers nobody thought mattered, and came off them able to name a ship in fog by the sound of its hull working. Frightened of a great many things — weather on an open deck, officers, the dark below the waterline — and has never once left a post.
-- **Doctor Ambrose Kell** “the Tide Doctor” — Human. Surgeon and scholar, and the only man on his island who will say out loud that the deep can be studied rather than merely survived. It has cost him a licence, a post and most of his friends. Runs a surgery from whatever port will have him, takes payment in passage, and is the one person in three Seas that both fleets will pass through a blockade.
-- **Captain Isolde Marrow** “the Even Hand” — Human. Sails under a letter of marque nobody at the Admiralty will admit to signing, which suits everyone until it does not. Took a merchantman back off a boarding party with eleven crew and a signal gun, then put the boarders ashore alive because war had not been declared that week. Keeps her crew and keeps her word, in that order, and has resigned from both sides in writing.
-- **The Widow Ashgrave** “the Widow” — Human. Buried a shipowner, a governor and a Moot councillor, in that order, and inherited from all three. Brokers passage, marriages and truces out of a witch-island nobody charts twice, and holds the paper on half the yards in the Glass Sea. What she is owed is not really the point. Being owed is the point.
-- **Tobias Renn** “the Swampcat” — Bog-folk. Held the Storm swamps for the Imperium against four hundred insurgents, with eleven men and the weather, over eleven years, and never once in the open. Patient well past the point most people mean by the word. Considers a battle fought in daylight to be a battle somebody else arranged.
-- **Silvaine Crow** “the Quiet Hand” — Human. Deep-touched, and trained by nobody the Crown ever licensed, which in the Crown Sea is a charge rather than a description. Was a governor's secretary for nine years, which is how she knows where everything is written down; she left on a morning nobody can quite reconstruct, with three ledgers and a seal. Knows a lie by its echo, and does not always say so.
-- **Jory Halloran** “the Understudy” — Human. Nineteen, quick, and desperate to be off the island by any hull that will take him. Has crewed a revenue cutter, kept books for a chandler, and spent a fortnight in a gaol over a misunderstanding about the books. Adequate at all of it, remarkable at none, and perfectly aware that this is the problem. Somebody is going to make something of him.
+**Maren Quist** “the Coralwright” — Reef-folk, 44. Coralhome, in the Coral Reach.
+
+*Leader · Ship Design* — Parley 78 · Espionage 52 · Combat 72 · Leadership 90
+
+Grew her own hull over nine years the way the Reef-folk do, singing coral into shape a season at a time. The Admiralty took it at Coralhome on a licensing writ and broke it up for the keel-timber, which is not a thing you can do to a grown ship quietly. She reads a sea the way other people read a page, and she has not spoken about the ship since.
+
+*Looks like:* Luminous eyes, gill-slits at the throat, skin that goes slate when she is thinking and stays slate now.
+
+*Is like:* Quiet in a way that was not always the case. Reads a sea the way other people read a page.
+
+**Pellam Voss** “the Master Gunner” — Human, 63. the Aldermain — forty years of Admiralty gundecks.
+
+*General · Drill Research* — Parley 32 · Espionage 42 · Combat 86 · Leadership 62
+
+Forty years on Admiralty gundecks, the last eleven as a master gunner, and pensioned off inside a week for saying at a dinner what he thought of the admiral at the head of it. He was right, which made it worse. Lays a gun by feel in the dark, and has never yet been asked to explain himself twice.
+
+*Looks like:* Squat, deaf in the near ear, powder-burnt to the elbow, and disinclined to shout about it.
+
+*Is like:* Plain-spoken to the point of career suicide, which is how he came to be available.
+
+**Sable** “no other name” — The Hushed, age unknown. the Drowned Reach — listed on no roll in either fleet.
+
+*Spec Ops* — Parley 26 · Espionage 96 · Combat 64 · Leadership 38
+
+Hushed, and listed on no roll in either fleet. The old bargain that binds her people to the Crown does not appear to bind her, and nobody has worked out what does. She is not heard arriving. Twice now a thing that was certainly going to happen has simply not happened, and both times somebody remembers a door standing open.
+
+*Looks like:* Eel-thin, paper-pale, eyes with no white in them. Oiled dark wrap, bare feet, nothing that catches light.
+
+*Is like:* Not heard arriving. Nobody has worked out what binds her, including the Crown.
+
+**Hesper Lyn** “the Price List” — The Rumor Guild, 41. Hearsay Cay, in the Coral Reach.
+
+*Recruiter · Negotiator* — Parley 78 · Espionage 82 · Combat 28 · Leadership 52
+
+High in the Rumor Guild and entirely open about the arrangement: there is a price list, both sides are on it, and she has never pretended otherwise. Keeps a private book of every debt, affair and quiet burial in three Seas, and has never had to open it in public. Whether she keeps to the price list is the only question anybody actually asks.
+
+*Looks like:* Ink-stained fingers, spectacles pushed up into black hair, three rings and a very good coat.
+
+*Is like:* Entirely open about the arrangement. There is a price list; both sides are on it.
+
+**Brannoc Tull** “the Whale-Road” — Urskin, 58. Northreach, in the Rime Reach.
+
+*Leader · General* — Parley 58 · Espionage 38 · Combat 84 · Leadership 90
+
+Forty winters of saying which boats go out and which stay in, in front of the families of both, which is a harder command than any deck. Speaks for the Northreach whaling fleets and they sail when he says so. The Admiralty took Ballmoor from him in a morning and he took it back the same afternoon with eleven boats and no guns at all, and has never once described how.
+
+*Looks like:* Grey-white pelt gone thin at the shoulders, one tusk broken off short and capped in scrimshawed bone, an ice-scar across the muzzle. Older and smaller than Torvik and does not need to be told so.
+
+*Is like:* Slow, exact, and listened to. Forty winters of deciding which boats go out and which stay in, in front of the families of both.
+
+**Wren Tally** “the Ear” — Shoal-folk, 26. the Shoals — nine years on towers nobody thought mattered.
+
+*Spec Ops* — Parley 62 · Espionage 86 · Combat 52 · Leadership 54
+
+Nine years sat a masthead, most of them on watch towers nobody thought mattered, and came off them able to name a ship in fog by the sound of its hull working. Frightened of a great many things — weather on an open deck, officers, the dark below the waterline — and has never once left a post.
+
+*Looks like:* Small, webbed, huge night eyes, a coat too big for her because it was somebody else's.
+
+*Is like:* Frightened of weather, officers and the dark below the waterline, and has never once left a post.
+
+**Doctor Ambrose Kell** “the Tide Doctor” — Human, 52. no port for long — struck off in the Crown Sea.
+
+*Negotiator* — Parley 78 · Espionage 58 · Combat 22 · Leadership 62
+
+Surgeon and scholar, and the only man on his island who will say out loud that the deep can be studied rather than merely survived. It has cost him a licence, a post and most of his friends. Runs a surgery from whatever port will have him, takes payment in passage, and is the one person in three Seas that both fleets will pass through a blockade.
+
+*Looks like:* Thin, stooped, spectacles mended with wire, a bag that is all he kept.
+
+*Is like:* Careful, curious, and incapable of not saying the thing that costs him the licence.
+
+**Captain Isolde Marrow** “the Even Hand” — Human, 37. the Merchant Sea — a letter of marque nobody will admit to signing.
+
+*Leader · Negotiator* — Parley 62 · Espionage 58 · Combat 72 · Leadership 82
+
+Sails under a letter of marque nobody at the Admiralty will admit to signing, which suits everyone until it does not. Took a merchantman back off a boarding party with eleven crew and a signal gun, then put the boarders ashore alive because war had not been declared that week. Keeps her crew and keeps her word, in that order, and has resigned from both sides in writing.
+
+*Looks like:* Weather-brown, a long plait pinned up, a plain coat and a very well-kept signal gun.
+
+*Is like:* Keeps her crew and keeps her word, in that order. Has resigned from both sides in writing.
+
+**The Widow Ashgrave** “the Widow” — Human, 64. a witch-island in the Glass Sea that nobody charts twice.
+
+*Negotiator · Recruiter* — Parley 90 · Espionage 68 · Combat 22 · Leadership 58
+
+Buried a shipowner, a governor and a Moot councillor, in that order, and inherited from all three. Brokers passage, marriages and truces out of a witch-island nobody charts twice, and holds the paper on half the yards in the Glass Sea. What she is owed is not really the point. Being owed is the point.
+
+*Looks like:* Black, immaculate, three widow's rings worn together, and a smile she uses like a hand of cards.
+
+*Is like:* Brokers passage, marriages and truces. Being owed is the point.
+
+**Tobias Renn** “the Swampcat” — Bog-folk, 49. the Cinder Reach swamps — Crown ground, and his.
+
+*General · Spec Ops* — Parley 44 · Espionage 66 · Combat 88 · Leadership 68
+
+Held the Storm swamps for the Imperium against four hundred insurgents, with eleven men and the weather, over eleven years, and never once in the open. Patient well past the point most people mean by the word. Considers a battle fought in daylight to be a battle somebody else arranged.
+
+*Looks like:* Wrinkled grey-green hide, webbed hands, a nictitating eye that closes sideways. Swamp leathers under a Crown-green sash that is the only Crown thing on him.
+
+*Is like:* Patient well past what most people mean by the word. Considers a battle fought in daylight to be a battle somebody else arranged.
+
+**Silvaine Crow** “the Quiet Hand” — Human, 35. the Crown Sea — a governor's household, for nine years.
+
+*Spec Ops · Recruiter* — Parley 68 · Espionage 86 · Combat 38 · Leadership 76
+
+Deep-touched, and trained by nobody the Crown ever licensed, which in the Crown Sea is a charge rather than a description. Was a governor's secretary for nine years, which is how she knows where everything is written down; she left on a morning nobody can quite reconstruct, with three ledgers and a seal. Knows a lie by its echo, and does not always say so.
+
+*Looks like:* Neat, forgettable on purpose, grey gloves she does not take off.
+
+*Is like:* Knows a lie by its echo and does not always say so.
+
+**Jory Halloran** “the Understudy” — Human, 19. a revenue station in the Merchant Sea, and desperate to leave it.
+
+*Leader* — Parley 52 · Espionage 52 · Combat 52 · Leadership 52
+
+Nineteen, quick, and desperate to be off the island by any hull that will take him. Has crewed a revenue cutter, kept books for a chandler, and spent a fortnight in a gaol over a misunderstanding about the books. Adequate at all of it, remarkable at none, and perfectly aware that this is the problem. Somebody is going to make something of him.
+
+*Looks like:* Scrawny, eager, a borrowed coat with the cuffs turned, and boots he is proud of.
+
+*Is like:* Adequate at everything, remarkable at nothing, and perfectly aware that this is the problem.
+
+**Mother Bracken** “who gave the name back” — Bog-folk, 66. the Cinder Reach swamps, until she left them.
+
+*Spec Ops · General* — Parley 40 · Espionage 88 · Combat 74 · Leadership 56
+
+Bog-folk, and the other kind: the witches would not take the muster name and would not take the debt either, and the ones who went south went for good. Her own people count her dead and the Crown counts her a traitor, and she answers to neither. Fights the way her cousins in the Crown-green sash fight, out of the dark and out of the water, and does it against them.
+
+*Looks like:* Wrinkled grey-green hide gone pale with age, webbed hands, an eye that closes sideways, and river-weed braided in — reclaimed, not decoration.
+
+*Is like:* Dry, unsentimental, and done explaining herself. Has been asked to come home once and did not reply.
+
+**Sworn to the Free Confederacy alone**, against their own people, which is the whole of who they are.
+
+**Vurn Kesk** “the Betrayer” — Urskin, 37. Northreach — struck from the whaling articles.
+
+*Spec Ops · General* — Parley 30 · Espionage 62 · Combat 98 · Leadership 58
+
+No Urskin has ever signed Crown articles, which is why his name is said the way it is said. He took Crown coin to bring in his own kind and has been taking it ever since — a bounty man, paid by the head, and worth every penny of it. The Admiralty is careful never to let him meet Thrale socially. His own fleet has retired his harpoon, which among Urskin is not an honour.
+
+*Looks like:* Half a hand taller than Torvik and rust-red where Torvik is black. Both tusks filed flat and ringed in Crown silver, one for each name he has brought in. Wears good coats badly.
+
+*Is like:* Cheerful, talkative, and entirely for sale. Will tell you what he costs before you ask, and has never yet failed to deliver.
+
+**Sworn to the Crown Imperium alone**, against their own people, which is the whole of who they are.
+
+**Hessa Fen** “the Night Corporal” — Bog-folk, 29. the Cinder Reach swamps.
+
+*Spec Ops* — Parley 36 · Espionage 80 · Combat 84 · Leadership 48
+
+Second generation off the benches, which in the swamps means she has heard about it rather than lived it, and it has made her worse about it rather than better. Eleven confirmed night actions and no daylight ones. Turned down a commission twice on the grounds that officers have to stand where people can see them.
+
+*Looks like:* Young for her hide, grey-green going darker at the shoulders, webbed, and never above the waterline when she can help it. Blacked face, blacked blade, and the green sash worn under the leathers where it will not catch light.
+
+*Is like:* Quiet, fierce, and openly devoted to the Crown in a way that embarrasses actual Crown officers.
 
 ## 6. Ships
 
@@ -674,7 +1060,7 @@ _Garrison companies. Three numbers each: what it is worth landing, what it is wo
 
 ### Secretary Sabine Marlow — the Crown's advisor
 
-First Secretary of the Admiralty: the permanent official. Admirals come and go, Lord Regents come and go, and the Secretary reads every dispatch before the Imperator does. Born to a clerk's family on Highwater, she entered the Admiralty at sixteen as a copyist and has outlasted four Regents and eleven First Sea Lords without ever once going to sea. She married a frigate captain, Aurel Marlow, lost with his ship at the Narrows holding the strait for the Crown. Their two sons went to sea after him and rose fast — Tobias, the elder, a post-captain at twenty-six, taken with all hands by something in the deep water off Windward Reach; Hal, the younger, commanding a sloop-of-war, driven onto the Wreckers' coast in the great gale and drowned getting his people ashore. Three of the Imperium's best officers, all hers, all lost in its service. She has never taken a day's leave for any of it, never asked the Crown for anything on their account, and has never once let it shake her faith in the thing they died for. Her work is managing big men with big ships and bigger opinions, which is why she is the only person in the Imperium who will tell the Imperator, to their face, that they are wrong — and why the Imperator keeps her.
+First Secretary of the Admiralty: the permanent official. Admirals come and go, Grand Admirals come and go, and the Secretary reads every dispatch before the Imperator does. Born to a clerk's family on Highwater, she entered the Admiralty at sixteen as a copyist and has outlasted two Emperors and eleven First Sea Lords without ever once going to sea. She married a frigate captain, Aurel Marlow, lost with his ship at the Narrows holding the strait for the Crown. Their two sons went to sea after him and rose fast — Tobias, the elder, a post-captain at twenty-six, taken with all hands by something in the deep water off Windward Reach; Hal, the younger, commanding a sloop-of-war, driven onto the Wreckers' coast in the great gale and drowned getting his people ashore. Three of the Imperium's best officers, all hers, all lost in its service. She has never taken a day's leave for any of it, never asked the Crown for anything on their account, and has never once let it shake her faith in the thing they died for. Her work is managing big men with big ships and bigger opinions, which is why she is the only person in the Imperium who will tell the Imperator, to their face, that they are wrong — and why the Imperator keeps her.
 
 A small woman of sixty-one, straight-backed, seated at a desk as if the chair were an afterthought. Iron-grey hair cropped short, no wig. A face lined by forty-five years of reading other people's dispatches by lamplight, and grey, level eyes amused at something she is not going to share. She wears the Admiralty's civil dress in the Imperium's colours: a deep sea-green coat with cream facings and a narrow gold edge at collar and cuff — no epaulettes, no braid, no sword, the uniform of the staff and not the fleet — a high white collar and a black stock, with ink on the first two fingers of the right hand. At her throat, one small brass clasp holding three plain mourning rings on a short chain: a husband and two sons, all captains, all lost at sea, none of them discussed. Half-moon reading spectacles, on her nose or in her hand, and a black cane with a plain brass head leaning against the desk, which she does not need and does not explain. She should make the viewer feel briefed, judged, and — if they have earned it — trusted.
 
@@ -701,9 +1087,12 @@ worse.
 The player is the highest rank on their side by a long way; every named
 character, Corvane and Hale included, answers to them.
 
-- **Crown: Imperator.** The Imperator commands the war; the Lord Regent
-  keeps the civil Crown in the Imperator's name; the Admirals command
-  fleets. Marlow says it with precision. Everyone else says it with fear.
+- **Crown: Imperator.** The Imperator commands the war in name and the Grand
+  Admiral commands it in fact, which is the whole of the Crown's problem and
+  half of its story; the Admirals command fleets under him. Marlow says it
+  with precision. Everyone else says it with fear. *(There is no Lord Regent
+  any more — Corvane took the Grand Admiral's flag on 22 September and the
+  boy was never made a ward.)*
 - **Confederacy: Captain-General of the Free.** Elected by the Moot for
   the duration of the war, above the Commodore-Elect, who commands the
   fleet. The Brethren chose a title that sounds like an army because they

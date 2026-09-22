@@ -196,7 +196,11 @@ export function recruitPool(state: GameState, faction?: PlayableFaction): Charac
       // the roster and they are not the same pool. Omitting `faction` asks
       // the old question — who is unclaimed at all — which is what the
       // "nobody left to sign" notice wants.
-      (faction === undefined || mayServe(c.people, faction)),
+      //
+      // `c.sworn` is the person's own answer where they have one, and it wins:
+      // the Betrayer is an Urskin only the Crown may sign, and Mother Bracken
+      // is a Bog-folk only the Confederacy may.
+      (faction === undefined || mayServe(c.people, faction, c.sworn)),
   );
 }
 
