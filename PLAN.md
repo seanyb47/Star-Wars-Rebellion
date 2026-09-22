@@ -8545,3 +8545,49 @@ of a great three-masted galleon. Her numbers sit her beside the Blackfin (29
 guns, 1,400 hull) and well under the Reefwarden (44 guns, 3,400). The art
 oversells her by about one size band. Either is fixable; only the stats one
 touches combat.
+
+## The build panel says nothing twice (22 September)
+
+Sean sent back a screenshot of the ship order with five things struck through
+in red and one line: *"all this red is unnecessary text."*
+
+Two of the five had already gone in the two commits before it — the hull's
+four-stat combat grid and the paragraph of flavour under it. The remaining
+three are worth naming together, because they are one fault rather than three:
+
+- **The subtitle**, "What, where, and when it will be ready". That sentence is
+  the docstring at the top of `BuildSheet.tsx`, printed at the player. It
+  describes the shape of the form to somebody who is looking at the form.
+- **The BUILD label**, in brass small caps, directly under a title reading
+  *Build Ships*. The same word twice in two lines, over a `<select>`, which is
+  a control that announces itself.
+- **The card's own name**, four lines under the same name in the picker with
+  only the painting between them — *Wayfinder*, painting, *Wayfinder*.
+
+Each repeats something the reader can see without scrolling. That is the fault
+they share, and it is the useful thing to take away from the screenshot: the
+panel had grown a habit of labelling its own parts.
+
+**What the removals cost, and what paid for it.** The select loses its visible
+label but keeps an accessible one, on `aria-label` — the pixels go, the screen
+reader does not. The card loses its name but the ℹ link underneath still says
+"More about the Wayfinder" on its way to the entry, so the name is never more
+than a line away from where it was.
+
+**Troops needed a different answer.** That page had no menu behind the BUILD
+label at all, only a static box containing the word *Troop*, under a title
+reading *Build Troops*. Stripping the label would have left an unlabelled box
+with one value that cannot be changed, which is worse than either keeping it
+or dropping it. So on that kind the picker goes entirely and the card is the
+first thing on the sheet.
+
+**Three CSS rules went with them** — `.unit__name`, `.unit__stats` and
+`.field__static` each had exactly one caller and all three callers were in the
+struck-through list. A test asserts their absence from the stylesheet, because
+a dead rule is how a deleted component comes back.
+
+And one thing the removals *exposed* rather than caused: the troop card's
+110px glyph box had always sat flush left in a full-width card, with the name
+underneath balancing it. With the name gone it read as a picture that had
+failed to load, so the placeholder is centred now. That is the only change here
+Sean did not ask for, and it is a margin.

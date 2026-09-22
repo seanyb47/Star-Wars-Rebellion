@@ -2152,7 +2152,6 @@ button.tcard:hover { border-color: var(--brass); }
   background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
   background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size: 6px 6px; background-repeat: no-repeat;
 }
-.field__static { min-height: var(--tap); display: flex; align-items: center; padding: 8px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg-sunken); font-weight: 600; }
 /* The picture leads and the words follow, rather than a 96px stamp with three
    paragraphs beside it. This is the card you are looking at when you decide to
    spend four hundred gold on a thing, and what the thing looks like is most of
@@ -2172,16 +2171,17 @@ button.tcard:hover { border-color: var(--brass); }
 /* A works card carries its aspect inline, from the painting itself, so a 4:3
    commission is not squeezed into the band the sliced strips were cut for. */
 .unit__art--paint { width: 100%; }
-/* Nothing painted yet: a glyph in a box that is not the size of a poster. */
-.unit__art:not(.unit__art--tall):not(.unit__art--wide) { width: 110px; height: 110px; aspect-ratio: auto; }
+/* Nothing painted yet: a glyph in a box that is not the size of a poster, and
+   centred, because a 110px box flush left in a full-width card reads as a
+   picture that failed to load rather than as a placeholder. It only showed
+   once the card stopped carrying a name under the art to balance it. */
+.unit__art:not(.unit__art--tall):not(.unit__art--wide) { width: 110px; height: 110px; aspect-ratio: auto; margin-inline: auto; }
 .unit__body { min-width: 0; }
-.unit__name { font-weight: 700; font-size: 15px; }
-.unit__stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
 /* The three figures an order is decided on: label left, figure right, one to
    a line. A row of columns was tried first and the headings wrap — "Time to
    Completion" is three words in a quarter of a phone — so the list wins on
    the only screen width that matters. */
-.figures { margin: 8px 0 0; display: flex; flex-direction: column; gap: 2px; }
+.figures { margin: 0; display: flex; flex-direction: column; gap: 2px; }
 .figures > div {
   display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
   padding: 3px 0; border-bottom: 1px solid var(--metal-lo);

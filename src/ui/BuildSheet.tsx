@@ -163,8 +163,17 @@ export function BuildOrderSheet({
 
   return (
     <Sheet
+      /*
+       * No subtitle.
+       *
+       * Sean, 22 September, over a screenshot with five things crossed out:
+       * *"all this red is unnecessary text."* "What, where, and when it will
+       * be ready" described the form rather than telling the player anything
+       * — it is the docstring above, printed at the reader. The title says
+       * what is being built and the field below is a select, which announces
+       * itself; a line narrating the form under the title is a line spent.
+       */
       title={KIND_LABEL[kind]}
-      subtitle="What, where, and when it will be ready"
       onClose={onClose}
       stacked={stacked}
       actions={
@@ -189,13 +198,27 @@ export function BuildOrderSheet({
         </>
       }
     >
-      <label className="field">
-        <span className="field__label">Build</span>
-        {kind === 'troops' ? (
-          <span className="field__static">{buildLabel('troop')}</span>
-        ) : (
+      {/*
+        The picker with no label over it, and no picker at all where there is
+        nothing to pick.
+
+        "BUILD" sat in brass small caps directly under a title reading "Build
+        Ships" — the same word twice in two lines, over a control that
+        announces itself. The accessible name moves to `aria-label`, so a
+        screen reader still hears what the menu is for; what goes is the
+        pixels.
+
+        Troops had no menu behind that label, only a static box with the word
+        "Troop" in it: one value that cannot be changed, under a title already
+        reading Build Troops. Stripping its label would have left an unlabelled
+        box saying nothing, so on that kind the card is the first thing on the
+        sheet instead.
+      */}
+      {kind !== 'troops' && (
+        <div className="field">
           <select
             className="field__select"
+            aria-label="What to build"
             value={item}
             onChange={(e) => onChange({ ...draft, item: e.target.value as BuildItem })}
           >
@@ -211,8 +234,8 @@ export function BuildOrderSheet({
                   </option>
                 ))}
           </select>
-        )}
-      </label>
+        </div>
+      )}
 
       <UnitCard state={state} item={item} />
 
@@ -331,7 +354,14 @@ function BuildFigures({
   );
 }
 
-/** The thing itself: its painting, what it costs to keep, what it is for. */
+/**
+ * The thing itself: its painting, the three figures, and the way to read more.
+ *
+ * It carried its own name in bold over the figures — the same name standing in
+ * the picker four lines above, with only the painting between them. Sean
+ * crossed the lower one out. The name is not lost: the picker holds it while
+ * you are choosing, and the ℹ link names it again on its way to the entry.
+ */
 function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
   const you = state.player;
   const plan = planBuild(state, you, item, state.factions[you].hqSystemId);
@@ -384,13 +414,7 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
           {painting ? <img src={painting} alt="" /> : <ShipIcon role={cls.role} size={64} />}
         </div>
         <div className="unit__body">
-          <div className="unit__name">{cls.name}</div>
-          <BuildFigures
-            cost={plan.costGold}
-            days={plan.days}
-            keepLabel={keepLabel}
-            keep={upkeepLine}
-          />
+          <BuildFigures cost={plan.costGold} days={plan.days} keepLabel={keepLabel} keep={upkeepLine} />
           {/*
             The prose goes and a link takes its place.
 
@@ -420,7 +444,6 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
           <CompanyIcon size={64} />
         </div>
         <div className="unit__body">
-          <div className="unit__name">{buildLabel('troop')}</div>
           <BuildFigures
             cost={plan.costGold}
             days={plan.days}
@@ -450,7 +473,6 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
         {art ? <img src={art.src} alt="" /> : <FacilityIcon type={type} size={56} />}
       </div>
       <div className="unit__body">
-        <div className="unit__name">{buildLabel(type)}</div>
         <BuildFigures
             cost={plan.costGold}
             days={plan.days}

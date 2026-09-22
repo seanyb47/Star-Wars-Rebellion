@@ -121,4 +121,49 @@ describe('ordering a hull from the island', () => {
     expect(BUILD).not.toContain('{cls.blurb}');
     expect(BUILD).not.toContain('{terms.facilityBlurbs[type]}');
   });
+
+  /**
+   * Nothing on the panel says the same thing twice.
+   *
+   * Sean, 22 September, over a screenshot of the ship order with five things
+   * struck through: *"all this red is unnecessary text."* Two of the five had
+   * already gone in the commits above; these three had not, and they share a
+   * fault — each repeats something the reader can see a line or two away.
+   *
+   * The subtitle narrated the form under a title that already named it. The
+   * BUILD label stood in brass caps under a title reading "Build Ships". The
+   * card's own name sat four lines under the same name in the picker, with
+   * only the painting in between.
+   *
+   * Asserted on absence, because that is the whole of the change and absence
+   * is exactly what creeps back: a name under a painting is the natural thing
+   * to write when somebody next edits this card.
+   */
+  it('says nothing the panel has already said', () => {
+    expect(BUILD).not.toContain('subtitle="What, where, and when it will be ready"');
+    expect(BUILD).not.toContain('<span className="field__label">Build</span>');
+    expect(BUILD).not.toContain('className="unit__name"');
+    // The menu keeps its own label, which names a field rather than echoing
+    // the title, and the select keeps an accessible name without drawing one.
+    expect(BUILD).toContain('<span className="field__label">Where</span>');
+    expect(BUILD).toContain('aria-label="What to build"');
+  });
+
+  /**
+   * And the three rules those removals orphaned went with them, so the next
+   * reader of the stylesheet is not told about a name, a stat grid and a
+   * static field that nothing renders any more.
+   */
+  it('leaves no styles behind for the parts that went', () => {
+    const CSS = import.meta.glob('../styles.css', {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    }) as Record<string, string>;
+    const css = CSS['../styles.css'];
+    expect(css).toBeTruthy();
+    for (const dead of ['.unit__name', '.unit__stats', '.field__static']) {
+      expect(css).not.toContain(dead);
+    }
+  });
 });
