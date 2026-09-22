@@ -47,6 +47,28 @@ Both factions claim to be the reason the islands are still here, and the argumen
 
 ## 2. The Two Sides
 
+### How the war started
+
+*Sean's account, 22 September. It exists to answer a question the roster kept asking: if the Crown can build a Sovereign, where are its shipyards?*
+
+Two acts, a season apart, and each side will tell you the other one came first.
+
+**The Declaration.** The Sovereign Admiralty had spent a century being the thing that charted the water and hanged the wreckers, and at some point being that stopped being enough. The Crown declared itself an **Imperium** — not a claim on more islands, a claim on the whole idea of the sea. Every reach, charted. Every channel, dredged. Every gift, licensed and schooled at Highwater. The Admiralty did not think of this as conquest and does not now: it thinks the world is islands, that islands drown, and that a world of islands survives exactly as long as one authority is strong enough to keep the water out of it.
+
+It also thinks it is a century ahead of everyone else, and **it is right about that**. The copper sheathing, the standardised rate system, the Tidemaster schools, the three-hundred-foot walls — nobody else has any of it, and the Crown draws the obvious conclusion from being better at this than anyone: that it has both the right and the duty to do it everywhere, and that the people who object are objecting to their own survival. There is a hardness under the stated creed which the creed does not mention.
+
+**Then the dredgers reached Coralhome**, and cut a channel through living reef to save a day's sailing. The Reef-folk had been telling the Admiralty for two generations what a reef is for. The Crown took Maren Quist's grown hull on a licensing writ the same season and broke it up for keel-timber, which is not a thing you can do to a grown ship quietly.
+
+**The Tea Party.** The answer came at **Yarrow Minor**, the royal dockyard — five slipways under one roof, every ship of the line in the Imperium's order book, and half the world's seasoned timber stacked on the hard. Three captains took it apart in a night, with powder and with the tide, and not one of them had a flag to do it under.
+
+They had one a month later. The articles were signed at Freeport by the same three, and the Free Confederacy exists because of that night rather than in spite of it: the sabotage is the declaration, and every captain who signed knew exactly what they were signing next to.
+
+**And this is why the two navies look the way they do on day one.** The Crown has its ships of the line — the *Sovereign* was launched before any of this and there is nothing afloat that should want to fight her — and it does not have the yards that made her. A Sovereign on the water is a ship the Imperium cannot replace this year, or next. What burned at Yarrow Minor was not a fleet. It was the ability to build one, and the Admiralty has been trying to explain that to itself ever since.
+
+The Confederacy calls it the only blow they ever landed cleanly. The Crown calls it the night a dispute about dredging became a war, and points out that the yard had two thousand shipwrights in it.
+
+Both are describing the same fire.
+
 ### The Crown Imperium
 
 *The Sovereign Admiralty of the Crown Imperium.* Ruled from **Highwater**, the walled capital city on **the Aldermain** — the one great island, far larger than anything else, with the best ground and the best resources in the world — behind seawalls three hundred feet high. Governed by a Lord Regent in the name of a boy-king nobody has seen in eleven years.
@@ -59,6 +81,10 @@ Both factions claim to be the reason the islands are still here, and the argumen
 **What their enemies say:** The walls keep people in as well as the sea out. The conscription rolls fall hardest on the smallest islands, which have the fewest voices at court. Tidecraft licensing means a child born with the gift is schooled at Highwater whether the family agrees or not. And the Leviathan is not a seawall. It is a threat with a Crown flag on it.
 
 **Truth:** Both. Officers run from principled to overzealous, and the good ones spend their careers arguing with the rest.
+
+**Where they sit, and it is not where a player expects.** Sean, 22 September: the Imperium *"thinks that they are severely, way more technically advanced, which they are, than everyone else, and they kind of have this manifest destiny, social-Darwinist mentality — but that's not necessarily evil."* The institution is **lawful neutral**. It keeps its word, it keeps its ledgers, and it will do a hard thing to a small island and write down exactly why. Its people run the whole length of the lawful axis: there are officers in this navy who are unambiguously good and would resign over an order, and there are officers who are lawful evil and have never broken a regulation in their lives. What the faction has instead of malice is a conviction that it is better at keeping people alive than the people are, which is true often enough to be dangerous.
+
+A world that reads the green as villainy has read it as wrongly as a world that reads the crimson as evil.
 
 **Aesthetic** — *Art Direction Guide §3, Naval Art Master.* deep Imperial green — botanical, not emerald — antique gold and brass, warm ivory, black iron, refined wood, grey stone. Clean, symmetrical, maintained, disciplined and formidable. **Crown power should look civilized and impressive, never sinister.** Names are virtues and titles. Everything is straight lines until you look closely.
 
@@ -449,7 +475,7 @@ The Crown's home waters; Highwater is here.
 - **Gorley** (port). Site of an old massacre. Hates the Crown.
 - **Sievern**
 - **Ulverne**
-- **Yarrow Minor**. The royal dockyard.
+- **Yarrow Minor**. The royal dockyard — five slipways under one roof until the night three captains took it apart, and the reason the Crown has ships of the line and no way to replace them quickly. It is being rebuilt. It is not rebuilt.
 - **Kingsward**. The Imperium's naval academy.
 - **Minterne**. Banking houses. Half the war is paid for here.
 - **Cartmel**. The Great Library: charts and archives.
