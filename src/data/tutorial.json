@@ -1,0 +1,65 @@
+{
+  "_comment": "The coach-mark tutorial. Sean, 22 September: it 'takes you off the full screen imagery and replaces it with the actual game interface and basically tells you — it walks you through the entire screen, highlighting each component, each thing you click on, the very very simple basics on how things work. And then where to go to the encyclopedia, the glossary, the rules.' Next, next, next, or Skip. Every step is anchored to a real element by `target`; the screen behind is the live game, not a picture of it.",
+  "_targets": "`target` is a `data-tour` attribute the UI must carry. Adding them is part of building this: data-tour=\"map\", \"tabbar\", \"clock\", \"purse\", \"island\", \"island-tabs\", \"crew\", \"build\", \"book\", \"info\", \"log\". A step whose target is missing from the DOM is skipped silently rather than pointing at nothing — that way the tutorial survives a screen being rearranged.",
+  "_rules": "Keep every body under about forty words and name the thing you are pointing at in the first clause. This is a tour, not the manual — the manual is the Book and the last step says so.",
+  "steps": [
+    {
+      "id": "map",
+      "target": "map",
+      "title": "This is the world",
+      "body": "Seven chains of islands. Tap a chain to open it, and tap an island inside it to open that island."
+    },
+    {
+      "id": "island",
+      "target": "island",
+      "title": "Everything happens on an island",
+      "body": "Open one and you get its tabs: who is in the harbor, who is ashore, what is built, and how many troops hold it."
+    },
+    {
+      "id": "crew",
+      "target": "crew",
+      "title": "Your crew change the map",
+      "body": "Open a crew member, send them to an island, and it offers what can be done there — talk it round, recruit, chart it, spy, or take command. Then they sail, and distance costs time."
+    },
+    {
+      "id": "build",
+      "target": "build",
+      "title": "Build things that pay and things that fight",
+      "body": "A mine and a mill earn. A shipyard lays down hulls, a barracks raises troops, a fortress holds the place. Everything is built on an island with a berth free."
+    },
+    {
+      "id": "clock",
+      "target": "clock",
+      "title": "Nothing happens until you start the clock",
+      "body": "Start it and the days turn on their own. Passages take weeks, missions a fortnight ashore, hulls months. Set things going and let it run."
+    },
+    {
+      "id": "log",
+      "target": "log",
+      "title": "The Log is what happened while you were away",
+      "body": "Battles, arrivals, islands changing hands. When something important happens the game stops and shows you."
+    },
+    {
+      "id": "book",
+      "target": "book",
+      "title": "The Book has everything else",
+      "body": "Every ship, crew member, troop, building and island in the game — plus a Rules page that opens with how to win, and a Glossary for any word you have not met."
+    },
+    {
+      "id": "info",
+      "target": "info",
+      "title": "The little ℹ takes you there",
+      "body": "Wherever a screen could use a footnote it shows a small ℹ. Tap it and the Book opens at exactly that entry."
+    },
+    {
+      "id": "win",
+      "target": null,
+      "title": "How you win",
+      "byFaction": {
+        "empire": "Have all three Pirate Lords in irons at the same time. They are people, so you take one by carrying them off a quay — and if you only hold two, the third carries on without them.",
+        "alliance": "Take the young Imperator and Grand Admiral Corvane, and hold them at the same time. They are both on Highwater, which is why everyone ends up there."
+      },
+      "note": "REPLACES THE STALE COPY IN Tutorial.tsx, which still tells the player that taking or losing Highwater ends the war that day. It has not since the two-principals rule went in, and it is the single most misleading sentence in the game."
+    }
+  ]
+}
