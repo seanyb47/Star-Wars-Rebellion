@@ -8863,3 +8863,54 @@ markup by the word "hull" is a failure. It was confirmed to fail by putting
 `hull` back on the harbor row. The non-vacuity half sweeps for the same shape
 with the right word and requires the three rows to be there, so the test cannot
 pass by matching nothing.
+
+### Travel halved, and it fixed the stalls (22 September)
+
+Sean: *"I think travel time is a little long. Let's make farthest points 150
+instead — actually make it 100 days max."*
+
+`TRAVEL_MAX_DAYS` is the whole of travel: `missions.ts` is one line,
+`min(MAX, round(fractionOfWorld × MAX))`. So this halves every passage, not
+only the long ones — neighbours in a Reach 3 days rather than 6, the length of
+a Reach a week rather than a fortnight, corner to corner 100 rather than 200.
+
+Measured rather than asserted, because passage time is the Confederacy's cover:
+they have no fixed base and win by staying unfound, while the Crown wins by
+reaching two capitals. Halving it helps whoever is hunting. Same 48 seeds
+(3000), both sides machine-played, only the constant changed:
+
+| | 200 days | 100 days |
+|---|---|---|
+| Crown — Confederacy | 17 — 25 | 22 — 24 |
+| Wars that never ended | **6 of 48** (12.5%) | **2 of 48** (4.2%) |
+| War length, median | 1188 days | **768 days** |
+| War length, max | 2601 | 2292 |
+| Lords taken, of 3 | 1.35 | **1.69** |
+
+**The stalls are the finding, and they were the open bug.** Task #125 —
+*"three wars in forty stall with the Crown ahead and one Lord unfound"* — has
+been open since 21 September, and the diagnosis in it was that a Lord in a far
+corner is not worth the voyage to hunt. Halving the voyage took the stall rate
+from 12.5% to 4.2% and the Lords taken from 1.35 to 1.69, which is the same
+finding read two ways. Both are rates rather than coin flips, so they are
+visible at 48 wars where a win-table change would not be.
+
+**The win split did not move, and I am not going to claim it did.** 17 — 25 to
+22 — 24 looks like five wins toward the Crown; at 48 decided wars the standard
+deviation is 3.46, and `lab/duel.ts`'s own rule is that a count within about
+two of even is not a finding. 22 — 24 *is* within two of even. The honest
+statement is that the war is markedly shorter and finishes far more often, and
+that this run cannot see a balance change either way.
+
+One thing the run shows that is not about travel: the Confederacy ends on
+32,691 gold against the Crown's 8,072. That is #121, the gold hoard, still
+open and now the largest unexplained number in the table.
+
+**A test broke in an instructive way.** `missions.test.ts` walks seeds until
+one produces a foiled agent, then checks the injury arc. It searched 60 seeds;
+with passages halved there are fewer days in a cycle for the watch to catch
+anybody, so none of the 60 produced a foil and the test failed on its own
+search rather than on the thing it checks. Bound raised to 400. Worth noting
+the asymmetry: had the search been wide enough to absorb it, a genuine drop in
+the foil rate would have passed unnoticed — a search-until-found test reports
+a balance change only when the change happens to exceed its budget.

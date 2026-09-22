@@ -354,9 +354,20 @@ describe('resolution', () => {
     const { diplomat, sameSector } = setup();
     diplomat.diplomacy = 100;
 
-    // Walk seeds until one produces a foil, then verify the whole arc.
+    /*
+     * Walk seeds until one produces a foil, then verify the whole arc.
+     *
+     * The bound was 60 and is 400 since 22 September, when TRAVEL_MAX_DAYS
+     * halved. The search is over the days of one mission cycle, and a shorter
+     * passage means fewer days for the watch to catch anybody — so the same
+     * 60 seeds that used to find a foil stopped finding one, and the test
+     * failed on `foiled` rather than on anything it was written to check.
+     * Worth knowing that this is the shape of test that a balance change
+     * breaks silently in the other direction: had it searched far enough, a
+     * real drop in the foil rate would have gone unnoticed.
+     */
     let foiled = false;
-    for (let seed = 1; seed <= 60 && !foiled; seed++) {
+    for (let seed = 1; seed <= 400 && !foiled; seed++) {
       const trial = generateGalaxy(301);
       const agent = trial.characters.find((c) => c.id === diplomat.id)!;
       agent.diplomacy = 100;

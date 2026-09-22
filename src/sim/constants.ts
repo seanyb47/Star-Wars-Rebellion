@@ -1275,21 +1275,30 @@ export const HELD_SUPPORT_LEVEL = 65;
  * open-sea toll is the loss worth noting: crossing between Reaches used to
  * cost more than the same distance inside one, and now it costs the same.
  *
- * `TRAVEL_WORLD_SPAN` is the distance that takes the full two hundred days.
- * Fixed rather than measured per map, so the same two islands are the same
- * distance apart in every game: across 120 seeds the farthest pair the
- * generator places ranges from 1054 to 1121 units, so 1100 puts a genuine
- * corner-to-corner haul within a few days of the ceiling either way, and the
- * clamp catches the rest.
+ * `TRAVEL_WORLD_SPAN` is the distance that takes the full ceiling. Fixed
+ * rather than measured per map, so the same two islands are the same distance
+ * apart in every game: across 120 seeds the farthest pair the generator places
+ * ranges from 1054 to 1121 units, so 1100 puts a genuine corner-to-corner haul
+ * within a few days of the ceiling either way, and the clamp catches the rest.
  *
- * What it works out to: neighbours in a Reach 6 or 7 days, the length of a
- * Reach a fortnight, the next Sea over five or six weeks, the far corner of
- * the world the full two hundred. A fleet is slower or quicker than that by
- * its pace (see `fleetPace`) — the ceiling is on the distance, not on the
- * voyage, so a ship of the line crossing the world is longer still and a
- * sloop appreciably shorter.
+ * **Halved on 22 September.** Sean: *"I think travel time is a little long.
+ * Let's make farthest points 150 instead — actually make it 100 days max."*
+ * Every passage in the game is this number times a fraction, so halving the
+ * ceiling halves the whole scale rather than only the long hauls: neighbours
+ * in a Reach 3 days, the length of a Reach a week, the next Sea over two or
+ * three weeks, the far corner of the world a hundred. A fleet is slower or
+ * quicker than that by its pace (see `fleetPace`) — the ceiling is on the
+ * distance, not on the voyage, so a ship of the line crossing the world is
+ * longer still and a sloop appreciably shorter.
+ *
+ * Measured, because this is a balance change and not a convenience one:
+ * passage time is the Confederacy's cover, since they have no fixed base and
+ * win by staying unfound while the Crown wins by reaching two capitals. The
+ * numbers are in PLAN.md under the change; the short of it is that the war got
+ * markedly shorter and the win split did not move beyond what 48 wars can
+ * see.
  */
-export const TRAVEL_MAX_DAYS = 200;
+export const TRAVEL_MAX_DAYS = 100;
 export const TRAVEL_WORLD_SPAN = 1100;
 export const MISSION_WORK_DAYS = 15;
 /**
