@@ -229,6 +229,7 @@ function WorksCard({
   facilities,
   onBuild,
   onCancel,
+  onBuildHull,
 }: {
   state: GameState;
   system: System;
@@ -236,6 +237,8 @@ function WorksCard({
   facilities: Facility[];
   onBuild: (facilityId: string, item: BuildItem) => void;
   onCancel: (facilityId: string) => void;
+  /** Open the build panel on ships, with this island already the destination. */
+  onBuildHull: (systemId: string) => void;
 }) {
   // The one holding the order speaks for the island; failing that, the first.
   const holder = facilities.find((f) => f.building) ?? facilities[0];
@@ -360,7 +363,33 @@ function WorksCard({
         </div>
       )}
 
-      {mine && !order && menu.length > 0 && (
+      {/*
+        A slipway asks once, instead of laying its whole catalogue on the page.
+
+        Sean, 22 September: *"as the game goes on there's going to be tons and
+        tons of ships in that menu under shipyard... it should just have a
+        button that says build, and then it opens up the build panel and
+        already filters to ships."*
+
+        The barracks keeps its tile and that is not an inconsistency, it is the
+        same rule: `buildMenu` gives a barracks exactly one item and always
+        will, where it gives a slipway every hull the side's shipwrights can
+        draw — four on day one and fourteen at the top of the ladder. One tile
+        is a shorter path than a button that opens a panel to choose among one
+        thing; fourteen is seven rows of a phone screen between the player and
+        everything under it.
+      */}
+      {mine && !order && type === 'shipyard' && menu.length > 0 && (
+        <button
+          className="btn btn--block"
+          style={{ marginTop: 8 }}
+          onClick={() => onBuildHull(system.id)}
+        >
+          Build a hull here
+        </button>
+      )}
+
+      {mine && !order && type !== 'shipyard' && menu.length > 0 && (
         <div className="buildgrid" style={{ marginTop: 8 }}>
           {menu.map((item) => {
             // What it costs this side today, not the sticker price: research
@@ -713,6 +742,7 @@ export function SystemSheet({
   onRaise,
   onClear,
   onBreakUp,
+  onBuildHull,
   onOpenCharacter,
   onOpenReach,
   onSail,
@@ -738,6 +768,15 @@ export function SystemSheet({
   onClear: (systemId: string) => void;
   /** Open the list of things on this island that could be broken up. */
   onBreakUp: (systemId: string) => void;
+  /**
+   * Order a hull from this island's slipway.
+   *
+   * The island does not lay it down itself — it opens the build panel on
+   * ships with this island already chosen, which is the same panel the Build
+   * tab opens and therefore the same one order flow. See the note on the
+   * button in `WorksCard`.
+   */
+  onBuildHull: (systemId: string) => void;
   onSail: (fleetId: string) => void;
   onAssault: (fleetId: string) => void;
   onBombard?: (fleetId: string) => void;
@@ -1201,6 +1240,7 @@ export function SystemSheet({
                 facilities={works.facilities}
                 onBuild={onBuild}
                 onCancel={onCancel}
+                onBuildHull={onBuildHull}
               />
             ))}
           </div>

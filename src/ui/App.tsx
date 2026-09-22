@@ -1052,6 +1052,25 @@ export function App() {
           onBuild={handleBuild}
           onCancel={handleCancel}
           onRaise={handleRaise}
+          /*
+            The slipway's own Build button. It opens the same order panel the
+            Build tab opens — same flow, same validation, one place that turns
+            a choice into an order — with ships already chosen and this island
+            already the destination, which is the whole of what the button
+            saves over walking there from the tab bar.
+
+            The island sheet stays open underneath, so closing the order puts
+            the player back on the yard they were looking at rather than out on
+            the chart.
+          */
+          onBuildHull={(systemId) => {
+            setDraft({
+              kind: 'ships',
+              item: firstItem('ships', state.player),
+              destinationId: systemId,
+            });
+            setOrderOpen(true);
+          }}
           onClear={handleClear}
           onBreakUp={setScrapFor}
           onSail={handleSail}
@@ -1176,6 +1195,9 @@ export function App() {
         <BuildOrderSheet
           state={state}
           draft={draft}
+          /* Over the island sheet when a slipway asked for it, and on its own
+             when the Build tab did. */
+          stacked={Boolean(openSystemId)}
           onChange={setDraft}
           onChooseOnChart={() => {
             setOrderOpen(false);

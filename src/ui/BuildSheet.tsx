@@ -124,10 +124,20 @@ export function BuildOrderSheet({
   onBuild,
   onRaise,
   onClose,
+  stacked,
 }: {
   state: GameState;
   draft: BuildDraft;
   onChange: (draft: BuildDraft) => void;
+  /**
+   * Drawn over the sheet that opened it, rather than on its own.
+   *
+   * A slipway's own Build button opens this panel from inside an island
+   * sheet, and closing it should put the player back on the yard they were
+   * looking at. Opened from the Build tab there is nothing underneath and
+   * this stays false.
+   */
+  stacked?: boolean;
   onChooseOnChart: () => void;
   onBuild: (facilityId: string, item: BuildItem, destinationId: string) => void;
   /** Buildings have no maker to give the order to: the island takes it. */
@@ -155,6 +165,7 @@ export function BuildOrderSheet({
       title={KIND_LABEL[kind]}
       subtitle="What, where, and when it will be ready"
       onClose={onClose}
+      stacked={stacked}
       actions={
         <>
           <button className="btn" style={{ flex: 1 }} onClick={onClose}>
@@ -295,7 +306,21 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
   if (isShipClass(item)) {
     const cls = shipClass(item);
     const spec = shipSpec(item);
-    const painting = paintedShip(`${you}-${cls.role}`);
+    /*
+     * Her own painting, and only then the fallback.
+     *
+     * This asked for `empire-medium` and nothing else — a per-faction,
+     * per-size drawing that does not exist in `art/ships`, so the one screen
+     * where a player chooses which hull to spend a season on always drew the
+     * generic icon. It matters more since 22 September, because this panel is
+     * now how a slipway is ordered from at all rather than a second way in.
+     *
+     * `paintedShip(item)` resolves because every painting is filed under its
+     * hull's roster id — which is true only since the five that were not were
+     * renamed earlier the same day. The role fallback stays for a hull added
+     * to the game before its painting arrives.
+     */
+    const painting = paintedShip(item) ?? paintedShip(`${you}-${cls.role}`);
     return (
       <div className="card unit">
         <div className="unit__art unit__art--tall">
