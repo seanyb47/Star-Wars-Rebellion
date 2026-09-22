@@ -85,7 +85,7 @@ Both are describing the same fire.
 
 ### The Crown Imperium
 
-*The Sovereign Admiralty of the Crown Imperium.* Ruled from **Highwater**, the walled capital city on **the Aldermain** — the one great island, far larger than anything else, with the best ground and the best resources in the world — behind seawalls three hundred feet high. Governed by a Lord Regent in the name of a boy-king nobody has seen in eleven years.
+*The Sovereign Admiralty of the Crown Imperium.* Ruled from **Highwater**, the walled capital city on **the Aldermain** — the one great island, far larger than anything else, with the best ground and the best resources in the world — behind seawalls three hundred feet high. Governed by a **Lord Regent** in the name of a boy who has held the throne less than a year. His father is the reason there is a throne at all: the Emperor who ended the warlord centuries, made one banner of the whole great island, and founded the Crown Imperium. He died this year, and what he left his son was a seat, a fleet, and a dying wish — **all seven Reaches under one flag, and the old empire raised again above the water line.** The boy inherited the legacy before he was ready for it, and the Admiralty has been carrying it since.
 
 **Creed:** Order · Stability · Trade · Civilization · A brighter tomorrow.
 **Motto:** *Through trade, duty, and discipline, a safer world.*
@@ -102,7 +102,11 @@ A world that reads the green as villainy has read it as wrongly as a world that 
 
 **What they are actually trying to do**, which is bigger than the war and is the reason they will not stop. *Sean, 22 September.*
 
-The Aldermain spent most of its history at war with itself. Within living memory of a grandfather it came out of that — one banner over the whole great island for the first time, and the banner was the Crown Imperium. What followed was the most successful century anybody in this world can point to: the walls, the charts, the schools, the coin, the standing fleet, and a population that stopped losing a village a month to wreckers.
+As the water climbed, people went uphill, and the highest ground there was stood in what is now the Sovereign Reach — the peaks that became the Aldermain, and the city on it that became Highwater. That is where the refuge was, and that is why the middle of the world is where it is.
+
+What followed was centuries of tribal war: warlords, feuds, and one great island unable to stop fighting itself. It ended within living memory. **One man ended it** — the Emperor, who put the whole island under a single banner for the first time and called it the Crown Imperium — and what followed him was the most successful century anybody in this world can point to: the walls, the charts, the schools, the coin, the standing fleet, and a population that stopped losing a village a month to wreckers.
+
+**He died this year.** His son is a boy with a throne and a dying wish to carry: every Reach under one flag, and the drowned empire raised again. That wish is now Imperial policy, and the Admiralty means to see it done whether the boy is ready or not.
 
 The Admiralty drew the obvious conclusion. **If it worked on the greatest island, it works everywhere, and there is a debt owed to everywhere it has not reached yet.** So they chart, they dredge, they license, they build — not as conquest, in their own telling, but as *restoration*. The three shelves at Cartmel say there was one country down there once, one people and one law. The Imperium intends to put it back together above the water line, and it believes it is the only thing in this world with the strength and the technology to do it.
 

@@ -19,16 +19,39 @@ The copy lives in `src/data/opening-scroll.json`. The screen is not built.
 2. **Fifth-grade reading level.** Short declaratives, ordinary words, no clause
    a reader has to hold open. The Star Wars crawl is about eighty-five words
    total and names three things; ours names two — the Aldermain and Highwater.
-3. **Both are skewed and neither lies.** Slides one to three are the same
-   history in both mouths. The divergence starts at slide four, where the Crown
-   says it is restoring a drowned country and the Confederacy shrugs at it.
-4. **The same fire is in both**, at slide six: *"pirates burned the royal
-   dockyard and called it freedom"* against *"three captains burned their
-   dockyard, and we signed the articles a month later."*
-5. **Slide seven is the objective**, phrased identically on both sides — *"hold
-   them at the same time"* — because that is the actual victory condition and a
-   new player needs it in one sentence. It carries `objective: true` and is the
-   only slide the screen may style differently.
+3. **Each side makes its own case and only its own.** Sean's correction of 22
+   September: *"we don't need to make the other side's case for them. So we
+   don't need to say things like, they say this, we say that. We just take our
+   stance on our side."* The Crown never mentions what the Confederacy wants.
+   The Confederacy never repeats the Crown's argument about a golden age — it
+   disavows them and moves on. The one thing both scrolls contain is the
+   Drowning, because neither side disputes that it happened.
+4. **The same fire is in both**, from opposite decks: *"pirates burned our
+   greatest shipyard and named themselves enemies of the Crown"* against *"our
+   first blow burned their greatest shipyard to the waterline."*
+5. **The second-to-last slide is the objective.** It carries `objective: true`
+   and is the only slide the screen may style differently.
+
+## ⚠ The objective slides do not match the code yet
+
+**This is the one thing to settle before the screen ships.** Sean's brief of 22
+September gives each side objectives that the game does not currently implement:
+
+| | The scroll says | `checkVictory` says |
+|---|---|---|
+| Crown | Round up their leaders, and find and take their hidden port | All three Pirate Lords captured **at once**. Freeport is not a win condition. |
+| Confederacy | Take Highwater, and the boy emperor with it | The Lord Regent **and** Admiral Blackwater captured at once. Highwater is explicitly *not* a win on its own, and there is no emperor character in the cast. |
+
+Three ways out, and it is Sean's call: change the rules to match the scroll,
+change the scroll to match the rules, or split the difference — the scroll
+states the *campaign aim* in plain words while the rules stay as they are,
+which is defensible because "round up their leaders" is a fair plain-English
+gloss of "take all three Lords".
+
+Related and unsettled: **is the boy emperor a character you can capture?** The
+lore now has him newly on the throne with the Lord Regent governing in his
+name. If he becomes a capturable principal that is a third Crown principal and
+a change to `CROWN_PRINCIPALS`.
 
 ## What it must not say
 
