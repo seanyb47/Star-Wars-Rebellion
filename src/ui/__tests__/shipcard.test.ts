@@ -172,3 +172,50 @@ describe('a hull goes straight to its entry', () => {
     expect(stats).toContain('{whole - hurt}/{whole}');
   });
 });
+
+/**
+ * Set sail sits opposite the fleet's name.
+ *
+ * Sean, 22 September: *"move the set sail button to the top right corner of
+ * the fleet tab so that it's across the screen from the name of the fleet."*
+ *
+ * It was the last thing in the orders stack, under Bombardment and Invasion —
+ * so the commonest order on the card was the one furthest down it, behind two
+ * you give rarely.
+ *
+ * The slot opposite the name was already free, and could only ever be free:
+ * the `ControlBadge` drawn there is for fleets that are **not** yours, and
+ * those are exactly the fleets you cannot give orders to. The two can never
+ * want the same corner, which is why this needed no layout negotiation.
+ *
+ * Measured in Chromium: name and button share a row (both at y=486), and the
+ * button's right edge sits at 403 inside a card ending at 416.
+ */
+describe('where Set sail lives', () => {
+  const src = FLEET['../FleetPanel.tsx'];
+
+  it('is in the card header, not the orders stack', () => {
+    const header = src.slice(src.indexOf('<div className="card fleet">'), src.indexOf('fleet__orders'));
+    expect(header).toContain('className="btn fleet__sail"');
+    expect(header).toContain('onClick={() => onSail(fleet.id)}');
+    // And only once — it must not be left behind in the stack as well.
+    expect(src.split('onSail(fleet.id)').length - 1).toBe(1);
+  });
+
+  it('is gated exactly as the orders were', () => {
+    // A fleet at sea, or somebody else's, has no Set sail — the same
+    // condition the orders block uses, not a looser one.
+    const header = src.slice(src.indexOf('<div className="card fleet">'), src.indexOf('fleet__orders'));
+    expect(header).toContain('{canOrder && !atSea && (');
+  });
+
+  /** Compact, because `.btn` is full-width everywhere else on this card. */
+  it('does not stretch across the header', () => {
+    const CSS = import.meta.glob('../styles.css', {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    }) as Record<string, string>;
+    expect(CSS['../styles.css']).toMatch(/\.fleet__sail \{[^}]*width: auto/);
+  });
+});

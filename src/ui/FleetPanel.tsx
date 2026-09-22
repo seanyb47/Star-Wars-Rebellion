@@ -290,6 +290,25 @@ export function FleetCard({
             {fleetStatus(state, fleet)}
           </div>
         </div>
+        {/*
+          Set sail, across the header from the fleet's name.
+
+          Sean, 22 September: *"move the set sail button to the top right
+          corner of the fleet tab so that it's across the screen from the name
+          of the fleet."* It was the last thing in the orders stack, under
+          Bombardment and Invasion — so the commonest order on the card was the
+          one furthest down it, behind two you give rarely.
+
+          The slot was already free and could only ever be free: the badge
+          opposite is drawn for fleets that are not yours, and those are
+          exactly the fleets you cannot give orders to. The two can never want
+          the same corner.
+        */}
+        {canOrder && !atSea && (
+          <button className="btn fleet__sail" onClick={() => onSail(fleet.id)}>
+            Set sail
+          </button>
+        )}
         {fleet.faction !== state.player && <ControlBadge faction={fleet.faction} />}
       </div>
 
@@ -544,13 +563,11 @@ export function FleetCard({
                 ))}
             </>
           )}
-          {/* Every squadron sails. There was a fourth state here — a hull
-              pinned in harbor because the Lord who owned her was away on an
-              errand — and it went with the Lords: they are people now, and a
-              person being elsewhere does not stop a ship. */}
-          <button className="btn" onClick={() => onSail(fleet.id)}>
-            Set sail
-          </button>
+          {/* Set sail moved to the card's header on 22 September — see the
+              comment there. Every squadron sails; there was a fourth state
+              here once, a hull pinned in harbor because the Lord who owned her
+              was away on an errand, and it went with the Lords: they are
+              people now, and a person being elsewhere does not stop a ship. */}
           {/* Breaking off, where there is something to break off from. It
               always works; what it costs is the run, and how much depends on
               whether anything here can reach a fleet already going. */}

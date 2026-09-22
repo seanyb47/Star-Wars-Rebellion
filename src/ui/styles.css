@@ -1557,6 +1557,10 @@ button {
   padding-top: 8px; border-top: 1px solid var(--border); color: var(--muted);
 }
 .fleet__line b { color: var(--text); font-variant-numeric: tabular-nums; }
+/* Set sail in the card's header, opposite the fleet's name. Compact rather
+   than block: `.btn` is a full-width flex child everywhere else on this card,
+   and a full-width button in a header row would push the name off it. */
+.fleet__sail { flex: none; width: auto; min-height: 34px; padding: 0 14px; font-size: 12px; }
 .fleet__line-bad { color: var(--bad); }
 /* Up and down rather than a drag: a drag on a phone is a fight with the
    scroll underneath it, and two arrows are a thumb's width each. */

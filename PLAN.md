@@ -9215,3 +9215,61 @@ line unit nearer 30/30 (the Reefwalkers are 20/20 and already day-one); lower
 the Marines' `invasionDefense` while keeping their attack, so the Crown's edge
 stays offensive; or put them back to `elite`. Sean's call — the change is
 shipped as asked, and the number is here rather than buried.
+
+### Set sail moves to the card's header (22 September)
+
+Sean: *"Move the set sail button to the top right corner of the fleet tab so
+that it's across the screen from the name of the fleet."*
+
+It was the **last** thing in the orders stack, under Bombardment and Invasion.
+So the order a player gives constantly sat below two they give rarely, and on a
+fleet with several hulls it was off the bottom of the card.
+
+The slot opposite the name was already free, and — this is the part worth
+writing down — it could only ever be free. The `ControlBadge` drawn in that
+corner is for fleets that are **not** yours, and those are exactly the fleets
+you cannot give orders to. The button and the badge can never want the same
+corner, so this needed no layout negotiation at all.
+
+Gated on `canOrder && !atSea`, the same condition the orders block uses rather
+than a looser one, and compact rather than block: `.btn` is a full-width flex
+child everywhere else on this card, and a full-width button in a header row
+would push the fleet's name off it.
+
+Measured in Chromium: name and button share a row (both y=486), the button's
+right edge at 403 inside a card ending at 416, and zero Set sail buttons left
+in the orders stack.
+
+### The eight-commit series, and what it does to the war
+
+Four of the eight were already here: 0001 (economy) as `ea08fad`, 0004
+(paintings) as `d458aa5`, and 0002 (bombardment), which `git am` reported as
+already applied without being told. Only 0003 conflicted — their docblock
+against my bare test body in `game.test.ts` — and theirs was taken.
+
+**Their balance table cannot describe this tree**, and the difference is the
+interesting part. It was measured before `TRAVEL_MAX_DAYS` halved and before
+Crown Marines became the line company. Same seeds (2000), 48 wars against their
+24:
+
+| | Their tree, 24 wars | This tree, 48 wars |
+|---|---|---|
+| Crown — Confederacy | 13 — 10 | 30 — 18 |
+| Unfinished | 1 | **0** |
+| Length, median | **1,146** | **693** |
+
+**Their open question is answered, and not by them.** They flagged *"wars are
+longer than the baseline and that is the open question"* — 1,146 against a 915
+baseline. Halving travel took the median to 693, well under the baseline they
+were worried about drifting from. Nothing in the eight commits did that; it was
+a change they had not seen.
+
+**And the Marines finding is confirmed on a second seed block.** 30 — 18 here
+on seeds 2000, against 31 — 17 on seeds 3000 earlier. Pooled: **61 — 35 over 96
+decided wars**, which is 13 from even against an SD of 4.9 — about **2.65 SD**.
+One run at 1.7 SD was suggestive; two independent seed blocks agreeing is not.
+The Crown edge from Marines-as-line is real and wants a decision.
+
+The Sovereign benchmark was re-run rather than trusted, because this tree has
+diverged: every row reproduces, including 100% against one Justiciar at 26%
+hull left and 0% against two.
