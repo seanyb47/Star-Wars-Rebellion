@@ -1516,16 +1516,9 @@ button {
   flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px;
   padding: 7px 2px; min-height: 68px; text-align: left; color: var(--text);
 }
-/* The class, in the encyclopedia. A quiet mark at the end of the row rather
-   than a word, because the row is already a hull, a name and two numbers. */
-.shiprow__ask {
-  flex: none; align-self: center;
-  width: 24px; height: 24px; padding: 0; border-radius: 999px;
-  display: grid; place-items: center;
-  font-size: 12px; font-weight: 700; line-height: 1;
-  color: var(--metal-hi); background: transparent; border: 1px solid var(--border);
-}
-.shiprow__ask:active { background: var(--metal); color: var(--bg); }
+/* `.shiprow__ask` stood here: a quiet ? at the end of the row, through to the
+   encyclopedia. It went with the ship sheet on 22 September — with the row
+   itself leading to the entry, it was a second control to the same page. */
 .shiprow__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .shiprow__name { min-width: 0; font-size: 14px; line-height: 1.2; }
 .shiprow__n { margin-right: 4px; font-variant-numeric: tabular-nums; }

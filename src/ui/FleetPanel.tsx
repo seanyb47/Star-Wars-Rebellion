@@ -47,14 +47,12 @@ function ShipRow({
   ships,
   faction,
   grouped,
-  onOpen,
   order,
   pick,
 }: {
   ships: Ship[];
   faction: PlayableFaction;
   grouped: boolean;
-  onOpen: () => void;
   /** Present only while splitting: the row becomes a choice rather than a
    *  door. A grouped row is all of its hulls at once, which is what grouping
    *  means everywhere else in this list. */
@@ -117,7 +115,11 @@ function ShipRow({
           </button>
         </span>
       )}
-      <button className="shiprow__tap" onClick={onOpen} aria-label={`${cls.name} — details`}>
+      <button
+        className="shiprow__tap"
+        onClick={() => lookUp?.('ships', encyclopediaShip(cls.id))}
+        aria-label={`What is a ${cls.name}?`}
+      >
         <ShipThumb faction={faction} role={cls.role} cls={cls.id} size={112} />
         {/* Name over figures rather than beside them. With the painting at the
             size Sean asked for there is no longer a row's width to put a name,
@@ -141,27 +143,43 @@ function ShipRow({
               `hull` keeps the other idea: what the class is *rated* at, the
               1400 the encyclopedia prints beside a Wayfinder, which never
               changes. This number is a state and moves every day. */}
+          {/*
+            Her condition, in the words the ship sheet used to use.
+
+            Sean, 22 September: *"the middle screen doesn't need to exist.
+            Click on ship from the fleet panel and it takes you to the
+            encyclopedia entry. No need for the middle page if you simply move
+            the status of the ship and any damage indications into the fleet
+            screen in lieu of the hull area."*
+
+            He is right that the sheet in between was carrying almost nothing:
+            a word (Sound), the same numbers this row already showed, a
+            paragraph of repair rules that lives in the Glossary, and a button
+            through to the entry. Four of those five were duplicates of
+            something one tap away in either direction.
+
+            So a sound hull says so, in one word, the way the sheet did. A hurt
+            one shows the figures, because that is the moment the numbers are
+            worth the space — which is the whole of "any damage indications".
+          */}
           <span className="shiprow__stats">
-            <span className={hurt > 0 ? 'shiprow__hurt' : undefined}>
-              {whole - hurt}/{whole}
-            </span>
-            <span className="muted"> condition</span>
+            {hurt > 0 ? (
+              <>
+                <span className="shiprow__hurt">
+                  {whole - hurt}/{whole}
+                </span>
+                <span className="muted"> condition</span>
+              </>
+            ) : (
+              <span className="muted">Sound</span>
+            )}
           </span>
         </span>
         <span className="shiprow__chev" aria-hidden="true">›</span>
       </button>
-      {/* Her condition is behind the row; what the class *is* is in the
-          encyclopedia, at a size you can look at. Two questions, two taps. */}
-      {lookUp && (
-        <button
-          className="shiprow__ask"
-          onClick={() => lookUp('ships', encyclopediaShip(cls.id))}
-          aria-label={`What is a ${cls.name}?`}
-          title={`What is a ${cls.name}?`}
-        >
-          ?
-        </button>
-      )}
+      {/* The ℹ that stood here went with the ship sheet. It asked the same
+          question the row now answers — two controls side by side leading to
+          one page is a choice the reader has to make for no reason. */}
     </div>
   );
 }
@@ -180,7 +198,6 @@ export function FleetCard({
   onBombard,
   onFlee,
   onOpenCharacter,
-  onOpenShip,
   onOrderShips,
   onOrderOfficers,
   onDetach,
@@ -193,7 +210,6 @@ export function FleetCard({
   onBombard?: (fleetId: string) => void;
   onFlee?: (fleetId: string) => void;
   onOpenCharacter?: (characterId: string) => void;
-  onOpenShip?: (fleetId: string, shipId: string) => void;
   onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
   onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
   onDetach?: (fleetId: string, shipIds: string[], into?: string) => void;
@@ -299,7 +315,6 @@ export function FleetCard({
             ships={row.ships}
             faction={fleet.faction}
             grouped={prefs.group}
-            onOpen={() => onOpenShip?.(fleet.id, row.ships[0].id)}
             pick={
               picking
                 ? {
@@ -559,7 +574,6 @@ export function ShipsHere({
   onBombard,
   onFlee,
   onOpenCharacter,
-  onOpenShip,
   onOrderShips,
   onOrderOfficers,
   onDetach,
@@ -571,7 +585,6 @@ export function ShipsHere({
   onBombard?: (fleetId: string) => void;
   onFlee?: (fleetId: string) => void;
   onOpenCharacter?: (characterId: string) => void;
-  onOpenShip?: (fleetId: string, shipId: string) => void;
   onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
   onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
   onDetach?: (fleetId: string, shipIds: string[], into?: string) => void;
@@ -677,7 +690,6 @@ export function ShipsHere({
           onBombard={onBombard}
           onFlee={onFlee}
           onOpenCharacter={onOpenCharacter}
-          onOpenShip={onOpenShip}
           onOrderShips={onOrderShips}
           onOrderOfficers={onOrderOfficers}
           onDetach={onDetach}

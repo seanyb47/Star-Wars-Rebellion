@@ -68,7 +68,6 @@ import { ReachSheet } from './ReachSheet';
 import { ReachListSheet } from './ReachListSheet';
 import { tabForLayer, type IslandTab } from './IslandRow';
 import { ScrapSheet } from './ScrapSheet';
-import { ShipSheet } from './ShipSheet';
 import { SystemSheet } from './SystemSheet';
 import { StartScreen } from './StartScreen';
 import { Tutorial, alreadyTaught } from './Tutorial';
@@ -621,7 +620,6 @@ export function App() {
   };
 
   /** Which hull's sheet is open, if any. */
-  const [openShip, setOpenShip] = useState<{ fleetId: string; shipId: string } | null>(null);
   /** The island whose break-up list is open, if any. */
   const [scrapFor, setScrapFor] = useState<string | null>(null);
   /**
@@ -641,7 +639,6 @@ export function App() {
     Boolean(openCharacterId) ||
     Boolean(openReachId) ||
     Boolean(openListId) ||
-    Boolean(openShip) ||
     Boolean(missionChoice) ||
     Boolean(sailPlan) ||
     menuOpen ||
@@ -675,7 +672,6 @@ export function App() {
     setOpenCharacterId(null);
     setOpenReachId(null);
     setOpenListId(null);
-    setOpenShip(null);
     setMissionChoice(null);
     setSailPlan(null);
     setSailingFleetId(null);
@@ -1076,7 +1072,6 @@ export function App() {
           onAssault={handleAssault}
           onBombard={handleBombard}
           onFlee={handleFlee}
-          onOpenShip={(fleetId, shipId) => setOpenShip({ fleetId, shipId })}
           onOrderShips={handleOrderShips}
           onDetach={handleDetach}
           onOrderOfficers={handleOrderOfficers}
@@ -1108,18 +1103,11 @@ export function App() {
         );
       })()}
 
-      {openShip && (() => {
-        const fleet = state.fleets.find((f) => f.id === openShip.fleetId);
-        if (!fleet) return null;
-        return (
-          <ShipSheet
-            state={state}
-            fleet={fleet}
-            shipId={openShip.shipId}
-            onClose={() => setOpenShip(null)}
-          />
-        );
-      })()}
+      {/* The ship sheet stood here. Sean cut it on 22 September: it carried a
+          word, the figures the fleet row already showed, a paragraph of repair
+          rules that lives in the Glossary, and a button through to the
+          encyclopedia — so tapping a hull goes straight to the entry now, and
+          its condition is on the row. */}
 
       {openReach && (
         <ReachSheet

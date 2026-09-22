@@ -9063,3 +9063,48 @@ way: **a sticky element inside a scroll is the right answer when it is chrome
 and the wrong answer when it is content.** The tab bar and the top bar are
 chrome and belong pinned. A primary action at the end of a form is the last
 thing in the form — it wants a footer, which is a place, not a hover.
+
+### The ship sheet is cut (22 September)
+
+Sean, with three screenshots — encyclopedia entry, ship sheet, fleet panel:
+*"The middle screen doesn't need to exist. First image is encyclopedia. That's
+fine. Click on ship from the fleet panel and it takes you to the encyclopedia
+entry. No need for the middle page if you simply move the status of the ship
+and any damage indications into the fleet screen in lieu of the hull area."*
+
+Worth listing what that sheet actually carried, because the list is the
+argument:
+
+| On the ship sheet | Where else it was |
+|---|---|
+| The word **Sound** | nowhere — this is the one thing worth keeping |
+| `4600 / 4600` | the fleet row it was opened from |
+| A paragraph of repair rules | the Glossary's `Repair` entry, added this morning |
+| **What is a Sovereign?** | the ℹ on that same fleet row |
+
+Three of four were duplicates of something one tap away in either direction,
+and the fourth is a single word. So the word moves to the row, the row leads to
+the entry, and the sheet goes.
+
+**The row now says `Sound` when a hull is whole and shows the figures when it
+is hurt** — which is the whole of "any damage indications". Numbers earn their
+space at the moment they are not the maximum, and before that they are a
+subtraction the reader does to learn nothing.
+
+**And the ℹ went with it.** With the row itself leading to the entry, a second
+control beside it leading to the same page is a choice the reader has to make
+for no reason.
+
+Nothing is lost on a grouped row either: untick *Group alike* and every hull is
+its own row with its own condition, which is what the sheet's list of sisters
+was for.
+
+Verified by driving it: tapping a hull at Highwater opens Encyclopedia →
+Sovereign, the four rows read `Sound`, and there are no ℹ buttons left in the
+harbor.
+
+**The pattern, three times today.** The new-fleet banner, the build-panel
+blurbs, and now this sheet were all removed for one reason: they restated
+something the screen beside them already said. It is worth naming as a habit
+rather than three incidents — a screen that exists to hold one fact and three
+copies is a screen whose one fact belongs somewhere else.

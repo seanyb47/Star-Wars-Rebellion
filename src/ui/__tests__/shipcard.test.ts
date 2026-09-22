@@ -123,3 +123,52 @@ describe('the ship card is the same shape on every hull', () => {
     expect(Number(swift['Long Guns']) + Number(swift['Heavy Guns']) + Number(swift['Light Guns'])).toBe(0);
   });
 });
+
+/**
+ * The sheet between the fleet row and the encyclopedia is gone.
+ *
+ * Sean, 22 September, with three screenshots: *"the middle screen doesn't need
+ * to exist. First image is encyclopedia. That's fine. Click on ship from the
+ * fleet panel and it takes you to the encyclopedia entry. No need for the
+ * middle page if you simply move the status of the ship and any damage
+ * indications into the fleet screen in lieu of the hull area."*
+ *
+ * What that sheet held, item by item: the word *Sound*; the same figures the
+ * fleet row already printed; a paragraph of repair rules; and a button through
+ * to the encyclopedia. Three of the four were duplicates of something one tap
+ * away in either direction, and the fourth — the repair rules — moved into the
+ * Glossary's `Repair` entry earlier the same day, which is why cutting this
+ * loses nothing.
+ *
+ * Per-hull detail is not lost either: untick *Group alike* and each hull is
+ * its own row with its own condition.
+ */
+const FLEET = import.meta.glob('../FleetPanel.tsx', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+describe('a hull goes straight to its entry', () => {
+  const src = FLEET['../FleetPanel.tsx'];
+
+  it('has no ship sheet left to open', () => {
+    const all = import.meta.glob('../*.tsx', { eager: true }) as Record<string, unknown>;
+    expect(Object.keys(all).some((f) => f.endsWith('ShipSheet.tsx'))).toBe(false);
+    expect(src).not.toContain('onOpenShip');
+  });
+
+  it('opens the encyclopedia from the row itself', () => {
+    expect(src).toContain("onClick={() => lookUp?.('ships', encyclopediaShip(cls.id))}");
+    // And the second control to the same page went with the sheet.
+    expect(src).not.toContain('className="shiprow__ask"');
+  });
+
+  /** A sound hull says so; a hurt one shows what it has left. */
+  it('says Sound when whole and gives the figures when hurt', () => {
+    const stats = src.slice(src.indexOf('<span className="shiprow__stats">'));
+    expect(stats).toContain('{hurt > 0 ? (');
+    expect(stats).toContain('<span className="muted">Sound</span>');
+    expect(stats).toContain('{whole - hurt}/{whole}');
+  });
+});
