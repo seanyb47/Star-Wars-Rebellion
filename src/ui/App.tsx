@@ -1049,7 +1049,6 @@ export function App() {
             if (cameFrom?.kind === 'list') setOpenListId(cameFrom.id);
             setCameFrom(null);
           }}
-          onBuild={handleBuild}
           onCancel={handleCancel}
           onRaise={handleRaise}
           /*
@@ -1063,10 +1062,10 @@ export function App() {
             the player back on the yard they were looking at rather than out on
             the chart.
           */
-          onBuildHull={(systemId) => {
+          onOrderFrom={(systemId, kind) => {
             setDraft({
-              kind: 'ships',
-              item: firstItem('ships', state.player),
+              kind,
+              item: firstItem(kind, state.player),
               destinationId: systemId,
             });
             setOrderOpen(true);

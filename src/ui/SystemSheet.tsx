@@ -1,3 +1,4 @@
+import type { BuildKind } from './BuildSheet';
 import { useState, type ReactNode } from 'react';
 import terms from '../data/terms.json';
 import factionData from '../data/factions.json';
@@ -23,7 +24,6 @@ import {
   loyaltyBand,
   smuggledOff,
   UPKEEP_PER_DAY,
-  buildError,
   gradeOf,
   ANY_GRADE,
   buildingRank,
@@ -40,14 +40,9 @@ import {
   raiseWorksError,
   YARD_BUILDS,
   YARD_BUILDABLE,
-  buildSpec,
-  effectiveSpec,
-  isShipClass,
-  shipClass,
   freeSlots,
   requiredGarrison,
   supportMultiplier,
-  type BuildItem,
   type Facility,
   type FacilityType,
   type Character,
@@ -222,28 +217,41 @@ function facilityOutput(system: System, facility: Facility): ReactNode {
  * speed proportionally."* So three slipways are not three offers to build a
  * hull — they are one offer, three times as fast, and the card says so.
  */
+/**
+ * Which page of the build panel a works is a way into, if it is one.
+ *
+ * Undefined for a works that makes no units — a mine, a mill, a fort. Those
+ * are things on the island rather than makers, so they get a card and no
+ * button. `buildMenu` is the authority on what a works can lay down; this is
+ * only the mapping from that to which page opens.
+ */
+function buildKindFor(type: FacilityType): BuildKind | undefined {
+  if (type === 'shipyard') return 'ships';
+  if (type === 'training_facility') return 'troops';
+  return undefined;
+}
+
 function WorksCard({
   state,
   system,
   type,
   facilities,
-  onBuild,
   onCancel,
-  onBuildHull,
+  onOrderFrom,
 }: {
   state: GameState;
   system: System;
   type: FacilityType;
   facilities: Facility[];
-  onBuild: (facilityId: string, item: BuildItem) => void;
   onCancel: (facilityId: string) => void;
-  /** Open the build panel on ships, with this island already the destination. */
-  onBuildHull: (systemId: string) => void;
+  /** Open the build panel on this maker's page, at this island. */
+  onOrderFrom: (systemId: string, kind: BuildKind) => void;
 }) {
   // The one holding the order speaks for the island; failing that, the first.
   const holder = facilities.find((f) => f.building) ?? facilities[0];
   // The real grade: a shipyard offers what this side's shipwrights can draw.
   const menu = buildMenu(holder, gradeOf(state, state.player));
+  const buildKind = buildKindFor(type);
   const mine = holder.owner === state.player;
   const order = holder.building;
   const hands = crewOn(system, type, holder.owner);
@@ -364,73 +372,36 @@ function WorksCard({
       )}
 
       {/*
-        A slipway asks once, instead of laying its whole catalogue on the page.
+        Every maker on the island is a way into the build panel, and nothing
+        else.
 
-        Sean, 22 September: *"as the game goes on there's going to be tons and
-        tons of ships in that menu under shipyard... it should just have a
-        button that says build, and then it opens up the build panel and
-        already filters to ships."*
+        Sean, 22 September, first about the slipway — *"as the game goes on
+        there's going to be tons and tons of ships in that menu under
+        shipyard... it should just have a button that says build, and then it
+        opens up the build panel and already filters to ships"* — and then
+        about the rest of them: *"basically all isle building facilities
+        (ships, troops) need to be links to the build page."*
 
-        The barracks keeps its tile and that is not an inconsistency, it is the
-        same rule: `buildMenu` gives a barracks exactly one item and always
-        will, where it gives a slipway every hull the side's shipwrights can
-        draw — four on day one and fourteen at the top of the ladder. One tile
-        is a shorter path than a button that opens a panel to choose among one
-        thing; fourteen is seven rows of a phone screen between the player and
-        everything under it.
+        The first pass gave the slipway a button and left the barracks its
+        tiles, on the grounds that `buildMenu` gives a barracks exactly one
+        item and one tile is a shorter path than a button that opens a panel.
+        That was the wrong trade and he overruled it: a maker is a maker, and
+        an island sheet where one of them is a button and the other is a grid
+        makes the player learn two things instead of one. The extra tap on the
+        barracks buys a screen that reads the same wherever you look.
+
+        `buildKindFor` is the whole of the mapping, and it returns nothing for
+        a works that makes no units — so a mine or a mill still shows its card
+        and no button, rather than a button onto an empty panel.
       */}
-      {mine && !order && type === 'shipyard' && menu.length > 0 && (
+      {mine && !order && buildKind && menu.length > 0 && (
         <button
           className="btn btn--block"
           style={{ marginTop: 8 }}
-          onClick={() => onBuildHull(system.id)}
+          onClick={() => onOrderFrom(system.id, buildKind)}
         >
-          Build a hull here
+          {buildKind === 'ships' ? 'Build a hull here' : 'Raise a troop here'}
         </button>
-      )}
-
-      {mine && !order && type !== 'shipyard' && menu.length > 0 && (
-        <div className="buildgrid" style={{ marginTop: 8 }}>
-          {menu.map((item) => {
-            // What it costs this side today, not the sticker price: research
-            // takes gold and days off a hull, and a button that keeps quoting
-            // the old figure makes the whole errand invisible. And what it
-            // takes *here*, which is the sticker days over however many of
-            // these are standing on the island.
-            const spec = { ...buildSpec(item), ...effectiveSpec(state, holder.owner as PlayableFaction, item) };
-            const days = Math.ceil(spec.days / hands);
-            const error = buildError(state, holder.id, item);
-            return (
-              <button
-                key={item}
-                className="build"
-                disabled={error !== null}
-                onClick={() => onBuild(holder.id, item)}
-                title={error ?? undefined}
-              >
-                <span className="build__icon">
-                  {item === 'troop' ? (
-                    <FacilityIcon type="training_facility" size={22} />
-                  ) : isShipClass(item) ? (
-                    <ShipIcon role={shipClass(item).role} size={22} />
-                  ) : (
-                    <FacilityIcon type={item} size={22} />
-                  )}
-                </span>
-                <span className="build__text">
-                  <span className="build__name">{spec.label}</span>
-                  <span className="build__meta">
-                    {error ?? (
-                      <>
-                        <GoldFig n={spec.costGold} per={null} /> · {days}d
-                      </>
-                    )}
-                  </span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
       )}
     </div>
   );
@@ -737,12 +708,11 @@ export function SystemSheet({
   system: live,
   initialTab = 'harbor',
   onClose,
-  onBuild,
   onCancel,
   onRaise,
   onClear,
   onBreakUp,
-  onBuildHull,
+  onOrderFrom,
   onOpenCharacter,
   onOpenReach,
   onSail,
@@ -760,7 +730,6 @@ export function SystemSheet({
   system: System;
   initialTab?: IslandTab;
   onClose: () => void;
-  onBuild: (facilityId: string, item: BuildItem) => void;
   onCancel: (facilityId: string) => void;
   /** Raise a building on this island. No maker, no passage. */
   onRaise: (systemId: string, type: FacilityType) => void;
@@ -769,14 +738,14 @@ export function SystemSheet({
   /** Open the list of things on this island that could be broken up. */
   onBreakUp: (systemId: string) => void;
   /**
-   * Order a hull from this island's slipway.
+   * Order from one of this island's makers.
    *
-   * The island does not lay it down itself — it opens the build panel on
-   * ships with this island already chosen, which is the same panel the Build
-   * tab opens and therefore the same one order flow. See the note on the
-   * button in `WorksCard`.
+   * The island does not lay anything down itself — it opens the build panel
+   * on that maker's page with this island already chosen, which is the same
+   * panel the Build tab opens and therefore the same one order flow. See the
+   * note on the button in `WorksCard`.
    */
-  onBuildHull: (systemId: string) => void;
+  onOrderFrom: (systemId: string, kind: BuildKind) => void;
   onSail: (fleetId: string) => void;
   onAssault: (fleetId: string) => void;
   onBombard?: (fleetId: string) => void;
@@ -1244,9 +1213,8 @@ export function SystemSheet({
                 system={system}
                 type={works.type}
                 facilities={works.facilities}
-                onBuild={onBuild}
                 onCancel={onCancel}
-                onBuildHull={onBuildHull}
+                onOrderFrom={onOrderFrom}
               />
             ))}
           </div>

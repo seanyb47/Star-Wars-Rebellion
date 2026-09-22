@@ -36,18 +36,48 @@ describe('ordering a hull from the island', () => {
     }
   });
 
-  it('gives a slipway one button and leaves every other yard its tiles', () => {
+  /**
+   * Every maker is a button, and the grid is gone.
+   *
+   * The first pass gave the slipway a button and kept the barracks' tiles,
+   * because a barracks offers exactly one item. Sean overruled it the same
+   * day — *"basically all isle building facilities (ships, troops) need to be
+   * links to the build page"* — and he is right that an island sheet where
+   * one maker is a button and the other is a grid makes the player learn two
+   * things instead of one.
+   */
+  it('gives every maker the same button and keeps no grid', () => {
     expect(SHEET).toBeTruthy();
-    expect(SHEET).toContain("type === 'shipyard' && menu.length > 0");
-    expect(SHEET).toContain("type !== 'shipyard' && menu.length > 0");
-    // The grid is still there for the barracks, so this is a split rather
-    // than a removal.
-    expect(SHEET).toContain('className="buildgrid"');
+    expect(SHEET).toContain('mine && !order && buildKind && menu.length > 0');
+    // The inline catalogue is gone entirely, from every works.
+    expect(SHEET).not.toContain('className="buildgrid"');
+    expect(SHEET).not.toContain("type === 'shipyard' && menu.length > 0");
   });
 
-  it('opens the shared order panel on ships, at this island', () => {
-    expect(APP).toContain("kind: 'ships'");
-    expect(APP).toContain("item: firstItem('ships', state.player)");
+  /**
+   * And the mapping is the only thing that decides which page opens, so it is
+   * pinned rather than described. A works that makes no units returns nothing
+   * and gets no button, which is what keeps a mine or a mill from offering a
+   * way into an empty panel.
+   */
+  it('maps each maker to its page, and everything else to none', () => {
+    const fn = SHEET.slice(
+      SHEET.indexOf('function buildKindFor'),
+      SHEET.indexOf('function WorksCard'),
+    );
+    expect(fn).toContain("if (type === 'shipyard') return 'ships';");
+    expect(fn).toContain("if (type === 'training_facility') return 'troops';");
+    expect(fn).toContain('return undefined;');
+    // Both labels exist, so neither maker falls back to the other's wording.
+    expect(SHEET).toContain('Build a hull here');
+    expect(SHEET).toContain('Raise a troop here');
+  });
+
+  it('opens the shared order panel on that maker\'s page, at this island', () => {
+    // The kind comes from the works rather than being hardcoded, which is
+    // what lets one handler serve both makers.
+    expect(APP).toContain('onOrderFrom={(systemId, kind) => {');
+    expect(APP).toContain('item: firstItem(kind, state.player)');
     expect(APP).toContain('destinationId: systemId');
     // Over the island sheet, so closing it returns to the yard.
     expect(APP).toContain('stacked={Boolean(openSystemId)}');
