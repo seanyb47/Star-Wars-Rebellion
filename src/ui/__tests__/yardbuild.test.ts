@@ -91,4 +91,34 @@ describe('ordering a hull from the island', () => {
   it('draws the hull that is being ordered', () => {
     expect(BUILD).toContain('paintedShip(item) ?? paintedShip(`${you}-${cls.role}`)');
   });
+
+  /**
+   * Three figures and a link, on all three pages.
+   *
+   * Sean, 22 September, twice: *"all I need to see for stats is Construction
+   * Cost / Time to Completion / Upkeep. That's it"*, and then *"just put an
+   * info button that goes to encyclopedia if people want to read more about
+   * what they're building."* So what the panel owes the reader is three
+   * numbers and a way out to the rest — not a hull's combat grid, and not a
+   * paragraph of flavour the encyclopedia already carries.
+   */
+  it('shows the three figures and no stat grid', () => {
+    expect(BUILD).toContain('<dt>Construction Cost</dt>');
+    expect(BUILD).toContain('<dt>Time to Completion</dt>');
+    // The third label varies, because a mine earns where a hull costs.
+    expect(BUILD).toContain('<dt>{keepLabel}</dt>');
+    expect(BUILD).not.toContain('<Stat label="Guns"');
+    expect(BUILD).not.toContain("className=\"unit__stats\"");
+  });
+
+  it('links each thing to its own encyclopedia entry instead of describing it', () => {
+    // A hull and a works land on their own entry; a troop lands on the page,
+    // because the order is for a troop and the island picks which kind.
+    expect(BUILD).toContain('<Info to="ships" at={encyclopediaShip(item)}>');
+    expect(BUILD).toContain('<Info to="works" at={type}>');
+    expect(BUILD).toContain('<Info to="companies">');
+    // And the prose is gone rather than pushed down the card.
+    expect(BUILD).not.toContain('{cls.blurb}');
+    expect(BUILD).not.toContain('{terms.facilityBlurbs[type]}');
+  });
 });

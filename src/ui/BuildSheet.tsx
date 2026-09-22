@@ -21,7 +21,8 @@ import {
   perFortnight,
 } from '../sim';
 import { CompanyIcon, FacilityIcon, ShipIcon, facilityArt } from './art';
-import { GoldFig, Sheet, Stat } from './components';
+import { GoldFig, Info, Sheet, Stat } from './components';
+import { encyclopediaShip } from './lookup';
 import { paintedShip } from './painted';
 
 /**
@@ -390,9 +391,23 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
             keepLabel={keepLabel}
             keep={upkeepLine}
           />
-          <p className="tiny muted" style={{ margin: '6px 0 0' }}>
-            {cls.blurb}
-          </p>
+          {/*
+            The prose goes and a link takes its place.
+
+            Sean, 22 September: *"just put an info button that goes to
+            encyclopedia if people want to read more about what they're
+            building."* Three lines of flavour under three lines of figures
+            was the text block the ℹ exists to remove, and the hull's entry
+            already carries that paragraph plus the four combat numbers this
+            panel dropped in the same pass — so the reader who wants them gets
+            all of it, and the reader deciding gets three figures and a button.
+
+            A label rather than a bare glyph: a lone ℹ says there is something
+            to read and not what about.
+          */}
+          <Info to="ships" at={encyclopediaShip(item)}>
+            More about the {cls.name}
+          </Info>
         </div>
       </div>
     );
@@ -412,10 +427,10 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
             keepLabel={keepLabel}
             keep={upkeepLine}
           />
-          <p className="tiny muted" style={{ margin: '6px 0 0' }}>
-            Marines and militia. A troop holds an island quiet when its allegiance falls, is the
-            only thing that holds an empty island at all, and is what a landing is made of.
-          </p>
+          {/* No anchor, because there is no one troop to land on: the order
+              is for a troop and the island decides which kind it raises. The
+              page itself is the answer. */}
+          <Info to="companies">More about {terms.troops.toLowerCase()}</Info>
         </div>
       </div>
     );
@@ -442,9 +457,9 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
             keepLabel={keepLabel}
             keep={upkeepLine}
           />
-        <p className="tiny muted" style={{ margin: '6px 0 0' }}>
-          {terms.facilityBlurbs[type]}
-        </p>
+        <Info to="works" at={type}>
+          More about the {buildLabel(type)}
+        </Info>
       </div>
     </div>
   );
