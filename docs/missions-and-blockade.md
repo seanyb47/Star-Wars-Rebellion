@@ -96,3 +96,132 @@ specify later:
 - Whether the defender's own squadron sitting in the harbor counts as having
   broken the blockade, or whether the blockade is about the water rather than
   about who is in it.
+
+---
+
+# The covert system, as Sean specified it on 22 September
+
+His definition, and it is the useful one: **a covert op is any mission with an
+espionage check in it.** That is Espionage, Incite, Sabotage, Abduct and
+Rescue. Everything below follows from that one sentence.
+
+## 1. Two rolls, never one
+
+Every covert op is *two* rolls, and they answer different questions.
+
+| | What it asks | What it decides |
+|---|---|---|
+| **Roll 1 — espionage** | Were we seen? | Whether the job happens at all, **and the only thing that can get anybody captured** |
+| **Roll 2 — the job** | Did it work? | The outcome, on a stat that suits the mission |
+
+Roll 2 never captures anybody. Sean is explicit: a landing party that fails its
+combat roll walks home; only being *detected* takes an officer off the board.
+
+The second roll's stat is per mission:
+
+| Mission | Roll 2 | Against |
+|---|---|---|
+| Espionage | — (the espionage roll *is* the job) | |
+| Incite | **Leadership** | the island — inverse parley, nudges loyalty their way |
+| Abduct / Rescue | **Combat** | the island's defences (troops, walls) |
+| Sabotage | TBD | the target's own rating — see §4 |
+
+Incite taking *leadership* rather than parley is deliberate and surprising:
+> "You'd think it was parlay, but it's actually leadership."
+
+## 2. Four bands on the espionage roll
+
+| Band | What happens |
+|---|---|
+| **Critical success** | Full intel on the target **and** on another enemy island, usually in the same Reach |
+| **Success** | Full intel on the target: works, garrison, crew, what is building, what is at sea for it |
+| **Failure** | Nothing. The officer sails home. No penalty but the time. |
+| **Critical failure** | Captured |
+
+**Success grants the intel on every covert op, not just Espionage.** Getting in
+unseen is what buys the look around, whatever you came to do.
+
+**The feel, which is the actual spec:**
+
+> "Most players should get this feeling of: oh, my espionage failed. Okay, all
+> I did was lose the time... What you don't want is, all of a sudden everyone's
+> just getting captured nonstop. That's not fun."
+
+So failure is the common outcome and costs only days. Both criticals need
+**overwhelming odds** in their direction. Early game — three or fewer weak
+troops, no leader — somebody at 75+ espionage should be getting away with it
+routinely. Late game against a fortified island *with a commander on it*, the
+capture chance climbs. Without a leader on the spot it stays low.
+
+None of these numbers can be set from a desk. They come out of `lab/` runs and
+playtests, and the target above is the pass/fail condition for the tuning.
+
+## 3. Intel, and how else it arrives
+
+Intel is stamped with the day it was taken and shown with its age — *"28 days
+old"* — because a report is a memory, not a window.
+
+Three ways to get it, in descending cost:
+
+1. **An espionage check** that succeeds, on any covert op.
+2. **A blockade.** Lying off an island gives you its intel outright — an
+   automatic successful check, for as long as you are there.
+3. **A leak.** Every fortnight, a chance per island driven by its loyalty:
+   100% loyal leaks nothing, and the chance rises as loyalty falls. **Garrison
+   detection reduces it**, which is a second reason to keep troops ashore.
+
+`leakInformation` already does (3) on a loyalty band, but it currently reveals
+only that an island *exists* — it sets `explored`. It needs to deliver the
+intel packet instead, and to be reduced by detection.
+
+## 4. Sabotage needs per-target difficulty
+
+> "You don't want equal odds to blow up a Majestic as a Swift."
+
+So every sabotageable thing carries its own rating, used only in sabotage: a
+Heavy Fortress is harder than a lumber mill, a first-rate harder than a sloop.
+
+**Sabotage against ships is explicitly parked.** It needs ships to carry an
+inherent detection value of their own, plus whatever troops are aboard, and
+Sean wants that designed separately.
+
+## 5. Prisoners
+
+- A captured officer shows on the enemy's side with **prison bars over the
+  portrait**.
+- Every fortnight a prisoner rolls to escape: **combat against the island's
+  defences**. Low odds. A well-defended island holds people.
+- Prisoners can be **moved**, but only escorted by another character — you
+  select both. In transit the escape odds are much better, so escorting a
+  high-combat prisoner wants several escorts.
+- An escaped prisoner appears at **the nearest friendly shore**.
+
+## 6. Two standing rules stated in passing
+
+- **Everybody comes home to the nearest island you control**, whatever island
+  they set out from. A failed mission across the world does not sail all the
+  way back to where it started.
+- **Explore is deleted.** Not retired from the labels — removed as a mission.
+  > "That mission doesn't need to exist. You just need to send a boat over
+  > there."
+
+  Its job is done by sailing somewhere, and by the blockade rule in §3.
+
+## 7. The log
+
+Quiet by default, loud for the things that decide the war.
+
+- The fortnightly leak is **one line**: *"Informants provide information."*
+  followed by the islands it covered. Tap it to read; most players will not,
+  and that is correct.
+- A principal being seen or taken is **not** quiet. The narrator says it:
+  *"Commodore-Elect Adaira Hale has been taken."* These are win conditions.
+
+## 8. Not covert, but stated here because it came up
+
+A fleet at sea is currently invisible to its own owner — order one to an enemy
+island and it vanishes from the map until it arrives. It should be visible on
+your own side of the board, sitting over its destination, with an obvious
+at-sea treatment (Rebellion changes the background to hyperspace) and an
+unmistakable "en route" state on the harbor screen. The enemy sees it only
+through fog.
