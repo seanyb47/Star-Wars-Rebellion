@@ -47,9 +47,10 @@ describe('resolving a lookup to an entry', () => {
       ...characterRoster.alliance,
       ...characterRoster.recruits,
     ];
-    // Twenty-eight since 21 September: the two negotiators took the named
-    // principals from fourteen to sixteen.
-    expect(cast).toHaveLength(28);
+    // Twenty-nine since 22 September, when the Crown got a boy on its throne:
+    // the two negotiators took the named principals from fourteen to sixteen,
+    // and Imperator Cassian Thorne made it seventeen.
+    expect(cast).toHaveLength(29);
     for (const person of cast) {
       expect(subjectFor(slugOf(person.name)), person.name).toEqual({
         kind: 'person',

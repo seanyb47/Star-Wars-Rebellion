@@ -14,8 +14,10 @@ The copy lives in `src/data/opening-scroll.json`. The screen is not built.
 
 ## The rules the copy is written to
 
-1. **One short sentence a slide.** Eight slides a side. A player scrolls; an
-   image sits behind each line.
+1. **One or two sentences a slide, one theme each.** Nine slides a side. Sean,
+   22 September: *"I'm not married to the whole one sentence thing, but it
+   should be just one little theme."* A player scrolls; an image sits behind
+   each.
 2. **Fifth-grade reading level.** Short declaratives, ordinary words, no clause
    a reader has to hold open. The Star Wars crawl is about eighty-five words
    total and names three things; ours names two — the Aldermain and Highwater.
@@ -32,26 +34,15 @@ The copy lives in `src/data/opening-scroll.json`. The screen is not built.
 5. **The second-to-last slide is the objective.** It carries `objective: true`
    and is the only slide the screen may style differently.
 
-## ⚠ The objective slides do not match the code yet
+## The objective slides now match the code
 
-**This is the one thing to settle before the screen ships.** Sean's brief of 22
-September gives each side objectives that the game does not currently implement:
+Settled 22 September. Sean: *"we can make the win condition capturing both the
+grand admiral and the young imperator."* `CROWN_PRINCIPALS` is now the Imperator
+and Grand Admiral Corvane, so the Confederate slide is literally true.
 
-| | The scroll says | `checkVictory` says |
-|---|---|---|
-| Crown | Round up their leaders, and find and take their hidden port | All three Pirate Lords captured **at once**. Freeport is not a win condition. |
-| Confederacy | Take Highwater, and the boy emperor with it | The Lord Regent **and** Admiral Blackwater captured at once. Highwater is explicitly *not* a win on its own, and there is no emperor character in the cast. |
-
-Three ways out, and it is Sean's call: change the rules to match the scroll,
-change the scroll to match the rules, or split the difference — the scroll
-states the *campaign aim* in plain words while the rules stay as they are,
-which is defensible because "round up their leaders" is a fair plain-English
-gloss of "take all three Lords".
-
-Related and unsettled: **is the boy emperor a character you can capture?** The
-lore now has him newly on the throne with the Lord Regent governing in his
-name. If he becomes a capturable principal that is a third Crown principal and
-a change to `CROWN_PRINCIPALS`.
+The Crown's slide says *"round up their leaders — all three of them, and all at
+once"*, which is `allLordsTaken` in plain English. Freeport and the hidden port
+are **not** win conditions and the scroll no longer implies they are.
 
 ## What it must not say
 

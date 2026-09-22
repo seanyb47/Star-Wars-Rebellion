@@ -1,7 +1,6 @@
 {
   "_comment": "The opening crawl, one per side. Sean, 22 September: a Star Wars text scroll — one short sentence a slide, an image behind each, scrolled through before the first day. Written at about a fifth-grade reading level on purpose: a player arriving with no knowledge should finish it knowing what the world is, why the war started, and what they have to do to win.",
   "_stance": "Rewritten 22 September on Sean's correction: **each side makes its own case and only its own.** No 'they say this, we say that'. The Crown never mentions what the Confederacy wants; the Confederacy never repeats the Crown's argument about a golden age, it simply disavows them. The only thing both scrolls contain is the Drowning, because neither side disputes that it happened.",
-  "_warning": "THE OBJECTIVE SLIDES DO NOT MATCH `checkVictory` YET. Sean's 22 September brief gives the Crown 'round up their leaders and take their hidden port' and the Confederacy 'take Highwater and the boy emperor with it'. The code today wins the Crown's war on all three Pirate Lords captured at once, and the Confederacy's on the Lord Regent and Admiral Blackwater captured at once — Freeport and Highwater are not win conditions, and there is no emperor character. This is his call to make and is flagged in docs/opening-scroll.md. Do not ship the scroll to players until the copy and the rules agree.",
   "_art": "`art` is a slug under src/art/scroll/. Where no painting exists the screen falls back to the drawn scene for that faction, the way portraits and ships already do. `brief` is the note for whoever paints it and is never shown to a player.",
   "empire": {
     "title": "The Crown Imperium",
@@ -42,7 +41,7 @@
         "brief": "Yarrow Minor burning at night, seen from a Crown deck. Five slipways under one roof, and the roof going."
       },
       {
-        "text": "Round up their leaders. Find their hidden port and take it.",
+        "text": "Round up their leaders. All three of them, and all at once — take two and the third will simply carry on.",
         "art": "the-warrant",
         "brief": "Three faces on a warrant sheet under a lamp, and a chart with one stretch of water left blank.",
         "objective": true
@@ -93,9 +92,9 @@
         "brief": "A Crown line of battle coming over the horizon in good order, seen from a low deck. Numerous and unhurried."
       },
       {
-        "text": "Break their fleet. Take Highwater, and their boy emperor with it.",
+        "text": "Two men run this war: the boy on the throne and the old admiral at his shoulder. Take them both, and it is over.",
         "art": "the-wall",
-        "brief": "Highwater's wall from below at night, one lit window near the top, small figures at the foot of it.",
+        "brief": "Highwater's wall from below at night, two lit windows near the top, small figures at the foot of it.",
         "objective": true
       },
       {
@@ -104,5 +103,6 @@
         "brief": "The Confederate mark on a patched red sail against open water: skull in a red headscarf, crossed cutlasses, compass star."
       }
     ]
-  }
+  },
+  "_slides": "One to two sentences a slide, one theme each. Sean, 22 September: *\"It can also be more than one sentence. I'm not married to the whole one sentence thing, but it should be just one little theme.\"* Still about a fifth-grade reading level."
 }

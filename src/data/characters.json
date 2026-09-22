@@ -2,20 +2,39 @@
   "_comment": "The cast. `ratings` are base figures, set by the character's lore and by what the game needs of them; a game rolls each one within a swing of its base — 20 either way for a major character, 10 for a minor one — so the same person is recognisably themselves in every game without being identical. A roll may carry a base near the top above 100, which is deliberate: an exceptional showing is allowed to be exceptional. `major` marks the fourteen named principals; the unaligned are minor. Sixteen principals since 21 September, not fourteen: Meret of Low Water and Envoy Adelia Marchmont are a matched pair of negotiators, one a side, added with the siege and ground war package. One is loved and one is inevitable, and they are the two ways this war gets won without a shot.",
   "empire": [
     {
-      "id": "corvane",
-      "name": "Lord Regent Halvard Corvane",
-      "epithet": "the Old Tide",
+      "id": "cassian",
+      "name": "Imperator Cassian Thorne",
+      "epithet": "the Young Imperator",
       "people": "Human",
       "roles": [
         "Leader",
         "Recruiter"
       ],
-      "bio": "Has not left the citadel of Highwater in eleven years. Can still the whole harbor by standing at a window. Ended the Corsair Wars, and keeps a ledger of every hanging and every child taken for licensing without once thinking the number too high.",
+      "bio": "Aurelian Thorne's only son, and eleven months on a throne his father built and did not live to hand over properly. He has his father's dying wish written out in a hand he is still learning to read as an instruction rather than a letter. The Admiralty carries the war; the boy carries the reason for it, and every island that sees him in person remembers it for a year.",
       "major": true,
       "ratings": {
-        "diplomacy": 78,
+        "diplomacy": 72,
+        "espionage": 30,
+        "combat": 48,
+        "leadership": 66
+      }
+    },
+    {
+      "id": "corvane",
+      "name": "Grand Admiral Halvard Corvane",
+      "epithet": "the Old Tide",
+      "people": "Human",
+      "roles": [
+        "Leader",
+        "Recruiter",
+        "General"
+      ],
+      "bio": "Ended the Corsair Wars from a quarterdeck and has not left the citadel of Highwater since the Emperor died. Can still the whole harbor by standing at a window. Keeps a ledger of every hanging and every child taken for licensing without once thinking the number too high, and keeps the boy at his elbow while he does it.",
+      "major": true,
+      "ratings": {
+        "diplomacy": 84,
         "espionage": 62,
-        "combat": 52,
+        "combat": 70,
         "leadership": 96
       }
     },
@@ -26,7 +45,6 @@
       "people": "Human",
       "roles": [
         "Leader",
-        "Recruiter",
         "Spec Ops",
         "Negotiator"
       ],
@@ -125,7 +143,7 @@
       "ratings": {
         "diplomacy": 34,
         "espionage": 44,
-        "combat": 82,
+        "combat": 90,
         "leadership": 88
       }
     },
@@ -135,8 +153,7 @@
       "epithet": "the Paper Tide",
       "people": "Human",
       "roles": [
-        "Negotiator",
-        "Recruiter"
+        "Negotiator"
       ],
       "bio": "Arrives with the treaty already drafted and the signatures already witnessed, and then waits. Has never raised her voice in a negotiation and has never needed to; the Admiralty's terms are not an opening position. Islands that have signed describe the experience as being told the weather.",
       "major": true,

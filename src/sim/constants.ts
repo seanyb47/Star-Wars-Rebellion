@@ -990,7 +990,20 @@ export function mayServe(people: string | undefined, faction: PlayableFaction): 
  * The Crown had a hunt to run and the Confederacy had a building to storm, and
  * one of those is a war and the other is an afternoon.
  *
- * The two pick themselves. The **Lord Regent** is the head of state and the
+ * Changed 22 September, at Sean's word: *"we can make the win condition
+ * capturing both the grand admiral and the young imperator."*
+ *
+ * It was the Lord Regent and Admiral Blackwater, which was two senior officers
+ * and no story. It is now the boy who inherited the war and the old admiral who
+ * is running it for him — the reason the Crown is fighting, and the hand that
+ * actually moves the fleet. Take both and there is nobody left who can say what
+ * the Imperium is for.
+ *
+ * They are also, at his instruction in the same breath, **the Crown's only two
+ * Recruiters**, and that is the good half of the idea: the two people you cannot
+ * afford to lose are the two you have to keep sending out.
+ *
+ * The two pick themselves. The **head of state** is the head of state and the
  * best leader in the game; **Blackwater** is its sword, and the Confederacy's
  * own, once — Corwin Calloway came out of the water as Admiral Corvus
  * Blackwater and has hunted his old ship for the Crown ever since. Taking him
@@ -999,7 +1012,10 @@ export function mayServe(people: string | undefined, faction: PlayableFaction): 
  * Both are bound into every war, exactly as the three Lords are: a victory
  * condition that depends on who the dice dealt is not a victory condition.
  */
-export const CROWN_PRINCIPALS = ['Lord Regent Halvard Corvane', 'Admiral Corvus Blackwater'];
+export const CROWN_PRINCIPALS = [
+  'Imperator Cassian Thorne',
+  'Grand Admiral Halvard Corvane',
+];
 
 /** The first of them, where something wants just the one. */
 export const CROWN_PRINCIPAL = CROWN_PRINCIPALS[0];
