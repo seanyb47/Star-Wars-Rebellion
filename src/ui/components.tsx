@@ -100,8 +100,14 @@ function useSheetDrag(sheet: RefObject<HTMLDivElement | null>, onEnd: (dismissed
  * The whole point is that it costs a line and not a paragraph. Where a page
  * used to carry the explanation it carries one of these instead, and the
  * explanation lives once, on the Rules page, where somebody who wants it goes
- * looking. A label rather than a bare glyph, because a lone ℹ️ tells you there
- * is something to read and not what about.
+ * looking.
+ *
+ * Labelled or bare depends on whether the page has already said what it is
+ * about. A list of links needs its labels, because a column of identical
+ * glyphs is a column of guesses. A mark under a card whose subject is named
+ * in the picker above it does not: Sean struck "More about the Wayfinder" off
+ * the build panel on 22 September for saying Wayfinder a third time. The rule
+ * is not "always label" but "never say it twice".
  */
 /**
  * A section heading, with its help folded into it.
@@ -142,9 +148,44 @@ export function SectionHead({
   );
 }
 
-export function Info({ to, at, children }: { to: EncPage; at?: string; children: ReactNode }) {
+/**
+ * The way out to the entry, as a line of link or as a single mark.
+ *
+ * With children it is a labelled row — the form that suits a list of links,
+ * where the reader is choosing between several.
+ *
+ * Without them it is the same round ℹ the section headings carry, and for the
+ * same reason Sean gave on 20 September: *"integrate each help link into its
+ * section heading as a small info button."* He said it again on 22 September
+ * of the build card — *"don't put in 'more about wayfinder', just do an
+ * ℹ button"* — where the thing being described is named twice above the link
+ * already, so the sentence is spending a line to repeat the picker.
+ *
+ * The sentence is not deleted, it moves to `label`, where a screen reader
+ * reads it and a long press shows it. A bare glyph with no accessible name
+ * would be a button that announces itself as "button".
+ */
+export function Info({
+  to,
+  at,
+  children,
+  label,
+}: {
+  to: EncPage;
+  at?: string;
+  children?: ReactNode;
+  /** Required when there are no children: the mark's only name. */
+  label?: string;
+}) {
   const lookUp = useLookUp();
   if (!lookUp) return null;
+  if (!children) {
+    return (
+      <button className="infodot" onClick={() => lookUp(to, at)} aria-label={label} title={label}>
+        <Icon name="info" size={17} />
+      </button>
+    );
+  }
   return (
     <button className="infolink" onClick={() => lookUp(to, at)}>
       <span aria-hidden="true">&#8505;</span>

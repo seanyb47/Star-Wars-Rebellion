@@ -8591,3 +8591,40 @@ And one thing the removals *exposed* rather than caused: the troop card's
 underneath balancing it. With the name gone it read as a picture that had
 failed to load, so the placeholder is centred now. That is the only change here
 Sean did not ask for, and it is a margin.
+
+### Two more passes on the same card (22 September)
+
+**The link becomes a mark.** *"Don't put in 'more about wayfinder', just do an
+ℹ️ button."* This is the 20 September ruling again — *"integrate each help link
+into its section heading as a small info button"* — arriving at the one place
+it had not been applied. The fault is the panel's house fault: the picker says
+*Wayfinder*, the painting is of the Wayfinder, and the link said *Wayfinder* a
+third time.
+
+So `Info` now has two forms rather than two components. With children it is the
+labelled row, which is right for a list of links where a column of identical
+glyphs would be a column of guesses. Without them it is the same `.infodot` the
+section headings carry, and the sentence moves to `label` — read by a screen
+reader, shown on a long press. A bare glyph with no accessible name announces
+itself as "button", so the label is not optional in practice even though the
+prop is.
+
+That invalidated a claim in this file's own docblock — *"a label rather than a
+bare glyph, because a lone ℹ️ tells you there is something to read and not what
+about"* — so the docblock is corrected rather than left to contradict the code
+under it. The rule it states now is the one Sean has actually been applying:
+not *always label*, but *never say it twice*.
+
+**Upkeep moves above time.** *"Move time to completion below upkeep."* Worth
+recording why it is better rather than just that he asked: the two money rows
+now sit together, and what a thing costs to buy and what it costs to keep are
+the same question asked twice. A player choosing between a Wayfinder at 140/20
+and a Morningstar reads them as a pair. Time is the one figure that does not
+answer *can I afford this*, so it goes last.
+
+The test asserts the *order* — `[...BUILD.matchAll(/<dt>(.+?)<\/dt>/g)]` against
+a three-element array — because three separate `toContain` calls pass no matter
+how the rows are shuffled, and the order is the whole of the change.
+
+All three marks were followed in Chromium rather than counted: ships lands on
+the Wayfinder's entry, works on the Gold Mine's, troops on the Troops page.

@@ -105,21 +105,65 @@ describe('ordering a hull from the island', () => {
   it('shows the three figures and no stat grid', () => {
     expect(BUILD).toContain('<dt>Construction Cost</dt>');
     expect(BUILD).toContain('<dt>Time to Completion</dt>');
-    // The third label varies, because a mine earns where a hull costs.
+    // The middle label varies, because a mine earns where a hull costs.
     expect(BUILD).toContain('<dt>{keepLabel}</dt>');
     expect(BUILD).not.toContain('<Stat label="Guns"');
     expect(BUILD).not.toContain("className=\"unit__stats\"");
   });
 
-  it('links each thing to its own encyclopedia entry instead of describing it', () => {
+  /**
+   * Cost, then upkeep, then time.
+   *
+   * Sean, 22 September: *"move time to completion below upkeep."* The order is
+   * the point rather than the presence — the two money rows sitting together
+   * are the same question asked twice, what it costs to buy and what it costs
+   * to keep, and a player comparing two hulls reads them as a pair. So it is
+   * asserted as an order, which `toContain` on three separate strings cannot
+   * do.
+   */
+  it('puts the two money rows together, with time last', () => {
+    const order = [...BUILD.matchAll(/<dt>(.+?)<\/dt>/g)].map((m) => m[1]);
+    expect(order).toEqual(['Construction Cost', '{keepLabel}', 'Time to Completion']);
+  });
+
+  /**
+   * A mark, not a sentence.
+   *
+   * Sean, 22 September: *"don't put in 'more about wayfinder', just do an ℹ
+   * button."* The link that replaced the blurb had the same fault as the rest
+   * of the panel — the picker says Wayfinder, the painting is of the
+   * Wayfinder, and the link said it a third time.
+   *
+   * The sentence is not deleted, it moves to `label`, which is what the
+   * screen reader reads and the long press shows. A bare glyph with no
+   * accessible name would announce itself as "button", so the assertion is on
+   * the label existing as much as on the text going.
+   */
+  it('links each thing to its entry with one mark and no sentence', () => {
     // A hull and a works land on their own entry; a troop lands on the page,
     // because the order is for a troop and the island picks which kind.
-    expect(BUILD).toContain('<Info to="ships" at={encyclopediaShip(item)}>');
-    expect(BUILD).toContain('<Info to="works" at={type}>');
-    expect(BUILD).toContain('<Info to="companies">');
+    expect(BUILD).toContain('<Info to="ships" at={encyclopediaShip(item)} label={`More about the ${cls.name}`} />');
+    expect(BUILD).toContain('<Info to="works" at={type} label={`More about the ${buildLabel(type)}`} />');
+    expect(BUILD).toContain('<Info to="companies" label={`More about ${terms.troops.toLowerCase()}`} />');
+    // Nothing on the card renders the name as link text any more.
+    expect(BUILD).not.toContain('More about the {cls.name}');
+    expect(BUILD).not.toContain('>More about {terms.troops.toLowerCase()}<');
     // And the prose is gone rather than pushed down the card.
     expect(BUILD).not.toContain('{cls.blurb}');
     expect(BUILD).not.toContain('{terms.facilityBlurbs[type]}');
+  });
+
+  /**
+   * And the bare form is a real control rather than a glyph, so the component
+   * that serves both is pinned: children make a labelled row, no children make
+   * the same round mark the section headings carry.
+   */
+  it('gives the bare mark an accessible name', () => {
+    const COMPONENTS = UI['../components.tsx'];
+    const info = COMPONENTS.slice(COMPONENTS.indexOf('export function Info('));
+    expect(info).toContain('if (!children) {');
+    expect(info).toContain('className="infodot"');
+    expect(info).toContain('aria-label={label}');
   });
 
   /**

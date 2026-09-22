@@ -2189,6 +2189,12 @@ button.tcard:hover { border-color: var(--brass); }
 .figures > div:last-child { border-bottom: 0; }
 .figures dt { font-size: 12px; color: var(--muted); }
 .figures dd { margin: 0; font-size: 13px; font-weight: 600; color: var(--text); }
+/* The way out to the entry, under the figures and hard right — the same edge
+   the figures line up on, and the same corner the section headings put their
+   mark in. `.infodot` is sized for a heading's flex row, so it is made a
+   block here to take the auto margin, and given room for its own 33px target
+   rather than letting that overlap the last figure. */
+.figures + .infodot { display: grid; margin: 8px 8px 2px auto; }
 
 /* The mission menu: one card an errand. */
 .choice { display: flex; gap: 10px; align-items: flex-start; text-align: left; width: 100%; }

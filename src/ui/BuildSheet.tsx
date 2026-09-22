@@ -315,6 +315,12 @@ function roomLine(state: GameState, system: System): string {
  *
  * Labelled rows rather than a row of columns, because his three are two words
  * each and column headings that wrap are worse than a list.
+ *
+ * Cost, then upkeep, then time — his order of 22 September, and the two money
+ * rows sitting together is the reason to prefer it: what a thing costs to buy
+ * and what it costs to keep are the same question asked twice, and a player
+ * comparing a Wayfinder against a Morningstar reads them as a pair. Time is
+ * the one figure that does not answer "can I afford this".
  */
 function BuildFigures({
   cost,
@@ -325,7 +331,7 @@ function BuildFigures({
   cost: number;
   days: number;
   /**
-   * The third row is Upkeep for everything that costs and Earns for the two
+   * The second row is Upkeep for everything that costs and Earns for the two
    * that pay — a mine and a mill cost nothing to keep, and what they bring in
    * is the reason to raise one. Sean's Day 150 playtest was about exactly this
    * figure being wrong, so it keeps its own line rather than being folded into
@@ -343,12 +349,12 @@ function BuildFigures({
         </dd>
       </div>
       <div>
-        <dt>Time to Completion</dt>
-        <dd>{days} days</dd>
-      </div>
-      <div>
         <dt>{keepLabel}</dt>
         <dd>{keep}</dd>
+      </div>
+      <div>
+        <dt>Time to Completion</dt>
+        <dd>{days} days</dd>
       </div>
     </dl>
   );
@@ -416,22 +422,23 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
         <div className="unit__body">
           <BuildFigures cost={plan.costGold} days={plan.days} keepLabel={keepLabel} keep={upkeepLine} />
           {/*
-            The prose goes and a link takes its place.
+            The prose went and a link took its place; now the link is a mark.
 
-            Sean, 22 September: *"just put an info button that goes to
-            encyclopedia if people want to read more about what they're
-            building."* Three lines of flavour under three lines of figures
-            was the text block the ℹ exists to remove, and the hull's entry
-            already carries that paragraph plus the four combat numbers this
-            panel dropped in the same pass — so the reader who wants them gets
-            all of it, and the reader deciding gets three figures and a button.
+            Sean, 22 September, twice. First *"just put an info button that
+            goes to encyclopedia if people want to read more about what
+            they're building"* — three lines of flavour under three lines of
+            figures was exactly the text block the ℹ exists to remove, and
+            the hull's entry already carries that paragraph plus the four
+            combat numbers this panel dropped in the same pass.
 
-            A label rather than a bare glyph: a lone ℹ says there is something
-            to read and not what about.
+            Then, of the link that replaced it: *"don't put in 'more about
+            wayfinder', just do an ℹ button."* He is right and it is the same
+            fault as the rest of this panel — the picker says Wayfinder, the
+            painting is of the Wayfinder, and the link said Wayfinder a third
+            time. The name goes to `label`, so the sentence is still what a
+            screen reader hears and what a long press shows.
           */}
-          <Info to="ships" at={encyclopediaShip(item)}>
-            More about the {cls.name}
-          </Info>
+          <Info to="ships" at={encyclopediaShip(item)} label={`More about the ${cls.name}`} />
         </div>
       </div>
     );
@@ -453,7 +460,7 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
           {/* No anchor, because there is no one troop to land on: the order
               is for a troop and the island decides which kind it raises. The
               page itself is the answer. */}
-          <Info to="companies">More about {terms.troops.toLowerCase()}</Info>
+          <Info to="companies" label={`More about ${terms.troops.toLowerCase()}`} />
         </div>
       </div>
     );
@@ -479,9 +486,7 @@ function UnitCard({ state, item }: { state: GameState; item: BuildItem }) {
             keepLabel={keepLabel}
             keep={upkeepLine}
           />
-        <Info to="works" at={type}>
-          More about the {buildLabel(type)}
-        </Info>
+        <Info to="works" at={type} label={`More about the ${buildLabel(type)}`} />
       </div>
     </div>
   );
