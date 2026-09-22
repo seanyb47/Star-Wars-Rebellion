@@ -48,10 +48,19 @@ describe('ordering a hull from the island', () => {
    */
   it('gives every maker the same button and keeps no grid', () => {
     expect(SHEET).toBeTruthy();
-    expect(SHEET).toContain('mine && !order && buildKind && menu.length > 0');
+    // The button lives on the row now — `WorksCard` and its 64px tile went on
+    // 22 September — but the rule it is drawn from has not moved: yours, no
+    // order on it, and a page to open.
+    expect(SHEET).toContain('const kind = buildKindFor(facility.type);');
+    expect(SHEET).toContain('mine && kind && !facility.founding');
     // The inline catalogue is gone entirely, from every works.
     expect(SHEET).not.toContain('className="buildgrid"');
     expect(SHEET).not.toContain("type === 'shipyard' && menu.length > 0");
+    // And so is the second catalogue under it: the list of every works with
+    // its price, which the build panel already is. Sean wanted one place to
+    // give an order, and there were three. Pinned on the prop rather than the
+    // heading, because the heading survives in the comment saying it went.
+    expect(SHEET).not.toContain('onRaise');
   });
 
   /**
@@ -63,14 +72,17 @@ describe('ordering a hull from the island', () => {
   it('maps each maker to its page, and everything else to none', () => {
     const fn = SHEET.slice(
       SHEET.indexOf('function buildKindFor'),
-      SHEET.indexOf('function WorksCard'),
+      SHEET.indexOf('function WorksRow'),
     );
     expect(fn).toContain("if (type === 'shipyard') return 'ships';");
     expect(fn).toContain("if (type === 'training_facility') return 'troops';");
     expect(fn).toContain('return undefined;');
     // Both labels exist, so neither maker falls back to the other's wording.
-    expect(SHEET).toContain('Build a hull here');
-    expect(SHEET).toContain('Raise a troop here');
+    // Sean, 22 September: *"change build hull here to just build ships."* The
+    // row says what you get, not what the building is called.
+    expect(SHEET).toContain("'Build ships'");
+    expect(SHEET).toContain("'Build troops'");
+    expect(SHEET).not.toContain('Build a hull here');
   });
 
   it('opens the shared order panel on that maker\'s page, at this island', () => {

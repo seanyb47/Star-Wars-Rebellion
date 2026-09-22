@@ -286,6 +286,39 @@ export function openDeposits(
  * `destinationId` is where the thing lands: another island of yours, reached
  * by sea, or (absent) the island the facility stands on.
  */
+/**
+ * What this island is already making, if anything.
+ *
+ * Sean, 22 September: *"let's also make it to where you can only build one
+ * thing at a time on an island. We don't want to just be able to spam like
+ * five things that are all being made simultaneously."*
+ *
+ * The rule before was one job per *kind* — a shipyard, a barracks and a
+ * building could all be going at once, so a developed island ran three
+ * queues. That is the spam he is describing, and it is also why an island's
+ * output scaled with how many different sorts of works stood on it rather
+ * than with any decision.
+ *
+ * One job per island, full stop. Several works of the same kind still pull on
+ * the same job and still finish it faster — that is the build divisor and it
+ * is untouched — but a second *order* waits for the first.
+ *
+ * Counts anything the island is carrying: a hull or a troop on a works, and a
+ * works being laid down. Only the owner's own, so an island changing hands
+ * mid-build does not deadlock the new holder on somebody else's order.
+ */
+export function islandBusy(
+  system: System,
+  owner: PlayableFaction,
+): { label: string } | null {
+  for (const f of system.facilities) {
+    if (f.owner !== owner) continue;
+    if (f.founding) return { label: FACILITY_LABEL[f.type] };
+    if (f.building) return { label: buildLabel(f.building.item) };
+  }
+  return null;
+}
+
 export function buildError(
   state: GameState,
   facilityId: string,
@@ -324,6 +357,9 @@ export function buildError(
       ? `The ${FACILITY_LABEL[facility.type].toLowerCase()} is still being laid down.`
       : `${FACILITY_LABEL[facility.type]} busy: ${buildLabel(busy.building!.item)}.`;
   }
+  // And one job per island, whatever kind of works it is on. See `islandBusy`.
+  const elsewhere = islandBusy(system, facility.owner);
+  if (elsewhere) return `${inProse(system.name)} is already making ${elsewhere.label}.`;
   if (system.control !== facility.owner) return 'You do not hold this island.';
   if (system.uprising) return 'The island is in mutiny.';
 
@@ -609,11 +645,17 @@ export function raiseWorksError(
         ? `Every ${RESOURCE_LABEL[wants].toLowerCase()} on ${inProse(system.name)} is spoken for.`
         : `No ${RESOURCE_LABEL[wants].toLowerCase()} on ${inProse(system.name)}.`;
     }
-    return null;
-  }
-  if (freeSlots(system) - reservedSlots(state, system.id) < 1) {
+  } else if (freeSlots(system) - reservedSlots(state, system.id) < 1) {
     return `No room left on ${inProse(system.name)}.`;
   }
+
+  // One job per island, the same rule a hull or a troop answers to — asked
+  // last on purpose. Every reason above is a fact about the island that will
+  // still be true tomorrow; this one clears itself the day the current job
+  // lands. Told "already making a Lumber Mill" a player waits, and a player
+  // who waits for a vein that was never there waits forever.
+  const busy = islandBusy(system, owner);
+  if (busy) return `${inProse(system.name)} is already making ${busy.label}.`;
   return null;
 }
 

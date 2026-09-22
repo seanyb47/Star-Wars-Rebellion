@@ -9273,3 +9273,73 @@ The Crown edge from Marines-as-line is real and wants a decision.
 The Sovereign benchmark was re-run rather than trusted, because this tree has
 diverged: every row reproduces, including 100% against one Justiciar at 26%
 hull left and 0% against two.
+
+### The Buildings tab becomes a list, and an island makes one thing at a time
+
+Sean, 22 September, on a Buildings tab he had to scroll a page and a half to
+read: *"I think we can make the icons on the buildings significantly smaller,
+so that there's less scrolling on the page... it should just have like shipyard
+and then the interface for what's going on in the shipyards next to it... lumber
+mill, and then it can have the income that it's generating... that interface
+should be on the right side."*
+
+What was there was three views of the same island stacked on top of each other:
+a board of 64px tiles each with a stat block under it, an "Order something
+built" section under that, and a "Raise a building" catalogue of every works
+with its price under that. The catalogue was the clearest waste — the build
+panel **is** the catalogue, and it validates, so the list was a second way to
+ask a question that already had a better answer. Cutting it is what made the
+rest fit: ground and open plots became a row with a `+` that opens the panel,
+which is the same control the makers' buttons are.
+
+Two of his notes were the same note. *"It says seven of 12 berths built. What
+the fuck's a berth? Two standing in the ground, three open. You don't need that
+— the bar already tells you that."* The room bar stays; the sentence explaining
+the room bar went. And *"change build hull here to just build ships"* — the row
+already says Shipyard, so the button should say what you get.
+
+The fortress goes in **two** places, which he asked for after reversing himself
+mid-sentence: *"Leave, leave fortress in that spot, actually leave fortress in
+the building spot. That's fine. Um, but also show it in the defense area."*
+That resolves cleanly rather than awkwardly, because the two screens want
+different halves of it: Buildings names it, since it holds a plot and that is a
+building fact; Defenses carries its numbers, since that is the one screen
+answering *what would it take to get this island off them*. So `WorksRow` gives
+a wall no right-hand controls at all, deliberately, and the Defenses card is
+unchanged.
+
+**The rule change is the part that needed measuring.** *"Let's also make it to
+where you can only build one thing at a time on an island. So if you're
+building a ship, you can't build a building. If you're building a building, you
+can't build a ship."* That is `islandBusy`, asked by both order paths. It
+repeals a test that asserted the opposite — a slipway and a drill ground were
+two separate jobs — and the inverted test now carries the quote.
+
+In `raiseWorksError` the busy check is asked **last**, after the deposit and
+room checks, and that ordering is load-bearing: every other refusal is a fact
+about the island that will still be true tomorrow, while this one clears itself
+the day the current job lands. Told "already making a Lumber Mill" a player
+waits; a player told the same thing when what is actually wrong is that there
+was never a gold vein waits forever.
+
+Forty-eight wars on seeds 3000, against the same seeds with the gate removed:
+
+| | Without the rule | With it |
+|---|---|---|
+| Crown — Confederacy | 25 — 23 | 25 — 23 |
+| Unfinished | 0 | 0 |
+| Length, median | 780 | 717 |
+| Crown hulls at the end | 22.9 | 21.6 |
+| Confederate hulls at the end | 31.5 | 26.9 |
+| Crown islands at the end | 24.7 | 22.4 |
+| Lords in irons | 2.02 | 1.85 |
+
+The win split does not move by a single war, which is the answer that matters:
+a throughput cut this size could have been a Crown buff or a Confederate one
+and is neither. Where it does bite is **the side that concentrates**. The
+Confederacy ends with fewer islands and more hulls than the Crown — it stacks
+yards — and it loses 4.6 hulls to the rule against the Crown's 1.3. That is the
+rule working as intended: it prices the strategy of building one fortress-island
+and running the whole war out of it.
+
+Audit clean in both runs.

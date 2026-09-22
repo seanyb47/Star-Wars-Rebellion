@@ -3079,3 +3079,46 @@ button.tcard:hover { border-color: var(--brass); }
    vertical panning until the hold lands; after that the drag blocks page
    scrolling itself, for exactly as long as it runs. */
 .slot-wrap .slot { touch-action: pan-y; }
+
+/* The island's buildings, as one list of rows.
+
+   Sean, 22 September: *"I think we can make the icons on the buildings
+   significantly smaller, so that there's less scrolling on the page... it
+   should just have like shipyard and then the interface for what's going on
+   in the shipyards next to it."* What this replaces was a board of 64px
+   tiles, each with a stat block under it, and a developed island ran to a
+   page and a half. A row is 28px of icon, a name, and that building's own
+   business hard against the right edge — *"that interface should be on the
+   right side"* — so the whole island reads down one column of verbs. */
+.islandlist { display: flex; flex-direction: column; margin-top: 8px; }
+.islandrow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 2px; min-height: 40px;
+}
+.islandrow + .islandrow { border-top: 1px solid var(--border); }
+.islandrow__icon { flex: none; display: flex; width: 28px; height: 28px; }
+.islandrow__name {
+  flex: 1; min-width: 0; text-align: left; color: var(--text);
+  font-size: 14px; line-height: 1.2;
+}
+.islandrow__name:disabled { opacity: 1; }
+.islandrow__right {
+  flex: none; display: flex; align-items: center; gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.islandrow__build { min-height: 30px; padding: 0 10px; font-size: 12px; width: auto; }
+.islandrow__earn { color: var(--brass); }
+/* A works being laid down is greyed the way an unfinished thing should be,
+   without leaving the list — you want to see the plot is spoken for. */
+.islandrow--going .islandrow__icon { opacity: 0.5; }
+/* Ground and open room: the same row, with a + where the business goes.
+   *"Instead of a stat block, it's just a plus button and you can build."* */
+.islandrow--plot .islandrow__name { color: var(--muted); }
+.islandrow__plot {
+  width: 28px; height: 28px; border-radius: 6px;
+  border: 1px dashed var(--border); background: rgba(0, 0, 0, 0.18);
+}
+.islandrow__plus {
+  min-height: 30px; width: 34px; padding: 0;
+  font-size: 17px; line-height: 1;
+}

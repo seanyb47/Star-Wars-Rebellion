@@ -12,7 +12,6 @@ import {
   type Sight,
   watchOn,
   type MissionType,
-  FACILITY_BLURB,
   FACILITY_LABEL,
   FORT_BOMBARD_DEFENSE,
   FORT_INVASION_DEFENSE,
@@ -23,26 +22,19 @@ import {
   SMUGGLED_SHARE,
   loyaltyBand,
   smuggledOff,
-  UPKEEP_PER_DAY,
-  gradeOf,
   ANY_GRADE,
   buildingRank,
   clearError,
   depositsLeft,
   RESOURCE_LABEL,
   RESOURCE_TYPES,
-  crewOn,
-  daysToFinish,
   daysToDeliver,
   buildLabel,
   idleFacilities,
   buildMenu,
-  raiseWorksError,
-  YARD_BUILDS,
-  YARD_BUILDABLE,
+  islandBusy,
   freeSlots,
   requiredGarrison,
-  supportMultiplier,
   type Facility,
   type FacilityType,
   type Character,
@@ -59,18 +51,13 @@ import {
   type PlayableFaction,
   inProse,
   chartedName,
-  perFortnight,
 } from '../sim';
 import {
   CharacterFace,
   CompanyIcon,
   CreaturePainting,
   FacilityIcon,
-  FacilityThumb,
-  facilityPainting,
   ResourceIcon,
-  ResourceThumb,
-  resourcePainting,
   IslandBanner,
   ShipIcon,
 } from './art';
@@ -80,7 +67,6 @@ import { useLookUp } from './lookup';
 import {
   ControlBadge,
   GoldFig,
-  Coin,
   RoomBar,
   Sheet,
   Slot,
@@ -181,32 +167,6 @@ function LoyaltyLine({ system }: { system: System }) {
   );
 }
 
-/** One line explaining what a facility actually does for you right now. */
-function facilityOutput(system: System, facility: Facility): ReactNode {
-  const owner = facility.owner;
-  if (owner !== 'empire' && owner !== 'alliance') return null;
-  if (system.uprising) return `Idle — the island is in ${terms.mutiny.toLowerCase()}.`;
-  if (system.control !== owner) return 'Idle — the island is not held by its owner.';
-  const earning = GOLD_PER_DAY[facility.type];
-  if (earning > 0) {
-    const yieldNow = earning * supportMultiplier(system.support[owner]);
-    return (
-      <>
-        <GoldFig label="Earns" n={yieldNow.toFixed(1)} tone="earn" /> at this{' '}
-        {terms.allegiance.toLowerCase()}
-      </>
-    );
-  }
-  const cost = UPKEEP_PER_DAY[facility.type];
-  return cost > 0 ? (
-    <>
-      {FACILITY_BLURB[facility.type]} <GoldFig label={terms.upkeep} n={cost} tone="cost" />
-    </>
-  ) : (
-    FACILITY_BLURB[facility.type]
-  );
-}
-
 /**
  * One island's works of a kind: the yards, the slipways or the drill grounds.
  *
@@ -231,178 +191,145 @@ function buildKindFor(type: FacilityType): BuildKind | undefined {
   return undefined;
 }
 
-function WorksCard({
+/**
+ * One thing on the island: its name on the left, its own business on the right.
+ *
+ * Sean, 22 September: *"it should just have like shipyard and then the
+ * interface for what's going on in the shipyards next to it... lumber mill,
+ * and then it can have the income that it's generating."*
+ *
+ * So the right-hand side is per kind and nothing else goes there:
+ *
+ * - a maker with an order shows the days and a way to cancel
+ * - a maker with none shows the button that opens the build panel
+ * - an earner shows what it brings in
+ * - a wall shows nothing here; the Defenses tab is where its numbers live
+ *
+ * Icons are 28px rather than 64. His words: *"I think we can make the icons on
+ * the buildings significantly smaller, so that there's less scrolling on the
+ * page."* A developed island had a page and a half of tiles.
+ */
+function WorksRow({
   state,
   system,
-  type,
-  facilities,
+  facility,
   onCancel,
   onOrderFrom,
 }: {
   state: GameState;
   system: System;
-  type: FacilityType;
-  facilities: Facility[];
+  facility: Facility & { count: number; ids: string[]; days?: number };
   onCancel: (facilityId: string) => void;
-  /** Open the build panel on this maker's page, at this island. */
   onOrderFrom: (systemId: string, kind: BuildKind) => void;
 }) {
-  // The one holding the order speaks for the island; failing that, the first.
-  const holder = facilities.find((f) => f.building) ?? facilities[0];
-  // The real grade: a shipyard offers what this side's shipwrights can draw.
-  const menu = buildMenu(holder, gradeOf(state, state.player));
-  const buildKind = buildKindFor(type);
-  const mine = holder.owner === state.player;
-  const order = holder.building;
-  const hands = crewOn(system, type, holder.owner);
-  const output = facilityOutput(system, holder);
-  const bound =
-    order?.destinationId && order.destinationId !== system.id
-      ? state.systems.find((s) => s.id === order.destinationId)
-      : undefined;
-  const build = daysToFinish(system, holder);
-  const deploy = daysToDeliver(system, holder);
-  // Where the bar is: the work first, then the passage, as one journey from
-  // ordered to arrived. A hull three days from the stocks with a fortnight's
-  // sailing ahead of it is not nearly finished, and a bar that said so by
-  // work alone would be lying about when it turns up.
-  const whole = order ? order.work + order.travel : 1;
-  const done = order ? order.work - order.workLeft + (order.travel - order.travelLeft) : 0;
+  const lookUp = useLookUp();
+  const mine = facility.owner === state.player;
+  const kind = buildKindFor(facility.type);
+  const order = system.facilities.find((f) => facility.ids.includes(f.id) && f.building);
+  const earns = GOLD_PER_DAY[facility.type] ?? 0;
+  // The island is busy if anything of yours is being made on it — see
+  // `islandBusy`. A maker cannot be given a second order while that stands.
+  const busy = mine ? islandBusy(system, state.player) : null;
 
   return (
-    <div className="card">
-      <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
-        <span className="facility__thumb">
-          <FacilityThumb type={type} owner={holder.owner} width={96} />
-        </span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="row row--between">
-            <div style={{ fontWeight: 600 }}>
-              {facilities.length > 1 ? `${facilities.length}× ` : ''}
-              {FACILITY_LABEL[type]}
-            </div>
-            {/*
-              Which works the chart's Idle buildings count is about.
-              Sean, 19 September, looking at an island the filter had marked
-              with a 1 and finding a construction yard plainly at work:
-              *"This construction yard is making something so it's not idle."*
-              The count was right — the 1 was the slipway standing empty beside
-              it — but the island could only say *how many*, never *which*, and
-              the busy one was at the top of the list. So the works that the
-              count is about says so on itself.
+    <div className={`islandrow${facility.founding ? ' islandrow--going' : ''}`}>
+      <span className="islandrow__icon" aria-hidden="true">
+        <FacilityIcon type={facility.type} size={28} />
+      </span>
+      <button
+        className="islandrow__name"
+        onClick={() => lookUp?.('works', facility.type)}
+        title={`What is a ${FACILITY_LABEL[facility.type]}?`}
+      >
+        {facility.count > 1 ? `${facility.count}× ` : ''}
+        {FACILITY_LABEL[facility.type]}
+        {facility.founding && <span className="tiny muted"> · going up</span>}
+      </button>
 
-              It asks `idleFacilities`, which is the function the chart mark
-              itself calls, rather than re-deriving idleness from `order`. The
-              two answers can then never drift apart, which is the whole
-              failure this is fixing: a tag that said Idle where the chart
-              disagreed would be worse than no tag.
-            */}
-            {idleFacilities(system, state.player, type) > 0 && (
-              <span className="tiny works__idle">Idle</span>
-            )}
-            {holder.owner !== state.player && <ControlBadge faction={holder.owner} />}
-          </div>
-          {output && (
-            <div className="tiny muted" style={{ marginTop: 2 }}>
-              {output}
-            </div>
-          )}
-          {hands > 1 && (
-            <div className="tiny works__crew" style={{ marginTop: 2 }}>
-              {hands} of them, working together — {hands}× the pace on one job at a time.
-            </div>
-          )}
-        </div>
-      </div>
-
-      {order && (
-        <div className="works__order">
-          <div className="row row--between small">
-            <b>{buildLabel(order.item)}</b>
+      <span className="islandrow__right">
+        {order?.building ? (
+          <>
+            {/* A works being laid down already says what it is on the left,
+                so the right side is only the days. Anything else repeats the
+                row's own name back at the player. */}
+            <span className="tiny">
+              {facility.founding ? '' : `${buildLabel(order.building.item)} · `}
+              {facility.days ?? 0}d
+            </span>
             {mine && (
-              <button className="tiny btn--danger" onClick={() => onCancel(holder.id)}>
+              <button className="tiny btn--danger" onClick={() => onCancel(order.id)}>
                 Cancel
               </button>
             )}
-          </div>
-
-          <div
-            className={`workbar${system.uprising ? ' workbar--halted' : ''}`}
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={whole}
-            aria-valuenow={done}
-            aria-label={`${buildLabel(order.item)}, ${deploy} days from delivery`}
+          </>
+        ) : mine && kind && !facility.founding ? (
+          <button
+            className="btn islandrow__build"
+            disabled={Boolean(busy)}
+            title={busy ? `${inProse(system.name)} is already making ${busy.label}.` : undefined}
+            onClick={() => onOrderFrom(system.id, kind)}
           >
-            <span style={{ width: `${Math.min(100, Math.max(2, (done / whole) * 100))}%` }} />
-            {order.travel > 0 && (
-              <i className="workbar__mark" style={{ left: `${(order.work / whole) * 100}%` }} />
-            )}
-          </div>
+            {/* Sean: *"change build hull here to just build ships."* */}
+            {kind === 'ships' ? 'Build ships' : 'Build troops'}
+          </button>
+        ) : earns > 0 ? (
+          <span className="tiny islandrow__earn">
+            +{earns * facility.count}/day
+          </span>
+        ) : facility.owner !== state.player ? (
+          <ControlBadge faction={facility.owner} />
+        ) : null}
+      </span>
+    </div>
+  );
+}
 
-          {/* The two numbers Sean asked for, kept apart: when it is finished,
-              and when it is *there*. Identical when it is being made where it
-              is wanted, and then only one of them is worth the line. */}
-          <div className="tiny works__clock">
-            {system.uprising ? (
-              <span className="works__halted">
-                Halted — the island is in {terms.mutiny.toLowerCase()}.
-              </span>
-            ) : order.workLeft > 0 ? (
-              <span>
-                <b>{build}d</b> to build
-              </span>
-            ) : (
-              <span>
-                <b>Built</b>, at sea
-              </span>
-            )}
-            {bound && (
-              <>
-                <span className="works__dot">·</span>
-                <span>
-                  <b>{deploy}d</b> to deploy
-                </span>
-                <span className="works__dot">·</span>
-                <span className="works__to">bound for {bound.name}</span>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/*
-        Every maker on the island is a way into the build panel, and nothing
-        else.
-
-        Sean, 22 September, first about the slipway — *"as the game goes on
-        there's going to be tons and tons of ships in that menu under
-        shipyard... it should just have a button that says build, and then it
-        opens up the build panel and already filters to ships"* — and then
-        about the rest of them: *"basically all isle building facilities
-        (ships, troops) need to be links to the build page."*
-
-        The first pass gave the slipway a button and left the barracks its
-        tiles, on the grounds that `buildMenu` gives a barracks exactly one
-        item and one tile is a shorter path than a button that opens a panel.
-        That was the wrong trade and he overruled it: a maker is a maker, and
-        an island sheet where one of them is a button and the other is a grid
-        makes the player learn two things instead of one. The extra tap on the
-        barracks buys a screen that reads the same wherever you look.
-
-        `buildKindFor` is the whole of the mapping, and it returns nothing for
-        a works that makes no units — so a mine or a mill still shows its card
-        and no button, rather than a button onto an empty panel.
-      */}
-      {mine && !order && buildKind && menu.length > 0 && (
+/**
+ * A plot with nothing on it yet: unworked ground, or bare room.
+ *
+ * Sean: *"instead of a stat block, it's just a plus button and you can build.
+ * And that's how you would build something on available land. Same thing with
+ * a silver vein or a gold vein."* The button opens the build panel rather than
+ * a menu of its own, because the panel is already the catalogue — which is why
+ * the list of every works with its price could go.
+ */
+function PlotRow({
+  icon,
+  name,
+  note,
+  canBuild,
+  why,
+  onBuild,
+  onLookUp,
+}: {
+  icon: ReactNode;
+  name: string;
+  note?: string;
+  canBuild: boolean;
+  why?: string | null;
+  onBuild: () => void;
+  onLookUp?: () => void;
+}) {
+  return (
+    <div className="islandrow islandrow--plot">
+      <span className="islandrow__icon" aria-hidden="true">
+        {icon}
+      </span>
+      <button className="islandrow__name" onClick={onLookUp} disabled={!onLookUp}>
+        {name}
+        {note && <span className="tiny muted"> · {note}</span>}
+      </button>
+      <span className="islandrow__right">
         <button
-          className="btn btn--block"
-          style={{ marginTop: 8 }}
-          onClick={() => onOrderFrom(system.id, buildKind)}
+          className="btn islandrow__plus"
+          disabled={!canBuild}
+          title={why ?? 'Build here'}
+          aria-label={`Build on ${name}`}
+          onClick={onBuild}
         >
-          {buildKind === 'ships' ? 'Build a hull here' : 'Raise a troop here'}
+          +
         </button>
-      )}
+      </span>
     </div>
   );
 }
@@ -709,7 +636,6 @@ export function SystemSheet({
   initialTab = 'harbor',
   onClose,
   onCancel,
-  onRaise,
   onClear,
   onBreakUp,
   onOrderFrom,
@@ -730,8 +656,6 @@ export function SystemSheet({
   initialTab?: IslandTab;
   onClose: () => void;
   onCancel: (facilityId: string) => void;
-  /** Raise a building on this island. No maker, no passage. */
-  onRaise: (systemId: string, type: FacilityType) => void;
   /** Fell a forest to open its plot. Destroys it. */
   onClear: (systemId: string) => void;
   /** Open the list of things on this island that could be broken up. */
@@ -873,7 +797,6 @@ export function SystemSheet({
     if (next !== at) setTab(tabs[next].id);
   });
 
-  const slots = system.slots;
   // The island's makers, folded by kind: one card per kind, because one kind
   // does one job at a time however many of them stand here.
   const producers = (() => {
@@ -898,7 +821,6 @@ export function SystemSheet({
   const ground = RESOURCE_TYPES
     .map((type) => ({ type, count: depositsLeft(system, type) }))
     .filter((entry) => entry.count > 0);
-  const inTheGround = ground.reduce((n, entry) => n + entry.count, 0);
   const roster = garrisonRoster(system);
   // Folded into kinds, in the order the player put them, for the grouped view.
   const garrison = byRemembered(garrisonSummary(system), (e) => e.type.id, system.garrisonOrder);
@@ -945,6 +867,24 @@ export function SystemSheet({
     out.sort((a, b) => buildingRank(a.type) - buildingRank(b.type));
     return out;
   })();
+
+  /**
+   * Why you cannot start something here, or null if you can.
+   *
+   * Sean, 22 September: *"let's also make it to where you can only build one
+   * thing at a time on an island. So if you're building a ship, you can't
+   * build a building. If you're building a building, you can't build a
+   * ship."* `islandBusy` is the sim's answer to that and the build panel
+   * refuses on it; this is the same question asked early so the row can grey
+   * its own button out and say why, rather than letting a player open the
+   * panel to be told no.
+   */
+  const busyHere = mine ? islandBusy(system, state.player) : null;
+  const buildBlocked = !mine
+    ? 'Not your island.'
+    : busyHere
+      ? `${inProse(system.name)} is already making ${busyHere.label}.`
+      : null;
 
   return (
     <Sheet
@@ -1092,80 +1032,91 @@ export function SystemSheet({
 
       {live_tab === 'buildings' && (
         <>
-          {/* Room first, at one length: a bar that is the width of the panel
-              on every island, so two islands are compared by how full they
-              are. The board under it holds what actually stands — an empty
-              berth is a space on the bar, not a box in a grid that grew
-              longer the more room an island had. */}
-          <RoomBar system={system} />
-          <p className="tiny muted" style={{ margin: '6px 0 10px' }}>
-            {system.facilities.length} of {slots} berths built
-            {inTheGround > 0 ? `, ${inTheGround} standing in the ground` : ''}
-            {freeSlots(system) > 0 ? `, ${freeSlots(system)} open` : ', and no plot open'}.
-          </p>
+          {/*
+            One list, in the order Sean gave on 22 September: what is working,
+            then what is standing, then what is earning, then the ground, then
+            the room.
 
-          <SlotBoard
-            empty={`Nothing stands on ${inProse(system.name)}${slots > 0 ? ' yet' : ', and there is nowhere to put anything'}.`}
-          >
-            {/* What is in the ground, before what has been built on it. A
-                deposit holds a berth until something works it, so it belongs
-                on the same board as the buildings and not in a list of its
-                own — the question the board answers is what this island's
-                plots are doing. */}
+            > "All your built shit is first... things that can go idle should
+            > be at the top. Then fortress, which is a passive thing. Then
+            > income producing stuff... then raw materials after that. And then
+            > the last thing should be available land, and next to available
+            > land is build."
+
+            `BUILDING_ORDER` already sorts the built things exactly that way —
+            shipyard, training facility, heavy fort, fort, then the earners —
+            so the list is that order with the unworked ground appended and a
+            row for the room at the foot.
+
+            Each row is its name on the left and *its own business* on the
+            right: a maker shows its order or a way to give one, an earner
+            shows what it brings in, a deposit and a plot show a button. Sean:
+            *"it should just have like shipyard and then the interface for
+            what's going on in the shipyards next to it."*
+
+            What went, and it is most of what was here: the board of 64px
+            tiles, the "Order something built" section under it, and the whole
+            "Raise a building" list of every works with its price. Three
+            places to look at one island's buildings, and the third was a
+            catalogue the build panel already is.
+
+            Also gone, at his word: *"it says seven of 12 berths built. What
+            the fuck's a berth? Two standing in the ground, three open. You
+            don't need that — the bar already tells you that."* The bar stays;
+            the sentence explaining the bar does not.
+          */}
+          <RoomBar system={system} />
+
+          <div className="islandlist">
+            {works.map((facility) => (
+              <WorksRow
+                key={facility.id}
+                state={state}
+                system={system}
+                facility={facility}
+                onCancel={onCancel}
+                onOrderFrom={onOrderFrom}
+              />
+            ))}
+
+            {/* The ground, after what stands on it. A deposit is a plot doing
+                nothing yet, so it reads as a thing you could build on rather
+                than a thing you have. */}
             {ground.map((entry) => (
-              <Slot
+              <PlotRow
                 key={entry.type}
-                icon={<ResourceIcon type={entry.type} size={64} />}
-                art={
-                  resourcePainting(entry.type) ? (
-                    <ResourceThumb type={entry.type} fill />
-                  ) : undefined
-                }
+                icon={<ResourceIcon type={entry.type} size={28} />}
                 name={
                   entry.count > 1
                     ? `${entry.count}× ${RESOURCE_LABEL[entry.type]}`
                     : RESOURCE_LABEL[entry.type]
                 }
                 note="unworked"
-                tone="dim"
+                canBuild={mine && buildBlocked === null}
+                why={buildBlocked}
+                onBuild={() => onOrderFrom(system.id, 'facilities')}
                 onLookUp={() => lookUp?.('works', entry.type)}
               />
             ))}
-            {works.map((facility) => (
-              <Slot
-                key={facility.id}
-                icon={<FacilityIcon type={facility.type} size={64} />}
-                // The board is where a player actually looks to see what
-                // stands on an island, and it was drawing line glyphs at works
-                // that have had paintings since the first art batch.
-                art={
-                  facilityPainting(facility.type, facility.owner) ? (
-                    <FacilityThumb
-                      type={facility.type}
-                      owner={facility.owner}
-                      fill
-                      /* Banded rather than whole: see the note on `ratio`. */
-                      ratio={2}
-                    />
-                  ) : undefined
-                }
-                name={
-                  facility.count > 1
-                    ? `${facility.count}× ${FACILITY_LABEL[facility.type]}`
-                    : FACILITY_LABEL[facility.type]
-                }
-                note={facility.days !== undefined ? `${facility.days}d` : undefined}
-                tone={facility.owner !== state.player ? 'dim' : undefined}
-                onLookUp={() => lookUp?.('works', facility.type)}
+
+            {/* And the room itself, last, with the one button that raises
+                anything. No catalogue: the build panel is the catalogue. */}
+            {mine && freeSlots(system) > 0 && (
+              <PlotRow
+                icon={<span className="islandrow__plot" aria-hidden="true" />}
+                name={`${freeSlots(system)} open ${freeSlots(system) === 1 ? 'plot' : 'plots'}`}
+                canBuild={buildBlocked === null}
+                why={buildBlocked}
+                onBuild={() => onOrderFrom(system.id, 'facilities')}
               />
-            ))}
-          </SlotBoard>
+            )}
+          </div>
 
           {/* Sean's rule: a forest can be cleared for anything, not only a
-              mill — and clearing destroys it. Offered under the board rather
-              than on the tile, because it is a decision about the island and
-              not about one stand of trees, and because a destructive button
-              on a small tile is a button somebody taps by accident. */}
+              mill — and clearing destroys it. Offered under the list rather
+              than on the row, because it is a decision about the island and
+              not about one stand of trees, and because a destructive button on
+              a small row is a button somebody taps by accident. */}
           {system.control === state.player && depositsLeft(system, 'forest') > 0 && (
             <div className="row row--between clearline">
               <p className="tiny muted" style={{ margin: 0, flex: 1 }}>
@@ -1184,11 +1135,8 @@ export function SystemSheet({
             </div>
           )}
 
-          {/* The other end of the same decision, and it sits beside felling
-              timber because it is the same question — what has to go for this
-              to be built. Sean, on scrap: *"a great way to clear old things to
-              make room for new things."* Under the board rather than on the
-              tiles, for the reason the line above gives. */}
+          {/* The other end of the same decision. Sean, on scrap: *"a great way
+              to clear old things to make room for new things."* */}
           {system.control === state.player && (
             <div className="row row--between clearline">
               <p className="tiny muted" style={{ margin: 0, flex: 1 }}>
@@ -1199,77 +1147,6 @@ export function SystemSheet({
                 Break up
               </button>
             </div>
-          )}
-
-          {producers.length > 0 && <div className="section-title">Order something built</div>}
-          <div className="stack">
-            {producers.map((works) => (
-              <WorksCard
-                key={works.type}
-                state={state}
-                system={system}
-                type={works.type}
-                facilities={works.facilities}
-                onCancel={onCancel}
-                onOrderFrom={onOrderFrom}
-              />
-            ))}
-          </div>
-          {/*
-            * Raise a building. Since Sean cut the construction yard on 20
-            * September this is how every building is built: pick it here, on
-            * the island that is getting it. No maker to own first, nothing
-            * crossing water, and the price is the whole of the gate —
-            * *"gold becomes building constraint not the yard."*
-            */}
-          {system.control === state.player && (
-            <>
-              <div className="section-title">Raise a building</div>
-              <div className="stack">
-                {YARD_BUILDABLE.map((type) => {
-                  const why = raiseWorksError(state, system.id, type, state.player);
-                  const spec = YARD_BUILDS[type];
-                  const coming = system.facilities.filter(
-                    (f) => f.owner === state.player && f.founding && f.type === type,
-                  );
-                  return (
-                    <button
-                      key={type}
-                      className="card row row--between raiserow"
-                      disabled={why !== null}
-                      title={why ?? undefined}
-                      onClick={() => onRaise(system.id, type)}
-                    >
-                      <span className="row raiserow__who">
-                        {facilityPainting(type, state.player) ? (
-                          <FacilityThumb type={type} owner={state.player} width={44} />
-                        ) : (
-                          <FacilityIcon type={type} size={36} />
-                        )}
-                        <span className="raiserow__text">
-                          <b>{FACILITY_LABEL[type]}</b>
-                          <span className="tiny muted">
-                            {why
-                              ? why
-                              : coming.length > 0
-                                ? `${spec.days} days · ${coming.length} already going up`
-                                : `${spec.days} days${
-                                    UPKEEP_PER_DAY[type] > 0
-                                      ? ` · ${terms.upkeep} ${perFortnight(UPKEEP_PER_DAY[type])}`
-                                      : ' · costs nothing to keep'
-                                  }`}
-                          </span>
-                        </span>
-                      </span>
-                      <span className={`raiserow__cost${spec.costGold === 0 ? ' muted' : ''}`}>
-                        {spec.costGold}
-                        <Coin />
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </>
           )}
         </>
       )}

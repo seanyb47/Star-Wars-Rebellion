@@ -1052,7 +1052,6 @@ export function App() {
             setCameFrom(null);
           }}
           onCancel={handleCancel}
-          onRaise={handleRaise}
           /*
             The slipway's own Build button. It opens the same order panel the
             Build tab opens — same flow, same validation, one place that turns

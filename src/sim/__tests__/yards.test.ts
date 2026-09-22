@@ -98,12 +98,41 @@ describe('works of a kind work together', () => {
     }
   });
 
-  it('but a slipway and a drill ground are two separate jobs', () => {
+  /**
+   * This test asserted the opposite until 22 September, and the inversion is
+   * the point of it.
+   *
+   * A slipway and a drill ground *were* two separate jobs, on the reasoning
+   * that they are two different trades and neither waits on the other. Sean
+   * overruled it: *"let's also make it to where you can only build one thing
+   * at a time on an island. So if you're building a ship, you can't build a
+   * building. If you're building a building, you can't build a ship."*
+   *
+   * So the island is the unit of work, not the works — one island, one thing
+   * being made on it, whatever is making it. `islandBusy` is the whole of the
+   * rule and both order paths ask it.
+   */
+  it('and a slipway and a drill ground are still one island, so one job', () => {
     const { state, island, yard } = stage(705, 1);
     island.facilities.push({ id: 'drill-1', type: 'training_facility', owner: 'empire' });
     queueBuild(state, yard.id, anyHull(state));
-    queueBuild(state, 'drill-1', 'troop');
-    expect(island.facilities.filter((f) => f.building).length).toBe(2);
+    expect(() => queueBuild(state, 'drill-1', 'troop')).toThrow(/already making/i);
+    expect(island.facilities.filter((f) => f.building).length).toBe(1);
+  });
+
+  it('and a works being laid down holds the island just as an order does', () => {
+    const { state, island, yard } = stage(716, 1);
+    raiseWorks(state, island.id, 'fort', 'empire');
+    expect(island.facilities.some((f) => f.founding)).toBe(true);
+    expect(() => queueBuild(state, yard.id, anyHull(state))).toThrow(/already making/i);
+  });
+
+  it('and the island is free again the day the job lands', () => {
+    const { state, island, yard } = stage(717, 1);
+    queueBuild(state, yard.id, anyHull(state));
+    expect(raiseWorksError(state, island.id, 'fort', 'empire')).toMatch(/already making/i);
+    cancelBuild(state, yard.id);
+    expect(raiseWorksError(state, island.id, 'fort', 'empire')).toBeNull();
   });
 });
 
