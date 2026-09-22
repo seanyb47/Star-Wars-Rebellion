@@ -170,6 +170,16 @@ describe('a creature in the harbor', () => {
      * in — which is the thing under test.
      */
     fleet.ships.length = 1;
+    // And the survey ship, which is the hull in that squadron with eight light
+    // guns and nothing else — the only one that cannot settle a Sea Dragon
+    // inside the opening exchange now the Crown's liners carry their gun decks
+    // as Heavy.
+    // And watched from the other side, so the action resolves itself instead of
+    // stopping to ask. One Crown hull against a Sea Dragon is a real fight now
+    // rather than an execution, and a real fight the player is in raises the
+    // battle sheet and waits — which is correct, and is not what this test is
+    // about.
+    state.player = 'alliance';
     // Hull still floating, not damage dealt: a hull beaten to nothing is
     // removed from the fleet, so counting damage reads zero exactly when the
     // beast did its worst. This bit the test the day the hulls stopped all

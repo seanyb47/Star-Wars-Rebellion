@@ -190,10 +190,10 @@ describe('accuracy, against the target', () => {
     // table; this is the handful worth reading in place.
     const expected: Record<string, number> = {
       'CWN-WAY-S01': 168,
-      'CWN-MOR-S03': 1512,
-      'CWN-MAJ-R8-01': 2898,
+      'CWN-MOR-S03': 1596,
+      'CWN-MAJ-R8-01': 3402,
       'CWN-JUS-R6-01': 1806,
-      'CWN-SOV-R7-02': 2520,
+      'CWN-SOV-R7-02': 3066,
       'CFS-URG-R7-01': 2184,
       'CFS-COR-R8-01': 3192,
       'CFS-SWI-S01': 0,
@@ -515,7 +515,7 @@ describe('the roster feeds the engine with no conversion', () => {
     // 2,898 since the Crown's guns were put on the real rating system, down
     // from 3,150: she trades weight of shot for reach, which is what Victory
     // actually carried.
-    expect(rawVolley(ship)).toBe(2898);
+    expect(rawVolley(ship)).toBe(3402);
     expect(hitChance('Heavy', majestic)).toBe(95);
   });
 
