@@ -110,7 +110,6 @@ import {
   REPAIR_AT_A_YARD,
   BOMBARD_PER_COMPANY,
   CIVILIAN_LOYALTY_HIT,
-  SUPPORT_FIRM as FIRM,
   isWall,
   YARD_BUILDABLE,
   MISSION_LABEL,
@@ -1410,36 +1409,37 @@ export function Almanac({
           );
         })}
       </div>
+      {/* This promised the three numbers would matter later — *"a landing is
+          still settled on how many troops are ashore, not on these"* — and
+          they have mattered since 20 September, when the head-count became a
+          pair of dice weighted by exactly these stats. `resolveLanding` reads
+          attack off the landing troop and invasionDefense off the garrison
+          roster; `missions.ts` sums detection for the watch. All three are
+          live, so the caption says what they do rather than when they will. */}
       <p className="tiny muted" style={{ marginTop: 6 }}>
-        Attack / hold / watch. A landing is still settled on how many troops
-        are ashore, not on these — they say who is standing there, and what they
-        will be worth when a landing counts them properly.
+        Attack / hold / watch. The first two are rolled against each other when
+        somebody lands — with every standing wall added to the defence — and the
+        third is what this troop adds to the island's watch against covert work.
       </p>
 
-      <div className="section-title">What troops ashore do</div>
-      <div className="card small">
-        <b>They hold the island.</b> One troop is enough to hold any island against its own
-        opinion; an empty harbor is taken by whoever turns up with one. That is the first thing a
-        garrison is for and the reason a capital never sends its last one away.
-        <br />
-        <br />
-        <b>They keep it quiet.</b> An island firmly yours — {FIRM} and up — needs{' '}
-        {GARRISON_FOR_BAND.firm === 0 ? 'none' : GARRISON_FOR_BAND.firm}. A steady one asks for{' '}
-        {GARRISON_FOR_BAND.steady}, a thin one for {GARRISON_FOR_BAND.thin}, and under that it
-        rises; {GARRISON_FOR_BAND.uprising} will face down a {terms.mutiny.toLowerCase()} whatever
-        the island thinks of you.
-        <br />
-        <br />
-        <b>They watch the back door.</b> Every troop takes a twentieth off what the smugglers are
-        running. A hand on the problem, never an answer to it — twenty troops would close a
-        harbor and nobody will ever keep twenty on one island.
-        <br />
-        <br />
-        <b>They are the landing party.</b> Aboard a fleet they cost the same {UPKEEP_PER_DAY.troop}{' '}
-        a day and go down with the hull carrying them, which is what makes a loaded transport worth
-        escorting and worth sinking. A landing needs more troops than are holding the island,
-        and no landing at all is possible while a seawall stands.
-      </div>
+      {/*
+        "What troops ashore do" moved to the Glossary on 22 September.
+
+        Sean: *"This explanation text is good in glossary. But not here."* He
+        is right about where it belongs — a four-paragraph rules essay under a
+        grid of unit cards is the reference page explaining itself instead of
+        being looked at — and the Glossary already had entries for three of its
+        four paragraphs. So it was folded into `Garrison`, `Smuggling` and
+        `Invasion` rather than deleted: the garrison ladder, the twentieth a
+        troop takes off the smugglers, and what troops aboard a hull cost all
+        live there now, read off the constants.
+
+        Moving it found a bug. Its last line — *"no landing at all is possible
+        while a seawall stands"* — and the Glossary's own Invasion entry both
+        stated a rule that was repealed on 20 September. `resolveLanding` says
+        so in as many words. Two reference pages were telling players a
+        Fortress was a locked door when it had been a big number for two days.
+      */}
 
         </>
       )}
@@ -2066,9 +2066,13 @@ export function Almanac({
 
       <div className="section-title" id="enc-settled">Settled, empty, and dark</div>
       <div className="card small">
+        {/* "More troops than are holding it" was the landing rule until 20
+            September, when the count became a pair of dice weighted by what
+            is standing there. Numbers still decide it; they are no longer a
+            threshold you can read off the garrison. */}
         <b>A settled island</b> has people on it who have an opinion. It earns, it can rise, and it
-        is taken by landing more troops than are holding it — or by talking it round, if nobody
-        has chosen a side.
+        is taken by putting more troops ashore than it can throw back — or by talking it round, if
+        nobody has chosen a side.
         <br />
         <br />
         <b>An empty island</b> has nobody on it and belongs to nobody. There is nothing there to

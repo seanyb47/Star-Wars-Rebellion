@@ -8662,3 +8662,63 @@ is a rule nobody can keep — and then asserts that none of four migration
 phrases survives in anything rendered. The rule it encodes: **the reference
 pages state what is true and never what is temporary.** If a fact needs a
 migration notice beside it, the fact is not ready to be in the encyclopedia.
+
+### The troops explainer moves to the Glossary, and takes a bug with it (22 September)
+
+Sean, over the encyclopedia's Troops page and its four-paragraph *What troops
+ashore do*: *"This explanation text is good in glossary. But not here."*
+
+He is right about the placement — a rules essay under a grid of unit cards is
+the reference page explaining itself instead of being looked at — and the
+Glossary already had entries for three of the four paragraphs. So this is a
+move, not a delete:
+
+| The paragraph | Where it lives now |
+|---|---|
+| They hold the island | `Garrison`, with the one-troop rule and why a capital keeps its last |
+| They keep it quiet | `Garrison`, the whole ladder read off `GARRISON_FOR_BAND` |
+| They watch the back door | `Smuggling`, off `GARRISON_SMUGGLING_CUT` |
+| They are the landing party | `Invasion`, with upkeep off `UPKEEP_PER_DAY` |
+
+Every number is read off its constant rather than typed out. The ladder in
+particular is four chances to disagree with the sim if written by hand, and
+the mine's `Earns` line three days ago is what a hand-typed number looks like
+when it drifts.
+
+**And then the bug.** The block's last sentence read *"no landing at all is
+possible while a seawall stands"*, and the Glossary's own `Invasion` entry
+said *"none can be made while a Fortress still stands"*. Both describe a rule
+that was **repealed on 20 September**. `resolveLanding` says so in as many
+words:
+
+> It used to be a comparison of two counts with a coin toss for the tie, and a
+> standing fortress forbade the landing outright. That gate is repealed: you
+> may always land, and the walls swell the defender's die instead.
+
+A third copy sat on the Rules page — an island *"is taken by landing more
+troops than are holding it"* — which was the same repealed head-count. And the
+caption left under the troop grid promised the three unit stats would count
+"when a landing counts them properly", when `resolveLanding` had been reading
+`attack` and `invasionDefense` off them for two days, and `missions.ts` sums
+`detection` for the watch.
+
+Four pieces of reader-facing text, all describing the game as it was on the
+19th. This is worse than the stale fleet banner cut an hour ago, and worth
+saying why: a banner wastes a line, but *"a Fortress is a locked door"* is a
+plan a player makes and loses a fleet to. They would bombard to open a landing
+that was never shut, or leave a defended island alone because the encyclopedia
+said it could not be touched.
+
+**The guard.** `encentry.test.ts` now checks both `Almanac.tsx` and
+`Glossary.tsx`, comments stripped, for four phrasings of the repealed gate. It
+was confirmed to fail by putting the old sentence back — a guard nobody has
+watched fail is a guard nobody knows works. The phrasings are pinned rather
+than the idea, because the idea cannot be grepped; if a future rewrite trips it
+on wording that is genuinely correct, the fix is to update the phrase list
+*after* checking `resolveLanding`, not instead of.
+
+The pattern across both of today's encyclopedia fixes: **prose in the reference
+pages goes stale silently, because nothing links it to the rule it describes.**
+Numbers do not have this problem — they are read off constants and move when
+the constants move. Sentences about rules need either a test or a constant, and
+"a comment saying keep this in sync" has now failed twice this week.

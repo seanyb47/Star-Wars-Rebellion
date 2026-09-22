@@ -284,6 +284,12 @@ const ALMANAC_SOURCE = import.meta.glob('../Almanac.tsx', {
   eager: true,
 }) as Record<string, string>;
 
+const GLOSSARY_SOURCE = import.meta.glob('../Glossary.tsx', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
 describe('the encyclopedia states what is true, not what is temporary', () => {
   it('carries no migration notice on any page', () => {
     const source = ALMANAC_SOURCE['../Almanac.tsx'];
@@ -301,6 +307,48 @@ describe('the encyclopedia states what is true, not what is temporary', () => {
       'not be a name in your harbor',
     ]) {
       expect(rendered, `a notice about work in progress: "${stale}"`).not.toContain(stale);
+    }
+  });
+
+  /**
+   * And no reference page states the landing gate that was repealed.
+   *
+   * Until 20 September a standing fortress forbade an invasion outright.
+   * `resolveLanding` repealed it in as many words — *"that gate is repealed:
+   * you may always land, and the walls swell the defender's die instead"* —
+   * and three pieces of reader-facing text went on describing the old rule:
+   * the Troops page's explainer, the Glossary's own Invasion entry, and the
+   * Rules page's line about landing "more troops than are holding it".
+   *
+   * That is worse than the stale banner above, because a banner only wastes a
+   * line. This told a player that a Fortress was a locked door, which is a
+   * plan they would make and lose a fleet to.
+   *
+   * The phrasings are pinned rather than the idea, since the idea cannot be
+   * grepped. If a rewrite trips this test on wording that is actually correct,
+   * the fix is to change the phrase here — after checking `resolveLanding`,
+   * not instead of.
+   */
+  it('states no rule the sim repealed', () => {
+    const source = ALMANAC_SOURCE['../Almanac.tsx'];
+    const glossary = GLOSSARY_SOURCE['../Glossary.tsx'];
+    const strip = (text: string) =>
+      text
+        .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/^\s*\/\/.*$/gm, '');
+    for (const [name, text] of [
+      ['Almanac.tsx', strip(source)],
+      ['Glossary.tsx', strip(glossary)],
+    ] as const) {
+      for (const repealed of [
+        'while a Fortress still stands',
+        'while a seawall stands',
+        'no landing at all',
+        'more troops than are holding',
+      ]) {
+        expect(text, `${name} states the repealed gate: "${repealed}"`).not.toContain(repealed);
+      }
     }
   });
 });

@@ -2,11 +2,14 @@ import { useMemo, useState } from 'react';
 import terms from '../data/terms.json';
 import reachData from '../data/reaches.json';
 import {
+  FORT_INVASION_DEFENSE,
   GARRISON_FOR_BAND,
+  GARRISON_SMUGGLING_CUT,
   LONG_GUN_SHARE,
   MISSION_WORK_DAYS,
   TRAVEL_MAX_DAYS,
   MOMENTUM_CAP,
+  UPKEEP_PER_DAY,
   UPRISING_END_SUPPORT,
   UPRISING_SUPPORT,
 } from '../sim';
@@ -221,7 +224,7 @@ function groups(): Group[] {
         ],
         [
           'Smuggling',
-          `On an island where your allegiance is under 50, some of the day's takings go to the enemy instead, and what stands there starts leaking to them.`,
+          `On an island where your allegiance is under 50, some of the day's takings go to the enemy instead, and what stands there starts leaking to them. Every troop ashore takes ${Math.round(GARRISON_SMUGGLING_CUT * 100)}% off what the smugglers are running — a hand on the problem and never an answer to it, since ${Math.round(1 / GARRISON_SMUGGLING_CUT)} troops would close a harbor outright and nobody will ever keep ${Math.round(1 / GARRISON_SMUGGLING_CUT)} on one island.`,
         ],
         [
           // A headword is a bare noun, so it sorts where a reader looks for it:
@@ -273,7 +276,10 @@ function groups(): Group[] {
         ],
         [
           terms.garrison,
-          `The troops standing on an island. They do not make anybody love you — they make it harder for anybody to act against you, and they hold down a ${terms.mutiny.toLowerCase()}. A firm island needs none; a thin one wants ${GARRISON_FOR_BAND.thin}.`,
+          // The numbers are read off GARRISON_FOR_BAND rather than written
+          // out, because this entry now carries the whole ladder and a
+          // hand-typed ladder is four chances to disagree with the sim.
+          `The troops standing on an island, and the first thing that decides who holds it: one is enough to hold any island against its own opinion, and an empty harbor goes to whoever turns up with one — which is why a capital never sends its last one away. They also keep the place quiet. A firm island asks for ${GARRISON_FOR_BAND.firm === 0 ? 'none' : GARRISON_FOR_BAND.firm}, a steady one ${GARRISON_FOR_BAND.steady}, a thin one ${GARRISON_FOR_BAND.thin}, and under that it rises; ${GARRISON_FOR_BAND.uprising} will face down a ${terms.mutiny.toLowerCase()} whatever the island thinks of you.`,
         ],
         [
           'Blockade',
@@ -289,8 +295,16 @@ function groups(): Group[] {
           // Bombardment was already this entry's neighbour under that name;
           // this one was 'Landing', which is the act in prose and now the word
           // for it nowhere else.
+          //
+          // The rule in it was a day out of date on 22 September: this said
+          // "none can be made while a Fortress still stands", which was true
+          // until the 20th and then was not. `resolveLanding` says so in as
+          // many words — "a standing fortress forbade the landing outright.
+          // That gate is repealed" — and the walls swell the defender's die
+          // instead. A reference page stating a repealed rule is worse than
+          // one that says nothing, because a player plans around it.
           'Invasion',
-          'Putting troops ashore to take an island. None can be made while a Fortress still stands. Taking a place is not the same as winning it: an island carried by storm is occupied and hostile.',
+          `Putting troops ashore to take an island. You may always land: what a wall does is fight you, not bar the door — a Fortress adds ${FORT_INVASION_DEFENSE.fort} to the defence and a Heavy Fortress ${FORT_INVASION_DEFENSE.heavy_fort}, on top of every troop standing there. That is what bombardment is for, and why it softens rather than unlocks. Troops aboard a fleet cost the same ${UPKEEP_PER_DAY.troop} a day and go down with the hull carrying them, which is what makes a loaded transport worth escorting and worth sinking. Taking a place is not the same as winning it: an island carried by storm is occupied and hostile.`,
         ],
         [
           'Long guns',
