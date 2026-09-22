@@ -1192,8 +1192,12 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
 function aiFleet(state: GameState, ai: PlayableFaction, rng: Rng): void {
   aiConsolidate(state, ai);
   aiLayDownHull(state, ai);
-  // The Confederacy's one way to win is Highwater. One fleet is always the
-  // one meant for it, and it does nothing else.
+  // Highwater is where the Confederacy's war goes, even though taking it is
+  // no longer the win: the Imperator is standing on it, and he is one of the
+  // two people the Confederacy has to be holding at the same moment. So one
+  // fleet is always the one meant for the capital and does nothing else, and
+  // the Grand Admiral is the missions' business — `hunt-the-principals` is
+  // what sends somebody after him.
   const strike = ai === 'alliance' ? aiStrikeCapital(state, rng) : undefined;
 
   for (const fleet of fleetsOf(state, ai)) {

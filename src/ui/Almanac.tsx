@@ -87,6 +87,7 @@ import {
   GARRISON_FOR_BAND,
   GARRISON_STRONG,
   PEOPLE_ALLEGIANCE,
+  CROWN_PRINCIPALS,
   PIRATE_LORDS,
   LORD_POWER_TEXT,
   SMUGGLED_SHARE,
@@ -1639,7 +1640,21 @@ export function Almanac({
           <p key={side}>
             <b>{factionData[side].name}{side === you ? ' — you' : ''}:</b>{' '}
             {side === 'alliance' ? (
-              <>hold Highwater. Take the Crown's walled capital, on the great island of the Aldermain, and the war is over that day.</>
+              /*
+               * Rewritten 22 September. This had said "hold Highwater ... and
+               * the war is over that day", which stopped being the rule on 21
+               * September and which the Rules page is the worst place in the
+               * game to get wrong — the tutorial sends people here for it.
+               * `advanceDay.ts` checks `crownTaken`, which is both principals
+               * in irons at the same moment and nothing else.
+               */
+              <>
+                have both of the Crown's principals — {CROWN_PRINCIPALS.join(' and ')} — in irons
+                at the same time. The Imperator is on Highwater, the Crown's walled capital on the
+                great island of the Aldermain, so storming it is usually how this begins; but the
+                Grand Admiral is somewhere else, and taking the capital without him only starts
+                the clock on getting the other one.
+              </>
             ) : (
               <>
                 have all three Pirate Lords — {PIRATE_LORDS.map((l) => l.name).join(', ')} — in

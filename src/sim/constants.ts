@@ -2168,10 +2168,15 @@ export const LOYALTY_BAND_LABEL: Record<LoyaltyBand, string> = {
 
 /**
  * Victory. Two ways, one each, and nothing else: the Confederacy wins the day
- * it holds Highwater; the Crown wins the day all three Pirate Lords are in
- * irons at once. Nobody is released for nothing — a prisoner is held until
- * their own side sends somebody to get them out — so the Crown's condition is a
- * grip it has to keep hold of rather than a checklist.
+ * both of the Crown's principals are in irons at once, and the Crown wins the
+ * day all three Pirate Lords are. Nobody is released for nothing — a prisoner
+ * is held until their own side sends somebody to get them out — so both
+ * conditions are a grip to keep hold of rather than a checklist.
+ *
+ * This comment said "the Confederacy wins the day it holds Highwater" until 22
+ * September, three weeks after that stopped being true. Taking the capital is
+ * how the Confederacy usually wins, because the Imperator is standing on it;
+ * it is not the condition. See `checkVictory` in `advanceDay.ts`.
  */
 
 /** Opponent AI cadence (spec 4.7). */

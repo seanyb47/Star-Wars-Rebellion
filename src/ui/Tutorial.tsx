@@ -3,10 +3,16 @@ import factionData from '../data/factions.json';
 import reachData from '../data/reaches.json';
 import terms from '../data/terms.json';
 import { numberWord } from './words';
-import { PIRATE_LORDS, type PlayableFaction } from '../sim';
+import { CROWN_PRINCIPALS, PIRATE_LORDS, type PlayableFaction } from '../sim';
 
-/** Bumped when the tutorial is rewritten, so people who skipped the old one see the new. */
-const DONE_KEY = 'seven-seas.taught.v2';
+/**
+ * Bumped when the tutorial is rewritten, so people who skipped the old one see
+ * the new. v3 on 22 September, because the "How you win" card had been telling
+ * both sides that Highwater ends the war that day and that has not been the
+ * rule since 21 September. Somebody who read the wrong one is owed the right
+ * one, which is the whole reason this key has a number on it.
+ */
+const DONE_KEY = 'seven-seas.taught.v3';
 
 export function alreadyTaught(): boolean {
   try {
@@ -44,12 +50,33 @@ const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> =
       return `A war for ${numberWord(ISLANDS)} islands. You command the ${you.name}; ${them.name} wants what you have. You give orders and the days pass — nobody moves faster than a ship can sail.`;
     },
   },
+  /*
+   * Rewritten 22 September, because both halves of it were false.
+   *
+   * It told the Crown *"lose Highwater and you lose the war that day"* and the
+   * Confederacy *"take Highwater and the war is over that day"*, and neither
+   * has been true since the two-principals rule of 21 September. Taking the
+   * capital is how the Confederacy usually wins — the Imperator is standing on
+   * it — but it has to actually catch both of them, and a Grand Admiral who
+   * sailed the week before is a Grand Admiral still to be found.
+   *
+   * The other session's `tutorial.json` carries the replacement copy and flags
+   * this as *"the single most misleading sentence in the game"*. This is that
+   * copy, with one correction to it: it says the two are *both* on Highwater,
+   * and `lab/principals.ts` says they open on the same quay in 11% of worlds —
+   * the Imperator always there and the Grand Admiral anywhere. So the sentence
+   * says where each of them is rather than claiming they are together.
+   *
+   * Rule 5 of `docs/opening-flow.md`: nothing in the flow may lie about a
+   * rule, because a tutorial is the one place a player has no way to know they
+   * are being told something stale.
+   */
   {
     title: 'How you win',
     body: (side) =>
       side === 'empire'
-        ? `Have all three Pirate Lords — ${PIRATE_LORDS.map((l) => l.name).join(', ')} — in irons at the same time. They are people, so you take one by carrying them off a quay. Lose Highwater and you lose the war that day.`
-        : `Take Highwater, the Crown's walled capital on the great island of the Aldermain, and the war is over that day. You lose if the Crown gets all three of your Pirate Lords in irons at once — so keep them apart.`,
+        ? `Have all three Pirate Lords — ${PIRATE_LORDS.map((l) => l.name).join(', ')} — in irons at the same time. They are people, so you take one by carrying them off a quay, and holding two is worth nothing if the third is still at sea. You lose if the Confederacy takes the Imperator and ${CROWN_PRINCIPALS[1]} together.`
+        : `Take the young Imperator and Grand Admiral Corvane and hold them at the same time. The Imperator is on Highwater, the Crown's walled capital on the Aldermain, which is why every war ends up there — but the Grand Admiral is somewhere else, and two out of two is the whole of the condition. You lose if the Crown gets all three of your Pirate Lords in irons at once, so keep them apart.`,
   },
   {
     title: 'Tap an island',
@@ -115,8 +142,14 @@ export function Tutorial({ side, onDone }: { side: PlayableFaction; onDone: () =
       <h3 className="teach__title serif">{it.title}</h3>
       <p className="teach__body">{it.body(side)}</p>
       <div className="teach__row">
+        {/*
+          Skip is on every step including the last. It used to render an empty
+          label there and leave a live 44px button with nothing drawn in it —
+          an invisible control that closed the tutorial if you happened to
+          press where it was.
+        */}
         <button className="teach__skip" onClick={finish}>
-          {last ? '' : 'Skip'}
+          Skip
         </button>
         {step > 0 && (
           <button className="teach__back" onClick={() => setStep(step - 1)}>
