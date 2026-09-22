@@ -8489,3 +8489,59 @@ never finishes. Putting them back to `line` buys those wars back and makes
 every covert operation against the Crown 15% cheaper, which was the regression
 the role fix existed to remove. The honest answer is that the manhunt needs a
 fix of its own rather than that one of these two labels is right.
+
+## The ship audit, and the one thing in it that was a bug (22 September)
+
+The other session read all twenty-eight paintings against their stat blocks and
+changed fifteen labels. That work is theirs and arrives as its own patch — the
+fifteen renamings are not duplicated here.
+
+**One item in it was a live bug on this branch and is fixed.** Five hulls drew
+the placeholder silhouette in every fleet list and harbor while their paintings
+sat in the art folder unused: the two Interceptors, the Brigantine, the
+Reefwarden and the Coral-Class.
+
+The cause is worth more than the fix. `roster.ts` maps every Ship ID to a slug
+and exports `slugOf` to do it. `Almanac.tsx` kept a **second** table doing the
+same job for the same twenty-eight hulls. Twenty-three agreed; five still
+pointed at the filenames those paintings had before the roster renamed the
+hulls. The second table is deleted rather than corrected.
+
+**All three existing tests passed through the whole thing**, because all three
+read the slug through the stale table they were supposed to be checking. The
+replacement compares the live roster against the filenames on disk with nothing
+in between, and names the leftovers rather than counting them — a new unused
+painting is almost always one filed under the wrong name.
+
+### The three questions it left for Sean, measured
+
+They are size questions, and size is not cosmetic: `GUN_VS_SIZE` gives a
+Gigantic target **+10** to an enemy's Long Gun hit chance and **+15** to a
+Heavy, against 0 at Large. `lab/sizecost.ts` prices that.
+
+**B — the Sovereign and the Justiciar at the same seventy-four guns.** Rounds
+to sink under twenty enemy guns:
+
+| | heavy guns | long guns | cost |
+|---|---|---|---|
+| Sovereign (Gigantic, 4,600 hull, armor 25) | 8.3 | 57.8 | 1,940 |
+| Justiciar (Large, 4,200 hull, armor 22) | 9.0 | 49.1 | 850 |
+
+So it is a real trade rather than a mistake: the Sovereign's size costs her
+more than her extra hull and plate buy back **against heavy guns** — the
+cheaper ship survives 8% longer — while against long guns she lasts 18%
+longer. She is a line-of-battle ship and the Justiciar is a brawler. What is
+hard to defend is the **price**: 2.3× for the same broadside, with the
+survivability split. Worth Sean's eye as a pricing question rather than a
+naming one.
+
+**A — the Vanguard, Large at 28 guns and 1,900 hull.** Moving her to Medium
+would take her from 3.8 rounds under heavy fire to 4.8, a 26% gain in
+survivability for a hull that already costs only 275. That is a combat buff
+dressed as an art fix, so it should be decided as one.
+
+**C — the Tempest.** Medium, 26 guns, 1,500 hull, 295 gold, against a painting
+of a great three-masted galleon. Her numbers sit her beside the Blackfin (29
+guns, 1,400 hull) and well under the Reefwarden (44 guns, 3,400). The art
+oversells her by about one size band. Either is fixable; only the stats one
+touches combat.
