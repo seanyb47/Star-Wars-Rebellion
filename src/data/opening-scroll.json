@@ -1,0 +1,96 @@
+{
+  "_comment": "The opening crawl, one per side. Sean, 22 September: a Star Wars text scroll — one short sentence a slide, an image behind each, scrolled through before the first day. Written at about a fifth-grade reading level on purpose: a player arriving with no knowledge of this world should finish it knowing what the world is, why the war started, and what they personally have to do to win. Both are skewed toward the side telling them and neither is lying. Slides 1-3 are the same history in both mouths; the divergence starts at slide 4. The `objective` slide states the real victory condition and is the only slide that may be styled differently.",
+  "_art": "`art` is a slug under src/art/scroll/. Where no painting exists the screen falls back to the drawn scene for that faction, the way portraits and ships already do.",
+  "empire": {
+    "title": "The Crown Imperium",
+    "slides": [
+      {
+        "text": "Long ago, all of this was one land.",
+        "art": "one-land",
+        "brief": "A wide green country under a low sun. No sea anywhere in frame. Painted like a memory somebody is describing rather than a place anybody has been."
+      },
+      {
+        "text": "The northern ice let go, and the sea rose for a thousand years.",
+        "art": "the-drowning",
+        "brief": "Ice calving into dark water, the horizon already higher than it should be. Cold light."
+      },
+      {
+        "text": "When it stopped, only the mountaintops were left.",
+        "art": "mountaintops",
+        "brief": "An aerial of a drowned range: peaks standing out of a flat sea in a chain, the shape of an archipelago but obviously a mountain range."
+      },
+      {
+        "text": "The tallest was the Aldermain, and that is where everyone climbed.",
+        "art": "the-aldermain",
+        "brief": "The great island from the sea, terraced and settled to the waterline, roads switchbacking up. Crowded, permanent, old."
+      },
+      {
+        "text": "The Crown ended the wars there, and has been putting the world back together ever since.",
+        "art": "the-banner",
+        "brief": "Highwater in Imperial green and gold: seawalls, a lit channel, a fleet at anchor in good order. Civilized and impressive, never sinister."
+      },
+      {
+        "text": "Then pirates burned the royal dockyard and called it freedom.",
+        "art": "yarrow-minor",
+        "brief": "Yarrow Minor burning at night, seen from a Crown deck. Five slipways under one roof, and the roof going."
+      },
+      {
+        "text": "Their rebellion rests on three people. Take all three, and hold them at the same time.",
+        "art": "three-lords",
+        "brief": "Three empty cell doors standing open in a Highwater corridor, waiting. Or three faces on a warrant sheet.",
+        "objective": true
+      },
+      {
+        "text": "Through trade, duty, and discipline — a safer world.",
+        "art": "crown-creed",
+        "brief": "The Crown sigil over a calm working harbour at dawn: a crown above a fouled anchor, compass star behind."
+      }
+    ]
+  },
+  "alliance": {
+    "title": "The Free Confederacy",
+    "slides": [
+      {
+        "text": "Long ago, all of this was one land.",
+        "art": "one-land",
+        "brief": "The same painting the Crown's scroll opens on. Deliberately identical: both sides agree about this part."
+      },
+      {
+        "text": "The sea took it, and left us a thousand islands.",
+        "art": "a-thousand-islands",
+        "brief": "Warm water, scattered green rocks to the horizon, small craft between them. Bright where the Crown's version of the same moment is cold."
+      },
+      {
+        "text": "Every one of them learned to live its own way.",
+        "art": "many-peoples",
+        "brief": "Four boats in one frame that share nothing: a coral-grown hull, an Urskin whaler, a bog punt, a Shoal outrigger."
+      },
+      {
+        "text": "The Crown says there was a golden age down there, and that they are bringing it back.",
+        "art": "the-drowned-city",
+        "brief": "A Reef-folk diver above drowned worked stone, lit from above. Beautiful, and nobody can say what it was."
+      },
+      {
+        "text": "What they brought was charts, and writs, and a bill for the stone.",
+        "art": "the-writ",
+        "brief": "A licensing writ nailed to a boat shed, with a marine's back turned. Dredger in the water behind, coral gone white."
+      },
+      {
+        "text": "So three captains burned their dockyard, and we signed the articles a month later.",
+        "art": "the-articles",
+        "brief": "The same fire as the Crown's slide six, from the water this time and further off — then the articles on a table, a dozen hands signing."
+      },
+      {
+        "text": "Two men in Highwater can end this war. Take them both, and hold them at the same time.",
+        "art": "two-men",
+        "brief": "Highwater's wall from below at night, two lit windows near the top. Small figures at the foot of it.",
+        "objective": true
+      },
+      {
+        "text": "Free seas. Free peoples. Always.",
+        "art": "confederacy-creed",
+        "brief": "The Confederate mark on a patched red sail against open water: skull in a red headscarf, crossed cutlasses, compass star."
+      }
+    ]
+  }
+}

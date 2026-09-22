@@ -13,6 +13,20 @@ _Everything the game knows about its world, in one place. Edit freely: this is t
 
 An archipelago world with no continents. Seven Seas, each its own archipelago with its own water, its own weather, and its own idea of what is normal. The three Inner Seas behave like seas. The four Outer Seas do not always.
 
+### Once there was one land
+
+*Sean's account, 22 September, and it is the floor the rest of this document stands on.*
+
+Long enough ago that it is legend rather than history, all of this was one country. Not a chain. Not an archipelago. One land, walkable end to end.
+
+Then the ice in the north let go. Not in a night — over lifetimes, a hand's width of water a year, the way a world comes out of an ice age. Nobody alive saw it happen and nobody's grandmother did either. The sea came up, and it kept coming up, and the low country went under first: the farms, the roads, the river cities, whatever was built on them. What the water could not reach was the high ground, and what the high ground became is the world: seven chains of drowned mountains with their peaks still in the air.
+
+**This is finished.** The water is where it stopped. It is not rising now and no faction is fighting the sea — the drowning is the reason the world is shaped like this, not a threat anybody is under. Seawalls are what you build when you live on a mountaintop in an ocean, not what you build against a flood that is still coming.
+
+**And the greatest of the peaks is the Aldermain.** It was the tallest ground there was, so it was the last to go under and the only place that never did, and as the water climbed people walked uphill toward it for generations. Most of them were human, which is the plainest reason the Aldermain is a human island and most of the rest of the world is not. It has been the middle of everything ever since, and it is still far larger than anything else, with the best ground and the best resources in the world. **Highwater** is named for the line the sea stopped at, and its walls are carved with the names of the islands that did not.
+
+**What nobody can prove.** There are stories of what was down there before — a civilisation on the drowned country, one people, one law, roads you could ride for a month. The Crown's Great Library at Cartmel has three shelves of it and no proof of any of it. The Reef-folk dive on drowned cities and come up with worked stone and say very little about what else is down there. Whether there was ever a golden age or only a lot of ordinary people who drowned is not a settled question, and the Imperium's whole project is built on the assumption that there was.
+
 ### The water itself
 
 There is no third force. Sean's ruling of 19 September cut one — *"the war needs no third force; the conflict is law against freedom"* — and what is left in its place is the thing that was always doing the work anyway: the sea.
@@ -86,6 +100,18 @@ Both are describing the same fire.
 
 A world that reads the green as villainy has read it as wrongly as a world that reads the crimson as evil.
 
+**What they are actually trying to do**, which is bigger than the war and is the reason they will not stop. *Sean, 22 September.*
+
+The Aldermain spent most of its history at war with itself. Within living memory of a grandfather it came out of that — one banner over the whole great island for the first time, and the banner was the Crown Imperium. What followed was the most successful century anybody in this world can point to: the walls, the charts, the schools, the coin, the standing fleet, and a population that stopped losing a village a month to wreckers.
+
+The Admiralty drew the obvious conclusion. **If it worked on the greatest island, it works everywhere, and there is a debt owed to everywhere it has not reached yet.** So they chart, they dredge, they license, they build — not as conquest, in their own telling, but as *restoration*. The three shelves at Cartmel say there was one country down there once, one people and one law. The Imperium intends to put it back together above the water line, and it believes it is the only thing in this world with the strength and the technology to do it.
+
+They are not lying about the technology. They are a century ahead and everyone else can see it.
+
+**"They will like it when we win."** That sentence is the whole mentality and it is why the faction is lawful neutral rather than evil. The Admiralty has watched an island fight the surveyors, lose, get its channel lit and its wall built and its grain priced, and become a loyal and prosperous port inside twenty years. It has happened enough times that the Crown now expects it, and expects the objection to be temporary. A governor who forces a licensing writ on a hostile island genuinely believes he is doing the islanders a kindness they are not yet equipped to appreciate.
+
+**And what they see across the water:** not revolutionaries. Rabble, with ships. Selfish captains who would rather run a reach as a private kingdom than let anybody build a road through it, dressing greed up as liberty and setting the work back a generation every time they burn something. The Admiralty does not think the Confederacy is *wrong about the world* — it thinks the Confederacy is not thinking about the world at all.
+
 **Aesthetic** — *Art Direction Guide §3, Naval Art Master.* deep Imperial green — botanical, not emerald — antique gold and brass, warm ivory, black iron, refined wood, grey stone. Clean, symmetrical, maintained, disciplined and formidable. **Crown power should look civilized and impressive, never sinister.** Names are virtues and titles. Everything is straight lines until you look closely.
 
 **How a Crown hull reads.** A standard ship wears white or warm-ivory sails with green accents, antique brass, elegant wood trim and black iron, and carries **exactly one obvious Crown emblem**. An elite or **II**-generation ship wears **deep Imperial-green sails** — that is the immediate signal, at any distance, that the thing coming over the horizon is one of the good ones — with antique-gold trim, sophisticated naval detailing, and **two subtle emblems** rather than one loud one.
@@ -114,6 +140,16 @@ A Lord taken goes in irons to Highwater and **stays there**. Nobody is released 
 **What their enemies say:** "Free" is armed robbery with a flag. Half the Moot are honest exiles; the other half are wreckers, opportunists and a few who signed the articles one step ahead of a warrant. Their elections are whoever has the most cutlasses that morning.
 
 **Truth:** Both. Hale spends as much of her time managing her own worst captains as fighting the Crown.
+
+**What they are actually trying to keep**, which is not a country and is the reason they cannot simply be bought off. *Sean, 22 September.*
+
+Hundreds of years of water made hundreds of separate places. The Reef-folk grew ships; the Urskin hunted things bigger than ships; the Bog-folk went into the fens and the Shoal-folk went into the shallows, and every one of those peoples worked out how to live where they live without anyone's permission and without anyone's help. They did not evolve into one thing because the sea never let them. That is not a deficiency. **That is the world.**
+
+So the Confederacy is not fighting for a nation and has no interest in founding one. It is fighting because the Imperium has a single picture of what a good life looks like and the tonnage to impose it, and the picture is a Crown Sea picture — walls, drills, licences, a chart of your water in somebody else's archive, a bill for the stone.
+
+**They do not care about the drowned country.** Ask a Confederate captain about the golden age under the water and you will get a shrug. Nobody remembers it, nobody can prove it, and no one on the Aldermain was asked whether the rest of the world wanted resurrecting. The Brethren care about the season in front of them: who is eating, whose reef is still there, which island can still make its own decisions in the spring.
+
+**And what they see across the water:** a machine that cannot hear the word no. Not monsters — the Crown's people mean it, which is somehow worse. A Tidemaster taken off her island at nine and schooled at Highwater is still taken. A reef cut to save a day's sailing is still cut. Every island that "comes in" comes in once and never gets to leave, and the Imperium calls that peace.
 
 **Aesthetic** — *Art Direction Guide §3, Naval Art Master.* crimson and rust red, black, weathered wood, leather, brass, cream. Patched and dyed sails, unusual rigging, whalebone masts, sails dyed with squid ink, and whatever the island had. Coral-grown hulls — theirs alone, and the one thing the Crown has never managed to copy, though not every Confederate hull has any. Tamed sea-beasts in the small-craft squadrons. Names are jokes, threats, and dead lovers.
 
@@ -311,7 +347,7 @@ _Ashore somewhere in the Reaches, waiting for whichever side asks first._
 - **Hesper Lyn** “the Price List” — The Rumor Guild. High in the Rumor Guild and entirely open about the arrangement: there is a price list, both sides are on it, and she has never pretended otherwise. Keeps a private book of every debt, affair and quiet burial in three Seas, and has never had to open it in public. Whether she keeps to the price list is the only question anybody actually asks.
 - **Brannoc Tull** “the Harpoon” — Urskin. Whaler out of Northreach, and the harpoon is not decorative — he has put one through a hull on purpose more than once, and the second time was not an emergency. Took a whale off the Bone Sea shelf that fed a chain through a bad winter. Slow to anger, and afterwards there is no route round him; the Admiralty established this at Ballmoor, at length.
 - **Wren Tally** “the Ear” — Shoal-folk. Nine years sat a masthead, most of them on watch towers nobody thought mattered, and came off them able to name a ship in fog by the sound of its hull working. Frightened of a great many things — weather on an open deck, officers, the dark below the waterline — and has never once left a post.
-- **Doctor Ambrose Kell** “the Tide Doctor” — Human. Surgeon and scholar, and the only man on his island who will say out loud that the Tide can be studied rather than merely survived. It has cost him a licence, a post and most of his friends. Runs a surgery from whatever port will have him, takes payment in passage, and is the one person in three Seas that both fleets will pass through a blockade.
+- **Doctor Ambrose Kell** “the Tide Doctor” — Human. Surgeon and scholar, and the only man on his island who will say out loud that the deep can be studied rather than merely survived. It has cost him a licence, a post and most of his friends. Runs a surgery from whatever port will have him, takes payment in passage, and is the one person in three Seas that both fleets will pass through a blockade.
 - **Captain Isolde Marrow** “the Even Hand” — Human. Sails under a letter of marque nobody at the Admiralty will admit to signing, which suits everyone until it does not. Took a merchantman back off a boarding party with eleven crew and a signal gun, then put the boarders ashore alive because war had not been declared that week. Keeps her crew and keeps her word, in that order, and has resigned from both sides in writing.
 - **The Widow Ashgrave** “the Widow” — Human. Buried a shipowner, a governor and a Moot councillor, in that order, and inherited from all three. Brokers passage, marriages and truces out of a witch-island nobody charts twice, and holds the paper on half the yards in the Glass Sea. What she is owed is not really the point. Being owed is the point.
 - **Tobias Renn** “the Swampcat” — Bog-folk. Held the Storm swamps for the Imperium against four hundred insurgents, with eleven men and the weather, over eleven years, and never once in the open. Patient well past the point most people mean by the word. Considers a battle fought in daylight to be a battle somebody else arranged.
@@ -471,7 +507,7 @@ The Crown's home waters; Highwater is here.
 - **Bracton**
 - **Chandler's Rest**. Hale's birthplace; quietly Confederacy-leaning.
 - **Corsham Head**
-- **Highwater** (port). Seawalls three hundred feet high, carved with the name of every island the Tide has taken.
+- **Highwater** (port). Seawalls three hundred feet high, carved with the name of every island the Drowning took. Named for the line the water stopped at.
 - **Gorley** (port). Site of an old massacre. Hates the Crown.
 - **Sievern**
 - **Ulverne**
