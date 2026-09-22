@@ -8,7 +8,7 @@ import { newGame, orderBuild, orderRaiseWorks, sendCrew, setSpeed } from '../com
 import { clearSave, loadGame, saveGame } from '../persist';
 import { freeSlots } from '../helpers';
 import { getSystem, setSupport } from '../helpers';
-import { travelDays } from '../missions';
+import { missionTypeFor, travelDays } from '../missions';
 import type { GameState } from '../types';
 
 /** The map has grown twice this month; the data is the one place it is true. */
@@ -163,10 +163,27 @@ describe('commands', () => {
     // a perfectly good outcome but not the one this test is about. Any Crown
     // island will do — the Crown's other holdings are not always in the seat's
     // own chain — so the clock runs for the real passage plus the work.
-    const target = state.systems.find((s) => s.control === 'empire' && s.id !== home.id)!;
-    // Under the research floor, so the island asks for a parley and not for
-    // its yards to be put to work.
-    target.support.empire = 60;
+    /*
+     * An island that is actually offering a parley, asked rather than assumed.
+     *
+     * This used to take the first Crown island in the array and set its
+     * allegiance to 60 on the grounds that 60 is under the research floor. It
+     * held until Highwater moved onto the great island on 22 September, which
+     * changed how much room the capital has and so how the opening deals its
+     * yards — and the first Crown island came out of that deal with a
+     * shipyard, so what it wanted was its yards put to work, and the parley
+     * this test is about never started. A test that picks its own subject
+     * should pick one that answers.
+     */
+    const target = state.systems.find((s) => {
+      if (s.control !== 'empire' || s.id === home.id) return false;
+      const was = s.support.empire;
+      setSupport(s, 'empire', 60);
+      const asks = missionTypeFor(state, s, 'empire');
+      if (asks !== 'diplomacy') setSupport(s, 'empire', was);
+      return asks === 'diplomacy';
+    })!;
+    expect(target).toBeDefined();
 
     const sent = sendCrew(state, diplomat.id, target.id);
     expect(sent.error).toBeUndefined();

@@ -108,9 +108,41 @@ PORTS_ON_THE_GREAT_ISLAND = 3
 # Sean looked at the chart and wanted the seat of the world on the great
 # island's lagoon, and the library on its eastern bay. A pinned island takes
 # no pick from the painting; the pin counts as taken when the rest are spaced.
+#
+# The lagoon pin was keyed to "The Aldermain" and matched nothing, because no
+# island in `reaches.json` is called that: the Aldermain is the great island
+# itself and Highwater is the city on it, which that island's own note has
+# said all along — *"It stands on the Aldermain, the one great island."* So
+# the pin never fired, Highwater took whatever the scorer handed it, and the
+# scorer handed it a small islet off the south-east coast. Sean, 22 September,
+# with a red X on the great island: *"Rename that current spot for Highwater
+# to something else. I want Highwater here."* The X is that pin, to within a
+# mark's width. Keyed to the island's real name, it fires.
+#
+# The rest of the Sovereign Reach is pinned where the scorer had already put
+# it, and only for that reason: a pinned island takes no pick, so moving one
+# name out of the pick order slides every name after it onto the next blob
+# along. Fourteen islands would have swapped places to relocate one, and the
+# `land` figure travels with the position — so a cosmetic fix to the capital's
+# address would have quietly redealt room to build across the Crown's home
+# Reach. Pinned, the diff is Highwater and nothing else. Every other Reach
+# still reads its positions off the painting.
 PINS: dict[str, tuple[float, float]] = {
-    "The Aldermain": (485.2, 707.0),
+    "Highwater": (485.2, 707.0),
     "Cartmel": (584.0, 754.9),
+    "Ballmoor": (446.1, 624.2),
+    "Gorley": (657.7, 841.3),
+    "Avermere": (447.8, 853.4),
+    "Bracton": (376.4, 709.8),
+    "Chandler's Rest": (578.4, 631.1),
+    "Corsham Head": (553.7, 569.3),
+    "Sievern": (403.7, 780.9),
+    "Ulverne": (338.8, 766.7),
+    "Yarrow Minor": (480.8, 528.2),
+    "Kingsward": (652.8, 642.0),
+    "Minterne": (550.4, 911.8),
+    "Chepstow": (699.3, 770.8),
+    "Marlbury": (479.8, 906.6),
 }
 PORT_GAP_PX = 60
 
