@@ -461,12 +461,37 @@ function loadSpareCompanies(state: GameState, fleet: Fleet): void {
   fleet.troops += take;
 }
 
-/** The other end of it: everything aboard goes ashore on your own island. */
+/**
+ * The other end of it: what the island is short of goes ashore, and no more.
+ *
+ * This put **everything** ashore at any island you held, and that one line was
+ * why a landing force could never be assembled. A squadron touring your own
+ * water emptied its holds at every friendly port and picked up only that port's
+ * spare on the way out, so it could never carry more than one island's surplus
+ * however many it called at. Measured on 22 September over twelve wars: the
+ * Crown kept **56.6 companies standing on its own islands and 4.0 afloat**,
+ * with 20% of its lift used — and of the 1.42 squadrons sitting in an enemy
+ * harbor at any moment, **1.08 had nobody aboard to put ashore**. Three
+ * quarters of the squadrons that had fought their way in could do nothing when
+ * they got there.
+ *
+ * Sean's own rule, quoted where the loading half of this is written, is that
+ * nobody *"carries them past an island of theirs that could use them"* — and
+ * "could use them" is a test this never made. An island at its required
+ * garrison cannot use another company; it just takes it off the boat. So the
+ * rule is now what he said: fill what is short, keep the rest aboard.
+ */
 function landCompanies(state: GameState, fleet: Fleet): void {
   const system = getSystem(state, fleet.systemId);
   if (system.control !== fleet.faction || fleet.troops <= 0) return;
-  postCompanies(system, landedKind(state, fleet).id, fleet.troops);
-  fleet.troops = 0;
+  const wants = Math.max(
+    requiredGarrison(system.support[system.control], system.uprising),
+    1,
+  );
+  const put = Math.min(fleet.troops, Math.max(0, wants - system.garrison));
+  if (put <= 0) return;
+  postCompanies(system, landedKind(state, fleet).id, put);
+  fleet.troops -= put;
 }
 
 export function sailFleet(

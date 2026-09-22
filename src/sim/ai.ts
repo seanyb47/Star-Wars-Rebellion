@@ -241,6 +241,13 @@ const AI_ORDERS_PER_TICK = 6;
  * orders a tick and lays down a hull at every free slipway rather than one.
  */
 const AI_RICH = 600;
+/**
+ * How many times `AI_RICH` counts as "the treasury is the problem".
+ *
+ * Eight, which is 4,800 — about six hulls' worth, and well above anything a
+ * side holds back on purpose. See the slipway rule for the measurement.
+ */
+const AI_VAULT_DEEP = 8;
 
 /**
  * A day's thinking for one side.
@@ -433,9 +440,52 @@ function aiBuild(state: GameState, ai: PlayableFaction): boolean {
    * denied it the fleet to make it with, forever, by arithmetic on land it has
    * no intention of taking.
    */
+  /*
+   * And a third rule on top of those two, because the vault says the first two
+   * are not finishing the job.
+   *
+   * Measured on 22 September over twelve wars, sampled every twenty days: the
+   * Confederacy sits on a **mean 18,147 gold** — thirty times `AI_RICH` — with
+   * 53.8 free plots, 42.6 a day of surplus, and **3.1 slipways of which only
+   * 37% are idle**. Every treasury gate above passes trivially at that wealth;
+   * what actually stops it is `slipways * 4 < held.length`, and it holds ten
+   * islands. Its berths are full, its plots are empty and its money is doing
+   * nothing. The Crown, holding twenty-odd, gets 5.1 berths and ends wars with
+   * 5,344 — it is not richer, it is *spending*.
+   *
+   * The comment above already names the flaw: a navy budgeted off acreage is
+   * the right rule for the side that wins by taking ground and the wrong one
+   * for the side that does not. This is the floor that does not care how much
+   * ground you hold. A treasury this deep is not a war chest, it is a failure
+   * to convert income into force, and a berth is the thing that converts.
+   *
+   * **And it only fires while every berth it has is working**, which is the
+   * whole of what makes it a floor rather than a spree. A deep vault says the
+   * side is not converting income into force; an idle berth says the berths
+   * are not what is stopping it, and another one would be a plot spent and 4 a
+   * day of keep for nothing. Tried without that test and measured: the vault
+   * emptied exactly as intended — 18,147 to 2,396 — and bought **12.4 slipways
+   * standing 89% idle**, surplus down from 42.6 to 11.8 and craft from 2.32 to
+   * 1.73, because the upkeep ate the research. Swapping idle gold for idle
+   * berths is not a fix. Both halves of the test are load-bearing.
+   */
   if (slipways < 1) wanted.push('shipyard');
   else if (slipways < 2 && gold > AI_SHIP_RESERVE * 3) wanted.push('shipyard');
   else if (slipways * 4 < held.length && gold > AI_RICH * 2) wanted.push('shipyard');
+  const idleBerths = held.reduce(
+    (n, s) =>
+      n +
+      s.facilities.filter((f) => f.owner === ai && f.type === 'shipyard' && !f.founding && !f.building)
+        .length,
+    0,
+  );
+  if (
+    !wanted.includes('shipyard') &&
+    gold > AI_RICH * AI_VAULT_DEEP &&
+    idleBerths === 0
+  ) {
+    wanted.push('shipyard');
+  }
   // Rich, it also fortifies: a battery on each held port that has none, so a
   // treasury with nothing to buy turns into something a raider has to reckon with.
   const walls = countOf('fort') + countOf('heavy_fort');

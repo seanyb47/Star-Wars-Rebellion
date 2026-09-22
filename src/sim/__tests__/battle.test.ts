@@ -334,8 +334,26 @@ describe('companies load and unload themselves', () => {
     expect(carried).toBeGreaterThan(0);
     const before = mine.garrison;
     for (let d = 0; d < 60 && home1.voyage; d++) advanceFleets(state, rng);
-    expect(home1.troops).toBe(0);
-    expect(mine.garrison).toBe(before + carried);
+    /*
+     * What the island is short of, and no more — which is a change of rule on
+     * 22 September and the reason it was made.
+     *
+     * This asserted `troops === 0`: every company aboard walked ashore at any
+     * island you held. That made a landing force impossible to assemble, for
+     * the opponent and for the player alike — stage at a forward island of
+     * yours and you lose the whole force, then pick up only that island's
+     * spare on the way out. Measured over twelve wars before the change, the
+     * Crown kept 56.6 companies ashore against 4.0 afloat, and of the
+     * squadrons sitting in an enemy harbor three quarters had nobody to land.
+     *
+     * Sean's rule, quoted at `loadSpareCompanies`, is that nobody carries them
+     * past an island of theirs *that could use them*. An island already at its
+     * required garrison cannot use another.
+     */
+    const wants = Math.max(requiredGarrison(mine.support.alliance, mine.uprising), 1);
+    const taken = Math.max(0, Math.min(carried, wants - before));
+    expect(mine.garrison).toBe(before + taken);
+    expect(home1.troops).toBe(carried - taken);
 
     // And on the enemy's ground they stay aboard, because that is what a
     // landing is made of.

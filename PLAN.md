@@ -9479,3 +9479,87 @@ Second finding, from the same table and worth its own look: **the Confederacy's
 research stalls at craft 2.6 while the Crown reaches 5.6.** That is why its R6
 and R8 companies are still never seen, and it is a much bigger asymmetry than
 anything in this change.
+
+### The opponent stops hoarding, and its boats stop sailing empty
+
+Sean, leaving for three hours: *"run game sims, find the most high value things
+to work on and work on those."* Two labs and two fixes.
+
+**`lab/purse.ts`** asks where the money goes. Twelve wars, sampled every twenty
+days:
+
+```
+                   gold   surplus   yards  idle   drills  idle   room   craft
+empire          5344      17.6     5.1   63%      4.1   91%   95.4    4.83
+alliance       18147      42.6     3.1   37%      3.0   91%   53.8    2.32
+```
+
+The Confederacy sits on **thirty times `AI_RICH`** with 53.8 free plots and 3.1
+slipways, and only a third of those are idle — its berths are full, its ground is
+empty and its money is doing nothing. Every treasury gate in `aiBuild` passes at
+that wealth; what actually stops it is `slipways * 4 < held.length`, and it holds
+ten islands. The comment above that rule already names the flaw — *a navy
+budgeted off acreage is the right rule for the side that wins by taking ground
+and the wrong one for the side that does not* — and the Confederacy is the side
+that does not.
+
+So a fourth arm: build a berth when the vault is deeper than `AI_RICH * 8`
+**and every berth you have is working**. Both halves matter, and the first
+attempt proved it by leaving the second out: the vault emptied exactly as
+intended, 18,147 to 2,396, and bought **12.4 slipways standing 89% idle**, with
+surplus down from 42.6 to 11.8 and craft from 2.32 to 1.73 because the keep ate
+the research. Swapping idle gold for idle berths is not a fix.
+
+**`lab/lift.ts`** asks the other half — 91% of drill grounds stood idle on both
+sides, which is either enough companies or no way to move them:
+
+```
+           fleets  afloat  lift berths  used%  ashore  in their harbors (empty)
+empire        3.8     4.0         20.3    20%    56.6       1.42 (1.08)
+alliance      4.7     4.0         11.0    36%    39.6       0.91 (0.71)
+```
+
+Fifty-six Crown companies standing on its own islands, four afloat, a fifth of
+the lift used — and **of the squadrons sitting in an enemy harbor, three in four
+had nobody aboard to put ashore**. They had fought their way in and could do
+nothing.
+
+One line did that. `landCompanies` put **everything** ashore at any island you
+held, so a squadron touring your own water emptied its holds at every friendly
+port and picked up only that port's spare on the way out. A landing force could
+never be assembled — and not only by the opponent: a player staging at a forward
+island of theirs loses the whole force the moment it arrives. Sean's own rule,
+quoted where the loading half is written, is that nobody carries them *"past an
+island of theirs that could use them"*, and an island already at its required
+garrison cannot use another. So: fill what is short, keep the rest aboard.
+
+#### Measured, and the order of the runs is the point
+
+```
+                          seeds 3000   seeds 2000   pooled (96)      SD from even
+before today's AI work      25 — 23      26 — 22      46 — 50            0.4
+berths off the treasury     15 — 32      21 — 27      36 — 59            2.4
+  ...plus the lift fix      20 — 26      22 — 26      42 — 52            1.0
+```
+
+The berth fix alone is a **2.4 SD tilt to the Confederacy**, and that is not a
+mystery: it was the side with the hoard, so letting it spend is a buff to it
+specifically. Ending the vault at 8,321 rather than 18,147 buys hulls, and its
+fleet goes from 30–36 to 45–48.
+
+The lift fix pulls it back to **1.0 SD, which is inside the noise** — it helps
+whoever has companies stranded ashore, and that was both of them. Shipping the
+first without the second would have handed the war to the Confederacy; shipping
+both leaves the split where it was and fixes two real faults. Audit clean across
+all 96 wars of each configuration, including the new `companies-adrift` rule.
+
+Final state: alliance gold 18,147 → **3,200**, empire 5,344 → **2,269**; alliance
+troops afloat 4.0 → **6.8**; alliance craft 2.32 → **3.23**, empire 4.83 → 5.52.
+Both sides now spend what they earn.
+
+**What this does not fix, and it is the one to look at next.** The berth run
+showed the Confederacy is simply stronger once both sides spend freely — which
+is the same finding as the opening-books measurement earlier today, where the
+Confederacy opened with the better net surplus on nearly every seed and the
+Crown's upkeep ran 2.4× theirs. The hoard was hiding it. That is the pending
+**upkeep** ruling, and it is now the biggest open number in the game.
