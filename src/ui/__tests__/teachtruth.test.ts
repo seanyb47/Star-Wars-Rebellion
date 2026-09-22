@@ -34,6 +34,12 @@ const ALMANAC = import.meta.glob('../Almanac.tsx', {
   eager: true,
 }) as Record<string, string>;
 
+const START = import.meta.glob('../StartScreen.tsx', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
 /** Just the card, so a mention of Highwater elsewhere is not a false alarm. */
 function winCard(): string {
   const start = SOURCE.indexOf("title: 'How you win'");
@@ -95,5 +101,15 @@ describe('the tutorial tells the truth about winning', () => {
     expect(box).not.toMatch(/Highwater[^`]{0,80}(war is over|lose the war|ends the war)/i);
     expect(box).toMatch(/CROWN_PRINCIPALS/);
     expect(box).toMatch(/PIRATE_LORDS/);
+  });
+
+  it('and the start screen does not either', () => {
+    // It listed "Lose Highwater and lose everything" among the Crown's
+    // weaknesses — the first screen of the game, and the third copy of the
+    // same stale rule. Losing the capital costs the Crown the Imperator, who
+    // never leaves it, which is one of the two the Confederacy needs.
+    const src = (START['../StartScreen.tsx'] ?? '').replace(/\/\/[^\n]*/g, '');
+    expect(src).toBeTruthy();
+    expect(src).not.toMatch(/Lose Highwater and lose everything/);
   });
 });

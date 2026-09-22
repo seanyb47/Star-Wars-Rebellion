@@ -23,11 +23,15 @@ const FACTION_DETAIL: Record<
 > = {
   empire: {
     strengths: ['Rich, charted Inner Seas', 'Ships of the line from the first day', 'The Lords have to be found; Highwater is on every chart'],
-    weaknesses: ['Lose Highwater and lose everything', 'Fewer envoys than the Brethren', 'Islands resent what the walls cost them'],
+    // "Lose Highwater and lose everything" was here and was the same stale
+    // claim as the tutorial's. Losing the capital costs the Crown the
+    // Imperator, who never leaves it — which is half of what the Confederacy
+    // needs and not the war.
+    weaknesses: ['The Imperator never leaves Highwater, and they only need him and Corvane', 'Fewer envoys than the Brethren', 'Islands resent what the walls cost them'],
     opening: 'You begin at Highwater, the walled capital on the Aldermain, with the core of the world in hand and the royal dockyard at Yarrow Minor still smoking. You have ships of the line and no quick way to build more. Somewhere past your charts the three captains who burned it have met, and islands are already declaring for them.',
   },
   alliance: {
-    strengths: ['Three Pirate Lords, each with a power nobody else has', 'More envoys, and better ones', 'No capital to lose'],
+    strengths: ['Three Pirate Lords, each with a power nobody else has', 'More envoys, and better ones', 'No capital to lose, and only two people to take'],
     weaknesses: ['Outgunned in open water', 'Lose all three Lords at once and the cause dies', 'Half your captains take some managing'],
     opening: 'You begin at Freeport, beyond the Crown\'s charts, three Lords and the people who came with them, with islands across the Reaches already declared for you. You burned the Imperium\'s dockyard and signed the articles a month later. All three Lords are in that one harbor, and the Imperium will be looking for it.',
   },
