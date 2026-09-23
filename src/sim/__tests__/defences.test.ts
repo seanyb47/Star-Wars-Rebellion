@@ -113,11 +113,18 @@ describe('the opening, against Rebellion', () => {
       for (const f of ['empire', 'alliance'] as const) {
         expect(state.factions[f].income, `${f} seed ${seed}`).toBeGreaterThan(state.factions[f].upkeep);
         const fleet = state.fleets.find((x) => x.faction === f)!;
-        // Four, not five. The Confederate Home Fleet lost three Swifts on 20
-        // September — *"1 swift is all the swifts you need"* — and came back
-        // as one Swift, two Tempests and the Brig, so four hulls is now the
-        // smaller of the two openings rather than six.
-        expect(fleet.ships.length).toBeGreaterThanOrEqual(4);
+        /*
+         * Three and six, not four and six. Sean cut the Crown's opening on 23
+         * September — *"Fleet should be sovereign + interceptor x2. Fleet 2
+         * should be a Morningstar + Wayfinder"* — so the Home Fleet is three
+         * hulls and the forward squadron two, against the Confederacy's six.
+         *
+         * Which is why this no longer asks for a number it has picked out of
+         * the air. What it is for is that a side opens with *a fleet*, not
+         * with a boat: the seat's squadron is the thing you sail on day one
+         * and it has to be able to fight for the island it is standing on.
+         */
+        expect(fleet.ships.length, `${f} seed ${seed}`).toBeGreaterThanOrEqual(3);
         for (const s of state.systems.filter((x) => x.control === f)) {
           const free = s.slots - s.facilities.length;
           expect(free, `${s.name}`).toBeGreaterThan(0);

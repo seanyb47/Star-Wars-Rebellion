@@ -289,27 +289,29 @@ interface StartSquadron {
 }
 const START_FLEETS: Record<PlayableFaction, StartSquadron[]> = {
   empire: [
-    // Powerful, and at Highwater: the ship of the line, a two-decker, a
-    // sloop and the survey ship. A hundred and forty-two guns, and the
-    // Sovereign's forty-six of them are Heavy.
+    // At Highwater: the ship of the line and two sloops.
     //
-    // Rebuilt on the canonical roster of 21 September, which is why the
-    // names have all changed. Every hull here is one of the four a side
-    // opens with in the sheet — S01 to S04 — rather than whatever the old
-    // roster had lying about, which is the whole point of the swap.
+    // Sean, 23 September: *"Cut the starting wayfinder from fleet 1. Fleet
+    // should be sovereign + interceptor x2. Fleet 2 should be a Morningstar +
+    // Wayfinder."* It was a Sovereign, a Morningstar, one Interceptor and a
+    // Wayfinder; the two-decker moves to the forward squadron and the survey
+    // ship goes with it, which leaves the Crown's heavy fleet heavy and
+    // nothing else. The Home Fleet cannot chart on its own any more — the
+    // Wayfinder is the thing that finds the dark Reaches, and it is out at
+    // the sharp end now, where finding things is what it is for.
     {
       name: 'Home Fleet',
-      ships: ['sovereign', 'morningstar', 'interceptor-i', 'wayfinder'],
+      ships: ['sovereign', 'interceptor-i', 'interceptor-i'],
       troops: 2,
       berth: 'seat',
     },
-    // And a medium one forward, in a Reach the Crown does not own outright:
-    // the two-decker, three sloops and the survey ship. No ship of the line
-    // — enough to take an island off somebody, and not enough to fight the
-    // Confederacy's whole navy and expect to win.
+    // And a small one forward, in a Reach the Crown does not own outright:
+    // the two-decker and the survey ship, and nothing else. It cannot fight
+    // the Confederate Home Fleet and is not meant to — it carries two
+    // companies, it can take a lightly-held island, and it is the eyes.
     {
       name: 'Windward Squadron',
-      ships: ['morningstar', 'interceptor-i', 'interceptor-i', 'interceptor-i', 'wayfinder'],
+      ships: ['morningstar', 'wayfinder'],
       troops: 2,
       berth: 'forward',
     },

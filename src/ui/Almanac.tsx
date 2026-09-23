@@ -1151,9 +1151,32 @@ export function Almanac({
    * works type or somebody's name would otherwise pop that unit's sheet over
    * the glossary, which is a class of bug rather than a bug.
    */
-  const [openEntry, setOpenEntry] = useState<Subject | null>(() =>
+  const [openEntry, setEntryOpen] = useState<Subject | null>(() =>
     UNIT_PAGES.includes(opening) ? subjectFor(entry) : null,
   );
+  /*
+   * Whether the entry on screen is the one somebody sent us here to see.
+   *
+   * Sean, 23 September: *"When I am building and I click on a ship to view
+   * encyclopedia entry… if I close the entry it should take me back to the
+   * build page not the encyclopedia page."* He is right, and the reason is
+   * that an ℹ is a peek rather than a journey: you were mid-order, you
+   * wanted to know what a Wayfinder is, and being left standing in the Ships
+   * list with your half-written order underneath is the encyclopedia deciding
+   * it is now the thing you came for.
+   *
+   * So the *arrival* entry closes the whole reference and puts you back where
+   * you were. An entry you opened yourself, by tapping a cell in a list, does
+   * not: there the list is where you came from and the list is where you go.
+   * True only while the entry we landed on is the entry on screen, which is
+   * what makes those two cases one rule rather than two.
+   */
+  const [peeking, setPeeking] = useState(() => Boolean(UNIT_PAGES.includes(opening) && subjectFor(entry)));
+  const setOpenEntry = useCallback((subject: Subject | null) => {
+    setEntryOpen(subject);
+    // Opening one from a list is browsing, whatever brought us in.
+    if (subject) setPeeking(false);
+  }, []);
   // A sideways drag moves along the tabs, the same gesture the chart and the
   // island panel already use for their rows.
   const swipe = useSideSwipe((step) => {
@@ -2167,7 +2190,7 @@ export function Almanac({
         subject={openEntry}
         state={state}
         you={you}
-        onClose={() => setOpenEntry(null)}
+        onClose={() => (peeking ? onClose() : setOpenEntry(null))}
       />
     )}
     </>

@@ -152,36 +152,41 @@ export function EventCards({
             {events.length > 1 ? ` · ${at + 1} of ${events.length}` : ''}
           </span>
           <span className="row" style={{ gap: 6 }}>
+            {/*
+              Sean, 23 September: *"go there and carry on are not obvious
+              terms. Continue and Skip are better."*
+
+              So: **Continue** is the primary — you have read it, get on with
+              the war — and **Skip** gets past the rest of the stack without
+              paging through them, which there was no way to do at all: the
+              dismiss only appeared on the last card, so four dispatches meant
+              four taps whether or not you wanted them.
+
+              The third button is the one that goes somewhere, and it says
+              where. "Go there" is a direction with no destination in it; the
+              island's own name is both the label and the answer to what the
+              button does.
+            */}
             {island && onOpenIsland && (
               <button className="btn" onClick={() => onOpenIsland(island.id)}>
-                Go there
+                {island.name} ›
               </button>
             )}
-            {events.length > 1 && (
-              <>
-                <button
-                  className="btn"
-                  disabled={at === 0}
-                  onClick={() => setIndex(at - 1)}
-                  aria-label="Previous dispatch"
-                >
-                  ↑
-                </button>
-                <button
-                  className="btn"
-                  disabled={at === events.length - 1}
-                  onClick={() => setIndex(at + 1)}
-                  aria-label="Next dispatch"
-                >
-                  ↓
-                </button>
-              </>
-            )}
-            {at === events.length - 1 && (
-              <button className="btn btn--primary" onClick={onClose}>
-                Carry on
+            {/* Only back. Forward is Continue now, and two controls for one
+                direction is how a foot of buttons gets to five. */}
+            {events.length > 1 && at > 0 && (
+              <button className="btn" onClick={() => setIndex(at - 1)} aria-label="Previous dispatch">
+                ↑
               </button>
             )}
+            {at < events.length - 1 && (
+              <button className="btn" onClick={onClose}>
+                Skip
+              </button>
+            )}
+            <button className="btn btn--primary" onClick={() => (at === events.length - 1 ? onClose() : setIndex(at + 1))}>
+              Continue
+            </button>
           </span>
         </div>
       </div>

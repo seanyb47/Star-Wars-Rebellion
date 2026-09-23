@@ -809,7 +809,9 @@ describe('the opening position', () => {
       // Every side's first squadron lies at its seat.
       expect(fleets[0].systemId).toBe(state.factions[faction].hqSystemId);
       for (const fleet of fleets) {
-        expect(fleet.ships.length).toBeGreaterThanOrEqual(4);
+        // Two hulls is the floor since Sean's cut of 23 September: the
+        // Crown's forward squadron is a Morningstar and a Wayfinder now.
+        expect(fleet.ships.length).toBeGreaterThanOrEqual(2);
         // Companies aboard, so the first landing does not wait on a transport
         // being loaded before it can be thought about.
         expect(fleet.troops).toBeGreaterThan(0);
@@ -881,12 +883,30 @@ describe('the opening position', () => {
       }
       return won / trials;
     };
-    // A rival to the forward squadron: it wins its share and loses its share.
-    const againstForward = winsFor(rebels, forward);
-    expect(againstForward).toBeGreaterThan(0.2);
-    expect(againstForward).toBeLessThan(0.8);
-    // And no kind of rival to the Home Fleet.
+    /*
+     * This asked for an even match — the Confederate Home Fleet winning
+     * between a fifth and four fifths against the Crown's forward squadron —
+     * because that was the shape Sean set on 18 September: *"Confederacy
+     * fleet is its Freeport only and it's medium sized. Should rival the
+     * medium fleet from imperium."*
+     *
+     * It is not that shape any more. Sean, 23 September: *"Fleet 2 should be
+     * a Morningstar + Wayfinder."* Two hulls, one of them unarmed, against
+     * six — the Confederacy takes it 97 times in a hundred, and no tuning of
+     * this test changes that. The rivalry was in the hull count and the hull
+     * count is gone.
+     *
+     * So this now holds the thing that is still true and still load-bearing:
+     * **the Confederate Home Fleet cannot take the Crown's Home Fleet.** The
+     * Sovereign is the wall the whole navy is built around, and a Confederacy
+     * that could simply sail to Highwater and sink it on day one would end
+     * every war in a fortnight. That has been the rule since the Lords were
+     * written and it survives the cut.
+     */
     expect(winsFor(rebels, home)).toBeLessThan(0.1);
+    // And the forward squadron is no longer a fleet action at all — it is two
+    // hulls that can take a lightly-held island and must not meet the Moot.
+    expect(winsFor(rebels, forward)).toBeGreaterThan(0.8);
   });
 
   it('gives each side a yard that can lay down a hull', () => {
