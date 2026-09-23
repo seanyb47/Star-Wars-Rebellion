@@ -32,7 +32,9 @@ import {
   buildLabel,
   idleFacilities,
   buildMenu,
+  busyLine,
   islandBusy,
+  type BuildLane,
   freeSlots,
   requiredGarrison,
   type Facility,
@@ -227,9 +229,14 @@ function WorksRow({
   const kind = buildKindFor(facility.type);
   const order = system.facilities.find((f) => facility.ids.includes(f.id) && f.building);
   const earns = GOLD_PER_DAY[facility.type] ?? 0;
-  // The island is busy if anything of yours is being made on it — see
-  // `islandBusy`. A maker cannot be given a second order while that stands.
-  const busy = mine ? islandBusy(system, state.player) : null;
+  /*
+   * Busy in *this works's own lane* — see `islandBusy`. A slipway waits on a
+   * hull and a drill ground on a company, and neither waits on the other: one
+   * ship, one building, one troop at a time, which is Sean's rule of 23
+   * September and not the one-job-per-island it replaced.
+   */
+  const lane: BuildLane = facility.type === 'shipyard' ? 'ship' : facility.type === 'training_facility' ? 'troop' : 'works';
+  const busy = mine ? islandBusy(system, state.player, lane) : null;
 
   return (
     <div className={`islandrow${facility.founding ? ' islandrow--going' : ''}`}>
@@ -266,7 +273,7 @@ function WorksRow({
           <button
             className="btn islandrow__build"
             disabled={Boolean(busy)}
-            title={busy ? `${inProse(system.name)} is already making ${busy.label}.` : undefined}
+            title={busy ? busyLine(system, busy) : undefined}
             onClick={() => onOrderFrom(system.id, kind)}
           >
             {/* Sean: *"change build hull here to just build ships."* */}
@@ -879,12 +886,13 @@ export function SystemSheet({
    * its own button out and say why, rather than letting a player open the
    * panel to be told no.
    */
-  const busyHere = mine ? islandBusy(system, state.player) : null;
-  const buildBlocked = !mine
-    ? 'Not your island.'
-    : busyHere
-      ? `${inProse(system.name)} is already making ${busyHere.label}.`
-      : null;
+  /*
+   * The Raise button on the island's own Buildings tab puts up a *works*, so
+   * it asks the works lane and nothing else: a Sovereign on the stocks no
+   * longer stops a mill going up beside it.
+   */
+  const busyHere = mine ? islandBusy(system, state.player, 'works') : null;
+  const buildBlocked = !mine ? 'Not your island.' : busyHere ? busyLine(system, busyHere) : null;
 
   return (
     <Sheet
@@ -980,12 +988,23 @@ export function SystemSheet({
               is there, nothing is there."* The tab is called Harbor and the
               ships are the first thing under it; "At anchor" was a label on
               the only thing it could have been labelling. */}
-          {report ? (
-            <RememberedHarbor report={report} player={state.player} />
-          ) : (
+          {/*
+            Yours first and live, theirs second and remembered.
+
+            This was an either/or — the live harbor on your own island, the
+            last report on theirs — and a squadron of yours lying off an enemy
+            island fell down the gap: not in their report, and their report was
+            the whole tab. Sean, 23 September: *"I moved my fleet to an enemy
+            island. It disappears."*
+
+            You always know where your own ships are, so they are always live.
+            What you do not know is what is in their harbor today, so that
+            stays a report, and `minesOnly` is the line between the two.
+          */}
           <ShipsHere
             state={state}
             systemId={system.id}
+            minesOnly={Boolean(report)}
             onSail={onSail}
             onAssault={onAssault}
             onBombard={onBombard}
@@ -995,7 +1014,7 @@ export function SystemSheet({
             onOrderOfficers={onOrderOfficers}
             onDetach={onDetach}
           />
-          )}
+          {report && <RememberedHarbor report={report} player={state.player} />}
 
           {system.blockaded && (
             <p className="tiny" style={{ color: 'var(--bad)', margin: '8px 0 0' }}>

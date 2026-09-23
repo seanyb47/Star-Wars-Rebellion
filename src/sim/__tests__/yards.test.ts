@@ -10,6 +10,8 @@ import {
   queueBuild,
   raiseWorks,
   raiseWorksError,
+  islandBusy,
+  laneOf,
 } from '../build';
 import { travelDays } from '../missions';
 import { YARD_BUILDS, shipsFor } from '../constants';
@@ -98,41 +100,58 @@ describe('works of a kind work together', () => {
     }
   });
 
-  /**
-   * This test asserted the opposite until 22 September, and the inversion is
-   * the point of it.
+  /*
+   * This rule has now been written three ways, and the third is the one that
+   * is about a decision rather than about arithmetic.
    *
-   * A slipway and a drill ground *were* two separate jobs, on the reasoning
-   * that they are two different trades and neither waits on the other. Sean
-   * overruled it: *"let's also make it to where you can only build one thing
-   * at a time on an island. So if you're building a ship, you can't build a
-   * building. If you're building a building, you can't build a ship."*
+   * It began as one job per *works*, so a developed island ran a queue per
+   * building and its output scaled with how many sorts of works stood on it.
+   * Sean cut that to one job per island on 22 September — *"we don't want to
+   * just be able to spam like five things that are all being made
+   * simultaneously"* — and that went a step too far the other way: a Sovereign
+   * takes eight months, so a slipway laying one down also stopped the barracks
+   * raising a company and the island raising a mill. A developed island did
+   * one thing a season.
    *
-   * So the island is the unit of work, not the works — one island, one thing
-   * being made on it, whatever is making it. `islandBusy` is the whole of the
-   * rule and both order paths ask it.
+   * 23 September, and this is the shape: *"It should be only 1 ship, 1
+   * building, 1 troop at a time."* Three lanes, and they do not block each
+   * other. A second order in the same lane still waits, which is the spam he
+   * was cutting; the lanes are what stops it also being a queue of one.
    */
-  it('and a slipway and a drill ground are still one island, so one job', () => {
+  it('lets a hull and a company be made at once, and a second hull wait', () => {
     const { state, island, yard } = stage(705, 1);
     island.facilities.push({ id: 'drill-1', type: 'training_facility', owner: 'empire' });
+    island.facilities.push({ id: 'yard-2', type: 'shipyard', owner: 'empire' });
     queueBuild(state, yard.id, anyHull(state));
-    expect(() => queueBuild(state, 'drill-1', 'troop')).toThrow(/already making/i);
-    expect(island.facilities.filter((f) => f.building).length).toBe(1);
+    // Different lane: goes ahead.
+    queueBuild(state, 'drill-1', 'troop');
+    expect(island.facilities.filter((f) => f.building).length).toBe(2);
+    // Same lane on a second slipway: waits. Slipways of a kind are one crew,
+    // so this is refused by the works-level check before the lane check even
+    // runs — either way the answer is no, and it names the hull in the way.
+    expect(() => queueBuild(state, 'yard-2', anyHull(state))).toThrow(/busy|one hull at a time/i);
   });
 
-  it('and a works being laid down holds the island just as an order does', () => {
+  it('and a works being laid down holds only the works lane', () => {
     const { state, island, yard } = stage(716, 1);
     raiseWorks(state, island.id, 'fort', 'empire');
     expect(island.facilities.some((f) => f.founding)).toBe(true);
-    expect(() => queueBuild(state, yard.id, anyHull(state))).toThrow(/already making/i);
+    // A second building waits behind the first.
+    expect(raiseWorksError(state, island.id, 'refinery', 'empire')).toMatch(/one building at a time/i);
+    // A hull does not. Laying down a fort is not work the shipwrights do.
+    expect(() => queueBuild(state, yard.id, anyHull(state))).not.toThrow();
   });
 
-  it('and the island is free again the day the job lands', () => {
-    const { state, island, yard } = stage(717, 1);
-    queueBuild(state, yard.id, anyHull(state));
-    expect(raiseWorksError(state, island.id, 'fort', 'empire')).toMatch(/already making/i);
-    cancelBuild(state, yard.id);
-    expect(raiseWorksError(state, island.id, 'fort', 'empire')).toBeNull();
+  it('and a lane is free again the day its own job lands', () => {
+    const { state, island } = stage(717, 1);
+    raiseWorks(state, island.id, 'fort', 'empire');
+    expect(raiseWorksError(state, island.id, 'refinery', 'empire')).toMatch(/one building at a time/i);
+    // The day it lands: a works stops being founding *and* drops its order —
+    // it carries both while it is going up, which is what `islandBusy` reads.
+    const founding = island.facilities.find((f) => f.founding)!;
+    founding.founding = undefined;
+    founding.building = undefined;
+    expect(raiseWorksError(state, island.id, 'refinery', 'empire')).toBeNull();
   });
 });
 
@@ -239,5 +258,37 @@ describe('an earner takes its ground the day it is ordered', () => {
     cancelBuild(state, going.id);
     expect(island.facilities.some((f) => f.founding)).toBe(false);
     expect(depositsLeft(island, 'forest')).toBe(forests);
+  });
+});
+
+describe('one ship, one building, one troop', () => {
+  /*
+   * The three lanes, asked of the sim rather than through a works.
+   *
+   * Sean, 23 September: *"It should be only 1 ship, 1 building, 1 troop at a
+   * time."* `laneOf` is the whole of that rule and everything else reads it,
+   * so it is worth pinning on its own: a hull is a hull whichever class it is,
+   * a named company and the generic order are both the troop lane, and
+   * everything else is a building.
+   */
+  it('sorts every kind of order into its own lane', () => {
+    expect(laneOf('troop')).toBe('troop');
+    expect(laneOf('crown-marines')).toBe('troop');
+    expect(laneOf(shipsFor('empire')[0].id)).toBe('ship');
+    expect(laneOf('fort')).toBe('works');
+    expect(laneOf('shipyard')).toBe('works');
+    expect(laneOf('refinery')).toBe('works');
+  });
+
+  it('reports a busy lane only to the lane that is busy', () => {
+    const { state, island, yard } = stage(730, 1);
+    island.facilities.push({ id: 'drill-9', type: 'training_facility', owner: 'empire' });
+    queueBuild(state, yard.id, anyHull(state));
+    expect(islandBusy(island, 'empire', 'ship')).not.toBeNull();
+    expect(islandBusy(island, 'empire', 'troop')).toBeNull();
+    expect(islandBusy(island, 'empire', 'works')).toBeNull();
+    // And asked without a lane it still answers "something is being made",
+    // which is what the chart's idle filter wants to know.
+    expect(islandBusy(island, 'empire')).not.toBeNull();
   });
 });

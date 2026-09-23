@@ -4,6 +4,7 @@ import {
   buildLabel,
   isShipClass,
   isTroopItem,
+  TROOP_LABEL,
   shipsAt,
   shipClass,
   craftNeeded,
@@ -363,24 +364,60 @@ export function openDeposits(
  * output scaled with how many different sorts of works stood on it rather
  * than with any decision.
  *
- * One job per island, full stop. Several works of the same kind still pull on
- * the same job and still finish it faster — that is the build divisor and it
- * is untouched — but a second *order* waits for the first.
+ * **Three lanes since 23 September**, not one. Sean: *"Right now I can only
+ * build 1 thing at a time per location. It should be only 1 ship, 1 building,
+ * 1 troop at a time."* One job per island answered the spam and went a step
+ * too far with it: a shipyard laying down a Sovereign for eight months also
+ * stopped the barracks raising a company and the island raising a mill, so
+ * every developed island did one thing a season.
  *
- * Counts anything the island is carrying: a hull or a troop on a works, and a
- * works being laid down. Only the owner's own, so an island changing hands
- * mid-build does not deadlock the new holder on somebody else's order.
+ * So the rule is one job per *lane* — a hull, a works, a company — and the
+ * lanes do not block each other. Several works of the same kind still pull on
+ * the same job and still finish it faster, which is the build divisor and is
+ * untouched; a second order in the same lane still waits.
+ *
+ * Only the owner's own, so an island changing hands mid-build does not
+ * deadlock the new holder on somebody else's order.
  */
+export type BuildLane = 'ship' | 'works' | 'troop';
+
+/** Which of the three an order belongs to. */
+export function laneOf(item: BuildItem): BuildLane {
+  if (isShipClass(item)) return 'ship';
+  if (item === 'troop' || isTroopItem(item)) return 'troop';
+  return 'works';
+}
+
+/** What the lane is called when the island has to say it is busy. */
+const LANE_NOUN: Record<BuildLane, string> = {
+  ship: 'hull',
+  works: 'building',
+  troop: TROOP_LABEL.toLowerCase(),
+};
+
 export function islandBusy(
   system: System,
   owner: PlayableFaction,
-): { label: string } | null {
+  lane?: BuildLane,
+): { label: string; lane: BuildLane } | null {
   for (const f of system.facilities) {
     if (f.owner !== owner) continue;
-    if (f.founding) return { label: FACILITY_LABEL[f.type] };
-    if (f.building) return { label: buildLabel(f.building.item) };
+    // A works still being laid down is the works lane's own job: you cannot
+    // raise two buildings at once, and it does not stop a hull or a company.
+    if (f.founding && (lane === undefined || lane === 'works')) {
+      return { label: FACILITY_LABEL[f.type], lane: 'works' };
+    }
+    if (f.building) {
+      const its = laneOf(f.building.item);
+      if (lane === undefined || lane === its) return { label: buildLabel(f.building.item), lane: its };
+    }
   }
   return null;
+}
+
+/** The sentence an island says when the lane you asked for is taken. */
+export function busyLine(system: System, busy: { label: string; lane: BuildLane }): string {
+  return `${inProse(system.name)} is already making ${busy.label} — one ${LANE_NOUN[busy.lane]} at a time.`;
 }
 
 export function buildError(
@@ -436,9 +473,10 @@ export function buildError(
       ? `The ${FACILITY_LABEL[facility.type].toLowerCase()} is still being laid down.`
       : `${FACILITY_LABEL[facility.type]} busy: ${buildLabel(busy.building!.item)}.`;
   }
-  // And one job per island, whatever kind of works it is on. See `islandBusy`.
-  const elsewhere = islandBusy(system, facility.owner);
-  if (elsewhere) return `${inProse(system.name)} is already making ${elsewhere.label}.`;
+  // And one job per lane across the island, whatever works it is on. A hull
+  // does not stop a company and neither stops a mill. See `islandBusy`.
+  const elsewhere = islandBusy(system, facility.owner, laneOf(item));
+  if (elsewhere) return busyLine(system, elsewhere);
   if (system.control !== facility.owner) return 'You do not hold this island.';
   if (system.uprising) return 'The island is in mutiny.';
 
@@ -694,6 +732,42 @@ export function cancelBuild(state: GameState, facilityId: string): void {
  *  - **The works stands in its plot from the day it is ordered**, so the
  *    ground cannot be promised twice and the player can see what is coming.
  */
+/**
+ * Whether this works could *ever* go up here, treasury aside.
+ *
+ * Sean, 23 September: *"When building, don't include things in the drop down
+ * that can't be built even if you had infinite gold. Aka a gold mine on a
+ * silver vein."* An earner stands on its own ground, so a gold mine wants a
+ * gold vein; an island without one will never have one, and offering it is
+ * offering a thing that does not exist.
+ *
+ * Only that. Gold, room, research and a busy lane are all reasons that clear —
+ * the picker greys those and says which — and a player told *no room* knows to
+ * scrap something, where a player told nothing at all about a vein that was
+ * never there waits for ever.
+ */
+export function worksImpossible(system: System, type: FacilityType): boolean {
+  const wants = WORKS_ON[type];
+  return Boolean(wants) && depositsLeft(system, wants!) === 0;
+}
+
+/** The refusal in a few words, for a greyed row in the picker. */
+export function raiseWorksShort(
+  state: GameState,
+  systemId: string,
+  type: FacilityType,
+  owner: PlayableFaction,
+): string | null {
+  const why = raiseWorksError(state, systemId, type, owner);
+  if (!why) return null;
+  if (why.startsWith('Needs ')) return why.replace('Needs ', '');
+  if (/spoken for/.test(why)) return 'vein taken';
+  if (/No room/.test(why)) return 'no room';
+  if (/shipwright craft/.test(why)) return `R${FACILITY_CRAFT[type] ?? 0}`;
+  if (/one building at a time/.test(why)) return 'yard busy';
+  return why;
+}
+
 export function raiseWorksError(
   state: GameState,
   systemId: string,
@@ -733,8 +807,8 @@ export function raiseWorksError(
   // still be true tomorrow; this one clears itself the day the current job
   // lands. Told "already making a Lumber Mill" a player waits, and a player
   // who waits for a vein that was never there waits forever.
-  const busy = islandBusy(system, owner);
-  if (busy) return `${inProse(system.name)} is already making ${busy.label}.`;
+  const busy = islandBusy(system, owner, 'works');
+  if (busy) return busyLine(system, busy);
   return null;
 }
 

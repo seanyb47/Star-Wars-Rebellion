@@ -61,12 +61,21 @@ const KIND_ORDER: EventKind[] = ['war', 'flip', 'mutiny', 'battle', 'mission', '
  * the game makes any noise at all is still the speaker in the top bar, which
  * is off until pressed.
  */
-function Notifications() {
+function Notifications({ onClose }: { onClose: () => void }) {
   const [prefs, setPrefs] = usePrefs();
   return (
     <div className="notify">
       <div className="notify__row notify__row--head tiny muted">
-        <span className="notify__what">What happens</span>
+        <span className="notify__what">
+          What happens
+          {/* Sean, 23 September: *"In the notification log. There is no X to
+              close tab."* The pill above toggles it, which is a thing you have
+              to know; a panel that opened over the log should be closable the
+              way everything else on screen is. */}
+          <button className="notify__x" onClick={onClose} aria-label="Close notification settings">
+            ✕
+          </button>
+        </span>
         <span className="notify__col">Pop-up</span>
         <span className="notify__col">Sound</span>
         <span className="notify__col">Narrator</span>
@@ -216,7 +225,7 @@ function LogHead() {
       >
         Notifications
       </button>
-      {open && <Notifications />}
+      {open && <Notifications onClose={() => setOpen(false)} />}
     </div>
   );
 }

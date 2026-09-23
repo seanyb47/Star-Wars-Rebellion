@@ -1122,12 +1122,21 @@ export function startMission(
     takePost(state, character, target, targetFleetId);
     return;
   }
-  pushEvent(state, {
-    kind: 'mission',
-    text: missionLine(type, target.name, 'under way'),
-    systemId: targetSystemId,
-    characterId,
-  });
+  /*
+   * No event. Sean, 23 September: *"We don't need an alert 'a parley mission
+   * is underway' I just sent the guy. I know."*
+   *
+   * Which is the rule for the whole class: the player is the one who gave the
+   * order, and the game telling them they gave it is a receipt, not news. The
+   * officer's own card says where they are and what they are doing, the chart
+   * shows where they went, and the Log is for what you were *not* watching.
+   * The same cut takes the landing line below — *"Don't need 'espionage
+   * mission is landed' just tell me outcomes."*
+   *
+   * The opponent never had these: `runAI` dispatches through the same
+   * function and its lines were filtered out of the player's log anyway. So
+   * the only thing that changes is how much of your own log is you.
+   */
 }
 
 /**
@@ -1670,14 +1679,10 @@ export function advanceMissions(state: GameState, rng: Rng): void {
         takePost(state, character, landed, mission.targetFleetId);
         continue;
       }
+      // And no landing line either, for the same reason as the dispatch above:
+      // arriving is not an outcome. What comes out of the fortnight ashore is.
       mission.phase = 'working';
       mission.daysRemaining = MISSION_WORK_DAYS;
-      pushEvent(state, {
-        kind: 'mission',
-      text: missionLine(mission.type, landed.name, 'landed'),
-        systemId: mission.targetSystemId,
-        characterId: character.id,
-      });
       continue;
     }
 

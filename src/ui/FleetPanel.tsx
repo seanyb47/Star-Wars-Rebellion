@@ -692,6 +692,7 @@ export function ShipsHere({
   onOrderShips,
   onOrderOfficers,
   onDetach,
+  minesOnly = false,
 }: {
   state: GameState;
   systemId: string;
@@ -703,8 +704,25 @@ export function ShipsHere({
   onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
   onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
   onDetach?: (fleetId: string, shipIds: string[], into?: string) => void;
+  /**
+   * Show only your own hulls, for an island you do not hold.
+   *
+   * Sean, 23 September: *"I moved my fleet to an enemy island. It
+   * disappears."* It did. The Harbor tab was an either/or — the live harbor
+   * on your own island, the *last report* on theirs — and your own squadron
+   * standing in their water fell down the gap between them, because it is not
+   * in their harbor report and their harbor report was the whole tab.
+   *
+   * Your own ships are never a memory: you know where you sent them. So they
+   * are listed live wherever they are, and the enemy's harbor stays a report,
+   * which is what this flag separates. Without it the tab would hand over
+   * their live order of battle, which is what espionage is for.
+   */
+  minesOnly?: boolean;
 }) {
-  const here = state.fleets.filter((f) => f.systemId === systemId && !f.voyage);
+  const here = state.fleets.filter(
+    (f) => f.systemId === systemId && !f.voyage && (!minesOnly || f.faction === state.player),
+  );
   const inbound = state.fleets.filter(
     (f) => f.faction === state.player && f.voyage?.targetSystemId === systemId,
   );
@@ -727,7 +745,8 @@ export function ShipsHere({
   // And whatever is in the water. It is not a fleet and it is nobody's, but a
   // card among the ships is exactly what it is to the player: a thing lying in
   // this harbor with guns, which has to be got past.
-  const beast = island && island.beastSeen?.[state.player] ? beastAt(island) : undefined;
+  const beast =
+    !minesOnly && island && island.beastSeen?.[state.player] ? beastAt(island) : undefined;
 
   const monster = beast && beast.guns > 0 && island && (
     <div className="card fleet fleet--beast">
@@ -770,6 +789,10 @@ export function ShipsHere({
   );
 
   if (here.length === 0 && inbound.length === 0 && stocks.length === 0) {
+    // On an island of theirs the report below says what *they* have; this
+    // block is only ever about what you have, so it says nothing rather than
+    // telling somebody to lay down a hull on an enemy's slipway.
+    if (minesOnly) return null;
     return (
       <div className="stack">
         {monster}

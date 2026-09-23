@@ -3267,6 +3267,13 @@ button.tcard:hover { border-color: var(--brass); }
 .notify__row--head { min-height: 26px; }
 .notify__row--head + .notify__row { border-top: 0; }
 .notify__what { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+/* The panel's own close, in the head row's spare width so it costs no height. */
+.notify__x {
+  margin-left: auto; margin-right: 6px; padding: 2px 8px;
+  min-height: 26px; font-size: 14px; line-height: 1;
+  color: var(--muted); background: none; border: 0;
+}
+.notify__x:active { color: var(--text); }
 /* The head labels sit over their columns, so they take the columns' width —
    wide enough for "Narrator" to stay on one line, since the third column
    arrived with the longest word in the panel. */

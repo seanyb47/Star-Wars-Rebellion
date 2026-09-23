@@ -3,6 +3,9 @@ import terms from '../data/terms.json';
 import {
   isTroopItem,
   raiseReason,
+  raiseWorksError,
+  raiseWorksShort,
+  worksImpossible,
   raiseShort,
   troopType,
   troopsOf,
@@ -167,6 +170,36 @@ export function BuildOrderSheet({
    * Sailors are left off entirely: a ship's company comes off a hull and is
    * ashore because hulls are, so it is not a thing you order.
    */
+  /*
+   * The buildings this island could take, treasury aside.
+   *
+   * Sean, 23 September: *"don't include things in the drop down that can't be
+   * built even if you had infinite gold. Aka a gold mine on a silver vein."*
+   * A works that wants ground the island does not have and never will is left
+   * out entirely; everything else is listed, and greyed with the reason when
+   * the reason is one that clears — no room, not enough craft, the yard busy,
+   * the price. Same shape as the troop list below, and for the same reason:
+   * a list that silently omits a thing teaches nothing about why.
+   */
+  const worksChoices =
+    kind === 'facilities' && destination
+      ? FACILITY_ORDER.filter((type) => !worksImpossible(destination, type)).map((type) => ({
+          type,
+          why: raiseWorksError(state, destination.id, type, you),
+          short: raiseWorksShort(state, destination.id, type, you),
+        }))
+      : FACILITY_ORDER.map((type) => ({ type, why: null as string | null, short: null as string | null }));
+  /*
+   * And the draft falls back when the island changes under it, the same way
+   * the troop draft does: pick a Gold Mine, send the order to an island with
+   * no vein, and the order would otherwise sit on a choice the sim refuses.
+   */
+  const worksLegal = worksChoices.find((c) => c.type === item && c.why === null);
+  const firstWorks = worksChoices.find((c) => c.why === null);
+  if (kind === 'facilities' && !worksLegal && firstWorks && item !== firstWorks.type) {
+    queueMicrotask(() => onChange({ ...draft, item: firstWorks.type as BuildItem }));
+  }
+
   const troopChoices =
     kind === 'troops'
       ? troopsOf(you)
@@ -277,9 +310,10 @@ export function BuildOrderSheet({
           onChange={(e) => onChange({ ...draft, item: e.target.value as BuildItem })}
         >
           {kind === 'facilities'
-            ? FACILITY_ORDER.map((type) => (
-                <option key={type} value={type}>
-                  {buildLabel(type)}
+            ? worksChoices.map((c) => (
+                <option key={c.type} value={c.type} disabled={c.why !== null}>
+                  {buildLabel(c.type)}
+                  {c.short ? ` — ${c.short}` : ''}
                 </option>
               ))
             : kind === 'troops'
