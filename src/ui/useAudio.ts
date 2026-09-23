@@ -3,9 +3,22 @@ import { AudioEngine } from '../audio/engine';
 import { narratorIdFor } from './narrator/assets';
 import { hushVoice, speak } from './narrator/voice';
 import { isSpoken, makesSound, usePrefs } from './prefs';
-import type { GameState } from '../sim';
+import type { EventKind, GameState } from '../sim';
+import type { NarratorId } from './narrator/mood';
 
 const SOUND_KEY = 'seven-seas.sound.v1';
+
+/**
+ * The one engine, reachable from outside the hook.
+ *
+ * Only so the notification panel can let you *hear* a row before deciding
+ * whether to untick it. Sean, 23 September: *"I don't hear unique chimes
+ * depending on type of log note"* — and the reason he could not tell was that
+ * hearing two of them side by side meant playing two wars. A second engine
+ * would be a second AudioContext over the same speaker, so the panel borrows
+ * this one rather than building its own.
+ */
+let shared: AudioEngine | null = null;
 
 function readPreference(): boolean {
   try {
@@ -35,7 +48,10 @@ export function useAudio(state: GameState) {
   const engine = useRef<AudioEngine | null>(null);
   const lastEventId = useRef<string | null>(null);
 
-  if (!engine.current) engine.current = new AudioEngine();
+  if (!engine.current) {
+    engine.current = new AudioEngine();
+    shared = engine.current;
+  }
 
   /**
    * Whose theme should be playing, readable from a callback made on an
@@ -157,4 +173,18 @@ export function useAudio(state: GameState) {
   }, [on]);
 
   return { on, toggle };
+}
+
+/**
+ * Play a kind of news on demand: its sound, then the advisor on it.
+ *
+ * Deliberately ignores the two columns — you are pressing the row to find out
+ * what it sounds like, and a preview that honoured the tick you are about to
+ * change would play nothing exactly when you most want to hear it. The
+ * speaker in the top bar still rules: with the engine stopped this is silent,
+ * because there is no AudioContext to be silent with.
+ */
+export function previewNotification(kind: EventKind, who: NarratorId): void {
+  shared?.play(kind);
+  speak(who, kind);
 }

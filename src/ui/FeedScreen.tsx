@@ -1,7 +1,10 @@
 import { canSee } from '../sim';
 import { useEffect, useRef, useState } from 'react';
 import type { EventKind, GameEvent, GameState } from '../sim';
+import type { NarratorId } from './narrator/mood';
 import { usePrefs, withKind } from './prefs';
+import { narratorIdFor } from './narrator/assets';
+import { previewNotification } from './useAudio';
 
 /**
  * What each kind of news is, in the words the panel needs.
@@ -61,7 +64,7 @@ const KIND_ORDER: EventKind[] = ['war', 'flip', 'mutiny', 'battle', 'mission', '
  * the game makes any noise at all is still the speaker in the top bar, which
  * is off until pressed.
  */
-function Notifications({ onClose }: { onClose: () => void }) {
+function Notifications({ who, onClose }: { who: NarratorId; onClose: () => void }) {
   const [prefs, setPrefs] = usePrefs();
   return (
     <div className="notify">
@@ -91,10 +94,21 @@ function Notifications({ onClose }: { onClose: () => void }) {
         ];
         return (
           <div key={kind} className="notify__row">
-            <span className="notify__what">
+            {/* Sean, 23 September: *"I don't hear unique chimes depending on
+                type of log note."* Comparing two of them meant playing two
+                wars, so the name of the row is a button: press it and that
+                kind's sound plays and the advisor says a line of it. Both
+                columns are ignored on purpose — you are pressing it to find
+                out what it sounds like. */}
+            <button
+              className="notify__what notify__what--try"
+              onClick={() => previewNotification(kind, who)}
+              aria-label={`Hear ${what}`}
+            >
               <span className={`event__kind event__kind--${kind}`} aria-hidden="true" />
               {KIND_LABEL[kind]}
-            </span>
+              <span className="notify__try" aria-hidden="true">▸</span>
+            </button>
             {cols.map((col) => (
               <button
                 key={col.key}
@@ -110,9 +124,9 @@ function Notifications({ onClose }: { onClose: () => void }) {
         );
       })}
       <p className="tiny muted notify__foot">
-        Everything reaches the log whichever of these is set, and none of them
-        make a sound until the speaker in the top bar is on. The advisor speaks
-        only the news there is a recording for.
+        Press the name of a row to hear it. Everything reaches the log
+        whichever of these is set, and none of them make a sound until the
+        speaker in the top bar is on.
       </p>
     </div>
   );
@@ -159,7 +173,7 @@ export function FeedScreen({
   if (events.length === 0) {
     return (
       <div className="pad">
-        <LogHead />
+        <LogHead who={narratorIdFor(state.player)} />
         <div className="empty">The log is empty. Start the clock.</div>
       </div>
     );
@@ -178,7 +192,7 @@ export function FeedScreen({
 
   return (
     <div className="pad">
-      <LogHead />
+      <LogHead who={narratorIdFor(state.player)} />
       {days.map(({ day, events: entries }) => (
         <section key={day} className="logday">
           <h3 className="logday__head serif">Day {day}</h3>
@@ -214,7 +228,7 @@ export function FeedScreen({
  * and then read the log past for the rest of the war. Closed it is one line;
  * open it is the panel.
  */
-function LogHead() {
+function LogHead({ who }: { who: NarratorId }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="loghead">
@@ -225,7 +239,7 @@ function LogHead() {
       >
         Notifications
       </button>
-      {open && <Notifications onClose={() => setOpen(false)} />}
+      {open && <Notifications who={who} onClose={() => setOpen(false)} />}
     </div>
   );
 }

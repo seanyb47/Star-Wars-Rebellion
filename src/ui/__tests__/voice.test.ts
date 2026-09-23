@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import lines from '../../../public/narrator/voicelines.json';
-import { chooseLine } from '../narrator/voice';
+import { chooseLine, chooseWritten } from '../narrator/voice';
 import { isSpoken, makesSound } from '../prefs';
 import type { EventKind } from '../../sim';
 
@@ -101,5 +101,57 @@ describe('the three columns decide what happens', () => {
     expect(makesSound(quiet, { kind: 'loss' })).toBe(true);
     expect(isSpoken(quiet, { kind: 'loss' })).toBe(false);
     expect(isSpoken(quiet, { kind: 'battle' })).toBe(true);
+  });
+});
+
+/**
+ * The read-aloud stand-in.
+ *
+ * Sean, 23 September: *"I don't hear narrator voice."* Everything above was
+ * passing at the time, and that is the point: "says nothing when nothing is
+ * recorded" is correct, shipped, and identical to broken from the sofa. So a
+ * browser reads the written line until a recording exists.
+ */
+describe('while nothing is recorded', () => {
+  const src = (
+    import.meta.glob('../narrator/voice.ts', {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    }) as Record<string, string>
+  )['../narrator/voice.ts'];
+
+  it('still has a line to say for every kind of news', () => {
+    for (const who of CAST) {
+      for (const kind of KINDS) {
+        expect(chooseWritten(ALL as never, who, kind, undefined), `${who} on ${kind}`).toBeTruthy();
+      }
+    }
+  });
+
+  it('keeps the same no-repeat rule as the recordings', () => {
+    const first = chooseWritten(ALL as never, 'pennywhistle', 'mission', undefined)!;
+    for (let i = 0; i < 25; i++) {
+      expect(chooseWritten(ALL as never, 'pennywhistle', 'mission', first.id)!.id).not.toBe(first.id);
+    }
+  });
+
+  it('prefers a recording over the browser reading it', () => {
+    // Order matters in the source: the mp3 path returns before the fallback
+    // is reached, so a rendered line is never read aloud by the machine.
+    const recorded = src.indexOf('audio.play()');
+    const spoken = src.indexOf('readAloud(who, written.text');
+    expect(recorded).toBeGreaterThan(0);
+    expect(spoken).toBeGreaterThan(recorded);
+  });
+
+  it('gives the two advisors different throats, and hushes with the rest', () => {
+    expect(src).toMatch(/SPEECH[\s\S]*marlow[\s\S]*pennywhistle/);
+    // Not the same numbers for both, or they are one person.
+    const tones = [...src.matchAll(/pitch: ([\d.]+), rate: ([\d.]+)/g)].map((m) => m[0]);
+    expect(tones.length).toBe(2);
+    expect(tones[0]).not.toBe(tones[1]);
+    // Switching sound off stops a sentence in progress, spoken or played.
+    expect(src).toMatch(/hushVoice[\s\S]*cancel\(\)/);
   });
 });

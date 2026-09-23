@@ -11,6 +11,7 @@ import {
   RECRUIT_LOYALTY_WEIGHT,
   RECRUIT_MIN_SUPPORT,
   RECRUITER_ROLE,
+  RESEARCH_ROLES,
   SABOTAGE_BASE,
   ABDUCT_BASE,
   ABDUCT_RESIST_DIVISOR,
@@ -216,6 +217,25 @@ export function recruitPool(state: GameState, faction?: PlayableFaction): Charac
  */
 export function canRecruit(officer: Character): boolean {
   return Boolean(officer.roles?.includes(RECRUITER_ROLE));
+}
+
+/**
+ * The two roles that can put a fortnight into working something out.
+ *
+ * Sean, 23 September: *"Only a small number of units should be able to
+ * research. Like 4 max in game."* Research was open to anybody, which made it
+ * the errand with no cast to it — every officer was equally a scientist, and
+ * a side's whole research programme was whoever happened to be idle.
+ *
+ * So it belongs to the people the roster already says do it. **Drill
+ * Research** is the ground war — doctrine, drill, what a company is made of —
+ * and **Ship Design** is the water. Nine of the forty carry one, and a side
+ * seats four or five officers, so a war opens with one or two and rarely
+ * three: a small number, found rather than assumed, and four is about the
+ * ceiling once the recruits start arriving.
+ */
+export function canResearch(officer: Character): boolean {
+  return (officer.roles ?? []).some((r) => (RESEARCH_ROLES as readonly string[]).includes(r));
 }
 
 /**
@@ -730,7 +750,12 @@ export function missionsOffered(
   if (isRescueTarget(state, system, faction)) out.push('rescue');
   if (isAbductTarget(state, system, faction)) out.push('abduct');
   if (isCommandTarget(system, faction) && (!officer || canCommand(officer))) out.push('command');
-  if (isResearchTarget(state, system, faction)) out.push('research');
+  // Same shape as recruiting: asked of the island alone it stays on the list,
+  // because the chart's rings are about what an island is for. Asked with an
+  // officer it is theirs only if they are one of the few who can.
+  if (isResearchTarget(state, system, faction) && (!officer || canResearch(officer))) {
+    out.push('research');
+  }
   if (isDiplomacyTarget(system, faction)) out.push('diplomacy');
   if (isInciteTarget(system, faction)) out.push('incite');
   if (isSabotageTarget(system, faction)) out.push('sabotage');
@@ -1342,7 +1367,7 @@ export const MISSION_SETTLED_BY: Record<MissionType, string> = {
   espionage: 'Settled by Espionage · anywhere, including your own',
   abduct: 'Settled by Combat · wherever one of theirs is ashore',
   command: 'Settled by Leadership · any island of yours, or a squadron in its harbor',
-  research: 'Settled by Espionage · any island of yours with a shipyard',
+  research: 'Settled by Espionage · any island of yours with a shipyard · Drill Research or Ship Design only',
   rescue: 'Settled by Combat · wherever one of yours is held',
 };
 

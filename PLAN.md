@@ -9768,3 +9768,80 @@ The watermark glyph goes 34px to 46px on a 112px painting, at his word. Checked
 as a swatch painted into the live page, so the real tokens on the real
 background are what got judged rather than a guess at them: all five are legible
 and none reads as any other.
+
+### Research is a trade; the advisor gets a throat; seven sounds become seven
+
+Three notes from Sean on 23 September, and they are two different kinds of
+problem: one rule, and two things that were built, correct, and completely
+inaudible.
+
+**"Only a small number of units should be able to research. Like 4 max in
+game."** Research was the one mission with no gate on it — recruiting has
+wanted a **Recruiter** on the sheet since it was written, and research took
+whoever was idle. So it now wants **Drill Research** or **Ship Design**, which
+nine of the forty carry, and `RESEARCH_ROLES` sits in `constants.ts` beside
+`RECRUITER_ROLE` rather than in `missions.ts` because `galaxy.ts` needs it and
+cannot import from `missions.ts` without a cycle.
+
+Nine on the roster is not nine in the war, and that gap nearly shipped a much
+worse game than the one Sean asked for. `lab/scientists.ts` counts who actually
+turns up: with the gate and without a guarantee, **54% of sides opened with no
+researcher at all** — a third of the game removed by a shuffle, silently, with
+no message saying why the mission never appears. So `openingCast` gives the
+first of the drawn seats to somebody who can, and the numbers land where he
+asked:
+
+```
+empire    day one mean 1.04   1: 96%  2: 4%   (+2 findable in the pool)
+alliance  day one mean 1.04   1: 96%  2: 4%   (+2 findable in the pool)
+```
+
+One on day one, two when the draw is kind, four once the recruits have had a
+war to arrive in. Four is the ceiling rather than the lottery.
+
+Measured, because it is a rule change: 96 wars on seeds 8000 and 9000, against
+the same seeds with the gate off.
+
+```
+gate off   Crown 25 — Confederacy 70   (of 95 decided)
+gate on    Crown 28 — Confederacy 68   (of 96 decided)
+```
+
+Three wins on n≈95, where one SD is 4.87. It does not move the war, which is
+the answer a rule about *who* does a thing should give: both sides lost the
+same freedom. The 72% Confederate split is the standing question from the fleet
+cut and is untouched by this.
+
+**"I don't hear narrator voice."** He was right, and every test was passing:
+the manifest is written, 42 lines exist, the player works, and every line is
+`rendered: false` because no recording has been made — the voice settings in
+the world bible are blank and there is no key to render with. *Correct
+behaviour, and indistinguishable from broken from the sofa.* Which is the
+lesson worth keeping: a feature whose honest state is silence needs a way to
+tell silence from failure, or it will be reported as a bug by the person who
+asked for it.
+
+So the browser reads the written line instead — same manifest, same no-repeat
+rule, different throat, with the two advisors on different pitch and pace so
+they are still two people. A real recording always wins: the mp3 path returns
+before the fallback is reached, so the day `npm run voices` runs, nothing has
+to be unwired.
+
+**"I don't hear unique chimes depending on type of log note."** Also right, and
+the reason is legible in the old `play`: five of the seven kinds were a plain
+sine ping at 587, 659, 784 or the bed's root. On a phone speaker, over a drone,
+a sine at 659 and a sine at 784 are the same event — **pitch is the weakest
+thing to tell sounds apart by and it was doing all the work.** They are seven
+instruments now: a great bell for the war, a ship's bell for an island coming
+over, a drum roll and a sour note for a mutiny, guns for an action, a signal
+lamp for a mission report, a hammer for a finished order, and one falling tone
+for a loss.
+
+`chimes.test.ts` is the part that will keep it true: it reads the switch and
+fails if any two kinds are built from the same sequence of voices. It caught
+one on the first run — mutiny and loss were both `thud` + `slide`, differing
+only in numbers, which is exactly the bug — and mutiny became three beats
+quickening, a crew getting up rather than a thing going down.
+
+And the row name in the notification panel is now a button that plays its
+sound. Comparing two of them used to mean playing two wars.

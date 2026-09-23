@@ -1729,6 +1729,16 @@ export const RECRUIT_LOYALTY_WEIGHT = 0.25;
 export const RECRUIT_CEILING = 0.85;
 /** The role that may lead one. */
 export const RECRUITER_ROLE = 'Recruiter';
+
+/**
+ * The two roles that may lead a Research mission.
+ *
+ * Here beside `RECRUITER_ROLE` rather than in `missions.ts` because the
+ * opening draw reads it too — `openingCast` seats one of these on purpose —
+ * and `galaxy.ts` cannot import from `missions.ts` without closing a circle.
+ * See `canResearch` for what it is for.
+ */
+export const RESEARCH_ROLES = ['Drill Research', 'Ship Design'] as const;
 /*
  * Tried, and the most interesting thing cut all session.
  *

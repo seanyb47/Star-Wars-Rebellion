@@ -100,7 +100,8 @@
       "home": "Greenholm, Whalers' Reach",
       "roles": [
         "Negotiator",
-        "Leader"
+        "Leader",
+        "Ship Design"
       ],
       "bio": "Oversees the Leviathan's completion at Greenholm. Charming at dinner; has stopped sleeping.",
       "major": true,
@@ -231,7 +232,8 @@
       "home": "the Cinder Reach swamps",
       "roles": [
         "Spec Ops",
-        "General"
+        "General",
+        "Drill Research"
       ],
       "bio": "Bog-folk, and named off a Crown muster roll the way all of them in Crown service are — the name he was born with belonged to the man who owned him, so he gave it back and took the one the clerk wrote down. Runs the Admiralty's scouts and has never lost one. Speaks rarely, and when he does the Admiralty listens, because he has been right about ground for thirty years and has no interest at all in being right about anything else.",
       "look": "Wrinkled grey-green hide, webbed hands, an eye that closes sideways. Swamp leathers under a Crown-green sash, boots carried and not worn.",
@@ -498,7 +500,8 @@
       "home": "Coralhome, in the Coral Reach",
       "roles": [
         "Leader",
-        "Negotiator"
+        "Negotiator",
+        "Ship Design"
       ],
       "bio": "Grew four hulls in her life and lost three of them to licensing writs, and still opens every parley by asking after the other side's family. The best admiral the Confederacy has and the last of the Reef-folk old enough to remember the oar-benches from the inside, which she mentions to nobody and forgets in no room she is standing in.",
       "look": "Luminous eyes and gill-slits at the throat, skin going slate to bronze with her temper. A coral gorget grown rather than made, and a coat over it out of courtesy to the humans.",
@@ -696,7 +699,8 @@
         "leadership": 62
       },
       "roles": [
-        "Negotiator"
+        "Negotiator",
+        "Drill Research"
       ],
       "look": "Thin, stooped, spectacles mended with wire, a bag that is all he kept.",
       "temper": "Careful, curious, and incapable of not saying the thing that costs him the licence."
@@ -759,7 +763,8 @@
       },
       "roles": [
         "General",
-        "Spec Ops"
+        "Spec Ops",
+        "Drill Research"
       ],
       "look": "Wrinkled grey-green hide, webbed hands, a nictitating eye that closes sideways. Swamp leathers under a Crown-green sash that is the only Crown thing on him.",
       "temper": "Patient well past what most people mean by the word. Considers a battle fought in daylight to be a battle somebody else arranged."

@@ -344,22 +344,46 @@ export class AudioEngine {
     if (!ctx || ctx.state !== 'running' || !this.master || !this.reverb) return;
     const now = ctx.currentTime;
 
+    /*
+     * Seven sounds, and they have to be seven *instruments* rather than seven
+     * pitches.
+     *
+     * Sean, 23 September: *"I don't hear unique chimes depending on type of
+     * log note."* He was right and the reason is legible in the old code: five
+     * of the seven were plain sine pings at 587, 659, 784 and the bed's root.
+     * On a phone speaker, over a drone, a sine at 659 and a sine at 784 are
+     * the same event. Pitch is the weakest thing to tell sounds apart by, and
+     * it was doing all the work.
+     *
+     * So each one is now a different thing being struck: a bell, a signal
+     * lamp, a hammer, a drum, guns, and a sound that falls. Pitch still moves
+     * inside each, but the first eighth of a second says which it is.
+     */
     switch (kind) {
+      case 'war':
+        // The great bell. The only sound in the game that rings on, and the
+        // only one three notes long: the war starting or ending is the one
+        // thing worth stopping for.
+        [1, 1.5, 2].forEach((ratio, i) =>
+          this.ping(now + i * 0.2, this.current.root * 2 * ratio, 0.85, 1.9, 'triangle'),
+        );
+        break;
       case 'flip':
-        // Two rising notes: something came over to somebody.
-        this.ping(now, 587, 0.5, 0.16);
-        this.ping(now + 0.14, 880, 0.7, 0.14);
+        // A ship's bell, twice, rising: an island has come over. Bright,
+        // short, and finished before the great bell would have got going.
+        this.ping(now, 784, 0.8, 0.5, 'triangle');
+        this.ping(now + 0.13, 1175, 0.9, 0.55, 'triangle');
         break;
       case 'mutiny':
-        this.thud(now, 70, 0.9);
-        this.ping(now + 0.05, this.current.root * 1.0595, 0.6, 0.22, 'sawtooth');
-        break;
-      case 'order':
-        this.ping(now, 784, 0.45, 0.1);
-        break;
-      case 'mission':
-        this.ping(now, 659, 0.3, 0.09);
-        this.ping(now + 0.11, 659, 0.22, 0.09);
+        // A drum *roll* under a sour note. `loss` is also a drum and a falling
+        // tone, so a single beat would have made the two of them one sound in
+        // everything but the numbers — which is the whole complaint. Three
+        // beats quickening is a crew getting up, and one beat is a thing
+        // going down.
+        this.thud(now, 72, 0.7);
+        this.thud(now + 0.07, 68, 0.85);
+        this.thud(now + 0.12, 64, 1);
+        this.slide(now + 0.12, this.current.root * 1.06, 0.62, 0.5, 'sawtooth');
         break;
       case 'battle':
         // Guns. Two broadsides a beat apart, each a noise burst under a low
@@ -369,13 +393,26 @@ export class AudioEngine {
         this.gun(now, 0.9);
         this.gun(now + 0.26, 0.7, 0.86);
         break;
-      case 'loss':
-        this.thud(now, 96, 0.5);
+      case 'mission':
+        // A signal lamp: three fast square blips, high and clipped. This is
+        // somebody reporting in, and it should read as a message rather than
+        // as a note of music.
+        this.blip(now, 1568, 0.5);
+        this.blip(now + 0.08, 1568, 0.5);
+        this.blip(now + 0.16, 2093, 0.55);
         break;
-      case 'war':
-        [1, 1.5, 2].forEach((ratio, i) =>
-          this.ping(now + i * 0.18, this.current.root * 2 * ratio, 0.5, 0.9),
-        );
+      case 'order':
+        // A hammer on a hull: two dry knocks, low and wooden. The thing you
+        // ordered is finished, and it is the only sound in the set with no
+        // ring on it at all.
+        this.knock(now, 220, 0.75);
+        this.knock(now + 0.12, 165, 0.6);
+        break;
+      case 'loss':
+        // Something going down: a drum and a tone that falls a minor third
+        // and keeps falling. The only sound that ends lower than it began.
+        this.thud(now, 96, 0.7);
+        this.slide(now + 0.02, 392, 0.55, 0.85, 'triangle');
         break;
     }
   }
@@ -434,6 +471,85 @@ export class AudioEngine {
     noise.start(at);
     noise.stop(at + length);
     this.thud(at, 110 * pitch, level * 0.8);
+  }
+
+  /**
+   * A tone that bends away from where it started.
+   *
+   * `setValueAtTime` then an exponential ramp, rather than two pings: a slide
+   * is one continuous thing and two notes are two notes. Nothing else in the
+   * set does this, which is the point — a falling pitch is the fastest way to
+   * say "worse" without a word.
+   */
+  private slide(
+    at: number,
+    from: number,
+    level: number,
+    length: number,
+    type: OscillatorType = 'sine',
+  ): void {
+    const ctx = this.ctx!;
+    const osc = ctx.createOscillator();
+    osc.type = type;
+    osc.frequency.setValueAtTime(from, at);
+    osc.frequency.exponentialRampToValueAtTime(from * 0.63, at + length);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, at);
+    gain.gain.linearRampToValueAtTime(level * 0.26, at + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + length);
+    osc.connect(gain);
+    gain.connect(this.master!);
+    gain.connect(this.reverb!);
+    osc.start(at);
+    osc.stop(at + length + 0.05);
+  }
+
+  /** A signal lamp: a square wave clipped so short it has no pitch to speak of. */
+  private blip(at: number, freq: number, level: number): void {
+    const ctx = this.ctx!;
+    const osc = ctx.createOscillator();
+    osc.type = 'square';
+    osc.frequency.value = freq;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, at);
+    gain.gain.linearRampToValueAtTime(level * 0.12, at + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.055);
+    osc.connect(gain);
+    gain.connect(this.master!);
+    osc.start(at);
+    osc.stop(at + 0.08);
+  }
+
+  /**
+   * A hammer on a hull: a short tone with a click of noise on the front and
+   * no reverb at all, so it lands dry and in the room rather than out at sea.
+   */
+  private knock(at: number, freq: number, level: number): void {
+    const ctx = this.ctx!;
+    const length = 0.11;
+    const osc = ctx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, at);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.8, at + length);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, at);
+    gain.gain.linearRampToValueAtTime(level * 0.3, at + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + length);
+    osc.connect(gain);
+    gain.connect(this.master!);
+    osc.start(at);
+    osc.stop(at + length + 0.02);
+
+    const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.02), ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+    const click = ctx.createBufferSource();
+    click.buffer = buffer;
+    const clickGain = ctx.createGain();
+    clickGain.gain.value = level * 0.1;
+    click.connect(clickGain);
+    clickGain.connect(this.master!);
+    click.start(at);
   }
 
   private thud(at: number, freq: number, level: number): void {

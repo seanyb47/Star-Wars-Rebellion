@@ -15,6 +15,7 @@ import {
   watchOf,
   CAPITAL_WALLS,
   CROWN_PRINCIPALS,
+  RESEARCH_ROLES,
   HOME_PORT_WALLS,
   CAPITAL_GARRISON,
   START_GARRISON_MAX,
@@ -400,7 +401,30 @@ function openingCast(faction: PlayableFaction, rng: Rng) {
     (e) => PIRATE_LORDS.some((l) => l.name === e.name) || CROWN_PRINCIPALS.includes(e.name),
   );
   const rest = roster.filter((e) => !bound.includes(e));
-  const drawn = rng.shuffle(rest).slice(0, Math.max(0, START_CHARACTERS[faction] - bound.length));
+  const want = Math.max(0, START_CHARACTERS[faction] - bound.length);
+  /*
+   * One of the drawn can research, guaranteed.
+   *
+   * Sean, 23 September: *"Only a small number of units should be able to
+   * research. Like 4 max in game."* Nine of the forty carry a research role
+   * and none of the bound five do, so a straight draw of two left **54% of
+   * sides with nobody who could research at all** — measured over 300 worlds
+   * before this line went in. A side that cannot research never builds a
+   * better hull, never raises a research troop and never puts up a Heavy
+   * Fortress, for the whole war, because of the shuffle.
+   *
+   * That is not a small number, it is a coin flip on whether a third of the
+   * game exists. So the first seat goes to somebody who can, and the rest are
+   * drawn as before: one on day one, two when the draw is kind, and four once
+   * the recruits have had a war to arrive in. Which is the number he asked
+   * for, and it is a ceiling rather than a lottery.
+   */
+  const bag = rng.shuffle(rest);
+  const scholar = bag.find((e) => (e.roles ?? []).some((r) => RESEARCH_ROLES.includes(r as never)));
+  const drawn =
+    want > 0 && scholar
+      ? [scholar, ...bag.filter((e) => e !== scholar)].slice(0, want)
+      : bag.slice(0, want);
   const taken = new Set([...bound, ...drawn].map((e) => e.name));
   // Back into the bible's order afterwards, so the crew list reads as a roster
   // and not as the order they happened to come out of the bag.

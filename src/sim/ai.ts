@@ -104,6 +104,7 @@ import {
   quality,
   recruitChance,
   canRecruit,
+  canResearch,
   canRecruitAt,
   startMission,
   captiveOn,
@@ -1167,7 +1168,8 @@ function aiMission(state: GameState, ai: PlayableFaction): void {
     // trusting the ranking is what stops the pass naming an errand and then
     // handing it to somebody the rules will refuse — which spends the island
     // and the tick and starts nothing.
-    const fit = type === 'recruit' ? able.filter(canRecruit) : able;
+    const fit =
+      type === 'recruit' ? able.filter(canRecruit) : type === 'research' ? able.filter(canResearch) : able;
     if (fit.length === 0) continue;
     const officer = fit.sort(
       (a, b) => b[rating] - a[rating] || near(b) - near(a),
