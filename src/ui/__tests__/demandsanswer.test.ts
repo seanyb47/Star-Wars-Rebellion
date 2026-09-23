@@ -34,7 +34,11 @@ describe('a sheet that demands an answer', () => {
     expect(orders.length, "handlers wired to choose('return')").toBe(1);
     expect(APP).toContain("onClick={() => choose('return')}");
     expect(APP).toContain("onClose={() => {}}");
-    expect(APP).toMatch(/demands=\{`\$\{character\.name\} is waiting on your word\.`\}/);
+    // That it *demands* an answer, not what the demand says. The wording
+    // changed on 23 September — Sean: *"Just say the type of mission and
+    // result. Bottom line up front no fluff"* — and pinning the sentence made
+    // a copy edit look like a safety regression.
+    expect(APP).toMatch(/demands=["`{]/);
   });
 
   it('withholds the cross and the scrim when a sheet demands one', () => {

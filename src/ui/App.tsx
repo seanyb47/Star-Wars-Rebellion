@@ -12,6 +12,7 @@ import {
   loadGame,
   newGame,
   orderBuild,
+  MISSION_LOG_LABEL,
   missionReport,
   resolvePendingMission,
   saveGame,
@@ -1362,10 +1363,26 @@ function MissionDecisionSheet({
     onResolve(resolvePendingMission(state, character.id, choice).state);
   };
 
+  /*
+   * The mission and the verdict, in the title, before anything else.
+   *
+   * Sean, 23 September, looking at a card headed *"Imperator Cassian Thorne
+   * reports"* over the sentence *"The table on Highwater was worth keeping:
+   * somebody worth having has signed"*: **"This is so confusing. I have no
+   * idea what this is for. Recruitment? Just say the type of mission and
+   * result. Bottom line up front no fluff."**
+   *
+   * He is right, and the fault was the header: every errand in the game
+   * reported under the same four words, so the only thing telling you which
+   * errand this was — and whether it had worked — was a sentence written to
+   * be atmospheric. The officer's name is not the news. The news is *Recruit*
+   * and *success*, and they go where the eye lands first.
+   */
+  const type = character.mission?.type ?? 'diplomacy';
   return (
     <Sheet
-      title={`${character.name} reports`}
-      subtitle={`${system.name} · Day ${state.day}`}
+      title={`${MISSION_LOG_LABEL[type]} — ${decision.success ? 'success' : 'no result'}`}
+      subtitle={`${character.name} · ${system.name} · Day ${state.day}`}
       /*
        * No close at all, because both buttons are orders and the sheet used
        * to have a third one hidden on the scrim. `onClose` was `choose('return')`
@@ -1376,11 +1393,15 @@ function MissionDecisionSheet({
        * it takes orders they did not give.
        */
       onClose={() => {}}
-      demands={`${character.name} is waiting on your word.`}
+      /* The line under the buttons says what the choice *is*, rather than
+         repeating the name already in the subtitle. And "Set sail" was the
+         same class of label as "go there": it reads as beginning a voyage
+         when what it does is end the errand and bring the officer home. */
+      demands="Keep them at it, or bring them home?"
       actions={
         <>
           <button className="btn btn--flex" onClick={() => choose('return')}>
-            Set sail
+            Bring them home
           </button>
           <button className="btn btn--flex btn--primary" onClick={() => choose('continue')}>
             Stay 15 more days
@@ -1388,17 +1409,14 @@ function MissionDecisionSheet({
         </>
       }
     >
-      <p style={{ marginTop: 0 }}>
-        {missionReport(
-          character.mission?.type ?? 'diplomacy',
-          decision.success,
-          system.name,
-        )}
-      </p>
+      {/* One line of what actually happened, under the verdict rather than
+          instead of it. The detail that matters most — who signed, what
+          burned — is its own line in the Log and names names. */}
+      <p style={{ marginTop: 0 }}>{missionReport(type, decision.success, system.name)}</p>
       {/* The allegiance row belongs to the two errands that move allegiance.
           On a sabotage or a survey it was three numbers that had not changed
           and had nothing to do with what the officer just did. */}
-      {(character.mission?.type === 'diplomacy' || character.mission?.type === 'incite') && (
+      {(type === 'diplomacy' || type === 'incite') && (
         <div className="card row" style={{ gap: 18 }}>
           <Stat label={factionData.empire.shortName} value={Math.round(system.support.empire)} />
           <Stat label={factionData.alliance.shortName} value={Math.round(system.support.alliance)} />
