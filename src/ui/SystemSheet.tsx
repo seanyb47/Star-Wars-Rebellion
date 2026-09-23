@@ -948,7 +948,7 @@ export function SystemSheet({
         </div>
       }
       tabs={
-        <div className="tabs" role="tablist">
+        <div className="tabs" data-tour="island-tabs" role="tablist">
           {tabs.map((entry) => (
             <button
               key={entry.id}

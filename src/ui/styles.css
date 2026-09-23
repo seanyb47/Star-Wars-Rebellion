@@ -2054,6 +2054,27 @@ button.tcard:hover { border-color: var(--brass); }
    A card at the foot of the screen, over the chart's own strip. Everything
    behind it stays live on purpose: a player who ignores this and starts
    tapping loses nothing, which is what most people do. */
+/* ---------- The tour's spotlight ----------
+   Four dim panels around the target rather than one sheet over it, so the
+   control the tour is pointing at is still live and still the control: the
+   tap it asks for is the same tap the game already answers. The ring is
+   `pointer-events: none` for the same reason — it is a drawing, not a door. */
+.tour { position: fixed; inset: 0; z-index: 58; pointer-events: none; }
+.tour__dim { position: absolute; background: rgba(4, 12, 18, 0.72); transition: none; }
+.tour__ring {
+  position: absolute; border-radius: 12px; pointer-events: none;
+  border: 2px solid var(--metal-hi);
+  box-shadow: 0 0 0 1px rgba(4, 12, 18, 0.8), 0 0 22px 4px color-mix(in srgb, var(--metal) 45%, transparent);
+  animation: tour-pulse 1.9s ease-in-out infinite;
+}
+@keyframes tour-pulse {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tour__ring { animation: none; }
+}
+
 .teach {
   position: fixed; left: 10px; right: 10px; z-index: 60;
   bottom: calc(var(--safe-bottom) + 68px);

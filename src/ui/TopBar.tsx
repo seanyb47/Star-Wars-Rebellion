@@ -237,6 +237,7 @@ export function TopBar({
           * day: one word per idea, and the chart filter already had it.
           */}
         <button
+          data-tour="purse"
           className={`plaque plaque--gold plaque--tap${purseOpen ? ' plaque--open' : ''}`}
           onClick={() => setPurseOpen((was) => !was)}
           aria-expanded={purseOpen}
@@ -256,6 +257,7 @@ export function TopBar({
         </button>
         <span className="topbar__spacer" />
         <button
+          data-tour="clock"
           className={`speed${running ? ' speed--running' : ''}`}
           onPointerDown={startPress}
           onPointerUp={endPress}

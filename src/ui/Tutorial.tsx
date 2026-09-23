@@ -1,18 +1,13 @@
-import { useEffect, useState } from 'react';
-import factionData from '../data/factions.json';
-import reachData from '../data/reaches.json';
-import terms from '../data/terms.json';
-import { numberWord } from './words';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import tutorialData from '../data/tutorial.json';
 import { CROWN_PRINCIPALS, PIRATE_LORDS, type PlayableFaction } from '../sim';
 
 /**
  * Bumped when the tutorial is rewritten, so people who skipped the old one see
- * the new. v3 on 22 September, because the "How you win" card had been telling
- * both sides that Highwater ends the war that day and that has not been the
- * rule since 21 September. Somebody who read the wrong one is owed the right
- * one, which is the whole reason this key has a number on it.
+ * the new. v4 on 23 September, when it stopped being seven cards about the
+ * game and became a tour of it.
  */
-const DONE_KEY = 'seven-seas.taught.v3';
+const DONE_KEY = 'seven-seas.taught.v4';
 
 export function alreadyTaught(): boolean {
   try {
@@ -23,93 +18,76 @@ export function alreadyTaught(): boolean {
 }
 
 /**
- * How to play, in the shape of the original's manual: what this is, how it
- * ends, and then the handful of things on screen and what each is for.
+ * A tour of the interface, over the live game.
  *
- * Seven short cards, down from twelve on 19 September. Sean: *"Update tutorial
- * also when you have time. Doesn't need to be rules crazy. Just show a newbie
- * how to play."* The twelve were trying to teach the game — allegiance bands,
- * what each filter draws, what a Fort is against a Boom — which is a manual,
- * and the game now has one: the Book holds every unit, a Rules page opening
- * with how to win, and a Glossary. So these teach the *loop* and nothing else.
- * Open an island, send somebody, build something, start the clock, read the
- * Log — and the last card says where the rest is rather than being it.
+ * Sean, 23 September: *"The tutorial stays on one screen. It needs to walk you
+ * through various screens ideally asking you to click on things. Imagine it
+ * like someone showing you a tour of the UI."*
  *
- * It never blocks the game. The card sits over the chart's own strip, the rest
- * of the interface stays live, and Skip is always there. It can be reopened
- * from the menu as "How to play".
+ * It was seven paragraph cards in one place, describing screens the player
+ * could not see while reading about them — which is a manual with a Next
+ * button, and the game already has a manual. This points instead: a hole cut
+ * in a dimmed screen around one real control, a card beside it saying what
+ * that control is, and — on most steps — *tapping the control itself* is what
+ * moves the tour on. So the map step opens a chain, the island step opens an
+ * island, and by the tab steps the player has already done the loop once.
+ *
+ * Four rules hold it together:
+ *
+ * 1. **The target stays live.** The dim is four rectangles around the thing,
+ *    not a sheet over it, so the tap the tour is asking for is the same tap
+ *    the game already answers. Nothing is simulated and nothing is blocked.
+ * 2. **A step with no target on screen is skipped.** That is what lets the
+ *    tour walk through sheets without knowing whether the player followed it,
+ *    and what makes a rearranged screen degrade the tour instead of breaking
+ *    it. `docs/opening-flow.md` asked for exactly this.
+ * 3. **Skip is on every step**, including the last, and Next is always there
+ *    for somebody who would rather read than tap.
+ * 4. **The card never covers its own target.** It sits below the thing when
+ *    the thing is in the top half of the screen, and above it otherwise.
  */
-const ISLANDS = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
+type Step = {
+  id: string;
+  target: string | null;
+  tap?: boolean;
+  title: string;
+  body?: string;
+  byFaction?: Record<string, string>;
+};
+const STEPS = (tutorialData as { steps: Step[] }).steps;
 
-const STEPS: Array<{ title: string; body: (side: PlayableFaction) => string }> = [
-  {
-    title: 'What this is',
-    body: (side) => {
-      const you = factionData[side];
-      const them = factionData[side === 'empire' ? 'alliance' : 'empire'];
-      return `A war for ${numberWord(ISLANDS)} islands. You command the ${you.name}; ${them.name} wants what you have. You give orders and the days pass — nobody moves faster than a ship can sail.`;
-    },
-  },
-  /*
-   * Rewritten 22 September, because both halves of it were false.
-   *
-   * It told the Crown *"lose Highwater and you lose the war that day"* and the
-   * Confederacy *"take Highwater and the war is over that day"*, and neither
-   * has been true since the two-principals rule of 21 September. Taking the
-   * capital is how the Confederacy usually wins — the Imperator is standing on
-   * it — but it has to actually catch both of them, and a Grand Admiral who
-   * sailed the week before is a Grand Admiral still to be found.
-   *
-   * The other session's `tutorial.json` carries the replacement copy and flags
-   * this as *"the single most misleading sentence in the game"*. This is that
-   * copy, with one correction to it: it says the two are *both* on Highwater,
-   * and `lab/principals.ts` says they open on the same quay in 11% of worlds —
-   * the Imperator always there and the Grand Admiral anywhere. So the sentence
-   * says where each of them is rather than claiming they are together.
-   *
-   * Rule 5 of `docs/opening-flow.md`: nothing in the flow may lie about a
-   * rule, because a tutorial is the one place a player has no way to know they
-   * are being told something stale.
-   */
-  {
-    title: 'How you win',
-    body: (side) =>
-      side === 'empire'
-        ? `Have all three Pirate Lords — ${PIRATE_LORDS.map((l) => l.name).join(', ')} — in irons at the same time. They are people, so you take one by carrying them off a quay, and holding two is worth nothing if the third is still at sea. You lose if the Confederacy takes the Imperator and ${CROWN_PRINCIPALS[1]} together.`
-        : `Take the young Imperator and Grand Admiral Corvane and hold them at the same time. The Imperator is on Highwater, the Crown's walled capital on the Aldermain, which is why every war ends up there — but the Grand Admiral is somewhere else, and two out of two is the whole of the condition. You lose if the Crown gets all three of your Pirate Lords in irons at once, so keep them apart.`,
-  },
-  {
-    title: 'Tap an island',
-    body: () =>
-      `The ${terms.worldMap} shows the chains. Tap one to open it, tap an island inside it to open the ${terms.island.toLowerCase()}. Everything you can do to a place is on the tabs there: who is in the harbor, who is ashore, what is built, and how many ${terms.troops.toLowerCase()} hold it.`,
-  },
-  {
-    title: 'Send your crew',
-    body: () =>
-      `${terms.crew} are how the map changes. Open one from the Crew tab at the foot, press Assign ${terms.errand}, choose an island, and it offers what can be done there — talk the island round, recruit, chart the unknown, spy, or take command. Then they sail, and it takes as long as the distance.`,
-  },
-  {
-    title: 'Build and earn',
-    body: () =>
-      'Buildings are raised on the island itself, from its Buildings tab — anywhere you hold with a berth free and the gold to pay for it. A Shipyard lays down hulls, a Barracks raises troops, a Gold Mine and a Lumber Mill pay for it. The gold at the top is what you make a day after upkeep — keep it above nothing, and keep your yards working.',
-  },
-  {
-    title: 'Start the clock',
-    body: () =>
-      'Nothing happens while it says Paused. Start it and the days turn on their own. Passages take weeks, missions a fortnight ashore, hulls months — so set things going, let it run, and read the Log to find out what happened while you were away.',
-  },
-  {
-    title: 'The rest is in the Book',
-    body: () =>
-      'Nothing here is hidden. The Book at the foot holds every ship, crew member, troop, building and island in the game, a Rules page that opens with how to win, and a Glossary for any word you have not met. Wherever a screen could use a footnote it shows a small \u2139 that takes you straight to it.',
-  },
-];
+/** The card's own height, near enough, for deciding which side of the target it goes. */
+const CARD_H = 190;
+const RING_PAD = 8;
+
+function bodyFor(step: Step, side: PlayableFaction): string {
+  const text = step.byFaction?.[side] ?? step.body ?? '';
+  // The one step that names people names them off the constants, so the copy
+  // cannot drift from the roster the way the old "How you win" card did.
+  if (step.id !== 'win') return text;
+  const names =
+    side === 'empire' ? PIRATE_LORDS.map((l) => l.name).join(', ') : CROWN_PRINCIPALS.join(' and ');
+  return text.replace(
+    side === 'empire' ? 'all three Pirate Lords' : 'the young Imperator and Grand Admiral Corvane',
+    side === 'empire' ? `all three Pirate Lords — ${names} —` : names,
+  );
+}
+
+/** Where the thing is, or null if it is not on screen. */
+function boxOf(target: string | null): DOMRect | null {
+  if (!target) return null;
+  const el = document.querySelector(`[data-tour="${target}"]`);
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  return r.width > 0 && r.height > 0 ? r : null;
+}
 
 export function Tutorial({ side, onDone }: { side: PlayableFaction; onDone: () => void }) {
   const [step, setStep] = useState(0);
   const [leaving, setLeaving] = useState(false);
+  const [box, setBox] = useState<DOMRect | null>(null);
 
-  const finish = () => {
+  const finish = useCallback(() => {
     setLeaving(true);
     try {
       localStorage.setItem(DONE_KEY, 'yes');
@@ -117,52 +95,162 @@ export function Tutorial({ side, onDone }: { side: PlayableFaction; onDone: () =
       /* storage may be unavailable; it will simply be offered again */
     }
     window.setTimeout(onDone, 180);
-  };
+  }, [onDone]);
 
-  // Escape gets rid of it, the same as the skip.
+  /**
+   * On to the next step that has something to point at.
+   *
+   * Written as a search rather than an increment because rule 2 is the whole
+   * reason this works: three of the ten steps live inside sheets the player
+   * may never open, and a tour that stalled on one of them pointing at
+   * nothing would be worse than no tour.
+   */
+  const advance = useCallback(
+    (from: number) => {
+      for (let i = from + 1; i < STEPS.length; i++) {
+        if (STEPS[i].target === null || boxOf(STEPS[i].target)) {
+          setStep(i);
+          return;
+        }
+      }
+      finish();
+    },
+    [finish],
+  );
+
+  const it = STEPS[step];
+
+  /*
+   * Follow the target. A sheet opening, a list scrolling and the keyboard
+   * arriving all move it, and a ring left behind where a control used to be
+   * is worse than no ring — so this re-measures on a frame loop while the
+   * step is up. Cheap: one `getBoundingClientRect` per frame on one element.
+   */
+  useEffect(() => {
+    let live = true;
+    const tick = () => {
+      if (!live) return;
+      const next = boxOf(it.target);
+      setBox((was) =>
+        was && next && was.top === next.top && was.left === next.left && was.width === next.width
+          ? was
+          : next,
+      );
+      window.requestAnimationFrame(tick);
+    };
+    tick();
+    return () => {
+      live = false;
+    };
+  }, [it.target]);
+
+  /*
+   * Tapping the thing is what moves the tour on, where the step says so.
+   *
+   * Listened for on the way *down* and on the document, so the game's own
+   * handler still runs and the tour is never in the way of it: the tap opens
+   * the chain, and the tour notices that it did. A frame's delay before
+   * advancing lets the screen change first, so the next step measures what is
+   * actually there rather than what was.
+   */
+  const stepRef = useRef(step);
+  stepRef.current = step;
+  useEffect(() => {
+    if (!it.tap || !it.target) return;
+    const onDown = (e: Event) => {
+      const el = document.querySelector(`[data-tour="${it.target}"]`);
+      if (!el || !(e.target instanceof Node) || !el.contains(e.target)) return;
+      window.setTimeout(() => advance(stepRef.current), 260);
+    };
+    document.addEventListener('pointerdown', onDown, true);
+    return () => document.removeEventListener('pointerdown', onDown, true);
+  }, [it.tap, it.target, advance]);
+
+  // Escape gets rid of it, the same as Skip.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') finish();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  });
+  }, [finish]);
 
   const last = step === STEPS.length - 1;
-  const it = STEPS[step];
+  // Below the target when the target is up top, above it when it is not. The
+  // no-target step sits where the old card sat, above the console.
+  const below = box !== null && box.top < window.innerHeight / 2;
+  const style: React.CSSProperties = box
+    ? below
+      ? { top: Math.min(box.bottom + 14, window.innerHeight - CARD_H), bottom: 'auto' }
+      : { bottom: Math.max(window.innerHeight - box.top + 14, 12), top: 'auto' }
+    : {};
 
   return (
-    <div className={`teach${leaving ? ' teach--out' : ''}`} role="dialog" aria-label="How to play">
-      <div className="teach__pips" aria-hidden="true">
-        {STEPS.map((_, i) => (
-          <span key={i} className={i === step ? 'teach__pip teach__pip--on' : 'teach__pip'} />
-        ))}
-      </div>
-      <div className="teach__kicker">How to play · {step + 1} of {STEPS.length}</div>
-      <h3 className="teach__title serif">{it.title}</h3>
-      <p className="teach__body">{it.body(side)}</p>
-      <div className="teach__row">
-        {/*
-          Skip is on every step including the last. It used to render an empty
-          label there and leave a live 44px button with nothing drawn in it —
-          an invisible control that closed the tutorial if you happened to
-          press where it was.
-        */}
-        <button className="teach__skip" onClick={finish}>
-          Skip
-        </button>
-        {step > 0 && (
-          <button className="teach__back" onClick={() => setStep(step - 1)}>
-            Back
+    <>
+      {/* The hole. Four panels around the target rather than one sheet over
+          it, so the control the tour is pointing at is still the control. */}
+      {box && (
+        <div className="tour" aria-hidden="true">
+          <div className="tour__dim" style={{ top: 0, left: 0, right: 0, height: Math.max(0, box.top - RING_PAD) }} />
+          <div className="tour__dim" style={{ top: Math.max(0, box.bottom + RING_PAD), left: 0, right: 0, bottom: 0 }} />
+          <div
+            className="tour__dim"
+            style={{ top: Math.max(0, box.top - RING_PAD), left: 0, width: Math.max(0, box.left - RING_PAD), height: box.height + RING_PAD * 2 }}
+          />
+          <div
+            className="tour__dim"
+            style={{ top: Math.max(0, box.top - RING_PAD), left: box.right + RING_PAD, right: 0, height: box.height + RING_PAD * 2 }}
+          />
+          <div
+            className="tour__ring"
+            style={{
+              top: box.top - RING_PAD,
+              left: box.left - RING_PAD,
+              width: box.width + RING_PAD * 2,
+              height: box.height + RING_PAD * 2,
+            }}
+          />
+        </div>
+      )}
+
+      <div
+        className={`teach${leaving ? ' teach--out' : ''}${box ? ' teach--pointing' : ''}`}
+        style={style}
+        role="dialog"
+        aria-label="How to play"
+      >
+        <div className="teach__pips" aria-hidden="true">
+          {STEPS.map((_, i) => (
+            <span key={i} className={i === step ? 'teach__pip teach__pip--on' : 'teach__pip'} />
+          ))}
+        </div>
+        <div className="teach__kicker">
+          How to play · {step + 1} of {STEPS.length}
+        </div>
+        <h3 className="teach__title serif">{it.title}</h3>
+        <p className="teach__body">{bodyFor(it, side)}</p>
+        <div className="teach__row">
+          {/* On every step including the last: it used to render an empty
+              label there and leave a live 44px button with nothing in it. */}
+          <button className="teach__skip" onClick={finish}>
+            Skip
           </button>
-        )}
-        <button
-          className="btn btn--primary teach__next"
-          onClick={() => (last ? finish() : setStep(step + 1))}
-        >
-          {last ? 'Take the helm' : 'Next'}
-        </button>
+          {step > 0 && (
+            <button className="teach__back" onClick={() => setStep(step - 1)}>
+              Back
+            </button>
+          )}
+          <button
+            className="btn btn--primary teach__next"
+            onClick={() => (last ? finish() : advance(step))}
+          >
+            {/* Plain, on the same note Sean struck about "go there" and
+                "carry on": the last button in a tutorial should say what
+                happens next, not be the best line in it. */}
+            {last ? 'Start playing' : 'Next'}
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

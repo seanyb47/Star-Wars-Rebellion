@@ -181,7 +181,7 @@ export function Info({
   if (!lookUp) return null;
   if (!children) {
     return (
-      <button className="infodot" onClick={() => lookUp(to, at)} aria-label={label} title={label}>
+      <button className="infodot" data-tour="info" onClick={() => lookUp(to, at)} aria-label={label} title={label}>
         <Icon name="info" size={17} />
       </button>
     );

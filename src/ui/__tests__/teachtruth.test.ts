@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import tutorial from '../../data/tutorial.json';
 import { CROWN_PRINCIPALS, PIRATE_LORDS } from '../../sim';
 
 /**
@@ -28,6 +29,18 @@ const RAW = import.meta.glob('../Tutorial.tsx', {
 
 const SOURCE = RAW['../Tutorial.tsx'];
 
+/*
+ * The copy moved out of the component on 23 September, when the tutorial
+ * became a tour: the steps are `tutorial.json` now and the component is the
+ * spotlight that points at things. So the sentence this test is about is read
+ * from the data, and the one thing still checked in the source is that the
+ * names come off the constants rather than being typed out again.
+ */
+type Step = { id: string; title: string; body?: string; byFaction?: Record<string, string> };
+const STEPS = (tutorial as { steps: Step[] }).steps;
+const WIN = STEPS.find((s) => s.id === 'win')!;
+const WIN_TEXT = Object.values(WIN.byFaction ?? {}).join(' ');
+
 const ALMANAC = import.meta.glob('../Almanac.tsx', {
   query: '?raw',
   import: 'default',
@@ -42,11 +55,8 @@ const START = import.meta.glob('../StartScreen.tsx', {
 
 /** Just the card, so a mention of Highwater elsewhere is not a false alarm. */
 function winCard(): string {
-  const start = SOURCE.indexOf("title: 'How you win'");
-  expect(start).toBeGreaterThan(-1);
-  const end = SOURCE.indexOf('  },', start);
-  // As above: the card's own comment quotes the wording it replaced.
-  return SOURCE.slice(start, end).replace(/\/\*[\s\S]*?\*\//g, '');
+  expect(WIN).toBeTruthy();
+  return WIN_TEXT;
 }
 
 describe('the tutorial tells the truth about winning', () => {
@@ -60,14 +70,14 @@ describe('the tutorial tells the truth about winning', () => {
 
   it('states both of the conditions the rules actually check', () => {
     const card = winCard();
-    // The Crown's: all three Lords at once. The `PIRATE_LORDS` interpolation
-    // is what names them, so the card cannot drift out of step with the roster.
-    expect(card).toMatch(/PIRATE_LORDS/);
     expect(card).toMatch(/three Pirate Lords/);
     expect(card).toMatch(/at the same time|at once/);
-    // The Confederacy's: both Crown principals, together.
-    expect(card).toMatch(/CROWN_PRINCIPALS|Corvane/);
+    expect(card).toMatch(/Corvane/);
     expect(card).toMatch(/Imperator/);
+    // And the names are filled in from the rosters rather than typed out
+    // twice, which is what stopped this card drifting the first time.
+    expect(SOURCE).toMatch(/PIRATE_LORDS/);
+    expect(SOURCE).toMatch(/CROWN_PRINCIPALS/);
   });
 
   it('is describing a pair and a trio, which is what the rules count', () => {

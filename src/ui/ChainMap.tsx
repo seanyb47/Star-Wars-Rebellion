@@ -409,6 +409,9 @@ export function ChainMap({
         return (
           <g
             key={system.id}
+            // The tutorial points at the first island in the chain and asks
+            // you to open it. Only the first: a tour points at one thing.
+            data-tour={index === 0 ? 'island' : undefined}
             className="chainmap__isle"
             onClick={live ? () => onOpenIsland(system.id) : undefined}
             role="button"

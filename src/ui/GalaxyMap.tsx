@@ -405,7 +405,7 @@ export function GalaxyMap({
 
   return (
     <>
-      <div className="map__scroll" ref={frame}>
+      <div className="map__scroll" data-tour="map" ref={frame}>
       <svg
         className={ground ? 'map map--painted' : 'map'}
         viewBox={`0 0 ${CHART_W} ${viewH}`}

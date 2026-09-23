@@ -82,14 +82,20 @@ function TabIcon({ id }: { id: Slot }) {
  * advisor answers "who is free" with a tappable list, and the encyclopedia
  * holds the whole cast A-Z.
  */
-const SLOTS: Array<{ id: Slot; label: string }> = [
-  { id: 'galaxy', label: terms.tabs.map },
-  { id: 'build', label: terms.tabs.build },
+/**
+ * `tour` is the name the tutorial points at, written out rather than derived
+ * from the slot id: two of the four differ from it, and a tour step whose
+ * target does not exist is skipped *silently*, so a name that drifts here
+ * would take a step out of the tutorial and say nothing about it.
+ */
+const SLOTS: Array<{ id: Slot; label: string; tour: string }> = [
+  { id: 'galaxy', label: terms.tabs.map, tour: 'map-tab' },
+  { id: 'build', label: terms.tabs.build, tour: 'build' },
   // Sean, 16 September: *"Move encyclopedia to bottom utility bar left of
   // log."* It was an icon in the top rail, where it sat between the clock and
   // the volume and read as a setting rather than as somewhere to go.
-  { id: 'almanac', label: 'Book' },
-  { id: 'feed', label: terms.tabs.feed },
+  { id: 'almanac', label: 'Book', tour: 'book' },
+  { id: 'feed', label: terms.tabs.feed, tour: 'log' },
 ];
 
 export function TabBar({
@@ -147,12 +153,13 @@ export function TabBar({
   }, []);
 
   return (
-    <nav className="tabbar" ref={bar}>
+    <nav className="tabbar" data-tour="tabbar" ref={bar}>
       {SLOTS.map((entry) => {
         const active = entry.id === 'almanac' ? bookOpen : tab === entry.id;
         return (
         <button
           key={entry.id}
+          data-tour={entry.tour}
           className={`tab${active ? ' tab--active' : ''}`}
           onClick={() =>
             entry.id === 'almanac' ? onOpenAlmanac() : onChange(entry.id as Tab)
@@ -175,6 +182,7 @@ export function TabBar({
         advisor stands on it.
       */}
       <button
+        data-tour="advisor"
         className="advisor"
         onClick={onAskAdvisor}
         aria-label={`Ask ${NARRATOR[player].name}`}
