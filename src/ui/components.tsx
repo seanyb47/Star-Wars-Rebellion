@@ -834,6 +834,7 @@ export function Slot({
   name,
   note,
   tone,
+  mission,
   onClick,
   onLookUp,
   label,
@@ -868,6 +869,26 @@ export function Slot({
    * name. One word, one language.
    */
   tone?: 'warn' | 'dim' | 'lord';
+  /**
+   * Out on a mission: the whole treatment in one prop.
+   *
+   * Sean, 24 September: *"Maybe we can do something to better display people
+   * on mission. Like shrink their portrait. Add a color border corresponding
+   * to the mission type... And add on bottom 'On Mission: [Mission Type]'."*
+   *
+   * It had been a grey line under the name reading "Parley 12d", which is the
+   * same shape as every other thing a tile can say and so said nothing at a
+   * glance. Three cues instead of one, and the reason they work together:
+   * **the rim** is the colour of that kind of work, so a board of six answers
+   * *what is everyone doing* before you read a word; **the smaller portrait**
+   * makes room for the label and reads as away rather than here, which is the
+   * fact the board is actually about; and **the label** carries the truth,
+   * because a colour nobody has learned yet is decoration.
+   *
+   * One prop and not three, so a tile cannot end up with the rim of one
+   * mission and the name of another.
+   */
+  mission?: { label: string; tint: string; days: number };
   onClick?: () => void;
   /**
    * Look this unit up in the encyclopedia.
@@ -895,18 +916,41 @@ export function Slot({
   const drag = useHoldDrag(order);
   const className = `slot${art ? ' slot--art' : ''}${tone ? ` slot--${tone}` : ''}${
     tap ? ' slot--tap' : ''
-  }${drag.held ? ' slot--held' : ''}`;
+  }${drag.held ? ' slot--held' : ''}${mission ? ' slot--away' : ''}`;
   // The lift, inline rather than in the stylesheet, because only the running
   // gesture knows where the finger is. The scale rides along with it so the
   // two do not fight over the same property.
   const lift = drag.shift
     ? { transform: `translate(${drag.shift.x}px, ${drag.shift.y}px) scale(1.06)` }
     : undefined;
+  // The mission's colour, handed to the stylesheet as a variable so the rim,
+  // the wash behind the label and anything later can all read the one value.
+  const paint = mission
+    ? ({ ...lift, ['--away' as string]: mission.tint } as React.CSSProperties)
+    : lift;
   const body = (
     <>
       {art ? <span className="slot__art">{art}</span> : <span className="slot__icon">{icon}</span>}
       <span className="slot__name">{name}</span>
-      {note && <span className="slot__note">{note}</span>}
+      {mission ? (
+        /* The rim is set inline because the colour is the mission's, and the
+           stylesheet has no way to know which mission this tile is about. */
+        /* Two lines, which is what Sean asked for — "On Mission:" over the
+           kind of work. The days ride on the second line rather than taking a
+           third: a tile is two rows and a sliver of a third on the board, and
+           every line here is a line off that budget. */
+        <span className="slot__away">
+          <span className="slot__away-head">On mission</span>
+          <span className="slot__away-line">
+            <b className="slot__away-what" style={{ color: mission.tint }}>
+              {mission.label}
+            </b>
+            <span className="slot__away-days">{mission.days}d</span>
+          </span>
+        </span>
+      ) : (
+        note && <span className="slot__note">{note}</span>
+      )}
     </>
   );
   const inner = tap ? (
@@ -922,13 +966,13 @@ export function Slot({
         tap();
       }}
       aria-label={label ?? name}
-      style={lift}
+      style={paint}
       {...drag.handlers}
     >
       {body}
     </button>
   ) : (
-    <span className={className} style={lift} {...drag.handlers}>
+    <span className={className} style={paint} {...drag.handlers}>
       {body}
     </span>
   );

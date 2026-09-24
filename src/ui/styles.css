@@ -37,6 +37,22 @@
      still tints an order in the log and a supernatural card, where nothing
      sits beside a faction colour and there is no confusion to fix.
   */
+  /*
+     One colour per kind of mission. See `missiontint.ts` for why these are
+     grouped by the kind of work rather than spread round the wheel, and why
+     none of them is a pure green or a pure red — a rim that reads as a side
+     rather than as a job is worse than no rim.
+  */
+  --m-diplomacy: #e5bb52;   /* talk    — parley */
+  --m-recruit:   #d9903f;   /* talk    — an open table */
+  --m-incite:    #e8683a;   /* trouble — stirring it up */
+  --m-sabotage:  #cf4a74;   /* trouble — quietly breaking things */
+  --m-abduct:    #a95cc9;   /* quiet   — taking somebody */
+  --m-espionage: #8268de;   /* quiet   — looking */
+  --m-rescue:    #5ec6a4;   /* quiet   — getting them back */
+  --m-survey:    #3fb8cc;   /* work    — explore */
+  --m-research:  #4fa6ec;   /* work    — the yards */
+  --m-command:   #7d9ac6;   /* work    — holding a place */
   --unheld: #f0e0b8;
   --unknown: #93a7af;
   /* An unexplored island's name on the chain map. Dimmer since 24 September,
@@ -1782,6 +1798,49 @@ button {
 }
 .slot__note { font-size: 10px; color: var(--muted); line-height: 1.15; }
 
+/*
+ * Somebody out on a mission.
+ *
+ * Sean, 24 September: *"shrink their portrait. Add a color border
+ * corresponding to the mission type... And add on bottom 'On Mission:
+ * [Mission Type]'."* `--away` is the mission's own colour, set inline by the
+ * tile because the stylesheet cannot know which mission this one is about.
+ *
+ * The rim is the colour at full strength and the wash behind the label is the
+ * same colour at a twentieth, which is what keeps a board of six from reading
+ * as six warnings: one line of colour each, not six panels of it.
+ */
+.slot--away {
+  border-color: var(--away);
+  background: linear-gradient(to bottom, var(--bg-raised) 58%, color-mix(in srgb, var(--away) 9%, var(--bg-raised)));
+}
+/* Shrunk, and it is doing two jobs: it makes room for the label, and a face
+   that has come off the top edge and sits inset reads as *away* rather than
+   standing here — which is the fact the board is about. The painting is
+   `width: 100%` with a square ratio, so the size is set by width; a max-height
+   would do nothing. */
+.slot--away .slot__art { width: 68%; margin: 7px auto 0; }
+.slot--away .slot__art .charface,
+.slot--away .slot__art .facthumb { border-radius: 8px; }
+.slot--away .slot__icon { min-height: 46px; }
+.slot__away {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  margin-top: 1px; line-height: 1.1;
+}
+.slot__away-head {
+  font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700;
+}
+.slot__away-line {
+  display: flex; align-items: baseline; justify-content: center; gap: 4px;
+  max-width: 100%; min-width: 0;
+}
+.slot__away-what {
+  font-size: 10.5px; font-weight: 700; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.slot__away-days { font-size: 9.5px; color: var(--muted); flex: none; }
+
 /* A tile that already does something, with the encyclopedia on a corner mark.
    Small, quiet, and away from the middle of the picture, which is where the
    thumb lands for the tile's own job. */
@@ -2379,6 +2438,11 @@ button.tcard:hover { border-color: var(--brass); }
    around a painting is the picture. */
 .choice__icon--art { width: 46px; height: 46px; padding: 0; overflow: hidden; background: none; }
 .choice__icon--art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* The thumbnail wears the mission's colour, the same one the crew tile and the
+   log dot use. A ring rather than a wash: the painting is the picture and the
+   colour is the label on it. */
+.choice__icon--tint { border-color: color-mix(in srgb, var(--tint) 70%, transparent); }
+.choice__icon--tint.choice__icon--art { border: 2px solid color-mix(in srgb, var(--tint) 70%, transparent); }
 .choice__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .choice__name { font-size: 14px; }
 .choice__what { white-space: normal; line-height: 1.35; }
@@ -2675,6 +2739,7 @@ button.tcard:hover { border-color: var(--brass); }
 }
 .slot--art .slot__name { padding: 5px 4px 0; }
 .slot--art .slot__note { padding: 0 4px; }
+.slot--art .slot__away { padding: 0 4px; }
 
 /* A berth with something in the ground: not built, not free. */
 .roombar > span.is-ground { background: #4f7a52; }

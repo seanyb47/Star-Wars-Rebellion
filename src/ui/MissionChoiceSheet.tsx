@@ -21,6 +21,7 @@ import {
 import { Info, SectionHead, Sheet } from './components';
 import { CategoryIcon } from './art';
 import { paintedMission } from './painted';
+import { missionTint } from './missiontint';
 
 /**
  * The painting of the errand, where a generic envelope used to be.
@@ -31,10 +32,17 @@ import { paintedMission } from './painted';
  * choices, which told a player nothing about the one they were about to spend
  * an officer on. Falls back to the envelope for anything with no painting yet.
  */
-export function MissionTile({ type }: { type: string }) {
+export function MissionTile({ type }: { type: MissionType }) {
   const painting = paintedMission(type);
   return (
-    <span className={`choice__icon${painting ? ' choice__icon--art' : ''}`}>
+    /* Ringed in the mission's own colour, which is the same colour the crew
+       tile wears while they are away on it and the same dot the log gives the
+       report when it lands. Sean, 24 September: *"color type of the mission
+       from the log and thumbnail."* One colour, three places it can be met. */
+    <span
+      className={`choice__icon choice__icon--tint${painting ? ' choice__icon--art' : ''}`}
+      style={{ ['--tint' as string]: missionTint(type) }}
+    >
       {painting ? (
         <img src={painting} alt="" loading="lazy" />
       ) : (

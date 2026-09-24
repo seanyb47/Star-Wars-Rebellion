@@ -655,6 +655,16 @@ export interface GameEvent {
   text: string;
   systemId?: string;
   characterId?: string;
+  /**
+   * Which kind of mission this line is about, where it is about one.
+   *
+   * Sean, 24 September: *"color type of the mission from the log."* The log
+   * gave every mission the same grey dot, and the type was only ever in the
+   * sentence — `missionLine` puts it at the front of the text and nothing
+   * else carried it. A word in a string is not something a stylesheet can
+   * read, so the type rides along beside it.
+   */
+  missionType?: MissionType;
   /** The tally behind an action at sea, for the card to lay out. */
   battle?: BattleReport;
   /** The tally behind a landing. */

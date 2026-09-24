@@ -63,6 +63,7 @@ import {
   IslandBanner,
   ShipIcon,
 } from './art';
+import { missionTint } from './missiontint';
 import { ChartMark } from './ChartMark';
 import { useSideSwipe } from './LayerStrip';
 import { useLookUp } from './lookup';
@@ -1545,14 +1546,24 @@ export function SystemSheet({
                  * which on a quay full of idle Lords is exactly when it is
                  * wanted.
                  */
-                note={
+                /* An errand is its own treatment now — rim, smaller face and
+                   a two-line label — so `note` is left to the things that are
+                   not one. See `Slot`'s `mission` prop. */
+                mission={
                   character.mission
-                    ? `${errandName(character.mission.type)} ${character.mission.daysRemaining}d`
-                    : character.status !== 'available'
-                      ? character.status.replace('_', ' ')
-                      : isLord(character)
-                        ? terms.lord
-                        : undefined
+                    ? {
+                        label: errandName(character.mission.type),
+                        tint: missionTint(character.mission.type),
+                        days: character.mission.daysRemaining,
+                      }
+                    : undefined
+                }
+                note={
+                  character.status !== 'available'
+                    ? character.status.replace('_', ' ')
+                    : isLord(character)
+                      ? terms.lord
+                      : undefined
                 }
                 tone={
                   character.status === 'injured'

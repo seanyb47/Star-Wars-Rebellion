@@ -1733,6 +1733,7 @@ export function advanceMissions(state: GameState, rng: Rng): void {
         character.mission = undefined;
         pushEvent(state, {
           kind: 'mission',
+          missionType: mission.type,
           text: missionLine(mission.type, landed.name, 'already done'),
           systemId: landed.id,
           characterId: character.id,
@@ -1834,6 +1835,7 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
       // September. The reason survives as a clause because it is the useful
       // half: a mission called off because the island is already yours is not
       // the same news as one called off because it changed hands.
+      missionType: mission.type,
       text: missionLine(mission.type, system.name, 'off', offReason(state, system, faction, mission.type)),
       systemId: system.id,
       characterId: character.id,
@@ -2079,6 +2081,7 @@ function recruitOutcome(
   if (!success || !recruit) {
     pushEvent(state, {
       kind: 'mission',
+      missionType: 'recruit',
       text: missionLine('recruit', system.name, 'a failure'),
       systemId: system.id,
       characterId: officer.id,
@@ -2172,6 +2175,7 @@ function abductOutcome(
   if (!success) {
     pushEvent(state, {
       kind: 'mission',
+      missionType: 'abduct',
       text: missionLine('abduct', system.name, 'a failure'),
       systemId: system.id,
       characterId: officer.id,
@@ -2234,6 +2238,7 @@ function rescueOutcome(
   if (!success) {
     pushEvent(state, {
       kind: 'mission',
+      missionType: 'rescue',
       text: missionLine('rescue', system.name, 'a failure'),
       systemId: system.id,
       characterId: officer.id,
@@ -2250,6 +2255,7 @@ function rescueOutcome(
     // The other half of a capture, and just as worth stopping for: Sean asked
     // for *"captures (and probably rescues)"*.
     notable: true,
+    missionType: 'rescue',
     text: missionLine('rescue', system.name, 'a success', `${captive.name} is out and home`),
     systemId: system.id,
     characterId: captive.id,
@@ -2403,6 +2409,7 @@ function surveyOutcome(
   if (opened.length === 0) {
     pushEvent(state, {
       kind: 'mission',
+      missionType: 'survey',
       text: missionLine('survey', system.name, 'a failure'),
       systemId: system.id,
       characterId: character.id,
@@ -2693,6 +2700,7 @@ function espionageOutcome(
   if (!success) {
     pushEvent(state, {
       kind: 'mission',
+      missionType: 'espionage',
       text: missionLine('espionage', system.name, 'a failure'),
       systemId: system.id,
       characterId: character.id,
@@ -2786,6 +2794,7 @@ function sabotageOutcome(
   if (!success) {
     pushEvent(state, {
       kind: 'mission',
+      missionType: 'sabotage',
       text: missionLine('sabotage', system.name, 'a failure'),
       systemId: system.id,
       characterId: character.id,
@@ -2839,6 +2848,7 @@ function parleyOutcome(
     }
     pushEvent(state, {
       kind: 'mission',
+      missionType: 'diplomacy',
       text: cycle.backfired
         ? missionLine('diplomacy', system.name, 'a failure', 'the room went the other way')
         : missionLine('diplomacy', system.name, 'a failure'),
@@ -2914,6 +2924,7 @@ function parleyOutcome(
     // The two branches said "carries the room" over a big swing and "sways"
     // over a small one. With the number on the line the adjective was doing
     // nothing the figure did not already do, so the split goes with it.
+    missionType: 'diplomacy',
     text: missionLine('diplomacy', system.name, 'a success', `allegiance up ${cycle.swing.toFixed(1)}`),
     systemId: system.id,
     characterId: character.id,
@@ -2942,6 +2953,7 @@ function inciteOutcome(
   if (!cycle.landed) {
     pushEvent(state, {
       kind: 'mission',
+      missionType: 'recruit',
       text: cycle.backfired
         ? missionLine('recruit', system.name, 'a failure', 'the wrong people heard the asking')
         : missionLine('recruit', system.name, 'a failure'),
@@ -2963,6 +2975,7 @@ function inciteOutcome(
   pushMomentum(system, faction, MOMENTUM_PER_SUCCESS);
   pushEvent(state, {
     kind: 'mission',
+    missionType: 'incite',
     text: missionLine('incite', system.name, 'a success', `their hold falls ${cycle.swing.toFixed(1)}`),
     systemId: system.id,
     characterId: character.id,

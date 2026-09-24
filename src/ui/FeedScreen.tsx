@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { EventKind, GameEvent, GameState } from '../sim';
 import type { NarratorId } from './narrator/mood';
 import { usePrefs, withKind } from './prefs';
+import { missionTint } from './missiontint';
 import { narratorIdFor } from './narrator/assets';
 import { previewNotification } from './useAudio';
 
@@ -211,7 +212,19 @@ export function FeedScreen({
                 else onRead(event.id);
               }}
             >
-              <span className="event__kind" aria-hidden="true" />
+              {/* The dot is the mission's own colour where the line is about
+                  a mission, so a scroll of the log answers *which kind of work
+                  was that* before you read it. Everything else keeps the
+                  colour of its kind. See `missiontint.ts`. */}
+              <span
+                className="event__kind"
+                aria-hidden="true"
+                style={
+                  event.missionType
+                    ? { background: missionTint(event.missionType), opacity: 1 }
+                    : undefined
+                }
+              />
               <span className="event__text">{event.text}</span>
             </button>
           ))}

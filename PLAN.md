@@ -10261,3 +10261,52 @@ takes aboard, on the reasoning already written there: *"you simply send them,
 and the posting ends because they have gone."* So the Assign Mission button was
 right and the sentence beside it was not. It now says they count as posted
 rather than free, and that sending them ends the posting.
+
+### A crew member out on a mission looks like one
+
+Sean, 24 September: *"Maybe we can do something to better display people on
+mission. Like shrink their portrait. Add a color border corresponding to the
+mission type (and color type of the mission from the log and thumbnail). And
+add on bottom 'On Mission: [Mission Type]'."*
+
+All three, and they work together rather than in parallel:
+
+- **The rim** is the colour of that kind of work, so a board of six answers
+  *what is everyone doing* before you read a word.
+- **The smaller portrait** — 68% and inset, off the tile's top edge — makes
+  room for the label and reads as *away* rather than standing here, which is
+  the fact the board is actually about.
+- **The label** carries the truth, because a colour nobody has learned yet is
+  decoration. Two lines, as asked: **ON MISSION** over the kind of work, with
+  the days riding on the second line rather than taking a third — a board shows
+  two rows and a sliver of a third, and every line is a line off that budget.
+
+It is **one prop** on `Slot`, `mission: { label, tint, days }`, and not three,
+so a tile cannot end up wearing the rim of one mission and the name of another.
+
+**There was no such colour before**, which is the part worth recording. The log
+gave every mission the same grey dot and the choice sheet gave every mission
+the same frame, so the one thing a glance could have told you — which kind of
+work this was — was the one thing nothing said. Ten tokens now, grouped by the
+kind of work rather than spread round the wheel, because ten arbitrary colours
+is ten things to learn and four families is one:
+
+```
+talk      diplomacy  gold     recruit   amber
+trouble   incite     ember    sabotage  rose
+quiet     abduct     violet   espionage indigo   rescue  sea green
+work      survey     teal     research  sky      command steel
+```
+
+All ten are clear of `--empire` green and `--alliance` red on purpose: a rim
+that read as a *side* rather than as a *job* would be worse than no rim, since
+the tile already says whose the person is.
+
+**The log needed a field to make this possible.** Every mission report's type
+was only ever in the sentence — `missionLine` puts it at the front of the text
+— and a word in a string is not something a stylesheet can read. So
+`GameEvent` carries `missionType`, set at all thirteen places that write a
+mission report, and the dot is that colour.
+
+The same colour rings the painting on the card you pick the mission from. One
+colour, three places it can be met.
