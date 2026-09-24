@@ -153,6 +153,8 @@ export interface GalaxyMapProps {
   /** Which question the chart is answering. Swipe or tap the strip to change. */
   layer?: ChartLayer;
   onLayerChange?: (layer: ChartLayer) => void;
+  /** Open the list of every squadron of yours. */
+  onOpenFleets?: () => void;
 }
 
 /**
@@ -300,6 +302,7 @@ export function GalaxyMap({
   onOpenIsland,
   layer = 'allegiance',
   onLayerChange,
+  onOpenFleets,
 }: GalaxyMapProps) {
   const viewer = state.player;
   const ground = paintedChart('seas');
@@ -872,7 +875,9 @@ export function GalaxyMap({
           gold you are not spending, and nothing else says so. */}
       {/* A shut harbor, under every layer: it costs you a day's takings
           whatever you happen to be looking at. */}
-      {!pickingFor && !sailing && !choosing && <ProducerLegend state={state} onOpenIsland={onOpenIsland} />}
+      {!pickingFor && !sailing && !choosing && (
+        <ProducerLegend state={state} onOpenIsland={onOpenIsland} onOpenFleets={onOpenFleets} />
+      )}
 
       {!pickingFor && !sailing && !choosing && onLayerChange && (
         <LayerStrip state={state} layer={layer} onChange={onLayerChange} viewer={viewer} />

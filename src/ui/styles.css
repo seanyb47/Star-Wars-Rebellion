@@ -1819,7 +1819,13 @@ button {
 .idle__item:disabled { opacity: 0.5; }
 .idle__item--free:active { background: #16323d; }
 .idle__n { font-weight: 700; font-size: 12px; }
-.idle__label { max-width: 78px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.idle__label { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* A fleet in the list: the whole row is the way to the island it is at or
+   bound for, so it is a button wearing a card. */
+.fleetrow { display: block; width: 100%; text-align: left; cursor: pointer; }
+.fleetrow:active { background: #16323d; }
+.fleetrow__where { margin: 2px 0 6px; }
 .board__count { margin: 5px 0 0; text-align: right; }
 
 /* ---------- Dispatches ----------

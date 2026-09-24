@@ -15,11 +15,14 @@ import type { GameState } from '../../sim';
  * Read as source, because this repo has no React renderer. What can go wrong
  * here is a filter and a gate, and both are visible in the text.
  */
-const UI = import.meta.glob('../{ChainMap.tsx,SystemSheet.tsx,ReachSheet.tsx}', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-}) as Record<string, string>;
+const UI = import.meta.glob(
+  '../{ChainMap.tsx,SystemSheet.tsx,ReachSheet.tsx,FleetListSheet.tsx,ProducerLegend.tsx,GalaxyMap.tsx,App.tsx}',
+  {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  },
+) as Record<string, string>;
 
 const CHART = UI['../ChainMap.tsx'];
 const SHEET = UI['../SystemSheet.tsx'];
@@ -113,5 +116,52 @@ describe('the fleets it is about', () => {
     fleet.voyage = { targetSystemId: state.systems[0].id, daysRemaining: 9 };
     expect(fleet.voyage.targetSystemId).toBe(state.systems[0].id);
     expect(fleet.voyage.daysRemaining).toBe(9);
+  });
+});
+
+/**
+ * And a list of your own navy, so a fleet is never findable only by memory.
+ *
+ * Sean, 24 September, on the sail going in: *"Even if it's not there it
+ * shouldn't be invisible to me."* The right complaint about a bigger hole than
+ * the one just filled — a squadron could be reached by opening the island it
+ * lies at or the island it sails for, and **both start from already knowing
+ * which island that is.** Nothing in the game listed your fleets.
+ */
+describe('the list of your fleets', () => {
+  const LIST = UI['../FleetListSheet.tsx'];
+  const CHIP = UI['../ProducerLegend.tsx'];
+
+  it('is every squadron of yours and nobody else’s', () => {
+    expect(LIST).toMatch(/state\.fleets\.filter\(\(f\) => f\.faction === state\.player\)/);
+  });
+
+  it('puts the ones at sea first, because nothing else can show you those', () => {
+    const sea = LIST.indexOf('>At sea<');
+    const anchor = LIST.indexOf('>At anchor<');
+    expect(sea).toBeGreaterThan(0);
+    expect(anchor).toBeGreaterThan(sea);
+  });
+
+  it('says where each one is or is bound for, and how long', () => {
+    // `fleetStatus` is the sim's own sentence, so the list and the island
+    // sheet cannot describe the same voyage two different ways.
+    expect(LIST).toMatch(/fleetStatus\(state, fleet\)/);
+  });
+
+  it('opens the island rather than growing its own orders', () => {
+    // Two places to give the same order is how they drift apart.
+    expect(LIST).toMatch(/onOpenIsland\(where\(fleet\)\)/);
+    expect(LIST).toMatch(/fleet\.voyage\?\.targetSystemId \?\? fleet\.systemId/);
+  });
+
+  it('is reachable in one tap from the chart', () => {
+    expect(CHIP).toMatch(/onOpenFleets/);
+    expect(UI['../GalaxyMap.tsx']).toMatch(/onOpenFleets=\{onOpenFleets\}/);
+    expect(UI['../App.tsx']).toMatch(/onOpenFleets=\{\(\) => setFleetsOpen\(true\)\}/);
+  });
+
+  it('and the chip says how many are at sea, which the chart cannot draw', () => {
+    expect(CHIP).toMatch(/at sea/);
   });
 });

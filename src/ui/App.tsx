@@ -67,6 +67,7 @@ import { moodForEvent } from './narrator/mood';
 import { useAdvisorVoice } from './narrator/useAdvisorVoice';
 import { ReachSheet } from './ReachSheet';
 import { ReachListSheet } from './ReachListSheet';
+import { FleetListSheet } from './FleetListSheet';
 import { tabForLayer, type IslandTab } from './IslandRow';
 import { ScrapSheet } from './ScrapSheet';
 import { SystemSheet } from './SystemSheet';
@@ -107,6 +108,9 @@ export function App() {
   const [openSystemTab, setOpenSystemTab] = useState<IslandTab>('harbor');
   const [openReachId, setOpenReachId] = useState<string | null>(null);
   const [openListId, setOpenListId] = useState<string | null>(null);
+  /* Every squadron of yours, from the chip at the foot of the chart. See
+     `FleetListSheet` for why it exists at all. */
+  const [fleetsOpen, setFleetsOpen] = useState(false);
   /*
    * Where an island was opened from, so closing it goes back there.
    *
@@ -679,6 +683,7 @@ export function App() {
     Boolean(openCharacterId) ||
     Boolean(openReachId) ||
     Boolean(openListId) ||
+    fleetsOpen ||
     Boolean(missionChoice) ||
     Boolean(sailPlan) ||
     menuOpen ||
@@ -959,6 +964,7 @@ export function App() {
             }
             layer={layer}
             onLayerChange={setLayer}
+            onOpenFleets={() => setFleetsOpen(true)}
             sailing={sailingFleetId !== null}
             choosing={choosingSite}
             pickHere={pickHere}
@@ -1175,6 +1181,17 @@ export function App() {
             // of it.
             setOpenReachId(null);
             setOpenListId(sectorId);
+          }}
+        />
+      )}
+
+      {fleetsOpen && (
+        <FleetListSheet
+          state={state}
+          onClose={() => setFleetsOpen(false)}
+          onOpenIsland={(systemId) => {
+            setFleetsOpen(false);
+            openIslandTab(systemId);
           }}
         />
       )}

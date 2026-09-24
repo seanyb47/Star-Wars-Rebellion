@@ -10119,3 +10119,39 @@ Checked by loading a save with the Home Fleet eleven days out from an island
 the Crown has never visited: the hollow sail and `11d` on the chart, the label
 reading *"Avermere, unexplored, yours 11 days out"*, and **Under way to here**
 on the sheet with all three hulls and each one tappable.
+
+### A list of your own navy
+
+Sean, 24 September, on the hollow sail going in: *"Even if it's not there it
+shouldn't be invisible to me."*
+
+The right complaint about a bigger hole than the one I had just filled. After
+that change a squadron could be reached two ways — open the island it lies at,
+or open the island it is sailing to — and **both of them start from already
+knowing which island that is.** There was no screen anywhere in the game that
+listed your own fleets. Forget where you sent one and the only way back was the
+Fleets filter, which gives you a number on an island and not which ship it is.
+
+So: **Your fleets**, one list, every squadron you have.
+
+**At sea first.** Those are the ones nothing else on screen can show you: a
+fleet at anchor is a solid sail on the chart and a card in its island's harbor,
+while a fleet on passage is a hollow sail above an island it has not reached.
+Each row carries `fleetStatus` — the sim's own sentence, so the list and the
+island sheet cannot describe one voyage two different ways — with hulls, guns
+and troops aboard.
+
+**A row opens the island it is at or bound for**, and deliberately grows none
+of its own orders. Two places to give the same order is how they drift apart,
+and the island sheet is one tap away with every one of them already on it.
+
+**The door is a chip at the foot of the chart**, beside the blockade alarm,
+which was already the place for a thing you need while looking at something
+else. It reads `2 Fleets · 1 at sea` — the count is the door, and *at sea* is
+appended only when some are, because that is the half of the answer the chart
+cannot draw and a steady label would bury it.
+
+Checked at 393×852 with the Home Fleet eleven days out and the Windward
+Squadron at anchor: the chip reads "2 Fleets · 1 at sea", the sheet opens on
+**At sea → Home Fleet, At sea for Avermere — 11d**, and tapping the row lands
+on Avermere with the fleet card under it.
