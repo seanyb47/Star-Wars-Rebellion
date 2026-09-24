@@ -13,8 +13,6 @@ import {
   watchOn,
   type MissionType,
   FACILITY_LABEL,
-  FORT_BOMBARD_DEFENSE,
-  FORT_INVASION_DEFENSE,
   fortsOf,
   GOLD_PER_DAY,
   LEAK_CHANCE,
@@ -70,6 +68,7 @@ import { useLookUp } from './lookup';
 import {
   ControlBadge,
   GoldFig,
+  Info,
   RoomBar,
   Sheet,
   Slot,
@@ -935,6 +934,20 @@ export function SystemSheet({
   const garrison = byRemembered(garrisonSummary(system), (e) => e.type.id, system.garrisonOrder);
   // The walls, for the Defenses panel. Whoever holds the ground holds them.
   const walls = fortsOf(system);
+  /*
+   * Who has the chair here, for the Defenses panel.
+   *
+   * Sean, 24 September: *"Only things I care here are troops + if there is a
+   * commander."* It was on this screen only as arithmetic — one term inside
+   * the watch's breakdown, *"3 from the chair"* — which answers how much
+   * harder a quiet mission is and does not answer the question he was asking,
+   * which is *is somebody holding this place*. On a remembered island the
+   * commander comes out of the report with everything else, so this reads
+   * `system`, which is the report's island when there is one.
+   */
+  const chair = system.commanderId
+    ? state.characters.find((c) => c.id === system.commanderId)
+    : undefined;
   // Anything of yours lying here with holds to fill — what makes a troop tile
   // an order rather than an encyclopedia link.
   const boatsHere = state.fleets.some(
@@ -1430,32 +1443,45 @@ export function SystemSheet({
             not embark: a troop tile can be reordered for the boats and a
             battery has no controls on it at all.
           */}
-          {walls.length > 0 && (
+          {/*
+            Who has the chair, and what stands on the walls — in that order,
+            and in that much detail.
+
+            Sean, 24 September: *"Only things I care here are troops + if there
+            is a commander. Don't need hulls or guns listed."* The tab was
+            carrying a table: a row per battery, each with its own two numbers,
+            *6 against a landing · 4 against shot*, under a paragraph of siege
+            rules. Those numbers are constants — every fort in the game has the
+            same pair — so the table said the same thing on every island that
+            has ever had a fort, in twelve lines, and the one figure that
+            changes island to island is **how many**. That is a count, not a
+            list, and it is what is left.
+
+            The commander is the addition. It was on this screen only as a term
+            inside the watch's arithmetic — *"3 from the chair"* — which is a
+            different question. The siege rules went to the encyclopedia, where
+            the rules live, behind the ℹ: the same move as the odds block off
+            the character sheet on 21 September.
+          */}
+          {(chair || walls.length > 0) && (
             <div className="card small" style={{ marginBottom: 10 }}>
-              <div className="row row--between">
-                <b>
-                  {walls.length} {walls.length === 1 ? 'battery' : 'batteries'} standing
-                </b>
-                <span className="tiny muted">Fixed — a wall does not embark</span>
-              </div>
-              {walls.map((f: { id: string; type: FacilityType }) => (
-                <div className="row row--between tiny" key={f.id} style={{ marginTop: 4 }}>
-                  <span className="row" style={{ gap: 6 }}>
-                    <FacilityIcon type={f.type} size={18} />
-                    {FACILITY_LABEL[f.type]}
-                  </span>
-                  <span className="muted">
-                    {FORT_INVASION_DEFENSE[f.type as 'fort' | 'heavy_fort']} against a landing ·{' '}
-                    {FORT_BOMBARD_DEFENSE[f.type as 'fort' | 'heavy_fort']} against shot
-                  </span>
+              {chair && (
+                <div className="row row--between">
+                  <b>{chair.name} has the chair.</b>
+                  <span className="tiny muted">In command</span>
                 </div>
-              ))}
-              <p className="tiny muted" style={{ margin: '6px 0 0' }}>
-                A landing has to beat the garrison <i>and</i> every wall still standing. Breaking
-                one is a bombardment's job, and it takes a roll over the island's whole total plus
-                that battery's own number — so a squadron under it has no chance rather than long
-                odds.
-              </p>
+              )}
+              {walls.length > 0 && (
+                <div className="row row--between" style={{ marginTop: chair ? 6 : 0 }}>
+                  <b className="row" style={{ gap: 6 }}>
+                    <FacilityIcon type={walls[0].type} size={18} />
+                    {walls.length} {walls.length === 1 ? 'battery' : 'batteries'} standing
+                  </b>
+                  <Info to="rules" at="bombardment">
+                    What a battery costs a landing
+                  </Info>
+                </div>
+              )}
             </div>
           )}
           <SlotBoard

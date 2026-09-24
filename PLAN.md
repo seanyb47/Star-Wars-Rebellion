@@ -10607,3 +10607,42 @@ write it down"* about an island you already hold. `isEspionageTarget` allows
 any charted island that is populated or held, by anybody. It is not a bug
 against the rule as written, and it was not what he asked, but spying on
 yourself is a strange card to be offered on your own seat. Worth a ruling.
+
+## The Defenses tab: troops and the chair (24 September)
+
+Sean: *"Only things I care here are troops + if there is a commander. Don't
+need hulls or guns listed."*
+
+The tab was carrying a table where a count would do:
+
+```
+2 batteries standing            Fixed — a wall does not embark
+  Fort          6 against a landing · 4 against shot
+  Fort          6 against a landing · 4 against shot
+A landing has to beat the garrison and every wall still standing. Breaking
+one is a bombardment's job, and it takes a roll over the island's whole
+total plus that battery's own number — so a squadron under it has no chance
+rather than long odds.
+```
+
+**Those figures are constants.** `FORT_INVASION_DEFENSE` and
+`FORT_BOMBARD_DEFENSE` are one pair for a fort and one for a heavy fort, so
+that table printed the identical lines on every island that has ever had a
+wall. The only number in the block that changes island to island is *how many
+are standing*, and it was the one the table buried. So: a count, and the siege
+rules behind the ℹ on the Rules page — the same move as the odds block off the
+character sheet on 21 September, *"This should be in rules not character
+block."*
+
+The commander is the addition, and it genuinely was not on this screen. It
+appeared once, as a term inside the watch's arithmetic — *"76 from the
+chair"* — which answers *how much harder is a quiet mission here* and not *is
+somebody holding this place*, which is the question you ask before landing on
+one. It reads off the island the panel is showing, so a remembered island
+names whoever had the chair **as of the report** rather than whoever has it
+today.
+
+The watch paragraph above it stays. It is about missions rather than about
+defence, he did not mention it, and it is the only place the game explains why
+a raid on a loyal capital is a different proposition from a raid on a sullen
+frontier. Worth a look next time he is on this screen.
