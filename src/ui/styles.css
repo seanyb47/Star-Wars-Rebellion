@@ -1798,6 +1798,12 @@ button {
 }
 .slot__note { font-size: 10px; color: var(--muted); line-height: 1.15; }
 
+/* A held tile's menu: one line an action, the reason for it under the name. */
+.slotmenu__item {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  text-align: left; padding: 10px 12px;
+}
+
 /*
  * Somebody out on a mission.
  *
@@ -2312,6 +2318,18 @@ button.tcard:hover { border-color: var(--brass); }
    Drawn inside the sail's own transform, so the size is in the sail's units
    and not the chart's — small against the hull, which is why the stroke is
    thinner than the numeral above. */
+/* An island in revolt, pulsing. "Oh shit" is a thing you should catch out of
+   the corner of your eye, which a still mark cannot do — and it is the only
+   thing on this chart that moves, so nothing competes with it. */
+.chainmap__flame { animation: flame 1.5s ease-in-out infinite; transform-origin: center; }
+@keyframes flame {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chainmap__flame { animation: none; }
+}
+
 .chainmap__eta {
   font-size: 9px; font-weight: 800; text-anchor: middle;
   font-variant-numeric: tabular-nums; paint-order: stroke fill;

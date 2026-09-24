@@ -637,7 +637,28 @@ const SLOP = 8;
 /** How much nearer another cell must be before the tile moves to it. */
 const SETTLE = 6;
 
-function useHoldDrag(order?: { up?: () => void; down?: () => void }) {
+/**
+ * Hold a tile: still means a menu, moving means a drag.
+ *
+ * Sean, 24 September: *"Maybe we need to implement press and hold as a
+ * feature! Like instead of click to always view encyclopedia maybe press and
+ * hold opens a menu."*
+ *
+ * **The hold was already spoken for**, which is the part worth knowing: he
+ * asked for hold-to-drag on 19 September and again on 20 September when the
+ * first attempt was *"super clunky"*. Two things cannot own one gesture, so
+ * this splits it the way a phone already does — **hold and let go without
+ * moving opens the menu; hold and move picks the tile up.** Nothing about the
+ * drag changes, and the menu costs a gesture nobody was using: releasing a
+ * hold in place did nothing at all before.
+ *
+ * `moved` is the whole of the test, and it is already tracked because the drag
+ * needed it to know whether a release was a drop or a tap.
+ */
+function useHoldDrag(
+  order?: { up?: () => void; down?: () => void },
+  onMenu?: () => void,
+) {
   const [held, setHeld] = useState(false);
   /** Where the tile is drawn relative to where it is laid out. */
   const [shift, setShift] = useState<{ x: number; y: number } | null>(null);
@@ -654,6 +675,9 @@ function useHoldDrag(order?: { up?: () => void; down?: () => void }) {
    *  captured when the drag began — the ends of a list change as it moves. */
   const steps = useRef(order);
   steps.current = order;
+  /** Read at the moment of the release, not captured when the press began. */
+  const menu = useRef(onMenu);
+  menu.current = onMenu;
 
   const stop = useCallback(() => {
     window.clearTimeout(timer.current);
@@ -673,7 +697,9 @@ function useHoldDrag(order?: { up?: () => void; down?: () => void }) {
   // a drag that no longer exists, and the page stops scrolling for good.
   useEffect(() => stop, [stop]);
 
-  if (!order) {
+  // Armed for either job. A tile with a menu and no ordering still wants the
+  // hold; a tile with neither wants nothing on the document at all.
+  if (!order && !onMenu) {
     return { held: false, moved, shift: null, handlers: {} as Record<string, never> };
   }
 
@@ -777,6 +803,9 @@ function useHoldDrag(order?: { up?: () => void; down?: () => void }) {
            * produce a click, and a swallow left armed would eat the next real
            * tap instead.
            */
+          // Held still and let go: that is the menu, not a drop. Checked
+          // before the swallow below, which only ever fires after a real drag.
+          if (!moved.current && menu.current) menu.current();
           if (moved.current) {
             const swallow = (ev: Event) => {
               ev.stopPropagation();
@@ -835,6 +864,7 @@ export function Slot({
   note,
   tone,
   mission,
+  actions,
   onClick,
   onLookUp,
   label,
@@ -909,11 +939,27 @@ export function Slot({
    * one — a hold-and-drag is not a keyboard gesture and never will be.
    */
   order?: { up?: () => void; down?: () => void };
+  /**
+   * Everything you can do with this tile, on a press and hold.
+   *
+   * Sean, 24 September: *"instead of click to always view encyclopedia maybe
+   * press and hold opens a menu. And one option is Encyclopedia but others can
+   * be Mission or Move whatever we want."*
+   *
+   * The tap keeps doing the one obvious thing — the tile's own job, or the
+   * lookup where it has none — and this is where the rest live. A tile with
+   * one action does not get a menu: a menu of one is a second tap for nothing,
+   * and `Slot` already has a rule for that case (the whole tile does it).
+   */
+  actions?: Array<{ label: string; hint?: string; onPick: () => void }>;
 }) {
   // With nothing else to do, the tile itself is the lookup.
   const tap = onClick ?? onLookUp;
   const corner = onClick && onLookUp ? onLookUp : undefined;
-  const drag = useHoldDrag(order);
+  const [menuOpen, setMenuOpen] = useState(false);
+  // A menu of one is a second tap for nothing.
+  const holdMenu = actions && actions.length > 1 ? () => setMenuOpen(true) : undefined;
+  const drag = useHoldDrag(order, holdMenu);
   const className = `slot${art ? ' slot--art' : ''}${tone ? ` slot--${tone}` : ''}${
     tap ? ' slot--tap' : ''
   }${drag.held ? ' slot--held' : ''}${mission ? ' slot--away' : ''}`;
@@ -991,7 +1037,17 @@ export function Slot({
   ) : (
     inner
   );
-  if (!order) return tile;
+  const withMenu = holdMenu ? (
+    <>
+      {tile}
+      {menuOpen && (
+        <SlotMenu name={name} actions={actions!} onClose={() => setMenuOpen(false)} />
+      )}
+    </>
+  ) : (
+    tile
+  );
+  if (!order) return withMenu;
   // On a board the arrows go under the tile rather than beside it: a tile is
   // about as wide as two arrows and the board is a grid, so putting them
   // alongside would halve the tile. They are also not drawn until one is
@@ -999,7 +1055,7 @@ export function Slot({
   // these are only the keyboard's way in.
   return (
     <span className="slot-wrap">
-      {tile}
+      {withMenu}
       <span className="slot-wrap__order">
         <button className="orderbtn" disabled={!order.up} onClick={order.up} aria-label={`Move ${name} earlier`}>
           ◀
@@ -1009,6 +1065,42 @@ export function Slot({
         </button>
       </span>
     </span>
+  );
+}
+
+/**
+ * What a held tile offers. A sheet rather than a popover pinned to the tile:
+ * the board scrolls, the tiles are 44px apart on a phone, and a menu that has
+ * to dodge the edges of the screen is a menu that lands somewhere different
+ * every time.
+ */
+function SlotMenu({
+  name,
+  actions,
+  onClose,
+}: {
+  name: string;
+  actions: Array<{ label: string; hint?: string; onPick: () => void }>;
+  onClose: () => void;
+}) {
+  return (
+    <Sheet title={name} eyebrow="What next" onClose={onClose} stacked>
+      <div className="stack">
+        {actions.map((action) => (
+          <button
+            key={action.label}
+            className="btn btn--block slotmenu__item"
+            onClick={() => {
+              onClose();
+              action.onPick();
+            }}
+          >
+            <b>{action.label}</b>
+            {action.hint && <span className="tiny muted">{action.hint}</span>}
+          </button>
+        ))}
+      </div>
+    </Sheet>
   );
 }
 

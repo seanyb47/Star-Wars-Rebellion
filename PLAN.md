@@ -10395,3 +10395,55 @@ message and a handler's signature, and `vocabulary.test.ts` reads those as
 player text. CLAUDE.md's rule is the right one and it worked — retire words
 from prose, never from identifiers — the screens say *troops* and the sim's
 `embark(state, fleetId, companies, actor)` is untouched.
+
+### Press and hold, and a mutiny you cannot miss
+
+Two of Sean's, 24 September.
+
+#### The hold was already spoken for
+
+*"Maybe we need to implement press and hold as a feature! Like instead of
+click to always view encyclopedia maybe press and hold opens a menu."*
+
+**It is already a gesture in this game**, and he is the reason: hold-to-drag
+went in on 19 September at his asking and was rewritten on 20 September when
+the first attempt was *"super clunky"*. Two things cannot own one gesture, so
+this splits it the way a phone already does:
+
+- **Hold and let go without moving → the menu.**
+- **Hold and move → pick the tile up**, exactly as now.
+
+Nothing about the drag changes, and the menu costs a gesture nobody was using:
+releasing a hold in place did nothing at all before. `moved` is the whole of
+the test and was already tracked, because the drag needed it to tell a drop
+from a tap.
+
+**A tile with one action gets no menu.** A menu of one is a second tap for
+nothing, and `Slot` already had the rule for that case — where a tile has no
+other job, the whole tile does it. So two tiles have menus today, the two with
+genuinely two things to do: a **troop** (put aboard / encyclopedia) and a
+**crew member** (their sheet / encyclopedia). Everything else keeps its tap.
+
+#### The mutiny mark
+
+*"We need a mutiny icon like the fleet icon. A charm above any island in
+mutiny. Or maybe the loyalty bar is on fire lol. Something needs to indicate oh
+shit."*
+
+There *was* a mark, and the fact that he asked for one is the verdict on it: a
+26-unit pennant in flat red with no outline, which over a painting is invisible
+against half the islands in the game. It is twice the size now with the sails'
+own three passes — a pale halo outside a dark keyline outside the fill, so one
+of the two is always doing the work whether the island under it is dark water
+or sunlit rock — and it **pulses**, because "oh shit" is a thing you should
+catch out of the corner of your eye. Both charts fly the same flag.
+
+**One thing cost me two attempts and is worth writing down.** I first drew it
+as a glyph in a transformed group, joining the row of sails above the name.
+It rendered, it was in the DOM, and it landed **off the left edge of the
+chart** — measured at x=-49 against a sail's x=164 on the same island. The row
+of sails is laid out in a coordinate space the island's own marks do not share.
+The old pennant was drawn as a raw path in the chart's units and landed
+correctly, so the geometry stays and only the size and the painting changed.
+The lesson is the cheap one: when a mark already lands in the right place,
+change how it looks and not where it comes from.

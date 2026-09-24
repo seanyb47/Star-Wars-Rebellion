@@ -833,10 +833,29 @@ export function GalaxyMap({
                       </>
                     )}
                     {system.uprising && explored && (
-                      <path
-                        d={`M ${ax - radius * 0.5} ${ay - radius - 3} l 0 -11 l ${radius * 0.9} 4 l ${-radius * 0.9} 4 z`}
-                        fill="#b8433a"
-                      />
+                      /* The same flag the Reach map flies, at the chart's own
+                         scale and in its own units — a transformed group lands
+                         somewhere else entirely in this space, measured. Three
+                         passes so it reads on painted water as well as open,
+                         and pulsing, because at this size a still mark on a
+                         busy chart is a smudge. */
+                      <g className="chainmap__flame" pointerEvents="none">
+                        {[
+                          { stroke: 'rgba(233,244,248,0.7)', width: 5, fill: 'none' },
+                          { stroke: '#04121a', width: 2.8, fill: 'none' },
+                          { stroke: '#04121a', width: 0.9, fill: 'var(--bad)' },
+                        ].map((pass) => (
+                          <path
+                            key={pass.width}
+                            d={`M ${ax - radius * 0.6} ${ay - radius - 2} l 0 -${radius * 1.7} l ${radius * 1.6} ${radius * 0.55} l ${-radius * 1.6} ${radius * 0.55} z`}
+                            fill={pass.fill}
+                            stroke={pass.stroke}
+                            strokeWidth={pass.width}
+                            strokeLinejoin="round"
+                            style={pass.fill === 'none' ? undefined : { paintOrder: 'stroke fill' }}
+                          />
+                        ))}
+                      </g>
                     )}
                   </g>
                 );

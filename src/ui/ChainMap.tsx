@@ -219,6 +219,31 @@ function nameWidth(name: string): number {
 /** A sail, in a 20-unit box: hulls lying off the island. */
 /** The sail glyph, exported so the Reach key can draw the very same ship. */
 export const SHIP = 'M2 14 h16 l-2 5 h-12 Z M10 13 V3 M10 4 l5 8 h-5';
+
+/**
+ * The revolt's flag: the mark an island in mutiny flies, on both charts.
+ *
+ * Sean, 24 September: *"We need a mutiny icon like the fleet icon. A charm
+ * above any island in mutiny… Something needs to indicate oh shit."* There was
+ * a mark here and the fact that he asked for one is the verdict on it: a
+ * 26-unit pennant in flat red with no outline, which over a painting is
+ * invisible against half the islands in the game.
+ *
+ * Twice the size now, with the sails' own three passes — a pale halo outside a
+ * dark keyline outside the fill, so one of the two is always doing the work
+ * whether the island under it is dark water or sunlit rock — and it pulses,
+ * because "oh shit" is a thing you should catch out of the corner of your eye.
+ *
+ * Drawn straight into the chart's own units at (x, y) rather than as a glyph
+ * in a transformed group.
+ * The sails above are laid out in a coordinate
+ * space this does not share: a transformed group placed by `spot.x` lands off
+ * the left edge of the chart, measured at x=-49 against a sail's x=164 on the
+ * same island. The old pennant was drawn this way and landed correctly, so the
+ * geometry stays and only the size and the painting change.
+ */
+export const MUTINY_FLAG = (x: number, y: number): string =>
+  `M ${x - 16} ${y} l 0 -46 l 50 15 l -50 15 z`;
 /** Big enough to be the first thing seen in a Reach, small enough to clear
  *  the island above it. */
 const SAIL_SCALE = 2.4;
@@ -568,13 +593,6 @@ export function ChainMap({
               />
             )}
 
-            {system.uprising && explored && (
-              <path
-                d={`M ${spot.x - 12} ${spot.y - (paintedGround ? 30 : 52)} l 0 -26 l 30 9 l -30 9 z`}
-                fill="#d8574c"
-                pointerEvents="none"
-              />
-            )}
 
             {/* On the painting there is no drawn island at all.
                 The coastline used to be drawn here — a seeded blob in the
@@ -627,6 +645,43 @@ export function ChainMap({
                 that side's colour. Above rather than beside, and big: where
                 the fleets are is the first thing worth seeing in a Reach, and
                 at the chart's own scale a fleet is only a large dot. */}
+            {/*
+              In revolt, and loud about it.
+
+              Sean, 24 September: *"We need a mutiny icon like the fleet icon…
+              Something needs to indicate oh shit. This is in mutiny."* There
+              was a mark here and the fact that he asked for one is the verdict
+              on it: a 26-unit pennant in flat red, no outline, which over a
+              painting is invisible against half the islands in the game.
+
+              Same geometry, because that is the one thing about the old mark
+              that was right — the sails' transformed group lands somewhere
+              else entirely in this coordinate space, measured, twice. What
+              changed is everything else: twice the size, the sails' own three
+              passes (pale halo outside a dark keyline outside the fill) so one
+              of the two is always doing the work, and a pulse, because "oh
+              shit" is a thing you should catch out of the corner of your eye.
+            */}
+            {system.uprising && explored && !bare && (
+              <g className="chainmap__flame" pointerEvents="none">
+                {[
+                  { stroke: 'rgba(233,244,248,0.75)', width: 9, fill: 'none' },
+                  { stroke: '#04121a', width: 5, fill: 'none' },
+                  { stroke: '#04121a', width: 1.5, fill: 'var(--bad)' },
+                ].map((pass) => (
+                  <path
+                    key={pass.width}
+                    d={MUTINY_FLAG(spot.x, spot.y - (paintedGround ? 30 : 52))}
+                    fill={pass.fill}
+                    stroke={pass.stroke}
+                    strokeWidth={pass.width}
+                    strokeLinejoin="round"
+                    style={pass.fill === 'none' ? undefined : { paintOrder: 'stroke fill' }}
+                  />
+                ))}
+              </g>
+            )}
+
             {!bare && sails.length > 0 && (
               <g pointerEvents="none">
                 {sails.map((sail, i) => {
@@ -635,6 +690,8 @@ export function ChainMap({
                   const x = spot.x - ((sails.length - 1) * step) / 2 - w / 2 + i * step;
                   const side = sail.side;
                   const underWay = sail.days !== undefined;
+                  const glyph = SHIP;
+                  const paint = `var(--${side})`;
                   return (
                     <g key={sail.key} transform={`translate(${x} ${spot.y - 74}) scale(${SAIL_SCALE})`}>
                       {/* Outlined in two tones, because one tone only ever
@@ -648,7 +705,7 @@ export function ChainMap({
                           Three passes rather than `paint-order`, which can
                           only give a shape one stroke. */}
                       <path
-                        d={SHIP}
+                        d={glyph}
                         fill="none"
                         stroke="rgba(233,244,248,0.75)"
                         strokeWidth={5.4}
@@ -656,7 +713,7 @@ export function ChainMap({
                         strokeLinejoin="round"
                       />
                       <path
-                        d={SHIP}
+                        d={glyph}
                         fill="none"
                         stroke="#04121a"
                         strokeWidth={3}
@@ -670,9 +727,9 @@ export function ChainMap({
                           "when" is the question you actually ask on seeing
                           it. */}
                       <path
-                        d={SHIP}
-                        fill={underWay ? 'none' : `var(--${side})`}
-                        stroke={underWay ? `var(--${side})` : '#04121a'}
+                        d={glyph}
+                        fill={underWay ? 'none' : paint}
+                        stroke={underWay ? paint : '#04121a'}
                         strokeWidth={underWay ? 2.2 : 1}
                         strokeLinecap="round"
                         strokeLinejoin="round"

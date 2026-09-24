@@ -1489,6 +1489,25 @@ export function SystemSheet({
                       ? () => onPutAboard(system.id)
                       : undefined
                   }
+                  /* And everything else, on a press and hold. Only where there
+                     is more than one thing to offer — a menu of one is a
+                     second tap for nothing. */
+                  actions={
+                    onPutAboard && system.control === state.player && boatsHere
+                      ? [
+                          {
+                            label: 'Put aboard',
+                            hint: 'Into a squadron lying in this harbor',
+                            onPick: () => onPutAboard(system.id),
+                          },
+                          {
+                            label: 'Encyclopedia',
+                            hint: 'What this troop is, and what it is for',
+                            onPick: () => lookUp?.('companies', entry.type.id),
+                          },
+                        ]
+                      : undefined
+                  }
                   label={`${entry.type.name} — ${entry.type.people}`}
                   order={
                     all.length > 1 && onOrderGarrison
@@ -1598,6 +1617,21 @@ export function SystemSheet({
                       : undefined
                 }
                 onClick={() => onOpenCharacter?.(character.id)}
+                /* Hold for the rest. The tap opens their sheet, which is where
+                   an order is given; this is the shortcut past it and the way
+                   to the encyclopedia, which the tap used to own. */
+                actions={[
+                  {
+                    label: 'Open their sheet',
+                    hint: 'Orders, ratings and what they have done',
+                    onPick: () => onOpenCharacter?.(character.id),
+                  },
+                  {
+                    label: 'Encyclopedia',
+                    hint: 'Who they are, in the book',
+                    onPick: () => lookUp?.('people', character.id),
+                  },
+                ]}
                 order={
                   crew.length > 1 && onOrderCrew
                     ? {
