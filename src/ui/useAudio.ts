@@ -20,11 +20,25 @@ const SOUND_KEY = 'seven-seas.sound.v1';
  */
 let shared: AudioEngine | null = null;
 
+/**
+ * Sound is **on unless somebody turned it off**.
+ *
+ * Sean, 24 September: *"Make game music play by default from start. Or at
+ * launch give people option. How do most games do this?"* Both, and this is
+ * the first half. It read `=== 'on'`, so the stored value and the absent value
+ * were the same answer and a first-time player got a silent game with a
+ * commissioned score sitting in the bundle. Opt-out is what games do; the
+ * reason opt-in ever looked reasonable here is the autoplay rule below, which
+ * is a question of *when* the first note may sound and not of whether anybody
+ * wants one.
+ */
 function readPreference(): boolean {
   try {
-    return localStorage.getItem(SOUND_KEY) === 'on';
+    return localStorage.getItem(SOUND_KEY) !== 'off';
   } catch {
-    return false;
+    // A browser that refuses storage is a private window, not a complaint
+    // about the music.
+    return true;
   }
 }
 
@@ -41,7 +55,7 @@ function readPreference(): boolean {
  * Sea meant it lurched every time the player panned the chart. It stops only
  * when the app is genuinely in the background, which is where battery matters.
  */
-export function useAudio(state: GameState) {
+export function useAudio(state: GameState, inGame = true) {
   const [on, setOn] = useState(readPreference);
   // Which kinds of news may make a noise, and which the advisor may speak.
   const [prefs] = usePrefs();
@@ -78,6 +92,27 @@ export function useAudio(state: GameState) {
     await audio.ensureTheme(theme.current);
   }, []);
 
+  /**
+   * Start the engine on a named side's theme, from inside the tap that chose it.
+   *
+   * The title screen's job. A player who has just pressed the Crown should
+   * hear the Crown, and `state.player` does not become the Crown until they
+   * press Begin — so the side comes in as an argument rather than off the
+   * state. Writing `theme.current` is what keeps the later effect quiet: when
+   * Begin does move `state.player`, `ensureTheme` finds that theme already
+   * laid down and does nothing.
+   */
+  const startWith = useCallback(
+    async (side: string) => {
+      const audio = engine.current;
+      if (!audio || !readPreference()) return;
+      theme.current = side as GameState['player'];
+      await audio.start();
+      await audio.ensureTheme(side);
+    },
+    [],
+  );
+
   const toggle = () => {
     const next = !on;
     setOn(next);
@@ -94,13 +129,19 @@ export function useAudio(state: GameState) {
   /**
    * A remembered preference cannot start audio on its own — the browser still
    * wants a gesture — so the first tap anywhere resumes it.
+   *
+   * Not on the title screen, though, which is why `inGame` exists. There the
+   * first tap is very often a faction card, and this listener would race it
+   * and lay down whichever side `newGame()` happened to default to — you press
+   * the Confederacy and hear the Crown. The title screen starts its own music
+   * through `startWith`, so this is the net for everything after it.
    */
   useEffect(() => {
-    if (!on || engine.current?.running) return;
+    if (!inGame || !on || engine.current?.running) return;
     const go = () => void resume();
     window.addEventListener('pointerdown', go, { once: true });
     return () => window.removeEventListener('pointerdown', go);
-  }, [on, resume]);
+  }, [inGame, on, resume]);
 
   useEffect(() => {
     const onVisibility = () => {
@@ -172,7 +213,7 @@ export function useAudio(state: GameState) {
     if (!on) hushVoice();
   }, [on]);
 
-  return { on, toggle };
+  return { on, toggle, startWith };
 }
 
 /**

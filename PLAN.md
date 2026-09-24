@@ -9845,3 +9845,67 @@ quickening, a crew getting up rather than a thing going down.
 
 And the row name in the notification panel is now a button that plays its
 sound. Comparing two of them used to mean playing two wars.
+
+### Music on by default, and the option at launch
+
+Sean, 24 September: *"Make game music play by default from start. Or at launch
+give people option. How do most games do this?"*
+
+**What most games do**, and it is the same answer to both halves of his
+question. A game ships with music **on**, at a sensible level, and puts a mute
+where you can find it — that is the console and PC convention and has been for
+thirty years. The options screen then offers separate Music and Effects
+sliders, because the two get muted for different reasons: people turn music off
+to listen to something else, and effects off to stop a phone chirping in a
+meeting. Nobody opens with a dialog asking permission to play music. A game
+that asks is spending the player's first click on a question they have no basis
+to answer, before they have heard anything or seen the game.
+
+**The web adds one rule, and it is not about preference.** Every browser
+refuses to sound a note until the player has done something — a tap, a click, a
+key. So the web convention is to *default the preference on* and start the
+audio inside the **first deliberate press**, which every game has: Play, Start,
+Continue, Begin. The "🔊 click to enable audio" splash older web games used is
+what you build when there is no natural first press. We have one.
+
+So, both halves, three changes:
+
+**Sound is on unless somebody turned it off.** `readPreference` read
+`=== 'on'`, which made *never chose* and *chose silence* the same answer — so a
+first-time player got a silent game with a commissioned score sitting in the
+bundle. It reads `!== 'off'` now, and a browser that refuses storage counts as
+on, because a private window is not a complaint about the music.
+
+**The theme starts on the side you press.** Not on Begin: the faction card is
+the first real press on that screen, and it is also the moment the game learns
+which of the two themes to lay down. Press the Crown and the Crown comes up
+under your hand. `startWith(side)` takes the side as an argument rather than
+reading `state.player`, because `state.player` does not become your side until
+Begin — and it writes `theme.current`, so when Begin *does* move it the later
+effect finds that theme already playing and does nothing. Continuing a save is
+the same press with the save's own side.
+
+That is also why the blanket "first tap anywhere resumes audio" listener is now
+gated behind `inGame`. On the title screen it would race the faction card and
+win, laying down whichever side `newGame()` happened to default to — press the
+Confederacy, hear the Crown.
+
+**And the mute is on the title screen.** The speaker lives in the top bar
+during a game, and on the title screen there is no top bar, so the one person
+who wants silence had to start a war to get it. A control, not a question.
+
+Checked in a real browser, with Chromium's autoplay policy set to
+`user-gesture-required` and every `AudioContext` construction logged:
+
+```
+before any tap          0 contexts, 0 music requests
+tap the Confederacy     1 context, running, alliance-*.mp3 requested
+press Begin             same context, no second request — it keeps playing
+```
+
+Which is the whole thing: nothing autoplays, nothing is asked, and the music is
+on.
+
+**Still open, and the next thing to do here:** one switch controls music, the
+stingers and the advisor together. The convention is two sliders, and the
+reason it is the convention is that people mute them for different reasons.

@@ -394,7 +394,7 @@ export function App() {
     return () => window.clearInterval(interval);
   }, [running, state.speed]);
 
-  const sound = useAudio(state);
+  const sound = useAudio(state, started);
 
   // ---- Persistence -----------------------------------------------------
   const stateRef = useRef(state);
@@ -851,15 +851,26 @@ export function App() {
       <div className="app">
         <StartScreen
           hasSave={saved !== null}
+          soundOn={sound.on}
+          onToggleSound={sound.toggle}
+          onHear={(side) => void sound.startWith(side)}
           onContinue={() => {
             if (saved) {
               setState(saved);
               // Everything in a resumed game has already happened.
               setToldOf(saved.events.map((e) => e.id));
+              // Resuming is the gesture, and the saved game knows its side —
+              // so the theme comes up here rather than on the next tap.
+              void sound.startWith(saved.player);
             }
             setStarted(true);
           }}
-          onBegin={startNewGame}
+          onBegin={(side) => {
+            // Begin without ever touching a faction card is possible when a
+            // side is already picked, so this is the same start as onHear.
+            void sound.startWith(side);
+            startNewGame(side);
+          }}
         />
       </div>
     );

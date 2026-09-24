@@ -94,7 +94,8 @@ function EyeIcon({ open }: { open: boolean }) {
   );
 }
 
-function SoundIcon({ on }: { on: boolean }) {
+/** Exported so the title screen can offer the same control before a game exists. */
+export function SoundIcon({ on }: { on: boolean }) {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z" fill="currentColor" fillOpacity="0.25" />

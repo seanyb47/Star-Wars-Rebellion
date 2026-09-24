@@ -4,6 +4,7 @@ import reachData from '../data/reaches.json';
 import { numberWord } from './words';
 import type { PlayableFaction } from '../sim';
 import { CompassRose, FactionCrest } from './art';
+import { SoundIcon } from './TopBar';
 import { paintedChart } from './painted';
 
 /**
@@ -42,10 +43,17 @@ const REACHES = reachData.reaches.length;
 
 export function StartScreen({
   hasSave,
+  soundOn,
+  onToggleSound,
+  onHear,
   onContinue,
   onBegin,
 }: {
   hasSave: boolean;
+  soundOn: boolean;
+  onToggleSound: () => void;
+  /** Start the music on this side's theme, from inside the tap that chose it. */
+  onHear: (faction: PlayableFaction) => void;
   onContinue: () => void;
   onBegin: (faction: PlayableFaction) => void;
 }) {
@@ -80,6 +88,23 @@ export function StartScreen({
       */}
       <div className="start__body">
       <header className="start__head">
+        {/*
+          Sean, 24 September: *"Make game music play by default from start. Or
+          at launch give people option."* Both, and this is the option. The
+          speaker lives in the top bar during a game, and the top bar does not
+          exist yet — so a player who wants a silent game had to start one
+          first. It is a control rather than a question: a dialog asking
+          permission to play music is a click before anybody has seen the game,
+          and games that ask it are the ones people remember for asking.
+        */}
+        <button
+          className={`iconbtn start__sound${soundOn ? ' iconbtn--on' : ''}`}
+          onClick={onToggleSound}
+          aria-pressed={soundOn}
+          aria-label={soundOn ? 'Turn sound off' : 'Turn sound on'}
+        >
+          <SoundIcon on={soundOn} />
+        </button>
         <div className="start__rose">
           <CompassRose size={64} opacity={0.55} />
         </div>
@@ -102,7 +127,13 @@ export function StartScreen({
           <button
             key={id}
             className={`facard facard--${id}${faction === id ? ' facard--picked' : ''}`}
-            onClick={() => setFaction(id)}
+            onClick={() => {
+              setFaction(id);
+              // The tap that chooses a side is also the gesture the browser
+              // wants before any audio may sound, so the theme comes up here
+              // rather than on Begin: you press the Crown and hear the Crown.
+              onHear(id);
+            }}
             aria-pressed={faction === id}
           >
             <FactionCrest faction={id} size={64} />
