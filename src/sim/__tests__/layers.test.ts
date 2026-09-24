@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
+import { freeSlots } from '../helpers';
+import { islandBusy } from '../build';
 import {
   CHART_LAYERS,
   idleFacilities,
   islandWorth,
   layerMark,
   layerTally,
+  roomToRaise,
   showsNumber,
   worthTier,
 } from '../layers';
@@ -70,8 +73,18 @@ describe('chart layers', () => {
     const yards = mine.facilities.filter(
       (f) => f.owner === 'empire' && f.type === 'training_facility' && !f.building,
     ).length;
+    /*
+     * And the ground, since 24 September: the count is *things you could set
+     * going here*, so open plots are worth 1 of it. Setting a works building
+     * takes both away at once — the yards of that kind, and the ground, since
+     * an island raises one building at a time and this is now the one. So the
+     * arithmetic has to name both terms or it is testing the old rule.
+     */
+    const land = roomToRaise(mine, 'empire') ? 1 : 0;
     yard.building = { item: 'mine', work: 4, workLeft: 4, travel: 0, travelLeft: 0, costGold: 40 };
-    expect(layerMark(state, mine, 'idleBuildings', 'empire').count ?? 0).toBe(before - yards);
+    expect(layerMark(state, mine, 'idleBuildings', 'empire').count ?? 0).toBe(
+      before - yards - land,
+    );
     yard.building = undefined;
     expect(layerMark(state, mine, 'idleBuildings', 'empire').count ?? 0).toBe(before);
 
@@ -121,18 +134,117 @@ describe('chart layers', () => {
     expect(yards()).toBeGreaterThan(0);
     expect(slips()).toBeGreaterThan(0);
     const both = layerMark(state, island, 'idleBuildings', 'empire').count ?? 0;
+    const yardsBefore = yards();
+    // The ground counts for one too, since 24 September, and raising a works
+    // takes the works lane — so both terms go at once. Named rather than
+    // assumed, because the old `both - 1` was quietly asserting that the
+    // island held exactly one drill ground and no open plot.
+    const land = roomToRaise(island, 'empire') ? 1 : 0;
 
     yard.building = { item: 'mine', work: 4, workLeft: 4, travel: 8, travelLeft: 8, costGold: 40 };
     // The working kind drops out whole; the slipway is untouched and is what
     // is left of the count.
     expect(yards()).toBe(0);
     expect(slips()).toBeGreaterThan(0);
-    expect(layerMark(state, island, 'idleBuildings', 'empire').count).toBe(both - 1);
+    expect(layerMark(state, island, 'idleBuildings', 'empire').count).toBe(
+      both - yardsBefore - land,
+    );
 
     // And a blockade is not idleness: it stops the island earning, not
     // building, so a slipway behind one still wants an order.
     island.blockaded = true;
     expect(layerMark(state, island, 'idleBuildings', 'empire').lit).toBe(true);
+  });
+
+  /**
+   * Open ground is idle too.
+   *
+   * Sean, 24 September, with Highwater open — a shipyard laying down an
+   * Interceptor, two fortresses, four mills and six open plots: *"Also include
+   * in idle buildings anywhere that can have something constructed on it. See
+   * how this is idle bc it has available land and nothing being built."* The
+   * filter was answering a narrower question than its own name.
+   */
+  describe('and open ground counts as something you are not using', () => {
+    const roomy = () => {
+      // An island of yours with plots to spare and nothing going up on them.
+      for (let seed = 700; seed < 760; seed++) {
+        const state = generateGalaxy(seed, 'empire');
+        const island = state.systems.find(
+          (s) => s.control === 'empire' && !s.uprising && freeSlots(s) > 0 && !islandBusy(s, 'empire', 'works'),
+        );
+        if (island) return { state, island };
+      }
+      throw new Error('no island in sixty seeds has room to build on');
+    };
+
+    it('lights an island that has room even with no works on it at all', () => {
+      const { state, island } = roomy();
+      island.facilities = island.facilities.filter((f) => f.owner !== 'empire');
+      expect(idleFacilities(island, 'empire', 'shipyard')).toBe(0);
+      expect(idleFacilities(island, 'empire', 'training_facility')).toBe(0);
+      expect(roomToRaise(island, 'empire')).toBe(true);
+      const mark = layerMark(state, island, 'idleBuildings', 'empire');
+      expect(mark.lit).toBe(true);
+      expect(mark.count).toBe(1);
+    });
+
+    it('goes dark once there is nowhere left to put anything', () => {
+      const { state, island } = roomy();
+      island.facilities = island.facilities.filter((f) => f.owner !== 'empire');
+      island.deposits = [];
+      island.slots = island.facilities.length;
+      expect(freeSlots(island)).toBe(0);
+      expect(roomToRaise(island, 'empire')).toBe(false);
+      expect(layerMark(state, island, 'idleBuildings', 'empire').lit).toBe(false);
+    });
+
+    it('counts an unworked deposit as somewhere to build', () => {
+      // A forest with no mill on it is a berth that will only ever take one
+      // thing and is earning nothing until it does.
+      const { island } = roomy();
+      island.facilities = island.facilities.filter((f) => f.owner !== 'empire');
+      island.slots = island.facilities.length + (island.deposits?.length ?? 0);
+      if ((island.deposits?.length ?? 0) === 0) island.deposits = [{ type: 'forest' }] as never;
+      island.slots = island.facilities.length + (island.deposits?.length ?? 0);
+      expect(freeSlots(island)).toBe(0);
+      expect(roomToRaise(island, 'empire')).toBe(true);
+    });
+
+    it('does not light an island already raising something, however much room is left', () => {
+      // One island raises one building at a time, so a filter that lit this
+      // would send you somewhere you can give no order.
+      const { state, island } = roomy();
+      const mine = island.facilities.find((f) => f.owner === 'empire');
+      expect(freeSlots(island)).toBeGreaterThan(0);
+      if (mine) {
+        mine.building = { item: 'mine', work: 4, workLeft: 4, travel: 0, travelLeft: 0, costGold: 40 };
+        expect(islandBusy(island, 'empire', 'works')).toBeTruthy();
+        expect(roomToRaise(island, 'empire')).toBe(false);
+        expect(layerMark(state, island, 'idleBuildings', 'empire').lit).toBe(false);
+      }
+    });
+
+    it('is not fooled by a hull on the stocks, which takes no ground', () => {
+      // Highwater's own case: the shipyard was busy and the six plots were as
+      // open as they ever were.
+      const { state, island } = roomy();
+      const yard = island.facilities.find((f) => f.owner === 'empire' && f.type === 'shipyard');
+      if (!yard) return;
+      yard.building = { item: 'interceptor-i', work: 30, workLeft: 30, travel: 0, travelLeft: 0, costGold: 100 };
+      expect(islandBusy(island, 'empire', 'works')).toBeNull();
+      expect(roomToRaise(island, 'empire')).toBe(true);
+      expect(layerMark(state, island, 'idleBuildings', 'empire').lit).toBe(true);
+    });
+
+    it('never lights ground that is not yours, or an island in revolt', () => {
+      const { island } = roomy();
+      island.uprising = true;
+      expect(roomToRaise(island, 'empire')).toBe(false);
+      island.uprising = false;
+      island.control = 'alliance';
+      expect(roomToRaise(island, 'empire')).toBe(false);
+    });
   });
 
   it('lights islands where a crew member is ashore with nothing to do', () => {
@@ -317,7 +429,9 @@ describe('which layers count and which grade', () => {
           ['training_facility', 'training_facility', 'shipyard'].includes(f.type) &&
           !f.building &&
           !f.founding,
-      ).length,
+      ).length +
+        // Plus the ground itself, which is one more order you could give.
+        (roomToRaise(yard, 'empire') ? 1 : 0),
     );
     expect(mark.count).toBeGreaterThan(0);
     // A number, not a size: the two never appear on the same mark.

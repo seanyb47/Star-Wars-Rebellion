@@ -10155,3 +10155,65 @@ Checked at 393×852 with the Home Fleet eleven days out and the Windward
 Squadron at anchor: the chip reads "2 Fleets · 1 at sea", the sheet opens on
 **At sea → Home Fleet, At sea for Avermere — 11d**, and tapping the row lands
 on Avermere with the fleet card under it.
+
+### Open ground counts as idle — and what that does to the filter
+
+Sean, 24 September, with Highwater open: a shipyard laying down an Interceptor,
+two fortresses, four mills and **six open plots**. *"Also include in idle
+buildings anywhere that can have something constructed on it. See how this is
+idle bc it has available land and nothing being built."*
+
+He is right that the filter was answering a narrower question than its own
+name. An idle slipway is a works you are not using; six empty berths are an
+*island* you are not using, and it costs the same thing — a fortnight where
+something could have gone up and did not.
+
+`roomToRaise` is the new term, and the three conditions are all load-bearing:
+
+1. **Yours, and not in revolt.** You cannot raise anything on an island that is
+   busy throwing you off it.
+2. **Somewhere to put a building** — an open berth, *or an unworked deposit*,
+   which is a berth that will only ever take one thing and earns nothing until
+   it does.
+3. **The works lane free.** One island raises one building at a time, so an
+   island already putting something up can be given no second order, and a
+   filter that lights an island you can do nothing on is a filter that sends
+   you somewhere for nothing. The same guard `idleFacilities` puts on a yard
+   already working.
+
+It is the *works* lane and nothing else, which is Highwater's own case exactly:
+the shipyard was busy with a hull, a hull takes no ground, and all six plots
+were as open as they ever were.
+
+The count is **things you could set going on this island this morning** — each
+idle works is one, and the ground is one more. One unit, so an island with an
+idle slipway and open plots reads 2 and means it.
+
+**And here is the cost, measured.** Six seeds, both sides machine-played, the
+share of your own islands the filter lights:
+
+```
+day    held   lit        by idle works   by open ground
+  1    10.0   100%       35%             100%
+100    11.2    76%        6%              72%
+400    14.2    91%       59%              86%
+800    15.2    87%       35%              86%
+```
+
+**The filter now lights about nine of every ten islands you hold.** That is the
+honest consequence of the rule as asked, and it is worth Sean's eye: open
+ground is not an exception in this game, it is the normal state of an island,
+so a filter keyed to it stops pointing anywhere in particular. It has gone from
+a nag to a background.
+
+I have shipped it as asked rather than quietly picking a threshold, because
+which of these he wants is a design call and not a bug:
+
+1. **Leave it.** During a build-out that is exactly the answer — *you have room
+   in nine places* — and the numeral still ranks them.
+2. **Unworked deposits only.** A forest with no mill is income you are not
+   collecting, which is the same kind of fact as an idle shipyard; a bare berth
+   is not idle, it is unbuilt. Sharp, and it *fails Highwater* — every deposit
+   there is worked, so the island he pointed at would go dark.
+3. **A threshold**, say half an island's berths standing free. Effective, and
+   the number would be arbitrary.

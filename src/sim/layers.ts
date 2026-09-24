@@ -1,7 +1,7 @@
 import { type MarkSize } from './constants';
-import { ANY_GRADE, buildMenu } from './build';
+import { ANY_GRADE, buildMenu, islandBusy } from './build';
 import { islandIncome } from './economy';
-import { ashoreAt } from './helpers';
+import { ashoreAt, depositsOf, freeSlots } from './helpers';
 import { fleetsAt, isAtSea } from './fleets';
 import { knownIsland, reportOn, sightOf } from './missions';
 import terms from '../data/terms.json';
@@ -68,7 +68,7 @@ export const CHART_LAYERS: LayerSpec[] = [
    * number is every idle works of yours on it, whatever kind, and the
    * Buildings tab it opens on says which.
    */
-  { id: 'idleBuildings', label: 'Idle buildings', hint: `Islands where works of yours have no order on them — a ${terms.facilities.training_facility.toLowerCase()} or a ${terms.facilities.shipyard.toLowerCase()} — numbered by how many are standing.` },
+  { id: 'idleBuildings', label: 'Idle buildings', hint: `Islands where you could set something going and have not: a ${terms.facilities.training_facility.toLowerCase()} or a ${terms.facilities.shipyard.toLowerCase()} with no order on it, or open ground with nothing being raised on it.` },
   { id: 'fleets', label: 'Fleets', hint: 'Islands with hulls lying off them, and where yours are sailing — theirs only as far as you know.' },
   { id: 'garrisons', label: 'Garrisons', hint: `How many ${terms.troops.toLowerCase()} are ashore on each island of yours.` },
   { id: 'missions', label: terms.errands, hint: `Islands your ${terms.crew.toLowerCase()} are working on, or sailing for.` },
@@ -204,6 +204,43 @@ export function idleFacilities(
   return ofKind.filter((f) => !f.founding).length;
 }
 
+/**
+ * Ground of yours with nothing going up on it.
+ *
+ * Sean, 24 September, with Highwater open — a shipyard laying down an
+ * Interceptor, two fortresses, four mills and **six open plots**: *"Also
+ * include in idle buildings anywhere that can have something constructed on
+ * it. See how this is idle bc it has available land and nothing being built."*
+ *
+ * He is right, and the filter was answering a narrower question than its own
+ * name. An idle slipway is a works you are not using; six empty berths are an
+ * *island* you are not using, and it costs you the same thing — a fortnight
+ * where something could have been going up and was not. The filter is the
+ * morning nag, so it should point at both.
+ *
+ * Three conditions, and the third is the one that keeps it honest:
+ *
+ * 1. Yours, and not in revolt — you cannot raise anything on an island that is
+ *    busy throwing you off it.
+ * 2. Somewhere to put a building: an open berth, **or an unworked deposit**,
+ *    which is a berth that will only ever take one thing and is earning
+ *    nothing until it does.
+ * 3. **The works lane is free.** One island raises one building at a time, so
+ *    an island already putting something up cannot be told to start another —
+ *    and a filter that lights an island you can give no order to is a filter
+ *    that sends you somewhere for nothing. It is the same guard
+ *    `idleFacilities` puts on a yard that is already working.
+ *
+ * Note it is the *works* lane and nothing else: Highwater's shipyard was busy
+ * with a hull, which takes no ground and leaves every one of those six plots
+ * as open as it was.
+ */
+export function roomToRaise(system: System, faction: PlayableFaction): boolean {
+  if (system.control !== faction || system.uprising) return false;
+  if (islandBusy(system, faction, 'works')) return false;
+  return freeSlots(system) > 0 || depositsOf(system).length > 0;
+}
+
 /** Hulls of your own at sea with this island as their landfall. */
 function boundFor(state: GameState, system: System, faction: PlayableFaction): number {
   return state.fleets
@@ -266,7 +303,12 @@ export function layerMark(
       // now, so a yard can no longer be idle at you.
       const n =
         idleFacilities(system, faction, 'training_facility') +
-        idleFacilities(system, faction, 'shipyard');
+        idleFacilities(system, faction, 'shipyard') +
+        // And the ground itself, as one more order you could give here. See
+        // `roomToRaise`: the count is *things you could set going on this
+        // island this morning*, which is one unit and not two, so an island
+        // with an idle slipway and open plots reads 2 and means it.
+        (roomToRaise(system, faction) ? 1 : 0);
       return n > 0 ? { lit: true, count: n } : DARK;
     }
     case 'idleCrew': {
