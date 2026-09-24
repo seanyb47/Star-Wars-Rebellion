@@ -217,7 +217,8 @@ function nameWidth(name: string): number {
 }
 
 /** A sail, in a 20-unit box: hulls lying off the island. */
-const SHIP = 'M2 14 h16 l-2 5 h-12 Z M10 13 V3 M10 4 l5 8 h-5';
+/** The sail glyph, exported so the Reach key can draw the very same ship. */
+export const SHIP = 'M2 14 h16 l-2 5 h-12 Z M10 13 V3 M10 4 l5 8 h-5';
 /** Big enough to be the first thing seen in a Reach, small enough to clear
  *  the island above it. */
 const SAIL_SCALE = 2.4;
@@ -402,6 +403,40 @@ export function ChainMap({
         const moored = (['empire', 'alliance'] as const).filter((side) =>
           state.fleets.some((f) => f.systemId === system.id && !f.voyage && f.faction === side),
         );
+        /*
+         * And whatever of yours is on its way here.
+         *
+         * Sean, 24 September: *"When my fleet is en route to an island —
+         * friendly neutral or foe — I should see the icon above the island and
+         * also be able to click on it and see it."* The sail above only ever
+         * drew for `!f.voyage`, so the moment you gave the order the squadron
+         * left the map and did not arrive on it again for a fortnight. The one
+         * time you most want to know where a fleet is, is while it is going
+         * somewhere.
+         *
+         * **Yours only, and on purpose.** An enemy squadron at sea is not
+         * something you can see — that is the whole of the fog rule, and
+         * drawing their voyages would hand over the one thing espionage is
+         * for. This is what *you* ordered, which you already know.
+         *
+         * Nor is it gated on `explored`, which the moored sails are: you know
+         * where you sent your own ships whether or not anybody of yours has
+         * ever been ashore there. That is exactly the island in Sean's
+         * screenshot — Anchorite Rock, held by the Confederacy, no report.
+         */
+        const inbound = state.fleets.filter(
+          (f) => f.faction === viewer && f.voyage?.targetSystemId === system.id,
+        );
+        const soonest = inbound.reduce(
+          (least, f) => Math.min(least, f.voyage!.daysRemaining),
+          Infinity,
+        );
+        /* One sail a side that is here, then one for yours under way. Solid is
+           lying in the water; hollow is still coming, with the days to go. */
+        const sails: Array<{ key: string; side: string; days?: number }> = [
+          ...(explored ? moored.map((side) => ({ key: side, side }) as const) : []),
+          ...(inbound.length > 0 ? [{ key: 'under-way', side: viewer, days: soonest }] : []),
+        ];
 
         /* What this side calls it. Freeport is renamed at runtime, so an
            island the viewer has not explored reads as the charts have it —
@@ -433,8 +468,10 @@ export function ChainMap({
                           moored.length > 0
                             ? `, ${moored.map((m) => factionData[m].shortName).join(' and ')} hulls at anchor`
                             : ''
+                        }${inbound.length > 0 ? `, yours ${soonest} days out` : ''}`
+                      : `${shown}, unexplored${
+                          inbound.length > 0 ? `, yours ${soonest} days out` : ''
                         }`
-                      : `${shown}, unexplored`
             }
           >
             {/* Something to tap. The name itself refuses pointer events so
@@ -590,14 +627,16 @@ export function ChainMap({
                 that side's colour. Above rather than beside, and big: where
                 the fleets are is the first thing worth seeing in a Reach, and
                 at the chart's own scale a fleet is only a large dot. */}
-            {explored && !bare && moored.length > 0 && (
+            {!bare && sails.length > 0 && (
               <g pointerEvents="none">
-                {moored.map((side, i) => {
+                {sails.map((sail, i) => {
                   const w = 20 * SAIL_SCALE;
                   const step = w + 10;
-                  const x = spot.x - ((moored.length - 1) * step) / 2 - w / 2 + i * step;
+                  const x = spot.x - ((sails.length - 1) * step) / 2 - w / 2 + i * step;
+                  const side = sail.side;
+                  const underWay = sail.days !== undefined;
                   return (
-                    <g key={side} transform={`translate(${x} ${spot.y - 74}) scale(${SAIL_SCALE})`}>
+                    <g key={sail.key} transform={`translate(${x} ${spot.y - 74}) scale(${SAIL_SCALE})`}>
                       {/* Outlined in two tones, because one tone only ever
                           works against half the chart. The sail sits over a
                           painting: dark water on one island and sunlit rock on
@@ -624,15 +663,26 @@ export function ChainMap({
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
+                      {/* Solid is a squadron lying in that water; hollow is
+                          one still on its way, in the same colour so it is
+                          plainly the same side's ship and plainly not there
+                          yet. The days to go are printed under it, because
+                          "when" is the question you actually ask on seeing
+                          it. */}
                       <path
                         d={SHIP}
-                        fill={`var(--${side})`}
-                        stroke="#04121a"
-                        strokeWidth={1}
+                        fill={underWay ? 'none' : `var(--${side})`}
+                        stroke={underWay ? `var(--${side})` : '#04121a'}
+                        strokeWidth={underWay ? 2.2 : 1}
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        style={{ paintOrder: 'stroke fill' }}
+                        style={underWay ? undefined : { paintOrder: 'stroke fill' }}
                       />
+                      {underWay && (
+                        <text className="chainmap__eta" x={10} y={31} fill={`var(--${side})`}>
+                          {sail.days}d
+                        </text>
+                      )}
                     </g>
                   );
                 })}

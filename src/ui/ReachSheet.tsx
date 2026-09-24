@@ -6,7 +6,7 @@ import {
   type PlayableFaction,
   type Sector,
 } from '../sim';
-import { ChainMap } from './ChainMap';
+import { ChainMap, SHIP } from './ChainMap';
 import { LayerStrip, useLayerSwipe } from './LayerStrip';
 import type { IslandTab } from './IslandRow';
 import { Sheet } from './components';
@@ -28,6 +28,29 @@ export type { IslandTab };
  * knows which islands are in it. What is happening *on* an island is the
  * island's own panel, one tap away.
  */
+/**
+ * The key's ship: the chart's own glyph at key size, solid or hollow.
+ *
+ * Drawn rather than clipped out of a square, because the difference this key
+ * exists to explain *is* solid against hollow, and a `clip-path` box can only
+ * ever be filled.
+ */
+function Sail({ underWay = false }: { underWay?: boolean }) {
+  return (
+    <svg className="key key--sail" viewBox="0 0 20 20" width="13" height="13" aria-hidden="true">
+      <path
+        d={SHIP}
+        fill={underWay ? 'none' : 'currentColor'}
+        stroke="currentColor"
+        strokeWidth={underWay ? 2 : 1}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity={underWay ? 0.75 : 1}
+      />
+    </svg>
+  );
+}
+
 export function ReachSheet({
   state,
   sector,
@@ -128,7 +151,13 @@ export function ReachSheet({
         <div className="chainmap__key">
           <span><i className="key key--room" /> Room to build</span>
           <span><i className="key key--lean" /> Loyalty</span>
-          <span><i className="key key--ships" /> Hulls at anchor</span>
+          {/* Sean, 24 September: *"When my fleet is en route to an island
+              ... I should see the icon above the island."* It draws hollow
+              until she arrives, so the key shows both states of the one
+              glyph rather than adding a fourth item to a row with no room
+              for one — and draws them with the chart's own path, so the key
+              cannot drift from the thing it explains. */}
+          <span><Sail /> At anchor <Sail underWay /> under way</span>
         </div>
       )}
     </Sheet>

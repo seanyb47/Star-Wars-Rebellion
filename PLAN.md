@@ -10072,3 +10072,50 @@ Three things that would answer it, in the order I would try them:
    climb Sean asked for.
 3. **Leave it.** 82% against a machine-played Crown is not 82% against Sean,
    and the AI's build order is the thing least like a person in the game.
+
+### A squadron under way is on the chart, and you can open it
+
+Sean, 24 September, with Anchorite Rock open and no report on it: *"When my
+fleet is en route to an island — friendly neutral or foe — I should see the
+icon above the island and also be able to click on it and see it."*
+
+Two halves, and the game was failing both.
+
+**The sail drew only for `!f.voyage`.** So the moment you gave the order the
+squadron left the chart and did not appear on it again until it arrived — the
+one time you most want to know where a fleet is being the whole fortnight it is
+going somewhere. A voyage of yours now puts a sail above its destination:
+**hollow**, in your side's colour, with the days to go under it, against the
+solid sail that means hulls lying in that water.
+
+Three rules on it, and each is a line in the diff:
+
+- **Yours only.** An enemy squadron at sea is not something you can see, and
+  drawing their voyages would hand over the one thing espionage is for.
+- **Not gated on `explored`,** which the moored sails are. You know where you
+  sent your own ships whether or not anybody of yours has ever been ashore
+  there — and Sean's island is exactly that case.
+- **Off under the None filter,** with everything else, per his ruling of 23
+  September that None leaves island names and nothing.
+
+The key gained the second state rather than a fourth row, because the row has
+no space for one on a 393px phone. Both glyphs are now drawn from `SHIP`, the
+chart's own path, exported for it: a key that redraws the thing it explains can
+drift from it, and this one cannot.
+
+**And there was nowhere to click through to.** An island with no tabs has no
+Harbor, and there are *two* of those screens — charted-but-never-visited, and
+held-against-you-and-never-looked-at. Both now carry `ShipsHere` with
+`minesOnly`, which is the same component and the same flag the Harbor tab has
+used since 23 September: your own hulls live, because you know where you sent
+them, and not one word about theirs.
+
+Worth recording that the first pass fixed only the second screen. The repro
+island turned out to be the first, the sail was on the chart, tapping it opened
+a sheet with no ship on it, and everything was passing. The test now asserts
+`ShipsHere` appears on both.
+
+Checked by loading a save with the Home Fleet eleven days out from an island
+the Crown has never visited: the hollow sail and `11d` on the chart, the label
+reading *"Avermere, unexplored, yours 11 days out"*, and **Under way to here**
+on the sheet with all three hulls and each one tappable.

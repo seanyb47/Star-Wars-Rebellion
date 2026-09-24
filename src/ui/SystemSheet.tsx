@@ -569,11 +569,27 @@ function NoReport({
   sector,
   state,
   onClose,
+  onSail,
+  onAssault,
+  onBombard,
+  onFlee,
+  onOpenCharacter,
+  onOrderShips,
+  onOrderOfficers,
+  onDetach,
 }: {
   live: System;
   sector: Sector;
   state: GameState;
   onClose: () => void;
+  onSail: (fleetId: string) => void;
+  onAssault: (fleetId: string) => void;
+  onBombard?: (fleetId: string) => void;
+  onFlee?: (fleetId: string) => void;
+  onOpenCharacter?: (characterId: string) => void;
+  onOrderShips?: (fleetId: string, shipIds: string[], dir: -1 | 1) => void;
+  onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
+  onDetach?: (fleetId: string, shipIds: string[], into?: string) => void;
 }) {
   const holder = live.control === 'empire' || live.control === 'alliance' ? live.control : null;
   return (
@@ -633,6 +649,37 @@ function NoReport({
           </p>
         );
       })()}
+      {/*
+        And your own squadrons, here or on their way here.
+
+        Sean, 24 September: *"When my fleet is en route to an island — friendly
+        neutral or foe — I should see the icon above the island and also be able
+        to click on it and see it."* This screen was the half of it that had
+        nowhere to click *to*. An island with no report has no tabs — there is
+        nothing to put on them — so a fleet of yours bound for it had no card
+        anywhere in the game, even though you had given the order yourself and
+        the panel two paragraphs up was already listing inbound *crew* for
+        exactly that reason.
+
+        `minesOnly` is what keeps this honest: your own hulls, live, because you
+        know where you sent them, and not one word about theirs. Their order of
+        battle is what the paragraph above tells you to go and find out.
+      */}
+      <div style={{ marginTop: 14 }}>
+        <ShipsHere
+          state={state}
+          systemId={live.id}
+          minesOnly
+          onSail={onSail}
+          onAssault={onAssault}
+          onBombard={onBombard}
+          onFlee={onFlee}
+          onOpenCharacter={onOpenCharacter}
+          onOrderShips={onOrderShips}
+          onOrderOfficers={onOrderOfficers}
+          onDetach={onDetach}
+        />
+      </div>
     </Sheet>
   );
 }
@@ -713,6 +760,33 @@ export function SystemSheet({
           on it, and whether a garrison landed would be enough to claim it, is rumour until
           someone goes and looks.
         </p>
+        {/*
+          And your own squadrons, bound for it. The same rule as `NoReport`
+          below and for the same reason — Sean, 24 September: *"When my fleet
+          is en route to an island — friendly neutral or foe — I should see the
+          icon above the island and also be able to click on it and see it."*
+          An island nobody has landed on has no tabs, so without this the sail
+          on the chart pointed at a screen with no ship on it.
+
+          This is the screen you reach *before* the one below: charted and
+          never visited, rather than held against you and never looked at. Both
+          are places you can be sailing to.
+        */}
+        <div style={{ marginTop: 14 }}>
+          <ShipsHere
+            state={state}
+            systemId={live.id}
+            minesOnly
+            onSail={onSail}
+            onAssault={onAssault}
+            onBombard={onBombard}
+            onFlee={onFlee}
+            onOpenCharacter={onOpenCharacter}
+            onOrderShips={onOrderShips}
+            onOrderOfficers={onOrderOfficers}
+            onDetach={onDetach}
+          />
+        </div>
       </Sheet>
     );
   }
@@ -747,7 +821,22 @@ export function SystemSheet({
   const filed = reportOn(state, live, state.player);
   const report = sight === 'report' ? filed : undefined;
   if (sight === 'none') {
-    return <NoReport live={live} sector={sector} state={state} onClose={onClose} />;
+    return (
+      <NoReport
+        live={live}
+        sector={sector}
+        state={state}
+        onClose={onClose}
+        onSail={onSail}
+        onAssault={onAssault}
+        onBombard={onBombard}
+        onFlee={onFlee}
+        onOpenCharacter={onOpenCharacter}
+        onOrderShips={onOrderShips}
+        onOrderOfficers={onOrderOfficers}
+        onDetach={onDetach}
+      />
+    );
   }
   const system = report ? report.island : live;
 

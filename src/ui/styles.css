@@ -1602,6 +1602,10 @@ button {
   background: linear-gradient(90deg, var(--empire) 0 55%, var(--alliance) 55% 100%);
 }
 .key--ships { clip-path: polygon(45% 0, 55% 0, 55% 55%, 100% 55%, 85% 100%, 15% 100%, 0 55%, 45% 55%); }
+/* The key's ship is drawn rather than clipped, because solid against hollow is
+   the whole of what it explains and a clipped box can only be filled. See the
+   `Sail` component in ReachSheet. */
+.key--sail { width: 13px; height: 13px; background: none; overflow: visible; }
 
 /* ---------- Fleets ---------- */
 /* The harbor is a list. A row is a class of hull with how many there are, how
@@ -2237,6 +2241,16 @@ button.tcard:hover { border-color: var(--brass); }
   font-size: 34px; font-weight: 800; text-anchor: middle;
   font-variant-numeric: tabular-nums; paint-order: stroke fill;
   stroke: #041219cc; stroke-width: 6px; stroke-linejoin: round;
+}
+
+/* Days until a squadron of yours reaches this island, under its hollow sail.
+   Drawn inside the sail's own transform, so the size is in the sail's units
+   and not the chart's — small against the hull, which is why the stroke is
+   thinner than the numeral above. */
+.chainmap__eta {
+  font-size: 9px; font-weight: 800; text-anchor: middle;
+  font-variant-numeric: tabular-nums; paint-order: stroke fill;
+  stroke: #041219e6; stroke-width: 2.6px; stroke-linejoin: round;
 }
 
 /* ---------- The advisor's frame ----------
