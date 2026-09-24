@@ -200,7 +200,7 @@ export function controlColor(system: System, viewer: PlayableFaction): string {
   // distinction nobody read. The dashed edge says which. Light enough to be
   // seen against the water — the old --unknown was a ghost, and a ghost was
   // as good as hidden.
-  return system.populated ? 'var(--neutral)' : OPEN_GREY;
+  return system.populated ? 'var(--unheld)' : OPEN_GREY;
 }
 
 /**

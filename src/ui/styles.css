@@ -19,10 +19,32 @@
   --empire: #4fc46a;
   --alliance: #d8483f;
   --neutral: #7cc6f5;
+  /*
+     Nobody's flag, **on a chart**.
+
+     Sean, 24 September, on the Reach map while assigning a mission: *"So hard
+     to see blue from green on this screen."* He is right and it is measurable:
+     the Crown's green and this light blue have almost exactly the same
+     lightness, so the contrast between the two names is **1.19:1** — the only
+     thing telling them apart is hue, on the one axis that fails in sunlight,
+     over a blue-green sea, and for the one person in twelve with a red-green
+     deficiency.
+
+     So an island nobody holds is parchment on a chart: warm where both
+     factions are cool, and much brighter than either. Green against it goes
+     1.19:1 -> 1.70:1 and gains a warm/cool flip on top, which is the part
+     that survives a colour-blind eye. Only the chart uses it — `--neutral`
+     still tints an order in the log and a supernatural card, where nothing
+     sits beside a faction colour and there is no confusion to fix.
+  */
+  --unheld: #f0e0b8;
   --unknown: #93a7af;
-  /* An unexplored island's name on the chain map: pale enough to read over
-     a scrimmed painting, kept off white so a charted island still stands out. */
-  --unknown-name: #cdd8dd;
+  /* An unexplored island's name on the chain map. Dimmer since 24 September,
+     with the change above: parchment and this pale grey were 1.11:1, and a
+     thing you know nothing about should recede rather than compete. It now
+     falls back to the water (5.55:1 on it, still plainly legible) and reads
+     two stops below anything charted. */
+  --unknown-name: #8fa3ad;
   --good: #4ec98a;
   --bad: #e2504a;
   /* How badly a hull is hurt, as a ladder rather than one word for "not
@@ -1553,7 +1575,10 @@ button {
 .key--room { width: 22px; background: linear-gradient(90deg, #f4f7f8 0 50%, #8fa0a8 50% 100%); border-radius: 2px; }
 .key--lean {
   width: 22px; border-radius: 2px;
-  background: linear-gradient(90deg, var(--empire) 0 45%, var(--neutral) 45% 75%, var(--alliance) 75% 100%);
+  /* Two colours, because the bar it is a key to has two: the shares add up to
+     a hundred and there is no undecided middle. It carried a third band until
+     24 September, which stood for nothing on the chart beside it. */
+  background: linear-gradient(90deg, var(--empire) 0 55%, var(--alliance) 55% 100%);
 }
 .key--ships { clip-path: polygon(45% 0, 55% 0, 55% 55%, 100% 55%, 85% 100%, 15% 100%, 0 55%, 45% 55%); }
 

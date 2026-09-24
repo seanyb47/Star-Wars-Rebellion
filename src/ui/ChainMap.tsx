@@ -231,7 +231,10 @@ export function controlColour(system: System, viewer: 'empire' | 'alliance'): st
     case 'alliance':
       return 'var(--alliance)';
     case 'neutral':
-      return 'var(--neutral)';
+      // Parchment, not the light blue everything else neutral wears: see
+      // `--unheld`. On a chart it sits beside the Crown's green, and the two
+      // were the same lightness.
+      return 'var(--unheld)';
     default:
       return '#7c8d95';
   }

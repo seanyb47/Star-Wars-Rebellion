@@ -9909,3 +9909,58 @@ on.
 **Still open, and the next thing to do here:** one switch controls music, the
 stingers and the advisor together. The convention is two sliders, and the
 reason it is the convention is that people mute them for different reasons.
+
+### Nobody's island stops being blue
+
+Sean, 24 September, with a screenshot of the Sunken Reach and a mission half
+assigned: *"So hard to see blue from green on this screen. When assigning
+missions."*
+
+He is right and it is arithmetic rather than taste. Three colours name an
+island — the Crown's green `#4fc46a`, the Confederacy's red `#d8483f`, and an
+unheld island in `--neutral` `#7cc6f5` — and the first and the third have
+**almost exactly the same lightness**:
+
+```
+green vs red        1.92:1
+green vs blue       1.19:1   <- the complaint
+blue  vs unexplored 1.29:1   <- and its neighbour
+```
+
+1.19:1 means the two names differ in *nothing but hue*, on the red-green axis,
+over a blue-green sea, on a phone held outdoors, for the one person in twelve
+with a colour deficiency. Every one of those takes hue away and leaves nothing.
+
+An unheld island is now **parchment**, `--unheld: #f0e0b8`. That buys two
+things and the second matters more:
+
+```
+green vs parchment  1.70:1   and warm against two cool colours
+```
+
+The lightness gap is worth having; the warm/cool flip is what survives an eye
+that cannot separate red from green at all, because it is a different channel
+rather than more of the failing one. It is also truer — the two sides own green
+and red, and an island under nobody's flag should read as the chart's own
+parchment rather than as a third faction.
+
+`--neutral` keeps its blue for everything that is *not* an allegiance — an
+order in the log, a supernatural card — where nothing sits beside a faction
+colour and there was never anything to confuse.
+
+Two things fell out of it that were already wrong:
+
+**An uncharted island now recedes.** `--unknown-name` was `#cdd8dd`, which
+against parchment is 1.11:1 — I had moved one collision into another. It is
+`#8fa3ad` now: two stops below anything charted, still 5.55:1 against the
+water. A thing you know nothing about should fall back, not compete.
+
+**The loyalty key lost a band that stood for nothing.** The swatch under the
+chart was a three-colour gradient, green–neutral–red, but `segmentsFor` has
+emitted only two segments since the undecided middle was removed — the shares
+add up to a hundred. The key showed a third colour the bar above it could never
+draw. It is green and red now, like the bar.
+
+`mapcolours.test.ts` measures the palette rather than trusting it: every pair of
+holder colours must clear 1.4:1, the unheld one must be warm, and all three must
+stay above 3:1 on the water.

@@ -4,9 +4,8 @@ import type { PlayableFaction, System } from '../sim';
  * How an island's allegiance is drawn, everywhere it is drawn.
  *
  * One rule, in one place, so the chart, the chain chart and the panels cannot
- * disagree: **largest share first, left to right.** The undecided remainder —
- * people who have not picked a side — is a share like any other and sorts with
- * them, in neutral blue.
+ * disagree: **largest share first, left to right.** There is no undecided
+ * share — see `segmentsFor` — so the bar is only ever the two of them.
  *
  * Who holds the island is deliberately not part of this. It used to lead the
  * bar, and that made the same two numbers draw two different ways depending on
@@ -56,5 +55,8 @@ export function segmentsFor(
 }
 
 export function allegianceColour(faction: PlayableFaction | 'neutral'): string {
-  return `var(--${faction})`;
+  // Nobody's is `--unheld` and not `--neutral`: on a chart it sits beside the
+  // Crown's green, and the two were the same lightness. One idea, one colour,
+  // wherever an allegiance is drawn.
+  return faction === 'neutral' ? 'var(--unheld)' : `var(--${faction})`;
 }
