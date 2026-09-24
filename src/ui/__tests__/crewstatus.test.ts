@@ -19,6 +19,16 @@ function anyone(state: GameState): Character {
   return state.characters.find((c) => c.faction === 'alliance')!;
 }
 
+/*
+ * "Making port", not "At sea". Sean, 24 September: *"Dont say at sea. Say
+ * 'Making for port, due in X days'."* A badge is too narrow for the whole
+ * sentence, so it carries the short form plus the days, which is the shape
+ * **Laid up 4d** beside it already uses. The days are asserted as well as the
+ * words: the point of the change is the number, and a badge that said
+ * "Making port" and nothing else would be the old badge with new words on it.
+ */
+const MAKING = /^Making port \d+d$/;
+
 describe('what the crew badge says', () => {
   it('says ashore for the half of an errand that is spent ashore', () => {
     const state = generateGalaxy(11, 'alliance');
@@ -26,7 +36,7 @@ describe('what the crew badge says', () => {
     person.status = 'on_mission';
 
     person.mission = errand('travelling', person.locationSystemId);
-    expect(crewStatus(person, state).label).toBe('At sea');
+    expect(crewStatus(person, state).label).toMatch(MAKING);
 
     person.mission = errand('working', person.locationSystemId);
     expect(crewStatus(person, state).label).toBe('Ashore');
@@ -43,10 +53,11 @@ describe('what the crew badge says', () => {
     expect(crewStatus(escort, state).label).toBe('Ashore');
 
     leader.mission.phase = 'travelling';
-    expect(crewStatus(escort, state).label).toBe('At sea');
+    // Read off the leader's passage, since the escort carries no errand.
+    expect(crewStatus(escort, state).label).toMatch(MAKING);
   });
 
-  it('says at sea for somebody free but aboard a squadron under way', () => {
+  it('counts the squadron’s passage for somebody free but aboard one under way', () => {
     const state = generateGalaxy(11, 'alliance');
     const person = anyone(state);
     const port = getSystem(state, person.locationSystemId);
@@ -57,7 +68,7 @@ describe('what the crew badge says', () => {
 
     const away = state.systems.find((s) => s.sectorId !== port.sectorId)!;
     sailFleet(state, fleet.id, away.id, 'alliance');
-    expect(crewStatus(person, state).label).toBe('At sea');
+    expect(crewStatus(person, state).label).toMatch(MAKING);
   });
 
   it('leaves the other three states alone', () => {

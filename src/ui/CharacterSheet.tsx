@@ -35,6 +35,35 @@ function Where({
 }
 
 /**
+ * A passage, said as an errand rather than as a state.
+ *
+ * Sean, 24 September: *"Dont say at sea. Say 'Making for port, due in X
+ * days'."* *At sea* is where somebody is and gives a player nothing to plan
+ * around; *due in six days* is the fact the decision turns on. A badge is too
+ * narrow for the whole sentence, so it carries the short form and the days —
+ * the same shape the badge beside it already uses for **Laid up 4d** — and
+ * `fleetStatus` carries the full sentence where there is room for it.
+ *
+ * The days come from whichever passage they are on: their own errand, the
+ * leader's if they are only along for it, or the squadron's voyage.
+ */
+function underWay(state: GameState | undefined, character: Character): string {
+  const own = character.mission?.phase === 'travelling' ? character.mission.daysRemaining : undefined;
+  const leader =
+    own === undefined && state && character.escorting
+      ? state.characters.find((c) => c.id === character.escorting)?.mission
+      : undefined;
+  const led = leader?.phase === 'travelling' ? leader.daysRemaining : undefined;
+  const boat =
+    own === undefined && led === undefined && state
+      ? state.fleets.find((f) => f.voyage && f.officerIds.includes(character.id))?.voyage
+          ?.daysRemaining
+      : undefined;
+  const days = own ?? led ?? boat;
+  return days === undefined ? 'Making for port' : `Making port ${days}d`;
+}
+
+/**
  * What somebody is doing, in two words.
  *
  * "At sea" used to stand for the whole of `on_mission`, which covers the
@@ -50,7 +79,7 @@ export type CrewStatus = { label: string; tone: 'good' | 'neutral' | 'warn' };
 export function crewStatus(character: Character, state?: GameState): CrewStatus {
   switch (character.status) {
     case 'available':
-      if (state && atSeaNow(state, character)) return { label: 'At sea', tone: 'neutral' };
+      if (state && atSeaNow(state, character)) return { label: underWay(state, character), tone: 'neutral' };
       /*
        * Holding an island is a posting, and this badge used to miss it.
        *
@@ -71,7 +100,7 @@ export function crewStatus(character: Character, state?: GameState): CrewStatus 
     case 'on_mission':
       return errandPhase(character, state) === 'working'
         ? { label: 'Ashore', tone: 'neutral' }
-        : { label: 'At sea', tone: 'neutral' };
+        : { label: underWay(state, character), tone: 'neutral' };
     case 'injured':
       return { label: `Laid up ${character.injuredDays ?? 0}d`, tone: 'warn' };
     default:
@@ -178,7 +207,11 @@ export function CharacterSheet({
         ) : ship ? (
           <>
             On the {ship.name}
-            {ship.voyage ? ', at sea' : <>, at <Where system={location} onLocate={onLocate} /></>}
+            {ship.voyage
+              ? `, making for port, due in ${ship.voyage.daysRemaining} ${
+                  ship.voyage.daysRemaining === 1 ? 'day' : 'days'
+                }`
+              : <>, at <Where system={location} onLocate={onLocate} /></>}
           </>
         ) : (
           <>On <Where system={location} onLocate={onLocate} /></>
@@ -205,7 +238,7 @@ export function CharacterSheet({
               disabled={atSea}
               onClick={() => onRelieve(character.id)}
             >
-              {atSea ? 'At sea' : 'Relieve'}
+              {atSea ? 'Under way' : 'Relieve'}
             </button>
           )}
         </>

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../../sim/galaxy';
+import { addShip, fleetStatus, sailFleet } from '../../sim';
 import type { GameState } from '../../sim';
 
 /**
@@ -136,8 +137,10 @@ describe('the list of your fleets', () => {
     expect(LIST).toMatch(/state\.fleets\.filter\(\(f\) => f\.faction === state\.player\)/);
   });
 
-  it('puts the ones at sea first, because nothing else can show you those', () => {
-    const sea = LIST.indexOf('>At sea<');
+  it('puts the ones under way first, because nothing else can show you those', () => {
+    // "Under way", not "At sea", since 24 September — and each row beneath it
+    // carries `fleetStatus`, which now names the port and the day she is due.
+    const sea = LIST.indexOf('>Under way<');
     const anchor = LIST.indexOf('>At anchor<');
     expect(sea).toBeGreaterThan(0);
     expect(anchor).toBeGreaterThan(sea);
@@ -161,7 +164,59 @@ describe('the list of your fleets', () => {
     expect(UI['../App.tsx']).toMatch(/onOpenFleets=\{\(\) => setFleetsOpen\(true\)\}/);
   });
 
-  it('and the chip says how many are at sea, which the chart cannot draw', () => {
-    expect(CHIP).toMatch(/at sea/);
+  it('and the chip says how many are under way, which the chart cannot draw', () => {
+    expect(CHIP).toMatch(/under way/);
+  });
+});
+
+/**
+ * A passage is an errand, not a state.
+ *
+ * Sean, 24 September: *"Dont say at sea. Say 'Making for port, due in X
+ * days'."* `At sea for Anchorite Rock — 6d` told you where a squadron was;
+ * what a player needs is when she arrives, because that is the fact every
+ * decision on the screen turns on. One sentence in the sim, so the fleet
+ * list, the island panel and the crew sheet cannot word the same voyage three
+ * ways.
+ */
+describe('what a squadron under way says about herself', () => {
+  it('names the port and the day she is due', () => {
+    const state = generateGalaxy(11, 'alliance');
+    const port = state.systems.find((s) => s.control === 'alliance')!;
+    const fleet = addShip(state, port, 'alliance', 'reefwarden');
+    const away = state.systems.find((s) => s.sectorId !== port.sectorId)!;
+    sailFleet(state, fleet.id, away.id, 'alliance');
+    const line = fleetStatus(state, fleet);
+    expect(line).toContain(`Making for ${away.name}`);
+    expect(line).toMatch(/due in \d+ days?/);
+    expect(line).not.toMatch(/at sea/i);
+  });
+
+  it('falls back to his own wording for a landfall you cannot see', () => {
+    const state = generateGalaxy(11, 'alliance');
+    const port = state.systems.find((s) => s.control === 'alliance')!;
+    const fleet = addShip(state, port, 'alliance', 'reefwarden');
+    const away = state.systems.find((s) => s.sectorId !== port.sectorId)!;
+    sailFleet(state, fleet.id, away.id, 'alliance');
+    fleet.voyage!.targetSystemId = 'nowhere-at-all';
+    expect(fleetStatus(state, fleet)).toMatch(/^Making for port, due in \d+ days?$/);
+  });
+
+  it('says one day rather than 1 days', () => {
+    const state = generateGalaxy(11, 'alliance');
+    const port = state.systems.find((s) => s.control === 'alliance')!;
+    const fleet = addShip(state, port, 'alliance', 'reefwarden');
+    const away = state.systems.find((s) => s.sectorId !== port.sectorId)!;
+    sailFleet(state, fleet.id, away.id, 'alliance');
+    fleet.voyage!.daysRemaining = 1;
+    expect(fleetStatus(state, fleet)).toContain('due in 1 day');
+    expect(fleetStatus(state, fleet)).not.toContain('1 days');
+  });
+
+  it('leaves a squadron at anchor alone', () => {
+    const state = generateGalaxy(11, 'alliance');
+    const port = state.systems.find((s) => s.control === 'alliance')!;
+    const fleet = addShip(state, port, 'alliance', 'reefwarden');
+    expect(fleetStatus(state, fleet)).toBe('At anchor');
   });
 });

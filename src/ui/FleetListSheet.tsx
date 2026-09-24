@@ -23,7 +23,7 @@ import { Sheet } from './components';
  *
  * So: one list, every fleet of yours, wherever it is.
  *
- * **At sea first**, because those are the ones the rest of the game cannot
+ * **Under way first**, because those are the ones the rest of the game cannot
  * show you. A fleet at anchor is on the chart under a solid sail and in its
  * island's harbor; a fleet on passage is a hollow sail above an island it has
  * not reached, and until this list it was the thing you had to remember rather
@@ -85,7 +85,7 @@ export function FleetListSheet({
           ? 'Nothing of yours is in the water.'
           : `${mine.length} ${mine.length === 1 ? 'squadron' : 'squadrons'} · ${hulls} ${
               hulls === 1 ? 'hull' : 'hulls'
-            }${sailing.length > 0 ? ` · ${sailing.length} at sea` : ''}`
+            }${sailing.length > 0 ? ` · ${sailing.length} under way` : ''}`
       }
       onClose={onClose}
     >
@@ -94,10 +94,12 @@ export function FleetListSheet({
           Lay down a hull at a {terms.facilities.shipyard.toLowerCase()} and it will be here.
         </p>
       )}
-      {/* At sea first: these are the ones nothing else on screen can show you. */}
+      {/* Under way first: these are the ones nothing else on screen can show you. */}
       {sailing.length > 0 && (
         <>
-          <div className="section-title">At sea</div>
+          {/* "Under way", not "At sea": Sean, 24 September. Each row under it
+              says where she is making for and when she is due. */}
+          <div className="section-title">Under way</div>
           {sailing.map((f) => (
             <Row key={f.id} fleet={f} />
           ))}

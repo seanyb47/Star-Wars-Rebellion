@@ -248,7 +248,7 @@ export function ArtSheet() {
         )}
       </Row>
 
-      <Row label="People, dimmed" note="away at sea or laid up">
+      <Row label="People, dimmed" note="away under way or laid up">
         {CAST.slice(0, 4).map((c, i) => (
           <Item key={c.name} caption={c.name.split(" ").pop() ?? c.name}>
             <CharacterPortrait name={c.name} faction={FACTIONS[i % 2]} people={c.people} size={44} dim />

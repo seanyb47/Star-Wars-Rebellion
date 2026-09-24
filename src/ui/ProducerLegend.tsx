@@ -51,13 +51,15 @@ export function ProducerLegend({
         <button
           className="idle__item"
           onClick={onOpenFleets}
-          aria-label={`Your fleets: ${mine.length}${atSea > 0 ? `, ${atSea} at sea` : ''}`}
+          aria-label={`Your fleets: ${mine.length}${atSea > 0 ? `, ${atSea} under way` : ''}`}
         >
-          {/* The count says how many squadrons; "at sea" is appended only when
+          {/* The count says how many squadrons; "under way" is appended only when
               some are, because that is the half of the answer the chart cannot
               draw for you and a steady label would bury it. */}
           <span className="idle__n">{mine.length}</span>
-          <span className="idle__label">{atSea > 0 ? `Fleets · ${atSea} at sea` : 'Fleets'}</span>
+          <span className="idle__label">
+            {atSea > 0 ? `Fleets · ${atSea} under way` : 'Fleets'}
+          </span>
         </button>
       )}
     </div>

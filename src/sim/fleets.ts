@@ -183,12 +183,24 @@ export function fleetDamaged(fleet: Fleet): number {
   return fleet.ships.filter((s) => s.damage > 0).length;
 }
 
-/** Plain language, as the original states it, rather than an icon. */
+/**
+ * Plain language, as the original states it, rather than an icon.
+ *
+ * **A squadron under way is making for somewhere**, at Sean's word of 24
+ * September: *"Dont say at sea. Say 'Making for port, due in X days'."* The
+ * old line was `At sea for Anchorite Rock — 6d`, which reads as a state and
+ * not as an errand: *at sea* is where she is and tells you nothing to plan
+ * around, while *due in six days* is the fact every decision on this screen
+ * turns on. Where the destination is charted it is named, because a named
+ * port is better than the word, and his phrasing is the fallback for a
+ * squadron whose landfall you cannot see.
+ */
 export function fleetStatus(state: GameState, fleet: Fleet): string {
   if (fleet.voyage) {
     const target = state.systems.find((s) => s.id === fleet.voyage!.targetSystemId);
     const days = fleet.voyage.daysRemaining;
-    return `At sea for ${target?.name ?? 'open water'} — ${days}d`;
+    const due = `due in ${days} ${days === 1 ? 'day' : 'days'}`;
+    return target ? `Making for ${target.name}, ${due}` : `Making for port, ${due}`;
   }
   const here = state.systems.find((s) => s.id === fleet.systemId);
   if (here && here.control !== fleet.faction && fortsOf(here).length > 0 && fleetBombard(fleet) > 0) {

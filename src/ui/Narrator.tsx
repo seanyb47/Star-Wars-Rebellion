@@ -113,7 +113,7 @@ function buildAnswers(state: GameState): Answer[] {
       reply:
         idle.length === 0
           ? voice
-            ? 'Nobody. All of them at sea or laid up — which is where you sent them, Imperator.'
+            ? 'Nobody. All of them under way or laid up — which is where you sent them, Imperator.'
             : "Nobody! They're all out. You sent them, General, remember."
           : voice
             ? `${idle.length} idle. The best negotiator is listed first; the rest are waiting to be noticed.`
