@@ -89,31 +89,59 @@ describe('income', () => {
     expect(islandIncome(island, 'empire')).toBe(0);
   });
 
-  it('adds the day’s takings to the treasury', () => {
+  it('adds the day’s takings to the treasury, on the day', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
     island.facilities = [{ id: 'f1', type: 'mine', owner: 'empire' }];
     island.support.empire = 100;
     state.factions.empire.gold = 0;
-    settleOnce(state);
-    // A fortnight of it, in one payment.
-    expect(state.factions.empire.gold).toBeCloseTo(GOLD_PER_DAY.mine * FORTNIGHT);
+    state.day = 1;
+    settleLedger(state, createRng(1));
+    expect(state.factions.empire.gold).toBeCloseTo(GOLD_PER_DAY.mine);
   });
 
-  it('moves nothing at all on the thirteen days between settlements', () => {
+  /**
+   * Sean, 24 September: *"I noticed gold doesn't go up daily. Can we make it so
+   * gold ticks up daily but upkeep is on the fortnight?"* Both halves used to
+   * move together on day fourteen. The stock chart his 20 September ruling was
+   * about was the *net* — a figure jittering either side of nothing — and
+   * income on its own does not jitter, it climbs.
+   */
+  it('climbs every morning, and only the bill waits for the fortnight', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
     island.facilities = [{ id: 'f1', type: 'mine', owner: 'empire' }];
     island.support.empire = 100;
     state.factions.empire.gold = 0;
+    // Nothing on this island costs anything to keep, so the climb is clean.
     for (let day = 1; day < FORTNIGHT; day += 1) {
       state.day = day;
       settleLedger(state, createRng(day));
-      expect(state.factions.empire.gold, `day ${day}`).toBe(0);
+      expect(state.factions.empire.gold, `day ${day}`).toBeCloseTo(GOLD_PER_DAY.mine * day);
     }
     state.day = FORTNIGHT;
     settleLedger(state, createRng(1));
-    expect(state.factions.empire.gold).toBeGreaterThan(0);
+    expect(state.factions.empire.gold).toBeCloseTo(GOLD_PER_DAY.mine * FORTNIGHT);
+  });
+
+  it('takes the same out of a fortnight as it ever did', () => {
+    // The point of the change is *when*, not how much. Fourteen days of income
+    // in and fourteen days of upkeep out, whichever way round they are paid.
+    const state = generateGalaxy(101);
+    const island = isolate(state, 'empire');
+    island.facilities = [
+      { id: 'f1', type: 'mine', owner: 'empire' },
+      { id: 'f2', type: 'shipyard', owner: 'empire' },
+    ];
+    island.support.empire = 100;
+    state.factions.empire.gold = 10_000;
+    const before = state.factions.empire.gold;
+    for (let day = 1; day <= FORTNIGHT; day += 1) {
+      state.day = day;
+      settleLedger(state, createRng(day));
+    }
+    const fs = state.factions.empire;
+    expect(fs.gold - before).toBeCloseTo((fs.income - fs.upkeep) * FORTNIGHT);
   });
 
   it('runs a share of a disloyal island’s trade to the enemy, by band', () => {

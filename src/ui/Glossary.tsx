@@ -259,7 +259,7 @@ function groups(): Group[] {
           // rings on the day badge need no label. Sean, 21 September: *"don't
           // really have to explain them — people will figure out what they
           // are, and the explanation can be in the upkeep glossary entry."*
-          'What everything you own costs to keep. It is not charged daily: every fourteen days the books are settled, the game looks at what you have, and you pay for it — so a hull laid down the day after a settlement is free until the next one. The two rings around the date are the two clocks that matter: the inner one is the day turning, the outer one is how far through the fortnight you are. The figure at the top of the screen is what you make after upkeep.',
+          'What everything you own costs to keep. It is not charged daily: every fourteen days the books are settled, the game looks at what you have, and you pay for it — so a hull laid down the day after a settlement is free until the next one. Trade is the other way round and comes in every morning, so the treasury climbs for thirteen days and then the bill lands, and what you spent in between is gone whether or not the bill needed it. The two rings around the date are the two clocks that matter: the inner one is the day turning, the outer one is how far through the fortnight you are. The figure at the top of the screen is what you make after upkeep.',
         ],
         [
           terms.space,

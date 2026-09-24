@@ -353,11 +353,31 @@ export function scrap(state: GameState, faction: PlayableFaction, what: ScrapTar
 }
 
 /**
- * The fortnightly settlement, and what happens when it cannot be met.
+ * Trade comes in every morning; the bill falls due once a fortnight.
  *
- * Fourteen days of income in, fourteen days of upkeep out, once. Between
- * settlements nothing moves and the banner's figures do not change, which is
- * the point of doing it this way at all.
+ * Sean, 24 September: *"I noticed gold doesn't go up daily. Can we make it so
+ * gold ticks up daily but upkeep is on the fortnight?"* Both halves of the
+ * ledger used to move together on day fourteen, which was his own ruling of 20
+ * September — *"let's change from daily to fortnight... otherwise people are
+ * going to be looking at it like a stock chart."* That reason survives this
+ * change intact, because **the stock chart was the net**: a figure that rose
+ * on a good morning and fell on a bad one, jittering either side of nothing.
+ * Income alone does not jitter. It climbs, every day, at a rate you set by
+ * taking islands and raising works, and watching it climb is the point of
+ * having raised them.
+ *
+ * So the smooth half moves daily and the lumpy half stays lumpy. Over any
+ * fourteen days the totals are exactly what they were — fourteen days of
+ * income in, fourteen days of upkeep out — and what changed is *when*, which
+ * is the whole of what a player feels.
+ *
+ * It does put more in your hand mid-fortnight than you can afford to keep, and
+ * that is a feature rather than an oversight: gold earned on day seven can be
+ * spent on day seven, and the bill on day fourteen does not care that you
+ * spent it. Which is the shortfall rule below, finally given something to do.
+ *
+ * On settlement day income is credited first and the bill drawn after, so a
+ * full fortnight's trade is in hand before anything is asked of it.
  *
  * A **shortfall** is the settlement you cannot pay. Sean: *"the game randomly
  * selects units and basically blows them up to get you the gold back to pay
@@ -369,17 +389,17 @@ export function scrap(state: GameState, faction: PlayableFaction, what: ScrapTar
  * could have done it first.
  */
 export function settleLedger(state: GameState, rng: Rng): void {
-  if (state.day % FORTNIGHT !== 0) return;
+  // The day's trade, both sides, every morning.
   for (const faction of ['empire', 'alliance'] as const) {
     const fs = state.factions[faction];
     fs.income = totalIncome(state, faction);
     fs.upkeep = totalUpkeep(state, faction);
-    const net = (fs.income - fs.upkeep) * FORTNIGHT;
-    if (net >= 0) {
-      fs.gold += net;
-      continue;
-    }
-    const owed = -net;
+    fs.gold += fs.income;
+  }
+  if (state.day % FORTNIGHT !== 0) return;
+  for (const faction of ['empire', 'alliance'] as const) {
+    const fs = state.factions[faction];
+    const owed = fs.upkeep * FORTNIGHT;
     if (fs.gold >= owed) {
       fs.gold -= owed;
       continue;

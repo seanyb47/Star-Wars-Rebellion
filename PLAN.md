@@ -10012,3 +10012,63 @@ you want Production and Upkeep broken out. Measured on the built page at
 A side effect worth having: the bottom of the sheet no longer runs off the
 screen. In Sean's screenshot **WHERE** was cut in half and the island you were
 building at was below the fold; it is on screen now.
+
+### Gold comes in every morning; the bill falls due once a fortnight
+
+Sean, 24 September: *"I noticed gold doesn't go up daily. Can we make it so
+gold ticks up daily but upkeep is on the fortnight?"*
+
+Done. And **it does not contradict his own ruling of 20 September** — *"let's
+change from daily to fortnight... otherwise people are going to be looking at
+it like a stock chart"* — because the stock chart was the **net**. A figure
+that rose on a good morning and fell on a bad one, jittering either side of
+nothing, is a thing you watch instead of playing. Income on its own does not
+jitter: it climbs, every day, at a rate you set by taking islands and raising
+works, and watching it climb is the point of having raised them.
+
+So the smooth half moves daily and the lumpy half stays lumpy. Over any
+fourteen days the totals are exactly what they were. On settlement day income
+is credited first and the bill drawn after, so a full fortnight's trade is in
+hand before anything is asked of it. Thirty days of the Crown at seed 4242:
+
+```
+day  2  gold   559       day 13  gold  1764      day 14  gold  1083   <- the bill
+day  3  gold   668       ...                     day 27  gold  2492
+                                                 day 28  gold  1810   <- the bill
+```
+
+**It is not free, and the measurement says so.** 96 wars on seeds 8000 and
+9000, against the same seeds with both halves settling fortnightly:
+
+```
+both fortnightly   Crown 28 — Confederacy 68
+income daily       Crown 17 — Confederacy 79
+```
+
+Eleven wins, where one SD at n=96 is 4.90 — **2.2 SD, so this is real and not
+noise.** The end states say the same thing from the other side: the Crown
+finishes with 12.1 hulls against 14.3, and catches 0.93 Lords of three against
+1.32.
+
+The mechanism is not subtle once you look at it. Paying income daily and the
+bill fortnightly means **both sides hold more gold, on average, than they did**
+— the trade arrives before the bill instead of netting against it at the end.
+Being richer amplifies whoever converts gold into power most efficiently, and
+that is already the Confederacy: cheap hulls it can keep laying down against
+the Crown's first-rates, which want a lump. A drip suits a cheap fleet.
+
+So this **amplifies the standing imbalance rather than creating one.** The war
+was 71% Confederate before the change and is 82% after. That imbalance has been
+open since the fleet cut and is Sean's to rule on; nothing here has been tuned
+to hide it, because tuning the economy to cover a fleet problem would put the
+next measurement a step further from the truth.
+
+Three things that would answer it, in the order I would try them:
+
+1. **Give the Crown back a hull or two at the opening.** The fleet cut is where
+   the 71% came from, and it was measured at 3.5 SD at the time.
+2. **Make the drip cost something.** A settlement that charges upkeep *weekly*
+   rather than fortnightly would halve the float without touching the daily
+   climb Sean asked for.
+3. **Leave it.** 82% against a machine-played Crown is not 82% against Sean,
+   and the AI's build order is the thing least like a person in the game.
