@@ -174,13 +174,32 @@ export function daysToDeliver(system: System, facility: Facility): number {
  * One job of a kind at a time, per island: an island with a yard, a slipway
  * and a drill ground can have three things on the go and no more. The order
  * sits on one works of the kind and the rest of them work on it.
+ *
+ * **A works still being laid down is not one of them.** Sean, 24 September,
+ * on Kingsward — one shipyard standing idle, a second one going up with 66
+ * days on it, and the build sheet refusing the order with *"Every shipyard of
+ * yours is at work."*
+ *
+ * The trap is that a founding works carries a `building` order of its own:
+ * that order is the works *being built*, not the works *building something*.
+ * So this found the half-built yard, `buildError` read its `founding` flag and
+ * answered "still being laid down" — about the wrong yard entirely — and the
+ * sheet folded that into "every shipyard is at work" when one of them was
+ * standing there with nothing to do.
+ *
+ * A yard that does not exist yet cannot be busy, and it cannot stop the yard
+ * beside it taking an order. It is also the third bug this session out of the
+ * same fact; the flag is the thing to check, and this is now the one place
+ * that has to.
  */
 export function busyAt(
   system: System,
   type: FacilityType,
   owner: Faction,
 ): Facility | undefined {
-  return system.facilities.find((f) => f.type === type && f.owner === owner && f.building);
+  return system.facilities.find(
+    (f) => f.type === type && f.owner === owner && f.building && !f.founding,
+  );
 }
 
 /** What a given facility is allowed to queue (spec 4.4). */
@@ -467,12 +486,14 @@ export function buildError(
   // One job of a kind at a time, per island — not per works. The rest of the
   // island's yards of that kind are not idle hands to give another job to;
   // they are already on this one, which is why it goes faster.
-  const busy = busyAt(system, facility.type, facility.owner);
-  if (busy) {
-    return busy.founding
-      ? `The ${FACILITY_LABEL[facility.type].toLowerCase()} is still being laid down.`
-      : `${FACILITY_LABEL[facility.type]} busy: ${buildLabel(busy.building!.item)}.`;
+  // Asking a works that is not finished: that one cannot take an order, and it
+  // is the only case the sentence was ever meant for. `busyAt` no longer
+  // reports it on its neighbours' behalf.
+  if (facility.founding) {
+    return `The ${FACILITY_LABEL[facility.type].toLowerCase()} is still being laid down.`;
   }
+  const busy = busyAt(system, facility.type, facility.owner);
+  if (busy) return `${FACILITY_LABEL[facility.type]} busy: ${buildLabel(busy.building!.item)}.`;
   // And one job per lane across the island, whatever works it is on. A hull
   // does not stop a company and neither stops a mill. See `islandBusy`.
   const elsewhere = islandBusy(system, facility.owner, laneOf(item));

@@ -10310,3 +10310,38 @@ mission report, and the dot is that colour.
 
 The same colour rings the painting on the card you pick the mission from. One
 colour, three places it can be met.
+
+### A shipyard still going up is not a shipyard at work
+
+Sean, 24 September, with Kingsward open: one shipyard standing idle with a
+**Build ships** button on it, a second one *going up* with 66 days to run, and
+the build sheet refusing the order — *"Every shipyard of yours is at work."*
+One of them plainly was not.
+
+**The trap, and it is worth naming because it has now caught three different
+pieces of code in this session: a founding works carries a `building` order of
+its own.** That order is the works *being built*, not the works *building
+something*. Anything that reads `f.building` without also reading `f.founding`
+mistakes the one for the other.
+
+Here the chain was:
+
+1. `busyAt` looked for any shipyard on the island with a `building` order and
+   found the **half-built one**.
+2. `buildError` read *that* facility's `founding` flag and answered *"The
+   shipyard is still being laid down"* — about a yard nobody had asked about.
+3. The sheet's summariser matches on errors ending `laid down.` and folded it
+   into *"Every shipyard of yours is at work."*
+
+So `busyAt` ignores a founding works now — a yard that does not exist yet
+cannot be busy, and it cannot stop the yard beside it taking an order — and
+`buildError` asks the founding question about *the facility it was actually
+asked about*, which is the one case that sentence was ever meant for.
+
+**The halving Sean expected is the rule and already works.** *"When the second
+one is done being built the remaining time on the under construction ship
+should be halved bc I have 2 now."* `daysToFinish` is `workLeft / crewOn`,
+asked fresh every morning, and `crewOn` counts only works that are standing —
+so the day the second yard opens, the hull takes two days of work a day. There
+was no test walking a yard from founding to standing with a hull on the stocks,
+which is why the surrounding bug could sit there; there is now.

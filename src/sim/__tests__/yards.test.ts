@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import {
   advanceBuilds,
+  buildError,
   cancelBuild,
   crewOn,
   daysToDeliver,
@@ -290,5 +291,129 @@ describe('one ship, one building, one troop', () => {
     // And asked without a lane it still answers "something is being made",
     // which is what the chart's idle filter wants to know.
     expect(islandBusy(island, 'empire')).not.toBeNull();
+  });
+});
+
+/**
+ * A shipyard still going up is not a shipyard at work.
+ *
+ * Sean, 24 September, with Kingsward open: one shipyard standing idle with a
+ * **Build ships** button on it, a second one *going up* with 66 days to run,
+ * and the build sheet refusing the order — *"Every shipyard of yours is at
+ * work."* One of them plainly was not.
+ *
+ * The trap is worth naming because it has now caught three different pieces of
+ * code this session: **a founding works carries a `building` order of its
+ * own.** That order is the works *being built*, not the works *building
+ * something*, and anything that reads `f.building` without also reading
+ * `f.founding` mistakes the one for the other. Here `busyAt` found the
+ * half-built yard, `buildError` read its `founding` flag and answered "still
+ * being laid down" — about a yard nobody had asked about — and the sheet
+ * folded that into "every shipyard is at work".
+ */
+describe('a yard being laid down beside a yard that is free', () => {
+  const setup = () => {
+    for (let seed = 400; seed < 460; seed++) {
+      const state = generateGalaxy(seed, 'empire');
+      const island = state.systems.find(
+        (s) =>
+          s.control === 'empire' &&
+          !s.uprising &&
+          s.facilities.some((f) => f.owner === 'empire' && f.type === 'shipyard' && !f.building),
+      );
+      if (island) {
+        state.factions.empire.gold = 100_000;
+        return { state, island };
+      }
+    }
+    throw new Error('no island in sixty seeds opens with a free shipyard');
+  };
+
+  const secondYard = (island: System): Facility => {
+    // A second shipyard, still going up: founding, and carrying its own order.
+    const yard: Facility = {
+      id: 'fac-going-up',
+      type: 'shipyard',
+      owner: 'empire',
+      founding: true,
+      building: {
+        item: 'shipyard',
+        work: 120,
+        workLeft: 66,
+        travel: 0,
+        travelLeft: 0,
+        costGold: 0,
+      },
+    } as Facility;
+    island.facilities.push(yard);
+    return yard;
+  };
+
+  it('does not make the free one busy', () => {
+    const { state, island } = setup();
+    const hull = shipsFor('empire')[0].id;
+    const free = island.facilities.find(
+      (f) => f.owner === 'empire' && f.type === 'shipyard' && !f.building,
+    )!;
+
+    expect(planBuild(state, 'empire', hull, island.id).error).toBeNull();
+    secondYard(island);
+    // The half-built one is not an answer about the finished one.
+    expect(planBuild(state, 'empire', hull, island.id).error).toBeNull();
+    expect(() => queueBuild(state, free.id, hull, island.id)).not.toThrow();
+  });
+
+  it('still says so when you ask the half-built one itself', () => {
+    const { state, island } = setup();
+    const hull = shipsFor('empire')[0].id;
+    const yard = secondYard(island);
+    // Which is the one case the sentence was ever meant for.
+    expect(() => queueBuild(state, yard.id, hull, island.id)).toThrow(/still being laid down/);
+  });
+
+  it('and a real job on the finished one does stop a second', () => {
+    // The rule this was never meant to loosen: one hull at a time per island.
+    const { state, island } = setup();
+    const hull = shipsFor('empire')[0].id;
+    const free = island.facilities.find(
+      (f) => f.owner === 'empire' && f.type === 'shipyard' && !f.building,
+    )!;
+    secondYard(island);
+    expect(() => queueBuild(state, free.id, hull, island.id)).not.toThrow();
+    // Asked of this island rather than of the plan: `planBuild` shops across
+    // every island you hold, so a second yard somewhere else would answer for
+    // it and the rule under test is the one about *this* island.
+    expect(buildError(state, free.id, hull, island.id)).toMatch(/busy/i);
+  });
+
+  it('halves what is left of the hull the day the second yard opens', () => {
+    /*
+     * Sean's own words for the rule he expected: *"I should be able to build a
+     * ship and then when the second one is done being built the remaining time
+     * on the under construction ship should be halved bc I have 2 now."* It is
+     * the rule — `daysToFinish` is `workLeft / crewOn`, asked fresh every
+     * morning — and this is the proof, because nothing else in the suite walks
+     * a yard from founding to standing with a hull on the stocks.
+     */
+    const { state, island } = setup();
+    const hull = shipsFor('empire')[0].id;
+    const free = island.facilities.find(
+      (f) => f.owner === 'empire' && f.type === 'shipyard' && !f.building,
+    )!;
+    const going = secondYard(island);
+    expect(() => queueBuild(state, free.id, hull, island.id)).not.toThrow();
+
+    expect(crewOn(island, 'shipyard', 'empire')).toBe(1);
+    const before = daysToDeliver(island, free);
+
+    // The second yard opens: the flag is cleared, and so is the order that was
+    // building it. `founding` is `true | undefined`, not a boolean — a works
+    // either is being laid down or the field is not there.
+    delete going.founding;
+    going.building = undefined;
+
+    expect(crewOn(island, 'shipyard', 'empire')).toBe(2);
+    const after = daysToDeliver(island, free);
+    expect(after).toBe(Math.ceil(before / 2));
   });
 });
