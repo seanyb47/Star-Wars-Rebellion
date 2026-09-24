@@ -500,6 +500,46 @@ export function commanderOf(state: GameState, system: Pick<System, 'commanderId'
     : undefined;
 }
 
+/**
+ * The island this officer is holding, if they are holding one.
+ *
+ * The inverse of `commanderOf`, and the reason it exists is that command is
+ * stored on the **island** rather than on the person. Every screen that asks
+ * *is this one free* was asking the person — `status === 'available'` and no
+ * mission — and a commander answers yes to both, because holding an island is
+ * not a mission and does not change your status.
+ *
+ * Sean, 24 September: *"When I assign a commander to an island it doesn't
+ * reduce the filter for available crew. He isn't available now bc he's on a
+ * mission commanding."* The character sheet was saying both things at once in
+ * one screen — a green **Available** badge over a paragraph reading *"They are
+ * not available for anything else until relieved"* — which is the tell that
+ * the fact lived somewhere nothing was looking.
+ *
+ * So the question has one answer in one place now, and everything that asks
+ * about free crew calls it: the chart's Idle crew filter, the advisor's list
+ * of who is free, the badge, and the party you can take along on somebody
+ * else's errand.
+ */
+export function commandingAt(state: GameState, characterId: string): System | undefined {
+  return state.systems.find((s) => s.commanderId === characterId);
+}
+
+/**
+ * Nothing to do: ashore, well, unposted, and not already on an errand.
+ *
+ * The one definition of *free*. The AI has always known commanders are not —
+ * it keeps a `posted` set and filters on it — and the player-facing screens
+ * did not, which is the whole of the bug above.
+ */
+export function isFreeCrew(state: GameState, character: Character): boolean {
+  return (
+    character.status === 'available' &&
+    !character.mission &&
+    !commandingAt(state, character.id)
+  );
+}
+
 /** Squadrons lying at an island that an officer could be posted to command. */
 export function fleetsToCommand(state: GameState, systemId: string, faction: PlayableFaction) {
   return state.fleets.filter((f) => f.faction === faction && !f.voyage && f.systemId === systemId);
@@ -962,6 +1002,9 @@ export function companionsFor(state: GameState, leader: Character): Character[] 
       c.status === 'available' &&
       !c.mission &&
       !c.escorting &&
+      // Nor somebody holding this island: they are posted, and the paragraph
+      // on their own sheet says so.
+      !commandingAt(state, c.id) &&
       // A Lord may ride in somebody else's boat now. They are personnel and
       // nothing else, and putting two of the three in one party is a way to
       // lose a war in an afternoon — which is the player's risk to take.

@@ -3,7 +3,7 @@ import { ANY_GRADE, buildMenu, islandBusy } from './build';
 import { islandIncome } from './economy';
 import { ashoreAt, depositsOf, freeSlots } from './helpers';
 import { fleetsAt, isAtSea } from './fleets';
-import { knownIsland, reportOn, sightOf } from './missions';
+import { isFreeCrew, knownIsland, reportOn, sightOf } from './missions';
 import terms from '../data/terms.json';
 import type { FacilityType, GameState, PlayableFaction, System } from './types';
 
@@ -315,9 +315,10 @@ export function layerMark(
       // Standing on it, not filed under it: a crew member aboard a squadron
       // that has sailed is still filed under the port they left, and an idle
       // hand three days out is not an idle hand you can give work to.
-      const n = ashoreAt(state, system.id, faction).filter(
-        (c) => c.status === 'available' && !c.mission,
-      ).length;
+      // `isFreeCrew` rather than the two fields by hand: holding an island is
+      // not a mission and does not change a status, so a commander answered
+      // yes to both and lit this filter from the chair. See `commandingAt`.
+      const n = ashoreAt(state, system.id, faction).filter((c) => isFreeCrew(state, c)).length;
       return n > 0 ? { lit: true, count: n } : DARK;
     }
     case 'fleets': {

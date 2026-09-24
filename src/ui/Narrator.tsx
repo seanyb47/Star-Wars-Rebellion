@@ -6,6 +6,7 @@ import {
   buildMenu,
   controlTally,
   freeSlots,
+  isFreeCrew,
   requiredGarrison,
   smuggledOff,
   GARRISON_FOR_BAND,
@@ -72,7 +73,9 @@ function buildAnswers(state: GameState): Answer[] {
       s.facilities.some((f) => f.owner === you && buildMenu(f, ANY_GRADE).length > 0) &&
       freeSlots(s) > 0,
   );
-  const idle = state.characters.filter((c) => c.faction === you && c.status === 'available');
+  // Free, which is not the same as `status === 'available'`: somebody holding
+  // an island is posted and cannot be sent anywhere. See `isFreeCrew`.
+  const idle = state.characters.filter((c) => c.faction === you && isFreeCrew(state, c));
   const restless = held.filter(
     (s) => s.uprising || (s.populated && s.garrison < requiredGarrison(s.support[you], s.uprising)),
   );

@@ -1,6 +1,7 @@
 import terms from '../data/terms.json';
 import {
   atSea as atSeaNow,
+  commandingAt,
   LORD_POWER_LABEL,
   lordOfName,
   shipClass,
@@ -49,9 +50,24 @@ export type CrewStatus = { label: string; tone: 'good' | 'neutral' | 'warn' };
 export function crewStatus(character: Character, state?: GameState): CrewStatus {
   switch (character.status) {
     case 'available':
-      return state && atSeaNow(state, character)
-        ? { label: 'At sea', tone: 'neutral' }
-        : { label: 'Available', tone: 'good' };
+      if (state && atSeaNow(state, character)) return { label: 'At sea', tone: 'neutral' };
+      /*
+       * Holding an island is a posting, and this badge used to miss it.
+       *
+       * Sean, 24 September: *"When I assign a commander to an island it
+       * doesn't reduce the filter for available crew. He isn't available now
+       * bc he's on a mission commanding."* This sheet was saying both things
+       * in one screen — a green **Available** over a paragraph reading *"They
+       * are not available for anything else until relieved"* — because command
+       * is stored on the island and `status` never hears about it.
+       *
+       * Neutral rather than good: it is not a warning, and it is not a free
+       * pair of hands either. See `commandingAt`.
+       */
+      if (state && commandingAt(state, character.id)) {
+        return { label: 'In command', tone: 'neutral' };
+      }
+      return { label: 'Available', tone: 'good' };
     case 'on_mission':
       return errandPhase(character, state) === 'working'
         ? { label: 'Ashore', tone: 'neutral' }
@@ -227,14 +243,14 @@ export function CharacterSheet({
           {holding ? (
             <>
               <b>In command of {holding.name}.</b> It will not rise while they hold it, and anyone
-              working against it is far likelier to be caught. They are not available for anything
-              else until relieved.
+              working against it is far likelier to be caught. They count as posted rather than
+              free — send them anywhere else and the posting ends, because they have gone.
             </>
           ) : (
             <>
               <b>In command of the {ship?.name}.</b> Her fighting, her landings and what she charts
-              at each landfall are all the better for it. They are not available for anything else
-              until relieved.
+              at each landfall are all the better for it. They count as posted rather than free —
+              send them anywhere else and the posting ends, because they have gone.
             </>
           )}
         </p>

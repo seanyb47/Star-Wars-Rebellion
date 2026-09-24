@@ -10217,3 +10217,47 @@ which of these he wants is a design call and not a bug:
    there is worked, so the island he pointed at would go dark.
 3. **A threshold**, say half an island's berths standing free. Effective, and
    the number would be arbitrary.
+
+### Somebody holding an island is posted, not free
+
+Sean, 24 September, on Pellam Voss's sheet: *"When I assign a commander to an
+island it doesn't reduce the filter for available crew. He isn't available now
+bc he's on a mission commanding."*
+
+The screenshot carries its own proof: a green **AVAILABLE** badge, and four
+lines under it reading *"They are not available for anything else until
+relieved."* One screen saying both things is the tell that the fact lived
+somewhere nothing was looking.
+
+**The cause.** Command is stored on the **island** — `system.commanderId` —
+and every screen that asked *is this one free* asked the **person**:
+`status === 'available'` and no mission. A commander answers yes to both,
+because holding a place is not a mission and does not change a status. So the
+Idle crew filter counted them from the chair, the advisor listed them as free,
+the badge called them available, and `companionsFor` would carry them off as
+somebody's companion on an errand.
+
+**The AI never had the bug.** It keeps a `posted` set and filters on it, in two
+places. The rule existed; only the player's side of the glass did not know it.
+That is the argument for the shape of the fix — not four patches, but one
+question with one answer:
+
+```ts
+export function commandingAt(state, characterId): System | undefined
+export function isFreeCrew(state, character): boolean
+```
+
+`isFreeCrew` is now what the chart filter, the advisor, and the party list all
+call, and `commandingAt` is what the badge asks. A test fails if either screen
+grows its own copy of the two-field test, because a hand-rolled copy is exactly
+how this got in.
+
+**The badge says "In command"**, neutral rather than good: being posted is not
+something going wrong, and it is not a free pair of hands either.
+
+**And the paragraph was wrong too.** *"Not available for anything else until
+relieved"* is not the rule — `startMission` clears the posting for everybody it
+takes aboard, on the reasoning already written there: *"you simply send them,
+and the posting ends because they have gone."* So the Assign Mission button was
+right and the sentence beside it was not. It now says they count as posted
+rather than free, and that sending them ends the posting.
