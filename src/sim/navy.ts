@@ -9,10 +9,20 @@
  *
  * ## What is deliberately not here
  *
- * Combat. It lives in `navycombat.ts` and reads four numbers — Firepower,
- * Hull, Speed, hasLongGuns — none of which the v2.4 roster carries yet. This
- * file is the strategic side: what a hull is, what is left of one, what a
- * squadron can lift and what it costs to keep.
+ * Combat. It lives in `navycombat.ts`, and **there is no ship-level Firepower
+ * stat** — the locked rules open by saying so, and every individual cannon
+ * makes its own attack under the rules for its gun type. This file is the
+ * strategic side: what a hull is, what is left of one, what a squadron can
+ * lift and what it costs to keep.
+ *
+ * This sentence used to say combat read *"four numbers — Firepower, Hull,
+ * Speed, hasLongGuns — none of which the v2.4 roster carries yet."* That was
+ * true when it was written and wrong five days later, and it is very likely
+ * the sentence that has been quoted back as a live blocker more than once
+ * since: it sits at the top of a file, which is exactly where anybody
+ * orienting themselves reads first. Corrected in place rather than deleted,
+ * so the next reader can see what replaced it. `shipnames.test.ts` now fails
+ * if it comes back.
  */
 import {
   ROSTER,
@@ -209,6 +219,7 @@ export function bombardmentWeight(squadron: Squadron, roster: Roster = ROSTER): 
  * They described armor mitigation, three gun kinds, First Strike, pursuit and
  * boarding — every one of which Sean's ruling of 18 September removed from the
  * model: *"Any earlier instructions adding armor, weapon triangles, boarding,
- * or First Strike are superseded."* Combat now lives in `navycombat.ts` and
- * reads four numbers, none of which this file supplies yet.
+ * or First Strike are superseded."* Combat now lives in `navycombat.ts`, which
+ * takes the three gun columns straight off the roster — there is no
+ * ship-level Firepower stat and nothing here has to supply one.
  */

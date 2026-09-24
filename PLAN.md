@@ -10862,3 +10862,94 @@ problems and none from these.
 | Bog Witches | squad draft needs art review |
 | Shoal Wardens | no squad art made yet |
 | Urskin Berserkers | no squad art made yet |
+
+## Why these two keep coming back (24 September)
+
+Sean: *"change the name of jessups ship / there is no firepower... we've
+addressed these 2 many times, so we keep getting stuck here. explain why and
+how to fix this."*
+
+He is right that both were addressed, and right that both kept coming back.
+Neither is a decision that failed to land. **Both landed in the code on the day
+they were made and have been correct there ever since.** What neither had was
+anything that fails when a *copy* of the decision goes stale.
+
+### What was actually true this morning
+
+Jessup's ship. Three documents, three answers — and Hale's is worse, because
+the name the player actually sees was in **none** of them:
+
+| Source | Hale | Jessup |
+|---|---|---|
+| the running game | **Open Deck** | **Adamant** |
+| `CANON.md` | *Harbor* — the id, not the name | *Adamant* |
+| world bible §2 / §6 | ***Free Harbor*** | ***Ironback*** |
+
+Firepower. The rule has been locked since 18 September, the engine is right,
+and `navycombat.test.ts` already makes it impossible to reintroduce in code.
+What survived was the **prose** — and in the worst possible place:
+
+```
+src/sim/navy.ts, line 12, the file's opening doc comment:
+  "Combat ... reads four numbers — Firepower, Hull, Speed, hasLongGuns —
+   none of which the v2.4 roster carries yet."
+```
+
+A second copy said the same thing at the foot of the same file. Both sit where
+anybody orienting themselves reads first.
+
+### Three mechanisms, and they compound
+
+**1. The name lives in four places and one of them is checked.** The sim,
+`CANON.md`, the bible's §2 and §6 tables, and whatever doc comment happens to
+mention it. A rename lands in the data, the game keeps working, every test
+passes, and the stale copies sit there being read as current. CLAUDE.md already
+has the right instinct — `vocabulary.test.ts` fails the build if a retired word
+reaches the player — but it only guards *player-facing* words. Nothing guarded
+the docs or the developer prose.
+
+**2. A deferral got written down as a ruling, twice.** The bible's changelog
+says, at v8.7 and again at v9.53, that §2 and §6 *"are the record of what was
+designed, not of what shipped."* Nobody decided that. A session deferred, wrote
+the deferral into the permanent record as reasoning, and every session after —
+**including mine, last turn** — read it as canon and deferred again. I listed
+"whether to update the §2 and §6 tables" as an open question for Sean rather
+than just fixing it. That is the loop, and I was in it.
+
+**3. One of the fixes was made on a branch nobody can see.** The art-state doc
+says the `navy.ts` sentence was *"corrected in place, commit 9750657"* — on
+`claude/siege-and-ground-war`, 81 commits, never pushed. So the correction
+genuinely happened, genuinely exists, and is invisible from here. Anyone
+grepping this branch finds the stale text and reasonably concludes it was never
+fixed.
+
+### The fix
+
+Fixing the text again would have bought another few days. What is in this
+commit instead:
+
+- **`shipnames.test.ts`.** A Lord's ship must be named the same in the game and
+  in every document that names the Lord, and a retired name (*Ironback*, *Free
+  Harbor*) may never appear on the same line as the Lord it no longer belongs
+  to. It found a **third** stale reference in the bible on its first run that I
+  had missed fixing by hand, and a **second** stale Firepower sentence in
+  `navy.ts` I had not seen.
+- **The same file guards the Firepower prose**: nothing in `src/sim` may
+  describe an engine that reads a Firepower number. Quoted history is
+  exempted — this codebase quotes with `*"…"*` — because a check that trips on
+  the note explaining a removal forces the next hand to delete the history
+  instead of correcting it.
+
+Both guards follow the pattern this project already trusts: `shiplore.test.ts`
+pins 224 fields against the combat master, `vocabulary.test.ts` fails the build
+on a retired word. The rule is the same one and it is worth stating plainly:
+
+> **If a decision is worth making twice, it is worth a test. A fact kept in
+> more than one file is a fact that will disagree with itself.**
+
+### The habit to drop
+
+A changelog entry should say what changed. When something is left undone, it
+goes in PLAN.md as an open question — not into the world bible as a rationale.
+Deferrals recorded as decisions manufacture doctrine, and the doctrine outlives
+everyone who remembers it was only ever a shrug.

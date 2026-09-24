@@ -804,7 +804,13 @@ export interface ShipRoleSpec extends BuildSpec {
  * cannot fire a shot.
  */
 export const SHIP_ROLES: Record<ShipRole, Omit<ShipRoleSpec, 'label'>> = {
-  // Firepower and hull are on a scale with room in them now. They were 2/3,
+  // NOTE: `guns` and `hull` here are the **role** figures — what a size class
+  // is worth in the strategic layer — and not a ship-level Firepower stat, of
+  // which there is none. The locked combat rules give every cannon its own
+  // attack; see `cannon.ts`. The word below is historical and the shape it
+  // describes is real, but nothing reads a Firepower number off a hull.
+  //
+  // Guns and hull are on a scale with room in them now. They were 2/3,
   // 4/5, 7/9 and 0/4, where every hit took exactly one point off — a scale on
   // which "give or take a seventh" rounds to nothing and a first-rate is only
   // three times a sloop because there is nowhere finer to put it. The ratios
@@ -812,7 +818,7 @@ export const SHIP_ROLES: Record<ShipRole, Omit<ShipRoleSpec, 'label'>> = {
   // what changed is that there is now somewhere to put a damage roll.
   //
   // Tuned so a fleet action is over in one to three rounds, at Sean's word.
-  // Hull is about one and a half times firepower, and three quarters of the
+  // Hull is about one and a half times a role's guns, and three quarters of the
   // shots tell, so two evenly matched squadrons take roughly half of each
   // other off per round and the second or third round settles it.
   //

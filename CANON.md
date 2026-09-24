@@ -59,7 +59,7 @@ This is the spark that turned scattered resistance into the Confederacy. The Ree
 
 | Lord | Ship | What they bring |
 |---|---|---|
-| Commodore-Elect Adaira Hale | *Harbor* | The Moot sails with her; her posting pulls that island toward the Confederacy a point a day |
+| Commodore-Elect Adaira Hale | *Open Deck* | The Moot sails with her; her posting pulls that island toward the Confederacy a point a day |
 | Captain Silas Reyne | *Swallowtail* | Never off her; any errand he leads makes the passage in half the time |
 | Admiral Dorian Jessup | *Adamant* | Every fleet in his harbor fights the Adamant's way |
 
