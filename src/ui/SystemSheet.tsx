@@ -77,6 +77,7 @@ import {
 } from './components';
 import { ShipsHere } from './FleetPanel';
 import { IslandCommand } from './IslandCommand';
+import { squadArt } from './troopart';
 import { WorthMark } from './worth';
 import { controlColour } from './ChainMap';
 
@@ -1514,7 +1515,22 @@ export function SystemSheet({
               (entry, i, all) => (
                 <Slot
                   key={entry.key}
-                  icon={<CompanyIcon size={64} type={entry.type.id} />}
+                  /* A squad painting goes through `art` rather than `icon`, so
+                     it gets the tile's width instead of standing 64px tall in
+                     the middle of it. Measured on the page: the icon box gave
+                     a 4:5 painting 51x64 inside a 165px tile, which is legible
+                     and not remotely the dominant thing on it. A unit with no
+                     squad art yet keeps the glyph, which the icon box is the
+                     right shape for. */
+                  {...(squadArt(entry.type.id)
+                    ? {
+                        art: (
+                          <span className="slot__art--squad">
+                            <CompanyIcon type={entry.type.id} fill />
+                          </span>
+                        ),
+                      }
+                    : { icon: <CompanyIcon size={64} type={entry.type.id} /> })}
                   name={
                     entry.count > 1
                       ? `${entry.count}× ${entry.type.name}`

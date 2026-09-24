@@ -138,6 +138,7 @@ import { Icon, type IconName } from './icons';
 import { useSideSwipe } from './LayerStrip';
 import { useLookUp } from './lookup';
 import { MissionTile } from './MissionChoiceSheet';
+import { squadArt } from './troopart';
 
 /** The same rule `painted.ts` uses, so an id and an anchor are the same word. */
 export function slugOf(name: string): string {
@@ -915,8 +916,12 @@ function EntrySheet({
           subtitle: type.people,
           emblem: <FactionSigil faction={type.faction} size={26} />,
           art: (
-            <div className="encfull__art encfull__art--figure">
-              <CompanyIcon size={150} type={type.id} />
+            <div
+              className={`encfull__art encfull__art--${
+                squadArt(type.id) ? 'squad' : 'figure'
+              }`}
+            >
+              <CompanyIcon size={150} type={type.id} fill={Boolean(squadArt(type.id))} />
             </div>
           ),
           content: (
@@ -1357,8 +1362,18 @@ export function Almanac({
               className="encmini"
               onClick={() => setOpenEntry(subject)}
             >
-              <span className="encmini__art encmini__art--figure">
-                <CompanyIcon size={92} type={type.id} />
+              {/* The cell takes the art's shape, rather than the art being
+                  cut to the cell's. The figure box is 4:3 because a drawn
+                  silhouette is tall and narrow and wanted the air; a squad
+                  painting is 4:5 and filled it with letterboxing instead,
+                  drawing *smaller* than the figure it replaced. See
+                  `troopart.ts` for why nothing is cropped. */}
+              <span
+                className={`encmini__art encmini__art--${
+                  squadArt(type.id) ? 'squad' : 'figure'
+                }`}
+              >
+                <CompanyIcon size={92} type={type.id} fill={Boolean(squadArt(type.id))} />
               </span>
               <b className="encmini__name encmini__name--sigil">
                 <FactionSigil faction={type.faction} />

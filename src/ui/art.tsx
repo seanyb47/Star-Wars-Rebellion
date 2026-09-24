@@ -797,8 +797,39 @@ export function ResourceThumb({
   );
 }
 
-export function CompanyIcon({ size = 30, type }: { size?: number; type?: string }) {
-  const painting = type ? paintedTroop(type) : undefined;
+/**
+ * Below this, a squad painting loses to the drawn figure.
+ *
+ * A squad thumbnail is a *rank* — eight or nine figures, overlapping, with the
+ * identity in the headgear. Shrink it far enough and it stops being a rank and
+ * becomes a brown smudge, while the silhouette it replaced still reads as a
+ * soldier at sixteen pixels.
+ *
+ * **This guard fires nowhere today, and that is worth saying plainly.** Every
+ * small caller of this component — 44 and 30 on the art sheet, 26 in a build
+ * row, 16 in a log line — passes no `type` at all, so all of them were drawing
+ * the generic figure before the squads arrived and still are. The three that
+ * do name a unit are the two encyclopedia windows and the island's troop tile,
+ * and all three are well above forty.
+ *
+ * It is here because that is an accident of today's call sites rather than a
+ * rule, and the next person to pass `type` into a sixteen-pixel glyph should
+ * get a legible figure instead of a smudge without having to find this out.
+ */
+const SQUAD_MIN_PX = 40;
+
+export function CompanyIcon({
+  size = 30,
+  type,
+  fill,
+}: {
+  size?: number;
+  type?: string;
+  /** Fill the box the caller has drawn, rather than standing `size` tall. */
+  fill?: boolean;
+}) {
+  const squad = squadArt(type);
+  const painting = squad && (fill || size >= SQUAD_MIN_PX) ? paintedTroop(squad.slug) : undefined;
   if (painting) {
     return (
       <img
@@ -806,8 +837,24 @@ export function CompanyIcon({ size = 30, type }: { size?: number; type?: string 
         alt=""
         loading="lazy"
         decoding="async"
-        height={size}
-        style={{ height: size, width: 'auto', display: 'block', objectFit: 'contain' }}
+        height={fill ? undefined : size}
+        style={
+          fill
+            ? {
+                width: '100%',
+                height: '100%',
+                display: 'block',
+                objectFit: 'cover',
+                objectPosition: squad?.objectPosition,
+              }
+            : {
+                height: size,
+                width: 'auto',
+                display: 'block',
+                objectFit: 'contain',
+                objectPosition: squad?.objectPosition,
+              }
+        }
       />
     );
   }
@@ -873,6 +920,7 @@ import {
   paintedCrest,
   paintedTroop,
 } from './painted';
+import { squadArt } from './troopart';
 import { lordOfName } from '../sim/lords';
 import { CROWN_PRINCIPAL } from '../sim/constants';
 

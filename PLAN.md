@@ -10787,3 +10787,78 @@ prototype for them are behind a `chatgpt.com` link, and this environment's
 network policy refuses that host outright. Nothing was guessed in their place:
 the orders still resolve into the existing report UI. Attach that brief the
 way the island one was attached and they are the next thing.
+
+## The squad thumbnails (24 September)
+
+Eight of twelve troops stop being the drawn pike-and-hat glyph.
+
+### The join needed a table, and that was the real work
+
+Every other kind of art in this game is found by slug. Drop
+`src/art/ships/blackfin.webp` in and the Blackfin has a painting, with no table
+to keep. That could not work here, and both reasons would have shipped as a
+silently missing image rather than an error:
+
+| | |
+|---|---|
+| **Versioned filenames** | `paintedTroop` keys on `slugify(id)`; every file carries a `-squad-v1` suffix nothing strips. All eight would have missed. |
+| **Two ids are not the filenames** | Ship's Company is `crown-ships-company`, the Drowned Guard is `drowned-guard`, against `ships-company-…` and `the-drowned-guard-…` on disk. Those two would have missed even unsuffixed. |
+
+Renaming the files to match the ids fixes both and throws away the version,
+which is the one thing a second draft of this art will need. So `troopart.ts`
+holds the mapping — and it earns its keep twice, because it is also where the
+per-unit `object-position` lives that Sean asked for.
+
+### One real display problem
+
+`.encmini__art--figure` is `aspect-ratio: 4/3` with centred `object-fit:
+contain`. That is right for a drawn silhouette, which is tall and narrow and
+wants the air. Drop a 4:5 painting into it and it letterboxes: big empty
+gutters left and right, and the squad drawn **smaller than the glyph it
+replaced**. The cell takes the art's shape now.
+
+The figure cell moved to 4:5 with it. Not strictly needed, but with eight of
+twelve painted it put two box heights in one row — the names still lined up,
+because they are pushed to the card foot, but the four unpainted units carried
+a band of dead space above theirs.
+
+The island's troop tile had the same problem in miniature: the icon box gave
+the painting **51×163 inside a 165px tile** — legible, and nowhere near the
+dominant thing on it. It goes through `art` rather than `icon` now and renders
+**131×163** at 78% of the tile.
+
+### Nothing is cropped, anywhere
+
+Every box the art is shown in is 4:5, so `cover` and `contain` agree and no
+pixel is lost. That matters more than it sounds: the identifying half of each
+painting is in the **top third** — the Reefwalkers' ears and spyglass, the
+Drowned Guard's plumed shakos, the Tidewrought's helmets — and the bottom third
+is ground, surf and spray. A centre crop would take the cheap part; a bottom
+crop would take the identity. The `objectPosition` field exists and every entry
+leaves it unset.
+
+### A guard that fires nowhere, said plainly
+
+`SQUAD_MIN_PX = 40` sends anything smaller back to the drawn figure. **It never
+fires today.** Every small caller of `CompanyIcon` — 44 and 30 on the art
+sheet, 26 in a build row, 16 in a log line — passes no `type` at all, so all of
+them were drawing the generic figure before the squads arrived and still are.
+The three that name a unit are the two encyclopedia windows and the island tile,
+all well above forty. It is kept because that is an accident of today's call
+sites rather than a rule, and the next person to pass `type` into a 16px glyph
+should get a legible figure rather than a smudge.
+
+### Weight
+
+700 KB shipped across eight files (76–98 KB each), 5.0 MB of masters kept
+outside `src/`. `art.py check` still reports the same ten pre-existing ship
+problems and none from these.
+
+### Still awaiting art
+
+| Unit | Why |
+|---|---|
+| The Hushed | squad draft too photographic, needs revision |
+| Bog Witches | squad draft needs art review |
+| Shoal Wardens | no squad art made yet |
+| Urskin Berserkers | no squad art made yet |

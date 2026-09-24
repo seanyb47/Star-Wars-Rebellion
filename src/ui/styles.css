@@ -2809,6 +2809,17 @@ button.tcard:hover { border-color: var(--brass); }
    drawn glyphs sit in. The tile loses its side padding to let the band bleed. */
 .slot--art { padding: 0 0 6px; }
 .slot__art { display: block; width: 100%; line-height: 0; }
+/*
+ * A squad painting on a troop tile. Not the full-bleed band a building gets —
+ * that shape is a landscape strip and this is 4:5, so at full width it makes
+ * the tile twice as tall as the board wants. 78% is where the front rank is
+ * countable at arm's length and a garrison of three kinds still fits two rows
+ * on a phone.
+ */
+.slot__art--squad {
+  display: block; width: 78%; margin: 7px auto 0; aspect-ratio: 4 / 5;
+  border-radius: 7px; overflow: hidden;
+}
 .slot__art .facthumb {
   display: block; width: 100%; border: 0; border-radius: 7px 7px 0 0;
 }
@@ -3090,9 +3101,34 @@ button.tcard:hover { border-color: var(--brass); }
   border: 0; border-radius: 0;
 }
 .encmini__art .facthumb { display: block; width: 100%; border: 0; border-radius: 0; }
+/*
+ * The drawn figure, for a unit with no squad painting yet — and at 4:5, the
+ * same as the paintings beside it.
+ *
+ * It was 4:3, which was right when all twelve were glyphs. With eight of the
+ * twelve painted it put two different box heights in one row: the names still
+ * lined up, because they are pushed to the foot of the card, but the four
+ * unpainted units carried a band of dead space above theirs. One shape for the
+ * grid, and the four fall into line the day their art lands.
+ */
 .encmini__art--figure {
-  display: grid; place-items: center; aspect-ratio: 4 / 3; background: rgba(0, 0, 0, 0.22);
+  display: grid; place-items: center; aspect-ratio: 4 / 5; background: rgba(0, 0, 0, 0.22);
 }
+/*
+ * A squad thumbnail in the grid, at its own 4:5.
+ *
+ * The figure box above is 4:3 because a drawn silhouette is tall and narrow
+ * and wanted air around it. Dropping a 4:5 painting into that box letterboxed
+ * it — big empty gutters left and right, and the squad drawn *smaller* than
+ * the figure it replaced, which is the opposite of the ask. The cell takes the
+ * art's shape instead, so `cover` and `contain` are the same thing here and
+ * nothing is cut. See `troopart.ts` for why nothing is cropped at all.
+ */
+.encmini__art--squad {
+  display: block; aspect-ratio: 4 / 5; overflow: hidden;
+  background: rgba(0, 0, 0, 0.22);
+}
+.encmini__art--squad img { display: block; width: 100%; height: 100%; object-fit: cover; }
 /* Pushed to the foot of the card, so a row of tiles whose paintings are
    different shapes still reads as a row. Since 19 September a works keeps its
    painting's own aspect rather than being cut to one band, which means a 4:3
@@ -3206,6 +3242,18 @@ button.tcard:hover { border-color: var(--brass); }
   display: grid; place-items: center; aspect-ratio: 16 / 9;
   border: 1px solid var(--border); border-radius: 10px; background: rgba(0, 0, 0, 0.18);
 }
+/*
+ * And the entry card. 16:9 for a drawn figure, which is a glyph on a field;
+ * 4:5 for a squad, which is a painting. Capped in height so a portrait plate
+ * does not push the stats and the lore off a phone — the unit is the subject,
+ * but the three numbers under it are the reason anybody opened the entry.
+ */
+.encfull__art--squad {
+  display: block; aspect-ratio: 4 / 5; max-height: 46vh; overflow: hidden;
+  border: 1px solid var(--border); border-radius: 10px; background: rgba(0, 0, 0, 0.18);
+  margin: 0 auto;
+}
+.encfull__art--squad img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* The text column is 40% of a phone now, so the header rows that used to run
    name-left figure-right across a full card have to stack. Done here rather

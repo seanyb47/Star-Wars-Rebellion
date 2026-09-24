@@ -6440,6 +6440,222 @@
         "bytes": 40036,
         "sha1": "92482e416ca8041c"
       }
+    },
+    "troops/crown-marines-squad-v1": {
+      "folder": "troops",
+      "slug": "crown-marines-squad-v1",
+      "version": 1,
+      "added": "2026-09-24",
+      "updated": "2026-09-24",
+      "title": "Crown Marines, squad v1",
+      "source": "Sean, 24 September",
+      "notes": "4:5 as delivered; no crop",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/troops/crown-marines-squad-v1.webp",
+        "w": 1122,
+        "h": 1402,
+        "bytes": 651044,
+        "sha1": "7f2a5f5fd59e2e85"
+      },
+      "shipped": {
+        "file": "src/art/troops/crown-marines-squad-v1.webp",
+        "w": 512,
+        "h": 640,
+        "bytes": 87240,
+        "sha1": "08374f39727816f0"
+      }
+    },
+    "troops/fensworn-squad-v1": {
+      "folder": "troops",
+      "slug": "fensworn-squad-v1",
+      "version": 1,
+      "added": "2026-09-24",
+      "updated": "2026-09-24",
+      "title": "fensworn squad v1",
+      "source": "Sean, 24 September",
+      "notes": "4:5 as delivered; no crop",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/troops/fensworn-squad-v1.webp",
+        "w": 1122,
+        "h": 1402,
+        "bytes": 629950,
+        "sha1": "f15fa360e8ab3fea"
+      },
+      "shipped": {
+        "file": "src/art/troops/fensworn-squad-v1.webp",
+        "w": 512,
+        "h": 640,
+        "bytes": 85714,
+        "sha1": "c0d7ce69c89c5a12"
+      }
+    },
+    "troops/island-militia-squad-v1": {
+      "folder": "troops",
+      "slug": "island-militia-squad-v1",
+      "version": 1,
+      "added": "2026-09-24",
+      "updated": "2026-09-24",
+      "title": "island-militia squad v1",
+      "source": "Sean, 24 September",
+      "notes": "4:5 as delivered; no crop",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/troops/island-militia-squad-v1.webp",
+        "w": 1122,
+        "h": 1402,
+        "bytes": 723706,
+        "sha1": "43dc836a97c18f3f"
+      },
+      "shipped": {
+        "file": "src/art/troops/island-militia-squad-v1.webp",
+        "w": 512,
+        "h": 640,
+        "bytes": 100738,
+        "sha1": "38fbe3086c5143ca"
+      }
+    },
+    "troops/reefwalkers-squad-v1": {
+      "folder": "troops",
+      "slug": "reefwalkers-squad-v1",
+      "version": 1,
+      "added": "2026-09-24",
+      "updated": "2026-09-24",
+      "title": "reefwalkers squad v1",
+      "source": "Sean, 24 September",
+      "notes": "4:5 as delivered; no crop",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/troops/reefwalkers-squad-v1.webp",
+        "w": 1122,
+        "h": 1402,
+        "bytes": 610796,
+        "sha1": "7a5379418a691f0b"
+      },
+      "shipped": {
+        "file": "src/art/troops/reefwalkers-squad-v1.webp",
+        "w": 512,
+        "h": 640,
+        "bytes": 81724,
+        "sha1": "165a5c249709836d"
+      }
+    },
+    "troops/ships-company-squad-v1": {
+      "folder": "troops",
+      "slug": "ships-company-squad-v1",
+      "version": 1,
+      "added": "2026-09-24",
+      "updated": "2026-09-24",
+      "title": "ships-company squad v1",
+      "source": "Sean, 24 September",
+      "notes": "4:5 as delivered; no crop",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/troops/ships-company-squad-v1.webp",
+        "w": 1122,
+        "h": 1402,
+        "bytes": 599308,
+        "sha1": "2b2766b4971f8bc2"
+      },
+      "shipped": {
+        "file": "src/art/troops/ships-company-squad-v1.webp",
+        "w": 512,
+        "h": 640,
+        "bytes": 78268,
+        "sha1": "85447f952a423e51"
+      }
+    },
+    "troops/the-brethren-squad-v1": {
+      "folder": "troops",
+      "slug": "the-brethren-squad-v1",
+      "version": 1,
+      "added": "2026-09-24",
+      "updated": "2026-09-24",
+      "title": "the-brethren squad v1",
+      "source": "Sean, 24 September",
+      "notes": "4:5 as delivered; no crop",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/troops/the-brethren-squad-v1.webp",
+        "w": 1122,
+        "h": 1402,
+        "bytes": 690038,
+        "sha1": "dad079b81d58612e"
+      },
+      "shipped": {
+        "file": "src/art/troops/the-brethren-squad-v1.webp",
+        "w": 512,
+        "h": 640,
+        "bytes": 96982,
+        "sha1": "ae3689ec04548786"
+      }
+    },
+    "troops/the-drowned-guard-squad-v1": {
+      "folder": "troops",
+      "slug": "the-drowned-guard-squad-v1",
+      "version": 1,
+      "added": "2026-09-24",
+      "updated": "2026-09-24",
+      "title": "the-drowned-guard squad v1",
+      "source": "Sean, 24 September",
+      "notes": "4:5 as delivered; no crop",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/troops/the-drowned-guard-squad-v1.webp",
+        "w": 1122,
+        "h": 1402,
+        "bytes": 631386,
+        "sha1": "ba6c7f70a4c4bc54"
+      },
+      "shipped": {
+        "file": "src/art/troops/the-drowned-guard-squad-v1.webp",
+        "w": 512,
+        "h": 640,
+        "bytes": 83688,
+        "sha1": "f571cc6dcc446d15"
+      }
+    },
+    "troops/tidewrought-squad-v1": {
+      "folder": "troops",
+      "slug": "tidewrought-squad-v1",
+      "version": 1,
+      "added": "2026-09-24",
+      "updated": "2026-09-24",
+      "title": "tidewrought squad v1",
+      "source": "Sean, 24 September",
+      "notes": "4:5 as delivered; no crop",
+      "crop": null,
+      "tone": null,
+      "upscaled": null,
+      "master": {
+        "file": "art-masters/troops/tidewrought-squad-v1.webp",
+        "w": 1122,
+        "h": 1402,
+        "bytes": 656150,
+        "sha1": "094029fd7146e64c"
+      },
+      "shipped": {
+        "file": "src/art/troops/tidewrought-squad-v1.webp",
+        "w": 512,
+        "h": 640,
+        "bytes": 82952,
+        "sha1": "04acc6da0fcb77b4"
+      }
     }
   }
 }

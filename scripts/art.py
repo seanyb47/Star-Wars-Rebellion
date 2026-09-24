@@ -89,6 +89,18 @@ FOLDERS: dict[str, tuple[int, int, str]] = {
     # sit on the errand sheet where a generic envelope icon used to, so square
     # and small is the whole brief.
     "missions": (256, 256, "the object an errand is, close and lit; the errand sheet's tile"),
+    # Sean's squad thumbnails, 24 September: a rank of the unit rather than one
+    # figure, delivered 1122x1402 — 4:5 to four decimal places, and shipped at
+    # that shape rather than cut to a box. These are *unit thumbnails*, not
+    # portraits, and the identifying half of each one is in the top third: the
+    # Reefwalkers' ears, the Drowned Guard's plumes, the Tidewrought's helmets.
+    # The bottom third is ground, surf and spray. So a centre crop would take
+    # the cheap part and a bottom crop the identity, which is why the cell was
+    # changed to fit the art rather than the art cut to fit the cell.
+    #
+    # 512x640 because the largest window is the encyclopedia entry at 150px
+    # tall, and 640 clears 2x on that with room for a bigger card later.
+    "troops": (512, 640, "a rank of the unit, front rank whole; the unit thumbnail"),
     # Sean's personnel frames, 18 September: five rings, two a side and one for
     # nobody's. Not borders in the `border-image` sense — a ring is a hole with
     # ornament round it, so it is shipped as a square painting with alpha and
