@@ -92,7 +92,12 @@ export function BuildMenuSheet({
   onClose: () => void;
 }) {
   return (
-    <Sheet title="Build" subtitle="What do you want raised, drilled or laid down?" onClose={onClose}>
+    <Sheet
+      title="Build"
+      subtitle="What do you want raised, drilled or laid down?"
+      onClose={onClose}
+      underTopBar
+    >
       <div className="stack buildmenu">
         <button className="btn btn--block buildmenu__btn" onClick={() => onPick('facilities')}>
           <span className="buildmenu__icon">
@@ -260,6 +265,9 @@ export function BuildOrderSheet({
        * itself; a line narrating the form under the title is a line spent.
        */
       title={KIND_LABEL[kind]}
+      /* Stops below the top bar: this is the screen where the price is read
+         against the purse, and the purse is up there. See `underTopBar`. */
+      underTopBar
       onClose={onClose}
       stacked={stacked}
       actions={

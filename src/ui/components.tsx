@@ -221,6 +221,20 @@ export function Sheet(props: {
    */
   eyebrow?: string;
   subtitle?: ReactNode;
+  /**
+   * Stop below the top bar rather than running up behind it.
+   *
+   * Sean, 24 September: *"When on any build screen I need to see the gold
+   * section from the top bar so I can make purchase decisions."* A sheet is
+   * 82% of the app anchored to the tab bar, which on a 852px phone puts its
+   * top edge above the bar — so the one figure a purchase turns on was hidden
+   * by the sheet asking for the purchase.
+   *
+   * A flag rather than the rule for every sheet, because most sheets are not
+   * a decision about money and the height is worth more to them than the
+   * plaque is. Anything that spends or earns sets it.
+   */
+  underTopBar?: boolean;
   onClose: () => void;
   /**
    * What to say when the sheet will not be dismissed, because it is a
@@ -389,7 +403,9 @@ export function Sheet(props: {
       <div
         className={`sheet${props.top ? ' sheet--top' : props.stacked ? ' sheet--stacked' : ''}${
           props.tabs ? ' sheet--tabbed' : ''
-        }${flow ? ' sheet--flow' : ''}${nudged ? ' sheet--nudged' : ''}`}
+        }${flow ? ' sheet--flow' : ''}${nudged ? ' sheet--nudged' : ''}${
+          props.underTopBar ? ' sheet--under-top' : ''
+        }`}
         ref={panel}
         role="dialog"
         aria-modal={demands ? true : undefined}

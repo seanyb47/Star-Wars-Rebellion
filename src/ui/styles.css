@@ -718,6 +718,27 @@ button {
   .sheet { animation: none; transition: none; }
 }
 /*
+ * A sheet that must not cover the top bar.
+ *
+ * Sean, 24 September: *"When on any build screen I need to see the gold
+ * section from the top bar so I can make purchase decisions."* The 82% above
+ * is measured from the tab bar up, which on a 852px phone lands the sheet's
+ * top edge at about 89px — above a bar that is around 150px tall. So the
+ * plaque saying what you can afford was behind the sheet asking you to spend.
+ *
+ * `--topbar-h` is published by TopBar itself, the way `--tabbar-h` is by
+ * TabBar, because the height is the banner plus the rail plus whatever the
+ * phone's notch claims and only the device knows the last of those. The
+ * fallbacks are for the first frame before either measures.
+ *
+ * Only the sheets that spend or earn take this: for the rest the height is
+ * worth more than the plaque, and a rule applied everywhere would have made
+ * every sheet in the game shorter to fix a screen that is about money.
+ */
+.sheet--under-top {
+  max-height: calc(100% - var(--topbar-h, 150px) - var(--tabbar-h, 64px));
+}
+/*
  * The sheet used to carry its own colour past its bottom edge, and no longer
  * needs to.
  *

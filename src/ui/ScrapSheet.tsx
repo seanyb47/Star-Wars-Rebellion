@@ -146,6 +146,9 @@ export function ScrapSheet({
       subtitle="Half of what it cost, and you stop paying to keep it."
       onClose={onClose}
       stacked
+      /* The other half of a purchase decision: what breaking this up puts
+         back in the purse, read against what is in it. See `underTopBar`. */
+      underTopBar
     >
       {rows.length === 0 ? (
         <p className="tiny muted">There is nothing of yours here to pull down.</p>

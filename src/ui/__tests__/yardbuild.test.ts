@@ -287,6 +287,60 @@ describe('building to a fleet', () => {
 });
 
 /**
+ * And the plaque is not behind the sheet that sends you to it.
+ *
+ * Sean, 24 September: *"When on any build screen I need to see the gold
+ * section from the top bar so I can make purchase decisions."* The lift above
+ * was the 22 September half of this and it is not enough on its own — it
+ * raises the bar *once the purse is open*, and a plaque you cannot see is a
+ * plaque you cannot tap. A sheet is 82% of the app measured up from the tab
+ * bar, which on a 852px phone puts its top edge at about 89px, above a bar
+ * that is taller than that. So a build sheet stops below it.
+ *
+ * Measured on the built page at 393x852 the day it went in: bar 0-102, sheet
+ * 102-778, and the purse still opens over the sheet at 99.
+ */
+describe('a sheet about money leaves the purse showing', () => {
+  const CSS = (
+    import.meta.glob('../styles.css', { query: '?raw', import: 'default', eager: true }) as Record<
+      string,
+      string
+    >
+  )['../styles.css'];
+
+  it('caps its height by the bar rather than by a percentage', () => {
+    expect(CSS).toMatch(
+      /\.sheet--under-top \{[^}]*max-height: calc\(100% - var\(--topbar-h[^}]*var\(--tabbar-h/,
+    );
+  });
+
+  it('measures the bar rather than writing its height down', () => {
+    // The height is the banner plus the rail plus whatever the notch claims,
+    // and only the device knows the last of those — the same reason
+    // `--tabbar-h` is published by the tab bar.
+    expect(UI['../TopBar.tsx']).toContain("setProperty('--topbar-h'");
+    expect(UI['../TopBar.tsx']).toContain('new ResizeObserver(publish)');
+  });
+
+  it('is set on every screen where gold is spent or earned', () => {
+    // Build Ships, Build Facilities and Build Troops are one sheet; the menu
+    // in front of them and the scrap sheet behind them are the other two.
+    // Counted as a bare prop on its own line, so a mention of the name in a
+    // comment does not pass for a sheet that carries it.
+    const set = (src: string) => src.match(/^\s*underTopBar$/gm)?.length ?? 0;
+    expect(set(UI['../BuildSheet.tsx'])).toBe(2);
+    expect(set(UI['../ScrapSheet.tsx'])).toBe(1);
+  });
+
+  it('leaves the other sheets their full height', () => {
+    // A rule applied to every sheet would have made all of them shorter to
+    // fix a screen that is about money.
+    expect(UI['../SystemSheet.tsx']).not.toContain('underTopBar');
+    expect(UI['../BattleSheet.tsx']).not.toContain('underTopBar');
+  });
+});
+
+/**
  * The way out of the start screen sits in a footer, not over the page.
  *
  * Sean, 22 September, over a screenshot of the Begin button lying across the

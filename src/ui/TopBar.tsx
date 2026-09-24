@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import { perFortnight, SPEED_LABEL, SPEED_ORDER, type GameState, type Speed } from '../sim';
@@ -134,6 +134,35 @@ export function TopBar({
   const [purseOpen, setPurseOpen] = useState(false);
   const banner = paintedIsland(BANNER[state.player]);
 
+  /*
+   * How tall this bar is, published for anything that must not cover it.
+   *
+   * Sean, 24 September: *"When on any build screen I need to see the gold
+   * section from the top bar so I can make purchase decisions."* A sheet is
+   * 82% of the app and anchored to the tab bar, which on a 852px phone puts
+   * its top edge above this — so the one figure a purchase turns on was behind
+   * the sheet asking for it. A build sheet stops below the bar now, and this
+   * is the number it stops at.
+   *
+   * Measured rather than written down, exactly as `--tabbar-h` is: the height
+   * is the banner plus the rail plus whatever the phone's notch claims, and
+   * only the device knows the last of those. The purse expanding is not part
+   * of it — that is drawn over the sheet on purpose (`.topbar--purse`) and a
+   * sheet that resized every time somebody tapped the plaque would be worse
+   * than one that never moved.
+   */
+  const bar = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const el = bar.current;
+    if (!el) return;
+    const publish = () =>
+      document.documentElement.style.setProperty('--topbar-h', `${el.offsetHeight}px`);
+    publish();
+    const watch = new ResizeObserver(publish);
+    watch.observe(el);
+    return () => watch.disconnect();
+  }, []);
+
   const cycle = () => {
     if (state.speed === 'paused') {
       onSetSpeed(last.current);
@@ -177,7 +206,7 @@ export function TopBar({
      * the report's own buttons. So the lift is tied to the purse being open,
      * which is a state the player enters and leaves with a tap.
      */
-    <header className={`topbar${purseOpen ? ' topbar--purse' : ''}`}>
+    <header className={`topbar${purseOpen ? ' topbar--purse' : ''}`} ref={bar}>
       {/* The banner: the side's painting, crest, name and creed, and the day. */}
       <div className="banner" style={banner ? { backgroundImage: `url(${banner})` } : undefined}>
         <div className="banner__scrim" />

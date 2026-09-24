@@ -9964,3 +9964,51 @@ draw. It is green and red now, like the bar.
 `mapcolours.test.ts` measures the palette rather than trusting it: every pair of
 holder colours must clear 1.4:1, the unheld one must be warm, and all three must
 stay above 3:1 on the water.
+
+### The purse stays showing on a build screen
+
+Sean, 24 September, over the Build Ships sheet: *"When on any build screen I
+need to see the gold section from the top bar so I can make purchase
+decisions."*
+
+This is the second half of a note from 22 September — *"make the pop up go
+below the gold at the top, so I can see how much gold I have and my upkeep
+delta"* — and the first half was not enough. That answer raised the top bar
+above the sheet **while the purse is open** (`.topbar--purse`, z-index 26 over
+the sheet's 20), which works and is still there. What it could not fix is that
+you have to tap the plaque to open the purse, and the plaque was behind the
+sheet.
+
+The geometry: `.sheet` is `max-height: 82%` anchored to the top of the tab bar,
+so on a 393×852 phone its top edge lands at roughly 89px — above a top bar
+about 102px tall here and taller on a phone with a notch. The sheet asking for
+675 gold was covering the only figure saying whether you have it.
+
+So a sheet that spends or earns stops below the bar:
+
+```css
+.sheet--under-top {
+  max-height: calc(100% - var(--topbar-h, 150px) - var(--tabbar-h, 64px));
+}
+```
+
+`--topbar-h` is published by TopBar the way `--tabbar-h` has always been
+published by TabBar — measured with a `ResizeObserver` rather than written
+down, because the height is the banner plus the rail plus whatever the phone's
+notch claims and only the device knows the last of those.
+
+**A flag rather than a rule for every sheet.** Making all of them stop below the
+bar would have shortened every sheet in the game to fix a screen that is about
+money — and most sheets are not a decision about money, so the height is worth
+more to them than the plaque is. The three that take it are the build menu, the
+build order sheet (Ships, Facilities and Troops are one component) and the
+scrap sheet, which is the same decision run backwards.
+
+The purse expanding still works and still reaches over the sheet, so the
+sequence is now: see the gold and the delta without doing anything, tap it if
+you want Production and Upkeep broken out. Measured on the built page at
+393×852: bar 0–102, sheet 102–778, purse opening at 99 and hit-testing on top.
+
+A side effect worth having: the bottom of the sheet no longer runs off the
+screen. In Sean's screenshot **WHERE** was cut in half and the island you were
+building at was below the fold; it is on screen now.
