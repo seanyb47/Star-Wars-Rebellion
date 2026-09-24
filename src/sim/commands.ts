@@ -11,6 +11,7 @@ import {
   breakOffBattle,
   closeBattle,
   detachShips,
+  embark,
   fightBattleRound,
   fleeBattle,
   sailFleet,
@@ -263,6 +264,35 @@ export function orderDetach(
 ): CommandResult {
   return run(state, (draft) => {
     detachShips(draft, fleetId, shipIds, into, draft.player);
+  });
+}
+
+/**
+ * Companies between the quay and the boats, by hand.
+ *
+ * Sean, 24 September: *"How do I move troops from an island into a fleet? I
+ * should be able to click on any troop and move any number of them into a
+ * fleet up to fleet troop limit."*
+ *
+ * The answer until now was that you could not, and that is his own ruling of
+ * 22 September coming back round — *"cut this ashore / aboard thing"* — after
+ * which companies load and unload themselves (`loadSpareCompanies`). That rule
+ * stays, because it is right about the common case: nobody wants two taps to
+ * do the only sensible thing. What it cannot do is the *uncommon* case, which
+ * is the one he hit. Automatic loading takes only what an island can **spare**
+ * above its wanted garrison, so an island that is short — Anchorite Rock, in
+ * revolt, three ashore of six wanted — will never give a company up, however
+ * much you would rather have those three aboard than lose them with the island.
+ *
+ * So the control is back beside the automatic behaviour rather than instead of
+ * it: the boats still fill themselves on the way out, and this is how you
+ * overrule them.
+ *
+ * Positive takes companies aboard, negative puts them ashore.
+ */
+export function orderEmbark(state: GameState, fleetId: string, companies: number): CommandResult {
+  return run(state, (draft) => {
+    embark(draft, fleetId, companies, draft.player);
   });
 }
 

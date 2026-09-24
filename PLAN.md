@@ -10345,3 +10345,53 @@ asked fresh every morning, and `crewOn` counts only works that are standing —
 so the day the second yard opens, the hull takes two days of work a day. There
 was no test walking a yard from founding to standing with a hull on the stocks,
 which is why the surrounding bug could sit there; there is now.
+
+### Troops aboard by hand, beside the loading that does itself
+
+Sean, 24 September, on Anchorite Rock — in revolt, blockaded, three troops
+ashore of six wanted: *"How do I move troops from an island into a fleet? I
+should be able to click on any troop and move any number of them into a fleet
+up to fleet troop limit."*
+
+**The honest answer was: you cannot, and that is his own ruling coming back
+round.** On 22 September he cut the control — *"cut this ashore / aboard
+thing"* — and the boats have loaded themselves since (`loadSpareCompanies`).
+The reasoning holds and is still in the code: nobody leaves troops standing on
+a quiet island when the hulls going somewhere have room, so both ends of the
+old stepper only ever had one sensible answer, and a control with one sensible
+answer is a chore.
+
+**What it cannot do is the case he was looking at.** Automatic loading takes
+only what an island can *spare* — everything above its wanted garrison, with a
+floor of one — so an island that is *short* will never give a troop up. Three
+ashore of six wanted on an island in revolt behind a blockade is exactly that:
+the automatic rule says those three are needed, and the player can see they are
+about to be lost with the island and would rather have them aboard.
+
+So the control is back **beside** the automatic behaviour rather than instead
+of it. The boats still fill themselves on the way out; this is how you overrule
+them.
+
+- **The tile is the order.** `Slot` already had the rule for this: *"where the
+  tile has no other job, the whole tile does it… where it already does
+  something, the picture keeps that job and a small corner mark carries the
+  lookup, because the two are different questions."* A troop tile had only the
+  lookup, so it gains the order and the `?` takes the lookup.
+- **It only becomes an order when there is something to load onto** — your
+  ground, and a squadron of yours lying in the harbour. A tap that opens a
+  sheet saying "nothing to load onto" is a tap wasted.
+- **One row a squadron, a stepper each**, capped by whichever runs out first,
+  the quay or the holds, so the number on the button is always one you can
+  actually take. Plus an **All N**, because the common manual case is *take
+  everything*.
+- **It will strip an island bare and says so rather than stopping you.** Under
+  the wanted garrison the island stirs; empty, the next troop to arrive takes
+  it. Both are real prices and both are sometimes worth paying, which is the
+  whole reason to have the control.
+
+One thing worth recording for next time: **the vocabulary test caught me.**
+`companies` is the sim's word and stays there, but I let it into a flash
+message and a handler's signature, and `vocabulary.test.ts` reads those as
+player text. CLAUDE.md's rule is the right one and it worked — retire words
+from prose, never from identifiers — the screens say *troops* and the sim's
+`embark(state, fleetId, companies, actor)` is untouched.

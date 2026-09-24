@@ -27,6 +27,7 @@ import {
   orderBreakOff,
   orderCloseBattle,
   orderDetach,
+  orderEmbark,
   orderFightRound,
   orderSail,
   sailError,
@@ -68,6 +69,7 @@ import { useAdvisorVoice } from './narrator/useAdvisorVoice';
 import { ReachSheet } from './ReachSheet';
 import { ReachListSheet } from './ReachListSheet';
 import { FleetListSheet } from './FleetListSheet';
+import { EmbarkSheet } from './EmbarkSheet';
 import { tabForLayer, type IslandTab } from './IslandRow';
 import { ScrapSheet } from './ScrapSheet';
 import { SystemSheet } from './SystemSheet';
@@ -111,6 +113,8 @@ export function App() {
   /* Every squadron of yours, from the chip at the foot of the chart. See
      `FleetListSheet` for why it exists at all. */
   const [fleetsOpen, setFleetsOpen] = useState(false);
+  /* Which island's companies you are putting aboard. See `EmbarkSheet`. */
+  const [loadingAt, setLoadingAt] = useState<string | null>(null);
   /*
    * Where an island was opened from, so closing it goes back there.
    *
@@ -631,6 +635,15 @@ export function App() {
   };
 
   /** Take hulls out of a squadron: into one lying here, or into a new one. */
+  /** Companies from the quay into the boats, by hand. See `orderEmbark`. */
+  const handleEmbark = (fleetId: string, troops: number) => {
+    const result = orderEmbark(state, fleetId, troops);
+    if (result.error) return flash(result.error);
+    setState(result.state);
+    setLoadingAt(null);
+    flash(troops === 1 ? 'A troop goes aboard.' : `${troops} troops go aboard.`);
+  };
+
   const handleDetach = (fleetId: string, shipIds: string[], into?: string) => {
     const result = orderDetach(state, fleetId, shipIds, into);
     if (result.error) return flash(result.error);
@@ -684,6 +697,7 @@ export function App() {
     Boolean(openReachId) ||
     Boolean(openListId) ||
     fleetsOpen ||
+    Boolean(loadingAt) ||
     Boolean(missionChoice) ||
     Boolean(sailPlan) ||
     menuOpen ||
@@ -1132,6 +1146,7 @@ export function App() {
           onDetach={handleDetach}
           onOrderOfficers={handleOrderOfficers}
           onOrderGarrison={handleOrderGarrison}
+          onPutAboard={setLoadingAt}
           onOrderCrew={handleOrderCrew}
           onOpenCharacter={setOpenCharacterId}
           onOpenReach={(sectorId) => {
@@ -1182,6 +1197,15 @@ export function App() {
             setOpenReachId(null);
             setOpenListId(sectorId);
           }}
+        />
+      )}
+
+      {loadingAt && (
+        <EmbarkSheet
+          state={state}
+          system={state.systems.find((s) => s.id === loadingAt)!}
+          onClose={() => setLoadingAt(null)}
+          onEmbark={handleEmbark}
         />
       )}
 

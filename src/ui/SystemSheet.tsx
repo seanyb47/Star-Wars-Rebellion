@@ -705,6 +705,7 @@ export function SystemSheet({
   onDetach,
   onOrderGarrison,
   onOrderCrew,
+  onPutAboard,
 }: {
   state: GameState;
   system: System;
@@ -732,6 +733,17 @@ export function SystemSheet({
   onOrderOfficers?: (fleetId: string, characterIds: string[], dir: -1 | 1) => void;
   onDetach?: (fleetId: string, shipIds: string[], into?: string) => void;
   onOrderGarrison?: (systemId: string, typeIds: string[], dir: -1 | 1) => void;
+  /**
+   * Put companies from this island aboard a squadron lying in its harbor.
+   *
+   * Sean, 24 September: *"I should be able to click on any troop and move any
+   * number of them into a fleet up to fleet troop limit."* So the tile's tap
+   * is the order and the lookup moves to its corner mark, which is `Slot`'s
+   * own rule for a tile that has a job: *"the picture keeps that job and a
+   * small corner mark carries the lookup, because the two are different
+   * questions."*
+   */
+  onPutAboard?: (systemId: string) => void;
   onOrderCrew?: (characterIds: string[], dir: -1 | 1) => void;
   onOpenCharacter?: (characterId: string) => void;
   onOpenReach?: (sectorId: string) => void;
@@ -923,6 +935,11 @@ export function SystemSheet({
   const garrison = byRemembered(garrisonSummary(system), (e) => e.type.id, system.garrisonOrder);
   // The walls, for the Defenses panel. Whoever holds the ground holds them.
   const walls = fortsOf(system);
+  // Anything of yours lying here with holds to fill — what makes a troop tile
+  // an order rather than an encyclopedia link.
+  const boatsHere = state.fleets.some(
+    (f) => f.faction === state.player && !f.voyage && f.systemId === system.id,
+  );
   /**
    * What stands here, as rows. Grouped, two mines of the same owner are one
    * line with a count.
@@ -1464,6 +1481,14 @@ export function SystemSheet({
                   // mean — so the tile is a picture and a name, and tapping it
                   // goes there rather than unfolding a card under the board.
                   onLookUp={() => lookUp?.('companies', entry.type.id)}
+                  // Only on ground you hold, and only when something of yours
+                  // is lying here to put them on: a tap that opens a sheet
+                  // saying "nothing to load onto" is a tap wasted.
+                  onClick={
+                    onPutAboard && system.control === state.player && boatsHere
+                      ? () => onPutAboard(system.id)
+                      : undefined
+                  }
                   label={`${entry.type.name} — ${entry.type.people}`}
                   order={
                     all.length > 1 && onOrderGarrison
