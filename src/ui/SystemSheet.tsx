@@ -76,6 +76,7 @@ import {
   SupportBars,
 } from './components';
 import { ShipsHere } from './FleetPanel';
+import { IslandCommand } from './IslandCommand';
 import { WorthMark } from './worth';
 import { controlColour } from './ChainMap';
 
@@ -1043,57 +1044,74 @@ export function SystemSheet({
       }
       onClose={onClose}
       {...swipe}
-      banner={
-        /* The island itself, above the tabs rather than inside the first one.
-           Four tabs are all about this place; it should not go off screen the
-           moment you look at its garrison.
-
-           The painting and nothing else. It is shorter than it was, and the
-           line of lore that used to sit under it has gone back into the
-           Harbor tab: everything up here is paid for on all five tabs and
-           out of the height the tab itself has to work in, so only the thing
-           that is actually about the place on every one of them earns a
-           place. The picture does. Two lines of prose about seawalls does
-           not. */
-        <div className="isle-head">
-          <IslandBanner
-            archetype={system.archetype}
-            seed={system.name}
-            faction={system.control}
-            settled={system.populated}
-            facilities={system.facilities.length}
-            facilityTypes={system.facilities.map((f) => f.type)}
-            mutiny={system.uprising}
-            height={104}
-          />
-          {/* Allegiance, up here with the painting rather than inside the
-              Garrison tab. It is the number the rest of the island is read
-              off — what it earns you, how many troops hold it quiet, how
-              much goes out the back — so asking for it meant a tab change
-              from wherever you happened to be. Slim, because everything above
-              the tabs is paid for out of every tab's height. */}
-          {system.populated && <SupportBars system={system} slim />}
-        </div>
-      }
-      tabs={
-        <div className="tabs" data-tour="island-tabs" role="tablist">
-          {tabs.map((entry) => (
-            <button
-              key={entry.id}
-              role="tab"
-              aria-selected={live_tab === entry.id}
-              className={`tabs__tab${live_tab === entry.id ? ' tabs__tab--on' : ''}`}
-              onClick={() => setTab(entry.id)}
-            >
-              {entry.label}
-              {entry.id === 'buildings' && producers.length > 0 && (
-                <span className="tabs__dot" aria-hidden="true" />
-              )}
-            </button>
-          ))}
-        </div>
-      }
+      /*
+       * One scroll, and the painting goes with it.
+       *
+       * The banner was pinned here on purpose — four tabs about one place, and
+       * letting the place scroll away meant looking at a garrison with no idea
+       * whose garrison it was. Sean's island-command brief of 24 September
+       * reverses that: *"The large island image sits below a compact title and
+       * status badges; it scrolls away naturally with the rest of the content.
+       * Do not pin the image while the user scrolls."* And *"one natural
+       * vertical scroll; avoid nested vertical scroll containers."*
+       *
+       * `flow` is the mode the encyclopedia already used for exactly this, and
+       * it answers the objection the pinning existed for: once the full header
+       * has gone past, a compact bar fades in carrying the name and the way
+       * out, so there is always a label on what you are reading. The tabs move
+       * into the column with everything else, which is what the prototype
+       * does — they sit under the orders, not over the art.
+       */
+      flow
     >
+      {/* The island itself, and the line that says how it leans. */}
+      <div className="isle-head">
+        <IslandBanner
+          archetype={system.archetype}
+          seed={system.name}
+          faction={system.control}
+          settled={system.populated}
+          facilities={system.facilities.length}
+          facilityTypes={system.facilities.map((f) => f.type)}
+          mutiny={system.uprising}
+          height={104}
+        />
+        {/* Allegiance, with the painting rather than inside the Garrison tab.
+            It is the number the rest of the island is read off — what it earns
+            you, how many troops hold it quiet, how much goes out the back — so
+            asking for it meant a tab change from wherever you happened to
+            be. */}
+        {system.populated && <SupportBars system={system} slim />}
+      </div>
+
+      {/* What I have here, what is ashore, and the two orders — above the
+          tabs, because the brief's first viewport has to answer those without
+          anybody opening a ship to find them. See `IslandCommand`. */}
+      <IslandCommand
+        state={state}
+        system={system}
+        report={report}
+        onBombard={onBombard}
+        onAssault={onAssault}
+      />
+
+      <div className="tabs" data-tour="island-tabs" role="tablist">
+        {tabs.map((entry) => (
+          <button
+            key={entry.id}
+            role="tab"
+            aria-selected={live_tab === entry.id}
+            className={`tabs__tab${live_tab === entry.id ? ' tabs__tab--on' : ''}`}
+            onClick={() => setTab(entry.id)}
+          >
+            {entry.label}
+            {entry.id === 'buildings' && producers.length > 0 && (
+              <span className="tabs__dot" aria-hidden="true" />
+            )}
+          </button>
+        ))}
+      </div>
+
       {report && <ReportAge state={state} report={report} />}
 
       {live_tab === 'harbor' && (

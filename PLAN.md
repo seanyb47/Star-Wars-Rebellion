@@ -10712,3 +10712,78 @@ than mine.
 world map every Reach is bright and tappable during placement and you find out
 by zooming in. Dimming those would be the same rule applied one level up, and
 it changes tappability, so it is not in this change.
+
+## The island command screen (24 September)
+
+Sean's brief and prototype, implemented against the real state.
+
+### What was already there, and where it was
+
+Three of the brief's five first-viewport questions were answered by this sheet
+already — and all three were **two taps down**. What I have here, what is known
+ashore, and which orders I can give all lived inside a fleet card, inside the
+Harbor tab, under a heading called *Attack actions*. A player looking at an
+enemy island had to open a ship to find out whether they could land on it.
+
+So nothing new had to be computed. The orders came up to the surface and the
+tabs kept everything else.
+
+### The block is a second door, not a second set of rules
+
+The brief warns about this twice, and it is the thing most likely to rot:
+
+- the buttons call the same `onBombard` / `onAssault` the fleet card calls
+- eligibility is `bombardError` / `assaultError`, asked of the sim
+- the numbers on the Bombardment button are `bombardOdds`, not arithmetic here
+
+`islandcommand.test.ts` pins each of those, so a future hand cannot quietly
+grow a second "can I land here".
+
+### Two mechanics the prototype implied and the game does not have
+
+Both left alone, as the brief instructed:
+
+- **No troop stepper.** `assault(state, fleetId, rng, actor)` takes no count
+  and lands the whole complement, so the review is a read-only statement of
+  the force committed. The test asserts this against the *sim's* signature
+  rather than against the UI, because the signature is the actual guarantee.
+- **No bombardment target picker.** Not supported, and on purpose — Sean cut
+  deliberate targeting on 21 September, and `bombardNow`'s own note says why:
+  shot goes at the walls while any stand and can only reach the garrison when
+  none do.
+
+### Fog of war
+
+An uncounted garrison and an empty one are the two things a landing must never
+confuse. With no report the card reads **Not counted** and the invasion line
+reads *"3 landing · nobody has counted what is ashore"* rather than *"3 against
+0"*. With a report it says how old the count is, because a number taken forty
+days ago is a rumour.
+
+### One reversal, on his instruction
+
+The island banner was pinned on 20 September, deliberately: four tabs about one
+place, and letting the place scroll away meant looking at a garrison with no
+idea whose garrison it was. The brief reverses it — *"Do not pin the image
+while the user scrolls"*, *"one natural vertical scroll; avoid nested vertical
+scroll containers"* — so the sheet is now in `flow`, the mode the encyclopedia
+already used for exactly this. Its compact bar, which fades in once the header
+has gone past, answers the objection the pinning existed for.
+
+### Checked in the browser at 393×852
+
+| Case | Result |
+|---|---|
+| Enemy island, squadron with troops | Both orders live; cards read 3 hulls · 94 guns / Not counted |
+| Enemy island, no troops aboard | Invasion shut, *"No landing. No troops aboard."* |
+| Friendly island | No command block at all |
+| Hidden defenders | *Not counted*, and the invasion line says so |
+| Both reviews | Read-only rows, Cancel and the order, no stepper |
+
+### Not done, and why
+
+**The assault and bombardment result screens are not built.** The brief and
+prototype for them are behind a `chatgpt.com` link, and this environment's
+network policy refuses that host outright. Nothing was guessed in their place:
+the orders still resolve into the existing report UI. Attach that brief the
+way the island one was attached and they are the next thing.

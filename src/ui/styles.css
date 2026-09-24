@@ -1416,6 +1416,42 @@ button {
    the four tabs are about is on screen whichever one is open. It does not
    scroll with the body and it takes no side padding: the painting is meant to
    run edge to edge the way it did at the top of the Harbor tab. */
+/* ---------- Island command: the first viewport ----------
+   What I have here, what is ashore, and the two orders. See
+   `IslandCommand.tsx` for why these came up out of the fleet card. */
+.command { padding: 0 14px; }
+.command__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0 2px; }
+.command__card {
+  background: var(--panel-2, rgba(9, 30, 39, 0.6));
+  border: 1px solid var(--border); border-radius: 9px; padding: 10px 11px;
+  min-width: 0;
+}
+.command__card strong { display: block; margin-top: 4px; font-size: 15px; }
+.command__card small { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.35; }
+.command__label {
+  display: block; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase;
+  color: var(--brass);
+}
+/* Two orders, the same size and side by side. A primary button beside a plain
+   one made the landing read as the thing you were meant to do, and on a walled
+   island it is the expensive half of the answer. */
+.command__orders { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.command__order {
+  display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
+  text-align: left; min-height: var(--tap);
+}
+.command__order b { font-size: 14px; }
+.command__order:disabled { opacity: 0.45; }
+/* The reason an order is shut, in ordinary type. The brief: "Do not place
+   strategic consequences or failure reasons solely in muted tiny text." */
+.command__why {
+  margin: 10px 0 2px; padding-left: 16px;
+  font-size: 12px; line-height: 1.45; color: var(--brass);
+}
+.command__why li { margin: 3px 0; }
+.command__row { padding: 9px 0; border-bottom: 1px solid var(--border); }
+.command__note { margin: 12px 0 0; line-height: 1.5; color: var(--brass); }
+
 .isle-head { flex: none; }
 .isle-head .portrait__note { margin: 6px 14px 8px; }
 /* The allegiance strip sits under the painting and over the tabs, inset to
