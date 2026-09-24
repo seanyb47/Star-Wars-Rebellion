@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { CHART_LAYERS, layerTally, type ChartLayer, type GameState, type PlayableFaction } from '../sim';
+import {
+  CHART_LAYERS,
+  isLoudLayer,
+  layerTally,
+  type ChartLayer,
+  type GameState,
+  type PlayableFaction,
+} from '../sim';
 import { orderedLayers, usePrefs } from './prefs';
 
 /** The strip in this player's order — theirs to set, in the menu. */
@@ -23,6 +30,19 @@ export function useChartLayers() {
  * chart say the rest, and the Almanac has the long form for anyone who wants
  * it. A sentence under the chart on every view was a caption on a picture
  * that did not need one.
+ *
+ * It is back for three of the twelve, and only those three. Sean, 24
+ * September, looking at a green disc breathing over Sovereign Reach: *"The
+ * constant flashing isn't clear what you're trying to bring to my
+ * attention."* The loud layers — idle crew, idle buildings, fleets — are the
+ * only ones that draw a mark no other layer draws, a 52px glow the chart has
+ * no other use for, and a mark unique to one view is exactly the picture that
+ * does need its caption. The quiet nine still get none: a star is a star on
+ * every one of them, and the chip above already named it.
+ *
+ * The sentence is the layer's own `hint`, the one the Almanac prints. One
+ * wording, two places — a filter that explains itself differently depending
+ * on where you read about it is two filters.
  */
 export function LayerStrip({
   state,
@@ -43,14 +63,43 @@ export function LayerStrip({
   const strip = useRef<HTMLDivElement>(null);
   const layers = useChartLayers();
 
+  /*
+   * How tall the strip is, published for whatever has to sit clear of it.
+   *
+   * The chart's pills used to clear it with `bottom: 66px`, a number written
+   * down when the strip was one row of chips, and adding the caption line
+   * below pushed the strip up through them — a Fleets pill cut in half by the
+   * filters. Measured rather than written down, the same way `--topbar-h` and
+   * `--tabbar-h` are, because the height now depends on which filter is on.
+   *
+   * Only the floating strip publishes. In a sheet's footer it is not what the
+   * chart's pills are clearing, and two writers would fight over one value.
+   */
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = box.current;
+    if (!el || foot) return;
+    const publish = () =>
+      document.documentElement.style.setProperty('--layers-h', `${el.offsetHeight}px`);
+    publish();
+    const watch = new ResizeObserver(publish);
+    watch.observe(el);
+    return () => watch.disconnect();
+  }, [foot]);
+
   // Keep the live chip in view when the layer changes by swipe rather than tap.
   useEffect(() => {
     const el = strip.current?.querySelector('[aria-pressed="true"]');
     el?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
   }, [layer]);
 
+  // The caption, when there is one to give. Read off the player's own strip
+  // rather than CHART_LAYERS so a reordered strip cannot caption the wrong
+  // filter.
+  const loud = isLoudLayer(layer) ? layers.find((l) => l.id === layer) : undefined;
+
   return (
-    <div className={`layers${foot ? ' layers--foot' : ''}`}>
+    <div className={`layers${foot ? ' layers--foot' : ''}`} ref={box}>
       <div className="layers__strip" ref={strip} role="tablist" aria-label="Chart layer">
         {layers.map((l) => {
           const n = l.id === 'allegiance' || l.id === 'none' ? null : layerTally(state, l.id, viewer);
@@ -68,6 +117,7 @@ export function LayerStrip({
           );
         })}
       </div>
+      {loud && <p className="layers__hint">{loud.hint}</p>}
     </div>
   );
 }

@@ -515,7 +515,8 @@ export function ChainMap({
                     so a filter reads the same at both scales: the garrison
                     count as a numeral, a star for everything else. */}
                 {/* Idle works, idle crew and fleets: whatever the mark, a
-                    pulse behind it — the same as on the chart. */}
+                    disc behind it — the same as on the chart, and as still as
+                    the chart's is now. */}
                 {layer && isLoudLayer(layer) && (
                   <circle
                     className="map__idle-halo"

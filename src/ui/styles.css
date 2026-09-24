@@ -1866,8 +1866,10 @@ button {
    The original nags you in red when a construction yard is sitting empty.
    This is the same idea, always on, and tapping one takes you to it. */
 .idle {
-  /* Above the layer strip's row, not behind it. */
-  position: absolute; left: 8px; right: 8px; bottom: 66px; z-index: 3;
+  /* Above the layer strip, not behind it — and the strip's height is measured
+     rather than guessed, because a loud layer adds a caption line under the
+     chips and the old hard-coded 66px cut this row in half. See `LayerStrip`. */
+  position: absolute; left: 8px; right: 8px; bottom: calc(var(--layers-h, 66px) + 6px); z-index: 3;
   display: flex; gap: 6px; justify-content: center; pointer-events: none;
 }
 .idle__item {
@@ -2059,19 +2061,43 @@ button {
 }
 .layers__chip--on .layers__n { background: var(--metal); color: var(--chrome-2); border-color: var(--metal-hi); }
 
+/* One line under the chips, on the three loud layers only.
+   See `LayerStrip` for why these three and not the other nine. It sits where
+   the strip's own gap already is, so turning it on does not move the chips —
+   the row a thumb is aiming at must not jump because the caption arrived. */
+.layers__hint {
+  margin: 0; padding: 0 12px 2px;
+  font-size: 11px; line-height: 1.35;
+  color: var(--chrome-text); opacity: 0.72;
+  pointer-events: none;
+}
+
 /* How many of the thing an island that answers the current layer has.
    No fill here: the colour is set per island so the number belongs visibly to
    its dot, and a stylesheet rule would beat that presentation attribute — which
    has caught us before. */
-/* The pulse behind an idle star. Something of yours is standing idle and the
-   chart is saying so from across the room: a soft disc in the island's own
-   colour, breathing. Opacity only — a growing disc under a still star reads
-   as a ripple, which is a different thing. */
-.map__idle-halo { opacity: 0.32; animation: idle-pulse 1.6s ease-in-out infinite; }
-@keyframes idle-pulse { 0%, 100% { opacity: 0.18; } 50% { opacity: 0.5; } }
-@media (prefers-reduced-motion: reduce) {
-  .map__idle-halo { animation: none; opacity: 0.35; }
-}
+/* The disc behind an idle star. Something of yours is standing idle and the
+   chart says so from across the room: a soft glow in the island's own colour,
+   the biggest mark any filter makes.
+
+   It used to breathe, and Sean caught it on 24 September: *"The constant
+   flashing isn't clear what you're trying to bring to my attention."* He was
+   right, and the diagnosis is the plural. Three things were moving on that
+   one screen — this, the news ring and a mutiny flag — each meaning something
+   different and none of them saying what. Motion cannot be the way three
+   separate ideas ask to be looked at; it stops being a signal and becomes
+   weather.
+
+   So there is one rule on the chart now, and this is the side of it that
+   holds still: **only trouble moves.** A filter's answer is found by size and
+   colour, which it was anyway — the disc is 52px across on a chart whose
+   largest dot is 18 — and the strip under the chart says in words what the
+   glow means. What is left moving is the mutiny flag, and now that it is
+   alone, movement means something again.
+
+   Reduced motion needed its own branch when this animated. It does not now:
+   there is nothing to turn off. */
+.map__idle-halo { opacity: 0.35; }
 .map__lit-n {
   font-size: 15px; font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -2859,7 +2885,12 @@ button.tcard:hover { border-color: var(--brass); }
   stroke-width: 3;
   transform-box: fill-box;
   transform-origin: center;
-  animation: shockring 1.8s ease-out infinite;
+  /* Once, not on a loop. The rule leaves its note for three days so a save
+     cannot reopen mid-animation, and CSS was filling all three of them with
+     the same ring opening over and over — which is not what §20 asked for. A
+     ring that opens out of the chain and fades is news arriving; the same
+     ring every 1.8 seconds for three days is a lighthouse. */
+  animation: shockring 1.8s ease-out 1;
 }
 @keyframes shockring {
   0% { transform: scale(0.35); opacity: 0; }

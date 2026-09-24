@@ -10447,3 +10447,78 @@ The old pennant was drawn as a raw path in the chart's units and landed
 correctly, so the geometry stays and only the size and the painting changed.
 The lesson is the cheap one: when a mark already lands in the right place,
 change how it looks and not where it comes from.
+
+## Only trouble moves (24 September)
+
+Sean, with the World Map open on Idle crew: *"The constant flashing isn't
+clear what you're trying to bring to my attention."*
+
+The useful word in that sentence is **constant**, and the useful thing about
+the screenshot is how much of it was moving. Three animations, all running at
+once, all saying *look here* and none of them saying *at what*:
+
+| Moving | Meaning | Ran for |
+|---|---|---|
+| The idle glow under Sovereign Reach | a crew member of yours is ashore doing nothing | as long as the filter is on |
+| The gold ring over Sunken Reach | news is travelling through that Reach | three days, on a loop |
+| The red flag beside it | that island has risen | as long as it is risen |
+
+Each is a reasonable thing to animate on its own. Together they are weather.
+A player cannot learn that motion means anything when three unrelated ideas
+all use it, and the cost falls hardest on the one that actually needs to
+interrupt you — the mutiny. I had made that worse myself the day before by
+giving the new mutiny flag a pulse without checking what else on the chart
+already had one.
+
+So the fix is a rule rather than three tweaks. **On the chart, only trouble
+moves.**
+
+- **The idle glow holds still.** It loses nothing: it is a 52px disc on a
+  chart whose largest dot is 18, so size and colour were always doing the
+  finding and the pulse was decoration on top. The reduced-motion branch had
+  been shipping a still version to some players since the day it was written,
+  which is as good a proof as any that a still disc works.
+- **The news ring opens once.** `shockwaveOn` keeps its note standing for
+  three days so a reload cannot land mid-animation, and CSS was filling all
+  three of those days with the same ring opening over and over. §20 asked for
+  *"a short visual propagation animation"* that travels outward — that is one
+  ring, opening and fading. Every 1.8 seconds for three days is a lighthouse.
+- **The mutiny flag keeps its pulse**, and is now the only thing that has one.
+
+### The half of the complaint that is not about motion
+
+*"…isn't clear what you're trying to bring to my attention"* is a second
+problem wearing the same coat. Even standing still, a green disc is not
+self-explanatory, and the connection between it and the chip you tapped is a
+thing the player has to make.
+
+There used to be a line of explanation under the chips and it was cut on 21
+September, with the reasoning that the chip's name and its tally say what it
+is and a sentence under the chart on every view is a caption on a picture that
+does not need one. That reasoning holds for nine of the twelve layers and
+fails for three. The loud layers — idle crew, idle buildings, fleets — are the
+only ones that draw a mark no other layer draws. A star means the same thing
+on Garrisons and Production and Available land; a 52px glow means something
+only here. **A mark unique to one view is exactly the picture that needs its
+caption.**
+
+So the line is back for those three and no others, and it is the layer's own
+`hint` — the sentence the Almanac already prints. One wording in two places: a
+filter that explains itself differently depending on where you read about it
+is two filters.
+
+### One thing that broke on the way
+
+The chart's floating pills cleared the strip with `bottom: 66px`, written down
+when the strip was one row of chips. The caption pushed the strip up through
+them and cut the Fleets pill in half. The strip now publishes its height the
+way `--topbar-h` and `--tabbar-h` do, measured with a `ResizeObserver`, and
+the pills clear `--layers-h`. Only the floating strip publishes — in a sheet's
+footer it is not what the pills are clearing, and two writers would fight over
+one value.
+
+### Left open
+
+`.odds--desperate` pulses on the battle sheet and the advisor breathes. Both
+are outside the chart and neither competes with anything, so both stand. If
+the rule wants extending later, that is where to look next.

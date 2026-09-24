@@ -155,9 +155,13 @@ export function showsNumber(layer: ChartLayer): boolean {
  * Layers whose answer you act on now — something of yours standing idle, or
  * hulls lying off an island, yours or theirs. These are the filters you
  * check often, and the mark they light has to be seen from across the
- * chart, not found: it is drawn bigger, with a pulse behind it. Fleets
- * joined the idle two because a star the size of every other filter's was
- * not enough to find a squadron by.
+ * chart, not found: it is drawn bigger, on a disc. Fleets joined the idle two
+ * because a star the size of every other filter's was not enough to find a
+ * squadron by.
+ *
+ * The disc used to breathe, and stopped on 24 September: these three are the
+ * only layers that draw a mark of their own, so they are also the only three
+ * the chart captions in words. Both halves of that are decided here.
  */
 export function isLoudLayer(layer: ChartLayer): boolean {
   return layer === 'idleBuildings' || layer === 'idleCrew' || layer === 'fleets';

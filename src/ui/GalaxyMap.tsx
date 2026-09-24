@@ -680,8 +680,10 @@ export function GalaxyMap({
                 const open = !explored || (system.control !== 'empire' && system.control !== 'alliance' && !system.populated);
                 // Idle works, idle crew and fleets are the things you are
                 // looking for, so their mark is bigger than any other
-                // filter's and pulses: found from across the chart, not
-                // searched for.
+                // filter's: a disc found from across the chart rather than
+                // searched for. It used to breathe as well, and does not —
+                // see `.map__idle-halo`. Size and colour do the finding; the
+                // strip at the foot says in words what the glow means.
                 const idle = lit && isLoudLayer(layer);
                 /**
                  * How big this island's dot is, and the whole of what the
@@ -838,7 +840,12 @@ export function GalaxyMap({
                          somewhere else entirely in this space, measured. Three
                          passes so it reads on painted water as well as open,
                          and pulsing, because at this size a still mark on a
-                         busy chart is a smudge. */
+                         busy chart is a smudge.
+
+                         It is the only thing on the chart that moves, which
+                         is the point: an island has risen, and nothing else
+                         is allowed to ask for your eye the same way. The idle
+                         glow gave up its pulse for this. */
                       <g className="chainmap__flame" pointerEvents="none">
                         {[
                           { stroke: 'rgba(233,244,248,0.7)', width: 5, fill: 'none' },
