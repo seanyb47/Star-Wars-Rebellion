@@ -396,6 +396,20 @@ export function GalaxyMap({
     });
   }, [state, viewer]);
 
+  /**
+   * Whether the pick ring has anything to tell you — see the note above the
+   * chains. Asked once of the whole chart: a ring narrows the choice or it
+   * does not, and that is a property of the set, not of the mode. Mirrors
+   * `ringsNarrow` in `ChainMap`, and the two have to agree or a ring appears
+   * on zooming in and not on zooming out.
+   */
+  const liveChain = (chain: (typeof chains)[number]): boolean => {
+    const holdsPicker = pickerAt !== undefined && chain.systems.some((s) => s.id === pickerAt);
+    return sailing || choosing || !pickingFor || chain.targets > 0 || holdsPicker;
+  };
+  const ringsNarrow =
+    Boolean(sailing || pickingFor || choosing) && chains.some((c) => !liveChain(c));
+
   const lordsAt = lordIslands(state);
 
   // The canvas: the painting at the box's full width. A taller box gets a
@@ -569,6 +583,14 @@ export function GalaxyMap({
           <rect x={0} y={CHART_H - 220} width={CHART_W} height={220} fill="url(#chart-foot)" pointerEvents="none" />
         )}
 
+        {/*
+          The same rule the Reach map follows: a ring on every chain says
+          nothing. Sean, 24 September, on the chain view — *"the rings make it
+          hard to see anyone else. Do we need them?"* Sailing can go anywhere,
+          so in sailing mode this ringed all seven chains to mark a set it was
+          not narrowing. Ring the answer when there is one; otherwise the sail
+          cursor and the prompt carry the mode.
+        */}
         {chains.map(({ sector, systems, summary, targets, spot, chainR, label }) => {
           // Sailing can go anywhere; a parley can only go where it is welcome.
           // A chain that cannot take the errand steps back. The chain the
@@ -634,7 +656,7 @@ export function GalaxyMap({
               {!ground && (
                 <circle className="map__sector-ring" cx={spot.x} cy={spot.y} r={chainR} />
               )}
-              {(sailing || choosing || (pickingFor && targets > 0)) && (
+              {ringsNarrow && live && (
                 <circle className="map__pick" cx={spot.x} cy={spot.y} r={chainR + 7} />
               )}
 

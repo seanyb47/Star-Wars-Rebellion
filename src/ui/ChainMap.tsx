@@ -339,6 +339,32 @@ export function ChainMap({
 
   const spots = useMemo(() => layoutIslands(systems, truth), [systems, truth]);
 
+  /**
+   * Whether the pick ring has anything to tell you — see the note above the
+   * islands. One question asked once, of the whole Reach, rather than of each
+   * island in turn: a ring narrows the choice or it does not, and that is a
+   * property of the set.
+   */
+  const isLive = (system: System): boolean =>
+    choosing
+      ? system.control === viewer && !system.uprising
+      : sailing || !pickingFor || isMissionTarget(state, system, pickingFor);
+  /** Which ring an island would wear, so two the same can be recognised. */
+  const ringKind = (system: System): string =>
+    pickingFor && !sailing ? String(missionTypeFor(state, system, pickingFor)) : 'plain';
+  /*
+   * A ring earns its place by telling islands apart. Two ways it can:
+   * some islands are out of the running, or the ones in it mean different
+   * kinds of work — a brass ring for signing on and a broken one for covert
+   * work are not the green ring at all, and that difference is worth drawing
+   * even when every island is a target. Fifteen identical rings on fifteen
+   * islands are worth nothing, and that is the sailing case exactly.
+   */
+  const ringsNarrow =
+    Boolean(sailing || pickingFor || choosing) &&
+    (systems.some((sy) => !isLive(sy)) ||
+      new Set(systems.filter(isLive).map(ringKind)).size > 1);
+
   return (
     <svg
       className="chainmap"
@@ -397,6 +423,26 @@ export function ChainMap({
         </>
       )}
 
+      {/*
+        A ring that is on every island says nothing.
+
+        Sean, 24 September, with a fleet picked and the whole Reach ringed in
+        green: *"I think the green rings are the issue... the rings make it
+        hard to see anyone else. Do we need them?"* Not there, no. The prop's
+        own comment gave it away — *"a fleet is choosing where to sail, and it
+        can sail anywhere"* — so in sailing mode the ring was drawn fifteen
+        times out of fifteen, over fifteen names and fifteen loyalty bars, to
+        mark a set it was not narrowing at all.
+
+        The other two modes do narrow: a build order lights only islands of
+        yours, and a mission lights only the ones offering it, colour-coded by
+        the kind of work. There the ring is the whole point. So the rule is the
+        set and not the mode — ring the answer when there *is* an answer, and
+        when everything qualifies, let the sail cursor and the prompt say what
+        is going on. That also covers the cases the modes could not: a Reach
+        where you happen to hold every island, or where every island offers the
+        same errand.
+      */}
       {systems.map((system, index) => {
         const paintedGround = Boolean(ground && crop);
         const spot = spots[index];
@@ -409,9 +455,7 @@ export function ChainMap({
 
         // The chains dim when they hold nothing to sail to; the islands inside
         // them must do the same, or you find out by tapping and being told no.
-        const live = choosing
-          ? system.control === viewer && !system.uprising
-          : sailing || !pickingFor || isMissionTarget(state, system, pickingFor);
+        const live = isLive(system);
         // One colour at three strengths, matching the chart: the filter pushes
         // an island's own tint up rather than adding a mark of its own.
         const mark = filtering ? layerMark(state, system, layer!, viewer) : { lit: false as const };
@@ -578,7 +622,7 @@ export function ChainMap({
 
             {/* A finger-sized target over the whole island, marks included. */}
             {live && <circle cx={spot.x} cy={spot.y} r={62} fill="transparent" />}
-            {(sailing || pickingFor || choosing) && live && (
+            {ringsNarrow && live && (
               <circle
                 className={`map__pick${
                   work === 'incite'

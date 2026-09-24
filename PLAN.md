@@ -10646,3 +10646,69 @@ The watch paragraph above it stays. It is about missions rather than about
 defence, he did not mention it, and it is the only place the game explains why
 a raid on a loyal capital is a different proposition from a raid on a sullen
 frontier. Worth a look next time he is on this screen.
+
+## A ring on every island says nothing (24 September)
+
+Sean, with a fleet picked and the whole Reach ringed green: *"I think the green
+rings are the issue. I don't mind the color change for neutral to yellowish but
+the rings make it hard to see anyone else. Do we need them?"*
+
+The prop's own comment answered it:
+
+```ts
+/** A fleet is choosing where to sail, and it can sail anywhere. */
+sailing?: boolean;
+```
+
+If it can sail anywhere, the ring is drawn fifteen times out of fifteen — a
+52px green circle over every name and every loyalty bar, marking a set it is
+not narrowing. That is the whole bug, and it was written down in the source
+before he ever saw it.
+
+The other two picking modes do narrow. Placing a works lights only islands of
+yours. A mission lights only the ones offering it, and colour-codes them by the
+kind of work. So the condition should never have been the *mode*:
+
+```ts
+const ringsNarrow =
+  Boolean(sailing || pickingFor || choosing) &&
+  (systems.some((sy) => !isLive(sy)) ||
+    new Set(systems.filter(isLive).map(ringKind)).size > 1);
+```
+
+**Two ways to earn the ring**, and the second one I nearly missed. My first cut
+asked only whether some island was out of the running, which killed the rings
+in mission mode too — because nearly everything charted can be spied on, so
+nearly every island is a target. That looked right and was wrong: the rings
+there are not all the same ring. Measured in the browser on a day-40 save,
+picking a mission target in Sovereign Reach draws **thirteen green and two
+broken brass**, and the two brass are exactly the Confederate islands where the
+work would be covert. Fifteen identical rings are worth nothing; thirteen and
+two are worth looking at. So a difference *in kind* counts as narrowing.
+
+Both charts ask the same question, because a ring that appeared on zooming in
+and not on zooming out would be worse than either having it or not.
+
+Measured, in the browser at 393×852 on a real day-40 save:
+
+| Mode | Reach map rings, of 15 |
+|---|---|
+| Sailing | 0 |
+| Placing a works | 3 — the Crown's islands, twelve dimmed |
+| Picking a mission target | 15 — thirteen green, two broken brass |
+
+### Two things left open
+
+**Mission picking still rings thirteen islands green.** That is correct under
+the rule — they really are all targets — but it is most of his complaint again
+in a different mode. The sharper version would ring only the kinds that are
+*not* the plain green, so the brass and the dashed brass stand alone and the
+ordinary ones are simply not marked. It would read beautifully and it would
+also stop saying which islands are pickable at all, so it is his call rather
+than mine.
+
+**A chain with nothing of yours in it stays live while placing a works.**
+`live = sailing || choosing || ...` is unconditional for `choosing`, so on the
+world map every Reach is bright and tappable during placement and you find out
+by zooming in. Dimming those would be the same rule applied one level up, and
+it changes tappability, so it is not in this change.
