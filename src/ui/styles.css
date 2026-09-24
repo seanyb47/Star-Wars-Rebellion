@@ -2594,6 +2594,16 @@ button.tcard:hover { border-color: var(--brass); }
    a refusal: the sheet says so and the player decides. */
 .choice__doubling { display: block; margin-top: 3px; color: var(--brass); }
 
+/* A role mission this officer holds and cannot do here today. Faded, without
+   a tap state, and the reason where the gist would be — see
+   `MissionChoiceSheet`. Faded rather than hidden because the card is the
+   answer to "why is it gone", and it cannot answer that from off the screen.
+   The painting keeps more of its colour than the text does: it is what makes
+   the row recognisable as the mission being explained. */
+.choice--shut { opacity: 0.62; cursor: default; }
+.choice--shut .choice__icon { filter: saturate(0.5); }
+.choice__why { color: var(--brass); }
+
 /* Someone in the bible the draw did not seat this war. Still a reference
    entry; just not one of anybody's people. */
 .encmini--absent .encmini__art { opacity: 0.55; filter: saturate(0.4); }

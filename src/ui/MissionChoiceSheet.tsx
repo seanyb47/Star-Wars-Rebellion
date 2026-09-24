@@ -16,6 +16,8 @@ import {
   inProse,
   chartedName,
   MISSION_GIST,
+  roleMissionBlock,
+  roleMissionsOf,
   type PlayableFaction,
 } from '../sim';
 import { Info, SectionHead, Sheet } from './components';
@@ -87,6 +89,26 @@ export function MissionChoiceSheet({
   const island = state.systems.find((s) => s.id === systemId)!;
   const faction = character.faction as 'empire' | 'alliance';
   const offered = missionsOffered(state, island, faction, character);
+  /*
+   * The role missions this officer holds but is not being offered here, each
+   * with the reason.
+   *
+   * Sean, day 40, the Imperator on his own capital: *"Why can't imperator
+   * recruit anymore by day 40?"* Nothing was wrong — the recruit pool empties
+   * around day 24 to 44 in every war, which is the design — but the sheet
+   * answered by leaving the card out, and an omission cannot be read. A card
+   * that is simply gone looks like a bug; a card that says *nobody unclaimed
+   * is ashore anywhere, four more will come* is a thing to plan around.
+   *
+   * Only the two role missions, and only for somebody who holds the role. The
+   * other eight are gated on the island alone and their absence is the
+   * island's own plain answer — nobody wonders why there is no rescue on an
+   * island with no cells. These two are the ones a player was told are
+   * special, which is exactly why they are the ones that need explaining.
+   */
+  const blocked = roleMissionsOf(character)
+    .map((type) => ({ type, why: roleMissionBlock(state, island, faction, type, character) }))
+    .filter((x): x is { type: MissionType; why: string } => Boolean(x.why));
   // Squadrons of yours lying here, each of them a post an officer can be sent
   // to take, listed under Command alongside the island itself.
   const squadrons = fleetsToCommand(state, systemId, faction);
@@ -240,6 +262,23 @@ export function MissionChoiceSheet({
             </Fragment>
           );
         })}
+        {/* Theirs to do, and not today. A dimmed card rather than a line of
+            prose: it is the same shape as the thing it is standing in for, so
+            it reads as *this is missing and here is why* rather than as a
+            footnote about something else. Not a button — there is nothing to
+            tap — so it is a div, and the reason takes the place of the gist. */}
+        {blocked.map(({ type, why }) => (
+          <div key={type} className="card choice choice--shut">
+            <MissionTile type={type} />
+            <span className="choice__body">
+              <span className="row row--between">
+                <b className="choice__name">{MISSION_LABEL[type]}</b>
+                <span className="tiny muted">Not today</span>
+              </span>
+              <span className="tiny choice__what choice__why">{why}</span>
+            </span>
+          </div>
+        ))}
       </div>
 
       {/*

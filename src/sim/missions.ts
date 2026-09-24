@@ -239,6 +239,94 @@ export function canResearch(officer: Character): boolean {
 }
 
 /**
+ * The missions that belong to a role rather than to everybody.
+ *
+ * Two of the ten are gated on who the officer is — signing on, which is the
+ * Recruiters', and research, which is the Drill and Ship Design people's. They
+ * are the two a player has been told are special, which is exactly why their
+ * absence is surprising rather than obvious: nobody wonders why a cook cannot
+ * incite a riot, and everybody wonders why the Imperator cannot keep a table.
+ */
+export function roleMissionsOf(officer: Character): MissionType[] {
+  const out: MissionType[] = [];
+  if (canRecruit(officer)) out.push('recruit');
+  if (canResearch(officer)) out.push('research');
+  return out;
+}
+
+/**
+ * Why a role mission this officer *can* do is not on offer here, in a sentence.
+ *
+ * Sean, day 40, the Imperator standing on his own capital with Recruit gone
+ * from the sheet: *"Why can't imperator recruit anymore by day 40?"* Nothing
+ * was wrong — the recruit pool was empty, which is the design — but the sheet
+ * answered by **omission**, and an omission cannot be read. Measured over six
+ * wars on both sides: the pool first empties on day 24 to 44 and the capital's
+ * allegiance never once fell near the threshold, so the question he asked is
+ * the question every player will ask, at about the same time, for the same
+ * reason.
+ *
+ * The rule itself is the one being explained and it is unchanged. What is new
+ * is that the sheet now says which of the conditions is the one failing today,
+ * because "nobody unclaimed is ashore, four are still to come" is a thing to
+ * plan around and a missing card is not.
+ *
+ * `undefined` means the mission is on offer, or is not this officer's to do at
+ * all — in which case it was never theirs to miss.
+ */
+export function roleMissionBlock(
+  state: GameState,
+  system: System,
+  faction: PlayableFaction,
+  type: MissionType,
+  officer: Character,
+): string | undefined {
+  if (!roleMissionsOf(officer).includes(type)) return undefined;
+  if (missionsOffered(state, system, faction, officer).includes(type)) return undefined;
+
+  if (type === 'recruit') {
+    if (system.control !== faction) return 'Articles are signed at a harbor of your own.';
+    if (!system.populated) return 'Nobody lives here to keep a table for.';
+    if (system.uprising) return 'Nobody signs articles in a riot.';
+    if (system.support[faction] < RECRUIT_MIN_SUPPORT) {
+      return `The island is not loyal enough to hold a table — ${Math.round(
+        system.support[faction],
+      )} where ${RECRUIT_MIN_SUPPORT} is wanted.`;
+    }
+    // The pool is the world's, not this island's, which is the part that is
+    // hard to guess from a sheet about one island. Both questions are asked:
+    // there may be unaligned hands ashore who simply will not sign *your*
+    // articles, and that is a different answer from an empty world.
+    const mine = recruitPool(state, faction).length;
+    const anyone = recruitPool(state).length;
+    if (mine === 0 && anyone > 0) {
+      return `The unaligned still ashore will not sign ${factionData[faction].name} articles.`;
+    }
+    const coming = recruitsToCome(state).length;
+    return coming === 0
+      ? 'There is nobody left in the Seven Seas to sign. Whoever you have is whoever you will have.'
+      : `Nobody unclaimed is ashore anywhere. ${coming} more will come up out of the Seas as the war goes on.`;
+  }
+
+  if (type === 'research') {
+    if (craftGrade(state.factions[faction].craft) >= CRAFT_GRADES.length) {
+      return 'Your shipwrights have learned everything there is to learn.';
+    }
+    if (!system.explored[faction]) return 'You have not charted this island.';
+    if (system.control !== faction) return 'The yards have to be your own.';
+    if (system.uprising) return 'The yards are idle while the island is in revolt.';
+    if (system.support[faction] < RESEARCH_MIN_SUPPORT) {
+      return `The island is too unsettled for yard work — ${Math.round(
+        system.support[faction],
+      )} where ${RESEARCH_MIN_SUPPORT} is wanted.`;
+    }
+    return `There is no ${FACILITY_LABEL.shipyard.toLowerCase()} here to work in.`;
+  }
+
+  return undefined;
+}
+
+/**
  * Whether this island is somewhere signing on could be attempted today.
  *
  * Yours, settled, quiet, and loyal enough to be worth the trip — and somebody

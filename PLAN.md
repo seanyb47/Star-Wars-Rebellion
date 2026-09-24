@@ -10522,3 +10522,88 @@ one value.
 `.odds--desperate` pulses on the battle sheet and the advisor breathes. Both
 are outside the chart and neither competes with anything, so both stand. If
 the rule wants extending later, that is where to look next.
+
+## Why the Imperator cannot recruit on day 40 (24 September)
+
+Sean, with the mission sheet open on Highwater: *"Why can't imperator recruit
+anymore by day 40?"*
+
+**Nothing is wrong.** He is a Recruiter (`Leader, Recruiter`), Highwater is his
+own capital, and the answer is the fifth of `canRecruitAt`'s five conditions:
+the recruit pool is empty.
+
+I measured it rather than guessing, with `lab/recruitgate.ts` — six wars a
+side, 200 days, asking every morning which condition is the one failing:
+
+```
+=== empire, 6 wars, 200 days, capital only ===
+open on 46% of days
+  shut, pool empty:        54% of days
+  shut, support below 65:   0% of days
+  first shut by pool empty: day 24, 30, 33, 33, 33, 44
+  at day 40: support 90/90/90/90/90/90   pool 0/1/0/0/0/0
+```
+
+Two things worth noting in that. **Allegiance is never the cause** — Highwater
+sits at 90 against a threshold of 65, so the knife-edge I half-expected from
+`RECRUIT_MIN_SUPPORT === HELD_SUPPORT_LEVEL` does not bite in practice. And the
+first-shut days are **identical on both sides**, which is the tell: it is not
+the race to sign people that empties the pool, it is arrival. Eight unaligned
+hands exist in a war, `RECRUITS_AT_START` puts **two of them ashore on day
+one**, and the rest come up across four hundred days on roughly days 70, 135,
+205, 275, 350 and 425. Sign the two you start with and there is a two-month
+hole before the next one lands.
+
+So the rule is the design and I have not touched it.
+
+### What was actually wrong
+
+The sheet answered **by omission**. The card was simply gone, and there was no
+way from that screen to learn why — which is why the question got asked at all.
+A missing card looks like a bug.
+
+Worse, the game already had the explanation and put it somewhere useless: the
+*"that is everybody currently ashore and unclaimed"* notice fires in the
+**mission report** when the last recruit signs, twenty days before anybody
+thinks to ask. A thing you are told once, in passing, on day 20, does not
+answer a question you form on day 40.
+
+### The fix
+
+The two **role missions** — signing on and research, the only two gated on who
+the officer is rather than on the island — now appear on the sheet greyed and
+marked *Not today*, with the reason where the gist would be:
+
+> **Recruit** — *Not today*
+> Nobody unclaimed is ashore anywhere. 6 more will come up out of the Seas as
+> the war goes on.
+
+Scoped deliberately:
+
+- **Only for an officer who holds the role.** A cook is never told they cannot
+  keep a table — a mission that was never theirs is not theirs to miss.
+- **Only these two.** The other eight are gated on the island alone and their
+  absence is the island's own plain answer; nobody wonders why there is no
+  rescue on an island with no cells. These two are the ones a player was told
+  are *special* (*"only a small number of units should be able to research"*),
+  which is exactly why their absence is surprising rather than obvious.
+- **A dimmed card, not a line of prose.** It is the same shape as the thing it
+  stands in for, so it reads as *this is missing and here is why* rather than
+  as a footnote about something else.
+
+`roleMissionBlock` walks the same conditions the offer walks, in the same
+order, so the sentence cannot name a cause that is not the one failing. It
+also distinguishes two cases the sheet could never have implied: an **emptied
+world** (nobody left at all, permanent) from a **drought** (nobody ashore yet,
+N still to come), and unaligned hands ashore who simply will not sign *your*
+articles, which is `mayServe` and the sworn peoples.
+
+Verified in the browser at 393×852 on a real day-40 save.
+
+### One thing I noticed and did not change
+
+Espionage is offered on your own capital — *"Count what is on the island and
+write it down"* about an island you already hold. `isEspionageTarget` allows
+any charted island that is populated or held, by anybody. It is not a bug
+against the rule as written, and it was not what he asked, but spying on
+yourself is a strange card to be offered on your own seat. Worth a ruling.
