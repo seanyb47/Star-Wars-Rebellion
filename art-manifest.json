@@ -993,13 +993,13 @@
         }
       ]
     },
-    "faces/lord-regent-halvard-corvane": {
+    "faces/grand-admiral-halvard-corvane": {
       "folder": "faces",
-      "slug": "lord-regent-halvard-corvane",
+      "slug": "grand-admiral-halvard-corvane",
       "version": 2,
       "added": "2026-09-12",
       "updated": "2026-09-19",
-      "title": "Lord Regent Halvard Corvane",
+      "title": "Grand Admiral Halvard Corvane",
       "source": "Recut 19 September from the portrait master",
       "notes": "Head crop, recut at 154px square from y=0 and centred on the head. The old 124px box was anchored at the top and cut hats and hair, which only showed once the encyclopedia started drawing these large; four of them were also well off the head horizontally. Head centre read off a ruler overlay, not detected - nothing available here detects a sea-bear, a goblin or a fish-person.",
       "crop": {
@@ -1011,14 +1011,14 @@
       "tone": null,
       "upscaled": true,
       "master": {
-        "file": "art-masters/faces/lord-regent-halvard-corvane.webp",
+        "file": "art-masters/faces/grand-admiral-halvard-corvane.webp",
         "w": 251,
         "h": 201,
         "bytes": 24732,
         "sha1": "2b292b1039254057"
       },
       "shipped": {
-        "file": "src/art/faces/lord-regent-halvard-corvane.webp",
+        "file": "src/art/faces/grand-admiral-halvard-corvane.webp",
         "w": 256,
         "h": 256,
         "bytes": 10380,
@@ -1028,7 +1028,7 @@
         {
           "version": 1,
           "retired": "2026-09-19",
-          "master": "art-masters/_retired/faces/lord-regent-halvard-corvane.v1.webp",
+          "master": "art-masters/_retired/faces/grand-admiral-halvard-corvane.v1.webp",
           "crop": null,
           "tone": null,
           "source": "ChatGPT art project contact sheets, 12 Sep 2026"
@@ -4383,13 +4383,13 @@
         "sha1": "0fa745957f7e22fd"
       }
     },
-    "portraits/lord-regent-halvard-corvane": {
+    "portraits/grand-admiral-halvard-corvane": {
       "folder": "portraits",
-      "slug": "lord-regent-halvard-corvane",
+      "slug": "grand-admiral-halvard-corvane",
       "version": 1,
       "added": "2026-09-12",
       "updated": "2026-09-12",
-      "title": "Lord Regent Halvard Corvane",
+      "title": "Grand Admiral Halvard Corvane",
       "source": "ChatGPT art project contact sheets, 12 Sep 2026",
       "notes": "Cut from a contact sheet rather than delivered on its own, so it is upscaled from the tile size. Replace with an individual export when there is one.",
       "crop": {
@@ -4401,14 +4401,14 @@
       "tone": null,
       "upscaled": true,
       "master": {
-        "file": "art-masters/portraits/lord-regent-halvard-corvane.webp",
+        "file": "art-masters/portraits/grand-admiral-halvard-corvane.webp",
         "w": 251,
         "h": 201,
         "bytes": 26080,
         "sha1": "f7b0179338fe65b5"
       },
       "shipped": {
-        "file": "src/art/portraits/lord-regent-halvard-corvane.webp",
+        "file": "src/art/portraits/grand-admiral-halvard-corvane.webp",
         "w": 480,
         "h": 436,
         "bytes": 24762,

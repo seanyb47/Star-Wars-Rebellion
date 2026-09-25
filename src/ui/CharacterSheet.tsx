@@ -2,16 +2,12 @@ import terms from '../data/terms.json';
 import {
   atSea as atSeaNow,
   commandingAt,
-  LORD_POWER_LABEL,
-  lordOfName,
-  shipClass,
-  LORD_POWER_TEXT,
-  powerOf,
   type Character,
   type GameState,
 } from '../sim';
 import { CharacterPainting } from './art';
-import { Sheet } from './components';
+import { Info, Sheet } from './components';
+import { slugOf } from './Almanac';
 
 /**
  * An island's name in the line that says where somebody is, as a way to the
@@ -174,12 +170,14 @@ export function CharacterSheet({
 }) {
   const location = state.systems.find((s) => s.id === character.locationSystemId);
   const ship = state.fleets.find((f) => f.officerIds.includes(character.id));
-  // A Lord is a person, and the sheet treats them as one — no special
-  // disabling, no hull waiting on them. What is different is the paragraph
-  // below: the one thing they can do that nobody else can.
-  const power = powerOf(character);
-  // The hull in the stories. Lore, and only ever lore.
-  const lordShip = power ? shipClass(lordOfName(character.name)!.ship) : undefined;
+  /*
+   * A Lord's power and their hull both used to be paragraphs here. Both are in
+   * the encyclopedia — the hull under their bio in the crew entry, the three
+   * powers together on the Rules page — so neither is read off the character
+   * any more and `powerOf`, `lordOfName` and `shipClass` are no longer needed
+   * on this sheet. A Lord is a person and this sheet treats them as one, which
+   * was always the intent; now it also looks like it.
+   */
   // Along on somebody else's errand: they have no mission of their own to read.
   const escorting = character.escorting
     ? state.characters.find((c) => c.id === character.escorting)
@@ -244,11 +242,20 @@ export function CharacterSheet({
         </>
       }
     >
-      {/* The painting, full width and full height, and the lore under it.
-          This used to be a 68px medallion beside a stack of labels, which
-          wasted the one thing on the screen anybody wants to look at. Who
-          somebody is, is the reason to send them; the ratings are only how it
-          goes once you have. */}
+      {/* The painting, and then the numbers. Nothing else.
+
+          Sean, 25 September: *"We just need portrait name and stats. And link
+          to encyclopedia. No need for a bunch of fluff than they can also read
+          in the encyclopedia."* Five blocks came off this sheet and every one
+          of them is in the crew entry already, word for word: the bio
+          (`who.bio`), the Lord's hull with its thumbnail and blurb
+          (`encfull__hull`), the role badges (`RoleTags`), the people, and the
+          Lord powers, which the Rules page lists for all three. This is the
+          fourth time the same ruling has been made — the odds table on 21
+          September, the RECRUIT explainer, *"This explanation text is good in
+          glossary. But not here"* — so it is a rule rather than a preference:
+          **a screen you act from carries what you are acting on; the reference
+          carries the rest, one tap away.** */}
       <CharacterPainting
         framed
         name={character.name}
@@ -261,68 +268,28 @@ export function CharacterSheet({
         height={232}
       />
 
-      <div className="row row--between" style={{ marginTop: 10, alignItems: 'baseline' }}>
-        <div style={{ minWidth: 0 }}>
-          {character.epithet && (
-            <div className="serif charsheet__epithet">&ldquo;{character.epithet}&rdquo;</div>
-          )}
-          {character.people && <div className="tiny muted">{character.people}</div>}
-        </div>
+      <div className="row row--between" style={{ marginTop: 10, alignItems: 'center' }}>
+        {/* One tap to everything that was cut. */}
+        <Info to="people" at={slugOf(character.name)}>
+          Read their entry
+        </Info>
         {statusBadge(character, state)}
       </div>
 
+      {/*
+        The one paragraph that did not go to the encyclopedia, cut to one line.
+
+        It is not lore — it is a consequence of the button directly below it.
+        Sending a posted officer anywhere ends the posting, and a player who
+        taps Assign Mission without knowing that loses a commander they meant
+        to keep. What went with the rest was the rules essay around it: three
+        sentences on what a commander does for an island, which is the
+        encyclopedia's job and is on the Rules page.
+      */}
       {posted && (
-        <p className="tiny" style={{ color: 'var(--good)', marginTop: 10 }}>
-          {holding ? (
-            <>
-              <b>In command of {holding.name}.</b> It will not rise while they hold it, and anyone
-              working against it is far likelier to be caught. They count as posted rather than
-              free — send them anywhere else and the posting ends, because they have gone.
-            </>
-          ) : (
-            <>
-              <b>In command of the {ship?.name}.</b> Her fighting, her landings and what she charts
-              at each landfall are all the better for it. They count as posted rather than free —
-              send them anywhere else and the posting ends, because they have gone.
-            </>
-          )}
-        </p>
-      )}
-
-      {/* What a Lord brings, said plainly, because it is a rule and not a
-          flourish. Two of the three are paid for by a posting, which is where
-          the decision is: the power costs you the officer, and the other side
-          can see where you spent them. The ship is named because the story is
-          the reason the rule exists — it is on the Lore tab and nowhere near
-          the water. */}
-      {power && (
-        <p className="tiny" style={{ color: 'var(--brass)', marginTop: 10 }}>
-          <b>{LORD_POWER_LABEL[power]}.</b> {LORD_POWER_TEXT[power]} They are one of three, and the
-          Crown needs all three in irons at once.
-        </p>
-      )}
-
-      {character.roles && character.roles.length > 0 && (
-        <div className="charsheet__roles">
-          {character.roles.map((role) => (
-            <span key={role} className="badge">
-              {role}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* Who they were before they signed on. Kept after, because it is the
-          only thing distinguishing one set of four numbers from another. */}
-      {character.blurb && <p className="charsheet__lore serif">{character.blurb}</p>}
-
-      {/* And the ship the stories give them. This is where the Lords' hulls
-          went when they stopped being game pieces: a paragraph under the bio.
-          It is not a fleet you command, it never appears in a harbor, and it
-          is the reason the rule above is the rule it is. */}
-      {lordShip && (
-        <p className="charsheet__lore serif">
-          <b>The {lordShip.name}.</b> {lordShip.blurb}
+        <p className="tiny" style={{ color: 'var(--good)', margin: '8px 0 0' }}>
+          In command of {holding ? holding.name : ship?.name} — sending them anywhere else ends
+          the posting.
         </p>
       )}
 
