@@ -1,20 +1,49 @@
 import { describe, expect, it } from 'vitest';
-import { generateGalaxy } from '../galaxy';
+import reachData from '../../data/reaches.json';
+import { raiseWorksError } from '../build';
+import { CORALHOME, YARD_BUILDABLE } from '../constants';
+import { generateGalaxy, START_CHARACTERS, START_ISLANDS_PER_SIDE } from '../galaxy';
+import { depositsLeft } from '../helpers';
+import { isLord, lords } from '../lords';
+
+/** The map has grown twice this month; the data is the one place it is true. */
+const ISLAND_COUNT = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
+
+/** The Reaches the war has not charted: Rime and Salt, and Windward since
+ *  21 September, when Sean brought the Coral atoll back inside the charts and
+ *  sent the Long Sea out in its place. Three either way — the opening deals
+ *  against the count, not the names. */
+const FRONTIER = ['Rime Reach', 'Salt Reach', 'Windward Reach'];
 
 describe('generateGalaxy', () => {
-  it('builds 10 sectors of 10 systems', () => {
+  it('builds seven Reaches of five to fifteen islands, sixty-three in all', () => {
     const state = generateGalaxy(42);
-    expect(state.sectors).toHaveLength(10);
-    expect(state.systems).toHaveLength(100);
+    // Seven: the Far Sea's ice and its whaling chain are one Reach, Rime.
+    expect(state.sectors).toHaveLength(7);
+    // 15 + 9 + 8 inner, 6 + 8 + 9 + 8 outer: the sixty-three best sites the
+    // painting offers, however they fall across the chains. Coral gained
+    // three when it went frontier — the atoll had more painted land in it
+    // than five islands were using.
+    expect(state.systems).toHaveLength(ISLAND_COUNT);
     for (const sector of state.sectors) {
-      expect(sector.systemIds).toHaveLength(10);
+      expect(sector.systemIds.length).toBeGreaterThanOrEqual(5);
+      expect(sector.systemIds.length).toBeLessThanOrEqual(15);
     }
   });
 
-  it('splits the map into 4 core sectors and 6 rim sectors', () => {
+  it('splits the map into three inner Reaches and four outer', () => {
     const state = generateGalaxy(42);
-    const coreSystems = state.systems.filter((s) => s.isCore);
-    expect(coreSystems).toHaveLength(40);
+    // Counted off the data rather than written down. These read "Sovereign 15
+    // + Whalers' 9 + Wreckers' 8" and were wrong twice over by 21 September:
+    // two of the three Reaches had been renamed and three islands added to
+    // them. What the test is actually about is that `isCore` follows `tier`.
+    const inner = reachData.reaches.filter((r) => r.tier === 'inner');
+    const outer = reachData.reaches.filter((r) => r.tier === 'outer');
+    expect(inner).toHaveLength(3);
+    expect(outer).toHaveLength(4);
+    const count = (rs: typeof inner) => rs.reduce((n, r) => n + r.islands.length, 0);
+    expect(state.systems.filter((s) => s.isCore)).toHaveLength(count(inner));
+    expect(state.systems.filter((s) => !s.isCore)).toHaveLength(count(outer));
   });
 
   it('is deterministic for a seed and different across seeds', () => {
@@ -30,45 +59,129 @@ describe('generateGalaxy', () => {
 
   it('gives every system a unique id and name', () => {
     const state = generateGalaxy(3);
-    expect(new Set(state.systems.map((s) => s.id)).size).toBe(100);
-    expect(new Set(state.systems.map((s) => s.name)).size).toBe(100);
+    expect(new Set(state.systems.map((s) => s.id)).size).toBe(ISLAND_COUNT);
+    expect(new Set(state.systems.map((s) => s.name)).size).toBe(ISLAND_COUNT);
   });
 
-  it('makes core systems populated and explored by both sides', () => {
+  /**
+   * `isCore` is the inner ring of the map, and it used to be the same thing as
+   * charted because the three inner Reaches were the home Reach and two
+   * contested ones. Windward went out past the charts on 21 September without
+   * moving on the map, and the two stopped being the same thing — which is the
+   * more honest arrangement anyway: what a side has charted follows the
+   * Reach's *role*, and where a Reach is drawn follows its tier. A dark chain
+   * a short sail from the capital is a better opening than a dark chain three
+   * Seas away, and the Long Sea has forty miles of reef with one channel
+   * through it to explain itself with.
+   */
+  it('makes charted systems populated and explored by both sides', () => {
     const state = generateGalaxy(8);
+    const dark = new Set(
+      reachData.reaches.filter((r) => r.role === 'frontier').map((r) => r.name),
+    );
+    const darkSectors = new Set(
+      state.sectors.filter((sec) => dark.has(sec.name)).map((sec) => sec.id),
+    );
     for (const system of state.systems.filter((s) => s.isCore)) {
+      if (darkSectors.has(system.sectorId)) continue;
       expect(system.populated).toBe(true);
       expect(system.explored.empire).toBe(true);
       expect(system.explored.alliance).toBe(true);
     }
   });
 
-  it('puts the Empire HQ on a core world and the Alliance HQ on the rim', () => {
+  it('opens both seats at a hundred: Highwater the Crown\'s, Freeport the Brethren\'s', () => {
     const state = generateGalaxy(21);
     const empireHq = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
-    const allianceHq = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
+    const meeting = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
     expect(empireHq.isCore).toBe(true);
     expect(empireHq.control).toBe('empire');
     expect(empireHq.support.empire).toBe(100);
-    expect(allianceHq.isCore).toBe(false);
-    expect(allianceHq.control).toBe('alliance');
-    expect(allianceHq.support.alliance).toBe(100);
-    expect(allianceHq.populated).toBe(true);
+    // Freeport answers to the Confederacy the way Highwater answers to the
+    // Crown — and one to nothing, so neither side has an argument to start.
+    expect(meeting.name).toBe('Freeport');
+    expect(meeting.control).toBe('alliance');
+    expect(meeting.support.alliance).toBe(100);
+    expect(meeting.support.empire).toBe(0);
+    // Still no base, in the sense that matters: it is out past the charts,
+    // the Crown cannot see it, and losing it loses nothing — the Crown wins
+    // by taking the three Lords and by nothing else.
+    expect(meeting.isCore).toBe(false);
+    expect(meeting.explored.alliance).toBe(true);
+    expect(meeting.explored.empire).toBe(false);
   });
 
-  it('starts each side with seven characters at its HQ', () => {
+  it('opens with four a side and five, the three Lords among them', () => {
     const state = generateGalaxy(13);
+    const freeport = state.systems.find((s) => s.name === 'Freeport')!;
     for (const faction of ['empire', 'alliance'] as const) {
       const crew = state.characters.filter((c) => c.faction === faction);
-      expect(crew).toHaveLength(7);
-      for (const character of crew) {
-        expect(character.locationSystemId).toBe(state.factions[faction].hqSystemId);
-        expect(character.status).toBe('available');
+      expect(crew).toHaveLength(START_CHARACTERS[faction]);
+      for (const character of crew) expect(character.status).toBe('available');
+      /*
+       * The Crown opens spread; the Confederacy opens on one quay.
+       *
+       * This asked both sides for at least two islands, and passed on the
+       * seed it was written against. It is only a Crown rule. The
+       * Confederacy's opening dispatch says the opposite in as many words —
+       * *"all three are standing on this one quay tonight"* — and
+       * `makeCharacters` puts the Lords on Freeport on purpose. Measured over
+       * forty worlds on 20 September: the Crown is on more than one island in
+       * every single one, the Confederacy in about half.
+       *
+       * So the rule is held where it belongs, and the other side is held to
+       * the thing that is actually true of it, below.
+       */
+      const where = new Set(crew.map((c) => c.locationSystemId));
+      if (faction === 'empire') expect(where.size).toBeGreaterThan(1);
+      for (const id of where) {
+        const island = state.systems.find((s) => s.id === id)!;
+        expect(island.control === faction || island.id === freeport.id).toBe(true);
       }
+    }
+    // Whoever the draw put first is at the seat: the opening scatters from
+    // the capital outwards, so the head of the list never leaves it.
+    const first = state.characters.find((c) => c.faction === 'empire')!;
+    expect(first.locationSystemId).toBe(state.factions.empire.hqSystemId);
+
+    // Nobody opens aboard anything, Lords included. They were hulls until
+    // 15 September; now the Confederacy starts as eight people on quays, the
+    // three Lords among them and all three at Freeport.
+    for (const character of state.characters.filter((c) => c.faction === 'alliance')) {
+      expect(state.fleets.some((f) => f.officerIds.includes(character.id))).toBe(false);
+      if (isLord(character)) expect(character.locationSystemId).toBe(freeport.id);
     }
   });
 
-  it('starts each side with 8 mines, 8 refineries, 2 yards and 1 training facility', () => {
+  it('signs the articles on a real island, renamed for the game', () => {
+    const bible = new Set(reachData.reaches.flatMap((r) => r.islands.map((i) => i.name)));
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 12; seed++) {
+      const state = generateGalaxy(seed);
+      const ports = state.systems.filter((s) => s.name === 'Freeport');
+      expect(ports).toHaveLength(1);
+      const freeport = ports[0];
+      // It took an island's place, and keeps that island's painted position.
+      expect(bible.has(freeport.chartName!)).toBe(true);
+      seen.add(freeport.chartName!);
+      // Out past the charts, and nobody's: the Brethren govern nothing.
+      const reach = state.sectors.find((r) => r.id === freeport.sectorId)!;
+      expect(FRONTIER).toContain(reach.name);
+      expect(freeport.control).toBe('alliance');
+      expect(freeport.explored.empire).toBe(false);
+      expect(freeport.explored.alliance).toBe(true);
+      // Well liked, but short of the bar that would run up their colours.
+      expect(freeport.support.alliance).toBe(100);
+      // The three Lords stand there on day one — people on a quay, since
+      // 15 September, rather than three hulls at anchor.
+      const there = lords(state).filter((c) => c.locationSystemId === freeport.id);
+      expect(there).toHaveLength(3);
+    }
+    // A different island every game, not the same one dressed up.
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it('starts each side with a working economy and a yard for hulls', () => {
     const state = generateGalaxy(17);
     for (const faction of ['empire', 'alliance'] as const) {
       const owned = state.systems
@@ -76,10 +189,183 @@ describe('generateGalaxy', () => {
         .flatMap((s) => s.facilities)
         .filter((f) => f.owner === faction);
       const count = (type: string) => owned.filter((f) => f.type === type).length;
-      expect(count('mine')).toBe(8);
-      expect(count('refinery')).toBe(8);
-      expect(count('construction_yard')).toBe(2);
-      expect(count('training_facility')).toBe(1);
+      // Timber, and a vein or two apiece. A gold mine earns three times a mill
+      // and can only stand on gold, so a side that opened with fifteen of
+      // them opened rich enough never to have to decide anything — measured,
+      // twice the income of the old opening on day one.
+      //
+      // A target, not a hand-out: most of these came with the islands, which
+      // are settled islands and work some of their own ground, and the deal
+      // only makes up the difference. So the mill count is exact whatever the
+      // dice did, and the veins can only run over — a side whose ground was
+      // already working four of them is not made to give two back.
+      expect(count('mine')).toBeGreaterThanOrEqual(2);
+      // The Crown's count went up on 18 September and only because its navy
+      // did: a second squadron is thirteen gold a day more in upkeep against
+      // an opening ledger that had five in it. See START_EARNERS.
+      // A floor, not a count. The deal tops a side up to its target and never
+      // takes any back — `short()` in `seedHoldings` says so — and since the
+      // ground went proportional on 20 September the islands a side opens
+      // holding often carry more mills than the target on their own. Asserting
+      // the exact number was asserting that they do not.
+      expect(count('refinery')).toBeGreaterThanOrEqual(faction === 'empire' ? 23 : 17);
+      // And nothing on a held island belongs to nobody.
+      expect(
+        state.systems
+          .filter((s) => s.control === faction)
+          .flatMap((s) => s.facilities)
+          .filter((f) => f.owner !== faction),
+      ).toHaveLength(0);
+      // One drill ground and one slipway, and no third maker.
+      //
+      // Sean's word of 20 September cut all three to one apiece — *"only 1 of
+      // each type of construction facility instead of 2 each"* — then gave the
+      // construction yard a second back the same day so a seat could build,
+      // and then cut the yard out of the game entirely: *"Cut construction
+      // yards completely. Anyone can build on any available land."* So the
+      // count that used to be two is no count at all.
+      // Two barracks and a slipway, at Sean's word of 21 September — and two
+      // slipways for the Crown, which is the head start he asked for and a
+      // real one now that build time divides by how many yards stand there.
+      expect(count('training_facility')).toBe(2);
+      expect(count('shipyard')).toBe(faction === 'empire' ? 2 : 1);
+    }
+  });
+
+  /**
+   * Every island builds, from the day you hold it.
+   *
+   * This used to test that both seats opened with a construction yard on them,
+   * after a playtest on 20 September opened Freeport — the island the
+   * Confederacy was declared on, with the three Lords standing on its quay —
+   * and found its Buildings tab reading *"NOTHING TO BUILD WITH. Everything is
+   * raised by a construction yard standing on the same island."*
+   *
+   * Sean's answer that morning was two yards, one of them dealt to the seat by
+   * name. His answer that afternoon was better: cut the yard. So the rule is
+   * no longer *which islands were given a builder* but that **there is nothing
+   * to give** — every island a side holds can raise something the moment it
+   * holds it, seats and backwaters alike, and no island can ever read
+   * "nothing to build with" again.
+   */
+  it('lets every island a side holds raise something on day one', () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const state = generateGalaxy(seed);
+      for (const faction of ['empire', 'alliance'] as const) {
+        state.factions[faction].gold = 100_000;
+        const seat = state.systems.find((s) => s.id === state.factions[faction].hqSystemId)!;
+        const held = state.systems.filter((s) => s.control === faction && !s.uprising);
+        expect(held.some((s) => s.id === seat.id) || seat.control === faction).toBe(true);
+        for (const island of [...held, seat]) {
+          const offered = YARD_BUILDABLE.filter(
+            (type) => raiseWorksError(state, island.id, type, faction) === null,
+          );
+          expect(
+            offered.length,
+            `${faction} seed ${seed}: ${island.name} can raise nothing`,
+          ).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
+  /**
+   * Half an island is ground worth working, and four fifths of that is timber.
+   *
+   * Sean, 20 September: *"on average 50% of available land should be either
+   * gold mines or trees slash coral... 40% should be trees and 10% should be
+   * gold mines. So mills will be super common."*
+   *
+   * This replaced a flat three-to-six trees and a one-in-four chance of a
+   * vein, which put twelve veins in a world of sixty-three islands and ran
+   * both sides out of unworked ground by day two hundred (`lab/hoard.ts`).
+   * Measured across worlds rather than on one island, because the shares are
+   * an average and `DEPOSIT_VARIANCE` is there to make sure a single rock can
+   * still come up rich or bare.
+   *
+   * Deposits already worked by the opening deal are counted back in: a mill
+   * standing on a forest is that forest, and counting only what is left would
+   * read the Crown's own islands as bare.
+   */
+  it('gives two plots in five a deposit, and mixes them 60 / 30 / 10', () => {
+    let slots = 0;
+    const got: Record<string, number> = { forest: 0, coral: 0, silver: 0, gold: 0 };
+    const onOpenGround: Record<string, number> = { forest: 0, coral: 0, silver: 0, gold: 0 };
+    const worksFor: Record<string, string> = {
+      forest: 'refinery', coral: 'coral_kiln', silver: 'silver_mine', gold: 'mine',
+    };
+    for (let seed = 1; seed <= 20; seed++) {
+      for (const island of generateGalaxy(seed).systems) {
+        /*
+         * Islands the opening has not touched, which is the only place the
+         * roll can be read cleanly.
+         *
+         * This used to measure every island and allow a band for the error.
+         * Measured properly on 25 September, when the opening was cut to six
+         * a side and the number moved: **an island nobody was dealt reads
+         * 0.3980 against a `DEPOSIT_CHANCE` of 0.40**, and a dealt one reads
+         * 0.4810 — because the opening seeds mills and mines onto a side's
+         * holdings and the count below reads a works as evidence of a deposit.
+         * The world's roll was never wrong; the sample had the opening's own
+         * gifts in it, and the answer moved whenever the size of the opening
+         * did. Excluding them makes this a test of the thing it is named for
+         * and stops it failing every time the deal changes.
+         */
+        const dealt = island.control === 'empire' || island.control === 'alliance';
+        for (const kind of Object.keys(got)) {
+          const here =
+            depositsLeft(island, kind as never)
+            + island.facilities.filter((f) => f.type === worksFor[kind]).length;
+          // The mix is a ratio between kinds and reads the whole world; the
+          // density is a ratio against plots and only reads untouched ground.
+          got[kind] += here;
+          if (!dealt) onOpenGround[kind] += here;
+        }
+        if (!dealt) slots += island.slots;
+      }
+    }
+    const all = Object.values(got).reduce((a, b) => a + b, 0);
+
+    /*
+     * Sean's math of 20 September, and both halves of it are checked: how
+     * often a plot carries anything, and what it carries when it does.
+     *
+     * Tight, now that the sample is clean: 0.3980 measured over twenty seeds
+     * against a `DEPOSIT_CHANCE` of 0.40, on roughly seven thousand plots. The
+     * old bound was 0.36 to 0.41 with a note explaining a two-point undershoot
+     * that turns out to have been the opening's works in the count rather than
+     * anything about the roll.
+     */
+    const loose = Object.values(onOpenGround).reduce((a, b) => a + b, 0);
+    expect(loose / slots).toBeGreaterThan(0.385);
+    expect(loose / slots).toBeLessThan(0.415);
+
+    // 60 / 30 / 10, within a point and a half each. Timber and living coral
+    // are one bucket — coral is simply what the staple is called in Coral
+    // Reach, where nothing grows.
+    expect((got.forest + got.coral) / all).toBeGreaterThan(0.565);
+    expect((got.forest + got.coral) / all).toBeLessThan(0.615);
+    expect(got.silver / all).toBeGreaterThan(0.285);
+    expect(got.silver / all).toBeLessThan(0.335);
+    expect(got.gold / all).toBeGreaterThan(0.085);
+    expect(got.gold / all).toBeLessThan(0.115);
+
+    // And coral is real, and only where it should be.
+    expect(got.coral).toBeGreaterThan(0);
+  });
+
+  it('gives the Confederacy the islands that have declared for it, and Freeport among them', () => {
+    for (let seed = 1; seed <= 12; seed++) {
+      const state = generateGalaxy(seed);
+      const held = state.systems.filter((s) => s.control === 'alliance');
+      // Six, exactly, Freeport among them. Sean's ruling of 25 September; the
+      // whole shape is pinned in `opening.test.ts`, and this only needs to
+      // know the count so the assertions below are about a full hand.
+      expect(held.length).toBe(START_ISLANDS_PER_SIDE);
+      expect(held.map((s) => s.id)).toContain(state.factions.alliance.hqSystemId);
+      // Freeport is the only one of them the Crown cannot see on day one.
+      const dark = held.filter((s) => !s.explored.empire);
+      expect(dark.map((s) => s.name)).toEqual(['Freeport']);
     }
   });
 
@@ -88,16 +374,192 @@ describe('generateGalaxy', () => {
     for (const system of state.systems) {
       const mines = system.facilities.filter((f) => f.type === 'mine').length;
       const others = system.facilities.length - mines;
-      expect(mines).toBeLessThanOrEqual(system.rawSlots);
-      expect(others).toBeLessThanOrEqual(system.energySlots);
+      expect(mines + others).toBeLessThanOrEqual(system.slots);
     }
   });
 
-  it('leaves most rim systems unpopulated and unexplored by the Empire', () => {
-    const state = generateGalaxy(31);
-    const rim = state.systems.filter((s) => !s.isCore);
-    const unpopulated = rim.filter((s) => !s.populated).length;
-    expect(unpopulated).toBeGreaterThan(rim.length * 0.4);
-    expect(rim.some((s) => !s.explored.empire)).toBe(true);
+  it('starts the three frontier Reaches unexplored, a quarter of them settled behind the fog', () => {
+    let settled = 0;
+    let total = 0;
+    for (const seed of [31, 32, 33, 34, 35, 36, 37, 38]) {
+      const state = generateGalaxy(seed);
+      const base = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
+      for (const sector of state.sectors) {
+        if (!FRONTIER.includes(sector.name)) continue;
+        for (const id of sector.systemIds) {
+          const system = state.systems.find((s) => s.id === id)!;
+          /*
+           * There used to be an exception here for Coralhome, which is
+           * Crown-held by name and so charted by the Crown whatever its Reach
+           * does. It stopped being needed on 21 September: Coral came inside
+           * the charts and Windward went out, and nothing out here is dealt to
+           * anybody now. The frontier is a blank again, which is what it was
+           * always meant to be.
+           */
+          expect(system.explored.empire, `${system.name} seed ${seed}`).toBe(false);
+          // The Confederacy knows the island it met on and nothing else out here.
+          expect(system.explored.alliance).toBe(system.id === base.id);
+          if (system.id !== base.id) {
+            total += 1;
+            if (system.populated) {
+              settled += 1;
+              // Settled and nobody's means somebody is holding it.
+              expect(system.control).toBe('neutral');
+              expect(system.garrison).toBeGreaterThanOrEqual(1);
+            }
+          }
+        }
+      }
+    }
+    expect(settled / total).toBeGreaterThan(0.15);
+    expect(settled / total).toBeLessThan(0.35);
+  });
+
+  /**
+   * Sean, 21 September: *"Let's make the coral reach one of the explored
+   * starting reaches. And the windward one unexplored."*
+   *
+   * The swap is worth a test of its own because of what it nearly broke.
+   * Coralhome is dealt to the Crown by name, after the contested Reaches have
+   * been dealt at random — which was safe only while its Reach was frontier
+   * and had no deal. Inside the charts, the shuffle could hand the founding
+   * wound to the Confederacy and have the Crown take it back a hundred lines
+   * later, leaving it flying Crown colours while still counted as a
+   * Confederate holding: their crew posted to it, their reinforcements sent
+   * to it. It is kept out of the shuffle instead.
+   */
+  it('deals Coral inside the charts and never deals Coralhome to the Confederacy', () => {
+    for (let seed = 1; seed <= 12; seed++) {
+      const state = generateGalaxy(seed);
+      const coral = state.sectors.find((sec) => sec.name === 'Coral Reach')!;
+      const coralhome = state.systems.find((s) => s.name === CORALHOME)!;
+      expect(coralhome.sectorId).toBe(coral.id);
+      // The Crown's, always, and known to both sides now that the Reach is
+      // charted: the Confederacy was founded over this island and has no need
+      // to go looking for it.
+      expect(coralhome.control, `seed ${seed}`).toBe('empire');
+      expect(coralhome.explored.empire).toBe(true);
+      expect(coralhome.explored.alliance).toBe(true);
+      // And it is the Crown's *only* island in the chain, against one for the
+      // Confederacy — Sean, 25 September. It was three against two: the
+      // founding wound plus two a side from the old even deal.
+      const here = state.systems.filter((s) => s.sectorId === coral.id);
+      expect(here.filter((s) => s.control === 'empire')).toHaveLength(1);
+      expect(here.filter((s) => s.control === 'alliance')).toHaveLength(1);
+      // And the Long Sea took its place out past the charts.
+      const windward = state.sectors.find((sec) => sec.name === 'Windward Reach')!;
+      for (const s of state.systems.filter((x) => x.sectorId === windward.id)) {
+        if (s.id === state.factions.alliance.hqSystemId) continue;
+        expect(s.explored.empire, s.name).toBe(false);
+        expect(s.explored.alliance, s.name).toBe(false);
+      }
+    }
+  });
+
+  it('holds the meeting on one frontier island, with a squadron each and the Home Fleet at Highwater', () => {
+    for (const seed of [41, 42, 43]) {
+      const state = generateGalaxy(seed);
+      const base = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
+      const baseReach = state.sectors.find((s) => s.id === base.sectorId)!;
+      expect(FRONTIER).toContain(baseReach.name);
+      // One squadron a side. It was four for the Confederacy while the three
+      // Lords were hulls of their own; they are people now and the meeting
+      // place has the one fleet, like Highwater.
+      const confed = state.fleets.filter((f) => f.faction === 'alliance');
+      expect(confed).toHaveLength(1);
+      for (const f of confed) expect(f.systemId).toBe(base.id);
+      const seat = state.systems.find((s) => s.id === state.factions.empire.hqSystemId)!;
+      expect(seat.name).toBe('Highwater');
+      expect(seat.archetype).toBe('port-city');
+      expect(state.fleets.find((f) => f.faction === 'empire')!.systemId).toBe(seat.id);
+    }
+  });
+
+  it('opens the home Reach with Highwater, a second port, one more island, and a Confederate foothold', () => {
+    for (const seed of [51, 52, 53, 54]) {
+      const state = generateGalaxy(seed);
+      const home = state.sectors.find((s) => s.name === 'Sovereign Reach')!;
+      const islands = home.systemIds.map((id) => state.systems.find((s) => s.id === id)!);
+      const crown = islands.filter((s) => s.control === 'empire');
+      const confed = islands.filter((s) => s.control === 'alliance');
+      expect(crown).toHaveLength(3);
+      expect(crown.map((s) => s.name)).toContain('Highwater');
+      expect(crown.some((s) => s.name === 'Gorley' || s.name === 'Ballmoor')).toBe(true);
+      expect(confed.length).toBeGreaterThanOrEqual(1);
+      expect(confed.length).toBeLessThanOrEqual(2);
+      // Never on the great island: its ports are the Crown's ground to start.
+      for (const s of confed) expect(['Highwater', 'Gorley', 'Ballmoor']).not.toContain(s.name);
+      // The three ports of the great island, whoever holds them.
+      for (const name of ['Highwater', 'Gorley', 'Ballmoor']) {
+        expect(islands.find((s) => s.name === name)!.archetype).toBe('port-city');
+      }
+    }
+  });
+
+  it('leaves every island in a contested Reach settled and garrisoned, dealt or not', () => {
+    const state = generateGalaxy(61);
+    /*
+     * Asked of the data rather than named here. This listed the three Reaches
+     * by name and broke on 21 September, when the lore package renamed all
+     * three at once — Whalers' to Windward, Wreckers' to Sunken, Cinder to
+     * Mire. The rule under test is about a Reach's *role*, which is a field,
+     * so read the field: renaming a Reach should never fail a test about what
+     * contested means.
+     */
+    const contested = reachData.reaches.filter((r) => r.role === 'contested').map((r) => r.name);
+    expect(contested.length, 'contested Reaches in the data').toBe(3);
+    for (const name of contested) {
+      const reach = state.sectors.find((s) => s.name === name)!;
+      const islands = reach.systemIds.map((id) => state.systems.find((s) => s.id === id)!);
+      /*
+       * How many each side is dealt where is `opening.test.ts`'s business
+       * since 25 September — it stopped being "two a side in all three" and
+       * became a named hand per Reach, and a test asserting the old evenness
+       * here was asserting it in two places and had to be changed in two.
+       *
+       * What this one is actually about, and still is: a contested Reach has
+       * no empty ground in it. Every island is settled, charted by the Crown,
+       * and anything nobody was dealt is holding itself.
+       */
+      for (const s of islands) {
+        expect(s.populated).toBe(true);
+        expect(s.explored.empire).toBe(true);
+        if (s.control === 'neutral') expect(s.garrison).toBeGreaterThanOrEqual(1);
+      }
+    }
+  });
+});
+
+/**
+ * Sean: *"kinda like how in SW Rebellion the rebels all start on Yavin 4 but
+ * the game tells you the empire will be looking for you."* The three Lords
+ * sign the articles in one harbor and the Crown wins by holding all three at
+ * once, so on day one the whole Confederate victory condition is on one quay.
+ * Two wars in a hundred end before day ninety exactly that way.
+ */
+describe('the first card of the war', () => {
+  it('tells the Confederacy its principals are all on one quay, and to move them', () => {
+    const state = generateGalaxy(31005, 'alliance');
+    const card = state.events.find((e) => e.kind === 'war')!;
+    const meeting = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
+    expect(card.text).toContain(meeting.name);
+    // The three of them really are standing there, which is what makes the
+    // warning worth printing.
+    const lords = state.characters.filter((c) => isLord(c));
+    expect(lords).toHaveLength(3);
+    for (const lord of lords) expect(lord.locationSystemId).toBe(meeting.id);
+    expect(card.text).toMatch(/this one quay/);
+    expect(card.text).toMatch(/will come looking for/);
+    expect(card.text).toMatch(/keep them apart/);
+  });
+
+  it('tells the Crown the meeting place has to be found before anybody can be taken', () => {
+    const state = generateGalaxy(31005, 'empire');
+    const card = state.events.find((e) => e.kind === 'war')!;
+    const meeting = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
+    // And never names it: finding it is the Crown's half of the game.
+    expect(card.text).not.toContain(meeting.name);
+    expect(card.text).toMatch(/Find where they met/);
+    expect(card.text).toMatch(/at the same time/);
   });
 });

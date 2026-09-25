@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import {
-  applySupportChange,
+  applyLocalSupport,
   getSystem,
   requiredGarrison,
   supportMultiplier,
@@ -41,15 +41,23 @@ describe('support maths', () => {
     expect(supportMultiplier(0)).toBeCloseTo(0.5);
   });
 
-  it('derives the garrison a restless world needs', () => {
-    expect(requiredGarrison(50)).toBe(0);
-    expect(requiredGarrison(29)).toBe(3);
-    expect(requiredGarrison(0)).toBe(5);
+  it('asks for companies by band: none when firm, a token when steady, four when thin, six in a revolt', () => {
+    expect(requiredGarrison(95)).toBe(0);
+    expect(requiredGarrison(65)).toBe(1);
+    expect(requiredGarrison(59)).toBe(4);
+    expect(requiredGarrison(0)).toBe(4);
+    expect(requiredGarrison(20, true)).toBe(6);
   });
 });
 
-describe('sector spillover', () => {
-  it('applies 20% of a support change to other populated systems in the sector', () => {
+/**
+ * The flat spill is gone, at Sean's propagation memo of 17 September: *"do not
+ * make every allegiance change affect the region."* What is left in helpers is
+ * the plain, local move, and everything that reaches further goes through
+ * `applyShock`, which knows how far the news carries and to whom.
+ */
+describe('moving one island\'s allegiance', () => {
+  it('moves that island and nobody else in its chain', () => {
     const state = generateGalaxy(7);
     const sector = state.sectors[1];
     const targets = systemsInSector(state, sector.id).filter((s) => s.populated);
@@ -58,28 +66,31 @@ describe('sector spillover', () => {
     target.support.empire = 20;
     neighbour.support.empire = 20;
 
-    applySupportChange(state, target, 'empire', 10);
+    applyLocalSupport(target, 'empire', 10);
 
     expect(target.support.empire).toBeCloseTo(30);
-    expect(neighbour.support.empire).toBeCloseTo(22);
+    expect(neighbour.support.empire).toBeCloseTo(20);
   });
 
-  it('does not spill into other sectors', () => {
+  it('is one balance: what one side wins the other loses', () => {
     const state = generateGalaxy(7);
     const target = getSystem(state, state.sectors[0].systemIds[1]);
-    const outsider = getSystem(state, state.sectors[1].systemIds[0]);
-    outsider.support.empire = 40;
-    applySupportChange(state, target, 'empire', 10);
-    expect(outsider.support.empire).toBe(40);
+    target.support.empire = 40;
+    applyLocalSupport(target, 'empire', 15);
+    expect(target.support.empire).toBe(55);
+    expect(target.support.alliance).toBe(45);
   });
 
-  it('clamps support to 0-100', () => {
+  it('clamps to 0-100, and reports what actually moved', () => {
     const state = generateGalaxy(7);
     const target = getSystem(state, state.sectors[0].systemIds[1]);
     target.support.empire = 95;
-    applySupportChange(state, target, 'empire', 50);
+    // Five points of room, fifty asked for: five is what moves and five is
+    // what comes back, which is what the outcome report prints.
+    expect(applyLocalSupport(target, 'empire', 50)).toBe(5);
     expect(target.support.empire).toBe(100);
-    applySupportChange(state, target, 'empire', -500);
+    expect(applyLocalSupport(target, 'empire', -500)).toBe(-100);
     expect(target.support.empire).toBe(0);
   });
 });
+

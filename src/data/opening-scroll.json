@@ -1,0 +1,108 @@
+{
+  "_comment": "The opening crawl, one per side. Sean, 22 September: a Star Wars text scroll — one short sentence a slide, an image behind each, scrolled through before the first day. Written at about a fifth-grade reading level on purpose: a player arriving with no knowledge should finish it knowing what the world is, why the war started, and what they have to do to win.",
+  "_stance": "Rewritten 22 September on Sean's correction: **each side makes its own case and only its own.** No 'they say this, we say that'. The Crown never mentions what the Confederacy wants; the Confederacy never repeats the Crown's argument about a golden age, it simply disavows them. The only thing both scrolls contain is the Drowning, because neither side disputes that it happened.",
+  "_art": "`art` is a slug under src/art/scroll/. Where no painting exists the screen falls back to the drawn scene for that faction, the way portraits and ships already do. `brief` is the note for whoever paints it and is never shown to a player.",
+  "empire": {
+    "title": "The Crown Imperium",
+    "slides": [
+      {
+        "text": "Long ago all of this was one land, and the legends say it was glorious.",
+        "art": "one-land",
+        "brief": "A wide green country under a low sun, roads and cities on it. No sea anywhere in frame. Painted like a memory somebody is describing rather than a place anybody has been."
+      },
+      {
+        "text": "Then the ice let go, and the sea rose for a thousand years.",
+        "art": "the-drowning",
+        "brief": "Ice calving into dark water, the horizon already higher than it should be. Cold light."
+      },
+      {
+        "text": "Our people climbed to the high ground of the Sovereign Reach.",
+        "art": "the-climb",
+        "brief": "A long column of people and carts on a mountain road at dusk, water behind and below them."
+      },
+      {
+        "text": "The greatest peak became the Aldermain, and its greatest city is Highwater.",
+        "art": "highwater",
+        "brief": "Highwater in Imperial green and gold: seawalls, a lit channel, a fleet at anchor in good order. Civilized and impressive, never sinister."
+      },
+      {
+        "text": "After centuries of warlords, one man united the island and founded the Crown Imperium.",
+        "art": "the-emperor",
+        "brief": "The Emperor's standard raised over a field of broken warlord banners. Ceremony, not slaughter."
+      },
+      {
+        "text": "He died this year, and left his son a throne and a dying wish — every Reach under one flag.",
+        "art": "the-boy",
+        "brief": "A boy in oversized state robes on a too-large chair, the Admiralty standing behind him. Sympathetic, not comic."
+      },
+      {
+        "text": "Pirates burned our greatest shipyard and named themselves enemies of the Crown.",
+        "art": "yarrow-minor",
+        "brief": "Yarrow Minor burning at night, seen from a Crown deck. Five slipways under one roof, and the roof going."
+      },
+      {
+        "text": "Round up their leaders. All three of them, and all at once — take two and the third will simply carry on.",
+        "art": "the-warrant",
+        "brief": "Three faces on a warrant sheet under a lamp, and a chart with one stretch of water left blank.",
+        "objective": true
+      },
+      {
+        "text": "Through trade, duty, and discipline — a safer world.",
+        "art": "crown-creed",
+        "brief": "The Crown sigil over a calm working harbour at dawn: a crown above a fouled anchor, compass star behind."
+      }
+    ]
+  },
+  "alliance": {
+    "title": "The Free Confederacy",
+    "slides": [
+      {
+        "text": "The legends say the world was one land, before the ice melted and the sea rose for a thousand years.",
+        "art": "one-land",
+        "brief": "The same painting the Crown's scroll opens on. Deliberately identical: neither side disputes this part."
+      },
+      {
+        "text": "What the water left us was a thousand islands.",
+        "art": "a-thousand-islands",
+        "brief": "Warm water, scattered green rocks to the horizon, small craft between them. Bright where the Crown's version of the same moment is cold."
+      },
+      {
+        "text": "On every one of them a people grew up with their own way of living.",
+        "art": "many-peoples",
+        "brief": "Four boats in one frame that share nothing: a coral-grown hull, an Urskin whaler, a bog punt, a Shoal outrigger."
+      },
+      {
+        "text": "The Crown Imperium means to end that, and make every island the same.",
+        "art": "the-writ",
+        "brief": "A licensing writ nailed to a boat shed, a marine's back turned, a dredger in the water behind and the coral gone white."
+      },
+      {
+        "text": "Three captains would not have it, and the Free Confederacy was born.",
+        "art": "the-articles",
+        "brief": "The articles on a table at Freeport, a dozen hands signing, lamplight. Three figures standing over it."
+      },
+      {
+        "text": "Our first blow burned their greatest shipyard to the waterline.",
+        "art": "yarrow-minor-sea",
+        "brief": "The same fire as the Crown's slide seven, from the water this time and further off — small boats pulling away from a burning yard."
+      },
+      {
+        "text": "They answered by swearing to take every Reach by force.",
+        "art": "the-fleet-comes",
+        "brief": "A Crown line of battle coming over the horizon in good order, seen from a low deck. Numerous and unhurried."
+      },
+      {
+        "text": "Two men run this war: the boy on the throne and the old admiral at his shoulder. Take them both, and it is over.",
+        "art": "the-wall",
+        "brief": "Highwater's wall from below at night, two lit windows near the top, small figures at the foot of it.",
+        "objective": true
+      },
+      {
+        "text": "Free seas. Free peoples. Always.",
+        "art": "confederacy-creed",
+        "brief": "The Confederate mark on a patched red sail against open water: skull in a red headscarf, crossed cutlasses, compass star."
+      }
+    ]
+  },
+  "_slides": "One to two sentences a slide, one theme each. Sean, 22 September: *\"It can also be more than one sentence. I'm not married to the whole one sentence thing, but it should be just one little theme.\"* Still about a fifth-grade reading level."
+}

@@ -1,21 +1,81 @@
-import { FACILITY_LABEL, GOLD_PER_DAY, UPKEEP_PER_DAY } from './constants';
-import { otherFaction, pushEvent, supportMultiplier } from './helpers';
+import {
+  FACILITY_LABEL,
+  FORTNIGHT,
+  GARRISON_SMUGGLING_CUT,
+  GOLD_PER_DAY,
+  SCRAP_RETURN,
+  SMUGGLED_SHARE,
+  TROOP_BUILD,
+  buildSpec,
+  isTroopItem,
+  UPKEEP_PER_DAY,
+  WORKS_ON,
+  YARD_BUILDS,
+  loyaltyBand,
+  shipSpec,
+} from './constants';
+import {
+  companiesOn,
+  landingTroop,
+  materialiseCompanies,
+  postCompanies,
+  setCompanies,
+  troopType,
+} from './troops';
+import { craftGrade } from './missions';
+import { clearWrecks, fleetCapacity, isAtSea } from './fleets';
+import { getSystem, inProse, otherFaction, pushEvent, returnDeposit, supportMultiplier } from './helpers';
 import type { Rng } from './rng';
-import type { GameState, PlayableFaction, System } from './types';
+import type { BuildItem, GameState, PlayableFaction, System } from './types';
 
-/** An island contributes to the economy only while it is held and quiet. */
+/**
+ * An island contributes only while it is held, quiet, and open. A blockade
+ * does not take the island from you — it simply stops anything leaving the
+ * harbor, so the island still costs you its upkeep and pays you nothing.
+ */
 export function isProductive(system: System, faction: PlayableFaction): boolean {
-  return system.control === faction && !system.uprising;
+  return system.control === faction && !system.uprising && !system.blockaded;
 }
 
-/** What a single island earns you in a day, before smugglers take their cut. */
-export function islandIncome(system: System, faction: PlayableFaction): number {
-  if (!isProductive(system, faction)) return 0;
+/**
+ * Everything an island's works put on the quay in a day, before anybody
+ * decides where it goes.
+ *
+ * Held and open: a blockade stops the trade dead, but a revolt does not — the
+ * works keep working, the harbor keeps loading, and none of it reaches you.
+ */
+export function islandTrade(system: System, faction: PlayableFaction): number {
+  if (system.control !== faction || system.blockaded) return 0;
   const rate = system.facilities
     .filter((f) => f.owner === faction)
     .reduce((total, f) => total + GOLD_PER_DAY[f.type], 0);
-  // A grudging population works slowly, and skims on the way.
+  // A grudging population works slowly.
   return rate * supportMultiplier(system.support[faction]);
+}
+
+/**
+ * The share of this island's trade that goes out the back to the enemy.
+ *
+ * Allegiance sets the rate and companies ashore work it down: every one of
+ * them takes a tenth off what the smugglers were running, so ten close the
+ * harbor's back door however little the island thinks of you.
+ */
+export function smuggledShare(system: System, faction: PlayableFaction): number {
+  if (system.control !== faction) return 0;
+  const rate = SMUGGLED_SHARE[loyaltyBand(system.support[faction], system.uprising)];
+  const watched = Math.max(0, 1 - GARRISON_SMUGGLING_CUT * system.garrison);
+  return rate * watched;
+}
+
+/** What the smugglers actually hand the other side, in gold a day. */
+export function smuggledOff(system: System, faction: PlayableFaction): number {
+  return islandTrade(system, faction) * smuggledShare(system, faction);
+}
+
+/** What a single island earns you in a day, after the smugglers take theirs. */
+export function islandIncome(system: System, faction: PlayableFaction): number {
+  if (!isProductive(system, faction)) return 0;
+  return islandTrade(system, faction) - smuggledOff(system, faction);
 }
 
 /** What everything a faction owns costs to keep standing for a day. */
@@ -24,117 +84,379 @@ export function totalUpkeep(state: GameState, faction: PlayableFaction): number 
   for (const system of state.systems) {
     if (system.control !== faction) continue;
     for (const facility of system.facilities) {
-      if (facility.owner === faction) upkeep += UPKEEP_PER_DAY[facility.type];
+      // The walls the world opened with are the city's, not the Crown's.
+      if (facility.owner === faction && !facility.ancient) {
+        upkeep += UPKEEP_PER_DAY[facility.type];
+      }
     }
-    upkeep += system.garrison * UPKEEP_PER_DAY.troop;
+    // Per company, by who they are. It was a flat gold a day for every troop
+    // in the game, which priced a Shoal Warden and a Drowned Guard the same
+    // and made the garrison ladder — the whole reason a mass-producible troop
+    // exists — cost identical money whichever unit held the island.
+    upkeep += companiesOn(system).reduce((n, t) => n + t.upkeep, 0);
+  }
+  // A hull costs the same whether it is fighting or lying at anchor, and the
+  // companies aboard it eat wherever they are.
+  for (const fleet of state.fleets) {
+    if (fleet.faction !== faction) continue;
+    for (const ship of fleet.ships) upkeep += UPKEEP_PER_DAY[ship.classId];
+    // Companies aboard are the side's landing troop, which is who a landing
+    // actually puts on a beach.
+    upkeep += fleet.troops * landingTroop(fleet.faction, craftGrade(state.factions[fleet.faction].craft)).upkeep;
   }
   return upkeep;
 }
 
+/**
+ * What a faction banks in a day: its own islands after smuggling, plus what
+ * the enemy's smugglers bring it. The second half is why the figure in the
+ * banner can stay healthy while a Reach of yours goes sour — somebody else's
+ * sour Reach is paying you.
+ */
 export function totalIncome(state: GameState, faction: PlayableFaction): number {
-  return state.systems.reduce((total, system) => total + islandIncome(system, faction), 0);
+  const enemy = otherFaction(faction);
+  return state.systems.reduce(
+    (total, system) => total + islandIncome(system, faction) + smuggledOff(system, enemy),
+    0,
+  );
 }
 
-/**
- * A day's earnings. Everything a faction owns that earns, earns; on an island
- * whose allegiance is thin, smugglers may run the day's takings to the enemy
- * instead (spec 4.2.6).
- */
-export function collectIncome(state: GameState, rng: Rng): void {
-  for (const faction of ['empire', 'alliance'] as const) {
-    const enemy = otherFaction(faction);
-    for (const system of state.systems) {
-      const earned = islandIncome(system, faction);
-      if (earned <= 0) continue;
-
-      const allegiance = system.support[faction];
-      const smuggleChance = allegiance < 50 ? (50 - allegiance) / 200 : 0;
-      if (smuggleChance > 0 && rng.chance(smuggleChance)) {
-        state.factions[enemy].gold += earned;
-        pushEvent(state, {
-          kind: 'loss',
-      text: `Smugglers run a day's takings off ${system.name} and sell them to the enemy.`,
-          systemId: system.id,
-        });
-      } else {
-        state.factions[faction].gold += earned;
-      }
-    }
-  }
-}
-
-/**
- * Pay the day's upkeep, and deal with not being able to.
- *
- * A shortfall does not wipe you out at once: each day you cannot pay in full,
- * something you own may break down for want of maintenance, chosen at random.
- * The bigger the gap, the likelier it happens, so the ledger walks itself back
- * to equilibrium over days rather than falling off a cliff.
- */
-export function payUpkeep(state: GameState, rng: Rng): void {
-  for (const faction of ['empire', 'alliance'] as const) {
-    const fs = state.factions[faction];
-    fs.income = totalIncome(state, faction);
-    fs.upkeep = totalUpkeep(state, faction);
-
-    if (fs.upkeep <= 0) continue;
-
-    if (fs.gold >= fs.upkeep) {
-      fs.gold -= fs.upkeep;
-      continue;
-    }
-
-    const shortfall = fs.upkeep - fs.gold;
-    fs.gold = 0;
-    if (rng.chance(Math.min(1, shortfall / fs.upkeep))) {
-      breakSomethingDown(state, faction, rng);
-      fs.upkeep = totalUpkeep(state, faction);
-    }
-  }
-}
-
-/** Everything a faction owns that costs upkeep, as breakdown candidates. */
-function chargeableThings(state: GameState, faction: PlayableFaction) {
-  const candidates: Array<{ system: System; facilityIndex?: number }> = [];
-  for (const system of state.systems) {
-    if (system.control !== faction) continue;
-    system.facilities.forEach((facility, index) => {
-      if (facility.owner !== faction) return;
-      if (UPKEEP_PER_DAY[facility.type] <= 0) return;
-      candidates.push({ system, facilityIndex: index });
-    });
-    for (let i = 0; i < system.garrison; i++) candidates.push({ system });
-  }
-  return candidates;
-}
-
-function breakSomethingDown(state: GameState, faction: PlayableFaction, rng: Rng): void {
-  const candidates = chargeableThings(state, faction);
-  if (candidates.length === 0) return;
-
-  const picked = rng.pick(candidates);
-  if (picked.facilityIndex === undefined) {
-    picked.system.garrison = Math.max(0, picked.system.garrison - 1);
-    pushEvent(state, {
-      kind: 'loss',
-      text: `Unpaid and unfed, a company on ${picked.system.name} has melted away.`,
-      systemId: picked.system.id,
-    });
-    return;
-  }
-
-  const [broken] = picked.system.facilities.splice(picked.facilityIndex, 1);
-  pushEvent(state, {
-    kind: 'loss',
-      text: `For want of maintenance, the ${FACILITY_LABEL[broken.type].toLowerCase()} on ${picked.system.name} has fallen apart.`,
-    systemId: picked.system.id,
-  });
-}
 
 /** Refresh the display figures without moving any money. */
 export function recomputeLedger(state: GameState): void {
   for (const faction of ['empire', 'alliance'] as const) {
     state.factions[faction].income = totalIncome(state, faction);
     state.factions[faction].upkeep = totalUpkeep(state, faction);
+  }
+}
+
+
+/* ------------------------------------------------------------- the ledger */
+
+/**
+ * Half of what a thing cost to build.
+ *
+ * Earners are free to raise, so they are free to pull down: half of nothing is
+ * nothing, and the reason to scrap a mill was never the coin — it is the plot
+ * it is standing on.
+ */
+export function scrapValue(item: BuildItem): number {
+  if (item === 'troop') return Math.floor(TROOP_BUILD.costGold * SCRAP_RETURN);
+  if (isTroopItem(item)) return Math.floor(buildSpec(item).costGold * SCRAP_RETURN);
+  const yard = YARD_BUILDS[item as keyof typeof YARD_BUILDS];
+  if (yard) return Math.floor(yard.costGold * SCRAP_RETURN);
+  return Math.floor(shipSpec(item as never).costGold * SCRAP_RETURN);
+}
+
+/**
+ * One thing a side owns that costs it something to keep, and can be sold.
+ *
+ * By id, never by object or index.
+ *
+ * The first cut of this carried a facility's array index, which is fine until
+ * something is scrapped: the splice shifts every later index down and the next
+ * entry in a shuffled list points at the wrong building — or off the end. A
+ * shortfall scraps several things in a row, so that is not a corner case, it
+ * is the normal path. Ids also mean the UI can name a target without reaching
+ * into the state it is drawing.
+ */
+export type ScrapTarget =
+  | { kind: 'facility'; systemId: string; facilityId: string }
+  /** `at` is the company's place in the island's roster: which one, not just
+   *  one of them. Without it every company on an island scrapped for the same
+   *  coin under the same name, which was true while they were interchangeable
+   *  and stopped being true when they got names. */
+  | { kind: 'troop'; systemId: string; at?: number }
+  | { kind: 'ship'; fleetId: string; shipId: string };
+
+function everythingOnTheBooks(state: GameState, faction: PlayableFaction): ScrapTarget[] {
+  const out: ScrapTarget[] = [];
+  for (const system of state.systems) {
+    if (system.control !== faction) continue;
+    for (const facility of system.facilities) {
+      // Nothing that is not on the books can be sold off it. A city's own
+      // ancient walls are not the Crown's to scrap, and an earner costs
+      // nothing to keep, so scrapping one raises nothing and saves nothing.
+      if (facility.owner !== faction || facility.ancient) continue;
+      if (UPKEEP_PER_DAY[facility.type] <= 0) continue;
+      out.push({ kind: 'facility', systemId: system.id, facilityId: facility.id });
+    }
+    for (let i = 0; i < system.garrison; i += 1) {
+      out.push({ kind: 'troop', systemId: system.id, at: i });
+    }
+  }
+  for (const fleet of state.fleets) {
+    if (fleet.faction !== faction) continue;
+    for (const ship of fleet.ships) out.push({ kind: 'ship', fleetId: fleet.id, shipId: ship.id });
+  }
+  return out;
+}
+
+/** What a thing is called in a sentence — read before it is broken up. */
+export function scrapLabel(state: GameState, what: ScrapTarget): string {
+  if (what.kind === 'troop') {
+    const system = state.systems.find((s) => s.id === what.systemId);
+    const who = system ? companiesOn(system)[what.at ?? 0] : undefined;
+    return `${who ? who.name : `a ${TROOP_BUILD.label.toLowerCase()}`} on ${system?.name ?? 'an island'}`;
+  }
+  if (what.kind === 'facility') {
+    const system = state.systems.find((s) => s.id === what.systemId);
+    const facility = system?.facilities.find((f) => f.id === what.facilityId);
+    const name = facility ? FACILITY_LABEL[facility.type].toLowerCase() : 'works';
+    return `the ${name} on ${system?.name ?? 'an island'}`;
+  }
+  const fleet = state.fleets.find((f) => f.id === what.fleetId);
+  const ship = fleet?.ships.find((sh) => sh.id === what.shipId);
+  return ship ? `the ${shipSpec(ship.classId).label}` : 'a hull';
+}
+
+/** What breaking this up would put in the treasury. */
+export function scrapReturn(state: GameState, what: ScrapTarget): number {
+  if (what.kind === 'troop') {
+    const system = state.systems.find((s) => s.id === what.systemId);
+    const who = system ? companiesOn(system)[what.at ?? 0] : undefined;
+    return who ? Math.floor(who.costGold * SCRAP_RETURN) : scrapValue('troop');
+  }
+  if (what.kind === 'facility') {
+    const system = state.systems.find((s) => s.id === what.systemId);
+    const facility = system?.facilities.find((f) => f.id === what.facilityId);
+    return facility ? scrapValue(facility.type) : 0;
+  }
+  const fleet = state.fleets.find((f) => f.id === what.fleetId);
+  const ship = fleet?.ships.find((sh) => sh.id === what.shipId);
+  return ship ? scrapValue(ship.classId) : 0;
+}
+
+/**
+ * Why the player may not break this particular thing up.
+ *
+ * A player gate, and only a player gate: `scrap` itself asks none of this,
+ * because the fortnightly shortfall has to be able to reach anything on the
+ * books — a squadron at sea very much included. The difference is the same one
+ * the game draws everywhere else: what you may order, and what happens to you.
+ */
+export function scrapError(
+  state: GameState,
+  faction: PlayableFaction,
+  what: ScrapTarget,
+): string | null {
+  if (what.kind === 'ship') {
+    const fleet = state.fleets.find((f) => f.id === what.fleetId);
+    if (!fleet || !fleet.ships.some((sh) => sh.id === what.shipId)) return 'No such ship.';
+    if (fleet.faction !== faction) return 'Not yours to break up.';
+    // A ship is broken up on a slip, not in open water, and certainly not
+    // while somebody is firing at it.
+    if (isAtSea(fleet)) return 'She is at sea. Bring her in first.';
+    if (state.battle) return 'Not in the middle of an action.';
+    const where = state.systems.find((s) => s.id === fleet.systemId);
+    if (!where || where.control !== faction) return 'Not in a harbor of yours.';
+    return null;
+  }
+
+  const system = state.systems.find((s) => s.id === what.systemId);
+  if (!system) return 'No such island.';
+  if (system.control !== faction) return 'You do not hold this island.';
+  if (system.uprising) return 'The island is in mutiny.';
+
+  if (what.kind === 'troop') {
+    if (system.garrison <= 0) return 'There is nobody ashore to disband.';
+    return null;
+  }
+
+  const facility = system.facilities.find((f) => f.id === what.facilityId);
+  if (!facility) return 'Nothing of the kind stands here.';
+  if (facility.owner !== faction) return 'Not yours to break up.';
+  if (facility.ancient) return 'Older than the Imperium, and not yours to pull down.';
+  // An order half-run is cancelled, not scrapped: cancelling is the thing the
+  // player means and it is already there.
+  if (facility.founding) return 'It is still being laid down. Cancel the order instead.';
+  if (facility.building) return 'Something is being built here. Cancel that first.';
+  return null;
+}
+
+/**
+ * Destroy one thing of your own and take half its price back.
+ *
+ * Sean's mechanic of 20 September, and it has two uses rather than one. The
+ * obvious one is the coin. The other is the berth: *"a great way to clear old
+ * things to make room for new things, or clear out facilities that you don't
+ * need anymore to build more facilities."*
+ *
+ * Returns the gold recovered, or null if the thing was not there to scrap.
+ */
+export function scrap(state: GameState, faction: PlayableFaction, what: ScrapTarget): number | null {
+  if (what.kind === 'troop') {
+    const system = state.systems.find((s) => s.id === what.systemId);
+    if (!system || system.garrison <= 0) return null;
+    const posted = materialiseCompanies(system);
+    const at = Math.min(Math.max(0, what.at ?? 0), posted.length - 1);
+    const who = troopType(posted[at]);
+    setCompanies(
+      system,
+      posted.filter((_, i) => i !== at),
+    );
+    const back = who ? Math.floor(who.costGold * SCRAP_RETURN) : scrapValue('troop');
+    state.factions[faction].gold += back;
+    return back;
+  }
+  if (what.kind === 'facility') {
+    const system = state.systems.find((s) => s.id === what.systemId);
+    const at = system?.facilities.findIndex((f) => f.id === what.facilityId) ?? -1;
+    const facility = !system || at < 0 ? undefined : system.facilities[at];
+    if (!system || !facility || facility.owner !== faction) return null;
+    system.facilities.splice(at, 1);
+    // The yard comes down; the ground under it is still ground. Same rule as
+    // a works falling apart unpaid — a long war must not grind the world down
+    // to land that can never earn again.
+    const ground = WORKS_ON[facility.type];
+    if (ground) returnDeposit(state, system, ground);
+    const back = scrapValue(facility.type);
+    state.factions[faction].gold += back;
+    return back;
+  }
+  const fleet = state.fleets.find((f) => f.id === what.fleetId);
+  const at = fleet?.ships.findIndex((s) => s.id === what.shipId) ?? -1;
+  if (!fleet || at < 0) return null;
+  const [hull] = fleet.ships.splice(at, 1);
+  const back = scrapValue(hull.classId);
+  state.factions[faction].gold += back;
+
+  /*
+   * A hull taken off the books takes its berths with it, and the first cut of
+   * this forgot that: the audit caught four troops riding in one berth, crew
+   * serving with a squadron that had no ships, and empty squadrons still
+   * sailing somewhere. Breaking a ship up is not sinking it, so the people in
+   * it get the one thing a sinking never offers them — a quay to step onto.
+   */
+  const berths = fleetCapacity(fleet);
+  if (fleet.troops > berths && !isAtSea(fleet)) {
+    const system = getSystem(state, fleet.systemId);
+    if (system.control === faction) {
+      const ashore = fleet.troops - berths;
+      fleet.troops = berths;
+      postCompanies(
+        system,
+        landingTroop(faction, craftGrade(state.factions[faction].craft)).id,
+        ashore,
+      );
+      pushEvent(state, {
+        kind: 'order',
+        text: `${ashore} ${ashore === 1 ? 'troop marches' : 'troops march'} off ${fleet.name} onto ${inProse(system.name)}.`,
+        systemId: system.id,
+      });
+    }
+  }
+  // Whatever had no quay to step onto is the sinking's problem after all, and
+  // the same sweep lands the crew and takes an emptied squadron off the board.
+  clearWrecks(state);
+  return back;
+}
+
+/**
+ * Trade comes in every morning; the bill falls due once a fortnight.
+ *
+ * Sean, 24 September: *"I noticed gold doesn't go up daily. Can we make it so
+ * gold ticks up daily but upkeep is on the fortnight?"* Both halves of the
+ * ledger used to move together on day fourteen, which was his own ruling of 20
+ * September — *"let's change from daily to fortnight... otherwise people are
+ * going to be looking at it like a stock chart."* That reason survives this
+ * change intact, because **the stock chart was the net**: a figure that rose
+ * on a good morning and fell on a bad one, jittering either side of nothing.
+ * Income alone does not jitter. It climbs, every day, at a rate you set by
+ * taking islands and raising works, and watching it climb is the point of
+ * having raised them.
+ *
+ * So the smooth half moves daily and the lumpy half stays lumpy. Over any
+ * fourteen days the totals are exactly what they were — fourteen days of
+ * income in, fourteen days of upkeep out — and what changed is *when*, which
+ * is the whole of what a player feels.
+ *
+ * It does put more in your hand mid-fortnight than you can afford to keep, and
+ * that is a feature rather than an oversight: gold earned on day seven can be
+ * spent on day seven, and the bill on day fourteen does not care that you
+ * spent it. Which is the shortfall rule below, finally given something to do.
+ *
+ * On settlement day income is credited first and the bill drawn after, so a
+ * full fortnight's trade is in hand before anything is asked of it.
+ *
+ * A **shortfall** is the settlement you cannot pay. Sean: *"the game randomly
+ * selects units and basically blows them up to get you the gold back to pay
+ * the cost that you couldn't have... So you can either actively do it or the
+ * game's going to do it for you."* So the treasury goes to nothing and the
+ * side is sold down until the bill is covered or there is nothing left on the
+ * books — which is the same auto-rebalancing the old daily version did one
+ * broken works at a time, except that now it pays for itself and the player
+ * could have done it first.
+ */
+export function settleLedger(state: GameState, rng: Rng): void {
+  // The day's trade, both sides, every morning.
+  for (const faction of ['empire', 'alliance'] as const) {
+    const fs = state.factions[faction];
+    fs.income = totalIncome(state, faction);
+    fs.upkeep = totalUpkeep(state, faction);
+    fs.gold += fs.income;
+  }
+  if (state.day % FORTNIGHT !== 0) return;
+  for (const faction of ['empire', 'alliance'] as const) {
+    const fs = state.factions[faction];
+    const owed = fs.upkeep * FORTNIGHT;
+    if (fs.gold >= owed) {
+      fs.gold -= owed;
+      continue;
+    }
+
+    let short = owed - fs.gold;
+    fs.gold = 0;
+    const sold: string[] = [];
+    // Randomly, because the player who did not choose does not get to choose.
+    for (const what of rng.shuffle(everythingOnTheBooks(state, faction))) {
+      if (short <= 0) break;
+      // Named before the sale, not after it: by then the building is already
+      // off the island and there is nothing left to read the name from.
+      const named = scrapLabel(state, what);
+      const got = scrap(state, faction, what);
+      if (got === null) continue;
+      sold.push(named);
+      // What the sale raised goes straight back out again against the bill.
+      short -= got;
+      fs.gold = Math.max(0, fs.gold - got);
+    }
+    fs.upkeep = totalUpkeep(state, faction);
+    /*
+     * The one bill you can lose a war to without being told.
+     *
+     * Sean, 22 September: *"we do need a notification for failure to pay
+     * upkeep when things auto scrap."* It was a log line of the `loss` kind,
+     * which does not raise a card — so the first the player knew of a
+     * shortfall was that a shipyard had gone off an island and they could not
+     * think why. It is `notable` now, which is exactly what that flag is for,
+     * and it names what went rather than counting it: three by name and the
+     * rest as a number, because the fortnight that sells eleven things is the
+     * one you least want a paragraph about.
+     *
+     * Only ever the player's own books. The opponent settles in the same loop
+     * and its shortfalls are its own business — the log is what *you* are
+     * told, and a card reading "the books would not balance" about somebody
+     * else's treasury is worse than no card at all.
+     */
+    if (sold.length > 0 && faction === state.player) {
+      // Three kinds of thing by name and the rest as a number, and identical
+      // things folded rather than listed: a bad fortnight sells four shipyards
+      // off the same island, and "the shipyard on Bracton, the shipyard on
+      // Bracton, the shipyard on Bracton" is not a sentence anybody reads.
+      const tally = new Map<string, number>();
+      for (const name of sold) tally.set(name, (tally.get(name) ?? 0) + 1);
+      const kinds = [...tally.entries()].map(([name, n]) => (n > 1 ? `${name} ×${n}` : name));
+      const named = kinds.slice(0, 3).join(', ');
+      const rest = kinds.length - 3;
+      pushEvent(state, {
+        kind: 'loss',
+        notable: true,
+        text:
+          `The fortnight's bill could not be met, and the difference was raised ` +
+          `by breaking things up: ${named}${rest > 0 ? `, and ${rest} more` : ''}. ` +
+          `Upkeep is now ${Math.round(fs.upkeep)} a day.`,
+      });
+    }
   }
 }

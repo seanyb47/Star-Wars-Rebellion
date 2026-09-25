@@ -1,175 +1,411 @@
 {
-  "_comment": "World bible section 13. Ten Reaches for the 100-island map: the bible's `small` map set, with Sugar Reach promoted to Inner so the four core / six rim shape of the simulation is preserved and all seven Seas appear. Scrap Reach is held back for the larger maps.",
+  "_comment": "World bible section 13. Seven Reaches on the small map, one for each Sea (the Far Sea's ice and its whaling chain are one Reach, Rime), so a Sea and its archipelago are the same thing at this size. Sugar, Whalers' and Mirage are held back for the larger maps alongside Scrap — each shared a Sea with a Reach that survives, and each sat on a painted cluster too crowded or too sparse to chart clearly. Island counts are set by how many clearly separated islands each painted cluster holds. Each Reach has a role in the opening (docs/opening.md): home is the Crown's, contested Reaches open with two islands a side, open Reaches are charted and nobody's, frontier Reaches start unexplored and hide the Confederacy's base. An island marked port is one of the three port cities on the Aldermain, Sovereign Reach's great island. Each island carries a `seed`: the number the world's look, its creature and its garrison mix are drawn from. It used to be computed from the island's name, which meant renaming an island silently re-rolled its terrain, its deposits and what lives in its water. It is written down here instead, frozen at the value it had on 19 September, so the Star Wars rename changed names and nothing else.",
   "reaches": [
     {
       "name": "Sovereign Reach",
       "sea": "The Crown Sea",
       "tier": "inner",
       "islands": [
-        { "name": "Avermere" },
-        { "name": "Ballmoor", "note": "Foundries. The Crown's arms come from here." },
-        { "name": "Bracton" },
-        { "name": "Chandler's Rest", "note": "Hale's birthplace; quietly Confederacy-leaning." },
-        { "name": "Corsham Head" },
-        { "name": "Highwater", "note": "Seawalls three hundred feet high, carved with the name of every island the Tide has taken.", "capital": true },
-        { "name": "Gorley", "note": "Site of an old massacre. Hates the Crown." },
-        { "name": "Sievern" },
-        { "name": "Ulverne" },
-        { "name": "Yarrow Minor", "note": "The royal dockyard." }
-      ]
+        {
+          "name": "Avermere",
+          "seed": 823,
+          "note": "Crown grain and cattle. The fleet eats from here."
+        },
+        {
+          "name": "Ballmoor",
+          "note": "Foundries. The Crown's arms come from here.",
+          "port": true,
+          "seed": 824
+        },
+        {
+          "name": "Bracton",
+          "seed": 713,
+          "note": "Ropewalks and sailcloth. Unglamorous and indispensable."
+        },
+        {
+          "name": "Chandler's Rest",
+          "note": "Hale's birthplace; quietly Confederacy-leaning.",
+          "seed": 1401
+        },
+        {
+          "name": "Corsham Head",
+          "seed": 1119,
+          "note": "The signal station that watches the approach to the Aldermain."
+        },
+        {
+          "name": "Highwater",
+          "note": "The Crown's walled capital, behind seawalls three hundred feet high. It stands on the Aldermain, the one great island, far larger than anything else, with the best ground and the best resources in the world.",
+          "capital": true,
+          "port": true,
+          "seed": 931
+        },
+        {
+          "name": "Gorley",
+          "note": "Site of an old massacre. Hates the Crown.",
+          "port": true,
+          "seed": 626
+        },
+        {
+          "name": "Sievern",
+          "seed": 732,
+          "note": "Quarry island. Every seawall in the Crown Sea started here."
+        },
+        {
+          "name": "Ulverne",
+          "seed": 737,
+          "note": "Assize island: the Crown's courts, and the gallows behind them."
+        },
+        {
+          "name": "Yarrow Minor",
+          "note": "The royal dockyard.",
+          "seed": 1193
+        },
+        {
+          "name": "Kingsward",
+          "note": "The Imperium's naval academy.",
+          "seed": 680
+        },
+        {
+          "name": "Minterne",
+          "note": "Banking houses. Half the war is paid for here.",
+          "seed": 820
+        },
+        {
+          "name": "Cartmel",
+          "note": "The Great Library: charts and archives.",
+          "seed": 1015
+        },
+        {
+          "name": "Chepstow",
+          "note": "Market island. Prices set here are quoted three Seas away.",
+          "seed": 927
+        },
+        {
+          "name": "Marlbury",
+          "seed": 688,
+          "note": "Garrison town. Regiments are raised and drilled here."
+        }
+      ],
+      "role": "home"
     },
     {
-      "name": "Shipwrights' Reach",
-      "sea": "The Merchant Sea",
+      "name": "Windward Reach",
+      "sea": "The Long Sea",
       "tier": "inner",
       "islands": [
-        { "name": "Comenara" },
-        { "name": "Wrightsport", "note": "Shipwright capital of the Seven Seas; Reyne's home port." },
-        { "name": "Corfino" },
-        { "name": "Dralla" },
-        { "name": "Duroso", "note": "Old seafaring people. The best navigators alive." },
-        { "name": "Selona" },
-        { "name": "Talusa" },
-        { "name": "Tralosa" },
-        { "name": "Vagrano" },
-        { "name": "Ciquina" }
-      ]
+        {
+          "name": "Wrightsport",
+          "note": "Shipwright capital of the Seven Seas; Reyne's home port.",
+          "seed": 1197
+        },
+        {
+          "name": "Starcross",
+          "note": "Old seafaring people. The best navigators the Crown can hire.",
+          "seed": 636
+        },
+        {
+          "name": "Starpath",
+          "seed": 806,
+          "note": "Where navigators are taught. A course is remembered as a chant, not a chart."
+        },
+        {
+          "name": "Shellhouse",
+          "seed": 720,
+          "note": "Shell wind-chimes hang in every doorway; the Shoal-folk read the air by them."
+        },
+        {
+          "name": "Outrigger Bay",
+          "seed": 592,
+          "note": "Where the canoes are built. Lashed timber, no nails, no keels."
+        },
+        {
+          "name": "Longreef",
+          "seed": 610,
+          "note": "Forty miles of reef with one channel through it, and only locals know it."
+        },
+        {
+          "name": "Palmfall",
+          "seed": 618,
+          "note": "Copra, coir and drinking nuts. The Crown calls it unimproved."
+        },
+        {
+          "name": "Ropley",
+          "seed": 726
+        },
+        {
+          "name": "Wainfleet",
+          "seed": 718
+        },
+        {
+          "name": "Driftway",
+          "note": "Everything lost in the Long Sea washes up here eventually, including people.",
+          "seed": 842
+        },
+        {
+          "name": "Nine Reefs",
+          "note": "Nine atolls, one lagoon, and the best sheltered anchorage in the Reach.",
+          "seed": 927
+        }
+      ],
+      "role": "frontier"
     },
     {
-      "name": "Coral Reach",
-      "sea": "The Amber Sea",
+      "name": "Sunken Reach",
+      "sea": "The Bone Sea",
       "tier": "inner",
       "islands": [
-        { "name": "Bothaway", "note": "Home of the Rumor Guild, who sell to both sides." },
-        { "name": "Passh Bay" },
-        { "name": "Denby Cay" },
-        { "name": "Cothlis Cay", "note": "Rumor Guild outpost." },
-        { "name": "Coralhome", "note": "The Reef-folk. Their ships are sung into shape over years." },
-        { "name": "Ortovale" },
-        { "name": "Preston's Reach", "note": "Signal towers. Word travels fast from here." },
-        { "name": "Sluysvaan", "note": "The great civilian dockyards." },
-        { "name": "The Shoals", "note": "Shoal-folk. They can hear a hull creak a mile off." },
-        { "name": "Umgulla", "note": "Gambling and racing. Everyone owes someone here." }
-      ]
-    },
-    {
-      "name": "Sugar Reach",
-      "sea": "The Amber Sea",
-      "tier": "inner",
-      "islands": [
-        { "name": "Bilbrin", "note": "Imperium dockyard." },
-        { "name": "Bysse" },
-        { "name": "Charmouth" },
-        { "name": "Ferrol Key" },
-        { "name": "Komm Cay" },
-        { "name": "Kinyon" },
-        { "name": "Fraytis" },
-        { "name": "Rishi Bank" },
-        { "name": "Tanab", "note": "Breadbasket of the Inner Seas." },
-        { "name": "Wistrell" }
-      ]
+        {
+          "name": "Gibbet Rock",
+          "note": "An Imperium prison. The name is not a metaphor.",
+          "seed": 1020
+        },
+        {
+          "name": "Gardenholm",
+          "note": "Sacred and green. No tree on it has ever been cut.",
+          "seed": 1025
+        },
+        {
+          "name": "The Kettles",
+          "note": "Prison mines, cutting ambergris out of a dead leviathan's skull.",
+          "seed": 1053
+        },
+        {
+          "name": "Anchorite Rock",
+          "note": "Hermit island.",
+          "seed": 849
+        },
+        {
+          "name": "Ravenscar",
+          "seed": 606,
+          "note": "Wreckers’ coast. Lights are shown here on bad nights, and not to help."
+        },
+        {
+          "name": "Wrackham",
+          "seed": 942,
+          "note": "Built entirely from salvage, including the church."
+        },
+        {
+          "name": "Slaughden",
+          "seed": 825,
+          "note": "Half under water. The streets are rowed, not walked."
+        },
+        {
+          "name": "Coffinswell",
+          "seed": 595,
+          "note": "The Hushed keep to what's left of it. They are not heard arriving."
+        },
+        {
+          "name": "Belfry Shoal",
+          "note": "Open water with one bell tower standing out of it. The bell still rings on the swell.",
+          "seed": 1147
+        }
+      ],
+      "role": "contested"
     },
     {
       "name": "Rime Reach",
       "sea": "The Far Sea",
       "tier": "outer",
       "islands": [
-        { "name": "Alyvik" },
-        { "name": "Annat Fjord", "note": "A mining fjord, and it smells like one." },
-        { "name": "Varrow", "note": "Fairweather's floating market: a city of lashed-together hulks." },
-        { "name": "Deyr", "note": "Fishing. All water and no ground." },
-        { "name": "Gentnes" },
-        { "name": "Rime Island", "note": "Frozen rock. Nothing here but weather." },
-        { "name": "Lelmar" },
-        { "name": "Nykov" },
-        { "name": "Storthavn" },
-        { "name": "Tokmaa" }
-      ]
+        {
+          "name": "Northreach",
+          "note": "Torvik's homeland. Urskin whalers and harpooners.",
+          "seed": 1038
+        },
+        {
+          "name": "Tallow Cay",
+          "note": "Whale-oil and salt. Far enough out that nobody counts the ships.",
+          "seed": 944
+        },
+        {
+          "name": "Sharpness",
+          "note": "A cutter base, of sorts.",
+          "seed": 728
+        },
+        {
+          "name": "Rime Island",
+          "note": "Frozen rock. Nothing here but weather.",
+          "ice": true,
+          "seed": 1032
+        },
+        {
+          "name": "Frostwick",
+          "ice": true,
+          "seed": 724,
+          "note": "Ice-locked five months a year; the Crown's charts stop being useful here."
+        },
+        {
+          "name": "Varrow",
+          "note": "Fairweather's floating market: a city of lashed-together hulks.",
+          "ice": true,
+          "seed": 641
+        },
+        {
+          "name": "Keelhaven",
+          "note": "Where Urskin clans winter their great keels and repair them in the dark.",
+          "seed": 915
+        }
+      ],
+      "role": "frontier"
     },
     {
-      "name": "Whalers' Reach",
-      "sea": "The Far Sea",
-      "tier": "outer",
-      "islands": [
-        { "name": "Alkellish" },
-        { "name": "Boordvik" },
-        { "name": "Flaxholm" },
-        { "name": "Gedon" },
-        { "name": "Northreach", "note": "Torvik's homeland. Urskin whalers and harpooners." },
-        { "name": "Linnur" },
-        { "name": "Kristak" },
-        { "name": "Tjerfon", "note": "A cutter base, of sorts." },
-        { "name": "Vustri" },
-        { "name": "Tallow Cay", "note": "Whale-oil and salt. Far enough out that nobody counts the ships." }
-      ]
-    },
-    {
-      "name": "Cinder Reach",
+      "name": "Mire Reach",
       "sea": "The Sea of Storms",
       "tier": "outer",
       "islands": [
-        { "name": "Tamalu" },
-        { "name": "Sorrowhead" },
-        { "name": "Anaja" },
-        { "name": "Basilisk Rock" },
-        { "name": "Greenholm", "note": "Forested and heavily patrolled. Something large is being finished here." },
-        { "name": "Gandolo Spit" },
-        { "name": "Firewatch", "note": "An active volcano. The ash never quite settles." },
-        { "name": "Kuimin" },
-        { "name": "Emberfall" },
-        { "name": "Vejun Keep", "note": "Admiral Blackwater's private fortress. The water below it is always flat." }
-      ]
+        {
+          "name": "Greenholm",
+          "note": "Forested and heavily patrolled. Something large is being finished here.",
+          "seed": 929
+        },
+        {
+          "name": "Firewatch",
+          "note": "An active volcano. The ash never quite settles.",
+          "seed": 925
+        },
+        {
+          "name": "Leeward Keep",
+          "note": "Admiral Blackwater's private fortress. The water below it is always flat.",
+          "seed": 941
+        },
+        {
+          "name": "Tundvik",
+          "note": "The edge of the charts.",
+          "seed": 741
+        },
+        {
+          "name": "Reedmoot",
+          "seed": 612,
+          "note": "Where the Bog-folk clans meet. Crown officers are received, never invited."
+        },
+        {
+          "name": "Sorrowhead",
+          "seed": 1054,
+          "note": "A drowned village nobody rebuilt, and nobody will say why."
+        },
+        {
+          "name": "Brimstone Cay",
+          "seed": 475,
+          "note": "Sulphur. It gets into the powder, the food and the lungs."
+        },
+        {
+          "name": "Basilisk Rock",
+          "seed": 1249,
+          "note": "Sheer, snake-ridden, and the only deep anchorage for sixty miles."
+        },
+        {
+          "name": "Cane Hollow",
+          "note": "Sugar cane, fever, and the conjure-women the clans left behind.",
+          "seed": 1036
+        }
+      ],
+      "role": "contested"
     },
     {
       "name": "Salt Reach",
       "sea": "The Glass Sea",
       "tier": "outer",
       "islands": [
-        { "name": "Bakuran Flats" },
-        { "name": "Chaswell" },
-        { "name": "Dalter" },
-        { "name": "Joyol" },
-        { "name": "Kimmen" },
-        { "name": "Lafray" },
-        { "name": "Mantissa" },
-        { "name": "Powder Isle", "note": "Saltpetre. Every gun in the Seven Seas owes this rock." },
-        { "name": "Rylo Salt", "note": "A salt-slave island. One side never sees dusk." },
-        { "name": "Blackreef", "note": "Jubal the Fat's corsair haven. Debts are collected here." }
-      ]
+        {
+          "name": "Powder Isle",
+          "note": "Saltpetre. Every gun in the Seven Seas owes this rock.",
+          "seed": 1054
+        },
+        {
+          "name": "Saltgrave",
+          "note": "A salt-slave island. One side never sees dusk.",
+          "seed": 858
+        },
+        {
+          "name": "Blackreef",
+          "note": "Jubal the Fat's corsair haven. Debts are collected here.",
+          "seed": 895
+        },
+        {
+          "name": "The Terraces",
+          "note": "Rice breadbasket of the Outer Seas.",
+          "seed": 1146
+        },
+        {
+          "name": "The White Flats",
+          "seed": 1246,
+          "note": "Salt to the horizon. Ships are visible from a day away, which suits nobody."
+        },
+        {
+          "name": "Chaswell",
+          "seed": 819,
+          "note": "The last watering stop before the flats. Water costs what the seller says."
+        },
+        {
+          "name": "Scaldwell",
+          "seed": 604,
+          "note": "Hot springs and boiling pools; the water is undrinkable and the fish are not."
+        },
+        {
+          "name": "Noonday Rock",
+          "seed": 525,
+          "note": "No shade anywhere on it. A punishment posting."
+        },
+        {
+          "name": "Salthouse",
+          "seed": 609,
+          "note": "Curing houses. Half the fleet's salt beef comes through here."
+        }
+      ],
+      "role": "frontier"
     },
     {
-      "name": "Mirage Reach",
-      "sea": "The Glass Sea",
+      "name": "Coral Reach",
+      "sea": "The Amber Sea",
       "tier": "outer",
       "islands": [
-        { "name": "Ankerholm" },
-        { "name": "Chalcedon" },
-        { "name": "Clatter Rock" },
-        { "name": "Conna" },
-        { "name": "Dantoon", "note": "An abandoned Confederacy anchorage. Somebody left in a hurry." },
-        { "name": "Nemthe" },
-        { "name": "Cabal Rock" },
-        { "name": "Otrago" },
-        { "name": "Triton Shoal" },
-        { "name": "Erdur" }
-      ]
-    },
-    {
-      "name": "Wreckers' Reach",
-      "sea": "The Bone Sea",
-      "tier": "outer",
-      "islands": [
-        { "name": "Gibbet Rock", "note": "An Imperium prison. The name is not a metaphor." },
-        { "name": "Fetral" },
-        { "name": "Fillsving" },
-        { "name": "Gardenholm", "note": "Sacred and green. No tree on it has ever been cut." },
-        { "name": "Jerrador" },
-        { "name": "The Kettles", "note": "Prison mines, cutting ambergris out of a dead leviathan's skull." },
-        { "name": "Cubbin" },
-        { "name": "Morvogine" },
-        { "name": "Norvell" },
-        { "name": "Skorra" }
-      ]
+        {
+          "name": "Coralhome",
+          "note": "Crown-held. The Reef-folk sang their ships into shape here for generations; the Crown cleared the reef to build a proper harbor.",
+          "seed": 922
+        },
+        {
+          "name": "Hearsay Cay",
+          "note": "Home of the Rumor Guild, who sell to both sides.",
+          "seed": 831
+        },
+        {
+          "name": "Graving Bay",
+          "note": "The great civilian dockyards.",
+          "seed": 966
+        },
+        {
+          "name": "Newmarket",
+          "note": "Gambling and racing. Everyone owes someone here.",
+          "seed": 727
+        },
+        {
+          "name": "Preston's Reach",
+          "note": "Signal towers. Word travels fast from here.",
+          "seed": 1416
+        },
+        {
+          "name": "The Shoals",
+          "note": "The Shoal-folk: webbed, night-eyed, and the best watchers in the world.",
+          "seed": 939
+        },
+        {
+          "name": "Hawksbill Bay",
+          "note": "Amber and turtle-shell. Three harbors and no customs house.",
+          "seed": 827
+        },
+        {
+          "name": "Denby Cay",
+          "note": "Sugar and rum. Old money, and none of it decided.",
+          "seed": 815
+        },
+        {
+          "name": "Singing Shallows",
+          "note": "A nursery reef. Hulls are grown here, and the singing does not stop at night.",
+          "seed": 1596
+        }
+      ],
+      "role": "contested"
     }
   ]
 }

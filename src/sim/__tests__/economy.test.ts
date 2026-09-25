@@ -1,19 +1,28 @@
 import { describe, expect, it } from 'vitest';
+import { garrisonRoster } from '../troops';
 import { generateGalaxy } from '../galaxy';
+import { addShip, fleetCapacity, sailFleet } from '../fleets';
 import {
-  collectIncome,
   islandIncome,
-  payUpkeep,
+  islandTrade,
+  smuggledShare,
+  scrap,
+  scrapError,
+  scrapValue,
+  settleLedger,
   recomputeLedger,
   totalIncome,
   totalUpkeep,
 } from '../economy';
-import { GOLD_PER_DAY, UPKEEP_PER_DAY } from '../constants';
+import { FORTNIGHT, GOLD_PER_DAY, TROOP_BUILD, UPKEEP_PER_DAY, YARD_BUILDS } from '../constants';
 import { createRng } from '../rng';
 import type { GameState, PlayableFaction, System } from '../types';
 
-/** Strip the map down to one held island so a test can reason about it. */
+/** Strip the map down to one held island so a test can reason about it.
+ *  The starting fleets go too: their upkeep is real, and these tests are about
+ *  what an island costs, not what a navy costs. */
 function isolate(state: GameState, faction: PlayableFaction): System {
+  state.fleets.length = 0;
   const held = state.systems.filter((s) => s.control === faction);
   const keep = held[0];
   for (const system of state.systems) {
@@ -33,7 +42,7 @@ describe('what buildings do', () => {
     expect(UPKEEP_PER_DAY.mine).toBe(0);
     expect(UPKEEP_PER_DAY.refinery).toBe(0);
 
-    for (const type of ['construction_yard', 'training_facility', 'shipyard'] as const) {
+    for (const type of ['training_facility', 'shipyard'] as const) {
       expect(GOLD_PER_DAY[type]).toBe(0);
       expect(UPKEEP_PER_DAY[type]).toBeGreaterThan(0);
     }
@@ -49,13 +58,16 @@ describe('income', () => {
       { id: 'f1', type: 'mine', owner: 'empire' },
       { id: 'f2', type: 'refinery', owner: 'empire' },
     ];
-    island.support.empire = 100;
-    expect(islandIncome(island, 'empire')).toBeCloseTo(GOLD_PER_DAY.mine + GOLD_PER_DAY.refinery);
+    const rate = GOLD_PER_DAY.mine + GOLD_PER_DAY.refinery;
 
-    island.support.empire = 0; // 0.5x
-    expect(islandIncome(island, 'empire')).toBeCloseTo(
-      (GOLD_PER_DAY.mine + GOLD_PER_DAY.refinery) * 0.5,
-    );
+    // Firm: the island works at full pace and nothing leaves by the back door.
+    island.support.empire = 100;
+    expect(islandIncome(island, 'empire')).toBeCloseTo(rate);
+
+    // Thin: half pace for a grudging crew, and a quarter of what is left
+    // goes to the other side.
+    island.support.empire = 0;
+    expect(islandIncome(island, 'empire')).toBeCloseTo(rate * 0.5 * 0.75);
   });
 
   it('pays nothing from an island in mutiny', () => {
@@ -70,50 +82,131 @@ describe('income', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
     island.facilities = [
-      { id: 'f1', type: 'construction_yard', owner: 'empire' },
+      { id: 'f1', type: 'shipyard', owner: 'empire' },
       { id: 'f2', type: 'training_facility', owner: 'empire' },
       { id: 'f3', type: 'shipyard', owner: 'empire' },
     ];
     expect(islandIncome(island, 'empire')).toBe(0);
   });
 
-  it('adds the day’s takings to the treasury', () => {
+  it('adds the day’s takings to the treasury, on the day', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
     island.facilities = [{ id: 'f1', type: 'mine', owner: 'empire' }];
     island.support.empire = 100;
     state.factions.empire.gold = 0;
-    collectIncome(state, createRng(1));
+    state.day = 1;
+    settleLedger(state, createRng(1));
     expect(state.factions.empire.gold).toBeCloseTo(GOLD_PER_DAY.mine);
   });
 
-  it('lets smugglers run a disloyal island’s takings to the enemy', () => {
+  /**
+   * Sean, 24 September: *"I noticed gold doesn't go up daily. Can we make it so
+   * gold ticks up daily but upkeep is on the fortnight?"* Both halves used to
+   * move together on day fourteen. The stock chart his 20 September ruling was
+   * about was the *net* — a figure jittering either side of nothing — and
+   * income on its own does not jitter, it climbs.
+   */
+  it('climbs every morning, and only the bill waits for the fortnight', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
     island.facilities = [{ id: 'f1', type: 'mine', owner: 'empire' }];
-    island.support.empire = 0; // a 25% chance every day
-    state.factions.alliance.gold = 0;
-
-    let smuggled = 0;
-    for (let seed = 1; seed <= 200; seed++) {
-      const before = state.factions.alliance.gold;
-      collectIncome(state, createRng(seed));
-      if (state.factions.alliance.gold > before) smuggled++;
+    island.support.empire = 100;
+    state.factions.empire.gold = 0;
+    // Nothing on this island costs anything to keep, so the climb is clean.
+    for (let day = 1; day < FORTNIGHT; day += 1) {
+      state.day = day;
+      settleLedger(state, createRng(day));
+      expect(state.factions.empire.gold, `day ${day}`).toBeCloseTo(GOLD_PER_DAY.mine * day);
     }
-    expect(smuggled).toBeGreaterThan(20);
-    expect(smuggled).toBeLessThan(80);
+    state.day = FORTNIGHT;
+    settleLedger(state, createRng(1));
+    expect(state.factions.empire.gold).toBeCloseTo(GOLD_PER_DAY.mine * FORTNIGHT);
   });
 
-  it('never smuggles from a loyal island', () => {
+  it('takes the same out of a fortnight as it ever did', () => {
+    // The point of the change is *when*, not how much. Fourteen days of income
+    // in and fourteen days of upkeep out, whichever way round they are paid.
+    const state = generateGalaxy(101);
+    const island = isolate(state, 'empire');
+    island.facilities = [
+      { id: 'f1', type: 'mine', owner: 'empire' },
+      { id: 'f2', type: 'shipyard', owner: 'empire' },
+    ];
+    island.support.empire = 100;
+    state.factions.empire.gold = 10_000;
+    const before = state.factions.empire.gold;
+    for (let day = 1; day <= FORTNIGHT; day += 1) {
+      state.day = day;
+      settleLedger(state, createRng(day));
+    }
+    const fs = state.factions.empire;
+    expect(fs.gold - before).toBeCloseTo((fs.income - fs.upkeep) * FORTNIGHT);
+  });
+
+  it('runs a share of a disloyal island’s trade to the enemy, by band', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
     island.facilities = [{ id: 'f1', type: 'mine', owner: 'empire' }];
-    island.support.empire = 50;
-    state.factions.alliance.gold = 0;
-    for (let seed = 1; seed <= 100; seed++) collectIncome(state, createRng(seed));
-    expect(state.factions.alliance.gold).toBe(0);
+
+    // Every band, top to bottom: what the holder keeps and what crosses over
+    // always add up to the island's whole trade.
+    for (const [support, share] of [
+      [95, 0],
+      [70, 0.15],
+      [30, 0.25],
+    ] as const) {
+      island.support.empire = support;
+      const trade = islandTrade(island, 'empire');
+      expect(smuggledShare(island, 'empire')).toBe(share);
+      // The rates rather than the treasury: what the holder keeps and what
+      // crosses over are both inside `totalIncome`, and reading them there
+      // says the same thing without waiting a fortnight for it.
+      expect(totalIncome(state, 'alliance'), `support ${support}`).toBeCloseTo(trade * share);
+      expect(totalIncome(state, 'empire'), `support ${support}`).toBeCloseTo(trade * (1 - share));
+    }
+  });
+
+  it('takes half of an island in revolt, and gives its holder nothing at all', () => {
+    const state = generateGalaxy(101);
+    const island = isolate(state, 'empire');
+    island.facilities = [{ id: 'f1', type: 'mine', owner: 'empire' }];
+    island.support.empire = 40;
+    island.uprising = true;
+    const trade = islandTrade(island, 'empire');
+    expect(trade).toBeGreaterThan(0);
+    expect(totalIncome(state, 'empire')).toBe(0);
+    expect(totalIncome(state, 'alliance')).toBeCloseTo(trade * 0.5);
+  });
+
+  it('never smuggles from a firm island, and a blockade stops even that', () => {
+    const state = generateGalaxy(101);
+    const island = isolate(state, 'empire');
+    island.facilities = [{ id: 'f1', type: 'mine', owner: 'empire' }];
+    island.support.empire = 90;
+    expect(totalIncome(state, 'alliance')).toBe(0);
+
+    // Shut the harbor on a thin island: nothing leaves it either way.
+    island.support.empire = 20;
+    island.blockaded = true;
+    expect(totalIncome(state, 'empire')).toBe(0);
+    expect(totalIncome(state, 'alliance')).toBe(0);
   });
 });
+
+/**
+ * One settlement.
+ *
+ * The books are done every fourteenth day since 20 September, so a test that
+ * wants money to move has to land on one. Everything below that used to call
+ * `collectIncome` or `payUpkeep` for a single day's worth now either asks the
+ * rate directly — `totalIncome` and `totalUpkeep` are the rates, unchanged —
+ * or settles once and expects fourteen days of it.
+ */
+function settleOnce(state: GameState, rng = createRng(1)): void {
+  state.day = FORTNIGHT;
+  settleLedger(state, rng);
+}
 
 describe('upkeep', () => {
   it('charges for buildings that do not earn, and for companies', () => {
@@ -121,22 +214,30 @@ describe('upkeep', () => {
     const island = isolate(state, 'empire');
     island.facilities = [
       { id: 'f1', type: 'mine', owner: 'empire' },
-      { id: 'f2', type: 'construction_yard', owner: 'empire' },
+      { id: 'f2', type: 'shipyard', owner: 'empire' },
       { id: 'f3', type: 'shipyard', owner: 'empire' },
     ];
     island.garrison = 3;
-    expect(totalUpkeep(state, 'empire')).toBe(
-      UPKEEP_PER_DAY.construction_yard + UPKEEP_PER_DAY.shipyard + 3 * UPKEEP_PER_DAY.troop,
+    // Per company, by who they are. A troop cost a flat gold a day until 21
+    // September, whoever it was, which priced a Shoal Warden and a Drowned
+    // Guard identically and made the garrison ladder — the reason a
+    // mass-producible troop exists at all — cost the same money whichever
+    // unit was holding the island.
+    const garrison = garrisonRoster(island).reduce((n, t) => n + t.upkeep, 0);
+    expect(garrison).toBeGreaterThan(0);
+    expect(totalUpkeep(state, 'empire')).toBeCloseTo(
+      UPKEEP_PER_DAY.shipyard + UPKEEP_PER_DAY.shipyard + garrison,
+      5,
     );
   });
 
   it('takes the day’s upkeep out of the treasury', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
-    island.facilities = [{ id: 'f1', type: 'construction_yard', owner: 'empire' }];
-    state.factions.empire.gold = 100;
-    payUpkeep(state, createRng(1));
-    expect(state.factions.empire.gold).toBe(100 - UPKEEP_PER_DAY.construction_yard);
+    island.facilities = [{ id: 'f1', type: 'shipyard', owner: 'empire' }];
+    state.factions.empire.gold = 1000;
+    settleOnce(state);
+    expect(state.factions.empire.gold).toBe(1000 - UPKEEP_PER_DAY.shipyard * FORTNIGHT);
   });
 
   it('reports income and upkeep for the top bar without moving money', () => {
@@ -144,14 +245,14 @@ describe('upkeep', () => {
     const island = isolate(state, 'empire');
     island.facilities = [
       { id: 'f1', type: 'mine', owner: 'empire' },
-      { id: 'f2', type: 'construction_yard', owner: 'empire' },
+      { id: 'f2', type: 'shipyard', owner: 'empire' },
     ];
     island.support.empire = 100;
     state.factions.empire.gold = 500;
     recomputeLedger(state);
     expect(state.factions.empire.gold).toBe(500);
     expect(state.factions.empire.income).toBeCloseTo(GOLD_PER_DAY.mine);
-    expect(state.factions.empire.upkeep).toBe(UPKEEP_PER_DAY.construction_yard);
+    expect(state.factions.empire.upkeep).toBe(UPKEEP_PER_DAY.shipyard);
   });
 });
 
@@ -159,39 +260,42 @@ describe('going broke', () => {
   it('breaks things down gradually rather than all at once', () => {
     const state = generateGalaxy(101);
     const island = isolate(state, 'empire');
-    island.energySlots = 12;
+    island.slots = 12;
     island.facilities = Array.from({ length: 6 }, (_, i) => ({
       id: `f${i}`,
-      type: 'construction_yard' as const,
+      type: 'shipyard' as const,
       owner: 'empire' as const,
     }));
     state.factions.empire.gold = 0; // nothing coming in, nothing saved
 
-    payUpkeep(state, createRng(7));
-    // At most one thing goes in a day, never the whole lot.
-    expect(island.facilities.length).toBeGreaterThanOrEqual(5);
+    settleOnce(state, createRng(7));
+    // Enough is sold to cover the bill and no more. Six yards at three a day
+    // is 252 for the fortnight and a yard raises 60, so five go and one is
+    // left — where the old daily version shed exactly one a day and took a
+    // week to get here.
+    expect(island.facilities.length).toBeGreaterThan(0);
+    expect(island.facilities.length).toBeLessThan(6);
   });
 
   it('walks the ledger back to equilibrium and then stops', () => {
     const state = generateGalaxy(102);
     const island = isolate(state, 'empire');
-    island.rawSlots = 12;
-    island.energySlots = 12;
+    island.slots = 24;
     island.support.empire = 100;
     island.facilities = [
       { id: 'm1', type: 'mine', owner: 'empire' },
       ...Array.from({ length: 8 }, (_, i) => ({
         id: `y${i}`,
-        type: 'construction_yard' as const,
+        type: 'shipyard' as const,
         owner: 'empire' as const,
       })),
     ];
     state.factions.empire.gold = 0;
 
     const rng = createRng(3);
-    for (let day = 0; day < 400; day++) {
-      collectIncome(state, rng);
-      payUpkeep(state, rng);
+    for (let day = 1; day <= 400; day++) {
+      state.day = day;
+      settleLedger(state, rng);
     }
 
     // The mine earns; yards are shed until what is left can be paid for.
@@ -206,12 +310,15 @@ describe('going broke', () => {
     const island = isolate(state, 'empire');
     island.facilities = [
       { id: 'f1', type: 'mine', owner: 'empire' },
-      { id: 'f2', type: 'construction_yard', owner: 'empire' },
+      { id: 'f2', type: 'shipyard', owner: 'empire' },
     ];
     island.garrison = 2;
     state.factions.empire.gold = 10000;
     const rng = createRng(5);
-    for (let day = 0; day < 200; day++) payUpkeep(state, rng);
+    for (let day = 1; day <= 200; day++) {
+      state.day = day;
+      settleLedger(state, rng);
+    }
     expect(island.facilities).toHaveLength(2);
     expect(island.garrison).toBe(2);
   });
@@ -223,7 +330,216 @@ describe('going broke', () => {
     island.garrison = 5;
     state.factions.empire.gold = 0;
     const rng = createRng(9);
-    for (let day = 0; day < 200; day++) payUpkeep(state, rng);
+    for (let day = 1; day <= 200; day++) {
+      state.day = day;
+      settleLedger(state, rng);
+    }
     expect(island.garrison).toBe(0);
+  });
+});
+
+/**
+ * Scrap, and the shortfall that does it for you.
+ *
+ * Sean, 20 September: *"Scrap basically is where you can destroy the unit to
+ * get money back and you get 50% of what you paid for it. But the additional
+ * advantage though, is that you don't pay the upkeep cost anymore... This is a
+ * great way to clear old things to make room for new things."* And when the
+ * fortnight comes round and the bill cannot be met: *"the game randomly
+ * selects units and basically blows them up to get you the gold back... So you
+ * can either actively do it or the game's going to do it for you."*
+ */
+describe('scrapping', () => {
+  it('gives back half of what a thing cost', () => {
+    expect(scrapValue('shipyard')).toBe(Math.floor(YARD_BUILDS.shipyard.costGold / 2));
+    expect(scrapValue('troop')).toBe(Math.floor(TROOP_BUILD.costGold / 2));
+    // An earner is free to raise, so half of nothing is nothing. The reason to
+    // pull a mill down was never the coin — it is the plot it stands on.
+    expect(scrapValue('mine')).toBe(0);
+    expect(scrapValue('refinery')).toBe(0);
+  });
+
+  it('takes the building off the island, the upkeep off the books, and puts the ground back', () => {
+    const state = generateGalaxy(101);
+    const island = isolate(state, 'empire');
+    island.facilities = [{ id: 'f1', type: 'shipyard', owner: 'empire' }];
+    island.deposits = [];
+    state.factions.empire.gold = 0;
+    const before = totalUpkeep(state, 'empire');
+    expect(before).toBe(UPKEEP_PER_DAY.shipyard);
+
+    const got = scrap(state, 'empire', {
+      kind: 'facility',
+      systemId: island.id,
+      facilityId: 'f1',
+    });
+    expect(got).toBe(scrapValue('shipyard'));
+    expect(state.factions.empire.gold).toBe(got);
+    expect(island.facilities).toHaveLength(0);
+    expect(totalUpkeep(state, 'empire')).toBe(0);
+  });
+
+  it('puts the deposit back when an earner comes down', () => {
+    const state = generateGalaxy(101);
+    const island = isolate(state, 'empire');
+    island.slots = 10;
+    island.facilities = [{ id: 'f1', type: 'refinery', owner: 'empire' }];
+    island.deposits = [];
+    scrap(state, 'empire', {
+      kind: 'facility',
+      systemId: island.id,
+      facilityId: 'f1',
+    });
+    // The mill goes; the trees it was cutting are still standing. Same rule as
+    // a works falling apart unpaid — a long war must not grind the world down
+    // to land that can never earn again.
+    expect((island.deposits ?? []).some((d) => d.type === 'forest')).toBe(true);
+  });
+
+  it('sells a side down when the fortnight cannot be paid, and stops when it can', () => {
+    const state = generateGalaxy(105);
+    const island = isolate(state, 'empire');
+    island.slots = 30;
+    island.facilities = Array.from({ length: 10 }, (_, i) => ({
+      id: `y${i}`,
+      type: 'shipyard' as const,
+      owner: 'empire' as const,
+    }));
+    state.factions.empire.gold = 0;
+    settleOnce(state, createRng(11));
+
+    // Something went, and not everything: the sale stops the moment the bill
+    // is covered rather than emptying the island.
+    expect(island.facilities.length).toBeGreaterThan(0);
+    expect(island.facilities.length).toBeLessThan(10);
+    // And the books say so, in one line rather than one per building — and it
+    // stops the player, because Sean asked for a notification rather than a
+    // line they would only find afterwards.
+    const told = state.events.filter((e) => e.text.includes('could not be met'));
+    expect(told).toHaveLength(1);
+    expect(told[0].kind).toBe('loss');
+    expect(told[0].notable).toBe(true);
+    // Named, not counted — and identical things folded, so eight shipyards
+    // off one island read as one entry with a number on it.
+    expect(told[0].text).toMatch(/shipyard on .+ ×\d/);
+  });
+
+  it('tells you about your own shortfall and not the opponent\'s', () => {
+    const state = generateGalaxy(105, 'alliance');
+    const island = isolate(state, 'empire');
+    island.slots = 30;
+    island.facilities = Array.from({ length: 10 }, (_, i) => ({
+      id: `y${i}`,
+      type: 'shipyard' as const,
+      owner: 'empire' as const,
+    }));
+    state.factions.empire.gold = 0;
+    settleOnce(state, createRng(11));
+    // The Crown sold itself down and the Confederate player hears nothing
+    // about it. Whose books these are is the whole of the question.
+    expect(island.facilities.length).toBeLessThan(10);
+    expect(state.events.filter((e) => e.text.includes('could not be met'))).toHaveLength(0);
+  });
+
+  it('puts the troops ashore when the hull under them is broken up', () => {
+    const state = generateGalaxy(107);
+    const island = isolate(state, 'empire');
+    // Two hulls, loaded to the last berth, then one of them sold.
+    const fleet = addShip(state, island, 'empire', 'reefwarden');
+    addShip(state, island, 'empire', 'reefwarden');
+    fleet.troops = fleetCapacity(fleet);
+    expect(fleet.troops).toBeGreaterThan(1);
+    const aboard = fleet.troops;
+    island.garrison = 0;
+    state.factions.empire.gold = 0;
+
+    const got = scrap(state, 'empire', {
+      kind: 'ship',
+      fleetId: fleet.id,
+      shipId: fleet.ships[0].id,
+    });
+    expect(got).toBe(scrapValue('reefwarden'));
+    expect(fleet.ships).toHaveLength(1);
+    // Nobody rides in a berth that is on the breaker's slip.
+    expect(fleet.troops).toBeLessThanOrEqual(fleetCapacity(fleet));
+    // And breaking a ship up in your own harbor is not sinking it: the men
+    // walk down the gangway rather than drowning at anchor.
+    expect(fleet.troops + island.garrison).toBe(aboard);
+  });
+
+  it('takes the last hull of a squadron off the board, crew and all', () => {
+    const state = generateGalaxy(108);
+    const island = isolate(state, 'empire');
+    const fleet = addShip(state, island, 'empire', 'reefwarden');
+    const officer = state.characters.find((c) => c.faction === 'empire')!;
+    // Serving at sea rather than standing on the island, so "put ashore"
+    // means something the assertion can see.
+    officer.locationSystemId = state.systems.find((sys) => sys.id !== island.id)!.id;
+    fleet.officerIds = [officer.id];
+    fleet.troops = 1;
+
+    scrap(state, 'empire', { kind: 'ship', fleetId: fleet.id, shipId: fleet.ships[0].id });
+
+    // No squadron with no ships, and nobody serving with one that is gone.
+    expect(state.fleets.find((f) => f.id === fleet.id)).toBeUndefined();
+    expect(officer.locationSystemId).toBe(island.id);
+  });
+
+  it('will not let the player pull down what is not theirs to pull down', () => {
+    const state = generateGalaxy(109);
+    const island = isolate(state, 'empire');
+    island.facilities = [
+      { id: 'f1', type: 'fort', owner: 'empire', ancient: true },
+      { id: 'f2', type: 'shipyard', owner: 'empire' },
+      { id: 'f3', type: 'shipyard', owner: 'empire', founding: true },
+    ];
+    const at = (facilityId: string) =>
+      scrapError(state, 'empire', { kind: 'facility', systemId: island.id, facilityId });
+
+    // The seawalls the world opened with belong to the city, not the Crown.
+    expect(at('f1')).toMatch(/not yours/i);
+    // An order half-run is cancelled, not scrapped.
+    expect(at('f3')).toMatch(/cancel/i);
+    expect(at('f2')).toBeNull();
+
+    // And nothing at all while the island is out of your hands.
+    island.uprising = true;
+    expect(at('f2')).toMatch(/mutiny/i);
+    island.uprising = false;
+    island.control = 'alliance';
+    expect(at('f2')).toMatch(/do not hold/i);
+  });
+
+  it('will not let the player break a ship up in open water', () => {
+    const state = generateGalaxy(110);
+    const island = isolate(state, 'empire');
+    const fleet = addShip(state, island, 'empire', 'reefwarden');
+    const what = { kind: 'ship', fleetId: fleet.id, shipId: fleet.ships[0].id } as const;
+    expect(scrapError(state, 'empire', what)).toBeNull();
+
+    // Under way to somewhere else, and there is no slip in open water.
+    const elsewhere = state.systems.find((s) => s.id !== island.id)!;
+    sailFleet(state, fleet.id, elsewhere.id, 'empire');
+    expect(scrapError(state, 'empire', what)).toMatch(/at sea/i);
+
+    // The shortfall is not bound by any of that: it can reach anything on the
+    // books, which is the whole difference between what you may order and what
+    // happens to you.
+    expect(scrap(state, 'empire', what)).toBe(scrapValue('reefwarden'));
+  });
+
+  it('leaves a side that can pay entirely alone', () => {
+    const state = generateGalaxy(106);
+    const island = isolate(state, 'empire');
+    island.facilities = [
+      { id: 'f1', type: 'mine', owner: 'empire' },
+      { id: 'f2', type: 'shipyard', owner: 'empire' },
+    ];
+    island.garrison = 2;
+    state.factions.empire.gold = 10_000;
+    settleOnce(state, createRng(5));
+    expect(island.facilities).toHaveLength(2);
+    expect(island.garrison).toBe(2);
+    expect(state.events.filter((e) => e.text.includes('would not balance'))).toHaveLength(0);
   });
 });

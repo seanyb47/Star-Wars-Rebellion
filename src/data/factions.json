@@ -5,18 +5,24 @@
     "name": "Crown Imperium",
     "shortName": "Imperium",
     "adjective": "Imperial",
-    "color": "#e2504a",
+    "color": "#4fc46a",
     "capitalIslandName": "Highwater",
     "hqLabel": "Highwater",
-    "blurb": "Order bought with cruelty. The seawalls hold the Black Tide back, and the Crown never asks what they cost."
+    "playerTitle": "Imperator",
+    "blurb": "One law, one coin, one chart, and the Crown deciding how the world should live. It believes it knows best, and it is often right.",
+    "creed": "Order · Stability · Trade · Civilization · A brighter tomorrow",
+    "motto": "Through trade, duty, and discipline, a safer world."
   },
   "alliance": {
     "name": "Free Confederacy",
     "shortName": "Confederacy",
     "adjective": "Confederate",
-    "color": "#e8c04a",
-    "hqLabel": "the Free Harbor",
-    "blurb": "Freedom paid for in plunder. Every captain elected, every share counted on deck, and half the Moot worth hanging."
+    "color": "#d8483f",
+    "hqLabel": "Freeport",
+    "playerTitle": "Captain-General",
+    "blurb": "Every captain elected, every share counted on deck, and the Moot argues about everything else.",
+    "creed": "Freedom · Opportunity · Independence · Brotherhood · A bolder tomorrow",
+    "motto": "Free seas. Free peoples. Always."
   },
   "neutral": {
     "name": "Unaligned Isles",
