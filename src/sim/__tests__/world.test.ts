@@ -31,7 +31,7 @@ describe('the world bible data', () => {
     expect(reachData.reaches.filter((r) => r.tier === 'inner')).toHaveLength(3);
     expect(reachData.reaches.filter((r) => r.tier === 'outer')).toHaveLength(4);
     // One Reach per Sea. The Far Sea's ice and its whaling chain are one
-    // Reach, Rime; the chain down the west is Whalers'.
+    // Reach, Rime; the chain down the west is Windward.
     expect(new Set(reachData.reaches.map((r) => r.name)).size).toBe(7);
     expect(new Set(reachData.reaches.map((r) => r.sea)).size).toBe(7);
     expect(reachData.reaches.filter((r) => r.sea === 'The Far Sea')).toHaveLength(1);

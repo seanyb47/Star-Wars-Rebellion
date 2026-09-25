@@ -97,7 +97,7 @@
       "epithet": "the Sleepless",
       "people": "Human",
       "age": 57,
-      "home": "Greenholm, Whalers' Reach",
+      "home": "Greenholm, Mire Reach",
       "roles": [
         "Negotiator",
         "Leader",
@@ -164,7 +164,7 @@
       "epithet": "the Drillmaster",
       "people": "Human",
       "age": 62,
-      "home": "Cinder Reach garrison stock, three generations of it",
+      "home": "Mire Reach garrison stock, three generations of it",
       "roles": [
         "Drill Research",
         "General"
@@ -229,7 +229,7 @@
       "epithet": "the Muster Name",
       "people": "Bog-folk",
       "age": 51,
-      "home": "the Cinder Reach swamps",
+      "home": "the Mire Reach swamps",
       "roles": [
         "Spec Ops",
         "General",
@@ -252,7 +252,7 @@
       "epithet": "no other name",
       "people": "The Hushed",
       "age": null,
-      "home": "the Drowned Reach",
+      "home": "unrecorded — the Admiralty does not list her",
       "roles": [
         "Spec Ops"
       ],
@@ -273,7 +273,7 @@
       "epithet": "the Hammer of Ballmoor",
       "people": "Human",
       "age": 64,
-      "home": "Wreckers' Reach — three generations of salvage men",
+      "home": "Sunken Reach — three generations of salvage men",
       "roles": [
         "General",
         "Leader"
@@ -453,7 +453,7 @@
       "epithet": "the Shipwright",
       "people": "Human",
       "age": 24,
-      "home": "born Whalers' Reach, apprenticed to the Coral Reach",
+      "home": "born Windward Reach, apprenticed to the Coral Reach",
       "roles": [
         "Ship Design",
         "Wing-Captain"
@@ -607,7 +607,7 @@
       "epithet": "no other name",
       "people": "The Hushed",
       "age": null,
-      "home": "the Drowned Reach — listed on no roll in either fleet",
+      "home": "listed on no roll in either fleet",
       "bio": "Hushed, and listed on no roll in either fleet. The old bargain that binds her people to the Crown does not appear to bind her, and nobody has worked out what does. She is not heard arriving. Twice now a thing that was certainly going to happen has simply not happened, and both times somebody remembers a door standing open.",
       "major": false,
       "ratings": {
@@ -710,7 +710,7 @@
       "epithet": "the Even Hand",
       "people": "Human",
       "age": 37,
-      "home": "the Merchant Sea — a letter of marque nobody will admit to signing",
+      "home": "the Long Sea — a letter of marque nobody will admit to signing",
       "bio": "Sails under a letter of marque nobody at the Admiralty will admit to signing, which suits everyone until it does not. Took a merchantman back off a boarding party with eleven crew and a signal gun, then put the boarders ashore alive because war had not been declared that week. Keeps her crew and keeps her word, in that order, and has resigned from both sides in writing.",
       "major": false,
       "ratings": {
@@ -752,7 +752,7 @@
       "epithet": "the Swampcat",
       "people": "Bog-folk",
       "age": 49,
-      "home": "the Cinder Reach swamps — Crown ground, and his",
+      "home": "the Mire Reach swamps — Crown ground, and his",
       "bio": "Held the Storm swamps for the Imperium against four hundred insurgents, with eleven men and the weather, over eleven years, and never once in the open. Patient well past the point most people mean by the word. Considers a battle fought in daylight to be a battle somebody else arranged.",
       "major": false,
       "ratings": {
@@ -795,7 +795,7 @@
       "epithet": "the Understudy",
       "people": "Human",
       "age": 19,
-      "home": "a revenue station in the Merchant Sea, and desperate to leave it",
+      "home": "a revenue station in the Long Sea, and desperate to leave it",
       "bio": "Nineteen, quick, and desperate to be off the island by any hull that will take him. Has crewed a revenue cutter, kept books for a chandler, and spent a fortnight in a gaol over a misunderstanding about the books. Adequate at all of it, remarkable at none, and perfectly aware that this is the problem. Somebody is going to make something of him.",
       "major": false,
       "ratings": {
@@ -815,7 +815,7 @@
       "epithet": "who gave the name back",
       "people": "Bog-folk",
       "age": 66,
-      "home": "the Cinder Reach swamps, until she left them",
+      "home": "the Mire Reach swamps, until she left them",
       "sworn": "alliance",
       "roles": [
         "Spec Ops",
@@ -860,7 +860,7 @@
       "epithet": "the Night Corporal",
       "people": "Bog-folk",
       "age": 29,
-      "home": "the Cinder Reach swamps",
+      "home": "the Mire Reach swamps",
       "roles": [
         "Spec Ops"
       ],

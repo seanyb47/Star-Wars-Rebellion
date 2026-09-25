@@ -1,11 +1,13 @@
 # MASTER OF THE SEVEN SEAS — CANON
-## v4.0 — 19 Sep 2026
+## v4.1 — 25 Sep 2026
 
 > **How this file got here.** Sean wrote it and handed it over on 19 September
-> 2026. This is his text, with two edits and no others: the islands renamed that
-> same day read under their new names in §3, §7 and §11 — Kingsward, Minterne,
-> Starcross, Leeward Keep, Hearsay Cay — and the two items the rename settled are
-> marked shipped. It replaces `seven-seas-world-bible.md`
+> 2026. This is his text. Every edit since has been a **name catching up with
+> the chart**, never a ruling: the islands renamed that same day read under
+> their new names in §3, §7 and §11 — Kingsward, Minterne, Starcross, Leeward
+> Keep, Hearsay Cay — the two items that rename settled are marked shipped, and
+> in v4.1 the Reaches renamed on 21 September do the same in §3. Nothing here
+> has been decided by anyone but Sean. It replaces `seven-seas-world-bible.md`
 > as the source of truth — that file is now a non-canon idea pool and carries a
 > header saying so. Where the two disagree, this one wins.
 >
@@ -70,10 +72,10 @@ The known world is a series of island chains: **7 Seas → Reaches → islands**
 | Reach | Sea | Tier / role |
 |---|---|---|
 | Sovereign Reach | The Crown Sea | inner — Imperium home |
-| Whalers' Reach | The Merchant Sea | inner — contested |
-| Wreckers' Reach | The Bone Sea | inner — contested |
+| Windward Reach | The Long Sea | inner — contested |
+| Sunken Reach | The Bone Sea | inner — contested |
 | Rime Reach | The Far Sea | outer — frontier |
-| Cinder Reach | The Sea of Storms | outer — contested |
+| Mire Reach | The Sea of Storms | outer — contested |
 | Salt Reach | The Glass Sea | outer — frontier |
 | Coral Reach | The Amber Sea | outer — frontier |
 
@@ -193,7 +195,7 @@ Two advisor characters, one per faction, each at their faction's end of the tab 
 
 ## 10. CANONICAL SOURCES (live documents — canon without duplication here)
 
-> **Combat canon is [`COMBAT-MASTER-v4.2.md`](COMBAT-MASTER-v4.2.md), in this repo.**
+> **Combat canon is [`COMBAT-MASTER-v4.3.md`](COMBAT-MASTER-v4.3.md), in this repo.**
 > Sean supplied it on 20 September 2026 and it says so itself: *"THE single
 > authoritative reference for the entire naval combat system… Supersedes v3
 > (19 Sep 2026) and all prior roster sheets, combat docs, and the v2.4 JSON."* It folds sources 1–3
@@ -256,6 +258,7 @@ Standing presentation rules (canon): spelling is **Armor**; back-end math stays 
 
 ## CHANGELOG
 
+- **v4.1 (25 Sep 2026)** — No new lore. The map table in §3 is corrected to the chart the game actually draws: the Reaches were renamed on 21 September and this document was not swept, so three of its seven rows named Reaches that do not exist — Whalers' is **Windward Reach** (and the Merchant Sea the **Long Sea**), Wreckers' is **Sunken Reach**, Cinder is **Mire Reach**. The same miss had left ten crew entries in `src/data/characters.json` giving a home in a Reach off no chart; they now read Windward, Sunken, Mire and the Long Sea, and Jarrold's Greenholm is in Mire Reach, which is where the island is. Quill and Sable no longer come from the **Drowned Reach**, cut in v4.0 (§12): their entries name no place at all until §11 Q1 is answered. §10's link pointed at a `COMBAT-MASTER-v4.2.md` the repo does not carry; it is v4.3. `src/sim/__tests__/placenames.test.ts` fails the build if a name in this table, an island in §3, a link in this file, or a place named in shipped data goes stale again.
 - **v4.0 (19 Sep 2026)** — Black Tide and Drowned Reach cut. Crown's agenda added: sincere imperialism, a vision for the world, often right. The Confederacy's founding wound is the clearing of Coralhome's coral bed. Articles signed at Free Harbor, a random hidden outer island each game. Magic stripped of any hard system; the Deep and licensing retired; magic largely absent from the Imperium. Reef-folk confirmed in full: look, mood-color as masked expression, coral-singing with shell horns and siren voices, the coral holding the magic. Coral beds added as a three-island mechanic. Coralhome starts Crown-held with its bed cleared. The Crown keeps no slaves. Characters built on cut lore flagged ⚠ for rewrite.
 - v3.0 (19 Sep 2026) — The Black Tide rebuilt as a plain rising sea and made the central conflict; seawalls and Blackwater simplified to match; the Aldermain and the Drowned Reach confirmed. *(Tide and Drowned Reach reversed in v4.0.)*
 - v2.1 (19 Sep 2026) — Crown advisor is Secretary Marlow (Crane retired); Star Wars leftover island names approved for renaming; seawalls documented as Sean's design idea.

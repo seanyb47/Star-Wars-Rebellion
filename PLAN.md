@@ -11033,3 +11033,76 @@ of a deposit, and the opening **seeds mills and mines onto a side's holdings**
 on untouched ground only, where it sits on 0.3980, and the band is 0.385–0.415
 instead of 0.36–0.41. The 60/30/10 mix still reads the whole world, where its
 bands were calibrated and still hold.
+
+---
+
+## 25 September — the second guard: places
+
+Sean approved four consolidation steps on 24 September with *"Yes good ideas"*.
+The first shipped that night. This is the second: **keep extending guard tests
+over facts kept in more than one file.**
+
+The place to look was obvious once the Jessup diagnosis was written down. That
+one was *a name kept in four files with one of them checked*. So: what else is
+kept that way? A **Reach's name** is. It lives in `src/data/reaches.json`, in
+`CANON.md`'s map table, in `persist.ts`'s save migration, and in whatever crew
+entry says where somebody was born.
+
+Three of the seven were renamed on 21 September — Whalers' to Windward,
+Wreckers' to Sunken, Cinder to Mire, and the Merchant Sea to the Long Sea.
+Measured, not guessed, before writing a line of the test:
+
+| Copy | State on 25 September |
+|---|---|
+| `reaches.json` — the chart | correct, and the only correct one |
+| `persist.ts` — the migration | correct; it even reads old saves |
+| `CANON.md` §3 — the map table | **three of seven rows** naming Reaches off no chart |
+| `characters.json` — crew homes | **ten entries** born in a Reach off no chart |
+
+And two more the same sweep turned up, of the same kind:
+
+- **Quill and Sable still came out of the Drowned Reach**, which `CANON.md` §12
+  says was *cut entirely* on 19 September. Their new origin is open question 1,
+  which is Sean's to answer, so nothing was invented: their entries now name no
+  place at all, in the register their own bios already use. Quill is
+  *"unrecorded — the Admiralty does not list her"*, which is a sentence from her
+  own bio; Sable is *"listed on no roll in either fleet"*, which her `home`
+  field already said after the dash.
+- **`CANON.md` §10 linked to `COMBAT-MASTER-v4.2.md`**, and the repo carries
+  v4.3. A dead link in the one paragraph that tells the next reader where combat
+  canon lives.
+
+### The thing worth taking from it
+
+The 21 September rename was **careful**. It renamed the chart, it renamed the
+Seas, and it wrote a migration so a save from the day before still loads. That
+care is exactly why this is worth writing down: carefulness at the point of
+change does not reach the copies. Nothing in a rename tells you who else wrote
+the old name down. Only a test does.
+
+Second thing, smaller and more annoying: character `home` is not rendered
+anywhere in the UI today. Ten entries had been wrong for four days and no
+screenshot could have shown it. It is shipped data that a "Born:" line would
+surface the moment anybody added one, which is the ordinary way a stale fact
+becomes a visible bug — late, and in front of the player.
+
+### `placenames.test.ts`
+
+Four rules, in the order they catch things:
+
+1. Shipped data may not name a Reach or a Sea the chart has not got. Island
+   names pass — Preston's Reach is a real place, just not a chain — and
+   `_comment` is exempt, because `reaches.json`'s own opening line has to be
+   able to say which Reaches are *deliberately* absent.
+2. `CANON.md`'s map table is the chart, row for row, both ways round: name, Sea
+   and tier.
+3. Islands `CANON.md` names in its roll call are islands the chart holds.
+4. Links in `CANON.md` point at files the repo carries.
+
+Verified by breaking all four and watching five of the seven tests fail, then
+putting them back. One false positive found and kept as a comment: matching
+*"the X Sea"* case-insensitively caught the Brethren's *"they come in the
+quantity the sea sends them"* and reported a place called the Quantity. A sea is
+also a plain noun, so the name has to be capitalised to count.
+
+Suite: 107 files, 1094 passing, 1 skipped.
