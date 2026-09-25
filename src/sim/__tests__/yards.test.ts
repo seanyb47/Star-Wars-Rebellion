@@ -45,6 +45,22 @@ function stage(seed: number, slipways: number): { state: GameState; island: Syst
     (s) => s.control === 'empire' && !s.uprising && s.slots >= 6,
   )!;
   island.facilities = island.facilities.filter((f) => f.type !== 'shipyard');
+  /*
+   * And the only shipyard the Crown has anywhere, so `planBuild` — which shops
+   * across every island of yours for the quickest source — cannot answer about
+   * a different one than `queueBuild` is given.
+   *
+   * Found on 25 September when the opening was cut to six islands a side. The
+   * fixture picked "the first Crown island with six plots", the new deal made
+   * that a different island, and a test comparing a plan against a delivery
+   * started reading 95 against 90 — not a bug in either, just two answers
+   * about two islands.
+   */
+  for (const other of state.systems) {
+    if (other.id !== island.id) {
+      other.facilities = other.facilities.filter((f) => f.type !== 'shipyard');
+    }
+  }
   for (let i = 0; i < slipways; i++) {
     island.facilities.push({ id: `slip-${i}`, type: 'shipyard', owner: 'empire' });
   }
@@ -323,6 +339,20 @@ describe('a yard being laid down beside a yard that is free', () => {
       );
       if (island) {
         state.factions.empire.gold = 100_000;
+        /*
+         * Exactly one standing yard, whatever the deal gave this island. The
+         * test below asserts `crewOn` is 1 before the second yard opens and 2
+         * after, which is the whole of the halving rule — an island dealt two
+         * already reads 2 and 3 and proves nothing. Found on 25 September when
+         * the opening was cut to six islands a side and the fixture landed on
+         * a different island.
+         */
+        const yards = island.facilities.filter(
+          (f) => f.owner === 'empire' && f.type === 'shipyard' && !f.building,
+        );
+        island.facilities = island.facilities.filter(
+          (f) => !(f.owner === 'empire' && f.type === 'shipyard') || f === yards[0],
+        );
         return { state, island };
       }
     }

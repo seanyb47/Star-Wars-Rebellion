@@ -169,9 +169,24 @@ describe('the recruit pool reads the rule', () => {
 
     const crown = recruitPool(state, 'empire');
     const brethren = recruitPool(state, 'alliance');
-    expect(crown.every((c) => c.people !== 'Urskin')).toBe(true);
-    expect(crown.every((c) => c.people !== 'Reef-folk')).toBe(true);
-    expect(brethren.every((c) => c.people !== 'Bog-folk')).toBe(true);
+    /*
+     * A people's rule, and the two people who are the exception to it.
+     *
+     * `sworn` overrides `PEOPLE_ALLEGIANCE` and is the whole point of the pair
+     * who carry it: Vurn Kesk is called the Betrayer *because* an Urskin does
+     * not sign Crown articles, and Mother Bracken gave her name back over the
+     * same rule the other way. So the assertion is "no Urskin **unsworn to the
+     * Crown**", not "no Urskin".
+     *
+     * It read the absolute form until 25 September and passed on luck: only
+     * eight of the unaligned are drawn into a war, and the seed this file uses
+     * had not been drawing the Betrayer. Cutting the opening to six islands a
+     * side moved the rng stream, he turned up, and the test caught the rule
+     * working exactly as written.
+     */
+    expect(crown.every((c) => c.people !== 'Urskin' || c.sworn === 'empire')).toBe(true);
+    expect(crown.every((c) => c.people !== 'Reef-folk' || c.sworn === 'empire')).toBe(true);
+    expect(brethren.every((c) => c.people !== 'Bog-folk' || c.sworn === 'alliance')).toBe(true);
     // And the rule only removes the sworn: everyone else is on both lists.
     const unsworn = (n: string) => !PEOPLE_ALLEGIANCE[n];
     const open = state.characters.filter((c) => c.faction === 'neutral' && unsworn(c.people ?? ''));

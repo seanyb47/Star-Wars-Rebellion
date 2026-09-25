@@ -24,6 +24,8 @@ import {
   CORALHOME,
   CORALHOME_GARRISON,
   CORALHOME_SUPPORT,
+  MIRE_REACH,
+  SUNKEN_REACH,
   DEPOSIT_CHANCE,
   DEPOSIT_MIX,
   DEPOSIT_TILT,
@@ -136,8 +138,38 @@ const MIN_SYSTEM_SEPARATION = 38;
  * somewhere its shipwrights live. The count is what the opening is balanced
  * on, so the two swapped rather than one moving.
  */
-const START_CONTESTED_PER_SIDE = 2;
-const START_HOME_CONFEDERACY: [number, number] = [1, 2];
+/*
+ * The shape of the opening, to Sean's ruling of 25 September: *"Total each
+ * side gets 6 only. Exactly."*
+ *
+ * It was ten against eight or nine — the Crown three in Sovereign, two a side
+ * in each of the three contested Reaches, Coralhome by name on top of that,
+ * and the Confederacy one or two in Sovereign plus Freeport. Two sides holding
+ * a fifth of the world between them on day one, with the Crown a clear two
+ * islands up before anybody sailed.
+ *
+ * Now, and it is a fixed hand rather than a range:
+ *
+ * | | Sovereign | Coral | Mire + Sunken | Freeport | total |
+ * |---|---|---|---|---|---|
+ * | Crown | 3 | 1, always Coralhome | 2 | — | **6** |
+ * | Confederacy | 2 | 1 | 2 | 1 | **6** |
+ *
+ * The two outer Reaches share a side's two between them however the dice fall
+ * — nought and two, one and one, two and nought — so where a side is thin
+ * changes from war to war while how much it holds does not. `opening.test.ts`
+ * fails if either side is dealt anything other than six.
+ */
+/** The Crown's three in Sovereign are dealt by role below — the seat, a second
+ *  port, and the sour one it holds at gunpoint — so there is no count here to
+ *  keep; the table above is the record and `opening.test.ts` is the guard. */
+const START_SOVEREIGN_CONFEDERACY = 2;
+/** The Crown's one Coral holding is Coralhome, dealt by name further down. */
+const START_CORAL_CONFEDERACY = 1;
+/** Split across Mire and Sunken, nought to two in either. */
+const START_OUTER_PER_SIDE = 2;
+/** What both of the above have to add up to, Freeport and Coralhome included. */
+export const START_ISLANDS_PER_SIDE = 6;
 const FRONTIER_SETTLED_CHANCE = 0.25;
 /**
  * How many islands of the unexplored Reaches have something in the water.
@@ -924,29 +956,52 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
   const homeLeft = rng.shuffle(
     homeIslands.filter((s) => s.control === 'neutral' && !flaggedPorts.has(s.name)),
   );
-  for (const system of homeLeft.slice(0, rng.range(...START_HOME_CONFEDERACY))) {
+  for (const system of homeLeft.slice(0, START_SOVEREIGN_CONFEDERACY)) {
     hold(system, 'alliance', loyal());
     allianceSystems.push(system);
   }
 
-  // --- Contested Reaches: two islands a side, the rest nobody's. ---
-  //
-  // Coralhome is never in the deal. It is handed to the Crown by name further
-  // down, and was safe from this loop only while its Reach was frontier — the
-  // day Coral came inside the charts, the shuffle could deal the founding
-  // wound to the Confederacy and then have it taken back by the block below,
-  // leaving the island Crown-held but standing in `allianceSystems`, where the
-  // opening puts Confederate crew and counts Confederate holdings.
-  for (const sector of contestedSectors) {
-    const picks = rng
-      .shuffle(islandsOf(sector).filter((s) => s.name !== CORALHOME))
-      .slice(0, START_CONTESTED_PER_SIDE * 2);
-    for (const [index, system] of picks.entries()) {
-      const owner: PlayableFaction = index < START_CONTESTED_PER_SIDE ? 'empire' : 'alliance';
+  /*
+   * --- The contested Reaches, dealt by name rather than evenly. ---
+   *
+   * Coralhome is never in the deal. It is handed to the Crown by name further
+   * down, and was safe from this block only while its Reach was frontier — the
+   * day Coral came inside the charts, a blind shuffle could deal the founding
+   * wound to the Confederacy and then have it taken back below, leaving the
+   * island Crown-held but standing in `allianceSystems`, where the opening
+   * puts Confederate crew and counts Confederate holdings.
+   *
+   * Coral is the Crown's by that one island and no other: the Confederacy gets
+   * a single toehold in the Reach whose grievance made it, which is a better
+   * story than two, and cheaper than two.
+   */
+  const dealTo = (sector: Sector, forEmpire: number, forAlliance: number) => {
+    const open = rng.shuffle(
+      islandsOf(sector).filter((s) => s.control === 'neutral' && s.name !== CORALHOME),
+    );
+    for (const [index, system] of open.slice(0, forEmpire + forAlliance).entries()) {
+      const owner: PlayableFaction = index < forEmpire ? 'empire' : 'alliance';
       hold(system, owner, loyal());
       (owner === 'empire' ? empireSystems : allianceSystems).push(system);
     }
+  };
+  const named = (want: string) => contestedSectors.find((sec) => sec.name === want);
+  /*
+   * Two islands a side across Mire and Sunken, split independently, so a war
+   * where the Crown is spread and the Confederacy concentrated is a war that
+   * can happen. Rolled per side rather than once: one roll would have put both
+   * sides in the same Reach every time, which is a different game.
+   */
+  const mireFor = () => rng.range(0, START_OUTER_PER_SIDE);
+  const [empireMire, allianceMire] = [mireFor(), mireFor()];
+  const mire = named(MIRE_REACH);
+  const sunken = named(SUNKEN_REACH);
+  if (mire) dealTo(mire, empireMire, allianceMire);
+  if (sunken) {
+    dealTo(sunken, START_OUTER_PER_SIDE - empireMire, START_OUTER_PER_SIDE - allianceMire);
   }
+  const coral = named(CORAL_REACH);
+  if (coral) dealTo(coral, 0, START_CORAL_CONFEDERACY);
 
   // --- Freeport: where the articles were signed. ---
   //

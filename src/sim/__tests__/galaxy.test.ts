@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import reachData from '../../data/reaches.json';
 import { raiseWorksError } from '../build';
 import { CORALHOME, YARD_BUILDABLE } from '../constants';
-import { generateGalaxy, START_CHARACTERS } from '../galaxy';
+import { generateGalaxy, START_CHARACTERS, START_ISLANDS_PER_SIDE } from '../galaxy';
 import { depositsLeft } from '../helpers';
 import { isLord, lords } from '../lords';
 
@@ -290,16 +290,38 @@ describe('generateGalaxy', () => {
   it('gives two plots in five a deposit, and mixes them 60 / 30 / 10', () => {
     let slots = 0;
     const got: Record<string, number> = { forest: 0, coral: 0, silver: 0, gold: 0 };
+    const onOpenGround: Record<string, number> = { forest: 0, coral: 0, silver: 0, gold: 0 };
     const worksFor: Record<string, string> = {
       forest: 'refinery', coral: 'coral_kiln', silver: 'silver_mine', gold: 'mine',
     };
     for (let seed = 1; seed <= 20; seed++) {
       for (const island of generateGalaxy(seed).systems) {
-        slots += island.slots;
+        /*
+         * Islands the opening has not touched, which is the only place the
+         * roll can be read cleanly.
+         *
+         * This used to measure every island and allow a band for the error.
+         * Measured properly on 25 September, when the opening was cut to six
+         * a side and the number moved: **an island nobody was dealt reads
+         * 0.3980 against a `DEPOSIT_CHANCE` of 0.40**, and a dealt one reads
+         * 0.4810 — because the opening seeds mills and mines onto a side's
+         * holdings and the count below reads a works as evidence of a deposit.
+         * The world's roll was never wrong; the sample had the opening's own
+         * gifts in it, and the answer moved whenever the size of the opening
+         * did. Excluding them makes this a test of the thing it is named for
+         * and stops it failing every time the deal changes.
+         */
+        const dealt = island.control === 'empire' || island.control === 'alliance';
         for (const kind of Object.keys(got)) {
-          got[kind] += depositsLeft(island, kind as never)
+          const here =
+            depositsLeft(island, kind as never)
             + island.facilities.filter((f) => f.type === worksFor[kind]).length;
+          // The mix is a ratio between kinds and reads the whole world; the
+          // density is a ratio against plots and only reads untouched ground.
+          got[kind] += here;
+          if (!dealt) onOpenGround[kind] += here;
         }
+        if (!dealt) slots += island.slots;
       }
     }
     const all = Object.values(got).reduce((a, b) => a + b, 0);
@@ -308,14 +330,15 @@ describe('generateGalaxy', () => {
      * Sean's math of 20 September, and both halves of it are checked: how
      * often a plot carries anything, and what it carries when it does.
      *
-     * The density runs two points under the 40% asked for, and that is known
-     * and recorded on `DEPOSIT_CHANCE` rather than papered over: a side's own
-     * islands are widened *after* their ground is rolled, so the roll was
-     * taken against a smaller island than the one on the chart. The bound
-     * allows the gap and would catch it growing.
+     * Tight, now that the sample is clean: 0.3980 measured over twenty seeds
+     * against a `DEPOSIT_CHANCE` of 0.40, on roughly seven thousand plots. The
+     * old bound was 0.36 to 0.41 with a note explaining a two-point undershoot
+     * that turns out to have been the opening's works in the count rather than
+     * anything about the roll.
      */
-    expect(all / slots).toBeGreaterThan(0.36);
-    expect(all / slots).toBeLessThan(0.41);
+    const loose = Object.values(onOpenGround).reduce((a, b) => a + b, 0);
+    expect(loose / slots).toBeGreaterThan(0.385);
+    expect(loose / slots).toBeLessThan(0.415);
 
     // 60 / 30 / 10, within a point and a half each. Timber and living coral
     // are one bucket — coral is simply what the staple is called in Coral
@@ -335,9 +358,10 @@ describe('generateGalaxy', () => {
     for (let seed = 1; seed <= 12; seed++) {
       const state = generateGalaxy(seed);
       const held = state.systems.filter((s) => s.control === 'alliance');
-      // Seven or eight that declared in the settled Reaches, plus Freeport.
-      expect(held.length).toBeGreaterThanOrEqual(8);
-      expect(held.length).toBeLessThanOrEqual(9);
+      // Six, exactly, Freeport among them. Sean's ruling of 25 September; the
+      // whole shape is pinned in `opening.test.ts`, and this only needs to
+      // know the count so the assertions below are about a full hand.
+      expect(held.length).toBe(START_ISLANDS_PER_SIDE);
       expect(held.map((s) => s.id)).toContain(state.factions.alliance.hqSystemId);
       // Freeport is the only one of them the Crown cannot see on day one.
       const dark = held.filter((s) => !s.explored.empire);
@@ -416,11 +440,12 @@ describe('generateGalaxy', () => {
       expect(coralhome.control, `seed ${seed}`).toBe('empire');
       expect(coralhome.explored.empire).toBe(true);
       expect(coralhome.explored.alliance).toBe(true);
-      // Two a side elsewhere in the chain, and the founding wound is not one
-      // of the four.
+      // And it is the Crown's *only* island in the chain, against one for the
+      // Confederacy — Sean, 25 September. It was three against two: the
+      // founding wound plus two a side from the old even deal.
       const here = state.systems.filter((s) => s.sectorId === coral.id);
-      expect(here.filter((s) => s.control === 'empire')).toHaveLength(3);
-      expect(here.filter((s) => s.control === 'alliance')).toHaveLength(2);
+      expect(here.filter((s) => s.control === 'empire')).toHaveLength(1);
+      expect(here.filter((s) => s.control === 'alliance')).toHaveLength(1);
       // And the Long Sea took its place out past the charts.
       const windward = state.sectors.find((sec) => sec.name === 'Windward Reach')!;
       for (const s of state.systems.filter((x) => x.sectorId === windward.id)) {
@@ -471,7 +496,7 @@ describe('generateGalaxy', () => {
     }
   });
 
-  it('opens each contested Reach with two islands a side and the rest settled and garrisoned', () => {
+  it('leaves every island in a contested Reach settled and garrisoned, dealt or not', () => {
     const state = generateGalaxy(61);
     /*
      * Asked of the data rather than named here. This listed the three Reaches
@@ -486,13 +511,16 @@ describe('generateGalaxy', () => {
     for (const name of contested) {
       const reach = state.sectors.find((s) => s.name === name)!;
       const islands = reach.systemIds.map((id) => state.systems.find((s) => s.id === id)!);
-      // Two a side dealt. Coralhome is the one island in the world that is
-      // held by name rather than dealt, so where it falls in a contested
-      // Reach it is a third Crown island on top of the deal — and it is kept
-      // out of the shuffle so it can never be one of the two.
-      const extra = islands.some((s) => s.name === CORALHOME) ? 1 : 0;
-      expect(islands.filter((s) => s.control === 'empire')).toHaveLength(2 + extra);
-      expect(islands.filter((s) => s.control === 'alliance')).toHaveLength(2);
+      /*
+       * How many each side is dealt where is `opening.test.ts`'s business
+       * since 25 September — it stopped being "two a side in all three" and
+       * became a named hand per Reach, and a test asserting the old evenness
+       * here was asserting it in two places and had to be changed in two.
+       *
+       * What this one is actually about, and still is: a contested Reach has
+       * no empty ground in it. Every island is settled, charted by the Crown,
+       * and anything nobody was dealt is holding itself.
+       */
       for (const s of islands) {
         expect(s.populated).toBe(true);
         expect(s.explored.empire).toBe(true);

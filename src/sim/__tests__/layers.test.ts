@@ -215,6 +215,17 @@ describe('chart layers', () => {
       // One island raises one building at a time, so a filter that lit this
       // would send you somewhere you can give no order.
       const { state, island } = roomy();
+      /*
+       * And nothing else of yours standing idle on it, or the filter lights
+       * for the yard rather than for the ground and the test proves nothing.
+       * Found on 25 September when the opening was cut to six islands a side:
+       * a different deal handed `roomy()` an island that also had a free
+       * barracks, and the assertion below started failing for a reason that
+       * had nothing to do with what it is about.
+       */
+      island.facilities = island.facilities.filter(
+        (f) => f.owner !== 'empire' || (f.type !== 'shipyard' && f.type !== 'training_facility'),
+      );
       const mine = island.facilities.find((f) => f.owner === 'empire');
       expect(freeSlots(island)).toBeGreaterThan(0);
       if (mine) {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { generateGalaxy } from '../galaxy';
+import { generateGalaxy, START_ISLANDS_PER_SIDE } from '../galaxy';
 import { createRng } from '../rng';
 import {
   addShip,
@@ -34,22 +34,22 @@ function build(system: System, type: 'fort' | 'heavy_fort', owner: 'empire' | 'a
 }
 
 describe('the opening, against Rebellion', () => {
-  it('opens the Crown on ten islands, one of them sullen, and the Confederacy on eight or nine', () => {
+  it('opens both sides on six islands, two of the Crown’s sullen', () => {
     for (const seed of [17, 501, 7, 99]) {
       const state = world(seed);
       const crown = state.systems.filter((s) => s.control === 'empire');
       const confed = state.systems.filter((s) => s.control === 'alliance');
-      // Three in the home Reach, two in each of the three contested ones, and
-      // Coralhome — Crown-held on day one since the lore package, and kept out
-      // of its Reach's deal so the count is the same ten whether Coral is
-      // inside the charts or outside them.
-      expect(crown).toHaveLength(10);
+      /*
+       * Six a side exactly, Sean's ruling of 25 September. It was ten against
+       * eight or nine. The whole hand — which Reach gets what — is pinned in
+       * `opening.test.ts`; what this file needs is a full one, because the
+       * rule it is really about is the state those islands open in.
+       */
+      expect(crown).toHaveLength(START_ISLANDS_PER_SIDE);
       expect(crown.map((s) => s.name)).toContain(CORALHOME);
-      // One or two in the home Reach, two in each of the three contested ones,
-      // and Freeport, which flies Confederate colours from day one the way
-      // Highwater flies the Crown's. Still no base: losing it costs nothing.
-      expect(confed.length).toBeGreaterThanOrEqual(8);
-      expect(confed.length).toBeLessThanOrEqual(9);
+      // Freeport flies Confederate colours from day one the way Highwater
+      // flies the Crown's. Still no base: losing it costs nothing.
+      expect(confed).toHaveLength(START_ISLANDS_PER_SIDE);
       /*
        * Two sullen now, not one: the dealt one in the home Reach, and
        * Coralhome, which is sullen on purpose and by a distance — the Crown

@@ -10953,3 +10953,83 @@ A changelog entry should say what changed. When something is left undone, it
 goes in PLAN.md as an open question — not into the world bible as a rationale.
 Deferrals recorded as decisions manufacture doctrine, and the doctrine outlives
 everyone who remembers it was only ever a shrug.
+
+## Six islands a side, exactly (25 September)
+
+Sean: *"I think there are too many starting locations. Let's scale it back…
+Total each side gets 6 only. Exactly."*
+
+### What it was, measured
+
+| | Sovereign | Coral | Mire | Sunken | Freeport | total |
+|---|---|---|---|---|---|---|
+| Crown | 3 | 1 + 2 dealt | 2 | 2 | — | **10**, every seed |
+| Confederacy | 1–2 | 2 | 2 | 2 | 1 | **8–9** |
+
+Two sides holding a fifth of the world on day one, the Crown a clear two
+islands up before anybody sailed.
+
+### What it is now
+
+| | Sovereign | Coral | Mire + Sunken | Freeport | total |
+|---|---|---|---|---|---|
+| Crown | 3 | 1, always Coralhome | 2 | — | **6** |
+| Confederacy | 2 | 1 | 2 | 1 | **6** |
+
+The two outer Reaches share a side's pair however the dice fall — 0 and 2, 1
+and 1, 2 and 0 — rolled **per side**, so a war where the Crown is spread and
+the Confederacy concentrated can happen. One roll would have put both sides in
+the same Reach every time.
+
+### Measured: it does not touch the balance
+
+48 wars, same seeds, baseline in a worktree at the previous commit:
+
+| | Crown — Confederacy | Crown islands | Confed islands | Crown hulls | Confed hulls |
+|---|---|---|---|---|---|
+| Before | 9 — 39 | 18.2 | 15.9 | 13.0 | 30.0 |
+| After | **9 — 39** | 12.4 | 8.6 | 10.3 | 15.8 |
+
+**The win table is identical.** Not "within noise" — the same number. So the
+~81% Confederate rate is not coming from the opening island count, and the
+three options in the earlier balance write-up should be re-read with that in
+mind: whatever is tilting this war, halving both openings does not touch it.
+
+What did change is the *size* of the war. Both sides end far smaller and the
+unaligned world stays unaligned much longer — the Confederacy's end-state fleet
+halves, 30 hulls to 15.8. That is the change doing what it was asked to do.
+
+### Five tests failed, and only one of them was about the opening
+
+Worth writing down, because four of the five were fixtures quietly coupled to
+which islands the deal happened to hand out:
+
+- **`layers`** — the "island already building" test picked an island that also
+  had a free barracks, so the filter lit for the yard rather than the ground.
+- **`yards` ×2** — one compared a plan against a delivery while `planBuild`
+  shops across every island you hold, and the new deal made it answer about a
+  different island (95 days against 90). The other asserted one standing yard
+  on an island the new deal gave two.
+- **`peoples`** — asserted *no Urskin* in the Crown's pool. The rule is *no
+  Urskin unsworn to the Crown*, and Vurn Kesk the Betrayer is the exception the
+  rule exists to have. It passed on luck: eight of the unaligned are drawn per
+  war, and this seed had not been drawing him.
+
+All four are now independent of the deal rather than retuned to it.
+
+### And the deposit test was measuring the wrong thing
+
+The fifth failure was `0.4197 expected to be less than 0.41`, with a comment
+explaining a known two-point *undershoot*. Split by island:
+
+```
+dealt islands    density 0.4810
+untouched        density 0.3980   ← DEPOSIT_CHANCE is 0.40
+```
+
+The world's roll was never wrong. The test counted a mill or a mine as evidence
+of a deposit, and the opening **seeds mills and mines onto a side's holdings**
+— so the number moved whenever the size of the opening did. Density is now read
+on untouched ground only, where it sits on 0.3980, and the band is 0.385–0.415
+instead of 0.36–0.41. The 60/30/10 mix still reads the whole world, where its
+bands were calibrated and still hold.

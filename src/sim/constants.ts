@@ -2448,6 +2448,14 @@ export const YARD_BUILDABLE: FacilityType[] = [
  * a rename of the Reach is one edit.
  */
 export const CORAL_REACH = 'Coral Reach';
+/*
+ * And the two the opening splits a side's other pair across. Sean, 25
+ * September. Named here beside `CORAL_REACH` rather than written into
+ * `galaxy.ts`, because a Reach rename would otherwise hand a side a silently
+ * different opening — the same disease that lost Corvane his portrait.
+ */
+export const MIRE_REACH = 'Mire Reach';
+export const SUNKEN_REACH = 'Sunken Reach';
 
 export const DEPOSIT_CHANCE = 0.4;
 
