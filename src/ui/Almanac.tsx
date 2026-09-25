@@ -221,7 +221,7 @@ const BUILD_ORDER: FacilityType[] = [...YARD_BUILDABLE].sort((a, b) =>
  * here: a role added to a character with no entry written for it renders as
  * plain text instead of a dead link, and a test fails so somebody writes one.
  */
-function RoleTags({ roles }: { roles: readonly string[] }) {
+export function RoleTags({ roles }: { roles: readonly string[] }) {
   const lookUp = useLookUp();
   const known = glossaryWords();
   if (roles.length === 0) return null;

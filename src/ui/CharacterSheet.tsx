@@ -7,7 +7,7 @@ import {
 } from '../sim';
 import { CharacterPainting } from './art';
 import { Info, Sheet } from './components';
-import { slugOf } from './Almanac';
+import { RoleTags, slugOf } from './Almanac';
 
 /**
  * An island's name in the line that says where somebody is, as a way to the
@@ -275,6 +275,28 @@ export function CharacterSheet({
         </Info>
         {statusBadge(character, state)}
       </div>
+
+      {/*
+        The roles came back, and they are the exception that proves the rule.
+        
+        They went out with the bio and the badges in the first cut, on the
+        grounds that the crew entry carries them. It does — but they are not
+        *about* this person the way a bio is, they **gate the button six inches
+        below them**. Drill Research is what decides whether Research is on
+        Ivo Marsh's mission sheet at all; Recruiter is what decides whether
+        signing on is. By the rule this sheet was cut to — *a screen you act
+        from carries what you are acting on* — they are the thing being acted
+        on, and sending somebody to a job their roles forbid is exactly the
+        wasted month the sheet exists to prevent.
+        
+        So: above the numbers, because they are closer to a fifth stat than to
+        prose, and still one tap to the glossary for what each one means.
+      */}
+      {character.roles && character.roles.length > 0 && (
+        <div style={{ marginTop: 8 }}>
+          <RoleTags roles={character.roles} />
+        </div>
+      )}
 
       {/*
         The one paragraph that did not go to the encyclopedia, cut to one line.
