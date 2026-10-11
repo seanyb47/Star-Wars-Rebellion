@@ -11277,25 +11277,45 @@ nobody intended:
 
 Both are gone, not as a tuning decision but because neither sentence can be
 written without a seat: there is no "the enemy" once two people are in the war.
-Over 48 wars on the same seeds:
+
+**Measured at 48 wars, then again at 144, and the second one is the answer:**
 
 ```
-                  win table        median    Crown isl.  Confed isl.  Crown hulls
-  before          5 — 43           348       12.4        11.5         10.2
-  after          10 — 38           478       15.6        10.4         11.8
+                  win table      Crown %   median   Crown isl.  Confed isl.
+  48 wars
+    before        5 — 43          10.4%     348      12.4        11.5
+    after        10 — 38          20.8%     478      15.6        10.4
+  144 wars
+    before       30 — 114         20.8%     360      14.0        10.0
+    after        27 — 117         18.8%     402      14.3        10.9
 ```
 
-Five wins is about 1.4 SD at this sample, so on its own it is not a result —
-but it is not a coin flip either, because both mechanisms favour the Crown by
-construction and both moved the Crown's hulls and ground the same way. A larger
-sample is running; the number to carry forward is whatever that says.
+At 48 wars this looked like a Crown gain of five wins — about 1.4 SD, which I
+wrote up as "not a result, but not a coin flip either, because both mechanisms
+favour the Crown by construction". **At 144 wars that is wrong and I am
+striking it.** The difference is three wins the *other* way, 0.6 SD against an
+SD of 4.8 at this rate. There is no detectable change. A correctness fix came
+for free, which is the best outcome available and not the one I predicted.
 
-The finding to carry forward regardless: **every duel figure this project has
-quoted was measured with the nominated side moving second and unable to break
-off.** The ~81–90% Confederate rate has an unknown slice of harness artefact in
-it. That slice is now zero — the play order is fixed and both sides follow the
+The reasoning was the error, not just the sample. "Both mechanisms favour the
+Crown by construction" is an assertion about a dynamical system made from an
+armchair, and this project has a house rule about exactly that. Moving first
+inside a day and being allowed to break off both *sound* like advantages; over
+144 wars neither is worth a measurable win.
+
+Worth keeping from the 48-war run: **it disagrees with the first 48 of the
+144-war run on the same seeds and the same code** — 5 Crown wins against the
+30/144 rate. Blocks of seeds are not interchangeable here, so 48 is thinner
+than it has been treated as. Any single-arm figure quoted at 48 wars in this
+file deserves re-reading with that in mind; a *paired* before/after at 48 is
+much stronger and most of them are paired.
+
+The finding that stands on its own: **every duel figure this project has quoted
+was measured with the nominated side moving second and unable to break off.**
+That artefact is now zero — the play order is fixed and both sides follow the
 same break-off rule — so this is the first measurement of the war that does not
-depend on which chair the harness sat in.
+depend on which chair the harness sat in. It happens not to have been worth
+anything, which is the useful thing to know about it.
 
 ### Thirteen scripts in `lab/` had quietly stopped working
 
@@ -11321,3 +11341,50 @@ five are listed in `tsconfig.lab.json`'s `_quarantine` with the reason each one
 died. Listed rather than deleted: a harness whose numbers are quoted in this
 file is not mine to bin, and an exclude that names the reason is the difference
 between dead and invisibly dead.
+
+### Orders as data
+
+`src/sim/orders.ts`, the next load-bearing piece and the last one that needs no
+ruling. `orderSail(state, 'flt-3', 'sys-9')` is a call that happens in one
+browser; `{ kind: 'sail', fleetId: 'flt-3', targetSystemId: 'sys-9' }` is a
+sentence either browser can read. All twenty-two orders have an envelope.
+
+The single function that matters is `applyOrder(state, order, by)`, and it is
+the whole PvP problem in four lines. Every command reads `state.player` to mean
+*the side giving this order* — `clearForest(draft, systemId, draft.player)` —
+and that was the same thing as the seat for exactly as long as one side could
+be human. An order arriving from the other player has to be carried out as
+**theirs**, on a client sitting in a different chair. So the seat is lent to the
+order for as long as the order takes and then taken back. Not a trick played on
+the commands: it is the meaning they always had, finally given the right value.
+The refusal path needed its own line, because `run` hands back the state it was
+given, and without it a refused order would quietly reseat the player.
+
+Three deliberate non-features, because each is a thing somebody will later
+assume is there: it does not check whose turn it is (there are no turns, both
+players act whenever they like), it does not decide whether an order is allowed
+(the command already does, deterministically, which is why **a refused order
+must still be sent** rather than dropped by the client that issued it), and it
+does not advance the clock.
+
+Completeness is enforced rather than hoped. `orders.test.ts` reads
+`commands.ts` and fails if a command exists that the dispatcher never calls,
+with the three non-orders — `newGame`, `setObserving`, `setSpeed` — named in
+the test so that a fourth has to be written down. Verified by pulling
+`orderCeaseFire` out of the dispatcher and watching it fail by name. The
+failure it prevents is the quiet one: somebody adds `orderScuttle` next month,
+wires it to a button, and it works perfectly in single player while silently
+never reaching the other player.
+
+Three other properties it holds: a run of orders sorted by sequence lands on
+the same war whatever order the packets arrived in; a refusal is reported and
+never skipped; and the two clients refuse the *same* thing for the same reason,
+which is what keeps them level when an order outlives the fleet it was for.
+
+What is still missing before two people can actually play: a transport (a
+`BroadcastChannel` for two tabs on one machine, a WebRTC data channel for two
+devices), the sequencer that numbers orders and days, the lobby that gets two
+browsers to agree on a seed and a side, the speed-request dialogue that Sean
+has already specified, and the battle.
+
+Suite: 109 files, 1120 passing, 1 skipped.

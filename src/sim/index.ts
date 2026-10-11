@@ -24,3 +24,10 @@ export * from './layers';
 export * from './creatures';
 export * from './troops';
 export * from './order';
+// Two-player play. `sync` is the fingerprint that proves two clients hold the
+// same war; `orders` is a command as data, so it can cross a wire. Note that
+// `order.ts` above is a different thing entirely — the orderings a player has
+// arranged by hand — and the two names being one letter apart is a trap worth
+// knowing about rather than renaming today.
+export * from './sync';
+export * from './orders';
