@@ -1,3 +1,4 @@
+import { isPlayable } from './helpers';
 import type { GameState } from './types';
 
 /**
@@ -122,8 +123,28 @@ export function loadGame(storage: Storage | undefined = globalThis.localStorage)
       name: RENAMED_REACHES[sec.name] ?? sec.name,
       sea: RENAMED_SEAS[sec.sea] ?? sec.sea,
     }));
+    /*
+     * Who is playing, for a save written when that was two fields.
+     *
+     * `human` replaced the pair of them — `player` for the only side a person
+     * could be, and an `observing` flag to say "actually, nobody" — because
+     * two sides can be people now and `faction !== player` called the second
+     * one a machine. A save from before carries the old pair, and the old pair
+     * says exactly what the new field needs: watching means nobody, anything
+     * else means the one side that was yours.
+     *
+     * A save written *after* has `human` and keeps it, which is what lets a
+     * PvP game be reopened as one rather than quietly becoming a game against
+     * the machine.
+     */
+    const legacy = parsed as GameState & { observing?: boolean };
+    const human = Array.isArray(parsed.human)
+      ? parsed.human.filter(isPlayable)
+      : legacy.observing
+        ? []
+        : [parsed.player];
     // A restored game always comes back paused.
-    return { ...parsed, fleets, systems, sectors, factions, speed: 'paused' };
+    return { ...parsed, fleets, systems, sectors, factions, human, speed: 'paused' };
   } catch {
     return null;
   }

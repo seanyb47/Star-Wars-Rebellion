@@ -61,7 +61,7 @@ function sample(state: GameState, side: PlayableFaction): void {
 
 for (let i = 0; i < GAMES; i++) {
   let state = generateGalaxy(FIRST + i, 'empire');
-  state.observing = true;
+  state.human = [];
   for (let d = 0; d < CAP && !state.winner; d++) {
     state = advanceDay(state);
     if (d % 20 === 0) for (const side of ['empire', 'alliance'] as const) sample(state, side);

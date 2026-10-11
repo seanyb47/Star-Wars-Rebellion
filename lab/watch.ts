@@ -19,7 +19,7 @@ const caps: Record<PlayableFaction, number[]> = { empire: [], alliance: [] };
 
 for (let g = 0; g < GAMES; g++) {
   let state: GameState = generateGalaxy(2000 + g, 'empire');
-  state.observing = true;
+  state.human = [];
   for (let d = 0; d < DAY; d++) state = advanceDay(state);
   for (const f of ['empire', 'alliance'] as const) {
     const other = f === 'empire' ? 'alliance' : 'empire';

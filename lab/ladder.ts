@@ -45,7 +45,7 @@ interface Row {
 
 function play(seed: number): Row {
   let state: GameState = generateGalaxy(seed, 'empire');
-  state.observing = true;
+  state.human = [];
   const reached: Row['reached'] = {
     empire: new Array(RUNGS).fill(undefined),
     alliance: new Array(RUNGS).fill(undefined),

@@ -656,6 +656,30 @@ export interface GameEvent {
   systemId?: string;
   characterId?: string;
   /**
+   * One side's own business, where no island or crew member can say so.
+   *
+   * The **exception** to how fog on the feed works, not the mechanism. The
+   * rule is `canSee`, derived from the crew member and the island an event
+   * names, and `fog.test.ts` gives the reason it is derived: a flag *"would
+   * have to be set at every push site, and half of them would be wrong within
+   * a month."* That is right and this does not change it — leave this alone
+   * and an event is fogged correctly by where it happened, without its author
+   * knowing the rule exists.
+   *
+   * What derivation cannot reach is an event with no island and no crew member
+   * in it, because `canSee` shows those to everybody. A treasury is the case
+   * that matters: *"the books would not balance, so these were sold."* It
+   * happens nowhere and to nobody, it is nobody's business but the side whose
+   * books they are, and `economy.ts` used to keep it private by only writing
+   * it `if (faction === state.player)` — which stored one player's bankruptcy
+   * and threw the other's away, so in PvP the two clients held different wars
+   * and the second player never heard about his own treasury.
+   *
+   * So: written always, marked whose, and read by its owner. Set it only where
+   * there is genuinely nothing to derive from.
+   */
+  faction?: PlayableFaction;
+  /**
    * Which kind of mission this line is about, where it is about one.
    *
    * Sean, 24 September: *"color type of the mission from the log."* The log
@@ -827,7 +851,47 @@ export interface Intel {
 export interface GameState {
   day: number;
   speed: Speed;
+  /**
+   * Which side **this** screen is looking at the war from.
+   *
+   * Local, and the one field in here that two machines playing the same game
+   * are expected to disagree about: in PvP his client says `empire` and hers
+   * says `alliance` while every other field matches to the byte. So nothing
+   * the simulation does may read it — a day that branches on `player` is a day
+   * that comes out differently on the two clients, which is the one failure
+   * lockstep has and the one it cannot report. `stateHash` leaves it out and
+   * `src/sim/__tests__/seatblind.test.ts` fails the build if the day starts
+   * depending on it again.
+   *
+   * Presentation reads it freely. *Whose news is this, is that fleet mine,
+   * which way round does this battle report read* — all of that is a question
+   * about the viewer, and the viewer is what this is.
+   */
   player: PlayableFaction;
+  /**
+   * Which sides a person is playing, rather than the machine.
+   *
+   * One fact where there were two. This used to be `player` doing double duty
+   * — the side you looked from *and* the only side a human could be — with an
+   * `observing` flag bolted on to say "actually, nobody". That worked while
+   * exactly one side could be human and stopped working the moment two could:
+   * `faction !== state.player` was the whole test for *is this played by the
+   * machine*, and in PvP it answers yes for the other human.
+   *
+   * So the two ideas separate. `player` is the seat; this is the roster, it is
+   * shared, and it is identical on both clients:
+   *
+   * | Value | The game |
+   * |---|---|
+   * | `['empire']` or `['alliance']` | one player against the machine |
+   * | `['empire', 'alliance']` | PvP — both sides are somebody's |
+   * | `[]` | the machine plays both and you watch |
+   *
+   * That last row is what `observing` was, and it is no longer a separate
+   * switch that could disagree with anything. Read it through
+   * `isMachinePlayed` and `isObserving` rather than directly.
+   */
+  human: PlayableFaction[];
   sectors: Sector[];
   systems: System[];
   characters: Character[];
@@ -879,19 +943,22 @@ export interface GameState {
    * worth.
    */
   doctrine?: { tier: 'plain' | 'sharp' | 'ruthless'; without?: string[] };
-  /**
-   * Hands your side to the opponent's brain and makes you the audience.
+  /*
+   * `observing` used to live here.
    *
    * Sean, 16 September: *"a button... that turns the active player into AI so
    * I can literally watch the AI play and open screens and do stuff. I still
    * control speed of game but all other functions are locked and I just
-   * observe."* A development tool — it turns a game of player against machine
-   * into machine against machine, with the panels still open to look at.
+   * observe."* The feature is unchanged and the button still does exactly
+   * that. What moved is where the fact is kept: an empty `human` says nobody
+   * is playing, which is the same sentence without a second field that could
+   * contradict the first. `isObserving` reads it, `setObserving` writes it,
+   * and a save written when this was a boolean is migrated on load.
    *
-   * Enforced in `commands.ts`, in the one wrapper every order passes through,
-   * rather than by greying out buttons: a lock that lives in the simulation
-   * cannot be got round by a screen somebody forgot to disable. Opening
-   * panels, changing the speed and reading anything are all still yours.
+   * It is still enforced in `commands.ts`, in the one wrapper every order
+   * passes through, rather than by greying out buttons: a lock that lives in
+   * the simulation cannot be got round by a screen somebody forgot to disable.
+   * Opening panels, changing the speed and reading anything are all still
+   * yours.
    */
-  observing?: boolean;
 }

@@ -37,7 +37,7 @@ for (const faction of ['empire', 'alliance'] as const) {
   const poolAt: number[] = [];
   for (let i = 0; i < GAMES; i++) {
     let state = generateGalaxy(FIRST + i, faction);
-    state.observing = true;
+    state.human = [];
     let shutOn: number | undefined;
     for (let d = 0; d < DAYS; d++) {
       state = advanceDay(state);

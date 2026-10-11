@@ -49,8 +49,8 @@ console.log('\nSamples of what the player should not be able to see:');
 for (const s of samples) console.log('  ' + s);
 
 // And the other half of the question: is anything playing the player's side?
-// `runAI(state, rng)` acts for `otherFaction(state.player)`; the player's own
-// side is only played when `observing` is set. This asserts it rather than
+// `advanceDay` runs the machine for every side not on `state.human`, so a side
+// that is somebody's is played by nobody else. This asserts it rather than
 // trusting the read — if a do-nothing Crown ever issues an order, this prints.
 {
   let state = generateGalaxy(4242, 'empire');
@@ -70,7 +70,7 @@ for (const s of samples) console.log('  ' + s);
   const theirs = state.systems
     .filter((sys) => sys.control === 'alliance')
     .flatMap((sys) => sys.facilities.filter((f) => f.building));
-  console.log(`\nAfter 60 days of a do-nothing Crown (observing = ${Boolean(state.observing)}):`);
+  console.log(`\nAfter 60 days of a do-nothing Crown (played by: ${state.human.join(', ') || 'nobody'}):`);
   console.log(`  Crown crew sent on missions by nobody: ${crewBusy.length}`);
   console.log(`  Crown build orders placed by nobody:   ${queued.length}`);
   console.log(`  Confederate build orders (the control): ${theirs.length}`);

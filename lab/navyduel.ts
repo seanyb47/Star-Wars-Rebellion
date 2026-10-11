@@ -28,7 +28,6 @@ import {
   resolveFlee,
   survivors,
   totalHull,
-  type CombatShip,
   type Fleet,
 } from '../src/sim/navycombat';
 import { ROSTER, type ShipDefinition } from '../src/sim/shipdefs';

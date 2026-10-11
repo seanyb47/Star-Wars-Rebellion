@@ -73,9 +73,11 @@ function landedKind(state: GameState, fleet: Fleet) {
   return landingTroop(fleet.faction, craftGrade(state.factions[fleet.faction].craft));
 }
 import {
+  BOTH_SIDES,
   inProse,
   getSystem,
   handOver,
+  isHumanPlayed,
   nextId,
   otherFaction,
   pushEvent,
@@ -876,12 +878,30 @@ export function resolveBattles(state: GameState, rng: Rng): void {
     const system = getSystem(state, systemId);
     if (!contestedAt(state, system)) continue;
     const here = fightingAt(state, systemId);
-    // Nobody to hand it to when the player is only watching: observe mode
-    // plays their side for them, and a battle sheet nobody answers stops the
-    // clock for good. Fought in full either way; what changes is whether it
-    // arrives as a question.
-    const hand =
-      !state.observing && here.some((f) => f.faction === state.player) && !state.battle;
+    /*
+     * Hand the action over if anybody whose fleet is in it is a person.
+     *
+     * Two conditions collapsed into this one. It used to read `!state.observing
+     * && here.some((f) => f.faction === state.player)` — is somebody playing,
+     * *and* is this their fleet — which is the same question asked twice from
+     * the seat's point of view. Asking the roster instead says it once and says
+     * it the same way on both clients, which lockstep needs: `state.battle`
+     * lives in the shared state, so two clients that disagree about whether an
+     * action is a question are two clients holding different states.
+     *
+     * Observing still falls out of it for free. Nobody is on the roster, so
+     * nothing is handed over, and a battle sheet nobody is there to answer
+     * cannot stop the clock for good. Fought in full either way; what changes
+     * is whether it arrives as a question.
+     *
+     * In PvP it can now be *both* players' question at once, which the sheet
+     * is not yet built for — `PendingBattle` carries one `settled` and
+     * `outcomeOf` still asks whether the seat lost. That is the next piece of
+     * work and it needs a ruling on what a two-handed action looks like, so
+     * until then this is correct about when to stop the clock and the sheet is
+     * answered by whoever is looking.
+     */
+    const hand = here.some((f) => isHumanPlayed(state, f.faction)) && !state.battle;
     // Quiet in the dispatch sense only. It still goes in the log; what it does
     // not do is arrive as a card over the top of the battle sheet.
     const tally = fightRound(state, system, here, rng, hand);
@@ -967,20 +987,43 @@ function outcomeOf(
  * that at the end of the day.
  */
 function enemyBreaksOff(state: GameState, system: System, rng: Rng): boolean {
-  const them = otherFaction(state.player);
-  const theirs = fightingAt(state, system.id).filter((f) => f.faction === them);
-  if (theirs.length === 0) return false;
-  const theirGuns = theirs.reduce((n, f) => n + fleetGuns(f), 0);
-  const mine =
-    fightingAt(state, system.id)
-      .filter((f) => f.faction === state.player)
-      .reduce((n, f) => n + fleetGuns(f), 0);
-  if (theirGuns === 0 || mine < theirGuns * BREAK_OFF_ODDS) return false;
   let ran = false;
-  for (const fleet of theirs) {
-    if (fleeError(state, fleet.id, them)) continue;
-    fleeBattle(state, fleet.id, rng, them);
-    ran = true;
+  /*
+   * Asked of each side the machine is playing, rather than of "the enemy".
+   *
+   * There is no such thing as the enemy once two people can be in the same
+   * war: the word meant `otherFaction(state.player)`, which on his client is
+   * her and on hers is him. Both clients ran this and each decided the *other
+   * human's* fleets had had enough — so a squadron fled on one screen and
+   * stood and fought on the other, from the same dice.
+   *
+   * Turning it round gets the same answer everywhere it already had one. A
+   * person decides for themselves and is skipped; the machine decides by the
+   * policy it always had, which is the one a reasonable captain would follow
+   * and no cleverer. Playing against the machine that is the one side it was
+   * ever asked about. Watching, it is now asked about both, which is what
+   * observe mode is supposed to be.
+   */
+  for (const them of BOTH_SIDES) {
+    if (isHumanPlayed(state, them)) continue;
+    // Fresh each time round: the first side breaking off changes the odds the
+    // second is looking at.
+    const here = fightingAt(state, system.id);
+    const theirs = here.filter((f) => f.faction === them);
+    if (theirs.length === 0) continue;
+    const theirGuns = theirs.reduce((n, f) => n + fleetGuns(f), 0);
+    // Only the other side's guns, never a creature's. What a creature does
+    // with a wound is its own business and `stirBeasts` settles it at the end
+    // of the day.
+    const against = here
+      .filter((f) => f.faction === otherFaction(them))
+      .reduce((n, f) => n + fleetGuns(f), 0);
+    if (theirGuns === 0 || against < theirGuns * BREAK_OFF_ODDS) continue;
+    for (const fleet of theirs) {
+      if (fleeError(state, fleet.id, them)) continue;
+      fleeBattle(state, fleet.id, rng, them);
+      ran = true;
+    }
   }
   return ran;
 }
@@ -1189,15 +1232,25 @@ export function bombardNow(state: GameState, fleet: Fleet, rng: Rng): void {
     return;
   }
 
-  /**
+  /*
    * Whose news this is.
    *
    * It used to be "my fleet is doing it", which meant a player watching their
    * own capital being battered down was told nothing at all until the last
    * battery fell — the one thing in the game most worth knowing, and the log
    * was silent on it. A siege is news to both sides.
+   *
+   * It is still news to both sides, and now it is written down for both. The
+   * test was widened once already, from the firing fleet to the fleet **or**
+   * the island; both times the sides in the action were named through
+   * `state.player`, which is one side's screen rather than a fact about the
+   * action. Guns at an island are news wherever the island can be seen from,
+   * which is what `canSee` works out when the feed is drawn, and the two
+   * sides in it are the fleet's and the island's whatever anybody is looking
+   * at. On seed 31337 the old test cost the Confederate client an event on
+   * day 96 — *"Home Fleet works the walls of Minterne"* — and from there the
+   * two players were in different wars.
    */
-  const mine = fleet.faction === state.player || system.control === state.player;
 
   const result = bombard(score, islandDefenders(system), rng);
 
@@ -1232,7 +1285,7 @@ export function bombardNow(state: GameState, fleet: Fleet, rng: Rng): void {
   const broken = felledMen.length;
 
   const ripples: Ripple[] = [];
-  if (felled.length > 0 && mine) {
+  if (felled.length > 0) {
     pushEvent(state, {
       kind: system.control === state.player ? 'loss' : 'battle',
       text:
@@ -1295,16 +1348,16 @@ export function bombardNow(state: GameState, fleet: Fleet, rng: Rng): void {
         rng,
       ),
     );
-    if (mine) {
-      pushEvent(state, {
-        kind: system.control === state.player ? 'loss' : 'battle',
-        text: `Shot from ${fleet.name} finds the quarter behind the quay at ${inProse(system.name)}, and word of it runs through ${reachName(state, system)}.`,
-        systemId: system.id,
-      });
-    }
+    pushEvent(state, {
+      kind: system.control === state.player ? 'loss' : 'battle',
+      text: `Shot from ${fleet.name} finds the quarter behind the quay at ${inProse(system.name)}, and word of it runs through ${reachName(state, system)}.`,
+      systemId: system.id,
+    });
   }
 
-  if (fleet.faction !== state.player) return;
+  // The tally of the day's shooting, written whoever was firing. Behind the
+  // same `canSee` as the event it hangs on, and the reason the gate has gone
+  // is the one on the participant test above.
   const verdict: Verdict =
     fortsOf(system).length === 0 && wallsBefore > 0
       ? 'victory'
@@ -1936,22 +1989,37 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
         : `The landing on ${inProse(system.name)} is thrown back into the sea.`,
       systemId: system.id,
       landing: report,
-      ...(fleet.faction === state.player || system.control === state.player
-        ? {
-            report: assaultReport(state, system, again ? 'draw' : 'defeat', {
-              attacker: fleet.faction,
-              landed,
-              lost: landed - fleet.troops,
-              ashore: 0,
-              aboard: fleet.troops,
-              defenders: garrisonBefore,
-              defendersLost: garrisonBefore - system.garrison,
-              ripples: [],
-              kind: kind.name,
-              holdingKind: roster[0]?.name,
-            }),
-          }
-        : {}),
+      /*
+       * The report goes on every landing, not only the seat's own.
+       *
+       * The gate here was `fleet.faction === state.player || system.control
+       * === state.player` — attach the detail if *I* am the attacker or hold
+       * the ground — and the intent of that is exactly right: a report is for
+       * the two sides in the action. What was wrong was defining them by the
+       * seat. Both participants are already named without reference to
+       * anybody's screen, and in PvP the gate stored the Crown player's
+       * landings on one client and the Confederate player's on the other, so
+       * the two states differed by two and a half kilobytes from the first
+       * island anyone took.
+       *
+       * Attached always rather than to whichever side is a person, which also
+       * keeps observe mode worth watching — Sean's reason for it was *"open
+       * screens and do stuff"*, and a battle card with the tally missing is
+       * not much to open. Whether anybody reads it is `canSee`'s business, as
+       * it is for the event itself.
+       */
+      report: assaultReport(state, system, again ? 'draw' : 'defeat', {
+        attacker: fleet.faction,
+        landed,
+        lost: landed - fleet.troops,
+        ashore: 0,
+        aboard: fleet.troops,
+        defenders: garrisonBefore,
+        defendersLost: garrisonBefore - system.garrison,
+        ripples: [],
+        kind: kind.name,
+        holdingKind: roster[0]?.name,
+      }),
     });
     return;
   }
@@ -2084,22 +2152,19 @@ export function resolveLanding(state: GameState, fleet: Fleet, rng: Rng): void {
       : `${system.name} is occupied. ${holding} ${holding === 1 ? 'troop is' : 'troops are'} ashore on an empty island${aboardStill}, and there is nobody on it to mind.`,
     systemId: system.id,
     landing: report,
-    ...(fleet.faction === state.player || system.control === state.player
-      ? {
-          report: assaultReport(state, system, 'victory', {
-            attacker: fleet.faction,
-            landed,
-            lost: landed - survivors,
-            ashore: holding,
-            aboard: fleet.troops,
-            defenders: garrisonBefore,
-            defendersLost: garrisonBefore,
-            ripples,
-            kind: kind.name,
-            holdingKind: roster[0]?.name,
-          }),
-        }
-      : {}),
+    // Always, and for the same reason as the thrown-back landing above.
+    report: assaultReport(state, system, 'victory', {
+      attacker: fleet.faction,
+      landed,
+      lost: landed - survivors,
+      ashore: holding,
+      aboard: fleet.troops,
+      defenders: garrisonBefore,
+      defendersLost: garrisonBefore,
+      ripples,
+      kind: kind.name,
+      holdingKind: roster[0]?.name,
+    }),
   });
 }
 

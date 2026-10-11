@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { advanceDay } from '../advanceDay';
 import { orderBuild, orderSail, setObserving, setSpeed } from '../commands';
-import { countFacilities } from '../helpers';
+import { countFacilities, isObserving } from '../helpers';
 import { AI_COURTING_PATIENCE } from '../constants';
 
 function run(state = generateGalaxy(501, 'empire'), days = 220) {
@@ -23,9 +23,13 @@ function activity(state: ReturnType<typeof generateGalaxy>, faction: 'empire' | 
 describe('observing', () => {
   it('is off by default, and leaves no trace in a saved game', () => {
     const state = generateGalaxy(501, 'empire');
-    expect(state.observing).toBeUndefined();
+    // One side is yours; the roster says so rather than a second flag saying
+    // it is not being watched.
+    expect(state.human).toEqual(['empire']);
+    expect(isObserving(state)).toBe(false);
     const watching = setObserving(state, true);
-    expect(watching.observing).toBe(true);
+    expect(watching.human).toEqual([]);
+    expect(isObserving(watching)).toBe(true);
     // Off again removes the key rather than writing false, so an ordinary save
     // carries no trace of having been watched. It used to be asserted as a
     // byte-for-byte round trip, which stopped being true when the handover
@@ -84,7 +88,7 @@ describe('observing', () => {
     const state = setObserving(generateGalaxy(501, 'empire'), true);
     const faster = setSpeed(state, 'fast');
     expect(faster.speed).toBe('fast');
-    expect(faster.observing).toBe(true);
+    expect(isObserving(faster)).toBe(true);
   });
 
   it('plays your side for you: the idle Crown stops being idle', () => {

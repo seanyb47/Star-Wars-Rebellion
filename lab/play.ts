@@ -13,7 +13,7 @@ import { isLord } from '../src/sim/lords';
 import { pilot, type PilotTally } from './pilot';
 import { shipClass } from '../src/sim/constants';
 import type { Tier } from '../src/sim/doctrine';
-import type { GameState, PlayableFaction, ShipRole } from '../src/sim/types';
+import type { PlayableFaction, ShipRole } from '../src/sim/types';
 
 export type Answer = 'carry-on' | 'come-home' | 'mixed';
 
@@ -188,7 +188,12 @@ export function playGame(
     for (const sys of state.systems) {
       const walls = sys.facilities.filter((x) => x.type === 'fort' && !x.building).length;
       if (walls > 0) bump('walled-island-days');
-      if (sys.shelled) bump('town-shelled-islands');
+      // `town-shelled-islands` counted `sys.shelled`, days an island's town
+      // had been under fire. The field is gone on purpose — it was never
+      // cleared, not even when the island changed hands, so the penalty
+      // latched at its cap for the rest of the war — and a bombardment now
+      // rolls a flat chance of finding the town once per action. There is
+      // nothing left to count, so this stops pretending to count it.
     }
     for (const sys of state.systems) if (sys.blockaded) bump('blockade-days');
     // The dead war: one side holding no ground at all, and the clock running on.

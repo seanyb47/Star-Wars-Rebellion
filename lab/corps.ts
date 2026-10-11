@@ -29,7 +29,7 @@ const live: number[] = [];
 
 for (let seed = FIRST; seed < FIRST + WARS; seed++) {
   let state = generateGalaxy(seed, 'empire');
-  state.observing = true;
+  state.human = [];
   let i = 0;
   for (let d = 0; d < 3000 && !state.winner; d++) {
     state = advanceDay(state);

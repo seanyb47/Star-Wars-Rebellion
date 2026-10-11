@@ -10,3 +10,19 @@ chart-overlay.png
 
 # Python bytecode from the chart and art scripts.
 __pycache__/
+
+# Compiled output beside the source.
+#
+# Nothing should put it there and for a long time nothing did, so this is a
+# backstop rather than a rule. `tsc -b` is build mode and emits whatever the
+# config says; `build` and `typecheck` both used to force `--noEmit false` and
+# scatter a .js beside every .ts in src/ and lab/. Vite resolves `.js` ahead of
+# `.ts`, so the moment those exist, `vitest` and `npx vite-node lab/duel.ts`
+# stop reading the source and start reading a stale copy of it — a balance
+# measurement that silently answers about the code as it was at the last build.
+# Both scripts now typecheck without emitting. This catches the next way in.
+src/**/*.js
+lab/**/*.js
+# And the config itself, which is a .ts and was emitted as a .js at the root by
+# the same runs. That one would have shadowed vite.config.ts outright.
+/vite.config.js

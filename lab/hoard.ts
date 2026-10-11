@@ -94,7 +94,7 @@ let days = 0;
 
 for (let g = 0; g < GAMES; g += 1) {
   let state = generateGalaxy(FIRST + g, 'empire');
-  state.observing = true;
+  state.human = [];
   for (let d = 0; d < CAP && !state.winner; d += 1) {
     state = advanceDay(state);
     days += 1;
@@ -170,7 +170,7 @@ console.log('\n--- where the bill goes, seed by seed, every 400 days ---');
 console.log(' day  side      isles  income  inc/isle |  works  garrison  hulls  aboard  |  upk/isle');
 for (let g = 0; g < GAMES; g += 1) {
   let state = generateGalaxy(FIRST + g, 'empire');
-  state.observing = true;
+  state.human = [];
   for (let d = 0; d < CAP && !state.winner; d += 1) {
     state = advanceDay(state);
     if (state.day % 400 !== 0) continue;

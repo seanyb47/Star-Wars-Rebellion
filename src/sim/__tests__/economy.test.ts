@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { garrisonRoster } from '../troops';
+import { canSee } from '../missions';
 import { generateGalaxy } from '../galaxy';
 import { addShip, fleetCapacity, sailFleet } from '../fleets';
 import {
@@ -425,6 +426,22 @@ describe('scrapping', () => {
   });
 
   it('tells you about your own shortfall and not the opponent\'s', () => {
+    /*
+     * Marked rather than withheld.
+     *
+     * The rule has not moved: a card reading "the books would not balance"
+     * about somebody else's treasury is worse than no card at all. What moved
+     * is how it is kept. This used to pass because the event was never
+     * written, which kept it from the wrong reader by keeping it from the
+     * state — and with two players that stored whichever side the client
+     * happened to be sitting on and threw the other away, so each player
+     * heard nothing about his own treasury and the two wars came apart.
+     *
+     * So both are written, each carries whose books they are, and `canSee`
+     * decides. A treasury happens on no island and to no crew member, so
+     * there is nothing for the ordinary derived fog to work from and the mark
+     * is the only thing that can answer — see `GameEvent.faction`.
+     */
     const state = generateGalaxy(105, 'alliance');
     const island = isolate(state, 'empire');
     island.slots = 30;
@@ -435,10 +452,14 @@ describe('scrapping', () => {
     }));
     state.factions.empire.gold = 0;
     settleOnce(state, createRng(11));
-    // The Crown sold itself down and the Confederate player hears nothing
-    // about it. Whose books these are is the whole of the question.
     expect(island.facilities.length).toBeLessThan(10);
-    expect(state.events.filter((e) => e.text.includes('could not be met'))).toHaveLength(0);
+    const told = state.events.filter((e) => e.text.includes('could not be met'));
+    expect(told).toHaveLength(1);
+    // The Crown sold itself down. It is the Crown's business, and whose books
+    // these are is the whole of the question.
+    expect(told[0].faction).toBe('empire');
+    expect(canSee(state, told[0], 'empire')).toBe(true);
+    expect(canSee(state, told[0], 'alliance')).toBe(false);
   });
 
   it('puts the troops ashore when the hull under them is broken up', () => {

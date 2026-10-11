@@ -21,7 +21,7 @@ import {
 import { createRng } from './rng';
 import { runAI } from './ai';
 import { generateGalaxy } from './galaxy';
-import { cloneState } from './helpers';
+import { BOTH_SIDES, cloneState, isMachinePlayed, isObserving } from './helpers';
 import { moveBlock } from './order';
 import { companiesOn } from './troops';
 import { continueMission, endMission, relieve, startMission } from './missions';
@@ -37,7 +37,9 @@ export interface CommandResult {
 function run(state: GameState, fn: (draft: GameState) => void): CommandResult {
   // Watching, not playing. Every order in the game comes through here, so this
   // is the whole of the lock — and the clock, which does not, stays yours.
-  if (state.observing) return { state, error: 'Observing. The machine has your side; take it back to give orders.' };
+  if (isObserving(state)) {
+    return { state, error: 'Observing. The machine has your side; take it back to give orders.' };
+  }
   const draft = cloneState(state);
   try {
     fn(draft);
@@ -57,13 +59,16 @@ export function newGame(seed = Date.now() >>> 0, player: PlayableFaction = 'empi
  * Not a `run` command, because `run` is exactly what it turns off.
  */
 export function setObserving(state: GameState, observing: boolean): GameState {
-  if (Boolean(state.observing) === observing) return state;
+  if (isObserving(state) === observing) return state;
   const next = cloneState(state);
   if (!observing) {
-    delete next.observing;
+    // Taking your side back puts you on the roster. In PvP nobody is watching
+    // and nobody can hand a side over, so this never runs there — the switch
+    // is hidden, and the lock in `run` would refuse the order anyway.
+    next.human = [...new Set([...next.human, next.player])];
     return next;
   }
-  next.observing = true;
+  next.human = next.human.filter((side) => side !== next.player);
   /**
    * And something happens straight away, which it did not before.
    *
@@ -81,8 +86,9 @@ export function setObserving(state: GameState, observing: boolean): GameState {
    * said they would rather watch than play.
    */
   const rng = createRng(next.rngSeed);
-  runAI(next, rng, undefined, true);
-  runAI(next, rng, next.player, true);
+  for (const side of BOTH_SIDES) {
+    if (isMachinePlayed(next, side)) runAI(next, rng, side, true);
+  }
   return next;
 }
 

@@ -80,7 +80,7 @@ if (process.argv[4] === 'play') {
       totalIncome(opening, 'empire') - totalUpkeep(opening, 'empire') -
       (totalIncome(opening, 'alliance') - totalUpkeep(opening, 'alliance'));
     let state = generateGalaxy(seed, 'empire');
-    state.observing = true;
+    state.human = [];
     for (let d = 0; d < CAP && !state.winner; d++) state = advanceDay(state);
     played.push({ seed, edge, winner: state.winner ?? 'none' });
   }

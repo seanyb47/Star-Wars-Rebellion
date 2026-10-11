@@ -67,7 +67,7 @@ const hulls = (s: GameState, f: PlayableFaction) =>
 
 function play(seed: number): Row {
   let state = generateGalaxy(seed, 'empire');
-  state.observing = true;
+  state.human = [];
   for (let d = 0; d < CAP && !state.winner; d++) {
     state = advanceDay(state);
     check(state, seed);

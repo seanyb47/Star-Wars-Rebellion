@@ -60,6 +60,7 @@ import {
   getCharacter,
   getSystem,
   isPlayable,
+  isMachinePlayed,
   handOver,
   otherFaction,
   pushEvent,
@@ -2031,7 +2032,7 @@ function resolveMission(state: GameState, character: Character, rng: Rng): void 
    * ends it by taking or hurting them, and a blockade or the island changing
    * hands ends it through `stillWorthDoing` at the top of this function.
    */
-  const machinePlayed = faction !== state.player || Boolean(state.observing);
+  const machinePlayed = isMachinePlayed(state, faction);
   if (mission.type === 'diplomacy') {
     // The opponent still gives up on talks that are going nowhere — its
     // patience is what stopped its officers standing on foreign quays for a
@@ -2714,9 +2715,13 @@ export function sightOf(
  */
 export function canSee(
   state: GameState,
-  event: Pick<GameEvent, 'characterId' | 'systemId'>,
+  event: Pick<GameEvent, 'characterId' | 'systemId' | 'faction'>,
   faction: PlayableFaction,
 ): boolean {
+  // Marked as one side's own, which only happens where there is no island and
+  // no crew member to derive it from — see the note on `GameEvent.faction`.
+  // First, because it is the whole answer when it is set.
+  if (event.faction) return event.faction === faction;
   if (event.characterId) {
     const who = state.characters.find((c) => c.id === event.characterId);
     if (who?.faction === faction) return true;

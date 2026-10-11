@@ -18,7 +18,7 @@ import { generateGalaxy } from '../src/sim/galaxy';
 import { advanceDay } from '../src/sim/advanceDay';
 import { isLord } from '../src/sim/lords';
 import { MISSION_LABEL } from '../src/sim/missions';
-import type { Character, GameState, MissionType, PlayableFaction } from '../src/sim/types';
+import type { GameState, MissionType } from '../src/sim/types';
 
 const GAMES = Number(process.argv[2] ?? 20);
 const FIRST = Number(process.argv[3] ?? 5000);
@@ -65,7 +65,7 @@ function main(): void {
   for (let g = 0; g < GAMES; g++) {
     const seed = FIRST + g;
     let state = generateGalaxy(seed, 'empire');
-    state.observing = true;
+    state.human = [];
     // Where each officer's current errand started, so its length is real.
     const began = new Map<string, { type: MissionType; day: number }>();
     let seenEvents = 0;

@@ -434,12 +434,21 @@ export function settleLedger(state: GameState, rng: Rng): void {
      * rest as a number, because the fortnight that sells eleven things is the
      * one you least want a paragraph about.
      *
-     * Only ever the player's own books. The opponent settles in the same loop
-     * and its shortfalls are its own business — the log is what *you* are
-     * told, and a card reading "the books would not balance" about somebody
-     * else's treasury is worse than no card at all.
+     * Only ever your own books. The opponent settles in the same loop and its
+     * shortfalls are its own business — the log is what *you* are told, and a
+     * card reading "the books would not balance" about somebody else's
+     * treasury is worse than no card at all.
+     *
+     * Marked rather than withheld. This used to be `faction === state.player`,
+     * which kept it private by never writing it down — fine with one player,
+     * and in PvP it stored whichever side that client was sitting on and threw
+     * the other away. Two clients, two different wars, and the second player
+     * never heard about his own treasury. So both are written and each is
+     * marked whose; `canSee` gives it to its owner and to nobody else. A
+     * treasury happens on no island and to no crew member, so there is nothing
+     * for the ordinary derived fog to work from — see `GameEvent.faction`.
      */
-    if (sold.length > 0 && faction === state.player) {
+    if (sold.length > 0) {
       // Three kinds of thing by name and the rest as a number, and identical
       // things folded rather than listed: a bad fortnight sells four shipyards
       // off the same island, and "the shipyard on Bracton, the shipyard on
@@ -452,6 +461,7 @@ export function settleLedger(state: GameState, rng: Rng): void {
       pushEvent(state, {
         kind: 'loss',
         notable: true,
+        faction,
         text:
           `The fortnight's bill could not be met, and the difference was raised ` +
           `by breaking things up: ${named}${rest > 0 ? `, and ${rest} more` : ''}. ` +

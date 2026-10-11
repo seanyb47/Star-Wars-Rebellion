@@ -6,7 +6,14 @@ import { stirBeasts } from './creatures';
 import { advanceFleets, advanceSieges, clearWrecks, repairOvernight, updateBlockades } from './fleets';
 import { allLordsTaken, crownPrincipals, crownTaken, holdTheMoot, syncHome } from './lords';
 import { recomputeLedger, settleLedger } from './economy';
-import { cloneState, getSystem, otherFaction, pushEvent } from './helpers';
+import {
+  BOTH_SIDES,
+  cloneState,
+  getSystem,
+  isMachinePlayed,
+  otherFaction,
+  pushEvent,
+} from './helpers';
 import { advanceMissions, syncMissionParties, takePrisoner } from './missions';
 import { decayMomentum } from './politics';
 import { createRng } from './rng';
@@ -87,11 +94,26 @@ export function advanceDay(state: GameState): GameState {
    */
   settleLedger(next, rng);
   recomputeLedger(next);
-  runAI(next, rng);
-  // Observing: the player's side is played too, by the same rules and the same
-  // doctrine. The opponent moves first, which is the order it has always moved
-  // in — the watcher's side is the one that used to be waiting for a human.
-  if (next.observing) runAI(next, rng, next.player);
+  /*
+   * Every side nobody is playing gets played, by the same rules and the same
+   * doctrine, always in the same order.
+   *
+   * Three games come out of this one loop. Against the machine it moves the
+   * one side you are not; observing, it moves both, the opponent first, which
+   * is the order it has always moved in; and in PvP it moves neither, because
+   * both are somebody's.
+   *
+   * It has to be the roster rather than `player` and it has to be a fixed
+   * order. `runAI` defaulted to `otherFaction(state.player)` and observing
+   * added `state.player` after it — two lines that between them named the
+   * sides *relative to the seat*. On two clients holding different seats that
+   * is two different orders of play, and the opponent's dice would come off
+   * the same `rng` in the other sequence: the same war, diverging on the first
+   * day either side did anything.
+   */
+  for (const side of BOTH_SIDES) {
+    if (isMachinePlayed(next, side)) runAI(next, rng, side);
+  }
   // Last, so the day ends with home somewhere the Confederacy actually holds.
   // It used to be worked out first thing, and then an island could fall in the
   // evening — to drift, to a rising, or to the opponent's own landing after

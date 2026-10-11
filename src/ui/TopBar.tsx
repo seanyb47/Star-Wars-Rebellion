@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
-import { perFortnight, SPEED_LABEL, SPEED_ORDER, type GameState, type Speed } from '../sim';
+import {
+  isObserving,
+  perFortnight,
+  SPEED_LABEL,
+  SPEED_ORDER,
+  type GameState,
+  type Speed,
+} from '../sim';
 import { FactionCrest } from './art';
 import { paintedIsland } from './painted';
 
@@ -187,7 +194,7 @@ export function TopBar({
   };
 
   const running = state.speed !== 'paused' && !autoPaused && !state.winner;
-  const observing = Boolean(state.observing);
+  const observing = isObserving(state);
 
   return (
     /*

@@ -71,7 +71,7 @@ interface Row {
 
 function play(seed: number): Row {
   let state = generateGalaxy(seed, HUNTER);
-  state.observing = true;
+  state.human = [];
 
   let days = 0;
   let visible = 0;

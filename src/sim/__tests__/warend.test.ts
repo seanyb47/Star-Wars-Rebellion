@@ -15,7 +15,7 @@ import type { GameState, PlayableFaction } from '../types';
  */
 function playOut(seed: number, cap = 3000): GameState {
   let state = generateGalaxy(seed, 'empire');
-  state.observing = true;
+  state.human = [];
   for (let d = 0; d < cap && !state.winner; d++) state = advanceDay(state);
   return state;
 }

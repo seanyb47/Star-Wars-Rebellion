@@ -9,7 +9,7 @@
  */
 import {
   orderBuild,
-  orderFoundWorks,
+  orderRaiseWorks,
   orderSail,
   orderAssault,
   orderDetach,
@@ -31,21 +31,26 @@ import {
   fleetBombard,
   fortsOf,
 } from '../src/sim/fleets';
-import { FORT_STRENGTH } from '../src/sim/constants';
+import { FORT_BOMBARD_DEFENSE } from '../src/sim/constants';
 import {
   canStartMission,
+  craftGrade,
   isMissionTarget,
   missionsOffered,
   missionTypeFor,
   travelDays,
 } from '../src/sim/missions';
-import type { GameState, MissionType, PlayableFaction, System } from '../src/sim/types';
+import type { GameState, MissionType, ShipGrade, System } from '../src/sim/types';
 
 export interface PilotTally { [k: string]: number }
 
 const ERRAND_WORTH: Record<MissionType, number> = {
   abduct: 95, rescue: 90, recruit: 80, command: 55, research: 50,
   diplomacy: 60, incite: 40, sabotage: 35, survey: 30,
+  // Espionage became an errand of its own after this table was written, and a
+  // Record<MissionType, number> has to name all of them. Priced between
+  // sabotage and survey: worth doing, never worth an abduction.
+  espionage: 45,
 };
 
 /** One turn of orders. Returns the new state and what it did. */
@@ -100,7 +105,14 @@ export function pilot(state: GameState, tally: PilotTally): GameState {
     const bare = state.systems.find(
       (s) => s.control === me && !s.uprising && s.facilities.length === 0 && s.slots > 0,
     );
-    if (bare) state = take(orderFoundWorks(state, bare.id), 'build:found');
+    // `orderFoundWorks(state, id)` once raised whatever the island wanted.
+    // It is `orderRaiseWorks(state, id, type)` now and the caller picks: a
+    // Lumber Mill where there is a forest, otherwise the cheapest useful
+    // thing, which is what a first works on bare ground should be anyway.
+    if (bare) {
+      const first = bare.deposits?.some((d) => d.type === 'forest') ? 'refinery' : 'mine';
+      state = take(orderRaiseWorks(state, bare.id, first), 'build:found');
+    }
   }
   // Work the ground first, and send builders to it.
   //
@@ -135,13 +147,18 @@ export function pilot(state: GameState, tally: PilotTally): GameState {
         // Earners are handled above, where the ground is. Here: companies,
         // then somewhere to build, then walls.
         const want = ['troop', 'shipyard', 'training_facility', 'fort'] as const;
+        // `buildMenu` wants the side's shipwright grade, and the island, so
+        // that a hull the yards cannot lay down yet and a company this ground
+        // cannot raise are both off the menu. It used to take the facility
+        // alone, and this harness has not compiled since it stopped.
+        const menu = buildMenu(fac, craftGrade(state.factions[me].craft) as ShipGrade, sys);
         for (const item of want) {
-          if (!buildMenu(fac).includes(item)) continue;
+          if (!menu.includes(item)) continue;
           if (!canQueueBuild(state, fac.id, item)) continue;
           state = take(orderBuild(state, fac.id, item), `build:${item}`);
           break outer;
         }
-        for (const item of buildMenu(fac)) {
+        for (const item of menu) {
           if (!canQueueBuild(state, fac.id, item)) continue;
           state = take(orderBuild(state, fac.id, item), `build:${item}`);
           break outer;
@@ -208,7 +225,13 @@ export function pilot(state: GameState, tally: PilotTally): GameState {
     // Nearest soft target, unless this squadron is heavy enough to open a
     // walled one — in which case that is what a squadron of the line is
     // *for*, and the nearest undefended fishing village is not.
-    const wallBreaker = fleetBombard(fleet) >= FORT_STRENGTH / 3;
+    // `FORT_STRENGTH / 3` is gone with the single wall number. A wall is two
+    // numbers now (`FORT_BOMBARD_DEFENSE`, `FORT_INVASION_DEFENSE`) and the
+    // one that decides whether shot can touch it is the bombard figure, so
+    // "heavy enough to open a walled island" is weight of shot against a
+    // plain wall's defence. Not a retune: it is this line meaning again what
+    // it used to mean.
+    const wallBreaker = fleetBombard(fleet) >= FORT_BOMBARD_DEFENSE.fort;
     const prize = state.systems
       .filter((s) => s.populated && s.control !== me && s.explored[me] && s.id !== fleet.systemId)
       .filter((s) => s.garrison < willCarry || fortsOf(s).length > 0)

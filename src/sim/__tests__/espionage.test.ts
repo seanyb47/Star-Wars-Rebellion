@@ -311,7 +311,7 @@ describe('espionage', () => {
      */
     for (const seed of [11, 33, 44, 7, 21, 55, 88, 99]) {
       let state = generateGalaxy(seed, 'empire');
-      state.observing = true;
+      state.human = [];
       const onErrand = new Set<string>();
       for (let d = 0; d < 500 && !state.winner; d++) {
         state = advanceDay(state);

@@ -11106,3 +11106,218 @@ quantity the sea sends them"* and reported a place called the Quantity. A sea is
 also a plain noun, so the name has to be capitalised to count.
 
 Suite: 107 files, 1094 passing, 1 skipped.
+
+---
+
+## 11 October — PvP, part one: the simulation stops caring who is watching
+
+Sean: *"Time to build PvP into game."* Five words, no prior art in the repo —
+nothing anywhere mentions multiplayer. *Rebellion* shipped a two-player
+head-to-head mode, and he thinks in Rebellion, so that was the likely reading;
+he confirmed it. **Both players at once, two devices, real time.**
+
+He also ruled on the clock, and it is a better rule than any of the three I
+offered: *"All games start on slowest setting. In PvP when one player changes
+speed, the other player gets a popup 'the [other faction] requests the speed to
+be [speed]' and they can accept or decline. The game always works on mutual
+consent."* That last sentence is a principle rather than a clock setting and it
+will decide more than the clock.
+
+### The architecture was decided by arithmetic, not taste
+
+Two ways to run two clients: one of them is authoritative and broadcasts state,
+or both simulate and only the orders cross. `lab/wire.ts` was written to settle
+it before any PvP code existed, because a day is **one second** at Fast:
+
+| | On the wire, per day | Grows with the war? |
+|---|---|---|
+| Host broadcasts state | **56 KB** on day 1, **129 KB** by day 600 | yes — the feed is half of it |
+| Exchange orders only | **~640 bytes** | no |
+
+Two hundred times smaller and flat instead of growing, so: **lockstep**. Both
+clients hold the whole war, both run `advanceDay`, only orders cross.
+
+The precondition is determinism, and the sim already had it — not by luck:
+`advanceDay` is pure, every roll comes off `rngSeed`, and the only `Date.now()`
+in `src/sim` is the default seed of a brand-new game. `lab/desync.ts` walks 822
+days with both sides machine-played in **two separate OS processes** and gets
+byte-identical fingerprints at every checkpoint.
+
+The bill for lockstep is that drift is **silent**: nobody is authoritative, so
+when the two states diverge his fleet sinks, hers sails on, and both screens
+look convincing. Hence `src/sim/sync.ts` — a canonical serialisation and a
+32-bit fingerprint, cheap enough to send beside the day's orders.
+
+### Then the actual problem: the day was reading the seat
+
+`state.player` means *which side this screen is looking from*. In PvP the two
+clients are **supposed** to disagree about it. So anything the simulation reads
+it for comes out differently on the two machines — and forty-eight places read
+it. Sorted, they were four kinds, and only some were real:
+
+1. **A genuine branch.** `missions.ts`: `machinePlayed = faction !== state.player`.
+   Each client concluded the *other human* was a machine and played their
+   parley for them. The worst of the lot.
+2. **An event that only exists for one seat.** A creature's movements stored
+   `if (system.explored[state.player])`; the siege log three times over; the
+   whole bombardment verdict behind `if (fleet.faction !== state.player) return`;
+   the landing report behind a conditional spread. Each one stored one player's
+   news and threw the other's away — a desync *and* a second player with no
+   news.
+3. **Perspective inside the text.** `kind: holder === state.player ? 'loss' : 'order'`,
+   and *"they are yours"* against *"they answer to the Imperium"*. The event
+   exists either way; the sentence has taken a side.
+4. **Presentation**, which is allowed to read the seat and always was: the
+   battle sheet, the feed, whose fleet is whose.
+
+Kinds 1 and 2 are fixed. Kind 3 is scoped below. Kind 4 is correct as it is.
+
+### One fact where there were two
+
+`player` was doing double duty — the side you look from *and* the only side a
+human could be — with `observing` bolted on to say "actually, nobody". Two
+fields that could disagree, which is the thing I have spent two sessions adding
+guard tests against. They are now one:
+
+```
+human: PlayableFaction[]
+  ['empire'] | ['alliance']   one player against the machine
+  ['empire', 'alliance']      PvP
+  []                          the machine plays both and you watch
+```
+
+`observing` is gone as a field and unchanged as a feature; a save written when
+it was a boolean migrates on load. Three call sites collapsed pleasingly:
+`!state.observing && f.faction === state.player` — is somebody playing, *and*
+is it their fleet — is just `isHumanPlayed(state, f.faction)`, and observe mode
+falls out of it for free.
+
+### The fog turned out to be already right
+
+`fog.test.ts` says the rule outright: *"`canSee` is deliberately derived rather
+than stored. A `faction` flag on `GameEvent` would have to be set at every push
+site, and half of them would be wrong within a month."* That is correct, and
+both readers already filter with `canSee`, so every gate in kind 2 was
+redundant write-time filtering on top of a working read-time filter. `sightOf`
+is strictly stricter than `explored[faction]`, so removing them can only ever
+show the second player *less* — no leak — and the gates' own comment says they
+wanted *"the same rule the rest of the game keeps"*, which is `canSee`.
+
+One residual case the derived rule cannot reach: an event with **no island and
+no crew member** is shown to everybody, because there is nothing to derive
+from. A treasury is the case that matters — *"the books would not balance, so
+these were sold"* — and `economy.ts` kept it private by never writing it, which
+in PvP stored one player's bankruptcy and discarded the other's. So
+`GameEvent.faction` exists now as the documented **exception**, not the
+mechanism, and `fog.test.ts` says so where it states the rule. Two events use
+it: the treasury, and day one's briefing.
+
+### Day one was two different days
+
+The opening card was *one* card chosen by `player`, with different words and a
+different island each way. Both clients held a different day one before either
+had given an order. Both briefings are now written, each marked whose, and
+`canSee` hands each player theirs — which is also simply correct for PvP, where
+both players need to be told what they are playing.
+
+### What the guard actually caught
+
+`seatblind.test.ts` walks the same war from both seats and compares a
+fingerprint every day. Writing it found four bugs I had not predicted, in this
+order: the briefing (day 1), the landing report (day 60, seed 4), the siege log
+(day 96, seed 31337), and the battle (day 214). The first three are fixed.
+
+A detour worth recording, because it nearly wasted the whole session: the
+fingerprints *would not move* no matter what I changed. `npm run typecheck` was
+`tsc -b --noEmit false`, which **emits a .js beside every .ts in `src/`**, and
+Vite resolves `.js` ahead of `.ts`. So after any `npm run build` or `npm run
+typecheck`, every `vitest` and `npx vite-node lab/duel.ts` run reads a stale
+compiled copy of the source. That is a measurement-integrity hole in the house
+harness, not a PvP problem: **every balance number this project has ever
+measured after a build was measured against whatever the code was at that
+build.** `tsconfig.json` already said `noEmit: true` and the scripts were
+overriding it. Both now typecheck without emitting, 208 stray files are gone,
+and `.gitignore` has a backstop.
+
+### The one thing left, and it needs a ruling
+
+A modal action with two human sides. `PendingBattle` carries one `settled`, and
+`outcomeOf` fills it by asking whether *the seat* still has a hull in the water
+— so the Crown client writes `lost` into shared state where the Confederate
+client writes `won`. Both are right, which is the problem: a verdict is a
+sentence about a side and `settled` has nowhere to say which side.
+
+That is not a bug to fix quietly, because the fix depends on what a two-handed
+action *is*, and the honest answer is that Sean's own rule already suggests one:
+the game works on mutual consent, so a round is fought when both sides have
+answered. Put to him rather than guessed.
+
+`seatblind.test.ts` therefore stops at the first modal action and asserts both
+clients agree one is pending on the same day. It held 213 days on seed 90210
+before stopping at exactly the known gap. When the battle is built for two, the
+stop condition comes out and those cases run to the end of the war on their own.
+
+Suite: 108 files, 1110 passing, 1 skipped.
+
+### The harness was measuring the harness
+
+CLAUDE.md: *balance changes are measured, not asserted.* Two of the changes
+above touch the day's play, so they had to be measured — and the measurement
+found something bigger than the change.
+
+`lab/duel.ts` nominates `generateGalaxy(seed, 'empire')` and then has nobody
+play either side. Under the old code that nomination was doing two things
+nobody intended:
+
+- `runAI(next, rng)` defaulted to `otherFaction(state.player)`, so the
+  **Confederacy moved first every single day** and the Crown moved second.
+- `enemyBreaksOff` asked only about `otherFaction(state.player)`, so **only
+  Confederate fleets ever broke off** when outgunned. Crown squadrons fought
+  to the last hull because the rule was never asked about them.
+
+Both are gone, not as a tuning decision but because neither sentence can be
+written without a seat: there is no "the enemy" once two people are in the war.
+Over 48 wars on the same seeds:
+
+```
+                  win table        median    Crown isl.  Confed isl.  Crown hulls
+  before          5 — 43           348       12.4        11.5         10.2
+  after          10 — 38           478       15.6        10.4         11.8
+```
+
+Five wins is about 1.4 SD at this sample, so on its own it is not a result —
+but it is not a coin flip either, because both mechanisms favour the Crown by
+construction and both moved the Crown's hulls and ground the same way. A larger
+sample is running; the number to carry forward is whatever that says.
+
+The finding to carry forward regardless: **every duel figure this project has
+quoted was measured with the nominated side moving second and unable to break
+off.** The ~81–90% Confederate rate has an unknown slice of harness artefact in
+it. That slice is now zero — the play order is fixed and both sides follow the
+same break-off rule — so this is the first measurement of the war that does not
+depend on which chair the harness sat in.
+
+### Thirteen scripts in `lab/` had quietly stopped working
+
+`lab/` was not in any tsconfig, so the harness CLAUDE.md leans on was never
+typechecked. Retiring `observing` broke **thirteen** scripts at once and
+`duel.ts` answered Crown 0 — Confederacy 48, because `state.observing = true`
+set a field nothing reads, the Crown still counted as human, and the battle
+sheet opened 2,352 times with nobody to answer it. `lab/audit.ts`'s own
+`sheet-with-no-player` rule is what caught it, which is the harness working as
+designed.
+
+All thirteen now set `human` instead, and `tsconfig.lab.json` typechecks `lab/`
+on `npm run typecheck` — kept out of `build`, because a dead experiment must
+never stop a fix reaching the player.
+
+Turning the guard on found eight more scripts that had been dead for weeks
+against features cut long before today: the Construction Yard (cut 20
+September), `Character.recruitable`, `System.shelled`, a `razorback` hull,
+`orderFoundWorks`, `FORT_STRENGTH`. **`play.ts` and `pilot.ts` are repaired**,
+because `doctrine.ts`, `campaign.ts` and `seed1.ts` all import `play.ts` — so
+the doctrine harness had been unrunnable for weeks and runs again. The other
+five are listed in `tsconfig.lab.json`'s `_quarantine` with the reason each one
+died. Listed rather than deleted: a harness whose numbers are quoted in this
+file is not mine to bin, and an exclude that names the reason is the difference
+between dead and invisibly dead.

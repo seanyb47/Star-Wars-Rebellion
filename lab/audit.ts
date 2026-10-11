@@ -176,12 +176,19 @@ export function audit(s: GameState): Violation[] {
   if (crewless.length > 0) bad('people-on-no-hull', `${crewless.length} fleet(s) with no ships but crew/companies aboard`);
 
   if (s.battle && !systemIds.has(s.battle.systemId)) bad('battle-orphan', s.battle.systemId);
-  // A battle sheet is a question for the player. Watching, there is nobody to
-  // ask, and one that nobody can answer stops the clock for the rest of the
-  // war — which is exactly what it did before 17 September.
-  if (s.observing && s.battle) bad('sheet-with-no-player', s.battle.systemId);
+  /*
+   * A battle sheet is a question for whoever is playing that side. With nobody
+   * playing either, there is nobody to ask, and a sheet that nobody can answer
+   * stops the clock for the rest of the war — which is exactly what it did
+   * before 17 September, and what it did again on 11 October when `observing`
+   * became `human` and this harness went on setting the retired field. It read
+   * Crown 0 — Confederacy 48 with the sheet frozen 2,352 times, and this line
+   * is what said so.
+   */
+  const nobodyPlaying = s.human.length === 0;
+  if (nobodyPlaying && s.battle) bad('sheet-with-no-player', s.battle.systemId);
   // Nor a report nobody will answer, for the same reason.
-  if (s.observing && s.pendingDecisions.length > 0)
+  if (nobodyPlaying && s.pendingDecisions.length > 0)
     bad('reports-with-no-player', `${s.pendingDecisions.length} waiting`);
   // A side with no island has nowhere to put anybody: everyone of theirs is
   // taken the same evening, and the war ends on the victory check.

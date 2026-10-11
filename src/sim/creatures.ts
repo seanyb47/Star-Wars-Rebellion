@@ -10,7 +10,7 @@ import {
   BEAST_WAKE_DAY,
   shipSpec,
 } from './constants';
-import { inProse, pushEvent } from './helpers';
+import { chartedByAnyone, inProse, pushEvent } from './helpers';
 import type { Rng } from './rng';
 import type { Faction, GameState, IslandArchetype, PlayableFaction, System } from './types';
 
@@ -330,7 +330,7 @@ function prowl(state: GameState, from: System, rng: Rng, fleeing = false): boole
     const away = rng.pick(quiet);
     const beast = beastAt(from)!;
     carry(from, away);
-    if (away.explored[state.player]) {
+    if (chartedByAnyone(away)) {
       pushEvent(state, {
         kind: 'battle',
         text: `${beast.name} breaks off and goes into the water off ${inProse(away.name)}.`,
@@ -345,7 +345,7 @@ function prowl(state: GameState, from: System, rng: Rng, fleeing = false): boole
   carry(from, to);
   // Reported where it could be seen from. An island nobody has charted swallows
   // its own news, which is the same rule the rest of the game keeps.
-  if (to.explored[state.player]) {
+  if (chartedByAnyone(to)) {
     pushEvent(state, {
       kind: 'battle',
       text: `${beast.name} is in the water off ${inProse(to.name)}.`,
@@ -385,15 +385,18 @@ function takeAtSea(state: GameState, from: System, rng: Rng): boolean {
   }
   const lost = fleet.ships.filter((s) => s.damage >= shipSpec(s.classId).hull).length;
   fleet.ships = fleet.ships.filter((s) => s.damage < shipSpec(s.classId).hull);
-  if (fleet.faction === state.player) {
-    pushEvent(state, {
-      kind: 'battle',
-      text:
-        `${beast.name} takes ${fleet.name} in open water` +
-        (lost > 0 ? `. ${lost} ${lost === 1 ? 'hull is' : 'hulls are'} gone.` : ', and she is mauled getting clear.'),
-      systemId: fleet.systemId,
-    });
-  }
+  // Written for whoever owns her, and read by whoever can see that water:
+  // `canSee` gives the owner eyes wherever they have a hull lying, and gives
+  // the other side nothing unless they have one there too. The gate here used
+  // to be `fleet.faction === state.player`, which is the same answer on one
+  // client and the wrong one on the other.
+  pushEvent(state, {
+    kind: 'battle',
+    text:
+      `${beast.name} takes ${fleet.name} in open water` +
+      (lost > 0 ? `. ${lost} ${lost === 1 ? 'hull is' : 'hulls are'} gone.` : ', and she is mauled getting clear.'),
+    systemId: fleet.systemId,
+  });
   return true;
 }
 
@@ -434,7 +437,7 @@ export function stirBeasts(state: GameState, rng: Rng): void {
       // else in the water. It stays where it is and goes on fighting, which
       // the battle round will see to tomorrow — and the side that did the
       // cornering is told, because it is the good news of the week.
-      if (!system.cornered && system.explored[state.player]) {
+      if (!system.cornered && chartedByAnyone(system)) {
         pushEvent(state, {
           kind: 'battle',
           text: `${beast.name} is hurt and has nowhere in ${
@@ -570,7 +573,7 @@ export function monsterStrike(
   if (beast.seize && rng.chance(beast.seize)) {
     // Taken. Not damaged — taken. Whatever it had left goes with it.
     target.hurt(target.left);
-    if (system.explored[state.player]) {
+    if (chartedByAnyone(system)) {
       pushEvent(state, {
         kind: 'loss',
         text: `${beast.name} ${beast.strike ?? 'takes'} a hull off ${inProse(system.name)} and it is gone under.`,

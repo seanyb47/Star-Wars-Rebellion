@@ -3,7 +3,8 @@ import reachData from '../../data/reaches.json';
 import { raiseWorksError } from '../build';
 import { CORALHOME, YARD_BUILDABLE } from '../constants';
 import { generateGalaxy, START_CHARACTERS, START_ISLANDS_PER_SIDE } from '../galaxy';
-import { depositsLeft } from '../helpers';
+import { depositsLeft, otherFaction } from '../helpers';
+import { canSee } from '../missions';
 import { isLord, lords } from '../lords';
 
 /** The map has grown twice this month; the data is the one place it is true. */
@@ -540,7 +541,10 @@ describe('generateGalaxy', () => {
 describe('the first card of the war', () => {
   it('tells the Confederacy its principals are all on one quay, and to move them', () => {
     const state = generateGalaxy(31005, 'alliance');
-    const card = state.events.find((e) => e.kind === 'war')!;
+    // Both briefings are written on day one and each is marked whose, so that
+    // two people can open the same war and each be told what *they* are
+    // playing. Theirs is the one to read here.
+    const card = state.events.find((e) => e.kind === 'war' && e.faction === 'alliance')!;
     const meeting = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
     expect(card.text).toContain(meeting.name);
     // The three of them really are standing there, which is what makes the
@@ -553,9 +557,33 @@ describe('the first card of the war', () => {
     expect(card.text).toMatch(/keep them apart/);
   });
 
+  it('writes both briefings, and shows each side only its own', () => {
+    /*
+     * Day one used to hold one card, picked by whose side you had taken. That
+     * is right for one reader and impossible for two: in PvP both players open
+     * the same war and each has to be told what *they* are playing, and the
+     * two clients have to hold the same day one or they are in different wars
+     * before either has given an order.
+     *
+     * So both are written, both are marked, and `canSee` hands each player
+     * theirs. A briefing is the one kind of event where the mark is doing real
+     * work in a single-player game too — without it the Crown would read the
+     * Confederacy's orders on the first morning.
+     */
+    const state = generateGalaxy(31005, 'empire');
+    const cards = state.events.filter((e) => e.kind === 'war');
+    expect(cards).toHaveLength(2);
+    expect(cards.map((c) => c.faction).sort()).toEqual(['alliance', 'empire']);
+    for (const card of cards) {
+      const theirs = card.faction as 'empire' | 'alliance';
+      expect(canSee(state, card, theirs)).toBe(true);
+      expect(canSee(state, card, otherFaction(theirs))).toBe(false);
+    }
+  });
+
   it('tells the Crown the meeting place has to be found before anybody can be taken', () => {
     const state = generateGalaxy(31005, 'empire');
-    const card = state.events.find((e) => e.kind === 'war')!;
+    const card = state.events.find((e) => e.kind === 'war' && e.faction === 'empire')!;
     const meeting = state.systems.find((s) => s.id === state.factions.alliance.hqSystemId)!;
     // And never names it: finding it is the Crown's half of the game.
     expect(card.text).not.toContain(meeting.name);

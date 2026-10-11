@@ -7,7 +7,7 @@ import type { GameState } from '../src/sim/types';
 const seen = new Set<string>();
 for (let seed = 3000; seed < 3006; seed++) {
   let state: GameState = generateGalaxy(seed, 'empire');
-  state.observing = true;
+  state.human = [];
   for (let d = 0; d < 3000 && !state.winner; d++) {
     state = advanceDay(state);
     if (d % 25 === 0) for (const s of state.systems) for (const t of companiesOn(s)) seen.add(t.id);

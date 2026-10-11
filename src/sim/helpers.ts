@@ -16,6 +16,61 @@ export function otherFaction(faction: PlayableFaction): PlayableFaction {
   return faction === 'empire' ? 'alliance' : 'empire';
 }
 
+/** Both sides, in one fixed order, for a pass that has to treat them alike. */
+export const BOTH_SIDES: readonly PlayableFaction[] = ['empire', 'alliance'];
+
+/**
+ * Is this side the machine's?
+ *
+ * The question the day's simulation is allowed to ask. It used to ask
+ * `faction !== state.player` instead, which meant the same thing only while
+ * one side could be human — in PvP that sentence calls the other player a
+ * machine, and on each client it calls a *different* player a machine, so the
+ * two wars come apart. This asks the roster, which both clients share.
+ */
+export function isMachinePlayed(state: GameState, faction: PlayableFaction): boolean {
+  return !state.human.includes(faction);
+}
+
+/** Is somebody playing this side? */
+export function isHumanPlayed(state: GameState, faction: PlayableFaction): boolean {
+  return state.human.includes(faction);
+}
+
+/**
+ * Has the machine got *your* side, leaving you to watch?
+ *
+ * The seat question, so this one does read `player`, and it is presentation
+ * and the order lock rather than simulation: it decides whether the buttons do
+ * anything, never how a day comes out.
+ */
+export function isObserving(state: GameState): boolean {
+  return !state.human.includes(state.player);
+}
+
+/** Two people, one war. */
+export function isPvp(state: GameState): boolean {
+  return state.human.length > 1;
+}
+
+/**
+ * Could *anybody* hear about something happening here?
+ *
+ * The storage question, which is not the reading question. Whether a given
+ * side is told is `canSee`, derived per reader at the moment the feed is drawn
+ * — `fog.test.ts`: *"`canSee` is deliberately derived rather than stored."*
+ * This only decides whether the event is worth keeping at all, and an island
+ * neither side has charted swallows its own news.
+ *
+ * Several places used to ask `system.explored[state.player]` here instead,
+ * which is the same question narrowed to one seat. That was harmless while
+ * there was one seat and is not: it stores a creature's movements for
+ * whichever client is the Crown's and throws them away on the other.
+ */
+export function chartedByAnyone(system: System): boolean {
+  return BOTH_SIDES.some((side) => system.explored[side]);
+}
+
 export function nextId(state: GameState, prefix: string): string {
   state.nextId += 1;
   return `${prefix}-${state.nextId}`;

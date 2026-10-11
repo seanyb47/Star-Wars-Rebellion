@@ -1,4 +1,4 @@
-import { FORTNIGHT, canSee } from '../sim';
+import { FORTNIGHT, canSee, isObserving } from '../sim';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
@@ -900,7 +900,7 @@ export function App() {
     <div className="app" data-side={state.player}>
       {/* Watching. Said plainly across the top, because every order is refused
           while it is on and a silent lock is a bug report. */}
-      {state.observing && (
+      {isObserving(state) && (
         <div className="watchbar">
           Observing — the machine has both sides. Your orders are locked; the clock is still yours.
         </div>
@@ -922,7 +922,7 @@ export function App() {
            so that one clears the screen first. */
         onToggleSound={sound.toggle}
         onSetSpeed={(speed: Speed) => setState(setSpeed(state, speed))}
-        onToggleObserving={() => setState(setObserving(state, !state.observing))}
+        onToggleObserving={() => setState(setObserving(state, !isObserving(state)))}
         onOpenMenu={() => {
           if (!closePanels()) return;
           setMenuOpen(true);

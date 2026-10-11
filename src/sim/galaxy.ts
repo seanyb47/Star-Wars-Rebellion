@@ -1386,6 +1386,9 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
     day: 1,
     speed: 'paused',
     player,
+    // One side is yours and the machine takes the other. `newGame` overwrites
+    // this for a game that is somebody else's as well.
+    human: [player],
     sectors,
     systems,
     characters,
@@ -1462,15 +1465,35 @@ export function generateGalaxy(seed: number, player: PlayableFaction = 'empire')
    * to lose one you were not. So the card says it plainly, and says what to do
    * about it — the answer is the player's to carry out, not the game's.
    */
-  state.events.push({
-    id: `evt-${++state.nextId}`,
-    day: 1,
-    kind: 'war',
-    text:
-      player === 'alliance'
-        ? `The ${factionData.alliance.name} is formed at ${meeting}, beyond the Crown's charts, under three Pirate Lords: ${lordLine}. Several islands have already declared for it. Take ${inProse(capital.name)} and the Crown falls. Let the Crown hold all three Lords at the same time and the cause dies with them — and all three are standing on this one quay tonight. The Imperium will come looking for ${meeting}. Get them to sea, and keep them apart.`
-        : `Word reaches ${inProse(capital.name)}: a meeting has taken place in uncharted waters, and the ${factionData.alliance.name} has been formed under three Pirate Lords. Several islands have openly declared for it. Find where they met, take all three of them alive and hold them at the same time, and the rebellion is over — and hold ${inProse(capital.name)}, whatever else.`,
-    systemId: player === 'alliance' ? allianceHq.id : capital.id,
-  });
+  /*
+   * Both briefings, written on day one, each marked whose it is.
+   *
+   * It used to be one card chosen by `player`, with different words and a
+   * different island depending on which side you had taken. That is right for
+   * one reader and impossible for two: in PvP both players need the briefing
+   * for the side they are actually on, and lockstep needs the two clients to
+   * hold the same day one — a single card pointing at his capital on one
+   * machine and her anchorage on the other is two different games before
+   * either has given an order.
+   *
+   * So the Crown's is written and the Confederacy's is written, both carry
+   * `faction`, and `canSee` hands each player theirs and keeps the other from
+   * them. Playing alone you read exactly the card you always did.
+   */
+  const briefings: Array<{ faction: PlayableFaction; systemId: string; text: string }> = [
+    {
+      faction: 'empire',
+      systemId: capital.id,
+      text: `Word reaches ${inProse(capital.name)}: a meeting has taken place in uncharted waters, and the ${factionData.alliance.name} has been formed under three Pirate Lords. Several islands have openly declared for it. Find where they met, take all three of them alive and hold them at the same time, and the rebellion is over — and hold ${inProse(capital.name)}, whatever else.`,
+    },
+    {
+      faction: 'alliance',
+      systemId: allianceHq.id,
+      text: `The ${factionData.alliance.name} is formed at ${meeting}, beyond the Crown's charts, under three Pirate Lords: ${lordLine}. Several islands have already declared for it. Take ${inProse(capital.name)} and the Crown falls. Let the Crown hold all three Lords at the same time and the cause dies with them — and all three are standing on this one quay tonight. The Imperium will come looking for ${meeting}. Get them to sea, and keep them apart.`,
+    },
+  ];
+  for (const briefing of briefings) {
+    state.events.push({ id: `evt-${++state.nextId}`, day: 1, kind: 'war', ...briefing });
+  }
   return state;
 }
