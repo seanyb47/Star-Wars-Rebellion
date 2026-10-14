@@ -11818,3 +11818,86 @@ this going wrong.
 
 Suite: 112 files, 1157 passing, 1 skipped. Two tabs and the solo game both
 re-verified in a real browser afterwards.
+
+---
+
+## 14 October — a lobby you can put down, and more than one war
+
+Two complaints, both right.
+
+### *"I don't like that I can't close the screen while I wait"*
+
+Waiting for somebody to open a link can be minutes, and the lobby was holding
+the whole app hostage for every one of them. It folds into a single bar now —
+*Waiting for a friend · AB12CD — tap to show the link* — and the war you were
+playing carries on underneath. When they join, the two-player war takes over
+as it always did.
+
+The bar is on the **title screen** as well, which is the part that matters:
+opening a game for a friend is usually the first thing you do, so folding it
+away there is what lets you begin a war of your own while you wait. Folding
+needed no war behind it, only somewhere to fold back to.
+
+A related bug fell out of looking at it. `savable` was `phase.at === 'none'`,
+so **the autosave stopped for the whole time you sat in a lobby** — which is
+time spent playing your own game. It is `net.state === null` now: saved while
+the war on the screen is yours, which is what the rule was always trying to
+say.
+
+### *"Shouldn't I be able to have multiple games going at once?"*
+
+There was one slot, one button saying *Continue your game*, and a note under it
+warning that starting a new one would destroy it. That note is an apology, not
+a feature.
+
+Kept as an **index plus a slot each** rather than one object holding every war.
+A war is about 130 KB and the index is a few hundred bytes, so the title screen
+lists what you have without reading, parsing and holding four complete worlds
+in memory to do it — and one corrupt save costs that war instead of all of
+them.
+
+The list reads as wars rather than as files: *The long war · Crown Imperium ·
+day 143 · yesterday*. A pencil renames, a cross gives up (asked first, because
+it does not come back). A new war gets an id and a name the moment it begins,
+so its first autosave has somewhere of its own to go.
+
+The save from before there were slots is **adopted** on first sight, not
+ignored — somebody mid-war through the old build opens this one and finds their
+game in the list. Moved rather than copied, because left where it was the next
+autosave of a different war would have written over it.
+
+And `saveGameAs` reports failure where `saveGame` swallowed it. Silence was
+defensible when losing the save meant losing the only game; with several, a
+full quota means the autosave has quietly stopped and the player can do
+something about it if told.
+
+### The bug that only a browser would have found
+
+The first war appeared in the list **twice**, and then three times.
+
+The autosave wrote to the new slot, but the two *other* places that save — the
+page being hidden, and leaving for the title — still called the old
+single-slot `saveGame`. So every reload left a game under the bare key, and the
+legacy migration dutifully adopted it as another war. One war, duplicated on
+every reload.
+
+Everything now goes through one `writeGame`, which is what it should have been
+from the start: with several slots, "which slot" is not a thing two call sites
+should each decide for themselves.
+
+### Verified
+
+`lab/browser/games.mjs`, in a real browser: begin a war → listed once → begin a
+second as the other side → both kept → reopen the Crown's → it is the Crown's →
+rename → *The long war* → give one up → one left. No console errors.
+
+And the new diagnostics got a real test from an unexpected direction: this
+container blocks the broker, so tapping **Play a friend** here exercises the
+*failure* path properly. `lab/browser/lobbyfail.mjs` reads back *"Cannot reach
+the service that introduces the two phones. Check the signal and try again."*
+with **Try again** and **Back to the start** — a named fault and two ways out,
+where a week ago it was a silent hang.
+
+Two tabs and the solo game both still pass.
+
+Suite: 112 files, 1157 passing, 1 skipped.

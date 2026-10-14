@@ -77,10 +77,14 @@ const RENAMED_ISLANDS: Record<string, string> = {
   Chimehouse: 'Shellhouse',
 };
 
-export function loadGame(storage: Storage | undefined = globalThis.localStorage): GameState | null {
+export function loadGame(
+  storage: Storage | undefined = globalThis.localStorage,
+  /** Which slot. The bare key is the save from before there were several. */
+  key: string = SAVE_KEY,
+): GameState | null {
   if (!storage) return null;
   try {
-    const raw = storage.getItem(SAVE_KEY);
+    const raw = storage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as GameState;
     if (!parsed || !Array.isArray(parsed.systems) || parsed.systems.length === 0) return null;
@@ -156,4 +160,164 @@ export function clearSave(storage: Storage | undefined = globalThis.localStorage
   } catch {
     /* ignore */
   }
+}
+
+/* ------------------------------------------------------- more than one game */
+
+/**
+ * Several wars at once, each with a name.
+ *
+ * Sean, 14 October: *"shouldn't I be able to have multiple games going at
+ * once? Like a save and name game kinda thing?"* There was one slot and one
+ * button that said *Continue your game*, so starting a second war destroyed
+ * the first — and the title screen warned about it, which is an apology rather
+ * than a feature.
+ *
+ * Kept as an **index plus a slot each**, rather than one object holding every
+ * war. A war is around 130 KB and the index is a few hundred bytes, so the
+ * title screen can list what you have without reading, parsing and holding
+ * four complete worlds in memory to do it. It also means a single corrupt save
+ * costs that one war instead of all of them.
+ */
+const GAMES_KEY = 'seven-seas.games.v1';
+
+/** What the title screen needs to list a war without loading it. */
+export interface SavedGame {
+  id: string;
+  name: string;
+  /** Where it had got to, so the list reads as wars rather than as files. */
+  day: number;
+  side: GameState['player'];
+  /** Epoch milliseconds, for "yesterday" and for the order of the list. */
+  savedAt: number;
+}
+
+function slotKey(id: string): string {
+  return `${SAVE_KEY}.${id}`;
+}
+
+function readIndex(storage: Storage): SavedGame[] {
+  try {
+    const raw = storage.getItem(GAMES_KEY);
+    const parsed = raw ? (JSON.parse(raw) as SavedGame[]) : [];
+    return Array.isArray(parsed) ? parsed.filter((g) => g && typeof g.id === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeIndex(storage: Storage, games: SavedGame[]): void {
+  try {
+    storage.setItem(GAMES_KEY, JSON.stringify(games));
+  } catch {
+    /* a full quota is reported by `saveGameAs`, which is the call that matters */
+  }
+}
+
+/** A name for a war nobody has named: the side, and the day it was begun. */
+export function defaultGameName(state: GameState): string {
+  const side = state.player === 'empire' ? 'Crown' : 'Confederacy';
+  const when = new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  return `${side}, ${when}`;
+}
+
+export function newGameId(): string {
+  return `g${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+}
+
+/**
+ * Every war you have, newest first — and the one from before there were slots.
+ *
+ * The legacy single save is adopted the first time this is called, so somebody
+ * mid-war through the old build opens this one and finds their game in the
+ * list rather than a title screen offering them nothing. It is moved rather
+ * than copied: left where it was, the next autosave of a *different* war would
+ * have written over it.
+ */
+export function listGames(storage: Storage | undefined = globalThis.localStorage): SavedGame[] {
+  if (!storage) return [];
+  const games = readIndex(storage);
+  const legacy = storage.getItem(SAVE_KEY);
+  if (legacy && !games.some((g) => g.id === 'legacy')) {
+    const state = loadGame(storage);
+    if (state) {
+      const adopted: SavedGame = {
+        id: 'legacy',
+        name: defaultGameName(state),
+        day: state.day,
+        side: state.player,
+        savedAt: Date.now(),
+      };
+      try {
+        storage.setItem(slotKey('legacy'), legacy);
+        storage.removeItem(SAVE_KEY);
+      } catch {
+        /* if it cannot be moved it is left alone and simply not listed */
+      }
+      const next = [adopted, ...games];
+      writeIndex(storage, next);
+      return next;
+    }
+  }
+  return [...games].sort((a, b) => b.savedAt - a.savedAt);
+}
+
+/**
+ * Write a war to its own slot, and say whether it got there.
+ *
+ * Unlike `saveGame` this reports failure, because with several wars a full
+ * quota is a thing that actually happens and a player who is told can delete
+ * one. Silence was defensible when losing the save meant losing the only game;
+ * it is not when it means the autosave has quietly stopped working.
+ */
+export function saveGameAs(
+  id: string,
+  name: string,
+  state: GameState,
+  storage: Storage | undefined = globalThis.localStorage,
+): boolean {
+  if (!storage) return false;
+  try {
+    storage.setItem(slotKey(id), JSON.stringify(state));
+  } catch {
+    return false;
+  }
+  const games = readIndex(storage).filter((g) => g.id !== id);
+  writeIndex(storage, [
+    { id, name, day: state.day, side: state.player, savedAt: Date.now() },
+    ...games,
+  ]);
+  return true;
+}
+
+export function loadGameById(
+  id: string,
+  storage: Storage | undefined = globalThis.localStorage,
+): GameState | null {
+  if (!storage) return null;
+  // `loadGame` holds every migration a save needs, so it is read through that
+  // rather than parsed here — one place where an old save becomes a new one.
+  return loadGame(storage, slotKey(id));
+}
+
+export function deleteGame(id: string, storage: Storage | undefined = globalThis.localStorage): void {
+  if (!storage) return;
+  try {
+    storage.removeItem(slotKey(id));
+  } catch {
+    /* ignore */
+  }
+  writeIndex(storage, readIndex(storage).filter((g) => g.id !== id));
+}
+
+export function renameGame(
+  id: string,
+  name: string,
+  storage: Storage | undefined = globalThis.localStorage,
+): void {
+  if (!storage) return;
+  writeIndex(
+    storage,
+    readIndex(storage).map((g) => (g.id === id ? { ...g, name } : g)),
+  );
 }

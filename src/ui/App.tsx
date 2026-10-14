@@ -10,12 +10,19 @@ import {
   advanceDay,
   applyOrder,
   controlTally,
+  defaultGameName,
+  deleteGame,
+  listGames,
   loadGame,
+  loadGameById,
   newGame,
+  newGameId,
+  renameGame,
+  saveGameAs,
+  type SavedGame,
   MISSION_LOG_LABEL,
   missionReport,
   resolvePendingMission,
-  saveGame,
   sailError,
   isCovert,
   missionTypeFor,
@@ -36,7 +43,7 @@ import {
   inProse,
 } from '../sim';
 import { useNetGame } from '../net/useNetGame';
-import { Lobby, SpeedRequest } from './Lobby';
+import { Lobby, LobbyBar, SpeedRequest } from './Lobby';
 import { Almanac } from './Almanac';
 import { LookUpProvider, type EncPage } from './lookup';
 import { CharacterSheet } from './CharacterSheet';
@@ -88,6 +95,27 @@ export function App() {
   // This has to be live state, not a snapshot taken at launch — otherwise a
   // game played and set down in this same session offers no way back into it.
   const [saved, setSaved] = useState<GameState | null>(() => loadGame());
+  /*
+   * Which war is on the screen, and all of them.
+   *
+   * Sean, 14 October: *"shouldn't I be able to have multiple games going at
+   * once? Like a save and name game kinda thing?"* `gameId` is the slot the
+   * autosave writes to; `games` is what the title screen lists. A war begun
+   * here gets an id and a name the moment it starts, so the first autosave has
+   * somewhere of its own to go rather than over the top of the last one.
+   */
+  const [games, setGames] = useState<SavedGame[]>(() => listGames());
+  /*
+   * Whether the lobby is on the screen or folded into a bar.
+   *
+   * Sean, 14 October: *"I don't like that I can't close the screen while I
+   * wait."* Right — waiting for somebody to open a link can be minutes, and
+   * the lobby was holding the whole app hostage for all of it. Folded away it
+   * is one line across the top and the war you were already playing carries on
+   * underneath; the game you are waiting for still arrives when they join.
+   */
+  const [lobbyShut, setLobbyShut] = useState(false);
+  const [gameId, setGameId] = useState<string | null>(null);
   const [startedHere, setStarted] = useState(false);
   /*
    * A war with somebody else in it, if there is one.
@@ -439,6 +467,12 @@ export function App() {
 
   const sound = useAudio(state, started);
 
+  /** The notice line. Declared here because the autosave reports through it. */
+  const flash = useCallback((message: string) => {
+    setNotice(message);
+    window.setTimeout(() => setNotice((current) => (current === message ? null : current)), 2600);
+  }, []);
+
   // ---- Persistence -----------------------------------------------------
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -451,17 +485,49 @@ export function App() {
    * half of it is on their phone. So the autosave sits out while a session is
    * running, and your own game is still there when you come back.
    */
-  const savable = started && net.phase.at === 'none';
+  /*
+   * Saved while it is your own war, which is not the same as "not in a
+   * two-player one".
+   *
+   * `net.state === null` rather than `phase.at === 'none'`, because waiting in
+   * a lobby for a friend to open a link is time spent playing your own game —
+   * and under the old test the autosave quietly stopped for all of it.
+   */
+  const savable = started && net.state === null && gameId !== null;
   const startedRef = useRef(savable);
   startedRef.current = savable;
+  const slotRef = useRef<{ id: string; name: string } | null>(null);
+  /**
+   * Write the war that is on the screen to its own slot.
+   *
+   * The only thing that writes a game, which it has to be. The autosave used
+   * this and the two other places that save — leaving for the title, and the
+   * page being hidden — still called the old single-slot `saveGame`, so every
+   * reload left a save under the bare key and the migration adopted it as a
+   * **second** war. One war, listed twice, every time the page was reloaded.
+   */
+  const writeGame = useCallback((): boolean => {
+    const slot = slotRef.current;
+    if (!slot || net.state !== null) return true;
+    const wrote = saveGameAs(slot.id, slot.name, stateRef.current);
+    if (wrote) setGames(listGames());
+    return wrote;
+  }, [net.state]);
   useEffect(() => {
-    if (!savable) return;
-    const timer = window.setTimeout(() => saveGame(state), 600);
+    if (!savable || !gameId) return;
+    const timer = window.setTimeout(() => {
+      // Silence was fine when there was one slot and losing it meant losing
+      // the only game. With several, a full quota means the autosave has
+      // quietly stopped, and the player can do something about it if told.
+      if (!writeGame()) {
+        flash('Could not save — storage is full. Give up a war you have finished.');
+      }
+    }, 600);
     return () => window.clearTimeout(timer);
-  }, [state, savable]);
+  }, [state, savable, gameId, flash, writeGame]);
   useEffect(() => {
     const flush = () => {
-      if (startedRef.current) saveGame(stateRef.current);
+      if (startedRef.current) writeGame();
     };
     const onHide = () => {
       if (document.visibilityState === 'hidden') flush();
@@ -472,7 +538,7 @@ export function App() {
       window.removeEventListener('pagehide', flush);
       document.removeEventListener('visibilitychange', onHide);
     };
-  }, []);
+  }, [writeGame]);
 
   // ---- Unread feed badge ----------------------------------------------
   const newestEvent = state.events.length ? eventOrder(state.events.at(-1)!.id) : 0;
@@ -512,10 +578,6 @@ export function App() {
     }
   }, [tab]);
 
-  const flash = useCallback((message: string) => {
-    setNotice(message);
-    window.setTimeout(() => setNotice((current) => (current === message ? null : current)), 2600);
-  }, []);
 
   // ---- Commands --------------------------------------------------------
   /**
@@ -841,7 +903,11 @@ export function App() {
   };
 
   const startNewGame = (player: PlayableFaction) => {
-    setState(newGame(Date.now() >>> 0, player));
+    const fresh = newGame(Date.now() >>> 0, player);
+    const id = newGameId();
+    setGameId(id);
+    slotRef.current = { id, name: defaultGameName(fresh) };
+    setState(fresh);
     setStarted(true);
     setTeaching(!alreadyTaught());
     setMenuOpen(false);
@@ -865,7 +931,7 @@ export function App() {
 
   /** Back to the title screen, leaving the game where it stands to resume. */
   const returnToTitle = () => {
-    saveGame(stateRef.current);
+    writeGame();
     setSaved(stateRef.current);
     setMenuOpen(false);
     setStarted(false);
@@ -928,10 +994,25 @@ export function App() {
    * continue your own save — you came here to join their war, and the only
    * thing to say is whether they have been found yet.
    */
-  if (net.phase.at !== 'none' && net.phase.at !== 'playing') {
+  const lobbyUp = net.phase.at !== 'none' && net.phase.at !== 'playing';
+  /*
+   * The lobby takes the screen unless it has been folded away.
+   *
+   * Only `hosting` can fold: `joining` lasts seconds and `broken` is the end
+   * of the road, and neither is something to carry on underneath. The title
+   * screen counts as something to fold back to — opening a game for a friend
+   * is usually the first thing you do, and beginning a war of your own while
+   * you wait for them is the point of being able to put it away.
+   */
+  const canFold = net.phase.at === 'hosting';
+  if (lobbyUp && !(canFold && lobbyShut)) {
     return (
       <div className="app">
-        <Lobby phase={net.phase} onLeave={net.leave} />
+        <Lobby
+          phase={net.phase}
+          onLeave={net.leave}
+          onShut={canFold ? () => setLobbyShut(true) : undefined}
+        />
       </div>
     );
   }
@@ -939,9 +1020,58 @@ export function App() {
   if (!started) {
     return (
       <div className="app">
+        {lobbyUp && canFold && lobbyShut && net.phase.at === 'hosting' && (
+          <LobbyBar
+            code={net.phase.code}
+            onShow={() => setLobbyShut(false)}
+            onGiveUp={() => {
+              net.leave();
+              setLobbyShut(false);
+            }}
+          />
+        )}
         <StartScreen
           hasSave={saved !== null}
-          onPlayAFriend={() => net.invite()}
+          games={games}
+          onPlayAFriend={() => {
+            setLobbyShut(false);
+            net.invite();
+          }}
+          onResume={(id) => {
+            const game = loadGameById(id);
+            if (!game) {
+              // Before `flash` exists in this render, and the title screen has
+              // no notice line anyway, so it is said the only way it can be.
+              window.alert('That war could not be read. It may have been saved by an older build.');
+              return;
+            }
+            const listed = games.find((g) => g.id === id);
+            setState(game);
+            setGameId(id);
+            slotRef.current = { id, name: listed?.name ?? defaultGameName(game) };
+            setToldOf(game.events.map((e) => e.id));
+            void sound.startWith(game.player);
+            setStarted(true);
+          }}
+          onRename={(id, was) => {
+            const next = window.prompt('Call this war what?', was);
+            if (next === null) return;
+            const name = next.trim().slice(0, 60);
+            if (!name) return;
+            renameGame(id, name);
+            if (slotRef.current?.id === id) slotRef.current = { id, name };
+            setGames(listGames());
+          }}
+          onDelete={(id, name) => {
+            // Not undoable, so it asks — the same treatment felling a forest
+            // gets, and for the same reason.
+            if (!window.confirm(`Give up ${name}?\n\nThe war is gone and does not come back.`)) {
+              return;
+            }
+            deleteGame(id);
+            setGames(listGames());
+            if (gameId === id) setGameId(null);
+          }}
           soundOn={sound.on}
           onToggleSound={sound.toggle}
           onHear={(side) => void sound.startWith(side)}
@@ -984,6 +1114,18 @@ export function App() {
         <div className="watchbar watchbar--waiting">
           Waiting for the other {terms.crew.toLowerCase()} — the war holds until they are back.
         </div>
+      )}
+      {/* The lobby, folded away. Still waiting, still cancellable, and no
+          longer in the way of the war you were playing while you wait. */}
+      {lobbyUp && canFold && lobbyShut && net.phase.at === 'hosting' && (
+        <LobbyBar
+          code={net.phase.code}
+          onShow={() => setLobbyShut(false)}
+          onGiveUp={() => {
+            net.leave();
+            setLobbyShut(false);
+          }}
+        />
       )}
       {net.speedAsked && <SpeedRequest asked={net.speedAsked} onAnswer={net.answerSpeed} />}
       {net.speedPending && (

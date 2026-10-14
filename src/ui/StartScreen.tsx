@@ -2,7 +2,7 @@ import { useState } from 'react';
 import factionData from '../data/factions.json';
 import reachData from '../data/reaches.json';
 import { numberWord } from './words';
-import type { PlayableFaction } from '../sim';
+import type { PlayableFaction, SavedGame } from '../sim';
 import { CompassRose, FactionCrest } from './art';
 import { SoundIcon } from './TopBar';
 import { paintedChart } from './painted';
@@ -41,16 +41,42 @@ const FACTION_DETAIL: Record<
 const ISLANDS = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
 const REACHES = reachData.reaches.length;
 
+/** When it was last played, as a person would say it. */
+function whenish(at: number): string {
+  const mins = Math.max(0, Math.round((Date.now() - at) / 60000));
+  if (mins < 2) return 'just now';
+  if (mins < 60) return `${mins} minutes ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return hours === 1 ? 'an hour ago' : `${hours} hours ago`;
+  const days = Math.round(hours / 24);
+  return days === 1 ? 'yesterday' : `${days} days ago`;
+}
+
 export function StartScreen({
   hasSave,
+  games,
   soundOn,
   onToggleSound,
   onHear,
   onContinue,
   onBegin,
   onPlayAFriend,
+  onResume,
+  onRename,
+  onDelete,
 }: {
   hasSave: boolean;
+  /**
+   * Every war in progress, newest first.
+   *
+   * Sean, 14 October: *"shouldn't I be able to have multiple games going at
+   * once? Like a save and name game kinda thing?"* There was one slot and a
+   * button warning that a new game would destroy it.
+   */
+  games?: SavedGame[];
+  onResume?: (id: string) => void;
+  onRename?: (id: string, was: string) => void;
+  onDelete?: (id: string, name: string) => void;
   /** Open a lobby and get a link to text somebody. */
   onPlayAFriend?: () => void;
   soundOn: boolean;
@@ -117,13 +143,52 @@ export function StartScreen({
         </p>
       </header>
 
-      {hasSave && (
-        <button className="btn btn--block btn--primary start__continue" onClick={onContinue}>
-          Continue your game
-        </button>
+      {/* Wars in progress, each its own. Tap to go back to one; the pencil
+          names it and the cross gives it up. Falls back to the single
+          Continue button where a build has no list to show. */}
+      {games && games.length > 0 ? (
+        <>
+          <div className="section-title">Your wars</div>
+          <ul className="games">
+            {games.map((game) => (
+              <li className="games__row" key={game.id}>
+                <button className="games__open" onClick={() => onResume?.(game.id)}>
+                  <b className="games__name">{game.name}</b>
+                  <span className="games__where">
+                    {game.side === 'empire' ? 'Crown Imperium' : 'Free Confederacy'} · day {game.day}
+                    {' · '}
+                    {whenish(game.savedAt)}
+                  </span>
+                </button>
+                <button
+                  className="games__act"
+                  aria-label={`Rename ${game.name}`}
+                  onClick={() => onRename?.(game.id, game.name)}
+                >
+                  ✎
+                </button>
+                <button
+                  className="games__act"
+                  aria-label={`Give up ${game.name}`}
+                  onClick={() => onDelete?.(game.id, game.name)}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        hasSave && (
+          <button className="btn btn--block btn--primary start__continue" onClick={onContinue}>
+            Continue your game
+          </button>
+        )
       )}
 
-      <div className="section-title">{hasSave ? 'Or start again' : 'Choose your side'}</div>
+      <div className="section-title">
+        {games && games.length > 0 ? 'Begin another' : hasSave ? 'Or start again' : 'Choose your side'}
+      </div>
 
       <div className="start__factions">
         {(['empire', 'alliance'] as const).map((id) => (
@@ -221,7 +286,7 @@ export function StartScreen({
         </button>
       )}
 
-      {hasSave && (
+      {hasSave && !(games && games.length > 0) && (
         <p className="tiny muted start__note start__note--foot">
           Starting a new game discards the one in progress.
         </p>

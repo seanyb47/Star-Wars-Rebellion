@@ -3655,3 +3655,90 @@ button.tcard:hover { border-color: var(--brass); }
   background: rgba(154, 115, 48, 0.22);
   color: var(--brass);
 }
+
+/* ------------------------------------------------------------- your wars */
+
+/*
+ * More than one game, each with a name. A row is mostly the tap target that
+ * reopens the war; the two small buttons are deliberately small, because
+ * giving up a war by accident is the one mistake here that cannot be undone.
+ */
+.games {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.games__row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+}
+.games__open {
+  flex: 1;
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--parchment);
+  font: inherit;
+}
+.games__name {
+  font-size: 15px;
+}
+.games__where {
+  font-size: 12px;
+  color: var(--chrome-text);
+}
+.games__act {
+  width: 40px;
+  border: 1px solid var(--rule);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--chrome-text);
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* ------------------------------------------------- the lobby, minimised */
+
+/*
+ * Waiting for a friend to open a link can be minutes, and Sean's complaint was
+ * exactly right: the screen should not be hostage to it. Collapsed, it is a bar
+ * you can carry on underneath — and the war it is waiting for is still coming.
+ */
+.lobbybar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px 7px 12px;
+  background: rgba(154, 115, 48, 0.22);
+  color: var(--brass);
+  font-size: 13px;
+}
+.lobbybar__says {
+  flex: 1;
+  text-align: left;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  padding: 0;
+}
+.lobbybar__code {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.lobbybar__shut {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 4px;
+}

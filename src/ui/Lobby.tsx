@@ -15,9 +15,18 @@ import type { Phase } from '../net/useNetGame';
 export function Lobby({
   phase,
   onLeave,
+  onShut,
 }: {
   phase: Phase;
   onLeave: () => void;
+  /**
+   * Fold it away and carry on, where that is possible.
+   *
+   * Absent means it is not — joining takes seconds and a failure is the end of
+   * the road, so neither is worth putting behind something. Waiting for a
+   * friend to open a link is the one that can take minutes.
+   */
+  onShut?: () => void;
 }) {
   const [copied, setCopied] = useState(false);
   if (phase.at === 'none' || phase.at === 'playing') return null;
@@ -64,6 +73,11 @@ export function Lobby({
               {copied ? 'Link copied' : 'Send the link'}
             </button>
             <p className="tiny muted lobby__wait">{phase.says ?? 'Waiting for them to join…'}</p>
+            {onShut && (
+              <button className="btn btn--wide" onClick={onShut}>
+                Carry on without them for now
+              </button>
+            )}
           </>
         )}
 
@@ -103,6 +117,38 @@ export function Lobby({
           {phase.at === 'broken' ? 'Back to the start' : 'Never mind'}
         </button>
       </div>
+    </div>
+  );
+}
+
+/**
+ * The lobby, folded into one line.
+ *
+ * Shown on the title screen as well as in a war, because the ordinary way to
+ * open a game for a friend is from the title — and folding it away there is
+ * how you begin a war of your own while you wait for them.
+ */
+export function LobbyBar({
+  code,
+  onShow,
+  onGiveUp,
+}: {
+  code: string;
+  onShow: () => void;
+  onGiveUp: () => void;
+}) {
+  return (
+    <div className="lobbybar">
+      <button className="lobbybar__says" onClick={onShow}>
+        Waiting for a friend · <span className="lobbybar__code">{code}</span> — tap to show the link
+      </button>
+      <button
+        className="lobbybar__shut"
+        aria-label="Stop waiting for a friend"
+        onClick={onGiveUp}
+      >
+        ×
+      </button>
     </div>
   );
 }
