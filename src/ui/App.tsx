@@ -1,40 +1,79 @@
+import { FORTNIGHT, canSee, isObserving } from '../sim';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import factionData from '../data/factions.json';
 import terms from '../data/terms.json';
 import {
+  CHART_LAYERS,
+  CLOCK_TICK_MS,
+  SPEED_LABEL,
   SPEED_MS,
   advanceDay,
-  cancelOrder,
+  applyOrder,
   controlTally,
+  defaultGameName,
+  deleteGame,
+  listGames,
   loadGame,
+  loadGameById,
   newGame,
-  orderBuild,
+  newGameId,
+  renameGame,
+  saveGameAs,
+  type SavedGame,
+  MISSION_LOG_LABEL,
+  missionReport,
   resolvePendingMission,
-  saveGame,
-  sendDiplomat,
+  sailError,
+  isCovert,
+  missionTypeFor,
+  missionsOffered,
+  warReport,
+  type ChartLayer,
+  setObserving,
   setSpeed,
-  VICTORY_CONTROL_FRACTION,
   type BuildItem,
   type GameState,
+  type Order,
   type PlayableFaction,
   type Speed,
+  scrapReturn,
+  type FacilityType,
+  type ScrapTarget,
+  type MissionType,
+  inProse,
 } from '../sim';
+import { useNetGame } from '../net/useNetGame';
+import { Lobby, LobbyBar, SpeedRequest } from './Lobby';
 import { Almanac } from './Almanac';
+import { LookUpProvider, type EncPage } from './lookup';
 import { CharacterSheet } from './CharacterSheet';
-import { CharactersScreen } from './CharactersScreen';
+import { BuildMenuSheet, BuildOrderSheet, firstItem, type BuildDraft } from './BuildSheet';
+import { MissionChoiceSheet } from './MissionChoiceSheet';
+import { SailConfirmSheet } from './SailConfirmSheet';
 import { FeedScreen } from './FeedScreen';
+import { Dispatches } from './Dispatches';
 import { GalaxyMap } from './GalaxyMap';
+import { BattleSheet } from './BattleSheet';
+import { EventCards, isNotable } from './EventCard';
 import { Narrator } from './Narrator';
+import { moodForEvent } from './narrator/mood';
+import { useAdvisorVoice } from './narrator/useAdvisorVoice';
 import { ReachSheet } from './ReachSheet';
-import { SeaSheet } from './SeaSheet';
-import type { IslandTab } from './IslandRow';
+import { ReachListSheet } from './ReachListSheet';
+import { FleetListSheet } from './FleetListSheet';
+import { EmbarkSheet } from './EmbarkSheet';
+import { tabForLayer, type IslandTab } from './IslandRow';
+import { ScrapSheet } from './ScrapSheet';
 import { SystemSheet } from './SystemSheet';
 import { StartScreen } from './StartScreen';
+import { Tutorial, alreadyTaught } from './Tutorial';
 import { TabBar, type Tab } from './TabBar';
 import { TopBar } from './TopBar';
+import { WarEnd } from './WarEnd';
 import { useAudio } from './useAudio';
 import { FactionCrest } from './art';
 import { ControlBadge, Sheet, Stat } from './components';
+import { orderedLayers, popsUp, usePrefs } from './prefs';
 
 const SEEN_KEY = 'galactic-rebellion.lastSeenEvent.v1';
 
@@ -56,63 +95,439 @@ export function App() {
   // This has to be live state, not a snapshot taken at launch — otherwise a
   // game played and set down in this same session offers no way back into it.
   const [saved, setSaved] = useState<GameState | null>(() => loadGame());
-  const [started, setStarted] = useState(false);
-  const [state, setState] = useState<GameState>(() => saved ?? newGame());
+  /*
+   * Which war is on the screen, and all of them.
+   *
+   * Sean, 14 October: *"shouldn't I be able to have multiple games going at
+   * once? Like a save and name game kinda thing?"* `gameId` is the slot the
+   * autosave writes to; `games` is what the title screen lists. A war begun
+   * here gets an id and a name the moment it starts, so the first autosave has
+   * somewhere of its own to go rather than over the top of the last one.
+   */
+  const [games, setGames] = useState<SavedGame[]>(() => listGames());
+  /*
+   * Whether the lobby is on the screen or folded into a bar.
+   *
+   * Sean, 14 October: *"I don't like that I can't close the screen while I
+   * wait."* Right — waiting for somebody to open a link can be minutes, and
+   * the lobby was holding the whole app hostage for all of it. Folded away it
+   * is one line across the top and the war you were already playing carries on
+   * underneath; the game you are waiting for still arrives when they join.
+   */
+  const [lobbyShut, setLobbyShut] = useState(false);
+  const [gameId, setGameId] = useState<string | null>(null);
+  const [startedHere, setStarted] = useState(false);
+  /*
+   * A war with somebody else in it, if there is one.
+   *
+   * `phase.at === 'none'` is every game this app has ever played and nothing
+   * below behaves differently for it. That is deliberate: a fault in the
+   * two-player machinery must not be able to break the single-player game,
+   * which is the one that works.
+   *
+   * The build id is passed so two phones on different deploys refuse each
+   * other instead of desyncing on the first day — Pages ships on every push,
+   * so one of them having reloaded and the other not is the ordinary case
+   * rather than a strange one.
+   */
+  const net = useNetGame(__BUILD_ID__);
+  const [ownState, setState] = useState<GameState>(() => saved ?? newGame());
+  /*
+   * The war on screen: the session's while there is one, this phone's
+   * otherwise.
+   *
+   * Read-only when it is the session's — nothing below calls `setState` on a
+   * two-player war, because `give` routes every order into the sequence and
+   * the state comes back through `onChange`. A `setState` in that mode would
+   * be this phone quietly disagreeing with the other one.
+   */
+  const state: GameState = net.state ?? ownState;
+  /**
+   * Past the title screen.
+   *
+   * A two-player war is already under way by the time there is a session, so
+   * it counts as started without anybody pressing Begin — otherwise the
+   * friend who opened the link lands on a title screen offering to continue
+   * somebody else's save.
+   */
+  const netPlaying = net.phase.at === 'playing';
+  const started = startedHere || netPlaying;
   const [tab, setTab] = useState<Tab>('galaxy');
   const [openSystemId, setOpenSystemId] = useState<string | null>(null);
-  const [openSystemTab, setOpenSystemTab] = useState<IslandTab>('overview');
+  const [openSystemTab, setOpenSystemTab] = useState<IslandTab>('harbor');
   const [openReachId, setOpenReachId] = useState<string | null>(null);
-  const [openSea, setOpenSea] = useState<string | null>(null);
+  const [openListId, setOpenListId] = useState<string | null>(null);
+  /* Every squadron of yours, from the chip at the foot of the chart. See
+     `FleetListSheet` for why it exists at all. */
+  const [fleetsOpen, setFleetsOpen] = useState(false);
+  /* Which island's companies you are putting aboard. See `EmbarkSheet`. */
+  const [loadingAt, setLoadingAt] = useState<string | null>(null);
+  /*
+   * Where an island was opened from, so closing it goes back there.
+   *
+   * A Location opens in place of the Reach Map rather than on top of it — one
+   * sheet at a time is the whole shape of this screen — so before this the
+   * cross dropped you all the way out to the World Map. Reading a chain
+   * island by island, which is most of what looking at the chart is for, cost
+   * two taps a time: reach, island, close, reach again. The sheet already had
+   * a way back up to its Reach; what it did not have was a way back to the
+   * one you came from.
+   */
+  const [cameFrom, setCameFrom] = useState<{ kind: 'reach' | 'list'; id: string } | null>(null);
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [worldsOpen, setWorldsOpen] = useState(false);
+  /*
+   * The closing screen is shown once and then put away.
+   *
+   * It is an event, not a state: the war being over is said permanently by
+   * the line under the utility bar, and a full screen that cannot be
+   * dismissed would lock a player out of the world they just spent thirty-two
+   * months in. Reopened from that line whenever they want it back.
+   */
+  const [warEndSeen, setWarEndSeen] = useState(false);
   const [narratorOpen, setNarratorOpen] = useState(false);
-  const [almanacOpen, setAlmanacOpen] = useState(false);
+  const voice = useAdvisorVoice();
+  // The encyclopedia, and where in it. `at` is set when a unit somewhere in
+  // the game was tapped to get here, so the page opens on that entry rather
+  // than at the top of a page of thirty.
+  /*
+   * `nth` counts lookups, and its only job is to be the encyclopedia's React
+   * key.
+   *
+   * Without it a lookup made *from inside* the encyclopedia did nothing: the
+   * Almanac holds its open tab in `useState` seeded from the `page` prop, so
+   * a new prop on an already-mounted sheet never moved it. That never showed
+   * while every lookup came from a game screen with the sheet shut — the
+   * first one that did not was the crew role tags of 19 September, which land
+   * on the Glossary tab from the Crew tab. Asking for the same page and entry
+   * twice running had the same problem for the same reason.
+   *
+   * Counting makes every request distinct, so the sheet remounts at what was
+   * asked for. Losing the scroll position is correct here: a lookup means
+   * take me to this thing.
+   */
+  const [almanac, setAlmanac] = useState<{ page: EncPage; at?: string; nth: number } | null>(null);
+  const almanacOpen = almanac !== null;
+  const lookUp = useCallback(
+    (page: EncPage, at?: string) =>
+      setAlmanac((prev) => ({ page, at, nth: (prev?.nth ?? 0) + 1 })),
+    [],
+  );
+  /**
+   * Where the player last was in the reference, so the Book tab can resume.
+   *
+   * A ref rather than state because nothing renders off it — it is read only
+   * at the moment the tab is tapped, and making it state would re-render the
+   * whole app every time somebody swiped between encyclopedia pages.
+   */
+  const bookPage = useRef<EncPage>('people');
+  /**
+   * The Book tab's verb, which is not the same verb as a lookup.
+   *
+   * `lookUp` remounts on purpose: a link from an ℹ means *take me to this
+   * thing*, and landing on the thing matters more than the scroll position
+   * you left behind. The tab means *open the book*, and doing the same
+   * remount there threw the page away — read three pages of Rules, close it
+   * to check something, tap Book again and you are back on People.
+   *
+   * So: tapping it while it is open closes it, the way a tab should, and
+   * opening it resumes the page you left. Neither ever loses your place,
+   * because neither is a jump.
+   */
+  const openBook = useCallback(() => {
+    setAlmanac((prev) =>
+      prev ? null : { page: bookPage.current, at: undefined, nth: 0 },
+    );
+  }, []);
   const [pickingFor, setPickingFor] = useState<string | null>(null);
-  const [focusSystemId, setFocusSystemId] = useState<string | null>(null);
+  // An island that offers an officer more than one errand asks which.
+  const [missionChoice, setMissionChoice] = useState<{ characterId: string; systemId: string } | null>(null);
+  // The build flow: the three-button menu, the order being drafted, and
+  // whether the chart is open to choose the island it lands on. The draft
+  // outlives the trip to the chart so what you had chosen is still chosen.
+  const [buildMenuOpen, setBuildMenuOpen] = useState(false);
+  const [draft, setDraft] = useState<BuildDraft | null>(null);
+  const [orderOpen, setOrderOpen] = useState(false);
+  const [choosingSite, setChoosingSite] = useState(false);
+  // Which question the chart is answering. Not saved: it is a way of looking
+  // at the war, not a fact about it, and it should start plain every session.
+  const [layer, setLayer] = useState<ChartLayer>('allegiance');
+  /** A fleet waiting to be told where to sail. Every island is a valid answer. */
+  const [sailingFleetId, setSailingFleetId] = useState<string | null>(null);
+
+  // The canvas behind the page wears the same side's colours. An iPhone lays
+  // the page out shorter than the glass, reserving the strip the home
+  // indicator sits over, and nothing inside the page can paint there — what
+  // fills it is the canvas. In the console's own dark it reads as the bottom
+  // of the console instead of a band of sea under it. Above every early
+  // return, because hooks are.
+  useEffect(() => {
+    document.body.dataset.side = state.player;
+  }, [state.player]);
+  /** A voyage the player has picked a destination for but not yet ordered. */
+  const [sailPlan, setSailPlan] = useState<{ fleetId: string; systemId: string } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  /** The opening lesson, offered once ever and only on a game you started. */
+  const [teaching, setTeaching] = useState(false);
   const [lastSeen, setLastSeen] = useState(readLastSeen);
+  /**
+   * Dispatches the player has been shown a card for, so none is shown twice.
+   *
+   * Seeded with everything already in the log: a game resumed a hundred days
+   * in has a hundred days of news in it, and none of it is news any more.
+   * Only what happens from now on is worth stopping for.
+   */
+  const [notifyPrefs] = usePrefs();
+  const [toldOf, setToldOf] = useState<string[]>(() => state.events.map((e) => e.id));
+  /** A card opened from the log, which is one event rather than a day's worth. */
+  const [readingId, setReadingId] = useState<string | null>(null);
+  /** The entry the log was opened at, from a line in the running report. */
+  const [focusEventId, setFocusEventId] = useState<string | null>(null);
 
   const decision = state.pendingDecisions[0] ?? null;
-  // Spec 2: any modal or panel holds the clock; closing it resumes.
-  const panelOpen =
-    openSystemId !== null ||
-    openCharacterId !== null ||
-    openReachId !== null ||
-    openSea !== null ||
-    menuOpen ||
-    worldsOpen ||
-    narratorOpen ||
-    almanacOpen ||
-    decision !== null;
+
+  /**
+   * News worth stopping for that the player has not been shown. Only the
+   * notable kinds — an island changing hands, a rising, an action, the end of
+   * the war. Orders finishing and crew reporting stay in the log, or the game
+   * would interrupt itself every other day.
+   */
+  /* `canSee` as well as `isNotable`, or the game would stop the player for
+     news it has just decided they cannot have — an enemy island changing
+     hands in a Reach they have never charted raised a card while the log
+     rightly said nothing. Same rule in both places, from the same function. */
+  const dispatches = state.events.filter(
+    (e) =>
+      isNotable(e) &&
+      // The player's own answer on whether this kind stops them — the same
+      // setting the running strip reads, because a dispatch card and a strip
+      // line are two presentations of one decision. See `Notifications`.
+      popsUp(notifyPrefs, e) &&
+      canSee(state, e, state.player) &&
+      !toldOf.includes(e.id),
+  );
+  // The log is capped, so the list of what has been read is capped with it.
+  useEffect(() => {
+    setToldOf((seen) =>
+      seen.length > 500 ? seen.filter((id) => state.events.some((e) => e.id === id)) : seen,
+    );
+  }, [state.events]);
+  const reading = readingId ? state.events.find((e) => e.id === readingId) : undefined;
+  const cards = reading ? [reading] : dispatches;
+  /*
+   * What holds the clock, and what no longer does.
+   *
+   * Two passes to get here. Every panel used to hold it — island sheet, crew,
+   * Reach, build menu, almanac, the menu itself — which is most of what a
+   * player does, so the war ran only while you stared at the chart touching
+   * nothing. Sean cut that: a sub-screen is somewhere you went to look at
+   * something, and the world does not stop for that.
+   *
+   * I then kept the hold for two more things, a dispatch raised over whatever
+   * you were doing and a decision waiting on an answer, on the grounds that
+   * both had stopped *you*. Sean's answer: *"combat is only clock pause.
+   * Unless player pauses."* So they go too, and the rule is now one line
+   * instead of a judgement call — the clock stops when your ships are in
+   * action, and otherwise when you say so.
+   *
+   * What that changes downstream, and why neither needed guarding. A dispatch
+   * no longer freezes the world while it is up, so more news can arrive behind
+   * it; the card stack already pages through a list and says "3 of 7". And an
+   * unanswered continue-or-return no longer freezes it either — the officer
+   * stands on the island doing nothing until you answer, which costs you their
+   * time, which is the honest price of not deciding.
+   */
+  /**
+   * Everything notable that has happened *by the time you dismiss*, not by the
+   * time the card was drawn.
+   *
+   * Sean's dev report, the highest-impact bug in it: *"the event/dispatch modal
+   * doesn't fully clear. Dismissing reveals an identical copy queued behind it,
+   * and while any copy is mounted, taps on the world map do nothing."*
+   *
+   * One cause, two symptoms. Dismissal used to mark the `dispatches` array
+   * captured in the render that drew the card — and the clock deliberately
+   * keeps running while a card is up, so at Fast (a day and a half a second)
+   * more notable news lands behind it constantly. Those arrivals were never in
+   * the list being marked, so the moment the card closed another opened,
+   * looking identical because it often *was* the same kind of event.
+   *
+   * The dead map follows from that rather than from any pointer-events fault:
+   * every card brings a full-screen scrim whose job is to dismiss on tap, so a
+   * card that instantly replaces itself eats the next tap, and the next. Hence
+   * "had to hit the × 2–3 times."
+   *
+   * `stateRef` is already kept current for the autosave, so reading the log
+   * through it marks what is actually there at the moment of the tap.
+   */
+  const markRead = useCallback(() => {
+    setToldOf((seen) => {
+      const now = stateRef.current.events.filter(isNotable).map((e) => e.id);
+      return now.length === 0 ? seen : [...new Set([...seen, ...now])];
+    });
+  }, []);
+
+  /*
+   * And a dispatch holds it again — which reverses the line above, so it says
+   * why here rather than quietly.
+   *
+   * Sean's rule of 18 September was *"combat is only clock pause. Unless
+   * player pauses."* His playtest of the 19th: *"The clock keeps running
+   * behind pop-ups. Days pass while a report dialog is open (Day 30 became
+   * Day 34 on one dialog)."* The later word wins, and the earlier one was
+   * given against a version of the card stack that could not have carried it:
+   * dismissal used to mark only the dispatches captured in the render that
+   * drew the card, so at Fast a card replaced itself endlessly and a clock
+   * held by one would have been a clock held for good. Dismissal marks the
+   * whole log as of the tap now, so one tap clears the queue and the war
+   * starts again.
+   *
+   * Three things hold it, and nothing else: an action your ships are in, a
+   * dispatch that interrupted you, and an errand waiting on your answer. A
+   * card you opened yourself out of the log does not — that is somewhere you
+   * went to look at something, which is Sean's own distinction and the reason
+   * no sub-screen holds the clock either.
+   */
+  const clockHeld =
+    state.battle !== undefined || decision !== null || (!reading && dispatches.length > 0);
+
 
   // ---- The clock -------------------------------------------------------
-  const running = started && !panelOpen && !state.winner && state.speed !== 'paused';
+  //
+  // This used to be a `setInterval` of one day's length, torn down and rebuilt
+  // whenever the game stopped. That throws away whatever the day had behind
+  // it, which at four seconds a day was invisible and at thirty is not: being
+  // held for a dispatch twenty seconds into a day would cost those twenty
+  // seconds, every time.
+  //
+  // So the clock counts real elapsed time into a running total instead, and
+  // the total survives the stop. Whatever the day had behind it when the
+  // dispatch went up is still there when you dismiss it.
+  /*
+   * In a two-player war this phone does not run the clock.
+   *
+   * The sequence does, and `useNetGame` pumps it. Two phones each counting
+   * their own way to a day is two clocks, and two clocks drift — so the day
+   * turns as part of a slice both of them apply, and the loop below is left
+   * to draw the ring.
+   *
+   * `clockHeld` is not consulted there either, and that is a design call worth
+   * naming. A **battle** holds the shared clock, in the rules, because Sean's
+   * ruling is that both sides answer each round. A dispatch card and a mission
+   * report do not: they are one player's private reading and one player's
+   * private decision, and letting either freeze the war would hand both of
+   * them a way to stop time whenever a card came up — which is most minutes.
+   */
+  const running =
+    started && !netPlaying && !clockHeld && !state.winner && state.speed !== 'paused';
+  /** Milliseconds of this game day already served. Kept across pauses. */
+  const servedRef = useRef(0);
   useEffect(() => {
+    // How far through the day we are, published as a custom property rather
+    // than as React state: this moves ten times a second, and re-rendering
+    // the chart at that rate to turn a ring a few degrees would be absurd.
+    /*
+     * Two rings, not one. Sean, 21 September: *"have concentric circles, where
+     * there's an outer one and an inner one. One's tracking the fortnight and
+     * another one's tracking the day. You don't really have to explain them —
+     * people will figure out what they are, and the explanation can be in the
+     * upkeep glossary entry."*
+     *
+     * The fortnight is the one the money runs on: the ledger settles every
+     * fourteenth day, and a player who can see that coming can decide whether
+     * to lay another hull down before it or after it. Unexplained on purpose.
+     */
+    const show = (fraction: number) => {
+      const root = document.documentElement.style;
+      root.setProperty('--day-progress', fraction.toFixed(3));
+      const throughFortnight = ((stateRef.current.day % FORTNIGHT) + fraction) / FORTNIGHT;
+      root.setProperty('--fortnight-progress', throughFortnight.toFixed(3));
+    };
     if (!running) return;
+    let last = performance.now();
     const interval = window.setInterval(() => {
+      const now = performance.now();
+      servedRef.current += now - last;
+      last = now;
+      const dayLength = SPEED_MS[state.speed];
+      if (servedRef.current < dayLength) {
+        show(servedRef.current / dayLength);
+        return;
+      }
+      // One day per crossing, never a burst: a tab left in the background
+      // should not come back and run a fortnight in one frame.
+      servedRef.current = 0;
+      show(0);
       setState((current) =>
         current.speed === 'paused' || current.winner ? current : advanceDay(current),
       );
-    }, SPEED_MS[state.speed]);
+    }, CLOCK_TICK_MS);
     return () => window.clearInterval(interval);
   }, [running, state.speed]);
 
-  const sound = useAudio(state);
+  const sound = useAudio(state, started);
+
+  /** The notice line. Declared here because the autosave reports through it. */
+  const flash = useCallback((message: string) => {
+    setNotice(message);
+    window.setTimeout(() => setNotice((current) => (current === message ? null : current)), 2600);
+  }, []);
 
   // ---- Persistence -----------------------------------------------------
   const stateRef = useRef(state);
   stateRef.current = state;
-  const startedRef = useRef(started);
-  startedRef.current = started;
+  /*
+   * A two-player war is not saved.
+   *
+   * There is one save slot and it holds the game you are playing on your own.
+   * Writing a shared war into it would overwrite that with something you
+   * cannot reopen anyway — a war with a person in it needs the person, and
+   * half of it is on their phone. So the autosave sits out while a session is
+   * running, and your own game is still there when you come back.
+   */
+  /*
+   * Saved while it is your own war, which is not the same as "not in a
+   * two-player one".
+   *
+   * `net.state === null` rather than `phase.at === 'none'`, because waiting in
+   * a lobby for a friend to open a link is time spent playing your own game —
+   * and under the old test the autosave quietly stopped for all of it.
+   */
+  const savable = started && net.state === null && gameId !== null;
+  const startedRef = useRef(savable);
+  startedRef.current = savable;
+  const slotRef = useRef<{ id: string; name: string } | null>(null);
+  /**
+   * Write the war that is on the screen to its own slot.
+   *
+   * The only thing that writes a game, which it has to be. The autosave used
+   * this and the two other places that save — leaving for the title, and the
+   * page being hidden — still called the old single-slot `saveGame`, so every
+   * reload left a save under the bare key and the migration adopted it as a
+   * **second** war. One war, listed twice, every time the page was reloaded.
+   */
+  const writeGame = useCallback((): boolean => {
+    const slot = slotRef.current;
+    if (!slot || net.state !== null) return true;
+    const wrote = saveGameAs(slot.id, slot.name, stateRef.current);
+    if (wrote) setGames(listGames());
+    return wrote;
+  }, [net.state]);
   useEffect(() => {
-    if (!started) return;
-    const timer = window.setTimeout(() => saveGame(state), 600);
+    if (!savable || !gameId) return;
+    const timer = window.setTimeout(() => {
+      // Silence was fine when there was one slot and losing it meant losing
+      // the only game. With several, a full quota means the autosave has
+      // quietly stopped, and the player can do something about it if told.
+      if (!writeGame()) {
+        flash('Could not save — storage is full. Give up a war you have finished.');
+      }
+    }, 600);
     return () => window.clearTimeout(timer);
-  }, [state, started]);
+  }, [state, savable, gameId, flash, writeGame]);
   useEffect(() => {
     const flush = () => {
-      if (startedRef.current) saveGame(stateRef.current);
+      if (startedRef.current) writeGame();
     };
     const onHide = () => {
       if (document.visibilityState === 'hidden') flush();
@@ -123,84 +538,400 @@ export function App() {
       window.removeEventListener('pagehide', flush);
       document.removeEventListener('visibilitychange', onHide);
     };
-  }, []);
+  }, [writeGame]);
 
   // ---- Unread feed badge ----------------------------------------------
   const newestEvent = state.events.length ? eventOrder(state.events.at(-1)!.id) : 0;
   const unread = state.events.filter((e) => eventOrder(e.id) > lastSeen).length;
+  /*
+   * Read on *leaving* the log, not on arriving at it.
+   *
+   * Sean, 22 September: *"every time you open up the log you can view all the
+   * messages, and then when you close the log it will mark all of those as
+   * read."*
+   *
+   * This advanced the watermark while the log was open and on every event
+   * after — so a line that posted while you were reading was marked read in
+   * the same frame it appeared in, and scrolled into a log you were looking at
+   * already dimmed. Now the mark holds still for as long as you are in there:
+   * everything unread stays lit while you read it, anything arriving behind
+   * you lights up too, and the whole lot goes read when you leave.
+   *
+   * `newest` is a ref because the effect must fire on the tab changing and
+   * nothing else, while still marking what was there at the moment of leaving.
+   */
+  const newest = useRef(newestEvent);
+  newest.current = newestEvent;
+  const wasReading = useRef(false);
   useEffect(() => {
-    if (tab !== 'feed') return;
-    setLastSeen(newestEvent);
+    if (tab === 'feed') {
+      wasReading.current = true;
+      return;
+    }
+    if (!wasReading.current) return;
+    wasReading.current = false;
+    setLastSeen(newest.current);
     try {
-      localStorage.setItem(SEEN_KEY, String(newestEvent));
+      localStorage.setItem(SEEN_KEY, String(newest.current));
     } catch {
       /* storage may be unavailable; the badge just resets next launch */
     }
-  }, [tab, newestEvent]);
+  }, [tab]);
 
-  const flash = useCallback((message: string) => {
-    setNotice(message);
-    window.setTimeout(() => setNotice((current) => (current === message ? null : current)), 2600);
-  }, []);
 
   // ---- Commands --------------------------------------------------------
-  const handleBuild = (facilityId: string, item: BuildItem) => {
-    const result = orderBuild(state, facilityId, item);
-    if (result.error) flash(result.error);
-    setState(result.state);
+  /**
+   * Give an order, however this war is being played.
+   *
+   * One seam for all twenty-two of them, and the only place that knows whether
+   * there is somebody on the other end. Alone, the order is carried out on the
+   * spot exactly as it always was. Against a person it goes into the sequence
+   * and lands a fifth of a second later on both phones — nobody applies their
+   * own tap immediately, including the host, because two clients each applying
+   * their own taps and the other's on arrival put the same two orders in two
+   * different sequences, which is a desync with no symptom.
+   *
+   * The order is **tried locally first either way**, and the result thrown
+   * away in a two-player war. That is not waste: it is how a refusal reaches
+   * the player while they are still looking at the thing they tapped, rather
+   * than arriving a fifth of a second later over a sheet that has already
+   * closed. It can still be refused for real when it lands — the state moves —
+   * and `onTrouble` says so if it is.
+   *
+   * `afterwards` is the handler's own business: closing a sheet, clearing a
+   * selection, saying "Under way." It runs optimistically in a two-player war,
+   * because a screen that waits for the wire before shutting a sheet feels
+   * broken on a train.
+   */
+  const give = (order: Order, afterwards?: () => void): void => {
+    const trial = applyOrder(state, order, state.player);
+    if (trial.error) {
+      flash(trial.error);
+      return;
+    }
+    if (net.phase.at === 'playing') {
+      net.order(order);
+      afterwards?.();
+      return;
+    }
+    setState(trial.state);
+    afterwards?.();
+  };
+
+  const handleBuild = (facilityId: string, item: BuildItem, destinationId?: string) => {
+    give({ kind: 'build', facilityId, item, destinationId }, () => {
+      if (!destinationId) return;
+      const where = state.systems.find((s) => s.id === destinationId)!;
+      flash(`Ordered for ${inProse(where.name)}.`);
+    });
   };
 
   const handleCancel = (facilityId: string) => {
-    setState(cancelOrder(state, facilityId).state);
+    give({ kind: 'cancelBuild', facilityId });
+  };
+
+  /**
+   * Fell a forest. The one thing in the game that cannot be undone, so it
+   * asks first — a tapped-by-accident stand of timber is income gone for the
+   * rest of the war.
+   */
+  const handleClear = (systemId: string) => {
+    const island = state.systems.find((s) => s.id === systemId);
+    const ok = window.confirm(
+      `Fell the timber on ${island?.name ?? 'this island'}?\n\n` +
+        'It opens the plot for anything you like. The forest is destroyed and does not grow back.',
+    );
+    if (!ok) return;
+    give({ kind: 'clearForest', systemId });
+  };
+
+  /**
+   * Break one thing up. Destructive and not undoable, so it asks — the same
+   * treatment felling a forest gets, and for the same reason.
+   */
+  const handleScrap = (what: ScrapTarget, named: string) => {
+    const back = scrapReturn(state, what);
+    const ok = window.confirm(
+      `Break up ${named}?\n\n` +
+        (back > 0
+          ? `It raises ${back} gold and comes off your books. Nothing comes back.`
+          : 'It raises nothing — it cost nothing to raise — but the plot it stands on comes back. Nothing else does.'),
+    );
+    if (!ok) return;
+    give({ kind: 'scrap', what });
+  };
+
+  const handleRaise = (systemId: string, type: FacilityType) => {
+    give({ kind: 'raiseWorks', systemId, type });
+  };
+
+  const sendOfficer = (
+    characterId: string,
+    systemId: string,
+    type?: MissionType,
+    companionIds: string[] = [],
+    /** Which squadron a Command posting is for, when it is not the island. */
+    fleetId?: string,
+  ) => {
+    give(
+      { kind: 'sendCrew', characterId, targetSystemId: systemId, type, companionIds, fleetId },
+      () => {
+        setPickingFor(null);
+        setMissionChoice(null);
+        const island = state.systems.find((s) => s.id === systemId)!;
+        const officer = state.characters.find((c) => c.id === characterId)!;
+        const errand = type ?? missionTypeFor(state, island, officer.faction as PlayableFaction);
+        // The covert list, asked of the rules rather than spelled out again
+        // here — it had already fallen a mission behind once and would again.
+        flash(errand && isCovert(errand) ? 'Under way, quietly.' : 'Under way.');
+      },
+    );
   };
 
   const handleSelectSystem = (systemId: string) => {
-    if (pickingFor) {
-      const result = sendDiplomat(state, pickingFor, systemId);
-      if (result.error) {
-        flash(result.error);
+    if (choosingSite) {
+      const where = state.systems.find((s) => s.id === systemId)!;
+      if (where.control !== state.player || where.uprising) {
+        flash(where.uprising ? `${where.name} is in mutiny.` : `You do not hold ${inProse(where.name)}.`);
         return;
       }
-      setState(result.state);
-      setPickingFor(null);
-      flash('Under way.');
+      setDraft((d) => (d ? { ...d, destinationId: systemId } : d));
+      setChoosingSite(false);
+      setOrderOpen(true);
+      return;
+    }
+    if (sailingFleetId) {
+      // Picking the island proposes the voyage; it does not order it. A
+      // crossing costs days the player cannot get back and cannot recall a
+      // fleet from, so the number goes in front of the decision.
+      const stop = sailError(state, sailingFleetId, systemId, state.player);
+      if (stop) {
+        setSailingFleetId(null);
+        flash(stop);
+        return;
+      }
+      setOpenReachId(null);
+      setOpenListId(null);
+      setSailPlan({ fleetId: sailingFleetId, systemId });
+      return;
+    }
+    if (pickingFor) {
+      // Every errand goes through the same sheet, even where the island
+      // offers only one: it is the screen that says how far the sail is and
+      // how long the work takes, and an officer sent by accident is a
+      // fortnight gone. An island with nothing to do on it never gets that
+      // far — sending is what would have failed, so say so and keep the
+      // officer in hand.
+      const island = state.systems.find((s) => s.id === systemId)!;
+      const officer = state.characters.find((c) => c.id === pickingFor)!;
+      if (missionsOffered(state, island, officer.faction as PlayableFaction, officer).length === 0) {
+        flash(`Nothing for ${officer.name} to do on ${inProse(island.name)}.`);
+        return;
+      }
+      setOpenReachId(null);
+      setOpenListId(null);
+      setMissionChoice({ characterId: pickingFor, systemId });
+      return;
+    }
+    setCameFrom(null);
+    setOpenSystemId(systemId);
+    setOpenSystemTab(tabForLayer(layer));
+  };
+
+  /**
+   * From the chain chart or a Reach's island list: open one of its islands — or, if a
+   * crew member is waiting for a destination, send them there instead.
+   *
+   * Which tab it opens on is the filter's to say: with Idle buildings on, a lit
+   * island is a yard standing about, so the island opens on its Buildings.
+   * With no filter it opens on the Harbor, as it always did, and the tabs
+   * swipe from wherever it landed.
+   */
+  const openIslandTab = (systemId: string) => {
+    setCameFrom(
+      openReachId ? { kind: 'reach', id: openReachId }
+      : openListId ? { kind: 'list', id: openListId }
+      : null,
+    );
+    setOpenReachId(null);
+    setOpenListId(null);
+    if (pickingFor || sailingFleetId || choosingSite) {
+      handleSelectSystem(systemId);
       return;
     }
     setOpenSystemId(systemId);
-    setOpenSystemTab('overview');
+    setOpenSystemTab(tabForLayer(layer));
   };
 
-  /** From the Reach panel: open one of its islands straight onto a tab. */
-  const openIslandTab = (systemId: string, islandTab: IslandTab) => {
+  const handleSail = (fleetId: string) => {
+    // Choosing where to sail is the same gesture as choosing where to send a
+    // crew member: close the panel, pick an island, and the order goes off.
+    setOpenSystemId(null);
+    setSailingFleetId(fleetId);
+  };
+
+  /** Take hulls out of a squadron: into one lying here, or into a new one. */
+  /** Companies from the quay into the boats, by hand. See `orderEmbark`. */
+  const handleEmbark = (fleetId: string, troops: number) => {
+    give({ kind: 'embark', fleetId, companies: troops }, () => {
+      setLoadingAt(null);
+      flash(troops === 1 ? 'A troop goes aboard.' : `${troops} troops go aboard.`);
+    });
+  };
+
+  const handleDetach = (fleetId: string, shipIds: string[], into?: string) => {
+    give({ kind: 'detach', fleetId, shipIds, into }, () => {
+      flash(into ? 'Hulls change squadron.' : 'A new squadron.');
+    });
+  };
+
+  /** Break off a fight: take the parting volley, run for the nearest holding. */
+  /** Open fire on the island, and keep firing until told otherwise. */
+  const handleBombard = (fleetId: string) => {
+    give({ kind: 'bombard', fleetId });
+    flash('The guns open.');
+  };
+  // `handleCeaseFire` stood here. There is nothing to call off since a
+  // bombardment became one ordered action: the guns open, the cascade runs,
+  // and it is over before the screen has finished redrawing.
+
+  const handleFlee = (fleetId: string) => {
+    give({ kind: 'flee', fleetId });
+  };
+
+  /** Give up a post: off a deck, or out of an island's chair. */
+  const handleRelieve = (characterId: string) => {
+    give({ kind: 'relieve', characterId });
+  };
+
+  /** Which hull's sheet is open, if any. */
+  /** The island whose break-up list is open, if any. */
+  const [scrapFor, setScrapFor] = useState<string | null>(null);
+  /**
+   * Anything the player opened, which the running report defers to.
+   *
+   * A sheet is anchored to the bottom and runs to 82% of the screen, so it
+   * stops just short of where the report strip hangs — near enough that a
+   * report would sit on its top edge, and a report you tap while a sheet is
+   * open would take you to the log behind the sheet. Neither is right: a
+   * report is news arriving, not an interruption, and it waits.
+   *
+   * It waits rather than expiring. Lines only age while they are on the
+   * screen (see `Dispatches`), so a long look at an island costs no news.
+   */
+  const panelOpen =
+    Boolean(openSystemId) ||
+    Boolean(openCharacterId) ||
+    Boolean(openReachId) ||
+    Boolean(openListId) ||
+    fleetsOpen ||
+    Boolean(loadingAt) ||
+    Boolean(missionChoice) ||
+    Boolean(sailPlan) ||
+    menuOpen ||
+    narratorOpen ||
+    almanacOpen ||
+    buildMenuOpen ||
+    orderOpen ||
+    teaching;
+
+  /**
+   * Shut whatever the player has open, so a tap on the chrome can do its job.
+   *
+   * The scrim sits over the whole screen including the tab bar and the top
+   * bar, so with any sheet open the most-tapped controls in the game took two
+   * taps: the first was eaten dismissing the sheet, the second did the thing.
+   * Log, pause, the clock, sound, the gear, and every tab — all of them, on
+   * every one of the fifteen sheets.
+   *
+   * The chrome now sits above the scrim and calls this first, so one tap
+   * closes what is open *and* goes where it was aimed. Which is the behaviour
+   * a player already believes they are getting, and the reason the bug is
+   * easy to miss from the inside: it does not look broken, it looks slow.
+   *
+   * A sheet that demands an answer is the exception and stays modal — there
+   * is a decision outstanding and wandering off to another tab would leave a
+   * crew member waiting for orders nobody can see.
+   */
+  const closePanels = useCallback(() => {
+    if (decision) return false;
+    setOpenSystemId(null);
+    setOpenCharacterId(null);
     setOpenReachId(null);
-    setOpenSea(null);
-    setOpenSystemId(systemId);
-    setOpenSystemTab(islandTab);
+    setOpenListId(null);
+    setMissionChoice(null);
+    setSailPlan(null);
+    setSailingFleetId(null);
+    setScrapFor(null);
+    setMenuOpen(false);
+    setNarratorOpen(false);
+    setAlmanac(null);
+    setBuildMenuOpen(false);
+    setOrderOpen(false);
+    setCameFrom(null);
+    return true;
+  }, [decision]);
+
+  /**
+   * Putting a list in the order the player wants it.
+   *
+   * All four move the game's own array, so the order saves with the game
+   * rather than being a view's opinion of it.
+   */
+  const handleOrderShips = (fleetId: string, shipIds: string[], dir: -1 | 1) => {
+    give({ kind: 'reorderShips', fleetId, shipIds, dir });
+  };
+  const handleOrderOfficers = (fleetId: string, characterIds: string[], dir: -1 | 1) => {
+    give({ kind: 'reorderOfficers', fleetId, characterIds, dir });
+  };
+  const handleOrderGarrison = (systemId: string, typeIds: string[], dir: -1 | 1) => {
+    give({ kind: 'reorderGarrison', systemId, typeIds, dir });
+  };
+  const handleOrderCrew = (characterIds: string[], dir: -1 | 1) => {
+    give({ kind: 'reorderCrew', characterIds, dir });
+  };
+
+  const handleAssault = (fleetId: string) => {
+    give({ kind: 'assault', fleetId });
   };
 
   const jumpToSystem = (systemId: string) => {
     setTab('galaxy');
-    setFocusSystemId(systemId);
+    setCameFrom(null);
     setOpenSystemId(systemId);
-    setOpenSystemTab('overview');
+    setOpenSystemTab('harbor');
   };
 
   const startNewGame = (player: PlayableFaction) => {
-    setState(newGame(Date.now() >>> 0, player));
+    const fresh = newGame(Date.now() >>> 0, player);
+    const id = newGameId();
+    setGameId(id);
+    slotRef.current = { id, name: defaultGameName(fresh) };
+    setState(fresh);
     setStarted(true);
+    setTeaching(!alreadyTaught());
     setMenuOpen(false);
     setTab('galaxy');
     setOpenSystemId(null);
     setOpenCharacterId(null);
     setOpenReachId(null);
-    setOpenSea(null);
+    setOpenListId(null);
+    setCameFrom(null);
     setPickingFor(null);
+    setMissionChoice(null);
+    setSailingFleetId(null);
+    setBuildMenuOpen(false);
+    setOrderOpen(false);
+    setChoosingSite(false);
+    setDraft(null);
+    setToldOf([]);
+    setReadingId(null);
     setLastSeen(0);
   };
 
   /** Back to the title screen, leaving the game where it stands to resume. */
   const returnToTitle = () => {
-    saveGame(stateRef.current);
+    writeGame();
     setSaved(stateRef.current);
     setMenuOpen(false);
     setStarted(false);
@@ -225,39 +956,255 @@ export function App() {
     ? state.characters.find((c) => c.id === pickingFor) ?? null
     : null;
 
+  /**
+   * The island the officer is already standing on, offered as a one-tap
+   * answer.
+   *
+   * Sean: *"Many missions will be on same place so it makes it faster."* He
+   * is right about the shape of it — yard work, a posting and signing someone
+   * on are all errands for where you already are, and each one cost a tap
+   * into the chain, a tap on the island, and the chain sheet in the way.
+   *
+   * Offered only when there is genuinely something to do there, because the
+   * alternative is a button whose whole job is to tell you it was the wrong
+   * button. Nothing for the build flow: its destination is already set and
+   * Back keeps it, so "here" would be a second word for the same thing. And
+   * nothing for a fleet, which cannot sail to the harbor it is lying in.
+   */
+  /* What the war came to, or nothing while it is still running. */
+  const endReport = useMemo(() => warReport(state), [state]);
+
+  const pickHere = (() => {
+    if (!pickingCharacter) return null;
+    const at = state.systems.find((sy) => sy.id === pickingCharacter.locationSystemId);
+    if (!at) return null;
+    const offered = missionsOffered(
+      state,
+      at,
+      pickingCharacter.faction as PlayableFaction,
+      pickingCharacter,
+    );
+    return offered.length > 0 ? { systemId: at.id, name: at.name } : null;
+  })();
+
+  /*
+   * The lobby comes before everything, including the title.
+   *
+   * Opening somebody's link should not land you on a start screen offering to
+   * continue your own save — you came here to join their war, and the only
+   * thing to say is whether they have been found yet.
+   */
+  const lobbyUp = net.phase.at !== 'none' && net.phase.at !== 'playing';
+  /*
+   * The lobby takes the screen unless it has been folded away.
+   *
+   * Only `hosting` can fold: `joining` lasts seconds and `broken` is the end
+   * of the road, and neither is something to carry on underneath. The title
+   * screen counts as something to fold back to — opening a game for a friend
+   * is usually the first thing you do, and beginning a war of your own while
+   * you wait for them is the point of being able to put it away.
+   */
+  const canFold = net.phase.at === 'hosting';
+  if (lobbyUp && !(canFold && lobbyShut)) {
+    return (
+      <div className="app">
+        <Lobby
+          phase={net.phase}
+          onLeave={net.leave}
+          onShut={canFold ? () => setLobbyShut(true) : undefined}
+        />
+      </div>
+    );
+  }
+
   if (!started) {
     return (
       <div className="app">
+        {lobbyUp && canFold && lobbyShut && net.phase.at === 'hosting' && (
+          <LobbyBar
+            code={net.phase.code}
+            onShow={() => setLobbyShut(false)}
+            onGiveUp={() => {
+              net.leave();
+              setLobbyShut(false);
+            }}
+          />
+        )}
         <StartScreen
           hasSave={saved !== null}
-          onContinue={() => {
-            if (saved) setState(saved);
+          games={games}
+          onPlayAFriend={() => {
+            setLobbyShut(false);
+            net.invite();
+          }}
+          onResume={(id) => {
+            const game = loadGameById(id);
+            if (!game) {
+              // Before `flash` exists in this render, and the title screen has
+              // no notice line anyway, so it is said the only way it can be.
+              window.alert('That war could not be read. It may have been saved by an older build.');
+              return;
+            }
+            const listed = games.find((g) => g.id === id);
+            setState(game);
+            setGameId(id);
+            slotRef.current = { id, name: listed?.name ?? defaultGameName(game) };
+            setToldOf(game.events.map((e) => e.id));
+            void sound.startWith(game.player);
             setStarted(true);
           }}
-          onBegin={startNewGame}
+          onRename={(id, was) => {
+            const next = window.prompt('Call this war what?', was);
+            if (next === null) return;
+            const name = next.trim().slice(0, 60);
+            if (!name) return;
+            renameGame(id, name);
+            if (slotRef.current?.id === id) slotRef.current = { id, name };
+            setGames(listGames());
+          }}
+          onDelete={(id, name) => {
+            // Not undoable, so it asks — the same treatment felling a forest
+            // gets, and for the same reason.
+            if (!window.confirm(`Give up ${name}?\n\nThe war is gone and does not come back.`)) {
+              return;
+            }
+            deleteGame(id);
+            setGames(listGames());
+            if (gameId === id) setGameId(null);
+          }}
+          soundOn={sound.on}
+          onToggleSound={sound.toggle}
+          onHear={(side) => void sound.startWith(side)}
+          onContinue={() => {
+            if (saved) {
+              setState(saved);
+              // Everything in a resumed game has already happened.
+              setToldOf(saved.events.map((e) => e.id));
+              // Resuming is the gesture, and the saved game knows its side —
+              // so the theme comes up here rather than on the next tap.
+              void sound.startWith(saved.player);
+            }
+            setStarted(true);
+          }}
+          onBegin={(side) => {
+            // Begin without ever touching a faction card is possible when a
+            // side is already picked, so this is the same start as onHear.
+            void sound.startWith(side);
+            startNewGame(side);
+          }}
         />
       </div>
     );
   }
 
   return (
-    <div className="app">
+    <LookUpProvider value={lookUp}>
+    <div className="app" data-side={state.player}>
+      {/* Watching. Said plainly across the top, because every order is refused
+          while it is on and a silent lock is a bug report. */}
+      {isObserving(state) && (
+        <div className="watchbar">
+          Observing — the machine has both sides. Your orders are locked; the clock is still yours.
+        </div>
+      )}
+      {/* The war waits. Sean's ruling, and the reason it has to be said out
+          loud: a held clock and a broken game look identical, and this is the
+          difference between "she is thinking" and "her phone has died". */}
+      {net.waiting && (
+        <div className="watchbar watchbar--waiting">
+          Waiting for the other {terms.crew.toLowerCase()} — the war holds until they are back.
+        </div>
+      )}
+      {/* The lobby, folded away. Still waiting, still cancellable, and no
+          longer in the way of the war you were playing while you wait. */}
+      {lobbyUp && canFold && lobbyShut && net.phase.at === 'hosting' && (
+        <LobbyBar
+          code={net.phase.code}
+          onShow={() => setLobbyShut(false)}
+          onGiveUp={() => {
+            net.leave();
+            setLobbyShut(false);
+          }}
+        />
+      )}
+      {net.speedAsked && <SpeedRequest asked={net.speedAsked} onAnswer={net.answerSpeed} />}
+      {net.speedPending && (
+        <div className="watchbar watchbar--waiting">
+          Asked for {SPEED_LABEL[net.speedPending]}. Nothing changes unless they agree.
+        </div>
+      )}
+      {/* Waits for the war-begins dispatch to be read: two cards at once is
+          nobody's idea of a clean start. */}
+      {teaching && dispatches.length === 0 && !readingId && (
+        <Tutorial side={state.player} onDone={() => setTeaching(false)} />
+      )}
       <TopBar
         state={state}
-        autoPaused={panelOpen}
+        /*
+         * "Held" has to mean the clock is actually held.
+         *
+         * Alone, a dispatch card or a report stops time and the badge says so.
+         * In a two-player war those no longer stop anything — they are one
+         * player's private reading and the other should not be frozen for it —
+         * so showing "Held" for them would be the badge lying about the one
+         * thing it is for. What *does* hold a shared clock is waiting on the
+         * other player, and that is what it reports.
+         */
+        autoPaused={netPlaying ? net.waiting : clockHeld}
         soundOn={sound.on}
+        /* Sound and the clock work through a sheet without putting it away:
+           muting the music or pausing the day is not navigating anywhere, and
+           closing what you were reading in order to do it would be its own
+           papercut. What they needed was only to be *reachable*, which is the
+           z-index change in `styles.css`. The gear opens a sheet of its own,
+           so that one clears the screen first. */
         onToggleSound={sound.toggle}
-        onSetSpeed={(speed: Speed) => setState(setSpeed(state, speed))}
-        onOpenMenu={() => setMenuOpen(true)}
+        onSetSpeed={(speed: Speed) => {
+          // Shared outright, so in a two-player war it is asked for and not
+          // set. Sean: *"the other player gets a popup… they can accept or
+          // decline. The game always works on mutual consent."*
+          if (netPlaying) return net.requestSpeed(speed);
+          setState(setSpeed(state, speed));
+        }}
+        onToggleObserving={() => setState(setObserving(state, !isObserving(state)))}
+        onOpenMenu={() => {
+          if (!closePanels()) return;
+          setMenuOpen(true);
+        }}
+      />
+
+      {/* What has just gone into the log, said on the screen. Under the
+          utility bar and over everything below it, at Sean's ask: "a running
+          place where messages post... you can click on it to open the log to
+          that entry." Silent while an action or a dispatch card is up — those
+          own the screen, and a card is already the louder telling. */}
+      <Dispatches
+        state={state}
+        /* And silent once the war is over. Found by playing a war out to day
+           972: the strip posts the last three notable things that happened,
+           it floats over the top of the chart, and the one line that says who
+           won sits directly underneath it. You win a thirty-two-month war and
+           what you can see is three captures. The log still has them. */
+        hidden={Boolean(state.battle) || cards.length > 0 || panelOpen || Boolean(state.winner)}
+        onOpen={(eventId) => {
+          setFocusEventId(eventId);
+          setTab('feed');
+        }}
       />
 
       {state.winner && (
         <div className="pad" style={{ paddingBottom: 0 }}>
-          <div className={`banner banner--${state.winner === state.player ? 'win' : 'lose'}`}>
+          {/* The permanent line, and the way back to the closing screen. It
+              said the same eight words before and did nothing when tapped,
+              which was the whole of how a war ended. */}
+          <button
+            className={`verdict verdict--${state.winner === state.player ? 'win' : 'lose'}`}
+            onClick={() => setWarEndSeen(false)}
+          >
             {state.winner === state.player
               ? 'The Seven Seas are yours. Victory.'
               : `The ${factionData[state.winner].name} holds the Seven Seas. Defeat.`}
-          </div>
+          </button>
         </div>
       )}
 
@@ -265,8 +1212,6 @@ export function App() {
         {tab === 'galaxy' && (
           <GalaxyMap
             state={state}
-            onSelectSystem={handleSelectSystem}
-            focusSystemId={focusSystemId}
             pickingFor={
               pickingCharacter
                 ? {
@@ -275,30 +1220,123 @@ export function App() {
                   }
                 : null
             }
-            onCancelPick={() => setPickingFor(null)}
-            onOpenWorlds={() => setWorldsOpen(true)}
+            layer={layer}
+            onLayerChange={setLayer}
+            onOpenFleets={() => setFleetsOpen(true)}
+            sailing={sailingFleetId !== null}
+            choosing={choosingSite}
+            pickHere={pickHere}
+            onPickHere={handleSelectSystem}
+            onCancelPick={() => {
+              setPickingFor(null);
+              setSailingFleetId(null);
+              if (choosingSite) {
+                setChoosingSite(false);
+                setOrderOpen(true);
+              }
+            }}
             onSelectReach={(sectorId: string) => setOpenReachId(sectorId)}
-            onAskAdvisor={() => setNarratorOpen(true)}
-            onSelectSea={setOpenSea}
+            onOpenIsland={(systemId: string) => {
+              setCameFrom(null);
+              setOpenSystemId(systemId);
+              setOpenSystemTab('buildings');
+            }}
           />
-        )}
-        {tab === 'characters' && (
-          <CharactersScreen state={state} onOpen={setOpenCharacterId} />
         )}
         {tab === 'feed' && (
           <FeedScreen
             state={state}
             lastSeen={lastSeen}
-            onJumpToSystem={jumpToSystem}
-            onJumpToCharacter={(characterId) => {
-              setTab('characters');
-              setOpenCharacterId(characterId);
-            }}
+            focusId={focusEventId}
+            /* The crew screen this used to switch to is gone, and the sheet
+               was always the thing worth arriving at: it opens over the log,
+               and closing it puts you back where you were reading. */
+            onJumpToCharacter={(characterId) => setOpenCharacterId(characterId)}
+            onRead={setReadingId}
           />
         )}
       </main>
 
-      <TabBar tab={tab} onChange={setTab} unread={unread} />
+      {/* The war is over, and this is the whole of what it came to. Above the
+          dispatch cards, which are the news of a war that has stopped. */}
+      {endReport && !warEndSeen && (
+        <Sheet
+          eyebrow="The war"
+          title={endReport.outcome === 'victory' ? 'The war is won' : 'The war is lost'}
+          subtitle={`${endReport.days} days`}
+          onClose={() => setWarEndSeen(true)}
+          stacked
+        >
+          <WarEnd state={state} report={endReport} />
+        </Sheet>
+      )}
+
+      {/* Above everything, including the dispatches: while your ships are in
+          action, that is the only thing on the screen. */}
+      {state.battle && (
+        <BattleSheet
+          state={state}
+          onFight={() => give({ kind: 'fightRound' })}
+          onBreakOff={() => give({ kind: 'breakOff' })}
+          onClose={() => give({ kind: 'closeBattle' })}
+        />
+      )}
+
+      {cards.length === 0 || state.battle ? null : (
+        <EventCards
+          state={state}
+          events={cards}
+          onShow={(event) => voice.say(event.text, moodForEvent(event, state))}
+          onClose={() => {
+            if (reading) setReadingId(null);
+            else markRead();
+          }}
+          onOpenIsland={(systemId) => {
+            if (reading) setReadingId(null);
+            else markRead();
+            setTab('galaxy');
+            setCameFrom(null);
+            setOpenSystemId(systemId);
+            setOpenSystemTab('harbor');
+          }}
+        />
+      )}
+
+      <TabBar
+        tab={buildMenuOpen || orderOpen || choosingSite ? 'build' : tab}
+        onChange={(next) => {
+          // One tap, not two: put away whatever sheet is over the screen and
+          // then go where the tap was aimed. It refuses while a crew member
+          // is waiting on an answer, which is the one sheet that is modal on
+          // purpose.
+          if (!closePanels()) return;
+          // Build is a popup over whatever you are looking at, not a screen.
+          if (next === 'build') setBuildMenuOpen(true);
+          else {
+            // The mark on a log entry belongs to one visit. Coming back to the
+            // log later should show it as a log, not still pointing at
+            // whatever was tapped an hour ago.
+            if (next !== 'feed') setFocusEventId(null);
+            setTab(next);
+          }
+        }}
+        unread={unread}
+        player={state.player}
+        onAskAdvisor={() => {
+          if (!closePanels()) return;
+          setNarratorOpen(true);
+        }}
+        onOpenAlmanac={() => {
+          // The Book is a sheet of its own, so closing the others first is
+          // what makes tapping it from inside an island sheet work at all.
+          if (almanacOpen) return openBook();
+          if (!closePanels()) return;
+          openBook();
+        }}
+        bookOpen={almanacOpen}
+        mood={voice.mood}
+        talking={voice.talking}
+      />
 
       {notice && (
         <div className="chip chip--toast" style={{ position: 'absolute', left: 12, right: 12 }}>
@@ -314,17 +1352,73 @@ export function App() {
           initialTab={openSystemTab}
           onClose={() => {
             setOpenSystemId(null);
-            setFocusSystemId(null);
+            if (cameFrom?.kind === 'reach') setOpenReachId(cameFrom.id);
+            if (cameFrom?.kind === 'list') setOpenListId(cameFrom.id);
+            setCameFrom(null);
           }}
-          onBuild={handleBuild}
           onCancel={handleCancel}
+          /*
+            The slipway's own Build button. It opens the same order panel the
+            Build tab opens — same flow, same validation, one place that turns
+            a choice into an order — with ships already chosen and this island
+            already the destination, which is the whole of what the button
+            saves over walking there from the tab bar.
+
+            The island sheet stays open underneath, so closing the order puts
+            the player back on the yard they were looking at rather than out on
+            the chart.
+          */
+          onOrderFrom={(systemId, kind) => {
+            setDraft({
+              kind,
+              item: firstItem(kind, state.player),
+              destinationId: systemId,
+            });
+            setOrderOpen(true);
+          }}
+          onClear={handleClear}
+          onBreakUp={setScrapFor}
+          onSail={handleSail}
+          onAssault={handleAssault}
+          onBombard={handleBombard}
+          onFlee={handleFlee}
+          onOrderShips={handleOrderShips}
+          onDetach={handleDetach}
+          onOrderOfficers={handleOrderOfficers}
+          onOrderGarrison={handleOrderGarrison}
+          onPutAboard={setLoadingAt}
+          onOrderCrew={handleOrderCrew}
           onOpenCharacter={setOpenCharacterId}
           onOpenReach={(sectorId) => {
             setOpenSystemId(null);
+            setCameFrom(null);
             setOpenReachId(sectorId);
           }}
         />
       )}
+
+      {/* A hull's own sheet, over the island's: tapped from the list in the
+          harbor, and stacked so it sits on top of the panel it came from
+          rather than behind it. */}
+      {/* The break-up list, over the island it is about. */}
+      {scrapFor && (() => {
+        const island = state.systems.find((s) => s.id === scrapFor);
+        if (!island) return null;
+        return (
+          <ScrapSheet
+            state={state}
+            system={island}
+            onScrap={handleScrap}
+            onClose={() => setScrapFor(null)}
+          />
+        );
+      })()}
+
+      {/* The ship sheet stood here. Sean cut it on 22 September: it carried a
+          word, the figures the fleet row already showed, a paragraph of repair
+          rules that lives in the Glossary, and a button through to the
+          encyclopedia — so tapping a hull goes straight to the entry now, and
+          its condition is on the row. */}
 
       {openReach && (
         <ReachSheet
@@ -332,19 +1426,46 @@ export function App() {
           sector={openReach}
           onClose={() => setOpenReachId(null)}
           onOpenIsland={openIslandTab}
+          pickingFor={pickingCharacter ? (pickingCharacter.faction as PlayableFaction) : null}
+          sailing={sailingFleetId !== null}
+          choosing={choosingSite}
+          layer={layer}
+          onLayerChange={setLayer}
+          onOpenList={(sectorId) => {
+            // The chain as a list, in place of the chain as a map — not on top
+            // of it.
+            setOpenReachId(null);
+            setOpenListId(sectorId);
+          }}
         />
       )}
 
-      {openSea && (
-        <SeaSheet
+      {loadingAt && (
+        <EmbarkSheet
           state={state}
-          sea={openSea}
-          onClose={() => setOpenSea(null)}
-          onOpenIsland={openIslandTab}
-          onOpenReach={(sectorId) => {
-            setOpenSea(null);
-            setOpenReachId(sectorId);
+          system={state.systems.find((s) => s.id === loadingAt)!}
+          onClose={() => setLoadingAt(null)}
+          onEmbark={handleEmbark}
+        />
+      )}
+
+      {fleetsOpen && (
+        <FleetListSheet
+          state={state}
+          onClose={() => setFleetsOpen(false)}
+          onOpenIsland={(systemId) => {
+            setFleetsOpen(false);
+            openIslandTab(systemId);
           }}
+        />
+      )}
+
+      {openListId && (
+        <ReachListSheet
+          state={state}
+          sector={state.sectors.find((x) => x.id === openListId)!}
+          onClose={() => setOpenListId(null)}
+          onOpenIsland={openIslandTab}
         />
       )}
 
@@ -354,6 +1475,7 @@ export function App() {
           state={state}
           character={openCharacter}
           onClose={() => setOpenCharacterId(null)}
+          onRelieve={handleRelieve}
           onSendOnMission={() => {
             setOpenCharacterId(null);
             setOpenSystemId(null);
@@ -368,18 +1490,102 @@ export function App() {
         />
       )}
 
-      {decision && <MissionDecisionSheet state={state} onResolve={setState} />}
+      {buildMenuOpen && (
+        <BuildMenuSheet
+          onPick={(kind) => {
+            setBuildMenuOpen(false);
+            setDraft((d) =>
+              d && d.kind === kind
+                ? d
+                : {
+                    kind,
+                    item: firstItem(kind, state.player),
+                    destinationId: state.factions[state.player].hqSystemId,
+                  },
+            );
+            setOrderOpen(true);
+          }}
+          onClose={() => setBuildMenuOpen(false)}
+        />
+      )}
 
-      {worldsOpen && (
-        <WorldsSheet
+      {orderOpen && draft && (
+        <BuildOrderSheet
           state={state}
-          onClose={() => setWorldsOpen(false)}
-          onPick={(systemId) => {
-            setWorldsOpen(false);
-            jumpToSystem(systemId);
+          draft={draft}
+          /* Over the island sheet when a slipway asked for it, and on its own
+             when the Build tab did. */
+          stacked={Boolean(openSystemId)}
+          onChange={setDraft}
+          onChooseOnChart={() => {
+            setOrderOpen(false);
+            setOpenSystemId(null);
+            setOpenReachId(null);
+            setOpenListId(null);
+            setOpenCharacterId(null);
+            setChoosingSite(true);
+            setTab('galaxy');
+          }}
+          onBuild={(facilityId, item, destinationId) => {
+            handleBuild(facilityId, item, destinationId);
+            setOrderOpen(false);
+          }}
+          onRaise={(systemId, type) => {
+            handleRaise(systemId, type);
+            setOrderOpen(false);
+            setDraft(null);
+          }}
+          onClose={() => setOrderOpen(false)}
+        />
+      )}
+
+      {sailPlan && (
+        <SailConfirmSheet
+          state={state}
+          fleetId={sailPlan.fleetId}
+          targetSystemId={sailPlan.systemId}
+          onClose={() => {
+            // "Don't sail" means what it says: the order is off and the
+            // chart stops waiting for a destination. Leaving the fleet in
+            // hand read as a cancel that had not cancelled — the next island
+            // you touched was taken for a second attempt at the voyage
+            // instead of opening.
+            setSailPlan(null);
+            setSailingFleetId(null);
+          }}
+          onConfirm={() => {
+            // The sheet shuts and the anchor comes up on the same tap. In a
+            // two-player war the order is a fifth of a second behind that,
+            // which nobody can feel; a refusal would have been caught by the
+            // trial inside `give` before the sheet closed.
+            give({ kind: 'sail', fleetId: sailPlan.fleetId, targetSystemId: sailPlan.systemId }, () => {
+              setSailPlan(null);
+              setSailingFleetId(null);
+              flash('Weighing anchor.');
+            });
           }}
         />
       )}
+
+      {missionChoice && (
+        <MissionChoiceSheet
+          state={state}
+          characterId={missionChoice.characterId}
+          systemId={missionChoice.systemId}
+          onChoose={(type, companionIds, fleetId) =>
+            sendOfficer(
+              missionChoice.characterId,
+              missionChoice.systemId,
+              type,
+              companionIds,
+              fleetId,
+            )
+          }
+          onClose={() => setMissionChoice(null)}
+        />
+      )}
+
+      {decision && <MissionDecisionSheet state={state} onResolve={setState} />}
 
       {narratorOpen && (
         <Narrator
@@ -395,12 +1601,23 @@ export function App() {
           }}
           onOpenAlmanac={() => {
             setNarratorOpen(false);
-            setAlmanacOpen(true);
+            lookUp('people');
           }}
         />
       )}
 
-      {almanacOpen && <Almanac state={state} onClose={() => setAlmanacOpen(false)} />}
+      {almanac && (
+        <Almanac
+          key={almanac.nth}
+          state={state}
+          page={almanac.page}
+          entry={almanac.at}
+          onPage={(page) => {
+            bookPage.current = page;
+          }}
+          onClose={() => setAlmanac(null)}
+        />
+      )}
 
       {menuOpen && (
         <MenuSheet
@@ -409,11 +1626,16 @@ export function App() {
           onReturnToTitle={returnToTitle}
           onOpenAlmanac={() => {
             setMenuOpen(false);
-            setAlmanacOpen(true);
+            lookUp('people');
+          }}
+          onHowToPlay={() => {
+            setMenuOpen(false);
+            setTeaching(true);
           }}
         />
       )}
     </div>
+    </LookUpProvider>
   );
 }
 
@@ -433,15 +1655,45 @@ function MissionDecisionSheet({
     onResolve(resolvePendingMission(state, character.id, choice).state);
   };
 
+  /*
+   * The mission and the verdict, in the title, before anything else.
+   *
+   * Sean, 23 September, looking at a card headed *"Imperator Cassian Thorne
+   * reports"* over the sentence *"The table on Highwater was worth keeping:
+   * somebody worth having has signed"*: **"This is so confusing. I have no
+   * idea what this is for. Recruitment? Just say the type of mission and
+   * result. Bottom line up front no fluff."**
+   *
+   * He is right, and the fault was the header: every errand in the game
+   * reported under the same four words, so the only thing telling you which
+   * errand this was — and whether it had worked — was a sentence written to
+   * be atmospheric. The officer's name is not the news. The news is *Recruit*
+   * and *success*, and they go where the eye lands first.
+   */
+  const type = character.mission?.type ?? 'diplomacy';
   return (
     <Sheet
-      title={`${character.name} reports`}
-      subtitle={`${system.name} · Day ${state.day}`}
-      onClose={() => choose('return')}
+      title={`${MISSION_LOG_LABEL[type]} — ${decision.success ? 'success' : 'no result'}`}
+      subtitle={`${character.name} · ${system.name} · Day ${state.day}`}
+      /*
+       * No close at all, because both buttons are orders and the sheet used
+       * to have a third one hidden on the scrim. `onClose` was `choose('return')`
+       * here: tapping the dark area outside the sheet, or the ✕, recalled the
+       * officer irreversibly and spent the fortnight, with no confirmation and
+       * no way back. A new player taps outside to get rid of a thing they do
+       * not understand yet, so the first thing the game taught them was that
+       * it takes orders they did not give.
+       */
+      onClose={() => {}}
+      /* The line under the buttons says what the choice *is*, rather than
+         repeating the name already in the subtitle. And "Set sail" was the
+         same class of label as "go there": it reads as beginning a voyage
+         when what it does is end the errand and bring the officer home. */
+      demands="Keep them at it, or bring them home?"
       actions={
         <>
           <button className="btn btn--flex" onClick={() => choose('return')}>
-            Weigh anchor
+            Bring them home
           </button>
           <button className="btn btn--flex btn--primary" onClick={() => choose('continue')}>
             Stay 15 more days
@@ -449,63 +1701,94 @@ function MissionDecisionSheet({
         </>
       }
     >
-      <p style={{ marginTop: 0 }}>
-        {decision.success
-          ? `The talks on ${system.name} went well. Opinion has shifted your way.`
-          : `The talks on ${system.name} went nowhere this time.`}
-      </p>
-      <div className="card row" style={{ gap: 18 }}>
-        <Stat label={factionData.empire.shortName} value={Math.round(system.support.empire)} />
-        <Stat label={factionData.alliance.shortName} value={Math.round(system.support.alliance)} />
-        <Stat label="Control" value={<ControlBadge faction={system.control} />} />
-      </div>
+      {/* One line of what actually happened, under the verdict rather than
+          instead of it. The detail that matters most — who signed, what
+          burned — is its own line in the Log and names names. */}
+      <p style={{ marginTop: 0 }}>{missionReport(type, decision.success, system.name)}</p>
+      {/* The allegiance row belongs to the two errands that move allegiance.
+          On a sabotage or a survey it was three numbers that had not changed
+          and had nothing to do with what the officer just did. */}
+      {(type === 'diplomacy' || type === 'incite') && (
+        <div className="card row" style={{ gap: 18 }}>
+          <Stat label={factionData.empire.shortName} value={Math.round(system.support.empire)} />
+          <Stat label={factionData.alliance.shortName} value={Math.round(system.support.alliance)} />
+          <Stat label="Control" value={<ControlBadge faction={system.control} />} />
+        </div>
+      )}
     </Sheet>
   );
 }
 
-function WorldsSheet({
-  state,
-  onClose,
-  onPick,
-}: {
-  state: GameState;
-  onClose: () => void;
-  onPick: (systemId: string) => void;
-}) {
-  const held = state.systems.filter((s) => s.control === state.player);
+
+/**
+ * The chart's filters, in the order this player wants them.
+ *
+ * Sean, 19 September: *"Add in settings ability to change default order of
+ * game filters. That would be cool."*
+ *
+ * The same up-and-down arrows the harbor and the garrison already use, for
+ * the same reason and with the same shape, so it is a control the player has
+ * met rather than a new one. Loyalty and None are in the list like everything
+ * else: somebody who never uses None should be able to push it to the end.
+ *
+ * Saved to the device rather than the game — see `Prefs`. Reset puts the
+ * build's own order back, which is the order the strip ships in and the one
+ * every hint and tutorial card assumes.
+ */
+function FilterOrder() {
+  const [prefs, setPrefs] = usePrefs();
+  const layers = orderedLayers(CHART_LAYERS, prefs.layerOrder);
+  const move = (at: number, step: number) => {
+    const next = at + step;
+    if (next < 0 || next >= layers.length) return;
+    const ids = layers.map((l) => l.id);
+    [ids[at], ids[next]] = [ids[next], ids[at]];
+    setPrefs({ layerOrder: ids });
+  };
   return (
-    <Sheet title="My islands" subtitle={`${held.length} held`} onClose={onClose}>
+    <>
+      <div className="section-title">Filter order</div>
+      <p className="tiny muted" style={{ margin: '0 0 8px' }}>
+        The strip under the chart, and the order a sideways swipe moves through
+        it. Kept on this device, so it holds across every war you start.
+      </p>
       <div className="stack">
-        {held.map((system) => {
-          const sector = state.sectors.find((s) => s.id === system.sectorId);
-          const building = system.facilities.filter((f) => f.building).length;
-          return (
-            <button
-              key={system.id}
-              className="card card--tap"
-              style={{ display: 'block', width: '100%', textAlign: 'left' }}
-              onClick={() => onPick(system.id)}
-            >
-              <div className="row row--between">
-                <span style={{ fontWeight: 600 }}>{system.name}</span>
-                {system.uprising ? (
-                  <span className="badge badge--warn">{terms.mutiny}</span>
-                ) : (
-                  <span className="tiny muted">
-                    {Math.round(system.support[state.player])} {terms.allegiance.toLowerCase()}
-                  </span>
-                )}
-              </div>
-              <div className="tiny muted" style={{ marginTop: 3 }}>
-                {sector?.name} · {system.facilities.length} built · {system.garrison} ashore
-                {building > 0 ? ` · ${building} building` : ''}
-              </div>
-            </button>
-          );
-        })}
-        {held.length === 0 && <div className="empty">You hold nothing at all.</div>}
+        {layers.map((l, i) => (
+          <div key={l.id} className="card row row--between small" style={{ gap: 8 }}>
+            <span style={{ minWidth: 0 }}>{l.label}</span>
+            {/* The same arrows the harbor and the garrison use, so this is
+                a control the player has already met. */}
+            <span className="shiprow__order">
+              <button
+                className="orderbtn"
+                onClick={() => move(i, -1)}
+                disabled={i === 0}
+                aria-label={`Move ${l.label} up`}
+              >
+                ▲
+              </button>
+              <button
+                className="orderbtn"
+                onClick={() => move(i, 1)}
+                disabled={i === layers.length - 1}
+                aria-label={`Move ${l.label} down`}
+              >
+                ▼
+              </button>
+            </span>
+          </div>
+        ))}
       </div>
-    </Sheet>
+      {prefs.layerOrder.length > 0 && (
+        <button
+          className="btn btn--block"
+          style={{ marginTop: 8 }}
+          onClick={() => setPrefs({ layerOrder: [] })}
+        >
+          Back to the default order
+        </button>
+      )}
+    </>
   );
 }
 
@@ -514,14 +1797,15 @@ function MenuSheet({
   onClose,
   onReturnToTitle,
   onOpenAlmanac,
+  onHowToPlay,
 }: {
   state: GameState;
   onClose: () => void;
   onReturnToTitle: () => void;
   onOpenAlmanac: () => void;
+  onHowToPlay: () => void;
 }) {
   const tally = controlTally(state);
-  const needed = Math.ceil(tally.populated * VICTORY_CONTROL_FRACTION);
   return (
     <Sheet
       title={factionData.gameTitle}
@@ -542,11 +1826,17 @@ function MenuSheet({
         <Stat label={factionData.alliance.shortName} value={tally.alliance} />
       </div>
       <p className="tiny muted" style={{ marginTop: 6 }}>
-        {needed} settled islands takes the Seven Seas.
+        Highwater falling ends the Crown. All three Pirate Lords in irons at once ends the
+        Confederacy.
       </p>
+
+      <FilterOrder />
 
       <div className="section-title">Game</div>
       <div className="stack">
+        <button className="btn btn--block" onClick={onHowToPlay}>
+          How to play
+        </button>
         <button className="btn btn--block" onClick={onOpenAlmanac}>
           Almanac — what everything is
         </button>
@@ -557,6 +1847,15 @@ function MenuSheet({
       <p className="tiny muted" style={{ marginTop: 10 }}>
         Your game saves itself constantly — after every order and whenever you switch away from
         the app — so you can close it at any point and pick the war back up from the title screen.
+      </p>
+      {/* The build as well as the version. Sean: *"Bump the version string
+          each deploy — the menu still says v0.4.0 on a new bundle, which makes
+          cache issues and QA retests hard to track."* The version is hand-set
+          and says what was released; the build is stamped by the bundler and
+          changes on its own every time, so two deploys can never look alike
+          here however often the version is forgotten. */}
+      <p className="tiny muted" style={{ marginTop: 14, textAlign: 'center' }}>
+        Version {__APP_VERSION__} · build {__BUILD_ID__}
       </p>
     </Sheet>
   );

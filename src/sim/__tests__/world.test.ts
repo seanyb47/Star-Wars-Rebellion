@@ -3,10 +3,21 @@ import factionData from '../../data/factions.json';
 import characterRoster from '../../data/characters.json';
 import reachData from '../../data/reaches.json';
 import terms from '../../data/terms.json';
-import { FACILITY_LABEL, GOLD_PER_DAY, YARD_BUILDS } from '../constants';
+import {
+  FACILITY_LABEL,
+  SHIP_CLASSES,
+  GARRISON_SMUGGLING_CUT,
+  GOLD_PER_DAY,
+  RATING_SWING_MAJOR,
+  RATING_SWING_MINOR,
+  YARD_BUILDS,
+} from '../constants';
 import { generateGalaxy } from '../galaxy';
 import { startMission } from '../missions';
 import { reachesOfSea, seasOf, summariseReach, summariseSea } from '../reach';
+
+/** The map has grown twice this month; the data is the one place it is true. */
+const ISLAND_COUNT = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
 
 /**
  * The world bible is the source of truth for every name the player sees.
@@ -15,21 +26,30 @@ import { reachesOfSea, seasOf, summariseReach, summariseSea } from '../reach';
 describe('the world bible data', () => {
   const allIslands = reachData.reaches.flatMap((r) => r.islands);
 
-  it('describes ten Reaches: four Inner, six Outer', () => {
-    expect(reachData.reaches).toHaveLength(10);
-    expect(reachData.reaches.filter((r) => r.tier === 'inner')).toHaveLength(4);
-    expect(reachData.reaches.filter((r) => r.tier === 'outer')).toHaveLength(6);
+  it('describes seven Reaches across seven Seas: three Inner, four Outer', () => {
+    expect(reachData.reaches).toHaveLength(7);
+    expect(reachData.reaches.filter((r) => r.tier === 'inner')).toHaveLength(3);
+    expect(reachData.reaches.filter((r) => r.tier === 'outer')).toHaveLength(4);
+    // One Reach per Sea. The Far Sea's ice and its whaling chain are one
+    // Reach, Rime; the chain down the west is Windward.
+    expect(new Set(reachData.reaches.map((r) => r.name)).size).toBe(7);
+    expect(new Set(reachData.reaches.map((r) => r.sea)).size).toBe(7);
+    expect(reachData.reaches.filter((r) => r.sea === 'The Far Sea')).toHaveLength(1);
   });
 
-  it('gives every Reach exactly ten islands', () => {
+  it('gives every Reach between five and fifteen islands', () => {
+    // A Reach holds as many islands as its painted cluster can show as
+    // separate places, and the range is the range the chain view can lay
+    // out clearly at a hundred islands.
     for (const reach of reachData.reaches) {
-      expect(reach.islands).toHaveLength(10);
+      expect(reach.islands.length).toBeGreaterThanOrEqual(5);
+      expect(reach.islands.length).toBeLessThanOrEqual(15);
     }
   });
 
-  it('names 100 distinct islands', () => {
-    expect(allIslands).toHaveLength(100);
-    expect(new Set(allIslands.map((i) => i.name)).size).toBe(100);
+  it('names 63 distinct islands', () => {
+    expect(allIslands).toHaveLength(ISLAND_COUNT);
+    expect(new Set(allIslands.map((i) => i.name)).size).toBe(ISLAND_COUNT);
   });
 
   it('covers all seven Seas', () => {
@@ -42,19 +62,79 @@ describe('the world bible data', () => {
     expect(capitals[0].name).toBe(factionData.empire.capitalIslandName);
   });
 
-  it('rosters seven named characters a side with sane rating bands', () => {
+  it('rosters seven named characters a side, each with a base per ability', () => {
     for (const faction of ['empire', 'alliance'] as const) {
       const roster = characterRoster[faction];
       expect(roster.length).toBeGreaterThanOrEqual(7);
       for (const entry of roster) {
         expect(entry.name.length).toBeGreaterThan(0);
         expect(entry.bio.length).toBeGreaterThan(0);
-        for (const band of Object.values(entry.ratings)) {
-          expect(band).toHaveLength(2);
-          expect(band[0]).toBeLessThan(band[1]);
-          expect(band[0]).toBeGreaterThanOrEqual(0);
-          expect(band[1]).toBeLessThanOrEqual(100);
+        // A named principal is a major character and swings twenty.
+        expect(entry.major).toBe(true);
+        const abilities = Object.keys(entry.ratings).sort();
+        expect(abilities).toEqual(['combat', 'diplomacy', 'espionage', 'leadership']);
+        for (const base of Object.values(entry.ratings)) {
+          expect(Number.isInteger(base)).toBe(true);
+          // Bases stay inside nought to a hundred; only a roll may pass it.
+          expect(base).toBeGreaterThan(0);
+          expect(base).toBeLessThanOrEqual(100);
         }
+      }
+    }
+  });
+
+  it('gives each side the shape its war depends on', () => {
+    // Sean's rule, 15 September: the Crown commands, the Brethren talk and
+    // creep, and neither out-fights the other on average. These are roster
+    // averages and nothing else — every officer is their own person, and the
+    // two exceptions below are the point rather than a rounding error.
+    const mean = (side: 'empire' | 'alliance', ability: string) => {
+      const r = characterRoster[side];
+      return r.reduce((n, e) => n + (e.ratings as Record<string, number>)[ability], 0) / r.length;
+    };
+    const gap = (ability: string) => mean('alliance', ability) - mean('empire', ability);
+    expect(gap('leadership')).toBeLessThan(-8);
+    expect(gap('diplomacy')).toBeGreaterThan(8);
+    /*
+     * This is the one the two negotiators nearly broke, and the reason their
+     * ratings differ from the change order's by six points each.
+     *
+     * The order sets Meret's espionage at 40 and Marchmont's at 58, which are
+     * incidental numbers on two characters whose whole design is the other
+     * column — diplomacy 92 and 88, both untouched. But adding a poor Shoal
+     * spy to the Confederacy and a good Crown one to the Crown took the
+     * Confederacy's espionage lead from comfortably over eight points to
+     * 7.25, and that lead is Sean's standing rule of 15 September: the Crown
+     * commands, the Brethren talk and creep. An older rule about what the two
+     * factions *are* beats two side-numbers on a new pair of characters, so
+     * Meret reads 46 and Marchmont 48 and the shape holds.
+     */
+    expect(gap('espionage')).toBeGreaterThan(8);
+    expect(Math.abs(gap('combat'))).toBeLessThan(3);
+  });
+
+  it('keeps somebody on each side who is good at what their side is not', () => {
+    // A faction average is a tendency, not a rule about people. The Crown's
+    // best spy beats every Confederate but one; two of the Brethren out-lead
+    // most of the Admiralty.
+    const best = (side: 'empire' | 'alliance', ability: string) =>
+      Math.max(...characterRoster[side].map((e) => (e.ratings as Record<string, number>)[ability]));
+    expect(best('empire', 'espionage')).toBeGreaterThan(70);
+    expect(best('alliance', 'leadership')).toBeGreaterThan(80);
+    // And the Crown's best spy is better than all but one of theirs.
+    const theirs = characterRoster.alliance
+      .map((e) => (e.ratings as Record<string, number>).espionage)
+      .sort((a, b) => b - a);
+    expect(best('empire', 'espionage')).toBeGreaterThan(theirs[1]);
+  });
+
+  it('marks the unaligned minor, and rates them the same way', () => {
+    for (const entry of characterRoster.recruits) {
+      expect(entry.major).toBe(false);
+      for (const base of Object.values(entry.ratings)) {
+        expect(Number.isInteger(base)).toBe(true);
+        expect(base).toBeGreaterThan(0);
+        expect(base).toBeLessThanOrEqual(100);
       }
     }
   });
@@ -65,17 +145,21 @@ describe('the generated world matches the bible', () => {
 
   it('draws every island name from the bible, and uses all of them', () => {
     const fromBible = new Set(reachData.reaches.flatMap((r) => r.islands.map((i) => i.name)));
-    const generated = new Set(state.systems.map((s) => s.name));
+    // One island a game answers to Freeport instead — the name the articles
+    // were signed under. `chartName` is the island the painting knows.
+    const generated = new Set(state.systems.map((s) => s.chartName ?? s.name));
     expect(generated).toEqual(fromBible);
+    expect(state.systems.filter((s) => s.chartName)).toHaveLength(1);
   });
 
   it('keeps every island inside its own Reach', () => {
     for (const reach of reachData.reaches) {
       const sector = state.sectors.find((s) => s.name === reach.name)!;
       expect(sector).toBeDefined();
-      const names = sector.systemIds.map(
-        (id) => state.systems.find((s) => s.id === id)!.name,
-      );
+      const names = sector.systemIds.map((id) => {
+        const island = state.systems.find((s) => s.id === id)!;
+        return island.chartName ?? island.name;
+      });
       expect(new Set(names)).toEqual(new Set(reach.islands.map((i) => i.name)));
     }
   });
@@ -94,25 +178,76 @@ describe('the generated world matches the bible', () => {
   });
 
   it('carries the bible notes through onto the islands that have them', () => {
-    const highwater = state.systems.find((s) => s.name === 'Highwater')!;
-    expect(highwater.note).toMatch(/seawalls/i);
-    const plain = state.systems.find((s) => s.name === 'Avermere')!;
-    expect(plain.note).toBeUndefined();
+    const seat = state.systems.find((s) => s.name === 'Highwater')!;
+    expect(seat.note).toMatch(/seawalls/i);
+    // And an island the data gives no note to still has none. Named by the
+    // data rather than by hand: this was Avermere until 20 September, when
+    // the lore package gave Avermere a note and the negative case with it.
+    const bare = reachData.reaches
+      .flatMap((r) => r.islands)
+      .find((i) => !('note' in i) || !i.note)!;
+    expect(bare, 'every island in the data now has a note').toBeTruthy();
+    expect(state.systems.find((s) => s.name === bare.name)!.note).toBeUndefined();
   });
 
-  it('fields the bible characters, rated inside their bands', () => {
+  it('fields a draw from the bible, each at exactly their base', () => {
     for (const faction of ['empire', 'alliance'] as const) {
-      const roster = characterRoster[faction].slice(0, 7);
+      const roster = characterRoster[faction];
       const inGame = state.characters.filter((c) => c.faction === faction);
-      expect(inGame.map((c) => c.name)).toEqual(roster.map((e) => e.name));
-      for (const [index, character] of inGame.entries()) {
-        const bands = roster[index].ratings;
-        expect(character.diplomacy).toBeGreaterThanOrEqual(bands.diplomacy[0]);
-        expect(character.diplomacy).toBeLessThanOrEqual(bands.diplomacy[1]);
-        expect(character.combat).toBeGreaterThanOrEqual(bands.combat[0]);
-        expect(character.combat).toBeLessThanOrEqual(bands.combat[1]);
+      // A draw now, not the whole roster: everyone in the game is from the
+      // bible, in the bible's order, and there are fewer of them than it holds.
+      expect(inGame.length).toBeLessThan(roster.length);
+      const names = roster.map((e) => e.name);
+      expect(inGame.map((c) => c.name)).toEqual(
+        names.filter((n) => inGame.some((c) => c.name === n)),
+      );
+      for (const character of inGame) {
+        const base = roster.find((e) => e.name === character.name)!.ratings;
+        for (const ability of ['diplomacy', 'espionage', 'combat', 'leadership'] as const) {
+          const from = base[ability];
+          expect(character[ability]).toBeGreaterThanOrEqual(
+            Math.max(1, from - RATING_SWING_MAJOR),
+          );
+          expect(character[ability]).toBeLessThanOrEqual(from + RATING_SWING_MAJOR);
+        }
       }
     }
+  });
+
+  it('gives the principals no swing at all, and the strangers a wide one', () => {
+    // Inverted at Sean's word: the thing you can look up is the thing you can
+    // rely on. Measured over sixty worlds rather than asserted.
+    const spread = (name: string) => {
+      const seen: number[] = [];
+      for (let seed = 1; seed <= 60; seed++) {
+        const who = generateGalaxy(seed).characters.find((c) => c.name === name);
+        if (who) seen.push(who.diplomacy);
+      }
+      expect(seen.length).toBeGreaterThan(10);
+      return { lo: Math.min(...seen), hi: Math.max(...seen) };
+    };
+    const roster = [
+      ...characterRoster.empire,
+      ...characterRoster.alliance,
+      ...characterRoster.recruits,
+    ];
+    const baseOf = (name: string) => roster.find((e) => e.name === name)!.ratings.diplomacy;
+
+    // A principal is exactly who the bible says, in every game.
+    const hale = spread('Commodore-Elect Adaira Hale');
+    expect(hale.lo).toBe(baseOf('Commodore-Elect Adaira Hale'));
+    expect(hale.hi).toBe(baseOf('Commodore-Elect Adaira Hale'));
+    expect(RATING_SWING_MAJOR).toBe(0);
+
+    // A stranger is an unknown quantity, and now genuinely is one — wide
+    // enough that signing somebody on is a real gamble.
+    const widow = spread('The Widow Ashgrave');
+    const base = baseOf('The Widow Ashgrave');
+    expect(widow.hi - widow.lo).toBeGreaterThan(RATING_SWING_MINOR);
+    expect(widow.lo).toBeGreaterThanOrEqual(Math.max(1, base - RATING_SWING_MINOR));
+    expect(widow.hi).toBeLessThanOrEqual(base + RATING_SWING_MINOR);
+    // And the top is uncapped, which now belongs to the strangers.
+    expect(base + RATING_SWING_MINOR).toBeGreaterThan(100);
   });
 
   it('carries each character\'s people through, which their portrait reads', () => {
@@ -122,16 +257,26 @@ describe('the generated world matches the bible', () => {
         expect(character.people).toBe(entry.people);
       }
     }
-    // Torvik is the one non-human major, and his portrait depends on knowing it.
-    const torvik = state.characters.find((c) => c.name.includes('Torvik'))!;
+    // Torvik is the one non-human major, and his portrait depends on knowing
+    // it. He can be drawn out of a given war now, so this asks the bible when
+    // he is not in this one — the portrait reads the same field either way.
+    const torvik =
+      state.characters.find((c) => c.name.includes('Torvik')) ??
+      characterRoster.alliance.find((e) => e.name.includes('Torvik'))!;
     expect(torvik.people).toBe('Urskin');
   });
 
   it('makes Hale a better negotiator than Torvik, every game', () => {
+    // Hale is a Lord and so is never drawn out; Torvik is, so when he is not
+    // in the war the comparison is against what the bible says he would be.
+    const torvikBase = characterRoster.alliance.find((e) => e.name.includes('Torvik'))!.ratings;
     for (let seed = 1; seed <= 25; seed++) {
       const trial = generateGalaxy(seed);
       const hale = trial.characters.find((c) => c.name.includes('Hale'))!;
-      const torvik = trial.characters.find((c) => c.name.includes('Torvik'))!;
+      const torvik = trial.characters.find((c) => c.name.includes('Torvik')) ?? {
+        diplomacy: torvikBase.diplomacy,
+        combat: torvikBase.combat,
+      };
       expect(hale.diplomacy).toBeGreaterThan(torvik.diplomacy);
       expect(torvik.combat).toBeGreaterThan(hale.combat);
     }
@@ -139,10 +284,20 @@ describe('the generated world matches the bible', () => {
 });
 
 describe('terminology', () => {
-  it('labels facilities from the bible, not the old space names', () => {
-    expect(FACILITY_LABEL.mine).toBe('Camp');
-    expect(FACILITY_LABEL.refinery).toBe('Mill');
-    expect(FACILITY_LABEL.construction_yard).toBe('Works');
+  it('labels the earners for the ground they need and the makers as Rebellion did', () => {
+    // Renamed 16 September with the resource rule: an earner is named for what
+    // it works, because what it works is now the whole question of where it
+    // can go.
+    expect(FACILITY_LABEL.mine).toBe('Gold Mine');
+    expect(FACILITY_LABEL.refinery).toBe('Lumber Mill');
+    // Sean's call, 14 September: the makers keep the original's plain names.
+    // The Construction Yard stood here until 20 September, when Sean cut it:
+    // *"Cut construction yards completely. Anyone can build on any available
+    // land."* Two makers left — and one of them stopped keeping the original's
+    // name the same day: *"Change 'Training Facilities' to 'Barracks' across
+    // game."* The key is still `training_facility`, because a key is code.
+    expect(FACILITY_LABEL.training_facility).toBe('Barracks');
+    expect(FACILITY_LABEL.shipyard).toBe('Shipyard');
     expect(YARD_BUILDS.shipyard.label).toBe(terms.facilities.shipyard);
   });
 
@@ -163,11 +318,12 @@ describe('the Reach summary', () => {
     )!;
     const summary = summariseReach(state, sector.id, 'empire');
 
-    expect(summary.islands).toBe(10);
+    const count = state.systems.filter((sys) => sys.sectorId === sector.id).length;
+    expect(summary.islands).toBe(count);
     expect(summary.held).toBe(
       state.systems.filter((s) => s.sectorId === sector.id && s.control === 'empire').length,
     );
-    expect(summary.perIsland).toHaveLength(10);
+    expect(summary.perIsland).toHaveLength(count);
     expect(summary.settled).toBe(
       state.systems.filter((s) => s.sectorId === sector.id && s.populated).length,
     );
@@ -189,9 +345,11 @@ describe('the Reach summary', () => {
     island.support.empire = 0;
     const atNone = summariseReach(state, island.sectorId, 'empire').goldPerDay;
 
-    // 1.0x versus 0.5x on this island's whole earning rate.
+    // Full pace and nothing smuggled at a hundred; half pace at nothing, less
+    // whatever the companies ashore fail to stop leaving by the back door.
     expect(mines).toBeGreaterThan(0);
-    expect(atFull - atNone).toBeCloseTo(rate * 0.5, 5);
+    const leak = Math.max(0, 0.25 * (1 - GARRISON_SMUGGLING_CUT * island.garrison));
+    expect(atFull - atNone).toBeCloseTo(rate - rate * 0.5 * (1 - leak), 5);
   });
 
   it('stops counting an island in mutiny', () => {
@@ -212,7 +370,12 @@ describe('the Reach summary', () => {
     const atHome = summariseReach(state, hq.sectorId, 'empire').perIsland.find(
       (i) => i.systemId === hq.id,
     )!;
-    expect(atHome.missions).toBe(7);
+    // The Regent, and whoever else the deal left in the citadel's Reach.
+    const home = state.characters.filter(
+      (c) => c.faction === 'empire' && c.locationSystemId === hq.id,
+    ).length;
+    expect(atHome.missions).toBe(home);
+    expect(home).toBeGreaterThan(0);
 
     const target = state.systems.find(
       (s) => s.sectorId === hq.sectorId && s.control === 'neutral',
@@ -246,7 +409,9 @@ describe('the Sea summary', () => {
   it('adds its Reaches up', () => {
     for (const sea of seasOf(state)) {
       const summary = summariseSea(state, sea, 'empire');
-      expect(summary.islands).toBe(summary.reaches * 10);
+      expect(summary.islands).toBe(
+        summary.perReach.reduce((total, r) => total + r.islands, 0),
+      );
       expect(summary.held).toBe(
         summary.perReach.reduce((total, r) => total + r.held, 0),
       );
@@ -259,12 +424,24 @@ describe('the Sea summary', () => {
   it('averages allegiance over islands, not over Reach averages', () => {
     // A Sea of two Reaches where one has far fewer settled islands: averaging
     // the averages would weight that Reach as heavily as the bigger one.
-    const twoReach = seasOf(state).find(
-      (sea) => reachesOfSea(state, sea).length === 2,
-    )!;
+    //
+    // The small map has one Reach per Sea, so the two methods would agree on
+    // it and prove nothing. The larger maps put several Reaches in a Sea and
+    // the code still has to be right for them, so the case is built here.
+    const [a, b] = state.sectors;
+    b.sea = a.sea;
+    const twoReach = a.sea;
     const sectors = reachesOfSea(state, twoReach);
+    expect(sectors).toHaveLength(2);
+    // Charted and settled, which is what a summary averages over — an island
+    // your boats have never entered is not in any of these counts, by the
+    // rule that closed the Coral Reach info leak. This read `populated` alone
+    // and agreed with the code only while both Reaches happened to be fully
+    // charted on day one; on 21 September the second Reach on the map went
+    // out past the charts and the two stopped agreeing.
     const settled = state.systems.filter(
-      (s) => s.populated && sectors.some((sec) => sec.id === s.sectorId),
+      (s) =>
+        s.populated && s.explored.empire && sectors.some((sec) => sec.id === s.sectorId),
     );
     settled.forEach((s, i) => {
       s.support.empire = i === 0 ? 100 : 0;
@@ -272,5 +449,78 @@ describe('the Sea summary', () => {
 
     const summary = summariseSea(state, twoReach, 'empire');
     expect(summary.allegiance.empire).toBeCloseTo(100 / settled.length, 5);
+  });
+});
+
+describe('the roster', () => {
+  it('gives every single person a name, a people and something to read', () => {
+    // The character sheet has a lore panel, and a panel with nothing in it is
+    // worse than no panel: for a while the twelve unaligned had one each.
+    const state = generateGalaxy(501, 'empire');
+    // Four a side, five for the Confederacy, and the unaligned in play.
+    expect(state.characters.length).toBeGreaterThan(12);
+    for (const person of state.characters) {
+      expect(person.name.length).toBeGreaterThan(2);
+      expect(person.people, person.name).toBeTruthy();
+      expect(person.blurb, `${person.name} has no bio`).toBeTruthy();
+      expect((person.blurb ?? '').length, person.name).toBeGreaterThan(60);
+      expect(person.epithet, `${person.name} has no epithet`).toBeTruthy();
+    }
+  });
+});
+
+/**
+ * Sean, on Adaira Hale's ship: *"Free Harbor and Freeport sound too alike.
+ * Change Freeharbor name."* He is right, and the collision is the kind that
+ * only shows up when somebody reads the two names a minute apart — a ship and
+ * the Confederacy's meeting place, both opening on the same four letters. She
+ * is the *Open Deck* now.
+ *
+ * Four letters is the test because four letters is what the ear catches. It
+ * runs over every hull against every island, so the next name that lands too
+ * near an existing one fails here rather than in somebody's head.
+ */
+describe('names a player hears', () => {
+  const bare = (x: string) => x.toLowerCase().replace(/[^a-z]/g, '');
+  const shared = (a: string, b: string) => {
+    const x = bare(a);
+    const y = bare(b);
+    let n = 0;
+    while (n < x.length && n < y.length && x[n] === y[n]) n += 1;
+    return n;
+  };
+
+  /**
+   * Two pairs are allowed through, and both arrived with the canonical roster
+   * on 21 September.
+   *
+   * The rule is about a ship and a place a player could mistake for each
+   * other. These are not that: they are a ship and a place that share a word
+   * the world uses for a thing — coral, and black water — and the ship in each
+   * case announces itself as a ship. Nobody reading "the Coral-Class
+   * Dreadnaught" thinks of Coralhome, and the shared root is the point of both
+   * names rather than an accident of them.
+   *
+   * They are written out one by one on purpose. An exemption that was a rule —
+   * "ignore the first word" — would have let the next real collision through,
+   * and the next real collision is the thing this file exists to catch. The
+   * only other clash the swap produced was a ship called the Chimera against
+   * an island called Chimehouse, which is exactly the confusable kind, and the
+   * island is Shellhouse now.
+   */
+  const ALLOWED = new Set(['Coral-Class Dreadnaught/Coralhome', 'Blackfin/Blackreef']);
+
+  it('gives no ship a name that opens like the name of an island', () => {
+    const state = generateGalaxy(501, 'alliance');
+    for (const cls of SHIP_CLASSES) {
+      for (const island of state.systems) {
+        const pair = `${cls.name}/${island.chartName ?? island.name}`;
+        if (ALLOWED.has(pair)) continue;
+        expect(
+          shared(cls.name, island.chartName ?? island.name),
+          pair,
+        ).toBeLessThan(4);
+      }
+    }
   });
 });

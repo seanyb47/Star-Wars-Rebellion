@@ -1,0 +1,23 @@
+{
+  "_comment": "The measuring harness, typechecked separately. lab/ is first-class in CLAUDE.md -- balance changes are measured, not asserted -- but it is not shipped, so a dead experiment must not be able to block a deploy. Keeping it out of the main config is how it rotted: on 11 October `observing` became `human` and thirteen scripts went on setting the retired field, so `duel.ts` reported Crown 0 - Confederacy 48 with the battle sheet frozen 2,352 times and nothing said why. `npm run typecheck` runs this too.",
+  "extends": "./tsconfig.json",
+  "include": [
+    "src",
+    "lab"
+  ],
+  "_comment_quarantine": "Five scripts are excluded because they do not compile against the sim as it is now, and every one was already dead before this file existed -- turning the guard on is what found them. They are listed rather than deleted: a measurement harness whose numbers are quoted in PLAN.md is not mine to bin, and an exclude that names the reason is the difference between dead and invisibly dead. Repair one by fixing it and taking it off this list. play.ts and pilot.ts were on here and are not now: doctrine.ts, campaign.ts and seed1.ts all import play.ts, so excluding it only hid the errors, and the doctrine harness had been unrunnable for weeks.",
+  "_quarantine": {
+    "lab/hoard.ts": "builds a 'construction_yard'. The Construction Yard was cut on 20 September (docs/rebellion-terms.md): a building is raised on the island itself now.",
+    "lab/recruiters.ts": "reads Character.recruitable, gone when recruiting became a loyal-island rule rather than a manhunt.",
+    "lab/scientists.ts": "same as recruiters.ts: Character.recruitable.",
+    "lab/sizecost.ts": "passes a four-field object where CombatStats now wants more. Predates the v4 roster import.",
+    "lab/triangle.ts": "names a 'razorback' hull. No such ShipClassId in the 28-ship roster."
+  },
+  "exclude": [
+    "lab/hoard.ts",
+    "lab/recruiters.ts",
+    "lab/scientists.ts",
+    "lab/sizecost.ts",
+    "lab/triangle.ts"
+  ]
+}

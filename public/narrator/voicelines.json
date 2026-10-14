@@ -1,0 +1,338 @@
+[
+  {
+    "id": "marlow_news_war_1",
+    "character": "marlow",
+    "mood": "neutral",
+    "question": "news_war",
+    "text": "The war has turned. I would call that a development.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_war_2",
+    "character": "marlow",
+    "mood": "grave",
+    "question": "news_war",
+    "text": "It is finished. I shall have the ledgers closed.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_war_3",
+    "character": "marlow",
+    "mood": "grave",
+    "question": "news_war",
+    "text": "So it ends. History will be a great deal tidier than we were.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_flip_1",
+    "character": "marlow",
+    "mood": "neutral",
+    "question": "news_flip",
+    "text": "An island has changed hands. The charts will want amending.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_flip_2",
+    "character": "marlow",
+    "mood": "encouraged",
+    "question": "news_flip",
+    "text": "That harbour flies our colours now. Do try to keep it.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_flip_3",
+    "character": "marlow",
+    "mood": "grave",
+    "question": "news_flip",
+    "text": "We have lost a harbour. I shall note it in red.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_mutiny_1",
+    "character": "marlow",
+    "mood": "grave",
+    "question": "news_mutiny",
+    "text": "There is a rising. Order is not self-sustaining, Imperator.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_mutiny_2",
+    "character": "marlow",
+    "mood": "grave",
+    "question": "news_mutiny",
+    "text": "An island is in revolt. I did mention the garrison.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_mutiny_3",
+    "character": "marlow",
+    "mood": "neutral",
+    "question": "news_mutiny",
+    "text": "Trouble ashore. Sooner attended to than explained.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_battle_1",
+    "character": "marlow",
+    "mood": "neutral",
+    "question": "news_battle",
+    "text": "Guns at sea. The reports are on your desk.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_battle_2",
+    "character": "marlow",
+    "mood": "grave",
+    "question": "news_battle",
+    "text": "An action has been fought. Ships are expensive, Imperator.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_battle_3",
+    "character": "marlow",
+    "mood": "encouraged",
+    "question": "news_battle",
+    "text": "Our ships have engaged, and the Admiralty is pleased with itself.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_mission_1",
+    "character": "marlow",
+    "mood": "neutral",
+    "question": "news_mission",
+    "text": "A report has come in from ashore.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_mission_2",
+    "character": "marlow",
+    "mood": "neutral",
+    "question": "news_mission",
+    "text": "Informants have provided information. Read it before it is stale.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_mission_3",
+    "character": "marlow",
+    "mood": "encouraged",
+    "question": "news_mission",
+    "text": "Your officer has reported, and it went rather better than the odds deserved.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_order_1",
+    "character": "marlow",
+    "mood": "neutral",
+    "question": "news_order",
+    "text": "The work is finished and the yard is standing idle.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_order_2",
+    "character": "marlow",
+    "mood": "encouraged",
+    "question": "news_order",
+    "text": "Ordered, built, delivered. A rare sequence.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_order_3",
+    "character": "marlow",
+    "mood": "neutral",
+    "question": "news_order",
+    "text": "That is done. There is more waiting.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_loss_1",
+    "character": "marlow",
+    "mood": "grave",
+    "question": "news_loss",
+    "text": "We have lost something. I will spare you the figure.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_loss_2",
+    "character": "marlow",
+    "mood": "grave",
+    "question": "news_loss",
+    "text": "A loss, and an avoidable one.",
+    "rendered": false
+  },
+  {
+    "id": "marlow_news_loss_3",
+    "character": "marlow",
+    "mood": "neutral",
+    "question": "news_loss",
+    "text": "Something has gone. The books are shorter for it.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_war_1",
+    "character": "pennywhistle",
+    "mood": "encouraged",
+    "question": "news_war",
+    "text": "That's the war, then! Somebody pour something!",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_war_2",
+    "character": "pennywhistle",
+    "mood": "grave",
+    "question": "news_war",
+    "text": "It's over. Don't look at me like that.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_war_3",
+    "character": "pennywhistle",
+    "mood": "neutral",
+    "question": "news_war",
+    "text": "Well. That's that, and we're all still arguing.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_flip_1",
+    "character": "pennywhistle",
+    "mood": "encouraged",
+    "question": "news_flip",
+    "text": "Another island's ours! Told you! Told everyone!",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_flip_2",
+    "character": "pennywhistle",
+    "mood": "grave",
+    "question": "news_flip",
+    "text": "We've lost one. Don't ask me whose fault it was.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_flip_3",
+    "character": "pennywhistle",
+    "mood": "neutral",
+    "question": "news_flip",
+    "text": "An island's changed its mind. They do that.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_mutiny_1",
+    "character": "pennywhistle",
+    "mood": "encouraged",
+    "question": "news_mutiny",
+    "text": "There's a rising! About time somebody did something!",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_mutiny_2",
+    "character": "pennywhistle",
+    "mood": "neutral",
+    "question": "news_mutiny",
+    "text": "An island's up in arms. Wasn't me.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_mutiny_3",
+    "character": "pennywhistle",
+    "mood": "encouraged",
+    "question": "news_mutiny",
+    "text": "Trouble ashore, and it's the good kind.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_battle_1",
+    "character": "pennywhistle",
+    "mood": "encouraged",
+    "question": "news_battle",
+    "text": "Guns! Guns! Somebody's shooting at somebody!",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_battle_2",
+    "character": "pennywhistle",
+    "mood": "grave",
+    "question": "news_battle",
+    "text": "There's been a fight. We've fewer ships than we had.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_battle_3",
+    "character": "pennywhistle",
+    "mood": "neutral",
+    "question": "news_battle",
+    "text": "Broadsides. Lovely. Terrible. Go and look.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_mission_1",
+    "character": "pennywhistle",
+    "mood": "neutral",
+    "question": "news_mission",
+    "text": "Word's come in from ashore. Somebody's been talking.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_mission_2",
+    "character": "pennywhistle",
+    "mood": "neutral",
+    "question": "news_mission",
+    "text": "Informants have provided information! Don't ask me how!",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_mission_3",
+    "character": "pennywhistle",
+    "mood": "encouraged",
+    "question": "news_mission",
+    "text": "Your man's reported back, and he's very pleased with himself.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_order_1",
+    "character": "pennywhistle",
+    "mood": "encouraged",
+    "question": "news_order",
+    "text": "It's built! It's finished! Somebody give it a job!",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_order_2",
+    "character": "pennywhistle",
+    "mood": "neutral",
+    "question": "news_order",
+    "text": "That's done. What's next? There's always a next.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_order_3",
+    "character": "pennywhistle",
+    "mood": "neutral",
+    "question": "news_order",
+    "text": "Finished. The yard's sitting there doing nothing.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_loss_1",
+    "character": "pennywhistle",
+    "mood": "grave",
+    "question": "news_loss",
+    "text": "We've lost something. I'm not saying what.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_loss_2",
+    "character": "pennywhistle",
+    "mood": "grave",
+    "question": "news_loss",
+    "text": "That's gone. That one hurt.",
+    "rendered": false
+  },
+  {
+    "id": "pennywhistle_news_loss_3",
+    "character": "pennywhistle",
+    "mood": "neutral",
+    "question": "news_loss",
+    "text": "Down one. Don't dwell on it.",
+    "rendered": false
+  }
+]

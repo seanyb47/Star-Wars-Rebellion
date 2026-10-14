@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import factionData from '../data/factions.json';
-import type { PlayableFaction } from '../sim';
+import reachData from '../data/reaches.json';
+import { numberWord } from './words';
+import type { PlayableFaction, SavedGame } from '../sim';
 import { CompassRose, FactionCrest } from './art';
+import { SoundIcon } from './TopBar';
+import { paintedChart } from './painted';
 
 /**
  * Difficulty is shown because the player asked to see the choice, but only
@@ -19,59 +23,193 @@ const FACTION_DETAIL: Record<
   { strengths: string[]; weaknesses: string[]; opening: string }
 > = {
   empire: {
-    strengths: ['Rich, charted Inner Seas', 'Strong from the first day', 'A capital nobody can find and burn'],
-    weaknesses: ['Your seat cannot move', 'Fewer envoys than the Brethren', 'Every island you press resents you'],
-    opening: 'You begin at Highwater with the core of the world already in hand, and everything to lose.',
+    strengths: ['Rich, charted Inner Seas', 'Ships of the line from the first day', 'The Lords have to be found; Highwater is on every chart'],
+    // "Lose Highwater and lose everything" was here and was the same stale
+    // claim as the tutorial's. Losing the capital costs the Crown the
+    // Imperator, who never leaves it — which is half of what the Confederacy
+    // needs and not the war.
+    weaknesses: ['The Imperator never leaves Highwater, and they only need him and Corvane', 'Fewer envoys than the Brethren', 'Islands resent what the walls cost them'],
+    opening: 'You begin at Highwater, the walled capital on the Aldermain, with the core of the world in hand and the royal dockyard at Yarrow Minor still smoking. You have ships of the line and no quick way to build more. Somewhere past your charts the three captains who burned it have met, and islands are already declaring for them.',
   },
   alliance: {
-    strengths: ['A harbour that moves when found', 'More envoys, and better ones', 'Nothing to lose but the tide'],
-    weaknesses: ['Outgunned in open water', 'Scattered across the Outer Seas', 'Half your captains are worth hanging'],
-    opening: 'You begin on the fringe with four islands and a shouting-match for a government.',
+    strengths: ['Three Pirate Lords, each with a power nobody else has', 'More envoys, and better ones', 'No capital to lose, and only two people to take'],
+    weaknesses: ['Outgunned in open water', 'Lose all three Lords at once and the cause dies', 'Half your captains take some managing'],
+    opening: 'You begin at Freeport, beyond the Crown\'s charts, three Lords and the people who came with them, with islands across the Reaches already declared for you. You burned the Imperium\'s dockyard and signed the articles a month later. All three Lords are in that one harbor, and the Imperium will be looking for it.',
   },
 };
 
+const ISLANDS = reachData.reaches.reduce((n, r) => n + r.islands.length, 0);
+const REACHES = reachData.reaches.length;
+
+/** When it was last played, as a person would say it. */
+function whenish(at: number): string {
+  const mins = Math.max(0, Math.round((Date.now() - at) / 60000));
+  if (mins < 2) return 'just now';
+  if (mins < 60) return `${mins} minutes ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return hours === 1 ? 'an hour ago' : `${hours} hours ago`;
+  const days = Math.round(hours / 24);
+  return days === 1 ? 'yesterday' : `${days} days ago`;
+}
+
 export function StartScreen({
   hasSave,
+  games,
+  soundOn,
+  onToggleSound,
+  onHear,
   onContinue,
   onBegin,
+  onPlayAFriend,
+  onResume,
+  onRename,
+  onDelete,
 }: {
   hasSave: boolean;
+  /**
+   * Every war in progress, newest first.
+   *
+   * Sean, 14 October: *"shouldn't I be able to have multiple games going at
+   * once? Like a save and name game kinda thing?"* There was one slot and a
+   * button warning that a new game would destroy it.
+   */
+  games?: SavedGame[];
+  onResume?: (id: string) => void;
+  onRename?: (id: string, was: string) => void;
+  onDelete?: (id: string, name: string) => void;
+  /** Open a lobby and get a link to text somebody. */
+  onPlayAFriend?: () => void;
+  soundOn: boolean;
+  onToggleSound: () => void;
+  /** Start the music on this side's theme, from inside the tap that chose it. */
+  onHear: (faction: PlayableFaction) => void;
   onContinue: () => void;
   onBegin: (faction: PlayableFaction) => void;
 }) {
   const [faction, setFaction] = useState<PlayableFaction | null>(null);
   const detail = faction ? FACTION_DETAIL[faction] : null;
+  // The world, behind the choice of which side of it to take. Clear behind the
+  // title and scrimmed away under the text — see .start--painted, which is
+  // where the legibility is actually bought.
+  const backdrop = paintedChart('title');
 
   return (
-    <div className="start">
+    <div
+      className={backdrop ? 'start start--painted' : 'start'}
+      style={backdrop ? ({ ['--backdrop' as string]: `url(${backdrop})` }) : undefined}
+    >
+      {/*
+        A scrolling body and a fixed foot, rather than one long scroll with a
+        sticky button in it.
+
+        Sean, 22 September, with a screenshot of the button sitting across the
+        strengths panel: *"take command screen is floating."* That was my fix
+        of 20 September for a real problem — picking a side opens the detail
+        panel, which used to push the button down the page and off a phone —
+        and `position: sticky` did stop it moving. What it also did was park a
+        shadowed gold pill halfway down a paragraph, which reads as a layout
+        fault rather than as a control.
+
+        A footer solves the same problem and looks deliberate: the button is
+        always in the same place, always reachable, and separated from the page
+        by a rule and a background instead of hovering over it. The page below
+        scrolls under nothing.
+      */}
+      <div className="start__body">
       <header className="start__head">
+        {/*
+          Sean, 24 September: *"Make game music play by default from start. Or
+          at launch give people option."* Both, and this is the option. The
+          speaker lives in the top bar during a game, and the top bar does not
+          exist yet — so a player who wants a silent game had to start one
+          first. It is a control rather than a question: a dialog asking
+          permission to play music is a click before anybody has seen the game,
+          and games that ask it are the ones people remember for asking.
+        */}
+        <button
+          className={`iconbtn start__sound${soundOn ? ' iconbtn--on' : ''}`}
+          onClick={onToggleSound}
+          aria-pressed={soundOn}
+          aria-label={soundOn ? 'Turn sound off' : 'Turn sound on'}
+        >
+          <SoundIcon on={soundOn} />
+        </button>
         <div className="start__rose">
           <CompassRose size={64} opacity={0.55} />
         </div>
         <h1 className="start__title serif">Master of the Seven Seas</h1>
         <p className="start__tagline">
-          Seven seas, a hundred islands, and something older than both fleets moving underneath.
+          {numberWord(REACHES)[0].toUpperCase() + numberWord(REACHES).slice(1)} seas, {numberWord(ISLANDS)} islands, and something older than both fleets moving underneath.
         </p>
       </header>
 
-      {hasSave && (
-        <button className="btn btn--block btn--primary start__continue" onClick={onContinue}>
-          Continue your game
-        </button>
+      {/* Wars in progress, each its own. Tap to go back to one; the pencil
+          names it and the cross gives it up. Falls back to the single
+          Continue button where a build has no list to show. */}
+      {games && games.length > 0 ? (
+        <>
+          <div className="section-title">Your wars</div>
+          <ul className="games">
+            {games.map((game) => (
+              <li className="games__row" key={game.id}>
+                <button className="games__open" onClick={() => onResume?.(game.id)}>
+                  <b className="games__name">{game.name}</b>
+                  <span className="games__where">
+                    {game.side === 'empire' ? 'Crown Imperium' : 'Free Confederacy'} · day {game.day}
+                    {' · '}
+                    {whenish(game.savedAt)}
+                  </span>
+                </button>
+                <button
+                  className="games__act"
+                  aria-label={`Rename ${game.name}`}
+                  onClick={() => onRename?.(game.id, game.name)}
+                >
+                  ✎
+                </button>
+                <button
+                  className="games__act"
+                  aria-label={`Give up ${game.name}`}
+                  onClick={() => onDelete?.(game.id, game.name)}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        hasSave && (
+          <button className="btn btn--block btn--primary start__continue" onClick={onContinue}>
+            Continue your game
+          </button>
+        )
       )}
 
-      <div className="section-title">{hasSave ? 'Or start again' : 'Choose your side'}</div>
+      <div className="section-title">
+        {games && games.length > 0 ? 'Begin another' : hasSave ? 'Or start again' : 'Choose your side'}
+      </div>
 
       <div className="start__factions">
         {(['empire', 'alliance'] as const).map((id) => (
           <button
             key={id}
-            className={`facard${faction === id ? ' facard--picked' : ''}`}
-            onClick={() => setFaction(id)}
+            className={`facard facard--${id}${faction === id ? ' facard--picked' : ''}`}
+            onClick={() => {
+              setFaction(id);
+              // The tap that chooses a side is also the gesture the browser
+              // wants before any audio may sound, so the theme comes up here
+              // rather than on Begin: you press the Crown and hear the Crown.
+              onHear(id);
+            }}
             aria-pressed={faction === id}
           >
             <FactionCrest faction={id} size={64} />
             <div className="facard__name serif">{factionData[id].name}</div>
+            {/* The creed, as the art direction board sets it: the five
+                clauses under the crest that say what the side is for, before
+                the paragraph that says what it costs. */}
+            <div className="facard__creed">{factionData[id].creed}</div>
             <div className="facard__blurb">{factionData[id].blurb}</div>
           </button>
         ))}
@@ -102,16 +240,24 @@ export function StartScreen({
       )}
 
       <div className="section-title">Difficulty</div>
+      {/*
+        Marks, not buttons, until there is a choice to make.
+        Every one of these was a dead tap: two were `disabled`, and Normal —
+        the one a new player would actually go for — was an enabled button
+        with no handler at all. So the first thing the game invited anybody to
+        do was press something that did nothing, which is a poor way to teach
+        that pressing things works. They say what the setting is and wait to
+        become controls when the other two mean something.
+      */}
       <div className="start__difficulty">
         {DIFFICULTIES.map((d) => (
-          <button
+          <span
             key={d.id}
-            className={`pill${d.available ? ' pill--on' : ''}`}
-            disabled={!d.available}
-            aria-pressed={d.available}
+            className={`pill pill--static${d.available ? ' pill--on' : ''}`}
+            aria-current={d.available ? 'true' : undefined}
           >
             {d.label}
-          </button>
+          </span>
         ))}
       </div>
       <p className="tiny muted start__note">
@@ -119,6 +265,9 @@ export function StartScreen({
         pretending to work.
       </p>
 
+      </div>
+
+      <div className="start__foot">
       <button
         className="btn btn--block btn--primary start__begin"
         disabled={!faction}
@@ -127,11 +276,22 @@ export function StartScreen({
         {faction ? `Take command of the ${factionData[faction].shortName}` : 'Choose a side to begin'}
       </button>
 
-      {hasSave && (
-        <p className="tiny muted start__note">
+      {/* Against a person instead of the machine.
+          No side to pick here: whoever opens the lobby takes the Crown and
+          whoever walks into it takes the Confederacy, which is one fewer thing
+          for two people to agree about over a text message. */}
+      {onPlayAFriend && (
+        <button className="btn btn--block start__friend" onClick={onPlayAFriend}>
+          Play a friend
+        </button>
+      )}
+
+      {hasSave && !(games && games.length > 0) && (
+        <p className="tiny muted start__note start__note--foot">
           Starting a new game discards the one in progress.
         </p>
       )}
+      </div>
     </div>
   );
 }

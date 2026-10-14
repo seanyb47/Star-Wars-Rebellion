@@ -3,7 +3,8 @@
 A real-time grand strategy game for the phone, modeled on the mechanics of
 LucasArts' *Star Wars: Rebellion* (1998). Phase 1 delivers the galaxy map,
 the real-time clock, the mine/refinery/maintenance economy, popular support
-and control, and one mission type (Diplomacy). Everything else is roadmap.
+and control, and the officer missions of §4.5 (Diplomacy and Incite Uprising).
+Everything else is roadmap.
 
 **Personal project.** Ship with original faction/character/planet names.
 Names live in data files so a private reskin is a one-file swap.
@@ -93,8 +94,8 @@ interface GameState {
 ## 4. Rules — Phase 1 (implement exactly these)
 
 ### 4.1 Galaxy generation
-- 10 sectors × 10 systems = 100 systems. Sectors arranged roughly in a
-  ring: 4 core sectors in the middle, 6 rim sectors around them.
+- **Superseded 2026-09-12 (A5).** 7 Reaches of 7–12 islands = 62 islands, one
+  Reach per Sea: 3 inner, 4 outer. Was 10 × 10 = 100 in a 4-core / 6-rim ring.
 - Core systems: explored by both sides, populated, 2–4 raw slots,
   3–6 energy slots, some starting facilities.
 - Rim systems: unexplored, ~70% unpopulated, 0–5 raw slots, 0–4 energy slots.
@@ -125,6 +126,12 @@ interface GameState {
 - Uprising ends when support climbs back to ≥ 40.
 - **Sector spillover:** any support change on a system applies 20% of that
   change to every other populated system in the same sector.
+- **Drift (amended v4.10):** every populated island moves each faction's support
+  0.25 points a day toward its natural level — 55 for whoever controls the
+  island, 0 for everyone else. Support used to only ever ratchet upward, so one
+  parley moved a whole chain permanently and the war was decided by whoever
+  talked first. Drift never takes an island off you on its own; it means a hold
+  has to be kept up.
 - Unpopulated system: controlled only while garrison ≥ 1. The moment you
   complete any facility there, it becomes populated with support 100/0 for you.
 
@@ -136,18 +143,72 @@ interface GameState {
 - Build targets must be a system you control; facilities need a free energy slot,
   mines need a free raw slot.
 
-### 4.5 Diplomacy mission (the only mission in phase 1)
-- Eligible target: neutral or friendly system, populated, not in uprising,
-  not enemy-controlled.
+### 4.5 Missions
+The island decides which mission an officer sent ashore performs — there is no
+menu. All kinds share travel, the 15-day work cycle, the continue-or-return
+prompt, and the foil check.
+
+**Precedence** when an island offers more than one: Recruitment, then Diplomacy,
+then Incite. A person is scarce and permanent where an island can be worked
+again next month.
+
+**Precedence decides new missions only.** Whether an errand already under way is
+still live is judged against *its own* type (`stillWorthDoing`), never against
+what the island would now offer — otherwise somebody wandering ashore would
+cancel a parley already fifteen days into its cycle.
+
+**Diplomacy (parley).** Eligible target: neutral or friendly system, populated,
+not in uprising, charted by you.
 - Travel time: 3 days within sector, 10 days across sectors.
 - On arrival, mission "works" for 15 days, then resolves:
   - `successChance = 0.4 + diplomacy/200` (dip 50 → 65%; dip 90 → 85%)
   - Success: `support[you] += 8 + diplomacy/10`, `support[them] -= 4`.
   - Failure: no change.
-  - **Foil check** (only on neutral systems): 10% base chance the mission is
-    detected → character `injured` for 20 days.
+**Recruitment (amended v4.11).** Eligible target: any populated, charted island
+with one of the unaligned standing on it — whoever holds the island, your own
+ground included.
+- `RECRUITS_IN_PLAY` (8) of a larger pool are seeded onto settled islands that
+  are not either seat, one apiece. `RECRUITS_AT_START` (2) are ashore on day 1;
+  the rest arrive spread over the first `RECRUIT_LAST_DAY` (420) days, so
+  finding the errand late is not finding it too late.
+- Same travel and 15-day cycle. `chance = (0.4 + diplomacy/200) × (1 −
+  quality/200)`, where `quality` is the recruit's best rating: somebody worth
+  having knows it.
+- Success: they join your faction permanently, where they stand. There is no
+  support bar to nudge — it either happens or it does not.
+- They are `faction: 'neutral'` until signed, so no roster, reach tally or
+  crew list counts them for either side.
+
+**Incite Uprising (amended v4.10).** Eligible target: a populated, charted
+island the *enemy* controls that is not already in revolt.
+- Same travel and 15-day cycle.
+- `successChance = (0.4 + diplomacy/200) × 0.75` — harder than a parley.
+- Success: `support[holder] -= 9 + diplomacy/10`, and 35% of that amount comes
+  to you. You do not win the island; you cost them their grip. Push the holder
+  under the uprising threshold of 30 and the island rises on its own, which
+  stops everything being built, loaded or landed there.
+- Failure: no change.
+
+**Foil check (amended v4.10).** Run on both kinds, after the outcome:
+- No risk at all on an island you control.
+- Base 10% on neutral ground, 30% on an island the enemy holds.
+- `+ 30% × (best enemy espionage on the island / 100)` — their officers do the
+  watching, so where they leave their people matters.
+- `× (1 − 0.6 × your officer's espionage/100)` — craft cuts the risk but never
+  to nothing. Capped at 85%.
+- Detected → character `injured` for 20 days.
+
+- A mission whose island no longer matches its type is stood down, checked both
+  on landfall and at the end of each cycle, so nobody works a cycle for nothing.
 - After resolving, the game asks: continue (another 15-day cycle) or return.
 - Character ratings are hidden from the enemy; visible to you.
+
+**The authoritative Phase 3 mission set**, in the order agreed: Recruitment,
+Diplomacy (friendly/neutral) and Incite Uprising (enemy-controlled) — all
+*built*;
+Espionage; Abduction; R&D; Command (assign an officer over an island or fleet,
+boosting its output in proportion to leadership and the other core ratings —
+the fleet half already exists as ships' officers); Sabotage.
 
 ### 4.6 Victory (phase 1 placeholder)
 - Win: control 60% of populated systems. Lose: the opponent does.
@@ -185,12 +246,24 @@ to pause), raw / refined / maintenance (used/cap).
 - 20+ unit tests on `/sim` (economy, support flip, uprising, mission resolve)
   using a seeded RNG so results are deterministic.
 
-## 7. Roadmap (do NOT build yet)
-- **Phase 2 — Fleets.** Capital ships, fighters, troop capacity, fleet
-  movement, auto-resolved orbital combat with a summary card, assault to take
-  systems by force (raises garrison requirement), blockades.
-- **Phase 3 — Full missions & victory.** Espionage, Sabotage, Abduction,
-  Incite/Subdue Uprising, Recruitment, Recon (probe units), Rescue, R&D.
+## 7. Roadmap
+- **Phase 2 — Fleets. BUILT (v4.0–4.1).** Hulls, troop capacity, fleet
+  movement, auto-resolved combat, assault to take islands by force, blockades.
+  **Fighters are cut from the design, not deferred**: a small craft is just a
+  small ship, so instead of a second combat layer the fleet is a range of sizes
+  — small, medium, large, plus the transport — and each is good and bad at
+  something, with passage time as the trade-off. Command ranks stay in phase 3
+  as written, though the fleet is already shaped to hold them.
+- **Phase 2 (not yet built).** The battle summary *card*. An action reports as
+  an event line for now, because a card is the same job as the event cards
+  still outstanding for the whole feed.
+- **All four ratings are live as of v4.8.** Diplomacy decides a parley;
+  Leadership an action at sea; Combat a landing; Espionage how much of a chain
+  a fleet charts when it makes landfall. The phase-3 missions below will give
+  Espionage a second use, but it is no longer decoration.
+- **Phase 3 — Full missions & victory.** Recruitment and Incite Uprising are
+  built (§4.5). Outstanding: Espionage as a mission, Abduction, R&D, Command
+  over an island, Sabotage. Then Recon (probe units) and Rescue.
   Foilers based on defending characters' espionage/combat. Command ranks
   (Admiral/General/Commander). Real victory: hold enemy HQ + capture two
   named leaders; Empire must *find* the hidden Alliance HQ.
@@ -238,3 +311,143 @@ gold.*
 
 Verified: full games still resolve in roughly 670-730 days, the same as under
 §4.2, so the pacing this spec was balanced for is preserved.
+
+### A2 (2026-09-11) — Incitement, an opponent that uses its officers, and support drift
+
+Building Incite Uprising (§4.5) turned up two things that had been hiding
+behind each other. Recorded here because the second one moves a number this
+spec was balanced against.
+
+1. **The opponent was barely playing its officers.** It picked its single best
+   diplomat, left the other four on the quay for the whole war, and ranked
+   targets with a +200 bonus for its own reach — large enough that it would
+   sail to a neighbouring island at 5% sympathy in preference to one across the
+   map it could actually win. It now sends up to `AI_MISSION_PARTIES` (2)
+   officers at a time, weighs a parley and an incitement on one scale, and uses
+   a much smaller proximity bonus (25). Every order still goes through the same
+   checks a player's does.
+
+2. **Nothing in the game ever took support away.** Combined with the 20% sector
+   spillover of §4.3, one successful parley moved a whole chain and moved it
+   permanently: support only ratcheted upward, and the war went to whoever
+   talked first. Diplomacy, not the fleet or the ledger, decided everything.
+   §4.3 now has **drift**: 0.25 points a day toward 55 for the holder and 0 for
+   everyone else.
+
+**The pacing number in A1 is superseded.** The 670-730 day figure was measured
+against an opponent making both of the mistakes above; it described a weak AI,
+not a balanced game. Measured across the same eight seeds with an idle player:
+
+| | mean days |
+|---|---|
+| A1, as measured (one officer, no drift) | 686 |
+| Competent AI, no drift | 250 |
+| Competent AI, drift 0.25 (shipped) | **565** |
+
+565 days is roughly 9.5 minutes at Medium. Drift of 0.28 restores the old mean
+(664) but sits on a knife edge — single seeds swing between 464 and 824 days —
+so 0.25 was taken for its much tighter spread (514-629). **The band for future
+balance work is 520-630 days, not 670-730.**
+
+Incitement is used and matters: across four measured games the opponent opened
+63 of them, landed 68 cycles, and set 35 islands alight.
+
+### A3 (2026-09-11) — Recruitment, and what the idle-player benchmark is worth
+
+Recruitment (§4.5) adds people to the world who belong to neither side. Two
+notes on it, and one on the number this spec keeps quoting.
+
+1. **Precedence is for choosing, not for cancelling.** Signing someone on
+   outranks a parley when deciding where to send an officer. Applying the same
+   rule to a mission already under way meant a stranger wandering onto an
+   island cancelled a parley thirteen days into its cycle. An errand in
+   progress is now judged against its own type. Regression-tested.
+
+2. **Officer upkeep was tried and rejected.** Officers are the one thing in the
+   game that neither earns gold nor costs it, against A1's central rule. Adding
+   1 gold a day moved the war from 449 days to 461; 2 a day moved it to 453 and
+   cut the opening net from +12.3 to +5.3. It does not touch the pacing because
+   missions cost nothing to run — gold was never the opponent's constraint on
+   them. Worth doing one day to make a large roster a commitment; not worth
+   doing as a balance lever, and not done.
+
+**The idle-player benchmark is running out of road.** Measured across the same
+eight seeds:
+
+| | mean days |
+|---|---|
+| A2 as shipped (no recruitment) | 565 |
+| Recruitment, all 8 ashore on day 1 | 352 |
+| Recruitment, arrivals spread (shipped) | **449** |
+
+The pattern to notice is not the number, it is the direction: every feature
+added so far has made the *opponent* better at playing, while a player who does
+nothing stays exactly as bad. A2 already had to withdraw one pacing target for
+this reason. Spreading arrivals over the war recovered ~100 days and is right on
+its own merits — eight strangers waiting on eight quays on day one is a
+collection task, not a war — but it does not change the direction of travel.
+
+Treat 449 as a measurement, not a target, and do not tune a good mechanic down
+to protect it. What is actually needed before the next pacing decision is a
+benchmark that plays the player's side with a simple policy, so the number
+means "a fair fight" rather than "how fast a competent side beats an inert one".
+That is the outstanding balance work.
+
+### A4 (2026-09-12) — Painted art, and what stays drawn
+
+The art direction is now cinematic stylized historical realism: hand-painted
+trading-card illustration, recorded in full in `seven-seas-art-style.md`. That
+retires §1's implicit assumption that everything is generated, but only for
+part of the game.
+
+**The split is not subject matter, it is whether the thing has to change.**
+Portraits, ships, islands and dispatch scenes become painted raster files. The
+chart, island marks, icons, bars and pips stay SVG drawn in code, because each
+of those has to tint by faction, seed from a name, scale across a 3× range and
+show state that moves every day. A painting cannot do any of that.
+
+Both layers are permanent. `src/ui/painted.ts` resolves a subject to a painting
+when one exists and falls back to the drawn cameo when it does not, with no
+manifest and no flag day, so art lands in any order and no state of the repo is
+half-finished.
+
+One number this spec should carry, with the correction that building it
+produced: the app is ~95KB gzipped and **stays that way**. Paintings are
+emitted as separate assets, not bundled, so nothing is fetched until a screen
+references it. The earlier claim that 66 paintings meant a 6.5MB first load was
+wrong.
+
+What is real is a single screen rendering the whole cast at once. Portraits
+therefore load only when near the viewport (`useInView`), with the drawn cameo
+as the placeholder — which costs nothing to design, because it is already the
+right size and shape.
+
+### A5 (2026-09-12) — Seven Reaches, and island counts the chart can carry
+
+Replaces the "10 sectors × 10 systems" line in §4.1.
+
+**Seven Reaches, one for each Sea** — three inner, four outer, 62 islands. A
+Sea and a Reach are the same thing at this size, which is what lets the chart
+name the Seas and a panel name the Reach without either of them lying.
+
+**Island counts vary from 7 to 12**, and are not a design number: they are what
+each Reach's painted cluster on the chart can show as *separate places*.
+Measured on the painting at a 55-unit spacing, the seven clusters carry
+6, 6, 9, 19, 10, 9 and 12. Clamped to the range and to the names the bible has,
+that is Sovereign 10, Shipwrights' 9, Coral 7, Rime 7, Cinder 10, Salt 10,
+Wreckers' 9.
+
+`scripts/chart_positions.py` now bisects for the widest spacing that still
+yields the count a Reach asks for, rather than stepping down through a few
+fixed fallbacks. Every Reach ends up between 48 and 63 units, against 24 before.
+
+**Whalers', Sugar and Mirage move to the medium map**, beside Scrap which was
+already there. Each shared a Sea with a Reach that survives, so no Sea leaves
+the chart; what leaves is a second archipelago inside three of them. All three
+sat on painted clusters that could not be charted clearly — Whalers' on islets
+too small to hit, Sugar and Mirage running together with their neighbours down
+the right-hand side. This is the one place the art has driven the rules, and it
+is the right way round: the map is the thing you look at.
+
+Settles open question 5 in the bible. `SYSTEMS_PER_SECTOR` is gone from the
+generator; a Reach holds however many islands it holds.
