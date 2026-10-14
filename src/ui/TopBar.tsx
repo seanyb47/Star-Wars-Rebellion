@@ -134,7 +134,16 @@ export function TopBar({
      comes back to. Medium, not Slow: a day is thirty seconds there against
      seventy-five, and the first minute of a new game should not be spent
      watching a date that has not changed yet. */
-  const last = useRef<Speed>('medium');
+  /*
+   * What the play button resumes to, and what a brand-new war opens at.
+   *
+   * Sean, 11 October: *"All games start on slowest setting."* It was `medium`,
+   * so a new game sat paused and then jumped to a day every five seconds on
+   * the first tap — which is a fine speed to leave running and a poor one to
+   * start reading a war at. The remembering is kept: once you have chosen a
+   * speed, the button comes back to the one you chose.
+   */
+  const last = useRef<Speed>('very_slow');
   const faction = state.factions[state.player];
   const side = factionData[state.player];
   const net = faction.income - faction.upkeep;
