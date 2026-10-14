@@ -50,12 +50,20 @@ export function Lobby({
             <p className="lobby__code">{phase.code}</p>
             <p className="lobby__says">
               They open the link and you are both in the same war — you take the Crown, they take
-              the Confederacy. Keep this screen open until they do.
+              the Confederacy.
+            </p>
+            {/* The one instruction that actually matters, and the one that was
+                missing the first time this ran for real: leaving the app to
+                send the link suspends this page, which closes the lobby. It
+                reconnects when you come back, but if they tap the link while
+                you are away there is nobody for them to find. */}
+            <p className="lobby__warn">
+              Come back to this screen after you send it, and leave it open until they are in.
             </p>
             <button className="btn btn--primary btn--wide" onClick={() => share(phase.link, phase.code)}>
               {copied ? 'Link copied' : 'Send the link'}
             </button>
-            <p className="tiny muted lobby__wait">Waiting for them to join…</p>
+            <p className="tiny muted lobby__wait">{phase.says ?? 'Waiting for them to join…'}</p>
           </>
         )}
 
@@ -66,9 +74,10 @@ export function Lobby({
             <h1 className="lobby__title">{phase.code ? 'Finding the game' : 'Opening a game'}</h1>
             {phase.code && <p className="lobby__code">{phase.code}</p>}
             <p className="lobby__says">
-              {phase.code
-                ? 'Looking for whoever sent you this. They need to still have the game open.'
-                : 'A moment — fetching what two phones need to find each other.'}
+              {phase.says ??
+                (phase.code
+                  ? 'Looking for whoever sent you this. They need to still have the game open.'
+                  : 'A moment — fetching what two phones need to find each other.')}
             </p>
           </>
         )}
@@ -77,6 +86,16 @@ export function Lobby({
           <>
             <h1 className="lobby__title">That is as far as it goes</h1>
             <p className="lobby__says">{phase.says}</p>
+            {/* A reload, because the code is still in the address bar — which
+                is exactly why it is no longer stripped on the way past. The
+                commonest two failures both cure themselves in a few seconds,
+                so trying again is usually the whole fix. */}
+            <button
+              className="btn btn--primary btn--wide"
+              onClick={() => window.location.reload()}
+            >
+              Try again
+            </button>
           </>
         )}
 

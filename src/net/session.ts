@@ -124,6 +124,27 @@ export class Session {
   /** Our own hello, kept so it can be sent again in answer to theirs. */
   private greeting!: Hello;
 
+  /**
+   * Say hello again, until somebody answers.
+   *
+   * Called from the same timer that pumps the sequence. One lost greeting used
+   * to deadlock the pair for ever — both sides waiting on a message that was
+   * never coming and no screen able to say so — and the fix is simply to keep
+   * saying it. Cheap: a greeting is sixty bytes and it stops the moment the
+   * other side is on.
+   *
+   * `joined` is the only thing that silences it, so a side that connected and
+   * then had its first greeting eaten still gets there a second later.
+   */
+  private greetAgain(nowMs: number): void {
+    if (this.joined || this.stopped) return;
+    if (nowMs - this.greetedAt < 800) return;
+    this.greetedAt = nowMs;
+    this.transport.send(this.greeting);
+  }
+
+  private greetedAt = 0;
+
   get state(): GameState {
     return this.step.state;
   }
@@ -220,7 +241,11 @@ export class Session {
    * applies what arrives.
    */
   pump(nowMs: number): void {
-    if (this.stopped || this.role !== 'host' || !this.joined) return;
+    if (this.stopped) return;
+    // Both ends call this, and the greeting is the one thing a guest does in
+    // it: until the two of them have said hello there is no sequence to run.
+    this.greetAgain(nowMs);
+    if (this.role !== 'host' || !this.joined) return;
     // The war waits. Not a timeout and not a forfeit: the clock simply does
     // not turn until the other player is back with us.
     if (this.waitingForPeer) return;

@@ -359,3 +359,82 @@ describe('a drift is caught rather than played out', () => {
     expect(troubles.filter((t) => t.kind === 'desync')).toHaveLength(0);
   });
 });
+
+describe('the two ways a connection used to die silently', () => {
+  /**
+   * The first message, arriving before anybody is listening.
+   *
+   * This is what actually went wrong the first time two phones tried it.
+   * `connection.on('data')` is attached when the connection opens, but the
+   * function that reads those messages belongs to the `Session`, which is
+   * built a microtask later inside a `.then`. Both ends open with a greeting,
+   * so the ordinary case — their greeting crossing while our session is still
+   * being constructed — hit an `undefined` handler and vanished. Neither side
+   * repeated it. Both waited for ever and neither screen could say why.
+   */
+  it('keeps what arrives before the session is listening', async () => {
+    const [a, b] = pair();
+    // Somebody speaks down `a` before anybody has attached a handler to `b`.
+    a.send({ kind: 'ack', n: 7 });
+    a.send({ kind: 'ack', n: 8 });
+    await settle();
+    const heard: number[] = [];
+    b.receive((m) => m.kind === 'ack' && heard.push(m.n));
+    // Both of them, in order, the moment somebody is there to hear.
+    expect(heard).toEqual([7, 8]);
+  });
+
+  it('holds its tongue once somebody is listening', async () => {
+    // Guards the buffer: anything arriving after the handler is attached must
+    // go straight through rather than queue up behind nothing.
+    const [a, b] = pair();
+    const heard: number[] = [];
+    b.receive((m) => m.kind === 'ack' && heard.push(m.n));
+    a.send({ kind: 'ack', n: 1 });
+    await settle();
+    expect(heard).toEqual([1]);
+  });
+
+  it('says hello again until the other side answers', async () => {
+    /*
+     * The second failure, and the reason the first was fatal rather than
+     * annoying: nothing was ever said twice, so one lost greeting deadlocked
+     * the pair permanently.
+     *
+     * The line is muted while both of them open — so every greeting is lost,
+     * which is the worst case rather than the likely one — and then opened.
+     * Nothing else will save them: with no repeat, the pair are finished.
+     */
+    const [a, b] = pair();
+    let muted = true;
+    const gate = (under: typeof a) => ({
+      send: (m: Parameters<typeof under.send>[0]) => {
+        if (!muted) under.send(m);
+      },
+      receive: under.receive.bind(under),
+      close: under.close.bind(under),
+    });
+    const host = new Session({
+      role: 'host', transport: gate(a), seed: 99, seat: 'empire', build: 't',
+    });
+    const guest = new Session({
+      role: 'guest', transport: gate(b), seed: 99, seat: 'alliance', build: 't',
+    });
+    await settle();
+    expect(host.connected, 'nothing crossed, so nobody is joined').toBe(false);
+    expect(guest.connected).toBe(false);
+
+    // The tunnel ends.
+    muted = false;
+    let clock = 0;
+    for (let i = 0; i < 60; i++) {
+      clock += TICK_MS;
+      host.pump(clock);
+      guest.pump(clock);
+      await settle();
+    }
+    expect(host.connected, 'the repeated greeting never got through').toBe(true);
+    expect(guest.connected).toBe(true);
+    expect(stateHash(host.state)).toBe(stateHash(guest.state));
+  });
+});

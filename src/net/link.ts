@@ -40,15 +40,17 @@ export function linkFor(code: string): string {
 /**
  * The code in the address bar, if this page was opened from a link.
  *
- * Read once and then cleared out of the bar, so a reload does not try to join
- * a lobby that has long since closed — and so the code is not sitting in the
- * address bar of a game that is already under way.
+ * **Left in the bar.** It used to be stripped on the way past, on the
+ * reasoning that a reload should not try to rejoin a lobby that has long since
+ * closed. That reasoning was wrong in the only situation that matters: the
+ * first thing anybody does when a connection fails is reload, and stripping
+ * the code meant the reload did not even try — it landed on the title screen
+ * as though the link had never existed. A stale rejoin says so in a sentence;
+ * a lost code looks like the link is broken.
  */
 export function codeFromLink(): string | null {
   const match = /[#&]join=([A-Z0-9]+)/i.exec(window.location.hash);
-  if (!match) return null;
-  history.replaceState(null, '', window.location.pathname + window.location.search);
-  return match[1].toUpperCase();
+  return match ? match[1].toUpperCase() : null;
 }
 
 /** Two tabs of one browser, as a door in the address bar. See `local.ts`. */

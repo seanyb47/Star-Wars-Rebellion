@@ -184,3 +184,38 @@ export interface Transport {
   receive(handler: (message: Wire) => void): void;
   close(): void;
 }
+
+/**
+ * Keep what arrives before anybody is listening.
+ *
+ * Wrapped around every transport, which is the point. This was written into
+ * the WebRTC one alone after two phones failed to connect, and the test that
+ * should have caught it could not — the in-memory transport the tests use did
+ * not buffer either, so the race was unreachable from a test and the bug
+ * survived into Sean's hands.
+ *
+ * The race is unavoidable and ordinary. A transport starts hearing the moment
+ * it is built; the function that reads those messages belongs to the
+ * `Session`, which is built later — a microtask later down a direct call, and
+ * however long a `.then` takes down a wire. Both ends open with a greeting, so
+ * *their greeting arriving while our session is still being constructed* is
+ * the common case rather than a corner. Dropped, with nothing said twice, it
+ * left both players waiting on each other for ever.
+ */
+export function buffered(under: Transport): Transport {
+  let handler: ((m: Wire) => void) | undefined;
+  const waiting: Wire[] = [];
+  under.receive((message) => {
+    if (handler) handler(message);
+    else waiting.push(message);
+  });
+  return {
+    send: (message) => under.send(message),
+    receive(next) {
+      handler = next;
+      // In order, and before anything newer can reach it.
+      while (waiting.length > 0) next(waiting.shift()!);
+    },
+    close: () => under.close(),
+  };
+}

@@ -3,7 +3,7 @@ import type { GameState, Speed } from '../sim/types';
 import type { Order } from '../sim/orders';
 import { Session, type Trouble } from './session';
 import { codeFromLink, linkFor, tabsFromLink } from './link';
-import type { Joining } from './peer';
+import type { Joining, LinkState } from './peer';
 import { channel } from './local';
 import { TICK_MS, type Transport } from './wire';
 
@@ -33,13 +33,29 @@ export type Phase =
   /** Not in a two-player war at all. */
   | { at: 'none' }
   /** Waiting for a friend to open the link. */
-  | { at: 'hosting'; code: string; link: string }
+  | { at: 'hosting'; code: string; link: string; says?: string }
   /** Opened somebody's link, or opening a lobby; finding the other end. */
-  | { at: 'joining'; code: string }
+  | { at: 'joining'; code: string; says?: string }
   /** Both here. */
   | { at: 'playing' }
   /** It ended badly enough to say so and stop. */
   | { at: 'broken'; says: string };
+
+/** A connection state as something to read on a screen. */
+function wording(link: LinkState): string {
+  switch (link.at) {
+    case 'opening':
+      return 'Fetching what two phones need to find each other.';
+    case 'waiting':
+      return 'Ready and waiting. Keep this screen open until they join.';
+    case 'connecting':
+      return 'Found them — opening a line.';
+    case 'connected':
+      return 'Through. Setting the war up.';
+    case 'failed':
+      return link.why;
+  }
+}
 
 export interface NetGame {
   phase: Phase;
@@ -129,6 +145,13 @@ export function useNetGame(build: string): NetGame {
     const ready = import('./peer').then(({ join }) => {
       const waiting = join(code);
       lobby.current = waiting;
+      // Every step, on the screen. "Struggling to connect" has to become a
+      // sentence somebody can read out, or there is nothing to fix.
+      waiting.watch((link) => {
+        if (gone) return;
+        if (link.at === 'failed') setPhase({ at: 'broken', says: link.why });
+        else setPhase({ at: 'joining', code, says: wording(link) });
+      });
       return waiting;
     });
     ready
@@ -139,13 +162,9 @@ export function useNetGame(build: string): NetGame {
         // what the session is built with before it hears anything.
         begin('guest', transport, 0, 'alliance');
       })
-      .catch(() =>
-        !gone &&
-        setPhase({
-          at: 'broken',
-          says: `Could not find a game under ${code}. The link may have gone cold — ask for a new one.`,
-        }),
-      );
+      // The watcher above has already said what went wrong and in more detail
+      // than a rejection carries, so this only has to stop the chain.
+      .catch(() => {});
     return () => {
       gone = true;
       void ready.then((waiting) => waiting.cancel()).catch(() => {});
@@ -164,6 +183,9 @@ export function useNetGame(build: string): NetGame {
   useEffect(() => {
     if (phase.at !== 'playing') return;
     const timer = window.setInterval(() => {
+      // Both ends, not just the host: the guest does nothing to the sequence
+      // here but it is where it repeats its greeting until the host answers,
+      // which is what stops one lost message deadlocking the pair.
       session.current?.pump(performance.now());
     }, TICK_MS);
     return () => window.clearInterval(timer);
@@ -175,16 +197,22 @@ export function useNetGame(build: string): NetGame {
       .then(({ host }) => {
         const open = host();
         lobby.current = open;
-        setPhase({ at: 'hosting', code: open.code, link: linkFor(open.code) });
+        open.watch((link) => {
+          if (link.at === 'failed') setPhase({ at: 'broken', says: link.why });
+          else if (link.at === 'opening') setPhase({ at: 'joining', code: '' });
+          else {
+            setPhase({
+              at: 'hosting',
+              code: open.code,
+              link: linkFor(open.code),
+              says: wording(link),
+            });
+          }
+        });
         return open.transport;
       })
       .then((transport) => begin('host', transport, Date.now() >>> 0, 'empire'))
-      .catch(() =>
-        setPhase({
-          at: 'broken',
-          says: 'Could not open a game for a friend to join. Check the connection and try again.',
-        }),
-      );
+      .catch(() => {});
   }, [begin]);
 
   const leave = useCallback(() => {

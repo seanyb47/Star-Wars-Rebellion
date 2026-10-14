@@ -11747,3 +11747,74 @@ Suite: 112 files, 1154 passing, 1 skipped.
 3. **Reconnection.** *"The war waits"* holds the clock, and nothing yet picks
    the connection back up when the tunnel ends — the two of them currently
    start again.
+
+---
+
+## 14 October — why the other player could not connect
+
+Sean: *"I'm struggling for other player to connect."* Expected — the wire is
+the one part this container cannot test — but reading the code back found
+**four** faults, and the first is a guaranteed deadlock rather than a
+flakiness.
+
+### 1. The first message was thrown away
+
+`transportOver` attached `connection.on('data')` when the connection opened.
+The function that *reads* those messages belongs to the `Session`, which is
+built later — a microtask later down a direct call, and however long a `.then`
+takes down a wire. Anything arriving in between hit an `undefined` handler and
+vanished.
+
+Both ends open with a greeting. So *their greeting arriving while our session
+is still being constructed* is not a corner case, it is the ordinary case. And
+nothing was ever said twice, so both players waited on each other for ever with
+nothing on either screen able to say why.
+
+**The reason it survived into Sean's hands is the part worth keeping.** The
+in-memory transport the tests use did not buffer either, so the race was
+unreachable from a test. Buffering now lives in one shared `buffered()` wrapper
+in `wire.ts`, applied by all three transports, and `lockstep.test.ts` reproduces
+the exact failure: two messages sent before anybody is listening, both arriving
+in order the moment somebody is.
+
+### 2. Nothing repeated
+
+One lost greeting was permanent. The session now repeats it off the same timer
+that pumps the sequence, until the other side answers. Sixty bytes, and it
+stops the moment they are on.
+
+Tested by muting the line while both sessions open — so *every* greeting is
+lost, the worst case rather than the likely one — then opening it, and watching
+the pair find each other with no other help.
+
+### 3. The lobby died when Sean went to send the link
+
+The flow is *open a game → leave the app to send the link → friend taps it*.
+Leaving the app suspends the page, which drops the socket holding the lobby
+open — so by the time the friend tapped, there was nobody to find. The lobby
+now reconnects whenever the page comes back to the front, and the hosting
+screen says the thing that actually matters: **come back to this screen after
+you send it, and leave it open until they are in.**
+
+### 4. Reloading after a failure made it worse
+
+`codeFromLink` stripped the code out of the address bar on the way past, on the
+reasoning that a reload should not rejoin a dead lobby. That reasoning is wrong
+in the only situation that matters: the first thing anybody does when a
+connection fails is reload, and stripping the code meant **the reload did not
+even try** — it landed on the title screen as though the link had never
+existed. The code stays in the bar and the failure screen has a **Try again**
+button, because the two commonest failures both cure themselves in seconds.
+
+### And it said nothing useful
+
+*"Could not find a game"* covered a closed lobby, a dead broker, a phone with
+no signal, and a browser that cannot do it. Every step of the connection is now
+on screen — *fetching… ready and waiting… found them, opening a line…* — and
+each failure says which it was and whether trying again is worth it. The guest
+also dials up to four times, 1.2 seconds apart, with a nine-second deadline on
+a connection that neither opens nor errors, which is the commonest shape of
+this going wrong.
+
+Suite: 112 files, 1157 passing, 1 skipped. Two tabs and the solo game both
+re-verified in a real browser afterwards.

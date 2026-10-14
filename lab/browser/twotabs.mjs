@@ -3,7 +3,7 @@
  *
  * Needs a preview server and a one-off, unsaved Playwright:
  *
- *   npm run build && npx vite preview --port 4317 &
+ *   npm run build && npx vite preview --port 4318 &
  *   npm install --no-save playwright-core
  *   node lab/browser/twotabs.mjs
  *
@@ -16,7 +16,7 @@
 // check available in here: the egress policy refuses the broker.
 import { chromium } from 'playwright-core';
 
-const BASE = 'http://localhost:4317/Star-Wars-Rebellion/';
+const BASE = 'http://localhost:4318/Star-Wars-Rebellion/';
 const browser = await chromium.launch({
   executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
   args: ['--no-sandbox'],

@@ -1,3 +1,4 @@
+import { buffered } from './wire';
 import type { Transport, Wire } from './wire';
 
 /**
@@ -45,7 +46,9 @@ export function pair(): [Transport, Transport] {
       live[me] = false;
     },
   });
-  return [make(0, 1), make(1, 0)];
+  // Buffered like every other transport, so the race that broke two phones is
+  // reachable from a test rather than only from a train.
+  return [buffered(make(0, 1)), buffered(make(1, 0))];
 }
 
 /**
@@ -63,7 +66,7 @@ export function channel(name: string): Transport {
     if (event.data?.from === me) return;
     handler?.(event.data.message);
   };
-  return {
+  return buffered({
     send(message) {
       bus.postMessage({ from: me, message });
     },
@@ -73,5 +76,5 @@ export function channel(name: string): Transport {
     close() {
       bus.close();
     },
-  };
+  });
 }

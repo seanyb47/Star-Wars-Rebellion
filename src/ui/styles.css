@@ -3629,6 +3629,17 @@ button.tcard:hover { border-color: var(--brass); }
 .lobby__wait {
   margin: 10px 0 0;
 }
+/* The instruction that decides whether the link works at all. Loud enough to
+   be read before the share sheet covers the screen. */
+.lobby__warn {
+  margin: 0 0 18px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(154, 115, 48, 0.18);
+  color: var(--brass);
+  font-size: 13px;
+  line-height: 1.45;
+}
 .lobby__out {
   margin-top: 18px;
 }
