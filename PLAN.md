@@ -11510,3 +11510,122 @@ yet, and what remains is plumbing rather than design:
    an action now waits for an answer that may never come. This is the transport
    layer's problem rather than the simulation's — the sim has no wall clock and
    should not grow one — but it is a real question and I have not solved it.
+
+---
+
+## 14 October — the machinery two people need
+
+Sean, when I offered two-tab play as if it were a step he cared about: *"What
+is two tab play? I want to be able to text my friend a link and they play
+against me."*
+
+Right on both counts. Two-tab play is a **test rig** — two tabs of one browser
+talking inside the browser — and I presented scaffolding as a feature. The goal
+is the link. What follows is the part that is the same either way, which is
+nearly all of it.
+
+### One constraint shapes the plan
+
+This container's egress policy refuses the public introduction service and any
+connection test — `403` from the proxy on both. So **I cannot test the
+networked version at all.** Sean and his friend will be its first run.
+
+That makes the local transport load-bearing rather than a nicety: it is the
+only way to prove the whole machine — two seats, orders crossing, the
+sequencer, both answering a round, two fogs of war, the desync alarm — without
+a wire I am not allowed to touch. The wire is then deliberately the thinnest
+part: a `send` and a `receive`.
+
+### The design mistake I nearly made, written down so nobody re-derives it
+
+The obvious thing is *apply my own order at once, send it over, let them apply
+it when it arrives.* **That desyncs on the first simultaneous pair of orders.**
+He taps build; ten milliseconds later she taps sail. His client applies build
+then sail; hers applies sail then build. Two sequences, two wars, and neither
+screen says so. I had written exactly that into an earlier message as the plan
+before working it through.
+
+So: one agreed order of events, which both follow. The side that made the link
+numbers everything — orders *and* the turning of the day — into a stream of
+**ticks**, and nobody applies anything the instant they tap it, the host
+included.
+
+A tick is **not** a game day. It is 100 ms of real time, so an order lands
+`INPUT_DELAY` ticks later — 200 ms — whatever speed the war is running at.
+Scheduling against the game day instead would mean waiting up to thirty seconds
+at Very Slow to see your own build order land.
+
+**The host does not get to go first.** Its orders travel no distance, so
+without care its tap always lands in an earlier tick and it wins every race for
+the same island. It schedules its own orders the same `INPUT_DELAY` ahead as
+the guest's. That is the promise I made two turns ago, kept, and it costs
+nothing.
+
+### "The war waits", and the one day that cannot be helped
+
+Sean's ruling: *"The war waits."* It turned out to be the cheapest of the three
+options rather than the most expensive — lockstep already halts when a peer
+goes quiet, so waiting is its default behaviour and the other two answers would
+have meant bolting a stopwatch onto a simulation that deliberately has no clock
+of its own.
+
+It falls out of the acknowledgements: the host will not run more than
+`INPUT_DELAY` ahead of what the guest has confirmed. A phone in a tunnel stops
+time rather than falling behind and catching up with a fortnight of war it
+never watched.
+
+One honest limit, found by a failing test rather than reasoned out. The clock
+can turn **one** more day after somebody closes the tab, because you cannot
+know they are gone until they fail to answer — the tick that turns the day is
+already sent by the time their silence means anything. Holding the clock on the
+guest being *level* rather than merely *within the slack* is what keeps it to
+one; without that it is as many days as fit in the slack. The test asserts the
+bound and then pumps three hundred more slices to prove it is a stop and not a
+slow drift.
+
+### A drift is caught, not played out
+
+The one failure lockstep has, and it is silent by nature: nobody is
+authoritative, so when two wars come apart his fleet sinks, hers sails on, and
+both screens look convincing. So a `stateHash` fingerprint crosses with the
+acknowledgements every twenty ticks, and a mismatch **stops both sessions and
+says where**. No attempt to recover: two wars that have come apart cannot be
+reconciled from inside either of them, and carrying on means two people playing
+different games.
+
+Proved by reaching into one war and moving a single number — one gold piece —
+and watching the alarm fire. And guarded the other way too: two hundred ticks
+of an untampered war raise nothing, because an alarm that always fires is no
+alarm.
+
+### What is in it
+
+| File | What it is |
+|---|---|
+| `src/net/wire.ts` | the five messages that cross, and why there are ticks |
+| `src/net/lockstep.ts` | the whole of the subtlety, with no transport, clock or React in it |
+| `src/net/session.ts` | one player's end: host or guest over a `Transport` |
+| `src/net/local.ts` | two transports with no network — a function call, and `BroadcastChannel` |
+
+Thirteen cases in `src/net/__tests__/lockstep.test.ts`, all through two real
+sessions. Two of them were worth the trouble on their own: a build mismatch is
+refused rather than desyncing on day one, and the guest's order is carried out
+as **the guest's** — it spends the Confederacy's gold on the Crown player's
+machine, which is `applyOrder` lending the chair, now proved across a wire.
+
+Suite: 112 files, 1154 passing, 1 skipped.
+
+### Still to come before the link works
+
+1. **The introduction service**, which is the only part that needs anything
+   from outside: two phones cannot find each other without one. Free public
+   broker first, since it needs no account and no card; a few dollars a month
+   buys a reliable one if a real mobile network defeats it.
+2. **The link and the lobby** — a seed and a side in a URL, and a screen that
+   says who you are waiting for.
+3. **Wiring the session into `App.tsx`**, which today drives `advanceDay` from
+   its own `setInterval`. In a two-player war the clock is the session's, so
+   that timer becomes `session.pump`.
+4. **The speed request**, which Sean specified exactly: *"the other player gets
+   a popup 'the [other faction] requests the speed to be [speed]' and they can
+   accept or decline."* It is one more wire message and one dialog.
