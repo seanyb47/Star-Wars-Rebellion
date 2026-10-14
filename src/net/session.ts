@@ -4,6 +4,7 @@ import { stateHash } from '../sim/sync';
 import type { GameState, PlayableFaction, Speed } from '../sim/types';
 import { SPEED_MS } from '../sim/constants';
 import { otherFaction } from '../sim/helpers';
+import type { Hello } from './wire';
 import {
   applyTick,
   checkAt,
@@ -83,6 +84,12 @@ export class Session {
   /** True once the far side has said hello. */
   private joined = false;
   private stopped = false;
+  /** Rises with each speed I ask for, so a stale answer is ignored. */
+  private asked = 0;
+  /** A speed I have asked for and not had an answer to. */
+  private mine?: { asked: number; speed: Speed };
+  /** A speed they have asked me for, waiting on my answer. */
+  private theirs?: { asked: number; speed: Speed; by: PlayableFaction };
 
   constructor(options: SessionOptions) {
     this.role = options.role;
@@ -95,15 +102,27 @@ export class Session {
     this.step = open(generateGalaxy(options.seed, options.seat));
     this.step.state.human = ['empire', 'alliance'];
     this.transport.receive((message) => this.heard(message));
-    if (this.role === 'host') {
-      this.transport.send({
-        kind: 'hello',
-        seed: options.seed,
-        guestSeat: otherFaction(options.seat),
-        build: this.build,
-      });
-    }
+    /*
+     * Both say hello, and either order works.
+     *
+     * The host used to be the only one that spoke first, which is fine down a
+     * connection somebody has just dialled and wrong down a channel with no
+     * replay: whichever side opens second never hears the greeting it missed,
+     * so nobody is ever joined and the war never starts. Both greet, and a
+     * greeting is answered exactly once — `joined` is the guard that stops two
+     * polite clients saying hello to each other for ever.
+     */
+    this.greeting = {
+      kind: 'hello',
+      seed: options.seed,
+      guestSeat: this.role === 'host' ? otherFaction(options.seat) : options.seat,
+      build: this.build,
+    };
+    this.transport.send(this.greeting);
   }
+
+  /** Our own hello, kept so it can be sent again in answer to theirs. */
+  private greeting!: Hello;
 
   get state(): GameState {
     return this.step.state;
@@ -130,6 +149,48 @@ export class Session {
     if (!this.joined) return true;
     if (this.role === 'guest') return false;
     return this.step.tick - this.acked > INPUT_DELAY;
+  }
+
+  /**
+   * A speed the other player has asked for, and has not been answered.
+   *
+   * The dialog reads this. Sean's rule: *"the other player gets a popup 'the
+   * [other faction] requests the speed to be [speed]' and they can accept or
+   * decline. The game always works on mutual consent."*
+   */
+  get speedAsked(): { speed: Speed; by: PlayableFaction } | undefined {
+    return this.theirs;
+  }
+
+  /** A speed I have asked for and am waiting on, for the screen to say so. */
+  get speedPending(): Speed | undefined {
+    return this.mine?.speed;
+  }
+
+  /**
+   * Ask for a different speed.
+   *
+   * Nothing happens yet, and that is the rule rather than a limitation: the
+   * clock is the one thing in the war that is shared outright, so it moves
+   * only when both of them want it to.
+   */
+  requestSpeed(speed: Speed): void {
+    if (this.stopped || speed === this.step.state.speed) return;
+    this.asked += 1;
+    this.mine = { asked: this.asked, speed };
+    this.transport.send({ kind: 'speed-request', by: this.seat, speed, asked: this.asked });
+  }
+
+  /** Answer the speed they asked for. */
+  answerSpeed(agreed: boolean): void {
+    const question = this.theirs;
+    if (!question) return;
+    this.theirs = undefined;
+    this.transport.send({ kind: 'speed-reply', asked: question.asked, agreed });
+    // The host is the one that can put anything in the sequence, so if that is
+    // us and we have just agreed, the change goes in now. If we are the guest,
+    // the host does it when our reply reaches it.
+    if (agreed && this.role === 'host') this.schedule({ kind: 'setSpeed', speed: question.speed }, question.by);
   }
 
   /**
@@ -234,8 +295,14 @@ export class Session {
     if (this.stopped) return;
     switch (message.kind) {
       case 'hello': {
-        // The guest learns which war it is in and which side it has, and
-        // builds the world itself rather than being sent it.
+        /*
+         * Refuse a stranger's build before anything else.
+         *
+         * Pages ships on every push, so one of them having reloaded and the
+         * other not is the ordinary case rather than a strange one — and two
+         * different builds would come apart on day one with nothing on either
+         * screen to say why.
+         */
         if (message.build !== this.build) {
           this.trouble({
             kind: 'mismatched-build',
@@ -243,21 +310,20 @@ export class Session {
           });
           return;
         }
+        // Answered once. A second greeting is the far side answering ours.
+        if (this.joined) return;
+        this.joined = true;
         if (this.role === 'guest') {
+          // The guest learns which war it is in and which side it has, and
+          // builds the world itself rather than being sent sixty kilobytes of
+          // it. The host's word on both: it made the link.
           this.step = open(generateGalaxy(message.seed, message.guestSeat));
           this.step.state.human = ['empire', 'alliance'];
-        }
-        this.joined = true;
-        // So the host knows somebody is there and may start.
-        if (this.role === 'guest') {
-          this.transport.send({
-            kind: 'hello',
-            seed: message.seed,
-            guestSeat: message.guestSeat,
-            build: this.build,
-          });
+          // So the host knows somebody is there and may start. Without this
+          // first acknowledgement it waits for ever, by design.
           this.transport.send({ kind: 'ack', n: 0, hash: stateHash(this.step.state) });
         }
+        this.transport.send(this.greeting);
         this.onChange?.(this.step.state);
         return;
       }
@@ -289,6 +355,24 @@ export class Session {
             this.reportDesync(apart.n);
           }
         }
+        return;
+      }
+      case 'speed-request': {
+        // Theirs to ask, mine to answer. Held rather than applied.
+        this.theirs = { asked: message.asked, speed: message.speed, by: message.by };
+        this.onChange?.(this.step.state);
+        return;
+      }
+      case 'speed-reply': {
+        // Only the answer to the question I am actually waiting on: tap Fast,
+        // tap Medium, and the Fast answer must not land on the Medium question.
+        if (!this.mine || this.mine.asked !== message.asked) return;
+        const wanted = this.mine.speed;
+        this.mine = undefined;
+        if (message.agreed && this.role === 'host') {
+          this.schedule({ kind: 'setSpeed', speed: wanted }, this.seat);
+        }
+        this.onChange?.(this.step.state);
         return;
       }
       case 'desync': {

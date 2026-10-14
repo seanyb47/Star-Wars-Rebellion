@@ -3588,3 +3588,59 @@ button.tcard:hover { border-color: var(--brass); }
 .event__kind--mission { background: var(--metal-hi); opacity: 0.8; }
 /* In the panel the mark is not inside a flex column, so it needs no top nudge. */
 .notify .event__kind { margin-top: 0; }
+
+/* ---------------------------------------------------- playing a friend */
+
+/*
+ * The lobby: a code, a button, and a sentence about what has not happened yet.
+ * Deliberately plain. Every state it has is a moment where the player is
+ * waiting on somebody else and wants to know whether that is normal.
+ */
+.lobby {
+  display: grid;
+  place-items: center;
+  padding: 0 16px;
+}
+.lobby__box {
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+.lobby__title {
+  margin: 0 0 14px;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--parchment);
+}
+/* The code, big enough to read out over the phone if the link will not go. */
+.lobby__code {
+  margin: 0 0 14px;
+  font-size: 34px;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  color: var(--brass);
+}
+.lobby__says {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--chrome-text);
+}
+.lobby__wait {
+  margin: 10px 0 0;
+}
+.lobby__out {
+  margin-top: 18px;
+}
+
+/* Second action on the title screen, under Begin and quieter than it. */
+.start__friend {
+  margin-top: 8px;
+}
+
+/* The war is held on the other player rather than on anything you did. Brass
+   rather than the observing bar's grey: this is live and it will clear. */
+.watchbar--waiting {
+  background: rgba(154, 115, 48, 0.22);
+  color: var(--brass);
+}

@@ -21,6 +21,7 @@ import {
   reorderShips,
   resolvePendingMission,
   sendCrew,
+  setSpeed,
   type CommandResult,
 } from './commands';
 import type { ScrapTarget } from './economy';
@@ -30,6 +31,7 @@ import type {
   GameState,
   MissionType,
   PlayableFaction,
+  Speed,
 } from './types';
 
 /**
@@ -60,13 +62,17 @@ import type {
  * a command exists with nothing here to carry it, so command number
  * twenty-four cannot be added without this file noticing.
  *
- * Deliberately absent: `newGame`, `setObserving` and `setSpeed`. None of them
- * is an order inside a war. A new game is the thing the war starts from, both
- * clients get the same seed when they sit down, and handing your side to the
- * machine is not something you can do to somebody else's. The speed is shared
- * and it is the one case Sean has already ruled on — *"the other player gets a
- * popup… they can accept or decline"* — so it is a negotiation and not an
- * order, and it gets its own envelope when that is built.
+ * Deliberately absent: `newGame` and `setObserving`. Neither is an order
+ * inside a war. A new game is the thing the war starts from, and both clients
+ * get the same seed when they sit down; handing your own side to the machine
+ * is not something you can do to somebody else's.
+ *
+ * `setSpeed` **is** here, which took a second look. Asking for a speed is a
+ * negotiation — Sean: *"the other player gets a popup… they can accept or
+ * decline"* — so the asking travels on its own and changes nothing. But the
+ * agreed change has to go through the sequence like everything else, or the
+ * two clocks turn over on different slices and the wars come apart one day at
+ * a time. The negotiation is not an order; its outcome is.
  */
 export type Order =
   // What is being built, and where
@@ -95,7 +101,18 @@ export type Order =
   | { kind: 'reorderShips'; fleetId: string; shipIds: string[]; dir: -1 | 1 }
   | { kind: 'reorderOfficers'; fleetId: string; characterIds: string[]; dir: -1 | 1 }
   | { kind: 'reorderCrew'; characterIds: string[]; dir: -1 | 1 }
-  | { kind: 'reorderGarrison'; systemId: string; typeIds: string[]; dir: -1 | 1 };
+  | { kind: 'reorderGarrison'; systemId: string; typeIds: string[]; dir: -1 | 1 }
+  /*
+   * The agreed speed, which is an order even though asking for it is not.
+   *
+   * Sean's rule is that a speed change is a request the other side accepts or
+   * declines, so the *asking* travels on its own (`SpeedRequest`) and changes
+   * nothing. Once it is agreed, the change itself has to go through the
+   * sequence like everything else, or the two clocks turn over on different
+   * slices and the wars drift apart one day at a time. So the negotiation is
+   * not an order and its outcome is.
+   */
+  | { kind: 'setSpeed'; speed: Speed };
 
 /** Which command each envelope opens into. One line each, and no cleverness. */
 function dispatch(state: GameState, order: Order): CommandResult {
@@ -151,6 +168,10 @@ function dispatch(state: GameState, order: Order): CommandResult {
       return reorderCrew(state, order.characterIds, order.dir);
     case 'reorderGarrison':
       return reorderGarrison(state, order.systemId, order.typeIds, order.dir);
+    case 'setSpeed':
+      // Not a `run` command — it never fails and there is nothing to refuse —
+      // so it is wrapped to the same shape as everything else here.
+      return { state: setSpeed(state, order.speed) };
   }
 }
 

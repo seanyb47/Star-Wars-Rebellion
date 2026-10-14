@@ -41,15 +41,16 @@ describe('every command can be sent', () => {
      * button, and it works perfectly in single player while silently never
      * reaching the other player in PvP.
      *
-     * The three exceptions are stated in the test so that adding a fourth has
-     * to be a decision somebody writes down. `newGame` is what a war starts
-     * from and both clients get the same seed. `setObserving` hands your own
-     * side to the machine, which is not something you can do to somebody
-     * else's. `setSpeed` is shared and is the one case Sean has already ruled
-     * on — *"the other player gets a popup… they can accept or decline"* —
-     * so it is a negotiation, and a negotiation is not an order.
+     * The two exceptions are stated in the test so that adding a third has to
+     * be a decision somebody writes down. `newGame` is what a war starts from
+     * and both clients get the same seed; `setObserving` hands your own side
+     * to the machine, which is not something you can do to somebody else's.
+     *
+     * `setSpeed` was on this list and is not any more. Asking for a speed is a
+     * negotiation and travels on its own, but the agreed change has to go
+     * through the sequence or the two clocks turn over on different slices.
      */
-    const NOT_ORDERS = ['newGame', 'setObserving', 'setSpeed'];
+    const NOT_ORDERS = ['newGame', 'setObserving'];
     const commandSrc = Object.values(
       import.meta.glob('../commands.ts', {
         query: '?raw',

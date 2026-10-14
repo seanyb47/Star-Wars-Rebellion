@@ -11629,3 +11629,121 @@ Suite: 112 files, 1154 passing, 1 skipped.
 4. **The speed request**, which Sean specified exactly: *"the other player gets
    a popup 'the [other faction] requests the speed to be [speed]' and they can
    accept or decline."* It is one more wire message and one dialog.
+
+---
+
+## 14 October — the link
+
+Sean: *"Yea do it all as much as u can."* So: the connection, the link, the
+lobby, the app integration and the speed request. It plays.
+
+### The seam, which turned out to be twenty-one lines
+
+Every order in the game is issued in exactly one place — `App.tsx`, one call
+site per command, twenty-one of them. So the whole of "route orders through the
+other player" is one function:
+
+```ts
+const give = (order: Order, afterwards?: () => void) => {
+  const trial = applyOrder(state, order, state.player);
+  if (trial.error) return flash(trial.error);
+  if (netPlaying) { net.order(order); afterwards?.(); return; }
+  setState(trial.state);
+  afterwards?.();
+};
+```
+
+The order is **tried locally either way**, and the result thrown away in a
+two-player war. That is not waste: it is how a refusal reaches the player while
+they are still looking at the thing they tapped, rather than arriving a fifth
+of a second later over a sheet that has already closed. `afterwards` — shutting
+a sheet, clearing a selection, *"Under way."* — runs optimistically, because a
+screen that waits for the wire before closing a sheet feels broken on a train.
+
+Alone, `give` is byte-for-byte the behaviour that was there before. That
+mattered more than anything else here: the single-player game is the one that
+works, and a fault in the two-player machinery must not be able to reach it.
+
+### Three things the integration got wrong, all caught in a browser
+
+**The friend who opened the link landed on a title screen** offering to
+continue somebody else's save. `started` was local state and a two-player war
+is already under way by the time there is a session, so it is now
+`startedHere || netPlaying`.
+
+**A shared war was being written into the single save slot**, which would have
+overwritten the game you are playing on your own with something you cannot
+reopen anyway — half of it is on the other phone. The autosave sits out while a
+session is running.
+
+**"Held" started lying.** Alone, a dispatch card stops time and the clock badge
+says so. In a two-player war those no longer stop anything — one player's
+private reading should not freeze the other — so the badge was reporting a hold
+that was not happening. It reports `net.waiting` instead, which is the thing
+that *does* hold a shared clock.
+
+That third one is a design call worth naming: **a battle holds the shared clock
+and a dispatch does not.** A battle is a joint decision where waiting is the
+point. A dispatch card and a mission report are one player's private business,
+and letting either freeze the war would hand both players a way to stop time
+whenever a card came up, which is most minutes.
+
+### The speed request, as specified
+
+Sean's wording, verbatim on the screen: *"The Imperium requests the speed to be
+Very slow."* The asking travels on its own and changes nothing; the **agreed
+change goes through the tick sequence** like any order, or the two clocks turn
+over on different slices and the wars drift apart one day at a time. So
+`setSpeed` became an `Order` after all, and `orders.test.ts`'s list of
+non-orders is down to two with the reason written in.
+
+A request carries a number, so a stale answer cannot land on a newer question:
+tap Fast, tap Medium, and the Fast reply must not answer the Medium one.
+
+### Ninety kilobytes nobody should pay for
+
+`peerjs` put 81 KB on the bundle, and the overwhelming majority of launches
+never play a friend. It is now a separate 89.6 KB chunk fetched on demand by
+the two people who are about to use it, with the link helpers — which every
+launch needs in order to notice `#join=` — split into `link.ts`, which has no
+library in it.
+
+### What was actually verified, and how
+
+The egress policy refuses the broker and any connection test, so the wire
+itself is unproven and will be until Sean texts somebody. Everything either
+side of it was driven in a real Chromium, two tabs of one browser through a
+`BroadcastChannel` — `lab/browser/twotabs.mjs`:
+
+```
+host : day 1  side empire    guest: day 1  side alliance
+host asks Very Slow  -> guest reads "The Imperium requests the speed to be Very slow."
+                     -> host reads  "Nothing changes unless they agree."
+guest agrees         -> both Very Slow
+32 seconds later     -> host day 2 | guest day 2 | in step
+guest asks Paused    -> host reads "The Confederacy requests the speed to be Paused"
+host declines        -> both still Very Slow, dialog gone
+no console errors on either tab
+```
+
+And the game that already worked, `lab/browser/solo.mjs`: into the war as the
+Crown, opening briefing holds the clock until read (unchanged), dismissed, ring
+moves 0.017 → 0.217, day 1 → day 2 at thirty-two seconds, no errors, and no
+sign of the two-player machinery anywhere in it.
+
+Both harnesses need `playwright-core`, which is installed unsaved and
+deliberately **not** a dependency: it is 100 MB of browser driver and the
+deploy has no use for it.
+
+Suite: 112 files, 1154 passing, 1 skipped.
+
+### What is left
+
+1. **The wire.** Unproven and untestable from here. First run is Sean and a
+   friend, and I would expect one or two rounds on what breaks.
+2. **A relay for the networks WebRTC cannot cross.** Two phones on awkward
+   mobile networks sometimes cannot reach each other directly at all; the fix
+   costs a few dollars a month and `peer.ts` is where it is pointed.
+3. **Reconnection.** *"The war waits"* holds the clock, and nothing yet picks
+   the connection back up when the tunnel ends — the two of them currently
+   start again.

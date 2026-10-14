@@ -5,53 +5,38 @@ import terms from '../data/terms.json';
 import {
   CHART_LAYERS,
   CLOCK_TICK_MS,
+  SPEED_LABEL,
   SPEED_MS,
   advanceDay,
-  cancelOrder,
+  applyOrder,
   controlTally,
   loadGame,
   newGame,
-  orderBuild,
   MISSION_LOG_LABEL,
   missionReport,
   resolvePendingMission,
   saveGame,
-  orderFlee,
-  orderRelieve,
-  reorderCrew,
-  reorderGarrison,
-  reorderOfficers,
-  reorderShips,
-  orderAssault,
-  orderBombard,
-  orderBreakOff,
-  orderCloseBattle,
-  orderDetach,
-  orderEmbark,
-  orderFightRound,
-  orderSail,
   sailError,
   isCovert,
   missionTypeFor,
   missionsOffered,
   warReport,
   type ChartLayer,
-  sendCrew,
   setObserving,
   setSpeed,
   type BuildItem,
   type GameState,
+  type Order,
   type PlayableFaction,
   type Speed,
-  orderClearForest,
-  orderScrap,
   scrapReturn,
   type FacilityType,
   type ScrapTarget,
-  orderRaiseWorks,
   type MissionType,
   inProse,
 } from '../sim';
+import { useNetGame } from '../net/useNetGame';
+import { Lobby, SpeedRequest } from './Lobby';
 import { Almanac } from './Almanac';
 import { LookUpProvider, type EncPage } from './lookup';
 import { CharacterSheet } from './CharacterSheet';
@@ -103,8 +88,42 @@ export function App() {
   // This has to be live state, not a snapshot taken at launch — otherwise a
   // game played and set down in this same session offers no way back into it.
   const [saved, setSaved] = useState<GameState | null>(() => loadGame());
-  const [started, setStarted] = useState(false);
-  const [state, setState] = useState<GameState>(() => saved ?? newGame());
+  const [startedHere, setStarted] = useState(false);
+  /*
+   * A war with somebody else in it, if there is one.
+   *
+   * `phase.at === 'none'` is every game this app has ever played and nothing
+   * below behaves differently for it. That is deliberate: a fault in the
+   * two-player machinery must not be able to break the single-player game,
+   * which is the one that works.
+   *
+   * The build id is passed so two phones on different deploys refuse each
+   * other instead of desyncing on the first day — Pages ships on every push,
+   * so one of them having reloaded and the other not is the ordinary case
+   * rather than a strange one.
+   */
+  const net = useNetGame(__BUILD_ID__);
+  const [ownState, setState] = useState<GameState>(() => saved ?? newGame());
+  /*
+   * The war on screen: the session's while there is one, this phone's
+   * otherwise.
+   *
+   * Read-only when it is the session's — nothing below calls `setState` on a
+   * two-player war, because `give` routes every order into the sequence and
+   * the state comes back through `onChange`. A `setState` in that mode would
+   * be this phone quietly disagreeing with the other one.
+   */
+  const state: GameState = net.state ?? ownState;
+  /**
+   * Past the title screen.
+   *
+   * A two-player war is already under way by the time there is a session, so
+   * it counts as started without anybody pressing Begin — otherwise the
+   * friend who opened the link lands on a title screen offering to continue
+   * somebody else's save.
+   */
+  const netPlaying = net.phase.at === 'playing';
+  const started = startedHere || netPlaying;
   const [tab, setTab] = useState<Tab>('galaxy');
   const [openSystemId, setOpenSystemId] = useState<string | null>(null);
   const [openSystemTab, setOpenSystemTab] = useState<IslandTab>('harbor');
@@ -356,7 +375,23 @@ export function App() {
   // So the clock counts real elapsed time into a running total instead, and
   // the total survives the stop. Whatever the day had behind it when the
   // dispatch went up is still there when you dismiss it.
-  const running = started && !clockHeld && !state.winner && state.speed !== 'paused';
+  /*
+   * In a two-player war this phone does not run the clock.
+   *
+   * The sequence does, and `useNetGame` pumps it. Two phones each counting
+   * their own way to a day is two clocks, and two clocks drift — so the day
+   * turns as part of a slice both of them apply, and the loop below is left
+   * to draw the ring.
+   *
+   * `clockHeld` is not consulted there either, and that is a design call worth
+   * naming. A **battle** holds the shared clock, in the rules, because Sean's
+   * ruling is that both sides answer each round. A dispatch card and a mission
+   * report do not: they are one player's private reading and one player's
+   * private decision, and letting either freeze the war would hand both of
+   * them a way to stop time whenever a card came up — which is most minutes.
+   */
+  const running =
+    started && !netPlaying && !clockHeld && !state.winner && state.speed !== 'paused';
   /** Milliseconds of this game day already served. Kept across pauses. */
   const servedRef = useRef(0);
   useEffect(() => {
@@ -407,13 +442,23 @@ export function App() {
   // ---- Persistence -----------------------------------------------------
   const stateRef = useRef(state);
   stateRef.current = state;
-  const startedRef = useRef(started);
-  startedRef.current = started;
+  /*
+   * A two-player war is not saved.
+   *
+   * There is one save slot and it holds the game you are playing on your own.
+   * Writing a shared war into it would overwrite that with something you
+   * cannot reopen anyway — a war with a person in it needs the person, and
+   * half of it is on their phone. So the autosave sits out while a session is
+   * running, and your own game is still there when you come back.
+   */
+  const savable = started && net.phase.at === 'none';
+  const startedRef = useRef(savable);
+  startedRef.current = savable;
   useEffect(() => {
-    if (!started) return;
+    if (!savable) return;
     const timer = window.setTimeout(() => saveGame(state), 600);
     return () => window.clearTimeout(timer);
-  }, [state, started]);
+  }, [state, savable]);
   useEffect(() => {
     const flush = () => {
       if (startedRef.current) saveGame(stateRef.current);
@@ -473,18 +518,54 @@ export function App() {
   }, []);
 
   // ---- Commands --------------------------------------------------------
+  /**
+   * Give an order, however this war is being played.
+   *
+   * One seam for all twenty-two of them, and the only place that knows whether
+   * there is somebody on the other end. Alone, the order is carried out on the
+   * spot exactly as it always was. Against a person it goes into the sequence
+   * and lands a fifth of a second later on both phones — nobody applies their
+   * own tap immediately, including the host, because two clients each applying
+   * their own taps and the other's on arrival put the same two orders in two
+   * different sequences, which is a desync with no symptom.
+   *
+   * The order is **tried locally first either way**, and the result thrown
+   * away in a two-player war. That is not waste: it is how a refusal reaches
+   * the player while they are still looking at the thing they tapped, rather
+   * than arriving a fifth of a second later over a sheet that has already
+   * closed. It can still be refused for real when it lands — the state moves —
+   * and `onTrouble` says so if it is.
+   *
+   * `afterwards` is the handler's own business: closing a sheet, clearing a
+   * selection, saying "Under way." It runs optimistically in a two-player war,
+   * because a screen that waits for the wire before shutting a sheet feels
+   * broken on a train.
+   */
+  const give = (order: Order, afterwards?: () => void): void => {
+    const trial = applyOrder(state, order, state.player);
+    if (trial.error) {
+      flash(trial.error);
+      return;
+    }
+    if (net.phase.at === 'playing') {
+      net.order(order);
+      afterwards?.();
+      return;
+    }
+    setState(trial.state);
+    afterwards?.();
+  };
+
   const handleBuild = (facilityId: string, item: BuildItem, destinationId?: string) => {
-    const result = orderBuild(state, facilityId, item, destinationId);
-    if (result.error) flash(result.error);
-    else if (destinationId) {
+    give({ kind: 'build', facilityId, item, destinationId }, () => {
+      if (!destinationId) return;
       const where = state.systems.find((s) => s.id === destinationId)!;
       flash(`Ordered for ${inProse(where.name)}.`);
-    }
-    setState(result.state);
+    });
   };
 
   const handleCancel = (facilityId: string) => {
-    setState(cancelOrder(state, facilityId).state);
+    give({ kind: 'cancelBuild', facilityId });
   };
 
   /**
@@ -499,9 +580,7 @@ export function App() {
         'It opens the plot for anything you like. The forest is destroyed and does not grow back.',
     );
     if (!ok) return;
-    const result = orderClearForest(state, systemId);
-    if (result.error) flash(result.error);
-    setState(result.state);
+    give({ kind: 'clearForest', systemId });
   };
 
   /**
@@ -517,15 +596,11 @@ export function App() {
           : 'It raises nothing — it cost nothing to raise — but the plot it stands on comes back. Nothing else does.'),
     );
     if (!ok) return;
-    const result = orderScrap(state, what);
-    if (result.error) flash(result.error);
-    setState(result.state);
+    give({ kind: 'scrap', what });
   };
 
   const handleRaise = (systemId: string, type: FacilityType) => {
-    const result = orderRaiseWorks(state, systemId, type);
-    if (result.error) flash(result.error);
-    setState(result.state);
+    give({ kind: 'raiseWorks', systemId, type });
   };
 
   const sendOfficer = (
@@ -536,20 +611,19 @@ export function App() {
     /** Which squadron a Command posting is for, when it is not the island. */
     fleetId?: string,
   ) => {
-    const result = sendCrew(state, characterId, systemId, type, companionIds, fleetId);
-    if (result.error) {
-      flash(result.error);
-      return;
-    }
-    setState(result.state);
-    setPickingFor(null);
-    setMissionChoice(null);
-    const island = state.systems.find((s) => s.id === systemId)!;
-    const officer = state.characters.find((c) => c.id === characterId)!;
-    const errand = type ?? missionTypeFor(state, island, officer.faction as PlayableFaction);
-    // The covert list, asked of the rules rather than spelled out again here —
-    // it had already fallen a mission behind once and would have again.
-    flash(errand && isCovert(errand) ? 'Under way, quietly.' : 'Under way.');
+    give(
+      { kind: 'sendCrew', characterId, targetSystemId: systemId, type, companionIds, fleetId },
+      () => {
+        setPickingFor(null);
+        setMissionChoice(null);
+        const island = state.systems.find((s) => s.id === systemId)!;
+        const officer = state.characters.find((c) => c.id === characterId)!;
+        const errand = type ?? missionTypeFor(state, island, officer.faction as PlayableFaction);
+        // The covert list, asked of the rules rather than spelled out again
+        // here — it had already fallen a mission behind once and would again.
+        flash(errand && isCovert(errand) ? 'Under way, quietly.' : 'Under way.');
+      },
+    );
   };
 
   const handleSelectSystem = (systemId: string) => {
@@ -637,26 +711,22 @@ export function App() {
   /** Take hulls out of a squadron: into one lying here, or into a new one. */
   /** Companies from the quay into the boats, by hand. See `orderEmbark`. */
   const handleEmbark = (fleetId: string, troops: number) => {
-    const result = orderEmbark(state, fleetId, troops);
-    if (result.error) return flash(result.error);
-    setState(result.state);
-    setLoadingAt(null);
-    flash(troops === 1 ? 'A troop goes aboard.' : `${troops} troops go aboard.`);
+    give({ kind: 'embark', fleetId, companies: troops }, () => {
+      setLoadingAt(null);
+      flash(troops === 1 ? 'A troop goes aboard.' : `${troops} troops go aboard.`);
+    });
   };
 
   const handleDetach = (fleetId: string, shipIds: string[], into?: string) => {
-    const result = orderDetach(state, fleetId, shipIds, into);
-    if (result.error) return flash(result.error);
-    setState(result.state);
-    flash(into ? 'Hulls change squadron.' : 'A new squadron.');
+    give({ kind: 'detach', fleetId, shipIds, into }, () => {
+      flash(into ? 'Hulls change squadron.' : 'A new squadron.');
+    });
   };
 
   /** Break off a fight: take the parting volley, run for the nearest holding. */
   /** Open fire on the island, and keep firing until told otherwise. */
   const handleBombard = (fleetId: string) => {
-    const result = orderBombard(state, fleetId);
-    if (result.error) return flash(result.error);
-    setState(result.state);
+    give({ kind: 'bombard', fleetId });
     flash('The guns open.');
   };
   // `handleCeaseFire` stood here. There is nothing to call off since a
@@ -664,16 +734,12 @@ export function App() {
   // and it is over before the screen has finished redrawing.
 
   const handleFlee = (fleetId: string) => {
-    const result = orderFlee(state, fleetId);
-    if (result.error) return flash(result.error);
-    setState(result.state);
+    give({ kind: 'flee', fleetId });
   };
 
   /** Give up a post: off a deck, or out of an island's chair. */
   const handleRelieve = (characterId: string) => {
-    const result = orderRelieve(state, characterId);
-    if (result.error) return flash(result.error);
-    setState(result.state);
+    give({ kind: 'relieve', characterId });
   };
 
   /** Which hull's sheet is open, if any. */
@@ -751,30 +817,20 @@ export function App() {
    * rather than being a view's opinion of it.
    */
   const handleOrderShips = (fleetId: string, shipIds: string[], dir: -1 | 1) => {
-    const result = reorderShips(state, fleetId, shipIds, dir);
-    if (result.error) return flash(result.error);
-    setState(result.state);
+    give({ kind: 'reorderShips', fleetId, shipIds, dir });
   };
   const handleOrderOfficers = (fleetId: string, characterIds: string[], dir: -1 | 1) => {
-    const result = reorderOfficers(state, fleetId, characterIds, dir);
-    if (result.error) return flash(result.error);
-    setState(result.state);
+    give({ kind: 'reorderOfficers', fleetId, characterIds, dir });
   };
   const handleOrderGarrison = (systemId: string, typeIds: string[], dir: -1 | 1) => {
-    const result = reorderGarrison(state, systemId, typeIds, dir);
-    if (result.error) return flash(result.error);
-    setState(result.state);
+    give({ kind: 'reorderGarrison', systemId, typeIds, dir });
   };
   const handleOrderCrew = (characterIds: string[], dir: -1 | 1) => {
-    const result = reorderCrew(state, characterIds, dir);
-    if (result.error) return flash(result.error);
-    setState(result.state);
+    give({ kind: 'reorderCrew', characterIds, dir });
   };
 
   const handleAssault = (fleetId: string) => {
-    const result = orderAssault(state, fleetId);
-    if (result.error) return flash(result.error);
-    setState(result.state);
+    give({ kind: 'assault', fleetId });
   };
 
   const jumpToSystem = (systemId: string) => {
@@ -865,11 +921,27 @@ export function App() {
     return offered.length > 0 ? { systemId: at.id, name: at.name } : null;
   })();
 
+  /*
+   * The lobby comes before everything, including the title.
+   *
+   * Opening somebody's link should not land you on a start screen offering to
+   * continue your own save — you came here to join their war, and the only
+   * thing to say is whether they have been found yet.
+   */
+  if (net.phase.at !== 'none' && net.phase.at !== 'playing') {
+    return (
+      <div className="app">
+        <Lobby phase={net.phase} onLeave={net.leave} />
+      </div>
+    );
+  }
+
   if (!started) {
     return (
       <div className="app">
         <StartScreen
           hasSave={saved !== null}
+          onPlayAFriend={() => net.invite()}
           soundOn={sound.on}
           onToggleSound={sound.toggle}
           onHear={(side) => void sound.startWith(side)}
@@ -905,6 +977,20 @@ export function App() {
           Observing — the machine has both sides. Your orders are locked; the clock is still yours.
         </div>
       )}
+      {/* The war waits. Sean's ruling, and the reason it has to be said out
+          loud: a held clock and a broken game look identical, and this is the
+          difference between "she is thinking" and "her phone has died". */}
+      {net.waiting && (
+        <div className="watchbar watchbar--waiting">
+          Waiting for the other {terms.crew.toLowerCase()} — the war holds until they are back.
+        </div>
+      )}
+      {net.speedAsked && <SpeedRequest asked={net.speedAsked} onAnswer={net.answerSpeed} />}
+      {net.speedPending && (
+        <div className="watchbar watchbar--waiting">
+          Asked for {SPEED_LABEL[net.speedPending]}. Nothing changes unless they agree.
+        </div>
+      )}
       {/* Waits for the war-begins dispatch to be read: two cards at once is
           nobody's idea of a clean start. */}
       {teaching && dispatches.length === 0 && !readingId && (
@@ -912,7 +998,17 @@ export function App() {
       )}
       <TopBar
         state={state}
-        autoPaused={clockHeld}
+        /*
+         * "Held" has to mean the clock is actually held.
+         *
+         * Alone, a dispatch card or a report stops time and the badge says so.
+         * In a two-player war those no longer stop anything — they are one
+         * player's private reading and the other should not be frozen for it —
+         * so showing "Held" for them would be the badge lying about the one
+         * thing it is for. What *does* hold a shared clock is waiting on the
+         * other player, and that is what it reports.
+         */
+        autoPaused={netPlaying ? net.waiting : clockHeld}
         soundOn={sound.on}
         /* Sound and the clock work through a sheet without putting it away:
            muting the music or pausing the day is not navigating anywhere, and
@@ -921,7 +1017,13 @@ export function App() {
            z-index change in `styles.css`. The gear opens a sheet of its own,
            so that one clears the screen first. */
         onToggleSound={sound.toggle}
-        onSetSpeed={(speed: Speed) => setState(setSpeed(state, speed))}
+        onSetSpeed={(speed: Speed) => {
+          // Shared outright, so in a two-player war it is asked for and not
+          // set. Sean: *"the other player gets a popup… they can accept or
+          // decline. The game always works on mutual consent."*
+          if (netPlaying) return net.requestSpeed(speed);
+          setState(setSpeed(state, speed));
+        }}
         onToggleObserving={() => setState(setObserving(state, !isObserving(state)))}
         onOpenMenu={() => {
           if (!closePanels()) return;
@@ -1032,13 +1134,9 @@ export function App() {
       {state.battle && (
         <BattleSheet
           state={state}
-          onFight={() => setState(orderFightRound(state).state)}
-          onBreakOff={() => {
-            const result = orderBreakOff(state);
-            if (result.error) return flash(result.error);
-            setState(result.state);
-          }}
-          onClose={() => setState(orderCloseBattle(state).state)}
+          onFight={() => give({ kind: 'fightRound' })}
+          onBreakOff={() => give({ kind: 'breakOff' })}
+          onClose={() => give({ kind: 'closeBattle' })}
         />
       )}
 
@@ -1314,15 +1412,15 @@ export function App() {
             setSailingFleetId(null);
           }}
           onConfirm={() => {
-            const result = orderSail(state, sailPlan.fleetId, sailPlan.systemId);
-            setSailPlan(null);
-            setSailingFleetId(null);
-            if (result.error) {
-              flash(result.error);
-              return;
-            }
-            setState(result.state);
-            flash('Weighing anchor.');
+            // The sheet shuts and the anchor comes up on the same tap. In a
+            // two-player war the order is a fifth of a second behind that,
+            // which nobody can feel; a refusal would have been caught by the
+            // trial inside `give` before the sheet closed.
+            give({ kind: 'sail', fleetId: sailPlan.fleetId, targetSystemId: sailPlan.systemId }, () => {
+              setSailPlan(null);
+              setSailingFleetId(null);
+              flash('Weighing anchor.');
+            });
           }}
         />
       )}

@@ -48,8 +48,11 @@ export function StartScreen({
   onHear,
   onContinue,
   onBegin,
+  onPlayAFriend,
 }: {
   hasSave: boolean;
+  /** Open a lobby and get a link to text somebody. */
+  onPlayAFriend?: () => void;
   soundOn: boolean;
   onToggleSound: () => void;
   /** Start the music on this side's theme, from inside the tap that chose it. */
@@ -207,6 +210,16 @@ export function StartScreen({
       >
         {faction ? `Take command of the ${factionData[faction].shortName}` : 'Choose a side to begin'}
       </button>
+
+      {/* Against a person instead of the machine.
+          No side to pick here: whoever opens the lobby takes the Crown and
+          whoever walks into it takes the Confederacy, which is one fewer thing
+          for two people to agree about over a text message. */}
+      {onPlayAFriend && (
+        <button className="btn btn--block start__friend" onClick={onPlayAFriend}>
+          Play a friend
+        </button>
+      )}
 
       {hasSave && (
         <p className="tiny muted start__note start__note--foot">

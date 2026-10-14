@@ -1,5 +1,5 @@
 import type { Dispatch } from '../sim/orders';
-import type { PlayableFaction } from '../sim/types';
+import type { PlayableFaction, Speed } from '../sim/types';
 
 /**
  * What crosses between two people playing the same war.
@@ -124,6 +124,39 @@ export interface Ack {
   hash?: string;
 }
 
+/**
+ * Either side: I would like the war to run at this speed.
+ *
+ * Sean's ruling of 11 October, and the only part of the war that is negotiated
+ * rather than ordered: *"In PvP when one player changes speed, the other
+ * player gets a popup 'the [other faction] requests the speed to be [speed]'
+ * and they can accept or decline. The game always works on mutual consent."*
+ *
+ * So speed is not an `Order`. An order is a thing you do and the other player
+ * finds out about; this is a thing you ask for and they may refuse. It travels
+ * on its own, outside the tick sequence, because it changes nothing until it
+ * is answered — and when it is answered the change goes through the sequence
+ * like anything else, so both clocks turn over on the same slice.
+ *
+ * Carries the asker so a stale reply cannot be mistaken for an answer to a
+ * newer request: tap Fast, tap Medium, and the Fast reply must not land on the
+ * Medium question.
+ */
+export interface SpeedRequest {
+  kind: 'speed-request';
+  by: PlayableFaction;
+  speed: Speed;
+  /** Rises with each request, so an answer names the question it answers. */
+  asked: number;
+}
+
+/** The other side's answer to a speed request. */
+export interface SpeedReply {
+  kind: 'speed-reply';
+  asked: number;
+  agreed: boolean;
+}
+
 /** Host to guest: we are no longer playing the same war, and here is where. */
 export interface Desync {
   kind: 'desync';
@@ -132,7 +165,7 @@ export interface Desync {
   guestHash: string;
 }
 
-export type Wire = Hello | Request | Tick | Ack | Desync;
+export type Wire = Hello | Request | Tick | Ack | Desync | SpeedRequest | SpeedReply;
 
 /**
  * A way to get a message to the other player, and nothing else.

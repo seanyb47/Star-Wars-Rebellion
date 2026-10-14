@@ -21,6 +21,7 @@
     "art:doc": "python3 scripts/art.py doc"
   },
   "dependencies": {
+    "peerjs": "^1.5.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
