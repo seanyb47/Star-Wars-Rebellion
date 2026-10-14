@@ -306,21 +306,21 @@ export function orderEmbark(state: GameState, fleetId: string, companies: number
 export function orderFightRound(state: GameState): CommandResult {
   return run(state, (draft) => {
     const rng = createRng(draft.rngSeed);
-    fightBattleRound(draft, rng);
+    fightBattleRound(draft, rng, draft.player);
     draft.rngSeed = rng.seed;
   });
 }
 
 /** Dismiss a settled action and let the clock start again. */
 export function orderCloseBattle(state: GameState): CommandResult {
-  return run(state, (draft) => closeBattle(draft));
+  return run(state, (draft) => closeBattle(draft, draft.player, createRng(draft.rngSeed)));
 }
 
 /** Break off the whole action: everything of yours that can run, runs. */
 export function orderBreakOff(state: GameState): CommandResult {
   return run(state, (draft) => {
     const rng = createRng(draft.rngSeed);
-    breakOffBattle(draft, rng);
+    breakOffBattle(draft, rng, draft.player);
     draft.rngSeed = rng.seed;
   });
 }

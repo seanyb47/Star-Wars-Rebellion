@@ -11388,3 +11388,125 @@ browsers to agree on a seed and a side, the speed-request dialogue that Sean
 has already specified, and the battle.
 
 Suite: 109 files, 1120 passing, 1 skipped.
+
+---
+
+## 14 October — PvP, part three: a battle with two people in it
+
+Sean, asked what a two-handed action looks like: **both answer each round.**
+Of the three readings I put to him that is the one that follows from his own
+standing rule — *"the game always works on mutual consent"* — and it is the
+only one where neither player can be hurried into a broadside.
+
+It was also the last thing in the simulation that read the seat, and the reason
+`seatblind.test.ts` had to stop at the first modal action.
+
+### The verdict stopped being a verdict
+
+`PendingBattle.settled` was a `BattleOutcome` — `won`, `lost`, `you-fled` —
+and every one of those words is a sentence about a side. It was filled in by
+asking whether **`state.player`** still had a hull in the water, so the Crown's
+client wrote `lost` into shared state where the Confederate client wrote `won`.
+Both were right, which was the problem: there was nowhere in it to say who it
+was about.
+
+So the state keeps facts and the screen says what they mean:
+
+```ts
+interface BattleEnd {
+  standing: PlayableFaction[];   // still had a hull here when it ended
+  fled: PlayableFaction[];       // broke off rather than fight on
+  beastSlain?: boolean;
+}
+```
+
+`outcomeFor(end, side)` reads a verdict out of that, and reads the opposite one
+for the other side. The report went the same way: it has a `mine` and a
+`theirs`, so there is no perspective-free version of it worth having, and
+`reports` is now one per side that was in the action — written when it settles,
+each with the chair lent to that side, the same borrowing `applyOrder` does.
+
+### Both answer, and the round waits
+
+`answers: Partial<Record<PlayableFaction, BattleAnswer>>` on the pending
+action, and `answerBattle(state, side, answer, rng)` records one. The round
+resolves when `awaitingAnswer` comes back empty, which asks two things: is this
+side a person's, and does it still have a hull here. Both halves matter — the
+machine is never waited for because it decides for itself, and **a player whose
+last hull has just gone is not waited for either**, or the war would stop on a
+question that cannot be answered.
+
+Resolution order is the order the words would happen in. Anybody breaking off
+is away before the guns speak, because that is what breaking off *is*; then the
+machine makes its own mind up; then whatever is still there trades a broadside.
+
+Closing uses the same mechanism with a third answer, `close`. The sheet is a
+record somebody is reading and the state is shared, so one player tapping Close
+used to clear `state.battle` outright — taking the report off the other
+player's screen mid-sentence and starting the clock on a war they had not
+finished reading about. Against the machine every one of these is the same
+single tap it always was.
+
+### Three mistakes worth keeping
+
+**I let the machine run from the opening broadside.** Out of symmetry with the
+rounds that follow, I added a `machineBreaksOff` to `resolveBattles`. There is
+a comment three lines above it saying not to — *"breaking off is a decision
+taken after you have seen what the other fellow's broadside does, not
+before"* — and `battle.test.ts` failed on it immediately. The test was right
+and the symmetry was wrong.
+
+**I read a clean withdrawal as a sinking.** `outcomeFor` checked `standing`
+before `fled`, and breaking off successfully also means you are no longer in
+that water, so a squadron that got away cleanly came back as `lost`. Order
+matters: withdrawal first, destruction second.
+
+**And `fled` was inferred from an empty harbor**, which cannot tell a squadron
+that got away from one shot to pieces taking its parting fire. `runFrom` now
+counts survivors, so the report does not congratulate a destroyed squadron on a
+tidy retreat.
+
+A fourth, which was my *test* being wrong rather than the code: I asserted that
+one answer against the machine fires a broadside. On that seed it instead makes
+the machine run — the opening exchange leaves the Crown 242 guns against 74,
+well past the point a reasonable captain breaks off. That is the round
+resolving. What the test should have claimed, and now does, is that the answer
+is **acted on rather than held** for a second one that is never coming.
+
+### The guard runs the whole war now
+
+`seatblind.test.ts` used to assert *"stops at the one thing that is not
+finished"*. The stop condition is gone: it answers for both sides and keeps
+going, 400 days on three seeds, actions fought on the way, identical
+fingerprints every single day from both chairs. `twohanded.test.ts` adds the
+rule itself — fifteen cases, including a war driven to its end by the same
+script on two clients, which is what two browsers will be doing.
+
+Measured: the machine-against-machine war is **byte-identical** to before the
+rework — Crown 10 — Confederacy 38 over 48 wars, same median, same end states.
+That is the expected answer rather than a lucky one: with nobody playing either
+side nothing goes modal, so none of this code runs. It confirms the
+single-player and no-player paths were not disturbed.
+
+Suite: 111 files, 1141 passing, 1 skipped.
+
+### What is left before two people can actually play
+
+Everything above is the rules. None of it is a game two people can sit down to
+yet, and what remains is plumbing rather than design:
+
+1. **A transport.** `BroadcastChannel` for two tabs on one machine — no
+   infrastructure, real two-player, and enough to play against myself to find
+   what the tests cannot. Then a WebRTC data channel behind the same interface
+   for two devices, which needs a signalling service and so needs Sean's word
+   on which.
+2. **The sequencer.** One peer numbers orders and day ticks; both apply them in
+   that order. `Dispatch` already carries `seq`.
+3. **The lobby.** Two browsers agreeing on a seed and a side.
+4. **The speed request**, which Sean has already specified exactly: *"the other
+   player gets a popup 'the [other faction] requests the speed to be [speed]'
+   and they can accept or decline."*
+5. **A disconnection answer.** Lockstep stops dead when a peer goes quiet, and
+   an action now waits for an answer that may never come. This is the transport
+   layer's problem rather than the simulation's — the sim has no wall clock and
+   should not grow one — but it is a real question and I have not solved it.

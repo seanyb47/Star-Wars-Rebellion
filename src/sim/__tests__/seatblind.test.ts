@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { generateGalaxy } from '../galaxy';
 import { advanceDay } from '../advanceDay';
 import { stateHash, canonical, fingerprint } from '../sync';
+import { answerBattle } from '../fleets';
+import { createRng } from '../rng';
+import { BOTH_SIDES } from '../helpers';
 import type { GameState, PlayableFaction } from '../types';
 
 /**
@@ -47,17 +50,20 @@ function machineWar(seed: number, days: number, seat: PlayableFaction): GameStat
  * Walk the same PvP war from both seats at once, comparing every single day.
  *
  * Day by day rather than at the end, because the question is *when* they come
- * apart. It stops at the first action that goes modal: with both sides played
- * the clock waits for an answer, and nothing here is going to give one.
+ * apart. It used to stop at the first action that went modal, because with
+ * both sides played the clock waits for an answer and `PendingBattle` could
+ * not be read from two chairs. That is built now — Sean's ruling of 11 October
+ * is that both sides answer each round — so this answers for both and keeps
+ * going, which is what two browsers will be doing.
  *
- * Returns how far they stayed identical and why it stopped, so a test can say
- * that the property held for two hundred days and ended at the thing that is
- * known to be unfinished — rather than passing because it never got going.
+ * Returns how far they stayed identical and how much happened, so a test can
+ * say the property held over a war that was actually fought rather than
+ * passing because nothing ever got going.
  */
 function walkBothSeats(
   seed: number,
   days: number,
-): { day: number; identical: boolean; stoppedAtBattle: boolean; events: number } {
+): { day: number; identical: boolean; events: number; battles: number } {
   const open = (seat: PlayableFaction) => {
     const s = generateGalaxy(seed, seat);
     s.human = ['empire', 'alliance'];
@@ -65,27 +71,29 @@ function walkBothSeats(
   };
   let crown = open('empire');
   let confederacy = open('alliance');
-  if (stateHash(crown) !== stateHash(confederacy)) {
-    return { day: crown.day, identical: false, stoppedAtBattle: false, events: 0 };
-  }
-  for (let d = 0; d < days; d++) {
-    crown = advanceDay(crown);
-    confederacy = advanceDay(confederacy);
-    // Agreeing that an action is pending is itself part of the property:
-    // `battle` is shared state, so two clients that disagree about whether the
-    // clock has stopped are already two different games.
-    if (Boolean(crown.battle) !== Boolean(confederacy.battle)) {
-      return { day: crown.day, identical: false, stoppedAtBattle: false, events: crown.events.length };
-    }
+  let battles = 0;
+  const fail = () => ({ day: crown.day, identical: false, events: crown.events.length, battles });
+  if (stateHash(crown) !== stateHash(confederacy)) return fail();
+
+  for (let step = 0; step < days * 4; step++) {
+    if (crown.day > days || crown.winner) break;
+    // An action holds the clock until both sides have answered, so answering
+    // is a step in its own right rather than part of the day.
     if (crown.battle) {
-      return { day: crown.day, identical: true, stoppedAtBattle: true, events: crown.events.length };
+      if (!confederacy.battle) return fail();
+      if (!crown.battle.settled) battles += 1;
+      for (const side of BOTH_SIDES) {
+        const answer = crown.battle?.settled ? 'close' : 'fight';
+        answerBattle(crown, side, answer, createRng(crown.rngSeed));
+        answerBattle(confederacy, side, answer, createRng(confederacy.rngSeed));
+      }
+    } else {
+      crown = advanceDay(crown);
+      confederacy = advanceDay(confederacy);
     }
-    if (stateHash(crown) !== stateHash(confederacy)) {
-      return { day: crown.day, identical: false, stoppedAtBattle: false, events: crown.events.length };
-    }
-    if (crown.winner) break;
+    if (stateHash(crown) !== stateHash(confederacy)) return fail();
   }
-  return { day: crown.day, identical: true, stoppedAtBattle: false, events: crown.events.length };
+  return { day: crown.day, identical: true, events: crown.events.length, battles };
 }
 
 describe('the fingerprint', () => {
@@ -172,29 +180,28 @@ describe('the war does not depend on which side is watching it', () => {
     });
   }
 
-  it('stops at the one thing that is not finished, and says so', () => {
+  it('fights actions on the way, rather than stopping at the first one', () => {
     /*
-     * The open piece of work, pinned down so nobody has to rediscover it.
+     * This test used to assert the opposite.
      *
-     * With both sides played, the first action at sea that goes modal stops
-     * the clock for an answer — and `PendingBattle` cannot yet be read from
-     * two chairs. It carries one `settled`, and `outcomeOf` fills it by asking
-     * whether *the seat* still has a hull in the water, so the Crown client
-     * writes `lost` into shared state where the Confederate client writes
-     * `won`. The two values are both correct and that is the problem: a
-     * verdict is a sentence about a side, and `settled` has nowhere to say
-     * which side it is about.
+     * It read *"stops at the one thing that is not finished, and says so"*,
+     * because `PendingBattle` could not be read from two chairs: it carried
+     * one `settled`, filled in by asking whether *the seat* still had a hull
+     * in the water, so the Crown client wrote `lost` into shared state where
+     * the Confederate client wrote `won`. Both were right, which was the
+     * problem — a verdict is a sentence about a side and there was nowhere in
+     * it to say which side.
      *
-     * Everything up to that point is seat-blind, which is what the cases above
-     * measure. This one fixes the boundary: both clients must agree an action
-     * is pending, on the same day, before either tries to call it. When the
-     * battle is built for two the `walkBothSeats` stop condition comes out and
-     * these cases run to the end of the war on their own.
+     * The state now keeps what happened and each screen reads its own verdict
+     * out of it, so the walk answers for both sides and carries on. This
+     * asserts it actually met some fighting: a four-hundred-day war that
+     * stayed identical without ever raising an action would prove nothing
+     * about the part that was broken.
      */
     const walk = walkBothSeats(90210, 400);
     expect(walk.identical).toBe(true);
-    expect(walk.stoppedAtBattle).toBe(true);
     expect(walk.day).toBeGreaterThan(100);
+    expect(walk.battles, 'no action was fought, so nothing was proved').toBeGreaterThan(0);
   });
 
   it('tells both sides the news, rather than only the seat it was built for', () => {

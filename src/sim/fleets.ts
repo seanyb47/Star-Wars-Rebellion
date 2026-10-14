@@ -105,6 +105,8 @@ import { lordPowerAt, restoreLord } from './lords';
 import { caughtOnLanding, takePrisoner, travelDays } from './missions';
 import type { Rng } from './rng';
 import type {
+  BattleAnswer,
+  BattleEnd,
   BattleOutcome,
   Character,
   Facility,
@@ -926,59 +928,193 @@ export function resolveBattles(state: GameState, rng: Rng): void {
     };
     state.battle = pending;
     pending.aboard = aboardAt(state, systemId);
-    pending.settled = outcomeOf(state, system, pending);
-    if (pending.settled) settleReport(state, pending, pending.settled);
+    // Nobody runs from the opening broadside, the machine included. The rule
+    // is three lines up and it is deliberate: breaking off is a decision taken
+    // after you have seen what the other fellow's guns do. `battle.test.ts`
+    // asserts it, and asserted it against me when I put a `machineBreaksOff`
+    // here out of symmetry with the rounds that follow.
+    pending.settled = endOf(state, system, []);
+    if (pending.settled) settleAllReports(state, pending);
   }
 }
 
 /**
- * Fight one more round of the action the player is in.
+ * Who has not answered yet, and is going to be waited for.
  *
- * Called from the battle sheet rather than from the clock, so the pace after
- * the first broadside is the player's. Afterwards three things can be true:
- * the action is over, the other side has had enough and runs, or there is
- * another broadside to trade.
+ * A side is asked when it is a person's and it still has a hull in this water.
+ * Both halves matter: the machine is never asked, because it decides for
+ * itself, and a player whose last hull has just gone is not asked either —
+ * there is nothing left to fight with and holding the round open for them
+ * would stop the war on a question with no answer.
  */
-export function fightBattleRound(state: GameState, rng: Rng): void {
+export function awaitingAnswer(state: GameState, pending: PendingBattle): PlayableFaction[] {
+  const here = fightingAt(state, pending.systemId);
+  return BOTH_SIDES.filter(
+    (side) =>
+      isHumanPlayed(state, side) &&
+      here.some((f) => f.faction === side) &&
+      pending.answers?.[side] === undefined,
+  );
+}
+
+/**
+ * Say what your side will do, and resolve the round once everybody has.
+ *
+ * The whole of Sean's two-handed action. Against the machine this is called
+ * once and the round goes off immediately, which is the behaviour the sheet
+ * has always had. With a person on each side it is called twice — once from
+ * each client, the second arriving over the wire — and the broadside is traded
+ * when the second answer lands. Neither player can hurry the other, and
+ * neither finds out what the other chose until it has happened.
+ */
+export function answerBattle(
+  state: GameState,
+  side: PlayableFaction,
+  answer: BattleAnswer,
+  rng: Rng,
+): void {
   const pending = state.battle;
-  if (!pending || pending.settled) return;
+  if (!pending) return;
+  // Only one question is live in each phase, and an answer to the other one is
+  // not a thing to half-apply. A client with a stale sheet can send either.
+  if (pending.settled ? answer !== 'close' : answer === 'close') return;
+  pending.answers = { ...pending.answers, [side]: answer };
+
+  if (pending.settled) {
+    // Both have to have read it before it comes off the screen.
+    const unread = BOTH_SIDES.filter(
+      (f) =>
+        isHumanPlayed(state, f) &&
+        pending.reports?.[f] !== undefined &&
+        pending.answers?.[f] !== 'close',
+    );
+    if (unread.length === 0) state.battle = undefined;
+    return;
+  }
+
+  if (awaitingAnswer(state, pending).length > 0) return;
+  resolveAnsweredRound(state, pending, rng);
+}
+
+/**
+ * Everybody has answered: run the round they answered for.
+ *
+ * Order matters and is the order the words would happen in. Anybody breaking
+ * off is away before the guns speak, because that is what breaking off *is* —
+ * the alternative is a round of fire that a fleeing squadron both takes and
+ * returns, which is a different rule and not the one the retreat sequence
+ * already implements. Then the machine makes its own mind up. Then whatever is
+ * still there trades a broadside.
+ */
+function resolveAnsweredRound(state: GameState, pending: PendingBattle, rng: Rng): void {
   const system = getSystem(state, pending.systemId);
-  const tally = fightRound(state, system, fightingAt(state, system.id), rng, true);
-  pending.rounds += 1;
-  pending.last = tally;
-  pending.theyFled = enemyBreaksOff(state, system, rng);
-  pending.settled = outcomeOf(state, system, pending);
-  if (pending.settled) settleReport(state, pending, pending.settled);
-  // The player fights an action round by round, outside the day's own pass,
-  // so a squadron sunk here would sit on the board with no hulls until the
-  // clock next turned. The wrecks go at the end of the round that made them.
+  const ran: PlayableFaction[] = [];
+  for (const side of BOTH_SIDES) {
+    if (pending.answers?.[side] !== 'break-off') continue;
+    if (runFrom(state, system, side, rng)) ran.push(side);
+  }
+  for (const side of machineBreaksOff(state, system, rng)) ran.push(side);
+
+  const stillOn = fightingAt(state, system.id);
+  if (contestedAt(state, system) && stillOn.length > 0) {
+    pending.rounds += 1;
+    pending.last = fightRound(state, system, stillOn, rng, true);
+  }
+  pending.answers = undefined;
+  pending.settled = endOf(state, system, ran);
+  if (pending.settled) settleAllReports(state, pending);
+  // The action is fought outside the day's own pass, so a squadron sunk here
+  // would sit on the board with no hulls until the clock next turned. The
+  // wrecks go at the end of the round that made them.
   clearWrecks(state);
 }
 
 /**
- * Whether the action is over, and how.
+ * One side runs for it: every fleet of theirs here that can.
  *
- * `undefined` means there is another broadside to trade. Anything else ends
- * it, and the sheet stays up showing which — the player ordered that round and
- * should see what it bought, rather than have the screen vanish under them.
- * Order matters: losing your last hull here is the answer even if the enemy
- * also broke off in the same round.
+ * Returns whether the side is actually out of the water. Anything that cannot
+ * run — a fleet with companies ashore, or one with nowhere to go — stays, and
+ * so does the action, which is the honest outcome rather than a silent
+ * half-retreat.
  */
-function outcomeOf(
+function runFrom(
   state: GameState,
   system: System,
-  pending: PendingBattle,
-): BattleOutcome | undefined {
-  const here = fightingAt(state, system.id);
-  if (!here.some((f) => f.faction === state.player)) return 'lost';
-  if (pending.theyFled) return 'they-fled';
-  if (pending.last?.beastSlain && !contestedAt(state, system)) return 'beast-slain';
-  if (!contestedAt(state, system)) return 'won';
-  return undefined;
+  side: PlayableFaction,
+  rng: Rng,
+): boolean {
+  const tried: string[] = [];
+  for (const fleet of fightingAt(state, system.id).filter((f) => f.faction === side)) {
+    if (fleeError(state, fleet.id, side)) continue;
+    tried.push(fleet.id);
+    fleeBattle(state, fleet.id, rng, side);
+  }
+  // Out of this water, *and* something actually got away. A squadron shot to
+  // pieces taking its parting fire has not broken off, it has been destroyed,
+  // and the report must not congratulate it on a clean withdrawal. So the
+  // survivors are counted rather than inferred from an empty harbor.
+  const away = tried.some((id) => state.fleets.some((f) => f.id === id));
+  return away && !fightingAt(state, system.id).some((f) => f.faction === side);
 }
 
 /**
- * Whether the other side has had enough, and runs if so.
+ * Fight one more round of the action a side is in — by saying so.
+ *
+ * Kept as a name because it is what the button means, but it no longer fights
+ * anything on its own: it is this side's answer, and the broadside goes off
+ * when the other side has answered too. Against the machine that is the same
+ * tap it always was.
+ */
+export function fightBattleRound(state: GameState, rng: Rng, side: PlayableFaction): void {
+  answerBattle(state, side, 'fight', rng);
+}
+
+/**
+ * Whether the action is over, and what was true of it when it ended.
+ *
+ * `undefined` means there is another broadside to trade. Anything else ends
+ * it, and the sheet stays up showing which — a player ordered that round and
+ * should see what it bought, rather than have the screen vanish under them.
+ *
+ * Said as facts and not as a verdict. This was `outcomeOf`, which returned
+ * `won` or `lost` after asking whether `state.player` still had a hull here —
+ * one seat's sentence, written into state both clients share. `outcomeFor`
+ * turns these facts into a side's verdict when the sheet is drawn, and gives
+ * the other side the opposite one from the same record.
+ */
+function endOf(state: GameState, system: System, fled: PlayableFaction[]): BattleEnd | undefined {
+  const here = fightingAt(state, system.id);
+  const standing = BOTH_SIDES.filter((side) => here.some((f) => f.faction === side));
+  const ran = [...new Set(fled)];
+  // Still two of them in the water with something to shoot at: another round.
+  if (contestedAt(state, system) && ran.length === 0) return undefined;
+  const beastSlain = Boolean(state.battle?.last?.beastSlain) && !contestedAt(state, system);
+  if (standing.length > 1 && ran.length === 0 && !beastSlain) return undefined;
+  return { standing, fled: ran, ...(beastSlain ? { beastSlain: true } : {}) };
+}
+
+/**
+ * What the end of an action means to one of the sides in it.
+ *
+ * The same record read from two quarterdecks, and it has to come out opposite.
+ * Order matters and is the order a captain would notice things in: losing your
+ * last hull is the answer even if the other fellow also broke off in the same
+ * round.
+ */
+export function outcomeFor(end: BattleEnd, side: PlayableFaction): BattleOutcome {
+  // Withdrawing before being destroyed, because breaking off successfully
+  // also means you are no longer in that water and `standing` cannot tell the
+  // two apart. Getting this the other way round read a clean withdrawal as a
+  // defeat, which `battle.test.ts` caught on the first run.
+  if (end.fled.includes(side)) return 'you-fled';
+  if (!end.standing.includes(side)) return 'lost';
+  if (end.fled.length > 0) return 'they-fled';
+  if (end.beastSlain) return 'beast-slain';
+  return 'won';
+}
+
+/**
+ * Whether a side the machine is playing has had enough, and runs if so.
  *
  * Their policy is the one a reasonable captain would follow and no cleverer:
  * break off when the guns still firing on the far side are twice yours and
@@ -986,8 +1122,8 @@ function outcomeOf(
  * creature does with a wound is its own business, and `stirBeasts` decides
  * that at the end of the day.
  */
-function enemyBreaksOff(state: GameState, system: System, rng: Rng): boolean {
-  let ran = false;
+function machineBreaksOff(state: GameState, system: System, rng: Rng): PlayableFaction[] {
+  const ran: PlayableFaction[] = [];
   /*
    * Asked of each side the machine is playing, rather than of "the enemy".
    *
@@ -1019,11 +1155,7 @@ function enemyBreaksOff(state: GameState, system: System, rng: Rng): boolean {
       .filter((f) => f.faction === otherFaction(them))
       .reduce((n, f) => n + fleetGuns(f), 0);
     if (theirGuns === 0 || against < theirGuns * BREAK_OFF_ODDS) continue;
-    for (const fleet of theirs) {
-      if (fleeError(state, fleet.id, them)) continue;
-      fleeBattle(state, fleet.id, rng, them);
-      ran = true;
-    }
+    if (runFrom(state, system, them, rng)) ran.push(them);
   }
   return ran;
 }
@@ -2524,6 +2656,18 @@ export interface BattleView {
   settled?: BattleOutcome;
   /** The full report, once it is over. The sheet swaps itself for this. */
   report?: OperationReport;
+  /**
+   * Who has not answered yet — empty against the machine, and the other side
+   * while they are still deciding.
+   *
+   * The sheet needs it to say *waiting on the Confederacy* instead of leaving
+   * a tapped button looking broken. Sean's ruling is that both answer each
+   * round, so there is a moment where you have chosen and nothing has
+   * happened, and a screen that does not explain that moment is a bug report.
+   */
+  waitingOn: PlayableFaction[];
+  /** What this side said, if it has said anything yet. */
+  answered?: BattleAnswer;
 }
 
 /**
@@ -2614,9 +2758,14 @@ export function battleView(state: GameState): BattleView | undefined {
     fleeable: fleeable.map((f) => f.id),
     fleeBlockedBecause: fleeable.length > 0 ? null : firstReason,
     last: pending.last,
-    report: pending.report,
-    theyFled: Boolean(pending.theyFled),
-    settled: pending.settled,
+    // Each read from this chair. The state keeps the facts and both sides'
+    // reports; which of them is "yours" is a question about the viewer, and
+    // the viewer is what `state.player` is.
+    report: pending.reports?.[state.player],
+    settled: pending.settled ? outcomeFor(pending.settled, state.player) : undefined,
+    theyFled: Boolean(pending.settled?.fled.some((f) => f !== state.player)),
+    waitingOn: awaitingAnswer(state, pending).filter((f) => f !== state.player),
+    answered: pending.answers?.[state.player],
   };
 }
 
@@ -2628,23 +2777,21 @@ export function battleView(state: GameState): BattleView | undefined {
  * nowhere to go — stays, and so does the battle, which is the honest outcome
  * rather than a silent half-retreat.
  */
-export function breakOffBattle(state: GameState, rng: Rng): void {
-  const pending = state.battle;
-  if (!pending) return;
-  const system = getSystem(state, pending.systemId);
-  for (const fleet of fightingAt(state, system.id).filter((f) => f.faction === state.player)) {
-    if (fleeError(state, fleet.id, state.player)) continue;
-    fleeBattle(state, fleet.id, rng, state.player);
-  }
-  if (!fightingAt(state, system.id).some((f) => f.faction === state.player)) {
-    pending.settled = 'you-fled';
-  }
-  clearWrecks(state);
+export function breakOffBattle(state: GameState, rng: Rng, side: PlayableFaction): void {
+  answerBattle(state, side, 'break-off', rng);
 }
 
-/** Dismiss a settled action. The clock starts again when this clears. */
-export function closeBattle(state: GameState): void {
-  if (state.battle?.settled) state.battle = undefined;
+/**
+ * Dismiss a settled action. The clock starts again when both have dismissed it.
+ *
+ * Both, because the sheet is a record somebody is reading and the state is
+ * shared: one player tapping Close used to clear `state.battle` outright,
+ * which in two-player play would take the report off the other player's screen
+ * mid-sentence. Playing against the machine there is one reader and it comes
+ * down on the tap, as it always did.
+ */
+export function closeBattle(state: GameState, side: PlayableFaction, rng: Rng): void {
+  answerBattle(state, side, 'close', rng);
 }
 
 
@@ -2811,7 +2958,33 @@ function aboardAt(state: GameState, systemId: string): string[] {
  * second look at the same settled action, or the tallies would be rebuilt
  * against a world that has moved on since.
  */
-function settleReport(state: GameState, pending: PendingBattle, outcome: BattleOutcome): void {
-  if (pending.report) return;
-  pending.report = buildBattleReport(state, pending, outcome, pending.ripples ?? [], pending.aboard ?? []);
+function settleAllReports(state: GameState, pending: PendingBattle): void {
+  if (pending.reports || !pending.settled) return;
+  /*
+   * One report for each side that was in it, written now rather than when it
+   * is read.
+   *
+   * `buildBattleReport` reads `state.player` for its `mine` and `theirs`, so
+   * it is called once per side with the chair lent to that side — the same
+   * borrowing `applyOrder` does, and for the same reason. There is no
+   * perspective-free version of a report worth having: *"you lost four hulls
+   * and sank two"* is the whole point of it, and a side is what "you" means.
+   *
+   * Only the sides that were actually in the action. A side that never had a
+   * hull in this water has nothing to read, and `awaitingAnswer` must not wait
+   * for somebody with no report to close.
+   */
+  const committed = pending.committed ?? { empire: 0, alliance: 0 };
+  const reports: Partial<Record<PlayableFaction, OperationReport>> = {};
+  for (const side of BOTH_SIDES) {
+    if (committed[side] === 0) continue;
+    reports[side] = buildBattleReport(
+      { ...state, player: side },
+      pending,
+      outcomeFor(pending.settled, side),
+      pending.ripples ?? [],
+      pending.aboard ?? [],
+    );
+  }
+  pending.reports = reports;
 }

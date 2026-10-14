@@ -2609,6 +2609,14 @@ button.tcard:hover { border-color: var(--brass); }
 .battle__note { color: var(--muted); }
 .battle__note b { color: var(--text); }
 .battle__loss, .battle__loss b { color: var(--bad); }
+/* You have answered and the other quarterdeck has not. Brass rather than
+   muted: it is a live state the player is waiting on, not an aside. */
+.battle__waiting {
+  margin: 6px 0 0;
+  color: var(--brass);
+  line-height: 1.4;
+}
+
 .battle__line { margin: 6px 14px 0; }
 .battle__verdict { margin-top: 4px; }
 

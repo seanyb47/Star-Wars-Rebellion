@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BATTLE_ODDS_LABEL } from '../fleets';
+import { BATTLE_ODDS_LABEL, outcomeFor } from '../fleets';
 import {
   addShip,
   advanceFleets,
@@ -104,7 +104,7 @@ describe('an action the player is in', () => {
     const rng = createRng(3);
     resolveBattles(state, rng);
     for (let i = 0; i < 12 && state.battle && !state.battle.settled; i++) {
-      fightBattleRound(state, rng);
+      fightBattleRound(state, rng, 'empire');
     }
     const mine = state.events.filter((e) => e.systemId === home.id && e.kind === 'battle');
     expect(mine.length).toBeGreaterThan(0);
@@ -119,10 +119,11 @@ describe('an action the player is in', () => {
     const rng = createRng(11);
     resolveBattles(state, rng);
     for (let i = 0; i < 12 && state.battle && !state.battle.settled; i++) {
-      fightBattleRound(state, rng);
+      fightBattleRound(state, rng, 'empire');
     }
     expect(state.battle?.settled).toBeDefined();
-    expect(['won', 'they-fled']).toContain(state.battle!.settled);
+    // The state keeps what happened; the verdict is read out of it for a side.
+    expect(['won', 'they-fled']).toContain(outcomeFor(state.battle!.settled!, 'empire'));
     // The sheet stays up until it is dismissed: the player ordered that round
     // and should see what it bought.
     expect(state.battle).toBeDefined();
@@ -136,9 +137,12 @@ describe('an action the player is in', () => {
     resolveBattles(state, rng);
     // Never on the first exchange: that decision is taken after you have seen
     // what the other fellow's broadside does.
-    expect(state.battle!.theyFled).toBeFalsy();
-    fightBattleRound(state, rng);
-    if (state.battle?.settled === 'they-fled') {
+    // The claim is about breaking off, not about whether the action is over:
+    // four ships of the line can and do sink a Swift on the first broadside,
+    // and that is a different thing from her running.
+    expect(state.battle!.settled?.fled ?? []).toEqual([]);
+    fightBattleRound(state, rng, 'empire');
+    if (state.battle?.settled && outcomeFor(state.battle.settled, 'empire') === 'they-fled') {
       expect(isAtSea(state.fleets.find((f) => f.id === theirs.id)!)).toBe(true);
     }
   });
@@ -150,8 +154,8 @@ describe('an action the player is in', () => {
     const rng = createRng(2);
     resolveBattles(state, rng);
     expect(state.battle).toBeDefined();
-    breakOffBattle(state, rng);
-    expect(state.battle?.settled).toBe('you-fled');
+    breakOffBattle(state, rng, 'empire');
+    expect(outcomeFor(state.battle!.settled!, 'empire')).toBe('you-fled');
     const after = state.fleets.find((f) => f.id === mine.id);
     // Gone, or gone under on the way out — either way not still lying there.
     expect(after === undefined || isAtSea(after)).toBe(true);

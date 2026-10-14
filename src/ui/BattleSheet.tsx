@@ -47,6 +47,16 @@ export function BattleSheet({
   if (!view) return null;
   const me = state.player;
   const them: PlayableFaction = me === 'empire' ? 'alliance' : 'empire';
+  /*
+   * You have said what you will do and it has not happened yet.
+   *
+   * Only possible with a person on the other side: Sean's ruling is that both
+   * answer each round, so between your tap and theirs there is a real moment
+   * where the sheet is live and your answer is already given. The buttons lock
+   * for it, because the alternative is a player tapping Fight twice and
+   * wondering which one counted.
+   */
+  const answered = view.answered !== undefined && view.waitingOn.length > 0;
 
   return (
     <>
@@ -125,6 +135,17 @@ export function BattleSheet({
               {(view.fleeBlockedBecause ?? 'there is nowhere to run to.').toLowerCase()}
             </p>
           )}
+
+          {/* You have answered and the other quarterdeck has not.
+              Sean's ruling is that both sides answer each round, so this
+              moment exists and has to be said: a tapped button with nothing
+              happening is a bug report, not a pause. */}
+          {view.answered && view.waitingOn.length > 0 && (
+            <p className="tiny battle__waiting">
+              {view.answered === 'break-off' ? 'Boats away.' : 'Guns run out.'} Waiting on the{' '}
+              {factionData[view.waitingOn[0]].shortName}.
+            </p>
+          )}
             </>
           )}
         </div>
@@ -132,8 +153,11 @@ export function BattleSheet({
         {view.settled ? (
           <div className="dispatch__foot">
             <span className="tiny muted">Day {state.day}</span>
-            <button className="btn btn--primary" onClick={onClose}>
-              Very well
+            {/* The sheet is a record somebody is reading, and the state is
+                shared, so it comes down when both have read it. Against the
+                machine there is one reader and one tap, as ever. */}
+            <button className="btn btn--primary" onClick={onClose} disabled={answered}>
+              {answered ? `Waiting on the ${factionData[view.waitingOn[0] ?? them].shortName}` : 'Very well'}
             </button>
           </div>
         ) : (
@@ -141,13 +165,13 @@ export function BattleSheet({
             <button
               className="btn"
               onClick={onBreakOff}
-              disabled={view.fleeable.length === 0}
+              disabled={answered || view.fleeable.length === 0}
               title={view.fleeBlockedBecause ?? undefined}
             >
               Break off
             </button>
-            <button className="btn btn--primary" onClick={onFight}>
-              Fight on
+            <button className="btn btn--primary" onClick={onFight} disabled={answered}>
+              {answered ? 'Answered' : 'Fight on'}
             </button>
           </div>
         )}

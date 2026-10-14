@@ -754,8 +754,28 @@ export interface PendingBattle {
     /** True if this was the round the creature went down. */
     beastSlain: boolean;
   };
-  /** Set when the other side has broken off rather than fight on. */
-  theyFled?: boolean;
+  /**
+   * What each side has said to do about the next broadside.
+   *
+   * Sean's ruling of 11 October, asked what a two-handed action looks like:
+   * **both answer each round.** It is his own standing rule — *"the game
+   * always works on mutual consent"* — applied to the one place in the game
+   * where two people are deciding the same thing at the same time, and it is
+   * the only reading where neither player can be rushed into a broadside.
+   *
+   * So a round does not resolve on a tap. Each side in the water says Fight or
+   * Break Off, and the round is fought when everybody who is a person and
+   * still has a hull here has said which. Against the machine that is one
+   * answer and the behaviour is exactly what it always was.
+   *
+   * The field does double duty, because the sheet has two phases and only one
+   * question is live in each. While the action is unsettled the answers are
+   * `fight` and `break-off`. Once it is settled the only thing left to say is
+   * `close`, and the sheet comes down when both have said it — a sheet is a
+   * record somebody is reading, and one player dismissing it should not take
+   * it off the other player's screen mid-sentence.
+   */
+  answers?: Partial<Record<PlayableFaction, BattleAnswer>>;
   /**
    * What each side brought, counted the moment the action opened.
    *
@@ -770,19 +790,56 @@ export interface PendingBattle {
   /** What the fighting here moved politically, gathered as it happened. */
   ripples?: Ripple[];
   /**
-   * The report, once the action is over.
+   * The report, once the action is over — one for each side that was in it.
    *
-   * The live sheet is a decision — fight on or run. This is the other screen
+   * The live sheet is a decision, fight on or run. This is the other screen
    * entirely: what it cost, what it settled, and what the Reach made of it.
+   *
+   * One per side rather than one, because a report is written from where you
+   * stood: it has a `mine` and a `theirs`, and the same action is a victory on
+   * one quarterdeck and a defeat on the other. It used to be a single
+   * `report`, built for `state.player`, which in two-player play meant the
+   * state held one of the two perspectives — whichever client's clock happened
+   * to settle it — and handed it to both. Built when the action ends, not when
+   * it is read, so the screen stays a record of a thing that happened rather
+   * than a live view changing under the player.
    */
-  report?: OperationReport;
+  reports?: Partial<Record<PlayableFaction, OperationReport>>;
   /**
-   * How it ended, once it has. The action stays on the state after it is
-   * settled rather than vanishing, so the player reads the result of the round
-   * they just ordered instead of watching the sheet disappear. Cleared when
-   * they close it.
+   * How it ended, as facts rather than as a verdict.
+   *
+   * This was a `BattleOutcome` — `won`, `lost`, `you-fled` — and every one of
+   * those words is a sentence about a side. Filled in by asking whether *the
+   * seat* still had a hull in the water, so with two players the Crown's
+   * client wrote `lost` into shared state where the Confederate client wrote
+   * `won`. Both were right, which was the problem: there was nowhere in it to
+   * say who it was about.
+   *
+   * So the state keeps what happened and the screen says what it means:
+   * `outcomeFor` turns these facts into that side's verdict at the moment the
+   * sheet is drawn. The action stays on the state after it is settled rather
+   * than vanishing, so a player reads the result of the round they just
+   * ordered instead of watching the sheet disappear.
    */
-  settled?: BattleOutcome;
+  settled?: BattleEnd;
+}
+
+/** What a side says to do about the next broadside — see `answers`. */
+export type BattleAnswer = 'fight' | 'break-off' | 'close';
+
+/**
+ * How an action ended, said without taking a side.
+ *
+ * Everything here is a fact about the water. `outcomeFor` reads a verdict out
+ * of it for one side, and reads the opposite one for the other.
+ */
+export interface BattleEnd {
+  /** Sides that still had a hull in this water when it ended. */
+  standing: PlayableFaction[];
+  /** Sides that broke off rather than fight on. */
+  fled: PlayableFaction[];
+  /** True if this was the action the creature went down in. */
+  beastSlain?: boolean;
 }
 
 /**
